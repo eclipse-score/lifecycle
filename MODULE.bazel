@@ -41,6 +41,15 @@ bazel_dep(name = "score_cr_checker", version = "0.3.1")
 bazel_dep(name = "score_python_basics", version = "0.3.4")
 bazel_dep(name = "score_starpls_lsp", version = "0.1.0")
 
+#docs-as-code
+bazel_dep(name = "score_docs_as_code", version = "2.0.2")
+
+# Dash license checker
+bazel_dep(name = "score_dash_license_checker", version = "0.1.2")
+
+# Format checker
+bazel_dep(name = "score_format_checker", version = "0.1.1")
+
 # Score Rust/C++ toolchains
 bazel_dep(name = "score_toolchains_rust", version = "0.1")
 git_override(
@@ -95,6 +104,7 @@ use_repo(rust_ext, "sysroot_linux_aarch64")
 # Score Rust/C++ toolchains: Configure rules_rust and toolchains_llvm extensions
 bazel_dep(name = "rules_rust", version = "0.61.0")
 bazel_dep(name = "toolchains_llvm", version = "1.2.0")
+bazel_dep(name = "bazel_skylib", version = "1.8.1")
 
 llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm")
 llvm.toolchain(
