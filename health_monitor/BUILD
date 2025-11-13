@@ -9,7 +9,7 @@ cc_library_with_common_opts(
         "source/etas/vrte/saf/logging"
     ],
     deps = [
-        "@score-baselibs//score/mw/log"
+        "@score_baselibs//score/mw/log"
     ],
 )
 
@@ -17,7 +17,7 @@ cc_library_with_common_opts(
     name = "ifexm",
     deps = [
         "//launch_manager:process_state_client",
-        "@score-baselibs//score/mw/log",
+        "@score_baselibs//score/mw/log",
     ],
     srcs = [
         "source/etas/vrte/saf/ifexm/ProcessState.cpp",
@@ -81,7 +81,7 @@ cc_library_with_common_opts(
         "source/etas/vrte/saf/logging",
     ],
     deps = [
-        "@score-baselibs//score/mw/log",
+        "@score_baselibs//score/mw/log",
     ],
 )
 
@@ -89,7 +89,7 @@ cc_library_with_common_opts(
     name = "recoverynotify",
     deps = [
         "//launch_manager:control_client",
-        "@score-baselibs//score/mw/log",
+        "@score_baselibs//score/mw/log",
     ],
     srcs = ["source/etas/vrte/saf/recovery/Notification.cpp"],
     hdrs = [
@@ -249,7 +249,7 @@ cc_binary_with_common_opts(
         ":timers",
         ":rb-watchdog-if",
         "@flatbuffers//:flatc",
-        "@score-baselibs//score/mw/log",
+        "@score_baselibs//score/mw/log",
     ],
     srcs = [
         "source/etas/vrte/saf/daemon/health_monitor.cpp",

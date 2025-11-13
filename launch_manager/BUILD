@@ -15,8 +15,8 @@ cc_library(
 cc_binary_with_common_opts(
     name = "launch_manager",
     deps = [
-        "@score-baselibs//score/result",
-        "@score-baselibs//score/mw/log",
+        "@score_baselibs//score/result",
+        "@score_baselibs//score/mw/log",
         "@flatbuffers",
         "//external/ipc_dropin:ipc_dropin",
         ":deliverables_includes",
@@ -65,8 +65,8 @@ alias(
 cc_library(
     name = "lifecycle_client",
     deps = [
-        "@score-baselibs//score/result",
-        "@score-baselibs//score/mw/log",
+        "@score_baselibs//score/result",
+        "@score_baselibs//score/mw/log",
         ":deliverables_includes",
     ],
     srcs = [
@@ -85,8 +85,8 @@ cc_library(
 cc_library(
     name = "control_client",
     deps = [
-        "@score-baselibs//score/concurrency/future",
-        "@score-baselibs//score/mw/log",
+        "@score_baselibs//score/concurrency/future",
+        "@score_baselibs//score/mw/log",
         ":deliverables_includes",
     ],
     srcs = [
@@ -110,9 +110,9 @@ cc_library(
 cc_library(
     name = "xaap-processstate-client",
     deps = [
-        "@score-baselibs//score/result",
+        "@score_baselibs//score/result",
         ":deliverables_includes",
-        "@score-baselibs//score/mw/log",
+        "@score_baselibs//score/mw/log",
         "//external/ipc_dropin:ipc_dropin",
     ],
     srcs = [
