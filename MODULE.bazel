@@ -131,7 +131,7 @@ git_override(
     remote = "https://github.com/google/flatbuffers.git",
     commit = "187240970746d00bbd26b0f5873ed54d2477f9f3",
 )
-bazel_dep(name = "score-baselibs", version = "0.1.3")
+bazel_dep(name = "score_baselibs", version = "0.1.3")
 
 # Rust crate
 crate = use_extension("@rules_rust//crate_universe:extensions.bzl", "crate")
