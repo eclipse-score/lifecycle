@@ -34,7 +34,7 @@ bazel_dep(name = "googletest", version = "1.17.0")
 bazel_dep(name = "rules_cc", version = "0.2.9")
 
 # Score platforms
-bazel_dep(name = "score_bazel_platforms", version = "v0.0.2")
+bazel_dep(name = "score_bazel_platforms", version = "0.0.2")
 
 # Checker rule for CopyRight checks/fixs
 bazel_dep(name = "score_cr_checker", version = "0.3.1")
