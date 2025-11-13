@@ -1,0 +1,15 @@
+# Comment out as not in score yet
+# *                                  @eclipse-score/infrastructure-tooling-community
+# .*                                 @eclipse-score/infrastructure-tooling-community
+# .github/CODEOWNERS                 @eclipse-score/technical-lead
+
+# in separate <module_name> repositories:
+#
+# /docs                     @eclipse-score/process-community
+# /docs/manual              @eclipse-score/<module_name>/safety-manager
+# /docs/release             @eclipse-score/<module_name>/quality-manager @eclipse-score/<module_name>/module-lead
+# /docs/safety_plan         @eclipse-score/<module_name>/safety-manager @eclipse-score/<module_name>/module-lead
+# /docs/safety_analysis     @eclipse-score/<module_name>/safety-manager
+# /docs/verification        @eclipse-score/<module_name>/quality-manager @eclipse-score/<module_name>/safety-manager
+# /components               @eclipse-score/<module_name>/technical-lead
+# /components/*/            @eclipse-score/<module_name>/automotive-score-committers
