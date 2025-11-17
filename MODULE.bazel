@@ -10,6 +10,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+module(
+    name = "score_lifecycle_health",
+    version = "0.0.1",
+)
+
 bazel_dep(name = "rules_python", version = "1.4.1")
 
 PYTHON_VERSION = "3.12"
@@ -133,13 +138,7 @@ git_override(
     commit = "187240970746d00bbd26b0f5873ed54d2477f9f3",
     remote = "https://github.com/google/flatbuffers.git",
 )
-
-bazel_dep(name = "score-baselibs", version = "0.1.0")
-git_override(
-    module_name = "score-baselibs",
-    commit = "05b920e14a0830cbf390577fb5119f27c2fa6cda",
-    remote = "https://github.com/eclipse-score/baselibs.git",
-)
+bazel_dep(name = "score_baselibs", version = "0.1.3")
 
 # Rust crate
 crate = use_extension("@rules_rust//crate_universe:extensions.bzl", "crate")
