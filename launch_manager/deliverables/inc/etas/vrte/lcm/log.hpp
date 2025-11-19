@@ -10,7 +10,7 @@
 *
 * SPDX-License-Identifier: Apache-2.0
 ********************************************************************************/
-// (c) 2025 ETAS GmbH. All rights reserved.
+
 
 #ifndef LCM_LOG_HPP_INCLUDED
 #define LCM_LOG_HPP_INCLUDED
@@ -103,9 +103,9 @@ inline std::ostream& operator<<(std::ostream& os, const std::tm* now ) {
          <<  now->tm_mday << " "
          << now->tm_hour << ":"
          << now->tm_min << ":"
-         << now->tm_sec; 
+         << now->tm_sec;
     return os;
-} 
+}
 
 class Stream
 {
@@ -152,7 +152,7 @@ private:
 class Logger
 {
 public:
-    Logger(std::string_view f_context, std::string_view f_description) : 
+    Logger(std::string_view f_context, std::string_view f_description) :
         ctxId_(f_context), ctxDescription_{f_description} {
 
     }

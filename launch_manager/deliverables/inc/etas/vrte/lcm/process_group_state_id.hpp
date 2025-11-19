@@ -10,7 +10,7 @@
 *
 * SPDX-License-Identifier: Apache-2.0
 ********************************************************************************/
-// (c) 2025 ETAS GmbH. All rights reserved.
+
 
 #ifndef FUNCTION_STATE_ID_HPP_
 #define FUNCTION_STATE_ID_HPP_

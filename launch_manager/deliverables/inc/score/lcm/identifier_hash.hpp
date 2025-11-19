@@ -10,7 +10,7 @@
 *
 * SPDX-License-Identifier: Apache-2.0
 ********************************************************************************/
-// (c) 2025 ETAS GmbH. All rights reserved.
+
 
 #ifndef IDENTIFIER_HASH_H_
 #define IDENTIFIER_HASH_H_

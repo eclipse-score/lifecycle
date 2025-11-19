@@ -10,7 +10,7 @@
 *
 * SPDX-License-Identifier: Apache-2.0
 ********************************************************************************/
-// (c) 2025 ETAS GmbH. All rights reserved.
+
 
 #ifndef PHMDAEMONCMDLINEPARSER_HPP_INCLUDED
 #define PHMDAEMONCMDLINEPARSER_HPP_INCLUDED
@@ -93,7 +93,7 @@ public:
                 {
                     case 'v':
                     {
-                        std::cout << "0.0.0" << std::endl; 
+                        std::cout << "0.0.0" << std::endl;
                         result = 1;  // terminates the loop
                         break;
                     }

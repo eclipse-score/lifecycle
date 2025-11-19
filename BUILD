@@ -23,12 +23,12 @@ setup_starpls(
 copyright_checker(
     name = "copyright",
     srcs = [
+        "config",
+        "demo",
         "health_monitor",
         "launch_manager",
-        "tests",
-        "demo",
-        "config",
         "rust_bindings",
+        "tests",
         "//:BUILD",
         "//:MODULE.bazel",
     ],

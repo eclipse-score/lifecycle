@@ -1,4 +1,15 @@
-// (c) 2025 ETAS GmbH. All rights reserved.
+/********************************************************************************
+* Copyright (c) 2025 Contributors to the Eclipse Foundation
+*
+* See the NOTICE file(s) distributed with this work for additional
+* information regarding copyright ownership.
+*
+* This program and the accompanying materials are made available under the
+* terms of the Apache License Version 2.0 which is available at
+* https://www.apache.org/licenses/LICENSE-2.0
+*
+* SPDX-License-Identifier: Apache-2.0
+********************************************************************************/
 
 use libc::{c_void, c_char, c_uint};
 use std::ffi::CString;
@@ -40,7 +51,7 @@ impl<EnumT> Monitor<EnumT> {
         Ok(tmp_inst)
     }
 
-    pub fn report_checkpoint(&self,checkpoint_id: EnumT) 
+    pub fn report_checkpoint(&self,checkpoint_id: EnumT)
     where EnumT: Into<u32> + Copy
     {
         let id: u32 = checkpoint_id.into();
@@ -53,7 +64,7 @@ impl<EnumT> Monitor<EnumT> {
 impl<EnumT> Drop for Monitor<EnumT> {
     fn drop(&mut self) {
         unsafe {
-           score_lcm_monitor_deinitialize(self.instance_ptr); 
+           score_lcm_monitor_deinitialize(self.instance_ptr);
         }
     }
 }

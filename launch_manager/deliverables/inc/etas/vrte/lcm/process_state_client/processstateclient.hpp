@@ -10,7 +10,7 @@
 *
 * SPDX-License-Identifier: Apache-2.0
 ********************************************************************************/
-// (c) 2025 ETAS GmbH. All rights reserved.
+
 
 #ifndef PROCESSSTATECLIENT_HPP_INCLUDED
 #define PROCESSSTATECLIENT_HPP_INCLUDED

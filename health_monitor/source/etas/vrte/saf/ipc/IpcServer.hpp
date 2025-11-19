@@ -10,7 +10,7 @@
 *
 * SPDX-License-Identifier: Apache-2.0
 ********************************************************************************/
-// (c) 2025 ETAS GmbH. All rights reserved.
+
 #ifndef IPC_SERVER_HPP_INCLUDED
 #define IPC_SERVER_HPP_INCLUDED
 
@@ -163,7 +163,7 @@ public:
             {
                 return false;
             }
-            
+
             if (read)
             {
                 if (acl_add_perm(permset, ACL_READ) == -1)

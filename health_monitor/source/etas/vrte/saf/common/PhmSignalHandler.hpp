@@ -10,7 +10,6 @@
 *
 * SPDX-License-Identifier: Apache-2.0
 ********************************************************************************/
-// (c) 2025 ETAS GmbH. All rights reserved.
 
 /// @file PhmSignalHandler.hpp
 /// @brief Signal Handler implementation to be used for daemon executable.

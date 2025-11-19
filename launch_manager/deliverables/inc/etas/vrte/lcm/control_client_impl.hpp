@@ -10,7 +10,7 @@
 *
 * SPDX-License-Identifier: Apache-2.0
 ********************************************************************************/
-// (c) 2025 ETAS GmbH. All rights reserved.
+
 
 #ifndef CONTROL_CLIENT_IMPL_H_
 #define CONTROL_CLIENT_IMPL_H_
@@ -90,7 +90,7 @@ class ControlClientImpl final {
     /// Returned InterruptibleFuture can be used to determine result of requested transition.
     ///
     ///
-    /// @param[in] pg_name representing meta-model definition of a specific Process Group 
+    /// @param[in] pg_name representing meta-model definition of a specific Process Group
     /// @param[in] pg_state representing meta-model definition of a state. Launch Manager will perform state transition from the current state to the state identified by this parameter.
     ///
     /// @returns void if requested transition is successful, otherwise it returns ExecErrorDomain error.
