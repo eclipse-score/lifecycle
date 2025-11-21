@@ -38,17 +38,17 @@ copyright_checker(
 )
 
 filegroup(
-  name = "build_all",
-  srcs = [
-    "//launch_manager:launch_manager",
-    "//launch_manager:lifecycle_client",
-    "//launch_manager:control_client",
-    "//launch_manager:process_state_client",
-    "//health_monitor:health_monitor",
-    "//health_monitor:hm_shared_lib",
-    "//rust_bindings/monitor_rs",
-    "//rust_bindings/lifecycle_client_rs",
-  ]
+    name = "build_all",
+    srcs = [
+        "//health_monitor",
+        "//health_monitor:hm_shared_lib",
+        "//launch_manager",
+        "//launch_manager:control_client",
+        "//launch_manager:lifecycle_client",
+        "//launch_manager:process_state_client",
+        "//rust_bindings/lifecycle_client_rs",
+        "//rust_bindings/monitor_rs",
+    ],
 )
 
 # Needed for Dash tool to check python dependency licenses.
