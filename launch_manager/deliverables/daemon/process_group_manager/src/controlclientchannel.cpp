@@ -13,16 +13,16 @@
 
 #include <sys/mman.h>
 
-#include <etas/vrte/lcm/config.hpp>
-#include <etas/vrte/lcm/controlclientchannel.hpp>
+#include <score/lcm/internal/config.hpp>
+#include <score/lcm/internal/controlclientchannel.hpp>
 #include <cstring>
 #include <thread>
 
-namespace etas {
-
-namespace vrte {
+namespace score {
 
 namespace lcm {
+
+namespace internal {
 
 void ControlClientChannel::initialize() {
     request_.empty_.store(true);
@@ -221,6 +221,6 @@ std::mutex ControlClientChannel::init_mutex_{};
 
 }  // namespace lcm
 
-}  // namespace vrte
+}  // namespace internal
 
-}  // namespace etas
+}  // namespace score

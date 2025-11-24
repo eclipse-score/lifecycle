@@ -18,7 +18,7 @@
 #include <cstring>
 #include <sstream>
 
-#include "etas/vrte/saf/timers/Timers_OsClock.hpp"
+#include "score/lcm/saf/timers/Timers_OsClock.hpp"
 #include "hm_flatcfg_generated.h"
 
 #include <fstream>
@@ -69,7 +69,7 @@ MonitorImpl::MonitorImpl(const std::string_view& f_instanceSpecifier_r,
     k_instanceSpecifierPath(f_instanceSpecifier_r),
     ipcClient(std::move(f_ipcClient)),
     logger_r(
-        etas::vrte::saf::logging::PhmLogger::getLogger(etas::vrte::saf::logging::PhmLogger::EContext::supervision))
+        score::lcm::saf::logging::PhmLogger::getLogger(score::lcm::saf::logging::PhmLogger::EContext::supervision))
 {
     // coverity[autosar_cpp14_a15_5_2_violation] This warning comes from pipc-sa(external library)
     connectToPhmDaemon();
@@ -77,7 +77,7 @@ MonitorImpl::MonitorImpl(const std::string_view& f_instanceSpecifier_r,
 
 void MonitorImpl::ReportCheckpoint(score::lcm::Checkpoint f_checkpointId) const noexcept(true)
 {
-    (void)ipcClient->sendEmplace(etas::vrte::saf::timers::OsClock::getMonotonicSystemClock(), f_checkpointId);
+    (void)ipcClient->sendEmplace(score::lcm::saf::timers::OsClock::getMonotonicSystemClock(), f_checkpointId);
 }
 
 void MonitorImpl::connectToPhmDaemon(void) noexcept(false)

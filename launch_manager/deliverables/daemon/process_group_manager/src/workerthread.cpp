@@ -11,14 +11,14 @@
 * SPDX-License-Identifier: Apache-2.0
 ********************************************************************************/
 
-#include <etas/vrte/lcm/processinfonode.hpp>
-#include <etas/vrte/lcm/workerthread.hpp>
+#include <score/lcm/internal/processinfonode.hpp>
+#include <score/lcm/internal/workerthread.hpp>
 
-namespace etas {
-
-namespace vrte {
+namespace score {
 
 namespace lcm {
+
+namespace internal {
 
 template <class T>
 WorkerThread<T>::WorkerThread(std::shared_ptr<JobQueue<T>> queue, uint32_t num_threads)
@@ -58,6 +58,6 @@ template class WorkerThread<ProcessInfoNode>;
 
 }  // namespace lcm
 
-}  // namespace vrte
+}  // namespace internal
 
-}  // namespace etas
+}  // namespace score

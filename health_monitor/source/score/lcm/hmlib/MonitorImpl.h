@@ -20,9 +20,9 @@
 #include <string>
 #include "score/lcm/MonitorImplWrapper.h"
 #include "score/lcm/Monitor.h"
-#include "etas/vrte/saf/ifappl/DataStructures.hpp"
-#include "etas/vrte/saf/ipc/IpcClient.hpp"
-#include "etas/vrte/saf/logging/PhmLogger.hpp"
+#include "score/lcm/saf/ifappl/DataStructures.hpp"
+#include "score/lcm/saf/ipc/IpcClient.hpp"
+#include "score/lcm/saf/logging/PhmLogger.hpp"
 
 namespace score
 {
@@ -37,11 +37,11 @@ class MonitorImpl
 {
 public:
     /// @brief The element that is sent via IPC
-    using CheckpointBufferElement = etas::vrte::saf::ifappl::CheckpointBufferElement;
+    using CheckpointBufferElement = score::lcm::saf::ifappl::CheckpointBufferElement;
     /// @brief The IPC Connection type
     using CheckpointIpcClient =
-        etas::vrte::saf::ipc::IpcClient<CheckpointBufferElement,
-                                         etas::vrte::saf::ifappl::k_maxCheckpointBufferElements>;
+        score::lcm::saf::ipc::IpcClient<CheckpointBufferElement,
+                                         score::lcm::saf::ifappl::k_maxCheckpointBufferElements>;
 
     /// @brief Non-parametric constructor is not supported
     MonitorImpl() = delete;
@@ -105,7 +105,7 @@ private:
     /// Class needs to be mutable to use in "const" reportCheckpoint method
     mutable std::unique_ptr<CheckpointIpcClient> ipcClient;
     /// Logger object
-    etas::vrte::saf::logging::PhmLogger& logger_r;
+    score::lcm::saf::logging::PhmLogger& logger_r;
 };
 
 }  // namespace lcm

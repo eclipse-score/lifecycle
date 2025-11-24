@@ -11,16 +11,16 @@
 * SPDX-License-Identifier: Apache-2.0
 ********************************************************************************/
 
-#include <etas/vrte/lcm/osal/semaphore.hpp>
+#include <score/lcm/internal/osal/semaphore.hpp>
 #include <cerrno>
 #include <chrono>
 #include <thread>
 
-namespace etas {
-
-namespace vrte {
+namespace score {
 
 namespace lcm {
+
+namespace internal {
 
 namespace osal {
 
@@ -95,6 +95,6 @@ OsalReturnType Semaphore::wait() {
 
 }  // namespace lcm
 
-}  // namespace vrte
+}  // namespace internal
 
-}  // namespace etas
+}  // namespace score

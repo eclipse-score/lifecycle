@@ -39,14 +39,14 @@ table Process {
   identifier: string (id:0);
   numberOfRestartAttempts: uint (id:1);
   functionClusterAffiliation: string (id:2);
-  vrte_coremask: string (id:3);
-  vrte_uid: uint (id:4);
-  vrte_gid: uint (id:5);
-  vrte_path: string (id:6);
-  vrte_securityPolicyDetails: string (id:7);
+  coremask: string (id:3);
+  uid: uint (id:4);
+  gid: uint (id:5);
+  path: string (id:6);
+  securityPolicyDetails: string (id:7);
   executable_reportingBehavior: ExecutionStateReportingBehaviorEnum (id:8);
   startupConfig: [ProcessStartupConfig] (id:9);
-  vrte_sgids: [ProcessSgid] (id:10);
+  sgids: [ProcessSgid] (id:10);
 }
 
 table ProcessStartupConfig {
@@ -84,7 +84,7 @@ table ProcessArgument {
 }
 
 table ProcessSgid {
-  vrte_sgid: uint (id:0);
+  sgid: uint (id:0);
 }
 
 root_type LMEcuCfg;

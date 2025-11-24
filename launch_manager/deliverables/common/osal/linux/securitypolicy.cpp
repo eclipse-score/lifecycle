@@ -10,13 +10,13 @@
 *
 * SPDX-License-Identifier: Apache-2.0
 ********************************************************************************/
-#include <etas/vrte/lcm/osal/securitypolicy.hpp>
+#include <score/lcm/internal/osal/securitypolicy.hpp>
 
-namespace etas {
-
-namespace vrte {
+namespace score {
 
 namespace lcm {
+
+namespace internal {
 
 namespace osal {
 
@@ -28,6 +28,6 @@ int setSecurityPolicy(const char*) {
 
 }  // namespace lcm
 
-}  // namespace vrte
+}  // namespace internal
 
-}  // namespace etas
+}  // namespace score

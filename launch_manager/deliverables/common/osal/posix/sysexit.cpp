@@ -13,11 +13,11 @@
 
 #include <cstdlib>
 
-namespace etas {
-
-namespace vrte {
+namespace score {
 
 namespace lcm {
+
+namespace internal {
 
 namespace osal {
 #if defined(__CTC__)
@@ -40,5 +40,5 @@ void sysexit(int status) {
 #endif
 }  // namespace osal
 }  // namespace lcm
-}  // namespace vrte
-}  // namespace etas
+}  // namespace internal
+}  // namespace score

@@ -40,13 +40,13 @@ class LaunchManagerConfGen:
                     json_config["Process"].append(
                         {
                             "identifier": f"{process}",
-                            "vrte_uid": machine["process_groups"][process_group][
+                            "uid": machine["process_groups"][process_group][
                                 "processes"
                             ][process]["uid"],
-                            "vrte_gid": machine["process_groups"][process_group][
+                            "gid": machine["process_groups"][process_group][
                                 "processes"
                             ][process]["gid"],
-                            "vrte_path": machine["process_groups"][process_group][
+                            "path": machine["process_groups"][process_group][
                                 "processes"
                             ][process]["executable_name"],
                         }
@@ -79,13 +79,11 @@ class LaunchManagerConfGen:
                             "DoesNotReportExecutionState"
                         )
 
-                    json_config["Process"][-1]["vrte_sgids"] = []
+                    json_config["Process"][-1]["sgids"] = []
                     for gid in machine["process_groups"][process_group]["processes"][
                         process
                     ]["supplementary_group_ids"]:
-                        json_config["Process"][-1]["vrte_sgids"].append(
-                            {"vrte_sgid": gid}
-                        )
+                        json_config["Process"][-1]["sgids"].append({"sgid": gid})
 
                     json_config["Process"][-1]["startupConfig"] = []
                     for startup_config in machine["process_groups"][process_group][

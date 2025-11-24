@@ -14,11 +14,11 @@
 #include <internal/ExcludeCoverageAdapter.h>
 #include <sys/syspage.h>
 
-#include <etas/vrte/lcm/osal/osalnumcores.hpp>
+#include <score/lcm/internal/osal/osalnumcores.hpp>
 
-namespace etas {
-namespace vrte {
+namespace score {
 namespace lcm {
+namespace internal {
 namespace osal {
 
 uint32_t getNumCores() {
@@ -32,5 +32,5 @@ uint32_t getNumCores() {
 }
 }  // namespace osal
 }  // namespace lcm
-}  // namespace vrte
-}  // namespace etas
+}  // namespace internal
+}  // namespace score

@@ -373,14 +373,14 @@ struct Process FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_IDENTIFIER = 4,
     VT_NUMBEROFRESTARTATTEMPTS = 6,
     VT_FUNCTIONCLUSTERAFFILIATION = 8,
-    VT_VRTE_COREMASK = 10,
-    VT_VRTE_UID = 12,
-    VT_VRTE_GID = 14,
-    VT_VRTE_PATH = 16,
-    VT_VRTE_SECURITYPOLICYDETAILS = 18,
+    VT_COREMASK = 10,
+    VT_UID = 12,
+    VT_GID = 14,
+    VT_PATH = 16,
+    VT_SECURITYPOLICYDETAILS = 18,
     VT_EXECUTABLE_REPORTINGBEHAVIOR = 20,
     VT_STARTUPCONFIG = 22,
-    VT_VRTE_SGIDS = 24
+    VT_SGIDS = 24
   };
   const ::flatbuffers::String *identifier() const {
     return GetPointer<const ::flatbuffers::String *>(VT_IDENTIFIER);
@@ -391,20 +391,20 @@ struct Process FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const ::flatbuffers::String *functionClusterAffiliation() const {
     return GetPointer<const ::flatbuffers::String *>(VT_FUNCTIONCLUSTERAFFILIATION);
   }
-  const ::flatbuffers::String *vrte_coremask() const {
-    return GetPointer<const ::flatbuffers::String *>(VT_VRTE_COREMASK);
+  const ::flatbuffers::String *coremask() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_COREMASK);
   }
-  uint32_t vrte_uid() const {
-    return GetField<uint32_t>(VT_VRTE_UID, 0);
+  uint32_t uid() const {
+    return GetField<uint32_t>(VT_UID, 0);
   }
-  uint32_t vrte_gid() const {
-    return GetField<uint32_t>(VT_VRTE_GID, 0);
+  uint32_t gid() const {
+    return GetField<uint32_t>(VT_GID, 0);
   }
-  const ::flatbuffers::String *vrte_path() const {
-    return GetPointer<const ::flatbuffers::String *>(VT_VRTE_PATH);
+  const ::flatbuffers::String *path() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_PATH);
   }
-  const ::flatbuffers::String *vrte_securityPolicyDetails() const {
-    return GetPointer<const ::flatbuffers::String *>(VT_VRTE_SECURITYPOLICYDETAILS);
+  const ::flatbuffers::String *securityPolicyDetails() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_SECURITYPOLICYDETAILS);
   }
   LMFlatBuffer::ExecutionStateReportingBehaviorEnum executable_reportingBehavior() const {
     return static_cast<LMFlatBuffer::ExecutionStateReportingBehaviorEnum>(GetField<int8_t>(VT_EXECUTABLE_REPORTINGBEHAVIOR, 0));
@@ -412,8 +412,8 @@ struct Process FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const ::flatbuffers::Vector<::flatbuffers::Offset<LMFlatBuffer::ProcessStartupConfig>> *startupConfig() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<LMFlatBuffer::ProcessStartupConfig>> *>(VT_STARTUPCONFIG);
   }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<LMFlatBuffer::ProcessSgid>> *vrte_sgids() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<LMFlatBuffer::ProcessSgid>> *>(VT_VRTE_SGIDS);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<LMFlatBuffer::ProcessSgid>> *sgids() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<LMFlatBuffer::ProcessSgid>> *>(VT_SGIDS);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -422,21 +422,21 @@ struct Process FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<uint32_t>(verifier, VT_NUMBEROFRESTARTATTEMPTS, 4) &&
            VerifyOffset(verifier, VT_FUNCTIONCLUSTERAFFILIATION) &&
            verifier.VerifyString(functionClusterAffiliation()) &&
-           VerifyOffset(verifier, VT_VRTE_COREMASK) &&
-           verifier.VerifyString(vrte_coremask()) &&
-           VerifyField<uint32_t>(verifier, VT_VRTE_UID, 4) &&
-           VerifyField<uint32_t>(verifier, VT_VRTE_GID, 4) &&
-           VerifyOffset(verifier, VT_VRTE_PATH) &&
-           verifier.VerifyString(vrte_path()) &&
-           VerifyOffset(verifier, VT_VRTE_SECURITYPOLICYDETAILS) &&
-           verifier.VerifyString(vrte_securityPolicyDetails()) &&
+           VerifyOffset(verifier, VT_COREMASK) &&
+           verifier.VerifyString(coremask()) &&
+           VerifyField<uint32_t>(verifier, VT_UID, 4) &&
+           VerifyField<uint32_t>(verifier, VT_GID, 4) &&
+           VerifyOffset(verifier, VT_PATH) &&
+           verifier.VerifyString(path()) &&
+           VerifyOffset(verifier, VT_SECURITYPOLICYDETAILS) &&
+           verifier.VerifyString(securityPolicyDetails()) &&
            VerifyField<int8_t>(verifier, VT_EXECUTABLE_REPORTINGBEHAVIOR, 1) &&
            VerifyOffset(verifier, VT_STARTUPCONFIG) &&
            verifier.VerifyVector(startupConfig()) &&
            verifier.VerifyVectorOfTables(startupConfig()) &&
-           VerifyOffset(verifier, VT_VRTE_SGIDS) &&
-           verifier.VerifyVector(vrte_sgids()) &&
-           verifier.VerifyVectorOfTables(vrte_sgids()) &&
+           VerifyOffset(verifier, VT_SGIDS) &&
+           verifier.VerifyVector(sgids()) &&
+           verifier.VerifyVectorOfTables(sgids()) &&
            verifier.EndTable();
   }
 };
@@ -454,20 +454,20 @@ struct ProcessBuilder {
   void add_functionClusterAffiliation(::flatbuffers::Offset<::flatbuffers::String> functionClusterAffiliation) {
     fbb_.AddOffset(Process::VT_FUNCTIONCLUSTERAFFILIATION, functionClusterAffiliation);
   }
-  void add_vrte_coremask(::flatbuffers::Offset<::flatbuffers::String> vrte_coremask) {
-    fbb_.AddOffset(Process::VT_VRTE_COREMASK, vrte_coremask);
+  void add_coremask(::flatbuffers::Offset<::flatbuffers::String> coremask) {
+    fbb_.AddOffset(Process::VT_COREMASK, coremask);
   }
-  void add_vrte_uid(uint32_t vrte_uid) {
-    fbb_.AddElement<uint32_t>(Process::VT_VRTE_UID, vrte_uid, 0);
+  void add_uid(uint32_t uid) {
+    fbb_.AddElement<uint32_t>(Process::VT_UID, uid, 0);
   }
-  void add_vrte_gid(uint32_t vrte_gid) {
-    fbb_.AddElement<uint32_t>(Process::VT_VRTE_GID, vrte_gid, 0);
+  void add_gid(uint32_t gid) {
+    fbb_.AddElement<uint32_t>(Process::VT_GID, gid, 0);
   }
-  void add_vrte_path(::flatbuffers::Offset<::flatbuffers::String> vrte_path) {
-    fbb_.AddOffset(Process::VT_VRTE_PATH, vrte_path);
+  void add_path(::flatbuffers::Offset<::flatbuffers::String> path) {
+    fbb_.AddOffset(Process::VT_PATH, path);
   }
-  void add_vrte_securityPolicyDetails(::flatbuffers::Offset<::flatbuffers::String> vrte_securityPolicyDetails) {
-    fbb_.AddOffset(Process::VT_VRTE_SECURITYPOLICYDETAILS, vrte_securityPolicyDetails);
+  void add_securityPolicyDetails(::flatbuffers::Offset<::flatbuffers::String> securityPolicyDetails) {
+    fbb_.AddOffset(Process::VT_SECURITYPOLICYDETAILS, securityPolicyDetails);
   }
   void add_executable_reportingBehavior(LMFlatBuffer::ExecutionStateReportingBehaviorEnum executable_reportingBehavior) {
     fbb_.AddElement<int8_t>(Process::VT_EXECUTABLE_REPORTINGBEHAVIOR, static_cast<int8_t>(executable_reportingBehavior), 0);
@@ -475,8 +475,8 @@ struct ProcessBuilder {
   void add_startupConfig(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<LMFlatBuffer::ProcessStartupConfig>>> startupConfig) {
     fbb_.AddOffset(Process::VT_STARTUPCONFIG, startupConfig);
   }
-  void add_vrte_sgids(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<LMFlatBuffer::ProcessSgid>>> vrte_sgids) {
-    fbb_.AddOffset(Process::VT_VRTE_SGIDS, vrte_sgids);
+  void add_sgids(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<LMFlatBuffer::ProcessSgid>>> sgids) {
+    fbb_.AddOffset(Process::VT_SGIDS, sgids);
   }
   explicit ProcessBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -494,22 +494,22 @@ inline ::flatbuffers::Offset<Process> CreateProcess(
     ::flatbuffers::Offset<::flatbuffers::String> identifier = 0,
     uint32_t numberOfRestartAttempts = 0,
     ::flatbuffers::Offset<::flatbuffers::String> functionClusterAffiliation = 0,
-    ::flatbuffers::Offset<::flatbuffers::String> vrte_coremask = 0,
-    uint32_t vrte_uid = 0,
-    uint32_t vrte_gid = 0,
-    ::flatbuffers::Offset<::flatbuffers::String> vrte_path = 0,
-    ::flatbuffers::Offset<::flatbuffers::String> vrte_securityPolicyDetails = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> coremask = 0,
+    uint32_t uid = 0,
+    uint32_t gid = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> path = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> securityPolicyDetails = 0,
     LMFlatBuffer::ExecutionStateReportingBehaviorEnum executable_reportingBehavior = LMFlatBuffer::ExecutionStateReportingBehaviorEnum_ReportsExecutionState,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<LMFlatBuffer::ProcessStartupConfig>>> startupConfig = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<LMFlatBuffer::ProcessSgid>>> vrte_sgids = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<LMFlatBuffer::ProcessSgid>>> sgids = 0) {
   ProcessBuilder builder_(_fbb);
-  builder_.add_vrte_sgids(vrte_sgids);
+  builder_.add_sgids(sgids);
   builder_.add_startupConfig(startupConfig);
-  builder_.add_vrte_securityPolicyDetails(vrte_securityPolicyDetails);
-  builder_.add_vrte_path(vrte_path);
-  builder_.add_vrte_gid(vrte_gid);
-  builder_.add_vrte_uid(vrte_uid);
-  builder_.add_vrte_coremask(vrte_coremask);
+  builder_.add_securityPolicyDetails(securityPolicyDetails);
+  builder_.add_path(path);
+  builder_.add_gid(gid);
+  builder_.add_uid(uid);
+  builder_.add_coremask(coremask);
   builder_.add_functionClusterAffiliation(functionClusterAffiliation);
   builder_.add_numberOfRestartAttempts(numberOfRestartAttempts);
   builder_.add_identifier(identifier);
@@ -522,34 +522,34 @@ inline ::flatbuffers::Offset<Process> CreateProcessDirect(
     const char *identifier = nullptr,
     uint32_t numberOfRestartAttempts = 0,
     const char *functionClusterAffiliation = nullptr,
-    const char *vrte_coremask = nullptr,
-    uint32_t vrte_uid = 0,
-    uint32_t vrte_gid = 0,
-    const char *vrte_path = nullptr,
-    const char *vrte_securityPolicyDetails = nullptr,
+    const char *coremask = nullptr,
+    uint32_t uid = 0,
+    uint32_t gid = 0,
+    const char *path = nullptr,
+    const char *securityPolicyDetails = nullptr,
     LMFlatBuffer::ExecutionStateReportingBehaviorEnum executable_reportingBehavior = LMFlatBuffer::ExecutionStateReportingBehaviorEnum_ReportsExecutionState,
     const std::vector<::flatbuffers::Offset<LMFlatBuffer::ProcessStartupConfig>> *startupConfig = nullptr,
-    const std::vector<::flatbuffers::Offset<LMFlatBuffer::ProcessSgid>> *vrte_sgids = nullptr) {
+    const std::vector<::flatbuffers::Offset<LMFlatBuffer::ProcessSgid>> *sgids = nullptr) {
   auto identifier__ = identifier ? _fbb.CreateString(identifier) : 0;
   auto functionClusterAffiliation__ = functionClusterAffiliation ? _fbb.CreateString(functionClusterAffiliation) : 0;
-  auto vrte_coremask__ = vrte_coremask ? _fbb.CreateString(vrte_coremask) : 0;
-  auto vrte_path__ = vrte_path ? _fbb.CreateString(vrte_path) : 0;
-  auto vrte_securityPolicyDetails__ = vrte_securityPolicyDetails ? _fbb.CreateString(vrte_securityPolicyDetails) : 0;
+  auto coremask__ = coremask ? _fbb.CreateString(coremask) : 0;
+  auto path__ = path ? _fbb.CreateString(path) : 0;
+  auto securityPolicyDetails__ = securityPolicyDetails ? _fbb.CreateString(securityPolicyDetails) : 0;
   auto startupConfig__ = startupConfig ? _fbb.CreateVector<::flatbuffers::Offset<LMFlatBuffer::ProcessStartupConfig>>(*startupConfig) : 0;
-  auto vrte_sgids__ = vrte_sgids ? _fbb.CreateVector<::flatbuffers::Offset<LMFlatBuffer::ProcessSgid>>(*vrte_sgids) : 0;
+  auto sgids__ = sgids ? _fbb.CreateVector<::flatbuffers::Offset<LMFlatBuffer::ProcessSgid>>(*sgids) : 0;
   return LMFlatBuffer::CreateProcess(
       _fbb,
       identifier__,
       numberOfRestartAttempts,
       functionClusterAffiliation__,
-      vrte_coremask__,
-      vrte_uid,
-      vrte_gid,
-      vrte_path__,
-      vrte_securityPolicyDetails__,
+      coremask__,
+      uid,
+      gid,
+      path__,
+      securityPolicyDetails__,
       executable_reportingBehavior,
       startupConfig__,
-      vrte_sgids__);
+      sgids__);
 }
 
 struct ProcessStartupConfig FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -1002,14 +1002,14 @@ inline ::flatbuffers::Offset<ProcessArgument> CreateProcessArgumentDirect(
 struct ProcessSgid FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef ProcessSgidBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_VRTE_SGID = 4
+    VT_SGID = 4
   };
-  uint32_t vrte_sgid() const {
-    return GetField<uint32_t>(VT_VRTE_SGID, 0);
+  uint32_t sgid() const {
+    return GetField<uint32_t>(VT_SGID, 0);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<uint32_t>(verifier, VT_VRTE_SGID, 4) &&
+           VerifyField<uint32_t>(verifier, VT_SGID, 4) &&
            verifier.EndTable();
   }
 };
@@ -1018,8 +1018,8 @@ struct ProcessSgidBuilder {
   typedef ProcessSgid Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_vrte_sgid(uint32_t vrte_sgid) {
-    fbb_.AddElement<uint32_t>(ProcessSgid::VT_VRTE_SGID, vrte_sgid, 0);
+  void add_sgid(uint32_t sgid) {
+    fbb_.AddElement<uint32_t>(ProcessSgid::VT_SGID, sgid, 0);
   }
   explicit ProcessSgidBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1034,9 +1034,9 @@ struct ProcessSgidBuilder {
 
 inline ::flatbuffers::Offset<ProcessSgid> CreateProcessSgid(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint32_t vrte_sgid = 0) {
+    uint32_t sgid = 0) {
   ProcessSgidBuilder builder_(_fbb);
-  builder_.add_vrte_sgid(vrte_sgid);
+  builder_.add_sgid(sgid);
   return builder_.Finish();
 }
 

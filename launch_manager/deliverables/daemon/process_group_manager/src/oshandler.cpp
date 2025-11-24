@@ -11,13 +11,13 @@
 * SPDX-License-Identifier: Apache-2.0
 ********************************************************************************/
 
-#include <etas/vrte/lcm/oshandler.hpp>
+#include <score/lcm/internal/oshandler.hpp>
 
-namespace etas {
-
-namespace vrte {
+namespace score {
 
 namespace lcm {
+
+namespace internal {
 
 void OsHandler::run(void) {
     while (is_running_) {
@@ -39,6 +39,6 @@ void OsHandler::run(void) {
 
 }  // namespace lcm
 
-}  // namespace vrte
+}  // namespace internal
 
-}  // namespace etas
+}  // namespace score

@@ -13,17 +13,17 @@
 
 #include "score/span.hpp"
 
-#include <etas/vrte/lcm/processgroupmanager.hpp>
-#include <etas/vrte/lcm/graph.hpp>
-#include <etas/vrte/lcm/log.hpp>
-#include <etas/vrte/lcm/processinfonode.hpp>
+#include <score/lcm/internal/processgroupmanager.hpp>
+#include <score/lcm/internal/graph.hpp>
+#include <score/lcm/internal/log.hpp>
+#include <score/lcm/internal/processinfonode.hpp>
 #include <ctime>
 
-namespace etas {
-
-namespace vrte {
+namespace score {
 
 namespace lcm {
+
+namespace internal {
 
 Graph::Graph(uint32_t max_num_nodes, ProcessGroupManager* pgm)
     : pg_index_(0U),
@@ -499,6 +499,6 @@ std::chrono::time_point<std::chrono::steady_clock> Graph::getRequestStartTime() 
 
 }  // namespace lcm
 
-}  // namespace vrte
+}  // namespace internal
 
-}  // namespace etas
+}  // namespace score

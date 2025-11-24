@@ -4,3 +4,4 @@ bazel-*
 .vscode
 rust-project.json
 __pycache__/
+target/

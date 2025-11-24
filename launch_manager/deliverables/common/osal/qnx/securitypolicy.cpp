@@ -12,13 +12,13 @@
 ********************************************************************************/
 #include <secpol/secpol.h>
 
-#include <etas/vrte/lcm/osal/securitypolicy.hpp>
+#include <score/lcm/internal/osal/securitypolicy.hpp>
 #include <cerrno>
-namespace etas {
-
-namespace vrte {
+namespace score {
 
 namespace lcm {
+
+namespace internal {
 
 namespace osal {
 
@@ -38,6 +38,6 @@ int setSecurityPolicy(const char* policy) {
 
 }  // namespace lcm
 
-}  // namespace vrte
+}  // namespace internal
 
-}  // namespace etas
+}  // namespace score

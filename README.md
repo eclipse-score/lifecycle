@@ -1,4 +1,4 @@
-# Overview 
+# Overview
 
 Portable and high-performance implementation of a Lifecycle feature for S-CORE project.
 
@@ -76,7 +76,7 @@ Or export env vars:
 export SCORE_QNX_USER=<qnx email>
 export SCORE_QNX_PASSWORD=<qnx password>
 ```
-Also if you are not running on the devcontainer make sure the qnx license 
+Also if you are not running on the devcontainer make sure the qnx license
 is in the correct directory:
 
 ```sh
@@ -132,13 +132,13 @@ Following json code demonstrates Launch Manager configuration. Key elements of t
   "Process": [
     {
       "identifier": "healthmonitor",
-      "vrte_uid": 0,
-      "vrte_gid": 0,
-      "vrte_path": "/opt/health_monitor/health_monitor",
+      "uid": 0,
+      "gid": 0,
+      "path": "/opt/health_monitor/health_monitor",
       "functionClusterAffiliation": "STATE_MANAGEMENT",
       "numberOfRestartAttempts": 0,
       "executable_reportingBehavior": "ReportsExecutionState",
-      "vrte_sgids": [],
+      "sgids": [],
       "startupConfig": [
         {
           "executionError": "1",

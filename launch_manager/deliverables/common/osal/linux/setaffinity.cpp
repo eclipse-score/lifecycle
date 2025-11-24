@@ -13,14 +13,14 @@
 
 #include <sched.h>
 
-#include <etas/vrte/lcm/osal/setaffinity.hpp>
+#include <score/lcm/internal/osal/setaffinity.hpp>
 #include <cstdint>
 
-namespace etas {
-
-namespace vrte {
+namespace score {
 
 namespace lcm {
+
+namespace internal {
 
 namespace osal {
 
@@ -38,5 +38,5 @@ std::int32_t setaffinity(std::uint32_t cpumask) noexcept(true) {
 }
 }  // namespace osal
 }  // namespace lcm
-}  // namespace vrte
-}  // namespace etas
+}  // namespace internal
+}  // namespace score

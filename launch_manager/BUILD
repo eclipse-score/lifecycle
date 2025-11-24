@@ -146,13 +146,13 @@ cc_library(
     name = "xaap-processstate-client",
     srcs = [
         "deliverables/common/identifier_hash/identifier_hash.cpp",
-        "deliverables/libraries/etas/process_state_client/src/processstateclient.cpp",
+        "deliverables/libraries/score/process_state_client/src/processstateclient.cpp",
     ],
     hdrs = [
-        "deliverables/inc/etas/vrte/lcm/process_state_client/posixprocess.hpp",
-        "deliverables/inc/etas/vrte/lcm/process_state_client/processstateclient.hpp",
         "deliverables/inc/score/lcm/exec_error_domain.h",
         "deliverables/inc/score/lcm/identifier_hash.hpp",
+        "deliverables/inc/score/lcm/process_state_client/posixprocess.hpp",
+        "deliverables/inc/score/lcm/process_state_client/processstateclient.hpp",
     ],
     visibility = ["//visibility:public"],
     deps = [

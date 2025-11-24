@@ -12,13 +12,13 @@
 ********************************************************************************/
 #include <unistd.h>
 
-#include <etas/vrte/lcm/osal/setgroups.hpp>
+#include <score/lcm/internal/osal/setgroups.hpp>
 
-namespace etas {
-
-namespace vrte {
+namespace score {
 
 namespace lcm {
+
+namespace internal {
 
 namespace osal {
 
@@ -28,5 +28,5 @@ int setgroups(size_t __n, const gid_t* __groups) noexcept(true) {
 
 }  // namespace osal
 }  // namespace lcm
-}  // namespace vrte
-}  // namespace etas
+}  // namespace internal
+}  // namespace score

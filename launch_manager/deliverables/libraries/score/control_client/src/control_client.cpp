@@ -17,7 +17,7 @@
 #include <score/lcm/control_client.h>
 
 #include <score/lcm/identifier_hash.hpp>
-#include <etas/vrte/lcm/control_client_impl.hpp>
+#include <score/lcm/internal/control_client_impl.hpp>
 
 namespace score {
 
