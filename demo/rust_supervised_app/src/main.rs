@@ -1,4 +1,15 @@
-// (c) 2025 ETAS GmbH. All rights reserved.
+/********************************************************************************
+* Copyright (c) 2025 Contributors to the Eclipse Foundation
+*
+* See the NOTICE file(s) distributed with this work for additional
+* information regarding copyright ownership.
+*
+* This program and the accompanying materials are made available under the
+* terms of the Apache License Version 2.0 which is available at
+* https://www.apache.org/licenses/LICENSE-2.0
+*
+* SPDX-License-Identifier: Apache-2.0
+********************************************************************************/
 
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -70,7 +81,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let monitor = monitor_rs::Monitor::<Checks>::new(&args.specifier)?;
 
     let secs = (args.delay / 1000) as time_t;
-    let nanos = ((args.delay % 1000) * 1_000_000) as c_long; 
+    let nanos = ((args.delay % 1000) * 1_000_000) as c_long;
 
     let sleep_time = timespec { tv_sec: secs, tv_nsec: nanos };
 

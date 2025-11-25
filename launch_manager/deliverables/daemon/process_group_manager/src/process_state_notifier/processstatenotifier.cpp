@@ -1,11 +1,22 @@
-// (c) 2025 ETAS GmbH. All rights reserved.
+/********************************************************************************
+* Copyright (c) 2025 Contributors to the Eclipse Foundation
+*
+* See the NOTICE file(s) distributed with this work for additional
+* information regarding copyright ownership.
+*
+* This program and the accompanying materials are made available under the
+* terms of the Apache License Version 2.0 which is available at
+* https://www.apache.org/licenses/LICENSE-2.0
+*
+* SPDX-License-Identifier: Apache-2.0
+********************************************************************************/
 
-#include <etas/vrte/lcm/log.hpp>
-#include <etas/vrte/lcm/process_state_notifier/processstatenotifier.hpp>
+#include <score/lcm/internal/log.hpp>
+#include <score/lcm/internal/process_state_notifier/processstatenotifier.hpp>
 
-namespace etas {
-namespace vrte {
+namespace score {
 namespace lcm {
+namespace internal {
 
 ProcessStateNotifier::ProcessStateNotifier() noexcept {
 }
@@ -26,7 +37,7 @@ bool ProcessStateNotifier::init() noexcept {
     return ret;
 }
 
-bool ProcessStateNotifier::queuePosixProcess(const PosixProcess& f_posixProcess) noexcept {
+bool ProcessStateNotifier::queuePosixProcess(const score::lcm::PosixProcess& f_posixProcess) noexcept {
     bool ret = true;
     if (m_LCM_PHM_socket.trySend(f_posixProcess) == ipc_dropin::ReturnCode::kOk) {
         // nothing
@@ -38,5 +49,5 @@ bool ProcessStateNotifier::queuePosixProcess(const PosixProcess& f_posixProcess)
 }
 
 }  // namespace lcm
-}  // namespace vrte
-}  // namespace etas
+}  // namespace internal
+}  // namespace score

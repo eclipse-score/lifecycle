@@ -1,4 +1,15 @@
-// (c) 2025 ETAS GmbH. All rights reserved.
+/********************************************************************************
+* Copyright (c) 2025 Contributors to the Eclipse Foundation
+*
+* See the NOTICE file(s) distributed with this work for additional
+* information regarding copyright ownership.
+*
+* This program and the accompanying materials are made available under the
+* terms of the Apache License Version 2.0 which is available at
+* https://www.apache.org/licenses/LICENSE-2.0
+*
+* SPDX-License-Identifier: Apache-2.0
+********************************************************************************/
 #ifndef CONTROL_CLIENT_H_
 #define CONTROL_CLIENT_H_
 
@@ -64,7 +75,7 @@ class ControlClient final {
     /// This method will request Launch Manager to perform state transition and return immediately.
     /// Returned InterruptibleFuture can be used to determine result of requested transition.
     ///
-    /// @param[in] pg_name representing meta-model definition of a specific Process Group 
+    /// @param[in] pg_name representing meta-model definition of a specific Process Group
     /// @param[in] pg_state representing meta-model definition of a state. Launch Manager will perform state transition from the current state to the state identified by this parameter.
     /// @returns void if requested transition is successful, otherwise it returns ExecErrorDomain error.
     /// @error score::lcm::ExecErrc::kCancelled if transition to the requested Process Group state was cancelled by a newer request

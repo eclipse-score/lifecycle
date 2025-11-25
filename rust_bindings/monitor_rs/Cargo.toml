@@ -1,0 +1,11 @@
+[package]
+name = "monitor_rs"
+version = "0.0.1"
+edition = "2021"
+
+[lib]
+name = "monitor_rs"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+libc = { workspace = true }

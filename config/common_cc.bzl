@@ -1,6 +1,18 @@
-load("//config:common_opts.bzl", "SANITIZER_CXXOPTS", "SANITIZER_LINKOPTS")
-load("@rules_cc//cc:cc_library.bzl", "cc_library")
+# *******************************************************************************
+# Copyright (c) 2025 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
 load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+load("//config:common_opts.bzl", "SANITIZER_CXXOPTS", "SANITIZER_LINKOPTS")
 
 _def_or_empty = lambda v: v if v else []
 
@@ -14,7 +26,6 @@ def cc_library_with_common_opts(
         omit_common_cxxopts = False,
         omit_common_linkopts = False,
         **kwargs):
-    
     base_cxx = [] if omit_common_cxxopts else SANITIZER_CXXOPTS
     base_link = [] if omit_common_linkopts else SANITIZER_LINKOPTS
     cc_library(
@@ -27,7 +38,6 @@ def cc_library_with_common_opts(
         **kwargs
     )
 
-
 def cc_binary_with_common_opts(
         name,
         srcs = None,
@@ -37,7 +47,6 @@ def cc_binary_with_common_opts(
         omit_common_cxxopts = False,
         omit_common_linkopts = False,
         **kwargs):
-    
     base_cxx = [] if omit_common_cxxopts else SANITIZER_CXXOPTS
     base_link = [] if omit_common_linkopts else SANITIZER_LINKOPTS
     cc_binary(

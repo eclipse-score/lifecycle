@@ -1,0 +1,11 @@
+[package]
+name = "lifecycle_client_rs"
+version = "0.0.1"
+edition = "2021"
+
+[lib]
+name = "lifecycle_client_rs"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+libc = { workspace = true }

@@ -1,13 +1,24 @@
-// (c) 2025 ETAS GmbH. All rights reserved.
+/********************************************************************************
+* Copyright (c) 2025 Contributors to the Eclipse Foundation
+*
+* See the NOTICE file(s) distributed with this work for additional
+* information regarding copyright ownership.
+*
+* This program and the accompanying materials are made available under the
+* terms of the Apache License Version 2.0 which is available at
+* https://www.apache.org/licenses/LICENSE-2.0
+*
+* SPDX-License-Identifier: Apache-2.0
+********************************************************************************/
 
 #include <internal/ExcludeCoverageAdapter.h>
 #include <sys/syspage.h>
 
-#include <etas/vrte/lcm/osal/osalnumcores.hpp>
+#include <score/lcm/internal/osal/osalnumcores.hpp>
 
-namespace etas {
-namespace vrte {
+namespace score {
 namespace lcm {
+namespace internal {
 namespace osal {
 
 uint32_t getNumCores() {
@@ -21,5 +32,5 @@ uint32_t getNumCores() {
 }
 }  // namespace osal
 }  // namespace lcm
-}  // namespace vrte
-}  // namespace etas
+}  // namespace internal
+}  // namespace score

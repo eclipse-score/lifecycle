@@ -1,12 +1,23 @@
-// (c) 2025 ETAS GmbH. All rights reserved.
+/********************************************************************************
+* Copyright (c) 2025 Contributors to the Eclipse Foundation
+*
+* See the NOTICE file(s) distributed with this work for additional
+* information regarding copyright ownership.
+*
+* This program and the accompanying materials are made available under the
+* terms of the Apache License Version 2.0 which is available at
+* https://www.apache.org/licenses/LICENSE-2.0
+*
+* SPDX-License-Identifier: Apache-2.0
+********************************************************************************/
 
-#include <etas/vrte/lcm/config.hpp>
+#include <score/lcm/internal/config.hpp>
 
-namespace etas {
-
-namespace vrte {
+namespace score {
 
 namespace lcm {
+
+namespace internal {
 
 constexpr std::chrono::milliseconds kMaxQueueDelay(500);   ///< The maximum time to wait trying to add items to a queue
 constexpr std::chrono::milliseconds kGraphTimeout(10000);  ///< Timeout duration for graph operations.
@@ -27,6 +38,6 @@ constexpr std::chrono::milliseconds kLifecycleClientBgThreadSleepTime(
     10);  ///< The time for which Lifecycle Client background thread sleeps after polling the SIGTERM flag
 }  // namespace lcm
 
-}  // namespace vrte
+}  // namespace internal
 
-}  // namespace etas
+}  // namespace score

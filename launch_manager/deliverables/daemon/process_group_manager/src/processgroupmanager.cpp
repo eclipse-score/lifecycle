@@ -1,20 +1,31 @@
-// (c) 2025 ETAS GmbH. All rights reserved.
+/********************************************************************************
+* Copyright (c) 2025 Contributors to the Eclipse Foundation
+*
+* See the NOTICE file(s) distributed with this work for additional
+* information regarding copyright ownership.
+*
+* This program and the accompanying materials are made available under the
+* terms of the Apache License Version 2.0 which is available at
+* https://www.apache.org/licenses/LICENSE-2.0
+*
+* SPDX-License-Identifier: Apache-2.0
+********************************************************************************/
 
 #include <fcntl.h>
 #include <unistd.h>
 
-#include <etas/vrte/lcm/processgroupmanager.hpp>
-#include <etas/vrte/lcm/log.hpp>
+#include <score/lcm/internal/processgroupmanager.hpp>
+#include <score/lcm/internal/log.hpp>
 #include <csignal>
 #include <sys/wait.h>
 
-namespace etas {
-
-namespace vrte {
+namespace score {
 
 namespace lcm {
 
-using namespace etas::vrte::lcm::osal;
+namespace internal {
+
+using namespace score::lcm::internal::osal;
 
 static std::atomic_bool em_cancelled{false};
 
@@ -107,9 +118,9 @@ inline bool ProcessGroupManager::initializeControlClientHandler() {
     // The name is removed from the file system after creation, memory
     // is mapped and a pointer stored, the FD is kept open.
     ControlClientChannel::nudgeControlClientHandler_ = nullptr;
-    char shm_name[static_cast<uint32_t>(etas::vrte::lcm::ProcessLimits::maxLocalBuffSize)];
+    char shm_name[static_cast<uint32_t>(score::lcm::internal::ProcessLimits::maxLocalBuffSize)];
 
-    static_cast<void>(snprintf(shm_name, static_cast<uint32_t>(etas::vrte::lcm::ProcessLimits::maxLocalBuffSize),
+    static_cast<void>(snprintf(shm_name, static_cast<uint32_t>(score::lcm::internal::ProcessLimits::maxLocalBuffSize),
                                "/_nudge~._.~me_"));  // random name
     int fd = shm_open(shm_name, O_CREAT | O_EXCL | O_RDWR, 0U);
 
@@ -153,7 +164,7 @@ inline bool ProcessGroupManager::initializeProcessGroups() {
                 uint32_t num_processes = configuration_manager_.getNumberOfOsProcesses(pg_name).value_or(0);
 
                 if (static_cast<uint64_t>(total_processes_) + num_processes <=
-                    static_cast<uint64_t>(etas::vrte::lcm::ProcessLimits::kMaxProcesses)) {
+                    static_cast<uint64_t>(score::lcm::internal::ProcessLimits::kMaxProcesses)) {
                     process_groups_.push_back(std::make_shared<Graph>(num_processes, this));
                     total_processes_ += num_processes;
                 } else {
@@ -293,7 +304,7 @@ inline void ProcessGroupManager::allProcessGroupsOff() {
                 osal::ProcessID pid = node->getPid();
                 if( pid > 0 )
                 {
-                    process_interface_.forceTermination( pid);        
+                    process_interface_.forceTermination( pid);
                 }
             }
         }
@@ -530,7 +541,7 @@ inline void ProcessGroupManager::processGroupHandler(Graph& pg) {
             //
             // in short, graph is in an error state (kUndefinedState)
             // and there is no valid request from outside, to change this situation...
-            // 
+            //
             // we will try to perform recovery action
 
             ProcessGroupStateID recovery_state;
@@ -600,6 +611,6 @@ std::shared_ptr<JobQueue<ProcessInfoNode>> ProcessGroupManager::getWorkerJobs() 
 
 }  // namespace lcm
 
-}  // namespace vrte
+}  // namespace internal
 
-}  // namespace etas
+}  // namespace score

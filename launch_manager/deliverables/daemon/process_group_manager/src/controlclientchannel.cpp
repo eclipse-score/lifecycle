@@ -1,17 +1,28 @@
-// (c) 2025 ETAS GmbH. All rights reserved.
+/********************************************************************************
+* Copyright (c) 2025 Contributors to the Eclipse Foundation
+*
+* See the NOTICE file(s) distributed with this work for additional
+* information regarding copyright ownership.
+*
+* This program and the accompanying materials are made available under the
+* terms of the Apache License Version 2.0 which is available at
+* https://www.apache.org/licenses/LICENSE-2.0
+*
+* SPDX-License-Identifier: Apache-2.0
+********************************************************************************/
 
 #include <sys/mman.h>
 
-#include <etas/vrte/lcm/config.hpp>
-#include <etas/vrte/lcm/controlclientchannel.hpp>
+#include <score/lcm/internal/config.hpp>
+#include <score/lcm/internal/controlclientchannel.hpp>
 #include <cstring>
 #include <thread>
 
-namespace etas {
-
-namespace vrte {
+namespace score {
 
 namespace lcm {
+
+namespace internal {
 
 void ControlClientChannel::initialize() {
     request_.empty_.store(true);
@@ -210,6 +221,6 @@ std::mutex ControlClientChannel::init_mutex_{};
 
 }  // namespace lcm
 
-}  // namespace vrte
+}  // namespace internal
 
-}  // namespace etas
+}  // namespace score

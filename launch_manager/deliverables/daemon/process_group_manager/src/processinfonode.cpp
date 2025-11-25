@@ -1,16 +1,27 @@
-// (c) 2025 ETAS GmbH. All rights reserved.
+/********************************************************************************
+* Copyright (c) 2025 Contributors to the Eclipse Foundation
+*
+* See the NOTICE file(s) distributed with this work for additional
+* information regarding copyright ownership.
+*
+* This program and the accompanying materials are made available under the
+* terms of the Apache License Version 2.0 which is available at
+* https://www.apache.org/licenses/LICENSE-2.0
+*
+* SPDX-License-Identifier: Apache-2.0
+********************************************************************************/
 
-#include <etas/vrte/lcm/processgroupmanager.hpp>
-#include <etas/vrte/lcm/graph.hpp>
-#include <etas/vrte/lcm/log.hpp>
-#include <etas/vrte/lcm/osal/osalipccomms.hpp>
-#include <etas/vrte/lcm/processinfonode.hpp>
+#include <score/lcm/internal/processgroupmanager.hpp>
+#include <score/lcm/internal/graph.hpp>
+#include <score/lcm/internal/log.hpp>
+#include <score/lcm/internal/osal/osalipccomms.hpp>
+#include <score/lcm/internal/processinfonode.hpp>
 
-namespace etas {
-
-namespace vrte {
+namespace score {
 
 namespace lcm {
+
+namespace internal {
 
 void ProcessInfoNode::initNode(Graph* graph, uint32_t index) {
     if (graph) {
@@ -19,7 +30,7 @@ void ProcessInfoNode::initNode(Graph* graph, uint32_t index) {
         process_index_ = index;
         pid_ = 0;
         status_ = 0;
-        process_state_.store(ProcessState::kIdle);
+        process_state_.store(score::lcm::ProcessState::kIdle);
         dependencies_ = 0U;
         dependency_list_ = nullptr;
         dependent_on_running_.clear();
@@ -48,7 +59,7 @@ bool ProcessInfoNode::constructGraphNode(bool starting) {
     if (!starting) {
         std::ptrdiff_t count =
             std::count_if(dependent_on_running_.begin(), dependent_on_running_.end(),
-                          [](auto& d) -> bool { return d->process_state_ == ProcessState::kRunning; });
+                          [](auto& d) -> bool { return d->process_state_ == score::lcm::ProcessState::kRunning; });
 
         if (count > 0L)
             stop_dependencies_ = static_cast<uint32_t>(count & 0xFFFFFFFFL);
@@ -61,14 +72,14 @@ bool ProcessInfoNode::constructGraphNode(bool starting) {
         // A stop node should be inserted for processes not in the idle or terminated state where:
         // The process is not listed in the requested state
         included =
-            !((getState() == ProcessState::kIdle) || (getState() == ProcessState::kTerminated)) && !in_requested_state_;
+            !((getState() == score::lcm::ProcessState::kIdle) || (getState() == score::lcm::ProcessState::kTerminated)) && !in_requested_state_;
     } else {
         LM_LOG_DEBUG() << "Start Dependencies:" << start_dependencies_;
         dependencies_ = start_dependencies_;
         // The process should be started (node inserted) if
         // - it is listed, and
         // - it isn't already running
-        included = in_requested_state_ && (getState() != ProcessState::kRunning);
+        included = in_requested_state_ && (getState() != score::lcm::ProcessState::kRunning);
 
         // Go through the predecessors nodes to check if those are already in the ExecutionState
         // that has been configured as part of the execution dependency
@@ -86,11 +97,11 @@ bool ProcessInfoNode::constructGraphNode(bool starting) {
     return included;
 }
 
-void ProcessInfoNode::addSuccessorNode(std::shared_ptr<ProcessInfoNode>& successor_node, ProcessState dependency) {
-    if (dependency == ProcessState::kTerminated) {
+void ProcessInfoNode::addSuccessorNode(std::shared_ptr<ProcessInfoNode>& successor_node, score::lcm::ProcessState dependency) {
+    if (dependency == score::lcm::ProcessState::kTerminated) {
         LM_LOG_DEBUG() << "Adding kTerminated for process" << process_index_ << ":" << successor_node->process_index_;
         dependent_on_terminating_.push_back(successor_node);
-    } else if (dependency == ProcessState::kRunning) {
+    } else if (dependency == score::lcm::ProcessState::kRunning) {
         dependent_on_running_.push_back(successor_node);
         LM_LOG_DEBUG() << "Adding kRunning successor for process" << process_index_ << ":"
                        << successor_node->process_index_;
@@ -101,12 +112,12 @@ void ProcessInfoNode::addSuccessorNode(std::shared_ptr<ProcessInfoNode>& success
     }
 }
 
-bool ProcessInfoNode::setState(ProcessState new_state) {
+bool ProcessInfoNode::setState(score::lcm::ProcessState new_state) {
     bool success = true;
-    ProcessState old_state = getState();
+    score::lcm::ProcessState old_state = getState();
 
-    if (ProcessState::kTerminated == new_state ||
-        (new_state == ProcessState::kIdle && old_state == ProcessState::kTerminated)) {
+    if (score::lcm::ProcessState::kTerminated == new_state ||
+        (new_state == score::lcm::ProcessState::kIdle && old_state == score::lcm::ProcessState::kTerminated)) {
         process_state_.store(new_state);
     } else if (new_state >= old_state) {
         success = process_state_.compare_exchange_strong(old_state, new_state);
@@ -115,9 +126,9 @@ bool ProcessInfoNode::setState(ProcessState new_state) {
     }
 
     if (success && config_->startup_config_.comms_type_ != osal::CommsType::kNoComms &&
-        ProcessState::kIdle != new_state) {
+        score::lcm::ProcessState::kIdle != new_state) {
         // for a reporting process, report a process state change to PHM
-        PosixProcess process_info;
+        score::lcm::PosixProcess process_info;
         process_info.id = config_->process_id_;
         process_info.processStateId = new_state;
         process_info.processGroupStateId = graph_->getProcessGroupState();
@@ -158,7 +169,7 @@ void ProcessInfoNode::queueTerminationSuccessorJobs() {
         for (const auto& dependency : *dependency_list_) {
             auto successorNode = graph_->getProcessInfoNode(dependency.os_process_index_);
 
-            if (successorNode->getState() != ProcessState::kTerminated) {
+            if (successorNode->getState() != score::lcm::ProcessState::kTerminated) {
                 processJob(successorNode);
             }
         }
@@ -174,7 +185,7 @@ void ProcessInfoNode::unexpectedTermination() {
     if (GraphState::kSuccess == graph_state) {
         // We were in a defined state, this error needs to be reported to SM
         graph_->abort(execution_error_code, ControlClientCode::kFailedUnexpectedTermination);
-    } else if (ProcessState::kStarting == getState()) {
+    } else if (score::lcm::ProcessState::kStarting == getState()) {
         // for graph in any other state, the error will be found elsewhere. But if the graph is in
         // transition, and the process status is not yet kRunning, we may want to post on the semaphore
         // to save a little waiting time.
@@ -205,7 +216,7 @@ void ProcessInfoNode::terminated(int32_t process_status) {
             unexpectedTermination();
         }
     }
-    static_cast<void>(setState(ProcessState::kTerminated));  // Cannot fail by design
+    static_cast<void>(setState(score::lcm::ProcessState::kTerminated));  // Cannot fail by design
     if (control_client_channel_) {
         control_client_channel_->releaseParentMapping();
         control_client_channel_.reset();
@@ -226,19 +237,19 @@ void ProcessInfoNode::startProcess() {
     restart_counter_ = config_->pgm_config_.number_of_restart_attempts;
     do {
         status_ = 0;
-        if (setState(ProcessState::kIdle)) {
+        if (setState(score::lcm::ProcessState::kIdle)) {
             uint32_t execution_error_code = config_->pgm_config_.execution_error_code_;
             auto pg_mgr = graph_->getProcessGroupManager();
             pid_ = 0;
             status_ = 0;
-            static_cast<void>(setState(ProcessState::kStarting));  // Cannot fail by design
+            static_cast<void>(setState(score::lcm::ProcessState::kStarting));  // Cannot fail by design
 
             if (osal::CommsType::kLaunchManager == config_->startup_config_.comms_type_) {
                 // Don't start launch manager, we're already running
                 LM_LOG_DEBUG() << "Found myself (" << config_->startup_config_.argv_[0U]
                                << ") in a process group to start, not starting, reporting kRunning";
                 pid_ = getpid();
-                static_cast<void>(setState(ProcessState::kRunning));  // Cannot fail by design
+                static_cast<void>(setState(score::lcm::ProcessState::kRunning));  // Cannot fail by design
                 processSuccessorNodes();
                 return;
             }
@@ -253,7 +264,7 @@ void ProcessInfoNode::startProcess() {
                 }
                 handleProcessStarted(execution_error_code);
             } else {
-                setState(ProcessState::kTerminated);
+                setState(score::lcm::ProcessState::kTerminated);
                 graph_->abort(execution_error_code, ControlClientCode::kSetStateFailed);
             }
         }
@@ -348,7 +359,7 @@ void ProcessInfoNode::handleProcessRunning(uint32_t execution_error_code) {
     // Therefore, a process in the terminated state is a new error not related to process
     // starting (and so not eligible for a restart), or it's OK because its a self-
     // terminating process.
-    if (setState(ProcessState::kRunning) || (config_->pgm_config_.is_self_terminating_ && (0 == status_))) {
+    if (setState(score::lcm::ProcessState::kRunning) || (config_->pgm_config_.is_self_terminating_ && (0 == status_))) {
         processSuccessorNodes();
     } else if (restart_counter_ == 0U) {
         graph_->abort(execution_error_code, ControlClientCode::kSetStateFailed);
@@ -380,11 +391,11 @@ void ProcessInfoNode::checkForEmptyDependencies(std::shared_ptr<ProcessInfoNode>
 void ProcessInfoNode::terminateProcess() {
     LM_LOG_DEBUG() << "terminating process" << process_index_ << "(" << config_->startup_config_.short_name_ << ")";
 
-    if (setState(ProcessState::kTerminating)) {
+    if (setState(score::lcm::ProcessState::kTerminating)) {
         if (osal::CommsType::kLaunchManager == config_->startup_config_.comms_type_) {
             LM_LOG_DEBUG() << "Found myself (" << config_->startup_config_.argv_[0U]
                            << ") in a process group to terminate, not terminating, reporting kTerminated";
-            static_cast<void>(setState(ProcessState::kTerminated));  // Cannot fail by design
+            static_cast<void>(setState(score::lcm::ProcessState::kTerminated));  // Cannot fail by design
         } else {
             handleTerminationProcess();
         }
@@ -426,7 +437,7 @@ inline void ProcessInfoNode::handleForcedTermination() {
     while ((osal::OsalReturnType::kSuccess ==
             graph_->getProcessGroupManager()->getProcessInterface()->forceTermination(pid_)) &&
            (graph_->getState() == GraphState::kInTransition) &&
-           (terminator_.timedWait(etas::vrte::lcm::kMaxSigKillDelay) != osal::OsalReturnType::kSuccess)) {
+           (terminator_.timedWait(score::lcm::internal::kMaxSigKillDelay) != osal::OsalReturnType::kSuccess)) {
         LM_LOG_FATAL() << "Process" << process_index_ << "(" << config_->startup_config_.short_name_
                        << ") did not respond to SIGKILL!!";
     }
@@ -456,7 +467,7 @@ osal::ProcessID ProcessInfoNode::getPid() const {
     return pid_;
 }
 
-ProcessState ProcessInfoNode::getState() const {
+score::lcm::ProcessState ProcessInfoNode::getState() const {
     return process_state_.load();
 }
 
@@ -478,6 +489,6 @@ ControlClientChannelP ProcessInfoNode::getControlClientChannel() {
 
 }  // namespace lcm
 
-}  // namespace vrte
+}  // namespace internal
 
-}  // namespace etas
+}  // namespace score

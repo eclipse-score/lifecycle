@@ -1,12 +1,23 @@
-// (c) 2025 ETAS GmbH. All rights reserved.
+/********************************************************************************
+* Copyright (c) 2025 Contributors to the Eclipse Foundation
+*
+* See the NOTICE file(s) distributed with this work for additional
+* information regarding copyright ownership.
+*
+* This program and the accompanying materials are made available under the
+* terms of the Apache License Version 2.0 which is available at
+* https://www.apache.org/licenses/LICENSE-2.0
+*
+* SPDX-License-Identifier: Apache-2.0
+********************************************************************************/
 
 #include <string_view>
 #include <score/lcm/exec_error_domain.h>
 
-#include <etas/vrte/lcm/configurationmanager.hpp>
-#include <etas/vrte/lcm/process_group_state_id.hpp>
-#include <etas/vrte/lcm/log.hpp>
-#include <etas/vrte/lcm/osal/osalnumcores.hpp>
+#include <score/lcm/internal/configurationmanager.hpp>
+#include <score/lcm/internal/process_group_state_id.hpp>
+#include <score/lcm/internal/log.hpp>
+#include <score/lcm/internal/osal/osalnumcores.hpp>
 
 #include <fstream>
 
@@ -18,7 +29,7 @@ namespace {
 /// @brief Retrieves the resource limits configuration from the given config
 ///        node.
 bool setResourceLimits(const LMFlatBuffer::ProcessStartupConfig& startup_config_node,
-                       etas::vrte::lcm::OsProcess& instance) {
+                       score::lcm::internal::OsProcess& instance) {
     // not supported currently
     instance.startup_config_.resource_limits_.stack_ = 0U;  // don't set the stack limit
     instance.startup_config_.resource_limits_.cpu_ = 0U;    // no limit for cpu time
@@ -53,11 +64,11 @@ std::unique_ptr<char[]> read_flatbuffer_file(const std::string& f_filename_r) {
 
 }  // namespace
 
-namespace etas {
-
-namespace vrte {
+namespace score {
 
 namespace lcm {
+
+namespace internal {
 
 const char* ConfigurationManager::PROCESS_RUNNING_STATE = "Running";
 const char* ConfigurationManager::PROCESS_TERMINATED_STATE = "Terminated";
@@ -65,7 +76,7 @@ const char* ConfigurationManager::PROCESS_TERMINATED_STATE = "Terminated";
 // coverity[autosar_cpp14_m3_4_1_violation:INTENTIONAL] The value is used in a global context.
 const char* kEnvVarName = "ECUCFG_ENV_VAR_ROOTFOLDER";  ///< Environment variable name
 // coverity[autosar_cpp14_m3_4_1_violation:INTENTIONAL] The value is used in a global context.
-const char* kEnvVarDefaultValue = "/opt/vrte/launch_manager/etc/ecu-cfg";  ///< Environment variable value
+const char* kEnvVarDefaultValue = "/opt/internal/launch_manager/etc/ecu-cfg";  ///< Environment variable value
 
 const uint32_t ConfigurationManager::kDefaultProcessExecutionError = 1U;
 uint32_t ConfigurationManager::kDefaultProcessorAffinityMask() {
@@ -184,7 +195,7 @@ bool ConfigurationManager::initialize() {
     LM_LOG_DEBUG() << "Loading LCM Configurations...";
 
     // Check or set the environment variable
-    if (checkOrSetFlatConfigEnvVar(etas::vrte::lcm::kEnvVarName, etas::vrte::lcm::kEnvVarDefaultValue)) {
+    if (checkOrSetFlatConfigEnvVar(score::lcm::internal::kEnvVarName, score::lcm::internal::kEnvVarDefaultValue)) {
         LM_LOG_DEBUG() << "ECUCFG_ENV_VAR_ROOTFOLDER set successfully";
         result = initializeSoftwareClusterConfigurations();
 
@@ -200,7 +211,7 @@ bool ConfigurationManager::initialize() {
 void ConfigurationManager::deinitialize() {
     for (auto& process_group : process_groups_) {
         for (auto& process : process_group.processes_) {
-            for (size_t i = 0U; i < etas::vrte::lcm::kArgvArraySize && process.startup_config_.argv_[i] != nullptr;
+            for (size_t i = 0U; i < score::lcm::internal::kArgvArraySize && process.startup_config_.argv_[i] != nullptr;
                  ++i) {
                 // RULECHECKER_comment(1, 1, check_pointer_qualifier_cast_const, "Remove const for standard library with char type arguments.", true);
                 free(const_cast<char*>(process.startup_config_.argv_[i]));
@@ -391,7 +402,7 @@ static void setSchedulingParameters(const Process& node, const ProcessStartupCon
     if (attribute != nullptr) {
         instance.startup_config_.scheduling_priority_ = std::stoi(attribute->c_str());
     }
-    attribute = node.vrte_coremask();
+    attribute = node.coremask();
     if (attribute != nullptr) {
         instance.startup_config_.cpu_mask_ = static_cast<uint32_t>(std::stoul(attribute->c_str()) & 0XFFFFFFFFUL);
     }
@@ -413,21 +424,21 @@ bool ConfigurationManager::parseProcessConfigurations(const Process* node) {
             }
 
             setSchedulingParameters(*node, *startup_config_node, instance);
-            // Set executable path from node's vrte_path
-            instance.startup_config_.executable_path_ = getStringFromFlatBuffer(node->vrte_path());
+            // Set executable path from node's path
+            instance.startup_config_.executable_path_ = getStringFromFlatBuffer(node->path());
             LM_LOG_DEBUG() << "parseProcessConfigurations: Process index:" << instance.process_number_
                            << "executable_path_:" << instance.startup_config_.executable_path_;
 
             instance.startup_config_.short_name_ = node->identifier() ? node->identifier()->c_str() : "Unknown";
-            instance.startup_config_.uid_ = node->vrte_uid() & 0x7FFFFFFFU;
-            instance.startup_config_.gid_ = node->vrte_gid() & 0x7FFFFFFFU;
+            instance.startup_config_.uid_ = node->uid() & 0x7FFFFFFFU;
+            instance.startup_config_.gid_ = node->gid() & 0x7FFFFFFFU;
 
             instance.startup_config_.security_policy_ =
-                getStringFromFlatBuffer(node->vrte_securityPolicyDetails());  // Set security policy if available
+                getStringFromFlatBuffer(node->securityPolicyDetails());  // Set security policy if available
 
             // extracting supplementary group IDs from Process configuration
             // and assigning them to this particular startup config (aka OsProcess)
-            auto supplementary_gids = node->vrte_sgids();
+            auto supplementary_gids = node->sgids();
             size_t supplementary_gids_number = supplementary_gids ? supplementary_gids->size() : 0U;
             if (supplementary_gids_number > 0U) {
                 instance.startup_config_.supplementary_gids_.reserve(supplementary_gids_number);
@@ -435,7 +446,7 @@ bool ConfigurationManager::parseProcessConfigurations(const Process* node) {
             for (uint32_t i = 0U; i < (supplementary_gids_number & 0XFFFFFFFFU); i++) {
                 const ProcessSgid* sgid_conf = supplementary_gids->Get(i);
                 if (nullptr != sgid_conf) {
-                    instance.startup_config_.supplementary_gids_.push_back(sgid_conf->vrte_sgid());
+                    instance.startup_config_.supplementary_gids_.push_back(sgid_conf->sgid());
                 }
             }
 
@@ -500,14 +511,14 @@ void ConfigurationManager::parseProcessArguments(
         size_t arg_count = static_cast<size_t>(process_arg_list->size());
 
         // Calculate the maximum number of arguments to process, considering the argv size limit
-        size_t max_args = std::min(arg_count, static_cast<size_t>(etas::vrte::lcm::kMaxArg));
+        size_t max_args = std::min(arg_count, static_cast<size_t>(score::lcm::internal::kMaxArg));
 
 
         // Check if the number of arguments exceeds the maximum allowed size and log a warning if it does
-        if (arg_count > static_cast<std::size_t>(etas::vrte::lcm::kMaxArg)) {
+        if (arg_count > static_cast<std::size_t>(score::lcm::internal::kMaxArg)) {
             LM_LOG_DEBUG() << "Number of process arguments exceeds maximum allowed size (kMaxArg ="
-                           << static_cast<size_t>(etas::vrte::lcm::kMaxArg) << "). Only the first"
-                           << static_cast<size_t>(etas::vrte::lcm::kMaxArg) << "arguments will be processed.";
+                           << static_cast<size_t>(score::lcm::internal::kMaxArg) << "). Only the first"
+                           << static_cast<size_t>(score::lcm::internal::kMaxArg) << "arguments will be processed.";
         }
 
         // Iterate through the process arguments and add them to the argv array
@@ -538,14 +549,14 @@ void ConfigurationManager::parseProcessEnvironmentVars(
         // LM_LOG_DEBUG() << "Number of process environment variables:" << env_count;
 
         // Calculate the maximum number of environment variables to process, considering the envp size limit
-        size_t max_env = std::min(env_count, static_cast<size_t>(etas::vrte::lcm::kMaxEnv));
+        size_t max_env = std::min(env_count, static_cast<size_t>(score::lcm::internal::kMaxEnv));
         // LM_LOG_DEBUG() << "Number of process environment variables to process:" << max_env;
 
         // Check if the number of environment variables exceeds the maximum allowed size and log a warning if it does
-        if (env_count > static_cast<std::size_t>(etas::vrte::lcm::kMaxEnv)) {
+        if (env_count > static_cast<std::size_t>(score::lcm::internal::kMaxEnv)) {
             LM_LOG_WARN() << "Number of process environment variables exceeds maximum allowed size (kMaxEnv ="
-                          << static_cast<size_t>(etas::vrte::lcm::kMaxEnv) << "). Only the first"
-                          << static_cast<size_t>(etas::vrte::lcm::kMaxEnv) << "variables will be processed.";
+                          << static_cast<size_t>(score::lcm::internal::kMaxEnv) << "). Only the first"
+                          << static_cast<size_t>(score::lcm::internal::kMaxEnv) << "variables will be processed.";
         }
 
         // Iterate through the process environment variables and add them to the envp array
@@ -609,7 +620,7 @@ void ConfigurationManager::parseExecutionDependency(
                                 << getStringFromFlatBuffer(process_dependency_node->targetProcess_identifier())
                                 << "ID:" << dep.target_process_id_.data();
                 process_instance.dependencies_.push_back(dep);
-                
+
             }
         }
     } else {
@@ -617,13 +628,13 @@ void ConfigurationManager::parseExecutionDependency(
     }
 }
 
-ProcessState ConfigurationManager::getProcessState(const IdentifierHash& state_name) {
-    ProcessState result = ProcessState::kIdle;
+score::lcm::ProcessState ConfigurationManager::getProcessState(const IdentifierHash& state_name) {
+    score::lcm::ProcessState result = score::lcm::ProcessState::kIdle;
 
     if (state_name == static_cast<IdentifierHash>(PROCESS_RUNNING_STATE)) {
-        result = ProcessState::kRunning;
+        result = score::lcm::ProcessState::kRunning;
     } else if (state_name == static_cast<IdentifierHash>(PROCESS_TERMINATED_STATE)) {
-        result = ProcessState::kTerminated;
+        result = score::lcm::ProcessState::kTerminated;
     }
 
     return result;
@@ -869,6 +880,6 @@ const char* ConfigurationManager::getStringFromFlatBuffer(const flatbuffers::Str
 
 }  // namespace lcm
 
-}  // namespace vrte
+}  // namespace internal
 
-}  // namespace etas
+}  // namespace score

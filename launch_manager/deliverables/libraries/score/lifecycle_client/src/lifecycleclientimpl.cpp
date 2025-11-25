@@ -1,16 +1,27 @@
-// (c) 2025 ETAS GmbH. All rights reserved.
+/********************************************************************************
+* Copyright (c) 2025 Contributors to the Eclipse Foundation
+*
+* See the NOTICE file(s) distributed with this work for additional
+* information regarding copyright ownership.
+*
+* This program and the accompanying materials are made available under the
+* terms of the Apache License Version 2.0 which is available at
+* https://www.apache.org/licenses/LICENSE-2.0
+*
+* SPDX-License-Identifier: Apache-2.0
+********************************************************************************/
 
 #include <sys/mman.h>
 #include <unistd.h>
 
-#include <etas/vrte/lcm/config.hpp>
-#include <etas/vrte/lcm/lifecycleclientimpl.hpp>
-#include <etas/vrte/lcm/log.hpp>
-#include <etas/vrte/lcm/osal/sysexit.hpp>
+#include <score/lcm/internal/config.hpp>
+#include <score/lcm/internal/lifecycleclientimpl.hpp>
+#include <score/lcm/internal/log.hpp>
+#include <score/lcm/internal/osal/sysexit.hpp>
 #include <csignal>
 #include <cstring>
 
-using namespace etas::vrte::lcm::osal;
+using namespace score::lcm::internal::osal;
 
 namespace score
 {
@@ -100,7 +111,7 @@ namespace score
             // By posting on the reply_sync_ semaphore, LM confirms that it read and processed our kRunning report.
             auto checkReplySync = [&]()
             {
-                if (sync->reply_sync_.timedWait(etas::vrte::lcm::kMaxKRunningDelay) == OsalReturnType::kFail)
+                if (sync->reply_sync_.timedWait(score::lcm::internal::kMaxKRunningDelay) == OsalReturnType::kFail)
                 {
                     LM_LOG_ERROR() << "[Lifecycle Client] Launch Manager failed to acknowledge kRunning report.";
 
