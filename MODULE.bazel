@@ -28,12 +28,7 @@ bazel_dep(name = "googletest", version = "1.17.0")
 bazel_dep(name = "rules_cc", version = "0.2.9")
 
 # Score platforms
-bazel_dep(name = "score_bazel_platforms", version = "v0.0.2")
-git_override(
-    module_name = "score_bazel_platforms",
-    remote = "https://github.com/eclipse-score/bazel_platforms.git",
-    tag = "v0.0.2",
-)
+bazel_dep(name = "score_bazel_platforms", version = "0.0.2")
 
 # Score Rust/C++ toolchains
 bazel_dep(name = "score_toolchains_rust", version = "0.1")
@@ -54,12 +49,8 @@ archive_override(
 )
 
 # Score Qnx toolchain
-bazel_dep(name = "score_toolchains_qnx", version = "0.1")
-git_override(
-    module_name = "score_toolchains_qnx",
-    remote = "https://github.com/eclipse-score/toolchains_qnx.git",
-    tag = "v0.0.2",
-)
+bazel_dep(name = "score_toolchains_qnx", version = "0.0.3")
+
 
 toolchains_qnx = use_extension("@score_toolchains_qnx//:extensions.bzl", "toolchains_qnx")
 toolchains_qnx.sdp(
