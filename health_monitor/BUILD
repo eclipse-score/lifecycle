@@ -21,7 +21,7 @@ cc_library_with_common_opts(
         "source/score/lcm/saf/logging",
     ],
     deps = [
-        "@score_baselibs//score/mw/log"
+        "@score_baselibs//score/mw/log",
     ],
 )
 
