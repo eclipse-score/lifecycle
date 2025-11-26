@@ -2,5 +2,9 @@
   {
     "version": "main",
     "url": "https://eclipse-score.github.io/inc_lifecycle/main/"
+  },
+  {
+    "version": "pr-6",
+    "url": "https://eclipse-score.github.io/inc_lifecycle/pr-6/"
   }
 ]
