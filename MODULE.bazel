@@ -122,7 +122,7 @@ register_toolchains("@toolchains_qnx_qcc//:qcc_aarch64")
 register_toolchains("@score_toolchains_rust//toolchains/aarch64-unknown-qnx8_0:toolchain_aarch64_qnx8_0")
 
 # Tooling
-bazel_dep(name = "score_tooling", version = "1.0.1")
+bazel_dep(name = "score_tooling", version = "1.0.2")
 bazel_dep(name = "aspect_rules_lint", version = "1.5.3")
 bazel_dep(name = "buildifier_prebuilt", version = "8.2.0.2")
 
@@ -168,5 +168,6 @@ deb(
     visibility = ["//visibility:public"],
 )
 
-#docs-as-code
-bazel_dep(name = "score_docs_as_code", version = "1.1.0")
+# S-CORE process rules
+
+bazel_dep(name = "score_docs_as_code", version = "2.0.2")

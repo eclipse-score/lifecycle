@@ -1,0 +1,65 @@
+@startuml
+
+actor "User" as u
+participant "LogicMonitor" as lm
+participant "HealthMonitor" as hm
+
+u -> hm : Get LogicMonitor
+hm --> u : LogicMonitor instance
+
+alt Allowed transition
+
+u -> lm : Transition to an allowed state
+lm --> u : Ok
+hm -> lm : Check logic
+note right : HealthMonitor does this in a background thread
+lm --> hm : Ok
+
+else Disallowed transition
+
+u -> lm : Transition to a disallowed state
+lm --> u : Error
+note right : All further transition attempts will fail
+u -> lm : Transition to an allowed state
+lm --> u : Error
+hm -> lm : Check logic
+note right : HealthMonitor does this in a background thread
+lm --> hm : Failed
+
+else Allowed transition while disabled
+
+u -> lm : Disable
+lm --> u : Ok
+u -> lm : Transition to an allowed state
+lm --> u : Error
+note right: Transitions are disallowed while disabled
+hm -> lm : Check logic
+note right : HealthMonitor does this in a background thread
+lm --> hm : Ok
+u -> lm : Enable
+lm --> u : Ok
+u -> lm : Transition to an allowed state
+lm --> u : Ok
+hm -> lm : Check logic
+note right : HealthMonitor does this in a background thread
+lm --> hm : Ok
+
+else Disallowed transition while disabled
+
+u -> lm : Disable
+lm --> u : Ok
+u -> lm : Transition to a disallowed state
+lm --> u : Error
+note right: Transitions are disallowed while disabled, this does not cause the LogicMonitor to fail
+hm -> lm : Check logic
+note right : HealthMonitor does this in a background thread
+lm --> hm : Ok
+u -> lm : Enable
+lm --> u : Ok
+u -> lm : Transition to an allowed state
+lm --> u : Ok
+hm -> lm : Check logic
+note right : HealthMonitor does this in a background thread
+lm --> hm : Ok
+
+end

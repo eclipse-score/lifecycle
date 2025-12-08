@@ -1,0 +1,64 @@
+@startuml
+
++enum Status {
+    Running
+    Disabled
+    Failed
+    Stopped
+}
+
++enum Error {
+    BadParameter,
+    NotAllowed,
+    OutOfMemory,
+    Generic,
+}
+
++class Tag {
+    +new<N: AsRef<str>>(name: N) -> Self
+}
+
++interface DeadlineMonitorHook {
+    +on_status_change(&self, from: Status, to: Status)
+}
+
++class DeadlineMonitorBuilder {
+    +new() -> Self 
+    +add_deadline(&mut self, tag: Tag, min: Duration, max: Duration) -> &mut Self
+    +add_hook(&mut self, hook: Box<dyn DeadlineMonitorHook>) -> &mut Self
+    +build(self) -> Result<DeadlineMonitor, Error>
+}
+
++class DeadlineMonitor {
+    +create_deadline(&self, tag: Tag) -> Result<Deadline, Error>
+    +create_deadline_guard(&self, tag: Tag) -> Result<DeadlineGuard, Error>
+    +create_custom_deadline(&self, min: Duration, max: Duration) -> Result<Deadline, Error>
+    +create_custom_deadline_guard(&self, min: Duration, max: Duration) -> Result<DeadlineGuard, Error>
+    +enable(&self) -> Result<(), Error>
+    +disable(&self) -> Result<(), Error>
+    +status(&self) -> Status
+    ~step(&self) -> Status
+}
+
++class Deadline {
+    +start(&mut self) -> Result<(), Error>
+    +stop(&mut self) -> Result<(), Error>
+    +min(&self) -> Duration
+    +max(&self) -> Duration
+}
+
++class DeadlineGuard {
+}
+
+DeadlineMonitorBuilder ..> Error
+DeadlineMonitorBuilder ..> Tag
+DeadlineMonitorBuilder ..> DeadlineMonitor : <<consumes>>
+DeadlineMonitorBuilder *-- "0..*" DeadlineMonitorHook : owns
+DeadlineMonitor *-- Status : owns
+DeadlineMonitor ..> Error
+DeadlineMonitor ..> Tag
+DeadlineMonitor ..> Deadline : <<creates>>
+DeadlineMonitor ..> DeadlineGuard : <<creates>>
+DeadlineMonitor *-- "0..*" DeadlineMonitorHook : owns
+Deadline ..> Error
+DeadlineMonitorHook ..> Status

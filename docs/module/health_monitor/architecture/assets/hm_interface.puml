@@ -1,0 +1,50 @@
+@startuml
+
++enum Status {
+    Running
+    Disabled
+    Failed
+    Stopped
+}
+
++enum Error {
+    BadParameter,
+    NotAllowed,
+    OutOfMemory,
+    Generic,
+}
+
++class Tag {
+    +new<N: AsRef<str>>(name: N) -> Self
+}
+
++class DeadlineMonitor {
+}
+
++class LogicMonitor {
+}
+
++class HealthMonitorBuilder {
+    +new() -> Self 
+    +from_config(config: &str) -> Self 
+    +add_deadline_monitor(&mut self, tag: Tag, monitor: DeadlineMonitor) -> &mut Self
+    +add_logic_monitor(&mut self, tag: Tag, monitor: LogicMonitor) -> &mut Self
+    +build(self) -> Result<HealthMonitor, Error>
+}
+
++class HealthMonitor {
+    +get_deadline_monitor(&self, tag: Tag) -> Result<DeadlineMonitor, Error>
+    +get_logic_monitor(&self, tag: Tag) -> Result<LogicMonitor, Error>
+    +status(&self) -> Status
+}
+
+HealthMonitorBuilder ..> Error
+HealthMonitorBuilder ..> Tag
+HealthMonitorBuilder ..> HealthMonitor : <<consumes>>
+HealthMonitorBuilder o-- "0..*" DeadlineMonitor
+HealthMonitorBuilder o-- "0..*" LogicMonitor
+HealthMonitor *-- Status
+HealthMonitor ..> Error
+HealthMonitor ..> Tag
+HealthMonitor o-- "0..*" DeadlineMonitor
+HealthMonitor o-- "0..*" LogicMonitor

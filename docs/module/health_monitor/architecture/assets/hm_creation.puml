@@ -1,0 +1,31 @@
+@startuml
+
+actor "User" as u
+participant "DeadlineMonitorBuilder" as dmb
+participant "LogicMonitorBuilder" as lmb
+participant "HealthMonitorBuilder" as hmb
+participant "HealthMonitor" as hm
+
+u -> dmb : Create
+u -> dmb : Set hooks
+u -> dmb : Build
+dmb --> u : DeadlineMonitor instance
+
+u -> lmb : Create
+u -> lmb : Set hooks
+u -> lmb : Set initial state
+u -> lmb : Set allowed state transitions
+u -> lmb : Build
+lmb --> u : LogicMonitor instance
+
+u -> hmb : Create
+group One or more
+    u -> hmb : Add DeadlineMonitor instance
+    u -> hmb : Add LogicMonitor instance
+end
+u -> hmb : Build
+hmb --> u : HealthMonitor instance
+hm -> hm : Repeatedly test added monitors
+note left: The testing is done in a background thread
+
+@enduml

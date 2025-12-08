@@ -1,0 +1,124 @@
+@startuml
+
++enum Status {
+    Running
+    Disabled
+    Failed
+    Stopped
+}
+
++enum Error {
+    BadParameter,
+    NotAllowed,
+    OutOfMemory,
+    Generic,
+}
+
++class Tag {
+    +new<N: AsRef<str>>(name: N) -> Self
+}
+
++interface DeadlineMonitorHook {
+    +on_status_change(&self, from: Status, to: Status)
+}
+
++class DeadlineMonitorBuilder {
+    +new() -> Self 
+    +add_deadline(&mut self, tag: Tag, min: Duration, max: Duration) -> &mut Self
+    +add_hook(&mut self, hook: Box<dyn DeadlineMonitorHook>) -> &mut Self
+    +build(self) -> Result<DeadlineMonitor, Error>
+}
+
++class DeadlineMonitor {
+    +create_deadline(&self, tag: Tag) -> Result<Deadline, Error>
+    +create_deadline_guard(&self, tag: Tag) -> Result<DeadlineGuard, Error>
+    +create_custom_deadline(&self, min: Duration, max: Duration) -> Result<Deadline, Error>
+    +create_custom_deadline_guard(&self, min: Duration, max: Duration) -> Result<DeadlineGuard, Error>
+    +enable(&self) -> Result<(), Error>
+    +disable(&self) -> Result<(), Error>
+    +status(&self) -> Status
+    ~step(&self) -> Status
+}
+
++class Deadline {
+    +start(&mut self) -> Result<(), Error>
+    +stop(&mut self) -> Result<(), Error>
+    +min(&self) -> Duration
+    +max(&self) -> Duration
+}
+
++class DeadlineGuard {
+}
+
++class LogicMonitorState {
+    +from_str(name: &str) -> Self
+}
+
++interface LogicMonitorHook {
+    +on_status_change(&self, from: Status, to: Status)
+    +on_state_change(&self, from: LogicMonitorState, to: LogicMonitorState)
+}
+
++class LogicMonitorBuilder {
+    +new(initial_state: LogicMonitorState) -> Self
+    +add_transition(&mut self, from: LogicMonitorState, to: LogicMonitorState) -> &mut Self
+    +add_hook(&mut self, hook: Box<dyn LogicMonitorHook>) -> &mut Self
+    +build(self) -> Result<LogicMonitor, Error>
+}
+
++class LogicMonitor {
+    +transition(&self, to: LogicMonitorState) -> Result<(), Error>
+    +enable(&self) -> Result<(), Error>
+    +disable(&self) -> Result<(), Error>
+    +status(&self) -> Status
+    +state(&self) -> LogicMonitorState
+}
+
++class HealthMonitorBuilder {
+    +new() -> Self 
+    +from_config(config: &str) -> Self 
+    +add_deadline_monitor(&mut self, tag: Tag, monitor: DeadlineMonitor) -> &mut Self
+    +add_logic_monitor(&mut self, tag: Tag, monitor: LogicMonitor) -> &mut Self
+    +build(self) -> Result<HealthMonitor, Error>
+}
+
++class HealthMonitor {
+    +get_deadline_monitor(&self, tag: Tag) -> Result<DeadlineMonitor, Error>
+    +get_logic_monitor(&self, tag: Tag) -> Result<LogicMonitor, Error>
+    +status(&self) -> Status
+}
+
+DeadlineMonitorBuilder ..> Error
+DeadlineMonitorBuilder ..> Tag
+DeadlineMonitorBuilder ..> DeadlineMonitor : <<consumes>>
+DeadlineMonitorBuilder *-- "0..*" DeadlineMonitorHook : owns
+DeadlineMonitor *-- Status : owns
+DeadlineMonitor ..> Error
+DeadlineMonitor ..> Tag
+DeadlineMonitor ..> Deadline : <<creates>>
+DeadlineMonitor ..> DeadlineGuard : <<creates>>
+DeadlineMonitor *-- "0..*" DeadlineMonitorHook : owns
+Deadline ..> Error
+DeadlineMonitorHook ..> Status
+
+LogicMonitorBuilder ..> Error
+LogicMonitorBuilder *-- "1..*" LogicMonitorState : owns
+LogicMonitorBuilder *-- "0..*" LogicMonitorHook : owns
+LogicMonitorBuilder ..> LogicMonitor : <<consumes>>
+LogicMonitor *-- Status : owns
+LogicMonitor *-- "1..*" LogicMonitorState : owns
+LogicMonitor *-- "0..*" LogicMonitorHook : owns
+LogicMonitor ..> Error
+LogicMonitorHook ..> Status
+LogicMonitorHook ..> LogicMonitorState
+
+HealthMonitorBuilder ..> Error
+HealthMonitorBuilder ..> Tag
+HealthMonitorBuilder ..> HealthMonitor : <<consumes>>
+HealthMonitorBuilder o-- "0..*" DeadlineMonitor
+HealthMonitorBuilder o-- "0..*" LogicMonitor
+HealthMonitor *-- Status
+HealthMonitor ..> Error
+HealthMonitor ..> Tag
+HealthMonitor o-- "0..*" DeadlineMonitor
+HealthMonitor o-- "0..*" LogicMonitor
