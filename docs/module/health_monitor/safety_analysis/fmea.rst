@@ -17,7 +17,7 @@ FMEA (Failure Modes and Effects Analysis)
 =========================================
 
 .. document:: Health Monitor FMEA
-   :id: doc__hm_fmea
+   :id: doc__health_monitor_fmea
    :status: draft
    :safety: ASIL_B
    :security: NO

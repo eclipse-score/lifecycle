@@ -17,7 +17,7 @@ DFA (Dependent Failure Analysis)
 ================================
 
 .. document:: Health Monitor DFA
-   :id: doc__hm_dfa
+   :id: doc__health_monitor_dfa
    :status: draft
    :safety: ASIL_B
    :security: NO

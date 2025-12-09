@@ -180,5 +180,3 @@ Footnotes
    safety_analysis/fmea.rst
    safety_analysis/dfa.rst
    component_classification.rst
-   architecture/chklst_arc_inspection.rst
-   requirements/chklst_req_inspection.rst

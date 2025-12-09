@@ -18,7 +18,7 @@ Detailed Design
 ###############
 
 .. document:: HealthMonitor Detailed Design
-   :id: doc__hm_detailed_design
+   :id: doc__health_monitor_detailed_design
    :status: draft
    :safety: ASIL_B
    :security: NO
@@ -60,12 +60,12 @@ Rationale Behind Decomposition into Units
 Static Diagrams for Unit Interactions
 -------------------------------------
 .. dd_sta:: Class Diagram
-  :id: dd_sta__<Feature>__<Title>
-  :security: <YES|NO>
-  :safety: <QM|ASIL_B>
-  :status: <valid|invalid>
-  :implements: <link to component requirement id>
-  :satisfies: <link to component architecture id>
+  :id: dd_sta__health_monitor__class_diagram
+  :security: NO
+  :safety: ASIL_B
+  :status: valid
+  :implements: comp_req__health_monitor__placeholder
+  :satisfies: comp_arc_sta__deadline_monitor__static_view, comp_arc_sta__logic_monitor__static_view, comp_arc_sta__health_monitor__static_view
 
     .. uml::  assets/static_diagram.puml
 

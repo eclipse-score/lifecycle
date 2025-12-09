@@ -18,7 +18,7 @@ Component Architecture
 ======================
 
 .. document:: HealthMonitor Architecture
-   :id: doc__hm_architecture
+   :id: doc__health_monitor_architecture
    :status: draft
    :safety: ASIL_B
    :security: NO
@@ -57,34 +57,34 @@ Static Architecture
 -------------------
 
 .. comp_arc_sta:: Deadline Monitor
-   :id: comp_arc_sta__dm__static_view
+   :id: comp_arc_sta__deadline_monitor__static_view
    :security: NO
    :safety: ASIL_B
    :status: valid
    :implements:
-   :fulfils:
+   :fulfils: comp_req__health_monitor__placeholder
    :includes:
 
    .. uml::  assets/dm_static_architecture.puml
 
 .. comp_arc_sta:: Logic Monitor
-   :id: comp_arc_sta__lm__static_view
+   :id: comp_arc_sta__logic_monitor__static_view
    :security: NO
    :safety: ASIL_B
    :status: valid
    :implements:
-   :fulfils:
+   :fulfils: comp_req__health_monitor__placeholder
    :includes:
 
    .. uml::  assets/lm_static_architecture.puml
 
 .. comp_arc_sta:: Health Monitor  
-   :id: comp_arc_sta__hm__static_view
+   :id: comp_arc_sta__health_monitor__static_view
    :security: NO
    :safety: ASIL_B
    :status: valid
    :implements:
-   :fulfils:
+   :fulfils: comp_req__health_monitor__placeholder
    :includes:
 
    .. uml::  assets/hm_static_architecture.puml
@@ -93,29 +93,29 @@ Dynamic Architecture
 --------------------
 
 .. comp_arc_dyn:: HealthMonitor Creation
-   :id: comp_arc_dyn__hm__creation
+   :id: comp_arc_dyn__health_monitor__dynamic_view
    :security: NO
    :safety: ASIL_B
    :status: valid
-   :fulfils:
+   :fulfils: comp_req__health_monitor__placeholder
 
    .. uml::  assets/hm_creation.puml
 
 .. comp_arc_dyn:: DeadlineMonitor Usage
-   :id: comp_arc_dyn__dm__usage
+   :id: comp_arc_dyn__deadline_monitor__dynamic_view
    :security: NO
    :safety: ASIL_B
    :status: valid
-   :fulfils:
+   :fulfils: comp_req__health_monitor__placeholder
 
    .. uml::  assets/dm_usage.puml
 
 .. comp_arc_dyn:: LogicMonitor Usage
-   :id: comp_arc_dyn__lm__usage
+   :id: comp_arc_dyn__logic_monitor__dynamic_view
    :security: NO
    :safety: ASIL_B
    :status: valid
-   :fulfils:
+   :fulfils: comp_req__health_monitor__placeholder
 
    .. uml::  assets/lm_usage.puml
 
@@ -123,53 +123,31 @@ Interfaces
 ----------
 
 .. real_arc_int:: DeadlineMonitor Interface
-   :id: real_arc_int__dm__interface
+   :id: real_arc_int__deadline_monitor__interface
    :security: NO
    :safety: ASIL_B
    :status: valid
-   :fulfils:
+   :fulfils: comp_req__health_monitor__placeholder
    :language: rust
 
    .. uml::  assets/dm_interface.puml
 
 .. real_arc_int:: LogicMonitor Interface
-   :id: real_arc_int__lm__interface
+   :id: real_arc_int__logic_monitor__interface
    :security: NO
    :safety: ASIL_B
    :status: valid
-   :fulfils:
+   :fulfils: comp_req__health_monitor__placeholder
    :language: rust
 
    .. uml::  assets/lm_interface.puml
 
 .. real_arc_int:: HealthMonitor Interface
-   :id: real_arc_int__hm__interface
+   :id: real_arc_int__health_monitor__interface
    :security: NO
    :safety: ASIL_B
    :status: valid
-   :fulfils:
+   :fulfils: comp_req__health_monitor__placeholder
    :language: rust
 
    .. uml::  assets/hm_interface.puml
-
-Lower Level Components
-----------------------
-
-.. comp_arc_sta:: Component Name 2
-   :id: comp_arc_sta__hm__2
-   :status: invalid
-   :safety: ASIL_B
-   :security: YES
-   :fulfils: comp_req__hm__some_title
-   :implements: logic_arc_int__feature_name__interface_name
-
-   no architecture but detailed design
-
-.. note::
-   Architecture can be split into multiple files. At component level the public interfaces to be used by the user and tester to be shown.
-
-.. attention::
-    The above directives must be updated according to your component architecture.
-
-    - Replace the example content by the real content (according to :need:`gd_guidl__arch_design`)
-    - Set the status to valid and start the review/merge process

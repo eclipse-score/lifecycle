@@ -18,7 +18,7 @@ Component Classification
 .. note:: Document header
 
 .. document:: Health Monitor Component Classification
-   :id: doc__hm_comp_class
+   :id: doc__health_monitor_comp_class
    :status: draft
    :safety: ASIL_B
    :security: NO
