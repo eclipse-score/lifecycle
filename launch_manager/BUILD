@@ -79,8 +79,8 @@ cc_binary_with_common_opts(
         "//external/ipc_dropin",
         "//health_monitor",
         "@flatbuffers",
-        "@score-baselibs//score/mw/log",
-        "@score-baselibs//score/result",
+        "@score_baselibs//score/mw/log",
+        "@score_baselibs//score/result",
     ],
 )
 
@@ -114,8 +114,8 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":deliverables_includes",
-        "@score-baselibs//score/mw/log",
-        "@score-baselibs//score/result",
+        "@score_baselibs//score/mw/log",
+        "@score_baselibs//score/result",
     ],
 )
 
@@ -138,8 +138,8 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":deliverables_includes",
-        "@score-baselibs//score/concurrency/future",
-        "@score-baselibs//score/mw/log",
+        "@score_baselibs//score/concurrency/future",
+        "@score_baselibs//score/mw/log",
     ],
 )
 
@@ -177,8 +177,8 @@ cc_library(
     deps = [
         ":deliverables_includes",
         "//external/ipc_dropin",
-        "@score-baselibs//score/mw/log",
-        "@score-baselibs//score/result",
+        "@score_baselibs//score/mw/log",
+        "@score_baselibs//score/result",
     ],
 )
 

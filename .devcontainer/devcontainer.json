@@ -5,7 +5,7 @@
 
     "name": "eclipse-s-core-etas",
     // Use the same image as the project's devcontainer
-    "image": "ghcr.io/eclipse-score/devcontainer:latest",
+    "image": "ghcr.io/eclipse-score/devcontainer:1.0.0",
 
     // Initialize bazel cache on host
     "initializeCommand": "mkdir -p ${localEnv:HOME}/.cache/bazel",
