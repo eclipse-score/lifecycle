@@ -114,7 +114,7 @@ cc_library_with_common_opts(
     ],
     deps = [
         "//launch_manager:recovery_client",
-        "@score-baselibs//score/mw/log",
+        "@score_baselibs//score/mw/log",
     ],
 )
 

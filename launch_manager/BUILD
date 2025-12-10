@@ -157,7 +157,7 @@ cc_library(
     deps = [
         ":deliverables_includes",
         "//external/ipc_dropin",
-        "@score-baselibs//score/concurrency/future",
+        "@score_baselibs//score/concurrency/future",
     ],
 )
 
