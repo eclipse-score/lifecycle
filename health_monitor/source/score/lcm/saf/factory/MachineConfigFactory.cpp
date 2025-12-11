@@ -150,10 +150,6 @@ void MachineConfigFactory::loadHmSettings(const HMCOREFlatBuffer::HMCOREEcuCfg& 
         {
             cycleTimeNs = timers::TimeConversion::convertMilliSecToNanoSec(static_cast<double>(config->periodicity()));
         }
-        if (config->hasValueEnableTerminationRequest())
-        {
-            hmDaemonShutdownEnabled = config->enableTerminationRequest();
-        }
 
         // Because the hm-lib will also need to know of a changed shared memory size (which it currently does not).
         // The support for configuring shared memory size is delayed until pipc migration.
@@ -179,11 +175,6 @@ timers::NanoSecondType MachineConfigFactory::getCycleTimeInNs() const noexcept(t
     return cycleTimeNs;
 }
 
-bool MachineConfigFactory::isHmShutdownEnabled() const noexcept(true)
-{
-    return hmDaemonShutdownEnabled;
-}
-
 const MachineConfigFactory::SupervisionBufferConfig& MachineConfigFactory::getSupervisionBufferConfig() const
     noexcept(true)
 {
@@ -193,7 +184,6 @@ const MachineConfigFactory::SupervisionBufferConfig& MachineConfigFactory::getSu
 void MachineConfigFactory::logConfiguration() noexcept(true)
 {
     /* RULECHECKER_comment(0, 18, check_conditional_as_sub_expression, "Ternary operation is very simple", true_no_defect) */
-    const char* const shutdownBool{isHmShutdownEnabled() ? "true" : "false"};
     logger_r.LogDebug() << kLogPrefix << "Alive Supervision buffer size:" << supBufferCfg.bufferSizeAliveSupervision;
     logger_r.LogDebug() << kLogPrefix
                         << "Deadline Supervision buffer size:" << supBufferCfg.bufferSizeDeadlineSupervision;
@@ -202,7 +192,6 @@ void MachineConfigFactory::logConfiguration() noexcept(true)
     logger_r.LogDebug() << kLogPrefix << "Local Supervision buffer size:" << supBufferCfg.bufferSizeLocalSupervision;
     logger_r.LogDebug() << kLogPrefix << "Global Supervision buffer size:" << supBufferCfg.bufferSizeGlobalSupervision;
     logger_r.LogDebug() << kLogPrefix << "Monitor buffer size:" << supBufferCfg.bufferSizeMonitor;
-    logger_r.LogDebug() << kLogPrefix << "Shutdown enabled:" << shutdownBool;
     logger_r.LogDebug() << kLogPrefix << "Periodicity:" << getCycleTimeInNs() << "ns";
     logger_r.LogDebug() << kLogPrefix << "Configured watchdogs:" << watchdogConfigs.size();
     std::uint32_t wdgCount{1U};

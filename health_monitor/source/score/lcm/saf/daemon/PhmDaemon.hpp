@@ -21,7 +21,6 @@
 #include <vector>
 #include "score/lcm/lifecycle_client.h"
 #include "score/lcm/control_client.h"
-#include "score/lcm/saf/common/PhmSignalHandler.hpp"
 #include "score/lcm/saf/daemon/PhmDaemonConfig.hpp"
 #include "score/lcm/saf/daemon/SwClusterHandler.hpp"
 #include "score/lcm/saf/factory/MachineConfigFactory.hpp"

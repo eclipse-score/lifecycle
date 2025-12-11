@@ -16,7 +16,6 @@
 #include <cstdint>
 #include <iostream>
 
-#include "score/lcm/saf/common/PhmSignalHandler.hpp"
 #include "score/lcm/saf/logging/PhmLogger.hpp"
 #include "score/lcm/saf/watchdog/WatchdogImpl.hpp"
 #include "health_monitor.hpp"

@@ -44,13 +44,6 @@ cc_library_with_common_opts(
 )
 
 cc_library_with_common_opts(
-    name = "common",
-    srcs = ["source/score/lcm/saf/common/PhmSignalHandler.cpp"],
-    hdrs = ["source/score/lcm/saf/common/PhmSignalHandler.hpp"],
-    includes = ["source"],
-)
-
-cc_library_with_common_opts(
     name = "ipc_if",
     hdrs = glob(["source/score/lcm/saf/ipc/*.hpp"]),
     deps = ["//external/ipc_dropin"],
@@ -263,7 +256,6 @@ cc_library_with_common_opts(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        ":common",
         ":daemon",
         ":factory",
         ":ifappl",
