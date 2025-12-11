@@ -119,6 +119,15 @@ Dynamic Architecture
 
    .. uml::  assets/lm_usage.puml
 
+.. comp_arc_dyn:: HeartbeatMonitor Usage
+   :id: comp_arc_dyn__heartbeat_monitor__dynamic_view
+   :security: NO
+   :safety: ASIL_B
+   :status: valid
+   :fulfils: comp_req__health_monitor__dummy
+
+   .. uml::  assets/hbm_usage.puml
+
 Interfaces
 ----------
 
@@ -141,6 +150,16 @@ Interfaces
    :language: rust
 
    .. uml::  assets/lm_interface.puml
+
+.. real_arc_int:: HeartbeatMonitor Interface
+   :id: real_arc_int__heartbeat_monitor__interface
+   :security: NO
+   :safety: ASIL_B
+   :status: valid
+   :fulfils: comp_req__health_monitor__dummy
+   :language: rust
+
+   .. uml::  assets/hbm_interface.puml
 
 .. real_arc_int:: HealthMonitor Interface
    :id: real_arc_int__health_monitor__interface

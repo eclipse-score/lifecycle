@@ -4,6 +4,7 @@ actor "User" as u
 participant "DeadlineMonitor" as dm
 participant "Deadline" as d
 participant "HealthMonitor" as hm
+participant "LaunchManager" as lm
 
 u -> hm : Get DeadlineMonitor
 hm --> u : DeadlineMonitor instance
@@ -18,6 +19,7 @@ d --> u : Ok
 hm -> dm : Check deadlines
 note right : HealthMonitor does this in a background thread
 dm --> hm : Ok
+hm --> lm : Alive notification (IPC)
 u -> d : Stop
 d --> u : Ok
 dm -> dm : Unregister deadline
@@ -30,6 +32,7 @@ hm -> dm : Check deadlines
 note right : HealthMonitor does this in a background thread
 dm -> dm : Deadline expired
 dm --> hm : Failed
+note right: Alive notification is not sent
 u -> d : Stop
 d --> u : Error
 dm -> dm : Unregister deadline
@@ -44,6 +47,7 @@ hm -> dm : Check deadlines
 note right : HealthMonitor does this in a background thread
 dm --> hm : Ok
 note right : The DeadlineMonitor is disabled, the deadlines are paused and not checked
+hm --> lm : Alive notification (IPC)
 u -> d : Stop
 d --> u : Ok
 dm -> dm : Unregister deadline
@@ -66,6 +70,7 @@ hm -> dm : Check deadlines
 note right : HealthMonitor does this in a background thread
 dm -> dm : Deadline expired
 dm --> hm : Failed
+note right: Alive notification is not sent
 u -> d : Stop
 d --> u : Error
 dm -> dm : Unregister deadline

@@ -1,0 +1,28 @@
+@startuml
+
+~enum HeartbeatMonitorStatus {
+    Healthy
+    Disabled
+    TimedOut
+}
+
+~enum Error {
+    BadParameter,
+    NotAllowed,
+    OutOfMemory,
+    Generic,
+}
+
++class HeartbeatMonitor {
+    -heartbeat_cycle: Duration
+    -last_heartbeat: Instant
+    -status: HeartbeatMonitorStatus
+    +new(heartbeat_cycle: Duration) -> Self
+    +heartbeat(&self) -> Result<(), Error>
+    +check_heartbeat(&self) -> Status
+    +enable(&self) -> Result<(), Error>
+    +disable(&self) -> Result<(), Error>
+}
+
+HeartbeatMonitor *-- HeartbeatMonitorStatus : owns
+HeartbeatMonitor ..> Error
