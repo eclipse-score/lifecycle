@@ -37,8 +37,7 @@ namespace saf
 {
 namespace daemon
 {
-extern std::mutex initialization_mutex;
-extern std::condition_variable initialization_cv;
+
 /// @brief Return codes for PhmDaemon Initialization
 enum class EInitCode : std::int8_t
 {
@@ -92,7 +91,6 @@ public:
     /// @return See EInitCode definition
     EInitCode init(std::shared_ptr<score::lcm::IRecoveryClient> recovery_client) noexcept(false)
     {
-
         recoveryClient = recovery_client;
 
         factory::MachineConfigFactory machineConfig{};
@@ -145,7 +143,6 @@ public:
     /// @brief Start cyclic execution
     /// @param[in] f_terminateCond Boolean predicate to determine when to terminate the cyclic loop
     /// (e.g. due to a signal received)
-    /// @param[inout] init_status Atomic variable to communicate result of initialization
     /// @return bool false in case start of cyclic execution failed
     ///
     /// @tparam TerminationSignalPredType Template parameter for the boolean condition to terminate the loop. This is
@@ -163,7 +160,7 @@ public:
     /* RULECHECKER_comment(0, 4, check_cheap_to_copy_in_parameter, "f_terminateCond is passed as reference\
        for signal handling", true_no_defect) */
     template <typename TerminationSignalPredType>
-    bool startCyclicExec(const TerminationSignalPredType& f_terminateCond, std::atomic<EInitCode>& init_status) noexcept
+    bool startCyclicExec(const TerminationSignalPredType& f_terminateCond) noexcept
     {
         timers::NanoSecondType startTimestamp{cycleTimer.start()};
         if (startTimestamp == 0U)
@@ -179,11 +176,6 @@ public:
                               "checkpoint reporting.";
 #endif
 
-        {
-            std::lock_guard lk(initialization_mutex);
-            init_status.store(EInitCode::kNoError);
-        }
-        initialization_cv.notify_all();
         while (!f_terminateCond.load())
         {
             performCyclicTriggers();

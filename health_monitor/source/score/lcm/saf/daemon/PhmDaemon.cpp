@@ -31,9 +31,6 @@ namespace saf
 namespace daemon
 {
 
-std::mutex initialization_mutex{};
-std::condition_variable initialization_cv{};
-
 /* RULECHECKER_comment(0, 6, check_expensive_to_copy_in_parameter, "Move only types cannot be passed by const ref",
    true_no_defect) */
 /* RULECHECKER_comment(0, 4, check_incomplete_data_member_construction, "Default constructor is used for\

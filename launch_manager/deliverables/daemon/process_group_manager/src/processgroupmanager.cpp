@@ -16,7 +16,7 @@
 
 #include <score/lcm/internal/processgroupmanager.hpp>
 #include <score/lcm/internal/log.hpp>
-#include <score/lcm/saf/daemon/health_monitor.hpp>
+#include <score/lcm/internal/ihealth_monitor_thread.hpp>
 #include <csignal>
 #include <sys/wait.h>
 
@@ -38,7 +38,7 @@ void ProcessGroupManager::cancel() {
     my_signal_handler(SIGTERM);
 }
 
-ProcessGroupManager::ProcessGroupManager(std::unique_ptr<IHealthMonitor> health_monitor, std::shared_ptr<IRecoveryClient> recovery_client)
+ProcessGroupManager::ProcessGroupManager(std::unique_ptr<IHealthMonitorThread> health_monitor, std::shared_ptr<IRecoveryClient> recovery_client)
     : configuration_manager_(),
       process_interface_(),
       process_map_(nullptr),
@@ -93,7 +93,7 @@ bool ProcessGroupManager::initialize() {
         createProcessComponentsObjects();
         initializeGraphNodes();
         //success = ucm_polling_thread_.startPolling();
-        success = health_monitor_thread_->start(recovery_client_);
+        success = health_monitor_thread_->start();
     }
 
     if (success && launch_manager_config_ &&

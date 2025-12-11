@@ -26,7 +26,8 @@
 #include <score/lcm/internal/safeprocessmap.hpp>
 #include <score/lcm/internal/controlclientchannel.hpp>
 #include <score/lcm/internal/workerthread.hpp>
-#include <score/lcm/internal/ihealth_monitor.hpp>
+#include <score/lcm/internal/ihealth_monitor_thread.hpp>
+#include <score/lcm/internal/recovery_client.hpp>
 #include <cstdint>
 #include <memory>
 #include <ctime>
@@ -57,7 +58,7 @@ class ProcessGroupManager final {
     /// setting up any necessary internal state and preparing it for use.
     /// @param health_monitor A unique pointer to an IHealthMonitor instance for managing health monitoring.
     /// @param recovery_client A shared pointer to an IRecoveryClient instance for handling recovery operations.
-    ProcessGroupManager(std::unique_ptr<IHealthMonitor> health_monitor, std::shared_ptr<IRecoveryClient> recovery_client);
+    ProcessGroupManager(std::unique_ptr<IHealthMonitorThread> health_monitor, std::shared_ptr<IRecoveryClient> recovery_client);
 
     /// @brief Initializes the process group manager.
     /// Loads the flat configuration through ConfigurationManager.
@@ -296,7 +297,7 @@ class ProcessGroupManager final {
     /// @brief pointer to the configuration for Launch Manager
     const OsProcess* launch_manager_config_{nullptr};
 
-    std::unique_ptr<score::lcm::internal::IHealthMonitor> health_monitor_thread_;
+    std::unique_ptr<IHealthMonitorThread> health_monitor_thread_;
 
     std::shared_ptr<score::lcm::IRecoveryClient> recovery_client_{};
 };

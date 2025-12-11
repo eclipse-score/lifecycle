@@ -13,7 +13,9 @@
 
 #ifndef SAF_DAEMON_HEALTH_MONITOR_HPP_INCLUDED
 #define SAF_DAEMON_HEALTH_MONITOR_HPP_INCLUDED
+
 #include "score/lcm/saf/daemon/PhmDaemon.hpp"
+
 namespace score
 {
 namespace lcm
@@ -23,11 +25,20 @@ namespace saf
 namespace daemon
 {
 
-/// @brief Entry point for HM daemon thread
-/// @param recovery_client Shared pointer to recovery client
-/// @param init_status Initialization status to be updated
-/// @param cancel_thread Termination signal predicate
-void run(std::shared_ptr<score::lcm::IRecoveryClient> recovery_client, std::atomic<EInitCode>& init_status, std::atomic_bool& cancel_thread);
+/// @brief Interface for HealthMonitor functionality
+class IHealthMonitor {
+public:
+    virtual ~IHealthMonitor() = default;
+
+    /// @brief Initialize the HealthMonitor functionality
+    /// @return kNoError if initialization was successful, otherwise an appropriate error code.
+    virtual EInitCode init() noexcept = 0;
+
+    /// @brief Run the HealthMonitor functionality in a cyclic manner until cancellation is requested.
+    /// @param cancel_thread Atomic boolean flag to signal thread cancellation.
+    virtual bool run(std::atomic_bool& cancel_thread) noexcept = 0;
+};
+
 }  // namespace daemon
 }  // namespace saf
 }  // namespace lcm

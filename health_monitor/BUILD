@@ -248,7 +248,7 @@ cc_library_with_common_opts(
 cc_library_with_common_opts(
     name = "health_monitor",
     srcs = [
-        "source/score/lcm/saf/daemon/health_monitor.cpp",
+        "source/score/lcm/saf/daemon/HealthMonitorImpl.cpp",
     ],
     cxxopts = [
         "-fpic",

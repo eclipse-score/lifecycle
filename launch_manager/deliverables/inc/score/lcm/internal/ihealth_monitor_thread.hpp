@@ -15,17 +15,15 @@
 #ifndef SCORE_LCM_IHEALTH_MONITOR_HPP_INCLUDED
 #define SCORE_LCM_IHEALTH_MONITOR_HPP_INCLUDED
 
-#include <score/lcm/irecovery_client.h>
-
 namespace score
 {
 namespace lcm
 {
 namespace internal
 {
-class IHealthMonitor {
+class IHealthMonitorThread {
  public:
-    virtual bool start(std::shared_ptr<score::lcm::IRecoveryClient> client) noexcept = 0;
+    virtual bool start() noexcept = 0;
     virtual void stop() noexcept = 0;
 };
 }

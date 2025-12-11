@@ -17,7 +17,8 @@
 
 #include <thread>
 #include <atomic>
-#include <score/lcm/internal/ihealth_monitor.hpp>
+#include <score/lcm/internal/ihealth_monitor_thread.hpp>
+#include <score/lcm/saf/daemon/IHealthMonitor.hpp>
 
 namespace score
 {
@@ -27,16 +28,18 @@ namespace internal
 {
 
 /// @brief HealthMonitor manages the lifecycle of the Health Monitor daemon in a separate thread.
-class HealthMonitor  final : public IHealthMonitor {
+class HealthMonitorThread  final : public IHealthMonitorThread {
  public:
+   HealthMonitorThread(std::unique_ptr<saf::daemon::IHealthMonitor> health_monitor);
+
     /// @brief Starts the Health Monitor thread.
-    /// @param client Shared pointer to the RecoveryClient used for communication with Launch Manager.
     /// @return true if the Health Monitor started successfully, false otherwise.
-    bool start(std::shared_ptr<score::lcm::IRecoveryClient> client) noexcept override;
+    bool start() noexcept override;
 
     /// @brief Stops the Health Monitor thread.
     void stop() noexcept override;
  private:
+    std::unique_ptr<saf::daemon::IHealthMonitor> m_health_monitor{nullptr};
     std::thread health_monitor_thread_{};
     std::atomic_bool stop_thread_{false};
 };
