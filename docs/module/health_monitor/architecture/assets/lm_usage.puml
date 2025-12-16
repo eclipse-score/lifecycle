@@ -71,5 +71,6 @@ hm -> lm : Check logic
 note right : HealthMonitor does this in a background thread
 lm --> hm : Ok
 hm --> launch : Alive notification (IPC)
-
 end
+
+@enduml

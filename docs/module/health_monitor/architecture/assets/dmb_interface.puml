@@ -1,0 +1,23 @@
+@startuml
+
+!include hm_duration_range.puml
+!include hm_error.puml
+!include hm_tag.puml
+!includesub dm_interface.puml!DeadlineMonitorClass
+
+!startsub DeadlineMonitorBuilderClass
++class DeadlineMonitorBuilder {
+    +new() -> Self 
+    +add_deadline(&mut self, tag: Tag, duration_range: DurationRange) -> &mut Self
+    +build(self) -> Result<DeadlineMonitor, Error>
+}
+!endsub
+
+!startsub DeadlineMonitorBuilderRel
+DeadlineMonitorBuilder ..> Error
+DeadlineMonitorBuilder ..> Tag
+DeadlineMonitorBuilder ..> DeadlineMonitor : <<consumes>>
+DeadlineMonitorBuilder ..> DurationRange
+!endsub
+
+@enduml

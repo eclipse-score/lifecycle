@@ -101,6 +101,15 @@ Dynamic Architecture
 
    .. uml::  assets/hm_creation.puml
 
+.. comp_arc_dyn:: HealthMonitor background thread
+   :id: comp_arc_dyn__health_lib_thread__dynamic_view
+   :security: NO
+   :safety: ASIL_B
+   :status: valid
+   :fulfils: comp_req__health_monitor__dummy
+
+   .. uml::  assets/hm_background_thread.puml
+
 .. comp_arc_dyn:: DeadlineMonitor Usage
    :id: comp_arc_dyn__deadline_monitor__dynamic_view
    :security: NO
@@ -139,7 +148,7 @@ Interfaces
    :fulfils: comp_req__health_monitor__dummy
    :language: rust
 
-   .. uml::  assets/dm_interface.puml
+   .. uml::  assets/dmb_interface.puml
 
 .. real_arc_int:: LogicMonitor Interface
    :id: real_arc_int__logic_monitor__interface
@@ -149,7 +158,7 @@ Interfaces
    :fulfils: comp_req__health_monitor__dummy
    :language: rust
 
-   .. uml::  assets/lm_interface.puml
+   .. uml::  assets/lmb_interface.puml
 
 .. real_arc_int:: HeartbeatMonitor Interface
    :id: real_arc_int__heartbeat_monitor__interface
@@ -169,4 +178,4 @@ Interfaces
    :fulfils: comp_req__health_monitor__dummy
    :language: rust
 
-   .. uml::  assets/hm_interface.puml
+   .. uml::  assets/hmb_interface.puml

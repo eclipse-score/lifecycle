@@ -1,127 +1,19 @@
 @startuml
 
-+enum Status {
-    Running
-    Disabled
-    Failed
-    Stopped
-}
+!include ../../architecture/assets/lm_state.puml
+!include ../../architecture/assets/hm_status.puml
+!include ../../architecture/assets/hm_duration_range.puml
+!include ../../architecture/assets/hm_deadline.puml
 
-~enum HeartbeatMonitorStatus {
-    Healthy
-    Disabled
-    TimedOut
-}
+!include ../../architecture/assets/hmb_interface.puml
+!includesub ../../architecture/assets/dmb_interface.puml!DeadlineMonitorBuilderClass
+!includesub ../../architecture/assets/dmb_interface.puml!DeadlineMonitorBuilderRel
+!includesub ../../architecture/assets/lmb_interface.puml!LogicMonitorBuilderClass
+!includesub ../../architecture/assets/lmb_interface.puml!LogicMonitorBuilderRel
 
-+enum Error {
-    BadParameter,
-    NotAllowed,
-    OutOfMemory,
-    Generic,
-}
+!includesub ../../architecture/assets/lm_interface.puml!LogicMonitorRel
+!includesub ../../architecture/assets/dm_interface.puml!DeadlineMonitorRel
+!includesub ../../architecture/assets/hbm_interface.puml!HeartbeatMonitorRel
+!includesub ../../architecture/assets/hm_interface.puml!HealthMonitorRel
 
-+class Tag {
-    +new<N: AsRef<str>>(name: N) -> Self
-}
-
-+class DeadlineMonitorBuilder {
-    +new() -> Self 
-    +add_deadline(&mut self, tag: Tag, min: Duration, max: Duration) -> &mut Self
-    +build(self) -> Result<DeadlineMonitor, Error>
-}
-
-+class DeadlineMonitor {
-    +create_deadline(&self, tag: Tag) -> Result<Deadline, Error>
-    +create_deadline_guard(&self, tag: Tag) -> Result<DeadlineGuard, Error>
-    +create_custom_deadline(&self, min: Duration, max: Duration) -> Result<Deadline, Error>
-    +create_custom_deadline_guard(&self, min: Duration, max: Duration) -> Result<DeadlineGuard, Error>
-    +enable(&self) -> Result<(), Error>
-    +disable(&self) -> Result<(), Error>
-    +status(&self) -> Status
-    ~step(&self) -> Status
-}
-
-+class Deadline {
-    +start(&mut self) -> Result<(), Error>
-    +stop(&mut self) -> Result<(), Error>
-    +min(&self) -> Duration
-    +max(&self) -> Duration
-}
-
-+class DeadlineGuard {
-}
-
-+class LogicMonitorState {
-    +new<N: AsRef<str>>(name: N) -> Self
-}
-
-+class LogicMonitorBuilder {
-    +new(initial_state: LogicMonitorState) -> Self
-    +add_transition(&mut self, from: LogicMonitorState, to: LogicMonitorState) -> &mut Self
-    +build(self) -> Result<LogicMonitor, Error>
-}
-
-+class LogicMonitor {
-    +transition(&self, to: LogicMonitorState) -> Result<(), Error>
-    +enable(&self) -> Result<(), Error>
-    +disable(&self) -> Result<(), Error>
-    +status(&self) -> Status
-    +state(&self) -> LogicMonitorState
-}
-
-+class HealthMonitorBuilder {
-    +new() -> Self 
-    +from_config(config: &str) -> Self
-    +add_heartbeat_monitor(&mut self, tag: Tag, monitor: HeartbeatMonitor) -> &mut Self
-    +add_deadline_monitor(&mut self, tag: Tag, monitor: DeadlineMonitor) -> &mut Self
-    +add_logic_monitor(&mut self, tag: Tag, monitor: LogicMonitor) -> &mut Self
-    +build(self) -> Result<HealthMonitor, Error>
-}
-
-+class HealthMonitor {
-    +get_heartbeat_monitor(&self, tag: Tag) -> Result<HeartbeatMonitor, Error>
-    +get_deadline_monitor(&self, tag: Tag) -> Result<DeadlineMonitor, Error>
-    +get_logic_monitor(&self, tag: Tag) -> Result<LogicMonitor, Error>
-    +status(&self) -> Status
-}
-
-+class HeartbeatMonitor {
-    +new(heartbeat_cycle: Duration) -> Self
-    +heartbeat(&self) -> Result<(), Error>
-    +check_heartbeat(&self) -> Status
-    +enable(&self) -> Result<(), Error>
-    +disable(&self) -> Result<(), Error>
-}
-
-DeadlineMonitorBuilder ..> Error
-DeadlineMonitorBuilder ..> Tag
-DeadlineMonitorBuilder ..> DeadlineMonitor : <<consumes>>
-DeadlineMonitor *-- Status : owns
-DeadlineMonitor ..> Error
-DeadlineMonitor ..> Tag
-DeadlineMonitor ..> Deadline : <<creates>>
-DeadlineMonitor ..> DeadlineGuard : <<creates>>
-Deadline ..> Error
-
-LogicMonitorBuilder ..> Error
-LogicMonitorBuilder *-- "1..*" LogicMonitorState : owns
-LogicMonitorBuilder ..> LogicMonitor : <<consumes>>
-LogicMonitor *-- Status : owns
-LogicMonitor *-- "1..*" LogicMonitorState : owns
-LogicMonitor ..> Error
-
-HeartbeatMonitor *-- HeartbeatMonitorStatus : owns
-HeartbeatMonitor ..> Error
-
-HealthMonitorBuilder ..> Error
-HealthMonitorBuilder ..> Tag
-HealthMonitorBuilder ..> HealthMonitor : <<consumes>>
-HealthMonitorBuilder o-- "0..*" DeadlineMonitor
-HealthMonitorBuilder o-- "0..*" LogicMonitor
-HealthMonitorBuilder o-- "0..*" HeartbeatMonitor
-HealthMonitor *-- Status
-HealthMonitor ..> Error
-HealthMonitor ..> Tag
-HealthMonitor o-- "0..*" DeadlineMonitor
-HealthMonitor o-- "0..*" LogicMonitor
-HealthMonitor o-- "0..*" HeartbeatMonitor
+@enduml

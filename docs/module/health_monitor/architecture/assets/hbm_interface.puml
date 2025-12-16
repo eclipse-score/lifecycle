@@ -1,25 +1,23 @@
 @startuml
 
-+enum HeartbeatMonitorStatus {
-    Healthy
-    Disabled
-    TimedOut
-}
+!include hm_error.puml
+!include hm_status.puml
+!include hm_duration_range.puml
 
-+enum Error {
-    BadParameter,
-    NotAllowed,
-    OutOfMemory,
-    Generic,
-}
-
+!startsub HeartbeatMonitorClass
 +class HeartbeatMonitor {
-    +new(maximum_heartbeat_cycle: Duration) -> Self
-    +heartbeat(&self) -> Result<(), Error>
-    +check_heartbeat(&self) -> Status
+    +new(duration_range: DurationRange) -> Self
+    +report_heartbeat(&self) -> Result<(), Error>
     +enable(&self) -> Result<(), Error>
     +disable(&self) -> Result<(), Error>
+    ~evaluate(&self) -> Status
 }
+!endsub
 
-HeartbeatMonitor *-- HeartbeatMonitorStatus : owns
+!startsub HeartbeatMonitorRel
+HeartbeatMonitor *-- Status : owns
 HeartbeatMonitor ..> Error
+HeartbeatMonitor ..> DurationRange
+!endsub
+
+@enduml

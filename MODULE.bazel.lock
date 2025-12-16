@@ -713,6 +713,8 @@
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_swift/1.16.0/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_swift/1.18.0/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_swift/2.1.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_baselibs/0.1.3/MODULE.bazel": "fd9b678508eeaf2ef3f8df680ffb1c39b58a044923714db8e2063544ecf4b91a",
+    "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_baselibs/0.1.3/source.json": "0f6c329b84ebd4ed3d380a59f46422ce5847e6a180ef69d8088749f9c535ffdb",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_bazel_platforms/0.0.2/MODULE.bazel": "32f0cbc08bb1c60279448d666aead6b5a000374a8a67f08822b258bf00a6a183",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_bazel_platforms/0.0.2/source.json": "bd7468bbc4f6b807c61b6609d93b3ae2beb137e5e1be9663723353eeec4af794",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_cr_checker/0.2.2/MODULE.bazel": "dc36d9c35543db918c3fb5b93a8e684431f56c7c784cf2a1b90f35802a373c98",
@@ -1683,7 +1685,7 @@
     "@@score_toolchains_qnx+//:extensions.bzl%toolchains_qnx": {
       "general": {
         "bzlTransitiveDigest": "cPq5Y3ehr3HGzHzLWyGXyjtXht8FYKYh6dA5HrR4PM0=",
-        "usagesDigest": "pZ2wMkRsIKrme05lU1n8ORonDnNwOjpI6JoeKD6wx9o=",
+        "usagesDigest": "57vskEtnheV4LMUX6fJDRfsaRXNH2xz9eQ0xsOMu6y8=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -1724,7 +1726,7 @@
     "@@score_toolchains_rust+//extensions:rust_toolchain_ext.bzl%rust_toolchain_ext": {
       "general": {
         "bzlTransitiveDigest": "RP7Iy6qWMQlObEOipkudjUoKBYz7cTVRiEjchAhDvHc=",
-        "usagesDigest": "eu159HOrwa94LBqNLhopHSoaefdweKU0c8wHoWZ9rOE=",
+        "usagesDigest": "AcpM8IAvg7E7TBdAbxyxwosO7mnEtOpUrwl8L5dwhTY=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -1769,7 +1771,7 @@
     "@@toolchains_llvm+//toolchain/extensions:llvm.bzl%llvm": {
       "general": {
         "bzlTransitiveDigest": "Em+vaNxqqNoJbKkwGoY1/+WFLFsD6ZPoJM9LL4SYSPA=",
-        "usagesDigest": "fqrND5nlGh+tueivBcfI7vNMop4pqix0o9knP380UgE=",
+        "usagesDigest": "wdxzd94J8KV5scjNUorz3duHy7qeHuRTo6lhuYgn4tw=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},

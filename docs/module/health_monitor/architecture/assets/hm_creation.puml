@@ -33,6 +33,8 @@ group One or more
     u -> hmb : Add LogicMonitor instance
 end
 u -> hmb : Build
+hmb -> hm: new
+hm --> hmb: HealthMonitor instance
 hmb --> u : HealthMonitor instance
 loop Test monitors (in a background thread)
     alt All monitors healthy
@@ -42,4 +44,5 @@ loop Test monitors (in a background thread)
         note right : Alive notification is not sent
     end
 end
+
 @enduml

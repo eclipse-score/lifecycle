@@ -1,0 +1,18 @@
+@startuml
+
+!include hm_error.puml
+
+!startsub DeadlineClass
++class Deadline {
+    +start(&mut self) -> Result<(), Error>
+    +stop(&mut self) -> Result<(), Error>
+    +min(&self) -> Duration
+    +max(&self) -> Duration
+}
+!endsub
+
+!startsub DeadlineRel
+Deadline ..> Error
+!endsub
+
+@enduml

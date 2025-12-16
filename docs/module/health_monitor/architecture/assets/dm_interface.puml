@@ -1,56 +1,34 @@
 @startuml
 
-+enum Status {
-    Running
-    Disabled
-    Failed
-    Stopped
-}
+!include hm_tag.puml
+!include hm_error.puml
+!include hm_status.puml
+!include hm_duration_range.puml
+!includesub hm_deadline.puml!DeadlineClass
 
-+enum Error {
-    BadParameter,
-    NotAllowed,
-    OutOfMemory,
-    Generic,
-}
-
-+class Tag {
-    +new<N: AsRef<str>>(name: N) -> Self
-}
-
-+class DeadlineMonitorBuilder {
-    +new() -> Self 
-    +add_deadline(&mut self, tag: Tag, min: Duration, max: Duration) -> &mut Self
-    +build(self) -> Result<DeadlineMonitor, Error>
-}
-
+!startsub DeadlineMonitorClass
 +class DeadlineMonitor {
-    +create_deadline(&self, tag: Tag) -> Result<Deadline, Error>
-    +create_deadline_guard(&self, tag: Tag) -> Result<DeadlineGuard, Error>
-    +create_custom_deadline(&self, min: Duration, max: Duration) -> Result<Deadline, Error>
-    +create_custom_deadline_guard(&self, min: Duration, max: Duration) -> Result<DeadlineGuard, Error>
+    +get_deadline(&self, tag: Tag) -> Result<Deadline, Error>
+    +get_deadline_guard(&self, tag: Tag) -> Result<DeadlineGuard, Error>
+    +create_custom_deadline(&self, duration_range: DurationRange) -> Result<Deadline, Error>
+    +create_custom_deadline_guard(&self, duration_range: DurationRange) -> Result<DeadlineGuard, Error>
     +enable(&self) -> Result<(), Error>
     +disable(&self) -> Result<(), Error>
-    +status(&self) -> Status
-    ~step(&self) -> Status
+    ~status(&self) -> Status
+    ~evaluate(&self) -> Status
 }
-
-+class Deadline {
-    +start(&mut self) -> Result<(), Error>
-    +stop(&mut self) -> Result<(), Error>
-    +min(&self) -> Duration
-    +max(&self) -> Duration
-}
+!endsub
 
 +class DeadlineGuard {
 }
 
-DeadlineMonitorBuilder ..> Error
-DeadlineMonitorBuilder ..> Tag
-DeadlineMonitorBuilder ..> DeadlineMonitor : <<consumes>>
+!startsub DeadlineMonitorRel
 DeadlineMonitor *-- Status : owns
 DeadlineMonitor ..> Error
 DeadlineMonitor ..> Tag
 DeadlineMonitor ..> Deadline : <<creates>>
 DeadlineMonitor ..> DeadlineGuard : <<creates>>
-Deadline ..> Error
+DeadlineMonitor ..> DurationRange
+!endsub
+
+@enduml

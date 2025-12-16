@@ -1,0 +1,10 @@
+@startuml
+
++enum Error {
+    BadParameter,
+    NotAllowed,
+    OutOfMemory,
+    Generic,
+}
+
+@enduml

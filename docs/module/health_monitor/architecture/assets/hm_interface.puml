@@ -1,54 +1,30 @@
 @startuml
 
-+enum Status {
-    Running
-    Disabled
-    Failed
-    Stopped
-}
+!include hm_tag.puml
+!include hm_error.puml
+!include hm_status.puml
+!includesub lm_interface.puml!LogicMonitorClass
+!includesub dm_interface.puml!DeadlineMonitorClass
+!includesub hbm_interface.puml!HeartbeatMonitorClass
 
-+enum Error {
-    BadParameter,
-    NotAllowed,
-    OutOfMemory,
-    Generic,
-}
-
-+class Tag {
-    +new<N: AsRef<str>>(name: N) -> Self
-}
-
-+class DeadlineMonitor {
-}
-
-+class LogicMonitor {
-}
-
-+class HealthMonitorBuilder {
-    +new() -> Self 
-    +from_config(config: &str) -> Self 
-    +add_heartbeat_monitor(&mut self, tag: Tag, monitor: HeartbeatMonitor) -> &mut Self
-    +add_deadline_monitor(&mut self, tag: Tag, monitor: DeadlineMonitor) -> &mut Self
-    +add_logic_monitor(&mut self, tag: Tag, monitor: LogicMonitor) -> &mut Self
-    +build(self) -> Result<HealthMonitor, Error>
-}
-
+!startsub HealthMonitorClass
 +class HealthMonitor {
-    +get_heartbeat_monitor(&mut self, tag: Tag) -> Result<HeartbeatMonitor, Error>
+    +get_heartbeat_monitor(&self, tag: Tag) -> Result<HeartbeatMonitor, Error>
     +get_deadline_monitor(&self, tag: Tag) -> Result<DeadlineMonitor, Error>
     +get_logic_monitor(&self, tag: Tag) -> Result<LogicMonitor, Error>
-    +status(&self) -> Status
+    +get_supervisor_api_cycle() -> Result<Duration, Error>
+    +get_internal_processing_cycle() -> Result<Duration, Error>
+    ~status(&self) -> Status
 }
+!endsub
 
-HealthMonitorBuilder ..> Error
-HealthMonitorBuilder ..> Tag
-HealthMonitorBuilder ..> HealthMonitor : <<consumes>>
-HealthMonitorBuilder o-- "0..*" DeadlineMonitor
-HealthMonitorBuilder o-- "0..*" LogicMonitor
-HealthMonitorBuilder o-- "0..*" HeartbeatMonitor
-HealthMonitor *-- Status
-HealthMonitor ..> Error
-HealthMonitor ..> Tag
+!startsub HealthMonitorRel
 HealthMonitor o-- "0..*" DeadlineMonitor
 HealthMonitor o-- "0..*" LogicMonitor
 HealthMonitor o-- "0..*" HeartbeatMonitor
+HealthMonitor *-- Status
+HealthMonitor ..> Error
+HealthMonitor ..> Tag
+!endsub
+
+@enduml

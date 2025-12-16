@@ -1,40 +1,23 @@
 @startuml
 
-+enum Status {
-    Running
-    Disabled
-    Failed
-    Stopped
-}
+!include lm_state.puml
+!include hm_error.puml
+!include hm_status.puml
 
-+enum Error {
-    BadParameter,
-    NotAllowed,
-    OutOfMemory,
-    Generic,
-}
-
-+class LogicMonitorState {
-    +new<N: AsRef<str>>(name: N) -> Self
-}
-
-+class LogicMonitorBuilder {
-    +new(initial_state: LogicMonitorState) -> Self
-    +add_transition(&mut self, from: LogicMonitorState, to: LogicMonitorState) -> &mut Self
-    +build(self) -> Result<LogicMonitor, Error>
-}
-
+!startsub LogicMonitorClass
 +class LogicMonitor {
     +transition(&self, to: LogicMonitorState) -> Result<(), Error>
     +enable(&self) -> Result<(), Error>
     +disable(&self) -> Result<(), Error>
-    +status(&self) -> Status
-    +state(&self) -> LogicMonitorState
+    ~status(&self) -> Status
+    ~state(&self) -> LogicMonitorState
 }
+!endsub
 
-LogicMonitorBuilder ..> Error
-LogicMonitorBuilder *-- "1..*" LogicMonitorState : owns
-LogicMonitorBuilder ..> LogicMonitor : <<consumes>>
+!startsub LogicMonitorRel
 LogicMonitor *-- Status : owns
 LogicMonitor *-- "1..*" LogicMonitorState : owns
 LogicMonitor ..> Error
+!endsub
+
+@enduml
