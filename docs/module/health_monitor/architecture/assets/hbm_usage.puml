@@ -1,12 +1,15 @@
 @startuml
 
+box "Application Process" #LightGray
 actor "User" as u
 participant "HeartbeatMonitor" as hbm
 participant "HealthMonitor" as hm
+end box
+
 participant "LaunchManager" as lm
 
 u -> hm : Get HeartbeatMonitor
-hm --> u : HeartbeatMonitor instance
+hm --> u : HeartbeatMonitor instance (enabled by default)
 
 alt Heartbeat sent within cycle time
 

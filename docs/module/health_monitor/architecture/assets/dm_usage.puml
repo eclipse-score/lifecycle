@@ -1,9 +1,12 @@
 @startuml
 
+box "Application Process" #LightGray
 actor "User" as u
 participant "DeadlineMonitor" as dm
 participant "Deadline" as d
 participant "HealthMonitor" as hm
+end box
+
 participant "LaunchManager" as lm
 
 u -> hm : Get DeadlineMonitor

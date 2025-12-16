@@ -1,8 +1,11 @@
 @startuml
 
+box "Application Process" #LightGray
 actor "User" as u
 participant "LogicMonitor" as lm
 participant "HealthMonitor" as hm
+end box
+
 participant "LaunchManager" as launch
 
 u -> hm : Get LogicMonitor

@@ -1,11 +1,14 @@
 @startuml
 
+box "Application Process" #LightGray
 actor "User" as u
 participant "DeadlineMonitorBuilder" as dmb
 participant "LogicMonitorBuilder" as lmb
 participant "HeartbeatMonitor" as hbm
 participant "HealthMonitorBuilder" as hmb
 participant "HealthMonitor" as hm
+end box
+
 participant "LaunchManager" as lm
 
 u -> dmb : Create
