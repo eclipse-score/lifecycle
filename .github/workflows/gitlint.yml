@@ -1,5 +1,5 @@
 # *******************************************************************************
-# Copyright (c) 2024 Contributors to the Eclipse Foundation
+# Copyright (c) 2025 Contributors to the Eclipse Foundation
 #
 # See the NOTICE file(s) distributed with this work for additional
 # information regarding copyright ownership.
@@ -15,10 +15,12 @@ name: Gitlint check
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 jobs:
   lint-commits:
     name: check-commit-messages
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.REPO_RUNNER_LABELS && fromJSON(vars.REPO_RUNNER_LABELS) || 'ubuntu-latest' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -29,3 +31,4 @@ jobs:
         uses: ./.github/actions/gitlint
         with:
           pr-number: ${{ github.event.number }}
+          base-branch: ${{ github.event.pull_request.base.ref }}

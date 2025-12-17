@@ -1,0 +1,11 @@
+[package]
+name = "health_monitoring_lib"
+repository = "https://github.com/eclipse-score/inc_lifecycle/src/health_monitoring_lib"
+readme = "README.md"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license-file.workspace = true
+
+[lints]
+workspace = true

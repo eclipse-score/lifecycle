@@ -11,14 +11,12 @@
 * SPDX-License-Identifier: Apache-2.0
 ********************************************************************************/
 
-use std::sync::Arc;
-use std::sync::atomic::{AtomicBool, Ordering};
-use signal_hook::flag;
-use std::convert::Into;
 use clap::Parser;
-use libc::{c_long, time_t, nanosleep, timespec};
+use libc::{c_long, nanosleep, time_t, timespec};
+use signal_hook::flag;
 use std::env;
-use libc;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -32,17 +30,17 @@ struct Args {
 
 #[derive(Debug, Copy, Clone)]
 enum Checks {
-    KOne,
-    KTwo,
-    KThree
+    One,
+    Two,
+    Three,
 }
 
-impl Into<u32> for Checks {
-    fn into(self) -> u32 {
-        match self {
-            Checks::KOne => 1,
-            Checks::KTwo => 2,
-            Checks::KThree => 3,
+impl From<Checks> for u32 {
+    fn from(val: Checks) -> Self {
+        match val {
+            Checks::One => 1,
+            Checks::Two => 2,
+            Checks::Three => 3,
         }
     }
 }
@@ -54,14 +52,11 @@ fn interruptible_sleep(delay: timespec) {
 }
 
 fn set_process_name() {
-    match env::var("PROCESSIDENTIFIER") {
-        Ok(val) => {
-            let str = std::ffi::CString::new(val).expect("CString::new failed");
-            unsafe {
-                libc::prctl(libc::PR_SET_NAME, str.as_ptr());
-            }
+    if let Ok(val) = env::var("PROCESSIDENTIFIER") {
+        let str = std::ffi::CString::new(val).expect("CString::new failed");
+        unsafe {
+            libc::prctl(libc::PR_SET_NAME, str.as_ptr());
         }
-        _ => {}
     }
 }
 
@@ -72,7 +67,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let stop = Arc::new(AtomicBool::new(false));
     let stop_reporting_checkpoints = Arc::new(AtomicBool::new(false));
     flag::register(signal_hook::consts::SIGTERM, Arc::clone(&stop))?;
-    flag::register(signal_hook::consts::SIGUSR1, Arc::clone(&stop_reporting_checkpoints))?;
+    flag::register(
+        signal_hook::consts::SIGUSR1,
+        Arc::clone(&stop_reporting_checkpoints),
+    )?;
 
     if !lifecycle_client_rs::report_execution_state_running() {
         println!("Rust app FAILED to report execution state!");
@@ -83,17 +81,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let secs = (args.delay / 1000) as time_t;
     let nanos = ((args.delay % 1000) * 1_000_000) as c_long;
 
-    let sleep_time = timespec { tv_sec: secs, tv_nsec: nanos };
+    let sleep_time = timespec {
+        tv_sec: secs,
+        tv_nsec: nanos,
+    };
 
     while !stop.load(Ordering::Relaxed) {
         if !stop_reporting_checkpoints.load(Ordering::Relaxed) {
-            monitor.report_checkpoint(Checks::KOne);
+            monitor.report_checkpoint(Checks::One);
             interruptible_sleep(sleep_time);
             if stop.load(Ordering::Relaxed) {
                 break;
             }
-            monitor.report_checkpoint(Checks::KTwo);
-            monitor.report_checkpoint(Checks::KThree);
+            monitor.report_checkpoint(Checks::Two);
+            monitor.report_checkpoint(Checks::Three);
         } else {
             interruptible_sleep(sleep_time);
         }

@@ -19,7 +19,5 @@ unsafe extern "C" {
 }
 
 pub fn report_execution_state_running() -> bool {
-    unsafe {
-        score_lcm_ReportExecutionStateRunning() == 0
-    }
+    unsafe { score_lcm_ReportExecutionStateRunning() == 0 }
 }

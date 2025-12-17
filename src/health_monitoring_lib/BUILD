@@ -11,17 +11,11 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
-name: Formatting checks
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library", "rust_test")
 
-on:
-  pull_request:
-    types: [opened, reopened, synchronize]
-  merge_group:
-    types: [checks_requested]
-env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-jobs:
-  formatting-check:
-    uses: eclipse-score/cicd-workflows/.github/workflows/format.yml@main
-    with:
-      bazel-target: "test //:format.check" # optional, this is the default
+rust_library(
+    name = "health_monitoring_lib",
+    srcs = glob(["src/**/*.rs"]),
+    crate_name = "health_monitoring_lib",
+    visibility = ["//visibility:public"],
+)

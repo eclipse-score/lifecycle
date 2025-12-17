@@ -84,27 +84,8 @@ rust_ext.sysroot(
 use_repo(rust_ext, "sysroot_linux_x64")
 use_repo(rust_ext, "sysroot_linux_aarch64")
 
-# Score Rust/C++ toolchains: Configure rules_rust and toolchains_llvm extensions
+# Score Rust/C++ toolchains: Configure rules_rust extensions
 bazel_dep(name = "rules_rust", version = "0.61.0")
-bazel_dep(name = "toolchains_llvm", version = "1.2.0")
-
-llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm", dev_dependency = True)
-llvm.toolchain(
-    name = "llvm_toolchain",
-    cxx_standard = {"": "c++17"},
-    llvm_versions = {"": "19.1.0"},
-)
-llvm.sysroot(
-    name = "llvm_toolchain",
-    label = "@sysroot_linux_x64//:sysroot",
-    targets = ["linux-x86_64"],
-)
-llvm.sysroot(
-    name = "llvm_toolchain",
-    label = "@sysroot_linux_aarch64//:sysroot",
-    targets = ["linux-aarch64"],
-)
-use_repo(llvm, "llvm_toolchain")
 
 # Rust
 rust = use_extension("@rules_rust//rust:extensions.bzl", "rust", dev_dependency = True)
@@ -120,11 +101,6 @@ use_repo(rust, "rust_toolchains")
 
 register_toolchains(
     "@rust_toolchains//:all",
-    dev_dependency = True,
-)
-
-register_toolchains(
-    "@llvm_toolchain//:all",
     dev_dependency = True,
 )
 
@@ -163,6 +139,7 @@ crate.from_cargo(
         "//rust_bindings/lifecycle_client_rs:Cargo.toml",
         "//rust_bindings/monitor_rs:Cargo.toml",
         "//demo/rust_supervised_app:Cargo.toml",
+        "//src/health_monitoring_lib:Cargo.toml",
     ],
 )
 use_repo(crate, "crates")

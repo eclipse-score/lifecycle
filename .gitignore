@@ -1,9 +1,74 @@
-demo/tmp
-demo/config/tmp
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+
+# Bazel
 bazel-*
-.vscode
-rust-project.json
+MODULE.bazel.lock
+user.bazelrc
+
+# Ruff
+.ruff_cache
+
+# docs:incremental and docs:ide_support build artifacts
+/_build
+
+# Vale - editorial style guide
+.vale.ini
+styles/
+
+# direnv - folder-specific bash configuration
+.envrc
+
+# Python
+.venv
 __pycache__/
+/.coverage
+
+# Rust
+debug/
 target/
-MODULE.lock.bazel
-_build/
+/build/
+
+*~
+.*swp
+.*swo
+
+# pytest reports
+tests/**/*.html
+tests/**/*.xml
+
+# VS Code files
+.vscode*
+*.orig
+.venv_docs

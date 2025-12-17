@@ -1,0 +1,71 @@
+# *******************************************************************************
+# Copyright (c) 2025 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+
+name: Bazel Build
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  merge_group:
+    types: [checks_requested]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  SCORE_QNX_USER: ${{ secrets.SCORE_QNX_USER }}
+  SCORE_QNX_PASSWORD: ${{ secrets.SCORE_QNX_PASSWORD }}
+  SCORE_QNX_LICENSE: ${{ secrets.SCORE_QNX_LICENSE }}
+jobs:
+  build:
+    name: Build Bazel Code
+    runs-on: ${{ vars.REPO_RUNNER_LABELS && fromJSON(vars.REPO_RUNNER_LABELS) || 'ubuntu-latest' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+
+      - name: Install protoc 26.1
+        uses: arduino/setup-protoc@v3
+        with:
+          version: 26.1
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Bazel
+        uses: bazel-contrib/setup-bazel@0.15.0
+        with:
+          bazelisk-version: 1.26.0 # newest LTS before 1 Jun 2025
+          disk-cache: true
+          repository-cache: true
+          bazelisk-cache: true
+
+      - name: Bazel info (discover paths)
+        id: bazel-info
+        run: |
+          echo "BAZEL_OUTPUT_BASE=$(bazel info output_base)" >> $GITHUB_ENV
+          echo "BAZEL_USER_ROOT=$(bazel info output_user_root)" >> $GITHUB_ENV
+          echo "BAZEL_REPO_CACHE=$(bazel info repository_cache)" >> $GITHUB_ENV
+          bazel info
+
+      - name: Cache Bazel output base
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.BAZEL_OUTPUT_BASE }}/action_cache
+            ${{ env.BAZEL_OUTPUT_BASE }}/bazel-out
+            ${{ env.BAZEL_OUTPUT_BASE }}/external
+            ${{ env.BAZEL_OUTPUT_BASE }}/execroot
+          key: bazel-ob-v2-${{ runner.os }}-${{ hashFiles('.bazelversion', 'MODULE.bazel', 'MODULE.bazel.lock', '**/*.bzl', 'Cargo.lock') }}
+          restore-keys: |
+            bazel-ob-v2-${{ runner.os }}-
+
+      - name: Build with Bazel
+        run: |
+          bazel build //...

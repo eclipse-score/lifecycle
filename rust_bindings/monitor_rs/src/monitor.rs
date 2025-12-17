@@ -11,10 +11,10 @@
 * SPDX-License-Identifier: Apache-2.0
 ********************************************************************************/
 
-use libc::{c_void, c_char, c_uint};
+use crate::errors;
+use libc::{c_char, c_uint, c_void};
 use std::ffi::CString;
 use std::marker::PhantomData;
-use crate::errors;
 
 #[link(name = "lifecycle_client")]
 unsafe extern "C" {
@@ -35,7 +35,7 @@ impl<EnumT> Monitor<EnumT> {
         let mut tmp_inst = Self {
             instance_ptr: std::ptr::null_mut(),
             name: tmp_str,
-            phantom: PhantomData
+            phantom: PhantomData,
         };
 
         let ptr: *mut c_void;
@@ -44,15 +44,16 @@ impl<EnumT> Monitor<EnumT> {
         }
 
         if ptr.is_null() {
-            return Err(Box::new(errors::ConstructorError{}));
+            return Err(Box::new(errors::ConstructorError {}));
         }
         tmp_inst.instance_ptr = ptr;
 
         Ok(tmp_inst)
     }
 
-    pub fn report_checkpoint(&self,checkpoint_id: EnumT)
-    where EnumT: Into<u32> + Copy
+    pub fn report_checkpoint(&self, checkpoint_id: EnumT)
+    where
+        EnumT: Into<u32> + Copy,
     {
         let id: u32 = checkpoint_id.into();
         unsafe {
@@ -64,7 +65,7 @@ impl<EnumT> Monitor<EnumT> {
 impl<EnumT> Drop for Monitor<EnumT> {
     fn drop(&mut self) {
         unsafe {
-           score_lcm_monitor_deinitialize(self.instance_ptr);
+            score_lcm_monitor_deinitialize(self.instance_ptr);
         }
     }
 }
