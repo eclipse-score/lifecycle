@@ -19,11 +19,19 @@ rust_binary(
     srcs = [
         "src/main.rs",
     ],
+    rustc_flags = [
+        "-C",
+        "link-arg=-lm",
+        "-C",
+        "link-arg=-lstdc++",
+        "-C",
+        "link-arg=-lc",
+    ],
     deps = [
         "//rust_bindings/lifecycle_client_rs",
         "//rust_bindings/monitor_rs",
-        "@crates//:clap",
-        "@crates//:libc",
-        "@crates//:signal-hook",
+        "@score_crates//:clap",
+        "@score_crates//:libc",
+        "@score_crates//:signal_hook",
     ],
 )

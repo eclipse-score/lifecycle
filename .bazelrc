@@ -3,29 +3,21 @@ build --tool_java_language_version=17
 build --java_runtime_version=remotejdk_17
 build --tool_java_runtime_version=remotejdk_17
 
-build:x86_64-linux --platforms=@score_bazel_platforms//:x86_64-linux
-build:x86_64-linux --define=config=x86_64-linux
-
-build:x86_64-qnx --platforms=@score_bazel_platforms//:x86_64-qnx
-build:x86_64-qnx --extra_toolchains=@toolchains_qnx_qcc//:qcc_x86_64
-build:x86_64-qnx --define=config=x86_64-qnx
-
-build:arm64-qnx --platforms=@score_toolchains_rust//platforms:aarch64-unknown-qnx8_0
-build:arm64-qnx --platforms=@score_bazel_platforms//:arm64-qnx
-build:arm64-qnx --extra_toolchains=@toolchains_qnx_qcc//:qcc_aarch64
-build:arm64-qnx --define=config=arm64-qnx
-
 test --test_output=errors
 
 common --registry=https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/
 common --registry=https://bcr.bazel.build
+common --credential_helper=*.qnx.com=%workspace%/scripts/internal/qnx_creds.py
 
-# score::mw::log
+build:build_qnx8 --platforms=@score_bazel_platforms//:arm64-qnx8_0
+build:build_qnx8 --extra_toolchains=@toolchains_qnx_qcc//:qcc_aarch64
+build:build_qnx8 --extra_toolchains=@score_toolchains_rust//toolchains/aarch64-unknown-qnx8_0:toolchain_aarch64_qnx8_0
+build:build_qnx8 --extra_toolchains=@score_toolchains_rust//toolchains/x86_64-unknown-linux-gnu:toolchain_x86_64_linux
+build:build_qnx8 --extra_toolchains=@toolchains_qnx_ifs//:ifs_x86_64
+build:build_qnx8 --extra_toolchains=@toolchains_qnx_ifs//:ifs_aarch64
+
 common --@score_baselibs//score/mw/log/flags:KRemote_Logging=False
 common --@score_baselibs//score/json:base_library=nlohmann
-## default is a stdout logger which looks like dlt logs
-## uncomment below to use score::mw::log instead of the stdout logger
-# build --cxxopt=-DLC_LOG_SCORE_MW_LOG
 
 build --cxxopt=-std=c++17
 build --cxxopt=-Wno-missing-template-arg-list-after-template-kw
@@ -36,4 +28,6 @@ build --cxxopt=-Wno-deprecated-declarations
 
 build --strip=never
 build --enable_bzlmod
-#build --verbose_failures
+
+common --extra_toolchains=@gcc_toolchain//:host_gcc_12
+common --extra_toolchains=@score_toolchains_rust//toolchains/x86_64-unknown-linux-gnu:toolchain_x86_64_linux

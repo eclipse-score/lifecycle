@@ -71,7 +71,7 @@ cc_binary_with_common_opts(
     linkopts = select({
         "//config:x86_64-qnx": ["-lsecpol"],
         "//config:arm64-qnx": ["-lsecpol"],
-        "//conditions:default": [],
+        "//conditions:default": ["-lpthread"],
     }),
     visibility = ["//visibility:public"],
     deps = [

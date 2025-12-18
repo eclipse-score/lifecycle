@@ -67,10 +67,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let stop = Arc::new(AtomicBool::new(false));
     let stop_reporting_checkpoints = Arc::new(AtomicBool::new(false));
     flag::register(signal_hook::consts::SIGTERM, Arc::clone(&stop))?;
-    flag::register(
-        signal_hook::consts::SIGUSR1,
-        Arc::clone(&stop_reporting_checkpoints),
-    )?;
+    flag::register(signal_hook::consts::SIGUSR1, Arc::clone(&stop_reporting_checkpoints))?;
 
     if !lifecycle_client_rs::report_execution_state_running() {
         println!("Rust app FAILED to report execution state!");
