@@ -1,0 +1,14 @@
+@startuml
+
+package "Health Monitor" as HM { 
+    [Configuration]
+    [Supervision]
+    [Recovery]
+    [Watchdog]
+}
+
+[hm lib] as HmL
+
+HmL <-r-> HM
+
+@enduml

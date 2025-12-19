@@ -1,0 +1,9 @@
+demo/tmp
+demo/config/tmp
+bazel-*
+.vscode
+rust-project.json
+__pycache__/
+target/
+MODULE.lock.bazel
+_build/

@@ -1,0 +1,23 @@
+@startuml
+
+!include hm_error.puml
+!include hm_status.puml
+!include hm_duration_range.puml
+
+!startsub HeartbeatMonitorClass
++class HeartbeatMonitor {
+    +new(duration_range: DurationRange) -> Self
+    +report_heartbeat(&self) -> Result<(), Error>
+    +enable(&self) -> Result<(), Error>
+    +disable(&self) -> Result<(), Error>
+    ~evaluate(&self) -> Status
+}
+!endsub
+
+!startsub HeartbeatMonitorRel
+HeartbeatMonitor *-- Status : owns
+HeartbeatMonitor ..> Error
+HeartbeatMonitor ..> DurationRange
+!endsub
+
+@enduml

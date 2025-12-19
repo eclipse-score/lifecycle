@@ -1,0 +1,7 @@
+@startuml
+
++class LogicMonitorState {
+    +new<N: AsRef<str>>(name: N) -> Self
+}
+
+@enduml

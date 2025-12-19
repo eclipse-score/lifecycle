@@ -1,0 +1,13 @@
+{
+    "versionMajor": 3,
+    "versionMinor": 0,
+    "watchdogs": [],
+    "config": [
+        {
+            "enableTerminationRequest": true,
+            "hasValueEnableTerminationRequest": true,
+            "periodicity": 50,
+            "bufferSizeGlobalSupervision": "512"
+        }
+    ]
+}

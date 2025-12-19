@@ -1,0 +1,23 @@
+@startuml
+
+!include lm_state.puml
+!include hm_error.puml
+!include hm_status.puml
+
+!startsub LogicMonitorClass
++class LogicMonitor {
+    +transition(&self, to: LogicMonitorState) -> Result<(), Error>
+    +enable(&self) -> Result<(), Error>
+    +disable(&self) -> Result<(), Error>
+    ~status(&self) -> Status
+    ~state(&self) -> LogicMonitorState
+}
+!endsub
+
+!startsub LogicMonitorRel
+LogicMonitor *-- Status : owns
+LogicMonitor *-- "1..*" LogicMonitorState : owns
+LogicMonitor ..> Error
+!endsub
+
+@enduml

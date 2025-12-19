@@ -1,0 +1,30 @@
+@startuml
+
+!include hm_tag.puml
+!include hm_error.puml
+!include hm_status.puml
+!includesub lm_interface.puml!LogicMonitorClass
+!includesub dm_interface.puml!DeadlineMonitorClass
+!includesub hbm_interface.puml!HeartbeatMonitorClass
+
+!startsub HealthMonitorClass
++class HealthMonitor {
+    +get_heartbeat_monitor(&self, tag: Tag) -> Result<HeartbeatMonitor, Error>
+    +get_deadline_monitor(&self, tag: Tag) -> Result<DeadlineMonitor, Error>
+    +get_logic_monitor(&self, tag: Tag) -> Result<LogicMonitor, Error>
+    +get_supervisor_api_cycle() -> Result<Duration, Error>
+    +get_internal_processing_cycle() -> Result<Duration, Error>
+    ~status(&self) -> Status
+}
+!endsub
+
+!startsub HealthMonitorRel
+HealthMonitor o-- "0..*" DeadlineMonitor
+HealthMonitor o-- "0..*" LogicMonitor
+HealthMonitor o-- "0..*" HeartbeatMonitor
+HealthMonitor *-- Status
+HealthMonitor ..> Error
+HealthMonitor ..> Tag
+!endsub
+
+@enduml

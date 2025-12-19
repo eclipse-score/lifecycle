@@ -1,0 +1,160 @@
+namespace HMFlatBuffer;
+
+// HM version 8.0
+
+file_identifier "BHMT";
+file_extension "bin";
+
+enum ProcessType : byte {
+  REGULAR_PROCESS = 0, // REGULAR_PROCESS
+  LM_PROCESS = 1, // LM_PROCESS
+  STM_PROCESS = 2  // STM_PROCESS
+}
+
+table HMEcuCfg {
+  versionMajor: int (id:0);
+  versionMinor: int (id:1);
+  process: [Process] (id:2);
+  hmMonitorInterface: [HmMonitorInterface] (id:3);
+  hmSupervisionCheckpoint: [HmSupervisionCheckpoint] (id:4);
+  hmAliveSupervision: [HmAliveSupervision] (id:5);
+  hmDeadlineSupervision: [HmDeadlineSupervision] (id:6);
+  hmLogicalSupervision: [HmLogicalSupervision] (id:7);
+  hmLocalSupervision: [HmLocalSupervision] (id:8);
+  hmGlobalSupervision: [HmGlobalSupervision] (id:9);
+  hmRecoveryNotification: [RecoveryNotification] (id:10);
+}
+
+table Process {
+  shortName: string (id:0);
+  identifier: string (id:1);
+  index: uint32 (id:2);
+  processType: ProcessType (id:3);
+  refProcessGroupStates: [HmRefProcessGroupStates] (id:4);
+  processExecutionErrors: [HmProcessExecutionError] (id:5);
+}
+
+table HmProcessExecutionError {
+  processExecutionError: uint32 (id:0);
+}
+
+table HmRefProcessGroupStates {
+  identifier: string (id:0);
+}
+
+table HmRefProcess {
+  index: uint32 (id:0);
+}
+
+table HmMonitorInterface {
+  instanceSpecifier: string (id:0);
+  processShortName: string (id:1);
+  portPrototype: string (id:2);
+  interfacePath: string (id:3);
+  refProcessIndex: uint32 (id:4);
+  permittedUid: int32 (id:5);
+}
+
+table HmSupervisionCheckpoint {
+  shortName: string (id:0);
+  checkpointId: uint32 (id:1);
+  refInterfaceIndex: uint32 (id:2);
+}
+
+table HmCheckpointTransition {
+  refSourceCPIndex: uint32 (id:0);
+  refTargetCPIndex: uint32 (id:1);
+  infoSource: HmSupervisionCheckpoint (id:2);
+  infoTarget: HmSupervisionCheckpoint (id:3);
+}
+
+table HmAliveSupervision {
+  ruleContextKey: string (id:0);
+  refCheckPointIndex: uint32 (id:1);
+  aliveReferenceCycle: double (id:2);
+  minAliveIndications: uint32 (id:3);
+  maxAliveIndications: uint32 (id:4);
+  isMinCheckDisabled: bool (id:5);
+  isMaxCheckDisabled: bool (id:6);
+  failedSupervisionCyclesTolerance: uint32 (id:7);
+  refProcessIndex: uint32 (id:8);
+  refProcessGroupStates: [HmRefProcessGroupStates] (id:9);
+}
+
+table HmDeadlineSupervision {
+  ruleContextKey: string (id:0);
+  maxDeadline: double (id:1);
+  minDeadline: double (id:2);
+  checkpointTransition: HmCheckpointTransition (id:3);
+  refProcessIndices: [uint32] (id:4);
+  refProcessGroupStates: [HmRefProcessGroupStates] (id:5);
+}
+
+table HmLogicalSupervision {
+  ruleContextKey: string (id:0);
+  checkpoints: [HmLogicalCheckpoint] (id:1);
+  transitions: [HmLogicalTransition] (id:2);
+  refProcessIndices: [uint32] (id:3);
+  refProcessGroupStates: [HmRefProcessGroupStates] (id:4);
+}
+
+table HmLogicalCheckpoint {
+  refCheckPointIndex: uint32 (id:0);
+  isInitial: bool (id:1);
+  isFinal: bool (id:2);
+}
+
+table HmLogicalTransition {
+  checkpointSourceIdx: uint32 (id:0);
+  checkpointTargetIdx: uint32 (id:1);
+}
+
+table HmLocalSupervision {
+  ruleContextKey: string (id:0);
+  infoRefInterfacePath: string (id:1);
+  hmRefAliveSupervision: [HmRefAliveSupervision] (id:2);
+  hmRefDeadlineSupervision: [HmRefDeadlineSupervision] (id:3);
+  hmRefLogicalSupervision: [HmRefLogicalSupervision] (id:4);
+}
+
+table HmRefAliveSupervision {
+  ruleContextKey: int (id:0);
+  refAliveSupervisionIdx: uint32 (id:1);
+}
+
+table HmRefDeadlineSupervision {
+  ruleContextKey: int (id:0);
+  refDeadlineSupervisionIdx: uint32 (id:1);
+}
+
+table HmRefLogicalSupervision {
+  refLogicalSupervisionIdx: uint32 (id:0);
+}
+
+table HmGlobalSupervision {
+  ruleContextKey: string (id:0);
+  isSeverityCritical: bool (id:1);
+  localSupervision: [HmGlobalSupervisionLocalRef] (id:2);
+  refProcesses: [HmRefProcess] (id:3);
+  refProcessGroupStates: [HmRefProcessGroupStatesGlobal] (id:4);
+}
+
+table HmGlobalSupervisionLocalRef {
+  refLocalSupervisionIndex: uint32 (id:0);
+}
+
+table HmRefProcessGroupStatesGlobal {
+  identifier: string (id:0);
+  expiredSupervisionTolerance: double (id:1);
+}
+
+table RecoveryNotification {
+  shortName: string (id:0);
+  recoveryNotificationTimeout: double (id:1);
+  processGroupMetaModelIdentifier: string (id:2);
+  refGlobalSupervisionIndex: uint32 (id:3);
+  instanceSpecifier: string (id:4);
+  shouldFireWatchdog: bool (id:5);
+}
+
+root_type HMEcuCfg;

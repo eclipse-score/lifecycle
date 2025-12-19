@@ -1,0 +1,90 @@
+namespace LMFlatBuffer;
+
+// LM version 7.0
+
+file_identifier "BLMR";
+file_extension "bin";
+
+enum ExecutionStateReportingBehaviorEnum : byte {
+  ReportsExecutionState = 0, // REPORTS-EXECUTION-STATE
+  DoesNotReportExecutionState = 1  // DOES-NOT-REPORT-EXECUTION-STATE
+}
+
+enum TerminationBehaviorEnum : byte {
+  ProcessIsNotSelfTerminating = 0, // PROCESS-IS-NOT-SELF-TERMINATING
+  ProcessIsSelfTerminating = 1  // PROCESS-IS-SELF-TERMINATING
+}
+
+table LMEcuCfg {
+  versionMajor: int (id:0);
+  versionMinor: int (id:1);
+  ModeGroup: [ModeGroup] (id:2);
+  Process: [Process] (id:3);
+}
+
+table ModeGroup {
+  identifier: string (id:0);
+  initialMode_name: string (id:1);
+  initialMode_value: string (id:2);
+  recoveryMode_name: string (id:3);
+  modeDeclaration: [ModeDeclaration] (id:4);
+}
+
+// TODO: Could be moved into ModeGroup
+table ModeDeclaration {
+  identifier: string (id:0);
+}
+
+table Process {
+  identifier: string (id:0);
+  numberOfRestartAttempts: uint (id:1);
+  functionClusterAffiliation: string (id:2);
+  coremask: string (id:3);
+  uid: uint (id:4);
+  gid: uint (id:5);
+  path: string (id:6);
+  securityPolicyDetails: string (id:7);
+  executable_reportingBehavior: ExecutionStateReportingBehaviorEnum (id:8);
+  startupConfig: [ProcessStartupConfig] (id:9);
+  sgids: [ProcessSgid] (id:10);
+}
+
+table ProcessStartupConfig {
+  identifier: string (id:0);
+  enterTimeoutValue: uint (id:1);
+  exitTimeoutValue: uint (id:2);
+  schedulingPriority: string (id:3);
+  schedulingPolicy: string (id:4);
+  executionError: string (id:5);
+  terminationBehavior: TerminationBehaviorEnum (id:6);
+  executionDependency: [ProcessExecutionDependency] (id:7);
+  processGroupStateDependency: [ProcessGroupStateDependency] (id:8);
+  environmentVariable: [EnvironmentVariable] (id:9);
+  processArgument: [ProcessArgument] (id:10);
+  memoryUsage: uint64 (id:11);
+}
+
+table ProcessGroupStateDependency {
+  stateMachine_name: string (id:0);
+  stateName: string (id:1);
+}
+
+table ProcessExecutionDependency {
+  stateName: string (id:0);
+  targetProcess_identifier: string (id:1);
+}
+
+table EnvironmentVariable {
+  key: string (id:0);
+  value: string (id:1);
+}
+
+table ProcessArgument {
+  argument: string (id:0);
+}
+
+table ProcessSgid {
+  sgid: uint (id:0);
+}
+
+root_type LMEcuCfg;
