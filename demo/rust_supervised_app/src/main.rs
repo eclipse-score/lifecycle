@@ -54,8 +54,18 @@ fn interruptible_sleep(delay: timespec) {
 fn set_process_name() {
     if let Ok(val) = env::var("PROCESSIDENTIFIER") {
         let str = std::ffi::CString::new(val).expect("CString::new failed");
-        unsafe {
-            libc::prctl(libc::PR_SET_NAME, str.as_ptr());
+        #[cfg(target_os = "linux")]
+        {
+            unsafe {
+                libc::prctl(libc::PR_SET_NAME, str.as_ptr());
+            }
+        }
+
+        #[cfg(target_os = "nto")]
+        {
+            unsafe {
+                libc::pthread_setname_np(libc::pthread_self(), str.as_ptr());
+            }
         }
     }
 }

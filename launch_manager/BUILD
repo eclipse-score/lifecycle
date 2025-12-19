@@ -39,7 +39,7 @@ cc_binary_with_common_opts(
                 "deliverables/common/osal/linux/**",
             ],
         ),
-        "//config:arm64-qnx": glob(
+        "//config:build_qnx8": glob(
             [
                 "deliverables/common/**/*.cpp",
                 "deliverables/daemon/**/*.cpp",
@@ -70,7 +70,7 @@ cc_binary_with_common_opts(
     includes = ["deliverables/inc"],
     linkopts = select({
         "//config:x86_64-qnx": ["-lsecpol"],
-        "//config:arm64-qnx": ["-lsecpol"],
+        "//config:build_qnx8": ["-lsecpol"],
         "//conditions:default": ["-lpthread"],
     }),
     visibility = ["//visibility:public"],
@@ -104,10 +104,12 @@ cc_library(
         "deliverables/inc/score/lcm/lifecycle_client.h",
     ],
     copts = select({
+        "//config:build_qnx8": [],
         "//config:x86_64-qnx": [],
         "//conditions:default": ["-pthread"],
     }),
     linkopts = select({
+        "//config:build_qnx8": [],
         "//config:x86_64-qnx": [],
         "//conditions:default": ["-lpthread"],
     }),

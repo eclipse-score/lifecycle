@@ -18,8 +18,11 @@
 #include <iostream>
 #include <ctime>
 
-#include <linux/prctl.h>
-#include <sys/prctl.h>
+
+#ifdef __linux__
+    #include <linux/prctl.h>
+    #include <sys/prctl.h>
+#endif
 
 #include "score/lcm/Monitor.h"
 #include "score/lcm/lifecycle_client.h"
@@ -87,9 +90,15 @@ void signalHandler(int signal)
 void set_process_name() {
     const char* identifier = getenv("PROCESSIDENTIFIER");
     if(identifier != nullptr) {
-        if(prctl(PR_SET_NAME, identifier) < 0) {
-            std::cerr << "Failed to set process name to " << identifier << std::endl;
-        }
+    #ifdef __QNXNTO__
+            if (pthread_setname_np(pthread_self(), identifier) != 0) {
+                std::cerr << "Failed to set QNX thread name" << std::endl;
+            }
+    #elif defined(__linux__)
+            if (prctl(PR_SET_NAME, identifier) < 0) {
+                std::cerr << "Failed to set process name to " << identifier << std::endl;
+            }
+    #endif
     }
 }
 
