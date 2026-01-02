@@ -8,7 +8,7 @@
 // <https://www.apache.org/licenses/LICENSE-2.0>
 //
 // SPDX-License-Identifier: Apache-2.0
-//
+
 use health_monitor::{common::*, deadline_monitor::*};
 use std::{thread, time::Duration};
 
