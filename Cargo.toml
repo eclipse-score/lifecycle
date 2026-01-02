@@ -1,12 +1,13 @@
 [workspace]
 resolver = "2"
 members = [
-    "rust_bindings/lifecycle_client_rs",
-    "rust_bindings/monitor_rs",
-    "demo/rust_supervised_app",
+    # "rust_bindings/lifecycle_client_rs",
+    # "rust_bindings/monitor_rs",
+    # "demo/rust_supervised_app", "rust/health_monitor",
+    "rust/health_monitor",
 ]
 
 [workspace.dependencies]
-libc = "0.2.177"
-clap = { version = "4.5.49", features = ["derive"] }
-signal-hook = "0.3.18"
+# libc = "0.2.177"
+# clap = { version = "4.5.49", features = ["derive"] }
+# signal-hook = "0.3.18"
