@@ -10,8 +10,6 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-
-
 #ifndef SCORE_LCM_RECOVERYCLIENT_H_
 #define SCORE_LCM_RECOVERYCLIENT_H_
 

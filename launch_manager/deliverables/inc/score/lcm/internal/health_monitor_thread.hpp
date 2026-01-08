@@ -10,8 +10,6 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-
-
 #ifndef SCORE_LCM_HEALTH_MONITOR_HPP_INCLUDED
 #define SCORE_LCM_HEALTH_MONITOR_HPP_INCLUDED
 

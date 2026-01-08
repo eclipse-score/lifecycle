@@ -23,6 +23,6 @@ rust_library(
     ],
     deps = [
         "//health_monitor:hm_shared_lib",
-        "@crates//:libc",
+        "@score_crates//:libc",
     ],
 )

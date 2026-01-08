@@ -10,28 +10,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-load("@rules_rust//rust:defs.bzl", "rust_binary")
 
-package(default_visibility = ["//visibility:public"])
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library", "rust_test")
 
-rust_binary(
-    name = "rust_supervised_app",
-    srcs = [
-        "src/main.rs",
-    ],
-    rustc_flags = [
-        "-C",
-        "link-arg=-lm",
-        "-C",
-        "link-arg=-lstdc++",
-        "-C",
-        "link-arg=-lc",
-    ],
-    deps = [
-        "//rust_bindings/lifecycle_client_rs",
-        "//rust_bindings/monitor_rs",
-        "@score_crates//:clap",
-        "@score_crates//:libc",
-        "@score_crates//:signal_hook",
-    ],
+rust_library(
+    name = "health_monitoring_lib",
+    srcs = glob(["src/**/*.rs"]),
+    crate_name = "health_monitoring_lib",
+    visibility = ["//visibility:public"],
 )

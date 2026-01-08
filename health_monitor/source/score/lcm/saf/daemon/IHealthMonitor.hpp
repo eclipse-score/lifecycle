@@ -10,7 +10,6 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-
 #ifndef SAF_DAEMON_HEALTH_MONITOR_HPP_INCLUDED
 #define SAF_DAEMON_HEALTH_MONITOR_HPP_INCLUDED
 

@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-pub mod monitor;
 pub mod errors;
+pub mod monitor;
 
-pub use monitor::Monitor;
 pub use errors::ConstructorError;
+pub use monitor::Monitor;

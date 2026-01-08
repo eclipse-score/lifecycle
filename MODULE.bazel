@@ -15,55 +15,71 @@ module(
     version = "0.0.1",
 )
 
+# Bazel global rules
 bazel_dep(name = "rules_python", version = "1.4.1")
-
-# Hedron's Compile Commands Extractor for Bazel
-# https://github.com/hedronvision/bazel-compile-commands-extractor
-bazel_dep(name = "hedron_compile_commands", dev_dependency = True)
-git_override(
-    module_name = "hedron_compile_commands",
-    commit = "abb61a688167623088f8768cc9264798df6a9d10",
-    remote = "https://github.com/hedronvision/bazel-compile-commands-extractor.git",
-)
-
-PYTHON_VERSION = "3.12"
-
-python = use_extension("@rules_python//python/extensions:python.bzl", "python", dev_dependency = True)
-python.toolchain(
-    is_default = True,
-    python_version = PYTHON_VERSION,
-)
-use_repo(python)
-
-# Add GoogleTest dependency
-bazel_dep(name = "googletest", version = "1.17.0.bcr.1")
-
-# C/C++ rules for Bazel
+bazel_dep(name = "rules_rust", version = "0.61.0")
 bazel_dep(name = "rules_cc", version = "0.2.9")
+bazel_dep(name = "aspect_rules_lint", version = "1.5.3")
+bazel_dep(name = "buildifier_prebuilt", version = "8.2.0.2")
+bazel_dep(name = "platforms", version = "1.0.0")
+bazel_dep(name = "flatbuffers", version = "25.9.23")
+bazel_dep(name = "download_utils", version = "1.0.1")
 
-# Score platforms
+# S-CORE process rules
 bazel_dep(name = "score_bazel_platforms", version = "0.0.3")
+bazel_dep(name = "score_docs_as_code", version = "2.0.2")
+bazel_dep(name = "score_tooling", version = "1.0.4")
+bazel_dep(name = "score_rust_policies", version = "0.0.3")
+bazel_dep(name = "score_baselibs", version = "0.1.3")
 
-# Score Rust/C++ toolchains
-bazel_dep(name = "score_toolchains_rust", version = "0.1", dev_dependency = True)
+bazel_dep(name = "score_process", version = "1.4.0", dev_dependency = True)
+bazel_dep(name = "score_platform", version = "0.5.1", dev_dependency = True)
+
+# Toolchains and extensions
+bazel_dep(name = "score_toolchains_gcc", version = "0.5", dev_dependency = True)
+bazel_dep(name = "score_toolchains_qnx", version = "0.0.6", dev_dependency = True)
+bazel_dep(name = "rust_qnx8_toolchain", version = "1.2.0", dev_dependency = True)
+bazel_dep(name = "score_toolchains_rust", version = "0.1.1", dev_dependency = True)
+
+# S-CORE crates
+bazel_dep(name = "score_crates", version = "0.0.6")
+
+# Overrides
+git_override(
+    module_name = "score_tooling",
+    commit = "612d6f180a9bb6338de5f0e6667fcf83068d9c37",  #until 1.0.5 is released
+    remote = "https://github.com/eclipse-score/tooling.git",
+)
+
 git_override(
     module_name = "score_toolchains_rust",
-    commit = "5614e4b273f2f5302d47a05d7e58dae86f97a3c3",  # 23.08.2025
+    commit = "bcf8e5364f72cf136ec81960350a82e2b5c45449",
     remote = "https://github.com/eclipse-score/toolchains_rust.git",
 )
 
-# Score Qnx rust toolchain
-bazel_dep(name = "rust_qnx8_toolchain", version = "1.0.0", dev_dependency = True)
+git_override(
+    module_name = "flatbuffers",
+    commit = "187240970746d00bbd26b0f5873ed54d2477f9f3",
+    remote = "https://github.com/google/flatbuffers.git",
+)
+
 archive_override(
     module_name = "rust_qnx8_toolchain",
     strip_prefix = "qnx8",
     urls = [
-        "https://github.com/qorix-group/rust-lang-qnx8/releases/download/1.0.0/qnx8_rust_toolchain.tar.gz",
+        "https://github.com/qorix-group/rust-lang-qnx8/releases/download/1.2.0/qnx8_rust_toolchain.tar.gz",
     ],
 )
 
-# Score Qnx toolchain
-bazel_dep(name = "score_toolchains_qnx", version = "0.0.3", dev_dependency = True)
+# Extensions
+
+gcc = use_extension("@score_toolchains_gcc//extentions:gcc.bzl", "gcc", dev_dependency = True)
+gcc.toolchain(
+    sha256 = "457f5f20f57528033cb840d708b507050d711ae93e009388847e113b11bf3600",
+    strip_prefix = "x86_64-unknown-linux-gnu",
+    url = "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/0.0.1/x86_64-unknown-linux-gnu_gcc12.tar.gz",
+)
+use_repo(gcc, "gcc_toolchain", "gcc_toolchain_gcc")
 
 toolchains_qnx = use_extension("@score_toolchains_qnx//:extensions.bzl", "toolchains_qnx", dev_dependency = True)
 toolchains_qnx.sdp(
@@ -148,7 +164,7 @@ register_toolchains(
 )
 
 # Tooling
-bazel_dep(name = "score_tooling", version = "1.0.4")
+bazel_dep(name = "score_tooling", version = "1.0.2")
 bazel_dep(name = "aspect_rules_lint", version = "1.5.3")
 bazel_dep(name = "buildifier_prebuilt", version = "8.2.0.2")
 
@@ -160,7 +176,7 @@ git_override(
     remote = "https://github.com/google/flatbuffers.git",
 )
 
-bazel_dep(name = "score_baselibs", version = "0.2.2")
+bazel_dep(name = "score_baselibs", version = "0.1.3")
 
 # Rust crate
 crate = use_extension("@rules_rust//crate_universe:extensions.bzl", "crate", dev_dependency = True)
@@ -189,7 +205,15 @@ deb(
     visibility = ["//visibility:public"],
 )
 
-# S-CORE process rules
+PYTHON_VERSION = "3.12"
 
-bazel_dep(name = "score_docs_as_code", version = "2.2.0")
-bazel_dep(name = "score_process", version = "1.4.0")  # Needed for linking to requirements (wp__requirements_comp, etc.) from the process_description repository.
+python = use_extension("@rules_python//python/extensions:python.bzl", "python", dev_dependency = True)
+python.toolchain(
+    is_default = True,
+    python_version = PYTHON_VERSION,
+)
+use_repo(python)
+
+use_repo(toolchains_qnx, "toolchains_qnx_sdp")
+use_repo(toolchains_qnx, "toolchains_qnx_qcc")
+use_repo(toolchains_qnx, "toolchains_qnx_ifs")

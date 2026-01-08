@@ -25,9 +25,9 @@ config_setting(
 )
 
 config_setting(
-    name = "arm64-qnx",
+    name = "build_qnx8",
     define_values = {
-        "config": "arm64-qnx",
+        "config": "build_qnx8",
     },
 )
 

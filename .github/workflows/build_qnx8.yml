@@ -11,17 +11,24 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
-name: Formatting checks
-
+name: QNX8 Build
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, reopened, synchronize]
   merge_group:
     types: [checks_requested]
-env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 jobs:
-  formatting-check:
-    uses: eclipse-score/cicd-workflows/.github/workflows/format.yml@main
+  qnx-build:
+    uses: eclipse-score/cicd-workflows/.github/workflows/qnx-build.yml@main
+    permissions:
+      contents: read
+      pull-requests: read
     with:
-      bazel-target: "test //:format.check" # optional, this is the default
+      bazel-target: '//src/...'
+      bazel-config: 'build_qnx8'
+      credential-helper: 'scripts/internal/qnx_creds.py'
+      environment-name: 'workflow-approval'
+    secrets:
+      score-qnx-license: ${{ secrets.SCORE_QNX_LICENSE }}
+      score-qnx-user: ${{ secrets.SCORE_QNX_USER }}
+      score-qnx-password: ${{ secrets.SCORE_QNX_PASSWORD }}

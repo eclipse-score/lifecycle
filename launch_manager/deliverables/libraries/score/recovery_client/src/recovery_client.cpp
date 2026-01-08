@@ -10,8 +10,6 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-
-
 #include <score/lcm/internal/recovery_client.hpp>
 
 namespace score {

@@ -10,28 +10,18 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-load("@rules_rust//rust:defs.bzl", "rust_binary")
 
-package(default_visibility = ["//visibility:public"])
-
-rust_binary(
-    name = "rust_supervised_app",
-    srcs = [
-        "src/main.rs",
-    ],
-    rustc_flags = [
-        "-C",
-        "link-arg=-lm",
-        "-C",
-        "link-arg=-lstdc++",
-        "-C",
-        "link-arg=-lc",
-    ],
-    deps = [
-        "//rust_bindings/lifecycle_client_rs",
-        "//rust_bindings/monitor_rs",
-        "@score_crates//:clap",
-        "@score_crates//:libc",
-        "@score_crates//:signal_hook",
-    ],
-)
+name: Tests
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize]
+  merge_group:
+    types: [checks_requested]
+jobs:
+  test:
+    uses: eclipse-score/cicd-workflows/.github/workflows/test.yml@main
+    permissions:
+      contents: read
+      pull-requests: read
+    with:
+      bazel-target: 'test //src/...'

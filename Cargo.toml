@@ -4,9 +4,20 @@ members = [
     "rust_bindings/lifecycle_client_rs",
     "rust_bindings/monitor_rs",
     "demo/rust_supervised_app",
+    "src/health_monitoring_lib",
 ]
+
+[workspace.package]
+edition = "2021"
+version = "0.0.1"
+authors = ["S-CORE Contributors"]
+license-file = "LICENSE.md"
 
 [workspace.dependencies]
 libc = "0.2.177"
 clap = { version = "4.5.49", features = ["derive"] }
 signal-hook = "0.3.18"
+
+[workspace.lints.clippy]
+std_instead_of_core = "warn"
+alloc_instead_of_core = "warn"
