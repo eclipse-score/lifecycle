@@ -23,7 +23,7 @@ env:
 jobs:
   lint-clippy:
     timeout-minutes: 6 # 6 minutes is the maximum allowed for a cold run
-    runs-on: ${{ vars.REPO_RUNNER_LABELS && fromJSON(vars.REPO_RUNNER_LABELS) || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:

@@ -19,15 +19,10 @@ on:
   merge_group:
     types: [checks_requested]
 
-env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  SCORE_QNX_USER: ${{ secrets.SCORE_QNX_USER }}
-  SCORE_QNX_PASSWORD: ${{ secrets.SCORE_QNX_PASSWORD }}
-  SCORE_QNX_LICENSE: ${{ secrets.SCORE_QNX_LICENSE }}
 jobs:
   build:
     name: Build Bazel Code
-    runs-on: ${{ vars.REPO_RUNNER_LABELS && fromJSON(vars.REPO_RUNNER_LABELS) || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
