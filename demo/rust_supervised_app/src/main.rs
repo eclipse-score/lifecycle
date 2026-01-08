@@ -30,18 +30,14 @@ struct Args {
 
 #[derive(Debug, Copy, Clone)]
 enum Checks {
-    One,
-    Two,
-    Three,
+    One = 1,
+    Two = 2,
+    Three = 3,
 }
 
 impl From<Checks> for u32 {
     fn from(val: Checks) -> Self {
-        match val {
-            Checks::One => 1,
-            Checks::Two => 2,
-            Checks::Three => 3,
-        }
+        val as u32
     }
 }
 
