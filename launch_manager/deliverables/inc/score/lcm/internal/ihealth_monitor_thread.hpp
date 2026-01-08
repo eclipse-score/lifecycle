@@ -11,20 +11,23 @@
 * SPDX-License-Identifier: Apache-2.0
 ********************************************************************************/
 
-#include "score/lcm/saf/daemon/PhmDaemonCmdLineParser.hpp"
+
+#ifndef SCORE_LCM_IHEALTH_MONITOR_HPP_INCLUDED
+#define SCORE_LCM_IHEALTH_MONITOR_HPP_INCLUDED
 
 namespace score
 {
 namespace lcm
 {
-namespace saf
+namespace internal
 {
-namespace daemon
-{
+class IHealthMonitorThread {
+ public:
+    virtual bool start() = 0;
+    virtual void stop() = 0;
+};
+}
+}
+}
 
-// PhmDaemonCmdLineParser is a template class, this source file is intentionally left empty
-
-}  // namespace daemon
-}  // namespace saf
-}  // namespace lcm
-}  // namespace score
+#endif

@@ -26,6 +26,8 @@
 #include <score/lcm/internal/safeprocessmap.hpp>
 #include <score/lcm/internal/controlclientchannel.hpp>
 #include <score/lcm/internal/workerthread.hpp>
+#include <score/lcm/internal/ihealth_monitor_thread.hpp>
+#include <score/lcm/internal/recovery_client.hpp>
 #include <cstdint>
 #include <memory>
 #include <ctime>
@@ -54,9 +56,9 @@ class ProcessGroupManager final {
     ///
     /// This constructor initializes the ProcessGroupManager instance,
     /// setting up any necessary internal state and preparing it for use.
-    /// @param argc Reference to the number of arguments passed to the main program
-    /// @param argv Reference to an array of pointers to strings that are the arguments passed
-    ProcessGroupManager();
+    /// @param health_monitor A unique pointer to an IHealthMonitor instance for managing health monitoring.
+    /// @param recovery_client A shared pointer to an IRecoveryClient instance for handling recovery operations.
+    ProcessGroupManager(std::unique_ptr<IHealthMonitorThread> health_monitor, std::shared_ptr<IRecoveryClient> recovery_client);
 
     /// @brief Initializes the process group manager.
     /// Loads the flat configuration through ConfigurationManager.
@@ -164,6 +166,9 @@ class ProcessGroupManager final {
     /// pending to be checked the next time around the loop.
     /// @param pg Reference of the process group (Graph) to check for pending responses
     void controlClientResponses(Graph& pg);
+
+    /// @brief Handle recovery actions requested by the Health Monitor
+    void recoveryActionHandler();
 
     /// @brief Manage the process group by starting any pending transitions that were requested
     /// @details If the Graph is in the correct state to start a transition (i.e. `kSuccess` or `kUndefined`)
@@ -291,6 +296,10 @@ class ProcessGroupManager final {
 
     /// @brief pointer to the configuration for Launch Manager
     const OsProcess* launch_manager_config_{nullptr};
+
+    std::unique_ptr<IHealthMonitorThread> health_monitor_thread_;
+
+    std::shared_ptr<score::lcm::IRecoveryClient> recovery_client_{};
 };
 
 }  // namespace lcm

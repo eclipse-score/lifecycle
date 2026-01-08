@@ -25,7 +25,6 @@ file_exists() {
 
 
 LM_BINARY="$PWD/../bazel-bin/launch_manager/launch_manager"
-HM_BINARY="$PWD/../bazel-bin/health_monitor/health_monitor"
 DEMO_APP_BINARY="$PWD/../bazel-bin/demo/cpp_supervised_app/cpp_supervised_app"
 DEMO_APP_WO_HM_BINARY="$PWD/../bazel-bin/demo/cpp_lifecycle_app/cpp_lifecycle_app"
 RUST_APP_BINARY="$PWD/../bazel-bin/demo/rust_supervised_app/rust_supervised_app"
@@ -33,7 +32,6 @@ CONTROL_APP_BINARY="$PWD/../bazel-bin/demo/control_application/control_daemon"
 CONTROL_CLI_BINARY="$PWD/../bazel-bin/demo/control_application/lmcontrol"
 
 file_exists $LM_BINARY
-file_exists $HM_BINARY
 file_exists $DEMO_APP_BINARY
 file_exists $DEMO_APP_WO_HM_BINARY
 file_exists $RUST_APP_BINARY
@@ -64,11 +62,8 @@ cp $LM_BINARY tmp/launch_manager/launch_manager
 cp config/tmp/lm_demo.bin tmp/launch_manager/etc/
 cp config/lm_logging.json tmp/launch_manager/etc/logging.json
 
-mkdir -p tmp/health_monitor/etc
-cp $HM_BINARY tmp/health_monitor/health_monitor
-cp config/tmp/hm_demo.bin tmp/health_monitor/etc/
-cp config/tmp/hmcore.bin tmp/health_monitor/etc/
-cp config/hm_logging.json tmp/health_monitor/etc/logging.json 
+cp config/tmp/hm_demo.bin tmp/launch_manager/etc/
+cp config/tmp/hmcore.bin tmp/launch_manager/etc/
 
 mkdir -p tmp/supervision_demo/etc
 cp $DEMO_APP_BINARY tmp/supervision_demo/

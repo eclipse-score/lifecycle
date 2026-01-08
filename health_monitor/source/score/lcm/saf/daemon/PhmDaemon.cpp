@@ -84,7 +84,6 @@ void PhmDaemon::performCyclicTriggers(void)
 bool PhmDaemon::construct(const factory::MachineConfigFactory::SupervisionBufferConfig& f_bufferConfig_r) noexcept(
     false)
 {
-    recoveryClient = std::make_unique<score::lcm::ControlClient>([](const score::lcm::ExecutionErrorEvent&) {});
     bool isSuccess{processStateReader.init()};
 
     if (isSuccess)
@@ -112,7 +111,7 @@ bool PhmDaemon::construct(const factory::MachineConfigFactory::SupervisionBuffer
             {
                 swClusterHandlers.emplace_back(strSwClusterName);
                 isSuccess =
-                    swClusterHandlers.back().constructWorkers(*recoveryClient, processStateReader, f_bufferConfig_r);
+                    swClusterHandlers.back().constructWorkers(recoveryClient, processStateReader, f_bufferConfig_r);
                 if (!isSuccess)
                 {
                     logger_r.LogError() << "Phm Daemon: failed to create worker objects for swclusterhandler:"
