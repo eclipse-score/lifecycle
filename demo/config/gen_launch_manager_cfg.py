@@ -403,30 +403,6 @@ if __name__ == "__main__":
         qt_am_machine, BASE_PROCESS_GROUP, ["Off", "Startup", "Recovery"]
     )
 
-    # adding HealthMonitor application
-    hm_process = conf_gen.process_group_add_process(
-        pg_machine,
-        "healthmonitor",
-        executable_name="/opt/health_monitor/health_monitor",
-        uid=0,
-        gid=0,
-        special_rights="STATE_MANAGEMENT",
-    )
-    conf_gen.process_add_startup_config(
-        hm_process,
-        "health_monitor_startup_config",
-        # process_arguments = ["-a", "-b", "--test"],
-        env_variables={
-            "PROCESSIDENTIFIER": "healthmonitor",
-            "LC_STDOUT_LOG_LEVEL": "3",
-        },
-        scheduling_policy="SCHED_OTHER",
-        scheduling_priority=0,
-        enter_timeout=20.0,
-        exit_timeout=1.0,
-        use_in=["Startup", "Recovery"],
-    )
-
     # adding Control application
     control_process = conf_gen.process_group_add_process(
         pg_machine,

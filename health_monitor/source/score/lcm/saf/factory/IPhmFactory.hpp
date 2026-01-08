@@ -20,7 +20,7 @@
 
 namespace score {
     namespace lcm {
-        class ControlClient;
+        class IRecoveryClient;
     }
 }
 
@@ -169,7 +169,7 @@ public:
     /// @param [out] f_notification_r   Vector of Recovery Notifications
     /// @param [in,out] f_global_r      Vector of Global Supervisions required for attaching the Recovery Notifications.
     /// @return                         Object creation successful (true), otherwise failed (false)
-    virtual bool createRecoveryNotifications(score::lcm::ControlClient& f_recoveryClient_r,
+    virtual bool createRecoveryNotifications(std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r,
                                              std::vector<recovery::Notification>& f_notification_r,
                                              std::vector<supervision::Global>& f_global_r) = 0;
 };

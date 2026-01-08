@@ -55,7 +55,7 @@ SwClusterHandler::~SwClusterHandler() = default;
 
 /* RULECHECKER_comment(0, 3, check_max_cyclomatic_complexity, "Max cyclomatic complexity violation\
    is tolerated for this function. ", true_no_defect) */
-bool SwClusterHandler::constructWorkers(score::lcm::ControlClient& f_recoveryClient_r, ifexm::ProcessStateReader& f_processStateReader_r,
+bool SwClusterHandler::constructWorkers(std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r, ifexm::ProcessStateReader& f_processStateReader_r,
     const factory::MachineConfigFactory::SupervisionBufferConfig& f_bufferConfig_r) noexcept(false)
 {
     bool isSuccess{false};

@@ -95,7 +95,7 @@ public:
     /// @param [in] f_bufferConfig_r           Configuration settings for constructing workers
     /// @return                              Construction is successful (true), otherwise failure (false)
     bool constructWorkers(
-        score::lcm::ControlClient& f_recoveryClient_r, ifexm::ProcessStateReader& f_processStateReader_r,
+        std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r, ifexm::ProcessStateReader& f_processStateReader_r,
         const factory::MachineConfigFactory::SupervisionBufferConfig& f_bufferConfig_r) noexcept(false);
 
     /// @brief Perform cyclic execution

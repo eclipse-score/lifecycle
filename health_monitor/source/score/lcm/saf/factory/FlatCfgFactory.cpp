@@ -948,7 +948,7 @@ bool FlatCfgFactory::createGlobalSupervisions(std::vector<supervision::Global>& 
     return isGlobalSupCfgSuccess;
 }
 
-bool FlatCfgFactory::createRecoveryNotifications(score::lcm::ControlClient& f_recoveryClient_r,
+bool FlatCfgFactory::createRecoveryNotifications(std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r,
                                                  std::vector<recovery::Notification>& f_notification_r,
                                                  std::vector<supervision::Global>& f_global_r)
 {
@@ -992,7 +992,7 @@ bool FlatCfgFactory::createRecoveryNotifications(score::lcm::ControlClient& f_re
     return isRecoverySuccess;
 }
 
-void FlatCfgFactory::createNotification(score::lcm::ControlClient& f_recoveryClient_r, std::vector<recovery::Notification>& f_notification_r,
+void FlatCfgFactory::createNotification(std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r, std::vector<recovery::Notification>& f_notification_r,
                                         const HMFlatBuffer::RecoveryNotification& f_recoveryNotificationData_r) const
     noexcept(false)
 {

@@ -28,7 +28,7 @@
 #include "score/lcm/saf/logging/PhmLogger.hpp"
 #include "score/lcm/saf/timers/TimeConversion.hpp"
 #include "score/lcm/saf/timers/Timers_OsClock.hpp"
-#include <score/lcm/control_client.h>
+#include <score/lcm/irecovery_client.h>
 
 namespace xaap
 {
@@ -102,18 +102,18 @@ class Notification
 {
 public:
     /// @brief Default constructor
-    /// @param [in] f_recoveryClient_r Reference to the recovery interface of launch manager
+    /// @param [in] f_recoveryClient_r Shared pointer to the recovery interface of launch manager
     /// @warning If the default constructor is used for the construction of Notification class, the notification
     /// instance will not send the recovery notification to State Management, instead it will directly set the
     /// final timeout state so that the recovery can be handled via watchdog
-    Notification(score::lcm::ControlClient& f_recoveryClient_r);
+    Notification(std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r);
 
     /// @brief Parametric constructor
-    /// @param [in] f_notificationConfig_r Reference to the configuration structure of Notification class
+    /// @param [in] f_notificationConfig_r Shared pointer to the configuration structure of Notification class
     /// @param [in] f_recoveryClient_r Reference to the recovery interface of launch manager
     /// @note If this parametric constructor is used for the construction of Notification class, the notification
     /// instance will send the recovery notification to State Management
-    explicit Notification(const NotificationConfig& f_notificationConfig_r, score::lcm::ControlClient& f_recoveryClient_r);
+    explicit Notification(const NotificationConfig& f_notificationConfig_r, std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r);
 
     /// @brief Copy constructor for this class is not supported
     Notification(const Notification&) = delete;
@@ -205,7 +205,7 @@ public:
     score::concurrency::InterruptibleFuture<void> recoveryStateFutureOutput;
     score::lcm::IdentifierHash recoveryProcessGroup;
     score::lcm::IdentifierHash recoveryProcessGroupState;
-    score::lcm::ControlClient& recoveryClient;
+    std::shared_ptr<score::lcm::IRecoveryClient> recoveryClient;
 
     /// @brief Logger
     logging::PhmLogger& logger_r;

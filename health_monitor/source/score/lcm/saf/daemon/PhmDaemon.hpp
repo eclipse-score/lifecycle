@@ -21,8 +21,6 @@
 #include <vector>
 #include "score/lcm/lifecycle_client.h"
 #include "score/lcm/control_client.h"
-#include "score/lcm/saf/common/PhmSignalHandler.hpp"
-#include "score/lcm/saf/daemon/PhmDaemonCmdLineParser.hpp"
 #include "score/lcm/saf/daemon/PhmDaemonConfig.hpp"
 #include "score/lcm/saf/daemon/SwClusterHandler.hpp"
 #include "score/lcm/saf/factory/MachineConfigFactory.hpp"
@@ -40,25 +38,27 @@ namespace saf
 namespace daemon
 {
 
+/// @brief Return codes for PhmDaemon Initialization
+enum class EInitCode : std::int8_t
+{
+    kNoError,                           ///< Init Successful (no error occurred)
+    kNotInitialized,                    ///< Init was not performed
+    kCycleTimeInitFailed,              ///< Cyclic Timer initialization failed
+    kConstructFlatCfgFactoryFailed,    ///< FlatCfgFactory failed loading SWCL configurations
+    kWatchdogInitFailed,               ///< Watchdog Initialization failed
+    kWatchdogEnableFailed,             ///< Enabling watchdog device failed
+    kMachineConfigInitFailed,          ///< MachineConfigFactory failed loading the machine configuration
+    kSignalHandlerRegistrationFailed,  ///< Failed to register signal handler for termination signals
+    kGeneralError                      ///< General error
+};
+
+
 /// @brief PHM daemon main class wraps the functionality for initialization and cyclic execution.
 /// @details This is the main class responsible to execute the main functionalities of PHM daemon,
 ///          by using the necessary classes from this software component.
 class PhmDaemon
 {
 public:
-    /// @brief Return codes for PhmDaemon Initialization
-    enum class EInitCode : std::int8_t
-    {
-        kNoError = 0,                          ///< Init Successful (no error occurred)
-        kPrintHelpOrVersion = 1,               ///< Daemon start with -h or -v option
-        kParsingError = -1,                    ///< Error while parsing cmdline arguments
-        kCycleTimeInitFailed = -2,             ///< Cyclic Timer initialization failed
-        kConstructFlatCfgFactoryFailed = -3,   ///< FlatCfgFactory failed loading SWCL configurations
-        kWatchdogInitFailed = -4,              ///< Watchdog Initialization failed
-        kWatchdogEnableFailed = -5,            ///< Enabling watchdog device failed
-        kMachineConfigInitFailed = -6,         ///< MachineConfigFactory failed loading the machine configuration
-        kSignalHandlerRegistrationFailed = -7  ///< Failed to register signal handler for termination signals
-    };
 
     /* RULECHECKER_comment(0, 4, check_expensive_to_copy_in_parameter, "f_supervisionErrorInfo name is passed by value\
      as same as generated function", true_no_defect) */
@@ -86,30 +86,17 @@ public:
     PhmDaemon& operator=(PhmDaemon&&) = delete;
 
     /// @brief Wraps the initialization steps of the PHM daemon
-    /// (command line parsing, Constructing the workers, adjusting the cycle time, initialization of fixed step timer)
-    /// @param[in] f_argc Number of arguments (shall be greater zero)
-    /// @param[in] f_argv An array pointing to the command line arguments
+    /// (Constructing the workers, adjusting the cycle time, initialization of fixed step timer)
+    /// @param[in] recovery_client Shared pointer to recovery client
     /// @return See EInitCode definition
-    EInitCode init(int f_argc, char** f_argv) noexcept(false)
+    EInitCode init(std::shared_ptr<score::lcm::IRecoveryClient> recovery_client) noexcept(false)
     {
-        score::lcm::saf::daemon::PhmDaemonCmdLineParser<> cmdLineParser{};
-        const int8_t parseResult{cmdLineParser.parseOptions(f_argc, f_argv)};
-        if (parseResult != 0)
-        {
-            return static_cast<EInitCode>(parseResult);
-        }
+        recoveryClient = recovery_client;
 
         factory::MachineConfigFactory machineConfig{};
         if (!machineConfig.init())
         {
             return EInitCode::kMachineConfigInitFailed;
-        }
-        if (machineConfig.isHmShutdownEnabled())
-        {
-            if (!score::lcm::saf::common::PhmSignalHandler::registerHandler())
-            {
-                return EInitCode::kSignalHandlerRegistrationFailed;
-            }
         }
 
         if (!construct(machineConfig.getSupervisionBufferConfig()))
@@ -154,23 +141,17 @@ public:
 
     /// @pre PhmDaemon::init() has been invoked without errors
     /// @brief Start cyclic execution
-    /// @param[in] f_client Reference to an LifecycleClient object. This is given as a parameter from
-    /// the outside for better testability. In the test case, not the real execution management needs
-    /// to be informed about the execution state.
     /// @param[in] f_terminateCond Boolean predicate to determine when to terminate the cyclic loop
     /// (e.g. due to a signal received)
     /// @return bool false in case start of cyclic execution failed
     ///
-    /// @tparam LifecycleClientType Template parameter allows the exchange of the real productive
-    /// lifecycle client with a mock or stub for testing.
     /// @tparam TerminationSignalPredType Template parameter for the boolean condition to terminate the loop. This is
     /// normally deduced by the C++ compiler. It's a template parameter to also allow std::atomics for instance.
     /// @details
-    /// 1. Report the execution state kRunning to the Execution Manager (log a waring if reporting was not possible)
-    /// 2. Enter the cyclic loop:
-    ///   - Sleep for the configured interval
-    ///   - Perform the cyclic triggers
-    ///   - Calculate the next absolute deadline until when to sleep
+    /// Enter the cyclic loop:
+    /// - Sleep for the configured interval
+    /// - Perform the cyclic triggers
+    /// - Calculate the next absolute deadline until when to sleep
     /// @todo Introduce a threshold how many times a sleep may fail w/ an error, until the loop is terminated
     /// or add a strategy for recovery.
     /// @todo Add more sophisticated time handling (deviation reporting, reporting on sleep errors)
@@ -178,15 +159,9 @@ public:
     /// @todo Monitor the correct increment of the sleep interval
     /* RULECHECKER_comment(0, 4, check_cheap_to_copy_in_parameter, "f_terminateCond is passed as reference\
        for signal handling", true_no_defect) */
-    template <typename LifecycleClientType, typename TerminationSignalPredType>
-    bool startCyclicExec(LifecycleClientType& f_client, const TerminationSignalPredType& f_terminateCond) noexcept
+    template <typename TerminationSignalPredType>
+    bool startCyclicExec(const TerminationSignalPredType& f_terminateCond) noexcept
     {
-        auto rv{f_client.ReportExecutionState(score::lcm::ExecutionState::kRunning)};
-        if (false == rv.has_value())
-        {
-            logger_r.LogWarn() << "Phm Daemon: Could not report execution state kRunning to LM!";
-        }
-
         timers::NanoSecondType startTimestamp{cycleTimer.start()};
         if (startTimestamp == 0U)
         {
@@ -261,7 +236,7 @@ private:
     logging::PhmLogger& logger_r;
 
     /// @brief Recovery interface to Launch Manager
-    std::unique_ptr<score::lcm::ControlClient> recoveryClient;
+    std::shared_ptr<score::lcm::IRecoveryClient> recoveryClient;
 
     /// @brief Vector of SwCluster handler
     std::vector<SwClusterHandler> swClusterHandlers;
