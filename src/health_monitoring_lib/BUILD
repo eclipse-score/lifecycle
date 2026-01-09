@@ -19,3 +19,8 @@ rust_library(
     crate_name = "health_monitoring_lib",
     visibility = ["//visibility:public"],
 )
+
+rust_test(
+    name = "tests",
+    crate = ":health_monitoring_lib",
+)
