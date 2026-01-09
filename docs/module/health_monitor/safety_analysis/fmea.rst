@@ -24,21 +24,8 @@ FMEA (Failure Modes and Effects Analysis)
    :realizes: wp__sw_component_fmea
    :tags: template
 
-.. note:: Use the content of the document to describe e.g. why a fault model is not applicable for the diagram.
-
-.. attention::
-    The above directive must be updated according to your Component.
-
-    - Modify ``Your Component Name`` to be your Component Name
-    - Modify ``id`` to be your Component Name in upper snake case preceded by ``doc__`` and succeeded by ``_fmea``
-    - Adjust ``status`` to be ``valid``
-    - Adjust ``safety`` and ``tags`` according to your needs
-
-
 Failure Mode Evaluation Table
------------------
-
-.. comp_saf_fmea::
+------------------------------
 
 .. list-table::
    :header-rows: 1
@@ -53,21 +40,32 @@ Failure Mode Evaluation Table
      - HM_FMEA_001
      - Background thread does not receive CPU time slice, leading to miss specified alive notification internal towards Launch Daemon
      - | **Detection:**
-       -  Missing notifications will be detected by Launch Daemon and lead to safety reaction at Launch Daemon.
+       |  - Missing notifications will be detected by Launch Daemon and lead to safety reaction at Launch Daemon.
+
        | **Mitigation:** 
-       - Provide `AoU` that integrator has to ensure Health Monitor background thread receives sufficient CPU time slice by configuring it's scheduling parameters accordingly.
+       |  - Provide `AoU` that integrator has to ensure Health Monitor background thread receives sufficient CPU time slice by configuring it's scheduling parameters accordingly.
+       |  - All code within process is developed according to **ASIL-B** development process
+
      - Yes
    * - Loss of execution
      - HM_FMEA_002
      - Background thread does not advance in its execution (ie. deadlock, endless loop failure), leading to miss specified alive notification internal towards Launch Daemon
      - | **Detection:**
-       -  Missing notifications will be detected by Launch Daemon and lead to safety reaction at Launch Daemon.
+       |  -  Missing notifications will be detected by Launch Daemon and lead to safety reaction at Launch Daemon.
+
+       | **Mitigation:**
+       |  - All code within process is developed according to **ASIL-B** development process
+
      - Yes
    * - Memory corruption of monitoring data structures
      - HM_FMEA_003
      - Corruption of internal data structures used for monitoring, leading to missed detection of failure of monitored components (bitflips, out of range data, etc.)
      - | **Detection:**
-       -  SEE NOTES BELOW
+       |  - Using protected memory pages around internal data structures used for monitoring to detect memory corruption (see below)
+
+       | **Mitigation:**
+       |  - All code within process is developed according to **ASIL-B** development process
+
      - Yes
 
 HM_FMEA_003
@@ -98,10 +96,12 @@ Another possible detection mechanism is to use protected memory pages. Region be
 Since other components do not have knowledge where internal structures were allocated, **likelihood** of memory corruption only in data structures used for monitors and not around them is **low**.
 
 **Pros**
+
 - Easy to implement
 - 0 performance overhead
 
 **Cons**
+
 - Increased memory overhead
 - Can detect only `pass through` corruption - ie. bulk write over memory area
 - Protection can be disabled by malicious component however this shall be judged as **extremely low** likelihood because this requires knowledge of internal memory layout of Health Monitoring Library and code review approval.
@@ -115,22 +115,28 @@ as either **mirrored data** or  **inverse byte copy**. During runtime, backgroun
    This pattern can be extended to triple banking where voting can be used to **recover** corrupted data if needed.
 
 **Pros**
+
 - Can recover corrupted data if triple banking with voting is used
 - Detects wide range of memory corruption patterns
 
 **Cons**
+
 - Increased memory overhead
 - More complex internal implementation
 
+Decision
+=========
+- Status: Accepted
+- Date: 2026-01-09
+   
+After evaluation of above detection mechanisms, it was decided that **Health Monitoring Library** shall be implemented as library within monitored process as FMEA confirms safety goals are met.
 
+Rationale
+==========
+- All code within process is developed according to **ASIL-B** development process
+- Library will use **protected pages** mechanism to detect `pass through` memory corruption
+- Lifecycle CFT will investigate possibility to harden memory protection using **ARM MTE** extension (`more here <https://learn.arm.com/learning-paths/mobile-graphics-and-gaming/mte/>`_ ) in future releases - https://github.com/eclipse-score/score/issues/2397
 
-Summary
-^^^^^^^^
-
-In above considerations we assumed:
- - Performance overhead shall be minimal since Monitoring entries are simple operation on low memory chunks
-
-**Take into consideration that those are protections to `discuss` and agree what makes most sense in our use case.**
 
 Failure Mode List
 -----------------
