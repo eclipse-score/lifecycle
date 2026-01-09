@@ -11,8 +11,8 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
-load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library", "rust_test")
-
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
+fdsfsdfsdfsd
 rust_library(
     name = "health_monitoring_lib",
     srcs = glob(["src/**/*.rs"]),
@@ -21,6 +21,6 @@ rust_library(
 )
 
 rust_test(
-    name = "tests",
-    crate = ":health_monitoring_lib",
+    name = "health_monitoring_lib_tests",
+    crate = ":health_monitoring_libs",
 )
