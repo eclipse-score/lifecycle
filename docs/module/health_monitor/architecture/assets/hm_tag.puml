@@ -1,0 +1,7 @@
+@startuml
+
++class Tag {
+    +new<N: AsRef<str>>(name: N) -> Self
+}
+
+@enduml

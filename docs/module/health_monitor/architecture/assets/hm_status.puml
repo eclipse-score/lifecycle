@@ -1,0 +1,10 @@
+@startuml
+
++enum Status {
+    Running
+    Disabled
+    Failed
+    Stopped
+}
+
+@enduml

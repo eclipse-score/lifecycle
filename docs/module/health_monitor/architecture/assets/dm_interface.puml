@@ -1,0 +1,34 @@
+@startuml
+
+!include hm_tag.puml
+!include hm_error.puml
+!include hm_status.puml
+!include hm_duration_range.puml
+!includesub hm_deadline.puml!DeadlineClass
+
+!startsub DeadlineMonitorClass
++class DeadlineMonitor {
+    +get_deadline(&self, tag: Tag) -> Result<Deadline, Error>
+    +get_deadline_guard(&self, tag: Tag) -> Result<DeadlineGuard, Error>
+    +create_custom_deadline(&self, duration_range: DurationRange) -> Result<Deadline, Error>
+    +create_custom_deadline_guard(&self, duration_range: DurationRange) -> Result<DeadlineGuard, Error>
+    +enable(&self) -> Result<(), Error>
+    +disable(&self) -> Result<(), Error>
+    ~status(&self) -> Status
+    ~evaluate(&self) -> Status
+}
+!endsub
+
++class DeadlineGuard {
+}
+
+!startsub DeadlineMonitorRel
+DeadlineMonitor *-- Status : owns
+DeadlineMonitor ..> Error
+DeadlineMonitor ..> Tag
+DeadlineMonitor ..> Deadline : <<creates>>
+DeadlineMonitor ..> DeadlineGuard : <<creates>>
+DeadlineMonitor ..> DurationRange
+!endsub
+
+@enduml

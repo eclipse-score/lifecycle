@@ -1,0 +1,21 @@
+@startuml
+
+!include lm_state.puml
+!include hm_error.puml
+!includesub lm_interface.puml!LogicMonitorClass
+
+!startsub LogicMonitorBuilderClass
++class LogicMonitorBuilder {
+    +new(initial_state: LogicMonitorState) -> Self
+    +add_transition(&mut self, from: LogicMonitorState, to: LogicMonitorState) -> &mut Self
+    +build(self) -> Result<LogicMonitor, Error>
+}
+!endsub
+
+!startsub LogicMonitorBuilderRel
+LogicMonitorBuilder ..> Error
+LogicMonitorBuilder *-- "1..*" LogicMonitorState : owns
+LogicMonitorBuilder ..> LogicMonitor : <<consumes>>
+!endsub
+
+@enduml

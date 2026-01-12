@@ -1,0 +1,9 @@
+@startuml
+
++struct DurationRange
+{
+    min: Duration
+    max: Duration
+}
+
+@enduml

@@ -1,0 +1,14 @@
+@startuml
+
+component "DeadlineMonitor"
+component "LogicMonitor"
+component "HealthMonitorBuilder"
+component "HealthMonitor"
+component "HeartbeatMonitor"
+
+HealthMonitorBuilder ..> HealthMonitor : build
+HealthMonitor ..> DeadlineMonitor : provide and monitor
+HealthMonitor ..> LogicMonitor : provide and monitor
+HealthMonitor ..> HeartbeatMonitor : provide and monitor
+
+@enduml

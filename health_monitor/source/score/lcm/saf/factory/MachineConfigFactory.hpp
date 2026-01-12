@@ -1,15 +1,15 @@
 /********************************************************************************
-* Copyright (c) 2025 Contributors to the Eclipse Foundation
-*
-* See the NOTICE file(s) distributed with this work for additional
-* information regarding copyright ownership.
-*
-* This program and the accompanying materials are made available under the
-* terms of the Apache License Version 2.0 which is available at
-* https://www.apache.org/licenses/LICENSE-2.0
-*
-* SPDX-License-Identifier: Apache-2.0
-********************************************************************************/
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ********************************************************************************/
 
 
 #ifndef MACHINE_CONFIG_FACTORY_HPP_INCLUDED
@@ -95,11 +95,6 @@ public:
     /// @return Configured cycle time or default cycle time if not configured
     timers::NanoSecondType getCycleTimeInNs() const noexcept(true);
 
-    /// @brief Returns whether hm shutdown is enabled
-    /// @return True, if hm daemon should shutdown upon receiving SIGTERM signal
-    ///         False, if hm daemon shutdown was disabled in the daemon configuration
-    bool isHmShutdownEnabled() const noexcept(true);
-
     /// @brief Returns the configured buffer sizes for supervisions
     /// @return Configured buffer sizes or default values if not configured
     const SupervisionBufferConfig& getSupervisionBufferConfig() const noexcept(true);
@@ -128,9 +123,6 @@ private:
 
     /// @brief Configured HM Daemon cycle time
     timers::NanoSecondType cycleTimeNs{StaticConfig::k_hmDaemonDefaultCycleTime};
-
-    /// @brief Configured HM Daemon shutdown behavior
-    bool hmDaemonShutdownEnabled{StaticConfig::k_hmDaemonDefaultShutdownEnabled};
 
     /// @brief Configured supervision buffer sizes
     SupervisionBufferConfig supBufferCfg{};

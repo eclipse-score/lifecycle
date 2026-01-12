@@ -1,21 +1,26 @@
 /********************************************************************************
-* Copyright (c) 2025 Contributors to the Eclipse Foundation
-*
-* See the NOTICE file(s) distributed with this work for additional
-* information regarding copyright ownership.
-*
-* This program and the accompanying materials are made available under the
-* terms of the Apache License Version 2.0 which is available at
-* https://www.apache.org/licenses/LICENSE-2.0
-*
-* SPDX-License-Identifier: Apache-2.0
-********************************************************************************/
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ********************************************************************************/
 
 #include <unistd.h>
 #include <iostream>
 
 #include <score/lcm/internal/processgroupmanager.hpp>
 #include <score/lcm/internal/log.hpp>
+
+#include <score/lcm/saf/watchdog/WatchdogImpl.hpp>
+#include <score/lcm/internal/health_monitor_thread.hpp>
+#include <score/lcm/saf/daemon/HealthMonitorImpl.hpp>
+#include <score/lcm/internal/recovery_client.hpp>
 
 using namespace std;
 using namespace score::lcm::internal;
@@ -83,8 +88,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char const* argv[]) {
         //}
 
         LM_LOG_DEBUG() << "Launch Manager Started !!!!";
+        std::shared_ptr<score::lcm::IRecoveryClient> recoveryClient{std::make_shared<score::lcm::RecoveryClient>()};
+        std::unique_ptr<score::lcm::saf::watchdog::IWatchdogIf> watchdog{std::make_unique<score::lcm::saf::watchdog::WatchdogImpl>()};
+        std::unique_ptr<score::lcm::saf::daemon::IHealthMonitor> healthMonitor{std::make_unique<score::lcm::saf::daemon::HealthMonitorImpl>(recoveryClient, std::move(watchdog))};
+        std::unique_ptr<score::lcm::internal::IHealthMonitorThread> healthMonitorThread{
+            std::make_unique<score::lcm::internal::HealthMonitorThread>(std::move(healthMonitor))};
 
-        std::unique_ptr<ProcessGroupManager> process_group_manager = std::make_unique<ProcessGroupManager>();
+        std::unique_ptr<ProcessGroupManager> process_group_manager = std::make_unique<ProcessGroupManager>(std::move(healthMonitorThread), recoveryClient);
 
         if (initializeLCMDaemon(*process_group_manager)) {
             if (runLCMDaemon(*process_group_manager)) {

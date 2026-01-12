@@ -1,0 +1,10 @@
+@startuml
+
+component "DeadlineMonitorBuilder"
+component "DeadlineMonitor"
+component "Deadline"
+
+DeadlineMonitorBuilder ..> DeadlineMonitor : build
+DeadlineMonitor ..> Deadline : generate and check
+
+@enduml

@@ -1,0 +1,48 @@
+@startuml
+
+box "Application Process" #LightGray
+actor "User" as u
+participant "DeadlineMonitorBuilder" as dmb
+participant "LogicMonitorBuilder" as lmb
+participant "HeartbeatMonitor" as hbm
+participant "HealthMonitorBuilder" as hmb
+participant "HealthMonitor" as hm
+end box
+
+participant "LaunchManager" as lm
+
+u -> dmb : Create
+u -> dmb : Set hooks
+u -> dmb : Build
+dmb --> u : DeadlineMonitor instance
+
+u -> lmb : Create
+u -> lmb : Set hooks
+u -> lmb : Set initial state
+u -> lmb : Set allowed state transitions
+u -> lmb : Build
+lmb --> u : LogicMonitor instance
+
+u -> hbm : new
+hbm --> u : HeartbeatMonitor instance
+
+u -> hmb : Create
+group One or more
+    u -> hbm : Add HeartbeatMonitor instance
+    u -> hmb : Add DeadlineMonitor instance
+    u -> hmb : Add LogicMonitor instance
+end
+u -> hmb : Build
+hmb -> hm: new
+hm --> hmb: HealthMonitor instance
+hmb --> u : HealthMonitor instance
+loop Test monitors (in a background thread)
+    alt All monitors healthy
+        hm --> lm : Alive notification (IPC)
+    else One or more monitors unhealthy
+        hmb -> hmb : break
+        note right : Alive notification is not sent
+    end
+end
+
+@enduml

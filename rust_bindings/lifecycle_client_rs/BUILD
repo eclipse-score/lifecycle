@@ -22,6 +22,6 @@ rust_library(
     ],
     deps = [
         "//launch_manager:lifecycle_client",
-        "@crates//:libc",
+        "@score_crates//:libc",
     ],
 )

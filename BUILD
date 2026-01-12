@@ -28,7 +28,7 @@ copyright_checker(
         "health_monitor",
         "launch_manager",
         "rust_bindings",
-        "tests",
+        "src",
         "//:BUILD",
         "//:MODULE.bazel",
     ],
@@ -48,6 +48,8 @@ filegroup(
         "//launch_manager:process_state_client",
         "//rust_bindings/lifecycle_client_rs",
         "//rust_bindings/monitor_rs",
+        "//src/health_monitoring_lib",
+        "//src/lifecycle_client_lib",
     ],
 )
 
@@ -71,5 +73,16 @@ dash_license_checker(
 use_format_targets()
 
 docs(
+    data = [
+        "@score_process//:needs_json",  # This allows linking to requirements (wp__requirements_comp, etc.) from the process_description repository.
+    ],
     source_dir = "docs",
+)
+
+# Test suites
+test_suite(
+    name = "unit_tests",
+    testonly = True,
+    tests = [
+    ],
 )

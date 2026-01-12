@@ -1,15 +1,15 @@
 /********************************************************************************
-* Copyright (c) 2025 Contributors to the Eclipse Foundation
-*
-* See the NOTICE file(s) distributed with this work for additional
-* information regarding copyright ownership.
-*
-* This program and the accompanying materials are made available under the
-* terms of the Apache License Version 2.0 which is available at
-* https://www.apache.org/licenses/LICENSE-2.0
-*
-* SPDX-License-Identifier: Apache-2.0
-********************************************************************************/
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ********************************************************************************/
 
 #include "score/lcm/saf/recovery/Notification.hpp"
 
@@ -29,7 +29,7 @@ namespace {
     }
 }
 
-Notification::Notification(score::lcm::ControlClient& f_recoveryClient_r) :
+Notification::Notification(std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r) :
     currentState(State::kIdle),
     messageHeader("Notification ( / )"),
     isNotificationConfigAvailable(false),
@@ -38,7 +38,7 @@ Notification::Notification(score::lcm::ControlClient& f_recoveryClient_r) :
 {
 }
 
-Notification::Notification(const NotificationConfig& f_notificationConfig_r, score::lcm::ControlClient& f_recoveryClient_r) :
+Notification::Notification(const NotificationConfig& f_notificationConfig_r, std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r) :
     currentState(State::kIdle),
     k_notificationConfig(f_notificationConfig_r),
     messageHeader("Notification (" + k_notificationConfig.configName + ")"),
@@ -114,7 +114,7 @@ bool Notification::isFinalTimeoutStateReached(void) const noexcept
 
 void Notification::invokeRecoveryHandler(void)
 {
-    recoveryStateFutureOutput = recoveryClient.SetState(recoveryProcessGroup, recoveryProcessGroupState);
+    recoveryStateFutureOutput = recoveryClient->sendRecoveryRequest(recoveryProcessGroup, recoveryProcessGroupState);
 
     startTimestamp = timers::OsClock::getMonotonicSystemClock();
 

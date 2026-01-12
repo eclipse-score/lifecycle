@@ -17,10 +17,12 @@ cc_binary(
         "control_app_cli.cpp",
     ],
     copts = select({
+        "//config:build_qnx8": [],
         "//config:x86_64-qnx": [],
         "//conditions:default": ["-pthread"],
     }),
     linkopts = select({
+        "//config:build_qnx8": [],
         "//config:x86_64-qnx": [],
         "//conditions:default": [
             "-lpthread",
@@ -29,7 +31,7 @@ cc_binary(
     }),
     visibility = ["//visibility:public"],
     deps = [
-        "//external/ipc_dropin",
+        "//externals/ipc_dropin",
     ],
 )
 
@@ -40,10 +42,12 @@ cc_binary(
         "control_daemon.cpp",
     ],
     copts = select({
+        "//config:build_qnx8": [],
         "//config:x86_64-qnx": [],
         "//conditions:default": ["-pthread"],
     }),
     linkopts = select({
+        "//config:build_qnx8": [],
         "//config:x86_64-qnx": [],
         "//conditions:default": [
             "-lpthread",
@@ -52,7 +56,7 @@ cc_binary(
     }),
     visibility = ["//visibility:public"],
     deps = [
-        "//external/ipc_dropin",
+        "//externals/ipc_dropin",
         "//launch_manager:control_client",
         "//launch_manager:lifecycle_client",
     ],

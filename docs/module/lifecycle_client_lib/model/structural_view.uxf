@@ -1,0 +1,70 @@
+<diagram program="umletino" version="15.1"><zoom_level>9</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>882</x><y>549</y><w>486</w><h>144</h></coordinates><panel_attributes>&lt;&lt;interface&gt;&gt;
+score::mw::lifecycle::Application
+--
+Operation
++ initialize(const ApplicationContext&amp;): std::int32_t virtual = 0
++ run(amp::stop_token stop_token): std::int32_t virtual = 0</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>171</x><y>855</y><w>486</w><h>135</h></coordinates><panel_attributes>score::mw::lifecycle::ApplicationContext
+--
+Operations
++ ApplicationContext(const int32_t argc, const score::StringLiteral argv[])
++ get_arguments(): const std::vector&lt;std::string&gt;&amp; const noexcept
++ get_argument(const amp::string_view flag): std::string const noexcept
+-- 
+Atrribuite
++ m_args:  std::vector&lt;std::string&gt;
++ m_app_path: std::string
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>873</x><y>189</y><w>495</w><h>252</h></coordinates><panel_attributes>score::mw::lifecycle::LifecycleManager
+--
+operations
++ LifecycleManager(std::unique_ptr&lt;score::os::Signal&gt; signal_interface)
+
++ LifeCycleManager(LifeCycleManager&amp;&amp; other) = delete;
++ LifeCycleManager(const LifeCycleManager&amp; other) = delete;
++ LifeCycleManager&amp; operator=(LifeCycleManager&amp;&amp; other) = delete;
++ LifeCycleManager&amp; operator=(const LifeCycleManager&amp; other) = delete;
+
++ run(Application&amp; app, const ApplicationContext&amp;): int32_t
+--
+Attribute
++ m_stop_source: amp::stop_source
++ m_app: Application*
++ m_signal_set:  sigset_t
++ m_signal_handler_thread: std::thread
++ signal_: std::unique_ptr&lt;score::os::Signal&gt; </panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLNote</id><coordinates><x>729</x><y>0</y><w>441</w><h>126</h></coordinates><panel_attributes>Note
+--
+Implementation is platform specific. It typically implements
+a (POSIX) signal handling as we expect, that termination of apps is
+done via signaling in all environments.</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>954</x><y>117</y><w>54</w><h>90</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>40;80;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1080</x><y>432</y><w>72</w><h>135</h></coordinates><panel_attributes>lt=&lt;-
+manages</panel_attributes><additional_attributes>10;130;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>1539</x><y>396</y><w>441</w><h>180</h></coordinates><panel_attributes>template=ApplicationType
+Run
+--
+Operation
++ Run(const int32_t argc, const score::StringLiteral* argv)
++ AsPosixProcess(Args&amp;&amp;... args): std::int32_t const
+
+--
+Attribute
++ context_: ApplicationContext</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1359</x><y>405</y><w>198</w><h>45</h></coordinates><panel_attributes>lt=&lt;-
+Create &amp;
+Run</panel_attributes><additional_attributes>10;20;200;20</additional_attributes></element><element><id>Relation</id><coordinates><x>1359</x><y>540</y><w>198</w><h>36</h></coordinates><panel_attributes>lt=&lt;-
+Create</panel_attributes><additional_attributes>10;20;200;20</additional_attributes></element><element><id>UMLNote</id><coordinates><x>1656</x><y>621</y><w>324</w><h>63</h></coordinates><panel_attributes>Note
+--
+Enable the easy usage of our application in different
+environments</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1755</x><y>567</y><w>27</w><h>72</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>0</x><y>549</y><w>783</w><h>198</h></coordinates><panel_attributes>score::mw::lifecycle::AasApplicationContainer
+--
+operation
++ initialize(const ApplicationContext&amp;): std::int32_t override
++ run(amp::stop_token stop_token): std::int32_t override
++ AasApplicationContainer(cosnt std::int32_t argc, const score::StringLiteral* argv, const std::size_t count_expected_applications): noexcept
++ With&lt;App,...Args&gt;(Args&amp;&amp;.. args) : AasApplicationContainer&amp;
++ Launch() : std::int32_t
+--
+Atrribuite
++ context_: score::mw::lifecycle::ApplicationContext
++ applications_: std::vector&lt;std::unique_ptr&lt;Application&gt;&gt;
++ count_expected_applications_: std::size_t</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>774</x><y>576</y><w>126</w><h>36</h></coordinates><panel_attributes>lt=&lt;&lt;-
+Implements</panel_attributes><additional_attributes>120;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>576</x><y>369</y><w>315</w><h>198</h></coordinates><panel_attributes>lt=&lt;-
+Create &amp;
+Run
+</panel_attributes><additional_attributes>330;20;10;20;10;200</additional_attributes></element><element><id>Relation</id><coordinates><x>396</x><y>738</y><w>27</w><h>135</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+</panel_attributes><additional_attributes>10;10;10;130</additional_attributes></element></diagram>

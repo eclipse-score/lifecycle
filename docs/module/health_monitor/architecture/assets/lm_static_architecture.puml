@@ -1,0 +1,10 @@
+@startuml
+
+component "LogicMonitorBuilder"
+component "LogicMonitor"
+component "LogicMonitorState"
+
+LogicMonitorBuilder ..> LogicMonitor : build
+LogicMonitor ..> LogicMonitorState : transition between
+
+@enduml

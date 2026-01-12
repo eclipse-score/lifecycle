@@ -1,15 +1,15 @@
 /********************************************************************************
-* Copyright (c) 2025 Contributors to the Eclipse Foundation
-*
-* See the NOTICE file(s) distributed with this work for additional
-* information regarding copyright ownership.
-*
-* This program and the accompanying materials are made available under the
-* terms of the Apache License Version 2.0 which is available at
-* https://www.apache.org/licenses/LICENSE-2.0
-*
-* SPDX-License-Identifier: Apache-2.0
-********************************************************************************/
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ********************************************************************************/
 
 
 #ifndef IPHMFACTORY_HPP_INCLUDED
@@ -20,7 +20,7 @@
 
 namespace score {
     namespace lcm {
-        class ControlClient;
+        class IRecoveryClient;
     }
 }
 
@@ -169,7 +169,7 @@ public:
     /// @param [out] f_notification_r   Vector of Recovery Notifications
     /// @param [in,out] f_global_r      Vector of Global Supervisions required for attaching the Recovery Notifications.
     /// @return                         Object creation successful (true), otherwise failed (false)
-    virtual bool createRecoveryNotifications(score::lcm::ControlClient& f_recoveryClient_r,
+    virtual bool createRecoveryNotifications(std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r,
                                              std::vector<recovery::Notification>& f_notification_r,
                                              std::vector<supervision::Global>& f_global_r) = 0;
 };

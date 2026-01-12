@@ -39,7 +39,7 @@ cc_binary_with_common_opts(
                 "deliverables/common/osal/linux/**",
             ],
         ),
-        "//config:arm64-qnx": glob(
+        "//config:build_qnx8": glob(
             [
                 "deliverables/common/**/*.cpp",
                 "deliverables/daemon/**/*.cpp",
@@ -70,16 +70,17 @@ cc_binary_with_common_opts(
     includes = ["deliverables/inc"],
     linkopts = select({
         "//config:x86_64-qnx": ["-lsecpol"],
-        "//config:arm64-qnx": ["-lsecpol"],
-        "//conditions:default": [],
+        "//config:build_qnx8": ["-lsecpol"],
+        "//conditions:default": ["-lpthread"],
     }),
     visibility = ["//visibility:public"],
     deps = [
         ":deliverables_includes",
-        "//external/ipc_dropin",
+        "//externals/ipc_dropin",
+        "//health_monitor",
         "@flatbuffers",
-        "@score-baselibs//score/mw/log",
-        "@score-baselibs//score/result",
+        "@score_baselibs//score/mw/log",
+        "@score_baselibs//score/result",
     ],
 )
 
@@ -103,18 +104,20 @@ cc_library(
         "deliverables/inc/score/lcm/lifecycle_client.h",
     ],
     copts = select({
+        "//config:build_qnx8": [],
         "//config:x86_64-qnx": [],
         "//conditions:default": ["-pthread"],
     }),
     linkopts = select({
+        "//config:build_qnx8": [],
         "//config:x86_64-qnx": [],
         "//conditions:default": ["-lpthread"],
     }),
     visibility = ["//visibility:public"],
     deps = [
         ":deliverables_includes",
-        "@score-baselibs//score/mw/log",
-        "@score-baselibs//score/result",
+        "@score_baselibs//score/mw/log",
+        "@score_baselibs//score/result",
     ],
 )
 
@@ -137,8 +140,26 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":deliverables_includes",
-        "@score-baselibs//score/concurrency/future",
-        "@score-baselibs//score/mw/log",
+        "@score_baselibs//score/concurrency/future",
+        "@score_baselibs//score/mw/log",
+    ],
+)
+
+cc_library(
+    name = "recovery_client",
+    srcs = [
+        "deliverables/common/identifier_hash/identifier_hash.cpp",
+        "deliverables/daemon/process_group_manager/src/config.cpp",
+        "deliverables/libraries/score/recovery_client/src/recovery_client.cpp",
+    ],
+    hdrs = [
+        "deliverables/inc/score/lcm/irecovery_client.h",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":deliverables_includes",
+        "//externals/ipc_dropin",
+        "@score_baselibs//score/concurrency/future",
     ],
 )
 
@@ -157,9 +178,9 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":deliverables_includes",
-        "//external/ipc_dropin",
-        "@score-baselibs//score/mw/log",
-        "@score-baselibs//score/result",
+        "//externals/ipc_dropin",
+        "@score_baselibs//score/mw/log",
+        "@score_baselibs//score/result",
     ],
 )
 

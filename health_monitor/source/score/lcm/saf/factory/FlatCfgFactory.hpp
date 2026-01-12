@@ -1,15 +1,15 @@
 /********************************************************************************
-* Copyright (c) 2025 Contributors to the Eclipse Foundation
-*
-* See the NOTICE file(s) distributed with this work for additional
-* information regarding copyright ownership.
-*
-* This program and the accompanying materials are made available under the
-* terms of the Apache License Version 2.0 which is available at
-* https://www.apache.org/licenses/LICENSE-2.0
-*
-* SPDX-License-Identifier: Apache-2.0
-********************************************************************************/
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ********************************************************************************/
 
 
 #ifndef FLATCFGFACTORY_HPP_INCLUDED
@@ -122,7 +122,7 @@ public:
                                   std::vector<ifexm::ProcessState>& f_processStates_r) override;
 
     /// Refer to the description of the base class (IPhmFactory)
-    bool createRecoveryNotifications(score::lcm::ControlClient& f_recoveryClient_r,
+    bool createRecoveryNotifications(std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r,
                                      std::vector<recovery::Notification>& f_notification_r,
                                      std::vector<supervision::Global>& f_global_r) override;
 
@@ -133,7 +133,7 @@ private:
     /// @param [in] f_recoveryClient_r           Recovery interface to the launch manager
     /// @param [inout] f_notification_r           Vector for notification worker
     /// @param [in] f_recoveryNotificationData_r  FlatBuffer data for recovery notification
-    void createNotification(score::lcm::ControlClient& f_recoveryClient_r,
+    void createNotification(std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r,
                             std::vector<recovery::Notification>& f_notification_r,
                             const HMFlatBuffer::RecoveryNotification& f_recoveryNotificationData_r) const
         noexcept(false);

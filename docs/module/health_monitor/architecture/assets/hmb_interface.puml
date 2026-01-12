@@ -1,0 +1,29 @@
+@startuml
+
+!include hm_error.puml
+!include hm_tag.puml
+!includesub hm_interface.puml!HealthMonitorClass
+!includesub dm_interface.puml!DeadlineMonitorClass
+!includesub lm_interface.puml!LogicMonitorClass
+!includesub hbm_interface.puml!HeartbeatMonitorClass
+
++class HealthMonitorBuilder {
+    +new() -> Self 
+    +from_config(config: &str) -> Self 
+    +add_heartbeat_monitor(&mut self, tag: Tag, monitor: HeartbeatMonitor) -> &mut Self
+    +add_deadline_monitor(&mut self, tag: Tag, monitor: DeadlineMonitor) -> &mut Self
+    +add_logic_monitor(&mut self, tag: Tag, monitor: LogicMonitor) -> &mut Self
+    +with_supervisor_api_cycle(Duration: supervisor_api_cycle) -> &mut Self
+    +with_internal_processing_cycle(Duration: internal_processing_cycle) -> &mut Self
+    +build() -> Result<HealthMonitor, Error>
+}
+note right: internal_processing_cycle <= supervisor_api_cycle\n
+
+HealthMonitorBuilder ..> Error
+HealthMonitorBuilder ..> Tag
+HealthMonitorBuilder ..> HealthMonitor : <<consumes>>
+HealthMonitorBuilder o-- "0..*" DeadlineMonitor
+HealthMonitorBuilder o-- "0..*" LogicMonitor
+HealthMonitorBuilder o-- "0..*" HeartbeatMonitor
+
+@enduml

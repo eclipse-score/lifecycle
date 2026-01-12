@@ -21,7 +21,7 @@ cc_library_with_common_opts(
         "source/score/lcm/saf/logging",
     ],
     deps = [
-        "@score-baselibs//score/mw/log",
+        "@score_baselibs//score/mw/log",
     ],
 )
 
@@ -39,21 +39,14 @@ cc_library_with_common_opts(
     ],
     deps = [
         "//launch_manager:process_state_client",
-        "@score-baselibs//score/mw/log",
+        "@score_baselibs//score/mw/log",
     ],
-)
-
-cc_library_with_common_opts(
-    name = "common",
-    srcs = ["source/score/lcm/saf/common/PhmSignalHandler.cpp"],
-    hdrs = ["source/score/lcm/saf/common/PhmSignalHandler.hpp"],
-    includes = ["source"],
 )
 
 cc_library_with_common_opts(
     name = "ipc_if",
     hdrs = glob(["source/score/lcm/saf/ipc/*.hpp"]),
-    deps = ["//external/ipc_dropin"],
+    deps = ["//externals/ipc_dropin"],
     alwayslink = True,
 )
 
@@ -93,7 +86,7 @@ cc_library_with_common_opts(
         "source/score/lcm/saf/logging",
     ],
     deps = [
-        "@score-baselibs//score/mw/log",
+        "@score_baselibs//score/mw/log",
     ],
 )
 
@@ -113,8 +106,8 @@ cc_library_with_common_opts(
         "source/config/gen/hmcore_model",
     ],
     deps = [
-        "//launch_manager:control_client",
-        "@score-baselibs//score/mw/log",
+        "//launch_manager:recovery_client",
+        "@score_baselibs//score/mw/log",
     ],
 )
 
@@ -135,14 +128,15 @@ cc_library_with_common_opts(
     ],
     deps = [
         ":recoverynotify",
-        "//external/ipc_dropin",
+        "//externals/ipc_dropin",
         "//launch_manager:process_state_client",
         "@flatbuffers",
     ] + select(
         {
+            "//config:build_qnx8": [],
             "//config:x86_64-qnx": [],
             "//conditions:default": [
-                "//external/acl",
+                "//externals/acl",
             ],
         },
     ),
@@ -161,13 +155,14 @@ cc_library_with_common_opts(
         "source/score/lcm/saf/logging",
     ],
     deps = [
-        "//external/ipc_dropin",
+        "//externals/ipc_dropin",
         "//launch_manager:process_state_client",
     ] + select(
         {
+            "//config:build_qnx8": [],
             "//config:x86_64-qnx": [],
             "//conditions:default": [
-                "//external/acl",
+                "//externals/acl",
             ],
         },
     ),
@@ -222,9 +217,10 @@ cc_library_with_common_opts(
         "@flatbuffers//:flatc",
     ] + select(
         {
+            "//config:build_qnx8": [],
             "//config:x86_64-qnx": [],
             "//conditions:default": [
-                "//external/acl",
+                "//externals/acl",
             ],
         },
     ),
@@ -234,7 +230,6 @@ cc_library_with_common_opts(
     name = "daemon",
     srcs = [
         "source/score/lcm/saf/daemon/PhmDaemon.cpp",
-        "source/score/lcm/saf/daemon/PhmDaemonCmdLineParser.cpp",
         "source/score/lcm/saf/daemon/SwClusterHandler.cpp",
     ],
     cxxopts = [
@@ -248,15 +243,15 @@ cc_library_with_common_opts(
     deps = [
         ":factory",
         ":rb-watchdog-if",
-        "//external/ipc_dropin",
+        "//externals/ipc_dropin",
         "//launch_manager:lifecycle_client",
     ],
 )
 
-cc_binary_with_common_opts(
+cc_library_with_common_opts(
     name = "health_monitor",
     srcs = [
-        "source/score/lcm/saf/daemon/health_monitor.cpp",
+        "source/score/lcm/saf/daemon/HealthMonitorImpl.cpp",
     ],
     cxxopts = [
         "-fpic",
@@ -264,7 +259,6 @@ cc_binary_with_common_opts(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        ":common",
         ":daemon",
         ":factory",
         ":ifappl",
@@ -276,7 +270,7 @@ cc_binary_with_common_opts(
         ":supervision",
         ":timers",
         "@flatbuffers//:flatc",
-        "@score-baselibs//score/mw/log",
+        "@score_baselibs//score/mw/log",
     ],
 )
 

@@ -1,0 +1,47 @@
+@startuml
+
+box "Application Process" #LightGray
+actor "User" as u
+participant "HeartbeatMonitor" as hbm
+participant "HealthMonitor" as hm
+end box
+
+participant "LaunchManager" as lm
+
+u -> hm : Get HeartbeatMonitor
+hm --> u : HeartbeatMonitor instance (enabled by default)
+
+alt Heartbeat sent within cycle time
+
+u -> hbm : Heartbeat
+hbm --> u : Ok
+hm -> hbm : Check heartbeat
+note right : HealthMonitor does this in a background thread
+hbm --> hm : Ok
+hm --> lm : Alive notification (IPC)
+
+else Heartbeat not sent within cycle time
+
+hm -> hbm : Check heartbeat
+note right : HealthMonitor does this in a background thread
+hbm -> hbm : HeartbeatMonitor expired
+hbm --> hm : Failed
+note right: Alive notification is not sent
+
+else Heartbeat sent while disabled
+
+u -> hbm : Disable
+hbm --> u : Ok
+u -> hbm : Heartbeat
+hbm --> u : Error::Disabled
+hm -> hbm : Check heartbeat
+note right : HealthMonitor does this in a background thread
+hbm --> hm : Ok
+note right : The HeartbeatMonitor is disabled, the heartbeat is and not checked
+hm --> lm : Alive notification (IPC)
+u -> hbm : Enable
+hbm --> u : Ok
+
+end
+
+@enduml

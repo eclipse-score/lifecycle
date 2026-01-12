@@ -1,0 +1,51 @@
+@startuml
+
+box "Application Process" #LightGray
+actor "User" as u
+participant "HealthMonitorBuilder" as hmb
+participant "HealthMonitor" as hm
+end box
+
+participant "LaunchManager" as lm
+
+== Initialization ==
+u -> hmb : Build(supervisor_api_cycle,\n\t internal_processing_cycle)
+activate hmb
+hmb -> hm: new
+activate hm
+hm --> hmb: HealthMonitor instance
+deactivate hm
+hmb --> u : HealthMonitor instance
+deactivate hmb
+
+== Monitor Checks ==
+
+... ...In a background thread... ...
+loop while shutdown is not requested
+    note right of hm: Record start_time
+    opt Any of the deadline monitors failed
+        hm --> lm: Error notification (IPC)
+        hm -> hm: break
+    end
+    opt Any of the logic monitors failed
+        hm --> lm: Error notification (IPC)
+        hm -> hm: break
+    end 
+    opt Any of the heartbeat monitors failed
+        hm --> lm: Error notification (IPC)
+        hm -> hm: break
+    end
+    note right of hm: accumulated_time += internal_processing_cycle
+    opt accumulated_time == supervisor_api_cycle
+        hm --> lm : Alive notification (IPC)
+        hm --> hm : Reset accumulated_time
+    end
+    note right of hm
+        Record end_time
+        elapsed_time = end_time - start_time
+        sleep_time = internal_processing_cycle - elapsed_time
+    end note
+    hm -> hm: Sleep(sleep_time)
+end
+
+@enduml
