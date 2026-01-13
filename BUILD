@@ -39,11 +39,11 @@ filegroup(
         "//src/control_client_lib",
         "//src/health_monitor_lib:health_monitor",
         "//src/health_monitor_lib/rust_bindings:monitor_rs",
-        "//src/launch_manager_daemon/process_state_client_lib:process_state_client",
+        "//src/launch_manager_daemon:launch_manager",
         "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
         "//src/launch_manager_daemon/lifecycle_client_lib/rust_bindings:lifecycle_client_rs",
-        "//src/launch_manager_daemon:launch_manager",
-    ]
+        "//src/launch_manager_daemon/process_state_client_lib:process_state_client",
+    ],
 )
 
 # Needed for Dash tool to check python dependency licenses.
