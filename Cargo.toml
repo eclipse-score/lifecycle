@@ -2,7 +2,7 @@
 resolver = "2"
 members = [
     "src/launch_manager_daemon/lifecycle_client_lib/rust_bindings",
-    "src/health_monitor_lib/rust_bindings",
+    "src/launch_manager_daemon/health_monitor_lib/rust_bindings",
     "examples/rust_supervised_app",
 ]
 
