@@ -28,7 +28,7 @@ rust_binary(
         "link-arg=-lc",
     ],
     deps = [
-        "//src/health_monitor_lib/rust_bindings:monitor_rs",
+        "//src/launch_manager_daemon/health_monitor_lib/rust_bindings:monitor_rs",
         "//src/launch_manager_daemon/lifecycle_client_lib/rust_bindings:lifecycle_client_rs",
         "@score_crates//:clap",
         "@score_crates//:libc",

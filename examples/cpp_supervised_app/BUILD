@@ -30,7 +30,7 @@ cc_binary(
     }),
     visibility = ["//visibility:public"],
     deps = [
-        "//src/health_monitor_lib:hm_shared_lib",
+        "//src/launch_manager_daemon/health_monitor_lib:hm_shared_lib",
         "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
     ],
 )
