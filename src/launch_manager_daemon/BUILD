@@ -37,12 +37,12 @@ cc_binary_with_common_opts(
     deps = [
         ":config",
         "//externals/ipc_dropin",
-        "//src/launch_manager_daemon/health_monitor_lib:health_monitor",
         "//src/launch_manager_daemon/common",
         "//src/launch_manager_daemon/common:control_client_channel",
         "//src/launch_manager_daemon/common:identifier_hash",
         "//src/launch_manager_daemon/common:lifecycle_error",
         "//src/launch_manager_daemon/common:log",
+        "//src/launch_manager_daemon/health_monitor_lib:health_monitor",
         "@flatbuffers",
         "@score_baselibs//score/mw/log",
         "@score_baselibs//score/result",
