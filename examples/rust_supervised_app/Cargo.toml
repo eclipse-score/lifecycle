@@ -1,0 +1,15 @@
+[package]
+name = "rust_supervised_app"
+version = "0.0.1"
+edition = "2021"
+
+[[bin]]
+name = "rust_supervised_app"
+path = "src/main.rs"
+
+[dependencies]
+clap = { workspace = true }
+libc = { workspace = true }
+signal-hook = { workspace = true }
+lifecycle_client_rs = { path = "../../src/launch_manager_daemon/lifecycle_client_lib/rust_bindings" }
+monitor_rs = { path = "../../src/launch_manager_daemon/health_monitor_lib/rust_bindings" }

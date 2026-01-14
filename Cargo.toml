@@ -1,10 +1,10 @@
 [workspace]
 resolver = "2"
 members = [
-    "rust_bindings/lifecycle_client_rs",
-    "rust_bindings/monitor_rs",
-    "demo/rust_supervised_app",
+    "src/launch_manager_daemon/lifecycle_client_lib/rust_bindings",
+    "src/launch_manager_daemon/health_monitor_lib/rust_bindings",
     "src/health_monitoring_lib",
+    "examples/rust_supervised_app",
 ]
 
 [workspace.package]

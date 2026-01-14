@@ -23,11 +23,7 @@ setup_starpls(
 copyright_checker(
     name = "copyright",
     srcs = [
-        "config",
-        "demo",
-        "health_monitor",
-        "launch_manager",
-        "rust_bindings",
+        "examples",
         "src",
         "//:BUILD",
         "//:MODULE.bazel",
@@ -35,22 +31,6 @@ copyright_checker(
     config = "@score_tooling//cr_checker/resources:config",
     template = "@score_tooling//cr_checker/resources:templates",
     visibility = ["//visibility:public"],
-)
-
-filegroup(
-    name = "build_all",
-    srcs = [
-        "//health_monitor",
-        "//health_monitor:hm_shared_lib",
-        "//launch_manager",
-        "//launch_manager:control_client",
-        "//launch_manager:lifecycle_client",
-        "//launch_manager:process_state_client",
-        "//rust_bindings/lifecycle_client_rs",
-        "//rust_bindings/monitor_rs",
-        "//src/health_monitoring_lib",
-        "//src/lifecycle_client_lib",
-    ],
 )
 
 # Needed for Dash tool to check python dependency licenses.
