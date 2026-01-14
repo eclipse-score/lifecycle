@@ -79,8 +79,8 @@ bool ProcessStateReader::distributeChanges(const timers::NanoSecondType f_syncTi
             const auto changedPosixProcess{resultChangedProcess.value()};
             if (changedPosixProcess)
             {
-                logger_r.LogDebug() << "Process with Id" << changedPosixProcess->id.data() << "changed state PG"
-                                    << changedPosixProcess->processGroupStateId.data() << "PS"
+                logger_r.LogDebug() << "Process with Id" << changedPosixProcess->id << "changed state PG"
+                                    << changedPosixProcess->processGroupStateId << "PS"
                                     << static_cast<int>(changedPosixProcess->processStateId);
                 isPushPending = pushUpdateTill(*changedPosixProcess, f_syncTimestamp);
                 flagContinue = (!isPushPending);

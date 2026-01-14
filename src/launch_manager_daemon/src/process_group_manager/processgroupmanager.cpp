@@ -363,8 +363,8 @@ bool ProcessGroupManager::sendResponse(ControlClientMessage msg) {
             LM_LOG_DEBUG() << "ProcessGroupManager::ControlClientHandler: Sending"
                            << scc->toString(msg.request_or_response_) << "("
                            << static_cast<int>(msg.request_or_response_) << ") re state"
-                           << msg.process_group_state_.pg_state_name_.data() << "of PG"
-                           << msg.process_group_state_.pg_name_.data();
+                           << msg.process_group_state_.pg_state_name_ << "of PG"
+                           << msg.process_group_state_.pg_name_;
             ret = scc->sendResponse(msg);
             if (!ret) {
                 ControlClientChannel::nudgeControlClientHandler();
@@ -395,8 +395,8 @@ inline void ProcessGroupManager::controlClientRequests(Graph& pg) {
                 LM_LOG_DEBUG() << "ProcessGroupManager::ControlClientHandler: got request"
                                << scc->toString(scc->request().request_or_response_) << "("
                                << static_cast<int>(scc->request().request_or_response_) << ") re state"
-                               << scc->request().process_group_state_.pg_state_name_.data() << "of PG"
-                               << scc->request().process_group_state_.pg_name_.data();
+                               << scc->request().process_group_state_.pg_state_name_ << "of PG"
+                               << scc->request().process_group_state_.pg_name_;
 
                 // Now process the request
                 switch (scc->request().request_or_response_) {
@@ -583,7 +583,7 @@ inline void ProcessGroupManager::processGroupHandler(Graph& pg) {
         if ((pgs.pg_state_name_ != IdentifierHash("")) &&
             ((pgs.pg_state_name_ != pg.getProcessGroupState()) || (GraphState::kUndefinedState == graph_state))) {
             pgs.pg_name_ = pg.getProcessGroupName();
-            LM_LOG_DEBUG() << "Start transition to" << pgs.pg_state_name_.data() << "for PG" << pgs.pg_name_.data();
+            LM_LOG_DEBUG() << "Start transition to" << pgs.pg_state_name_ << "for PG" << pgs.pg_name_;
 
             if (!pg.startTransition(pgs)) {
                 pg.setPendingEvent(ControlClientCode::kSetStateInvalidArguments);
@@ -607,7 +607,7 @@ inline void ProcessGroupManager::processGroupHandler(Graph& pg) {
             recovery_state.pg_state_name_ = configuration_manager_.getNameOfRecoveryState(recovery_state.pg_name_);
 
             LM_LOG_WARN() << "Problem discovered in PG"
-                          << recovery_state.pg_name_.data()
+                          << recovery_state.pg_name_
                           << "Activating Recovery state.";
 
             // no point checking errors here...

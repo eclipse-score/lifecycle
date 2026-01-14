@@ -11,18 +11,21 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-
 #ifndef IDENTIFIER_HASH_H_
 #define IDENTIFIER_HASH_H_
 
 #include <cstddef>
-
+#include <optional>
+#include <ostream>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 
-namespace score {
+namespace score
+{
 
-namespace lcm {
+namespace lcm
+{
 
 /// @file identifier_hash.hpp
 /// @brief This file contains the declaration of the IdentifierHash class,
@@ -36,8 +39,9 @@ namespace lcm {
 /// @details The class is designed to be used in contexts where IDs needs to be managed,
 /// compared, and manipulated. It ensures that IDs are handled efficiently and provides
 /// necessary operators and functions for common operations.
-class IdentifierHash final {
-   public:
+class IdentifierHash final
+{
+  public:
     /// @brief Constructs an IdentifierHash object from the given ID.
     /// @param id A const reference to std::string representing an ID.
     explicit IdentifierHash(const std::string& id);
@@ -85,8 +89,8 @@ class IdentifierHash final {
     bool operator<(const IdentifierHash& other) const;  // Overloaded operator for comparison
 
     ///@brief Default constructor for the IdentifierHash class.
-    ///This constructor initializes the IdentifierHash object with a default ID value.
-    ///The ID value is calculated by hashing an empty string using std::hash<std::string>.
+    /// This constructor initializes the IdentifierHash object with a default ID value.
+    /// The ID value is calculated by hashing an empty string using std::hash<std::string>.
 
     // this constructor is used in the code that is not part of the POC
     // not sure if we should have this constructor or not, but there is code like this:
@@ -116,10 +120,45 @@ class IdentifierHash final {
     /// @return A constant reference to the data stored in the IdentifierHash object.
     std::size_t data() const;
 
-   private:
+    /// @brief Returns the registry mapping hash values to their corresponding string representations.
+    ///
+    /// Static registry, which gets initialized per process.
+    ///
+    /// @return A reference to the static unordered_map that serves as the registry.
+    static std::unordered_map<std::size_t, std::string>& get_registry();
+
+  private:
     /// internal representation of the ID, that was passed in constructor
     std::size_t hash_id_ = 0;
 };
+
+/// @brief Overloaded stream insertion operator for IdentifierHash.
+///
+/// This operator allows IdentifierHash objects to be output to an ostream.
+/// It uses the the static registry to find the string representation of the hash ID.
+///
+/// If there is no value stored in the registry for the given hash
+/// (i.e. the IdentifierHash is not constructed in this process,
+/// instead it has been transferred from another process via e.g. shared memory),
+/// it outputs an error message.
+///
+/// @param os The output stream.
+/// @param id The IdentifierHash object to output.
+/// @return A reference to the output stream.
+inline std::ostream& operator<<(std::ostream& os, const IdentifierHash& id)
+{
+    const auto& reg = IdentifierHash::get_registry();
+    const auto it = reg.find(id.data());
+    if (it != reg.end())
+    {
+        os << it->second;
+    }
+    else
+    {
+        os << "<Unknown IdentifierHash: " << id.data() << ">";
+    }
+    return os;
+}
 
 }  // namespace lcm
 
