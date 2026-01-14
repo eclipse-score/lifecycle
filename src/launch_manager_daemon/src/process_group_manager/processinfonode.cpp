@@ -48,7 +48,7 @@ void ProcessInfoNode::initNode(Graph* graph, uint32_t index) {
                 LM_LOG_DEBUG() << "Process" << process_index_ << "has" << start_dependencies_ << "start dependencies";
             }
         } else {
-            LM_LOG_ERROR() << "No configuration for process" << process_index_ << "of process group" << pg.data();
+            LM_LOG_ERROR() << "No configuration for process" << process_index_ << "of process group" << pg;
         }
     }
 }
@@ -202,7 +202,7 @@ void ProcessInfoNode::unexpectedTermination() {
 }
 
 void ProcessInfoNode::terminated(int32_t process_status) {
-    LM_LOG_DEBUG() << "Child process" << process_index_ << "of" << graph_->getProcessGroupName().data() << "pid"
+    LM_LOG_DEBUG() << "Child process" << process_index_ << "of" << graph_->getProcessGroupName() << "pid"
                    << pid_ << "(" << config_->startup_config_.short_name_ << ") for node" << this
                    << "terminated with status" << process_status;
     status_ = process_status;
@@ -270,7 +270,7 @@ void ProcessInfoNode::startProcess() {
         }
         sync_.reset();
     } while ((status_ != 0) && (restart_counter_-- != 0U));
-    LM_LOG_DEBUG() << "startProcess for" << graph_->getProcessGroupName().data() << "process" << process_index_ << "("
+    LM_LOG_DEBUG() << "startProcess for" << graph_->getProcessGroupName() << "process" << process_index_ << "("
                    << config_->startup_config_.short_name_ << ") done";
 }
 
@@ -315,7 +315,7 @@ void ProcessInfoNode::handleProcessAlreadyTerminated(uint32_t execution_error_co
         // and to have exited with zero status
         LM_LOG_WARN() << "Got process termination before kRunning for pid" << pid_ << "("
                       << config_->startup_config_.short_name_ << ") process" << process_index_ << "of group"
-                      << graph_->getProcessGroupName().data();
+                      << graph_->getProcessGroupName();
         //This will cause the graph to fail, we must report to SM (unless we have restart attempts left)
         if (0U == restart_counter_) {
             graph_->abort(execution_error_code, ControlClientCode::kFailedUnexpectedTerminationOnEnter);
@@ -349,10 +349,10 @@ void ProcessInfoNode::handleProcessRunning(uint32_t execution_error_code) {
     if (osal::CommsType::kNoComms == config_->startup_config_.comms_type_) {
         LM_LOG_DEBUG() << "Considered kRunning for Non Reporting Process pid" << pid_ << "("
                        << config_->startup_config_.short_name_ << ") process" << process_index_ << "of group"
-                       << graph_->getProcessGroupName().data();
+                       << graph_->getProcessGroupName();
     } else {
         LM_LOG_DEBUG() << "Got kRunning for pid" << pid_ << "(" << config_->startup_config_.short_name_ << ") process"
-                       << process_index_ << "of group" << graph_->getProcessGroupName().data();
+                       << process_index_ << "of group" << graph_->getProcessGroupName();
     }
 
     // kRunning has already been reported (or assumed)
@@ -403,7 +403,7 @@ void ProcessInfoNode::terminateProcess() {
     if (!graph_->isStarting() || (0 == status_)) {
         queueTerminationSuccessorJobs();
     }
-    LM_LOG_DEBUG() << "terminateProcess for" << graph_->getProcessGroupName().data() << "process" << process_index_
+    LM_LOG_DEBUG() << "terminateProcess for" << graph_->getProcessGroupName() << "process" << process_index_
                    << "(" << config_->startup_config_.short_name_ << ") done";
 }
 
@@ -413,7 +413,7 @@ inline void ProcessInfoNode::handleTerminationProcess() {
     terminator_.init(0U, false);
     has_semaphore_.store(true);
     LM_LOG_DEBUG() << "Requesting termination of process" << process_index_ << "of"
-                   << graph_->getProcessGroupName().data() << "pid" << pid_ << "("
+                   << graph_->getProcessGroupName() << "pid" << pid_ << "("
                    << config_->startup_config_.short_name_ << ")";
 
     //handle request termination

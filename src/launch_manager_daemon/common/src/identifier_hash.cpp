@@ -13,10 +13,13 @@
 
 #include <score/lcm/identifier_hash.hpp>
 #include <functional>
+#include <unordered_map>
 
-namespace score {
+namespace score
+{
 
-namespace lcm {
+namespace lcm
+{
 
 // Please note that a lot of the following info, would normally belong to identifier_hash.hpp file.
 // However, decision was made to publish identifier_hash.hpp alongside other headers.
@@ -55,45 +58,66 @@ namespace lcm {
 // One thing to note: hashing function is implementation specific.
 // So if this should work between different compilers, we may need to go for our own hash function.
 
-IdentifierHash::IdentifierHash(const std::string& id) {
+IdentifierHash::IdentifierHash(const std::string& id)
+{
     hash_id_ = std::hash<std::string>{}(id);
+    get_registry()[hash_id_] = id;
 }
 
-IdentifierHash::IdentifierHash(std::string_view id) {
+IdentifierHash::IdentifierHash(std::string_view id)
+{
     hash_id_ = std::hash<std::string_view>{}(id);
+    get_registry()[hash_id_] = id;
 }
 
-IdentifierHash::IdentifierHash(const char* id) {
-    hash_id_ =
-        std::hash<std::string_view>{}(id != nullptr ? std::string_view(id) : std::string_view(""));
+IdentifierHash::IdentifierHash(const char* id)
+{
+    const std::string_view sv = (id != nullptr) ? std::string_view(id) : std::string_view("");
+    hash_id_ = std::hash<std::string_view>{}(sv);
+    get_registry()[hash_id_] = sv;
 }
 
-bool IdentifierHash::operator==(const IdentifierHash& other) const {
+bool IdentifierHash::operator==(const IdentifierHash& other) const
+{
     return hash_id_ == other.hash_id_;
 }
 
-bool IdentifierHash::operator!=(const IdentifierHash& other) const {
+bool IdentifierHash::operator!=(const IdentifierHash& other) const
+{
     return !operator==(other);
 }
 
-bool IdentifierHash::operator==(const std::string_view& other) const {
+bool IdentifierHash::operator==(const std::string_view& other) const
+{
     return hash_id_ == (IdentifierHash{other}).hash_id_;
 }
 
-bool IdentifierHash::operator!=(const std::string_view& other) const {
+bool IdentifierHash::operator!=(const std::string_view& other) const
+{
     return !operator==(IdentifierHash{other});
 }
 
-bool IdentifierHash::operator<(const IdentifierHash& other) const {
+bool IdentifierHash::operator<(const IdentifierHash& other) const
+{
     return hash_id_ < other.hash_id_;
 }
 
-IdentifierHash::IdentifierHash() {
+IdentifierHash::IdentifierHash()
+{
     hash_id_ = std::hash<std::string_view>{}(std::string_view(""));
+    get_registry()[hash_id_] = "";
 }
 
-std::size_t IdentifierHash::data() const {
+std::size_t IdentifierHash::data() const
+{
     return hash_id_;
+}
+
+std::unordered_map<std::size_t, std::string>& IdentifierHash::get_registry()
+{
+    /// Static registry, which gets initialized per process.
+    static std::unordered_map<std::size_t, std::string> registry;
+    return registry;
 }
 
 }  // namespace lcm

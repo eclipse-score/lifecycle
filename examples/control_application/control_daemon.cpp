@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
     }
 
     score::lcm::ControlClient client([](const score::lcm::ExecutionErrorEvent& event) {
-        std::cerr << "Undefined state callback invoked for process group id: " << event.processGroup.data() << std::endl;
+        std::cerr << "Undefined state callback invoked for process group id: " << event.processGroup << std::endl;
     });
 
     score::safecpp::Scope<> scope{};
