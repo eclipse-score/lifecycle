@@ -30,7 +30,7 @@ This section contains information on how to build and use Lifecycle feature.
 * Build System: Bazel
 * Operating System: Linux (Ubuntu 22.04+)
 * Dependencies: S-Core Baselibs, Google Flatbuffers, libacl1-dev
-* Dependencies of demo applications: Docker, Python (3.12)
+* Dependencies of example applications: Docker, Python (3.12)
 
 ## Building the project
 
@@ -122,7 +122,7 @@ TODO: Currently rust binaries are not compiling for QNX.
 
 ## Running Lifecycle feature and example applications
 
-The ``demo`` folder contains a demo setup running in a docker container, consisting of a set of example applications and corresponding configuration. As per configuration, Launch Manager will start Health Monitor and a set of configured applications. For more information see [demo/README.md](demo/README.md) file.
+The ``examples`` folder contains a demo setup running in a docker container, consisting of a set of example applications and corresponding configuration. As per configuration, Launch Manager will start Health Monitor and a set of configured applications. For more information see [examples/README.md](examples/README.md) file.
 
 ## Configuration
 
@@ -444,7 +444,7 @@ Sample configuration of Health Monitor daemon:
 }
 ```
 
-Full configuration for example applications can be found in ``demo/config`` folder.
+Full configuration for example applications can be found in ``examples/config`` folder.
 
 # Architecture
 
