@@ -41,7 +41,7 @@ bool ProcessStateNotifier::queuePosixProcess(const score::lcm::PosixProcess& f_p
     return ret;
 }
 
-std::unique_ptr<score::lcm::IProcessStateReceiver> ProcessStateNotifier::constructReceiver() noexcept {
+std::unique_ptr<score::lcm::IProcessStateReceiver> ProcessStateNotifier::constructReceiver() {
     return std::make_unique<score::lcm::ProcessStateReceiver>(ring_buffer_);
 }
 

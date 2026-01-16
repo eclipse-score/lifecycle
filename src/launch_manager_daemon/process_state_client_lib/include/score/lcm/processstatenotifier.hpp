@@ -57,7 +57,7 @@ class ProcessStateNotifier final : public IProcessStateNotifier {
 
     /// @brief Construct and return the Process State Receiver instance used to receive process state changes.
     /// @return Process State Receiver instance
-    std::unique_ptr<score::lcm::IProcessStateReceiver> constructReceiver() noexcept override;
+    std::unique_ptr<score::lcm::IProcessStateReceiver> constructReceiver() override;
 
     /// @brief Writes via IPC the latests Process State change, so that PHM can be informed about it.
     /// @details the PosixProcess structure should be complete at his moment. That means:
