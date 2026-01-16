@@ -104,3 +104,5 @@ use_repo(python)
 use_repo(toolchains_qnx, "toolchains_qnx_sdp")
 use_repo(toolchains_qnx, "toolchains_qnx_qcc")
 use_repo(toolchains_qnx, "toolchains_qnx_ifs")
+
+bazel_dep(name = "score_baselibs_rust", version = "0.0.3")

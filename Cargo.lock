@@ -101,6 +101,11 @@ checksum = "b05b61dc5112cbb17e4b6cd61790d9845d13888356391624cbe7e41efeac1e75"
 [[package]]
 name = "health_monitoring_lib"
 version = "0.0.1"
+dependencies = [
+ "score_log",
+ "score_testing_macros",
+ "stdout_logger",
+]
 
 [[package]]
 name = "heck"
@@ -170,6 +175,41 @@ dependencies = [
 ]
 
 [[package]]
+name = "score_log"
+version = "0.0.1"
+source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.0.3#b3210fdbe44bbe10faefa6571e5c6101a374bde8"
+dependencies = [
+ "score_log_fmt",
+ "score_log_fmt_macro",
+]
+
+[[package]]
+name = "score_log_fmt"
+version = "0.0.1"
+source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.0.3#b3210fdbe44bbe10faefa6571e5c6101a374bde8"
+
+[[package]]
+name = "score_log_fmt_macro"
+version = "0.0.1"
+source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.0.3#b3210fdbe44bbe10faefa6571e5c6101a374bde8"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "score_log_fmt",
+ "syn",
+]
+
+[[package]]
+name = "score_testing_macros"
+version = "0.0.1"
+source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.0.3#b3210fdbe44bbe10faefa6571e5c6101a374bde8"
+dependencies = [
+ "quote",
+ "stdout_logger",
+ "syn",
+]
+
+[[package]]
 name = "signal-hook"
 version = "0.3.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -186,6 +226,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b2a4719bff48cee6b39d12c020eeb490953ad2443b7055bd0b21fca26bd8c28b"
 dependencies = [
  "libc",
+]
+
+[[package]]
+name = "stdout_logger"
+version = "0.0.1"
+source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.0.3#b3210fdbe44bbe10faefa6571e5c6101a374bde8"
+dependencies = [
+ "score_log",
 ]
 
 [[package]]

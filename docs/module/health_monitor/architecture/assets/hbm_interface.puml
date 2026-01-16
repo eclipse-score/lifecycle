@@ -6,7 +6,7 @@
 
 !startsub HeartbeatMonitorClass
 +class HeartbeatMonitor {
-    +new(duration_range: DurationRange) -> Self
+    +new(duration_range: TimeRange) -> Self
     +report_heartbeat(&self) -> Result<(), Error>
     +enable(&self) -> Result<(), Error>
     +disable(&self) -> Result<(), Error>
@@ -17,7 +17,7 @@
 !startsub HeartbeatMonitorRel
 HeartbeatMonitor *-- Status : owns
 HeartbeatMonitor ..> Error
-HeartbeatMonitor ..> DurationRange
+HeartbeatMonitor ..> TimeRange
 !endsub
 
 @enduml

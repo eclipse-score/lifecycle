@@ -1,6 +1,6 @@
 @startuml
 
-+struct DurationRange
++struct TimeRange
 {
     min: Duration
     max: Duration

@@ -10,8 +10,8 @@
 +class DeadlineMonitor {
     +get_deadline(&self, tag: Tag) -> Result<Deadline, Error>
     +get_deadline_guard(&self, tag: Tag) -> Result<DeadlineGuard, Error>
-    +create_custom_deadline(&self, duration_range: DurationRange) -> Result<Deadline, Error>
-    +create_custom_deadline_guard(&self, duration_range: DurationRange) -> Result<DeadlineGuard, Error>
+    +create_custom_deadline(&self, duration_range: TimeRange) -> Result<Deadline, Error>
+    +create_custom_deadline_guard(&self, duration_range: TimeRange) -> Result<DeadlineGuard, Error>
     +enable(&self) -> Result<(), Error>
     +disable(&self) -> Result<(), Error>
     ~status(&self) -> Status
@@ -28,7 +28,7 @@ DeadlineMonitor ..> Error
 DeadlineMonitor ..> Tag
 DeadlineMonitor ..> Deadline : <<creates>>
 DeadlineMonitor ..> DeadlineGuard : <<creates>>
-DeadlineMonitor ..> DurationRange
+DeadlineMonitor ..> TimeRange
 !endsub
 
 @enduml

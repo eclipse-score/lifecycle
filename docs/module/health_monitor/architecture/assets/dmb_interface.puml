@@ -8,7 +8,7 @@
 !startsub DeadlineMonitorBuilderClass
 +class DeadlineMonitorBuilder {
     +new() -> Self 
-    +add_deadline(&mut self, tag: Tag, duration_range: DurationRange) -> &mut Self
+    +add_deadline(&mut self, tag: Tag, duration_range: TimeRange) -> &mut Self
     +build(self) -> Result<DeadlineMonitor, Error>
 }
 !endsub
@@ -17,7 +17,7 @@
 DeadlineMonitorBuilder ..> Error
 DeadlineMonitorBuilder ..> Tag
 DeadlineMonitorBuilder ..> DeadlineMonitor : <<consumes>>
-DeadlineMonitorBuilder ..> DurationRange
+DeadlineMonitorBuilder ..> TimeRange
 !endsub
 
 @enduml
