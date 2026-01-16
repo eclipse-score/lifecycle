@@ -21,6 +21,7 @@
 #include <score/lcm/recovery_client.hpp>
 #include <process_group_manager/processgroupmanager.hpp>
 #include <process_group_manager/health_monitor_thread.hpp>
+#include <score/lcm/processstatenotifier.hpp>
 
 using namespace std;
 using namespace score::lcm::internal;
@@ -90,11 +91,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char const* argv[]) {
         LM_LOG_DEBUG() << "Launch Manager Started !!!!";
         std::shared_ptr<score::lcm::IRecoveryClient> recoveryClient{std::make_shared<score::lcm::RecoveryClient>()};
         std::unique_ptr<score::lcm::saf::watchdog::IWatchdogIf> watchdog{std::make_unique<score::lcm::saf::watchdog::WatchdogImpl>()};
-        std::unique_ptr<score::lcm::saf::daemon::IHealthMonitor> healthMonitor{std::make_unique<score::lcm::saf::daemon::HealthMonitorImpl>(recoveryClient, std::move(watchdog))};
+        auto process_state_notifier = std::make_unique<score::lcm::internal::ProcessStateNotifier>();
+        std::unique_ptr<score::lcm::saf::daemon::IHealthMonitor> healthMonitor{std::make_unique<score::lcm::saf::daemon::HealthMonitorImpl>(recoveryClient, std::move(watchdog), process_state_notifier->constructReceiver())};
         std::unique_ptr<score::lcm::internal::IHealthMonitorThread> healthMonitorThread{
             std::make_unique<score::lcm::internal::HealthMonitorThread>(std::move(healthMonitor))};
 
-        std::unique_ptr<ProcessGroupManager> process_group_manager = std::make_unique<ProcessGroupManager>(std::move(healthMonitorThread), recoveryClient);
+        std::unique_ptr<ProcessGroupManager> process_group_manager = std::make_unique<ProcessGroupManager>(std::move(healthMonitorThread), recoveryClient, std::move(process_state_notifier));
 
         if (initializeLCMDaemon(*process_group_manager)) {
             if (runLCMDaemon(*process_group_manager)) {

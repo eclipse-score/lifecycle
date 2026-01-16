@@ -38,7 +38,7 @@ void ProcessGroupManager::cancel() {
     my_signal_handler(SIGTERM);
 }
 
-ProcessGroupManager::ProcessGroupManager(std::unique_ptr<IHealthMonitorThread> health_monitor, std::shared_ptr<IRecoveryClient> recovery_client)
+ProcessGroupManager::ProcessGroupManager(std::unique_ptr<IHealthMonitorThread> health_monitor, std::shared_ptr<IRecoveryClient> recovery_client, std::unique_ptr<score::lcm::IProcessStateNotifier> process_state_notifier)
     : configuration_manager_(),
       process_interface_(),
       process_map_(nullptr),
@@ -47,7 +47,7 @@ ProcessGroupManager::ProcessGroupManager(std::unique_ptr<IHealthMonitorThread> h
       total_processes_(0U),
       num_process_groups_(0U),
       process_groups_(),
-      process_state_notifier_(),
+      process_state_notifier_(std::move(process_state_notifier)),
       health_monitor_thread_(std::move(health_monitor)),
       recovery_client_(recovery_client) //,
                                  //ucm_polling_thread_(
@@ -86,7 +86,7 @@ bool ProcessGroupManager::initialize() {
     sigaction(SIGUSR2, &action, NULL);
     sigaction(SIGVTALRM, &action, NULL);
 
-    success = initializeControlClientHandler() && initializeProcessGroups() && process_state_notifier_.init();
+    success = initializeControlClientHandler() && initializeProcessGroups();
 
     if (success) {
         LM_LOG_DEBUG() << "Process Group initialization done";

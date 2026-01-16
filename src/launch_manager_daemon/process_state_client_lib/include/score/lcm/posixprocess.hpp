@@ -35,7 +35,7 @@ enum class ProcessState : std::uint_least8_t {
 /// @details This structure will be probably populated in steps, since some Software Components know about the current ProcessGroupStateId
 ///          and Process Modelled Id (like ProcessGroupManager); meanwhile others know about the process state changes from a specific
 ///          posix process (like application launcher). The timestamp shall show when the process state changed.
-///          Finally the ProcessStateClient knows if the PosixProcess was already read by PHM or not.
+///          Finally the ProcessStateReceiver knows if the PosixProcess was already read by PHM or not.
 ///
 
 // RULECHECKER_comment(1, 1, check_incomplete_data_member_construction, "wi 45913 - This struct is POD, which doesn't have user-declared constructor. The rule doesn’t apply.", false)
@@ -59,11 +59,10 @@ struct PosixProcess {
     timespec systemClockTimestamp;
 };
 
-enum class PipcConstants : size_t {
-    PIPC_MAXPAYLOAD = sizeof(PosixProcess),  ///< ipc_dropin::Socket max payload size
-                                             // The pipc queue size must be a power of 2 by the pipc specification.
+enum class BufferConstants : size_t {
+    BUFFER_MAXPAYLOAD = sizeof(PosixProcess),  ///< Ringbuffer max payload size
     // (PROCESS_MAX number (1024) * Transition pattern (4, STARTING/RUNNING/TERMINATING/TERMINATED)
-    PIPC_QUEUE_SIZE = 4096UL  // ipc_dropin::Socket queue size
+    BUFFER_QUEUE_SIZE = 4096UL  // Ringbuffer queue size
 };
 
 }  // namespace lcm

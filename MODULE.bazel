@@ -47,7 +47,7 @@ bazel_dep(name = "score_crates", version = "0.0.6")
 # Overrides
 git_override(
     module_name = "score_tooling",
-    commit = "612d6f180a9bb6338de5f0e6667fcf83068d9c37",  #until 1.0.5 is released
+    commit = "a6636c20dacdfa44b65ab7f249e7d1c8b8e15e4b",  #until 1.0.5 is released
     remote = "https://github.com/eclipse-score/tooling.git",
 )
 
