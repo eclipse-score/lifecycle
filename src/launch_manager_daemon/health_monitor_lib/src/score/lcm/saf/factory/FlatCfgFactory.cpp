@@ -177,8 +177,6 @@ bool FlatCfgFactory::createProcessStates(std::vector<ifexm::ProcessState>& f_pro
 
                     f_processStates_r.emplace_back(processCfg);
                     f_processStates_r.back().setProcessGroupState(mainPGStartupId);
-
-                    f_processStateReader_r.registerExmProcessState(f_processStates_r.back());
                 }
 
                 const std::string processShortNameRead{f_processStates_r.back().getConfigName()};

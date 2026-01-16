@@ -66,10 +66,11 @@ public:
     /// @param[in] f_osClock Access to the system clock (dependency injection possible in tests)
     /// @param[in] f_logger_r Reference to the logger (dependency injection possible in tests)
     /// @param[in] f_watchdog watchdog implementation (dependency injection possible in tests)
+    /// @param[in] f_process_state_receiver process state receiver implementation (dependency injection possible in tests)
     /* RULECHECKER_comment(3,1, check_expensive_to_copy_in_parameter, "Move only types cannot be passed by const ref",
        true_no_defect) */
     PhmDaemon(score::lcm::saf::timers::OsClockInterface& f_osClock, logging::PhmLogger& f_logger_r,
-              std::unique_ptr<watchdog::IWatchdogIf> f_watchdog);
+              std::unique_ptr<watchdog::IWatchdogIf> f_watchdog, std::unique_ptr<score::lcm::IProcessStateReceiver> f_process_state_receiver);
 
     /* RULECHECKER_comment(0, 4, check_min_instructions, "Default destructor is not provided\
        a function body", true_no_defect) */

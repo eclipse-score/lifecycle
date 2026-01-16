@@ -43,6 +43,7 @@ cc_binary_with_common_opts(
         "//src/launch_manager_daemon/common:lifecycle_error",
         "//src/launch_manager_daemon/common:log",
         "//src/launch_manager_daemon/health_monitor_lib:health_monitor",
+        "//src/launch_manager_daemon/process_state_client_lib:process_state_client",
         "@flatbuffers",
         "@score_baselibs//score/mw/log",
         "@score_baselibs//score/result",

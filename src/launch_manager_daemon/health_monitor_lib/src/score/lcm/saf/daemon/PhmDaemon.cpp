@@ -36,8 +36,8 @@ namespace daemon
 /* RULECHECKER_comment(0, 4, check_incomplete_data_member_construction, "Default constructor is used for\
  processStateReader.", true_no_defect) */
 PhmDaemon::PhmDaemon(score::lcm::saf::timers::OsClockInterface& f_osClock, logging::PhmLogger& f_logger_r,
-                     std::unique_ptr<watchdog::IWatchdogIf> f_watchdog) :
-    osClock{f_osClock}, cycleTimer{&osClock}, logger_r{f_logger_r}, swClusterHandlers{}, watchdog(std::move(f_watchdog))
+                     std::unique_ptr<watchdog::IWatchdogIf> f_watchdog, std::unique_ptr<score::lcm::IProcessStateReceiver> f_process_state_receiver) :
+    osClock{f_osClock}, cycleTimer{&osClock}, logger_r{f_logger_r}, swClusterHandlers{}, watchdog(std::move(f_watchdog)), processStateReader{std::move(f_process_state_receiver)}
 {
     static_cast<void>(f_osClock);
 }
@@ -84,40 +84,36 @@ void PhmDaemon::performCyclicTriggers(void)
 bool PhmDaemon::construct(const factory::MachineConfigFactory::SupervisionBufferConfig& f_bufferConfig_r) noexcept(
     false)
 {
-    bool isSuccess{processStateReader.init()};
+    bool isSuccess{true};
 
-    if (isSuccess)
+    score::Result<std::vector<std::string>> listSwClustersPhm{{"MainCluster"}};
+    if (!listSwClustersPhm.has_value())
     {
-
-        score::Result<std::vector<std::string>> listSwClustersPhm{{"MainCluster"}};
-        if (!listSwClustersPhm.has_value())
+        logger_r.LogError()
+            << "Phm Daemon: retrieving the list of PHM software cluster configurations failed with error:"
+            << listSwClustersPhm.error().Message();
+        isSuccess = false;
+    }
+    else
+    {
+        if (listSwClustersPhm.value().size() == 0U)
         {
-            logger_r.LogError()
-                << "Phm Daemon: retrieving the list of PHM software cluster configurations failed with error:"
-                << listSwClustersPhm.error().Message();
-            isSuccess = false;
+            logger_r.LogWarn() << "Phm Daemon: is starting without any software cluster configurations!";
         }
-        else
+
+        // Reserve the vector swClusterHandlers obtained from flatcfg before constructing the SwClusters
+        swClusterHandlers.reserve(listSwClustersPhm.value().size());
+
+        for (auto strSwClusterName : listSwClustersPhm.value())
         {
-            if (listSwClustersPhm.value().size() == 0U)
+            swClusterHandlers.emplace_back(strSwClusterName);
+            isSuccess =
+                swClusterHandlers.back().constructWorkers(recoveryClient, processStateReader, f_bufferConfig_r);
+            if (!isSuccess)
             {
-                logger_r.LogWarn() << "Phm Daemon: is starting without any software cluster configurations!";
-            }
-
-            // Reserve the vector swClusterHandlers obtained from flatcfg before constructing the SwClusters
-            swClusterHandlers.reserve(listSwClustersPhm.value().size());
-
-            for (auto strSwClusterName : listSwClustersPhm.value())
-            {
-                swClusterHandlers.emplace_back(strSwClusterName);
-                isSuccess =
-                    swClusterHandlers.back().constructWorkers(recoveryClient, processStateReader, f_bufferConfig_r);
-                if (!isSuccess)
-                {
-                    logger_r.LogError() << "Phm Daemon: failed to create worker objects for swclusterhandler:"
-                                        << strSwClusterName;
-                    break;
-                }
+                logger_r.LogError() << "Phm Daemon: failed to create worker objects for swclusterhandler:"
+                                    << strSwClusterName;
+                break;
             }
         }
     }

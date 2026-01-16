@@ -24,26 +24,10 @@ namespace saf
 namespace ifexm
 {
 
-/* RULECHECKER_comment(0, 3, check_incomplete_data_member_construction, "Member processStateClientPhm is \
-initialized using other member functions instead of member initializer list.", true_no_defect) */
-ProcessStateReader::ProcessStateReader() :
+ProcessStateReader::ProcessStateReader(std::unique_ptr<LcmProcessStateReceiver> f_process_state_receiver) :
+    processStateReceiverHM(std::move(f_process_state_receiver)),
     logger_r(logging::PhmLogger::getLogger(logging::PhmLogger::EContext::supervision))
 {
-}
-
-bool ProcessStateReader::init() noexcept(false)
-{
-    bool flagInitSuccess{true};
-
-    score::Result<std::monostate> initResult{processStateClientPhm.init()};
-    if (!initResult.has_value())
-    {
-        logger_r.LogError() << "Process State Reader failed with initialization error (Process State Client):"
-                            << initResult.error().Message();
-        flagInitSuccess = false;
-    }
-
-    return flagInitSuccess;
 }
 
 bool ProcessStateReader::registerProcessState(ProcessState& f_processState_r,
@@ -61,11 +45,6 @@ bool ProcessStateReader::registerProcessState(ProcessState& f_processState_r,
     }
 
     return flagSuccess;
-}
-
-void ProcessStateReader::registerExmProcessState(ProcessState& f_processState_r) noexcept(false)
-{
-    exmProcessStateVector.push_back(&f_processState_r);
 }
 
 void ProcessStateReader::deregisterProcessState(const common::ProcessId f_processId) noexcept
@@ -91,8 +70,8 @@ bool ProcessStateReader::distributeChanges(const timers::NanoSecondType f_syncTi
     bool flagContinue{true};
     do
     {
-        score::Result<std::optional<ProcessStateReader::ExmPosixProcess>> resultChangedProcess{
-            processStateClientPhm.getNextChangedPosixProcess()
+        score::Result<std::optional<ProcessStateReader::LcmPosixProcess>> resultChangedProcess{
+            processStateReceiverHM->getNextChangedPosixProcess()
         };
 
         if (resultChangedProcess)
@@ -123,17 +102,7 @@ bool ProcessStateReader::distributeChanges(const timers::NanoSecondType f_syncTi
     return flagSuccess;
 }
 
-void ProcessStateReader::distributeExmActivation(const timers::NanoSecondType f_timestamp) noexcept
-{
-    for (auto& exmProcess : exmProcessStateVector)
-    {
-        exmProcess->setState(ProcessState::EProcState::running);
-        exmProcess->setTimestamp(f_timestamp);
-        exmProcess->pushData();
-    }
-}
-
-bool ProcessStateReader::pushUpdateTill(const ProcessStateReader::ExmPosixProcess& f_changedPosixProcess_r,
+bool ProcessStateReader::pushUpdateTill(const ProcessStateReader::LcmPosixProcess& f_changedPosixProcess_r,
                                         const timers::NanoSecondType f_syncTimestamp) noexcept
 {
     bool isSyncTimestampReached{false};
@@ -166,25 +135,25 @@ bool ProcessStateReader::pushUpdateTill(const ProcessStateReader::ExmPosixProces
 }
 
 constexpr ProcessState::EProcState ProcessStateReader::translateProcessState(
-    const ProcessStateReader::ExmProcessState f_processStateExm) noexcept
+    const ProcessStateReader::LcmProcessState f_processStateLcm) noexcept
 {
     // Following static assertion ensures consistency of process states in EXM and PHM
     static_assert(static_cast<uint8_t>(ProcessState::EProcState::idle) ==
                       static_cast<uint8_t>(score::lcm::ProcessState::kIdle),
-                  "EXM State Enum and ProcessState::EProcState Enum do not match.");
+                  "Lcm State Enum and ProcessState::EProcState Enum do not match.");
     static_assert(static_cast<uint8_t>(ProcessState::EProcState::starting) ==
                       static_cast<uint8_t>(score::lcm::ProcessState::kStarting),
-                  "EXM State Enum and ProcessState::EProcState Enum do not match.");
+                  "Lcm State Enum and ProcessState::EProcState Enum do not match.");
     static_assert(static_cast<uint8_t>(ProcessState::EProcState::running) ==
                       static_cast<uint8_t>(score::lcm::ProcessState::kRunning),
-                  "EXM State Enum and ProcessState::EProcState Enum do not match.");
+                  "Lcm State Enum and ProcessState::EProcState Enum do not match.");
     static_assert(static_cast<uint8_t>(ProcessState::EProcState::sigterm) ==
                       static_cast<uint8_t>(score::lcm::ProcessState::kTerminating),
-                  "EXM State Enum and ProcessState::EProcState Enum do not match.");
+                  "Lcm State Enum and ProcessState::EProcState Enum do not match.");
     static_assert(static_cast<uint8_t>(ProcessState::EProcState::off) ==
                       static_cast<uint8_t>(score::lcm::ProcessState::kTerminated),
-                  "EXM State Enum and ProcessState::EProcState Enum do not match.");
-    return static_cast<ProcessState::EProcState>(f_processStateExm);
+                  "Lcm State Enum and ProcessState::EProcState Enum do not match.");
+    return static_cast<ProcessState::EProcState>(f_processStateLcm);
 }
 
 }  // namespace ifexm

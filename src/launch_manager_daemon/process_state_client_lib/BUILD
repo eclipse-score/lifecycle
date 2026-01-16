@@ -13,11 +13,15 @@
 cc_library(
     name = "process_state_client",
     srcs = [
-        "src/processstateclient.cpp",
+        "src/processstatenotifier.cpp",
+        "src/processstatereceiver.cpp",
     ],
     hdrs = [
+        "include/score/lcm/iprocessstatenotifier.hpp",
+        "include/score/lcm/iprocessstatereceiver.hpp",
         "include/score/lcm/posixprocess.hpp",
-        "include/score/lcm/processstateclient.hpp",
+        "include/score/lcm/processstatenotifier.hpp",
+        "include/score/lcm/processstatereceiver.hpp",
     ],
     includes = ["include"],
     visibility = ["//visibility:public"],

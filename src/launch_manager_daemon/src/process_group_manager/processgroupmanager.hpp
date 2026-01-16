@@ -26,7 +26,7 @@
 #include <process_group_manager/graph.hpp>
 #include <process_group_manager/jobqueue.hpp>
 #include <process_group_manager/oshandler.hpp>
-#include <process_group_manager/processstatenotifier.hpp>
+#include <score/lcm/iprocessstatenotifier.hpp>
 #include <process_group_manager/processinfonode.hpp>
 #include <process_group_manager/safeprocessmap.hpp>
 #include <process_group_manager/workerthread.hpp>
@@ -59,7 +59,8 @@ class ProcessGroupManager final {
     /// setting up any necessary internal state and preparing it for use.
     /// @param health_monitor A unique pointer to an IHealthMonitor instance for managing health monitoring.
     /// @param recovery_client A shared pointer to an IRecoveryClient instance for handling recovery operations.
-    ProcessGroupManager(std::unique_ptr<IHealthMonitorThread> health_monitor, std::shared_ptr<IRecoveryClient> recovery_client);
+    /// @param process_state_notifier A unique pointer to an IProcessStateNotifier instance for notifying the HM thread of process state changes.
+    ProcessGroupManager(std::unique_ptr<IHealthMonitorThread> health_monitor, std::shared_ptr<IRecoveryClient> recovery_client, std::unique_ptr<score::lcm::IProcessStateNotifier> process_state_notifier);
 
     /// @brief Initializes the process group manager.
     /// Loads the flat configuration through ConfigurationManager.
@@ -128,7 +129,7 @@ class ProcessGroupManager final {
     /// @param[in]   f_posixProcess   The PosixProcess to be queued
     /// @returns True on success, false for failure (corresponding to kCommunicationError).
     bool queuePosixProcess(const score::lcm::PosixProcess& f_posixProcess) {
-        return process_state_notifier_.queuePosixProcess(f_posixProcess);
+        return process_state_notifier_->queuePosixProcess(f_posixProcess);
     }
 
     /// @brief Cancels processGroupManager main routine as though SIGTERM had been sent
@@ -293,7 +294,7 @@ class ProcessGroupManager final {
     std::shared_ptr<Graph> machine_process_group_{nullptr};
 
     /// @brief Process state notifier object used to send data to PHM
-    ProcessStateNotifier process_state_notifier_;
+    std::unique_ptr<score::lcm::IProcessStateNotifier> process_state_notifier_;
 
     /// @brief pointer to the configuration for Launch Manager
     const OsProcess* launch_manager_config_{nullptr};

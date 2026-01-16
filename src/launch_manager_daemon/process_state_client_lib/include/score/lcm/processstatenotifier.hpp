@@ -15,9 +15,8 @@
 #ifndef PROCESSSTATE_NOTIFIER_HPP_INCLUDED
 #define PROCESSSTATE_NOTIFIER_HPP_INCLUDED
 
-#include <score/lcm/internal/config.hpp>
-#include <score/lcm/posixprocess.hpp>
-#include "ipc_dropin/socket.hpp"
+#include "score/lcm/iprocessstatenotifier.hpp"
+#include "ipc_dropin/ringbuffer.hpp"
 
 namespace score {
 
@@ -31,7 +30,7 @@ namespace internal {
 ///        information about the current state from the posix processes running in the scope of an Adaptive Machine.
 ///        Each posix process state change is stored by Launch Manager (LCM) and can be read by PHM.
 ///
-class ProcessStateNotifier final {
+class ProcessStateNotifier final : public IProcessStateNotifier {
    public:
     /// @brief Constructor that creates the ProcessStateNotifier.
     /// @details LCM shall create an instance of this class to write the process state changes via the provided API.
@@ -56,9 +55,9 @@ class ProcessStateNotifier final {
     /// @brief Destructor.
     ~ProcessStateNotifier() noexcept;
 
-    /// @brief Opens the communication channel (e.g. POSIX shared memory) for writing the PosixProcess.
-    /// @returns True on success, false for failure (corresponding to kCommunicationError).
-    bool init() noexcept;
+    /// @brief Construct and return the Process State Receiver instance used to receive process state changes.
+    /// @return Process State Receiver instance
+    std::unique_ptr<score::lcm::IProcessStateReceiver> constructReceiver() noexcept override;
 
     /// @brief Writes via IPC the latests Process State change, so that PHM can be informed about it.
     /// @details the PosixProcess structure should be complete at his moment. That means:
@@ -66,13 +65,14 @@ class ProcessStateNotifier final {
     ///          if no more free shared memory, the PosixProcess is not sent.
     /// @param[in]   f_posixProcess   The PosixProcess to be queued
     /// @returns True on success, false for failure (corresponding to kCommunicationError).
-    bool queuePosixProcess(const score::lcm::PosixProcess& f_posixProcess) noexcept;
+    bool queuePosixProcess(const score::lcm::PosixProcess& f_posixProcess) noexcept override;
 
    private:
-    /// @brief ipc_dropin::Socket through which we retrieve process state updates from LCM
-    ipc_dropin::Socket<static_cast<size_t>(score::lcm::PipcConstants::PIPC_MAXPAYLOAD),
-                          static_cast<size_t>(score::lcm::PipcConstants::PIPC_QUEUE_SIZE)>
-        m_LCM_PHM_socket{};
+   /// @brief ipc_dropin::RingBuffer through which we retrieve process state updates from LCM
+    std::shared_ptr<ipc_dropin::RingBuffer<static_cast<size_t>(score::lcm::BufferConstants::BUFFER_QUEUE_SIZE),
+    static_cast<size_t>(score::lcm::BufferConstants::BUFFER_MAXPAYLOAD)
+                        >>
+    ring_buffer_{};
 };
 
 }  // namespace lcm

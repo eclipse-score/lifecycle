@@ -21,7 +21,7 @@
 #include "score/lcm/saf/logging/PhmLogger.hpp"
 #include "score/lcm/saf/timers/Timers_OsClock.hpp"
 #include "score/lcm/posixprocess.hpp"
-#include "score/lcm/processstateclient.hpp"
+#include "score/lcm/iprocessstatereceiver.hpp"
 
 namespace score
 {
@@ -33,17 +33,18 @@ namespace ifexm
 {
 
 /// @brief Process State reader
-/// @details The Process State reader fetches process state updates via the exm library and distributes
+/// @details The Process State reader fetches process state updates via the lcm library and distributes
 /// the information to the Process State classes.
 class ProcessStateReader
 {
 public:
-    using ExmProcessState = score::lcm::ProcessState;
-    using ExmPosixProcess = score::lcm::PosixProcess;
-    using ExmProcessStateClient = score::lcm::ProcessStateClient;
+    using LcmProcessState = score::lcm::ProcessState;
+    using LcmPosixProcess = score::lcm::PosixProcess;
+    using LcmProcessStateReceiver = score::lcm::IProcessStateReceiver;
 
-    /// @brief Default Constructor
-    ProcessStateReader();
+    /// @brief Constructor
+    /// @param [in] f_process_state_receiver   Process state receiver implementation
+    ProcessStateReader(std::unique_ptr<LcmProcessStateReceiver> f_process_state_receiver);
 
     /// @brief No Copy Constructor
     ProcessStateReader(const ProcessStateReader&) = delete;
@@ -57,22 +58,11 @@ public:
     /// @brief Default Destructor
     virtual ~ProcessStateReader() = default;
 
-    /// @brief Initialize Process State Reader
-    /// @details Initialize Process State Reader by calling initialization function of EXM-state-client.
-    /// @return     true (successful initialization), false (failed initialization)
-    bool init(void) noexcept(false);
-
     /// @brief Register process states for reader
     /// @param [in]  f_processState_r   Process state to be registered
     /// @param [in]  f_processId        Process ID
     /// @return     true (registered), false (not registered)
     bool registerProcessState(ProcessState& f_processState_r, const common::ProcessId f_processId) noexcept(false);
-
-    /// @brief Register Exm process state
-    /// @details Processes registered via EXM process can never be deregistered.
-    ///          They are also not affected by method distributeChanges().
-    /// @param [in]  f_processState_r   Process state to be registered which is representing EXM
-    void registerExmProcessState(ProcessState& f_processState_r) noexcept(false);
 
     /// @brief Deregister process states from reader
     /// @param [in]  f_processId        Process ID to deregister the particular process
@@ -83,38 +73,27 @@ public:
     /// @param [in] f_syncTimestamp   Timestamp for cyclic synchronization
     /// @return     true (successful process state distribution), false (failed process state distribution)
     bool distributeChanges(const timers::NanoSecondType f_syncTimestamp) noexcept;
-
-    /// @brief Distribute EXM process activation event
-    /// @details EXM process(es) are already running and do not receive updates from processStateClientPhm.
-    ///          Therefore, the activation event is simulated on purpose.
-    /// @param [in] f_timestamp     Timestamp used for activation event
-    void distributeExmActivation(const timers::NanoSecondType f_timestamp) noexcept;
-
 private:
     /// @brief Push update for changed registered process
     /// @param [in] f_changedPosixProcess_r   Posix Process for which push update is needed
     /// @param [in] f_syncTimestamp           Timestamp for cyclic synchronization
     /// @return     true (sync timestamp is reached), false (sync timestamp is not yet reached)
-    bool pushUpdateTill(const ProcessStateReader::ExmPosixProcess& f_changedPosixProcess_r,
+    bool pushUpdateTill(const ProcessStateReader::LcmPosixProcess& f_changedPosixProcess_r,
                         const timers::NanoSecondType f_syncTimestamp) noexcept;
 
-    /// @brief Translate EXM State to ProcessState::EProcState
-    /// @param [in]  f_processStateExm   Process state from EXM
+    /// @brief Translate Lcm State to ProcessState::EProcState
+    /// @param [in]  f_processStateLcm   Process state from Lcm
     /// @return     Process state (e.g: idle, running, off)
-    static constexpr ProcessState::EProcState translateProcessState(const ExmProcessState f_processStateExm) noexcept;
+    static constexpr ProcessState::EProcState translateProcessState(const LcmProcessState f_processStateLcm) noexcept;
 
-    /// @brief Process state client for PHM daemon
-    ProcessStateReader::ExmProcessStateClient processStateClientPhm;
+    /// @brief Process state receiver for HM thread
+    std::unique_ptr<ProcessStateReader::LcmProcessStateReceiver> processStateReceiverHM;
 
     /// @brief Logger
     logging::PhmLogger& logger_r;
 
     /// @brief Map for process id and process state object
     std::map<common::ProcessId, ProcessState*> processStateMap{};
-
-    /// @brief Process state objects for EXM
-    /// @details 1 is expected, support for multiple EXM processes is implemented
-    std::vector<ProcessState*> exmProcessStateVector{};
 
     /// @brief Flag for pending pushData from previous distribution of process state changes
     bool isPushPending{false};
