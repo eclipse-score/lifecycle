@@ -77,3 +77,5 @@ _build/
 .clwb
 .idea
 external
+compile_commands.json
+.clangd

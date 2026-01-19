@@ -25,6 +25,7 @@ copyright_checker(
     srcs = [
         "examples",
         "src",
+        "tests",
         "//:BUILD",
         "//:MODULE.bazel",
     ],
@@ -57,12 +58,4 @@ docs(
         "@score_process//:needs_json",  # This allows linking to requirements (wp__requirements_comp, etc.) from the process_description repository.
     ],
     source_dir = "docs",
-)
-
-# Test suites
-test_suite(
-    name = "unit_tests",
-    testonly = True,
-    tests = [
-    ],
 )

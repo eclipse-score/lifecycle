@@ -28,7 +28,7 @@ bazel_dep(name = "download_utils", version = "1.0.1")
 # S-CORE process rules
 bazel_dep(name = "score_bazel_platforms", version = "0.0.3")
 bazel_dep(name = "score_docs_as_code", version = "2.2.0")
-bazel_dep(name = "score_tooling", version = "1.0.4")
+bazel_dep(name = "score_tooling", version = "1.0.5")
 bazel_dep(name = "score_rust_policies", version = "0.0.3")
 bazel_dep(name = "score_baselibs", version = "0.2.2")
 
@@ -41,15 +41,10 @@ bazel_dep(name = "score_toolchains_qnx", version = "0.0.6", dev_dependency = Tru
 bazel_dep(name = "rust_qnx8_toolchain", version = "1.2.0", dev_dependency = True)
 bazel_dep(name = "score_toolchains_rust", version = "0.1.1", dev_dependency = True)
 
+bazel_dep(name = "googletest", version = "1.17.0.bcr.1")
+
 # S-CORE crates
 bazel_dep(name = "score_crates", version = "0.0.6")
-
-# Overrides
-git_override(
-    module_name = "score_tooling",
-    commit = "a6636c20dacdfa44b65ab7f249e7d1c8b8e15e4b",  #until 1.0.5 is released
-    remote = "https://github.com/eclipse-score/tooling.git",
-)
 
 git_override(
     module_name = "score_toolchains_rust",
