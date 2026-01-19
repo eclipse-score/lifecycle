@@ -10,6 +10,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-load("@rules_cc//cc:defs.bzl", "cc_library")
-
-# Define mock cc libraries here if needed
+cc_test(
+    name = "processstatereceiver_UT",
+    srcs = [
+        "processstatereceiver_UT.cpp",
+        "//src/launch_manager_daemon/process_state_client_lib:src/processstatereceiver.cpp",
+    ],
+    visibility = ["//tests:__subpackages__"],
+    deps = [
+        "//src/launch_manager_daemon/process_state_client_lib:headers",
+        "@googletest//:gtest_main",
+    ],
+)

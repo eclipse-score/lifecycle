@@ -10,6 +10,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+package(default_visibility = ["//tests:__subpackages__"])
+
 cc_library(
     name = "process_state_client",
     srcs = [
@@ -26,6 +28,32 @@ cc_library(
     includes = ["include"],
     visibility = ["//visibility:public"],
     deps = [
+        "//externals/ipc_dropin",
+        "//src/launch_manager_daemon/common",
+        "//src/launch_manager_daemon/common:identifier_hash",
+        "//src/launch_manager_daemon/common:lifecycle_error",
+        "//src/launch_manager_daemon/common:log",
+        "@score_baselibs//score/mw/log",
+        "@score_baselibs//score/result",
+    ],
+)
+
+cc_library(
+    name = "headers",
+    hdrs = glob(
+        [
+            "include/score/lcm/**/*.h",
+            "include/score/lcm/**/*.hpp",
+        ],
+        allow_empty = True,  # "include/score/lcm/**/*.h" is empty as of now
+    ),
+    includes = [
+        "include",
+        "src",
+    ],
+    visibility = ["//tests:__subpackages__"],
+    deps = [
+        # Must match process_state_client deps
         "//externals/ipc_dropin",
         "//src/launch_manager_daemon/common",
         "//src/launch_manager_daemon/common:identifier_hash",

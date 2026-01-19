@@ -79,3 +79,4 @@ _build/
 external
 compile_commands.json
 .clangd
+.cache
