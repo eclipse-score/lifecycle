@@ -36,10 +36,12 @@ cc_library(
     ],
     copts = select({
         "//config:x86_64-qnx": [],
+        "//config:build_qnx8": [],
         "//conditions:default": ["-pthread"],
     }),
     linkopts = select({
         "//config:x86_64-qnx": [],
+        "//config:build_qnx8": [],
         "//conditions:default": ["-lpthread"],
     }),
     visibility = ["//visibility:public"],
