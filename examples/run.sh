@@ -47,15 +47,15 @@ rm -rf tmp
 rm -rf config/tmp
 mkdir config/tmp
 python3 config/gen_health_monitor_process_cfg.py -c "$NUMBER_OF_CPP_PROCESSES_PER_PROCESS_GROUP" -r "$NUMBER_OF_RUST_PROCESSES_PER_PROCESS_GROUP"  $PROCESS_GROUPS -o config/tmp/
-../bazel-bin/external/flatbuffers+/flatc --binary -o config/tmp ../src/health_monitor_lib/config/hm_flatcfg.fbs config/tmp/health_monitor_process_cfg_*.json
+../bazel-bin/external/flatbuffers+/flatc --binary -o config/tmp ../src/launch_manager_daemon/health_monitor_lib/config/hm_flatcfg.fbs config/tmp/health_monitor_process_cfg_*.json
 
 python3 config/gen_health_monitor_cfg.py -c "$NUMBER_OF_CPP_PROCESSES_PER_PROCESS_GROUP" -r "$NUMBER_OF_RUST_PROCESSES_PER_PROCESS_GROUP" $PROCESS_GROUPS -o config/tmp/
-../bazel-bin/external/flatbuffers+/flatc --binary -o config/tmp ../src/health_monitor_lib/config/hm_flatcfg.fbs config/tmp/hm_demo.json
+../bazel-bin/external/flatbuffers+/flatc --binary -o config/tmp ../src/launch_manager_daemon/health_monitor_lib/config/hm_flatcfg.fbs config/tmp/hm_demo.json
 
 python3 config/gen_launch_manager_cfg.py -c "$NUMBER_OF_CPP_PROCESSES_PER_PROCESS_GROUP" -r "$NUMBER_OF_RUST_PROCESSES_PER_PROCESS_GROUP" -n "$NUMBER_OF_NON_SUPERVISED_CPP_PROCESSES_PER_PROCESS_GROUP" $PROCESS_GROUPS -o config/tmp/
 ../bazel-bin/external/flatbuffers+/flatc --binary -o config/tmp ../src/launch_manager_daemon/config/lm_flatcfg.fbs config/tmp/lm_demo.json
 
-../bazel-bin/external/flatbuffers+/flatc --binary -o config/tmp ../src/health_monitor_lib/config/hmcore_flatcfg.fbs config/hmcore.json
+../bazel-bin/external/flatbuffers+/flatc --binary -o config/tmp ../src/launch_manager_daemon/health_monitor_lib/config/hmcore_flatcfg.fbs config/hmcore.json
 
 mkdir -p tmp/launch_manager/etc
 cp $LM_BINARY tmp/launch_manager/launch_manager
