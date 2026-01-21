@@ -1,5 +1,5 @@
-//
-// Copyright (c) 2025 Contributors to the Eclipse Foundation
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -9,7 +9,7 @@
 // <https://www.apache.org/licenses/LICENSE-2.0>
 //
 // SPDX-License-Identifier: Apache-2.0
-//
+// *******************************************************************************
 #![allow(dead_code)]
 
 use core::{
@@ -47,11 +47,12 @@ impl DeadlineStateSnapshot {
         (self.0 & DEADLINE_STATE_FINISHED_TOO_EARLY) != 0
     }
 
-    pub(super) fn timestamp(&self) -> u32 {
+    /// Get timestamp in milliseconds. This is a offset from an start timer that is stored in DeadlineMonitor
+    pub(super) fn timestamp_ms(&self) -> u32 {
         ((self.0 & !DEADLINE_STATE_MASK) >> u32::BITS) as u32
     }
 
-    pub(super) fn set_timestamp(&mut self, timestamp: u32) {
+    pub(super) fn set_timestamp_ms(&mut self, timestamp: u32) {
         self.0 = ((timestamp as u64) << u32::BITS) | (self.0 & DEADLINE_STATE_MASK);
     }
 
@@ -71,7 +72,7 @@ impl DeadlineStateSnapshot {
 impl Debug for DeadlineStateSnapshot {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("DeadlineStateSnapshot")
-            .field("timestamp", &self.timestamp())
+            .field("timestamp", &self.timestamp_ms())
             .field("is_running", &self.is_running())
             .field("is_stopped", &self.is_stopped())
             .field("is_underrun", &self.is_underrun())
@@ -82,7 +83,7 @@ impl Debug for DeadlineStateSnapshot {
 impl crate::log::ScoreDebug for DeadlineStateSnapshot {
     fn fmt(&self, f: crate::log::Writer, spec: &crate::log::FormatSpec) -> Result<(), crate::log::Error> {
         crate::log::DebugStruct::new(f, spec, "DeadlineStateSnapshot")
-            .field("timestamp", &self.timestamp())
+            .field("timestamp", &self.timestamp_ms())
             .field("is_running", &self.is_running())
             .field("is_stopped", &self.is_stopped())
             .field("is_underrun", &self.is_underrun())
@@ -138,14 +139,14 @@ mod tests {
         assert!(snap.is_stopped());
         assert!(!snap.is_running());
         assert!(!snap.is_underrun());
-        assert_eq!(snap.timestamp(), 0);
+        assert_eq!(snap.timestamp_ms(), 0);
     }
 
     #[test]
-    fn set_and_get_timestamp() {
+    fn set_and_get_timestamp_ms() {
         let mut snap = DeadlineStateSnapshot::default();
-        snap.set_timestamp(0x12345678);
-        assert_eq!(snap.timestamp(), 0x12345678);
+        snap.set_timestamp_ms(0x12345678);
+        assert_eq!(snap.timestamp_ms(), 0x12345678);
         assert!(!snap.is_running());
         assert!(snap.is_stopped()); // Default is stopped, running is set as a flag
         assert!(!snap.is_underrun());
@@ -181,11 +182,11 @@ mod tests {
     #[test]
     fn as_u64_and_new() {
         let mut snap = DeadlineStateSnapshot::default();
-        snap.set_timestamp(42);
+        snap.set_timestamp_ms(42);
         snap.set_running();
         let val = snap.as_u64();
         let snap2 = DeadlineStateSnapshot::new(val);
-        assert_eq!(snap2.timestamp(), 42);
+        assert_eq!(snap2.timestamp_ms(), 42);
         assert!(snap2.is_running());
     }
 }

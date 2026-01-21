@@ -1,5 +1,5 @@
-//
-// Copyright (c) 2025 Contributors to the Eclipse Foundation
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -9,7 +9,7 @@
 // <https://www.apache.org/licenses/LICENSE-2.0>
 //
 // SPDX-License-Identifier: Apache-2.0
-//
+// *******************************************************************************
 #![allow(dead_code)]
 
 use super::common::DeadlineTemplate;
@@ -41,7 +41,7 @@ pub enum DeadlineMonitorError {
 
 /// Errors that can occur when working with Deadline instances
 #[derive(Debug, PartialEq, ScoreDebug, Eq, Clone, Copy, Hash)]
-pub enum DeadlineErrors {
+pub enum DeadlineError {
     DeadlineAlreadyFailed,
 }
 
@@ -73,6 +73,12 @@ impl DeadlineMonitorBuilder {
 
 pub struct DeadlineMonitor {
     inner: Arc<DeadlineMonitorInner>,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, ScoreDebug)]
+pub(crate) enum DeadlineEvaluationError {
+    TooEarly,
+    TooLate,
 }
 
 impl DeadlineMonitor {
@@ -123,7 +129,7 @@ impl DeadlineMonitor {
     ///
     /// # NOTE
     /// This function is intended to be called from a background thread periodically.
-    fn evaluate(&self, on_failed: impl FnMut(&IdentTag, bool)) {
+    fn evaluate(&self, on_failed: impl FnMut(&IdentTag, DeadlineEvaluationError)) {
         self.inner.evaluate(on_failed);
     }
 }
@@ -158,9 +164,9 @@ impl Deadline {
     ///
     /// # Returns
     ///  - Ok(DeadlineHandle) - if the deadline was started successfully.
-    ///  - Err(DeadlineErrors::DeadlineAlreadyFailed) - if the deadline was already missed before
+    ///  - Err(DeadlineError::DeadlineAlreadyFailed) - if the deadline was already missed before
     ///
-    pub fn start(&mut self) -> Result<DeadlineHandle<'_>, DeadlineErrors> {
+    pub fn start(&mut self) -> Result<DeadlineHandle<'_>, DeadlineError> {
         let now = self.monitor.now();
         let max_time = now + self.range.max.as_millis() as u32;
 
@@ -172,14 +178,14 @@ impl Deadline {
             }
 
             let mut new = DeadlineStateSnapshot::default();
-            new.set_timestamp(max_time);
+            new.set_timestamp_ms(max_time);
             new.set_running();
             Some(new)
         });
 
         if is_broken {
             warn!("Trying to start deadline {:?} that already failed", self.tag);
-            Err(DeadlineErrors::DeadlineAlreadyFailed)
+            Err(DeadlineError::DeadlineAlreadyFailed)
         } else {
             Ok(DeadlineHandle(self))
         }
@@ -190,13 +196,7 @@ impl Deadline {
         let max = self.range.max.as_millis() as u32;
         let min = self.range.min.as_millis() as u32;
 
-        enum PossibleError {
-            None,
-            TooEarly,
-            TooLong,
-        }
-
-        let mut possible_err = PossibleError::None;
+        let mut possible_err = (None, 0);
 
         let _ = self.monitor.active_deadlines[*self.state_index]
             .1
@@ -207,9 +207,9 @@ impl Deadline {
                     self.tag
                 );
 
-                let expected = current.timestamp();
+                let expected = current.timestamp_ms();
                 if expected < now {
-                    possible_err = PossibleError::TooLong;
+                    possible_err = (Some(DeadlineEvaluationError::TooLate), now - expected);
                     return None; // Deadline missed, let state as is for BG thread to report
                 }
 
@@ -220,7 +220,7 @@ impl Deadline {
                     // Finished too early, leave it for reporting by BG thread
 
                     current.set_underrun();
-                    possible_err = PossibleError::TooEarly;
+                    possible_err = (Some(DeadlineEvaluationError::TooEarly), earliest_time - now);
                     return Some(current);
                 }
 
@@ -228,13 +228,13 @@ impl Deadline {
             });
 
         match possible_err {
-            PossibleError::None => {},
-            PossibleError::TooEarly => {
-                error!("Deadline {:?} stopped too early", self.tag);
+            (Some(DeadlineEvaluationError::TooEarly), val) => {
+                error!("Deadline {:?} stopped too early by {} ms", self.tag, val);
             },
-            PossibleError::TooLong => {
-                error!("Deadline {:?} stopped too late", self.tag);
+            (Some(DeadlineEvaluationError::TooLate), val) => {
+                error!("Deadline {:?} stopped too late by {} ms", self.tag, val);
             },
+            (None, _) => {},
         }
     }
 
@@ -286,7 +286,7 @@ impl DeadlineMonitorInner {
         u32::try_from(duration.as_millis()).expect("Monitor running for too long")
     }
 
-    fn evaluate(&self, mut on_failed: impl FnMut(&IdentTag, bool)) {
+    fn evaluate(&self, mut on_failed: impl FnMut(&IdentTag, DeadlineEvaluationError)) {
         for (tag, deadline) in self.active_deadlines.iter() {
             let snapshot = deadline.snapshot();
             if snapshot.is_underrun() {
@@ -294,7 +294,7 @@ impl DeadlineMonitorInner {
                 warn!("Deadline finished too early!");
 
                 // Here we would normally report the underrun to the monitoring system
-                on_failed(tag, true);
+                on_failed(tag, DeadlineEvaluationError::TooEarly);
             } else if snapshot.is_running() {
                 debug_assert!(
                     snapshot.is_stopped(),
@@ -302,13 +302,13 @@ impl DeadlineMonitorInner {
                 );
 
                 let now = self.now();
-                let expected = snapshot.timestamp();
+                let expected = snapshot.timestamp_ms();
                 if now > expected {
                     // Deadline missed, report
                     warn!("Deadline missed! Expected: {}, now: {}", expected, now);
 
                     // Here we would normally report the missed deadline to the monitoring system
-                    on_failed(tag, false);
+                    on_failed(tag, DeadlineEvaluationError::TooLate);
                 }
             }
         }
@@ -385,8 +385,11 @@ mod tests {
 
         drop(handle); // stop the deadline
 
-        monitor.evaluate(|tag, is_underrun| {
-            panic!("Deadline {:?} should not have failed or underrun({})", tag, is_underrun);
+        monitor.evaluate(|tag, deadline_failure| {
+            panic!(
+                "Deadline {:?} should not have failed or underrun({:?})",
+                tag, deadline_failure
+            );
         });
     }
 
@@ -398,11 +401,13 @@ mod tests {
 
         drop(handle); // stop the deadline
 
-        monitor.evaluate(|tag, is_underrun| {
-            assert!(
-                is_underrun,
-                "Deadline {:?} should not have failed or underrun({})",
-                tag, is_underrun
+        monitor.evaluate(|tag, deadline_failure| {
+            assert_eq!(
+                deadline_failure,
+                DeadlineEvaluationError::TooEarly,
+                "Deadline {:?} should not have failed({:?})",
+                tag,
+                deadline_failure
             );
         });
     }
@@ -414,11 +419,13 @@ mod tests {
 
         // So deadline stop happens after evaluate, still it should be reported as failed
 
-        monitor.evaluate(|tag, is_underrun| {
-            assert!(
-                is_underrun,
-                "Deadline {:?} should not have failed or underrun({})",
-                tag, is_underrun
+        monitor.evaluate(|tag, deadline_failure| {
+            assert_eq!(
+                deadline_failure,
+                DeadlineEvaluationError::TooEarly,
+                "Deadline {:?} should not have failed({:?})",
+                tag,
+                deadline_failure
             );
         });
 
@@ -436,13 +443,15 @@ mod tests {
         drop(deadline); // drop the deadline to release it
         let mut deadline = monitor.get_deadline(&IdentTag::from("deadline_long")).unwrap();
         let handle = deadline.start();
-        assert_eq!(handle.err(), Some(DeadlineErrors::DeadlineAlreadyFailed));
+        assert_eq!(handle.err(), Some(DeadlineError::DeadlineAlreadyFailed));
 
-        monitor.evaluate(|tag, is_underrun| {
-            assert!(
-                is_underrun,
-                "Deadline {:?} should not have failed or underrun({})",
-                tag, is_underrun
+        monitor.evaluate(|tag, deadline_failure| {
+            assert_eq!(
+                deadline_failure,
+                DeadlineEvaluationError::TooEarly,
+                "Deadline {:?} should not have failed ({:?})",
+                tag,
+                deadline_failure
             );
         });
     }
@@ -455,11 +464,13 @@ mod tests {
 
         drop(handle); // stop the deadline
 
-        monitor.evaluate(|tag, is_underrun| {
-            assert!(
-                !is_underrun,
-                "Deadline {:?} should not have failed or underrun({})",
-                tag, is_underrun
+        monitor.evaluate(|tag, deadline_failure| {
+            assert_eq!(
+                deadline_failure,
+                DeadlineEvaluationError::TooLate,
+                "Deadline {:?} should not have failed({:?})",
+                tag,
+                deadline_failure
             );
         });
     }
@@ -481,12 +492,14 @@ mod tests {
 
         let mut cnt = 0;
 
-        monitor.evaluate(|tag, is_underrun| {
+        monitor.evaluate(|tag, deadline_failure| {
             cnt += 1;
-            assert!(
-                !is_underrun,
-                "Deadline {:?} should not have failed or underrun({})",
-                tag, is_underrun
+            assert_eq!(
+                deadline_failure,
+                DeadlineEvaluationError::TooLate,
+                "Deadline {:?} should not have failed({:?})",
+                tag,
+                deadline_failure
             );
         });
 
