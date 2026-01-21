@@ -11,10 +11,11 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 cc_test(
-    name = "processstatereceiver_UT",
+    name = "processstateclient_UT",
     srcs = [
-        "processstatereceiver_UT.cpp",
+        "processstateclient_UT.cpp",
         "//src/launch_manager_daemon/process_state_client_lib:src/processstatereceiver.cpp",
+        "//src/launch_manager_daemon/process_state_client_lib:src/processstatenotifier.cpp",
     ],
     visibility = ["//tests:__subpackages__"],
     deps = [
