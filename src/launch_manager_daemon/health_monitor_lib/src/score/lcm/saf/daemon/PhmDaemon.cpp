@@ -37,7 +37,7 @@ namespace daemon
  processStateReader.", true_no_defect) */
 PhmDaemon::PhmDaemon(score::lcm::saf::timers::OsClockInterface& f_osClock, logging::PhmLogger& f_logger_r,
                      std::unique_ptr<watchdog::IWatchdogIf> f_watchdog, std::unique_ptr<score::lcm::IProcessStateReceiver> f_process_state_receiver) :
-    osClock{f_osClock}, cycleTimer{&osClock}, logger_r{f_logger_r}, swClusterHandlers{}, watchdog(std::move(f_watchdog)), processStateReader{std::move(f_process_state_receiver)}
+    osClock{f_osClock}, cycleTimer{&osClock}, logger_r{f_logger_r}, swClusterHandlers{}, processStateReader{std::move(f_process_state_receiver)}, watchdog(std::move(f_watchdog))
 {
     static_cast<void>(f_osClock);
 }
