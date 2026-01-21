@@ -14,8 +14,8 @@ cc_test(
     name = "processstateclient_UT",
     srcs = [
         "processstateclient_UT.cpp",
-        "//src/launch_manager_daemon/process_state_client_lib:src/processstatereceiver.cpp",
         "//src/launch_manager_daemon/process_state_client_lib:src/processstatenotifier.cpp",
+        "//src/launch_manager_daemon/process_state_client_lib:src/processstatereceiver.cpp",
     ],
     visibility = ["//tests:__subpackages__"],
     deps = [
