@@ -134,6 +134,40 @@ mod tests {
     use super::*;
 
     #[test]
+    fn deadline_state_default_and_snapshot() {
+        let state = DeadlineState::new();
+        let snap = state.snapshot();
+        assert!(snap.is_stopped());
+        assert!(!snap.is_running());
+        assert!(!snap.is_underrun());
+    }
+
+    #[test]
+    fn deadline_state_update_success() {
+        let state = DeadlineState::new();
+        // Set running and timestamp
+        let res = state.update(|mut snap| {
+            snap.set_running();
+            snap.set_timestamp_ms(1234);
+            Some(snap)
+        });
+        assert!(res.is_ok());
+        let snap = state.snapshot();
+        assert!(snap.is_running());
+        assert_eq!(snap.timestamp_ms(), 1234);
+    }
+
+    #[test]
+    fn deadline_state_update_none_returns_err() {
+        let state = DeadlineState::new();
+        // Closure returns None, so state should not change
+        let res = state.update(|_snap| None);
+        assert!(res.is_err());
+        let snap = state.snapshot();
+        assert!(snap.is_stopped());
+    }
+
+    #[test]
     fn default_state() {
         let snap = DeadlineStateSnapshot::default();
         assert!(snap.is_stopped());
