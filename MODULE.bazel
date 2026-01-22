@@ -105,22 +105,19 @@ use_repo(toolchains_qnx, "toolchains_qnx_ifs")
 
 bazel_dep(name = "score_baselibs_rust", version = "0.0.3")
 bazel_dep(name = "score_baselibs", version = "0.2.2")
-
-git_override(
-    module_name = "score_baselibs",
-    commit = "9925dba1fd2ca7f2d33300cd2c01e6af022024cd",
-    remote = "https://github.com/eclipse-score/baselibs.git",
-)
+# git_override(
+#     module_name = "score_baselibs",
+#     commit = "9925dba1fd2ca7f2d33300cd2c01e6af022024cd",
+#     remote = "https://github.com/eclipse-score/baselibs.git",
+# )
 
 # Hedron's Compile Commands Extractor for Bazel
 # https://github.com/hedronvision/bazel-compile-commands-extractor
 bazel_dep(name = "hedron_compile_commands", dev_dependency = True)
 git_override(
     module_name = "hedron_compile_commands",
-    remote = "https://github.com/hedronvision/bazel-compile-commands-extractor.git",
     commit = "0e990032f3c5a866e72615cf67e5ce22186dcb97",
+    remote = "https://github.com/hedronvision/bazel-compile-commands-extractor.git",
     # Replace the commit hash (above) with the latest (https://github.com/hedronvision/bazel-compile-commands-extractor/commits/main).
     # Even better, set up Renovate and let it do the work for you (see "Suggestion: Updates" in the README).
 )
-
-

@@ -11,21 +11,37 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
+use core::hash::Hash;
 use core::time::Duration;
 
 /// Unique identifier for deadlines.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, Eq)]
 #[repr(C)]
 pub struct IdentTag {
     data: *const u8,
     len: usize,
 } // Internal representation as a leaked string slice for now. It can be also an str to u64 conversion. Since this is internal only, we can change it later if needed.
 
+// Safety below for `from_raw_parts` -> Data was constructed from valid str
+impl Hash for IdentTag {
+    fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
+        let bytes = unsafe { core::slice::from_raw_parts(self.data, self.len) };
+        bytes.hash(state);
+    }
+}
+impl PartialEq for IdentTag {
+    fn eq(&self, other: &Self) -> bool {
+        let self_bytes = unsafe { core::slice::from_raw_parts(self.data, self.len) };
+        let other_bytes = unsafe { core::slice::from_raw_parts(other.data, other.len) };
+        self_bytes == other_bytes
+    }
+}
+
 impl crate::log::ScoreDebug for IdentTag {
     fn fmt(&self, f: crate::log::Writer, spec: &crate::log::FormatSpec) -> Result<(), crate::log::Error> {
         let bytes = unsafe { core::slice::from_raw_parts(self.data, self.len) };
         crate::log::DebugStruct::new(f, spec, "IdentTag")
-            .field("data", &bytes)
+            .field("data", unsafe { &core::str::from_utf8_unchecked(bytes) }) // Safety: The underlying data was created out of valid str
             .finish()
     }
 }
