@@ -63,8 +63,8 @@ You can also use the config `--config=x86_64-linux` to build for linux.
 ## IDE support
 
 ### C++
-Use visual studio code with `clangd`. Make sure You don't have installed MS C++ Intellisense as this is likely to clash with `clangd`.
-Then you need to call `./scripts/generate_cpp_compile_commands.sh` to generate compilation DB for clangd and restart it in Vscode. Indexing shall work.
+Use Visual Studio Code with `clangd`. Make sure you don't have the MS C++ IntelliSense extension installed as this is likely to clash with `clangd`.
+Then you need to call `./scripts/generate_cpp_compile_commands.sh` to generate compilation DB for clangd and restart it in VS Code. Indexing shall work.
 
 ### Rust
 

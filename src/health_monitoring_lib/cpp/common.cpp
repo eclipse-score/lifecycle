@@ -1,0 +1,69 @@
+#include <score/hm/common.h>
+
+namespace score::hm::internal
+{
+
+DroppableFFIHandle::DroppableFFIHandle(FFIHandle handle, DropFn drop_fn) : handle_(handle), drop_fn_(drop_fn) {}
+
+DroppableFFIHandle::DroppableFFIHandle(DroppableFFIHandle&& other) noexcept
+    : handle_(other.handle_), drop_fn_(other.drop_fn_)
+{
+    other.handle_ = nullptr;
+    other.drop_fn_ = nullptr;
+}
+
+DroppableFFIHandle& DroppableFFIHandle::operator=(DroppableFFIHandle&& other) noexcept
+{
+    if (this != &other)
+    {
+        // Clean up existing resources
+        if (drop_fn_)
+        {
+            drop_fn_(handle_);
+        }
+
+        // Move resources from other
+        handle_ = other.handle_;
+        drop_fn_ = other.drop_fn_;
+
+        // Nullify other's resources
+        other.handle_ = nullptr;
+        other.drop_fn_ = nullptr;
+    }
+    return *this;
+}
+
+::score::cpp::optional<FFIHandle> DroppableFFIHandle::as_rust_handle() const
+{
+    if (handle_ == nullptr)
+    {
+        return ::score::cpp::nullopt;
+    }
+
+    return handle_;
+}
+
+::score::cpp::optional<FFIHandle> DroppableFFIHandle::drop_by_rust()
+{
+    if (handle_ == nullptr)
+    {
+        return ::score::cpp::nullopt;
+    }
+
+    FFIHandle temp = handle_;
+    handle_ = nullptr;
+    drop_fn_ = nullptr;
+
+    return temp;
+}
+
+DroppableFFIHandle::~DroppableFFIHandle()
+{
+    // Clean up resources associated with the FFI handle
+    if (drop_fn_)
+    {
+        drop_fn_(handle_);
+    }
+}
+
+}  // namespace score::hm::internal

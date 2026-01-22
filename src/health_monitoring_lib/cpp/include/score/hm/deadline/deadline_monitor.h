@@ -1,0 +1,116 @@
+#ifndef SCORE_HM_DEADLINE_DEADLINE_MONITOR_H
+#define SCORE_HM_DEADLINE_DEADLINE_MONITOR_H
+
+#include <score/expected.hpp>
+#include <score/hm/common.h>
+
+namespace score::hm
+{
+// Forward declaration
+class HealthMonitor;
+}  // namespace score::hm
+
+namespace score::hm::deadline
+{
+
+// Forward declaration
+class DeadlineMonitor;
+class DeadlineHandle;
+class Deadline;
+
+/// DeadlineMonitorBuilder for constructing DeadlineMonitor instance
+class DeadlineMonitorBuilder : public internal::RustDroppable<DeadlineMonitorBuilder>
+{
+  public:
+    /// Creates a new DeadlineMonitorBuilder
+    DeadlineMonitorBuilder();
+
+    DeadlineMonitorBuilder(const DeadlineMonitorBuilder&) = delete;
+    DeadlineMonitorBuilder& operator=(const DeadlineMonitorBuilder&) = delete;
+
+    DeadlineMonitorBuilder(DeadlineMonitorBuilder&&) = default;
+    DeadlineMonitorBuilder& operator=(DeadlineMonitorBuilder&&) = delete;
+
+    /// Adds a deadline with the given tag and duration range to the monitor.
+    DeadlineMonitorBuilder add_deadline(const IdentTag& tag, const TimeRange& range) &&;
+
+    ::score::cpp::optional<internal::FFIHandle> __drop_by_rust_impl()
+    {
+        return monitor_builder_handler_.drop_by_rust();
+    }
+
+  private:
+    internal::DroppableFFIHandle monitor_builder_handler_;
+};
+
+class DeadlineMonitor
+{
+  public:
+    // Delete copy, allow move
+    DeadlineMonitor(const DeadlineMonitor&) = delete;
+    DeadlineMonitor& operator=(const DeadlineMonitor&) = delete;
+
+    DeadlineMonitor(DeadlineMonitor&& other) noexcept = default;
+    DeadlineMonitor& operator=(DeadlineMonitor&& other) noexcept = default;
+
+    ::score::cpp::expected<Deadline, score::hm::Error> get_deadline(const IdentTag& tag);
+
+  private:
+    explicit DeadlineMonitor(internal::FFIHandle handle);
+
+    friend class score::hm::HealthMonitor;
+    internal::DroppableFFIHandle monitor_handle_;
+};
+
+/// Deadline instance representing a specific deadline to be monitored.
+class Deadline
+{
+  public:
+    ~Deadline();
+
+    Deadline(const Deadline&) = delete;
+    Deadline& operator=(const Deadline&) = delete;
+
+    Deadline(Deadline&& other) noexcept = default;
+    Deadline& operator=(Deadline&& other) noexcept = delete;
+
+    /// Starts the deadline monitoring. Returns a DeadlineHandle to manage the deadline.
+    //  After this call the Deadline instance cannot be used until connected DeadlineHandle is destroyed
+    ::score::cpp::expected<DeadlineHandle, Error> start();
+
+  private:
+    explicit Deadline(internal::FFIHandle handle);
+
+    friend class DeadlineMonitor;
+    friend class DeadlineHandle;
+    internal::DroppableFFIHandle deadline_handle_;
+    bool has_handle_;
+};
+
+/// Deadline guard to manage the lifetime of a started deadline.
+class DeadlineHandle
+{
+  public:
+    /// Stops the deadline monitoring.
+    void stop();
+
+    /// Destructor that ensures the deadline is stopped if not already done.
+    ~DeadlineHandle();
+
+    DeadlineHandle(const DeadlineHandle&) = delete;
+    DeadlineHandle& operator=(const DeadlineHandle&) = delete;
+
+    DeadlineHandle(DeadlineHandle&& other);
+    DeadlineHandle& operator=(DeadlineHandle&& other) = delete;
+
+  private:
+    DeadlineHandle(Deadline& deadline);
+
+    friend class Deadline;
+    bool was_stopped_;
+    ::score::cpp::optional<std::reference_wrapper<Deadline>> deadline_;
+};
+
+}  // namespace score::hm::deadline
+
+#endif  // SCORE_HM_DEADLINE_DEADLINE_MONITOR_H

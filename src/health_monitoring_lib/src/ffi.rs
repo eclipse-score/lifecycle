@@ -77,7 +77,7 @@ extern "C" fn health_monitor_get_deadline_monitor(handle: FFIHandle, tag: *const
 extern "C" fn health_monitor_destroy(handle: FFIHandle) {
     assert!(!handle.is_null());
 
-    // Safety: We ensure that the pointer is valid. We assume that pointer was created by call to `health_monitor_builder_create`
+    // Safety: We ensure that the pointer is valid. We assume that pointer was created by call to `health_monitor_builder_build`
     // and this must be assured on other side of FFI.
     unsafe {
         let _ = Box::from_raw(handle as *mut HealthMonitor);
