@@ -24,13 +24,13 @@ bazel_dep(name = "buildifier_prebuilt", version = "8.2.0.2")
 bazel_dep(name = "platforms", version = "1.0.0")
 bazel_dep(name = "flatbuffers", version = "25.9.23")
 bazel_dep(name = "download_utils", version = "1.0.1")
+bazel_dep(name = "googletest", version = "1.17.0.bcr.1")
 
 # S-CORE process rules
 bazel_dep(name = "score_bazel_platforms", version = "0.0.3")
-bazel_dep(name = "score_docs_as_code", version = "2.2.0")
+bazel_dep(name = "score_docs_as_code", version = "2.3.0")
 bazel_dep(name = "score_tooling", version = "1.0.5")
 bazel_dep(name = "score_rust_policies", version = "0.0.3")
-bazel_dep(name = "score_baselibs", version = "0.2.2")
 
 bazel_dep(name = "score_process", version = "1.4.0", dev_dependency = True)
 bazel_dep(name = "score_platform", version = "0.5.1", dev_dependency = True)
@@ -40,8 +40,6 @@ bazel_dep(name = "score_toolchains_gcc", version = "0.5", dev_dependency = True)
 bazel_dep(name = "score_toolchains_qnx", version = "0.0.6", dev_dependency = True)
 bazel_dep(name = "rust_qnx8_toolchain", version = "1.2.0", dev_dependency = True)
 bazel_dep(name = "score_toolchains_rust", version = "0.1.1", dev_dependency = True)
-
-bazel_dep(name = "googletest", version = "1.17.0.bcr.1")
 
 # S-CORE crates
 bazel_dep(name = "score_crates", version = "0.0.6")
@@ -106,3 +104,23 @@ use_repo(toolchains_qnx, "toolchains_qnx_qcc")
 use_repo(toolchains_qnx, "toolchains_qnx_ifs")
 
 bazel_dep(name = "score_baselibs_rust", version = "0.0.3")
+bazel_dep(name = "score_baselibs", version = "0.2.2")
+
+git_override(
+    module_name = "score_baselibs",
+    commit = "9925dba1fd2ca7f2d33300cd2c01e6af022024cd",
+    remote = "https://github.com/eclipse-score/baselibs.git",
+)
+
+# Hedron's Compile Commands Extractor for Bazel
+# https://github.com/hedronvision/bazel-compile-commands-extractor
+bazel_dep(name = "hedron_compile_commands", dev_dependency = True)
+git_override(
+    module_name = "hedron_compile_commands",
+    remote = "https://github.com/hedronvision/bazel-compile-commands-extractor.git",
+    commit = "0e990032f3c5a866e72615cf67e5ce22186dcb97",
+    # Replace the commit hash (above) with the latest (https://github.com/hedronvision/bazel-compile-commands-extractor/commits/main).
+    # Even better, set up Renovate and let it do the work for you (see "Suggestion: Updates" in the README).
+)
+
+

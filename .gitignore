@@ -69,7 +69,6 @@ tests/**/*.html
 tests/**/*.xml
 
 # IDE Code files
-.vscode*
 *.orig
 .venv_docs
 MODULE.lock.bazel

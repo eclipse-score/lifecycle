@@ -15,5 +15,20 @@
     "rust-analyzer.check.command": "clippy",
     "rust-analyzer.rustfmt.overrideCommand": [
         "${workspaceFolder}/.vscode/rustfmt.sh"
-    ]
+    ],
+    "clangd.arguments": [
+        "--header-insertion=never",
+        "--compile-commands-dir=${workspaceFolder}/",
+        "--query-driver=**",
+        "--clang-tidy",
+        "--fallback-style=None"
+    ],
+    "[cpp]": {
+       "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
+       "editor.formatOnSave": true
+     },
+     "[c]": {
+       "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
+       "editor.formatOnSave": true
+     },
 }
