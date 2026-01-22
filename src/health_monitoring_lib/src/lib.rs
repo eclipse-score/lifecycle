@@ -10,11 +10,52 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
-
 mod common;
 mod log;
 mod protected_memory;
 
 pub mod deadline;
 
+use std::collections::HashMap;
+
 pub use common::{IdentTag, TimeRange};
+
+#[derive(Default)]
+pub struct HealthMonitorBuilder {
+    deadlines: HashMap<IdentTag, deadline::DeadlineMonitorBuilder>,
+}
+
+impl HealthMonitorBuilder {
+    pub fn new() -> Self {
+        Self {
+            deadlines: HashMap::new(),
+        }
+    }
+
+    pub fn add_deadline_monitor(&mut self, tag: IdentTag, monitor: deadline::DeadlineMonitorBuilder) {
+        self.deadlines.insert(tag, monitor);
+    }
+
+    pub fn build(self) -> HealthMonitor {
+        let allocator = protected_memory::ProtectedMemoryAllocator {};
+        let mut monitors = HashMap::new();
+        for (tag, builder) in self.deadlines {
+            monitors.insert(tag, builder.build(&allocator));
+        }
+        HealthMonitor {
+            deadline_monitors: monitors,
+        }
+    }
+}
+
+pub struct HealthMonitor {
+    deadline_monitors: HashMap<IdentTag, deadline::DeadlineMonitor>,
+}
+
+impl HealthMonitor {
+    pub fn get_deadline_monitor(&mut self, tag: &IdentTag) -> Option<deadline::DeadlineMonitor> {
+        self.deadline_monitors.remove(tag)
+    }
+}
+
+mod ffi;
