@@ -18,19 +18,11 @@ on:
   merge_group:
     types: [checks_requested]
 jobs:
-  rust-tests:
-    name: "Run Rust tests"
+  test:
+    name: "Run tests"
     uses: eclipse-score/cicd-workflows/.github/workflows/tests.yml@main
     permissions:
       contents: read
       pull-requests: read
     with:
-      bazel-target: 'test //src/...'
-  unit-tests:
-    name: "Run Unit tests"
-    uses: eclipse-score/cicd-workflows/.github/workflows/tests.yml@main
-    permissions:
-      contents: read
-      pull-requests: read
-    with:
-      bazel-target: 'test //tests/ut/...'
+      bazel-target: 'test //src/... //tests/ut/...'
