@@ -4,19 +4,11 @@
     "url": "https://eclipse-score.github.io/lifecycle/main/"
   },
   {
-    "version": "pr-41",
-    "url": "https://eclipse-score.github.io/lifecycle/pr-41/"
-  },
-  {
     "version": "pr-45",
     "url": "https://eclipse-score.github.io/lifecycle/pr-45/"
   },
   {
     "version": "pr-48",
     "url": "https://eclipse-score.github.io/lifecycle/pr-48/"
-  },
-  {
-    "version": "pr-49",
-    "url": "https://eclipse-score.github.io/lifecycle/pr-49/"
   }
 ]
