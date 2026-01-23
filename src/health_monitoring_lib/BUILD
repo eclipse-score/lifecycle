@@ -77,6 +77,10 @@ cc_gtest_unit_test(
     srcs = [
         "cpp/tests/health_monitor_test.cpp",
     ],
+    linkopts = select({
+        "@platforms//os:qnx": ["-lsocket"],
+        "//conditions:default": [],
+    }),
     deps = [
         ":health_monitoring_lib_cc",
     ],
