@@ -25,4 +25,4 @@ jobs:
       contents: read
       pull-requests: read
     with:
-      bazel-target: 'test //src/... //tests/ut/...'
+      bazel-target: 'test //src/...'

@@ -54,6 +54,7 @@ cc_binary_with_common_opts(
 
 cc_library(
     name = "headers",
+    testonly = True,
     hdrs = glob(
         [
             "src/**/*.h",
@@ -65,7 +66,6 @@ cc_library(
         "include",
         "src",
     ],
-    visibility = ["//tests:__subpackages__"],
     deps = [
         # Must match launch_manager deps
         ":config",

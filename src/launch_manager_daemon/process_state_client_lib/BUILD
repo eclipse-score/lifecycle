@@ -10,8 +10,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-package(default_visibility = ["//tests:__subpackages__"])
-
 cc_library(
     name = "process_state_client",
     srcs = [
@@ -40,6 +38,7 @@ cc_library(
 
 cc_library(
     name = "headers",
+    testonly = True,
     hdrs = glob(
         [
             "include/score/lcm/**/*.h",
@@ -51,7 +50,6 @@ cc_library(
         "include",
         "src",
     ],
-    visibility = ["//tests:__subpackages__"],
     deps = [
         # Must match process_state_client deps
         "//externals/ipc_dropin",
@@ -61,5 +59,18 @@ cc_library(
         "//src/launch_manager_daemon/common:log",
         "@score_baselibs//score/mw/log",
         "@score_baselibs//score/result",
+    ],
+)
+
+cc_test(
+    name = "processstateclient_UT",
+    srcs = [
+        "src/processstateclient_UT.cpp",
+        "//src/launch_manager_daemon/process_state_client_lib:src/processstatenotifier.cpp",
+        "//src/launch_manager_daemon/process_state_client_lib:src/processstatereceiver.cpp",
+    ],
+    deps = [
+        "//src/launch_manager_daemon/process_state_client_lib:headers",
+        "@googletest//:gtest_main",
     ],
 )
