@@ -24,7 +24,7 @@ class HealthMonitor;
 ///
 /// Builder for HealthMonitor instances.
 ///
-class HealthMonitorBuilder
+class HealthMonitorBuilder final
 {
   public:
     ///  Creates a new HealthMonitorBuilder
@@ -47,17 +47,13 @@ class HealthMonitorBuilder
     internal::DroppableFFIHandle health_monitor_builder_handle_;
 };
 
-class HealthMonitor
+class HealthMonitor final
 {
   public:
     HealthMonitor(const HealthMonitor&) = delete;
     HealthMonitor& operator=(const HealthMonitor&) = delete;
-    HealthMonitor(HealthMonitor&& other)
-    {
-        health_monitor_ = std::move(other.health_monitor_);
-        other.health_monitor_ = nullptr;
-    }
 
+    HealthMonitor(HealthMonitor&& other);
     HealthMonitor& operator=(HealthMonitor&&);
 
     ~HealthMonitor();
@@ -65,6 +61,7 @@ class HealthMonitor
     score::cpp::expected<deadline::DeadlineMonitor, Error> get_deadline_monitor(const IdentTag& tag);
 
   private:
+    // Allow only the builder to create HealthMonitor instances.
     friend class HealthMonitorBuilder;
 
     HealthMonitor(internal::FFIHandle handle);

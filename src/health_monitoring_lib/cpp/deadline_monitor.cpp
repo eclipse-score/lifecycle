@@ -43,7 +43,7 @@ DeadlineMonitorBuilder DeadlineMonitorBuilder::add_deadline(const IdentTag& tag,
     auto handle = monitor_builder_handler_.as_rust_handle();
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(handle.has_value());
 
-    deadline_monitor_builder_add_deadline(handle.value(), &tag, range.min_as_u32(), range.max_as_u32());
+    deadline_monitor_builder_add_deadline(handle.value(), &tag, range.min_ms(), range.max_ms());
 
     return std::move(*this);
 }
@@ -113,7 +113,7 @@ DeadlineHandle::DeadlineHandle(DeadlineHandle&& other)
     : was_stopped_(other.was_stopped_), deadline_(std::move(other.deadline_))
 {
     other.was_stopped_ = true;
-    other.deadline_ = ::score::cpp::optional<std::reference_wrapper<Deadline>>{};  // None
+    other.deadline_ = std::optional<std::reference_wrapper<Deadline>>{};  // None
 }
 
 DeadlineHandle::~DeadlineHandle()

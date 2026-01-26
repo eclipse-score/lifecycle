@@ -45,21 +45,21 @@ DroppableFFIHandle& DroppableFFIHandle::operator=(DroppableFFIHandle&& other) no
     return *this;
 }
 
-::score::cpp::optional<FFIHandle> DroppableFFIHandle::as_rust_handle() const
+std::optional<FFIHandle> DroppableFFIHandle::as_rust_handle() const
 {
     if (handle_ == nullptr)
     {
-        return ::score::cpp::nullopt;
+        return std::nullopt;
     }
 
     return handle_;
 }
 
-::score::cpp::optional<FFIHandle> DroppableFFIHandle::drop_by_rust()
+std::optional<FFIHandle> DroppableFFIHandle::drop_by_rust()
 {
     if (handle_ == nullptr)
     {
-        return ::score::cpp::nullopt;
+        return std::nullopt;
     }
 
     FFIHandle temp = handle_;

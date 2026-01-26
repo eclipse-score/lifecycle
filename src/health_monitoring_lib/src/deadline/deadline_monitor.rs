@@ -176,12 +176,12 @@ impl Deadline {
     }
 
     /// Starts the deadline - it will be monitored by health monitoring system.
-    /// This function is provides for FFI usage only!
+    /// This function is for FFI usage only!
     ///
     /// # Safety
-    ///  - Caller must ensure that
-    ///     - Deadline is not used (no call to any api) until it's stopped. basically this means that after this call You shall assure that there
-    ///       is only single owner of the Deadline instance and it does not try to call start before stopping.
+    ///
+    /// Caller must ensure that deadline is not used until it's stopped.
+    /// After this call You shall assure there's only a single owner of the `Deadline` instance and it does not call start before stopping.
     pub(super) unsafe fn start_internal(&mut self) -> Result<(), DeadlineError> {
         let now = self.monitor.now();
         let max_time = now + self.range.max.as_millis() as u32;

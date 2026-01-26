@@ -11,8 +11,9 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
+load("@rules_cc//cc:defs.bzl", "cc_library")
 load("@rules_rust//rust:defs.bzl", "rust_library", "rust_static_library", "rust_test")
-load("@score_baselibs//:bazel/unit_tests.bzl", "cc_gtest_unit_test", "cc_unit_test_suites_for_host_and_qnx")
+load("@score_baselibs//:bazel/unit_tests.bzl", "cc_gtest_unit_test")
 
 rust_library(
     name = "health_monitoring_lib",
@@ -52,7 +53,7 @@ cc_library(
     name = "health_monitoring_lib_cc",
     srcs = [
         "cpp/common.cpp",
-        "cpp/deadline/deadline_monitor.cpp",
+        "cpp/deadline_monitor.cpp",
         "cpp/ffi_helpers.h",
         "cpp/health_monitor.cpp",
     ],
@@ -60,9 +61,6 @@ cc_library(
         "cpp/include/score/hm/common.h",
         "cpp/include/score/hm/deadline/deadline_monitor.h",
         "cpp/include/score/hm/health_monitor.h",
-    ],
-    copts = [
-        "-Isrc/health_monitoring_lib/cpp",  # private include path
     ],
     strip_include_prefix = "cpp/include",
     visibility = ["//visibility:public"],
