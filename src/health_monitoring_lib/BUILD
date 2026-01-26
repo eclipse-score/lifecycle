@@ -17,7 +17,7 @@ load("@score_baselibs//:bazel/unit_tests.bzl", "cc_gtest_unit_test")
 
 rust_library(
     name = "health_monitoring_lib",
-    srcs = glob(["src/**/*.rs"]),
+    srcs = glob(["rust/**/*.rs"]),
     crate_name = "health_monitoring_lib",
     proc_macro_deps = [
         "@score_baselibs_rust//src/testing_macros:score_testing_macros",
@@ -30,7 +30,7 @@ rust_library(
 
 rust_static_library(
     name = "health_monitoring_lib_ffi",
-    srcs = glob(["src/**/*.rs"]),
+    srcs = glob(["rust/**/*.rs"]),
     crate_name = "health_monitoring_lib",
     proc_macro_deps = [
         "@score_baselibs_rust//src/testing_macros:score_testing_macros",
