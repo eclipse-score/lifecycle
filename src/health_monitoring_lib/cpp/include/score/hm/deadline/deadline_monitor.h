@@ -15,11 +15,13 @@
 
 #include <score/expected.hpp>
 #include <score/hm/common.h>
+#include <functional>
 
 namespace score::hm
 {
 // Forward declaration
 class HealthMonitor;
+class HealthMonitorBuilder;
 }  // namespace score::hm
 
 namespace score::hm::deadline
@@ -31,7 +33,7 @@ class DeadlineHandle;
 class Deadline;
 
 /// DeadlineMonitorBuilder for constructing DeadlineMonitor instance
-class DeadlineMonitorBuilder : public internal::RustDroppable<DeadlineMonitorBuilder>
+class DeadlineMonitorBuilder final : public internal::RustDroppable<DeadlineMonitorBuilder>
 {
   public:
     /// Creates a new DeadlineMonitorBuilder
@@ -46,16 +48,23 @@ class DeadlineMonitorBuilder : public internal::RustDroppable<DeadlineMonitorBui
     /// Adds a deadline with the given tag and duration range to the monitor.
     DeadlineMonitorBuilder add_deadline(const IdentTag& tag, const TimeRange& range) &&;
 
-    ::score::cpp::optional<internal::FFIHandle> __drop_by_rust_impl()
+  protected:
+    std::optional<internal::FFIHandle> __drop_by_rust_impl()
     {
         return monitor_builder_handler_.drop_by_rust();
     }
 
   private:
     internal::DroppableFFIHandle monitor_builder_handler_;
+
+    // Allow to hide drop_by_rust implementation
+    friend class internal::RustDroppable<DeadlineMonitorBuilder>;
+
+    // Allow HealthMonitorBuilder to access drop_by_rust implementation
+    friend class ::score::hm::HealthMonitorBuilder;
 };
 
-class DeadlineMonitor
+class DeadlineMonitor final
 {
   public:
     // Delete copy, allow move
@@ -70,12 +79,13 @@ class DeadlineMonitor
   private:
     explicit DeadlineMonitor(internal::FFIHandle handle);
 
+    // Allow only HealthMonitor to create DeadlineMonitor instances.
     friend class score::hm::HealthMonitor;
     internal::DroppableFFIHandle monitor_handle_;
 };
 
 /// Deadline instance representing a specific deadline to be monitored.
-class Deadline
+class Deadline final
 {
   public:
     ~Deadline();
@@ -93,14 +103,17 @@ class Deadline
   private:
     explicit Deadline(internal::FFIHandle handle);
 
+    // Allow only DeadlineMonitor to create Deadline instances.
     friend class DeadlineMonitor;
+
+    // Allow DeadlineHandle to access internal members as its wrapper type only
     friend class DeadlineHandle;
     internal::DroppableFFIHandle deadline_handle_;
     bool has_handle_;
 };
 
 /// Deadline guard to manage the lifetime of a started deadline.
-class DeadlineHandle
+class DeadlineHandle final
 {
   public:
     /// Stops the deadline monitoring.
@@ -118,9 +131,10 @@ class DeadlineHandle
   private:
     DeadlineHandle(Deadline& deadline);
 
+    // Allow only Deadline to create DeadlineHandle instances.
     friend class Deadline;
     bool was_stopped_;
-    ::score::cpp::optional<std::reference_wrapper<Deadline>> deadline_;
+    std::optional<std::reference_wrapper<Deadline>> deadline_;
 };
 
 }  // namespace score::hm::deadline

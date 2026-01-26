@@ -61,6 +61,12 @@ HealthMonitor::HealthMonitor(internal::FFIHandle handle) : health_monitor_(handl
     // Initialize health monitor
 }
 
+HealthMonitor::HealthMonitor(HealthMonitor&& other)
+{
+    health_monitor_ = std::move(other.health_monitor_);
+    other.health_monitor_ = nullptr;
+}
+
 score::cpp::expected<deadline::DeadlineMonitor, Error> HealthMonitor::get_deadline_monitor(const IdentTag& tag)
 {
     auto maybe_monitor = health_monitor_get_deadline_monitor(health_monitor_, &tag);

@@ -13,6 +13,8 @@
 #ifndef SCORE_HM_FFI_HELPERS_HPP
 #define SCORE_HM_FFI_HELPERS_HPP
 
+#include <cassert>
+
 namespace score::hm::ffi
 {
 

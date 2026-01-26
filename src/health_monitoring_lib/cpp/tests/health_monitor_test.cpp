@@ -50,8 +50,6 @@ TEST_F(HealthMonitorTest, TestName)
 
     auto deadline_mon = std::move(*deadline_monitor_res);
 
-    // std::cout << "Getting deadline" << std::endl;
-
     auto deadline_res = deadline_mon.get_deadline(IdentTag("deadline_1"));
 
     {

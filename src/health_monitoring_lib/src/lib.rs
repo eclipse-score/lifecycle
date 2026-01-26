@@ -11,13 +11,13 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 mod common;
+mod ffi;
 mod log;
 mod protected_memory;
 
-pub mod deadline;
-
 use std::collections::HashMap;
 
+pub mod deadline;
 pub use common::{IdentTag, TimeRange};
 
 #[derive(Default)]
@@ -57,5 +57,3 @@ impl HealthMonitor {
         self.deadline_monitors.remove(tag)
     }
 }
-
-mod ffi;

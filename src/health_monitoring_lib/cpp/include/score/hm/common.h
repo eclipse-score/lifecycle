@@ -13,12 +13,10 @@
 #ifndef SCORE_HM_COMMON_H
 #define SCORE_HM_COMMON_H
 
-#include <score/optional.hpp>
-#include <cassert>
 #include <chrono>
 #include <cstdint>
-#include <cstring>
-#include <iostream>
+#include <optional>
+
 namespace score::hm
 {
 
@@ -57,21 +55,21 @@ class IdentTag
 class TimeRange
 {
   public:
-    TimeRange(std::chrono::milliseconds min_ms, std::chrono::milliseconds max_ms) : min_ms(min_ms), max_ms(max_ms) {}
+    TimeRange(std::chrono::milliseconds min_ms, std::chrono::milliseconds max_ms) : min_ms_(min_ms), max_ms_(max_ms) {}
 
-    const uint32_t min_as_u32() const
+    const uint32_t min_ms() const
     {
-        return min_ms.count();
+        return min_ms_.count();
     }
 
-    const uint32_t max_as_u32() const
+    const uint32_t max_ms() const
     {
-        return max_ms.count();
+        return max_ms_.count();
     }
 
   private:
-    const std::chrono::milliseconds min_ms;
-    const std::chrono::milliseconds max_ms;
+    const std::chrono::milliseconds min_ms_;
+    const std::chrono::milliseconds max_ms_;
 };
 
 /// FFI internal helpers
@@ -86,10 +84,11 @@ template <typename T>
 class RustDroppable
 {
   public:
-    ~RustDroppable() = default;
+    virtual ~RustDroppable() = default;
 
+  protected:
     /// Marks object as no longer managed by C++ side, releasing handle to be passed to Rust side for dropping
-    ::score::cpp::optional<FFIHandle> drop_by_rust()
+    std::optional<FFIHandle> drop_by_rust()
     {
         return static_cast<T*>(this)->__drop_by_rust_impl();
     }
@@ -110,12 +109,12 @@ class DroppableFFIHandle
     DroppableFFIHandle& operator=(DroppableFFIHandle&& other) noexcept;
 
     /// Get the underlying FFI handle if it was not dropped before
-    ::score::cpp::optional<FFIHandle> as_rust_handle() const;
+    std::optional<FFIHandle> as_rust_handle() const;
 
     /// Marks object as no longer managed by C++ side, releasing handle to be passed to Rust side for dropping
-    ::score::cpp::optional<FFIHandle> drop_by_rust();
+    std::optional<FFIHandle> drop_by_rust();
 
-    ~DroppableFFIHandle();
+    virtual ~DroppableFFIHandle();
 
   private:
     FFIHandle handle_;
