@@ -13,6 +13,7 @@
 use crate::common::ffi::*;
 use crate::deadline::ffi::DeadlineMonitorCpp;
 use crate::*;
+use core::time::Duration;
 
 #[no_mangle]
 extern "C" fn health_monitor_builder_create() -> FFIHandle {
@@ -51,13 +52,20 @@ extern "C" fn health_monitor_builder_add_deadline_monitor(handle: FFIHandle, tag
 }
 
 #[no_mangle]
-extern "C" fn health_monitor_builder_build(handle: FFIHandle) -> FFIHandle {
+extern "C" fn health_monitor_builder_build(
+    handle: FFIHandle,
+    supervisor_cycle_ms: u32,
+    internal_cycle_ms: u32,
+) -> FFIHandle {
     assert!(!handle.is_null());
 
     // Safety: We ensure that the pointer is valid. We assume that pointer was created by call to `health_monitor_builder_create`
     // and this must be assured on other side of FFI.
-    let health_monitor_builder: Box<HealthMonitorBuilder> =
+    let mut health_monitor_builder: Box<HealthMonitorBuilder> =
         unsafe { Box::from_raw(handle as *mut HealthMonitorBuilder) };
+
+    health_monitor_builder.with_internal_processing_cycle(Duration::from_millis(internal_cycle_ms as u64));
+    health_monitor_builder.with_supervisor_api_cycle(Duration::from_millis(supervisor_cycle_ms as u64));
 
     let health_monitor = health_monitor_builder.build();
     let health_monitor_handle = Box::into_raw(Box::new(health_monitor));
@@ -83,6 +91,16 @@ extern "C" fn health_monitor_get_deadline_monitor(handle: FFIHandle, tag: *const
     } else {
         core::ptr::null_mut()
     }
+}
+
+#[no_mangle]
+extern "C" fn health_monitor_start(handle: FFIHandle) {
+    assert!(!handle.is_null());
+
+    // Safety: We ensure that the pointer is valid. We assume that pointer was created by call to `health_monitor_builder_build`
+    // and this must be assured on other side of FFI.
+    let mut monitor = FFIBorrowed::new(unsafe { Box::from_raw(handle as *mut HealthMonitor) });
+    monitor.start();
 }
 
 #[no_mangle]
