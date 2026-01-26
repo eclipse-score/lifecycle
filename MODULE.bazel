@@ -103,7 +103,7 @@ use_repo(toolchains_qnx, "toolchains_qnx_sdp")
 use_repo(toolchains_qnx, "toolchains_qnx_qcc")
 use_repo(toolchains_qnx, "toolchains_qnx_ifs")
 
-bazel_dep(name = "score_baselibs_rust", version = "0.0.3")
+bazel_dep(name = "score_baselibs_rust", version = "0.0.4")
 bazel_dep(name = "score_baselibs", version = "0.2.2")
 
 # Hedron's Compile Commands Extractor for Bazel
