@@ -17,9 +17,13 @@ license-file = "LICENSE.md"
 libc = "0.2.177"
 clap = { version = "4.5.49", features = ["derive"] }
 signal-hook = "0.3.18"
-score_log = { git = "https://github.com/eclipse-score/baselibs_rust.git", tag = "v0.0.3" }
-score_testing_macros = { git = "https://github.com/eclipse-score/baselibs_rust.git", tag = "v0.0.3" }
-stdout_logger = { git = "https://github.com/eclipse-score/baselibs_rust.git", tag = "v0.0.3" }
+
+
+
+score_log = { path = "../baselibs_rust/src/log/score_log" }
+score_testing_macros = { path = "../baselibs_rust/src/testing_macros" }
+stdout_logger = { path = "../baselibs_rust/src/log/stdout_logger" }
+containers = { path = "../baselibs_rust/src/containers" }
 
 [workspace.lints.clippy]
 std_instead_of_core = "warn"

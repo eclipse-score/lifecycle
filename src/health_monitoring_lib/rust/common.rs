@@ -13,14 +13,26 @@
 
 use core::hash::Hash;
 use core::time::Duration;
-
+use std::fmt::Debug;
+use std::sync::Arc;
 /// Unique identifier for deadlines.
-#[derive(Clone, Copy, Debug, Eq)]
+#[derive(Clone, Copy, Eq)]
 #[repr(C)]
 pub struct IdentTag {
     data: *const u8,
     len: usize,
 } // Internal representation as a leaked string slice for now. It can be also an str to u64 conversion. Since this is internal only, we can change it later if needed.
+
+unsafe impl Send for IdentTag {}
+unsafe impl Sync for IdentTag {}
+
+impl Debug for IdentTag {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        let bytes = unsafe { core::slice::from_raw_parts(self.data, self.len) };
+        let s = unsafe { core::str::from_utf8_unchecked(bytes) }; // Safety: The underlying data was created out of valid str
+        write!(f, "IdentTag({})", s)
+    }
+}
 
 // Safety below for `from_raw_parts` -> Data was constructed from valid str
 impl Hash for IdentTag {
@@ -78,6 +90,32 @@ impl TimeRange {
     pub fn new(min: Duration, max: Duration) -> Self {
         assert!(min <= max, "TimeRange min must be less than or equal to max");
         Self { min, max }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, crate::log::ScoreDebug)]
+pub(crate) enum MonitorEvaluationError {
+    TooEarly,
+    TooLate,
+}
+
+pub(crate) trait MonitorEvaluator {
+    fn evaluate(&self, on_error: &mut dyn FnMut(&IdentTag, MonitorEvaluationError));
+}
+
+pub(crate) struct MonitorEvalHandle {
+    inner: Arc<dyn MonitorEvaluator + Send + Sync>,
+}
+
+impl MonitorEvalHandle {
+    pub(crate) fn new<T: MonitorEvaluator + Send + Sync + 'static>(inner: Arc<T>) -> Self {
+        Self { inner }
+    }
+}
+
+impl MonitorEvaluator for MonitorEvalHandle {
+    fn evaluate(&self, on_error: &mut dyn FnMut(&IdentTag, MonitorEvaluationError)) {
+        self.inner.evaluate(on_error)
     }
 }
 

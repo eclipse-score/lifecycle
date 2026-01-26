@@ -25,6 +25,8 @@ rust_library(
     visibility = ["//visibility:public"],
     deps = [
         "@score_baselibs_rust//src/log/score_log",
+        "@score_baselibs_rust//src/containers",
+
     ],
 )
 
@@ -38,6 +40,7 @@ rust_static_library(
     visibility = ["//visibility:public"],
     deps = [
         "@score_baselibs_rust//src/log/score_log",
+        "@score_baselibs_rust//src/containers",
     ],
 )
 
@@ -74,6 +77,7 @@ cc_gtest_unit_test(
     name = "cpp_tests",
     srcs = [
         "cpp/tests/health_monitor_test.cpp",
+        "cpp/tests/test_setup.cpp",
     ],
     linkopts = select({
         "@platforms//os:qnx": ["-lsocket"],
@@ -81,5 +85,6 @@ cc_gtest_unit_test(
     }),
     deps = [
         ":health_monitoring_lib_cc",
+        "@score_baselibs_rust//src/log/stdout_logger_cpp_init"
     ],
 )
