@@ -15,6 +15,7 @@
 extern "C" {
 using namespace score::hm;
 
+// Health Monitor Foreign Function Interface Declarations that are exported by Rust implementation library
 internal::FFIHandle health_monitor_builder_create();
 void health_monitor_builder_destroy(internal::FFIHandle handler);
 
@@ -27,6 +28,8 @@ internal::FFIHandle health_monitor_get_deadline_monitor(internal::FFIHandle heal
 
 void health_monitor_destroy(internal::FFIHandle handler);
 }
+
+// C++ wrapper for Rust library - the API implementation obeys the Rust API semantics and it's invariants
 
 namespace score::hm
 {

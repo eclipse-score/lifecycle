@@ -18,6 +18,7 @@ using namespace score::hm;
 using namespace score::hm::internal;
 using namespace score::hm::deadline;
 
+// Deadline monitoring Foreign Function Interface Declarations that are exported by Rust implementation library
 internal::FFIHandle deadline_monitor_builder_create();
 void deadline_monitor_builder_destroy(internal::FFIHandle handle);
 void deadline_monitor_builder_add_deadline(internal::FFIHandle handler,
@@ -30,6 +31,8 @@ void deadline_destroy(FFIHandle deadline_handle);
 int deadline_start(FFIHandle deadline_handle);
 void deadline_stop(FFIHandle deadline_handle);
 }
+
+// C++ wrapper for Rust library - the API implementation obeys the Rust API semantics and it's invariants
 
 namespace score::hm::deadline
 {
@@ -75,6 +78,7 @@ Deadline::~Deadline()
 
 score::cpp::expected<DeadlineHandle, score::hm::Error> Deadline::start()
 {
+    // Cannot start a deadline that is already started
     if (has_handle_)
     {
         return score::cpp::unexpected(::score::hm::Error::WrongState);

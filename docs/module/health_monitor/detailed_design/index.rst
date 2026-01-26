@@ -48,6 +48,25 @@ HealthMonitor component consists of these units:
 | Design Decisions - For the documentation of the decision the :need:`gd_temp__change_decision_record` can be used.
 | Design Constraints
 
+
+Implementation structure
+------------------------
+
+src
+   health_monitoring_lib
+      cpp - C++ API using Rust FFI
+         includes - C++ public header files
+           ...
+      rust - Implementation in Rust + FFI for C++
+         ...
+
+Implementation approach for multi language
+*******************************************
+
+The implementation is done primarily in `Rust` language to leverage its memory safety features and concurrency model.
+Due to a need to interface with existing C++ codebases, a C-compatible Foreign Function Interface (FFI) is provided by this `Rust` implementation.
+`C++` API is designed to be idiomatic wrapping around the `Rust` FFI, ensuring ease of use for C++ developers while maintaining the safe usage.
+
 Rationale Behind Decomposition into Units
 ******************************************
 
