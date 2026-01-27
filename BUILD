@@ -25,7 +25,6 @@ copyright_checker(
     srcs = [
         "examples",
         "src",
-        "tests",
         "//:BUILD",
         "//:MODULE.bazel",
     ],

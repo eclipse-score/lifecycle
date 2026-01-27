@@ -19,6 +19,7 @@ on:
     types: [checks_requested]
 jobs:
   test:
+    name: "Run tests"
     uses: eclipse-score/cicd-workflows/.github/workflows/tests.yml@main
     permissions:
       contents: read
