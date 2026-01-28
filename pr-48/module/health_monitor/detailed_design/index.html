@@ -407,7 +407,7 @@
                   
   <section id="detailed-design">
 <span id="component-detailed-design-hm"></span><h1>Detailed Design<a class="headerlink" href="#detailed-design" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-96e5a253">
+<div class="need_container docutils container" id="SNCB-a52135f5">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__health_monitor_detailed_design">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -477,21 +477,16 @@
 </section>
 <section id="implementation-structure">
 <h3>Implementation structure<a class="headerlink" href="#implementation-structure" title="Link to this heading">#</a></h3>
-<dl class="simple">
-<dt>src</dt><dd><dl class="simple">
-<dt>health_monitoring_lib</dt><dd><dl class="simple">
-<dt>cpp - C++ API using Rust FFI</dt><dd><dl class="simple">
-<dt>includes - C++ public header files</dt><dd><p>…</p>
-</dd>
-</dl>
-</dd>
-<dt>rust - Implementation in Rust + FFI for C++</dt><dd><p>…</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd>
-</dl>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>src
+└──<span class="w"> </span>health_monitoring_lib
+<span class="w">    </span>├──<span class="w"> </span>cpp<span class="w">             </span><span class="c1"># C++ API using Rust FFI</span>
+<span class="w">    </span>│<span class="w">   </span>├──<span class="w"> </span>include<span class="w">     </span><span class="c1"># C++ public header files.</span>
+<span class="w">    </span>│<span class="w">   </span>│<span class="w">   </span>└──<span class="w"> </span>...
+<span class="w">    </span>│<span class="w">   </span>└──<span class="w"> </span>tests
+<span class="w">    </span>└──<span class="w"> </span>rust<span class="w">            </span><span class="c1"># Rust implementation + FFI for C++</span>
+<span class="w">        </span>└──<span class="w"> </span>deadline
+</pre></div>
+</div>
 <section id="implementation-approach-for-multi-language">
 <h4>Implementation approach for multi language<a class="headerlink" href="#implementation-approach-for-multi-language" title="Link to this heading">#</a></h4>
 <p>The implementation is done primarily in <cite>Rust</cite> language to leverage its memory safety features and concurrency model.
@@ -513,7 +508,7 @@ Due to a need to interface with existing C++ codebases, a C-compatible Foreign F
 </section>
 <section id="static-diagrams-for-unit-interactions">
 <h3>Static Diagrams for Unit Interactions<a class="headerlink" href="#static-diagrams-for-unit-interactions" title="Link to this heading">#</a></h3>
-<div class="need_container docutils container" id="SNCB-3ee9ff2a">
+<div class="need_container docutils container" id="SNCB-6343881d">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_dd_sta table" id="dd_sta__health_monitor__class_diagram">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">

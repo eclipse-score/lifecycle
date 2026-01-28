@@ -52,13 +52,16 @@ HealthMonitor component consists of these units:
 Implementation structure
 ------------------------
 
-src
-   health_monitoring_lib
-      cpp - C++ API using Rust FFI
-         includes - C++ public header files
-           ...
-      rust - Implementation in Rust + FFI for C++
-         ...
+.. code-block:: bash
+
+    src
+    └── health_monitoring_lib
+        ├── cpp             # C++ API using Rust FFI
+        │   ├── include     # C++ public header files.
+        │   │   └── ...
+        │   └── tests
+        └── rust            # Rust implementation + FFI for C++
+            └── deadline
 
 Implementation approach for multi language
 *******************************************
