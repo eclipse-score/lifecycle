@@ -61,7 +61,7 @@ impl DeadlineMonitorBuilder {
 
     /// Adds a deadline with the given tag and duration range to the monitor.
     pub fn add_deadline(mut self, tag: &IdentTag, range: TimeRange) -> Self {
-        self._add_deadline_internal(tag, range);
+        self.add_deadline_internal(tag, range);
         self
     }
 
@@ -70,7 +70,7 @@ impl DeadlineMonitorBuilder {
         DeadlineMonitor::new(self.deadlines)
     }
 
-    pub(crate) fn _add_deadline_internal(&mut self, tag: &IdentTag, range: TimeRange) {
+    pub(super) fn add_deadline_internal(&mut self, tag: &IdentTag, range: TimeRange) {
         self.deadlines.insert(*tag, range);
     }
 }

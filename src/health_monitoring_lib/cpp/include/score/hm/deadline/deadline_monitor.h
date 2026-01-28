@@ -16,6 +16,7 @@
 #include <score/expected.hpp>
 #include <score/hm/common.h>
 #include <functional>
+#include <optional>
 
 namespace score::hm
 {

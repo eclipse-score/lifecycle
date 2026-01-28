@@ -71,7 +71,7 @@ pub extern "C" fn deadline_monitor_builder_add_deadline(handle: FFIHandle, tag: 
     // and this must be assured on other side of FFI.
     let mut monitor = FFIBorrowed::new(unsafe { Box::from_raw(handle as *mut DeadlineMonitorBuilder) });
 
-    monitor._add_deadline_internal(
+    monitor.add_deadline_internal(
         &tag,
         TimeRange::new(Duration::from_millis(min as u64), Duration::from_millis(max as u64)),
     );
