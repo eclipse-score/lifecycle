@@ -146,6 +146,15 @@ Dynamic Architecture
 
    .. uml::  assets/hm_startup.puml
 
+.. comp_arc_dyn:: Health Monitoring Shutdown Interaction
+   :id: comp_arc_dyn__health_monitor__shutdown_view
+   :security: NO
+   :safety: ASIL_B
+   :status: valid
+   :fulfils: comp_req__health_monitor__dummy
+
+   .. uml::  assets/hm_shutdown.puml
+
 Interfaces
 ----------
 
