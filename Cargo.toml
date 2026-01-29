@@ -18,6 +18,7 @@ libc = "0.2.177"
 clap = { version = "4.5.49", features = ["derive"] }
 signal-hook = "0.3.18"
 
+monitor_rs = { path = "src/launch_manager_daemon/health_monitor_lib/rust_bindings" } # Temporary API
 health_monitoring_lib = { path = "src/health_monitoring_lib" }
 score_log = { git = "https://github.com/eclipse-score/baselibs_rust.git", tag = "v0.0.4" }
 score_testing_macros = { git = "https://github.com/eclipse-score/baselibs_rust.git", tag = "v0.0.4" }
