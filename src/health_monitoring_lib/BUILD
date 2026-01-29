@@ -15,6 +15,12 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 load("@rules_rust//rust:defs.bzl", "rust_library", "rust_static_library", "rust_test")
 load("@score_baselibs//:bazel/unit_tests.bzl", "cc_gtest_unit_test")
 
+COMMON_DEPS = [
+    "@score_baselibs_rust//src/containers",
+    "@score_baselibs_rust//src/log/score_log",
+    "//src/launch_manager_daemon/health_monitor_lib/rust_bindings:monitor_rs",
+]
+
 rust_library(
     name = "health_monitoring_lib",
     srcs = glob(["rust/**/*.rs"]),
@@ -23,10 +29,7 @@ rust_library(
         "@score_baselibs_rust//src/testing_macros:score_testing_macros",
     ],
     visibility = ["//visibility:public"],
-    deps = [
-        "@score_baselibs_rust//src/containers",
-        "@score_baselibs_rust//src/log/score_log",
-    ],
+    deps = COMMON_DEPS,
 )
 
 rust_static_library(
@@ -36,16 +39,23 @@ rust_static_library(
     proc_macro_deps = [
         "@score_baselibs_rust//src/testing_macros:score_testing_macros",
     ],
-    visibility = ["//visibility:public"],
-    deps = [
-        "@score_baselibs_rust//src/containers",
-        "@score_baselibs_rust//src/log/score_log",
-    ],
+    visibility = ["//visibility:private"],
+    deps = COMMON_DEPS,
 )
 
 rust_test(
     name = "tests",
     crate = ":health_monitoring_lib",
+    rustc_flags = [
+        "-C",
+        "link-arg=-lm",
+        "-C",
+        "link-arg=-lstdc++",
+        "-C",
+        "link-arg=-lc",
+        "-C",
+        "link-arg=-lrt",
+    ],
     deps = [
         "@score_baselibs_rust//src/log/stdout_logger",
     ],

@@ -88,36 +88,13 @@ def get_checkpoints(index: int):
     "refInterfaceIndex": """
         + str(index)
         + """
-}""",
-        """
-{
-    "shortName": "Checkpoint"""
-        + str(index)
-        + "_2"
-        + """",
-    "checkpointId": 2,
-    "refInterfaceIndex": """
-        + str(index)
-        + """
-}""",
-        """
-{
-    "shortName": "Checkpoint"""
-        + str(index)
-        + "_3"
-        + """",
-    "checkpointId": 3,
-    "refInterfaceIndex": """
-        + str(index)
-        + """
-}
-""",
+}"""
     ]
 
 
 def get_alive_supervisions(index: int, process_group: str):
     # Every demo app has three checkpoints and the first checkpoint is used for alive supervision
-    checkpointIdx = index * 3
+    checkpointIdx = index * 1
     return (
         """
 {
@@ -252,20 +229,6 @@ def get_local_supervisions(index: int):
         + str(index)
         + """
         }
-    ],
-    "hmRefDeadlineSupervision": [
-        {
-            "refDeadlineSupervisionIdx": """
-        + str(index)
-        + """
-        }
-    ],
-    "hmRefLogicalSupervision": [
-        {
-            "refLogicalSupervisionIdx": """
-        + str(index)
-        + """
-        }
     ]
 }
 """
@@ -372,12 +335,12 @@ def gen_health_monitor_cfg_for_process_group(
         hmAliveSupervisions.append(
             json.loads(get_alive_supervisions(process_index, process_group))
         )
-        hmDeadlineSupervisions.append(
-            json.loads(get_deadline_supervisions(process_index, process_group))
-        )
-        hmLogicalSupervisions.append(
-            json.loads(get_logical_supervisions(process_index, process_group))
-        )
+        # hmDeadlineSupervisions.append(
+        #     json.loads(get_deadline_supervisions(process_index, process_group))
+        # )
+        # hmLogicalSupervisions.append(
+        #     json.loads(get_logical_supervisions(process_index, process_group))
+        # )
         hmLocalSupervisions.append(json.loads(get_local_supervisions(process_index)))
 
     hmGlobalSupervision.append(

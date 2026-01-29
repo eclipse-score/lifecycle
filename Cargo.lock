@@ -108,6 +108,7 @@ name = "health_monitoring_lib"
 version = "0.0.1"
 dependencies = [
  "containers",
+ "monitor_rs",
  "score_log",
  "score_testing_macros",
  "stdout_logger",

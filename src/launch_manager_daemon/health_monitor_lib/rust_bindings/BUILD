@@ -23,6 +23,7 @@ rust_library(
     ],
     deps = [
         "//src/launch_manager_daemon/health_monitor_lib:hm_shared_lib",
+        "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
         "@score_crates//:libc",
     ],
 )
