@@ -40,11 +40,22 @@ class HealthMonitorBuilder final
     /// Adds a deadline monitor to the builder to construct DeadlineMonitor instances during HealthMonitor build.
     HealthMonitorBuilder add_deadline_monitor(const IdentTag& tag, deadline::DeadlineMonitorBuilder&& monitor) &&;
 
+    /// Sets the cycle duration for supervisor API notifications.
+    /// This duration determines how often the health monitor notifies the supervisor that the system is alive.
+    HealthMonitorBuilder with_supervisor_api_cycle(std::chrono::milliseconds cycle_duration) &&;
+
+    /// Sets the internal processing cycle duration.
+    /// This duration determines how often the health monitor checks deadlines.
+    HealthMonitorBuilder with_internal_processing_cycle(std::chrono::milliseconds cycle_duration) &&;
+
     /// Builds and returns the HealthMonitor instance.
     HealthMonitor build() &&;
 
   private:
     internal::DroppableFFIHandle health_monitor_builder_handle_;
+
+    std::chrono::milliseconds supervisor_api_cycle_duration_;
+    std::chrono::milliseconds internal_processing_cycle_duration_;
 };
 
 class HealthMonitor final
@@ -59,6 +70,8 @@ class HealthMonitor final
     ~HealthMonitor();
 
     score::cpp::expected<deadline::DeadlineMonitor, Error> get_deadline_monitor(const IdentTag& tag);
+
+    void start();
 
   private:
     // Allow only the builder to create HealthMonitor instances.

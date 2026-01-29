@@ -19,13 +19,15 @@ using namespace score::hm;
 internal::FFIHandle health_monitor_builder_create();
 void health_monitor_builder_destroy(internal::FFIHandle handler);
 
-internal::FFIHandle health_monitor_builder_build(internal::FFIHandle health_monitor_builder_handle);
+internal::FFIHandle health_monitor_builder_build(internal::FFIHandle health_monitor_builder_handle,
+                                                 uint32_t supervisor_cycle_ms,
+                                                 uint32_t internal_cycle_ms);
 void health_monitor_builder_add_deadline_monitor(internal::FFIHandle handle,
                                                  const IdentTag* tag,
                                                  internal::FFIHandle monitor_handle);
 
 internal::FFIHandle health_monitor_get_deadline_monitor(internal::FFIHandle health_monitor_handle, const IdentTag* tag);
-
+void health_monitor_start(internal::FFIHandle health_monitor_handle);
 void health_monitor_destroy(internal::FFIHandle handler);
 }
 
@@ -51,12 +53,27 @@ HealthMonitorBuilder HealthMonitorBuilder::add_deadline_monitor(const IdentTag& 
     return std::move(*this);
 }
 
+HealthMonitorBuilder HealthMonitorBuilder::with_internal_processing_cycle(std::chrono::milliseconds cycle_duration) &&
+{
+    internal_processing_cycle_duration_ = cycle_duration;
+    return std::move(*this);
+}
+
+HealthMonitorBuilder HealthMonitorBuilder::with_supervisor_api_cycle(std::chrono::milliseconds cycle_duration) &&
+{
+    supervisor_api_cycle_duration_ = cycle_duration;
+    return std::move(*this);
+}
+
 HealthMonitor HealthMonitorBuilder::build() &&
 {
     auto handle = health_monitor_builder_handle_.drop_by_rust();
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(handle.has_value());
 
-    return HealthMonitor(health_monitor_builder_build(handle.value()));
+    uint32_t supervisor_duration_ms = static_cast<uint32_t>(supervisor_api_cycle_duration_.count());
+    uint32_t internal_duration_ms = static_cast<uint32_t>(internal_processing_cycle_duration_.count());
+
+    return HealthMonitor(health_monitor_builder_build(handle.value(), supervisor_duration_ms, internal_duration_ms));
 }
 
 HealthMonitor::HealthMonitor(internal::FFIHandle handle) : health_monitor_(handle)
@@ -81,6 +98,10 @@ score::cpp::expected<deadline::DeadlineMonitor, Error> HealthMonitor::get_deadli
     }
 
     return score::cpp::unexpected(Error::NotFound);
+}
+void HealthMonitor::start()
+{
+    health_monitor_start(health_monitor_);
 }
 
 HealthMonitor::~HealthMonitor()
