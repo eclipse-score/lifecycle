@@ -27,7 +27,7 @@ For illustration, please refer to the following example.
             "scheduling_priority": "0",
             "uid" : 1000,
             "gid" : 1000,
-            "supplementary_group_ids": [500, 600, 700],
+            "supplementary_group_ids": [500, 600, 700]
         }
     }
 }
@@ -154,6 +154,9 @@ All time periods will be configured in seconds. If a smaller time period is need
             "is_self_terminating": false,
             "is_state_manager": false,
             "depends_on": []
+        },
+        "run_target": {
+            "transition_timeout": 2
         }
     },
     "components": {
@@ -215,7 +218,8 @@ All time periods will be configured in seconds. If a smaller time period is need
         },
         "Full": {
             "description": "Everything running",
-            "includes": ["Minimal", "test_app1"]
+            "includes": ["Minimal", "test_app1"],
+            "transition_timeout": 5
         },
         "Off": {
             "description": "Nothing is running"
