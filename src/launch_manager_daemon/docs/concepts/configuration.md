@@ -5,18 +5,46 @@
 The version of the configuration schema should be included in every configuration file.
 When loading the configuration file at runtime, the launch_manager will check that it matches the supported schema version.
 
+## Component vs deployment configuration
+
+A component (also referred to as a software component) is an independent software unit - such as an application or a software container - that can be developed separately and subsequently deployed into a target system (for example machine). Components are usually combined into a functioning system during the deployment, or integration, phase.
+Because a single component may be deployed into multiple systems, the deployment configuration is intentionally separated from the component description. In summary:
+* The **deployment configuration** defines information specific to a particular system setup.
+* The **component description** defines the fundamental characteristics of the software component, which are typically determined during that component’s development phase.
+
+For illustration, please refer to the following example.
+
+```json
+"components": {
+    "setup_filesystem_sh": {
+        "is_native_application": true,
+        "is_supervised": false,
+        "is_self_terminating": true,
+        "deployment_config": {
+            "executable_path" : "/opt/scripts/setup_filesystem.sh",
+            "process_arguments": ["-a", "-b"],
+            "scheduling_policy": "SCHED_OTHER",
+            "scheduling_priority": "0",
+            "uid" : 1000,
+            "gid" : 1000,
+            "supplementary_group_ids": [500, 600, 700],
+        }
+    }
+}
+```
+
 ## Usage of Defaults
 
 We should have a mechanism to define default values to avoid repetition of common properties.
 
-### Proposal for first version: Default component and default sandbox definition
+### Proposal for first version: Default component and default deployment_config definition
 
-In the `defaults` section of file, the user can define default values for component and sandbox properties.
-All keys have the identical names as used for the configuration of a concrete component / sandbox.
+In the `defaults` section of file, the user can define default values for component and deployment_config properties.
+All keys have the identical names as used for the configuration of a concrete component / deployment_config.
 
 ```json
 "defaults_": {
-    "sandbox": {
+    "deployment_config": {
         "startup_timeout": 0.5,
         "shutdown_timeout": 0.5,
         "uid" : 1000,
@@ -44,17 +72,17 @@ All keys have the identical names as used for the configuration of a concrete co
 }
 ```
 
-Any setting not defined as part of a component or sandbox definition will automatically use the default value.
+Any setting not defined as part of a component or deployment_config definition will automatically use the default value.
 Overwriting Behavior:
 * Primitive values (like `uid`) simply get overwritten if configured
 * Dictionaries (like `environmental_variables`) get merged. Keys can be overwritten by configuring the same keys.
 * Lists (like `supplementary_group_ids`) get overwritten. In the future we may add further properties like `supplementary_group_ids_extend` to add to the default list instead of overwriting - if this use case gets necessary.
 
-### Proposal for future extension: Defining different component and sandbox templates
+### Proposal for future extension: Defining different component and deployment_config templates
 
-As per our discussion there may be a use case to have different kinds of components and different kinds of sandboxes with their own defaults.
-The approach above can be extended in this direction, by defining multiple sandboxes and multiple components in the "defaults" section.
-Component and sandbox definition could then refer to one of the predefined alternatives.
+As per our discussion there may be a use case to have different kinds of components and different kinds of deployment configurations with their own defaults.
+The approach above can be extended in this direction, by defining multiple deployment configurations and multiple components in the "defaults" section.
+Component and deployment config definition could then refer to one of the predefined alternatives.
 
 ## Dependencies between components
 
@@ -92,7 +120,7 @@ For every dependency, the required state of the component is implicitly "Running
 
 ## Timeout Values
 
-All timeout values will be in seconds.
+All time periods will be configured in seconds. If a smaller time period is needed, then a fraction numbers should be used. For example we should use `0.001` for one millisecond timeout value.
 
 ## Configuration Example
 
@@ -102,7 +130,7 @@ All timeout values will be in seconds.
 {
     "schema_version": 1,
     "defaults": {
-        "sandbox": {
+        "deployment_config": {
             "startup_timeout": 0.5,
             "shutdown_timeout": 0.5,
             "uid" : 1000,
@@ -133,9 +161,9 @@ All timeout values will be in seconds.
             "is_native_application": true,
             "is_supervised": false,
             "is_self_terminating": true,
-            "sandbox": {
-                "executable_path" : "/bin/sh",
-                "process_arguments": ["-c", "/opt/scripts/setup_filesystem.sh"],
+            "deployment_config": {
+                "executable_path" : "/opt/scripts/setup_filesystem.sh",
+                "process_arguments": ["-a", "-b"],
             }
         },
         "dlt-daemon": {
@@ -146,12 +174,12 @@ All timeout values will be in seconds.
                     "required_state": "Terminated"
                 }
             },
-            "sandbox": {
+            "deployment_config": {
                 "executable_path" : "/opt/apps/dlt-daemon/dltd",
             }
         },
         "someip-daemon": {
-            "sandbox": {
+            "deployment_config": {
                 "executable_path" : "/opt/apps/someip/someipd",
             }
         },
@@ -164,7 +192,7 @@ All timeout values will be in seconds.
                     "required_state": "Running"
                 }
             },
-            "sandbox": {
+            "deployment_config": {
                 "executable_path" : "/opt/apps/test_app1/test_app1",
             }
         },
@@ -175,7 +203,7 @@ All timeout values will be in seconds.
                     "required_state": "Terminated"
                 }
             },
-            "sandbox": {
+            "deployment_config": {
                 "executable_path" : "/opt/apps/state_manager/sm",
             }
         }
