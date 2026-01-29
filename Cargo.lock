@@ -173,10 +173,13 @@ name = "rust_supervised_app"
 version = "0.0.1"
 dependencies = [
  "clap",
+ "health_monitoring_lib",
  "libc",
  "lifecycle_client_rs",
  "monitor_rs",
+ "score_log",
  "signal-hook",
+ "stdout_logger",
 ]
 
 [[package]]

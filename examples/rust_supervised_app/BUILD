@@ -33,5 +33,7 @@ rust_binary(
         "@score_crates//:clap",
         "@score_crates//:libc",
         "@score_crates//:signal_hook",
+        "//src/health_monitoring_lib",
+        "@score_baselibs_rust//src/log/stdout_logger",
     ],
 )

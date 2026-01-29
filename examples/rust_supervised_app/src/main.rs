@@ -10,34 +10,24 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
+#![allow(unused_imports)]
+#![allow(dead_code)]
 use clap::Parser;
+use health_monitoring_lib::*;
 use libc::{c_long, nanosleep, time_t, timespec};
 use signal_hook::flag;
 use std::env;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
-
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
     #[arg(short, long)]
     specifier: String,
 
-    #[arg(short, long, default_value_t = 50)]
+    /// The app is configured to measure deadline between 50ms and 150ms. You configure the delay inside this deadline measurement.
+    #[arg(short, long)]
     delay: u32,
-}
-
-#[derive(Debug, Copy, Clone)]
-enum Checks {
-    One = 1,
-    Two = 2,
-    Three = 3,
-}
-
-impl From<Checks> for u32 {
-    fn from(val: Checks) -> Self {
-        val as u32
-    }
 }
 
 fn interruptible_sleep(delay: timespec) {
@@ -65,42 +55,48 @@ fn set_process_name() {
     }
 }
 
+fn main_logic(args: &Args, stop: Arc<AtomicBool>) -> Result<(), Box<dyn std::error::Error>> {
+    let mut builder = deadline::DeadlineMonitorBuilder::new();
+    builder = builder.add_deadline(
+        &IdentTag::from("deadline1"),
+        TimeRange::new(
+            std::time::Duration::from_millis(50),
+            std::time::Duration::from_millis(150),
+        ),
+    );
+
+    let mut hm = HealthMonitorBuilder::new()
+        .add_deadline_monitor(&IdentTag::from("mon1"), builder)
+        .build();
+
+    let mon = hm
+        .get_deadline_monitor(&IdentTag::from("mon1"))
+        .expect("Failed to get monitor");
+
+    hm.start();
+    while !stop.load(Ordering::Relaxed) {
+        let mut deadline = mon
+            .get_deadline(&IdentTag::from("deadline1"))
+            .expect("Failed to get deadline");
+
+        let res = deadline.start();
+        std::thread::sleep(std::time::Duration::from_millis(args.delay.into()));
+
+        drop(res); // Ensure the deadline is ended when going out of scope
+    }
+
+    Ok(())
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    use stdout_logger;
+    stdout_logger::StdoutLoggerBuilder::new().set_as_default_logger();
+
     set_process_name();
 
     let args = Args::parse();
     let stop = Arc::new(AtomicBool::new(false));
-    let stop_reporting_checkpoints = Arc::new(AtomicBool::new(false));
     flag::register(signal_hook::consts::SIGTERM, Arc::clone(&stop))?;
-    flag::register(signal_hook::consts::SIGUSR1, Arc::clone(&stop_reporting_checkpoints))?;
 
-    if !lifecycle_client_rs::report_execution_state_running() {
-        println!("Rust app FAILED to report execution state!");
-    }
-
-    let monitor = monitor_rs::Monitor::<Checks>::new(&args.specifier)?;
-
-    let secs = (args.delay / 1000) as time_t;
-    let nanos = ((args.delay % 1000) * 1_000_000) as c_long;
-
-    let sleep_time = timespec {
-        tv_sec: secs,
-        tv_nsec: nanos,
-    };
-
-    while !stop.load(Ordering::Relaxed) {
-        if !stop_reporting_checkpoints.load(Ordering::Relaxed) {
-            monitor.report_checkpoint(Checks::One);
-            interruptible_sleep(sleep_time);
-            if stop.load(Ordering::Relaxed) {
-                break;
-            }
-            monitor.report_checkpoint(Checks::Two);
-            monitor.report_checkpoint(Checks::Three);
-        } else {
-            interruptible_sleep(sleep_time);
-        }
-    }
-
-    Ok(())
+    main_logic(&args, stop.clone())
 }
