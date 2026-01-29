@@ -6,9 +6,6 @@
             150
         ]
     },
-    "rust-analyzer.cargo.features": [
-        "qm"
-    ],
     "rust-analyzer.cargo.cfgs": [
         "!miri"
     ],
@@ -27,8 +24,12 @@
        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
        "editor.formatOnSave": true
      },
-     "[c]": {
+    "[c]": {
        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
        "editor.formatOnSave": true
      },
+    // Still to align with bazel
+    // "rust-analyzer.linkedProjects": [
+    //     "${workspaceFolder}/rust-project.json"
+    // ]
 }

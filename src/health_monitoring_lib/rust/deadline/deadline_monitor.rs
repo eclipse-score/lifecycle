@@ -13,7 +13,8 @@
 #![allow(dead_code)]
 
 use super::common::DeadlineTemplate;
-use crate::common::{IdentTag, TimeRange};
+use crate::common::{IdentTag, MonitorEvaluationError, TimeRange};
+use crate::common::{MonitorEvalHandle, MonitorEvaluator};
 use crate::{
     deadline::{
         common::StateIndex,
@@ -21,7 +22,6 @@ use crate::{
     },
     protected_memory::ProtectedMemoryAllocator,
 };
-
 use core::hash::Hash;
 use std::{collections::HashMap, sync::Arc, time::Instant};
 
@@ -69,6 +69,8 @@ impl DeadlineMonitorBuilder {
     pub(crate) fn build(self, _allocator: &ProtectedMemoryAllocator) -> DeadlineMonitor {
         DeadlineMonitor::new(self.deadlines)
     }
+
+    // Used by FFI and config parsing code which prefer not to move builder instance
 
     pub(super) fn add_deadline_internal(&mut self, tag: &IdentTag, range: TimeRange) {
         self.deadlines.insert(*tag, range);
@@ -127,6 +129,10 @@ impl DeadlineMonitor {
         } else {
             Err(DeadlineMonitorError::DeadlineNotFound)
         }
+    }
+
+    pub(crate) fn get_eval_handle(&self) -> MonitorEvalHandle {
+        MonitorEvalHandle::new(Arc::clone(&self.inner))
     }
 
     /// Evaluates all active deadlines and reports any missed deadlines or underruns.
@@ -284,6 +290,15 @@ struct DeadlineMonitorInner {
     // Each deadline instance updates its state (under given index) and the deadline pointing to a state is Single-Producer
     // On the other side there is background thread evaluating all deadlines states - this is Single-Consumer for each given state.
     active_deadlines: Arc<[(IdentTag, DeadlineState)]>,
+}
+
+impl MonitorEvaluator for DeadlineMonitorInner {
+    fn evaluate(&self, on_error: &mut dyn FnMut(&IdentTag, MonitorEvaluationError)) {
+        self.evaluate(|tag, deadline_failure| match deadline_failure {
+            DeadlineEvaluationError::TooEarly => on_error(tag, MonitorEvaluationError::TooEarly),
+            DeadlineEvaluationError::TooLate => on_error(tag, MonitorEvaluationError::TooLate),
+        });
+    }
 }
 
 impl DeadlineMonitorInner {
