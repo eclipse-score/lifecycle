@@ -6,16 +6,13 @@
             150
         ]
     },
-    "rust-analyzer.cargo.features": [
-        "qm"
-    ],
     "rust-analyzer.cargo.cfgs": [
         "!miri"
     ],
     "rust-analyzer.check.command": "clippy",
-    "rust-analyzer.rustfmt.overrideCommand": [
-        "${workspaceFolder}/.vscode/rustfmt.sh"
-    ],
+    // "rust-analyzer.rustfmt.overrideCommand": [
+    //     "${workspaceFolder}/.vscode/rustfmt.sh"
+    // ],
     "clangd.arguments": [
         "--header-insertion=never",
         "--compile-commands-dir=${workspaceFolder}/",

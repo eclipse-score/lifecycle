@@ -33,7 +33,11 @@ extern "C" fn health_monitor_builder_destroy(handle: FFIHandle) {
 }
 
 #[no_mangle]
-extern "C" fn health_monitor_builder_add_deadline_monitor(handle: FFIHandle, tag: *const IdentTag, monitor: FFIHandle) {
+extern "C" fn health_monitor_builder_add_deadline_monitor(
+    handle: FFIHandle,
+    tag: *const IdentTag,
+    monitor: FFIHandle,
+) {
     assert!(!handle.is_null());
     assert!(!tag.is_null());
     assert!(!monitor.is_null());
@@ -46,9 +50,10 @@ extern "C" fn health_monitor_builder_add_deadline_monitor(handle: FFIHandle, tag
 
     // Safety: We ensure that the pointer is valid. We assume that pointer was created by call to `health_monitor_builder_create`
     // and this must be assured on other side of FFI.
-    let mut health_monitor_builder = FFIBorrowed::new(unsafe { Box::from_raw(handle as *mut HealthMonitorBuilder) });
+    let mut health_monitor_builder =
+        FFIBorrowed::new(unsafe { Box::from_raw(handle as *mut HealthMonitorBuilder) });
 
-    health_monitor_builder.add_deadline_monitor(tag, *monitor);
+    health_monitor_builder.add_deadline_monitor_internal(&tag, *monitor);
 }
 
 #[no_mangle]
@@ -64,8 +69,10 @@ extern "C" fn health_monitor_builder_build(
     let mut health_monitor_builder: Box<HealthMonitorBuilder> =
         unsafe { Box::from_raw(handle as *mut HealthMonitorBuilder) };
 
-    health_monitor_builder.with_internal_processing_cycle(Duration::from_millis(internal_cycle_ms as u64));
-    health_monitor_builder.with_supervisor_api_cycle(Duration::from_millis(supervisor_cycle_ms as u64));
+    health_monitor_builder
+        .with_internal_processing_cycle_internal(Duration::from_millis(internal_cycle_ms as u64));
+    health_monitor_builder
+        .with_supervisor_api_cycle_internal(Duration::from_millis(supervisor_cycle_ms as u64));
 
     let health_monitor = health_monitor_builder.build();
     let health_monitor_handle = Box::into_raw(Box::new(health_monitor));
@@ -73,7 +80,10 @@ extern "C" fn health_monitor_builder_build(
 }
 
 #[no_mangle]
-extern "C" fn health_monitor_get_deadline_monitor(handle: FFIHandle, tag: *const IdentTag) -> FFIHandle {
+extern "C" fn health_monitor_get_deadline_monitor(
+    handle: FFIHandle,
+    tag: *const IdentTag,
+) -> FFIHandle {
     assert!(!handle.is_null());
     assert!(!tag.is_null());
 
@@ -82,10 +92,12 @@ extern "C" fn health_monitor_get_deadline_monitor(handle: FFIHandle, tag: *const
 
     // Safety: We ensure that the pointer is valid. We assume that pointer was created by call to `health_monitor_builder_create`
     // and this must be assured on other side of FFI.
-    let mut health_monitor = FFIBorrowed::new(unsafe { Box::from_raw(handle as *mut HealthMonitor) });
+    let mut health_monitor =
+        FFIBorrowed::new(unsafe { Box::from_raw(handle as *mut HealthMonitor) });
 
     if let Some(deadline_monitor) = health_monitor.get_deadline_monitor(&tag) {
-        let deadline_monitor_handle = Box::into_raw(Box::new(DeadlineMonitorCpp::new(deadline_monitor)));
+        let deadline_monitor_handle =
+            Box::into_raw(Box::new(DeadlineMonitorCpp::new(deadline_monitor)));
 
         deadline_monitor_handle as FFIHandle
     } else {
