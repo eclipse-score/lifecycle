@@ -1,4 +1,3 @@
-use core::panic;
 // *******************************************************************************
 // Copyright (c) 2026 Contributors to the Eclipse Foundation
 //
@@ -11,6 +10,7 @@ use core::panic;
 //
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
+
 use std::collections::HashMap;
 
 mod common;
@@ -44,11 +44,7 @@ impl HealthMonitorBuilder {
     /// * `monitor` - The builder for the deadline monitor.
     /// # Note
     /// If a monitor with the same tag already exists, it will be overwritten.
-    pub fn add_deadline_monitor(
-        mut self,
-        tag: &IdentTag,
-        monitor: deadline::DeadlineMonitorBuilder,
-    ) -> Self {
+    pub fn add_deadline_monitor(mut self, tag: &IdentTag, monitor: deadline::DeadlineMonitorBuilder) -> Self {
         self.add_deadline_monitor_internal(tag, monitor);
         self
     }
@@ -72,10 +68,7 @@ impl HealthMonitorBuilder {
         let allocator = protected_memory::ProtectedMemoryAllocator {};
         let mut monitors = HashMap::new();
         for (tag, builder) in self.deadlines {
-            monitors.insert(
-                tag,
-                Some(DeadlineMonitorState::Available(builder.build(&allocator))),
-            );
+            monitors.insert(tag, Some(DeadlineMonitorState::Available(builder.build(&allocator))));
         }
         HealthMonitor {
             deadline_monitors: monitors,
@@ -86,25 +79,15 @@ impl HealthMonitorBuilder {
 
     // Used by FFI and config parsing code which prefer not to move builder instance
 
-    pub(crate) fn add_deadline_monitor_internal(
-        &mut self,
-        tag: &IdentTag,
-        monitor: deadline::DeadlineMonitorBuilder,
-    ) {
+    pub(crate) fn add_deadline_monitor_internal(&mut self, tag: &IdentTag, monitor: deadline::DeadlineMonitorBuilder) {
         self.deadlines.insert(*tag, monitor);
     }
 
-    pub(crate) fn with_supervisor_api_cycle_internal(
-        &mut self,
-        cycle_duration: core::time::Duration,
-    ) {
+    pub(crate) fn with_supervisor_api_cycle_internal(&mut self, cycle_duration: core::time::Duration) {
         self.supervisor_api_cycle = cycle_duration;
     }
 
-    pub(crate) fn with_internal_processing_cycle_internal(
-        &mut self,
-        cycle_duration: core::time::Duration,
-    ) {
+    pub(crate) fn with_internal_processing_cycle_internal(&mut self, cycle_duration: core::time::Duration) {
         self.internal_processing_cycle = cycle_duration;
     }
 }
@@ -133,16 +116,14 @@ impl HealthMonitor {
 
         match monitor.take() {
             Some(DeadlineMonitorState::Available(deadline_monitor)) => {
-                monitor.replace(DeadlineMonitorState::Taken(
-                    deadline_monitor.get_eval_handle(),
-                ));
+                monitor.replace(DeadlineMonitorState::Taken(deadline_monitor.get_eval_handle()));
 
                 Some(deadline_monitor)
-            }
+            },
             Some(DeadlineMonitorState::Taken(v)) => {
                 monitor.replace(DeadlineMonitorState::Taken(v)); // Insert back
                 None
-            }
+            },
             None => None,
         }
     }
@@ -162,36 +143,30 @@ impl HealthMonitor {
             "No deadline monitors have been added. HealthMonitor cannot start without any monitors."
         );
 
-        let mut monitors =
-            containers::fixed_capacity::FixedCapacityVec::new(self.deadline_monitors.len());
+        let mut monitors = containers::fixed_capacity::FixedCapacityVec::new(self.deadline_monitors.len());
         for (tag, monitor) in self.deadline_monitors.iter_mut() {
             match monitor.take() {
                 Some(DeadlineMonitorState::Taken(handle)) => {
-                    monitors
-                        .push(handle)
-                        .expect("Failed to push monitor handle");
+                    monitors.push(handle).expect("Failed to push monitor handle");
                     // Should not fail since we preallocated enough capacity
-                }
+                },
                 Some(DeadlineMonitorState::Available(_)) => {
                     panic!(
                         "All monitors must be taken before starting HealthMonitor but {:?} is not taken.",
                         tag
                     );
-                }
+                },
                 None => {
                     panic!(
                         "Invalid monitor ({:?}) state encountered while starting HealthMonitor.",
                         tag
                     );
-                }
+                },
             }
         }
 
-        let monitoring_logic = worker::MonitoringLogic::new(
-            monitors,
-            self.supervisor_api_cycle,
-            worker::StubSupervisorAPIClient {},
-        );
+        let monitoring_logic =
+            worker::MonitoringLogic::new(monitors, self.supervisor_api_cycle, worker::StubSupervisorAPIClient {});
 
         self.worker.start(monitoring_logic)
     }
@@ -205,9 +180,7 @@ mod tests {
     use super::*;
 
     #[test]
-    #[should_panic(
-        expected = "No deadline monitors have been added. HealthMonitor cannot start without any monitors."
-    )]
+    #[should_panic(expected = "No deadline monitors have been added. HealthMonitor cannot start without any monitors.")]
     fn hm_with_no_monitors_shall_panic_on_start() {
         let health_monitor_builder = super::HealthMonitorBuilder::new();
         health_monitor_builder.build().start();
@@ -215,42 +188,34 @@ mod tests {
 
     #[test]
     fn hm_with_taken_monitors_starts() {
-        let mut health_monitor_builder = super::HealthMonitorBuilder::new();
-        health_monitor_builder.add_deadline_monitor(
-            "test_monitor".into(),
-            deadline::DeadlineMonitorBuilder::new(),
-        );
-        let mut health_monitor = health_monitor_builder.build();
+        let mut health_monitor = HealthMonitorBuilder::new()
+            .add_deadline_monitor(&IdentTag::new("test_monitor"), deadline::DeadlineMonitorBuilder::new())
+            .build();
 
-        let _monitor = health_monitor.get_deadline_monitor(&"test_monitor".into());
+        let _monitor = health_monitor.get_deadline_monitor(&IdentTag::new("test_monitor"));
         health_monitor.start();
     }
 
     #[test]
     #[should_panic(
-        expect = "All monitors must be taken before starting HealthMonitor but IdentTag(test_monitor) is not taken."
+        expected = "All monitors must be taken before starting HealthMonitor but IdentTag(test_monitor) is not taken."
     )]
     fn hm_with_monitors_shall_not_start_with_not_taken_monitors() {
-        let mut health_monitor_builder = super::HealthMonitorBuilder::new();
-        health_monitor_builder.add_deadline_monitor(
-            "test_monitor".into(),
-            deadline::DeadlineMonitorBuilder::new(),
-        );
-        let mut health_monitor = health_monitor_builder.build();
+        let mut health_monitor = HealthMonitorBuilder::new()
+            .add_deadline_monitor(&IdentTag::new("test_monitor"), deadline::DeadlineMonitorBuilder::new())
+            .build();
+
         health_monitor.start();
     }
 
     #[test]
     fn hm_get_deadline_monitor_works() {
-        let mut health_monitor_builder = super::HealthMonitorBuilder::new();
-        health_monitor_builder.add_deadline_monitor(
-            "test_monitor".into(),
-            deadline::DeadlineMonitorBuilder::new(),
-        );
-        let mut health_monitor = health_monitor_builder.build();
+        let mut health_monitor = HealthMonitorBuilder::new()
+            .add_deadline_monitor(&IdentTag::new("test_monitor"), deadline::DeadlineMonitorBuilder::new())
+            .build();
 
         {
-            let monitor = health_monitor.get_deadline_monitor(&"test_monitor".into());
+            let monitor = health_monitor.get_deadline_monitor(&IdentTag::new("test_monitor"));
             assert!(
                 monitor.is_some(),
                 "Expected to retrieve the deadline monitor, but got None"
@@ -258,7 +223,7 @@ mod tests {
         }
 
         {
-            let monitor = health_monitor.get_deadline_monitor(&"test_monitor".into());
+            let monitor = health_monitor.get_deadline_monitor(&IdentTag::new("test_monitor"));
             assert!(
                 monitor.is_none(),
                 "Expected None when retrieving the monitor a second time, but got Some"

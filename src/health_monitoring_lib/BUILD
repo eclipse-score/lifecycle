@@ -24,9 +24,8 @@ rust_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "@score_baselibs_rust//src/log/score_log",
         "@score_baselibs_rust//src/containers",
-
+        "@score_baselibs_rust//src/log/score_log",
     ],
 )
 
@@ -39,8 +38,8 @@ rust_static_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "@score_baselibs_rust//src/log/score_log",
         "@score_baselibs_rust//src/containers",
+        "@score_baselibs_rust//src/log/score_log",
     ],
 )
 

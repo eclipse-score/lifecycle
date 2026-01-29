@@ -10,8 +10,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
-#![allow(dead_code)]
-
 use core::{
     fmt::Debug,
     sync::atomic::{AtomicU64, Ordering},
@@ -58,10 +56,6 @@ impl DeadlineStateSnapshot {
 
     pub(super) fn set_running(&mut self) {
         self.0 |= DEADLINE_STATE_RUNNING;
-    }
-
-    pub(super) fn set_stopped(&mut self) {
-        self.0 |= DEADLINE_STATE_STOPPED;
     }
 
     pub(super) fn set_underrun(&mut self) {
@@ -192,15 +186,6 @@ mod tests {
         snap.set_running();
         assert!(snap.is_running());
         assert!(snap.is_stopped()); // Default is stopped, running is set as a flag
-        assert!(!snap.is_underrun());
-    }
-
-    #[test]
-    fn set_stopped() {
-        let mut snap = DeadlineStateSnapshot::new(0);
-        snap.set_stopped();
-        assert!(snap.is_stopped());
-        assert!(!snap.is_running());
         assert!(!snap.is_underrun());
     }
 

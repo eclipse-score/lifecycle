@@ -1,3 +1,15 @@
+// *******************************************************************************
+// Copyright (c) 2026 Contributors to the Eclipse Foundation
+//
+// See the NOTICE file(s) distributed with this work for additional
+// information regarding copyright ownership.
+//
+// This program and the accompanying materials are made available under the
+// terms of the Apache License Version 2.0 which is available at
+// <https://www.apache.org/licenses/LICENSE-2.0>
+//
+// SPDX-License-Identifier: Apache-2.0
+// *******************************************************************************
 use crate::common::MonitorEvaluator;
 use containers::fixed_capacity::FixedCapacityVec;
 
@@ -57,14 +69,14 @@ impl<T: SupervisorAPIClient> MonitoringLogic<T> {
             return false;
         }
 
-        return true;
+        true
     }
 }
 
 /// A struct that manages a unique thread for running monitoring logic periodically.
 pub struct UniqueThreadRunner {
     handle: Option<std::thread::JoinHandle<()>>,
-    should_stop: std::sync::Arc<std::sync::atomic::AtomicBool>,
+    should_stop: std::sync::Arc<core::sync::atomic::AtomicBool>,
     internal_duration_cycle: core::time::Duration,
 }
 
@@ -72,7 +84,7 @@ impl UniqueThreadRunner {
     pub(super) fn new(internal_duration_cycle: core::time::Duration) -> Self {
         Self {
             handle: None,
-            should_stop: std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false)),
+            should_stop: std::sync::Arc::new(core::sync::atomic::AtomicBool::new(false)),
             internal_duration_cycle,
         }
     }
@@ -89,7 +101,7 @@ impl UniqueThreadRunner {
                 info!("Monitoring thread started.");
                 let mut next_sleep_time = interval;
 
-                while !should_stop.load(std::sync::atomic::Ordering::Relaxed) {
+                while !should_stop.load(core::sync::atomic::Ordering::Relaxed) {
                     std::thread::sleep(next_sleep_time);
 
                     let now = std::time::Instant::now();
@@ -108,7 +120,7 @@ impl UniqueThreadRunner {
     }
 
     pub fn join(&mut self) {
-        self.should_stop.store(true, std::sync::atomic::Ordering::Relaxed);
+        self.should_stop.store(true, core::sync::atomic::Ordering::Relaxed);
         if let Some(handle) = self.handle.take() {
             let _ = handle.join();
         }
@@ -144,24 +156,24 @@ mod tests {
 
     #[derive(Clone)]
     struct MockSupervisorAPIClient {
-        pub notify_called: std::sync::Arc<std::sync::atomic::AtomicUsize>,
+        pub notify_called: std::sync::Arc<core::sync::atomic::AtomicUsize>,
     }
 
     impl MockSupervisorAPIClient {
         pub fn new() -> Self {
             Self {
-                notify_called: std::sync::Arc::new(std::sync::atomic::AtomicUsize::new(0)),
+                notify_called: std::sync::Arc::new(core::sync::atomic::AtomicUsize::new(0)),
             }
         }
 
         fn get_notify_count(&self) -> usize {
-            self.notify_called.load(std::sync::atomic::Ordering::Acquire)
+            self.notify_called.load(core::sync::atomic::Ordering::Acquire)
         }
     }
 
     impl SupervisorAPIClient for MockSupervisorAPIClient {
         fn notify_alive(&self) {
-            self.notify_called.fetch_add(1, std::sync::atomic::Ordering::AcqRel);
+            self.notify_called.fetch_add(1, core::sync::atomic::Ordering::AcqRel);
         }
     }
 
