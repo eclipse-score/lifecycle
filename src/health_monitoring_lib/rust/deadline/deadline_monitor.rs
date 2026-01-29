@@ -70,6 +70,8 @@ impl DeadlineMonitorBuilder {
         DeadlineMonitor::new(self.deadlines)
     }
 
+    // Used by FFI and config parsing code which prefer not to move builder instance
+
     pub(super) fn add_deadline_internal(&mut self, tag: &IdentTag, range: TimeRange) {
         self.deadlines.insert(*tag, range);
     }
@@ -191,20 +193,25 @@ impl Deadline {
         let max_time = now + self.range.max.as_millis() as u32;
 
         let mut is_broken = false;
-        let _ = self.monitor.active_deadlines[*self.state_index].1.update(|current| {
-            if current.is_running() || current.is_underrun() {
-                is_broken = true;
-                return None; // Deadline is already missed, do nothing
-            }
+        let _ = self.monitor.active_deadlines[*self.state_index]
+            .1
+            .update(|current| {
+                if current.is_running() || current.is_underrun() {
+                    is_broken = true;
+                    return None; // Deadline is already missed, do nothing
+                }
 
-            let mut new = DeadlineStateSnapshot::default();
-            new.set_timestamp_ms(max_time);
-            new.set_running();
-            Some(new)
-        });
+                let mut new = DeadlineStateSnapshot::default();
+                new.set_timestamp_ms(max_time);
+                new.set_running();
+                Some(new)
+            });
 
         if is_broken {
-            warn!("Trying to start deadline {:?} that already failed", self.tag);
+            warn!(
+                "Trying to start deadline {:?} that already failed",
+                self.tag
+            );
             Err(DeadlineError::DeadlineAlreadyFailed)
         } else {
             Ok(())
@@ -250,11 +257,11 @@ impl Deadline {
         match possible_err {
             (Some(DeadlineEvaluationError::TooEarly), val) => {
                 error!("Deadline {:?} stopped too early by {} ms", self.tag, val);
-            },
+            }
             (Some(DeadlineEvaluationError::TooLate), val) => {
                 error!("Deadline {:?} stopped too late by {} ms", self.tag, val);
-            },
-            (None, _) => {},
+            }
+            (None, _) => {}
         }
     }
 
@@ -354,7 +361,10 @@ mod tests {
         DeadlineMonitorBuilder::new()
             .add_deadline(
                 &IdentTag::from("deadline_long"),
-                TimeRange::new(core::time::Duration::from_secs(1), core::time::Duration::from_secs(50)),
+                TimeRange::new(
+                    core::time::Duration::from_secs(1),
+                    core::time::Duration::from_secs(50),
+                ),
             )
             .add_deadline(
                 &IdentTag::from("deadline_fast"),
@@ -371,7 +381,10 @@ mod tests {
         DeadlineMonitorBuilder::new()
             .add_deadline(
                 &IdentTag::from("slow"),
-                TimeRange::new(core::time::Duration::from_secs(0), core::time::Duration::from_secs(50)),
+                TimeRange::new(
+                    core::time::Duration::from_secs(0),
+                    core::time::Duration::from_secs(50),
+                ),
             )
             .add_deadline(
                 &IdentTag::from("deadline_fast1"),
@@ -407,7 +420,9 @@ mod tests {
     #[test]
     fn start_stop_deadline_within_range_works() {
         let monitor = create_monitor_with_deadlines();
-        let mut deadline = monitor.get_deadline(&IdentTag::from("deadline_long")).unwrap();
+        let mut deadline = monitor
+            .get_deadline(&IdentTag::from("deadline_long"))
+            .unwrap();
         let handle = deadline.start().unwrap();
 
         std::thread::sleep(core::time::Duration::from_millis(1001)); // Sleep to simulate work within the deadline range
@@ -425,7 +440,9 @@ mod tests {
     #[test]
     fn start_stop_deadline_outside_ranges_is_error_when_dropped_before_evaluate() {
         let monitor = create_monitor_with_deadlines();
-        let mut deadline = monitor.get_deadline(&IdentTag::from("deadline_long")).unwrap();
+        let mut deadline = monitor
+            .get_deadline(&IdentTag::from("deadline_long"))
+            .unwrap();
         let handle = deadline.start().unwrap();
 
         drop(handle); // stop the deadline
@@ -443,7 +460,9 @@ mod tests {
     #[test]
     fn deadline_outside_time_range_is_error_when_dropped_after_evaluate() {
         let monitor = create_monitor_with_deadlines();
-        let mut deadline = monitor.get_deadline(&IdentTag::from("deadline_long")).unwrap();
+        let mut deadline = monitor
+            .get_deadline(&IdentTag::from("deadline_long"))
+            .unwrap();
         let handle = deadline.start().unwrap();
 
         // So deadline stop happens after evaluate, still it should be reported as failed
@@ -464,13 +483,17 @@ mod tests {
     #[test]
     fn deadline_failed_on_first_run_and_then_restarted_is_evaluated_as_error() {
         let monitor = create_monitor_with_deadlines();
-        let mut deadline = monitor.get_deadline(&IdentTag::from("deadline_long")).unwrap();
+        let mut deadline = monitor
+            .get_deadline(&IdentTag::from("deadline_long"))
+            .unwrap();
         let handle = deadline.start().unwrap();
 
         // So deadline failed, then we start it again so it shall be already expired and also evaluation shall work
         drop(handle); // stop the deadline
         drop(deadline); // drop the deadline to release it
-        let mut deadline = monitor.get_deadline(&IdentTag::from("deadline_long")).unwrap();
+        let mut deadline = monitor
+            .get_deadline(&IdentTag::from("deadline_long"))
+            .unwrap();
         let handle = deadline.start();
         assert_eq!(handle.err(), Some(DeadlineError::DeadlineAlreadyFailed));
 
@@ -488,7 +511,9 @@ mod tests {
     #[test]
     fn start_stop_deadline_outside_ranges_is_evaluated_as_error() {
         let monitor = create_monitor_with_deadlines();
-        let mut deadline = monitor.get_deadline(&IdentTag::from("deadline_fast")).unwrap();
+        let mut deadline = monitor
+            .get_deadline(&IdentTag::from("deadline_fast"))
+            .unwrap();
         let handle = deadline.start().unwrap();
 
         drop(handle); // stop the deadline
@@ -508,13 +533,19 @@ mod tests {
     fn monitor_with_multiple_running_deadlines() {
         let monitor = create_monitor_with_multiple_running_deadlines();
 
-        let mut deadline = monitor.get_deadline(&IdentTag::from("deadline_fast1")).unwrap();
+        let mut deadline = monitor
+            .get_deadline(&IdentTag::from("deadline_fast1"))
+            .unwrap();
         let _handle1 = deadline.start().unwrap();
 
-        let mut deadline = monitor.get_deadline(&IdentTag::from("deadline_fast2")).unwrap();
+        let mut deadline = monitor
+            .get_deadline(&IdentTag::from("deadline_fast2"))
+            .unwrap();
         let _handle2 = deadline.start().unwrap();
 
-        let mut deadline = monitor.get_deadline(&IdentTag::from("deadline_fast3")).unwrap();
+        let mut deadline = monitor
+            .get_deadline(&IdentTag::from("deadline_fast3"))
+            .unwrap();
         let _handle3 = deadline.start().unwrap();
 
         std::thread::sleep(core::time::Duration::from_millis(51)); // Sleep to simulate work within the deadline range

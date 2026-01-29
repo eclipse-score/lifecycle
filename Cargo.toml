@@ -19,7 +19,7 @@ clap = { version = "4.5.49", features = ["derive"] }
 signal-hook = "0.3.18"
 
 
-
+health_monitoring_lib = { path = "src/health_monitoring_lib" }
 score_log = { path = "../baselibs_rust/src/log/score_log" }
 score_testing_macros = { path = "../baselibs_rust/src/testing_macros" }
 stdout_logger = { path = "../baselibs_rust/src/log/stdout_logger" }
