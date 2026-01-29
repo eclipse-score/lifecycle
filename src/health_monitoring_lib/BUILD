@@ -24,9 +24,8 @@ rust_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "@score_baselibs_rust//src/log/score_log",
         "@score_baselibs_rust//src/containers",
-
+        "@score_baselibs_rust//src/log/score_log",
     ],
 )
 
@@ -39,8 +38,8 @@ rust_static_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "@score_baselibs_rust//src/log/score_log",
         "@score_baselibs_rust//src/containers",
+        "@score_baselibs_rust//src/log/score_log",
     ],
 )
 
@@ -85,6 +84,6 @@ cc_gtest_unit_test(
     }),
     deps = [
         ":health_monitoring_lib_cc",
-        "@score_baselibs_rust//src/log/stdout_logger_cpp_init"
+        "@score_baselibs_rust//src/log/stdout_logger_cpp_init",
     ],
 )

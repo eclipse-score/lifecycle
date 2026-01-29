@@ -10,9 +10,9 @@
         "!miri"
     ],
     "rust-analyzer.check.command": "clippy",
-    // "rust-analyzer.rustfmt.overrideCommand": [
-    //     "${workspaceFolder}/.vscode/rustfmt.sh"
-    // ],
+    "rust-analyzer.rustfmt.overrideCommand": [
+        "${workspaceFolder}/.vscode/rustfmt.sh"
+    ],
     "clangd.arguments": [
         "--header-insertion=never",
         "--compile-commands-dir=${workspaceFolder}/",
@@ -24,8 +24,12 @@
        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
        "editor.formatOnSave": true
      },
-     "[c]": {
+    "[c]": {
        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
        "editor.formatOnSave": true
      },
+    // Still to align with bazel
+    // "rust-analyzer.linkedProjects": [
+    //     "${workspaceFolder}/rust-project.json"
+    // ]
 }

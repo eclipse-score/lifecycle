@@ -11,9 +11,9 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
+use core::fmt::Debug;
 use core::hash::Hash;
 use core::time::Duration;
-use std::fmt::Debug;
 use std::sync::Arc;
 /// Unique identifier for deadlines.
 #[derive(Clone, Copy, Eq)]
@@ -25,6 +25,16 @@ pub struct IdentTag {
 
 unsafe impl Send for IdentTag {}
 unsafe impl Sync for IdentTag {}
+
+impl IdentTag {
+    /// Returns the string representation of the IdentTag.
+    pub fn new(data: &'static str) -> Self {
+        Self {
+            data: data.as_ptr(),
+            len: data.len(),
+        }
+    }
+}
 
 impl Debug for IdentTag {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
