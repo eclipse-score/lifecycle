@@ -1,0 +1,37 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Refresh compile_commands.json",
+            "type": "shell",
+            "isBackground": true,
+            "command": "bazel run @hedron_compile_commands//:refresh_all",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Refresh IntelliSense",
+            "dependsOn": [
+                "Refresh compile_commands.json"
+            ],
+            "command": "${command:clangd.restart}",
+            "isBackground": true,
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "silent",
+                "panel": "shared"
+            }
+        }
+    ]
+}
