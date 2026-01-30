@@ -74,7 +74,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     flag::register(signal_hook::consts::SIGTERM, Arc::clone(&stop))?;
     flag::register(signal_hook::consts::SIGUSR1, Arc::clone(&stop_reporting_checkpoints))?;
 
-    if !lifecycle_client_rs::report_execution_state_running() {
+        drop(res); // Ensure the deadline is ended when going out of scope, this keeps drop of Result here and not before timeout
         println!("Rust app FAILED to report execution state!");
     }
 
