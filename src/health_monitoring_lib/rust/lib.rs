@@ -105,7 +105,7 @@ pub struct HealthMonitor {
 
 impl HealthMonitor {
     /// Retrieves and removes (hand over to user) a deadline monitor associated with the given identifier tag.
-    /// /// # Arguments
+    /// # Arguments
     /// * `tag` - The unique identifier for the deadline monitor.
     /// # Returns
     /// An Option containing the DeadlineMonitor if found, or None if

@@ -11,8 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 use super::common::DeadlineTemplate;
-use crate::common::{IdentTag, MonitorEvaluationError, TimeRange};
-use crate::common::{MonitorEvalHandle, MonitorEvaluator};
+use crate::common::{IdentTag, MonitorEvalHandle, MonitorEvaluationError, MonitorEvaluator, TimeRange};
 use crate::{
     deadline::{
         common::StateIndex,

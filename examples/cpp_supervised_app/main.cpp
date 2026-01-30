@@ -90,7 +90,7 @@ void set_process_name()
     const char* identifier = getenv("PROCESSIDENTIFIER");
     if (identifier != nullptr)
     {
-#ifdef __QNXNTO__
+#if defined(__QNXNTO__)
         if (pthread_setname_np(pthread_self(), identifier) != 0)
         {
             std::cerr << "Failed to set QNX thread name" << std::endl;

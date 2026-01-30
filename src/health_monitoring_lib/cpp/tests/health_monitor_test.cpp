@@ -60,6 +60,4 @@ TEST_F(HealthMonitorTest, TestName)
         EXPECT_EQ(deadline_res.value().start().error(), ::score::hm::Error::WrongState);
         deadline_guard.stop();
     }
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(1050));
 }
