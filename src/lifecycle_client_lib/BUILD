@@ -46,6 +46,7 @@ cc_library(
     }),
     visibility = ["//visibility:public"],
     deps = [
+        "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
         "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/memory:string_literal",
         "@score_baselibs//score/mw/log",
@@ -117,6 +118,7 @@ cc_library(
     tags = ["FUSA"],
     deps = [
         ":application",
+        "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
         "@score_baselibs//score/mw/log",
         "@score_baselibs//score/os:stdlib",
         "@score_baselibs//score/os/utils:signal",
