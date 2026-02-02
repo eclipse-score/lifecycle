@@ -8,18 +8,20 @@ When loading the configuration file at runtime, the launch_manager will check th
 ## Component vs deployment configuration
 
 A component (also referred to as a software component) is an independent software unit - such as an application or a software container - that can be developed separately and subsequently deployed into a target system (for example machine). Components are usually combined into a functioning system during the deployment, or integration, phase.
-Because a single component may be deployed into multiple systems, the deployment configuration is intentionally separated from the component description. In summary:
+Because a single component may be deployed into multiple systems, the deployment configuration is intentionally separated from the component properties. In summary:
 * The **deployment configuration** defines information specific to a particular system setup.
-* The **component description** defines the fundamental characteristics of the software component, which are typically determined during that component’s development phase.
+* The **component properties** describe the fundamental characteristics of the software component, which are typically determined during that component’s development phase.
 
 For illustration, please refer to the following example.
 
 ```json
 "components": {
     "setup_filesystem_sh": {
-        "is_native_application": true,
-        "is_supervised": false,
-        "is_self_terminating": true,
+        "component_properties": {
+            "is_native_application": true,
+            "is_supervised": false,
+            "is_self_terminating": true
+        },
         "deployment_config": {
             "executable_path" : "/opt/scripts/setup_filesystem.sh",
             "process_arguments": ["-a", "-b"],
@@ -59,7 +61,7 @@ All keys have the identical names as used for the configuration of a concrete co
         "scheduling_priority": "0"
         ...
     },
-    "component": {
+    "component_properties": {
         "is_native_application": false,
         "is_supervised": true,
         "is_self_terminating": false,
@@ -95,14 +97,43 @@ Initially (when mapping the new configuration to the existing software), the com
 ```json
 "components": {
     "test_app2": {
-        "depends_on": {
-            "test_app4": {
-                "required_state": "Running",
+        "component_properties": {
+            "depends_on": {
+                "test_app4": {
+                    "required_state": "Running"
+                }
             }
         }
     }
 }
 ```
+
+## Supported component properties
+
+Currently following component properties are supported:
+* `is_native_application`: Property describing if component is using S-CORE platform functionality (true / false).
+* `is_supervised`: Property describing if component sends alive notifications to Launch Manager (true / false).
+* `is_self_terminating`: Property describing if component intends to terminate on its own after startup. Please note that daemons usually stay running and waits for termination request from Launch Manager (true / false).
+* `is_state_manager`: Property describing if component needs access to the API that changes current Run Target (true / false).
+* `depends_on`: List of components on which this component depends.
+
+## Supported deployment configuration elements
+
+Currently following configuration elements are supported:
+* `startup_timeout`: Period of time in which, `running` notification should be reported from the component to the Launch Manager. This timeout is measured from the moment the child process is created, till notification is received by LM.
+* `shutdown_timeout`: Period of time in which component should terminate, after receiving SIGTERM signal from Launch Manager. This timeout is measured from the moment LM sends SIGTERM, till Operating System (OS) notifies LM that child process finished execution.
+* `uid`: POSIX User ID assigned to this component.
+* `gid`: POSIX Group ID assigned to this component.
+* `supplementary_group_ids`: List of supplementary group IDs, that are assigned to this component.
+* `security_policy`: Name of the security policy assigned to this component.
+* `environmental_variables`: List of environmental variables that should be passed to this component.
+* `process_arguments`: List of arguments, also know as command line arguments, that should be passed to this component.
+* `scheduling_policy`: Scheduling policy that should be applied to the first thread of this component.
+* `scheduling_priority`: Scheduling priority that should be applied to the first thread of this component.
+* `working_directory`: Working directory that should be set for this component.
+* `restarts_during_startup`: If component does not send `running` notification in time, see `startup_timeout` configuration for more details, Launch Manager will consider this a startup failure. This setting specify how many more times LM should try to start this component, before giving up and considering Run Target transition to fail. If `restarts_during_startup` is set to 0 (zero), no restart attempts will be performed and Run Target transition will fail immediately.
+* `resource_limits`: Resource limitations that should be applied to this component.
+  * `memory_usage`: Maximum memory (in bytes) that can be consumed by this component during runtime.
 
 ## Assignment to RunTargets
 
@@ -148,7 +179,7 @@ All time periods will be configured in seconds. If a smaller time period is need
             "working_directory": "/tmp",
             "resource_limits": {}
         },
-        "component": {
+        "component_properties": {
             "is_native_application": false,
             "is_supervised": true,
             "is_self_terminating": false,
@@ -161,64 +192,83 @@ All time periods will be configured in seconds. If a smaller time period is need
     },
     "components": {
         "setup_filesystem_sh": {
-            "is_native_application": true,
-            "is_supervised": false,
-            "is_self_terminating": true,
+            "component_properties": {
+                "is_native_application": true,
+                "is_supervised": false,
+                "is_self_terminating": true
+            },
             "deployment_config": {
                 "executable_path" : "/opt/scripts/setup_filesystem.sh",
-                "process_arguments": ["-a", "-b"],
+                "process_arguments": ["-a", "-b"]
             }
         },
         "dlt-daemon": {
-            "is_native_application": true,
-            "is_supervised": false,
-            "depends_on": {
-                "setup_filesystem_sh": {
-                    "required_state": "Terminated"
+            "component_properties": {
+                "is_native_application": true,
+                "is_supervised": false,
+                "depends_on": {
+                    "setup_filesystem_sh": {
+                        "required_state": "Terminated"
+                    }
                 }
             },
             "deployment_config": {
-                "executable_path" : "/opt/apps/dlt-daemon/dltd",
+                "executable_path" : "/opt/apps/dlt-daemon/dltd"
             }
         },
         "someip-daemon": {
             "deployment_config": {
-                "executable_path" : "/opt/apps/someip/someipd",
+                "executable_path" : "/opt/apps/someip/someipd"
             }
         },
         "test_app1": {
-            "depends_on": {
-                "dlt-daemon": {
-                    "required_state": "Running"
-                },
-                "someip-daemon": {
-                    "required_state": "Running"
+            "component_properties": {
+                "depends_on": {
+                    "dlt-daemon": {
+                        "required_state": "Running"
+                    },
+                    "someip-daemon": {
+                        "required_state": "Running"
+                    }
                 }
             },
             "deployment_config": {
-                "executable_path" : "/opt/apps/test_app1/test_app1",
+                "executable_path" : "/opt/apps/test_app1/test_app1"
             }
         },
         "state_manager": {
-            "is_state_manager": true,
-            "depends_on": {
-                "setup_filesystem_sh": {
-                    "required_state": "Terminated"
+            "component_properties": {
+                "is_state_manager": true,
+                "depends_on": {
+                    "setup_filesystem_sh": {
+                        "required_state": "Terminated"
+                    }
                 }
             },
             "deployment_config": {
-                "executable_path" : "/opt/apps/state_manager/sm",
+                "executable_path" : "/opt/apps/state_manager/sm"
             }
         }
     },
     "run_targets": {
         "Minimal": {
             "description": "Minimal functionality of the system",
-            "includes": ["state_manager"]
+            "includes": [
+                {
+                    "component": "state_manager"
+                }
+            ]
         },
         "Full": {
             "description": "Everything running",
-            "includes": ["Minimal", "test_app1"],
+            "includes": [
+                {
+                    "run_target": "Minimal"
+                },
+                {
+                    "component": "test_app1"
+                }
+            ],
             "transition_timeout": 5
         },
         "Off": {
