@@ -101,6 +101,7 @@ impl UniqueThreadRunner {
                 info!("Monitoring thread started.");
                 let mut next_sleep_time = interval;
 
+                // TODO Add some checks and log if cyclicly here is not met.
                 while !should_stop.load(core::sync::atomic::Ordering::Relaxed) {
                     std::thread::sleep(next_sleep_time);
 
