@@ -99,9 +99,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b05b61dc5112cbb17e4b6cd61790d9845d13888356391624cbe7e41efeac1e75"
 
 [[package]]
+name = "containers"
+version = "0.1.0"
+source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.0.4#d36362e03664f65117145d6fc90e38505d54a900"
+
+[[package]]
 name = "health_monitoring_lib"
 version = "0.0.1"
 dependencies = [
+ "containers",
  "score_log",
  "score_testing_macros",
  "stdout_logger",
@@ -168,16 +174,19 @@ name = "rust_supervised_app"
 version = "0.0.1"
 dependencies = [
  "clap",
+ "health_monitoring_lib",
  "libc",
  "lifecycle_client_rs",
  "monitor_rs",
+ "score_log",
  "signal-hook",
+ "stdout_logger",
 ]
 
 [[package]]
 name = "score_log"
 version = "0.0.1"
-source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.0.3#b3210fdbe44bbe10faefa6571e5c6101a374bde8"
+source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.0.4#d36362e03664f65117145d6fc90e38505d54a900"
 dependencies = [
  "score_log_fmt",
  "score_log_fmt_macro",
@@ -186,12 +195,12 @@ dependencies = [
 [[package]]
 name = "score_log_fmt"
 version = "0.0.1"
-source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.0.3#b3210fdbe44bbe10faefa6571e5c6101a374bde8"
+source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.0.4#d36362e03664f65117145d6fc90e38505d54a900"
 
 [[package]]
 name = "score_log_fmt_macro"
 version = "0.0.1"
-source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.0.3#b3210fdbe44bbe10faefa6571e5c6101a374bde8"
+source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.0.4#d36362e03664f65117145d6fc90e38505d54a900"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -202,7 +211,7 @@ dependencies = [
 [[package]]
 name = "score_testing_macros"
 version = "0.0.1"
-source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.0.3#b3210fdbe44bbe10faefa6571e5c6101a374bde8"
+source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.0.4#d36362e03664f65117145d6fc90e38505d54a900"
 dependencies = [
  "quote",
  "stdout_logger",
@@ -231,7 +240,7 @@ dependencies = [
 [[package]]
 name = "stdout_logger"
 version = "0.0.1"
-source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.0.3#b3210fdbe44bbe10faefa6571e5c6101a374bde8"
+source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.0.4#d36362e03664f65117145d6fc90e38505d54a900"
 dependencies = [
  "score_log",
 ]

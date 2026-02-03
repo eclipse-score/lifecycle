@@ -79,3 +79,5 @@ external
 compile_commands.json
 .clangd
 .cache
+rust-project.json
+**/tmp
