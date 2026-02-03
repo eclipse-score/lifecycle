@@ -131,8 +131,18 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
+    auto result = score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
 
+    if (!result.has_value()) {
+        std::cerr << "Failed to report kRunning: "
+                << result.error().Message()
+                << std::endl;
+    }  
+    else
+    {
+        std::cout << "ReportExecutionState(kRunning) succeeded" << std::endl;
+    }
+      
     timespec req{
         static_cast<time_t>(config->responseTimeInMs / 1000),
         static_cast<long>((config->responseTimeInMs % 1000) * 1000000L)
