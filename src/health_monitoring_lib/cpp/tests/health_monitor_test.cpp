@@ -37,6 +37,7 @@ TEST_F(HealthMonitorTest, TestName)
     auto hm = HealthMonitorBuilder()
                   .add_deadline_monitor(ident, std::move(builder_mon))
                   .with_internal_processing_cycle(std::chrono::milliseconds(50))
+                  .with_supervisor_api_cycle(std::chrono::milliseconds(50))
                   .build();
 
     auto deadline_monitor_res = hm.get_deadline_monitor(ident);
