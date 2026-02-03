@@ -176,9 +176,9 @@ impl HealthMonitor {
             monitors,
             self.supervisor_api_cycle,
             // Dependency injection of SupervisorAPIClient is hard in this place as it would affect  many places so for now keep it simple
-            #[cfg(not(test))]
+            #[cfg(all(not(test), not(feature = "stub_supervisor_api_client")))]
             worker::EtasSupervisorAPIClient::new(),
-            #[cfg(test)]
+            #[cfg(any(test, feature = "stub_supervisor_api_client"))]
             worker::StubSupervisorAPIClient {},
         );
 

@@ -21,8 +21,10 @@ cc_binary(
         "//conditions:default": ["-pthread"],
     }),
     linkopts = select({
-        "//config:build_qnx8": [],
-        "//config:x86_64-qnx": [],
+        "//config:build_qnx8": [
+            "-lsocket",
+        ],
+        "//config:x86_64-qnx": ["-lsocket"],
         "//conditions:default": [
             "-lpthread",
             "-lrt",
