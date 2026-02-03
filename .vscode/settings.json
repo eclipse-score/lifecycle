@@ -6,9 +6,6 @@
             150
         ]
     },
-    "rust-analyzer.cargo.features": [
-        "qm"
-    ],
     "rust-analyzer.cargo.cfgs": [
         "!miri"
     ],
@@ -24,11 +21,11 @@
         "--fallback-style=None"
     ],
     "[cpp]": {
-       "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
-       "editor.formatOnSave": true
-     },
-     "[c]": {
-       "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
-       "editor.formatOnSave": true
-     },
+        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
+        "editor.formatOnSave": true
+    },
+    "[c]": {
+        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
+        "editor.formatOnSave": true
+    }
 }

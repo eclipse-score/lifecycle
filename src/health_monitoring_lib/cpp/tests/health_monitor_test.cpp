@@ -12,9 +12,9 @@
  ********************************************************************************/
 #include "score/hm/health_monitor.h"
 #include "score/hm/common.h"
-
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <thread>
 
 using namespace score::hm;
 using ::testing::_;
@@ -26,9 +26,6 @@ class HealthMonitorTest : public ::testing::Test
 // For first review round, only single test case to show up API
 TEST_F(HealthMonitorTest, TestName)
 {
-    ::testing::GTEST_FLAG(catch_exceptions) = false;
-    ::testing::GTEST_FLAG(print_time) = true;
-
     auto builder_mon = deadline::DeadlineMonitorBuilder()
                            .add_deadline(IdentTag("deadline_1"),
                                          TimeRange(std::chrono::milliseconds(100), std::chrono::milliseconds(200)))
@@ -37,7 +34,10 @@ TEST_F(HealthMonitorTest, TestName)
 
     IdentTag ident("monitor");
 
-    auto hm = HealthMonitorBuilder().add_deadline_monitor(ident, std::move(builder_mon)).build();
+    auto hm = HealthMonitorBuilder()
+                  .add_deadline_monitor(ident, std::move(builder_mon))
+                  .with_internal_processing_cycle(std::chrono::milliseconds(50))
+                  .build();
 
     auto deadline_monitor_res = hm.get_deadline_monitor(ident);
     EXPECT_TRUE(deadline_monitor_res.has_value());
@@ -49,6 +49,8 @@ TEST_F(HealthMonitorTest, TestName)
     }
 
     auto deadline_mon = std::move(*deadline_monitor_res);
+
+    hm.start();
 
     auto deadline_res = deadline_mon.get_deadline(IdentTag("deadline_1"));
 
