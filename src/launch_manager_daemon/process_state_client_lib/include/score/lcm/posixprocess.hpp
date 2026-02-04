@@ -15,6 +15,7 @@
 #ifndef POSIXPROCESS_HPP_INCLUDED
 #define POSIXPROCESS_HPP_INCLUDED
 
+#include <cstdint>
 #include <ctime>  // for definition of "timespec"
 #include <score/lcm/identifier_hash.hpp>
 
@@ -23,7 +24,7 @@ namespace score {
 namespace lcm {
 
 /// @brief Represents the state of a modelled process.
-enum class ProcessState : std::uint_least8_t {
+enum class ProcessState : std::uint8_t {
     kIdle = 0,         ///< process in idle state.
     kStarting = 1,     ///< process in starting state.
     kRunning = 2,      ///< process in running state.
