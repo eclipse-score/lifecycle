@@ -29,7 +29,7 @@ For illustration, please refer to the following example.
             "is_self_terminating": true
         },
         "deployment_config": {
-            "executable_path" : "/opt/scripts/setup_filesystem.sh",
+            "bin_dir" : "/opt/scripts",
             "process_arguments": ["-a", "-b"],
             "scheduling_policy": "SCHED_OTHER",
             "scheduling_priority": "0",
@@ -53,6 +53,7 @@ All keys have the identical names as used for the configuration of a concrete co
 ```json
 "defaults": {
     "deployment_config": {
+        "bin_dir" : "/opt",
         "startup_timeout": 0.5,
         "shutdown_timeout": 0.5,
         "uid" : 1000,
@@ -62,7 +63,6 @@ All keys have the identical names as used for the configuration of a concrete co
             "LD_LIBRARY_PATH": "/opt/lib",
             "EMPTY_ENV_VAR": ""
         },
-        "process_arguments": [],
         "scheduling_policy": "SCHED_OTHER",
         "scheduling_priority": "0",
         ...
@@ -78,7 +78,8 @@ All keys have the identical names as used for the configuration of a concrete co
         },
         "is_self_terminating": false,
         "is_state_manager": false,
-        "depends_on": []
+        "depends_on": [],
+        "process_arguments": [],
     },
     "run_target": {
         "transition_timeout": 2
@@ -123,6 +124,9 @@ Initially (when mapping the new configuration to the existing software), the com
 ## Supported component properties
 
 Currently following component properties are supported:
+* `binary_name`: Relative path, describing location of the executable file inside `bin_dir` folder. Full path to the executable will be equal to `{bin_dir}/{binary_name}`. Valid examples of `binary_name` include, but are not limited to:
+  * `test_app1`
+  * `bin/test_app1`
 * `is_native_application`: Property describing if component is using S-CORE platform functionality (true / false).
 * `is_supervised`: Property describing if component sends alive notifications to Launch Manager (true / false).
 * `alive_supervision`: Description of alive monitoring, that should be applied to this component.
@@ -133,6 +137,7 @@ Currently following component properties are supported:
 * `is_self_terminating`: Property describing if component intends to terminate on its own after startup. Please note that daemons usually stay running and waits for termination request from Launch Manager (true / false).
 * `is_state_manager`: Property describing if component needs access to the API that changes current Run Target (true / false).
 * `depends_on`: List of components on which this component depends.
+* `process_arguments`: List of arguments, also know as command line arguments, that should be passed to this component.
 
 ## Supported deployment configuration elements
 
@@ -144,9 +149,9 @@ Currently following configuration elements are supported:
 * `supplementary_group_ids`: List of supplementary group IDs, that are assigned to this component.
 * `security_policy`: Name of the security policy assigned to this component.
 * `environmental_variables`: List of environmental variables that should be passed to this component.
-* `process_arguments`: List of arguments, also know as command line arguments, that should be passed to this component.
 * `scheduling_policy`: Scheduling policy that should be applied to the first thread of this component.
 * `scheduling_priority`: Scheduling priority that should be applied to the first thread of this component.
+* `bin_dir`: Path to a folder where component has bin installed.
 * `working_directory`: Working directory that should be set for this component.
 * `restarts_during_startup`: If component does not send `running` notification in time, see `startup_timeout` configuration for more details, Launch Manager will consider this a startup failure. This setting specify how many more times LM should try to start this component, before giving up and considering Run Target transition to fail. If `restarts_during_startup` is set to 0 (zero), no restart attempts will be performed and Run Target transition will fail immediately.
 * `resource_limits`: Resource limitations that should be applied to this component.
@@ -192,13 +197,15 @@ All time periods will be configured in seconds. If a smaller time period is need
                 "GLOBAL_ENV_VAR": "abc",
                 "EMPTY_GLOBAL_ENV_VAR": ""
             },
-            "process_arguments": [],
             "scheduling_policy": "SCHED_OTHER",
             "scheduling_priority": "0",
+            "bin_dir": "/opt",
             "working_directory": "/tmp",
+            "restarts_during_startup": 2,
             "resource_limits": {}
         },
         "component_properties": {
+            "binary_name": "",
             "is_native_application": false,
             "is_supervised": true,
             "alive_supervision": {
@@ -209,7 +216,8 @@ All time periods will be configured in seconds. If a smaller time period is need
             },
             "is_self_terminating": false,
             "is_state_manager": false,
-            "depends_on": []
+            "depends_on": [],
+            "process_arguments": []
         },
         "run_target": {
             "transition_timeout": 2
@@ -218,17 +226,19 @@ All time periods will be configured in seconds. If a smaller time period is need
     "components": {
         "setup_filesystem_sh": {
             "component_properties": {
+                "binary_name": "bin/setup_filesystem.sh",
                 "is_native_application": true,
                 "is_supervised": false,
-                "is_self_terminating": true
+                "is_self_terminating": true,
+                "process_arguments": ["-a", "-b"]
             },
             "deployment_config": {
-                "executable_path" : "/opt/scripts/setup_filesystem.sh",
-                "process_arguments": ["-a", "-b"]
+                "bin_dir": "/opt/scripts"
             }
         },
         "dlt-daemon": {
             "component_properties": {
+                "binary_name": "dltd",
                 "is_native_application": true,
                 "is_supervised": false,
                 "depends_on": {
@@ -238,16 +248,20 @@ All time periods will be configured in seconds. If a smaller time period is need
                 }
             },
             "deployment_config": {
-                "executable_path" : "/opt/apps/dlt-daemon/dltd"
+                "bin_dir" : "/opt/apps/dlt-daemon"
             }
         },
         "someip-daemon": {
+            "component_properties": {
+                "binary_name": "someipd"
+            },
             "deployment_config": {
-                "executable_path" : "/opt/apps/someip/someipd"
+                "bin_dir" : "/opt/apps/someip"
             }
         },
         "test_app1": {
             "component_properties": {
+                "binary_name": "test_app1",
                 "depends_on": {
                     "dlt-daemon": {
                         "required_state": "Running"
@@ -258,11 +272,12 @@ All time periods will be configured in seconds. If a smaller time period is need
                 }
             },
             "deployment_config": {
-                "executable_path" : "/opt/apps/test_app1/test_app1"
+                "bin_dir" : "/opt/apps/test_app1"
             }
         },
         "state_manager": {
             "component_properties": {
+                "binary_name": "sm",
                 "is_state_manager": true,
                 "depends_on": {
                     "setup_filesystem_sh": {
@@ -271,7 +286,7 @@ All time periods will be configured in seconds. If a smaller time period is need
                 }
             },
             "deployment_config": {
-                "executable_path" : "/opt/apps/state_manager/sm"
+                "bin_dir" : "/opt/apps/state_manager"
             }
         }
     },
