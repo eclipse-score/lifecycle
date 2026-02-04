@@ -57,7 +57,6 @@ cc_library(
         "//src/launch_manager_daemon/common:identifier_hash",
         "//src/launch_manager_daemon/common:lifecycle_error",
         "//src/launch_manager_daemon/common:log",
-        "@score_baselibs//score/mw/log",
         "@score_baselibs//score/result",
     ],
 )
