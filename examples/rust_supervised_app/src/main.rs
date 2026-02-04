@@ -89,10 +89,8 @@ fn main_logic(args: &Args, stop: Arc<AtomicBool>) -> Result<(), Box<dyn std::err
             .get_deadline(&IdentTag::from("deadline1"))
             .expect("Failed to get deadline");
 
-        let res = deadline.start();
+        let _res = deadline.start();
         std::thread::sleep(std::time::Duration::from_millis(args.delay.into()));
-
-        drop(res); // Ensure the deadline is ended when going out of scope, this keeps drop of Result here and not before timeout
     }
 
     Ok(())

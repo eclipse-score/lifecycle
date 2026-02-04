@@ -16,15 +16,13 @@ cc_binary(
         "main.cpp",
     ],
     copts = select({
-        "//config:build_qnx8": [],
-        "//config:x86_64-qnx": [],
+        "@platforms//os:qnx": [],
         "//conditions:default": ["-pthread"],
     }),
     linkopts = select({
-        "//config:build_qnx8": [
+        "@platforms//os:qnx": [
             "-lsocket",
         ],
-        "//config:x86_64-qnx": ["-lsocket"],
         "//conditions:default": [
             "-lpthread",
             "-lrt",

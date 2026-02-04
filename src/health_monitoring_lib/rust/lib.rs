@@ -69,7 +69,7 @@ impl HealthMonitorBuilder {
             self.supervisor_api_cycle
                 .as_millis()
                 .is_multiple_of(self.internal_processing_cycle.as_millis()),
-            "supervisor API cycle must be multiple of internal processing cycle."
+            "supervisor API cycle must be multiple of internal processing cycle"
         );
 
         let allocator = protected_memory::ProtectedMemoryAllocator {};
@@ -175,8 +175,9 @@ impl HealthMonitor {
         let monitoring_logic = worker::MonitoringLogic::new(
             monitors,
             self.supervisor_api_cycle,
-            // Dependency injection of SupervisorAPIClient is hard in this place as it would affect  many places so for now keep it simple
-            #[cfg(all(not(test), not(feature = "stub_supervisor_api_client")))]
+            // Currently only `EtasSupervisorAPIClient` and `StubSupervisorAPIClient` are supported.
+            // The later is meant to be used for testing purposes.
+            #[cfg(not(any(test, feature = "stub_supervisor_api_client")))]
             worker::EtasSupervisorAPIClient::new(),
             #[cfg(any(test, feature = "stub_supervisor_api_client"))]
             worker::StubSupervisorAPIClient {},
@@ -201,7 +202,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "supervisor API cycle must be multiple of internal processing cycle.")]
+    #[should_panic(expected = "supervisor API cycle must be multiple of internal processing cycle")]
     fn hm_with_wrong_cycle_fails_to_build() {
         super::HealthMonitorBuilder::new()
             .with_supervisor_api_cycle(core::time::Duration::from_millis(50))
