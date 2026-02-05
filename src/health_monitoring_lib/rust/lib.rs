@@ -175,10 +175,10 @@ impl HealthMonitor {
         let monitoring_logic = worker::MonitoringLogic::new(
             monitors,
             self.supervisor_api_cycle,
-            // Currently only `EtasSupervisorAPIClient` and `StubSupervisorAPIClient` are supported.
+            // Currently only `ScoreSupervisorAPIClient` and `StubSupervisorAPIClient` are supported.
             // The later is meant to be used for testing purposes.
             #[cfg(not(any(test, feature = "stub_supervisor_api_client")))]
-            worker::EtasSupervisorAPIClient::new(),
+            worker::ScoreSupervisorAPIClient::new(),
             #[cfg(any(test, feature = "stub_supervisor_api_client"))]
             worker::StubSupervisorAPIClient {},
         );

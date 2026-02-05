@@ -160,14 +160,14 @@ impl From<Checks> for u32 {
 }
 
 #[allow(dead_code)]
-pub(super) struct EtasSupervisorAPIClient {
+pub(super) struct ScoreSupervisorAPIClient {
     supervisor_link: monitor_rs::Monitor<Checks>,
 }
 
-unsafe impl Send for EtasSupervisorAPIClient {} // Just assuming it's safe to send across threads, this is a temporary solution
+unsafe impl Send for ScoreSupervisorAPIClient {} // Just assuming it's safe to send across threads, this is a temporary solution
 
 #[allow(dead_code)]
-impl EtasSupervisorAPIClient {
+impl ScoreSupervisorAPIClient {
     pub fn new() -> Self {
         let value = std::env::var("IDENTIFIER").expect("IDENTIFIER env not set");
         debug!("EtasySupervisorAPIClient: Creating with IDENTIFIER={}", value);
@@ -176,7 +176,7 @@ impl EtasSupervisorAPIClient {
         Self { supervisor_link }
     }
 }
-impl SupervisorAPIClient for EtasSupervisorAPIClient {
+impl SupervisorAPIClient for ScoreSupervisorAPIClient {
     fn notify_alive(&self) {
         self.supervisor_link.report_checkpoint(Checks::WorkerCheckpoint);
     }
