@@ -19,17 +19,27 @@
 #include <iostream>
 #include <ctime>
 #include <string>
+#include <chrono>
+#include <vector>
 
 #ifdef __linux__
     #include <linux/prctl.h>
     #include <sys/prctl.h>
 #endif
 
-#include "score/lcm/lifecycle_client.h"
+#include "src/lifecycle_client_lib/include/application.h"
+#include "src/lifecycle_client_lib/include/runapplication.h"
 
-/// @brief CLI configuration options for the not_supervised_application process
-struct Config
-{
+// ---------- Simple SIGTERM fallback ----------
+namespace {
+    std::atomic<bool> g_stopRequested{false};
+
+    void onSignal(int) noexcept {
+        g_stopRequested.store(true, std::memory_order_relaxed);
+    }
+}
+
+struct Config {
     std::int32_t responseTimeInMs{100};
     bool         crashRequested{false};
     std::int32_t crashTimeInMs{1000};
@@ -88,13 +98,6 @@ std::optional<Config> parseOptions(int argc, char *const *argv) noexcept
     return config;
 }
 
-std::atomic<bool> exitRequested{false};
-
-void signalHandler(int)
-{
-    exitRequested = true;
-}
-
 void set_process_name() {
     const char* identifier = getenv("PROCESSIDENTIFIER");
     if(identifier != nullptr) {
@@ -109,82 +112,89 @@ void set_process_name() {
     #endif
     }
 }
+class LifecycleApp final : public score::mw::lifecycle::Application {
+public:
+    std::int32_t Initialize(const score::mw::lifecycle::ApplicationContext& appCtx) override {
+        std::signal(SIGINT,  onSignal);
+        std::signal(SIGTERM, onSignal);
+        set_process_name();
+        
+        const auto& argStrings = appCtx.get_arguments();
 
-int main(int argc, char **argv)
-{
-    set_process_name();
+        m_argvStorage.clear();
+        m_argvStorage.reserve(argStrings.size() + 2);
 
-    signal(SIGINT, signalHandler);
-    signal(SIGTERM, signalHandler);
+        if (argStrings.empty()) {
+            // Minimal argv[0] so getopt never sees empty argv
+            m_argvStorage.push_back(const_cast<char*>("LifecycleApp"));
+        } else {
+            for (const auto& s : argStrings) {
+                m_argvStorage.push_back(const_cast<char*>(s.c_str()));
+            }
+        }
 
-    const auto config = parseOptions(argc, argv);
-    if (!config)
-    {
-        return EXIT_FAILURE;
+        m_argvStorage.push_back(nullptr);
+
+        const int argcLocal = static_cast<int>(m_argvStorage.size() - 1);
+        const auto cfgOpt = parseOptions(argcLocal, m_argvStorage.data());
+        if (!cfgOpt.has_value()) {
+            return EXIT_FAILURE;
+        }
+
+        m_cfg = *cfgOpt;
+        if (m_cfg.failToStart) {
+            return EXIT_FAILURE;
+        }
+
+        return 0;
     }
 
-    std::chrono::time_point<std::chrono::steady_clock> startTime = std::chrono::steady_clock::now();
-    std::chrono::duration<double, std::milli> runTime;
+    std::int32_t Run(const score::cpp::stop_token& stopToken) override {
+        const auto start = std::chrono::steady_clock::now();
+        auto lastVerbose = start;
 
-    if (true == config->failToStart)
-    {
-        return EXIT_FAILURE;
-    }
+        timespec sleepReq{
+            static_cast<time_t>(m_cfg.responseTimeInMs / 1000),
+            static_cast<long>((m_cfg.responseTimeInMs % 1000) * 1000000L)
+        };
 
-    auto result = score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
+        while (!stopToken.stop_requested() && !g_stopRequested.load(std::memory_order_relaxed)) {
+            if (m_cfg.crashRequested) {
+                const auto elapsedMs =
+                    std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - start).count();
 
-    if (!result.has_value()) {
-        std::cerr << "Failed to report kRunning: "
-                << result.error().Message()
-                << std::endl;
-    }  
-    else
-    {
-        std::cout << "ReportExecutionState(kRunning) succeeded" << std::endl;
-    }
-      
-    timespec req{
-        static_cast<time_t>(config->responseTimeInMs / 1000),
-        static_cast<long>((config->responseTimeInMs % 1000) * 1000000L)
-    };
-    auto timeLastVerboseLog = std::chrono::steady_clock::now();
-    while (!exitRequested)
-    {
-        if (true == config->crashRequested)
-        {
-            runTime = std::chrono::steady_clock::now() - startTime;
-
-            int timeTillCrash = static_cast<int>(config->crashTimeInMs - runTime.count());
-
-            if (timeTillCrash < config->responseTimeInMs)
-            {
-                // OK we need a shorter sleep now
-                if (timeTillCrash > 0)
-                {
-                    timespec crash_req{
-                        static_cast<time_t>(timeTillCrash / 1000),
-                        static_cast<long>((timeTillCrash % 1000) * 1000000L)
-                    };
-                    nanosleep(&crash_req, nullptr);
+                const int remaining = static_cast<int>(m_cfg.crashTimeInMs - elapsedMs);
+                if (remaining < m_cfg.responseTimeInMs) {
+                    if (remaining > 0) {
+                        timespec crashReq{
+                            static_cast<time_t>(remaining / 1000),
+                            static_cast<long>((remaining % 1000) * 1000000L)
+                        };
+                        nanosleep(&crashReq, nullptr);
+                    }
+                    std::abort();
                 }
-
-                // let's crash...
-                std::abort();
             }
+
+            if (m_cfg.verbose) {
+                const auto now = std::chrono::steady_clock::now();
+                if (now - lastVerbose >= std::chrono::seconds(1)) {
+                    std::cout << "LifecycleApp: Running in verbose mode\n";
+                    lastVerbose = now;
+                }
+            }
+
+            nanosleep(&sleepReq, nullptr);
         }
 
-
-        if(config->verbose) {
-            const auto now = std::chrono::steady_clock::now();
-            if(now - timeLastVerboseLog >= std::chrono::seconds(1)) {
-                std::cout << "LifecycleApp: " << "Running in verbose mode" << std::endl;
-                timeLastVerboseLog = now;
-            }
-        }
-
-        nanosleep(&req, nullptr);
+        return EXIT_SUCCESS;
     }
 
-    // normal exit
-    return EXIT_SUCCESS;
+private:
+    Config m_cfg{};
+    std::vector<char*> m_argvStorage; // keeps argv stable for getopt()
+};
+
+int main(int argc, char** argv) {
+    return score::mw::lifecycle::run_application<LifecycleApp>(argc, argv);
 }
