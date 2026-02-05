@@ -36,7 +36,6 @@ using score::lcm::Monitor;
 struct Config
 {
     std::uint32_t delayInMs{50};
-    std::string instanceSpecifier{"demo/demo_application/Port1"};
 };
 
 std::optional<Config> parseOptions(int argc, char* const* argv) noexcept
@@ -52,15 +51,9 @@ std::optional<Config> parseOptions(int argc, char* const* argv) noexcept
                 config.delayInMs = std::stoi(optarg);
                 break;
 
-            case 's':
-                // std::cout << "Instance Specifier is: " << optarg << std::endl;
-                config.instanceSpecifier = optarg;
-                break;
-
             case 'h':
                 std::cout << "Usage: \n\
-                            -d <The app is configured to measure deadline between 50ms and 150ms. You configure the delay inside this deadline measurement> \n\
-                            -s <Instance Specifier>\n";
+                            -d <The app is configured to measure deadline between 50ms and 150ms. You configure the delay inside this deadline measurement> \n";
                 return std::nullopt;
 
             default:
@@ -110,6 +103,7 @@ int main(int argc, char** argv)
 
     signal(SIGINT, signalHandler);
     signal(SIGTERM, signalHandler);
+    signal(SIGUSR1, signalHandler);
 
     const auto config = parseOptions(argc, argv);
     if (!config)
@@ -122,42 +116,56 @@ int main(int argc, char** argv)
 
     using namespace score::hm;
 
-    auto builder_mon = deadline::DeadlineMonitorBuilder()
-                           .add_deadline(IdentTag("deadline_1"),
-                                         TimeRange(std::chrono::milliseconds(50), std::chrono::milliseconds(150)))
-                           .add_deadline(IdentTag("deadline_2"),
-                                         TimeRange(std::chrono::milliseconds(2), std::chrono::milliseconds(20)));
+    auto builder_mon =
+        deadline::DeadlineMonitorBuilder()
+            .add_deadline(IdentTag("deadline_1"),
+                          TimeRange(std::chrono::milliseconds(50), std::chrono::milliseconds(150)))
+            .add_deadline(IdentTag("deadline_2"),
+                          TimeRange(std::chrono::milliseconds(2),
+                                    std::chrono::milliseconds(20)));  // Not used, only shows
+                                                                      // that multiple deadlines can be added
 
     IdentTag ident("monitor");
 
-    auto hm = HealthMonitorBuilder()
-                  .add_deadline_monitor(ident, std::move(builder_mon))
-                  .with_internal_processing_cycle(std::chrono::milliseconds(50))
-                  .with_supervisor_api_cycle(std::chrono::milliseconds(50))
-                  .build();
-
-    auto deadline_monitor_res = hm.get_deadline_monitor(ident);
-    if (!deadline_monitor_res.has_value())
     {
-        std::cerr << "Failed to get deadline monitor" << std::endl;
-        return EXIT_FAILURE;
+        auto hm = HealthMonitorBuilder()
+                      .add_deadline_monitor(ident, std::move(builder_mon))
+                      .with_internal_processing_cycle(std::chrono::milliseconds(50))
+                      .with_supervisor_api_cycle(std::chrono::milliseconds(50))
+                      .build();
+
+        auto deadline_monitor_res = hm.get_deadline_monitor(ident);
+        if (!deadline_monitor_res.has_value())
+        {
+            std::cerr << "Failed to get deadline monitor" << std::endl;
+            return EXIT_FAILURE;
+        }
+
+        hm.start();
+        score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
+
+        auto deadline_mon = std::move(*deadline_monitor_res);
+
+        auto deadline_res = deadline_mon.get_deadline(IdentTag("deadline_1"));
+        while (!exitRequested)
+        {
+            if (stopReportingCheckpoints.load())
+            {
+                break;
+            }
+
+            auto deadline_guard = deadline_res.value().start();
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(config->delayInMs));
+
+            // deadline_guard.stop(); // Optional, will be stopped automatically when going out of scope - this way we
+            // dont check Result from start() call
+        }
     }
 
-    score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
-
-    hm.start();
-
-    auto deadline_mon = std::move(*deadline_monitor_res);
-
-    auto deadline_res = deadline_mon.get_deadline(IdentTag("deadline_1"));
-    while (!exitRequested)
+    if (stopReportingCheckpoints.load())
     {
-        auto deadline_guard = deadline_res.value().start();
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(config->delayInMs));
-
-        // deadline_guard.stop(); // Optional, will be stopped automatically when going out of scope - this way we dont
-        // check Result from start() call
+        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
     }
 
     return EXIT_SUCCESS;
