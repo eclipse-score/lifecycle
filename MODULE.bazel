@@ -29,7 +29,7 @@ bazel_dep(name = "googletest", version = "1.17.0.bcr.1")
 # S-CORE process rules
 bazel_dep(name = "score_bazel_platforms", version = "0.0.4")
 bazel_dep(name = "score_docs_as_code", version = "2.3.0")
-bazel_dep(name = "score_tooling", version = "1.0.5")
+bazel_dep(name = "score_tooling", version = "1.1.0")
 bazel_dep(name = "score_rust_policies", version = "0.0.3")
 
 bazel_dep(name = "score_process", version = "1.4.0", dev_dependency = True)

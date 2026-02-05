@@ -25,4 +25,4 @@ jobs:
       contents: read
       pull-requests: read
     with:
-      bazel-target: 'test //src/...'
+      bazel-target: 'test --config=lc-x86_64-linux //src/...'
