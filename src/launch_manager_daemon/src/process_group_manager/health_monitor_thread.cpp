@@ -37,7 +37,7 @@ bool HealthMonitorThread::start() {
 
     waitForInitializationCompleted(init_status);
 
-    return (init_status == score::lcm::saf::daemon::EInitCode::kNoError);
+    return init_status == saf::daemon::EInitCode::kNoError;
 }
 
 void HealthMonitorThread::stop() {
