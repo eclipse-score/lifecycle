@@ -24,9 +24,6 @@ use std::sync::Arc;
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
-    #[arg(short, long)]
-    specifier: String,
-
     /// The app is configured to measure deadline between 50ms and 150ms. You configure the delay inside this deadline measurement.
     #[arg(short, long)]
     delay: u32,
@@ -77,12 +74,12 @@ fn main_logic(args: &Args, stop: Arc<AtomicBool>) -> Result<(), Box<dyn std::err
         .get_deadline_monitor(&IdentTag::from("mon1"))
         .expect("Failed to get monitor");
 
+    hm.start();
+
     if !lifecycle_client_rs::report_execution_state_running() {
         error!("Rust app FAILED to report execution state!");
         return Err("Failed to report execution state".into());
     }
-
-    hm.start();
 
     while !stop.load(Ordering::Relaxed) {
         let mut deadline = mon
