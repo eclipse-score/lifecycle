@@ -15,7 +15,6 @@
 #include <unistd.h>
 #include <csignal>
 #include <atomic>
-#include <thread>
 #include <iostream>
 #include <ctime>
 #include <string>
@@ -30,16 +29,9 @@
 #include "src/lifecycle_client_lib/include/application.h"
 #include "src/lifecycle_client_lib/include/runapplication.h"
 
-// ---------- Simple SIGTERM fallback ----------
-namespace {
-    std::atomic<bool> g_stopRequested{false};
-
-    void onSignal(int) noexcept {
-        g_stopRequested.store(true, std::memory_order_relaxed);
-    }
-}
-
-struct Config {
+/// @brief CLI configuration options for the not_supervised_application process
+struct Config
+{
     std::int32_t responseTimeInMs{100};
     bool         crashRequested{false};
     std::int32_t crashTimeInMs{1000};
@@ -63,18 +55,15 @@ std::optional<Config> parseOptions(int argc, char *const *argv) noexcept
         switch (static_cast<char>(c))
         {
         case 'r':
-            // response time
             config.responseTimeInMs = std::stoi(optarg);
             break;
 
         case 'c':
-            // crash time
             config.crashRequested = true;
             config.crashTimeInMs = std::stoi(optarg);
             break;
 
         case 's':
-            // start-up failure
             config.failToStart = true;
             break;
 
@@ -98,103 +87,138 @@ std::optional<Config> parseOptions(int argc, char *const *argv) noexcept
     return config;
 }
 
-void set_process_name() {
+std::atomic<bool> exitRequested{false};
+
+void signalHandler(int)
+{
+    exitRequested = true;
+}
+
+void set_process_name()
+{
     const char* identifier = getenv("PROCESSIDENTIFIER");
-    if(identifier != nullptr) {
+    if (identifier != nullptr)
+    {
     #ifdef __QNXNTO__
-            if (pthread_setname_np(pthread_self(), identifier) != 0) {
-                std::cerr << "Failed to set QNX thread name" << std::endl;
-            }
+        if (pthread_setname_np(pthread_self(), identifier) != 0)
+        {
+            std::cerr << "Failed to set QNX thread name" << std::endl;
+        }
     #elif defined(__linux__)
-            if (prctl(PR_SET_NAME, identifier) < 0) {
-                std::cerr << "Failed to set process name to " << identifier << std::endl;
-            }
+        if (prctl(PR_SET_NAME, identifier) < 0)
+        {
+            std::cerr << "Failed to set process name to " << identifier << std::endl;
+        }
     #endif
     }
 }
-class LifecycleApp final : public score::mw::lifecycle::Application {
+
+class LifecycleApp final : public score::mw::lifecycle::Application
+{
 public:
-    std::int32_t Initialize(const score::mw::lifecycle::ApplicationContext& appCtx) override {
-        std::signal(SIGINT,  onSignal);
-        std::signal(SIGTERM, onSignal);
+    std::int32_t Initialize(const score::mw::lifecycle::ApplicationContext& appCtx) override
+    {
         set_process_name();
-        
-        const auto& argStrings = appCtx.get_arguments();
 
+        signal(SIGINT, signalHandler);
+        signal(SIGTERM, signalHandler);
+
+        // Build a classic argv for getopt() from ApplicationContext arguments
+        const auto& args = appCtx.get_arguments();
         m_argvStorage.clear();
-        m_argvStorage.reserve(argStrings.size() + 2);
+        m_argvStorage.reserve(args.size() + 2);
 
-        if (argStrings.empty()) {
-            // Minimal argv[0] so getopt never sees empty argv
+        // Ensure argv[0] exists (getopt expects it)
+        if (args.empty())
+        {
             m_argvStorage.push_back(const_cast<char*>("LifecycleApp"));
-        } else {
-            for (const auto& s : argStrings) {
-                m_argvStorage.push_back(const_cast<char*>(s.c_str()));
+        }
+        else
+        {
+            for (const auto& s : args)
+            {
+                // NOTE: relies on the underlying storage staying alive during Initialize().
+                m_argvStorage.push_back(const_cast<char*>(s.data()));
             }
         }
 
         m_argvStorage.push_back(nullptr);
 
+        optind = 1;
+
         const int argcLocal = static_cast<int>(m_argvStorage.size() - 1);
-        const auto cfgOpt = parseOptions(argcLocal, m_argvStorage.data());
-        if (!cfgOpt.has_value()) {
+        const auto config = parseOptions(argcLocal, m_argvStorage.data());
+        if (!config)
+        {
             return EXIT_FAILURE;
         }
 
-        m_cfg = *cfgOpt;
-        if (m_cfg.failToStart) {
+        m_config = *config;
+
+        if (true == m_config.failToStart)
+        {
             return EXIT_FAILURE;
         }
 
         return 0;
     }
 
-    std::int32_t Run(const score::cpp::stop_token& stopToken) override {
-        const auto start = std::chrono::steady_clock::now();
-        auto lastVerbose = start;
+    std::int32_t Run(const score::cpp::stop_token& stopToken) override
+    {
+        std::chrono::time_point<std::chrono::steady_clock> startTime = std::chrono::steady_clock::now();
+        std::chrono::duration<double, std::milli> runTime;
 
-        timespec sleepReq{
-            static_cast<time_t>(m_cfg.responseTimeInMs / 1000),
-            static_cast<long>((m_cfg.responseTimeInMs % 1000) * 1000000L)
+        timespec req{
+            static_cast<time_t>(m_config.responseTimeInMs / 1000),
+            static_cast<long>((m_config.responseTimeInMs % 1000) * 1000000L)
         };
 
-        while (!stopToken.stop_requested() && !g_stopRequested.load(std::memory_order_relaxed)) {
-            if (m_cfg.crashRequested) {
-                const auto elapsedMs =
-                    std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - start).count();
+        auto timeLastVerboseLog = std::chrono::steady_clock::now();
 
-                const int remaining = static_cast<int>(m_cfg.crashTimeInMs - elapsedMs);
-                if (remaining < m_cfg.responseTimeInMs) {
-                    if (remaining > 0) {
-                        timespec crashReq{
-                            static_cast<time_t>(remaining / 1000),
-                            static_cast<long>((remaining % 1000) * 1000000L)
+        while (!exitRequested && !stopToken.stop_requested())
+        {
+            if (true == m_config.crashRequested)
+            {
+                runTime = std::chrono::steady_clock::now() - startTime;
+                int timeTillCrash = static_cast<int>(m_config.crashTimeInMs - runTime.count());
+
+                if (timeTillCrash < m_config.responseTimeInMs)
+                {
+                    if (timeTillCrash > 0)
+                    {
+                        timespec crash_req{
+                            static_cast<time_t>(timeTillCrash / 1000),
+                            static_cast<long>((timeTillCrash % 1000) * 1000000L)
                         };
-                        nanosleep(&crashReq, nullptr);
+                        nanosleep(&crash_req, nullptr);
                     }
+
                     std::abort();
                 }
             }
 
-            if (m_cfg.verbose) {
+            if (m_config.verbose)
+            {
                 const auto now = std::chrono::steady_clock::now();
-                if (now - lastVerbose >= std::chrono::seconds(1)) {
-                    std::cout << "LifecycleApp: Running in verbose mode\n";
-                    lastVerbose = now;
+                if (now - timeLastVerboseLog >= std::chrono::seconds(1))
+                {
+                    std::cout << "LifecycleApp: Running in verbose mode" << std::endl;
+                    timeLastVerboseLog = now;
                 }
             }
 
-            nanosleep(&sleepReq, nullptr);
+            nanosleep(&req, nullptr);
         }
 
         return EXIT_SUCCESS;
     }
 
 private:
-    Config m_cfg{};
-    std::vector<char*> m_argvStorage; // keeps argv stable for getopt()
+    Config m_config{};
+    std::vector<char*> m_argvStorage{};
 };
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
     return score::mw::lifecycle::run_application<LifecycleApp>(argc, argv);
 }
