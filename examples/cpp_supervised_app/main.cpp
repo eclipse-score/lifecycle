@@ -12,20 +12,23 @@
  ********************************************************************************/
 
 #include <unistd.h>
-#include <csignal>
 #include <atomic>
+#include <csignal>
 #include <cstdint>
-#include <iostream>
 #include <ctime>
-
+#include <iostream>
 
 #ifdef __linux__
-    #include <linux/prctl.h>
-    #include <sys/prctl.h>
+#include <linux/prctl.h>
+#include <sys/prctl.h>
 #endif
 
 #include "score/lcm/Monitor.h"
 #include "score/lcm/lifecycle_client.h"
+#include "score/mw/log/rust/stdout_logger_init.h"
+#include <score/hm/common.h>
+#include <score/hm/health_monitor.h>
+#include <thread>
 
 using score::lcm::Monitor;
 
@@ -33,10 +36,9 @@ using score::lcm::Monitor;
 struct Config
 {
     std::uint32_t delayInMs{50};
-    std::string instanceSpecifier{"demo/demo_application/Port1"};
 };
 
-std::optional<Config> parseOptions(int argc, char *const *argv) noexcept
+std::optional<Config> parseOptions(int argc, char* const* argv) noexcept
 {
     Config config{};
     int c;
@@ -44,65 +46,58 @@ std::optional<Config> parseOptions(int argc, char *const *argv) noexcept
     {
         switch (static_cast<char>(c))
         {
-        case 'd':
-            // std::cout << "Delay between reporting all checkpoints is: " << optarg << "ms" << std::endl;
-            config.delayInMs = std::stoi(optarg);
-            break;
+            case 'd':
+                // std::cout << "Delay between reporting all checkpoints is: " << optarg << "ms" << std::endl;
+                config.delayInMs = std::stoi(optarg);
+                break;
 
-        case 's':
-            // std::cout << "Instance Specifier is: " << optarg << std::endl;
-            config.instanceSpecifier = optarg;
-            break;
+            case 'h':
+                std::cout << "Usage: \n\
+                            -d <The app is configured to measure deadline between 50ms and 150ms. You configure the delay inside this deadline measurement> \n";
+                return std::nullopt;
 
-        case 'h':
-            std::cout << "Usage: \n\
-                            -d <delay after reporting all checkpoints in ms> \n\
-                            -s <Instance Specifier>\n";
-            return std::nullopt;
-
-        default:
-            break;
+            default:
+                break;
         }
     }
     return config;
 }
 
-enum class Checkpoints : std::uint32_t
-{
-    kOne = 1,
-    kTwo = 2,
-    kThree = 3
-};
-
 std::atomic<bool> exitRequested{false};
 std::atomic<bool> stopReportingCheckpoints{false};
 void signalHandler(int signal)
 {
-    if (signal == SIGINT || signal == SIGTERM) {
+    if (signal == SIGINT || signal == SIGTERM)
+    {
         exitRequested = true;
-
-    } else if(signal == SIGUSR1) {
+    }
+    else if (signal == SIGUSR1)
+    {
         // std::cout << "Received SIGUSR1 signal." << std::endl;
         stopReportingCheckpoints = true;
     }
 }
 
-void set_process_name() {
+void set_process_name()
+{
     const char* identifier = getenv("PROCESSIDENTIFIER");
-    if(identifier != nullptr) {
-    #ifdef __QNXNTO__
-            if (pthread_setname_np(pthread_self(), identifier) != 0) {
-                std::cerr << "Failed to set QNX thread name" << std::endl;
-            }
-    #elif defined(__linux__)
-            if (prctl(PR_SET_NAME, identifier) < 0) {
-                std::cerr << "Failed to set process name to " << identifier << std::endl;
-            }
-    #endif
+    if (identifier != nullptr)
+    {
+#if defined(__QNXNTO__)
+        if (pthread_setname_np(pthread_self(), identifier) != 0)
+        {
+            std::cerr << "Failed to set QNX thread name" << std::endl;
+        }
+#elif defined(__linux__)
+        if (prctl(PR_SET_NAME, identifier) < 0)
+        {
+            std::cerr << "Failed to set process name to " << identifier << std::endl;
+        }
+#endif
     }
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     set_process_name();
 
@@ -116,29 +111,61 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    score::lcm::Monitor<Checkpoints> monitor(config->instanceSpecifier);
-    score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
+    score::mw::log::rust::StdoutLoggerBuilder builder;
+    builder.Context("APP").LogLevel(score::mw::log::rust::LogLevel::Verbose).SetAsDefaultLogger();
 
-    timespec req{
-        static_cast<time_t>(config->delayInMs / 1000), // calculating number of seconds
-        static_cast<long>((config->delayInMs % 1000) * 1000000L) // calculating the number of remaining nanoseconds
-    };
+    using namespace score::hm;
 
-    while (!exitRequested)
+    auto builder_mon =
+        deadline::DeadlineMonitorBuilder()
+            .add_deadline(IdentTag("deadline_1"),
+                          TimeRange(std::chrono::milliseconds(50), std::chrono::milliseconds(150)))
+            .add_deadline(IdentTag("deadline_2"),
+                          TimeRange(std::chrono::milliseconds(2),
+                                    std::chrono::milliseconds(20)));  // Not used, only shows
+                                                                      // that multiple deadlines can be added
+
+    IdentTag ident("monitor");
+
     {
-        if(!stopReportingCheckpoints) {
-            monitor.ReportCheckpoint(Checkpoints::kOne);
+        auto hm = HealthMonitorBuilder()
+                      .add_deadline_monitor(ident, std::move(builder_mon))
+                      .with_internal_processing_cycle(std::chrono::milliseconds(50))
+                      .with_supervisor_api_cycle(std::chrono::milliseconds(50))
+                      .build();
 
-            nanosleep(&req, nullptr);
-            if (exitRequested) {
+        auto deadline_monitor_res = hm.get_deadline_monitor(ident);
+        if (!deadline_monitor_res.has_value())
+        {
+            std::cerr << "Failed to get deadline monitor" << std::endl;
+            return EXIT_FAILURE;
+        }
+
+        hm.start();
+        score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
+
+        auto deadline_mon = std::move(*deadline_monitor_res);
+
+        auto deadline_res = deadline_mon.get_deadline(IdentTag("deadline_1"));
+        while (!exitRequested)
+        {
+            if (stopReportingCheckpoints.load())
+            {
                 break;
             }
 
-            monitor.ReportCheckpoint(Checkpoints::kTwo);
-            monitor.ReportCheckpoint(Checkpoints::kThree);
-        } else {
-            nanosleep(&req, nullptr);
+            auto deadline_guard = deadline_res.value().start();
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(config->delayInMs));
+
+            // deadline_guard.stop(); // Optional, will be stopped automatically when going out of scope - this way we
+            // dont check Result from start() call
         }
+    }
+
+    if (stopReportingCheckpoints.load())
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
     }
 
     return EXIT_SUCCESS;

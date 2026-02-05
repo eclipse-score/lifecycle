@@ -65,6 +65,13 @@ impl HealthMonitorBuilder {
 
     /// Builds the HealthMonitor instance.
     pub fn build(self) -> HealthMonitor {
+        assert!(
+            self.supervisor_api_cycle
+                .as_millis()
+                .is_multiple_of(self.internal_processing_cycle.as_millis()),
+            "supervisor API cycle must be multiple of internal processing cycle"
+        );
+
         let allocator = protected_memory::ProtectedMemoryAllocator {};
         let mut monitors = HashMap::new();
         for (tag, builder) in self.deadlines {
@@ -165,8 +172,16 @@ impl HealthMonitor {
             }
         }
 
-        let monitoring_logic =
-            worker::MonitoringLogic::new(monitors, self.supervisor_api_cycle, worker::StubSupervisorAPIClient {});
+        let monitoring_logic = worker::MonitoringLogic::new(
+            monitors,
+            self.supervisor_api_cycle,
+            // Currently only `ScoreSupervisorAPIClient` and `StubSupervisorAPIClient` are supported.
+            // The later is meant to be used for testing purposes.
+            #[cfg(not(any(test, feature = "stub_supervisor_api_client")))]
+            worker::ScoreSupervisorAPIClient::new(),
+            #[cfg(any(test, feature = "stub_supervisor_api_client"))]
+            worker::StubSupervisorAPIClient {},
+        );
 
         self.worker.start(monitoring_logic)
     }
@@ -184,6 +199,14 @@ mod tests {
     fn hm_with_no_monitors_shall_panic_on_start() {
         let health_monitor_builder = super::HealthMonitorBuilder::new();
         health_monitor_builder.build().start();
+    }
+
+    #[test]
+    #[should_panic(expected = "supervisor API cycle must be multiple of internal processing cycle")]
+    fn hm_with_wrong_cycle_fails_to_build() {
+        super::HealthMonitorBuilder::new()
+            .with_supervisor_api_cycle(core::time::Duration::from_millis(50))
+            .build();
     }
 
     #[test]

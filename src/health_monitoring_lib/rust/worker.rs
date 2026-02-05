@@ -10,7 +10,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
-use crate::common::MonitorEvaluator;
+use crate::{common::MonitorEvaluator, log::debug};
 use containers::fixed_capacity::FixedCapacityVec;
 
 use crate::{
@@ -135,11 +135,50 @@ impl Drop for UniqueThreadRunner {
 }
 
 /// A stub implementation of the SupervisorAPIClient that logs alive notifications.
+#[allow(dead_code)]
 pub(super) struct StubSupervisorAPIClient;
 
+#[allow(dead_code)]
 impl SupervisorAPIClient for StubSupervisorAPIClient {
     fn notify_alive(&self) {
         warn!("StubSupervisorAPIClient: notify_alive called");
+    }
+}
+
+#[allow(dead_code)]
+#[derive(Copy, Clone)]
+enum Checks {
+    WorkerCheckpoint,
+}
+
+impl From<Checks> for u32 {
+    fn from(value: Checks) -> Self {
+        match value {
+            Checks::WorkerCheckpoint => 1,
+        }
+    }
+}
+
+#[allow(dead_code)]
+pub(super) struct ScoreSupervisorAPIClient {
+    supervisor_link: monitor_rs::Monitor<Checks>,
+}
+
+unsafe impl Send for ScoreSupervisorAPIClient {} // Just assuming it's safe to send across threads, this is a temporary solution
+
+#[allow(dead_code)]
+impl ScoreSupervisorAPIClient {
+    pub fn new() -> Self {
+        let value = std::env::var("IDENTIFIER").expect("IDENTIFIER env not set");
+        debug!("EtasySupervisorAPIClient: Creating with IDENTIFIER={}", value);
+        // This is only temporary usage so unwrap is fine here.
+        let supervisor_link = monitor_rs::Monitor::<Checks>::new(&value).expect("Failed to create supervisor_link");
+        Self { supervisor_link }
+    }
+}
+impl SupervisorAPIClient for ScoreSupervisorAPIClient {
+    fn notify_alive(&self) {
+        self.supervisor_link.report_checkpoint(Checks::WorkerCheckpoint);
     }
 }
 

@@ -472,10 +472,11 @@ if __name__ == "__main__":
             conf_gen.process_add_startup_config(
                 demo_process,
                 f"demo_app_startup_config_{i}",
-                process_arguments=[f"-sdemo/demo_application{i}/Port1"],
+                process_arguments=["-d50"],
                 env_variables={
                     "PROCESSIDENTIFIER": f"{process_group_name}_app{i}",
                     "CONFIG_PATH": f"/opt/supervision_demo/etc/health_monitor_process_cfg_{i}_{process_group_name}.bin",
+                    "IDENTIFIER": f"demo/demo_application{i}/Port1",
                 },
                 scheduling_policy="SCHED_OTHER",
                 scheduling_priority=0,

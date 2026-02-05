@@ -18,6 +18,11 @@ workspace = true
 score_log.workspace = true
 score_testing_macros.workspace = true
 containers.workspace = true
+monitor_rs.workspace = true
 
 [dev-dependencies]
 stdout_logger.workspace = true
+
+[features]
+default = []
+stub_supervisor_api_client = []

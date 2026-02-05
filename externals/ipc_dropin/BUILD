@@ -2,7 +2,6 @@ cc_library(
     name = "ipc_dropin_internal",
     hdrs = glob(["include/ipc_dropin/*.hpp"]),
     includes = ["include"],
-    strip_include_prefix = "include",
     visibility = ["//visibility:public"],
 )
 

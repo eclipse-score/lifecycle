@@ -23,13 +23,21 @@ rust_binary(
         "-C",
         "link-arg=-lm",
         "-C",
-        "link-arg=-lstdc++",
-        "-C",
         "link-arg=-lc",
-    ],
+    ] + select({
+        "@platforms//os:qnx": [
+            "-Clink-arg=-lc++",
+        ],
+        "//conditions:default": [
+            "-Clink-arg=-lrt",
+            "-Clink-arg=-lstdc++",
+        ],
+    }),
     deps = [
-        "//src/launch_manager_daemon/health_monitor_lib/rust_bindings:monitor_rs",
+        "//src/health_monitoring_lib",
         "//src/launch_manager_daemon/lifecycle_client_lib/rust_bindings:lifecycle_client_rs",
+        "@score_baselibs_rust//src/log/score_log",
+        "@score_baselibs_rust//src/log/stdout_logger",
         "@score_crates//:clap",
         "@score_crates//:libc",
         "@score_crates//:signal_hook",

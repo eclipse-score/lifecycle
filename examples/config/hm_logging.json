@@ -1,4 +1,4 @@
 {
     "appId": "HM",
-    "logLevel": "kInfo"
+    "logLevel": "kDebug"
 }
