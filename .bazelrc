@@ -1,43 +1,66 @@
+# *******************************************************************************
+# Copyright (c) 2026 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+
+common --registry=https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/
+common --registry=https://bcr.bazel.build
+
 build --java_language_version=17
 build --tool_java_language_version=17
 build --java_runtime_version=remotejdk_17
 build --tool_java_runtime_version=remotejdk_17
+build --credential_helper=*.qnx.com=%workspace%/scripts/internal/qnx_creds.py
+
+
+build:lc_stub --@score_baselibs//score/mw/log/flags:KRemote_Logging=False
+build:lc_stub --@score_baselibs//score/json:base_library=nlohmann
+
+# Common Lifecycle Toolchain flags for build (do not use it in case of system toolchains!)
+build:lc_toolchain_common --incompatible_strict_action_env
+build:lc_toolchain_common --host_platform=@score_bazel_platforms//:x86_64-linux
+
+# Target configuration for CPU:x86-64|OS:Linux build (do not use it in case of system toolchains!)
+build:lc-x86_64-linux --config=lc_stub
+build:lc-x86_64-linux --config=lc_toolchain_common
+build:lc-x86_64-linux --platforms=@score_bazel_platforms//:x86_64-linux-gcc_12.2.0-posix
+build:lc-x86_64-linux --extra_toolchains=@score_gcc_x86_64_toolchain//:x86_64-linux-gcc_12.2.0-posix
+build:lc-x86_64-linux --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_x86_64_unknown_linux_gnu
+
+# TODO enable once "score_toolchains_rust//toolchains/ferrocene:<TODO>" is available for aarch64 linux
+# Target configuration for CPU:AArch64|OS:Linux build (do not use it in case of system toolchains!)
+# build:lc-aarch64-linux --config=lc_stub
+# build:lc-aarch64-linux --config=lc_toolchain_common
+# build:lc-aarch64-linux --platforms=@score_bazel_platforms//:aarch64-linux-gcc_12.2.0-posix
+# build:lc-aarch64-linux --extra_toolchains=@score_gcc_aarch64_toolchain//:aarch64-linux-gcc_12.2.0-posix
+# build:lc-aarch64-linux --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:<TODO>
+
+
+# Target configuration for CPU:x86-64|OS:QNX build (do not use it in case of system toolchains!)
+build:lc-x86_64-qnx --config=lc_stub
+build:lc-x86_64-qnx --config=lc_toolchain_common
+build:lc-x86_64-qnx --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-posix
+build:lc-x86_64-qnx --extra_toolchains=@score_qcc_x86_64_toolchain//:x86_64-qnx-sdp_8.0.0-posix
+build:lc-x86_64-qnx --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_x86_64_pc_nto_qnx800
+
+# Target configuration for CPU:AArch64|OS:QNX build (do not use it in case of system toolchains!)
+build:lc-aarch64-qnx --config=lc_stub
+build:lc-aarch64-qnx --config=lc_toolchain_common
+build:lc-aarch64-qnx --incompatible_strict_action_env
+build:lc-aarch64-qnx --platforms=@score_bazel_platforms//:aarch64-qnx-sdp_8.0.0-posix
+build:lc-aarch64-qnx --extra_toolchains=@score_qcc_aarch64_toolchain//:aarch64-qnx-sdp_8.0.0-posix
+build:lc-aarch64-qnx --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_aarch64_unknown_nto_qnx800
 
 test --test_output=errors
-
-common --registry=https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/
-common --registry=https://bcr.bazel.build
-common --credential_helper=*.qnx.com=%workspace%/scripts/internal/qnx_creds.py
-
-build:x86_64-linux --platforms=@score_bazel_platforms//:x86_64-linux
-build:x86_64-linux --define=config=x86_64-linux
-
-build:build_qnx8 --platforms=@score_bazel_platforms//:arm64-qnx8_0
-build:build_qnx8 --extra_toolchains=@toolchains_qnx_qcc//:qcc_aarch64
-build:build_qnx8 --extra_toolchains=@score_toolchains_rust//toolchains/aarch64-unknown-qnx8_0:toolchain_aarch64_qnx8_0
-build:build_qnx8 --define=config=build_qnx8
-
-# TODO: Enable when rust toolchain for x86_64-qnx becomes available
-# build:x86_64-qnx --platforms=@score_bazel_platforms//:x86_64-qnx
-# build:x86_64-qnx --extra_toolchains=@toolchains_qnx_qcc//:qcc_x86_64
-# build:x86_64-qnx --define=config=x86_64-qnx
-
-common --@score_baselibs//score/mw/log/flags:KRemote_Logging=False
-common --@score_baselibs//score/json:base_library=nlohmann
 
 ## default is a stdout logger which looks like dlt logs
 ## uncomment below to use score::mw::log instead of the stdout logger
 # build --cxxopt=-DLC_LOG_SCORE_MW_LOG
-
-build --cxxopt=-std=c++17
-build --cxxopt=-Wno-missing-template-arg-list-after-template-kw
-# Required to build baselibs dependency which uses some deprecated APIs
-# & mismatched new/delete
-build --cxxopt=-Wno-mismatched-new-delete
-build --cxxopt=-Wno-deprecated-declarations
-
-build --strip=never
-build --enable_bzlmod
-
-common --extra_toolchains=@gcc_toolchain//:host_gcc_12
-common --extra_toolchains=@score_toolchains_rust//toolchains/x86_64-unknown-linux-gnu:toolchain_x86_64_linux
