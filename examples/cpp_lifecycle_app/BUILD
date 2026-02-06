@@ -17,11 +17,11 @@ cc_binary(
     ],
     copts = select({
         "@platforms//os:qnx": [],
-        "//conditions:default": ["-pthread"],
+        "@platforms//os:linux": ["-pthread"],
     }),
     linkopts = select({
         "@platforms//os:qnx": [],
-        "//conditions:default": ["-lpthread"],
+        "@platforms//os:linux": ["-lpthread"],
     }),
     visibility = ["//visibility:public"],
     deps = [

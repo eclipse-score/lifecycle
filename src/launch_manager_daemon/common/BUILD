@@ -65,7 +65,7 @@ cc_library(
                 "src/internal/osal/linux/**",
             ],
         ),
-        "//conditions:default": glob(
+        "@platforms//os:linux": glob(
             [
                 "src/internal/osal/**/*.cpp",
             ],

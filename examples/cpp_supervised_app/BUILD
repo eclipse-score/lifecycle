@@ -17,7 +17,7 @@ cc_binary(
     ],
     copts = select({
         "@platforms//os:qnx": [],
-        "@platforms//os:linux": [
+        "@platforms//os:linux": []
     }),
     linkopts = select({
         "@platforms//os:qnx": [

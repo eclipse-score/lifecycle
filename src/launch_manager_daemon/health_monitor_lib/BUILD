@@ -164,7 +164,7 @@ cc_library_with_common_opts(
     ] + select(
         {
             "@platforms//os:qnx": [],
-            "//conditions:default": [
+            "@platforms//os:linux": [
                 "//externals/acl",
             ],
         },
@@ -190,7 +190,7 @@ cc_library_with_common_opts(
     ] + select(
         {
             "@platforms//os:qnx": [],
-            "//conditions:default": [
+            "@platforms//os:linux": [
                 "//externals/acl",
             ],
         },
@@ -250,7 +250,7 @@ cc_library_with_common_opts(
     ] + select(
         {
             "@platforms//os:qnx": [],
-            "//conditions:default": [
+            "@platforms//os:linux": [
                 "//externals/acl",
             ],
         },

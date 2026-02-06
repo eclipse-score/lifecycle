@@ -38,7 +38,7 @@ cc_binary_with_common_opts(
     includes = ["src/"],
     linkopts = select({
         "@platforms//os:qnx": ["-lsecpol"],
-        "//conditions:default": ["-lpthread"],
+        "@platforms//os:linux": ["-lpthread"],
     }),
     visibility = ["//visibility:public"],
     deps = [

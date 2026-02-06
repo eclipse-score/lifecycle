@@ -24,12 +24,12 @@ cc_library(
     ],
     copts = select({
         "@platforms//os:qnx": [],
-        "//conditions:default": ["-pthread"],
+        "@platforms//os:linux": ["-pthread"],
     }),
     includes = ["include"],
     linkopts = select({
         "@platforms//os:qnx": [],
-        "//conditions:default": ["-lpthread"],
+        "@platforms//os:linux": ["-lpthread"],
     }),
     visibility = ["//visibility:public"],
     deps = [
