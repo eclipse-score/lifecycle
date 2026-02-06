@@ -51,6 +51,14 @@ build:lc-x86_64-qnx --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-po
 build:lc-x86_64-qnx --extra_toolchains=@score_qcc_x86_64_toolchain//:x86_64-qnx-sdp_8.0.0-posix
 build:lc-x86_64-qnx --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_x86_64_pc_nto_qnx800
 
+# Target configuration for CPU:x86-64|OS:QNX build (do not use it in case of system toolchains!) 
+# Same as lc-x86_64-qnx, may be removed
+build:build_qnx8 --config=lc_stub
+build:build_qnx8 --config=lc_toolchain_common
+build:build_qnx8 --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-posix
+build:build_qnx8 --extra_toolchains=@score_qcc_x86_64_toolchain//:x86_64-qnx-sdp_8.0.0-posix
+build:build_qnx8 --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_x86_64_pc_nto_qnx800
+
 # Target configuration for CPU:AArch64|OS:QNX build (do not use it in case of system toolchains!)
 build:lc-aarch64-qnx --config=lc_stub
 build:lc-aarch64-qnx --config=lc_toolchain_common
@@ -59,6 +67,7 @@ build:lc-aarch64-qnx --platforms=@score_bazel_platforms//:aarch64-qnx-sdp_8.0.0-
 build:lc-aarch64-qnx --extra_toolchains=@score_qcc_aarch64_toolchain//:aarch64-qnx-sdp_8.0.0-posix
 build:lc-aarch64-qnx --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_aarch64_unknown_nto_qnx800
 
+# Common test flags for all platforms
 test --test_output=errors
 test --@score_baselibs//score/mw/log/flags:KRemote_Logging=False
 test --@score_baselibs//score/json:base_library=nlohmann
