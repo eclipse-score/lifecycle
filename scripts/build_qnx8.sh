@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # *******************************************************************************
-# Copyright (c) 2025 Contributors to the Eclipse Foundation
+# Copyright (c) 2026 Contributors to the Eclipse Foundation
 #
 # See the NOTICE file(s) distributed with this work for additional
 # information regarding copyright ownership.
@@ -33,4 +33,4 @@ if [ $# -eq 0 ]; then
   set -- //src/...
 fi
 
-bazel build --config=build_qnx8 --credential_helper=*.qnx.com=%workspace%/scripts/internal/qnx_creds.py "$@"
+bazel build --config=lc-x86_64-qnx --credential_helper=*.qnx.com=%workspace%/scripts/internal/qnx_creds.py "$@"
