@@ -65,7 +65,7 @@ cc_library(
                 "src/internal/osal/linux/**",
             ],
         ),
-        "//config:build_qnx8": glob(
+        "@platforms//os:qnx": glob(
             [
                 "src/internal/osal/**/*.cpp",
             ],
@@ -73,7 +73,7 @@ cc_library(
                 "src/internal/osal/linux/**",
             ],
         ),
-        "//conditions:default": glob(
+        "@platforms//os:linux": glob(
             [
                 "src/internal/osal/**/*.cpp",
             ],

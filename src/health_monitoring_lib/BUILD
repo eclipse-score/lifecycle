@@ -80,7 +80,7 @@ cc_gtest_unit_test(
     ],
     linkopts = select({
         "@platforms//os:qnx": ["-lsocket"],
-        "//conditions:default": [],
+        "@platforms//os:linux": [],
     }),
     deps = [
         ":health_monitoring_lib_cc",
