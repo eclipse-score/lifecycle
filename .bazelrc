@@ -20,58 +20,46 @@ build --java_runtime_version=remotejdk_17
 build --tool_java_runtime_version=remotejdk_17
 build --credential_helper=*.qnx.com=%workspace%/scripts/internal/qnx_creds.py
 
-
-build:lc_stub --@score_baselibs//score/mw/log/flags:KRemote_Logging=False
-build:lc_stub --@score_baselibs//score/json:base_library=nlohmann
-
-# Common Lifecycle Toolchain flags for build (do not use it in case of system toolchains!)
-build:lc_toolchain_common --incompatible_strict_action_env
-build:lc_toolchain_common --host_platform=@score_bazel_platforms//:x86_64-linux
-
-# Target configuration for CPU:x86-64|OS:Linux build (do not use it in case of system toolchains!)
-build:lc-x86_64-linux --config=lc_stub
-build:lc-x86_64-linux --config=lc_toolchain_common
-build:lc-x86_64-linux --platforms=@score_bazel_platforms//:x86_64-linux-gcc_12.2.0-posix
-build:lc-x86_64-linux --extra_toolchains=@score_gcc_x86_64_toolchain//:x86_64-linux-gcc_12.2.0-posix
-build:lc-x86_64-linux --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_x86_64_unknown_linux_gnu
-
-# TODO enable once "score_toolchains_rust//toolchains/ferrocene:<TODO>" is available for aarch64 linux
-# Target configuration for CPU:AArch64|OS:Linux build (do not use it in case of system toolchains!)
-# build:lc-aarch64-linux --config=lc_stub
-# build:lc-aarch64-linux --config=lc_toolchain_common
-# build:lc-aarch64-linux --platforms=@score_bazel_platforms//:aarch64-linux-gcc_12.2.0-posix
-# build:lc-aarch64-linux --extra_toolchains=@score_gcc_aarch64_toolchain//:aarch64-linux-gcc_12.2.0-posix
-# build:lc-aarch64-linux --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:<TODO>
-
-
-# Target configuration for CPU:x86-64|OS:QNX build (do not use it in case of system toolchains!)
-build:lc-x86_64-qnx --config=lc_stub
-build:lc-x86_64-qnx --config=lc_toolchain_common
-build:lc-x86_64-qnx --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-posix
-build:lc-x86_64-qnx --extra_toolchains=@score_qcc_x86_64_toolchain//:x86_64-qnx-sdp_8.0.0-posix
-build:lc-x86_64-qnx --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_x86_64_pc_nto_qnx800
-
-# Target configuration for CPU:x86-64|OS:QNX build (do not use it in case of system toolchains!) 
-# Same as lc-x86_64-qnx, may be removed
-build:build_qnx8 --config=lc_stub
-build:build_qnx8 --config=lc_toolchain_common
-build:build_qnx8 --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-posix
-build:build_qnx8 --extra_toolchains=@score_qcc_x86_64_toolchain//:x86_64-qnx-sdp_8.0.0-posix
-build:build_qnx8 --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_x86_64_pc_nto_qnx800
-
-# Target configuration for CPU:AArch64|OS:QNX build (do not use it in case of system toolchains!)
-build:lc-aarch64-qnx --config=lc_stub
-build:lc-aarch64-qnx --config=lc_toolchain_common
-build:lc-aarch64-qnx --incompatible_strict_action_env
-build:lc-aarch64-qnx --platforms=@score_bazel_platforms//:aarch64-qnx-sdp_8.0.0-posix
-build:lc-aarch64-qnx --extra_toolchains=@score_qcc_aarch64_toolchain//:aarch64-qnx-sdp_8.0.0-posix
-build:lc-aarch64-qnx --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_aarch64_unknown_nto_qnx800
-
 # Common test flags for all platforms
 test --test_output=errors
 test --@score_baselibs//score/mw/log/flags:KRemote_Logging=False
 test --@score_baselibs//score/json:base_library=nlohmann
 test --cxxopt=-Wno-deprecated-declarations
+
+# Common Lifecycle Toolchain flags for build (do not use it in case of system toolchains!)
+build:toolchain_common --incompatible_strict_action_env
+build:toolchain_common --host_platform=@score_bazel_platforms//:x86_64-linux
+## Ferrocene must be common compiler for HOST. To ensure metadata compatibility for proc macro crate
+build:toolchain_common --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_x86_64_unknown_linux_gnu
+build:stub --@score_baselibs//score/mw/log/flags:KRemote_Logging=False
+build:stub --@score_baselibs//score/json:base_library=nlohmann
+
+# Target configuration for CPU:x86-64|OS:Linux build (do not use it in case of system toolchains!)
+build:x86_64-linux --config=stub
+build:x86_64-linux --config=toolchain_common
+build:x86_64-linux --platforms=@score_bazel_platforms//:x86_64-linux-gcc_12.2.0-posix
+build:x86_64-linux --extra_toolchains=@score_gcc_x86_64_toolchain//:x86_64-linux-gcc_12.2.0-posix
+build:x86_64-linux --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_x86_64_unknown_linux_gnu
+
+# TODO arm64-linux when rust support is there
+
+# Target configuration for CPU:x86-64|OS:QNX build (do not use it in case of system toolchains!)
+build:x86_64-qnx --config=stub
+build:x86_64-qnx --config=toolchain_common
+build:x86_64-qnx --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-posix
+build:x86_64-qnx --extra_toolchains=@score_qcc_x86_64_toolchain//:x86_64-qnx-sdp_8.0.0-posix
+build:x86_64-qnx --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_x86_64_pc_nto_qnx800
+
+# Target configuration for CPU:AArch64|OS:QNX build (do not use it in case of system toolchains!)
+build:arm64-qnx --config=stub
+build:arm64-qnx --config=toolchain_common
+build:arm64-qnx --incompatible_strict_action_env
+build:arm64-qnx --platforms=@score_bazel_platforms//:aarch64-qnx-sdp_8.0.0-posix
+build:arm64-qnx --extra_toolchains=@score_qcc_aarch64_toolchain//:aarch64-qnx-sdp_8.0.0-posix
+build:arm64-qnx --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_aarch64_unknown_nto_qnx800
+
+# to be removed
+build:build_qnx8 --config=arm64-qnx
 
 ## default is a stdout logger which looks like dlt logs
 ## uncomment below to use score::mw::log instead of the stdout logger
