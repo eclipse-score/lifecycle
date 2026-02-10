@@ -33,4 +33,4 @@ if [ $# -eq 0 ]; then
   set -- //src/...
 fi
 
-bazel build --config=lc-x86_64-qnx --credential_helper=*.qnx.com=%workspace%/scripts/internal/qnx_creds.py "$@"
+bazel build --config=x86_64-qnx --credential_helper=*.qnx.com=%workspace%/scripts/internal/qnx_creds.py "$@"

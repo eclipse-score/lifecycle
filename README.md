@@ -39,7 +39,7 @@ It is recommended to use the devcontainer for building the project, see [eclipse
 Build all components for **Linux** by running
 
 ```sh
-bazel build --config=lc-x86_64-linux //...
+bazel build --config=x86_64-linux //...
 ```
 
 To build launch_manager and health_monitor daemons with the sanitizers enabled use one of the following
