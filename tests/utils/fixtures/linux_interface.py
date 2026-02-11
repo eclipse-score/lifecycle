@@ -18,7 +18,7 @@ import time
 from typing import List, Optional, Tuple, Literal
 from pathlib import Path
 import os
-from tests.integration.control_interface import ControlInterface
+from .control_interface import ControlInterface
 
 _TIMEOUT_CODE = -1
 

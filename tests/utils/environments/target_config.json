@@ -1,0 +1,29 @@
+{
+    "S_CORE_ECU_QEMU": {
+        "performance_processor": {
+            "name": "S_CORE_ECU_QEMU_PP",
+            "ip_address": "192.168.100.10",
+            "ext_ip_address": "192.168.100.10",
+            "host_ip": "192.168.100.1",
+            "ssh_port": 22,
+            "diagnostic_ip_address": "0.0.0.0",
+            "diagnostic_address": "0x90",
+            "serial_device": "",
+            "network_interfaces": [],
+            "ecu_name": "s_core_ecu_qemu_pp",
+            "data_router_config": {},
+            "qemu_num_cores": 2,
+            "qemu_ram_size": "1G"
+        },
+        "safety_processor": {
+            "name": "S_CORE_ECU_QEMU_SC",
+            "ip_address": "192.168.115.20",
+            "diagnostic_ip_address": "0.0.0.0",
+            "diagnostic_address": "0x90",
+            "serial_device": "",
+            "use_doip": true
+        },
+        "other_processors": {}
+    }
+}
+

@@ -1,0 +1,64 @@
+# *******************************************************************************
+# Copyright (c) 2025 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+
+
+# Port number for SSH
+Port 22
+
+# Protocol version
+Protocol 2
+
+# Host key location
+HostKey /var/ssh/ssh_host_rsa_key
+
+# Enable port forwarding
+AllowTcpForwarding yes
+
+# Enable SCP/SFTP
+Subsystem sftp /usr/lib/ssh/sftp-server
+
+# AUTHENTICATION SETTINGS - Simple passwordless authentication
+# Enable password authentication to check for empty passwords
+PasswordAuthentication yes
+
+# Allow empty passwords (no password required)  
+PermitEmptyPasswords yes
+
+# Disable all other authentication methods completely
+PubkeyAuthentication no
+ChallengeResponseAuthentication no
+HostbasedAuthentication no
+
+# Allow root login without authentication
+PermitRootLogin yes
+
+# Allow user environment variables
+PermitUserEnvironment yes
+
+# Don't create PID file
+PidFile none
+
+# Log level for debugging
+LogLevel DEBUG
+
+# Disable strict modes for easier setup
+StrictModes no
+
+# Disable DNS lookups for faster connection
+UseDNS no
+
+# Maximum authentication attempts
+MaxAuthTries 3
+
+# Disable login grace time
+LoginGraceTime 30

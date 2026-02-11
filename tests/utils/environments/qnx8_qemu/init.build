@@ -1,0 +1,98 @@
+# *******************************************************************************
+# Copyright (c) 2025 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+
+
+###############################################################################
+#
+# Example image built based on minimal configuration from QNX 
+#
+###############################################################################
+
+[-optional]
+
+[image=0x3600000]                          # Set image size to 56MB (0x3600000 bytes)
+[virtual=x86_64,multiboot] boot = {      # Configure for x86_64 architecture with multiboot support
+    # Use startup-x86 by default
+    startup-x86 -v -D8250..115200 -zz   # Start x86 kernel with verbose output, serial console at 115200 baud
+    PATH=/proc/boot                      # Set executable search path to boot directory
+    LD_LIBRARY_PATH=/proc/boot           # Set library search path to boot directory  
+    [+keeplinked] procnto-smp-instr      # Keep process manager linked and instrumented for SMP
+}
+
+[+script] startup-script = {             # Define startup script that runs during boot
+   procmgr_symlink /dev/shmem /tmp       # Create symbolic link from shared memory to /tmp
+    # /tmp will be mounted later as a proper RAM disk
+
+    display_msg Welcome to QNX OS 8.0 on x86_64 tweaked for S-CORE!  # Display welcome message
+
+    # These env variables get inherited by all programs which follow
+    SYSNAME=nto                          # Set system name to "nto" (Neutrino)
+    TERM=qansi                           # Set terminal type to QNX ANSI
+
+    devc-ser8250 &                       # Start serial driver in background
+    waitfor /dev/ser1                    # Wait for serial device to be available
+    reopen /dev/ser1                     # Reopen serial device for console I/O
+
+    display_msg Placeholder for startup script  # Display startup message
+    etc/startup.sh                       # Execute main startup script
+
+    [+session] /bin/sh &                 # Start shell session in background
+}
+
+# Essential utilities - core system commands needed for basic operation
+# These binaries provide fundamental system functionality and process management
+
+# Process and system management utilities
+on                          # Command execution utility - runs commands with specific options
+[type=link] waitfor=on         # Create symbolic link: waitfor -> on (waits for resources to become available)
+[type=link] ability=on         # Create symbolic link: ability -> on (manages process abilities/privileges)
+
+# Shell and command interpreter
+ksh                        # Korn shell - provides command-line interface and scripting
+pidin                      # Process information display - shows running processes (like 'ps' on Linux)
+[type=link] /bin/sh=/proc/boot/ksh # Create symbolic link: sh -> ksh (standard shell link)
+
+# File system utilities
+mount                      # File system mount utility - mounts/unmounts file systems
+getconf               # System configuration query utility - retrieves system parameters
+[type=link] setconf=getconf   # Create symbolic link: setconf -> getconf (sets configuration parameters)
+
+# Device drivers for hardware access
+devc-ser8250             # Serial port driver for 8250/16550 UART controllers (console access)
+
+# System logging utilities
+slog2info                 # System log viewer - displays logged messages
+slogger2                  # System logging daemon - collects and manages log messages
+
+# Essential libraries - core runtime libraries required for system operation
+# These libraries provide fundamental services like C runtime, networking, and logging
+
+# Standard C library - provides basic C runtime functions
+libc.so.6                          # Main C library (malloc, printf, file I/O, etc.)
+
+# Dynamic linker/loader - handles dynamic library loading at runtime
+/usr/lib/ldqnx-64.so.2=ldqnx-64.so.2   # 64-bit QNX dynamic linker (loads shared libraries)
+
+# Networking library - provides socket and network communication functions
+libsocket.so.4                     # Socket library (TCP/IP, UDP, network I/O functions)
+[type=link] libsocket.so=libsocket.so.4 # Create version-neutral symbolic link
+
+# System logging library - provides logging services for applications
+libslog2.so.1                      # System logging library (slog2_* functions)
+[type=link] libslog2.so=libslog2.so.1   # Create version-neutral symbolic link
+
+# Storage driver - provides access to IDE/SATA block devices
+devb-eide                          # Block device driver for IDE/SATA hard drives and SSDs
+                                        # Required for mounting QNX6 file systems from disk partitions
+
+[+include] tests/utils/environments/qnx8_qemu/system.build
