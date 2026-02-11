@@ -12,17 +12,15 @@
 # *******************************************************************************
 
 name: Reference Integration Build
-
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, reopened, synchronize]
   merge_group:
     types: [checks_requested]
-
-    jobs:
-      integration:
-        uses: eclipse-score/reference_integration/.github/workflows/module-integration-build.yml@main
-        with:
-          known_good: |
-            { "modules": [] }
-          config: x86_64-linux
+jobs:
+  integration:
+    uses: eclipse-score/reference_integration/.github/workflows/reusable_integration-build.yml@main
+    with:
+      known_good: |
+        { "modules": [] }
+      config: x86_64-linux
