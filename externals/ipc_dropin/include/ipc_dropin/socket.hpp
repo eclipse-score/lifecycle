@@ -32,7 +32,11 @@ namespace ipc_dropin
         ReturnCode create(const char *name, mode_t mode)
         {
             name_ = name;
-            fd_ = shm_open(name, O_CREAT | O_RDWR | O_CLOEXEC, mode);
+            if(name_.size() > 0 && name_[0] != '/') {
+                name_ = "/" + name_;
+            }
+
+            fd_ = shm_open(name_.c_str(), O_CREAT | O_RDWR | O_CLOEXEC, mode);
             if (fd_ < 0)
             {
                 if (errno == EACCES)
@@ -70,7 +74,11 @@ namespace ipc_dropin
         ReturnCode connect(const char *name) noexcept
         {
             name_ = name;
-            fd_ = shm_open(name, O_RDWR | O_CLOEXEC, 0);
+            if(name_.size() > 0 && name_[0] != '/') {
+                name_ = "/" + name_;
+            }
+
+            fd_ = shm_open(name_.c_str(), O_RDWR | O_CLOEXEC, 0);
             if (fd_ < 0)
             {
                 if (errno == EACCES)

@@ -23,7 +23,6 @@ file_exists() {
     fi
 }
 
-
 LM_BINARY="$PWD/../bazel-bin/src/launch_manager_daemon/launch_manager"
 DEMO_APP_BINARY="$PWD/../bazel-bin/examples/cpp_supervised_app/cpp_supervised_app"
 DEMO_APP_WO_HM_BINARY="$PWD/../bazel-bin/examples/cpp_lifecycle_app/cpp_lifecycle_app"
@@ -41,7 +40,7 @@ file_exists $CONTROL_CLI_BINARY
 NUMBER_OF_CPP_PROCESSES_PER_PROCESS_GROUP=1
 NUMBER_OF_RUST_PROCESSES_PER_PROCESS_GROUP=1
 NUMBER_OF_NON_SUPERVISED_CPP_PROCESSES_PER_PROCESS_GROUP=1
-PROCESS_GROUPS="--process_groups MainPG"
+PROCESS_GROUPS="--process_groups MainPG ProcessGroup1"
 
 rm -rf tmp
 rm -rf config/tmp

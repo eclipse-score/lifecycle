@@ -125,94 +125,6 @@ def get_alive_supervisions(index: int, process_group: str):
     )
 
 
-def get_deadline_supervisions(index: int, process_group: str):
-    # Every demo app has three checkpoints and the first+second checkpoints are used for deadline supervision
-    sourceCpIndex = index * 3
-    targetCpIndex = sourceCpIndex + 1
-    return (
-        """
-{
-    "ruleContextKey": "DeadlineSupervision"""
-        + str(index)
-        + """",
-    "maxDeadline": 80.0,
-    "minDeadline": 40.0,
-    "checkpointTransition": {
-        "refSourceCPIndex": """
-        + str(sourceCpIndex)
-        + """,
-        "refTargetCPIndex": """
-        + str(targetCpIndex)
-        + """
-    },
-    "refProcessIndices": ["""
-        + str(index)
-        + '''],
-    "refProcessGroupStates": [
-        {
-            "identifier": "'''
-        + process_group
-        + """/Startup"
-        }
-    ]
-}
-"""
-    )
-
-
-def get_logical_supervisions(index: int, process_group: str):
-    # Every demo app has three checkpoints and all three checkpoints in sequence are used for logical supervision
-    startCpIndex = index * 3
-    return (
-        """
-{
-    "ruleContextKey": "LogicalSupervision"""
-        + str(index)
-        + """",
-    "checkpoints": [
-    {
-        "refCheckPointIndex": """
-        + str(startCpIndex)
-        + """,
-        "isInitial": true,
-        "isFinal": false
-    },
-    {
-        "refCheckPointIndex": """
-        + str(startCpIndex + 1)
-        + """,
-        "isInitial": false,
-        "isFinal": false
-    },
-    {
-        "refCheckPointIndex": """
-        + str(startCpIndex + 2)
-        + """,
-        "isInitial": false,
-        "isFinal": true
-    }],
-    "transitions": [{
-        "checkpointSourceIdx": 0,
-        "checkpointTargetIdx": 1
-    },{
-        "checkpointSourceIdx": 1,
-        "checkpointTargetIdx": 2
-    }],
-    "refProcessIndices": ["""
-        + str(index)
-        + '''],
-    "refProcessGroupStates": [
-        {
-            "identifier": "'''
-        + process_group
-        + """/Startup"
-        }
-    ]
-}
-"""
-    )
-
-
 def get_local_supervisions(index: int):
     return (
         """
@@ -316,8 +228,6 @@ def gen_health_monitor_cfg_for_process_group(
     monitorInterfaces = []
     checkpoints = []
     hmAliveSupervisions = []
-    hmDeadlineSupervisions = []
-    hmLogicalSupervisions = []
     hmLocalSupervisions = []
     hmGlobalSupervision = []
     hmRecoveryNotifications = []
@@ -335,12 +245,6 @@ def gen_health_monitor_cfg_for_process_group(
         hmAliveSupervisions.append(
             json.loads(get_alive_supervisions(process_index, process_group))
         )
-        # hmDeadlineSupervisions.append(
-        #     json.loads(get_deadline_supervisions(process_index, process_group))
-        # )
-        # hmLogicalSupervisions.append(
-        #     json.loads(get_logical_supervisions(process_index, process_group))
-        # )
         hmLocalSupervisions.append(json.loads(get_local_supervisions(process_index)))
 
     hmGlobalSupervision.append(
@@ -360,8 +264,6 @@ def gen_health_monitor_cfg_for_process_group(
     config["hmMonitorInterface"].extend(monitorInterfaces)
     config["hmSupervisionCheckpoint"].extend(checkpoints)
     config["hmAliveSupervision"].extend(hmAliveSupervisions)
-    config["hmDeadlineSupervision"].extend(hmDeadlineSupervisions)
-    config["hmLogicalSupervision"].extend(hmLogicalSupervisions)
     config["hmLocalSupervision"].extend(hmLocalSupervisions)
     config["hmGlobalSupervision"].extend(hmGlobalSupervision)
     config["hmRecoveryNotification"].extend(hmRecoveryNotifications)
