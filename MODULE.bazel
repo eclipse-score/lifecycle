@@ -1,5 +1,5 @@
 # *******************************************************************************
-# Copyright (c) 2025 Contributors to the Eclipse Foundation
+# Copyright (c) 2026 Contributors to the Eclipse Foundation
 #
 # See the NOTICE file(s) distributed with this work for additional
 # information regarding copyright ownership.
@@ -18,7 +18,7 @@ module(
 # Bazel global rules
 bazel_dep(name = "rules_python", version = "1.4.1")
 bazel_dep(name = "rules_rust", version = "0.61.0")
-bazel_dep(name = "rules_cc", version = "0.2.9")
+bazel_dep(name = "rules_cc", version = "0.2.14")
 bazel_dep(name = "aspect_rules_lint", version = "1.5.3")
 bazel_dep(name = "buildifier_prebuilt", version = "8.2.0.2")
 bazel_dep(name = "platforms", version = "1.0.0")
@@ -27,58 +27,66 @@ bazel_dep(name = "download_utils", version = "1.0.1")
 bazel_dep(name = "googletest", version = "1.17.0.bcr.1")
 
 # S-CORE process rules
-bazel_dep(name = "score_bazel_platforms", version = "0.0.3")
+bazel_dep(name = "score_bazel_platforms", version = "0.0.4")
 bazel_dep(name = "score_docs_as_code", version = "2.3.0")
-bazel_dep(name = "score_tooling", version = "1.0.5")
+bazel_dep(name = "score_tooling", version = "1.1.0")
 bazel_dep(name = "score_rust_policies", version = "0.0.3")
 
 bazel_dep(name = "score_process", version = "1.4.0", dev_dependency = True)
 bazel_dep(name = "score_platform", version = "0.5.1", dev_dependency = True)
 
-# Toolchains and extensions
-bazel_dep(name = "score_toolchains_gcc", version = "0.5", dev_dependency = True)
-bazel_dep(name = "score_toolchains_qnx", version = "0.0.6", dev_dependency = True)
-bazel_dep(name = "rust_qnx8_toolchain", version = "1.2.0", dev_dependency = True)
-bazel_dep(name = "score_toolchains_rust", version = "0.1.1", dev_dependency = True)
+## Configure the C++ toolchain
+bazel_dep(name = "score_bazel_cpp_toolchains", version = "0.2.2", dev_dependency = True)
+
+gcc = use_extension("@score_bazel_cpp_toolchains//extensions:gcc.bzl", "gcc", dev_dependency = True)
+gcc.toolchain(
+    name = "score_gcc_x86_64_toolchain",
+    target_cpu = "x86_64",
+    target_os = "linux",
+    use_default_package = True,
+    version = "12.2.0",
+)
+gcc.toolchain(
+    name = "score_gcc_aarch64_toolchain",
+    target_cpu = "aarch64",
+    target_os = "linux",
+    use_default_package = True,
+    version = "12.2.0",
+)
+gcc.toolchain(
+    name = "score_qcc_x86_64_toolchain",
+    sdp_version = "8.0.0",
+    target_cpu = "x86_64",
+    target_os = "qnx",
+    use_default_package = True,
+    version = "12.2.0",
+)
+gcc.toolchain(
+    name = "score_qcc_aarch64_toolchain",
+    sdp_version = "8.0.0",
+    target_cpu = "aarch64",
+    target_os = "qnx",
+    use_default_package = True,
+    version = "12.2.0",
+)
+use_repo(
+    gcc,
+    "score_gcc_aarch64_toolchain",
+    "score_gcc_x86_64_toolchain",
+    "score_qcc_aarch64_toolchain",
+    "score_qcc_x86_64_toolchain",
+)
+
+## Rust Toolchain
+bazel_dep(name = "score_toolchains_rust", version = "0.4.0", dev_dependency = True)
 
 # S-CORE crates
 bazel_dep(name = "score_crates", version = "0.0.6")
 
 git_override(
-    module_name = "score_toolchains_rust",
-    commit = "bcf8e5364f72cf136ec81960350a82e2b5c45449",
-    remote = "https://github.com/eclipse-score/toolchains_rust.git",
-)
-
-git_override(
     module_name = "flatbuffers",
     commit = "187240970746d00bbd26b0f5873ed54d2477f9f3",
     remote = "https://github.com/google/flatbuffers.git",
-)
-
-archive_override(
-    module_name = "rust_qnx8_toolchain",
-    strip_prefix = "qnx8",
-    urls = [
-        "https://github.com/qorix-group/rust-lang-qnx8/releases/download/1.2.0/qnx8_rust_toolchain.tar.gz",
-    ],
-)
-
-# Extensions
-
-gcc = use_extension("@score_toolchains_gcc//extentions:gcc.bzl", "gcc", dev_dependency = True)
-gcc.toolchain(
-    sha256 = "457f5f20f57528033cb840d708b507050d711ae93e009388847e113b11bf3600",
-    strip_prefix = "x86_64-unknown-linux-gnu",
-    url = "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/0.0.1/x86_64-unknown-linux-gnu_gcc12.tar.gz",
-)
-use_repo(gcc, "gcc_toolchain", "gcc_toolchain_gcc")
-
-toolchains_qnx = use_extension("@score_toolchains_qnx//:extensions.bzl", "toolchains_qnx", dev_dependency = True)
-toolchains_qnx.sdp(
-    sha256 = "f2e0cb21c6baddbcb65f6a70610ce498e7685de8ea2e0f1648f01b327f6bac63",
-    strip_prefix = "installation",
-    url = "https://www.qnx.com/download/download/79858/installation.tgz",
 )
 
 deb = use_repo_rule("@download_utils//download/deb:defs.bzl", "download_deb")
@@ -98,10 +106,6 @@ python.toolchain(
     python_version = PYTHON_VERSION,
 )
 use_repo(python)
-
-use_repo(toolchains_qnx, "toolchains_qnx_sdp")
-use_repo(toolchains_qnx, "toolchains_qnx_qcc")
-use_repo(toolchains_qnx, "toolchains_qnx_ifs")
 
 bazel_dep(name = "score_baselibs_rust", version = "0.0.5")
 bazel_dep(name = "score_baselibs", version = "0.2.2")
