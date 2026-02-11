@@ -41,3 +41,4 @@ jobs:
       # the bazel-target depends on your repo specific docs_targets configuration (e.g. "suffix")
       bazel-target: "//:docs -- --github_user=${{ github.repository_owner }} --github_repo=${{ github.event.repository.name }}"
       retention-days: 3
+      tests-report-artifact: test-reports
