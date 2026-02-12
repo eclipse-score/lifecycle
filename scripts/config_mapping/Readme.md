@@ -27,3 +27,30 @@ Execute all tests:
 ```bash
 pytest tests.py
 ```
+
+# Mapping Details
+
+## Mapping of RunTargets to ProcessGroups
+
+TODO
+
+## Mapping of Components to Processes
+
+TODO
+
+### Mapping of Deployment Config to Startup Config
+
+TODO
+
+### Mapping of ReadyCondition to Execution Dependencies
+
+TODO
+
+## Mapping of Recovery Actions
+
+## Known Limitations
+
+TODO
+
+* Transition timeout
+* terminated ready condition
