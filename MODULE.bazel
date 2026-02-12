@@ -81,7 +81,13 @@ use_repo(
 bazel_dep(name = "score_toolchains_rust", version = "0.4.0", dev_dependency = True)
 
 # S-CORE crates
-bazel_dep(name = "score_crates", version = "0.0.6")
+bazel_dep(name = "score_crates", version = "0.0.7")
+
+git_override(
+    module_name = "rules_rust",
+    commit = "293337fd6402ec3dfbeb8f2d589f38ad9124dadd",
+    remote = "https://github.com/pawelrutkaq/rules_rust.git",  # To be fixed once rule_rust is in score bazel registry
+)
 
 git_override(
     module_name = "flatbuffers",
