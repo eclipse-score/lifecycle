@@ -52,6 +52,35 @@ extern "C" fn health_monitor_builder_add_deadline_monitor(handle: FFIHandle, tag
 }
 
 #[no_mangle]
+extern "C" fn health_monitor_builder_add_heartbeat_monitor(
+    hmon_builder_handle: FFIHandle,
+    monitor_tag: *const IdentTag,
+    monitor_builder_handle: FFIHandle,
+) {
+    assert!(!hmon_builder_handle.is_null());
+    assert!(!monitor_tag.is_null());
+    assert!(!monitor_builder_handle.is_null());
+
+    // SAFETY:
+    // Validity of the pointer is ensured.
+    // `IdentTag` type must be compatible between C++ and Rust.
+    let monitor_tag = unsafe { *monitor_tag };
+
+    // SAFETY:
+    // Validity of the pointer is ensured.
+    // It is assumed that pointer was created with a call to `heartbeat_monitor_builder_create`.
+    let monitor_builder = unsafe { Box::from_raw(monitor_builder_handle as *mut heartbeat::HeartbeatMonitorBuilder) };
+
+    // SAFETY:
+    // Validity of the pointer is ensured.
+    // It is assumed that pointer was created with a call to `health_monitor_builder_create`.
+    let mut health_monitor_builder =
+        FFIBorrowed::new(unsafe { Box::from_raw(hmon_builder_handle as *mut HealthMonitorBuilder) });
+
+    health_monitor_builder.add_heartbeat_monitor_internal(&monitor_tag, *monitor_builder);
+}
+
+#[no_mangle]
 extern "C" fn health_monitor_builder_build(
     handle: FFIHandle,
     supervisor_cycle_ms: u32,
@@ -88,6 +117,28 @@ extern "C" fn health_monitor_get_deadline_monitor(handle: FFIHandle, tag: *const
         let deadline_monitor_handle = Box::into_raw(Box::new(DeadlineMonitorCpp::new(deadline_monitor)));
 
         deadline_monitor_handle as FFIHandle
+    } else {
+        core::ptr::null_mut()
+    }
+}
+
+#[no_mangle]
+extern "C" fn health_monitor_get_heartbeat_monitor(hmon_handle: FFIHandle, monitor_tag: *const IdentTag) -> FFIHandle {
+    assert!(!hmon_handle.is_null());
+    assert!(!monitor_tag.is_null());
+
+    // SAFETY:
+    // Validity of the pointer is ensured.
+    // `IdentTag` type must be compatible between C++ and Rust.
+    let monitor_tag = unsafe { *monitor_tag };
+
+    // SAFETY:
+    // Validity of the pointer is ensured.
+    // It is assumed that pointer was created with a call to `health_monitor_builder_build`.
+    let mut health_monitor = FFIBorrowed::new(unsafe { Box::from_raw(hmon_handle as *mut HealthMonitor) });
+
+    if let Some(heartbeat_monitor) = health_monitor.get_heartbeat_monitor(&monitor_tag) {
+        Box::into_raw(Box::new(heartbeat_monitor)) as FFIHandle
     } else {
         core::ptr::null_mut()
     }

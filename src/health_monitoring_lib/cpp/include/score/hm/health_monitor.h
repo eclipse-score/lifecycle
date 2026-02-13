@@ -15,6 +15,7 @@
 
 #include <score/hm/common.h>
 #include <score/hm/deadline/deadline_monitor.h>
+#include <score/hm/heartbeat/heartbeat_monitor.h>
 
 namespace score::hm
 {
@@ -39,6 +40,9 @@ class HealthMonitorBuilder final
 
     /// Adds a deadline monitor to the builder to construct DeadlineMonitor instances during HealthMonitor build.
     HealthMonitorBuilder add_deadline_monitor(const IdentTag& tag, deadline::DeadlineMonitorBuilder&& monitor) &&;
+
+    /// Adds a heartbeat monitor for a specific identifier tag.
+    HealthMonitorBuilder add_heartbeat_monitor(const IdentTag& tag, heartbeat::HeartbeatMonitorBuilder&& monitor) &&;
 
     /// Sets the cycle duration for supervisor API notifications.
     /// This duration determines how often the health monitor notifies the supervisor that the system is alive.
@@ -70,6 +74,7 @@ class HealthMonitor final
     ~HealthMonitor();
 
     score::cpp::expected<deadline::DeadlineMonitor, Error> get_deadline_monitor(const IdentTag& tag);
+    score::cpp::expected<heartbeat::HeartbeatMonitor, Error> get_heartbeat_monitor(const IdentTag& monitor_tag);
 
     void start();
 
