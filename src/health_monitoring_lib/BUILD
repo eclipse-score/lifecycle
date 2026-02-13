@@ -35,6 +35,7 @@ CC_SOURCES = [
 
 CC_HDRS = [
     "cpp/include/score/hm/common.h",
+    "cpp/include/score/hm/tag.h",
     "cpp/include/score/hm/deadline/deadline_monitor.h",
     "cpp/include/score/hm/heartbeat/heartbeat_monitor.h",
     "cpp/include/score/hm/health_monitor.h",

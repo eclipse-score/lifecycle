@@ -15,6 +15,7 @@
 
 #include <score/expected.hpp>
 #include <score/hm/common.h>
+#include <score/hm/tag.h>
 #include <functional>
 #include <optional>
 
@@ -47,7 +48,7 @@ class DeadlineMonitorBuilder final : public internal::RustDroppable<DeadlineMoni
     DeadlineMonitorBuilder& operator=(DeadlineMonitorBuilder&&) = delete;
 
     /// Adds a deadline with the given tag and duration range to the monitor.
-    DeadlineMonitorBuilder add_deadline(const IdentTag& tag, const TimeRange& range) &&;
+    DeadlineMonitorBuilder add_deadline(const DeadlineTag& tag, const TimeRange& range) &&;
 
   protected:
     std::optional<internal::FFIHandle> __drop_by_rust_impl()
@@ -75,7 +76,7 @@ class DeadlineMonitor final
     DeadlineMonitor(DeadlineMonitor&& other) noexcept = default;
     DeadlineMonitor& operator=(DeadlineMonitor&& other) noexcept = default;
 
-    ::score::cpp::expected<Deadline, score::hm::Error> get_deadline(const IdentTag& tag);
+    ::score::cpp::expected<Deadline, score::hm::Error> get_deadline(const DeadlineTag& tag);
 
   private:
     explicit DeadlineMonitor(internal::FFIHandle handle);

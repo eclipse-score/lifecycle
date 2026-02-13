@@ -12,6 +12,7 @@
  ********************************************************************************/
 #include "score/hm/health_monitor.h"
 #include "score/hm/common.h"
+#include "score/hm/tag.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <chrono>
@@ -26,16 +27,16 @@ class HealthMonitorTest : public ::testing::Test
 TEST_F(HealthMonitorTest, TestName)
 {
     // Setup deadline monitor construction.
-    const IdentTag deadline_monitor_tag{"deadline_monitor"};
+    const MonitorTag deadline_monitor_tag{"deadline_monitor"};
     auto deadline_monitor_builder =
         deadline::DeadlineMonitorBuilder()
-            .add_deadline(IdentTag("deadline_1"),
+            .add_deadline(DeadlineTag("deadline_1"),
                           TimeRange(std::chrono::milliseconds(100), std::chrono::milliseconds(200)))
-            .add_deadline(IdentTag("deadline_2"),
+            .add_deadline(DeadlineTag("deadline_2"),
                           TimeRange(std::chrono::milliseconds(100), std::chrono::milliseconds(200)));
 
     // Setup heartbeat monitor construction.
-    const IdentTag heartbeat_monitor_tag{"heartbeat_monitor"};
+    const MonitorTag heartbeat_monitor_tag{"heartbeat_monitor"};
     const TimeRange heartbeat_range{std::chrono::milliseconds{100}, std::chrono::milliseconds{200}};
     auto heartbeat_monitor_builder = heartbeat::HeartbeatMonitorBuilder(heartbeat_range);
 
@@ -73,7 +74,7 @@ TEST_F(HealthMonitorTest, TestName)
     // Start HMON.
     hm.start();
 
-    auto deadline_res = deadline_mon.get_deadline(IdentTag("deadline_1"));
+    auto deadline_res = deadline_mon.get_deadline(DeadlineTag("deadline_1"));
 
     {
         auto deadline_guard = deadline_res.value().start().value();

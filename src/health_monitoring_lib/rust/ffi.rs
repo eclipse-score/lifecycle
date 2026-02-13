@@ -33,13 +33,17 @@ extern "C" fn health_monitor_builder_destroy(handle: FFIHandle) {
 }
 
 #[no_mangle]
-extern "C" fn health_monitor_builder_add_deadline_monitor(handle: FFIHandle, tag: *const IdentTag, monitor: FFIHandle) {
+extern "C" fn health_monitor_builder_add_deadline_monitor(
+    handle: FFIHandle,
+    monitor_tag: *const MonitorTag,
+    monitor: FFIHandle,
+) {
     assert!(!handle.is_null());
-    assert!(!tag.is_null());
+    assert!(!monitor_tag.is_null());
     assert!(!monitor.is_null());
 
-    // Safety: We ensure that the pointer is valid. `tag` ptr must be FFI data compatible with IdentTag in Rust
-    let tag: IdentTag = unsafe { *tag }; // Copy the IdentTag as this shall be trivially copyable
+    // Safety: We ensure that the pointer is valid. `monitor_tag` ptr must be FFI data compatible with MonitorTag in Rust
+    let tag = unsafe { *monitor_tag }; // Copy the MonitorTag as this shall be trivially copyable
 
     // Safety: We ensure that the pointer is valid. We assume that pointer was created by call to `deadline_monitor_builder_create`
     let monitor = unsafe { Box::from_raw(monitor as *mut deadline::DeadlineMonitorBuilder) };
@@ -54,7 +58,7 @@ extern "C" fn health_monitor_builder_add_deadline_monitor(handle: FFIHandle, tag
 #[no_mangle]
 extern "C" fn health_monitor_builder_add_heartbeat_monitor(
     hmon_builder_handle: FFIHandle,
-    monitor_tag: *const IdentTag,
+    monitor_tag: *const MonitorTag,
     monitor_builder_handle: FFIHandle,
 ) {
     assert!(!hmon_builder_handle.is_null());
@@ -63,7 +67,7 @@ extern "C" fn health_monitor_builder_add_heartbeat_monitor(
 
     // SAFETY:
     // Validity of the pointer is ensured.
-    // `IdentTag` type must be compatible between C++ and Rust.
+    // `MonitorTag` type must be compatible between C++ and Rust.
     let monitor_tag = unsafe { *monitor_tag };
 
     // SAFETY:
@@ -102,18 +106,18 @@ extern "C" fn health_monitor_builder_build(
 }
 
 #[no_mangle]
-extern "C" fn health_monitor_get_deadline_monitor(handle: FFIHandle, tag: *const IdentTag) -> FFIHandle {
+extern "C" fn health_monitor_get_deadline_monitor(handle: FFIHandle, monitor_tag: *const MonitorTag) -> FFIHandle {
     assert!(!handle.is_null());
-    assert!(!tag.is_null());
+    assert!(!monitor_tag.is_null());
 
-    // Safety: We ensure that the pointer is valid. `tag` ptr must be FFI data compatible with IdentTag in Rust
-    let tag: IdentTag = unsafe { *tag }; // Copy the IdentTag as this shall be trivially copyable
+    // Safety: We ensure that the pointer is valid. `monitor_tag` ptr must be FFI data compatible with MonitorTag in Rust
+    let monitor_tag = unsafe { *monitor_tag }; // Copy the MonitorTag as this shall be trivially copyable
 
     // Safety: We ensure that the pointer is valid. We assume that pointer was created by call to `health_monitor_builder_create`
     // and this must be assured on other side of FFI.
     let mut health_monitor = FFIBorrowed::new(unsafe { Box::from_raw(handle as *mut HealthMonitor) });
 
-    if let Some(deadline_monitor) = health_monitor.get_deadline_monitor(&tag) {
+    if let Some(deadline_monitor) = health_monitor.get_deadline_monitor(&monitor_tag) {
         let deadline_monitor_handle = Box::into_raw(Box::new(DeadlineMonitorCpp::new(deadline_monitor)));
 
         deadline_monitor_handle as FFIHandle
@@ -123,13 +127,16 @@ extern "C" fn health_monitor_get_deadline_monitor(handle: FFIHandle, tag: *const
 }
 
 #[no_mangle]
-extern "C" fn health_monitor_get_heartbeat_monitor(hmon_handle: FFIHandle, monitor_tag: *const IdentTag) -> FFIHandle {
+extern "C" fn health_monitor_get_heartbeat_monitor(
+    hmon_handle: FFIHandle,
+    monitor_tag: *const MonitorTag,
+) -> FFIHandle {
     assert!(!hmon_handle.is_null());
     assert!(!monitor_tag.is_null());
 
     // SAFETY:
     // Validity of the pointer is ensured.
-    // `IdentTag` type must be compatible between C++ and Rust.
+    // `MonitorTag` type must be compatible between C++ and Rust.
     let monitor_tag = unsafe { *monitor_tag };
 
     // SAFETY:

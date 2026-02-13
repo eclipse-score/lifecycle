@@ -46,10 +46,10 @@ impl<T: SupervisorAPIClient> MonitoringLogic<T> {
         let mut has_any_error = false;
 
         for monitor in self.monitors.iter() {
-            monitor.evaluate(hmon_starting_point, &mut |tag, error| {
+            monitor.evaluate(hmon_starting_point, &mut |monitor_tag, error| {
                 has_any_error = true;
                 // TODO: either monitors should be separated or their type should be mentioned.
-                warn!("Monitor with tag {:?} reported error: {:?}.", tag, error);
+                warn!("Monitor with tag {:?} reported error: {:?}.", monitor_tag, error);
             });
         }
 
@@ -149,7 +149,7 @@ mod tests {
     use crate::{
         deadline::{DeadlineMonitor, DeadlineMonitorBuilder},
         protected_memory::ProtectedMemoryAllocator,
-        IdentTag, TimeRange,
+        DeadlineTag, MonitorTag, TimeRange,
     };
 
     use super::*;
@@ -179,19 +179,20 @@ mod tests {
 
     fn create_monitor_with_deadlines() -> DeadlineMonitor {
         let allocator = ProtectedMemoryAllocator {};
+        let monitor_tag = MonitorTag::from("deadline_monitor");
         DeadlineMonitorBuilder::new()
             .add_deadline(
-                &IdentTag::from("deadline_long"),
+                DeadlineTag::from("deadline_long"),
                 TimeRange::new(core::time::Duration::from_secs(1), core::time::Duration::from_secs(50)),
             )
             .add_deadline(
-                &IdentTag::from("deadline_fast"),
+                DeadlineTag::from("deadline_fast"),
                 TimeRange::new(
                     core::time::Duration::from_millis(0),
                     core::time::Duration::from_millis(50),
                 ),
             )
-            .build(&allocator)
+            .build(monitor_tag, &allocator)
     }
 
     #[test]
@@ -210,7 +211,9 @@ mod tests {
             alive_mock.clone(),
         );
 
-        let mut deadline = deadline_monitor.get_deadline(&IdentTag::from("deadline_long")).unwrap();
+        let mut deadline = deadline_monitor
+            .get_deadline(DeadlineTag::from("deadline_long"))
+            .unwrap();
         let handle = deadline.start().unwrap();
 
         drop(handle);
@@ -235,7 +238,9 @@ mod tests {
             alive_mock.clone(),
         );
 
-        let mut deadline = deadline_monitor.get_deadline(&IdentTag::from("deadline_long")).unwrap();
+        let mut deadline = deadline_monitor
+            .get_deadline(DeadlineTag::from("deadline_long"))
+            .unwrap();
         let _handle = deadline.start().unwrap();
 
         assert!(logic.run(hmon_starting_point));
@@ -263,7 +268,9 @@ mod tests {
             alive_mock.clone(),
         );
 
-        let mut deadline = deadline_monitor.get_deadline(&IdentTag::from("deadline_long")).unwrap();
+        let mut deadline = deadline_monitor
+            .get_deadline(DeadlineTag::from("deadline_long"))
+            .unwrap();
         let _handle = deadline.start().unwrap();
 
         std::thread::sleep(core::time::Duration::from_millis(30));
@@ -303,7 +310,9 @@ mod tests {
         let mut worker = UniqueThreadRunner::new(core::time::Duration::from_millis(10));
         worker.start(logic);
 
-        let mut deadline = deadline_monitor.get_deadline(&IdentTag::from("deadline_fast")).unwrap();
+        let mut deadline = deadline_monitor
+            .get_deadline(DeadlineTag::from("deadline_fast"))
+            .unwrap();
 
         let handle = deadline.start().unwrap();
 

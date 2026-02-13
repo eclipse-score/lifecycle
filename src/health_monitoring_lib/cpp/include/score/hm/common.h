@@ -14,7 +14,6 @@
 #define SCORE_HM_COMMON_H
 
 #include <chrono>
-#include <cstdint>
 #include <optional>
 
 namespace score::hm
@@ -29,24 +28,6 @@ enum class Error
     InvalidArgument = kSuccess + 3,
     WrongState = kSuccess + 4,
     Failed = kSuccess + 5
-};
-
-///
-/// Identifier tag used to uniquely identify entities within the health monitoring system.
-///
-class IdentTag
-{
-  public:
-    /// Create a new IdentTag from a C-style string.
-    template <size_t N>
-    explicit IdentTag(const char (&tag)[N]) : tag_(tag), len_(N - 1)
-    {
-    }
-
-  private:
-    /// SAFETY: This has to be FFI compatible with the Rust side representation.
-    const char* const tag_;
-    size_t len_;
 };
 
 ///

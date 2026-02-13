@@ -12,6 +12,7 @@
  ********************************************************************************/
 #include "score/hm/deadline/deadline_monitor.h"
 #include "ffi_helpers.h"
+#include "score/hm/tag.h"
 
 extern "C" {
 using namespace score::hm;
@@ -22,10 +23,10 @@ using namespace score::hm::deadline;
 internal::FFIHandle deadline_monitor_builder_create();
 void deadline_monitor_builder_destroy(internal::FFIHandle handle);
 void deadline_monitor_builder_add_deadline(internal::FFIHandle handler,
-                                           const IdentTag* tag,
+                                           const DeadlineTag* tag,
                                            uint32_t min,
                                            uint32_t max);
-int deadline_monitor_cpp_get_deadline(FFIHandle handler, const IdentTag* tag, FFIHandle* out);
+int deadline_monitor_cpp_get_deadline(FFIHandle handler, const DeadlineTag* tag, FFIHandle* out);
 void deadline_monitor_cpp_destroy(FFIHandle handler);
 void deadline_destroy(FFIHandle deadline_handle);
 int deadline_start(FFIHandle deadline_handle);
@@ -41,7 +42,7 @@ DeadlineMonitorBuilder::DeadlineMonitorBuilder()
 {
 }
 
-DeadlineMonitorBuilder DeadlineMonitorBuilder::add_deadline(const IdentTag& tag, const TimeRange& range) &&
+DeadlineMonitorBuilder DeadlineMonitorBuilder::add_deadline(const DeadlineTag& tag, const TimeRange& range) &&
 {
     auto handle = monitor_builder_handler_.as_rust_handle();
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(handle.has_value());
@@ -53,7 +54,7 @@ DeadlineMonitorBuilder DeadlineMonitorBuilder::add_deadline(const IdentTag& tag,
 
 DeadlineMonitor::DeadlineMonitor(FFIHandle handle) : monitor_handle_(handle, &deadline_monitor_cpp_destroy) {}
 
-score::cpp::expected<Deadline, score::hm::Error> DeadlineMonitor::get_deadline(const IdentTag& tag)
+score::cpp::expected<Deadline, score::hm::Error> DeadlineMonitor::get_deadline(const DeadlineTag& tag)
 {
     auto handle = monitor_handle_.as_rust_handle();
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(handle.has_value());
