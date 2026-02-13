@@ -13,7 +13,6 @@
 
 name: Reference Integration Build
 on:
-  #pull_request_target: deactivate to test the workflow
   pull_request:
     types: [opened, reopened, synchronize]
   merge_group:
