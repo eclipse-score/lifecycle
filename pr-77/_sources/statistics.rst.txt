@@ -8,7 +8,7 @@ Overview
 
 .. needpie:: Requirements Status
    :labels: not valid, valid but not tested, valid and tested
-   :colors: red,yellow, green
+   :colors: red, yellow, green
 
    type == 'comp_req' and status == 'invalid'
    type == 'comp_req' and testlink == '' and (status == 'valid' or status == 'invalid')
@@ -114,3 +114,9 @@ Details About Testcases
    type == 'testcase' and derivation_technique == 'fuzz-testing'
    type == 'testcase' and derivation_technique == 'error-guessing'
    type == 'testcase' and derivation_technique == 'explorative-testing'
+
+
+Test Log Files
+--------------
+
+.. display-test-logs::
