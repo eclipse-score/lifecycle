@@ -13,8 +13,6 @@
 
 #include <optional>
 #include <unistd.h>
-#include <csignal>
-#include <atomic>
 #include <iostream>
 #include <ctime>
 #include <string>
@@ -87,13 +85,6 @@ std::optional<Config> parseOptions(int argc, char *const *argv) noexcept
     return config;
 }
 
-std::atomic<bool> exitRequested{false};
-
-void signalHandler(int)
-{
-    exitRequested = true;
-}
-
 void set_process_name()
 {
     const char* identifier = getenv("PROCESSIDENTIFIER");
@@ -119,9 +110,6 @@ public:
     std::int32_t Initialize(const score::mw::lifecycle::ApplicationContext& appCtx) override
     {
         set_process_name();
-
-        signal(SIGINT, signalHandler);
-        signal(SIGTERM, signalHandler);
 
         // Build a classic argv for getopt() from ApplicationContext arguments
         const auto& args = appCtx.get_arguments();
@@ -175,7 +163,7 @@ public:
 
         auto timeLastVerboseLog = std::chrono::steady_clock::now();
 
-        while (!exitRequested && !stopToken.stop_requested())
+        while (!stopToken.stop_requested())
         {
             if (true == m_config.crashRequested)
             {
