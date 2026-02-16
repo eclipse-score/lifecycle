@@ -12,6 +12,14 @@
 # *******************************************************************************
 load("//config:common_cc.bzl", "cc_binary_with_common_opts", "cc_library_with_common_opts")
 
+package(default_visibility = ["//tests:__subpackages__"])
+
+filegroup(
+    name = "lm_flatcfg_fbs",
+    srcs = ["config/lm_flatcfg.fbs"],
+    visibility = ["//visibility:public"],
+)
+
 cc_library(
     name = "config",
     hdrs = ["config/lm_flatcfg_generated.h"],
@@ -29,9 +37,8 @@ cc_binary_with_common_opts(
     ),
     includes = ["src/"],
     linkopts = select({
-        "//config:x86_64-qnx": ["-lsecpol"],
-        "//config:build_qnx8": ["-lsecpol"],
-        "//conditions:default": ["-lpthread"],
+        "@platforms//os:qnx": ["-lsecpol"],
+        "@platforms//os:linux": ["-lpthread"],
     }),
     visibility = ["//visibility:public"],
     deps = [

@@ -62,7 +62,7 @@ void Graph::initProcessGroupNodes( IdentifierHash pg_name, uint32_t num_processe
     requested_state_.pg_state_name_ = off_state_;
     requested_state_.pg_name_ = pg_name;
 
-    LM_LOG_DEBUG() << "Process group index" << index << "(with name" << pg_name.data() << ") has" << num_processes
+    LM_LOG_DEBUG() << "Process group index" << index << "(with name" << pg_name << ") has" << num_processes
                    << "processes";
 
     createProcessInfoNodes(num_processes);
@@ -84,7 +84,7 @@ inline void Graph::createProcessInfoNodes(uint32_t num_processes) {
 }
 
 inline void Graph::createSuccessorLists(IdentifierHash pg_name) {
-    LM_LOG_DEBUG() << "Creating successor lists for process group" << pg_name.data();
+    LM_LOG_DEBUG() << "Creating successor lists for process group" << pg_name;
 
     // Now create the successor lists for each process in this process group
     for (auto& node : nodes_) {
@@ -128,7 +128,7 @@ void Graph::setState(GraphState new_state) {
             if (state_.compare_exchange_strong(old_state, target_state)) {
                 LM_LOG_DEBUG() << "Graph::setState changes from" << toString(old_state) << "to"
                                << toString(target_state) << "for PG" << pg_index_ << "("
-                               << requested_state_.pg_name_.data() << ")";
+                               << requested_state_.pg_name_ << ")";
                 old_state = target_state;
 
                 if (new_state == GraphState::kSuccess) {
@@ -139,8 +139,8 @@ void Graph::setState(GraphState new_state) {
                     auto timeDiff =
                         std::chrono::duration_cast<std::chrono::milliseconds>(request_end_time - getRequestStartTime());
 
-                    LM_LOG_INFO() << "Completed the request for PG" << getProcessGroupName().data() << "to State"
-                                  << getProcessGroupState().data() << "in" << timeDiff.count() << "ms";
+                    LM_LOG_INFO() << "Completed the request for PG" << getProcessGroupName() << "to State"
+                                  << getProcessGroupState() << "in" << timeDiff.count() << "ms";
                 }
             }
         }
@@ -440,8 +440,8 @@ IdentifierHash Graph::setPendingState(IdentifierHash new_state) {
     pending_state_ = new_state;
 
     if (new_state != result_state) {
-        LM_LOG_DEBUG() << "Pending state for process group" << requested_state_.pg_name_.data() << "changed from"
-                       << result_state.data() << "to" << pending_state_.data();
+        LM_LOG_DEBUG() << "Pending state for process group" << requested_state_.pg_name_ << "changed from"
+                       << result_state << "to" << pending_state_;
     }
 
     return result_state;

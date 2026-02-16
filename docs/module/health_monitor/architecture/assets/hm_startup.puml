@@ -1,0 +1,87 @@
+@startuml
+
+box "User process" 
+    actor "user"
+    participant "HealthMonitorBuilder"
+    participant "HealthMonitor"
+    participant "Lifecycle"
+end box
+
+box "LaunchDaemon process"
+    participant "LaunchDaemon"
+end box
+
+== Application Side ==
+note right of user #lightblue
+Each Application have **configuration**
+for HealthMonitoring that is send to LaunchDaemon
+end note
+
+user -> HealthMonitorBuilder : build(supervisor_api_notification_cycle_time, ...)
+HealthMonitorBuilder -> HealthMonitor: create
+HealthMonitor -> LaunchDaemon: register_health_monitor(supervisor_api_notification_cycle_time, ...)
+note left
+All configuration needed can be send here
+end note
+
+HealthMonitorBuilder --> user: HealthMonitor instance
+
+user -> HealthMonitor: start()
+HealthMonitor -> LaunchDaemon: notify_started(timestamp)
+HealthMonitor -> HealthMonitor: start_background_thread()
+note left
+Notification has to finish before background thread starts
+to not race with lifecycle api.
+end note
+...
+
+user -> Lifecycle: report_running()
+Lifecycle -> LaunchDaemon
+
+
+== LaunchDaemon Side ==
+
+note left of LaunchDaemon #lightblue
+Each application have **configuration entry**
+for Lifecycle parameters (as part of LaunchDaemon config) like:
+- self terminating or not
+- health monitored
+- timeouts for startup, shutdown, ...
+
+This config **does not include** any Health Monitoring parameters
+as those are send during HealthMonitor registration.
+end note
+
+...
+alt APPLICATION_USES_LIFECYCLE_API
+    user -> Lifecycle: report_running()
+    Lifecycle -> LaunchDaemon
+    
+    LaunchDaemon -> LaunchDaemon: check_if_register_was_received()
+    note left #lightblue
+    This point is taken as **timestamp** used for
+    supervising application health monitoring. This point
+    is selected as before report_running we anyway monitoring
+    configured startup time per app and will handle errors in case
+    of timeout. 
+    end note
+
+    alt not received
+        LaunchDaemon -> LaunchDaemon: error_reaction()
+    end
+
+    LaunchDaemon -> LaunchDaemon: check_if_notify_started_was_received()
+    alt not received
+        LaunchDaemon -> LaunchDaemon: error_reaction()
+    end
+
+
+    LaunchDaemon -> LaunchDaemon: start_monitor_user_application()
+else APPLICATION_DOES NOT_USE_LIFECYCLE_API
+    note left of LaunchDaemon
+    **Health monitoring not allowed**, any register from this app
+    shall cause error reaction
+    end note
+end
+
+@enduml

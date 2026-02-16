@@ -106,7 +106,7 @@ rust_test(
         "@platforms//os:qnx": [
             "-Clink-arg=-lc++",
         ],
-        "//conditions:default": [
+        "@platforms//os:linux": [
             "-Clink-arg=-lrt",
             "-Clink-arg=-lstdc++",
         ],
@@ -124,7 +124,7 @@ cc_gtest_unit_test(
     ],
     linkopts = select({
         "@platforms//os:qnx": ["-lsocket"],
-        "//conditions:default": [],
+        "@platforms//os:linux": [],
     }),
     deps = [
         ":health_monitoring_lib_cc_stub_supervisor",

@@ -126,10 +126,10 @@ std::optional<const ProcessGroupStateID*> ConfigurationManager::getMainPGStartup
         if (pg_state) {
             result = &main_pg_startup_state_;
         } else {
-            LM_LOG_DEBUG() << "Process group state not found:" << main_pg_startup_state_.pg_state_name_.data();
+            LM_LOG_DEBUG() << "Process group state not found:" << main_pg_startup_state_.pg_state_name_;
         }
     } else {
-        LM_LOG_DEBUG() << "Process group not found:" << main_pg_startup_state_.pg_name_.data();
+        LM_LOG_DEBUG() << "Process group not found:" << main_pg_startup_state_.pg_name_;
     }
 
     return result;
@@ -154,8 +154,8 @@ std::optional<const std::vector<uint32_t>*> ConfigurationManager::getProcessInde
     if (state) {
         result = &state->process_indexes_;
     } else {
-        LM_LOG_DEBUG() << "Process group state '" << pg_state_id.pg_state_name_.data() << "' not found in group '"
-                       << pg_state_id.pg_name_.data() << "'.";
+        LM_LOG_DEBUG() << "Process group state '" << pg_state_id.pg_state_name_ << "' not found in group '"
+                       << pg_state_id.pg_name_ << "'.";
     }
 
     return result;
@@ -168,7 +168,7 @@ std::optional<const OsProcess*> ConfigurationManager::getOsProcessConfiguration(
     if (auto pg = getProcessGroupByNameAndIndex(pg_name, index)) {
         result = &(*pg)->processes_[index];
     } else {
-        LM_LOG_DEBUG() << "Unable to retrieve process configuration for process group" << pg_name.data()
+        LM_LOG_DEBUG() << "Unable to retrieve process configuration for process group" << pg_name
                        << "with index" << index;
     }
 
@@ -182,7 +182,7 @@ std::optional<const DependencyList*> ConfigurationManager::getOsProcessDependenc
     if (auto pg = getProcessGroupByNameAndIndex(pg_name, index)) {
         result = &(*pg)->processes_[index].dependencies_;
     } else {
-        LM_LOG_DEBUG() << "Unable to retrieve process dependencies for process group" << pg_name.data() << "with index"
+        LM_LOG_DEBUG() << "Unable to retrieve process dependencies for process group" << pg_name << "with index"
                        << index;
     }
 
@@ -304,7 +304,7 @@ bool ConfigurationManager::parseMachineConfigurations(const ModeGroup* node, con
         process_group_data.name_ = getStringViewFromFlatBuffer(node->identifier());
         process_group_data.sw_cluster_ = cluster;
         LM_LOG_DEBUG() << "FlatBufferParser::getModeGroupPgName:" << getStringFromFlatBuffer(node->identifier())
-                       << "( IdentifierHash:" << process_group_data.name_.data() << ")";
+                       << "( IdentifierHash:" << process_group_data.name_ << ")";
 
         if (process_group_data.name_ != score::lcm::IdentifierHash(std::string_view(""))) {
             // Add process group name to the PG name list
@@ -339,7 +339,7 @@ bool ConfigurationManager::parseModeGroups(const ModeGroup* node, ProcessGroup& 
                 pg_state.name_ = getStringViewFromFlatBuffer(flatbuffer_string);
                 LM_LOG_DEBUG() << "FlatBufferParser::getModeGroupPgStateName:"
                                << mode_declaration_node->identifier()->c_str()
-                               << "( IdentifierHash:" << pg_state.name_.data() << ")";
+                               << "( IdentifierHash:" << pg_state.name_ << ")";
                 process_group_data.states_.push_back(pg_state);
                 // Is this the "Off" state, i.e. does it end with "/Off" ?
                 auto str_len = string_name.length();
@@ -593,8 +593,8 @@ void ConfigurationManager::parseProcessGroup(
                 ProcessGroupStateID pg_info;
                 pg_info.pg_name_ = getStringViewFromFlatBuffer(process_pg_node->stateMachine_name());
                 pg_info.pg_state_name_ = getStringViewFromFlatBuffer(process_pg_node->stateName());
-                LM_LOG_DEBUG() << "ParseProcessProcessGroup: id:::pg_name_:" << pg_info.pg_name_.data()
-                               << ", pg_state_name_:" << pg_info.pg_state_name_.data();
+                LM_LOG_DEBUG() << "ParseProcessProcessGroup: id:::pg_name_:" << pg_info.pg_name_
+                               << ", pg_state_name_:" << pg_info.pg_state_name_;
 
                 // Assign OsProcess instance to the process group
                 AssignOsProcessInstanceToProcessGroup(pg_info, process_instance);
@@ -618,7 +618,7 @@ void ConfigurationManager::parseExecutionDependency(
                 dep.target_process_id_ = getStringViewFromFlatBuffer(process_dependency_node->targetProcess_identifier());
                 LM_LOG_DEBUG() << "ParseProcessExecutionDependency: target process path:"
                                 << getStringFromFlatBuffer(process_dependency_node->targetProcess_identifier())
-                                << "ID:" << dep.target_process_id_.data();
+                                << "ID:" << dep.target_process_id_;
                 process_instance.dependencies_.push_back(dep);
 
             }
@@ -715,10 +715,10 @@ void ConfigurationManager::AssignOsProcessInstanceToProcessGroup(const ProcessGr
                 state->process_indexes_.push_back(index_in_pg);
             }
         } else {
-            LM_LOG_WARN() << "Process group state not found:" << process_pg.pg_state_name_.data();
+            LM_LOG_WARN() << "Process group state not found:" << process_pg.pg_state_name_;
         }
     } else {
-        LM_LOG_WARN() << "Process group not found:", process_pg.pg_name_.data();
+        LM_LOG_WARN() << "Process group not found:" << process_pg.pg_name_;
     }
 }
 
@@ -827,10 +827,10 @@ osal::CommsType ConfigurationManager::isReportingProcess(const ExecutionStateRep
 
     if (reporting_behaviour == ExecutionStateReportingBehaviorEnum::ExecutionStateReportingBehaviorEnum_ReportsExecutionState) {
         reporting_status = osal::CommsType::kReporting;
-        LM_LOG_DEBUG() << "Process" << process_name.data() << "is Reporting execution state";
+        LM_LOG_DEBUG() << "Process" << process_name << "is Reporting execution state";
     } else {
         // ExecutionStateReportingBehaviorEnum::DoesNotReportExecutionState
-        LM_LOG_DEBUG() << "Process" << process_name.data() << "is NOT Reporting execution state";
+        LM_LOG_DEBUG() << "Process" << process_name << "is NOT Reporting execution state";
     }
 
     return reporting_status;
@@ -842,10 +842,10 @@ bool ConfigurationManager::isSelfTerminatingProcess(const TerminationBehaviorEnu
 
     if (termination_behavior == TerminationBehaviorEnum::TerminationBehaviorEnum_ProcessIsSelfTerminating) {
         termination_status = true;
-        LM_LOG_DEBUG() << "Process" << process_name.data() << "is Self terminating";
+        LM_LOG_DEBUG() << "Process" << process_name << "is Self terminating";
     } else {
         // TerminationBehaviorEnum::ProcessIsNotSelfTerminating
-        LM_LOG_DEBUG() << "Process" << process_name.data() << "is NOT Self terminating";
+        LM_LOG_DEBUG() << "Process" << process_name << "is NOT Self terminating";
     }
 
     return termination_status;
@@ -861,10 +861,10 @@ std::optional<const ProcessGroup*> ConfigurationManager::getProcessGroupByNameAn
         if (index < pg->processes_.size()) {
             result = pg;
         } else {
-            LM_LOG_DEBUG() << "Process index" << index << "is out of bounds in process group" << pg_name.data();
+            LM_LOG_DEBUG() << "Process index" << index << "is out of bounds in process group" << pg_name;
         }
     } else {
-        LM_LOG_DEBUG() << "Process group not found:" << pg_name.data();
+        LM_LOG_DEBUG() << "Process group not found:" << pg_name;
     }
 
     return result;

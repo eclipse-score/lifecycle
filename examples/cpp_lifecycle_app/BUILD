@@ -16,14 +16,12 @@ cc_binary(
         "main.cpp",
     ],
     copts = select({
-        "//config:build_qnx8": [],
-        "//config:x86_64-qnx": [],
-        "//conditions:default": ["-pthread"],
+        "@platforms//os:qnx": [],
+        "@platforms//os:linux": ["-pthread"],
     }),
     linkopts = select({
-        "//config:build_qnx8": [],
-        "//config:x86_64-qnx": [],
-        "//conditions:default": ["-lpthread"],
+        "@platforms//os:qnx": [],
+        "@platforms//os:linux": ["-lpthread"],
     }),
     visibility = ["//visibility:public"],
     deps = [

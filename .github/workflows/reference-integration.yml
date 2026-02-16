@@ -12,17 +12,16 @@
 # *******************************************************************************
 
 name: Reference Integration Build
-
 on:
   pull_request:
     types: [opened, reopened, synchronize]
   merge_group:
     types: [checks_requested]
-
-    jobs:
-      integration:
-        uses: eclipse-score/reference_integration/.github/workflows/module-integration-build.yml@main
-        with:
-          known_good: |
-            { "modules": [] }
-          config: x86_64-linux
+jobs:
+  integration:
+    uses: eclipse-score/reference_integration/.github/workflows/reusable_smoke-test.yml@main
+    secrets: inherit
+    with:
+      repo_runner_labels: 'ubuntu-latest'
+      module_name: 'score_lifecycle_health'
+      target_branch: 'main'

@@ -25,6 +25,8 @@ class IHealthMonitorThread {
  public:
     virtual bool start() = 0;
     virtual void stop() = 0;
+
+    virtual ~IHealthMonitorThread() = default;
 };
 }
 }

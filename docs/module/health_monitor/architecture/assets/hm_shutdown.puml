@@ -1,0 +1,64 @@
+@startuml
+
+box "User process" 
+    participant "main"
+    participant "HealthMonitorBuilder"
+    participant "HealthMonitor"
+    participant "Lifecycle"
+end box
+
+box "LaunchDaemon process"
+    participant "LaunchDaemon"
+end box
+
+group APPLICATION_SELF_TERMINATING
+
+...
+
+main -> main++: end_of_scope()
+main -> HealthMonitor: destroy()
+HealthMonitor -> LaunchDaemon: notify_stopped(timestamp)
+
+...
+
+LaunchDaemon -> LaunchDaemon: stop_alive_monitoring()
+main--
+end
+
+group APPLICATION_TERMINATING_ON_LAUNCH_DAEMON_REQUEST
+
+    == LaunchDaemon Side ==
+    ...
+
+    alt EXTERNAL_SHUTDOWN_REQUEST
+        LaunchDaemon -> LaunchDaemon: stop_alive_monitoring()
+        note left
+        Stop monitoring as now we monitor shutdown timeout
+        configured per app
+        end note
+
+        loop app in apps
+            LaunchDaemon -[#blue]> Lifecycle: notify_shutdown_request()
+        end
+    end alt
+
+    == Application Side ==
+
+    LaunchDaemon -[#blue]> Lifecycle: notify_shutdown_request()
+    Lifecycle -> Lifecycle: release_main_for_shutdown()
+    ...
+
+    main -> main++: end_of_scope()
+    main -> HealthMonitor: destroy()
+    HealthMonitor -> LaunchDaemon: notify_stopped(timestamp)
+    note left
+    Notification is send to keep consistent with self terminating case
+    end note
+
+    HealthMonitor -> HealthMonitor: stop_background_thread()
+    HealthMonitor --> main
+
+    main--
+end
+
+@enduml

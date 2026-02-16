@@ -30,7 +30,7 @@ This section contains information on how to build and use Lifecycle feature.
 * Build System: Bazel
 * Operating System: Linux (Ubuntu 22.04+)
 * Dependencies: S-Core Baselibs, Google Flatbuffers, libacl1-dev
-* Dependencies of demo applications: Docker, Python (3.12)
+* Dependencies of example applications: Docker, Python (3.12)
 
 ## Building the project
 
@@ -39,26 +39,24 @@ It is recommended to use the devcontainer for building the project, see [eclipse
 Build all components for **Linux** by running
 
 ```sh
-bazel build //...
+bazel build --config=x86_64-linux //...
 ```
 
-To build launch_manager and health_monitor daemons with the sanitizers enabled use one of the following
+To test launch_manager and health_monitor with the sanitizers enabled use one of the following
 
 ```
-bazel build --define sanitize=thread //...
+bazel test --config=x86_64-linux --define sanitize=thread //...
 
-bazel build --define sanitize=address //...
+bazel test --config=x86_64-linux --define sanitize=address //...
 
-bazel build --define sanitize=undefined //...
+bazel test --config=x86_64-linux --define sanitize=undefined //...
 ```
 
 To build all components with ``score::mw::log`` enabled, use this command:
 
 ```sh
-bazel build --cxxopt=-DLC_LOG_SCORE_MW_LOG //...
+bazel build --config=x86_64-linux --cxxopt=-DLC_LOG_SCORE_MW_LOG //...
 ```
-
-You can also use the config `--config=x86_64-linux` to build for linux.
 
 ## IDE support
 
@@ -114,15 +112,15 @@ bazel fetch @toolchains_qnx_sdp//... --credential_helper=*.qnx.com="$cred_helper
 ##### Build For QNX
 
 ```sh
-bazel build //launch_manager/... --config=x86_64-qnx
-bazel build //health_monitor/... --config=x86_64-qnx
+bazel build --config=x86_64-qnx -- //src/...
+bazel build --config=arm64-qnx -- //src/...
 ```
 
 TODO: Currently rust binaries are not compiling for QNX.
 
 ## Running Lifecycle feature and example applications
 
-The ``demo`` folder contains a demo setup running in a docker container, consisting of a set of example applications and corresponding configuration. As per configuration, Launch Manager will start Health Monitor and a set of configured applications. For more information see [demo/README.md](demo/README.md) file.
+The ``examples`` folder contains a demo setup running in a docker container, consisting of a set of example applications and corresponding configuration. As per configuration, Launch Manager will start Health Monitor and a set of configured applications. For more information see [examples/README.md](examples/README.md) file.
 
 ## Configuration
 
@@ -444,7 +442,7 @@ Sample configuration of Health Monitor daemon:
 }
 ```
 
-Full configuration for example applications can be found in ``demo/config`` folder.
+Full configuration for example applications can be found in ``examples/config`` folder.
 
 # Architecture
 

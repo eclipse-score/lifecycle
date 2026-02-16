@@ -28,7 +28,7 @@ rust_binary(
         "@platforms//os:qnx": [
             "-Clink-arg=-lc++",
         ],
-        "//conditions:default": [
+        "@platforms//os:linux": [
             "-Clink-arg=-lrt",
             "-Clink-arg=-lstdc++",
         ],

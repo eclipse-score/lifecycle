@@ -172,9 +172,6 @@ public:
 
 #ifdef LAUNCH_MANAGER_ALIVE_SUPERVISION
         processStateReader.distributeExmActivation(startTimestamp);
-#else
-        logger_r.LogWarn() << "Phm Daemon: LM Alive supervision is not activated, since LM does not yet support "
-                              "checkpoint reporting.";
 #endif
 
         while (!f_terminateCond.load())

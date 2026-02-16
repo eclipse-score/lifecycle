@@ -170,7 +170,7 @@ unsafe impl Send for ScoreSupervisorAPIClient {} // Just assuming it's safe to s
 impl ScoreSupervisorAPIClient {
     pub fn new() -> Self {
         let value = std::env::var("IDENTIFIER").expect("IDENTIFIER env not set");
-        debug!("EtasySupervisorAPIClient: Creating with IDENTIFIER={}", value);
+        debug!("ScoreSupervisorAPIClient: Creating with IDENTIFIER={}", value);
         // This is only temporary usage so unwrap is fine here.
         let supervisor_link = monitor_rs::Monitor::<Checks>::new(&value).expect("Failed to create supervisor_link");
         Self { supervisor_link }
