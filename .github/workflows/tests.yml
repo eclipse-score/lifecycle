@@ -26,5 +26,5 @@ jobs:
       contents: read
       pull-requests: read
     with:
-      bazel-target: 'test //...'
+      bazel-target: 'test //src/... //tests/...'
       upload-name: 'bazel-testlogs'
