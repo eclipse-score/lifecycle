@@ -24,6 +24,8 @@ using score::lcm::ProcessStateReceiver;
 class ProcessStateClient_UT : public ::testing::Test {
     protected:
     void SetUp() override {
+        RecordProperty("TestType", "requirements-based");
+        RecordProperty("DerivationTechnique", "requirements-analysis");
         notifier_ = std::make_unique<ProcessStateNotifier>();
         receiver_ = notifier_->constructReceiver();
     }
@@ -37,11 +39,13 @@ class ProcessStateClient_UT : public ::testing::Test {
 };
 
 TEST_F(ProcessStateClient_UT, ProcessStateClient_ConstructReceiver_Succeeds) {
+    RecordProperty("Description", "This test verifies that the ProcessStateNotifier can successfully construct a ProcessStateReceiver instance.");
     ASSERT_NE(notifier_, nullptr);
     ASSERT_NE(receiver_, nullptr);
 }
 
 TEST_F(ProcessStateClient_UT, ProcessStateClient_QueueOneProcess_Succeeds) {
+    RecordProperty("Description", "This test verifies that a single PosixProcess can be successfully queued using the ProcessStateNotifier and retrieved using the ProcessStateReceiver.");
     PosixProcess process1{ 
         .id = score::lcm::IdentifierHash("Process1"),
         .processStateId = score::lcm::ProcessState::kRunning,
@@ -67,6 +71,7 @@ TEST_F(ProcessStateClient_UT, ProcessStateClient_QueueOneProcess_Succeeds) {
 }
 
 TEST_F(ProcessStateClient_UT, ProcessStateClient_QueueMaxNumberOfProcesses_Succeeds) {
+    RecordProperty("Description", "This test verifies that the ProcessStateNotifier can successfully queue the maximum number of PosixProcess instances defined by the buffer size, and that they can be retrieved using the ProcessStateReceiver.");
     // Queue maximum number of processes
     for (size_t i = 0; i < static_cast<size_t>(BufferConstants::BUFFER_QUEUE_SIZE); ++i) {
         PosixProcess process{ 
@@ -93,6 +98,7 @@ TEST_F(ProcessStateClient_UT, ProcessStateClient_QueueMaxNumberOfProcesses_Succe
 }
 
 TEST_F(ProcessStateClient_UT, ProcessStateClient_QueueOneProcessTooMany_Fails) {
+    RecordProperty("Description", "This test verifies that attempting to queue a PosixProcess when the buffer is already at maximum capacity results in a failure, and that no additional processes can be retrieved from the receiver.");
     PosixProcess process1{ 
         .id = score::lcm::IdentifierHash("Process1"),
         .processStateId = score::lcm::ProcessState::kRunning,

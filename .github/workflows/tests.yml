@@ -13,7 +13,7 @@
 
 name: Tests
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, reopened, synchronize]
   merge_group:
     types: [checks_requested]
@@ -25,4 +25,5 @@ jobs:
       contents: read
       pull-requests: read
     with:
-      bazel-target: 'test //src/...'
+      bazel-target: 'test //...'
+      upload-name: 'tests-report'
