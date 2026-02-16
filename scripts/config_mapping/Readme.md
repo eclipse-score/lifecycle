@@ -64,8 +64,12 @@ The RecoveryAction after component startup (parameter `components/<component>/de
 
 The `run_targets/final_recovery_action` RecoveryAction will be mapped to the `ModeGroup/recoveryMode_name` parameter. This will initiate a transition to the target ProcessGroupState/RunTarget when a process crashes at runtime or a supervision fails. We assume that this transition must not fail.
 
-
 ## Mapping of Alive Supervision
+
+For each Component with application_type `REPORTING_AND_SUPERVISED` or `STATE_MANAGER`, we will create an Alive Supervision configuration in the old configuration format. There is a 1:1 mapping from the `component_properties/application_profile/alive_supervision` parameters to the old configuration Alive Supervision structure.
+
+Furthermore, all the Alive Supervisions for non-StateManager processes (application type `REPORTING_AND_SUPERVISED`) are bundled in a GlobalSupervision. Failure of any of those supervisions will trigger the transition to the `final_recovery_action`.
+The Alive Supervision for StateManager processes (application type `STATE_MANAGER`) are bundled in a separate supervision. Failures for any of those supervisions will lead to watchdog reset.
 
 ## Mapping of Watchdog Configuration
 
