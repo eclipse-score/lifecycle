@@ -407,7 +407,7 @@
                   
   <section id="detailed-design">
 <span id="component-detailed-design-hm"></span><h1>Detailed Design<a class="headerlink" href="#detailed-design" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-3336322a">
+<div class="need_container docutils container" id="SNCB-c42e3abb">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__health_monitor_detailed_design">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -474,6 +474,25 @@
 <div class="line">Design Decisions - For the documentation of the decision the <a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/change_management/guidance/change_management_decision_record_template.html#gd_temp__change_decision_record">gd_temp__change_decision_record</a> can be used.</div>
 <div class="line">Design Constraints</div>
 </div>
+</section>
+<section id="implementation-structure">
+<h3>Implementation structure<a class="headerlink" href="#implementation-structure" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>src
+└──<span class="w"> </span>health_monitoring_lib
+<span class="w">    </span>├──<span class="w"> </span>cpp<span class="w">             </span><span class="c1"># C++ API using Rust FFI</span>
+<span class="w">    </span>│<span class="w">   </span>├──<span class="w"> </span>include<span class="w">     </span><span class="c1"># C++ public header files.</span>
+<span class="w">    </span>│<span class="w">   </span>│<span class="w">   </span>└──<span class="w"> </span>...
+<span class="w">    </span>│<span class="w">   </span>└──<span class="w"> </span>tests
+<span class="w">    </span>└──<span class="w"> </span>rust<span class="w">            </span><span class="c1"># Rust implementation + FFI for C++</span>
+<span class="w">        </span>└──<span class="w"> </span>deadline
+</pre></div>
+</div>
+<section id="implementation-approach-for-multi-language">
+<h4>Implementation approach for multi language<a class="headerlink" href="#implementation-approach-for-multi-language" title="Link to this heading">#</a></h4>
+<p>The implementation is done primarily in <cite>Rust</cite> language to leverage its memory safety features and concurrency model.
+Due to a need to interface with existing C++ codebases, a C-compatible Foreign Function Interface (FFI) is provided by this <cite>Rust</cite> implementation.
+<cite>C++</cite> API is designed to be idiomatic wrapping around the <cite>Rust</cite> FFI, ensuring ease of use for C++ developers while maintaining the safe usage.</p>
+</section>
 <section id="rationale-behind-decomposition-into-units">
 <h4>Rationale Behind Decomposition into Units<a class="headerlink" href="#rationale-behind-decomposition-into-units" title="Link to this heading">#</a></h4>
 <div class="line-block">
@@ -489,7 +508,7 @@
 </section>
 <section id="static-diagrams-for-unit-interactions">
 <h3>Static Diagrams for Unit Interactions<a class="headerlink" href="#static-diagrams-for-unit-interactions" title="Link to this heading">#</a></h3>
-<div class="need_container docutils container" id="SNCB-79c07e53">
+<div class="need_container docutils container" id="SNCB-79ebee15">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_dd_sta table" id="dd_sta__health_monitor__class_diagram">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -603,7 +622,9 @@
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#detailed-design-for-component-healthmonitor">Detailed Design for Component: HealthMonitor</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#description">Description</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#description">Description</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation-structure">Implementation structure</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation-approach-for-multi-language">Implementation approach for multi language</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#rationale-behind-decomposition-into-units">Rationale Behind Decomposition into Units</a></li>
 </ul>
 </li>
