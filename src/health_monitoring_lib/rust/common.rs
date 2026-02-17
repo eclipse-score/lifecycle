@@ -166,12 +166,19 @@ pub(crate) mod ffi {
 
     pub(crate) type FFIHandle = *mut core::ffi::c_void;
 
-    pub(crate) const HM_OK: i32 = 0;
-    pub(crate) const HM_NOT_FOUND: i32 = HM_OK + 1;
-    pub(crate) const HM_ALREADY_EXISTS: i32 = HM_OK + 2;
-    pub(crate) const _HM_INVALID_ARGS: i32 = HM_OK + 3;
-    pub(crate) const _HM_WRONG_STATE: i32 = HM_OK + 4;
-    pub(crate) const HM_FAILED: i32 = HM_OK + 5;
+    /// Error representation.
+    /// Must be aligned with `score::hm::Error` with additional success value.
+    #[repr(u8)]
+    pub(crate) enum FFIError {
+        Success = 0,
+        NotFound,
+        AlreadyExists,
+        #[allow(dead_code)]
+        InvalidArgument,
+        #[allow(dead_code)]
+        WrongState,
+        Failed,
+    }
 
     /// A wrapper to represent borrowed data over FFI boundary without taking ownership.
     pub(crate) struct FFIBorrowed<T> {

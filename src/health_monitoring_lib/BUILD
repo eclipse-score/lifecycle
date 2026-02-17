@@ -29,7 +29,6 @@ CC_SOURCES = [
     "cpp/common.cpp",
     "cpp/deadline_monitor.cpp",
     "cpp/heartbeat_monitor.cpp",
-    "cpp/ffi_helpers.h",
     "cpp/health_monitor.cpp",
 ]
 

@@ -17,8 +17,8 @@ using namespace score::hm;
 using namespace score::hm::internal;
 using namespace score::hm::heartbeat;
 
-internal::FFIHandle heartbeat_monitor_builder_create(uint32_t range_min_ms, uint32_t range_max_ms);
-void heartbeat_monitor_builder_destroy(internal::FFIHandle monitor_builder_handle);
+FFIHandle heartbeat_monitor_builder_create(uint32_t range_min_ms, uint32_t range_max_ms);
+void heartbeat_monitor_builder_destroy(FFIHandle monitor_builder_handle);
 void heartbeat_monitor_destroy(FFIHandle monitor_handle);
 void heartbeat_monitor_heartbeat(FFIHandle monitor_handle);
 }

@@ -15,7 +15,6 @@ use crate::deadline::deadline_monitor::Deadline;
 use crate::deadline::*;
 use crate::*;
 use core::time::Duration;
-use std::os::raw::c_int;
 
 pub(crate) struct DeadlineMonitorCpp {
     monitor: DeadlineMonitor,
@@ -28,15 +27,15 @@ impl DeadlineMonitorCpp {
         Self { monitor }
     }
 
-    pub(crate) fn get_deadline(&self, tag: IdentTag) -> Result<FFIHandle, c_int> {
+    pub(crate) fn get_deadline(&self, tag: IdentTag) -> Result<FFIHandle, FFIError> {
         match self.monitor.get_deadline(&tag) {
             Ok(deadline) => {
                 // Now we allocate at runtime. As next step we will add a memory pool for deadlines into self and this way we will not need allocate anymore
                 let handle = Box::into_raw(Box::new(deadline));
                 Ok(handle as FFIHandle)
             },
-            Err(DeadlineMonitorError::DeadlineInUse) => Err(HM_ALREADY_EXISTS),
-            Err(DeadlineMonitorError::DeadlineNotFound) => Err(HM_NOT_FOUND),
+            Err(DeadlineMonitorError::DeadlineInUse) => Err(FFIError::AlreadyExists),
+            Err(DeadlineMonitorError::DeadlineNotFound) => Err(FFIError::NotFound),
         }
     }
 }
@@ -93,7 +92,7 @@ pub extern "C" fn deadline_monitor_cpp_get_deadline(
     handle: FFIHandle,
     tag: *const IdentTag,
     out: *mut FFIHandle,
-) -> c_int {
+) -> FFIError {
     assert!(!handle.is_null());
     assert!(!tag.is_null());
     assert!(!out.is_null());
@@ -112,13 +111,13 @@ pub extern "C" fn deadline_monitor_cpp_get_deadline(
             unsafe {
                 *out = handle;
             }
-            HM_OK
+            FFIError::Success
         },
     )
 }
 
 #[no_mangle]
-pub extern "C" fn deadline_start(handle: FFIHandle) -> c_int {
+pub extern "C" fn deadline_start(handle: FFIHandle) -> FFIError {
     assert!(!handle.is_null());
 
     // Safety: We ensure that the pointer is valid. We assume that pointer was created by call to `deadline_monitor_cpp_get_deadline`
@@ -128,8 +127,8 @@ pub extern "C" fn deadline_start(handle: FFIHandle) -> c_int {
     // Safety: We ensure at CPP side that a Deadline  has move only semantic to not end up in multiple owners of same deadline.
     // We also check during start call that previous start/stop sequence was done correctly.
     match unsafe { deadline.start_internal() } {
-        Ok(()) => HM_OK,
-        Err(_err) => HM_FAILED,
+        Ok(()) => FFIError::Success,
+        Err(_err) => FFIError::Failed,
     }
 }
 

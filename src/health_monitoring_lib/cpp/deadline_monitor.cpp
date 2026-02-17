@@ -11,7 +11,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 #include "score/hm/deadline/deadline_monitor.h"
-#include "ffi_helpers.h"
 
 extern "C" {
 using namespace score::hm;
@@ -19,16 +18,13 @@ using namespace score::hm::internal;
 using namespace score::hm::deadline;
 
 // Deadline monitoring Foreign Function Interface Declarations that are exported by Rust implementation library
-internal::FFIHandle deadline_monitor_builder_create();
-void deadline_monitor_builder_destroy(internal::FFIHandle handle);
-void deadline_monitor_builder_add_deadline(internal::FFIHandle handler,
-                                           const IdentTag* tag,
-                                           uint32_t min,
-                                           uint32_t max);
-int deadline_monitor_cpp_get_deadline(FFIHandle handler, const IdentTag* tag, FFIHandle* out);
+FFIHandle deadline_monitor_builder_create();
+void deadline_monitor_builder_destroy(FFIHandle handle);
+void deadline_monitor_builder_add_deadline(FFIHandle handler, const IdentTag* tag, uint32_t min, uint32_t max);
+FFIError deadline_monitor_cpp_get_deadline(FFIHandle handler, const IdentTag* tag, FFIHandle* out);
 void deadline_monitor_cpp_destroy(FFIHandle handler);
 void deadline_destroy(FFIHandle deadline_handle);
-int deadline_start(FFIHandle deadline_handle);
+FFIError deadline_start(FFIHandle deadline_handle);
 void deadline_stop(FFIHandle deadline_handle);
 }
 
@@ -53,35 +49,35 @@ DeadlineMonitorBuilder DeadlineMonitorBuilder::add_deadline(const IdentTag& tag,
 
 DeadlineMonitor::DeadlineMonitor(FFIHandle handle) : monitor_handle_(handle, &deadline_monitor_cpp_destroy) {}
 
-score::cpp::expected<Deadline, score::hm::Error> DeadlineMonitor::get_deadline(const IdentTag& tag)
+score::cpp::expected<Deadline, Error> DeadlineMonitor::get_deadline(const IdentTag& tag)
 {
     auto handle = monitor_handle_.as_rust_handle();
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(handle.has_value());
 
-    internal::FFIHandle ret = nullptr;
+    FFIHandle ret = nullptr;
     auto result = deadline_monitor_cpp_get_deadline(handle.value(), &tag, &ret);
 
     if (result != kSuccess)
     {
-        return score::cpp::unexpected(::score::hm::ffi::fromRustError(result));
+        return score::cpp::unexpected(static_cast<Error>(result));
     }
 
-    return score::cpp::expected<Deadline, score::hm::Error>(Deadline{ret});
+    return score::cpp::expected<Deadline, Error>(Deadline{ret});
 }
 
-Deadline::Deadline(internal::FFIHandle handle) : deadline_handle_(handle, &deadline_destroy), has_handle_(false) {}
+Deadline::Deadline(FFIHandle handle) : deadline_handle_(handle, &deadline_destroy), has_handle_(false) {}
 
 Deadline::~Deadline()
 {
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(!has_handle_);
 }
 
-score::cpp::expected<DeadlineHandle, score::hm::Error> Deadline::start()
+score::cpp::expected<DeadlineHandle, Error> Deadline::start()
 {
     // Cannot start a deadline that is already started
     if (has_handle_)
     {
-        return score::cpp::unexpected(::score::hm::Error::WrongState);
+        return score::cpp::unexpected(Error::WrongState);
     }
 
     auto handle = deadline_handle_.as_rust_handle();
@@ -90,11 +86,11 @@ score::cpp::expected<DeadlineHandle, score::hm::Error> Deadline::start()
     auto result = deadline_start(handle.value());
     if (result != kSuccess)
     {
-        return score::cpp::unexpected(::score::hm::ffi::fromRustError(result));
+        return score::cpp::unexpected(static_cast<Error>(result));
     }
 
     has_handle_ = true;
-    return score::cpp::expected<DeadlineHandle, score::hm::Error>(DeadlineHandle{*this});
+    return score::cpp::expected<DeadlineHandle, Error>(DeadlineHandle{*this});
 }
 
 DeadlineHandle::DeadlineHandle(Deadline& deadline) : was_stopped_(false), deadline_(deadline) {}
