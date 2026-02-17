@@ -73,6 +73,8 @@ TEST_F(HealthMonitorTest, TestName)
     // Start HMON.
     hm.start();
 
+    heartbeat_monitor.heartbeat();
+
     auto deadline_res = deadline_mon.get_deadline(IdentTag("deadline_1"));
 
     {

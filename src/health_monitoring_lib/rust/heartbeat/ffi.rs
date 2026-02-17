@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
-use crate::common::ffi::FFIHandle;
+use crate::common::ffi::{FFIBorrowed, FFIHandle};
 use crate::heartbeat::{HeartbeatMonitor, HeartbeatMonitorBuilder};
 use crate::TimeRange;
 use core::time::Duration;
@@ -57,7 +57,7 @@ pub extern "C" fn heartbeat_monitor_heartbeat(monitor_handle: FFIHandle) {
     // SAFETY:
     // Validity of the pointer is ensured.
     // It is assumed that the pointer was created by a call to `health_monitor_get_heartbeat_monitor`.
-    let monitor = unsafe { Box::from_raw(monitor_handle as *mut HeartbeatMonitor) };
+    let monitor = FFIBorrowed::new(unsafe { Box::from_raw(monitor_handle as *mut HeartbeatMonitor) });
 
     monitor.heartbeat();
 }
