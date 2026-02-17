@@ -38,6 +38,16 @@ Overview
 
 Document describes HealthMonitor component architecture.
 
+.. comp:: Health Monitor
+   :id: comp__health_monitor
+   :security: YES
+   :safety: ASIL_B
+   :status: valid
+
+   Health Monitor component provides a set of functionalities to verify the health of the system and its components. It includes monitoring deadlines, logic, and heartbeats to ensure proper system functioning.
+
+
+
 Description
 -----------
 
@@ -63,6 +73,7 @@ Static Architecture
    :status: valid
    :implements:
    :fulfils: comp_req__health_monitor__dummy
+   :belongs_to: comp__health_monitor
    :includes:
 
    .. uml::  assets/dm_static_architecture.puml
@@ -74,6 +85,7 @@ Static Architecture
    :status: valid
    :implements:
    :fulfils: comp_req__health_monitor__dummy
+   :belongs_to: comp__health_monitor
    :includes:
 
    .. uml::  assets/lm_static_architecture.puml
@@ -85,6 +97,7 @@ Static Architecture
    :status: valid
    :implements:
    :fulfils: comp_req__health_monitor__dummy
+   :belongs_to: comp__health_monitor
    :includes:
 
    .. uml::  assets/hm_static_architecture.puml
@@ -98,6 +111,7 @@ Dynamic Architecture
    :safety: ASIL_B
    :status: valid
    :fulfils: comp_req__health_monitor__dummy
+   :belongs_to: comp__health_monitor
 
    .. uml::  assets/hm_creation.puml
 
@@ -107,6 +121,7 @@ Dynamic Architecture
    :safety: ASIL_B
    :status: valid
    :fulfils: comp_req__health_monitor__dummy
+   :belongs_to: comp__health_monitor
 
    .. uml::  assets/hm_background_thread.puml
 
@@ -116,6 +131,7 @@ Dynamic Architecture
    :safety: ASIL_B
    :status: valid
    :fulfils: comp_req__health_monitor__dummy
+   :belongs_to: comp__health_monitor
 
    .. uml::  assets/dm_usage.puml
 
@@ -125,6 +141,7 @@ Dynamic Architecture
    :safety: ASIL_B
    :status: valid
    :fulfils: comp_req__health_monitor__dummy
+   :belongs_to: comp__health_monitor
 
    .. uml::  assets/lm_usage.puml
 
@@ -134,6 +151,7 @@ Dynamic Architecture
    :safety: ASIL_B
    :status: valid
    :fulfils: comp_req__health_monitor__dummy
+   :belongs_to: comp__health_monitor
 
    .. uml::  assets/hbm_usage.puml
 
@@ -143,6 +161,7 @@ Dynamic Architecture
    :safety: ASIL_B
    :status: valid
    :fulfils: comp_req__health_monitor__dummy
+   :belongs_to: comp__health_monitor
 
    .. uml::  assets/hm_startup.puml
 
@@ -152,6 +171,7 @@ Dynamic Architecture
    :safety: ASIL_B
    :status: valid
    :fulfils: comp_req__health_monitor__dummy
+   :belongs_to: comp__health_monitor
 
    .. uml::  assets/hm_shutdown.puml
 
