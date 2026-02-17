@@ -26,6 +26,11 @@ test --@score_baselibs//score/mw/log/flags:KRemote_Logging=False
 test --@score_baselibs//score/json:base_library=nlohmann
 test --cxxopt=-Wno-deprecated-declarations
 
+# Coverage configuration for C++
+coverage --features=coverage
+coverage --combined_report=lcov
+coverage --cache_test_results=no
+
 # Common Lifecycle Toolchain flags for build (do not use it in case of system toolchains!)
 build:toolchain_common --incompatible_strict_action_env
 build:toolchain_common --host_platform=@score_bazel_platforms//:x86_64-linux
@@ -57,6 +62,17 @@ build:arm64-qnx --incompatible_strict_action_env
 build:arm64-qnx --platforms=@score_bazel_platforms//:aarch64-qnx-sdp_8.0.0-posix
 build:arm64-qnx --extra_toolchains=@score_qcc_aarch64_toolchain//:aarch64-qnx-sdp_8.0.0-posix
 build:arm64-qnx --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_aarch64_unknown_nto_qnx800
+
+# Ferrocene Rust coverage config
+build:ferrocene-coverage --@rules_rust//rust/settings:extra_rustc_flag=-Cinstrument-coverage
+build:ferrocene-coverage --@rules_rust//rust/settings:extra_rustc_flag=-Clink-dead-code
+build:ferrocene-coverage --@rules_rust//rust/settings:extra_rustc_flag=-Ccodegen-units=1
+build:ferrocene-coverage --@rules_rust//rust/settings:extra_rustc_flag=-Cdebuginfo=2
+build:ferrocene-coverage --@rules_rust//rust/settings:extra_exec_rustc_flag=-Cinstrument-coverage
+build:ferrocene-coverage --@rules_rust//rust/settings:extra_exec_rustc_flag=-Clink-dead-code
+build:ferrocene-coverage --@rules_rust//rust/settings:extra_exec_rustc_flag=-Ccodegen-units=1
+build:ferrocene-coverage --@rules_rust//rust/settings:extra_exec_rustc_flag=-Cdebuginfo=2
+test:ferrocene-coverage --run_under=@score_tooling//coverage:llvm_profile_wrapper
 
 # to be removed
 build:build_qnx8 --config=arm64-qnx
