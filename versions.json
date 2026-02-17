@@ -46,5 +46,9 @@
   {
     "version": "pr-80",
     "url": "https://eclipse-score.github.io/lifecycle/pr-80/"
+  },
+  {
+    "version": "v0.1.0",
+    "url": "https://eclipse-score.github.io/lifecycle/v0.1.0/"
   }
 ]
