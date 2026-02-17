@@ -1,0 +1,15 @@
+{
+    "versionMajor": 8,
+    "versionMinor": 0,
+    "process": [],
+    "hmMonitorInterface": [
+        {
+            "instanceSpecifier": "state_manager",
+            "processShortName": "state_manager",
+            "portPrototype": "DefaultPort",
+            "interfacePath": "lifecycle_health_state_manager",
+            "refProcessIndex": 0,
+            "permittedUid": 4
+        }
+    ]
+}
