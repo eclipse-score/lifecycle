@@ -14,6 +14,7 @@
 mod heartbeat_monitor;
 mod heartbeat_state;
 
+pub(crate) use heartbeat_monitor::HeartbeatMonitorInner;
 pub use heartbeat_monitor::{HeartbeatMonitor, HeartbeatMonitorBuilder};
 
 // FFI bindings

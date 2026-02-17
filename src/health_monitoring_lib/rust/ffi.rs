@@ -10,10 +10,47 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
-use crate::common::ffi::*;
 use crate::deadline::ffi::DeadlineMonitorCpp;
 use crate::*;
+use core::mem::ManuallyDrop;
+use core::ops::{Deref, DerefMut};
 use core::time::Duration;
+
+pub(crate) type FFIHandle = *mut core::ffi::c_void;
+
+pub(crate) const HM_OK: i32 = 0;
+pub(crate) const HM_NOT_FOUND: i32 = HM_OK + 1;
+pub(crate) const HM_ALREADY_EXISTS: i32 = HM_OK + 2;
+pub(crate) const _HM_INVALID_ARGS: i32 = HM_OK + 3;
+pub(crate) const _HM_WRONG_STATE: i32 = HM_OK + 4;
+pub(crate) const HM_FAILED: i32 = HM_OK + 5;
+
+/// A wrapper to represent borrowed data over FFI boundary without taking ownership.
+pub(crate) struct FFIBorrowed<T> {
+    data: ManuallyDrop<T>,
+}
+
+impl<T> FFIBorrowed<T> {
+    pub(crate) fn new(data: T) -> Self {
+        Self {
+            data: ManuallyDrop::new(data),
+        }
+    }
+}
+
+impl<T: Deref> Deref for FFIBorrowed<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.data
+    }
+}
+
+impl<T: DerefMut> DerefMut for FFIBorrowed<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.data
+    }
+}
 
 #[no_mangle]
 extern "C" fn health_monitor_builder_create() -> FFIHandle {
@@ -46,7 +83,7 @@ extern "C" fn health_monitor_builder_add_deadline_monitor(
     let tag = unsafe { *monitor_tag }; // Copy the MonitorTag as this shall be trivially copyable
 
     // Safety: We ensure that the pointer is valid. We assume that pointer was created by call to `deadline_monitor_builder_create`
-    let monitor = unsafe { Box::from_raw(monitor as *mut deadline::DeadlineMonitorBuilder) };
+    let monitor = unsafe { Box::from_raw(monitor as *mut DeadlineMonitorBuilder) };
 
     // Safety: We ensure that the pointer is valid. We assume that pointer was created by call to `health_monitor_builder_create`
     // and this must be assured on other side of FFI.
@@ -73,7 +110,7 @@ extern "C" fn health_monitor_builder_add_heartbeat_monitor(
     // SAFETY:
     // Validity of the pointer is ensured.
     // It is assumed that pointer was created with a call to `heartbeat_monitor_builder_create`.
-    let monitor_builder = unsafe { Box::from_raw(monitor_builder_handle as *mut heartbeat::HeartbeatMonitorBuilder) };
+    let monitor_builder = unsafe { Box::from_raw(monitor_builder_handle as *mut HeartbeatMonitorBuilder) };
 
     // SAFETY:
     // Validity of the pointer is ensured.

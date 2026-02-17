@@ -11,10 +11,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
-use crate::tag::MonitorTag;
 use core::hash::Hash;
 use core::time::Duration;
-use std::sync::Arc;
 use std::time::Instant;
 
 /// Range of accepted time.
@@ -42,88 +40,6 @@ pub(crate) fn hmon_time_offset(hmon_starting_point: Instant, monitor_starting_po
 pub(crate) fn duration_to_u32(duration: Duration) -> u32 {
     let millis = duration.as_millis();
     u32::try_from(millis).expect("Monitor running for too long")
-}
-
-/// Heartbeat monitor error subgroup.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, crate::log::ScoreDebug)]
-pub(crate) enum HeartbeatMonitorEvaluationError {
-    /// Multiple heartbeats were observed in the same epoch.
-    MultipleHeartbeats,
-}
-
-/// Errors that can occur during monitor evaluation.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, crate::log::ScoreDebug)]
-pub(crate) enum MonitorEvaluationError {
-    TooEarly,
-    TooLate,
-    HeartbeatSpecific(HeartbeatMonitorEvaluationError),
-}
-
-/// Trait for evaluating monitors and reporting errors to be used by HealthMonitor.
-pub(crate) trait MonitorEvaluator {
-    /// Run monitor evaluation.
-    ///
-    /// - `hmon_starting_point` - starting point of all monitors.
-    /// - `on_error` - error handling, containing tag of a failing monitor and error code.
-    fn evaluate(&self, hmon_starting_point: Instant, on_error: &mut dyn FnMut(&MonitorTag, MonitorEvaluationError));
-}
-
-/// Handle to a monitor evaluator, allowing for dynamic dispatch.
-pub(crate) struct MonitorEvalHandle {
-    inner: Arc<dyn MonitorEvaluator + Send + Sync>,
-}
-
-impl MonitorEvalHandle {
-    pub(crate) fn new<T: MonitorEvaluator + Send + Sync + 'static>(inner: Arc<T>) -> Self {
-        Self { inner }
-    }
-}
-
-impl MonitorEvaluator for MonitorEvalHandle {
-    fn evaluate(&self, hmon_starting_point: Instant, on_error: &mut dyn FnMut(&MonitorTag, MonitorEvaluationError)) {
-        self.inner.evaluate(hmon_starting_point, on_error)
-    }
-}
-
-pub(crate) mod ffi {
-    use core::mem::ManuallyDrop;
-    use core::ops::{Deref, DerefMut};
-
-    pub(crate) type FFIHandle = *mut core::ffi::c_void;
-
-    pub(crate) const HM_OK: i32 = 0;
-    pub(crate) const HM_NOT_FOUND: i32 = HM_OK + 1;
-    pub(crate) const HM_ALREADY_EXISTS: i32 = HM_OK + 2;
-    pub(crate) const _HM_INVALID_ARGS: i32 = HM_OK + 3;
-    pub(crate) const _HM_WRONG_STATE: i32 = HM_OK + 4;
-    pub(crate) const HM_FAILED: i32 = HM_OK + 5;
-
-    /// A wrapper to represent borrowed data over FFI boundary without taking ownership.
-    pub(crate) struct FFIBorrowed<T> {
-        data: ManuallyDrop<T>,
-    }
-
-    impl<T> FFIBorrowed<T> {
-        pub(crate) fn new(data: T) -> Self {
-            Self {
-                data: ManuallyDrop::new(data),
-            }
-        }
-    }
-
-    impl<T: Deref> Deref for FFIBorrowed<T> {
-        type Target = T;
-
-        fn deref(&self) -> &Self::Target {
-            &self.data
-        }
-    }
-
-    impl<T: DerefMut> DerefMut for FFIBorrowed<T> {
-        fn deref_mut(&mut self) -> &mut Self::Target {
-            &mut self.data
-        }
-    }
 }
 
 #[cfg(test)]

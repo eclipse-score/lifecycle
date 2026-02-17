@@ -10,11 +10,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
-use crate::common::ffi::*;
 use crate::deadline::deadline_monitor::Deadline;
 use crate::deadline::*;
+use crate::ffi::*;
 use crate::tag::DeadlineTag;
-use crate::*;
+use crate::TimeRange;
 use core::time::Duration;
 use std::os::raw::c_int;
 

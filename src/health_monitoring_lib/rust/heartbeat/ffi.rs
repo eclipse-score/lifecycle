@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
-use crate::common::ffi::FFIHandle;
+use crate::ffi::FFIHandle;
 use crate::heartbeat::{HeartbeatMonitor, HeartbeatMonitorBuilder};
 use crate::TimeRange;
 use core::time::Duration;
