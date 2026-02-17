@@ -407,7 +407,7 @@
                   
   <section id="component-architecture">
 <span id="component-architecture-hm"></span><h1>Component Architecture<a class="headerlink" href="#component-architecture" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-e0d24877">
+<div class="need_container docutils container" id="SNCB-cf3a8246">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__health_monitor_architecture">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -463,7 +463,7 @@
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
 <p>Document describes HealthMonitor component architecture.</p>
-<div class="need_container docutils container" id="SNCB-45d4168f">
+<div class="need_container docutils container" id="SNCB-eac067b7">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp table" id="comp__health_monitor">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -484,14 +484,13 @@
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">health_monitor</span></span></span></div>
 </span></span></div>
-<div class="line"><span><div class="line">has: <span class="belongs_to"><span><a class="reference internal" href="../requirements/index.html#comp_req__health_monitor__dummy" title="comp__health_monitor">comp_req__health_monitor__dummy</a>, <a class="reference internal" href="#comp_arc_sta__deadline_monitor__static_view" title="comp__health_monitor">comp_arc_sta__deadline_monitor__static_view</a>, <a class="reference internal" href="#comp_arc_sta__logic_monitor__static_view" title="comp__health_monitor">comp_arc_sta__logic_monitor__static_view</a>, <a class="reference internal" href="#comp_arc_sta__health_monitor__static_view" title="comp__health_monitor">comp_arc_sta__health_monitor__static_view</a>, <a class="reference internal" href="#comp_arc_dyn__health_monitor__dynamic_view" title="comp__health_monitor">comp_arc_dyn__health_monitor__dynamic_view</a>, <a class="reference internal" href="#comp_arc_dyn__health_lib_thread__dynamic_view" title="comp__health_monitor">comp_arc_dyn__health_lib_thread__dynamic_view</a>, <a class="reference internal" href="#comp_arc_dyn__deadline_monitor__dynamic_view" title="comp__health_monitor">comp_arc_dyn__deadline_monitor__dynamic_view</a>, <a class="reference internal" href="#comp_arc_dyn__logic_monitor__dynamic_view" title="comp__health_monitor">comp_arc_dyn__logic_monitor__dynamic_view</a>, <a class="reference internal" href="#comp_arc_dyn__heartbeat_monitor__dynamic_view" title="comp__health_monitor">comp_arc_dyn__heartbeat_monitor__dynamic_view</a>, <a class="reference internal" href="#comp_arc_dyn__health_monitor__startup_view" title="comp__health_monitor">comp_arc_dyn__health_monitor__startup_view</a>, <a class="reference internal" href="#comp_arc_dyn__health_monitor__shutdown_view" title="comp__health_monitor">comp_arc_dyn__health_monitor__shutdown_view</a></span></span></div>
+<div class="line"><span><div class="line">has: <span class="belongs_to"><span><a class="reference internal" href="#comp_arc_sta__deadline_monitor__static_view" title="comp__health_monitor">comp_arc_sta__deadline_monitor__static_view</a>, <a class="reference internal" href="#comp_arc_sta__logic_monitor__static_view" title="comp__health_monitor">comp_arc_sta__logic_monitor__static_view</a>, <a class="reference internal" href="#comp_arc_sta__health_monitor__static_view" title="comp__health_monitor">comp_arc_sta__health_monitor__static_view</a>, <a class="reference internal" href="#comp_arc_dyn__health_monitor__dynamic_view" title="comp__health_monitor">comp_arc_dyn__health_monitor__dynamic_view</a>, <a class="reference internal" href="#comp_arc_dyn__health_lib_thread__dynamic_view" title="comp__health_monitor">comp_arc_dyn__health_lib_thread__dynamic_view</a>, <a class="reference internal" href="#comp_arc_dyn__deadline_monitor__dynamic_view" title="comp__health_monitor">comp_arc_dyn__deadline_monitor__dynamic_view</a>, <a class="reference internal" href="#comp_arc_dyn__logic_monitor__dynamic_view" title="comp__health_monitor">comp_arc_dyn__logic_monitor__dynamic_view</a>, <a class="reference internal" href="#comp_arc_dyn__heartbeat_monitor__dynamic_view" title="comp__health_monitor">comp_arc_dyn__heartbeat_monitor__dynamic_view</a>, <a class="reference internal" href="#comp_arc_dyn__health_monitor__startup_view" title="comp__health_monitor">comp_arc_dyn__health_monitor__startup_view</a>, <a class="reference internal" href="#comp_arc_dyn__health_monitor__shutdown_view" title="comp__health_monitor">comp_arc_dyn__health_monitor__shutdown_view</a>, <a class="reference internal" href="../requirements/index.html#comp_req__health_monitor__dummy" title="comp__health_monitor">comp_req__health_monitor__dummy</a></span></span></div>
 </span></div>
 </div>
 </td>
 <td class="meta" colspan="3"></td>
 </tr>
-<tr class="content row-odd"><td class="content" colspan="6"><p>Health Monitor component provides a set of functionalities to verify the health of the system and its components. It includes monitoring of deadlines, logic, and heartbeats to ensure the proper functioning of the system.
-The component is designed to be modular and extensible, allowing for easy integration with other components and systems.</p></td>
+<tr class="content row-odd"><td class="content" colspan="6"><p>Health Monitor component provides a set of functionalities to verify the health of the system and its components. It includes monitoring deadlines, logic, and heartbeats to ensure proper system functioning.</p></td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
 <div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp__health_monitor" title="comp__health_monitor">comp__health_monitor</a></span></span></div>
@@ -522,7 +521,7 @@ The component is designed to be modular and extensible, allowing for easy integr
 </section>
 <section id="static-architecture">
 <h2>Static Architecture<a class="headerlink" href="#static-architecture" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-b1eeb162">
+<div class="need_container docutils container" id="SNCB-fbc7488b">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_sta table" id="comp_arc_sta__deadline_monitor__static_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -568,7 +567,7 @@ The component is designed to be modular and extensible, allowing for easy integr
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-175441c3">
+<div class="need_container docutils container" id="SNCB-cd986b4d">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_sta table" id="comp_arc_sta__logic_monitor__static_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -614,7 +613,7 @@ The component is designed to be modular and extensible, allowing for easy integr
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-5c73f382">
+<div class="need_container docutils container" id="SNCB-e9d1d8f6">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_sta table" id="comp_arc_sta__health_monitor__static_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -664,7 +663,7 @@ The component is designed to be modular and extensible, allowing for easy integr
 </section>
 <section id="dynamic-architecture">
 <h2>Dynamic Architecture<a class="headerlink" href="#dynamic-architecture" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-eaac6d0e">
+<div class="need_container docutils container" id="SNCB-7bf43c5d">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__health_monitor__dynamic_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -710,7 +709,7 @@ The component is designed to be modular and extensible, allowing for easy integr
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-44534ef1">
+<div class="need_container docutils container" id="SNCB-32d3c975">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__health_lib_thread__dynamic_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -755,7 +754,7 @@ The component is designed to be modular and extensible, allowing for easy integr
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-02a20cb5">
+<div class="need_container docutils container" id="SNCB-bc116db7">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__deadline_monitor__dynamic_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -800,7 +799,7 @@ The component is designed to be modular and extensible, allowing for easy integr
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-5ff78e4f">
+<div class="need_container docutils container" id="SNCB-cffe255e">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__logic_monitor__dynamic_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -845,7 +844,7 @@ The component is designed to be modular and extensible, allowing for easy integr
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-7091044b">
+<div class="need_container docutils container" id="SNCB-e391044b">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__heartbeat_monitor__dynamic_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -890,7 +889,7 @@ The component is designed to be modular and extensible, allowing for easy integr
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-5af0dae8">
+<div class="need_container docutils container" id="SNCB-ddb24e2f">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__health_monitor__startup_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -936,7 +935,7 @@ The component is designed to be modular and extensible, allowing for easy integr
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-af8afc96">
+<div class="need_container docutils container" id="SNCB-de11529b">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__health_monitor__shutdown_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -985,7 +984,7 @@ The component is designed to be modular and extensible, allowing for easy integr
 </section>
 <section id="interfaces">
 <h2>Interfaces<a class="headerlink" href="#interfaces" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-6fbae26d">
+<div class="need_container docutils container" id="SNCB-8751b1ca">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_real_arc_int table" id="real_arc_int__deadline_monitor__interface">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1030,7 +1029,7 @@ The component is designed to be modular and extensible, allowing for easy integr
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-85b35845">
+<div class="need_container docutils container" id="SNCB-dae31b8b">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_real_arc_int table" id="real_arc_int__logic_monitor__interface">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1075,7 +1074,7 @@ The component is designed to be modular and extensible, allowing for easy integr
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-aed504e8">
+<div class="need_container docutils container" id="SNCB-81d0764e">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_real_arc_int table" id="real_arc_int__heartbeat_monitor__interface">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1120,7 +1119,7 @@ The component is designed to be modular and extensible, allowing for easy integr
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-30f8c61a">
+<div class="need_container docutils container" id="SNCB-697fa936">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_real_arc_int table" id="real_arc_int__health_monitor__interface">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">

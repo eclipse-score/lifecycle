@@ -44,9 +44,7 @@ Document describes HealthMonitor component architecture.
    :safety: ASIL_B
    :status: valid
 
-   Health Monitor component provides a set of functionalities to verify the health of the system and its components. It includes monitoring of deadlines, logic, and heartbeats to ensure the proper functioning of the system.
-   The component is designed to be modular and extensible, allowing for easy integration with other components and systems.
-
+   Health Monitor component provides a set of functionalities to verify the health of the system and its components. It includes monitoring deadlines, logic, and heartbeats to ensure proper system functioning.
 
 
 
