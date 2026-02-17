@@ -42,6 +42,7 @@ CC_HDRS = [
 rust_library(
     name = "health_monitoring_lib",
     srcs = glob(["rust/**/*.rs"]),
+    crate_root = "rust/lib.rs",
     proc_macro_deps = PROC_MACRO_DEPS,
     visibility = ["//visibility:public"],
     deps = COMMON_DEPS,
@@ -65,6 +66,7 @@ rust_static_library(
     name = "health_monitoring_lib_ffi",
     srcs = glob(["rust/**/*.rs"]),
     crate_name = "health_monitoring_lib",
+    crate_root = "rust/lib.rs",
     proc_macro_deps = [
         "@score_baselibs_rust//src/testing_macros:score_testing_macros",
     ],
@@ -77,6 +79,7 @@ rust_static_library(
     name = "health_monitoring_lib_stub_supervisor",
     srcs = glob(["rust/**/*.rs"]),
     crate_features = ["stub_supervisor_api_client"],  # Uses the stub supervisor API client, used for C++ testing
+    crate_root = "rust/lib.rs",
     proc_macro_deps = PROC_MACRO_DEPS,
     visibility = ["//visibility:private"],
     deps = COMMON_DEPS,
