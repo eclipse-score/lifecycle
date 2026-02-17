@@ -15,6 +15,8 @@ use core::fmt::Debug;
 use core::hash::Hash;
 use core::time::Duration;
 use std::sync::Arc;
+use std::time::Instant;
+
 /// Unique identifier for deadlines.
 #[derive(Clone, Copy, Eq)]
 #[repr(C)]
@@ -90,6 +92,7 @@ impl From<&str> for IdentTag {
     }
 }
 
+/// Range of accepted time.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct TimeRange {
     pub min: Duration,
@@ -103,16 +106,41 @@ impl TimeRange {
     }
 }
 
+/// Get offset between HMON and monitor starting time points as [`u32`].
+pub(crate) fn hmon_time_offset(hmon_starting_point: Instant, monitor_starting_point: Instant) -> u32 {
+    let result = hmon_starting_point.checked_duration_since(monitor_starting_point);
+    let duration_since = result.expect("HMON starting point is earlier than monitor starting point");
+    duration_to_u32(duration_since)
+}
+
+/// Get duration as [`u32`].
+pub(crate) fn duration_to_u32(duration: Duration) -> u32 {
+    let millis = duration.as_millis();
+    u32::try_from(millis).expect("Monitor running for too long")
+}
+
+/// Heartbeat monitor error subgroup.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, crate::log::ScoreDebug)]
+pub(crate) enum HeartbeatMonitorEvaluationError {
+    /// Multiple heartbeats were observed in the same epoch.
+    MultipleHeartbeats,
+}
+
 /// Errors that can occur during monitor evaluation.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, crate::log::ScoreDebug)]
 pub(crate) enum MonitorEvaluationError {
     TooEarly,
     TooLate,
+    HeartbeatSpecific(HeartbeatMonitorEvaluationError),
 }
 
 /// Trait for evaluating monitors and reporting errors to be used by HealthMonitor.
 pub(crate) trait MonitorEvaluator {
-    fn evaluate(&self, on_error: &mut dyn FnMut(&IdentTag, MonitorEvaluationError));
+    /// Run monitor evaluation.
+    ///
+    /// - `hmon_starting_point` - starting point of all monitors.
+    /// - `on_error` - error handling, containing tag of failing object and error code.
+    fn evaluate(&self, hmon_starting_point: Instant, on_error: &mut dyn FnMut(&IdentTag, MonitorEvaluationError));
 }
 
 /// Handle to a monitor evaluator, allowing for dynamic dispatch.
@@ -127,8 +155,8 @@ impl MonitorEvalHandle {
 }
 
 impl MonitorEvaluator for MonitorEvalHandle {
-    fn evaluate(&self, on_error: &mut dyn FnMut(&IdentTag, MonitorEvaluationError)) {
-        self.inner.evaluate(on_error)
+    fn evaluate(&self, hmon_starting_point: Instant, on_error: &mut dyn FnMut(&IdentTag, MonitorEvaluationError)) {
+        self.inner.evaluate(hmon_starting_point, on_error)
     }
 }
 
@@ -138,12 +166,19 @@ pub(crate) mod ffi {
 
     pub(crate) type FFIHandle = *mut core::ffi::c_void;
 
-    pub(crate) const HM_OK: i32 = 0;
-    pub(crate) const HM_NOT_FOUND: i32 = HM_OK + 1;
-    pub(crate) const HM_ALREADY_EXISTS: i32 = HM_OK + 2;
-    pub(crate) const _HM_INVALID_ARGS: i32 = HM_OK + 3;
-    pub(crate) const _HM_WRONG_STATE: i32 = HM_OK + 4;
-    pub(crate) const HM_FAILED: i32 = HM_OK + 5;
+    /// Error representation.
+    /// Must be aligned with `score::hm::Error` with additional success value.
+    #[repr(u8)]
+    pub(crate) enum FFIError {
+        Success = 0,
+        NotFound,
+        AlreadyExists,
+        #[allow(dead_code)]
+        InvalidArgument,
+        #[allow(dead_code)]
+        WrongState,
+        Failed,
+    }
 
     /// A wrapper to represent borrowed data over FFI boundary without taking ownership.
     pub(crate) struct FFIBorrowed<T> {
@@ -170,5 +205,53 @@ pub(crate) mod ffi {
         fn deref_mut(&mut self) -> &mut Self::Target {
             &mut self.data
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::common::{duration_to_u32, hmon_time_offset};
+    use core::time::Duration;
+    use std::time::Instant;
+
+    #[test]
+    fn test_hmon_time_offset_valid() {
+        let monitor_starting_point = Instant::now();
+        let hmon_starting_point = Instant::now();
+        let offset = hmon_time_offset(hmon_starting_point, monitor_starting_point);
+        // Allow small offset.
+        assert!(offset < 10);
+    }
+
+    #[test]
+    #[should_panic(expected = "HMON starting point is earlier than monitor starting point")]
+    fn test_hmon_time_offset_wrong_order() {
+        let hmon_starting_point = Instant::now();
+        let monitor_starting_point = Instant::now();
+        let _offset = hmon_time_offset(hmon_starting_point, monitor_starting_point);
+    }
+
+    #[test]
+    #[should_panic(expected = "Monitor running for too long")]
+    fn test_hmon_time_offset_diff_too_large() {
+        const HUNDRED_DAYS_AS_SECS: u64 = 100 * 24 * 60 * 60;
+        let monitor_starting_point = Instant::now();
+        let hmon_starting_point = Instant::now()
+            .checked_add(Duration::from_secs(HUNDRED_DAYS_AS_SECS))
+            .unwrap();
+        let _offset = hmon_time_offset(hmon_starting_point, monitor_starting_point);
+    }
+
+    #[test]
+    fn test_duration_to_u32_valid() {
+        let result = duration_to_u32(Duration::from_millis(1234));
+        assert_eq!(result, 1234);
+    }
+
+    #[test]
+    #[should_panic(expected = "Monitor running for too long")]
+    fn test_duration_to_u32_too_large() {
+        const HUNDRED_DAYS_AS_SECS: u64 = 100 * 24 * 60 * 60;
+        let _result = duration_to_u32(Duration::from_secs(HUNDRED_DAYS_AS_SECS));
     }
 }

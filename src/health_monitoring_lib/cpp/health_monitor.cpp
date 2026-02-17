@@ -25,8 +25,12 @@ internal::FFIHandle health_monitor_builder_build(internal::FFIHandle health_moni
 void health_monitor_builder_add_deadline_monitor(internal::FFIHandle handle,
                                                  const IdentTag* tag,
                                                  internal::FFIHandle monitor_handle);
+void health_monitor_builder_add_heartbeat_monitor(internal::FFIHandle hmon_builder_handle,
+                                                  const IdentTag* monitor_tag,
+                                                  internal::FFIHandle monitor_builder_handle);
 
 internal::FFIHandle health_monitor_get_deadline_monitor(internal::FFIHandle health_monitor_handle, const IdentTag* tag);
+internal::FFIHandle health_monitor_get_heartbeat_monitor(internal::FFIHandle hmon_handle, const IdentTag* monitor_tag);
 void health_monitor_start(internal::FFIHandle health_monitor_handle);
 void health_monitor_destroy(internal::FFIHandle handler);
 }
@@ -50,6 +54,18 @@ HealthMonitorBuilder HealthMonitorBuilder::add_deadline_monitor(const IdentTag& 
 
     health_monitor_builder_add_deadline_monitor(
         health_monitor_builder_handle_.as_rust_handle().value(), &tag, monitor_handle.value());
+    return std::move(*this);
+}
+
+HealthMonitorBuilder HealthMonitorBuilder::add_heartbeat_monitor(const IdentTag& monitor_tag,
+                                                                 heartbeat::HeartbeatMonitorBuilder&& monitor) &&
+{
+    auto monitor_handle{monitor.drop_by_rust()};
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION(monitor_handle.has_value());
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION(health_monitor_builder_handle_.as_rust_handle().has_value());
+
+    health_monitor_builder_add_heartbeat_monitor(
+        health_monitor_builder_handle_.as_rust_handle().value(), &monitor_tag, monitor_handle.value());
     return std::move(*this);
 }
 
@@ -99,6 +115,18 @@ score::cpp::expected<deadline::DeadlineMonitor, Error> HealthMonitor::get_deadli
 
     return score::cpp::unexpected(Error::NotFound);
 }
+
+score::cpp::expected<heartbeat::HeartbeatMonitor, Error> HealthMonitor::get_heartbeat_monitor(
+    const IdentTag& monitor_tag)
+{
+    auto maybe_monitor{health_monitor_get_heartbeat_monitor(health_monitor_, &monitor_tag)};
+    if (maybe_monitor == nullptr)
+    {
+        return score::cpp::unexpected(Error::NotFound);
+    }
+    return score::cpp::expected<heartbeat::HeartbeatMonitor, Error>{heartbeat::HeartbeatMonitor{maybe_monitor}};
+}
+
 void HealthMonitor::start()
 {
     health_monitor_start(health_monitor_);

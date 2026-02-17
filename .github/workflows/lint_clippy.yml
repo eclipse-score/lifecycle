@@ -48,8 +48,14 @@ jobs:
           override: true
           components: clippy
 
-      - name: check clippy errors
+      - name: check clippy errors (with "--features stub_supervisor_api_client")
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --all-features --all-targets --workspace -- -D warnings
+          args: --features stub_supervisor_api_client --all-targets -- -D warnings
+
+      - name: check clippy errors (with "--features score_supervisor_api_client")
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --features score_supervisor_api_client --no-default-features --all-targets -- -D warnings
