@@ -407,7 +407,7 @@
                   
   <section id="component-architecture">
 <span id="component-architecture-hm"></span><h1>Component Architecture<a class="headerlink" href="#component-architecture" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-527b71ea">
+<div class="need_container docutils container" id="SNCB-87e91b9f">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__health_monitor_architecture">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -463,6 +463,49 @@
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
 <p>Document describes HealthMonitor component architecture.</p>
+<div class="need_container docutils container" id="SNCB-4ebb1456">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp table" id="comp__health_monitor">
+<tbody>
+<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
+<div class="line"><span><span class="needs_title"><span class="needs_data">Health Monitor</span></span></span></div>
+</div>
+</td>
+<td class="head_center" colspan="2"><div class="needs_head line-block">
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
+<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">YES</span></span></span></div>
+<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
+</div>
+</td>
+<td class="head_right" colspan="2"><div class="needs_head_right line-block">
+<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
+</div>
+</td>
+</tr>
+<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
+<div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">health_monitor</span></span></span></div>
+</span></span></div>
+<div class="line"><span><div class="line">has: <span class="belongs_to"><span><a class="reference internal" href="#comp_arc_sta__deadline_monitor__static_view" title="comp__health_monitor">comp_arc_sta__deadline_monitor__static_view</a>, <a class="reference internal" href="#comp_arc_sta__logic_monitor__static_view" title="comp__health_monitor">comp_arc_sta__logic_monitor__static_view</a>, <a class="reference internal" href="#comp_arc_sta__health_monitor__static_view" title="comp__health_monitor">comp_arc_sta__health_monitor__static_view</a>, <a class="reference internal" href="#comp_arc_dyn__health_monitor__dynamic_view" title="comp__health_monitor">comp_arc_dyn__health_monitor__dynamic_view</a>, <a class="reference internal" href="#comp_arc_dyn__health_lib_thread__dynamic_view" title="comp__health_monitor">comp_arc_dyn__health_lib_thread__dynamic_view</a>, <a class="reference internal" href="#comp_arc_dyn__deadline_monitor__dynamic_view" title="comp__health_monitor">comp_arc_dyn__deadline_monitor__dynamic_view</a>, <a class="reference internal" href="#comp_arc_dyn__logic_monitor__dynamic_view" title="comp__health_monitor">comp_arc_dyn__logic_monitor__dynamic_view</a>, <a class="reference internal" href="#comp_arc_dyn__heartbeat_monitor__dynamic_view" title="comp__health_monitor">comp_arc_dyn__heartbeat_monitor__dynamic_view</a>, <a class="reference internal" href="#comp_arc_dyn__health_monitor__startup_view" title="comp__health_monitor">comp_arc_dyn__health_monitor__startup_view</a>, <a class="reference internal" href="#comp_arc_dyn__health_monitor__shutdown_view" title="comp__health_monitor">comp_arc_dyn__health_monitor__shutdown_view</a>, <a class="reference internal" href="../requirements/index.html#comp_req__health_monitor__dummy" title="comp__health_monitor">comp_req__health_monitor__dummy</a></span></span></div>
+</span></div>
+</div>
+</td>
+<td class="meta" colspan="3"></td>
+</tr>
+<tr class="content row-odd"><td class="content" colspan="6"><p>Health Monitor component provides a set of functionalities to verify the health of the system and its components. It includes monitoring deadlines, logic, and heartbeats to ensure proper system functioning.</p></td>
+</tr>
+<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp__health_monitor" title="comp__health_monitor">comp__health_monitor</a></span></span></div>
+</div>
+</td>
+<td class="footer" colspan="2"><div class="needs_footer line-block">
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Component</span></span></span></div>
+</div>
+</td>
+<td class="footer_right" colspan="2"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </section>
 <section id="description">
 <h2>Description<a class="headerlink" href="#description" title="Link to this heading">#</a></h2>
@@ -478,7 +521,7 @@
 </section>
 <section id="static-architecture">
 <h2>Static Architecture<a class="headerlink" href="#static-architecture" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-71b88f82">
+<div class="need_container docutils container" id="SNCB-a6b644d1">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_sta table" id="comp_arc_sta__deadline_monitor__static_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -499,6 +542,7 @@
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span></span></span></div>
 <div class="line"><span><div class="line">satisfied by: <span class="satisfies"><span><a class="reference internal" href="../detailed_design/index.html#dd_sta__health_monitor__class_diagram" title="comp_arc_sta__deadline_monitor__static_view">dd_sta__health_monitor__class_diagram</a></span></span></div>
+<div class="line">belongs to: <span class="belongs_to"><span><a class="reference internal" href="#comp__health_monitor" title="comp_arc_sta__deadline_monitor__static_view">comp__health_monitor</a></span></span></div>
 <div class="line">fulfils: <span class="fulfils"><span><a class="reference internal" href="../requirements/index.html#comp_req__health_monitor__dummy" title="comp_arc_sta__deadline_monitor__static_view">comp_req__health_monitor__dummy</a></span></span></div>
 </span></div>
 </div>
@@ -523,7 +567,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-6562b10d">
+<div class="need_container docutils container" id="SNCB-2b73a231">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_sta table" id="comp_arc_sta__logic_monitor__static_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -544,6 +588,7 @@
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span></span></span></div>
 <div class="line"><span><div class="line">satisfied by: <span class="satisfies"><span><a class="reference internal" href="../detailed_design/index.html#dd_sta__health_monitor__class_diagram" title="comp_arc_sta__logic_monitor__static_view">dd_sta__health_monitor__class_diagram</a></span></span></div>
+<div class="line">belongs to: <span class="belongs_to"><span><a class="reference internal" href="#comp__health_monitor" title="comp_arc_sta__logic_monitor__static_view">comp__health_monitor</a></span></span></div>
 <div class="line">fulfils: <span class="fulfils"><span><a class="reference internal" href="../requirements/index.html#comp_req__health_monitor__dummy" title="comp_arc_sta__logic_monitor__static_view">comp_req__health_monitor__dummy</a></span></span></div>
 </span></div>
 </div>
@@ -568,7 +613,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-a5d3b250">
+<div class="need_container docutils container" id="SNCB-38266f80">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_sta table" id="comp_arc_sta__health_monitor__static_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -590,6 +635,7 @@
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">health_monitor</span></span></span></div>
 </span></span></div>
 <div class="line"><span><div class="line">satisfied by: <span class="satisfies"><span><a class="reference internal" href="../detailed_design/index.html#dd_sta__health_monitor__class_diagram" title="comp_arc_sta__health_monitor__static_view">dd_sta__health_monitor__class_diagram</a></span></span></div>
+<div class="line">belongs to: <span class="belongs_to"><span><a class="reference internal" href="#comp__health_monitor" title="comp_arc_sta__health_monitor__static_view">comp__health_monitor</a></span></span></div>
 <div class="line">fulfils: <span class="fulfils"><span><a class="reference internal" href="../requirements/index.html#comp_req__health_monitor__dummy" title="comp_arc_sta__health_monitor__static_view">comp_req__health_monitor__dummy</a></span></span></div>
 </span></div>
 </div>
@@ -617,7 +663,7 @@
 </section>
 <section id="dynamic-architecture">
 <h2>Dynamic Architecture<a class="headerlink" href="#dynamic-architecture" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-4a59b9c2">
+<div class="need_container docutils container" id="SNCB-fcbeebb4">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__health_monitor__dynamic_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -638,7 +684,8 @@
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">health_monitor</span></span></span></div>
 </span></span></div>
-<div class="line"><span><div class="line">fulfils: <span class="fulfils"><span><a class="reference internal" href="../requirements/index.html#comp_req__health_monitor__dummy" title="comp_arc_dyn__health_monitor__dynamic_view">comp_req__health_monitor__dummy</a></span></span></div>
+<div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="reference internal" href="#comp__health_monitor" title="comp_arc_dyn__health_monitor__dynamic_view">comp__health_monitor</a></span></span></div>
+<div class="line">fulfils: <span class="fulfils"><span><a class="reference internal" href="../requirements/index.html#comp_req__health_monitor__dummy" title="comp_arc_dyn__health_monitor__dynamic_view">comp_req__health_monitor__dummy</a></span></span></div>
 </span></div>
 </div>
 </td>
@@ -662,7 +709,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-d46a439e">
+<div class="need_container docutils container" id="SNCB-f2a2d807">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__health_lib_thread__dynamic_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -682,7 +729,8 @@
 </tr>
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span></span></span></div>
-<div class="line"><span><div class="line">fulfils: <span class="fulfils"><span><a class="reference internal" href="../requirements/index.html#comp_req__health_monitor__dummy" title="comp_arc_dyn__health_lib_thread__dynamic_view">comp_req__health_monitor__dummy</a></span></span></div>
+<div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="reference internal" href="#comp__health_monitor" title="comp_arc_dyn__health_lib_thread__dynamic_view">comp__health_monitor</a></span></span></div>
+<div class="line">fulfils: <span class="fulfils"><span><a class="reference internal" href="../requirements/index.html#comp_req__health_monitor__dummy" title="comp_arc_dyn__health_lib_thread__dynamic_view">comp_req__health_monitor__dummy</a></span></span></div>
 </span></div>
 </div>
 </td>
@@ -706,7 +754,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-07088d1f">
+<div class="need_container docutils container" id="SNCB-0eb8dbdb">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__deadline_monitor__dynamic_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -726,7 +774,8 @@
 </tr>
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span></span></span></div>
-<div class="line"><span><div class="line">fulfils: <span class="fulfils"><span><a class="reference internal" href="../requirements/index.html#comp_req__health_monitor__dummy" title="comp_arc_dyn__deadline_monitor__dynamic_view">comp_req__health_monitor__dummy</a></span></span></div>
+<div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="reference internal" href="#comp__health_monitor" title="comp_arc_dyn__deadline_monitor__dynamic_view">comp__health_monitor</a></span></span></div>
+<div class="line">fulfils: <span class="fulfils"><span><a class="reference internal" href="../requirements/index.html#comp_req__health_monitor__dummy" title="comp_arc_dyn__deadline_monitor__dynamic_view">comp_req__health_monitor__dummy</a></span></span></div>
 </span></div>
 </div>
 </td>
@@ -750,7 +799,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-8a98ccee">
+<div class="need_container docutils container" id="SNCB-cbbf50c0">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__logic_monitor__dynamic_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -770,7 +819,8 @@
 </tr>
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span></span></span></div>
-<div class="line"><span><div class="line">fulfils: <span class="fulfils"><span><a class="reference internal" href="../requirements/index.html#comp_req__health_monitor__dummy" title="comp_arc_dyn__logic_monitor__dynamic_view">comp_req__health_monitor__dummy</a></span></span></div>
+<div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="reference internal" href="#comp__health_monitor" title="comp_arc_dyn__logic_monitor__dynamic_view">comp__health_monitor</a></span></span></div>
+<div class="line">fulfils: <span class="fulfils"><span><a class="reference internal" href="../requirements/index.html#comp_req__health_monitor__dummy" title="comp_arc_dyn__logic_monitor__dynamic_view">comp_req__health_monitor__dummy</a></span></span></div>
 </span></div>
 </div>
 </td>
@@ -794,7 +844,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-2f03ae19">
+<div class="need_container docutils container" id="SNCB-83c06454">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__heartbeat_monitor__dynamic_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -814,7 +864,8 @@
 </tr>
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span></span></span></div>
-<div class="line"><span><div class="line">fulfils: <span class="fulfils"><span><a class="reference internal" href="../requirements/index.html#comp_req__health_monitor__dummy" title="comp_arc_dyn__heartbeat_monitor__dynamic_view">comp_req__health_monitor__dummy</a></span></span></div>
+<div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="reference internal" href="#comp__health_monitor" title="comp_arc_dyn__heartbeat_monitor__dynamic_view">comp__health_monitor</a></span></span></div>
+<div class="line">fulfils: <span class="fulfils"><span><a class="reference internal" href="../requirements/index.html#comp_req__health_monitor__dummy" title="comp_arc_dyn__heartbeat_monitor__dynamic_view">comp_req__health_monitor__dummy</a></span></span></div>
 </span></div>
 </div>
 </td>
@@ -838,7 +889,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-2bcc4b31">
+<div class="need_container docutils container" id="SNCB-748d47ef">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__health_monitor__startup_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -859,7 +910,8 @@
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">health_monitor</span></span></span></div>
 </span></span></div>
-<div class="line"><span><div class="line">fulfils: <span class="fulfils"><span><a class="reference internal" href="../requirements/index.html#comp_req__health_monitor__dummy" title="comp_arc_dyn__health_monitor__startup_view">comp_req__health_monitor__dummy</a></span></span></div>
+<div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="reference internal" href="#comp__health_monitor" title="comp_arc_dyn__health_monitor__startup_view">comp__health_monitor</a></span></span></div>
+<div class="line">fulfils: <span class="fulfils"><span><a class="reference internal" href="../requirements/index.html#comp_req__health_monitor__dummy" title="comp_arc_dyn__health_monitor__startup_view">comp_req__health_monitor__dummy</a></span></span></div>
 </span></div>
 </div>
 </td>
@@ -883,7 +935,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-fbf8f7c6">
+<div class="need_container docutils container" id="SNCB-774190ed">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__health_monitor__shutdown_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -904,7 +956,8 @@
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">health_monitor</span></span></span></div>
 </span></span></div>
-<div class="line"><span><div class="line">fulfils: <span class="fulfils"><span><a class="reference internal" href="../requirements/index.html#comp_req__health_monitor__dummy" title="comp_arc_dyn__health_monitor__shutdown_view">comp_req__health_monitor__dummy</a></span></span></div>
+<div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="reference internal" href="#comp__health_monitor" title="comp_arc_dyn__health_monitor__shutdown_view">comp__health_monitor</a></span></span></div>
+<div class="line">fulfils: <span class="fulfils"><span><a class="reference internal" href="../requirements/index.html#comp_req__health_monitor__dummy" title="comp_arc_dyn__health_monitor__shutdown_view">comp_req__health_monitor__dummy</a></span></span></div>
 </span></div>
 </div>
 </td>
@@ -931,7 +984,7 @@
 </section>
 <section id="interfaces">
 <h2>Interfaces<a class="headerlink" href="#interfaces" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-2b2592d4">
+<div class="need_container docutils container" id="SNCB-9615f239">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_real_arc_int table" id="real_arc_int__deadline_monitor__interface">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -976,7 +1029,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-addd9e3c">
+<div class="need_container docutils container" id="SNCB-8ce72c01">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_real_arc_int table" id="real_arc_int__logic_monitor__interface">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1021,7 +1074,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-f55884d0">
+<div class="need_container docutils container" id="SNCB-c1e15de1">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_real_arc_int table" id="real_arc_int__heartbeat_monitor__interface">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1066,7 +1119,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-e2fac482">
+<div class="need_container docutils container" id="SNCB-0d8dfe41">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_real_arc_int table" id="real_arc_int__health_monitor__interface">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1178,7 +1231,7 @@
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/eclipse-score/lifecycle/edit/main/'docs'/module/health_monitor/architecture/index.rst">
+    <a href="https://github.com/eclipse-score/lifecycle/edit/main/docs/module/health_monitor/architecture/index.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
