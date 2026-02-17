@@ -12,7 +12,7 @@
 # *******************************************************************************
 module(
     name = "score_lifecycle_health",
-    version = "0.0.1",
+    version = "0.0.0",
 )
 
 # Bazel global rules
@@ -28,12 +28,12 @@ bazel_dep(name = "googletest", version = "1.17.0.bcr.1")
 
 # S-CORE process rules
 bazel_dep(name = "score_bazel_platforms", version = "0.0.4")
-bazel_dep(name = "score_docs_as_code", version = "2.3.0")
+bazel_dep(name = "score_docs_as_code", version = "3.0.0")
 bazel_dep(name = "score_tooling", version = "1.1.0")
 bazel_dep(name = "score_rust_policies", version = "0.0.3")
 
-bazel_dep(name = "score_process", version = "1.4.0", dev_dependency = True)
-bazel_dep(name = "score_platform", version = "0.5.1", dev_dependency = True)
+bazel_dep(name = "score_process", version = "1.4.3", dev_dependency = True)
+bazel_dep(name = "score_platform", version = "0.5.3", dev_dependency = True)
 
 ## Configure the C++ toolchain
 bazel_dep(name = "score_bazel_cpp_toolchains", version = "0.2.2", dev_dependency = True)
@@ -113,8 +113,8 @@ python.toolchain(
 )
 use_repo(python)
 
-bazel_dep(name = "score_baselibs_rust", version = "0.0.5")
-bazel_dep(name = "score_baselibs", version = "0.2.2")
+bazel_dep(name = "score_baselibs_rust", version = "0.1.0")
+bazel_dep(name = "score_baselibs", version = "0.2.4")
 
 # Hedron's Compile Commands Extractor for Bazel
 # https://github.com/hedronvision/bazel-compile-commands-extractor
