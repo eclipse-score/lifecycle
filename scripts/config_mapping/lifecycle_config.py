@@ -72,31 +72,32 @@ def preprocess_defaults(global_defaults, config):
     The resulting file with have no "defaults" entry anymore, but looks like if the user had specified all the fields explicitly.
     """
     def dict_merge(dict_a, dict_b):
-        if dict_b is None:
+        def dict_merge_recursive(dict_a, dict_b):
+            for key, value in dict_b.items():
+                if key in dict_a and isinstance(dict_a[key], dict) and isinstance(value, dict):
+                    # For certain dictionaries, we do not want to merge the defaults with the user specified values
+                    if key in not_merging_dicts:
+                        dict_a[key] = value
+                    else:
+                        dict_a[key] = dict_merge(dict_a[key], value)
+                elif key not in dict_a:
+                    # Value only exists in dict_b, just add it to dict_a
+                    dict_a[key] = value
+                else:
+                    # For lists, we want to overwrite the content
+                    if isinstance(value, list):
+                        dict_a[key] = (value)
+                    # For primitive types, we want to take the one from dict_b
+                    else:
+                        dict_a[key] = value
             return dict_a
-        for key, value in dict_b.items():
-            if key in dict_a and isinstance(dict_a[key], dict) and isinstance(value, dict):
-                # For certain dictionaries, we do not want to merge the defaults with the user specified values
-                if key in not_merging_dicts:
-                    dict_a[key] = value
-                else:
-                    dict_a[key] = dict_merge(dict_a[key], value)
-            elif key not in dict_a:
-                # Value only exists in dict_b, just add it to dict_a
-                dict_a[key] = value
-            else:
-                # For lists, we want to overwrite the content
-                if isinstance(value, list):
-                    dict_a[key] = (value)
-                # For primitive types, we want to take the one from dict_b
-                else:
-                    dict_a[key] = value
-        return dict_a
+        # We are changing the content of dict_a, so we need a deep copy
+        return dict_merge_recursive(deepcopy(dict_a), dict_b)
 
     config_defaults = config.get("defaults", {})
     # Starting with global_defaults, then applying the defaults from the config on top.
     # This is to ensure that any defaults specified in the input config will override the hardcoded defaults in global_defaults.
-    merged_defaults = dict_merge(deepcopy(global_defaults), config_defaults)
+    merged_defaults = dict_merge(global_defaults, config_defaults)
 
     new_config = {}
     new_config["components"] = {}
@@ -106,8 +107,8 @@ def preprocess_defaults(global_defaults, config):
         new_config["components"][component_name] = {}
         new_config["components"][component_name]["description"] = component_config.get("description", "")
         # Here we start with the merged defaults, then apply the component config on top, so that any fields specified in the component config will override the defaults.
-        new_config["components"][component_name]["component_properties"] = dict_merge(deepcopy(merged_defaults["component_properties"]), component_config.get("component_properties"))
-        new_config["components"][component_name]["deployment_config"] = dict_merge(deepcopy(merged_defaults["deployment_config"]), component_config.get("deployment_config", {}))
+        new_config["components"][component_name]["component_properties"] = dict_merge(merged_defaults["component_properties"], component_config.get("component_properties"))
+        new_config["components"][component_name]["deployment_config"] = dict_merge(merged_defaults["deployment_config"], component_config.get("deployment_config", {}))
 
         # Special case:
         # If the defaults specify alive_supervision for component, but the component config sets the type to anything other than "SUPERVISED", then we should not apply the
@@ -116,7 +117,7 @@ def preprocess_defaults(global_defaults, config):
 
     new_config["run_targets"] = {}
     for run_target, run_target_config in config.get("run_targets", {}).items():
-        # TODO: initial_run_target is not a dictionary, merging defautls not working for this currently
+        # TODO: initial_run_target is not a dictionary, merging defaults not working for this currently
         if run_target == "initial_run_target":
             new_config["run_targets"][run_target] = run_target_config
         else:
@@ -144,16 +145,38 @@ def gen_health_monitor_config(output_dir, config):
     """
     def get_process_type(application_type):
         if application_type == "STATE_MANAGER":
-            return "STATE_MANAGEMENT"
+            return "STM_PROCESS"
         else:
             return "REGULAR_PROCESS"
 
     def is_supervised(application_type):
         return application_type == "STATE_MANAGER" or application_type == "REPORTING_AND_SUPERVISED"
 
+    def get_all_process_group_states(run_targets):
+        process_group_states = []
+        for run_target, _ in run_targets.items():
+            if run_target not in ["initial_run_target", "final_recovery_action"]:
+                process_group_states.append("MainPG/"+run_target)
+        return process_group_states
+
+    def get_all_refProcessGroupStates(run_targets):
+        states = get_all_process_group_states(run_targets)
+        refProcessGroupStates = []
+        for state in states:
+            refProcessGroupStates.append({"identifier": state})
+        return refProcessGroupStates
+    
+    def get_recovery_process_group_state(config):
+        return "MainPG/" + config.get("run_targets", {}).get("final_recovery_action", {}).get("switch_run_target", {}).get("run_target", "Off")
+
+    def sec_to_ms(sec : float) -> int:
+        return int(sec * 1000)
+
+    HM_SCHEMA_VERSION_MAJOR = 8
+    HM_SCHEMA_VERSION_MINOR = 0
     hm_config = {}
-    hm_config["versionMajor"] = 8
-    hm_config["versionMinor"] = 0
+    hm_config["versionMajor"] = HM_SCHEMA_VERSION_MAJOR
+    hm_config["versionMinor"] = HM_SCHEMA_VERSION_MINOR
     hm_config["process"]= []
     hm_config["hmMonitorInterface"] = []
     hm_config["hmSupervisionCheckpoint"] = []
@@ -161,6 +184,8 @@ def gen_health_monitor_config(output_dir, config):
     hm_config["hmDeadlineSupervision"] = []
     hm_config["hmLogicalSupervision"] = []
     hm_config["hmLocalSupervision"] = []
+    hm_config["hmGlobalSupervision"] = []
+    hm_config["hmRecoveryNotification"] = []
     index = 0
     for component_name, component_config in config["components"].items():
         if is_supervised(component_config["component_properties"]["application_profile"]["application_type"]):
@@ -169,15 +194,15 @@ def gen_health_monitor_config(output_dir, config):
             process["shortName"] = component_name
             process["identifier"] = component_name
             process["processType"] = get_process_type(component_config["component_properties"]["application_profile"]["application_type"])
-            process["refProcessGroupStates"] = [] # TODO, Need to know all RunTargets where this process runs
-            process["processExecutionErrors"] = {"processExecutionError":1}
+            process["refProcessGroupStates"] = get_all_refProcessGroupStates(config["run_targets"])
+            process["processExecutionErrors"] = [{"processExecutionError":1}]
             hm_config["process"].append(process)
 
             hmMonitorIf = {}
             hmMonitorIf["instanceSpecifier"] = component_name
             hmMonitorIf["processShortName"] = component_name
             hmMonitorIf["portPrototype"] = "DefaultPort"
-            hmMonitorIf["interfacePath"] = "lifecycle_health" + component_name
+            hmMonitorIf["interfacePath"] = "lifecycle_health_" + component_name
             hmMonitorIf["refProcessIndex"] = index
             hmMonitorIf["permittedUid"] = component_config["deployment_config"]["sandbox"]["uid"]
             hm_config["hmMonitorInterface"].append(hmMonitorIf)
@@ -191,33 +216,78 @@ def gen_health_monitor_config(output_dir, config):
             alive_supervision = {}
             alive_supervision["ruleContextKey"] = component_name + "_alive_supervision"
             alive_supervision["refCheckPointIndex"] = index
-            alive_supervision["aliveReferenceCycle"] = component_config["component_properties"]["application_profile"]["alive_supervision"]["reporting_cycle"]
+            alive_supervision["aliveReferenceCycle"] = sec_to_ms(component_config["component_properties"]["application_profile"]["alive_supervision"]["reporting_cycle"])
             alive_supervision["minAliveIndications"] = component_config["component_properties"]["application_profile"]["alive_supervision"]["min_indications"]
             alive_supervision["maxAliveIndications"] = component_config["component_properties"]["application_profile"]["alive_supervision"]["max_indications"]
             alive_supervision["isMinCheckDisabled"] = alive_supervision["minAliveIndications"] == 0
             alive_supervision["isMaxCheckDisabled"] = alive_supervision["maxAliveIndications"] == 0
             alive_supervision["failedSupervisionCyclesTolerance"] = component_config["component_properties"]["application_profile"]["alive_supervision"]["failed_cycles_tolerance"]
             alive_supervision["refProcessIndex"] = index
-            alive_supervision["refProcessGroupStates"] = [] # TODO, Need to know all RunTargets where this process runs
+            alive_supervision["refProcessGroupStates"] = get_all_refProcessGroupStates(config["run_targets"])
             hm_config["hmAliveSupervision"].append(alive_supervision)
 
             local_supervision = {}
             local_supervision["ruleContextKey"] = component_name + "_local_supervision"
             local_supervision["infoRefInterfacePath"] = ""
-            local_supervision["hmRefAliveSupervision"] = []
-            local_supervision["hmRefAliveSupervision"].append({"refAliveSupervisionIdx": index})
+            local_supervision["hmRefAliveSupervision"] = [{"refAliveSupervisionIdx": index}]
             hm_config["hmLocalSupervision"].append(local_supervision)
 
-            #with open(f"{output_dir}/{process_name}_{process_group}.json", "w") as process_file:
-            #    json.dump(process_config, process_file, indent=4)
+            with open(f"{output_dir}/{component_name}.json", "w") as process_file:
+                process_config = {}
+                process_config["versionMajor"] = HM_SCHEMA_VERSION_MAJOR
+                process_config["versionMinor"] = HM_SCHEMA_VERSION_MINOR
+                process_config["process"] = []
+                process_config["hmMonitorInterface"] = []
+                process_config["hmMonitorInterface"].append(hmMonitorIf)
+                json.dump(process_config, process_file, indent=4)
 
             index += 1
 
-    # TODO: Add global supervision
-    # TODO: Add RecoveryAction
+    indices = [i for i in range(index)]
+    if len(indices) > 0:
+        # Create one global supervision & recovery action for all processes.
+        global_supervision = {}
+        global_supervision["ruleContextKey"] = "global_supervision"
+        global_supervision["isSeverityCritical"] = False
+        global_supervision["localSupervision"] = [{"refLocalSupervisionIndex": idx} for idx in indices]
+        global_supervision["refProcesses"] = [{"index": idx} for idx in indices]
+        global_supervision["refProcessGroupStates"] = get_all_refProcessGroupStates(config["run_targets"])
+        hm_config["hmGlobalSupervision"].append(global_supervision)
+
+        recovery_action = {}
+        recovery_action["recoveryNotificationTimeout"] = 5000
+        recovery_action["processGroupMetaModelIdentifier"] = get_recovery_process_group_state(config)
+        recovery_action["refGlobalSupervisionIndex"] =  hm_config["hmGlobalSupervision"].index(global_supervision)
+        recovery_action["instanceSpecifier"] = ""
+        recovery_action["shouldFireWatchdog"] = False
+        hm_config["hmRecoveryNotification"].append(recovery_action)
 
     with open(f"{output_dir}/hm_demo.json", "w") as hm_file:
         json.dump(hm_config, hm_file, indent=4)
+
+    HM_CORE_SCHEMA_VERSION_MAJOR = 3
+    HM_CORE_SCHEMA_VERSION_MINOR = 0
+    hmcore_config = {}
+    hmcore_config["versionMajor"] = HM_CORE_SCHEMA_VERSION_MAJOR
+    hmcore_config["versionMinor"] = HM_CORE_SCHEMA_VERSION_MINOR
+    hmcore_config["watchdogs"] = []
+    hmcore_config["config"] = [{
+        "periodicity": sec_to_ms(config.get("alive_supervision", {}).get("evaluation_cycle", 0.01))
+    }]
+    for watchdog_name, watchdog_config in config.get("watchdogs", {}).items():
+        watchdog = {}
+        watchdog["shortName"] = watchdog_name
+        watchdog["deviceFilePath"] = watchdog_config["device_file_path"]
+        watchdog["maxTimeout"] = sec_to_ms(watchdog_config["max_timeout"])
+        watchdog["deactivateOnShutdown"] = watchdog_config["deactivate_on_shutdown"]
+        watchdog["hasValueDeactivateOnShutdown"] = True
+        watchdog["requireMagicClose"] = watchdog_config["require_magic_close"]
+        watchdog["hasValueRequireMagicClose"] = True
+        hmcore_config["watchdogs"].append(watchdog)
+
+    with open(f"{output_dir}/hmcore.json", "w") as hm_file:
+        json.dump(hmcore_config, hm_file, indent=4)
+
 
 def gen_launch_manager_config(output_dir, config):
     """

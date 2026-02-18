@@ -4,14 +4,12 @@ import subprocess
 import shutil
 from pathlib import Path
 import filecmp
-from lifecycle_config import preprocess_defaults
-import json
 
 script_dir = Path(__file__).parent
 tests_dir = script_dir / "tests"
 lifecycle_script = script_dir / "lifecycle_config.py"
 
-def run(input_file : Path, test_name : str, compare_files_only=[]):
+def run(input_file : Path, test_name : str, compare_files_only=[], exclude_files=[]):
     """
     Execute the mapping script with the given input file and compare the generated output with the expected output.
     Input:
@@ -20,6 +18,9 @@ def run(input_file : Path, test_name : str, compare_files_only=[]):
     """
     actual_output_dir = tests_dir / test_name / "actual_output"
     expected_output_dir = tests_dir / test_name / "expected_output"
+
+    if compare_files_only and exclude_files:
+        raise AssertionError("You may only make use of either parameters: compare_files_only or exclude_files, but not both.")
 
     # Clean and create actual output directory
     if actual_output_dir.exists():
@@ -45,18 +46,18 @@ def run(input_file : Path, test_name : str, compare_files_only=[]):
 
     if compare_files_only:
         # Compare only specific files
-        if not compare_files(actual_output_dir, expected_output_dir, compare_files_only):
+        if not compare_files(actual_output_dir, expected_output_dir, compare_files_only, exclude_files):
             raise AssertionError("Actual output files do not match expected output files.")
     else:
         # Compare the complete directory content
-        if not compare_directories(actual_output_dir, expected_output_dir):
+        if not compare_directories(actual_output_dir, expected_output_dir, exclude_files):
             raise AssertionError("Actual output does not match expected output.")
 
-def compare_directories(dir1: Path, dir2: Path) -> bool:
+def compare_directories(dir1: Path, dir2: Path, exclude_files : list) -> bool:
     """
     Compare two directories recursively. Return True if they are the same, False otherwise.
     """
-    dcmp = filecmp.dircmp(dir1, dir2)
+    dcmp = filecmp.dircmp(dir1, dir2, ignore=exclude_files)
     
     if dcmp.left_only or dcmp.right_only or dcmp.diff_files:
         print(f"Directories differ: {dir1} vs {dir2}")
@@ -84,14 +85,23 @@ def compare_files(dir1 : Path, dir2 : Path, files : list) -> bool:
     return True
 
 def test_basic():
+    """
+    Basic Smoketest for generating both launch manager and health monitoring configuration
+    """
     test_name = "basic_test"
     input_file = tests_dir / test_name / "input" / "lm_config.json"
 
-    run(input_file, test_name="basic_test")
+    run(input_file, test_name)
 
-#def test_health_config_mapping():
-#    test_name = "health_config_test"
-#    input_file = tests_dir / test_name / "input" / "lm_config.json"
-#    
-#    run(input_file, test_name="basic_test", compare_files_only=["hm_demo.json"])
-#    pass
+def test_health_config_mapping():
+    """
+    Test generation of the health monitoring configuration with
+    * Different application types
+    * Different alive supervision parameters
+    * Different Uid
+    """
+    test_name = "health_config_test"
+    input_file = tests_dir / test_name / "input" / "lm_config.json"
+    
+    run(input_file, test_name, exclude_files=["lm_demo.json"])
+

@@ -14,8 +14,8 @@ def test_preprocessing_basic():
             "ready_timeout": 0.5,
             "shutdown_timeout": 0.5,
             "environmental_variables" : {
-                "DEFAULT1": "default_value1",
-                "DEFAULT2": "default_value2"
+                "global_default1": "global_default_value1",
+                "global_default2": "global_default_value2"
             },
             "sandbox": {
                 "uid": 0,
@@ -39,9 +39,9 @@ def test_preprocessing_basic():
             "deployment_config": {
                 "shutdown_timeout": 1.0,
                 "environmental_variables" : {
-                    "DEFAULT2": "overridden_value2",
-                    "DEFAULT3": "default_value3",
-                    "DEFAULT4": "default_value4"
+                    "global_default2": "config_default_overwritten_value2",
+                    "config_default3": "config_default_value3",
+                    "config_default4": "config_default_value4"
                 },
                 "recovery_action": {
                     "restart": {
@@ -62,7 +62,7 @@ def test_preprocessing_basic():
                 },
                 "deployment_config": {
                     "environmental_variables": {
-                        "DEFAULT3": "overridden_value3"
+                        "config_default3": "config_overwritten_value3"
                     },
                     "sandbox": {
                         "uid": 0,
@@ -107,10 +107,10 @@ def test_preprocessing_basic():
                     "ready_timeout": 0.5,
                     "shutdown_timeout": 1.0,
                     "environmental_variables" : {
-                        "DEFAULT1": "default_value1",
-                        "DEFAULT2": "overridden_value2",
-                        "DEFAULT3": "overridden_value3",
-                        "DEFAULT4": "default_value4"
+                        "global_default1": "global_default_value1",
+                        "global_default2": "config_default_overwritten_value2",
+                        "config_default3": "config_overwritten_value3",
+                        "config_default4": "config_default_value4"
                     },
                     "sandbox": {
                         "uid": 0,
