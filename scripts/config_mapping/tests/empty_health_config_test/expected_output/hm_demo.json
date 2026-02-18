@@ -1,0 +1,13 @@
+{
+    "versionMajor": 8,
+    "versionMinor": 0,
+    "process": [],
+    "hmMonitorInterface": [],
+    "hmSupervisionCheckpoint": [],
+    "hmAliveSupervision": [],
+    "hmDeadlineSupervision": [],
+    "hmLogicalSupervision": [],
+    "hmLocalSupervision": [],
+    "hmGlobalSupervision": [],
+    "hmRecoveryNotification": []
+}

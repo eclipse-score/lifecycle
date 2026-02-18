@@ -105,3 +105,13 @@ def test_health_config_mapping():
     
     run(input_file, test_name, exclude_files=["lm_demo.json"])
 
+def test_empty_health_config_mapping():
+    """
+    Test generation of the health monitoring configuration with no supervised processes
+    """
+    test_name = "empty_health_config_test"
+    input_file = tests_dir / test_name / "input" / "lm_config.json"
+    
+    run(input_file, test_name, exclude_files=["lm_demo.json"])
+
+
