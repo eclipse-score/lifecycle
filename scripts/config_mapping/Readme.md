@@ -6,10 +6,16 @@ Once the source code of the launch_manager has been adapted to read in the new c
 
 # Usage
 
-Providing a json file using the new configuration format as input, the script will map the content to the old configuration file format and generate those files into the specified output_dir.
+Providing a json file using the new configuration format as input, the script will first validate the configuration against its schema. Then it will map the content to the old configuration file format and generate those files into the specified output_dir.
 
 ```
 python3 lifecycle_config.py <new_configuration.json> -o <output_dir>
+```
+
+If you want to **only** validate the configuration without generating any output:
+
+```
+python3 lifecycle_config.py <new_configuration.json> --validate
 ```
 
 # Running Tests
