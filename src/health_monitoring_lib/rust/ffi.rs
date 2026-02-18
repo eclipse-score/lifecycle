@@ -113,3 +113,94 @@ extern "C" fn health_monitor_destroy(handle: FFIHandle) {
         let _ = Box::from_raw(handle as *mut HealthMonitor);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::deadline::ffi::{deadline_monitor_builder_create, deadline_monitor_cpp_destroy};
+    use crate::ffi::{
+        health_monitor_builder_add_deadline_monitor, health_monitor_builder_build, health_monitor_builder_create,
+        health_monitor_builder_destroy, health_monitor_destroy, health_monitor_get_deadline_monitor,
+        health_monitor_start,
+    };
+    use crate::IdentTag;
+
+    #[test]
+    fn health_monitor_builder_create_ok() {
+        let health_monitor_builder_handle = health_monitor_builder_create();
+        assert!(!health_monitor_builder_handle.is_null());
+
+        // Clean-up.
+        // NOTE: `health_monitor_builder_destroy` positive path is already tested here.
+        health_monitor_builder_destroy(health_monitor_builder_handle);
+    }
+
+    #[test]
+    fn health_monitor_builder_add_deadline_monitor_ok() {
+        let health_monitor_builder_handle = health_monitor_builder_create();
+        let deadline_monitor_tag = IdentTag::new("deadline_monitor");
+        let deadline_monitor_builder_handle = deadline_monitor_builder_create();
+        health_monitor_builder_add_deadline_monitor(
+            health_monitor_builder_handle,
+            &deadline_monitor_tag as *const IdentTag,
+            deadline_monitor_builder_handle,
+        );
+
+        // Clean-up.
+        health_monitor_builder_destroy(health_monitor_builder_handle);
+    }
+
+    #[test]
+    fn health_monitor_builder_build_ok() {
+        let health_monitor_builder_handle = health_monitor_builder_create();
+        let health_monitor_handle = health_monitor_builder_build(health_monitor_builder_handle, 200, 100);
+        assert!(!health_monitor_handle.is_null());
+
+        // Clean-up.
+        // NOTE: `health_monitor_destroy` positive path is already tested here.
+        health_monitor_destroy(health_monitor_handle);
+    }
+
+    #[test]
+    fn health_monitor_get_deadline_monitor_ok() {
+        let health_monitor_builder_handle = health_monitor_builder_create();
+        let deadline_monitor_tag = IdentTag::new("deadline_monitor");
+        let deadline_monitor_builder_handle = deadline_monitor_builder_create();
+        health_monitor_builder_add_deadline_monitor(
+            health_monitor_builder_handle,
+            &deadline_monitor_tag as *const IdentTag,
+            deadline_monitor_builder_handle,
+        );
+        let health_monitor_handle = health_monitor_builder_build(health_monitor_builder_handle, 200, 100);
+
+        let deadline_monitor_handle =
+            health_monitor_get_deadline_monitor(health_monitor_handle, &deadline_monitor_tag as *const IdentTag);
+        assert!(!deadline_monitor_handle.is_null());
+
+        // Clean-up.
+        deadline_monitor_cpp_destroy(deadline_monitor_handle);
+        health_monitor_destroy(health_monitor_handle);
+    }
+
+    #[test]
+    fn health_monitor_start_ok() {
+        let health_monitor_builder_handle = health_monitor_builder_create();
+        let deadline_monitor_tag = IdentTag::new("deadline_monitor");
+        let deadline_monitor_builder_handle = deadline_monitor_builder_create();
+        health_monitor_builder_add_deadline_monitor(
+            health_monitor_builder_handle,
+            &deadline_monitor_tag as *const IdentTag,
+            deadline_monitor_builder_handle,
+        );
+        let health_monitor_handle = health_monitor_builder_build(health_monitor_builder_handle, 200, 100);
+
+        let deadline_monitor_handle =
+            health_monitor_get_deadline_monitor(health_monitor_handle, &deadline_monitor_tag as *const IdentTag);
+        assert!(!deadline_monitor_handle.is_null());
+
+        health_monitor_start(health_monitor_handle);
+
+        // Clean-up.
+        deadline_monitor_cpp_destroy(deadline_monitor_handle);
+        health_monitor_destroy(health_monitor_handle);
+    }
+}
