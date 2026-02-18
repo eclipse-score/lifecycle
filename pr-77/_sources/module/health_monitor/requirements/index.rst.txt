@@ -64,6 +64,7 @@ Requirements
    :safety: ASIL_B
    :satisfies: feat_req__requirements__template
    :status: invalid
+   :belongs_to: comp__health_monitor_main
 
    The Feature shall do xyz to the user to bring him to this condition at this time
 
