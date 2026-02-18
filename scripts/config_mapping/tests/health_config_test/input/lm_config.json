@@ -5,7 +5,7 @@
         },
         "component_properties": {
             "application_profile": {
-                "application_type": "REPORTING_AND_SUPERVISED",
+                "application_type": "Reporting_And_Supervised",
                 "is_self_terminating": false,
                 "alive_supervision": {
                     "reporting_cycle": 0.5,
@@ -25,7 +25,7 @@
             "component_properties": {
                 "binary_name": "bin/comp",
                 "application_profile": {
-                    "application_type": "NATIVE",
+                    "application_type": "Native",
                     "is_self_terminating": true
                 },
                 "ready_condition": {
@@ -44,7 +44,7 @@
             "component_properties": {
                 "binary_name": "sm",
                 "application_profile": {
-                    "application_type": "STATE_MANAGER",
+                    "application_type": "State_Manager",
                     "alive_supervision": {
                         "reporting_cycle": 0.1,
                         "failed_cycles_tolerance": 0,
@@ -65,7 +65,7 @@
             "component_properties": {
                 "binary_name": "bin/comp",
                 "application_profile": {
-                    "application_type": "REPORTING_AND_SUPERVISED",
+                    "application_type": "Reporting_And_Supervised",
                     "is_self_terminating": true
                 },
                 "process_arguments": ["-a", "-b"]
@@ -82,7 +82,7 @@
             "component_properties": {
                 "binary_name": "bin/comp",
                 "application_profile": {
-                    "application_type": "REPORTING_AND_SUPERVISED",
+                    "application_type": "Reporting_And_Supervised",
                     "is_self_terminating": true,
                     "alive_supervision": {
                         "max_indications": 0
@@ -117,13 +117,13 @@
                     "run_target": "Minimal"
                 }
             }
-        },
-        "initial_run_target": "Full",
-        "final_recovery_action": {
-            "switch_run_target": {
-                "run_target": "Minimal"
-            }
         }
+    },
+    "initial_run_target": "Full",
+    "fallback_run_target": {
+        "description": "Switching off everything",
+        "depends_on": [],
+        "transition_timeout": 1.5
     },
     "alive_supervision" : {
         "evaluation_cycle": 0.123

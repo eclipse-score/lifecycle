@@ -232,7 +232,7 @@
     "hmRecoveryNotification": [
         {
             "recoveryNotificationTimeout": 5000,
-            "processGroupMetaModelIdentifier": "MainPG/Minimal",
+            "processGroupMetaModelIdentifier": "MainPG/fallback_run_target",
             "refGlobalSupervisionIndex": 0,
             "instanceSpecifier": "",
             "shouldFireWatchdog": false
