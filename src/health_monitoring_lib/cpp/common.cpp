@@ -11,9 +11,18 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 #include <score/hm/common.h>
+#include <cstdlib>
 
 namespace score::hm::internal
 {
+
+void abort_on_error(FFICode code)
+{
+    if (code != kSuccess)
+    {
+        std::abort();
+    }
+}
 
 DroppableFFIHandle::DroppableFFIHandle(FFIHandle handle, DropFn drop_fn) : handle_(handle), drop_fn_(drop_fn) {}
 

@@ -20,7 +20,9 @@ mod protected_memory;
 mod worker;
 
 pub mod deadline;
+use crate::common::MonitorEvalHandle;
 pub use common::{IdentTag, TimeRange};
+use containers::fixed_capacity::FixedCapacityVec;
 
 #[derive(Default)]
 pub struct HealthMonitorBuilder {
@@ -30,6 +32,7 @@ pub struct HealthMonitorBuilder {
 }
 
 impl HealthMonitorBuilder {
+    /// Create a new [`HealthMonitorBuilder`] instance.
     pub fn new() -> Self {
         Self {
             deadlines: HashMap::new(),
@@ -63,25 +66,14 @@ impl HealthMonitorBuilder {
         self
     }
 
-    /// Builds the HealthMonitor instance.
+    /// Build a new [`HealthMonitor`] instance based on provided parameters.
     pub fn build(self) -> HealthMonitor {
         assert!(
-            self.supervisor_api_cycle
-                .as_millis()
-                .is_multiple_of(self.internal_processing_cycle.as_millis()),
+            self.check_cycle_args_internal(),
             "supervisor API cycle must be multiple of internal processing cycle"
         );
 
-        let allocator = protected_memory::ProtectedMemoryAllocator {};
-        let mut monitors = HashMap::new();
-        for (tag, builder) in self.deadlines {
-            monitors.insert(tag, Some(DeadlineMonitorState::Available(builder.build(&allocator))));
-        }
-        HealthMonitor {
-            deadline_monitors: monitors,
-            worker: worker::UniqueThreadRunner::new(self.internal_processing_cycle),
-            supervisor_api_cycle: self.supervisor_api_cycle,
-        }
+        self.build_internal()
     }
 
     // Used by FFI and config parsing code which prefer not to move builder instance
@@ -96,6 +88,25 @@ impl HealthMonitorBuilder {
 
     pub(crate) fn with_internal_processing_cycle_internal(&mut self, cycle_duration: core::time::Duration) {
         self.internal_processing_cycle = cycle_duration;
+    }
+
+    pub(crate) fn check_cycle_args_internal(&self) -> bool {
+        self.supervisor_api_cycle
+            .as_millis()
+            .is_multiple_of(self.internal_processing_cycle.as_millis())
+    }
+
+    pub(crate) fn build_internal(self) -> HealthMonitor {
+        let allocator = protected_memory::ProtectedMemoryAllocator {};
+        let mut monitors = HashMap::new();
+        for (tag, builder) in self.deadlines {
+            monitors.insert(tag, Some(DeadlineMonitorState::Available(builder.build(&allocator))));
+        }
+        HealthMonitor {
+            deadline_monitors: monitors,
+            worker: worker::UniqueThreadRunner::new(self.internal_processing_cycle),
+            supervisor_api_cycle: self.supervisor_api_cycle,
+        }
     }
 }
 
@@ -135,43 +146,38 @@ impl HealthMonitor {
         }
     }
 
-    /// Starts the health monitoring logic in a separate thread.
-    ///
-    /// From this point, the health monitor will periodically check monitors and notify the supervisor about system liveness.
-    ///
-    /// # Note
-    ///  - This function shall be called before Lifecycle.running() otherwise the supervisor might consider the process not alive.
-    ///  - Stops when the HealthMonitor instance is dropped.
-    ///
-    /// Panics if no monitors have been added.
-    pub fn start(&mut self) {
-        assert!(
-            !self.deadline_monitors.is_empty(),
-            "No deadline monitors have been added. HealthMonitor cannot start without any monitors."
-        );
+    pub(crate) fn check_monitors_exist_internal(&self) -> bool {
+        !self.deadline_monitors.is_empty()
+    }
 
-        let mut monitors = containers::fixed_capacity::FixedCapacityVec::new(self.deadline_monitors.len());
+    pub(crate) fn collect_monitors_internal(&mut self) -> Result<FixedCapacityVec<MonitorEvalHandle>, String> {
+        let mut monitors = FixedCapacityVec::new(self.deadline_monitors.len());
         for (tag, monitor) in self.deadline_monitors.iter_mut() {
             match monitor.take() {
                 Some(DeadlineMonitorState::Taken(handle)) => {
-                    monitors.push(handle).expect("Failed to push monitor handle");
-                    // Should not fail since we preallocated enough capacity
+                    if monitors.push(handle).is_err() {
+                        // Should not fail since we preallocated enough capacity
+                        return Err("Failed to push monitor handle".to_string());
+                    }
                 },
                 Some(DeadlineMonitorState::Available(_)) => {
-                    panic!(
+                    return Err(format!(
                         "All monitors must be taken before starting HealthMonitor but {:?} is not taken.",
                         tag
-                    );
+                    ));
                 },
                 None => {
-                    panic!(
+                    return Err(format!(
                         "Invalid monitor ({:?}) state encountered while starting HealthMonitor.",
                         tag
-                    );
+                    ));
                 },
             }
         }
+        Ok(monitors)
+    }
 
+    pub(crate) fn start_internal(&mut self, monitors: FixedCapacityVec<MonitorEvalHandle>) {
         let monitoring_logic = worker::MonitoringLogic::new(
             monitors,
             self.supervisor_api_cycle,
@@ -184,6 +190,29 @@ impl HealthMonitor {
         );
 
         self.worker.start(monitoring_logic)
+    }
+
+    /// Starts the health monitoring logic in a separate thread.
+    ///
+    /// From this point, the health monitor will periodically check monitors and notify the supervisor about system liveness.
+    ///
+    /// # Note
+    ///  - This function shall be called before Lifecycle.running() otherwise the supervisor might consider the process not alive.
+    ///  - Stops when the HealthMonitor instance is dropped.
+    ///
+    /// Panics if no monitors have been added.
+    pub fn start(&mut self) {
+        assert!(
+            self.check_monitors_exist_internal(),
+            "No deadline monitors have been added. HealthMonitor cannot start without any monitors."
+        );
+
+        let monitors = match self.collect_monitors_internal() {
+            Ok(m) => m,
+            Err(e) => panic!("{}", e),
+        };
+
+        self.start_internal(monitors);
     }
 
     //TODO: Add possibility to run HM in the current thread - ie in main

@@ -28,7 +28,6 @@ PROC_MACRO_DEPS = [
 CC_SOURCES = [
     "cpp/common.cpp",
     "cpp/deadline_monitor.cpp",
-    "cpp/ffi_helpers.h",
     "cpp/health_monitor.cpp",
 ]
 

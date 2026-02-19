@@ -12,24 +12,40 @@
  ********************************************************************************/
 #include "score/hm/health_monitor.h"
 
+namespace
+{
 extern "C" {
 using namespace score::hm;
+using namespace score::hm::internal;
+using namespace score::hm::deadline;
 
-// Health Monitor Foreign Function Interface Declarations that are exported by Rust implementation library
-internal::FFIHandle health_monitor_builder_create();
-void health_monitor_builder_destroy(internal::FFIHandle handler);
+// Functions below must match functions defined in `crate::ffi`.
 
-internal::FFIHandle health_monitor_builder_build(internal::FFIHandle health_monitor_builder_handle,
-                                                 uint32_t supervisor_cycle_ms,
-                                                 uint32_t internal_cycle_ms);
-void health_monitor_builder_add_deadline_monitor(internal::FFIHandle handle,
-                                                 const IdentTag* tag,
-                                                 internal::FFIHandle monitor_handle);
-
-internal::FFIHandle health_monitor_get_deadline_monitor(internal::FFIHandle health_monitor_handle, const IdentTag* tag);
-void health_monitor_start(internal::FFIHandle health_monitor_handle);
-void health_monitor_destroy(internal::FFIHandle handler);
+FFICode health_monitor_builder_create(FFIHandle* health_monitor_builder_handle_out);
+FFICode health_monitor_builder_destroy(FFIHandle health_monitor_builder_handle);
+FFICode health_monitor_builder_build(FFIHandle health_monitor_builder_handle,
+                                     uint32_t supervisor_cycle_ms,
+                                     uint32_t internal_cycle_ms,
+                                     FFIHandle* health_monitor_handle_out);
+FFICode health_monitor_builder_add_deadline_monitor(FFIHandle health_monitor_builder_handle,
+                                                    const IdentTag* monitor_tag,
+                                                    FFIHandle deadline_monitor_builder_handle);
+FFICode health_monitor_get_deadline_monitor(FFIHandle health_monitor_handle,
+                                            const IdentTag* monitor_tag,
+                                            FFIHandle* deadline_monitor_handle_out);
+FFICode health_monitor_start(FFIHandle health_monitor_handle);
+FFICode health_monitor_destroy(FFIHandle health_monitor_handle);
 }
+
+FFIHandle health_monitor_builder_create_wrapper()
+{
+    FFIHandle handle{nullptr};
+    auto result{health_monitor_builder_create(&handle)};
+    abort_on_error(result);
+    return handle;
+}
+
+}  // namespace
 
 // C++ wrapper for Rust library - the API implementation obeys the Rust API semantics and it's invariants
 
@@ -37,19 +53,21 @@ namespace score::hm
 {
 
 HealthMonitorBuilder::HealthMonitorBuilder()
-    : health_monitor_builder_handle_{health_monitor_builder_create(), &health_monitor_builder_destroy}
+    : health_monitor_builder_handle_{health_monitor_builder_create_wrapper(), &health_monitor_builder_destroy}
 {
 }
 
 HealthMonitorBuilder HealthMonitorBuilder::add_deadline_monitor(const IdentTag& tag,
-                                                                deadline::DeadlineMonitorBuilder&& monitor) &&
+                                                                DeadlineMonitorBuilder&& monitor) &&
 {
     auto monitor_handle = monitor.drop_by_rust();
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(monitor_handle.has_value());
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(health_monitor_builder_handle_.as_rust_handle().has_value());
 
-    health_monitor_builder_add_deadline_monitor(
-        health_monitor_builder_handle_.as_rust_handle().value(), &tag, monitor_handle.value());
+    auto result{health_monitor_builder_add_deadline_monitor(
+        health_monitor_builder_handle_.as_rust_handle().value(), &tag, monitor_handle.value())};
+    abort_on_error(result);
+
     return std::move(*this);
 }
 
@@ -67,16 +85,21 @@ HealthMonitorBuilder HealthMonitorBuilder::with_supervisor_api_cycle(std::chrono
 
 HealthMonitor HealthMonitorBuilder::build() &&
 {
-    auto handle = health_monitor_builder_handle_.drop_by_rust();
-    SCORE_LANGUAGE_FUTURECPP_PRECONDITION(handle.has_value());
+    auto health_monitor_builder_handle = health_monitor_builder_handle_.drop_by_rust();
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION(health_monitor_builder_handle.has_value());
 
     uint32_t supervisor_duration_ms = static_cast<uint32_t>(supervisor_api_cycle_duration_.count());
     uint32_t internal_duration_ms = static_cast<uint32_t>(internal_processing_cycle_duration_.count());
 
-    return HealthMonitor(health_monitor_builder_build(handle.value(), supervisor_duration_ms, internal_duration_ms));
+    FFIHandle health_monitor_handle{nullptr};
+    auto result{health_monitor_builder_build(
+        health_monitor_builder_handle.value(), supervisor_duration_ms, internal_duration_ms, &health_monitor_handle)};
+    abort_on_error(result);
+
+    return HealthMonitor{health_monitor_handle};
 }
 
-HealthMonitor::HealthMonitor(internal::FFIHandle handle) : health_monitor_(handle)
+HealthMonitor::HealthMonitor(FFIHandle handle) : health_monitor_(handle)
 {
     // Initialize health monitor
 }
@@ -87,21 +110,22 @@ HealthMonitor::HealthMonitor(HealthMonitor&& other)
     other.health_monitor_ = nullptr;
 }
 
-score::cpp::expected<deadline::DeadlineMonitor, Error> HealthMonitor::get_deadline_monitor(const IdentTag& tag)
+score::cpp::expected<DeadlineMonitor, Error> HealthMonitor::get_deadline_monitor(const IdentTag& tag)
 {
-    auto maybe_monitor = health_monitor_get_deadline_monitor(health_monitor_, &tag);
-
-    if (maybe_monitor != nullptr)
+    FFIHandle handle{nullptr};
+    auto result{health_monitor_get_deadline_monitor(health_monitor_, &tag, &handle)};
+    if (result != kSuccess)
     {
-
-        return score::cpp::expected<deadline::DeadlineMonitor, Error>(deadline::DeadlineMonitor{maybe_monitor});
+        return score::cpp::unexpected(static_cast<Error>(result));
     }
 
-    return score::cpp::unexpected(Error::NotFound);
+    return score::cpp::expected<DeadlineMonitor, Error>(DeadlineMonitor{handle});
 }
+
 void HealthMonitor::start()
 {
-    health_monitor_start(health_monitor_);
+    auto result{health_monitor_start(health_monitor_)};
+    abort_on_error(result);
 }
 
 HealthMonitor::~HealthMonitor()
