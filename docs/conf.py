@@ -69,7 +69,10 @@ class DisplayTestLogs(Directive):
         ws_root = Path(env.app.srcdir).parent
 
         result_nodes = []
-        for log_file in chain((ws_root / "bazel-testlogs").rglob("test.log"), (ws_root / "tests-report").rglob("test.log")):
+        for log_file in chain(
+            (ws_root / "bazel-testlogs").rglob("test.log"),
+            (ws_root / "tests-report").rglob("test.log"),
+        ):
             rel_path = log_file.relative_to(ws_root)
 
             title = nodes.rubric(text=str(rel_path))
