@@ -152,6 +152,60 @@ cc_library(
     ]
 ]
 
+cc_library(
+    name = "applicationcontext_mock",
+    testonly = True,
+    srcs = [
+        "test/ut/mocks/applicationcontextmock.cpp",
+    ],
+    hdrs = [
+        "include/applicationcontext.h",
+        "test/ut/mocks/applicationcontextmock.h",
+    ],
+    features = COMPILER_WARNING_FEATURES,
+    deps = [
+        "@googletest//:gtest",
+        "@score_baselibs//score/memory:string_literal",
+        "@score_baselibs//score/os/utils:signal",
+    ],
+)
+
+cc_library(
+    name = "application_mock",
+    testonly = True,
+    srcs = [
+        "src/application.cpp",
+    ],
+    hdrs = [
+        "include/application.h",
+    ],
+    features = COMPILER_WARNING_FEATURES,
+    deps = [
+        ":applicationcontext_mock",
+        "@score_baselibs//score/os/utils:signal",
+    ],
+)
+
+cc_library(
+    name = "lifecycle_mock",
+    testonly = True,
+    srcs = [
+        "test/ut/mocks/lifecyclemanagermock.cpp",
+    ],
+    hdrs = [
+        "include/lifecyclemanager.h",
+        "test/ut/mocks/lifecyclemanagermock.h",
+    ],
+    features = COMPILER_WARNING_FEATURES,
+    deps = [
+        ":application_mock",
+        # "//platform/aas/lib/os/utils/mocklib:signal_mock",
+        "@score_baselibs//score/os/utils/mocklib:signal_mock",
+        "@googletest//:gtest",
+        "@score_baselibs//score/os/utils:signal",
+    ],
+)
+
 filegroup(
     name = "all_sources",
     srcs = glob([
