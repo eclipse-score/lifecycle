@@ -38,7 +38,7 @@ jobs:
         uses: bazel-contrib/setup-bazel@0.18.0
         with:
           bazelisk-cache: true
-          disk-cache: ${{ github.job }}
+          disk-cache: ${{ github.workflow }}-${{ github.job }}
           repository-cache: true
           cache-save: ${{ github.event_name == 'push' }}
 
@@ -76,7 +76,7 @@ jobs:
         uses: bazel-contrib/setup-bazel@0.18.0
         with:
           bazelisk-cache: true
-          disk-cache: ${{ github.job }}
+          disk-cache: ${{ github.workflow }}-${{ github.job }}
           repository-cache: true
           cache-save: ${{ github.event_name == 'push' }}
 
