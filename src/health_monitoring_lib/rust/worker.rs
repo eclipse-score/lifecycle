@@ -10,24 +10,21 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
-use crate::{common::MonitorEvaluator, log::debug};
+use crate::deadline::DeadlineMonitorInner;
+use crate::heartbeat::HeartbeatMonitorInner;
+use crate::log::{info, warn};
+use crate::supervisor_api_client::SupervisorAPIClient;
 use containers::fixed_capacity::FixedCapacityVec;
-
-use crate::{
-    common::MonitorEvalHandle,
-    log::{info, warn},
-};
-
-/// An abstraction over the API used to notify the supervisor about process liveness.
-pub(super) trait SupervisorAPIClient {
-    fn notify_alive(&self);
-}
+use core::time::Duration;
+use std::sync::Arc;
+use std::time::Instant;
 
 pub(super) struct MonitoringLogic<T: SupervisorAPIClient> {
-    monitors: FixedCapacityVec<MonitorEvalHandle>,
+    deadline_monitors: FixedCapacityVec<Arc<DeadlineMonitorInner>>,
+    heartbeat_monitors: FixedCapacityVec<Arc<HeartbeatMonitorInner>>,
     client: T,
     last_notification: std::time::Instant,
-    supervisor_api_cycle: core::time::Duration,
+    supervisor_api_cycle: Duration,
 }
 
 impl<T: SupervisorAPIClient> MonitoringLogic<T> {
@@ -37,25 +34,42 @@ impl<T: SupervisorAPIClient> MonitoringLogic<T> {
     /// * `supervisor_api_cycle` - Duration between alive notifications to the supervisor.
     /// * `client` - An implementation of the SupervisorAPIClient trait.
     pub(super) fn new(
-        monitors: FixedCapacityVec<MonitorEvalHandle>,
-        supervisor_api_cycle: core::time::Duration,
+        deadline_monitors: FixedCapacityVec<Arc<DeadlineMonitorInner>>,
+        heartbeat_monitors: FixedCapacityVec<Arc<HeartbeatMonitorInner>>,
+        supervisor_api_cycle: Duration,
         client: T,
     ) -> Self {
         Self {
-            monitors,
+            deadline_monitors,
+            heartbeat_monitors,
             client,
             supervisor_api_cycle,
             last_notification: std::time::Instant::now(),
         }
     }
 
-    fn run(&mut self) -> bool {
+    fn run(&mut self, hmon_starting_point: Instant) -> bool {
         let mut has_any_error = false;
 
-        for monitor in self.monitors.iter() {
-            monitor.evaluate(&mut |tag, error| {
+        // Evaluate deadline monitors.
+        for monitor in self.deadline_monitors.iter() {
+            monitor.evaluate(&mut |monitor_tag, error| {
                 has_any_error = true;
-                warn!("Monitor with tag {:?} reported error: {:?}.", tag, error);
+                warn!(
+                    "Deadline monitor with tag {:?} reported error: {:?}.",
+                    monitor_tag, error
+                );
+            });
+        }
+
+        // Evaluate heartbeat monitors.
+        for monitor in self.heartbeat_monitors.iter() {
+            monitor.evaluate(hmon_starting_point, &mut |monitor_tag, error| {
+                has_any_error = true;
+                warn!(
+                    "Heartbeat monitor with tag {:?} reported error: {:?}.",
+                    monitor_tag, error
+                );
             });
         }
 
@@ -77,11 +91,11 @@ impl<T: SupervisorAPIClient> MonitoringLogic<T> {
 pub struct UniqueThreadRunner {
     handle: Option<std::thread::JoinHandle<()>>,
     should_stop: std::sync::Arc<core::sync::atomic::AtomicBool>,
-    internal_duration_cycle: core::time::Duration,
+    internal_duration_cycle: Duration,
 }
 
 impl UniqueThreadRunner {
-    pub(super) fn new(internal_duration_cycle: core::time::Duration) -> Self {
+    pub(super) fn new(internal_duration_cycle: Duration) -> Self {
         Self {
             handle: None,
             should_stop: std::sync::Arc::new(core::sync::atomic::AtomicBool::new(false)),
@@ -99,6 +113,7 @@ impl UniqueThreadRunner {
 
             std::thread::spawn(move || {
                 info!("Monitoring thread started.");
+                let hmon_starting_point = Instant::now();
                 let mut next_sleep_time = interval;
 
                 // TODO Add some checks and log if cyclicly here is not met.
@@ -107,7 +122,7 @@ impl UniqueThreadRunner {
 
                     let now = std::time::Instant::now();
 
-                    if !monitoring_logic.run() {
+                    if !monitoring_logic.run(hmon_starting_point) {
                         info!("Monitoring logic failed, stopping thread.");
                         break;
                     }
@@ -134,20 +149,9 @@ impl Drop for UniqueThreadRunner {
     }
 }
 
-/// A stub implementation of the SupervisorAPIClient that logs alive notifications.
-#[allow(dead_code)]
-pub(super) struct StubSupervisorAPIClient;
-
-#[allow(dead_code)]
-impl SupervisorAPIClient for StubSupervisorAPIClient {
-    fn notify_alive(&self) {
-        warn!("StubSupervisorAPIClient: notify_alive called");
-    }
-}
-
 #[allow(dead_code)]
 #[derive(Copy, Clone)]
-enum Checks {
+pub(crate) enum Checks {
     WorkerCheckpoint,
 }
 
@@ -159,40 +163,14 @@ impl From<Checks> for u32 {
     }
 }
 
-#[allow(dead_code)]
-pub(super) struct ScoreSupervisorAPIClient {
-    supervisor_link: monitor_rs::Monitor<Checks>,
-}
-
-unsafe impl Send for ScoreSupervisorAPIClient {} // Just assuming it's safe to send across threads, this is a temporary solution
-
-#[allow(dead_code)]
-impl ScoreSupervisorAPIClient {
-    pub fn new() -> Self {
-        let value = std::env::var("IDENTIFIER").expect("IDENTIFIER env not set");
-        debug!("ScoreSupervisorAPIClient: Creating with IDENTIFIER={}", value);
-        // This is only temporary usage so unwrap is fine here.
-        let supervisor_link = monitor_rs::Monitor::<Checks>::new(&value).expect("Failed to create supervisor_link");
-        Self { supervisor_link }
-    }
-}
-impl SupervisorAPIClient for ScoreSupervisorAPIClient {
-    fn notify_alive(&self) {
-        self.supervisor_link.report_checkpoint(Checks::WorkerCheckpoint);
-    }
-}
-
 #[score_testing_macros::test_mod_with_log]
 #[cfg(test)]
 mod tests {
-
-    use crate::{
-        deadline::{DeadlineMonitor, DeadlineMonitorBuilder},
-        protected_memory::ProtectedMemoryAllocator,
-        IdentTag, TimeRange,
-    };
-
     use super::*;
+    use crate::common::TimeRange;
+    use crate::deadline::DeadlineMonitorBuilder;
+    use crate::protected_memory::ProtectedMemoryAllocator;
+    use crate::tag::{DeadlineTag, MonitorTag};
 
     #[derive(Clone)]
     struct MockSupervisorAPIClient {
@@ -217,44 +195,46 @@ mod tests {
         }
     }
 
-    fn create_monitor_with_deadlines() -> DeadlineMonitor {
+    fn create_monitor_with_deadlines() -> Arc<DeadlineMonitorInner> {
         let allocator = ProtectedMemoryAllocator {};
+        let monitor_tag = MonitorTag::from("deadline_monitor");
         DeadlineMonitorBuilder::new()
             .add_deadline(
-                &IdentTag::from("deadline_long"),
-                TimeRange::new(core::time::Duration::from_secs(1), core::time::Duration::from_secs(50)),
+                DeadlineTag::from("deadline_long"),
+                TimeRange::new(Duration::from_secs(1), Duration::from_secs(50)),
             )
             .add_deadline(
-                &IdentTag::from("deadline_fast"),
-                TimeRange::new(
-                    core::time::Duration::from_millis(0),
-                    core::time::Duration::from_millis(50),
-                ),
+                DeadlineTag::from("deadline_fast"),
+                TimeRange::new(Duration::from_millis(0), Duration::from_millis(50)),
             )
-            .build(&allocator)
+            .build(monitor_tag, &allocator)
     }
 
     #[test]
     fn monitoring_logic_report_error_when_deadline_failed() {
         let deadline_monitor = create_monitor_with_deadlines();
         let alive_mock = MockSupervisorAPIClient::new();
+        let hmon_starting_point = Instant::now();
 
         let mut logic = MonitoringLogic::new(
             {
                 let mut vec = FixedCapacityVec::new(2);
-                vec.push(deadline_monitor.get_eval_handle()).unwrap();
+                vec.push(deadline_monitor.clone()).unwrap();
                 vec
             },
-            core::time::Duration::from_secs(1),
+            FixedCapacityVec::new(0),
+            Duration::from_secs(1),
             alive_mock.clone(),
         );
 
-        let mut deadline = deadline_monitor.get_deadline(&IdentTag::from("deadline_long")).unwrap();
+        let mut deadline = deadline_monitor
+            .get_deadline(DeadlineTag::from("deadline_long"))
+            .unwrap();
         let handle = deadline.start().unwrap();
 
         drop(handle);
 
-        assert!(!logic.run());
+        assert!(!logic.run(hmon_starting_point));
         assert_eq!(alive_mock.get_notify_count(), 0);
     }
 
@@ -262,25 +242,29 @@ mod tests {
     fn monitoring_logic_report_alive_on_each_call_when_no_error() {
         let deadline_monitor = create_monitor_with_deadlines();
         let alive_mock = MockSupervisorAPIClient::new();
+        let hmon_starting_point = Instant::now();
 
         let mut logic = MonitoringLogic::new(
             {
                 let mut vec = FixedCapacityVec::new(2);
-                vec.push(deadline_monitor.get_eval_handle()).unwrap();
+                vec.push(deadline_monitor.clone()).unwrap();
                 vec
             },
-            core::time::Duration::from_nanos(0), // Make sure each call notifies alive
+            FixedCapacityVec::new(0),
+            Duration::from_nanos(0), // Make sure each call notifies alive
             alive_mock.clone(),
         );
 
-        let mut deadline = deadline_monitor.get_deadline(&IdentTag::from("deadline_long")).unwrap();
+        let mut deadline = deadline_monitor
+            .get_deadline(DeadlineTag::from("deadline_long"))
+            .unwrap();
         let _handle = deadline.start().unwrap();
 
-        assert!(logic.run());
-        assert!(logic.run());
-        assert!(logic.run());
-        assert!(logic.run());
-        assert!(logic.run());
+        assert!(logic.run(hmon_starting_point));
+        assert!(logic.run(hmon_starting_point));
+        assert!(logic.run(hmon_starting_point));
+        assert!(logic.run(hmon_starting_point));
+        assert!(logic.run(hmon_starting_point));
 
         assert_eq!(alive_mock.get_notify_count(), 5);
     }
@@ -289,34 +273,38 @@ mod tests {
     fn monitoring_logic_report_alive_respect_cycle() {
         let deadline_monitor = create_monitor_with_deadlines();
         let alive_mock = MockSupervisorAPIClient::new();
+        let hmon_starting_point = Instant::now();
 
         let mut logic = MonitoringLogic::new(
             {
                 let mut vec = FixedCapacityVec::new(2);
-                vec.push(deadline_monitor.get_eval_handle()).unwrap();
+                vec.push(deadline_monitor.clone()).unwrap();
                 vec
             },
-            core::time::Duration::from_millis(30),
+            FixedCapacityVec::new(0),
+            Duration::from_millis(30),
             alive_mock.clone(),
         );
 
-        let mut deadline = deadline_monitor.get_deadline(&IdentTag::from("deadline_long")).unwrap();
+        let mut deadline = deadline_monitor
+            .get_deadline(DeadlineTag::from("deadline_long"))
+            .unwrap();
         let _handle = deadline.start().unwrap();
 
-        std::thread::sleep(core::time::Duration::from_millis(30));
-        assert!(logic.run());
+        std::thread::sleep(Duration::from_millis(30));
+        assert!(logic.run(hmon_starting_point));
 
-        std::thread::sleep(core::time::Duration::from_millis(30));
-        assert!(logic.run());
+        std::thread::sleep(Duration::from_millis(30));
+        assert!(logic.run(hmon_starting_point));
 
-        std::thread::sleep(core::time::Duration::from_millis(30));
-        assert!(logic.run());
+        std::thread::sleep(Duration::from_millis(30));
+        assert!(logic.run(hmon_starting_point));
 
-        std::thread::sleep(core::time::Duration::from_millis(30));
-        assert!(logic.run());
+        std::thread::sleep(Duration::from_millis(30));
+        assert!(logic.run(hmon_starting_point));
 
-        std::thread::sleep(core::time::Duration::from_millis(30));
-        assert!(logic.run());
+        std::thread::sleep(Duration::from_millis(30));
+        assert!(logic.run(hmon_starting_point));
 
         assert_eq!(alive_mock.get_notify_count(), 5);
     }
@@ -330,21 +318,24 @@ mod tests {
         let logic = MonitoringLogic::new(
             {
                 let mut vec = FixedCapacityVec::new(2);
-                vec.push(deadline_monitor.get_eval_handle()).unwrap();
+                vec.push(deadline_monitor.clone()).unwrap();
                 vec
             },
-            core::time::Duration::from_nanos(0), // Make sure each call notifies alive
+            FixedCapacityVec::new(0),
+            Duration::from_nanos(0), // Make sure each call notifies alive
             alive_mock.clone(),
         );
 
-        let mut worker = UniqueThreadRunner::new(core::time::Duration::from_millis(10));
+        let mut worker = UniqueThreadRunner::new(Duration::from_millis(10));
         worker.start(logic);
 
-        let mut deadline = deadline_monitor.get_deadline(&IdentTag::from("deadline_fast")).unwrap();
+        let mut deadline = deadline_monitor
+            .get_deadline(DeadlineTag::from("deadline_fast"))
+            .unwrap();
 
         let handle = deadline.start().unwrap();
 
-        std::thread::sleep(core::time::Duration::from_millis(70));
+        std::thread::sleep(Duration::from_millis(70));
 
         let current_count = alive_mock.get_notify_count();
         assert!(
@@ -354,7 +345,7 @@ mod tests {
         );
 
         // We shall not get any new alive calls.
-        std::thread::sleep(core::time::Duration::from_millis(50));
+        std::thread::sleep(Duration::from_millis(50));
         assert_eq!(alive_mock.get_notify_count(), current_count);
         handle.stop();
     }

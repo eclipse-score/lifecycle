@@ -11,14 +11,11 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
-mod common;
-mod deadline_monitor;
-mod deadline_state;
+mod heartbeat_monitor;
+mod heartbeat_state;
 
-pub(crate) use deadline_monitor::DeadlineMonitorInner;
-pub use deadline_monitor::{
-    DeadlineError, DeadlineHandle, DeadlineMonitor, DeadlineMonitorBuilder, DeadlineMonitorError,
-};
+pub(crate) use heartbeat_monitor::HeartbeatMonitorInner;
+pub use heartbeat_monitor::{HeartbeatMonitor, HeartbeatMonitorBuilder};
 
 // FFI bindings
 pub(super) mod ffi;

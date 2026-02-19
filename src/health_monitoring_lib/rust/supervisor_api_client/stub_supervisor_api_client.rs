@@ -11,14 +11,22 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
-mod common;
-mod deadline_monitor;
-mod deadline_state;
+use crate::log::warn;
+use crate::supervisor_api_client::SupervisorAPIClient;
 
-pub(crate) use deadline_monitor::DeadlineMonitorInner;
-pub use deadline_monitor::{
-    DeadlineError, DeadlineHandle, DeadlineMonitor, DeadlineMonitorBuilder, DeadlineMonitorError,
-};
+/// A stub implementation of the SupervisorAPIClient that logs alive notifications.
+#[allow(dead_code)]
+pub struct StubSupervisorAPIClient;
 
-// FFI bindings
-pub(super) mod ffi;
+impl StubSupervisorAPIClient {
+    pub fn new() -> Self {
+        Self
+    }
+}
+
+#[allow(dead_code)]
+impl SupervisorAPIClient for StubSupervisorAPIClient {
+    fn notify_alive(&self) {
+        warn!("StubSupervisorAPIClient: notify_alive called");
+    }
+}
