@@ -25,6 +25,8 @@ filegroup(
 )
 
 # flatcfg configuration
+exports_files(["config/hm_flatcfg.fbs"])
+
 cc_library(
     name = "config",
     hdrs = [
