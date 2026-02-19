@@ -906,7 +906,7 @@ def gen_launch_manager_config(output_dir, config):
                 "value": value
             })
 
-        if (arguments := component_config.get("process_arguments", [])):
+        if (arguments := component_config["component_properties"].get("process_arguments", [])):
             arguments = [{"argument": arg} for arg in arguments]
         process["startupConfig"][0]["processArgument"] = arguments
 
