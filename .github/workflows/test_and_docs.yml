@@ -38,11 +38,16 @@ jobs:
       contents: read
     with:
       bazel-docs-verify-target: "//:docs_check"
-  unit-tests:
-    uses: ./.github/workflows/tests.yml
-    secrets: inherit
+  run-tests:
+    uses: eclipse-score/cicd-workflows/.github/workflows/tests.yml@main
+    permissions:
+      contents: read
+      pull-requests: read
+    with:
+      bazel-target: 'test //src/... //tests/... --config=x86_64-linux'
+      upload-name: 'bazel-testlogs'
   build-docs:
-    needs: unit-tests
+    needs: run-tests
     if: ${{ always() }}
     uses: eclipse-score/cicd-workflows/.github/workflows/docs.yml@main
     permissions:
