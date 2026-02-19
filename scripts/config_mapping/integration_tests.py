@@ -9,14 +9,6 @@ script_dir = Path(__file__).parent
 tests_dir = script_dir / "tests"
 lifecycle_script = script_dir / "lifecycle_config.py"
 
-def all_files_except(relative_path, filename):
-    """
-    Helper function to specify all files in a directory except a specific file for comparison.
-    Usage: all_files_except("subdir", "file_to_exclude.json")
-    """
-    dir_path = tests_dir / relative_path
-    return [f.name for f in dir_path.iterdir() if f.is_file() and f.name != filename]
-
 def run(input_file : Path, test_name : str, compare_files_only=[], exclude_files=[]):
     """
     Execute the mapping script with the given input file and compare the generated output with the expected output.
@@ -54,7 +46,7 @@ def run(input_file : Path, test_name : str, compare_files_only=[], exclude_files
 
     if compare_files_only:
         # Compare only specific files
-        if not compare_files(actual_output_dir, expected_output_dir, compare_files_only, exclude_files):
+        if not compare_files(actual_output_dir, expected_output_dir, compare_files_only):
             raise AssertionError("Actual output files do not match expected output files.")
     else:
         # Compare the complete directory content
@@ -132,7 +124,7 @@ def test_launch_config_mapping():
     test_name = "lm_config_test"
     input_file = tests_dir / test_name / "input" / "lm_config.json"
     
-    run(input_file, test_name, exclude_files=all_files_except(tests_dir / test_name / "expected_output", "lm_demo.json"))
+    run(input_file, test_name, compare_files_only=["lm_demo.json"])
 
 def test_empty_launch_config_mapping():
     """
@@ -141,4 +133,4 @@ def test_empty_launch_config_mapping():
     test_name = "empty_lm_config_test"
     input_file = tests_dir / test_name / "input" / "lm_config.json"
     
-    run(input_file, test_name, exclude_files=all_files_except(tests_dir / test_name / "expected_output", "lm_demo.json"))
+    run(input_file, test_name, compare_files_only=["lm_demo.json"])
