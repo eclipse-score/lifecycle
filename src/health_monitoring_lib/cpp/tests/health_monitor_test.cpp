@@ -14,10 +14,8 @@
 #include "score/hm/common.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <thread>
 
 using namespace score::hm;
-using ::testing::_;
 
 class HealthMonitorTest : public ::testing::Test
 {

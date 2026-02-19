@@ -37,7 +37,7 @@ class Deadline;
 class DeadlineMonitorBuilder final : public internal::RustDroppable<DeadlineMonitorBuilder>
 {
   public:
-    /// Creates a new DeadlineMonitorBuilder
+    /// Create a new `DeadlineMonitorBuilder`.
     DeadlineMonitorBuilder();
 
     DeadlineMonitorBuilder(const DeadlineMonitorBuilder&) = delete;

@@ -10,6 +10,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
+#include <score/assert.hpp>
 #include <score/hm/common.h>
 
 namespace score::hm::internal
@@ -74,7 +75,8 @@ DroppableFFIHandle::~DroppableFFIHandle()
     // Clean up resources associated with the FFI handle
     if (drop_fn_)
     {
-        drop_fn_(handle_);
+        auto result{drop_fn_(handle_)};
+        SCORE_LANGUAGE_FUTURECPP_ASSERT(result == kSuccess);
     }
 }
 

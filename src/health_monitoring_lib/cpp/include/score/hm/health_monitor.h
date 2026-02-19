@@ -27,7 +27,7 @@ class HealthMonitor;
 class HealthMonitorBuilder final
 {
   public:
-    ///  Creates a new HealthMonitorBuilder
+    /// Create a new `HealthMonitorBuilder`.
     HealthMonitorBuilder();
 
     ~HealthMonitorBuilder() = default;
@@ -48,7 +48,7 @@ class HealthMonitorBuilder final
     /// This duration determines how often the health monitor checks deadlines.
     HealthMonitorBuilder with_internal_processing_cycle(std::chrono::milliseconds cycle_duration) &&;
 
-    /// Builds and returns the HealthMonitor instance.
+    /// Build a new `HealthMonitor` instance based on provided parameters.
     HealthMonitor build() &&;
 
   private:
