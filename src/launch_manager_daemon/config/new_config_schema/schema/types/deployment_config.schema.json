@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "description": "Defines a reusable type that contains configuration parameters that are specific to a particular deployment environment or system setup.",
+
+  "properties": {
+    "ready_timeout": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "description": "Specifies the maximum time allowed for the component to reach its ready state. The timeout is measured from when the component process is created until the ready conditions specified in 'component_properties.ready_condition' are met."
+    },
+    "shutdown_timeout": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "description": "Specifies the maximum time allowed for the component to terminate after it receives a SIGTERM signal from the Launch Manager. The timeout is measured from when the Launch Manager sends the SIGTERM signal until the Operating System notifies the Launch Manager that the child process has terminated."
+    },
+    "environmental_variables": {
+      "type": "object",
+      "description": "Defines the set of environment variables passed to the component at startup.",
+      "additionalProperties": {
+        "type": "string",
+        "description": "Specifies the environment variable's value as a string. An empty string is allowed and represents an intentionally empty environment variable."
+      }
+    },
+    "bin_dir": {
+      "type": "string",
+      "description": "Specifies the absolute filesystem path to the directory where the component is installed."
+    },
+    "working_dir": {
+      "type": "string",
+      "description": "Specifies the directory used as the working directory for the component during execution."
+    },
+    "ready_recovery_action": {
+      "allOf": [
+        { "$ref": "./recovery_action.schema.json" },
+        {
+          "properties": {
+            "restart": true
+          },
+          "required": ["restart"],
+          "not": {
+            "required": ["switch_run_target"]
+          }
+        }
+      ],
+      "description": "Specifies the recovery action to execute when the component fails to reach its ready state within the configured timeout."
+    },
+    "recovery_action": {
+      "allOf": [
+        { "$ref": "./recovery_action.schema.json" },
+        {
+          "properties": {
+            "switch_run_target": true
+          },
+          "required": ["switch_run_target"],
+          "not": {
+            "required": ["restart"]
+          }
+        }
+      ],
+      "description": "Specifies the recovery action to execute when the component malfunctions after reaching its ready state."
+    },
+    "sandbox": {
+      "type": "object",
+      "description": "Defines the sandbox configuration parameters that isolate and constrain the component's runtime execution.",
+      "properties": {
+        "uid": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Specifies the POSIX user ID (UID) under which this component executes."
+        },
+        "gid": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Specifies the primary POSIX group ID (GID) under which this component executes."
+        },
+        "supplementary_group_ids": {
+          "type": "array",
+          "description": "Specifies the list of supplementary POSIX group IDs (GIDs) assigned to this component.",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Specifies a single supplementary POSIX group ID (GID)."
+          }
+        },
+        "security_policy": {
+          "type": "string",
+          "description": "Specifies the security policy or confinement profile name (such as an SELinux or AppArmor profile) assigned to the component."
+        },
+        "scheduling_policy": {
+          "type": "string",
+          "description": "Specifies the scheduling policy applied to the component's initial thread. Supported values correspond to OS-defined policies (e.g., FIFO, RR, OTHER).",
+          "anyOf": [
+            {
+              "enum": [
+                "SCHED_FIFO",
+                "SCHED_RR",
+                "SCHED_OTHER"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "scheduling_priority": {
+          "type": "integer",
+          "description": "Specifies the scheduling priority applied to the component's initial thread."
+        },
+        "max_memory_usage": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "description": "Specifies the maximum amount of memory, in bytes, that the component is permitted to use during runtime."
+        },
+        "max_cpu_usage": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "description": "Specifies the maximum CPU usage limit for the component, expressed as a percentage of total CPU capacity."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": [],
+  "additionalProperties": false
+}

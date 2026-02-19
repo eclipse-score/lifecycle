@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "description": "Defines a reusable type that contains configuration parameters for the external watchdog.",
+  "properties": {
+    "device_file_path": {
+      "type": "string",
+      "description": "Specifies the path to the external watchdog device file (e.g., /dev/watchdog)."
+    },
+    "max_timeout": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Specifies the maximum timeout value that the Launch Manager configures on the external watchdog during startup. The external watchdog uses this timeout as the deadline for receiving periodic alive reports from the Launch Manager."
+    },
+    "deactivate_on_shutdown": {
+      "type": "boolean",
+      "description": "Specifies whether the Launch Manager disables the external watchdog during shutdown. When set to true, the watchdog is deactivated; when false, it remains active."
+    },
+    "require_magic_close": {
+      "type": "boolean",
+      "description": "Specifies whether the Launch Manager performs a defined shutdown sequence to inform the external watchdog that the shutdown is intentional and to prevent a watchdog-initiated reset. When true, the magic close sequence is performed; when false, it is not."
+    }
+  },
+
+  "required": [],
+  "additionalProperties": false
+}

@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "title": "Configuration schema for the S-CORE Launch Manager",
+  "description": "Defines the structure and valid values for the Launch Manager configuration file, which specifies managed components, run targets, and recovery behaviors.",
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "description": "Specifies the schema version number that the Launch Manager uses to determine how to parse and validate this configuration file.",
+      "enum": [ 1 ]
+    },
+    "defaults": {
+      "type": "object",
+      "description": "Defines default configuration values that components and Run Targets inherit unless they provide their own overriding values.",
+      "properties": {
+        "component_properties": {
+          "$ref": "./types/component_properties.schema.json",
+          "description": "Defines default component property values applied to all components unless overridden in individual component definitions."
+        },
+        "deployment_config": {
+          "$ref": "./types/deployment_config.schema.json",
+          "description": "Defines default deployment configuration values applied to all components unless overridden in individual component definitions."
+        },
+        "run_target": {
+          "$ref": "./types/run_target.schema.json",
+          "description": "Defines default Run Target configuration values applied to all Run Targets unless overridden in individual Run Target definitions."
+        },
+        "alive_supervision": {
+          "$ref": "./types/alive_supervision.schema.json",
+          "description": "Defines default alive supervision configuration values used unless a global 'alive_supervision' configuration is specified at the root level."
+        },
+        "watchdog": {
+          "$ref": "./types/watchdog.schema.json",
+          "description": "Defines default watchdog configuration values applied to all watchdogs unless overridden in individual watchdog definitions."
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "components": {
+      "type": "object",
+      "description": "Defines software components managed by the Launch Manager, where each property name is a unique component identifier and its value contains the component's configuration.",
+      "patternProperties": {
+        "^[a-zA-Z0-9_-]+$": {
+          "type": "object",
+          "description": "Defines an individual component's configuration properties and deployment settings.",
+          "properties": {
+            "description": {
+              "type": "string",
+              "description": "Specifies a human-readable description of the component's purpose."
+            },
+            "component_properties": {
+              "$ref": "./types/component_properties.schema.json",
+              "description": "Defines component properties for this component; any properties not specified here are inherited from 'defaults.component_properties'."
+            },
+            "deployment_config": {
+              "$ref": "./types/deployment_config.schema.json",
+              "description": "Defines deployment configuration for this component; any properties not specified here are inherited from 'defaults.deployment_config'."
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "run_targets": {
+      "type": "object",
+      "description": "Defines Run Targets representing different operational modes of the system, where each property name is a unique Run Target identifier and its value contains the Run Target's configuration.",
+      "patternProperties": {
+        "^[a-zA-Z0-9_-]+$": {
+          "$ref": "./types/run_target.schema.json"
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "initial_run_target": {
+      "type": "string",
+      "description": "Specifies the name of the initial Run Target that the Launch Manager activates during the startup sequence. This name must match a Run Target defined in 'run_targets'."
+    },
+    "fallback_run_target": {
+      "type": "object",
+      "description": "Defines the fallback Run Target configuration that the Launch Manager activates when all recovery attempts have been exhausted. This Run Target does not include a recovery_action property.",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Specifies a human-readable description of the fallback Run Target."
+        },
+        "depends_on": {
+          "type": "array",
+          "description": "Specifies the names of components and Run Targets that must be activated when this Run Target is activated.",
+          "items": {
+            "type": "string",
+            "description": "Specifies the name of a component or Run Target that this Run Target depends on."
+          }
+        },
+        "transition_timeout": {
+          "type": "number",
+          "description": "Specifies the time limit for the Run Target transition. If this limit is exceeded, the transition is considered failed.",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "depends_on"
+      ],
+      "additionalProperties": false
+    },
+    "alive_supervision": {
+      "$ref": "./types/alive_supervision.schema.json",
+      "description": "Defines the alive supervision configuration parameters used to monitor component health. This configuration overrides 'defaults.alive_supervision' if specified."
+    },
+    "watchdog": {
+      "$ref": "./types/watchdog.schema.json",
+      "description": "Defines the external watchdog device configuration used by the Launch Manager. This configuration overrides 'defaults.watchdog' if specified."
+    }
+  },
+  "required": [
+    "schema_version"
+  ],
+  "additionalProperties": false
+}

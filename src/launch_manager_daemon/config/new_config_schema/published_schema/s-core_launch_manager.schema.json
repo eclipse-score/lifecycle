@@ -1,0 +1,492 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "title": "Configuration schema for the S-CORE Launch Manager",
+  "description": "Defines the structure and valid values for the Launch Manager configuration file, which specifies managed components, run targets, and recovery behaviors.",
+  "$defs": {
+    "component_properties": {
+      "type": "object",
+      "description": "Defines a reusable type that captures essential development-time characteristics of a software component.",
+      "properties": {
+        "binary_name": {
+          "type": "string",
+          "description": "Specifies the relative path of the executable file inside the directory defined by 'deployment_config.bin_dir'. The final executable path will be resolved as '{bin_dir}/{binary_name}'. Example values include simple filenames (e.g., 'test_app1') or subdirectory paths (e.g., 'bin/test_app1')."
+        },
+        "application_profile": {
+          "type": "object",
+          "description": "Defines the application profile that specifies the runtime behavior and capabilities of this component.",
+          "properties": {
+            "application_type": {
+              "type": "string",
+              "enum": [
+                "Native",
+                "Reporting",
+                "Reporting_And_Supervised",
+                "State_Manager"
+              ],
+              "description": "Specifies the level of integration between the component and the Launch Manager. 'Native': no integration with Launch Manager. 'Reporting': uses Launch Manager lifecycle APIs. 'Reporting_And_Supervised': uses lifecycle APIs and sends alive notifications. 'State_Manager': uses lifecycle APIs, sends alive notifications, and has permission to change the active Run Target."
+            },
+            "is_self_terminating": {
+              "type": "boolean",
+              "description": "Indicates whether the component is designed to terminate automatically once its planned tasks are completed (true), or remain running until explicitly requested to terminate by the Launch Manager (false)."
+            },
+            "alive_supervision": {
+              "type": "object",
+              "description": "Defines the configuration parameters used for alive monitoring of the component.",
+              "properties": {
+                "reporting_cycle": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "description": "Specifies the duration of the time interval used to verify that the component sends alive notifications within the expected time frame."
+                },
+                "failed_cycles_tolerance": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Specifies the maximum number of consecutive reporting cycle failures (see 'reporting_cycle'). Once the number of failed cycles exceeds this maximum, the Launch Manager will trigger the configured recovery action."
+                },
+                "min_indications": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Specifies the minimum number of checkpoints that must be reported within each configured 'reporting_cycle'."
+                },
+                "max_indications": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Specifies the maximum number of checkpoints that may be reported within each configured 'reporting_cycle'."
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        },
+        "depends_on": {
+          "type": "array",
+          "description": "Specifies the names of components that this component depends on. Each dependency must be initialized and reach its ready state before this component can start.",
+          "items": {
+            "type": "string",
+            "description": "Specifies the name of a component on which this component depends."
+          }
+        },
+        "process_arguments": {
+          "type": "array",
+          "description": "Specifies an ordered list of command-line arguments passed to the component at startup.",
+          "items": {
+            "type": "string",
+            "description": "Specifies a single command-line argument token as a UTF-8 string; order is preserved."
+          }
+        },
+        "ready_condition": {
+          "type": "object",
+          "description": "Defines the set of conditions that determine when the component completes its initializing state and enters the ready state.",
+          "properties": {
+            "process_state": {
+              "type": "string",
+              "enum": [
+                "Running",
+                "Terminated"
+              ],
+              "description": "Specifies the required state of the component's POSIX process. 'Running': the process has started and reached its running state. 'Terminated': the process has started, reached its running state, and then terminated successfully."
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "recovery_action": {
+      "type": "object",
+      "description": "Defines a reusable type that specifies recovery actions to execute when an error or failure occurs.",
+      "properties": {
+        "restart": {
+          "type": "object",
+          "description": "Defines a recovery action that restarts the POSIX process associated with this component.",
+          "properties": {
+            "number_of_attempts": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Specifies the maximum number of restart attempts before the Launch Manager concludes that recovery cannot succeed."
+            },
+            "delay_before_restart": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Specifies the delay duration that the Launch Manager waits before initiating a restart attempt."
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        },
+        "switch_run_target": {
+          "type": "object",
+          "description": "Defines a recovery action that switches to a Run Target. This can be a different Run Target or the same one to retry activation of the current Run Target.",
+          "properties": {
+            "run_target": {
+              "type": "string",
+              "description": "Specifies the name of the Run Target that the Launch Manager should switch to."
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "restart"
+          ]
+        },
+        {
+          "required": [
+            "switch_run_target"
+          ]
+        }
+      ],
+      "additionalProperties": false
+    },
+    "deployment_config": {
+      "type": "object",
+      "description": "Defines a reusable type that contains configuration parameters that are specific to a particular deployment environment or system setup.",
+      "properties": {
+        "ready_timeout": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Specifies the maximum time allowed for the component to reach its ready state. The timeout is measured from when the component process is created until the ready conditions specified in 'component_properties.ready_condition' are met."
+        },
+        "shutdown_timeout": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Specifies the maximum time allowed for the component to terminate after it receives a SIGTERM signal from the Launch Manager. The timeout is measured from when the Launch Manager sends the SIGTERM signal until the Operating System notifies the Launch Manager that the child process has terminated."
+        },
+        "environmental_variables": {
+          "type": "object",
+          "description": "Defines the set of environment variables passed to the component at startup.",
+          "additionalProperties": {
+            "type": "string",
+            "description": "Specifies the environment variable's value as a string. An empty string is allowed and represents an intentionally empty environment variable."
+          }
+        },
+        "bin_dir": {
+          "type": "string",
+          "description": "Specifies the absolute filesystem path to the directory where the component is installed."
+        },
+        "working_dir": {
+          "type": "string",
+          "description": "Specifies the directory used as the working directory for the component during execution."
+        },
+        "ready_recovery_action": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/recovery_action"
+            },
+            {
+              "properties": {
+                "restart": true
+              },
+              "required": [
+                "restart"
+              ],
+              "not": {
+                "required": [
+                  "switch_run_target"
+                ]
+              }
+            }
+          ],
+          "description": "Specifies the recovery action to execute when the component fails to reach its ready state within the configured timeout."
+        },
+        "recovery_action": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/recovery_action"
+            },
+            {
+              "properties": {
+                "switch_run_target": true
+              },
+              "required": [
+                "switch_run_target"
+              ],
+              "not": {
+                "required": [
+                  "restart"
+                ]
+              }
+            }
+          ],
+          "description": "Specifies the recovery action to execute when the component malfunctions after reaching its ready state."
+        },
+        "sandbox": {
+          "type": "object",
+          "description": "Defines the sandbox configuration parameters that isolate and constrain the component's runtime execution.",
+          "properties": {
+            "uid": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Specifies the POSIX user ID (UID) under which this component executes."
+            },
+            "gid": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Specifies the primary POSIX group ID (GID) under which this component executes."
+            },
+            "supplementary_group_ids": {
+              "type": "array",
+              "description": "Specifies the list of supplementary POSIX group IDs (GIDs) assigned to this component.",
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Specifies a single supplementary POSIX group ID (GID)."
+              }
+            },
+            "security_policy": {
+              "type": "string",
+              "description": "Specifies the security policy or confinement profile name (such as an SELinux or AppArmor profile) assigned to the component."
+            },
+            "scheduling_policy": {
+              "type": "string",
+              "description": "Specifies the scheduling policy applied to the component's initial thread. Supported values correspond to OS-defined policies (e.g., FIFO, RR, OTHER).",
+              "anyOf": [
+                {
+                  "enum": [
+                    "SCHED_FIFO",
+                    "SCHED_RR",
+                    "SCHED_OTHER"
+                  ]
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "scheduling_priority": {
+              "type": "integer",
+              "description": "Specifies the scheduling priority applied to the component's initial thread."
+            },
+            "max_memory_usage": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "Specifies the maximum amount of memory, in bytes, that the component is permitted to use during runtime."
+            },
+            "max_cpu_usage": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "Specifies the maximum CPU usage limit for the component, expressed as a percentage of total CPU capacity."
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "run_target": {
+      "type": "object",
+      "description": "Defines a reusable type that specifies configuration parameters for a Run Target.",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Specifies a user-defined description of the Run Target."
+        },
+        "depends_on": {
+          "type": "array",
+          "description": "Specifies the names of components and Run Targets that must be activated when this Run Target is activated.",
+          "items": {
+            "type": "string",
+            "description": "Specifies the name of a component or Run Target that this Run Target depends on."
+          }
+        },
+        "transition_timeout": {
+          "type": "number",
+          "description": "Specifies the time limit for the Run Target transition. If this limit is exceeded, the transition is considered failed.",
+          "exclusiveMinimum": 0
+        },
+        "recovery_action": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/recovery_action"
+            },
+            {
+              "properties": {
+                "switch_run_target": true
+              },
+              "required": [
+                "switch_run_target"
+              ],
+              "not": {
+                "required": [
+                  "restart"
+                ]
+              }
+            }
+          ],
+          "description": "Specifies the recovery action to execute when a component assigned to this Run Target fails."
+        }
+      },
+      "required": [
+        "recovery_action"
+      ],
+      "additionalProperties": false
+    },
+    "alive_supervision": {
+      "type": "object",
+      "description": "Defines a reusable type that contains configuration parameters for alive supervision.",
+      "properties": {
+        "evaluation_cycle": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Specifies the length of the time window used to assess incoming alive supervision reports."
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "watchdog": {
+      "type": "object",
+      "description": "Defines a reusable type that contains configuration parameters for the external watchdog.",
+      "properties": {
+        "device_file_path": {
+          "type": "string",
+          "description": "Specifies the path to the external watchdog device file (e.g., /dev/watchdog)."
+        },
+        "max_timeout": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Specifies the maximum timeout value that the Launch Manager configures on the external watchdog during startup. The external watchdog uses this timeout as the deadline for receiving periodic alive reports from the Launch Manager."
+        },
+        "deactivate_on_shutdown": {
+          "type": "boolean",
+          "description": "Specifies whether the Launch Manager disables the external watchdog during shutdown. When set to true, the watchdog is deactivated; when false, it remains active."
+        },
+        "require_magic_close": {
+          "type": "boolean",
+          "description": "Specifies whether the Launch Manager performs a defined shutdown sequence to inform the external watchdog that the shutdown is intentional and to prevent a watchdog-initiated reset. When true, the magic close sequence is performed; when false, it is not."
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "description": "Specifies the schema version number that the Launch Manager uses to determine how to parse and validate this configuration file.",
+      "enum": [
+        1
+      ]
+    },
+    "defaults": {
+      "type": "object",
+      "description": "Defines default configuration values that components and Run Targets inherit unless they provide their own overriding values.",
+      "properties": {
+        "component_properties": {
+          "description": "Defines default component property values applied to all components unless overridden in individual component definitions.",
+          "$ref": "#/$defs/component_properties"
+        },
+        "deployment_config": {
+          "description": "Defines default deployment configuration values applied to all components unless overridden in individual component definitions.",
+          "$ref": "#/$defs/deployment_config"
+        },
+        "run_target": {
+          "description": "Defines default Run Target configuration values applied to all Run Targets unless overridden in individual Run Target definitions.",
+          "$ref": "#/$defs/run_target"
+        },
+        "alive_supervision": {
+          "description": "Defines default alive supervision configuration values used unless a global 'alive_supervision' configuration is specified at the root level.",
+          "$ref": "#/$defs/alive_supervision"
+        },
+        "watchdog": {
+          "description": "Defines default watchdog configuration values applied to all watchdogs unless overridden in individual watchdog definitions.",
+          "$ref": "#/$defs/watchdog"
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "components": {
+      "type": "object",
+      "description": "Defines software components managed by the Launch Manager, where each property name is a unique component identifier and its value contains the component's configuration.",
+      "patternProperties": {
+        "^[a-zA-Z0-9_-]+$": {
+          "type": "object",
+          "description": "Defines an individual component's configuration properties and deployment settings.",
+          "properties": {
+            "description": {
+              "type": "string",
+              "description": "Specifies a human-readable description of the component's purpose."
+            },
+            "component_properties": {
+              "description": "Defines component properties for this component; any properties not specified here are inherited from 'defaults.component_properties'.",
+              "$ref": "#/$defs/component_properties"
+            },
+            "deployment_config": {
+              "description": "Defines deployment configuration for this component; any properties not specified here are inherited from 'defaults.deployment_config'.",
+              "$ref": "#/$defs/deployment_config"
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "run_targets": {
+      "type": "object",
+      "description": "Defines Run Targets representing different operational modes of the system, where each property name is a unique Run Target identifier and its value contains the Run Target's configuration.",
+      "patternProperties": {
+        "^[a-zA-Z0-9_-]+$": {
+          "$ref": "#/$defs/run_target"
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "initial_run_target": {
+      "type": "string",
+      "description": "Specifies the name of the initial Run Target that the Launch Manager activates during the startup sequence. This name must match a Run Target defined in 'run_targets'."
+    },
+    "fallback_run_target": {
+      "type": "object",
+      "description": "Defines the fallback Run Target configuration that the Launch Manager activates when all recovery attempts have been exhausted. This Run Target does not include a recovery_action property.",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Specifies a human-readable description of the fallback Run Target."
+        },
+        "depends_on": {
+          "type": "array",
+          "description": "Specifies the names of components and Run Targets that must be activated when this Run Target is activated.",
+          "items": {
+            "type": "string",
+            "description": "Specifies the name of a component or Run Target that this Run Target depends on."
+          }
+        },
+        "transition_timeout": {
+          "type": "number",
+          "description": "Specifies the time limit for the Run Target transition. If this limit is exceeded, the transition is considered failed.",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "depends_on"
+      ],
+      "additionalProperties": false
+    },
+    "alive_supervision": {
+      "description": "Defines the alive supervision configuration parameters used to monitor component health. This configuration overrides 'defaults.alive_supervision' if specified.",
+      "$ref": "#/$defs/alive_supervision"
+    },
+    "watchdog": {
+      "description": "Defines the external watchdog device configuration used by the Launch Manager. This configuration overrides 'defaults.watchdog' if specified.",
+      "$ref": "#/$defs/watchdog"
+    }
+  },
+  "required": [
+    "schema_version"
+  ],
+  "additionalProperties": false
+}

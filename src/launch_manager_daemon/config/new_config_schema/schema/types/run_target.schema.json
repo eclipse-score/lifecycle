@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "description": "Defines a reusable type that specifies configuration parameters for a Run Target.",
+  "properties": {
+    "description": {
+      "type": "string",
+      "description": "Specifies a user-defined description of the Run Target."
+    },
+
+    "depends_on": {
+      "type": "array",
+      "description": "Specifies the names of components and Run Targets that must be activated when this Run Target is activated.",
+      "items": {
+        "type": "string",
+        "description": "Specifies the name of a component or Run Target that this Run Target depends on."
+      }
+    },
+
+    "transition_timeout": {
+      "type": "number",
+      "description": "Specifies the time limit for the Run Target transition. If this limit is exceeded, the transition is considered failed.",
+      "exclusiveMinimum": 0
+    },
+
+    "recovery_action": {
+      "allOf": [
+        { "$ref": "./recovery_action.schema.json" },
+        {
+          "properties": {
+            "switch_run_target": true
+          },
+          "required": ["switch_run_target"],
+          "not": {
+            "required": ["restart"]
+          }
+        }
+      ],
+      "description": "Specifies the recovery action to execute when a component assigned to this Run Target fails."
+    }
+  },
+
+  "required": ["recovery_action"],
+  "additionalProperties": false
+}

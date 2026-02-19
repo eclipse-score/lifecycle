@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "description": "Defines a reusable type that contains configuration parameters for alive supervision.",
+  "properties": {
+    "evaluation_cycle": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "description": "Specifies the length of the time window used to assess incoming alive supervision reports."
+    }
+  },
+
+  "required": [],
+  "additionalProperties": false
+}
