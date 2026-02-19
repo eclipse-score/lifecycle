@@ -21,11 +21,21 @@ using ::testing::_;
 
 class HealthMonitorTest : public ::testing::Test
 {
+  protected:
+    void SetUp() override
+    {
+        RecordProperty("TestType", "interface-test");
+        RecordProperty("DerivationTechnique", "explorative-testing ");
+    }
 };
 
 // For first review round, only single test case to show up API
 TEST_F(HealthMonitorTest, TestName)
 {
+    RecordProperty(
+        "Description",
+        "This test demonstrates the usage of HealthMonitor and DeadlineMonitor APIs. It creates a HealthMonitor with a "
+        "DeadlineMonitor, retrieves the DeadlineMonitor, and tests starting a deadline.");
     auto builder_mon = deadline::DeadlineMonitorBuilder()
                            .add_deadline(IdentTag("deadline_1"),
                                          TimeRange(std::chrono::milliseconds(100), std::chrono::milliseconds(200)))
