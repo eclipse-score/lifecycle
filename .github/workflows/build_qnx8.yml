@@ -17,6 +17,9 @@ on:
     types: [opened, reopened, synchronize]
   merge_group:
     types: [checks_requested]
+  push:
+    branches:
+      - main
 jobs:
   qnx-build:
     uses: eclipse-score/cicd-workflows/.github/workflows/qnx-build.yml@main
@@ -31,6 +34,7 @@ jobs:
       bazel-config: ${{ matrix.config }}
       credential-helper: 'scripts/internal/qnx_creds.py'
       environment-name: 'workflow-approval'
+      bazel-disk-cache: ${{ github.workflow }}-${{ github.job }}-${{ matrix.config }}
     secrets:
       score-qnx-license: ${{ secrets.SCORE_QNX_LICENSE }}
       score-qnx-user: ${{ secrets.SCORE_QNX_USER }}
