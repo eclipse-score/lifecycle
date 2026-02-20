@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "description": "Defines a reusable type that specifies recovery actions to execute when an error or failure occurs.",
+  "properties": {
+    "restart": {
+      "type": "object",
+      "description": "Defines a recovery action that restarts the POSIX process associated with this component.",
+      "properties": {
+        "number_of_attempts": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Specifies the maximum number of restart attempts before the Launch Manager concludes that recovery cannot succeed."
+        },
+        "delay_before_restart": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Specifies the delay duration that the Launch Manager waits before initiating a restart attempt."
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "switch_run_target": {
+      "type": "object",
+      "description": "Defines a recovery action that switches to a Run Target. This can be a different Run Target or the same one to retry activation of the current Run Target.",
+      "properties": {
+        "run_target": {
+          "type": "string",
+          "description": "Specifies the name of the Run Target that the Launch Manager should switch to."
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  
+  "oneOf": [
+    { "required": ["restart"] },
+    { "required": ["switch_run_target"] }
+  ],
+  "additionalProperties": false
+}

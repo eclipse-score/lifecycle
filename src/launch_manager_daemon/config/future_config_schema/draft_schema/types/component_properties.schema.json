@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "description": "Defines a reusable type that captures essential development-time characteristics of a software component.",
+  "properties": {
+    "binary_name": {
+      "type": "string",
+      "description": "Specifies the relative path of the executable file inside the directory defined by 'deployment_config.bin_dir'. The final executable path will be resolved as '{bin_dir}/{binary_name}'. Example values include simple filenames (e.g., 'test_app1') or subdirectory paths (e.g., 'bin/test_app1')."
+    },
+
+    "application_profile": {
+      "type": "object",
+      "description": "Defines the application profile that specifies the runtime behavior and capabilities of this component.",
+      "properties": {
+        "application_type": {
+          "type": "string",
+          "enum": [
+            "Native",
+            "Reporting",
+            "Reporting_And_Supervised",
+            "State_Manager"
+          ],
+          "description": "Specifies the level of integration between the component and the Launch Manager. 'Native': no integration with Launch Manager. 'Reporting': uses Launch Manager lifecycle APIs. 'Reporting_And_Supervised': uses lifecycle APIs and sends alive notifications. 'State_Manager': uses lifecycle APIs, sends alive notifications, and has permission to change the active Run Target."
+        },
+        "is_self_terminating": {
+          "type": "boolean",
+          "description": "Indicates whether the component is designed to terminate automatically once its planned tasks are completed (true), or remain running until explicitly requested to terminate by the Launch Manager (false)."
+        },
+        "alive_supervision": {
+          "type": "object",
+          "description": "Defines the configuration parameters used for alive monitoring of the component.",
+          "properties": {
+            "reporting_cycle": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Specifies the duration of the time interval used to verify that the component sends alive notifications within the expected time frame."
+            },
+            "failed_cycles_tolerance": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Specifies the maximum number of consecutive reporting cycle failures (see 'reporting_cycle'). Once the number of failed cycles exceeds this maximum, the Launch Manager will trigger the configured recovery action."
+            },
+            "min_indications": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Specifies the minimum number of checkpoints that must be reported within each configured 'reporting_cycle'."
+            },
+            "max_indications": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Specifies the maximum number of checkpoints that may be reported within each configured 'reporting_cycle'."
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+
+    "depends_on": {
+      "type": "array",
+      "description": "Specifies the names of components that this component depends on. Each dependency must be initialized and reach its ready state before this component can start.",
+      "items": {
+        "type": "string",
+        "description": "Specifies the name of a component on which this component depends."
+      }
+    },
+
+    "process_arguments": {
+      "type": "array",
+      "description": "Specifies an ordered list of command-line arguments passed to the component at startup.",
+      "items": {
+        "type": "string",
+        "description": "Specifies a single command-line argument token as a UTF-8 string; order is preserved."
+      }
+    },
+
+    "ready_condition": {
+      "type": "object",
+      "description": "Defines the set of conditions that determine when the component completes its initializing state and enters the ready state.",
+      "properties": {
+        "process_state": {
+          "type": "string",
+          "enum": [
+            "Running",
+            "Terminated"
+          ],
+          "description": "Specifies the required state of the component's POSIX process. 'Running': the process has started and reached its running state. 'Terminated': the process has started, reached its running state, and then terminated successfully."
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "required": [],
+  "additionalProperties": false
+}
