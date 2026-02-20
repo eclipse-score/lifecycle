@@ -13,6 +13,7 @@
 #ifndef SCORE_HM_COMMON_H
 #define SCORE_HM_COMMON_H
 
+#include <cassert>
 #include <chrono>
 #include <cstdint>
 #include <optional>
@@ -20,15 +21,74 @@
 namespace score::hm
 {
 
+/// FFI internal helpers
+namespace internal
+{
+
+/// Internal success representation.
 constexpr int kSuccess = 0;
 
-enum class Error
+/// Internal return code.
+using FFICode = uint8_t;
+
+/// Abort if provided code is not equal to `kSuccess`.
+void abort_on_error(FFICode code);
+
+/// Opaque handle type for Rust managed object
+using FFIHandle = void*;
+
+/// Droppable wrapper that denotes that the object can be dropped by Rust side
+template <typename T>
+class RustDroppable
 {
-    NotFound = kSuccess + 1,
-    AlreadyExists = kSuccess + 2,
-    InvalidArgument = kSuccess + 3,
-    WrongState = kSuccess + 4,
-    Failed = kSuccess + 5
+  public:
+    virtual ~RustDroppable() = default;
+
+  protected:
+    /// Marks object as no longer managed by C++ side, releasing handle to be passed to Rust side for dropping
+    std::optional<FFIHandle> drop_by_rust()
+    {
+        return static_cast<T*>(this)->__drop_by_rust_impl();
+    }
+};
+
+/// Wrapper for FFIHandle that ensures proper dropping via provided drop function
+class DroppableFFIHandle
+{
+  public:
+    using DropFn = internal::FFICode (*)(FFIHandle);
+
+    DroppableFFIHandle(FFIHandle handle, DropFn drop_fn);
+
+    DroppableFFIHandle(const DroppableFFIHandle&) = delete;
+    DroppableFFIHandle& operator=(const DroppableFFIHandle&) = delete;
+
+    DroppableFFIHandle(DroppableFFIHandle&& other) noexcept;
+    DroppableFFIHandle& operator=(DroppableFFIHandle&& other) noexcept;
+
+    /// Get the underlying FFI handle if it was not dropped before
+    std::optional<FFIHandle> as_rust_handle() const;
+
+    /// Marks object as no longer managed by C++ side, releasing handle to be passed to Rust side for dropping
+    std::optional<FFIHandle> drop_by_rust();
+
+    virtual ~DroppableFFIHandle();
+
+  private:
+    FFIHandle handle_;
+    DropFn drop_fn_;
+};
+
+}  // namespace internal
+
+enum class Error : internal::FFICode
+{
+    NullParameter = internal::kSuccess + 1,
+    NotFound,
+    AlreadyExists,
+    InvalidArgument,
+    WrongState,
+    Failed
 };
 
 ///
@@ -55,7 +115,10 @@ class IdentTag
 class TimeRange
 {
   public:
-    TimeRange(std::chrono::milliseconds min_ms, std::chrono::milliseconds max_ms) : min_ms_(min_ms), max_ms_(max_ms) {}
+    TimeRange(std::chrono::milliseconds min_ms, std::chrono::milliseconds max_ms) : min_ms_(min_ms), max_ms_(max_ms)
+    {
+        assert(min_ms_ <= max_ms_);
+    }
 
     const uint32_t min_ms() const
     {
@@ -71,57 +134,6 @@ class TimeRange
     const std::chrono::milliseconds min_ms_;
     const std::chrono::milliseconds max_ms_;
 };
-
-/// FFI internal helpers
-namespace internal
-{
-
-/// Opaque handle type for Rust managed object
-using FFIHandle = void*;
-
-/// Droppable wrapper that denotes that the object can be dropped by Rust side
-template <typename T>
-class RustDroppable
-{
-  public:
-    virtual ~RustDroppable() = default;
-
-  protected:
-    /// Marks object as no longer managed by C++ side, releasing handle to be passed to Rust side for dropping
-    std::optional<FFIHandle> drop_by_rust()
-    {
-        return static_cast<T*>(this)->__drop_by_rust_impl();
-    }
-};
-
-/// Wrapper for FFIHandle that ensures proper dropping via provided drop function
-class DroppableFFIHandle
-{
-  public:
-    using DropFn = void (*)(FFIHandle);
-
-    DroppableFFIHandle(FFIHandle handle, DropFn drop_fn);
-
-    DroppableFFIHandle(const DroppableFFIHandle&) = delete;
-    DroppableFFIHandle& operator=(const DroppableFFIHandle&) = delete;
-
-    DroppableFFIHandle(DroppableFFIHandle&& other) noexcept;
-    DroppableFFIHandle& operator=(DroppableFFIHandle&& other) noexcept;
-
-    /// Get the underlying FFI handle if it was not dropped before
-    std::optional<FFIHandle> as_rust_handle() const;
-
-    /// Marks object as no longer managed by C++ side, releasing handle to be passed to Rust side for dropping
-    std::optional<FFIHandle> drop_by_rust();
-
-    virtual ~DroppableFFIHandle();
-
-  private:
-    FFIHandle handle_;
-    DropFn drop_fn_;
-};
-
-}  // namespace internal
 
 }  // namespace score::hm
 
