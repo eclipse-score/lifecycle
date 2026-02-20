@@ -40,6 +40,6 @@
     }
   },
 
-  "required": ["recovery_action"],
+  "required": [],
   "additionalProperties": false
 }
