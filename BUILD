@@ -12,7 +12,7 @@
 # *******************************************************************************
 
 load("@score_docs_as_code//:docs.bzl", "docs")
-load("@score_tooling//:defs.bzl", "copyright_checker", "dash_license_checker", "setup_starpls", "use_format_targets")
+load("@score_tooling//:defs.bzl", "copyright_checker", "dash_license_checker", "rust_coverage_report", "setup_starpls", "use_format_targets")
 load("//:project_config.bzl", "PROJECT_CONFIG")
 
 setup_starpls(
@@ -52,6 +52,24 @@ dash_license_checker(
 # Add target for formatting checks
 use_format_targets()
 
+# Rust coverage report generation target
+rust_coverage_report(
+    name = "rust_coverage",
+    bazel_configs = [
+        "x86_64-linux",
+        "ferrocene-coverage",
+    ],
+    query = 'kind("rust_test", //src/...)',
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "rust_coverage_report",
+    actual = ":rust_coverage",
+    visibility = ["//visibility:public"],
+)
+
+# Docs
 docs(
     data = [
         "@score_process//:needs_json",  # This allows linking to requirements (wp__requirements_comp, etc.) from the process_description repository.
