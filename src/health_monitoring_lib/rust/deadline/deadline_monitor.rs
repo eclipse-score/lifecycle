@@ -11,7 +11,10 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 use super::common::DeadlineTemplate;
-use crate::common::{IdentTag, MonitorEvalHandle, MonitorEvaluationError, MonitorEvaluator, TimeRange};
+use crate::common::{
+    duration_to_u32, hmon_time_offset, MonitorEvalHandle, MonitorEvaluationError, MonitorEvaluator, TimeRange,
+};
+use crate::tag::{DeadlineTag, MonitorTag};
 use crate::{
     deadline::{
         common::StateIndex,
@@ -45,7 +48,7 @@ pub enum DeadlineError {
 /// Builder for DeadlineMonitor
 #[derive(Debug, Default)]
 pub struct DeadlineMonitorBuilder {
-    deadlines: HashMap<IdentTag, TimeRange>,
+    deadlines: HashMap<DeadlineTag, TimeRange>,
 }
 
 impl DeadlineMonitorBuilder {
@@ -57,20 +60,20 @@ impl DeadlineMonitorBuilder {
     }
 
     /// Adds a deadline with the given tag and duration range to the monitor.
-    pub fn add_deadline(mut self, tag: &IdentTag, range: TimeRange) -> Self {
-        self.add_deadline_internal(tag, range);
+    pub fn add_deadline(mut self, deadline_tag: DeadlineTag, range: TimeRange) -> Self {
+        self.add_deadline_internal(deadline_tag, range);
         self
     }
 
     /// Builds the DeadlineMonitor with the configured deadlines.
-    pub(crate) fn build(self, _allocator: &ProtectedMemoryAllocator) -> DeadlineMonitor {
-        DeadlineMonitor::new(self.deadlines)
+    pub(crate) fn build(self, monitor_tag: MonitorTag, _allocator: &ProtectedMemoryAllocator) -> DeadlineMonitor {
+        DeadlineMonitor::new(monitor_tag, self.deadlines)
     }
 
     // Used by FFI and config parsing code which prefer not to move builder instance
 
-    pub(super) fn add_deadline_internal(&mut self, tag: &IdentTag, range: TimeRange) {
-        self.deadlines.insert(*tag, range);
+    pub(super) fn add_deadline_internal(&mut self, deadline_tag: DeadlineTag, range: TimeRange) {
+        self.deadlines.insert(deadline_tag, range);
     }
 }
 
@@ -79,24 +82,25 @@ pub struct DeadlineMonitor {
 }
 
 impl DeadlineMonitor {
-    fn new(deadlines: HashMap<IdentTag, TimeRange>) -> Self {
+    fn new(monitor_tag: MonitorTag, deadlines: HashMap<DeadlineTag, TimeRange>) -> Self {
         let mut active_deadlines = vec![];
 
         let deadlines = deadlines
             .into_iter()
             .enumerate()
-            .map(|(index, (tag, range))| {
-                active_deadlines.push((tag, DeadlineState::new()));
-                (tag, DeadlineTemplate::new(range, StateIndex::new(index)))
+            .map(|(index, (deadline_tag, range))| {
+                active_deadlines.push((deadline_tag, DeadlineState::new()));
+                (deadline_tag, DeadlineTemplate::new(range, StateIndex::new(index)))
             })
             .collect();
 
         Self {
             #[allow(clippy::arc_with_non_send_sync)] // This will be fixed once we add background thread
             inner: Arc::new(DeadlineMonitorInner {
+                monitor_tag,
                 deadlines,
                 active_deadlines: active_deadlines.into(),
-                start_time: Instant::now(),
+                monitor_starting_point: Instant::now(),
             }),
         }
     }
@@ -106,12 +110,12 @@ impl DeadlineMonitor {
     ///  - Ok(Deadline) - if the deadline was acquired successfully.
     ///  - Err(DeadlineMonitorError::DeadlineInUse) - if the deadline is already in use
     ///  - Err(DeadlineMonitorError::DeadlineNotFound) - if the deadline tag is not registered
-    pub fn get_deadline(&self, tag: &IdentTag) -> Result<Deadline, DeadlineMonitorError> {
-        if let Some(template) = self.inner.deadlines.get(tag) {
+    pub fn get_deadline(&self, deadline_tag: DeadlineTag) -> Result<Deadline, DeadlineMonitorError> {
+        if let Some(template) = self.inner.deadlines.get(&deadline_tag) {
             match template.acquire_deadline() {
                 Some(range) => Ok(Deadline {
                     range,
-                    tag: *tag,
+                    deadline_tag,
                     monitor: Arc::clone(&self.inner),
                     state_index: template.assigned_state_index,
                 }),
@@ -134,7 +138,7 @@ impl DeadlineMonitor {
 /// Represents a deadline that can be started and stopped.
 pub struct Deadline {
     range: TimeRange,
-    tag: IdentTag,
+    deadline_tag: DeadlineTag,
     state_index: StateIndex,
     monitor: Arc<DeadlineMonitorInner>,
 }
@@ -176,7 +180,7 @@ impl Deadline {
     /// Caller must ensure that deadline is not used until it's stopped.
     /// After this call You shall assure there's only a single owner of the `Deadline` instance and it does not call start before stopping.
     pub(super) unsafe fn start_internal(&mut self) -> Result<(), DeadlineError> {
-        let now = self.monitor.now();
+        let now = duration_to_u32(self.monitor.monitor_starting_point.elapsed());
         let max_time = now + self.range.max.as_millis() as u32;
 
         let mut is_broken = false;
@@ -193,7 +197,7 @@ impl Deadline {
         });
 
         if is_broken {
-            warn!("Trying to start deadline {:?} that already failed", self.tag);
+            warn!("Trying to start deadline {:?} that already failed", self.deadline_tag);
             Err(DeadlineError::DeadlineAlreadyFailed)
         } else {
             Ok(())
@@ -201,7 +205,7 @@ impl Deadline {
     }
 
     pub(super) fn stop_internal(&mut self) {
-        let now = self.monitor.now();
+        let now = duration_to_u32(self.monitor.monitor_starting_point.elapsed());
         let max = self.range.max.as_millis() as u32;
         let min = self.range.min.as_millis() as u32;
 
@@ -213,7 +217,7 @@ impl Deadline {
                 debug_assert!(
                     current.is_running(),
                     "Deadline({:?}) is not running when trying to stop",
-                    self.tag
+                    self.deadline_tag
                 );
 
                 let expected = current.timestamp_ms();
@@ -238,11 +242,12 @@ impl Deadline {
 
         match possible_err {
             (Some(MonitorEvaluationError::TooEarly), val) => {
-                error!("Deadline {:?} stopped too early by {} ms", self.tag, val);
+                error!("Deadline {:?} stopped too early by {} ms", self.deadline_tag, val);
             },
             (Some(MonitorEvaluationError::TooLate), val) => {
-                error!("Deadline {:?} stopped too late by {} ms", self.tag, val);
+                error!("Deadline {:?} stopped too late by {} ms", self.deadline_tag, val);
             },
+            (Some(MonitorEvaluationError::HeartbeatSpecific(_)), _) => unreachable!(),
             (None, _) => {},
         }
     }
@@ -254,7 +259,7 @@ impl core::fmt::Debug for Deadline {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("Deadline")
             .field("range", &self.range)
-            .field("tag", &self.tag)
+            .field("tag", &self.deadline_tag)
             .field("state_index", &self.state_index)
             .finish()
     }
@@ -262,68 +267,70 @@ impl core::fmt::Debug for Deadline {
 
 impl Drop for Deadline {
     fn drop(&mut self) {
-        self.monitor.release_deadline(&self.tag);
+        self.monitor.release_deadline(self.deadline_tag);
     }
 }
 
 struct DeadlineMonitorInner {
-    // Start time of the monitor creation to calculate relative timestamps
-    start_time: Instant,
+    /// Tag of this monitor.
+    monitor_tag: MonitorTag,
+
+    /// Monitor starting point.
+    /// Offset is calculated during evaluation in relation to provided health monitor starting point.
+    monitor_starting_point: Instant,
 
     // Templates for deadlines registered in the monitor to create `Deadline` instances.
-    deadlines: HashMap<IdentTag, DeadlineTemplate>,
+    deadlines: HashMap<DeadlineTag, DeadlineTemplate>,
 
     // This is shared state. Each deadline template has assigned index into this array.
     // Each deadline instance updates its state (under given index) and the deadline pointing to a state is Single-Producer
     // On the other side there is background thread evaluating all deadlines states - this is Single-Consumer for each given state.
-    active_deadlines: Arc<[(IdentTag, DeadlineState)]>,
+    active_deadlines: Arc<[(DeadlineTag, DeadlineState)]>,
 }
 
 impl MonitorEvaluator for DeadlineMonitorInner {
-    fn evaluate(&self, on_error: &mut dyn FnMut(&IdentTag, MonitorEvaluationError)) {
-        self.evaluate(on_error);
+    fn evaluate(&self, hmon_starting_point: Instant, on_error: &mut dyn FnMut(&MonitorTag, MonitorEvaluationError)) {
+        self.evaluate(hmon_starting_point, on_error);
     }
 }
 
 impl DeadlineMonitorInner {
-    fn release_deadline(&self, tag: &IdentTag) {
-        if let Some(template) = self.deadlines.get(tag) {
+    fn release_deadline(&self, deadline_tag: DeadlineTag) {
+        if let Some(template) = self.deadlines.get(&deadline_tag) {
             template.release_deadline();
         } else {
-            unreachable!("Releasing unknown deadline tag: {:?}", tag);
+            unreachable!("Releasing unknown deadline tag: {:?}", deadline_tag);
         }
     }
 
-    fn now(&self) -> u32 {
-        let duration = self.start_time.elapsed();
-        // As u32 can hold up to ~49 days in milliseconds, this should be sufficient for our use case
-        // We still have a room up to 60bits timestamp if needed in future
-        u32::try_from(duration.as_millis()).expect("Monitor running for too long")
-    }
-
-    fn evaluate(&self, mut on_failed: impl FnMut(&IdentTag, MonitorEvaluationError)) {
-        for (tag, deadline) in self.active_deadlines.iter() {
+    fn evaluate(&self, hmon_starting_point: Instant, mut on_failed: impl FnMut(&MonitorTag, MonitorEvaluationError)) {
+        for (deadline_tag, deadline) in self.active_deadlines.iter() {
             let snapshot = deadline.snapshot();
             if snapshot.is_underrun() {
                 // Deadline finished too early, report
-                warn!("Deadline finished too early!");
+                warn!("Deadline ({:?}) finished too early!", deadline_tag);
 
                 // Here we would normally report the underrun to the monitoring system
-                on_failed(tag, MonitorEvaluationError::TooEarly);
+                on_failed(&self.monitor_tag, MonitorEvaluationError::TooEarly);
             } else if snapshot.is_running() {
                 debug_assert!(
                     snapshot.is_stopped(),
                     "Deadline snapshot cannot be both running and stopped"
                 );
 
-                let now = self.now();
+                // Get current timestamp, with offset to HMON time.
+                let offset = hmon_time_offset(hmon_starting_point, self.monitor_starting_point);
+                let now = offset + duration_to_u32(hmon_starting_point.elapsed());
                 let expected = snapshot.timestamp_ms();
                 if now > expected {
                     // Deadline missed, report
-                    warn!("Deadline missed! Expected: {}, now: {}", expected, now);
+                    warn!(
+                        "Deadline ({:?}) missed! Expected: {}, now: {}",
+                        deadline_tag, expected, now
+                    );
 
                     // Here we would normally report the missed deadline to the monitoring system
-                    on_failed(tag, MonitorEvaluationError::TooLate);
+                    on_failed(&self.monitor_tag, MonitorEvaluationError::TooLate);
                 }
             }
         }
@@ -337,112 +344,123 @@ mod tests {
 
     fn create_monitor_with_deadlines() -> DeadlineMonitor {
         let allocator = ProtectedMemoryAllocator {};
+        let monitor_tag = MonitorTag::from("deadline_monitor");
         DeadlineMonitorBuilder::new()
             .add_deadline(
-                &IdentTag::from("deadline_long"),
+                DeadlineTag::from("deadline_long"),
                 TimeRange::new(core::time::Duration::from_secs(1), core::time::Duration::from_secs(50)),
             )
             .add_deadline(
-                &IdentTag::from("deadline_fast"),
+                DeadlineTag::from("deadline_fast"),
                 TimeRange::new(
                     core::time::Duration::from_millis(0),
                     core::time::Duration::from_millis(50),
                 ),
             )
-            .build(&allocator)
+            .build(monitor_tag, &allocator)
     }
 
     fn create_monitor_with_multiple_running_deadlines() -> DeadlineMonitor {
         let allocator = ProtectedMemoryAllocator {};
+        let monitor_tag = MonitorTag::from("deadline_monitor");
         DeadlineMonitorBuilder::new()
             .add_deadline(
-                &IdentTag::from("slow"),
+                DeadlineTag::from("slow"),
                 TimeRange::new(core::time::Duration::from_secs(0), core::time::Duration::from_secs(50)),
             )
             .add_deadline(
-                &IdentTag::from("deadline_fast1"),
+                DeadlineTag::from("deadline_fast1"),
                 TimeRange::new(
                     core::time::Duration::from_millis(0),
                     core::time::Duration::from_millis(50),
                 ),
             )
             .add_deadline(
-                &IdentTag::from("deadline_fast2"),
+                DeadlineTag::from("deadline_fast2"),
                 TimeRange::new(
                     core::time::Duration::from_millis(0),
                     core::time::Duration::from_millis(34),
                 ),
             )
             .add_deadline(
-                &IdentTag::from("deadline_fast3"),
+                DeadlineTag::from("deadline_fast3"),
                 TimeRange::new(
                     core::time::Duration::from_millis(0),
                     core::time::Duration::from_millis(10),
                 ),
             )
-            .build(&allocator)
+            .build(monitor_tag, &allocator)
     }
 
     #[test]
     fn get_deadline_unknown_tag() {
         let monitor = create_monitor_with_deadlines();
-        let result = monitor.get_deadline(&IdentTag::from("unknown"));
+        let result = monitor.get_deadline(DeadlineTag::from("unknown"));
         assert_eq!(result.err(), Some(DeadlineMonitorError::DeadlineNotFound));
     }
 
     #[test]
     fn start_stop_deadline_within_range_works() {
         let monitor = create_monitor_with_deadlines();
-        let mut deadline = monitor.get_deadline(&IdentTag::from("deadline_long")).unwrap();
+        let mut deadline = monitor.get_deadline(DeadlineTag::from("deadline_long")).unwrap();
         let handle = deadline.start().unwrap();
+        let hmon_starting_point = Instant::now();
 
         std::thread::sleep(core::time::Duration::from_millis(1001)); // Sleep to simulate work within the deadline range
 
         drop(handle); // stop the deadline
 
-        monitor.inner.evaluate(|tag, deadline_failure| {
-            panic!(
-                "Deadline {:?} should not have failed or underrun({:?})",
-                tag, deadline_failure
-            );
-        });
+        monitor
+            .inner
+            .evaluate(hmon_starting_point, |monitor_tag, deadline_failure| {
+                panic!(
+                    "Deadline {:?} should not have failed or underrun({:?})",
+                    monitor_tag, deadline_failure
+                );
+            });
     }
 
     #[test]
     fn start_stop_deadline_outside_ranges_is_error_when_dropped_before_evaluate() {
         let monitor = create_monitor_with_deadlines();
-        let mut deadline = monitor.get_deadline(&IdentTag::from("deadline_long")).unwrap();
+        let mut deadline = monitor.get_deadline(DeadlineTag::from("deadline_long")).unwrap();
         let handle = deadline.start().unwrap();
+        let hmon_starting_point = Instant::now();
 
         drop(handle); // stop the deadline
 
-        monitor.inner.evaluate(|tag, deadline_failure| {
-            assert_eq!(
-                deadline_failure,
-                MonitorEvaluationError::TooEarly,
-                "Deadline {:?} should not have failed({:?})",
-                tag,
-                deadline_failure
-            );
-        });
+        monitor
+            .inner
+            .evaluate(hmon_starting_point, |monitor_tag, deadline_failure| {
+                assert_eq!(
+                    deadline_failure,
+                    MonitorEvaluationError::TooEarly,
+                    "Deadline {:?} should not have failed({:?})",
+                    monitor_tag,
+                    deadline_failure
+                );
+            });
     }
     #[test]
     fn deadline_outside_time_range_is_error_when_dropped_after_evaluate() {
         let monitor = create_monitor_with_deadlines();
-        let mut deadline = monitor.get_deadline(&IdentTag::from("deadline_long")).unwrap();
+        let mut deadline = monitor.get_deadline(DeadlineTag::from("deadline_long")).unwrap();
         let handle = deadline.start().unwrap();
+        let hmon_starting_point = Instant::now();
 
         // So deadline stop happens after evaluate, still it should be reported as failed
 
-        monitor.inner.evaluate(|tag, deadline_failure| {
-            assert_eq!(
-                deadline_failure,
-                MonitorEvaluationError::TooEarly,
-                "Deadline {:?} should not have failed({:?})",
-                tag,
-                deadline_failure
-            );
-        });
+        monitor
+            .inner
+            .evaluate(hmon_starting_point, |monitor_tag, deadline_failure| {
+                assert_eq!(
+                    deadline_failure,
+                    MonitorEvaluationError::TooEarly,
+                    "Deadline {:?} should not have failed({:?})",
+                    monitor_tag,
+                    deadline_failure
+                );
+            });
 
         drop(handle); // stop the deadline
     }
@@ -450,73 +468,82 @@ mod tests {
     #[test]
     fn deadline_failed_on_first_run_and_then_restarted_is_evaluated_as_error() {
         let monitor = create_monitor_with_deadlines();
-        let mut deadline = monitor.get_deadline(&IdentTag::from("deadline_long")).unwrap();
+        let mut deadline = monitor.get_deadline(DeadlineTag::from("deadline_long")).unwrap();
         let handle = deadline.start().unwrap();
+        let hmon_starting_point = Instant::now();
 
         // So deadline failed, then we start it again so it shall be already expired and also evaluation shall work
         drop(handle); // stop the deadline
         drop(deadline); // drop the deadline to release it
-        let mut deadline = monitor.get_deadline(&IdentTag::from("deadline_long")).unwrap();
+        let mut deadline = monitor.get_deadline(DeadlineTag::from("deadline_long")).unwrap();
         let handle = deadline.start();
         assert_eq!(handle.err(), Some(DeadlineError::DeadlineAlreadyFailed));
 
-        monitor.inner.evaluate(|tag, deadline_failure| {
-            assert_eq!(
-                deadline_failure,
-                MonitorEvaluationError::TooEarly,
-                "Deadline {:?} should not have failed ({:?})",
-                tag,
-                deadline_failure
-            );
-        });
+        monitor
+            .inner
+            .evaluate(hmon_starting_point, |monitor_tag, deadline_failure| {
+                assert_eq!(
+                    deadline_failure,
+                    MonitorEvaluationError::TooEarly,
+                    "Deadline {:?} should not have failed ({:?})",
+                    monitor_tag,
+                    deadline_failure
+                );
+            });
     }
 
     #[test]
     fn start_stop_deadline_outside_ranges_is_evaluated_as_error() {
         let monitor = create_monitor_with_deadlines();
-        let mut deadline = monitor.get_deadline(&IdentTag::from("deadline_fast")).unwrap();
+        let mut deadline = monitor.get_deadline(DeadlineTag::from("deadline_fast")).unwrap();
         let handle = deadline.start().unwrap();
+        let hmon_starting_point = Instant::now();
 
         drop(handle); // stop the deadline
 
-        monitor.inner.evaluate(|tag, deadline_failure| {
-            assert_eq!(
-                deadline_failure,
-                MonitorEvaluationError::TooLate,
-                "Deadline {:?} should not have failed({:?})",
-                tag,
-                deadline_failure
-            );
-        });
+        monitor
+            .inner
+            .evaluate(hmon_starting_point, |monitor_tag, deadline_failure| {
+                assert_eq!(
+                    deadline_failure,
+                    MonitorEvaluationError::TooLate,
+                    "Deadline {:?} should not have failed({:?})",
+                    monitor_tag,
+                    deadline_failure
+                );
+            });
     }
 
     #[test]
     fn monitor_with_multiple_running_deadlines() {
         let monitor = create_monitor_with_multiple_running_deadlines();
+        let hmon_starting_point = Instant::now();
 
-        let mut deadline = monitor.get_deadline(&IdentTag::from("deadline_fast1")).unwrap();
+        let mut deadline = monitor.get_deadline(DeadlineTag::from("deadline_fast1")).unwrap();
         let _handle1 = deadline.start().unwrap();
 
-        let mut deadline = monitor.get_deadline(&IdentTag::from("deadline_fast2")).unwrap();
+        let mut deadline = monitor.get_deadline(DeadlineTag::from("deadline_fast2")).unwrap();
         let _handle2 = deadline.start().unwrap();
 
-        let mut deadline = monitor.get_deadline(&IdentTag::from("deadline_fast3")).unwrap();
+        let mut deadline = monitor.get_deadline(DeadlineTag::from("deadline_fast3")).unwrap();
         let _handle3 = deadline.start().unwrap();
 
         std::thread::sleep(core::time::Duration::from_millis(51)); // Sleep to simulate work within the deadline range
 
         let mut cnt = 0;
 
-        monitor.inner.evaluate(|tag, deadline_failure| {
-            cnt += 1;
-            assert_eq!(
-                deadline_failure,
-                MonitorEvaluationError::TooLate,
-                "Deadline {:?} should not have failed({:?})",
-                tag,
-                deadline_failure
-            );
-        });
+        monitor
+            .inner
+            .evaluate(hmon_starting_point, |monitor_tag, deadline_failure| {
+                cnt += 1;
+                assert_eq!(
+                    deadline_failure,
+                    MonitorEvaluationError::TooLate,
+                    "Deadline {:?} should not have failed({:?})",
+                    monitor_tag,
+                    deadline_failure
+                );
+            });
 
         assert_eq!(cnt, 3, "All three deadlines should have been evaluated");
     }

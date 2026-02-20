@@ -7,7 +7,6 @@ edition.workspace = true
 authors.workspace = true
 license-file.workspace = true
 
-
 [lib]
 path = "rust/lib.rs"
 
@@ -18,11 +17,15 @@ workspace = true
 score_log.workspace = true
 score_testing_macros.workspace = true
 containers.workspace = true
-monitor_rs.workspace = true
+monitor_rs = { path = "../launch_manager_daemon/health_monitor_lib/rust_bindings", optional = true } # Temporary API
 
 [dev-dependencies]
 stdout_logger.workspace = true
 
+[target.'cfg(loom)'.dependencies]
+loom = { version = "0.7", features = ["checkpoint"] }
+
 [features]
-default = []
+default = ["stub_supervisor_api_client"]
 stub_supervisor_api_client = []
+score_supervisor_api_client = ["monitor_rs"]

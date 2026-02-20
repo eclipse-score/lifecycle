@@ -13,6 +13,7 @@
 use crate::common::ffi::*;
 use crate::deadline::deadline_monitor::Deadline;
 use crate::deadline::*;
+use crate::tag::DeadlineTag;
 use crate::*;
 use core::time::Duration;
 use std::os::raw::c_int;
@@ -28,8 +29,8 @@ impl DeadlineMonitorCpp {
         Self { monitor }
     }
 
-    pub(crate) fn get_deadline(&self, tag: IdentTag) -> Result<FFIHandle, c_int> {
-        match self.monitor.get_deadline(&tag) {
+    pub(crate) fn get_deadline(&self, deadline_tag: DeadlineTag) -> Result<FFIHandle, c_int> {
+        match self.monitor.get_deadline(deadline_tag) {
             Ok(deadline) => {
                 // Now we allocate at runtime. As next step we will add a memory pool for deadlines into self and this way we will not need allocate anymore
                 let handle = Box::into_raw(Box::new(deadline));
@@ -49,62 +50,67 @@ pub extern "C" fn deadline_monitor_builder_create() -> FFIHandle {
 }
 
 #[no_mangle]
-pub extern "C" fn deadline_monitor_builder_destroy(handle: FFIHandle) {
-    assert!(!handle.is_null());
+pub extern "C" fn deadline_monitor_builder_destroy(monitor_builder_handle: FFIHandle) {
+    assert!(!monitor_builder_handle.is_null());
 
     // Safety: We ensure that the pointer is valid. We assume that pointer was created by call to `deadline_monitor_builder_create`
     // and this must be assured on other side of FFI.
     unsafe {
-        let _ = Box::from_raw(handle as *mut DeadlineMonitorBuilder);
+        let _ = Box::from_raw(monitor_builder_handle as *mut DeadlineMonitorBuilder);
     }
 }
 
 #[no_mangle]
-pub extern "C" fn deadline_monitor_builder_add_deadline(handle: FFIHandle, tag: *const IdentTag, min: u32, max: u32) {
-    assert!(!handle.is_null());
-    assert!(!tag.is_null());
+pub extern "C" fn deadline_monitor_builder_add_deadline(
+    monitor_builder_handle: FFIHandle,
+    deadline_tag: *const DeadlineTag,
+    min: u32,
+    max: u32,
+) {
+    assert!(!monitor_builder_handle.is_null());
+    assert!(!deadline_tag.is_null());
 
-    // Safety: We ensure that the pointer is valid. `tag` ptr must be FFI data compatible with IdentTag in Rust
-    let tag: IdentTag = unsafe { *tag }; // Copy the IdentTag as this shall be trivially copyable
+    // Safety: We ensure that the pointer is valid. `deadline_tag` ptr must be FFI data compatible with DeadlineTag in Rust
+    let deadline_tag = unsafe { *deadline_tag }; // Copy the DeadlineTag as this shall be trivially copyable
 
     // Safety: We ensure that the pointer is valid. We assume that pointer was created by call to `deadline_monitor_builder_create`
     // and this must be assured on other side of FFI.
-    let mut monitor = FFIBorrowed::new(unsafe { Box::from_raw(handle as *mut DeadlineMonitorBuilder) });
+    let mut monitor = FFIBorrowed::new(unsafe { Box::from_raw(monitor_builder_handle as *mut DeadlineMonitorBuilder) });
 
     monitor.add_deadline_internal(
-        &tag,
+        deadline_tag,
         TimeRange::new(Duration::from_millis(min as u64), Duration::from_millis(max as u64)),
     );
 }
 
 #[no_mangle]
-pub extern "C" fn deadline_monitor_cpp_destroy(handle: FFIHandle) {
-    assert!(!handle.is_null());
+pub extern "C" fn deadline_monitor_cpp_destroy(monitor_handle: FFIHandle) {
+    assert!(!monitor_handle.is_null());
 
     // Safety: We ensure that the pointer is valid. We assume that pointer was created by call to `deadline_monitor_builder_create`
     // and this must be assured on other side of FFI.
     unsafe {
-        let _ = Box::from_raw(handle as *mut DeadlineMonitorCpp);
+        let _ = Box::from_raw(monitor_handle as *mut DeadlineMonitorCpp);
     }
 }
 
 #[no_mangle]
 pub extern "C" fn deadline_monitor_cpp_get_deadline(
-    handle: FFIHandle,
-    tag: *const IdentTag,
+    monitor_handle: FFIHandle,
+    deadline_tag: *const DeadlineTag,
     out: *mut FFIHandle,
 ) -> c_int {
-    assert!(!handle.is_null());
-    assert!(!tag.is_null());
+    assert!(!monitor_handle.is_null());
+    assert!(!deadline_tag.is_null());
     assert!(!out.is_null());
 
-    // Safety: We ensure that the pointer is valid. `tag` ptr must be FFI data compatible with IdentTag in Rust
-    let tag: IdentTag = unsafe { *tag }; // Copy the IdentTag as this shall be trivially copyable
+    // Safety: We ensure that the pointer is valid. `deadline_tag` ptr must be FFI data compatible with DeadlineTag in Rust
+    let deadline_tag = unsafe { *deadline_tag }; // Copy the DeadlineTag as this shall be trivially copyable
 
     // Safety: We ensure that the pointer is valid. We assume that pointer was created by call to `deadline_monitor_builder_create`
     // and this must be assured on other side of FFI.
-    let monitor = FFIBorrowed::new(unsafe { Box::from_raw(handle as *mut DeadlineMonitorCpp) });
-    let deadline_handle = monitor.get_deadline(tag);
+    let monitor = FFIBorrowed::new(unsafe { Box::from_raw(monitor_handle as *mut DeadlineMonitorCpp) });
+    let deadline_handle = monitor.get_deadline(deadline_tag);
 
     deadline_handle.map_or_else(
         |err_code| err_code,
@@ -118,12 +124,12 @@ pub extern "C" fn deadline_monitor_cpp_get_deadline(
 }
 
 #[no_mangle]
-pub extern "C" fn deadline_start(handle: FFIHandle) -> c_int {
-    assert!(!handle.is_null());
+pub extern "C" fn deadline_start(deadline_handle: FFIHandle) -> c_int {
+    assert!(!deadline_handle.is_null());
 
     // Safety: We ensure that the pointer is valid. We assume that pointer was created by call to `deadline_monitor_cpp_get_deadline`
     // and this must be assured on other side of FFI.
-    let mut deadline = FFIBorrowed::new(unsafe { Box::from_raw(handle as *mut Deadline) });
+    let mut deadline = FFIBorrowed::new(unsafe { Box::from_raw(deadline_handle as *mut Deadline) });
 
     // Safety: We ensure at CPP side that a Deadline  has move only semantic to not end up in multiple owners of same deadline.
     // We also check during start call that previous start/stop sequence was done correctly.
@@ -134,22 +140,22 @@ pub extern "C" fn deadline_start(handle: FFIHandle) -> c_int {
 }
 
 #[no_mangle]
-pub extern "C" fn deadline_stop(handle: FFIHandle) {
-    assert!(!handle.is_null());
+pub extern "C" fn deadline_stop(deadline_handle: FFIHandle) {
+    assert!(!deadline_handle.is_null());
 
     // Safety: We ensure that the pointer is valid. We assume that pointer was created by call to `deadline_monitor_cpp_get_deadline`
     // and this must be assured on other side of FFI.
-    let mut deadline = FFIBorrowed::new(unsafe { Box::from_raw(handle as *mut Deadline) });
+    let mut deadline = FFIBorrowed::new(unsafe { Box::from_raw(deadline_handle as *mut Deadline) });
     deadline.stop_internal();
 }
 
 #[no_mangle]
-pub extern "C" fn deadline_destroy(handle: FFIHandle) {
-    assert!(!handle.is_null());
+pub extern "C" fn deadline_destroy(deadline_handle: FFIHandle) {
+    assert!(!deadline_handle.is_null());
 
     // Safety: We ensure that the pointer is valid. We assume that pointer was created by call to `deadline_monitor_cpp_get_deadline`
     // and this must be assured on other side of FFI.
     unsafe {
-        let _ = Box::from_raw(handle as *mut Deadline);
+        let _ = Box::from_raw(deadline_handle as *mut Deadline);
     }
 }
