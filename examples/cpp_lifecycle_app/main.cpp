@@ -13,19 +13,19 @@
 
 #include <optional>
 #include <unistd.h>
-#include <csignal>
-#include <atomic>
-#include <thread>
 #include <iostream>
 #include <ctime>
 #include <string>
+#include <chrono>
+#include <vector>
 
 #ifdef __linux__
     #include <linux/prctl.h>
     #include <sys/prctl.h>
 #endif
 
-#include "score/lcm/lifecycle_client.h"
+#include "src/lifecycle_client_lib/include/application.h"
+#include "src/lifecycle_client_lib/include/runapplication.h"
 
 /// @brief CLI configuration options for the not_supervised_application process
 struct Config
@@ -53,18 +53,15 @@ std::optional<Config> parseOptions(int argc, char *const *argv) noexcept
         switch (static_cast<char>(c))
         {
         case 'r':
-            // response time
             config.responseTimeInMs = std::stoi(optarg);
             break;
 
         case 'c':
-            // crash time
             config.crashRequested = true;
             config.crashTimeInMs = std::stoi(optarg);
             break;
 
         case 's':
-            // start-up failure
             config.failToStart = true;
             break;
 
@@ -88,93 +85,128 @@ std::optional<Config> parseOptions(int argc, char *const *argv) noexcept
     return config;
 }
 
-std::atomic<bool> exitRequested{false};
-
-void signalHandler(int)
+void set_process_name()
 {
-    exitRequested = true;
-}
-
-void set_process_name() {
     const char* identifier = getenv("PROCESSIDENTIFIER");
-    if(identifier != nullptr) {
+    if (identifier != nullptr)
+    {
     #ifdef __QNXNTO__
-            if (pthread_setname_np(pthread_self(), identifier) != 0) {
-                std::cerr << "Failed to set QNX thread name" << std::endl;
-            }
+        if (pthread_setname_np(pthread_self(), identifier) != 0)
+        {
+            std::cerr << "Failed to set QNX thread name" << std::endl;
+        }
     #elif defined(__linux__)
-            if (prctl(PR_SET_NAME, identifier) < 0) {
-                std::cerr << "Failed to set process name to " << identifier << std::endl;
-            }
+        if (prctl(PR_SET_NAME, identifier) < 0)
+        {
+            std::cerr << "Failed to set process name to " << identifier << std::endl;
+        }
     #endif
     }
 }
 
-int main(int argc, char **argv)
+class LifecycleApp final : public score::mw::lifecycle::Application
 {
-    set_process_name();
-
-    signal(SIGINT, signalHandler);
-    signal(SIGTERM, signalHandler);
-
-    const auto config = parseOptions(argc, argv);
-    if (!config)
+public:
+    std::int32_t Initialize(const score::mw::lifecycle::ApplicationContext& appCtx) override
     {
-        return EXIT_FAILURE;
-    }
+        set_process_name();
 
-    std::chrono::time_point<std::chrono::steady_clock> startTime = std::chrono::steady_clock::now();
-    std::chrono::duration<double, std::milli> runTime;
+        // Build a classic argv for getopt() from ApplicationContext arguments
+        const auto& args = appCtx.get_arguments();
+        m_argvStorage.clear();
+        m_argvStorage.reserve(args.size() + 2);
 
-    if (true == config->failToStart)
-    {
-        return EXIT_FAILURE;
-    }
-
-    score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
-
-    timespec req{
-        static_cast<time_t>(config->responseTimeInMs / 1000),
-        static_cast<long>((config->responseTimeInMs % 1000) * 1000000L)
-    };
-    auto timeLastVerboseLog = std::chrono::steady_clock::now();
-    while (!exitRequested)
-    {
-        if (true == config->crashRequested)
+        // Ensure argv[0] exists (getopt expects it)
+        if (args.empty())
         {
-            runTime = std::chrono::steady_clock::now() - startTime;
-
-            int timeTillCrash = static_cast<int>(config->crashTimeInMs - runTime.count());
-
-            if (timeTillCrash < config->responseTimeInMs)
+            m_argvStorage.push_back(const_cast<char*>("LifecycleApp"));
+        }
+        else
+        {
+            for (const auto& s : args)
             {
-                // OK we need a shorter sleep now
-                if (timeTillCrash > 0)
-                {
-                    timespec crash_req{
-                        static_cast<time_t>(timeTillCrash / 1000),
-                        static_cast<long>((timeTillCrash % 1000) * 1000000L)
-                    };
-                    nanosleep(&crash_req, nullptr);
-                }
-
-                // let's crash...
-                std::abort();
+                // NOTE: relies on the underlying storage staying alive during Initialize().
+                m_argvStorage.push_back(const_cast<char*>(s.data()));
             }
         }
 
+        m_argvStorage.push_back(nullptr);
 
-        if(config->verbose) {
-            const auto now = std::chrono::steady_clock::now();
-            if(now - timeLastVerboseLog >= std::chrono::seconds(1)) {
-                std::cout << "LifecycleApp: " << "Running in verbose mode" << std::endl;
-                timeLastVerboseLog = now;
-            }
+        optind = 1;
+
+        const int argcLocal = static_cast<int>(m_argvStorage.size() - 1);
+        const auto config = parseOptions(argcLocal, m_argvStorage.data());
+        if (!config)
+        {
+            return EXIT_FAILURE;
         }
 
-        nanosleep(&req, nullptr);
+        m_config = *config;
+
+        if (true == m_config.failToStart)
+        {
+            return EXIT_FAILURE;
+        }
+
+        return 0;
     }
 
-    // normal exit
-    return EXIT_SUCCESS;
+    std::int32_t Run(const score::cpp::stop_token& stopToken) override
+    {
+        std::chrono::time_point<std::chrono::steady_clock> startTime = std::chrono::steady_clock::now();
+        std::chrono::duration<double, std::milli> runTime;
+
+        timespec req{
+            static_cast<time_t>(m_config.responseTimeInMs / 1000),
+            static_cast<long>((m_config.responseTimeInMs % 1000) * 1000000L)
+        };
+
+        auto timeLastVerboseLog = std::chrono::steady_clock::now();
+
+        while (!stopToken.stop_requested())
+        {
+            if (true == m_config.crashRequested)
+            {
+                runTime = std::chrono::steady_clock::now() - startTime;
+                int timeTillCrash = static_cast<int>(m_config.crashTimeInMs - runTime.count());
+
+                if (timeTillCrash < m_config.responseTimeInMs)
+                {
+                    if (timeTillCrash > 0)
+                    {
+                        timespec crash_req{
+                            static_cast<time_t>(timeTillCrash / 1000),
+                            static_cast<long>((timeTillCrash % 1000) * 1000000L)
+                        };
+                        nanosleep(&crash_req, nullptr);
+                    }
+
+                    std::abort();
+                }
+            }
+
+            if (m_config.verbose)
+            {
+                const auto now = std::chrono::steady_clock::now();
+                if (now - timeLastVerboseLog >= std::chrono::seconds(1))
+                {
+                    std::cout << "LifecycleApp: Running in verbose mode" << std::endl;
+                    timeLastVerboseLog = now;
+                }
+            }
+
+            nanosleep(&req, nullptr);
+        }
+
+        return EXIT_SUCCESS;
+    }
+
+private:
+    Config m_config{};
+    std::vector<char*> m_argvStorage{};
+};
+
+int main(int argc, char** argv)
+{
+    return score::mw::lifecycle::run_application<LifecycleApp>(argc, argv);
 }

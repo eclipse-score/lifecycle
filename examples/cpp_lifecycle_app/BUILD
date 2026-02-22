@@ -25,6 +25,6 @@ cc_binary(
     }),
     visibility = ["//visibility:public"],
     deps = [
-        "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
+        "//src/lifecycle_client_lib",
     ],
 )
