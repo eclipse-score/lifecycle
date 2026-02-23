@@ -8,6 +8,25 @@ Once the source code of the launch_manager has been adapted to read in the new c
 
 Providing a json file using the new configuration format as input, the script will first validate the configuration against its schema. Then it will map the content to the old configuration file format and generate those files into the specified output_dir.
 
+## Bazel
+
+The bazel function `gen_lifecycle_config` handles the translation of the new configuration format into the old configuration format and also does the subsequent compilation to flatbuffer files.
+
+```python
+load("@score_lifecycle_health//scripts/config_mapping:config.bzl", "gen_lifecycle_config")
+
+# This is your launch manager configuration in the new format
+exports_files(["lm_config.json"])
+
+# Afterwards, you can refer to the generated flatbuffer files with :example_config_gen
+gen_lifecycle_config(
+    name ="example_config_gen",
+    config="//scripts/config_mapping:lm_config.json"
+)
+```
+
+## Python
+
 ```
 python3 lifecycle_config.py <new_configuration.json> -o <output_dir>
 ```
