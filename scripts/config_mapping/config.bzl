@@ -1,83 +1,22 @@
-#load("//scripts/config_mapping/flatbuffers_rules.bzl", "flatbuffer_json_to_bin")
-
-def lifecycle_config(config_path, output_files=[]):
-
-    native.genrule(
-        name = "gen_lifecycle_config",
-        srcs = [config_path, "//src/launch_manager_daemon/config:s-core_launch_manager.schema.json"],
-        outs = output_files,
-        cmd = """
-            python3 $(location //scripts/config_mapping:lifecycle_config.py) $(location {input_json}) \
-                --schema $(location //src/launch_manager_daemon/config:s-core_launch_manager.schema.json) -o $(@D)
-        """.format(input_json=config_path),
-
-        tools = ["//scripts/config_mapping:lifecycle_config.py"],
-        visibility = ["//visibility:public"],
-    )
-
-#def _flatbuffer_json_to_bin_impl_tmp(ctx):
-#    flatc = ctx.executable.flatc
-#    json = ctx.file.json
-#    schema = ctx.file.schema
-#
-#    # flatc will name the file the same as the json (can't be changed)
-#    out_name = json.basename[:-len(".json")] + ".bin"
-#    out = ctx.actions.declare_file(out_name, sibling = json)
-#
-#    # flatc args ---------------------------------
-#    flatc_args = [
-#        "-b",
-#        "-o",
-#        out.dirname,
-#    ]
-#
-#    for inc in ctx.attr.includes:
-#        flatc_args.extend(["-I", inc.path])
-#
-#    if ctx.attr.strict_json:
-#        flatc_args.append("--strict-json")
-#
-#    flatc_args.extend([schema.path, json.path])
-#    # --------------------------------------------
-#
-#    ctx.actions.run(
-#        inputs = [json, schema] + list(ctx.files.includes),
-#        outputs = [out],
-#        executable = flatc,
-#        arguments = flatc_args,
-#        progress_message = "flatc generation {}".format(json.short_path),
-#        mnemonic = "FlatcGeneration",
-#    )
-#
-#    rf = ctx.runfiles(
-#        files = [out],
-#        root_symlinks = {
-#            ("_main/" + ctx.attr.out_dir + "/" + out_name): out,
-#        },
-#    )
-
-def _lifecycle_config_impl(ctx):
+def _gen_lifecycle_config_impl(ctx):
     config = ctx.file.config
     schema = ctx.file.schema
     script = ctx.executable.script
     json_out_dir = ctx.attr.json_out_dir
 
-    # Get Python runtime
-    python_runtime = ctx.toolchains["@rules_python//python:toolchain_type"].py3_runtime
-    python_exe = python_runtime.interpreter
-
-    # First run_shell - creates directory with files inside
+    # Run the mapping script to generate the json files in the old configuration format
+    # We need to declare an output directory, because we do not know upfront the name of the generated files nor the number of files.
     gen_dir_json = ctx.actions.declare_directory(json_out_dir)
-    ctx.actions.run_shell(
+    ctx.actions.run(
         inputs = [config, schema],
         outputs = [gen_dir_json],
-        tools = [script, python_exe],
-        command = """
-            export PYTHON3={}
-            export PATH="$(dirname {}):$PATH"
-            {} {} --schema {} -o {}
-        """.format(python_exe.path, python_exe.path, script.path, config.path, schema.path, gen_dir_json.path),
-        arguments = []
+        tools = [script],
+        executable = script,
+        arguments = [
+            config.path,
+            "--schema", schema.path, 
+            "-o", gen_dir_json.path
+        ]
     )
 
     flatbuffer_out_dir = ctx.attr.flatbuffer_out_dir
@@ -86,7 +25,8 @@ def _lifecycle_config_impl(ctx):
     hm_schema = ctx.file.hm_schema
     hmcore_schema = ctx.file.hmcore_schema
     
-    # Second run_shell - processes the files from the generated directory
+    # We compile each of them via flatbuffer.
+    # Based on the name of each generated file, we select the corresponding schema.
     gen_dir_flatbuffer = ctx.actions.declare_directory(flatbuffer_out_dir)
     ctx.actions.run_shell(
         inputs = [gen_dir_json, lm_schema, hm_schema, hmcore_schema],
@@ -127,11 +67,11 @@ def _lifecycle_config_impl(ctx):
         arguments = []
     )
     
-    return DefaultInfo(files = depset([gen_dir_json, gen_dir_flatbuffer]))
+    return DefaultInfo(files = depset([gen_dir_flatbuffer]))
 
 
-lifecycle_config_action = rule(
-    implementation = _lifecycle_config_impl,
+gen_lifecycle_config = rule(
+    implementation = _gen_lifecycle_config_impl,
     attrs = {
         "config": attr.label(
             allow_single_file = [".json"],
@@ -178,7 +118,6 @@ lifecycle_config_action = rule(
             default=Label("//src/launch_manager_daemon/health_monitor_lib:hmcore_flatcfg_fbs"),
             doc = "HealthMonitor core fbs file to use",
         )
-    },
-    toolchains = ["@rules_python//python:toolchain_type"],
+    }
 )
 
