@@ -25,7 +25,7 @@ You may want to use the virtual environment:
 ```bash
 python3 -m venv myvenv
 . myvenv/bin/activate
-pip3 install -r requirements.txt
+pip3 install -r requirements_internal.txt
 ```
 
 Execute tests:

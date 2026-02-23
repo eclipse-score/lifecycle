@@ -1,9 +1,11 @@
 
 load("//scripts/config_mapping:config.bzl", "gen_lifecycle_config")
+load("@score_lifecycle_pip//:requirements.bzl", "requirement")
 
 py_binary(
     name = "lifecycle_config",
     srcs = ["lifecycle_config.py"],
+    deps = [requirement("jsonschema")],
     visibility = ["//visibility:public"],
 )
 

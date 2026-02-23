@@ -1,0 +1,2 @@
+# Python dependencies for generating lifecycle configuration files
+-r ./scripts/config_mapping/requirements_external.txt
