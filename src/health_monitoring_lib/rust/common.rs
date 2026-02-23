@@ -11,10 +11,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
-use crate::tag::MonitorTag;
 use core::hash::Hash;
 use core::time::Duration;
-use std::sync::Arc;
 
 /// Range of accepted time.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]

@@ -211,12 +211,12 @@ pub extern "C" fn health_monitor_start(health_monitor_handle: FFIHandle) -> FFIC
         return FFICode::WrongState;
     }
 
-    let monitors = match health_monitor.collect_monitors_internal() {
+    let deadline_monitors = match health_monitor.collect_deadline_monitors_internal() {
         Ok(m) => m,
         Err(_) => return FFICode::WrongState,
     };
 
-    health_monitor.start_internal(monitors);
+    health_monitor.start_internal(deadline_monitors);
 
     FFICode::Success
 }
