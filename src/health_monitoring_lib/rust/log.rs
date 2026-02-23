@@ -62,5 +62,5 @@ macro_rules! trace {
 pub(crate) use {debug, error, fatal, info, trace, warning as warn};
 
 // Re-export symbols from `score_log`.
-pub(crate) use score_log::fmt::{DebugStruct, Error, FormatSpec, ScoreDebug, Writer};
+pub(crate) use score_log::fmt::{score_write, DebugStruct, Error, FormatSpec, ScoreDebug, Writer};
 pub(crate) use score_log::ScoreDebug;

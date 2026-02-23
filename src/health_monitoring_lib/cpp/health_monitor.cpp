@@ -28,10 +28,10 @@ FFICode health_monitor_builder_build(FFIHandle health_monitor_builder_handle,
                                      uint32_t internal_cycle_ms,
                                      FFIHandle* health_monitor_handle_out);
 FFICode health_monitor_builder_add_deadline_monitor(FFIHandle health_monitor_builder_handle,
-                                                    const IdentTag* monitor_tag,
+                                                    const MonitorTag* monitor_tag,
                                                     FFIHandle deadline_monitor_builder_handle);
 FFICode health_monitor_get_deadline_monitor(FFIHandle health_monitor_handle,
-                                            const IdentTag* monitor_tag,
+                                            const MonitorTag* monitor_tag,
                                             FFIHandle* deadline_monitor_handle_out);
 FFICode health_monitor_start(FFIHandle health_monitor_handle);
 FFICode health_monitor_destroy(FFIHandle health_monitor_handle);
@@ -57,7 +57,7 @@ HealthMonitorBuilder::HealthMonitorBuilder()
 {
 }
 
-HealthMonitorBuilder HealthMonitorBuilder::add_deadline_monitor(const IdentTag& tag,
+HealthMonitorBuilder HealthMonitorBuilder::add_deadline_monitor(const MonitorTag& monitor_tag,
                                                                 DeadlineMonitorBuilder&& monitor) &&
 {
     auto monitor_handle = monitor.drop_by_rust();
@@ -65,7 +65,7 @@ HealthMonitorBuilder HealthMonitorBuilder::add_deadline_monitor(const IdentTag& 
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(health_monitor_builder_handle_.as_rust_handle().has_value());
 
     auto result{health_monitor_builder_add_deadline_monitor(
-        health_monitor_builder_handle_.as_rust_handle().value(), &tag, monitor_handle.value())};
+        health_monitor_builder_handle_.as_rust_handle().value(), &monitor_tag, monitor_handle.value())};
     SCORE_LANGUAGE_FUTURECPP_ASSERT(result == kSuccess);
 
     return std::move(*this);
@@ -110,10 +110,10 @@ HealthMonitor::HealthMonitor(HealthMonitor&& other)
     other.health_monitor_ = nullptr;
 }
 
-score::cpp::expected<DeadlineMonitor, Error> HealthMonitor::get_deadline_monitor(const IdentTag& tag)
+score::cpp::expected<DeadlineMonitor, Error> HealthMonitor::get_deadline_monitor(const MonitorTag& monitor_tag)
 {
     FFIHandle handle{nullptr};
-    auto result{health_monitor_get_deadline_monitor(health_monitor_, &tag, &handle)};
+    auto result{health_monitor_get_deadline_monitor(health_monitor_, &monitor_tag, &handle)};
     if (result != kSuccess)
     {
         return score::cpp::unexpected(static_cast<Error>(result));

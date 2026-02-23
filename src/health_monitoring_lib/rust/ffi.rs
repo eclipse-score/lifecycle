@@ -12,7 +12,7 @@
 // *******************************************************************************
 use crate::deadline::ffi::DeadlineMonitorCpp;
 use crate::deadline::DeadlineMonitorBuilder;
-use crate::IdentTag;
+use crate::tag::MonitorTag;
 use crate::{HealthMonitor, HealthMonitorBuilder};
 use core::mem::ManuallyDrop;
 use core::ops::{Deref, DerefMut};
@@ -132,7 +132,7 @@ pub extern "C" fn health_monitor_builder_build(
 #[no_mangle]
 pub extern "C" fn health_monitor_builder_add_deadline_monitor(
     health_monitor_builder_handle: FFIHandle,
-    monitor_tag: *const IdentTag,
+    monitor_tag: *const MonitorTag,
     deadline_monitor_builder_handle: FFIHandle,
 ) -> FFICode {
     if health_monitor_builder_handle.is_null() || monitor_tag.is_null() || deadline_monitor_builder_handle.is_null() {
@@ -141,7 +141,7 @@ pub extern "C" fn health_monitor_builder_add_deadline_monitor(
 
     // SAFETY:
     // Validity of the pointer is ensured.
-    // `IdentTag` type must be compatible between C++ and Rust.
+    // `MonitorTag` type must be compatible between C++ and Rust.
     let monitor_tag = unsafe { *monitor_tag };
 
     // SAFETY:
@@ -158,7 +158,7 @@ pub extern "C" fn health_monitor_builder_add_deadline_monitor(
     let mut health_monitor_builder =
         FFIBorrowed::new(unsafe { Box::from_raw(health_monitor_builder_handle as *mut HealthMonitorBuilder) });
 
-    health_monitor_builder.add_deadline_monitor_internal(&monitor_tag, *deadline_monitor_builder);
+    health_monitor_builder.add_deadline_monitor_internal(monitor_tag, *deadline_monitor_builder);
 
     FFICode::Success
 }
@@ -166,7 +166,7 @@ pub extern "C" fn health_monitor_builder_add_deadline_monitor(
 #[no_mangle]
 pub extern "C" fn health_monitor_get_deadline_monitor(
     health_monitor_handle: FFIHandle,
-    monitor_tag: *const IdentTag,
+    monitor_tag: *const MonitorTag,
     deadline_monitor_handle_out: *mut FFIHandle,
 ) -> FFICode {
     if health_monitor_handle.is_null() || monitor_tag.is_null() || deadline_monitor_handle_out.is_null() {
@@ -175,7 +175,7 @@ pub extern "C" fn health_monitor_get_deadline_monitor(
 
     // SAFETY:
     // Validity of the pointer is ensured.
-    // `IdentTag` type must be compatible between C++ and Rust.
+    // `MonitorTag` type must be compatible between C++ and Rust.
     let monitor_tag = unsafe { *monitor_tag };
 
     // SAFETY:
@@ -184,7 +184,7 @@ pub extern "C" fn health_monitor_get_deadline_monitor(
     // It is assumed that the pointer was not consumed by a call to `health_monitor_destroy`.
     let mut health_monitor = FFIBorrowed::new(unsafe { Box::from_raw(health_monitor_handle as *mut HealthMonitor) });
 
-    if let Some(deadline_monitor) = health_monitor.get_deadline_monitor(&monitor_tag) {
+    if let Some(deadline_monitor) = health_monitor.get_deadline_monitor(monitor_tag) {
         unsafe {
             *deadline_monitor_handle_out = Box::into_raw(Box::new(DeadlineMonitorCpp::new(deadline_monitor))).cast();
         }
@@ -248,7 +248,7 @@ mod tests {
         health_monitor_builder_destroy, health_monitor_destroy, health_monitor_get_deadline_monitor,
         health_monitor_start, FFICode, FFIHandle,
     };
-    use crate::IdentTag;
+    use crate::tag::MonitorTag;
     use core::ptr::null_mut;
 
     #[test]
@@ -350,12 +350,12 @@ mod tests {
 
         let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
 
-        let deadline_monitor_tag = IdentTag::new("deadline_monitor");
+        let deadline_monitor_tag = MonitorTag::from("deadline_monitor");
         let _ = deadline_monitor_builder_create(&mut deadline_monitor_builder_handle as *mut FFIHandle);
 
         let health_monitor_builder_add_deadline_monitor_result = health_monitor_builder_add_deadline_monitor(
             health_monitor_builder_handle,
-            &deadline_monitor_tag as *const IdentTag,
+            &deadline_monitor_tag as *const MonitorTag,
             deadline_monitor_builder_handle,
         );
         assert_eq!(health_monitor_builder_add_deadline_monitor_result, FFICode::Success);
@@ -368,12 +368,12 @@ mod tests {
     fn health_monitor_builder_add_deadline_monitor_null_hmon_builder() {
         let mut deadline_monitor_builder_handle: FFIHandle = null_mut();
 
-        let deadline_monitor_tag = IdentTag::new("deadline_monitor");
+        let deadline_monitor_tag = MonitorTag::from("deadline_monitor");
         let _ = deadline_monitor_builder_create(&mut deadline_monitor_builder_handle as *mut FFIHandle);
 
         let health_monitor_builder_add_deadline_monitor_result = health_monitor_builder_add_deadline_monitor(
             null_mut(),
-            &deadline_monitor_tag as *const IdentTag,
+            &deadline_monitor_tag as *const MonitorTag,
             deadline_monitor_builder_handle,
         );
         assert_eq!(
@@ -413,11 +413,11 @@ mod tests {
         let mut health_monitor_builder_handle: FFIHandle = null_mut();
 
         let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
-        let deadline_monitor_tag = IdentTag::new("deadline_monitor");
+        let deadline_monitor_tag = MonitorTag::from("deadline_monitor");
 
         let health_monitor_builder_add_deadline_monitor_result = health_monitor_builder_add_deadline_monitor(
             health_monitor_builder_handle,
-            &deadline_monitor_tag as *const IdentTag,
+            &deadline_monitor_tag as *const MonitorTag,
             null_mut(),
         );
         assert_eq!(
@@ -437,11 +437,11 @@ mod tests {
         let mut deadline_monitor_handle: FFIHandle = null_mut();
 
         let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
-        let deadline_monitor_tag = IdentTag::new("deadline_monitor");
+        let deadline_monitor_tag = MonitorTag::from("deadline_monitor");
         let _ = deadline_monitor_builder_create(&mut deadline_monitor_builder_handle as *mut FFIHandle);
         let _ = health_monitor_builder_add_deadline_monitor(
             health_monitor_builder_handle,
-            &deadline_monitor_tag as *const IdentTag,
+            &deadline_monitor_tag as *const MonitorTag,
             deadline_monitor_builder_handle,
         );
         let _ = health_monitor_builder_build(
@@ -453,7 +453,7 @@ mod tests {
 
         let health_monitor_get_deadline_monitor_result = health_monitor_get_deadline_monitor(
             health_monitor_handle,
-            &deadline_monitor_tag as *const IdentTag,
+            &deadline_monitor_tag as *const MonitorTag,
             &mut deadline_monitor_handle as *mut FFIHandle,
         );
         assert!(!deadline_monitor_handle.is_null());
@@ -473,11 +473,11 @@ mod tests {
         let mut deadline_monitor_2_handle: FFIHandle = null_mut();
 
         let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
-        let deadline_monitor_tag = IdentTag::new("deadline_monitor");
+        let deadline_monitor_tag = MonitorTag::from("deadline_monitor");
         let _ = deadline_monitor_builder_create(&mut deadline_monitor_builder_handle as *mut FFIHandle);
         let _ = health_monitor_builder_add_deadline_monitor(
             health_monitor_builder_handle,
-            &deadline_monitor_tag as *const IdentTag,
+            &deadline_monitor_tag as *const MonitorTag,
             deadline_monitor_builder_handle,
         );
         let _ = health_monitor_builder_build(
@@ -490,7 +490,7 @@ mod tests {
         // First get.
         let health_monitor_get_deadline_monitor_result_1 = health_monitor_get_deadline_monitor(
             health_monitor_handle,
-            &deadline_monitor_tag as *const IdentTag,
+            &deadline_monitor_tag as *const MonitorTag,
             &mut deadline_monitor_1_handle as *mut FFIHandle,
         );
         assert!(!deadline_monitor_1_handle.is_null());
@@ -499,7 +499,7 @@ mod tests {
         // Second get.
         let health_monitor_get_deadline_monitor_result_2 = health_monitor_get_deadline_monitor(
             health_monitor_handle,
-            &deadline_monitor_tag as *const IdentTag,
+            &deadline_monitor_tag as *const MonitorTag,
             &mut deadline_monitor_2_handle as *mut FFIHandle,
         );
         assert!(deadline_monitor_2_handle.is_null());
@@ -518,11 +518,11 @@ mod tests {
         let mut deadline_monitor_handle: FFIHandle = null_mut();
 
         let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
-        let deadline_monitor_tag = IdentTag::new("deadline_monitor");
+        let deadline_monitor_tag = MonitorTag::from("deadline_monitor");
         let _ = deadline_monitor_builder_create(&mut deadline_monitor_builder_handle as *mut FFIHandle);
         let _ = health_monitor_builder_add_deadline_monitor(
             health_monitor_builder_handle,
-            &deadline_monitor_tag as *const IdentTag,
+            &deadline_monitor_tag as *const MonitorTag,
             deadline_monitor_builder_handle,
         );
         let _ = health_monitor_builder_build(
@@ -534,7 +534,7 @@ mod tests {
 
         let health_monitor_get_deadline_monitor_result = health_monitor_get_deadline_monitor(
             null_mut(),
-            &deadline_monitor_tag as *const IdentTag,
+            &deadline_monitor_tag as *const MonitorTag,
             &mut deadline_monitor_handle as *mut FFIHandle,
         );
         assert!(deadline_monitor_handle.is_null());
@@ -552,11 +552,11 @@ mod tests {
         let mut deadline_monitor_handle: FFIHandle = null_mut();
 
         let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
-        let deadline_monitor_tag = IdentTag::new("deadline_monitor");
+        let deadline_monitor_tag = MonitorTag::from("deadline_monitor");
         let _ = deadline_monitor_builder_create(&mut deadline_monitor_builder_handle as *mut FFIHandle);
         let _ = health_monitor_builder_add_deadline_monitor(
             health_monitor_builder_handle,
-            &deadline_monitor_tag as *const IdentTag,
+            &deadline_monitor_tag as *const MonitorTag,
             deadline_monitor_builder_handle,
         );
         let _ = health_monitor_builder_build(
@@ -585,11 +585,11 @@ mod tests {
         let mut deadline_monitor_builder_handle: FFIHandle = null_mut();
 
         let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
-        let deadline_monitor_tag = IdentTag::new("deadline_monitor");
+        let deadline_monitor_tag = MonitorTag::from("deadline_monitor");
         let _ = deadline_monitor_builder_create(&mut deadline_monitor_builder_handle as *mut FFIHandle);
         let _ = health_monitor_builder_add_deadline_monitor(
             health_monitor_builder_handle,
-            &deadline_monitor_tag as *const IdentTag,
+            &deadline_monitor_tag as *const MonitorTag,
             deadline_monitor_builder_handle,
         );
         let _ = health_monitor_builder_build(
@@ -601,7 +601,7 @@ mod tests {
 
         let health_monitor_get_deadline_monitor_result = health_monitor_get_deadline_monitor(
             health_monitor_handle,
-            &deadline_monitor_tag as *const IdentTag,
+            &deadline_monitor_tag as *const MonitorTag,
             null_mut(),
         );
         assert_eq!(health_monitor_get_deadline_monitor_result, FFICode::NullParameter);
@@ -618,11 +618,11 @@ mod tests {
         let mut deadline_monitor_handle: FFIHandle = null_mut();
 
         let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
-        let deadline_monitor_tag = IdentTag::new("deadline_monitor");
+        let deadline_monitor_tag = MonitorTag::from("deadline_monitor");
         let _ = deadline_monitor_builder_create(&mut deadline_monitor_builder_handle as *mut FFIHandle);
         let _ = health_monitor_builder_add_deadline_monitor(
             health_monitor_builder_handle,
-            &deadline_monitor_tag as *const IdentTag,
+            &deadline_monitor_tag as *const MonitorTag,
             deadline_monitor_builder_handle,
         );
         let _ = health_monitor_builder_build(
@@ -634,7 +634,7 @@ mod tests {
 
         let _ = health_monitor_get_deadline_monitor(
             health_monitor_handle,
-            &deadline_monitor_tag as *const IdentTag,
+            &deadline_monitor_tag as *const MonitorTag,
             &mut deadline_monitor_handle as *mut FFIHandle,
         );
 
@@ -653,11 +653,11 @@ mod tests {
         let mut deadline_monitor_builder_handle: FFIHandle = null_mut();
 
         let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
-        let deadline_monitor_tag = IdentTag::new("deadline_monitor");
+        let deadline_monitor_tag = MonitorTag::from("deadline_monitor");
         let _ = deadline_monitor_builder_create(&mut deadline_monitor_builder_handle as *mut FFIHandle);
         let _ = health_monitor_builder_add_deadline_monitor(
             health_monitor_builder_handle,
-            &deadline_monitor_tag as *const IdentTag,
+            &deadline_monitor_tag as *const MonitorTag,
             deadline_monitor_builder_handle,
         );
         let _ = health_monitor_builder_build(

@@ -24,11 +24,11 @@ using namespace score::hm::deadline;
 FFICode deadline_monitor_builder_create(FFIHandle* deadline_monitor_builder_handle_out);
 FFICode deadline_monitor_builder_destroy(FFIHandle deadline_monitor_builder_handle);
 FFICode deadline_monitor_builder_add_deadline(FFIHandle deadline_monitor_builder_handle,
-                                              const IdentTag* deadline_tag,
+                                              const DeadlineTag* deadline_tag,
                                               uint32_t min_ms,
                                               uint32_t max_ms);
 FFICode deadline_monitor_get_deadline(FFIHandle deadline_monitor_handle,
-                                      const IdentTag* deadline_tag,
+                                      const DeadlineTag* deadline_tag,
                                       FFIHandle* deadline_handle_out);
 FFICode deadline_monitor_destroy(FFIHandle deadline_monitor_handle);
 FFICode deadline_destroy(FFIHandle deadline_handle);
@@ -55,12 +55,12 @@ DeadlineMonitorBuilder::DeadlineMonitorBuilder()
 {
 }
 
-DeadlineMonitorBuilder DeadlineMonitorBuilder::add_deadline(const IdentTag& tag, const TimeRange& range) &&
+DeadlineMonitorBuilder DeadlineMonitorBuilder::add_deadline(const DeadlineTag& deadline_tag, const TimeRange& range) &&
 {
     auto handle = monitor_builder_handler_.as_rust_handle();
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(handle.has_value());
 
-    auto result{deadline_monitor_builder_add_deadline(handle.value(), &tag, range.min_ms(), range.max_ms())};
+    auto result{deadline_monitor_builder_add_deadline(handle.value(), &deadline_tag, range.min_ms(), range.max_ms())};
     SCORE_LANGUAGE_FUTURECPP_ASSERT(result == kSuccess);
 
     return std::move(*this);
@@ -68,13 +68,13 @@ DeadlineMonitorBuilder DeadlineMonitorBuilder::add_deadline(const IdentTag& tag,
 
 DeadlineMonitor::DeadlineMonitor(FFIHandle handle) : monitor_handle_(handle, &deadline_monitor_destroy) {}
 
-score::cpp::expected<Deadline, score::hm::Error> DeadlineMonitor::get_deadline(const IdentTag& tag)
+score::cpp::expected<Deadline, score::hm::Error> DeadlineMonitor::get_deadline(const DeadlineTag& deadline_tag)
 {
     auto handle = monitor_handle_.as_rust_handle();
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(handle.has_value());
 
     FFIHandle ret = nullptr;
-    auto result = deadline_monitor_get_deadline(handle.value(), &tag, &ret);
+    auto result = deadline_monitor_get_deadline(handle.value(), &deadline_tag, &ret);
     if (result != kSuccess)
     {
         return score::cpp::unexpected(static_cast<Error>(result));

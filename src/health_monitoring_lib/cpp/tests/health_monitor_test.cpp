@@ -12,6 +12,7 @@
  ********************************************************************************/
 #include "score/hm/health_monitor.h"
 #include "score/hm/common.h"
+#include "score/hm/tag.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -24,34 +25,37 @@ class HealthMonitorTest : public ::testing::Test
 // For first review round, only single test case to show up API
 TEST_F(HealthMonitorTest, TestName)
 {
-    auto builder_mon = deadline::DeadlineMonitorBuilder()
-                           .add_deadline(IdentTag("deadline_1"),
-                                         TimeRange(std::chrono::milliseconds(100), std::chrono::milliseconds(200)))
-                           .add_deadline(IdentTag("deadline_2"),
-                                         TimeRange(std::chrono::milliseconds(100), std::chrono::milliseconds(200)));
-
-    IdentTag ident("monitor");
+    // Setup deadline monitor construction.
+    const MonitorTag deadline_monitor_tag{"deadline_monitor"};
+    auto deadline_monitor_builder =
+        deadline::DeadlineMonitorBuilder()
+            .add_deadline(DeadlineTag("deadline_1"),
+                          TimeRange(std::chrono::milliseconds(100), std::chrono::milliseconds(200)))
+            .add_deadline(DeadlineTag("deadline_2"),
+                          TimeRange(std::chrono::milliseconds(100), std::chrono::milliseconds(200)));
 
     auto hm = HealthMonitorBuilder()
-                  .add_deadline_monitor(ident, std::move(builder_mon))
+                  .add_deadline_monitor(deadline_monitor_tag, std::move(deadline_monitor_builder))
                   .with_internal_processing_cycle(std::chrono::milliseconds(50))
                   .with_supervisor_api_cycle(std::chrono::milliseconds(50))
                   .build();
 
-    auto deadline_monitor_res = hm.get_deadline_monitor(ident);
+    // Obtain deadline monitor from HMON.
+    auto deadline_monitor_res = hm.get_deadline_monitor(deadline_monitor_tag);
     EXPECT_TRUE(deadline_monitor_res.has_value());
 
     {
-        // Try again to get the same monitor
-        auto deadline_monitor_res = hm.get_deadline_monitor(ident);
+        // Try again to get the same monitor.
+        auto deadline_monitor_res = hm.get_deadline_monitor(deadline_monitor_tag);
         EXPECT_FALSE(deadline_monitor_res.has_value());
     }
 
     auto deadline_mon = std::move(*deadline_monitor_res);
 
+    // Start HMON.
     hm.start();
 
-    auto deadline_res = deadline_mon.get_deadline(IdentTag("deadline_1"));
+    auto deadline_res = deadline_mon.get_deadline(DeadlineTag("deadline_1"));
 
     {
         auto deadline_guard = deadline_res.value().start().value();

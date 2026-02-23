@@ -118,14 +118,14 @@ int main(int argc, char** argv)
 
     auto builder_mon =
         deadline::DeadlineMonitorBuilder()
-            .add_deadline(IdentTag("deadline_1"),
+            .add_deadline(DeadlineTag("deadline_1"),
                           TimeRange(std::chrono::milliseconds(50), std::chrono::milliseconds(150)))
-            .add_deadline(IdentTag("deadline_2"),
+            .add_deadline(DeadlineTag("deadline_2"),
                           TimeRange(std::chrono::milliseconds(2),
                                     std::chrono::milliseconds(20)));  // Not used, only shows
                                                                       // that multiple deadlines can be added
 
-    IdentTag ident("monitor");
+    MonitorTag ident("monitor");
 
     {
         auto hm = HealthMonitorBuilder()
@@ -146,7 +146,7 @@ int main(int argc, char** argv)
 
         auto deadline_mon = std::move(*deadline_monitor_res);
 
-        auto deadline_res = deadline_mon.get_deadline(IdentTag("deadline_1"));
+        auto deadline_res = deadline_mon.get_deadline(DeadlineTag("deadline_1"));
         while (!exitRequested)
         {
             if (stopReportingCheckpoints.load())

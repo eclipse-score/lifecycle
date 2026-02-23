@@ -57,7 +57,7 @@ fn set_process_name() {
 fn main_logic(args: &Args, stop: Arc<AtomicBool>) -> Result<(), Box<dyn std::error::Error>> {
     let mut builder = deadline::DeadlineMonitorBuilder::new();
     builder = builder.add_deadline(
-        &IdentTag::from("deadline1"),
+        DeadlineTag::from("deadline1"),
         TimeRange::new(
             std::time::Duration::from_millis(50),
             std::time::Duration::from_millis(150),
@@ -65,13 +65,13 @@ fn main_logic(args: &Args, stop: Arc<AtomicBool>) -> Result<(), Box<dyn std::err
     );
 
     let mut hm = HealthMonitorBuilder::new()
-        .add_deadline_monitor(&IdentTag::from("mon1"), builder)
+        .add_deadline_monitor(MonitorTag::from("mon1"), builder)
         .with_supervisor_api_cycle(std::time::Duration::from_millis(50))
         .with_internal_processing_cycle(std::time::Duration::from_millis(50))
         .build();
 
     let mon = hm
-        .get_deadline_monitor(&IdentTag::from("mon1"))
+        .get_deadline_monitor(MonitorTag::from("mon1"))
         .expect("Failed to get monitor");
 
     hm.start();
@@ -83,7 +83,7 @@ fn main_logic(args: &Args, stop: Arc<AtomicBool>) -> Result<(), Box<dyn std::err
 
     while !stop.load(Ordering::Relaxed) {
         let mut deadline = mon
-            .get_deadline(&IdentTag::from("deadline1"))
+            .get_deadline(DeadlineTag::from("deadline1"))
             .expect("Failed to get deadline");
 
         let _res = deadline.start();
