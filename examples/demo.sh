@@ -44,8 +44,8 @@ read -p "$(echo -e  ${COLOR}Next: Killing an application process${NC})"
 echo "$> lmcontrol MainPG/Running"
 lmcontrol MainPG/Running
 sleep 2
-echo "$> pkill -9 MainPG_lc0"
-pkill -9 MainPG_lc0
+echo "$> pkill -9 demo_app0"
+pkill -9 demo_app0
 read -p "$(echo -e  ${COLOR}Next: Show running processes${NC})"
 echo "$> ps -a"
 ps -a
@@ -57,8 +57,8 @@ echo "$> lmcontrol MainPG/Running"
 lmcontrol MainPG/Running
 
 read -p "$(echo -e  ${COLOR}Next: Trigger supervision failure${NC})"
-echo "$> fail $(pgrep MainPG_app0)"
-kill -s SIGUSR1 $(pgrep MainPG_app0)
+echo "$> fail $(pgrep demo_app0)"
+kill -s SIGUSR1 $(pgrep demo_app0)
 
 read -p "$(echo -e  ${COLOR}Next: Show running processes${NC})"
 echo "$> ps -a"

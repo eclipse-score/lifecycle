@@ -25,12 +25,6 @@ import os
 from pathlib import Path
 
 
-def is_rust_app(process_index: int, cppprocess_count: int, rustprocess_count: int):
-    processes_per_process_group = cppprocess_count + rustprocess_count
-    index_in_group = process_index % processes_per_process_group
-    return index_in_group >= cppprocess_count
-
-
 def gen_lifecycle_config(
     cppprocesses: int,
     rustprocesses: int,
@@ -95,12 +89,10 @@ def gen_lifecycle_config(
 
     # --- Supervised demo processes ---
     for i in range(total_process_count):
-        if is_rust_app(i, cppprocesses, rustprocesses):
+        if i >= cppprocesses:
             binary = "supervision_demo/rust_supervised_app"
-            print(f"Rust Process with index {i}")
         else:
             binary = "supervision_demo/cpp_supervised_app"
-            print(f"CPP Process with index {i}")
 
         comp_name = f"demo_app{i}"
         config["components"][comp_name] = {
@@ -113,7 +105,7 @@ def gen_lifecycle_config(
             },
             "deployment_config": {
                 "environmental_variables": {
-                    "PROCESSIDENTIFIER": f"MainPG_app{i}",
+                    "PROCESSIDENTIFIER": comp_name,
                     "CONFIG_PATH": f"/opt/supervision_demo/etc/{comp_name}.bin",
                     "IDENTIFIER": comp_name,
                 },
@@ -123,14 +115,14 @@ def gen_lifecycle_config(
 
     # --- Non-supervised lifecycle processes ---
     for i in range(non_supervised_processes):
-        comp_name = f"MainPG_lifecycle_app{i}"
+        comp_name = f"lifecycle_app{i}"
         config["components"][comp_name] = {
             "component_properties": {
                 "binary_name": "cpp_lifecycle_app/cpp_lifecycle_app",
             },
             "deployment_config": {
                 "environmental_variables": {
-                    "PROCESSIDENTIFIER": f"MainPG_lc{i}",
+                    "PROCESSIDENTIFIER": comp_name,
                 },
             },
         }
@@ -181,7 +173,7 @@ if __name__ == "__main__":
         action="store",
         type=int,
         required=True,
-        help="Number of C++ supervised processes per process group",
+        help="Number of C++ supervised processes",
     )
     my_parser.add_argument(
         "-r",
@@ -189,7 +181,7 @@ if __name__ == "__main__":
         action="store",
         type=int,
         required=True,
-        help="Number of Rust supervised processes per process group",
+        help="Number of Rust supervised processes",
     )
     my_parser.add_argument(
         "-n",
@@ -197,7 +189,7 @@ if __name__ == "__main__":
         action="store",
         type=int,
         required=True,
-        help="Number of C++ non-supervised (lifecycle) processes per process group",
+        help="Number of C++ non-supervised (lifecycle) processes",
     )
     my_parser.add_argument(
         "-o",
