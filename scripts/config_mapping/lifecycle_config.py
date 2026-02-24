@@ -784,14 +784,13 @@ def gen_health_monitor_config(output_dir, config):
 
     indices = [i for i in range(index)]
     if len(indices) > 0:
-       # Create one global supervision & recovery action for all processes.
+        # Create one global supervision & recovery action for all processes.
         global_supervision = {}
         global_supervision["ruleContextKey"] = "global_supervision"
         global_supervision["isSeverityCritical"] = False
         global_supervision["localSupervision"] = [{"refLocalSupervisionIndex": idx} for idx in indices]
         global_supervision["refProcesses"] = [{"index": idx} for idx in indices]
         global_supervision["refProcessGroupStates"] = get_all_refProcessGroupStates(config["run_targets"])
-        gs_index = len(hm_config["hmGlobalSupervision"])
         hm_config["hmGlobalSupervision"].append(global_supervision)
 
         recovery_action = {}
