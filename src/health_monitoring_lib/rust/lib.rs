@@ -21,12 +21,12 @@ mod worker;
 
 pub mod deadline;
 
-use crate::common::MonitorEvalHandle;
+use crate::common::{HasEvalHandle, MonitorEvalHandle};
+use crate::deadline::{DeadlineMonitor, DeadlineMonitorBuilder};
 pub use common::TimeRange;
 use containers::fixed_capacity::FixedCapacityVec;
 use core::time::Duration;
 use std::collections::HashMap;
-use std::sync::Arc;
 pub use tag::{DeadlineTag, MonitorTag};
 
 /// Builder for the [`HealthMonitor`].
@@ -117,7 +117,7 @@ impl HealthMonitorBuilder {
         // Create deadline monitors.
         let mut deadline_monitors = HashMap::new();
         for (tag, builder) in self.deadline_monitor_builders {
-            deadline_monitors.insert(tag, (MonitorState::Available, builder.build(tag, &allocator)));
+            deadline_monitors.insert(tag, Some(MonitorState::Available(builder.build(tag, &allocator))));
         }
 
         HealthMonitor {
@@ -129,21 +129,46 @@ impl HealthMonitorBuilder {
 }
 
 /// Monitor ownership state in the [`HealthMonitor`].
-enum MonitorState {
+enum MonitorState<Monitor> {
     /// Monitor is available.
-    Available,
+    Available(Monitor),
     /// Monitor is already taken.
-    Taken,
+    Taken(MonitorEvalHandle),
 }
+
+/// Monitor container.
+/// - Must be an option to ensure monitor can be taken out (not referenced).
+/// - Must be an enum to ensure evaluation handle is still available for HMON after monitor is taken.
+type MonitorContainer<Monitor> = Option<MonitorState<Monitor>>;
 
 /// Health monitor.
 pub struct HealthMonitor {
-    deadline_monitors: HashMap<MonitorTag, (MonitorState, Arc<DeadlineMonitorInner>)>,
+    deadline_monitors: HashMap<MonitorTag, MonitorContainer<DeadlineMonitor>>,
     worker: worker::UniqueThreadRunner,
     supervisor_api_cycle: Duration,
 }
 
 impl HealthMonitor {
+    fn get_monitor<Monitor: HasEvalHandle>(
+        monitors: &mut HashMap<MonitorTag, MonitorContainer<Monitor>>,
+        monitor_tag: MonitorTag,
+    ) -> Option<Monitor> {
+        let monitor_state = monitors.get_mut(&monitor_tag)?;
+
+        match monitor_state.take() {
+            Some(MonitorState::Available(monitor)) => {
+                monitor_state.replace(MonitorState::Taken(monitor.get_eval_handle()));
+                Some(monitor)
+            },
+            Some(MonitorState::Taken(handle)) => {
+                // Taken handle is inserted back.
+                monitor_state.replace(MonitorState::Taken(handle));
+                None
+            },
+            None => None,
+        }
+    }
+
     /// Get and pass ownership of a [`DeadlineMonitor`] for the given [`MonitorTag`].
     ///
     /// - `monitor_tag` - unique tag for the [`DeadlineMonitor`].
@@ -151,14 +176,7 @@ impl HealthMonitor {
     /// Returns [`Some`] containing [`DeadlineMonitor`] if found and not taken.
     /// Otherwise returns [`None`].
     pub fn get_deadline_monitor(&mut self, monitor_tag: MonitorTag) -> Option<DeadlineMonitor> {
-        let (state, inner) = self.deadline_monitors.get_mut(&monitor_tag)?;
-        match state {
-            MonitorState::Available => {
-                *state = MonitorState::Taken;
-                Some(DeadlineMonitor::new(inner.clone()))
-            },
-            MonitorState::Taken => None,
-        }
+        Self::get_monitor(&mut self.deadline_monitors, monitor_tag)
     }
 
     /// Start the health monitoring logic in a separate thread.
@@ -176,44 +194,55 @@ impl HealthMonitor {
     ///
     /// Method panics if no monitors have been added.
     pub fn start(&mut self) {
-        // Check number of monitors.
         assert!(
             self.check_monitors_exist_internal(),
             "No monitors have been added. HealthMonitor cannot start without any monitors."
         );
 
-        let deadline_monitors = match self.collect_deadline_monitors_internal() {
+        let monitors = match self.collect_monitors_internal() {
             Ok(m) => m,
             Err(e) => panic!("{}", e),
         };
 
-        self.start_internal(deadline_monitors);
+        self.start_internal(monitors);
     }
 
     pub(crate) fn check_monitors_exist_internal(&self) -> bool {
         !self.deadline_monitors.is_empty()
     }
 
-    pub(crate) fn collect_deadline_monitors_internal(
-        &self,
-    ) -> Result<FixedCapacityVec<Arc<DeadlineMonitorInner>>, String> {
-        let mut collected_monitors = FixedCapacityVec::new(self.deadline_monitors.len());
-        for (tag, (state, inner)) in self.deadline_monitors.iter() {
-            match state {
-                MonitorState::Taken => {
-                    if collected_monitors.push(inner.clone()).is_err() {
+    fn collect_given_monitors<Monitor>(
+        monitors_to_collect: &mut HashMap<MonitorTag, MonitorContainer<Monitor>>,
+        collected_monitors: &mut FixedCapacityVec<MonitorEvalHandle>,
+    ) -> Result<(), String> {
+        for (tag, monitor) in monitors_to_collect.iter_mut() {
+            match monitor.take() {
+                Some(MonitorState::Taken(handle)) => {
+                    if collected_monitors.push(handle).is_err() {
                         // Should not fail - capacity was preallocated.
                         return Err("Failed to push monitor handle".to_string());
                     }
                 },
-                MonitorState::Available => {
+                Some(MonitorState::Available(_)) => {
                     return Err(format!(
                         "All monitors must be taken before starting HealthMonitor but {:?} is not taken.",
                         tag
                     ));
                 },
-            };
+                None => {
+                    return Err(format!(
+                        "Invalid monitor ({:?}) state encountered while starting HealthMonitor.",
+                        tag
+                    ));
+                },
+            }
         }
+        Ok(())
+    }
+
+    pub(crate) fn collect_monitors_internal(&mut self) -> Result<FixedCapacityVec<MonitorEvalHandle>, String> {
+        let mut collected_monitors = FixedCapacityVec::new(self.deadline_monitors.len());
+        Self::collect_given_monitors(&mut self.deadline_monitors, &mut collected_monitors)?;
         Ok(collected_monitors)
     }
 

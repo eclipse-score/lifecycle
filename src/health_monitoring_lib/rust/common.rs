@@ -11,8 +11,12 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
+use crate::deadline::DeadlineEvaluationError;
+use crate::log::ScoreDebug;
+use crate::tag::MonitorTag;
 use core::hash::Hash;
 use core::time::Duration;
+use std::sync::Arc;
 
 /// Range of accepted time.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -28,11 +32,30 @@ impl TimeRange {
     }
 }
 
+/// The monitor has an evaluation handle available.
+pub(crate) trait HasEvalHandle {
+    /// Get an evaluation handle for this monitor.
+    ///
+    /// # NOTE
+    ///
+    /// This method is intended to be called from a background thread periodically.
+    fn get_eval_handle(&self) -> MonitorEvalHandle;
+}
+
 /// Errors that can occur during monitor evaluation.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, crate::log::ScoreDebug)]
+/// Contains failing monitor type.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, ScoreDebug)]
+#[allow(dead_code)]
 pub(crate) enum MonitorEvaluationError {
-    TooEarly,
-    TooLate,
+    Deadline(DeadlineEvaluationError),
+    Heartbeat,
+    Logic,
+}
+
+impl From<DeadlineEvaluationError> for MonitorEvaluationError {
+    fn from(value: DeadlineEvaluationError) -> Self {
+        MonitorEvaluationError::Deadline(value)
+    }
 }
 
 /// Trait for evaluating monitors and reporting errors to be used by HealthMonitor.

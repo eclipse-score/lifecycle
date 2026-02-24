@@ -10,7 +10,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
-use crate::deadline::DeadlineMonitorInner;
+use crate::common::{MonitorEvalHandle, MonitorEvaluationError, MonitorEvaluator};
 use crate::log::{info, warn};
 use crate::supervisor_api_client::SupervisorAPIClient;
 use containers::fixed_capacity::FixedCapacityVec;
@@ -20,7 +20,7 @@ use std::sync::Arc;
 use std::time::Instant;
 
 pub(super) struct MonitoringLogic<T: SupervisorAPIClient> {
-    deadline_monitors: FixedCapacityVec<Arc<DeadlineMonitorInner>>,
+    monitors: FixedCapacityVec<MonitorEvalHandle>,
     client: T,
     last_notification: Instant,
     supervisor_api_cycle: Duration,
@@ -29,16 +29,16 @@ pub(super) struct MonitoringLogic<T: SupervisorAPIClient> {
 impl<T: SupervisorAPIClient> MonitoringLogic<T> {
     /// Creates a new MonitoringLogic instance.
     /// # Arguments
-    /// * `deadline_monitors` - A vector of monitor evaluation handles.
+    /// * `monitors` - A vector of monitor evaluation handles.
     /// * `supervisor_api_cycle` - Duration between alive notifications to the supervisor.
     /// * `client` - An implementation of the SupervisorAPIClient trait.
     pub(super) fn new(
-        deadline_monitors: FixedCapacityVec<Arc<DeadlineMonitorInner>>,
+        monitors: FixedCapacityVec<MonitorEvalHandle>,
         supervisor_api_cycle: Duration,
         client: T,
     ) -> Self {
         Self {
-            deadline_monitors,
+            monitors,
             client,
             supervisor_api_cycle,
             last_notification: Instant::now(),
@@ -48,14 +48,20 @@ impl<T: SupervisorAPIClient> MonitoringLogic<T> {
     fn run(&mut self) -> bool {
         let mut has_any_error = false;
 
-        // Evaluate deadline monitors.
-        for monitor in self.deadline_monitors.iter() {
+        for monitor in self.monitors.iter() {
             monitor.evaluate(&mut |monitor_tag, error| {
                 has_any_error = true;
-                warn!(
-                    "Deadline monitor with tag {:?} reported error: {:?}.",
-                    monitor_tag, error
-                );
+
+                match error {
+                    MonitorEvaluationError::Deadline(deadline_evaluation_error) => {
+                        warn!(
+                            "Deadline monitor with tag {:?} reported error: {:?}.",
+                            monitor_tag, deadline_evaluation_error
+                        )
+                    },
+                    MonitorEvaluationError::Heartbeat => unimplemented!(),
+                    MonitorEvaluationError::Logic => unimplemented!(),
+                }
             });
         }
 
@@ -151,7 +157,8 @@ impl From<Checks> for u32 {
 #[score_testing_macros::test_mod_with_log]
 #[cfg(test)]
 mod tests {
-    use crate::deadline::{DeadlineMonitorBuilder, DeadlineMonitorInner};
+    use crate::common::HasEvalHandle;
+    use crate::deadline::{DeadlineMonitor, DeadlineMonitorBuilder};
     use crate::protected_memory::ProtectedMemoryAllocator;
     use crate::supervisor_api_client::SupervisorAPIClient;
     use crate::tag::{DeadlineTag, MonitorTag};
@@ -185,7 +192,7 @@ mod tests {
         }
     }
 
-    fn create_monitor_with_deadlines() -> Arc<DeadlineMonitorInner> {
+    fn create_monitor_with_deadlines() -> DeadlineMonitor {
         let allocator = ProtectedMemoryAllocator {};
         let monitor_tag = MonitorTag::from("deadline_monitor");
         DeadlineMonitorBuilder::new()
@@ -208,7 +215,7 @@ mod tests {
         let mut logic = MonitoringLogic::new(
             {
                 let mut vec = FixedCapacityVec::new(2);
-                vec.push(deadline_monitor.clone()).unwrap();
+                vec.push(deadline_monitor.get_eval_handle()).unwrap();
                 vec
             },
             Duration::from_secs(1),
@@ -234,7 +241,7 @@ mod tests {
         let mut logic = MonitoringLogic::new(
             {
                 let mut vec = FixedCapacityVec::new(2);
-                vec.push(deadline_monitor.clone()).unwrap();
+                vec.push(deadline_monitor.get_eval_handle()).unwrap();
                 vec
             },
             Duration::from_nanos(0), // Make sure each call notifies alive
@@ -263,7 +270,7 @@ mod tests {
         let mut logic = MonitoringLogic::new(
             {
                 let mut vec = FixedCapacityVec::new(2);
-                vec.push(deadline_monitor.clone()).unwrap();
+                vec.push(deadline_monitor.get_eval_handle()).unwrap();
                 vec
             },
             Duration::from_millis(30),
@@ -302,7 +309,7 @@ mod tests {
         let logic = MonitoringLogic::new(
             {
                 let mut vec = FixedCapacityVec::new(2);
-                vec.push(deadline_monitor.clone()).unwrap();
+                vec.push(deadline_monitor.get_eval_handle()).unwrap();
                 vec
             },
             Duration::from_nanos(0), // Make sure each call notifies alive

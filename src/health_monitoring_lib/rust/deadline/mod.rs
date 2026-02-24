@@ -15,7 +15,7 @@ mod common;
 mod deadline_monitor;
 mod deadline_state;
 
-pub(crate) use deadline_monitor::DeadlineMonitorInner;
+pub(crate) use deadline_monitor::DeadlineEvaluationError;
 pub use deadline_monitor::{
     DeadlineError, DeadlineHandle, DeadlineMonitor, DeadlineMonitorBuilder, DeadlineMonitorError,
 };
