@@ -149,7 +149,7 @@ table HmRefProcessGroupStatesGlobal {
 }
 
 table RecoveryNotification {
-  shortName: string (id:0);
+  shortName: string (id:0, required);
   recoveryNotificationTimeout: double (id:1);
   processGroupMetaModelIdentifier: string (id:2);
   refGlobalSupervisionIndex: uint32 (id:3);
