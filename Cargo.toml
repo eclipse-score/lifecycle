@@ -6,6 +6,7 @@ members = [
     "src/health_monitoring_lib",
     "examples/rust_supervised_app",
 ]
+default-members = ["src/health_monitoring_lib"]
 
 [workspace.package]
 edition = "2021"
