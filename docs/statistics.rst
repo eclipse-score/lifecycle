@@ -1,4 +1,4 @@
-.. _statistics:
+.. _life_statistics:
 
 Component Requirements Statistics
 =================================

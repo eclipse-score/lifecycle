@@ -25,9 +25,9 @@ from docutils.parsers.rst import Directive
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "Module Template Project"
-project_url = "https://eclipse-score.github.io/module_template/"
-project_prefix = "MODULE_TEMPLATE_"
+project = "Lifecycle and Health Management"
+project_url = "https://eclipse-score.github.io/lifecycle/"
+project_prefix = "LIFE_"
 author = "S-CORE"
 version = "0.1"
 
