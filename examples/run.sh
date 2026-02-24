@@ -68,7 +68,7 @@ cp config/tmp/hmcore.bin tmp/launch_manager/etc/
 
 mkdir -p tmp/supervision_demo/etc
 cp $DEMO_APP_BINARY tmp/supervision_demo/
-cp config/tmp/demo_app*.bin tmp/supervision_demo/etc/
+cp config/tmp/*app.bin tmp/supervision_demo/etc/
 
 mkdir -p tmp/cpp_lifecycle_app/etc
 cp $DEMO_APP_WO_HM_BINARY tmp/cpp_lifecycle_app/

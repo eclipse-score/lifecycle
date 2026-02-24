@@ -12,7 +12,7 @@
             },
             "recovery_action": {
                 "switch_run_target": {
-                    "run_target": "Off"
+                    "run_target": "Startup"
                 }
             },
             "environmental_variables": {
@@ -60,7 +60,7 @@
                 }
             }
         },
-        "demo_app0": {
+        "cpp_supervised_app": {
             "component_properties": {
                 "binary_name": "supervision_demo/cpp_supervised_app",
                 "application_profile": {
@@ -72,13 +72,13 @@
             },
             "deployment_config": {
                 "environmental_variables": {
-                    "PROCESSIDENTIFIER": "demo_app0",
-                    "CONFIG_PATH": "/opt/supervision_demo/etc/demo_app0.bin",
-                    "IDENTIFIER": "demo_app0"
+                    "PROCESSIDENTIFIER": "cpp_supervised_app",
+                    "CONFIG_PATH": "/opt/supervision_demo/etc/cpp_supervised_app.bin",
+                    "IDENTIFIER": "cpp_supervised_app"
                 }
             }
         },
-        "demo_app1": {
+        "rust_supervised_app": {
             "component_properties": {
                 "binary_name": "supervision_demo/rust_supervised_app",
                 "application_profile": {
@@ -90,19 +90,19 @@
             },
             "deployment_config": {
                 "environmental_variables": {
-                    "PROCESSIDENTIFIER": "demo_app1",
-                    "CONFIG_PATH": "/opt/supervision_demo/etc/demo_app1.bin",
-                    "IDENTIFIER": "demo_app1"
+                    "PROCESSIDENTIFIER": "rust_supervised_app",
+                    "CONFIG_PATH": "/opt/supervision_demo/etc/rust_supervised_app.bin",
+                    "IDENTIFIER": "rust_supervised_app"
                 }
             }
         },
-        "lifecycle_app0": {
+        "lifecycle_app": {
             "component_properties": {
                 "binary_name": "cpp_lifecycle_app/cpp_lifecycle_app"
             },
             "deployment_config": {
                 "environmental_variables": {
-                    "PROCESSIDENTIFIER": "lifecycle_app0"
+                    "PROCESSIDENTIFIER": "lifecycle_app"
                 }
             }
         },
@@ -121,39 +121,31 @@
         }
     },
     "run_targets": {
-        "Off": {
-            "depends_on": [],
-            "recovery_action": {
-                "switch_run_target": {
-                    "run_target": "Off"
-                }
-            }
-        },
         "Startup": {
             "depends_on": [
                 "control_daemon"
             ],
             "recovery_action": {
                 "switch_run_target": {
-                    "run_target": "Off"
+                    "run_target": "Startup"
                 }
             }
         },
         "Running": {
             "depends_on": [
                 "control_daemon",
-                "demo_app0",
-                "demo_app1",
-                "lifecycle_app0"
+                "cpp_supervised_app",
+                "rust_supervised_app",
+                "lifecycle_app"
             ],
             "recovery_action": {
                 "switch_run_target": {
-                    "run_target": "Off"
+                    "run_target": "Startup"
                 }
             }
         }
     },
-    "initial_run_target": "Off",
+    "initial_run_target": "Startup",
     "alive_supervision": {
         "evaluation_cycle": 0.05
     },

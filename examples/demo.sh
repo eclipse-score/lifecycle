@@ -44,8 +44,8 @@ read -p "$(echo -e  ${COLOR}Next: Killing an application process${NC})"
 echo "$> lmcontrol MainPG/Running"
 lmcontrol MainPG/Running
 sleep 2
-echo "$> pkill -9 demo_app0"
-pkill -9 demo_app0
+echo "$> pkill -9 cpp_supervised"
+pkill -9 cpp_supervised
 read -p "$(echo -e  ${COLOR}Next: Show running processes${NC})"
 echo "$> ps -a"
 ps -a
@@ -57,8 +57,8 @@ echo "$> lmcontrol MainPG/Running"
 lmcontrol MainPG/Running
 
 read -p "$(echo -e  ${COLOR}Next: Trigger supervision failure${NC})"
-echo "$> fail $(pgrep demo_app0)"
-kill -s SIGUSR1 $(pgrep demo_app0)
+echo "$> fail $(pgrep cpp_supervised)"
+kill -s SIGUSR1 $(pgrep cpp_supervised)
 
 read -p "$(echo -e  ${COLOR}Next: Show running processes${NC})"
 echo "$> ps -a"

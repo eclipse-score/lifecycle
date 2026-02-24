@@ -41,7 +41,7 @@ def gen_lifecycle_config(
                 "ready_timeout": 2.0,
                 "shutdown_timeout": 2.0,
                 "ready_recovery_action": {"restart": {"number_of_attempts": 0}},
-                "recovery_action": {"switch_run_target": {"run_target": "Off"}},
+                "recovery_action": {"switch_run_target": {"run_target": "Startup"}},
                 "environmental_variables": {"LD_LIBRARY_PATH": "/opt/lib"},
                 "sandbox": {
                     "uid": 0,
@@ -66,7 +66,7 @@ def gen_lifecycle_config(
         },
         "components": {},
         "run_targets": {},
-        "initial_run_target": "Off",
+        "initial_run_target": "Startup",
         "alive_supervision": {"evaluation_cycle": 0.05},
     }
 
@@ -146,19 +146,14 @@ def gen_lifecycle_config(
     }
 
     # --- Run targets ---
-    config["run_targets"]["Off"] = {
-        "depends_on": [],
-        "recovery_action": {"switch_run_target": {"run_target": "Off"}},
-    }
-
     config["run_targets"]["Startup"] = {
         "depends_on": ["control_daemon"],
-        "recovery_action": {"switch_run_target": {"run_target": "Off"}},
+        "recovery_action": {"switch_run_target": {"run_target": "Startup"}},
     }
 
     config["run_targets"]["Running"] = {
         "depends_on": running_deps,
-        "recovery_action": {"switch_run_target": {"run_target": "Off"}},
+        "recovery_action": {"switch_run_target": {"run_target": "Startup"}},
     }
 
     # Fallback run target: control daemon + verbose app run during recovery
