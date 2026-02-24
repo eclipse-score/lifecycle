@@ -782,27 +782,23 @@ def gen_health_monitor_config(output_dir, config):
                 run_target_indices[component_rt].append(index)
             index += 1
 
-    # Create one global supervision & recovery notification per run target (process group)
-    recovery_state = get_recovery_process_group_state(config)
-    for rt_name, rt_indices in run_target_components.items():
-        proc_indices = run_target_indices.get(rt_name, [])
-        if not proc_indices:
-            continue
-
+    indices = [i for i in range(index)]
+    if len(indices) > 0:
+       # Create one global supervision & recovery action for all processes.
         global_supervision = {}
-        global_supervision["ruleContextKey"] = f"GlobalSupervision_{rt_name}"
+        global_supervision["ruleContextKey"] = "global_supervision"
         global_supervision["isSeverityCritical"] = False
-        global_supervision["localSupervision"] = [{"refLocalSupervisionIndex": idx} for idx in proc_indices]
-        global_supervision["refProcesses"] = [{"index": idx} for idx in proc_indices]
-        global_supervision["refProcessGroupStates"] = [{"identifier": "MainPG/" + rt_name}]
+        global_supervision["localSupervision"] = [{"refLocalSupervisionIndex": idx} for idx in indices]
+        global_supervision["refProcesses"] = [{"index": idx} for idx in indices]
+        global_supervision["refProcessGroupStates"] = get_all_refProcessGroupStates(config["run_targets"])
         gs_index = len(hm_config["hmGlobalSupervision"])
         hm_config["hmGlobalSupervision"].append(global_supervision)
 
         recovery_action = {}
         recovery_action["shortName"] = f"RecoveryNotification_{rt_name}"
         recovery_action["recoveryNotificationTimeout"] = 5000
-        recovery_action["processGroupMetaModelIdentifier"] = recovery_state
-        recovery_action["refGlobalSupervisionIndex"] = gs_index
+        recovery_action["processGroupMetaModelIdentifier"] = get_recovery_process_group_state(config)
+        recovery_action["refGlobalSupervisionIndex"] = hm_config["hmGlobalSupervision"].index(global_supervision)
         recovery_action["instanceSpecifier"] = ""
         recovery_action["shouldFireWatchdog"] = False
         hm_config["hmRecoveryNotification"].append(recovery_action)
