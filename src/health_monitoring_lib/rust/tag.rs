@@ -247,13 +247,41 @@ mod tests {
     }
 
     #[test]
-    fn tag_hash() {
-        let example_str = "EXAMPLE";
-        let tag = Tag::from(example_str.to_string());
-        let mut hasher = DefaultHasher::new();
-        tag.hash(&mut hasher);
-        let hash = hasher.finish();
-        assert_eq!(hash, 14738755424381306335);
+    fn tag_hash_is_eq() {
+        let tag1 = Tag::from("same");
+        let hash1 = {
+            let mut hasher = DefaultHasher::new();
+            tag1.hash(&mut hasher);
+            hasher.finish()
+        };
+
+        let tag2 = Tag::from("same");
+        let hash2 = {
+            let mut hasher = DefaultHasher::new();
+            tag2.hash(&mut hasher);
+            hasher.finish()
+        };
+
+        assert_eq!(hash1, hash2);
+    }
+
+    #[test]
+    fn tag_hash_is_ne() {
+        let tag1 = Tag::from("first");
+        let hash1 = {
+            let mut hasher = DefaultHasher::new();
+            tag1.hash(&mut hasher);
+            hasher.finish()
+        };
+
+        let tag2 = Tag::from("second");
+        let hash2 = {
+            let mut hasher = DefaultHasher::new();
+            tag2.hash(&mut hasher);
+            hasher.finish()
+        };
+
+        assert_ne!(hash1, hash2);
     }
 
     #[test]

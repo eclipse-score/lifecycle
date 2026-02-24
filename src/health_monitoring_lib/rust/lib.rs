@@ -15,12 +15,14 @@ mod common;
 mod ffi;
 mod log;
 mod protected_memory;
+mod supervisor_api_client;
 mod tag;
 mod worker;
 
 pub mod deadline;
 
 use crate::common::MonitorEvalHandle;
+use crate::supervisor_api_client::SupervisorAPIClientImpl;
 pub use common::TimeRange;
 use containers::fixed_capacity::FixedCapacityVec;
 use core::time::Duration;
@@ -214,16 +216,8 @@ impl HealthMonitor {
     }
 
     pub(crate) fn start_internal(&mut self, monitors: FixedCapacityVec<MonitorEvalHandle>) {
-        let monitoring_logic = worker::MonitoringLogic::new(
-            monitors,
-            self.supervisor_api_cycle,
-            // Currently only `ScoreSupervisorAPIClient` and `StubSupervisorAPIClient` are supported.
-            // The later is meant to be used for testing purposes.
-            #[cfg(not(any(test, feature = "stub_supervisor_api_client")))]
-            worker::ScoreSupervisorAPIClient::new(),
-            #[cfg(any(test, feature = "stub_supervisor_api_client"))]
-            worker::StubSupervisorAPIClient {},
-        );
+        let monitoring_logic =
+            worker::MonitoringLogic::new(monitors, self.supervisor_api_cycle, SupervisorAPIClientImpl::new());
 
         self.worker.start(monitoring_logic)
     }
