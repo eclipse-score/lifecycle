@@ -1,0 +1,123 @@
+{
+  "versionMajor": 7,
+  "versionMinor": 0,
+  "Process": [
+    {
+      "identifier": "control_daemon",
+      "uid": 0,
+      "gid": 0,
+      "path": "/tests/integration/smoke/control_daemon_mock",
+      "functionClusterAffiliation": "STATE_MANAGEMENT",
+      "numberOfRestartAttempts": 0,
+      "executable_reportingBehavior": "ReportsExecutionState",
+      "sgids": [],
+      "startupConfig": [
+        {
+          "executionError": "1",
+          "schedulingPolicy": "SCHED_OTHER",
+          "schedulingPriority": "0",
+          "identifier": "control_daemon_startup_config",
+          "enterTimeoutValue": 1000,
+          "exitTimeoutValue": 1000,
+          "terminationBehavior": "ProcessIsNotSelfTerminating",
+          "executionDependency": [],
+          "processGroupStateDependency": [
+            {
+              "stateMachine_name": "MainPG",
+              "stateName": "MainPG/Startup"
+            },
+            {
+              "stateMachine_name": "MainPG",
+              "stateName": "MainPG/Recovery"
+            }
+          ],
+          "environmentVariable": [
+            {
+              "key": "LD_LIBRARY_PATH",
+              "value": "/opt/lib"
+            },
+            {
+              "key": "PROCESSIDENTIFIER",
+              "value": "control_daemon"
+            }
+          ],
+          "processArgument": []
+        }
+      ]
+    },
+    {
+      "identifier": "demo_app0_DefaultPG",
+      "uid": 0,
+      "gid": 0,
+      "path": "/tests/integration/smoke/gtest_process",
+      "numberOfRestartAttempts": 0,
+      "executable_reportingBehavior": "ReportsExecutionState",
+      "sgids": [],
+      "startupConfig": [
+        {
+          "executionError": "1",
+          "schedulingPolicy": "SCHED_OTHER",
+          "schedulingPriority": "0",
+          "identifier": "demo_app_startup_config_0",
+          "enterTimeoutValue": 2000,
+          "exitTimeoutValue": 2000,
+          "terminationBehavior": "ProcessIsNotSelfTerminating",
+          "processGroupStateDependency": [
+            {
+              "stateMachine_name": "DefaultPG",
+              "stateName": "DefaultPG/On"
+            }
+          ],
+          "environmentVariable": [
+            {
+              "key": "LD_LIBRARY_PATH",
+              "value": "/opt/lib"
+            },
+            {
+              "key": "PROCESSIDENTIFIER",
+              "value": "DefaultPG_app0"
+            },
+            {
+              "key": "CONFIG_PATH",
+              "value": "/opt/supervision_demo/etc/health_monitor_process_cfg_0_MainPG.bin"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "ModeGroup": [
+    {
+      "identifier": "MainPG",
+      "initialMode_name": "Off",
+      "recoveryMode_name": "MainPG/Recovery",
+      "modeDeclaration": [
+        {
+          "identifier": "MainPG/Off"
+        },
+        {
+          "identifier": "MainPG/Startup"
+        },
+        {
+          "identifier": "MainPG/Recovery"
+        }
+      ]
+    },
+    {
+      "identifier": "DefaultPG",
+      "initialMode_name": "Off",
+      "recoveryMode_name": "DefaultPG/Recovery",
+      "modeDeclaration": [
+        {
+          "identifier": "DefaultPG/Off"
+        },
+        {
+          "identifier": "DefaultPG/On"
+        },
+        {
+          "identifier": "DefaultPG/Recovery"
+        }
+      ]
+    }
+  ]
+}

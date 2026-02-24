@@ -334,7 +334,7 @@ OsalReturnType IProcess::setSchedulingAndSecurity(const OsalConfig& config) {
     size_t supplementary_gids_number = config.supplementary_gids_.size();
 
     // Note: the type of the first parameter of setgroups() differs in Linux and QNX, so we use osal
-    if (-1 == osal::setgroups(supplementary_gids_number, config.supplementary_gids_.data())) {
+    if (supplementary_gids_number > 0 && -1 == osal::setgroups(supplementary_gids_number, config.supplementary_gids_.data())) {
         LM_LOG_ERROR() << "setgroups() failed:" << std::strerror(errno);
         retval = OsalReturnType::kFail;
     }
@@ -354,6 +354,7 @@ inline void IProcess::handleChildProcess(ChildProcessConfig& param) {
     if (OsalReturnType::kSuccess != setSchedulingAndSecurity(*param.config)) {
         sysexit(EXIT_FAILURE);
     }
+    
     changeCurrentWorkingDirectory(*param.config);
     implementMemoryResourceLimits(*param.config);
     changeSecurityPolicy(*param.config);

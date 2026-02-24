@@ -74,6 +74,8 @@ build:ferrocene-coverage --@rules_rust//rust/settings:extra_exec_rustc_flag=-Cco
 build:ferrocene-coverage --@rules_rust//rust/settings:extra_exec_rustc_flag=-Cdebuginfo=2
 test:ferrocene-coverage --run_under=@score_tooling//coverage:llvm_profile_wrapper
 
+build:ferrocene-coverage --remote_download_all
+
 # to be removed
 build:build_qnx8 --config=arm64-qnx
 
