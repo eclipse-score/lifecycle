@@ -1,1 +1,112 @@
-[]
+[
+  {
+    "name": "IdentifierHashTest__IdentifierHash_with_string_view_created",
+    "file": "tests/ut/identifier_hash_UT/identifier_hash_UT.cpp",
+    "line": "33",
+    "result": "passed",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing ",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "IdentifierHashTest__IdentifierHash_with_string_created",
+    "file": "tests/ut/identifier_hash_UT/identifier_hash_UT.cpp",
+    "line": "45",
+    "result": "passed",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing ",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "IdentifierHashTest__IdentifierHash_default_created",
+    "file": "tests/ut/identifier_hash_UT/identifier_hash_UT.cpp",
+    "line": "57",
+    "result": "passed",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing ",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "IdentifierHashTest__IdentifierHash_invalid_hash_no_string_representation",
+    "file": "tests/ut/identifier_hash_UT/identifier_hash_UT.cpp",
+    "line": "68",
+    "result": "passed",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing ",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "IdentifierHashTest__IdentifierHash_no_dangling_pointer_after_source_string_dies",
+    "file": "tests/ut/identifier_hash_UT/identifier_hash_UT.cpp",
+    "line": "85",
+    "result": "passed",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing ",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "HealthMonitorTest__TestName",
+    "file": "src/health_monitoring_lib/cpp/tests/health_monitor_test.cpp",
+    "line": "32",
+    "result": "passed",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing ",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "ProcessStateClient_UT__ProcessStateClient_ConstructReceiver_Succeeds",
+    "file": "src/launch_manager_daemon/process_state_client_lib/src/processstateclient_UT.cpp",
+    "line": "43",
+    "result": "passed",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing ",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "ProcessStateClient_UT__ProcessStateClient_QueueOneProcess_Succeeds",
+    "file": "src/launch_manager_daemon/process_state_client_lib/src/processstateclient_UT.cpp",
+    "line": "52",
+    "result": "passed",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing ",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "ProcessStateClient_UT__ProcessStateClient_QueueMaxNumberOfProcesses_Succeeds",
+    "file": "src/launch_manager_daemon/process_state_client_lib/src/processstateclient_UT.cpp",
+    "line": "81",
+    "result": "passed",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing ",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "ProcessStateClient_UT__ProcessStateClient_QueueOneProcessTooMany_Fails",
+    "file": "src/launch_manager_daemon/process_state_client_lib/src/processstateclient_UT.cpp",
+    "line": "114",
+    "result": "passed",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing ",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  }
+]
