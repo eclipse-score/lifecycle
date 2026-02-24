@@ -108,21 +108,24 @@ bool score::mw::lifecycle::LifeCycleManager::initialize_internal()
     const auto empty_set_status = signal_->SigEmptySet(m_signal_set);
     if (empty_set_status.has_value() == false)
     {
-        mw::log::LogError() << kFailedCreateSig << empty_set_status.error().ToString();
+        mw::log::LogError() << score::mw::log::LogString{kFailedCreateSig, sizeof(kFailedCreateSig)}
+                            << empty_set_status.error().ToString();
         return false;
     }
     /* KW_SUPPRESS_END:UNREACH.GEN */
     const auto add_termination_status = signal_->AddTerminationSignal(m_signal_set);
     if (add_termination_status.has_value() == false)
     {
-        mw::log::LogError() << kFailedAddSigterm << add_termination_status.error().ToString();
+        mw::log::LogError() << score::mw::log::LogString{kFailedAddSigterm, sizeof(kFailedAddSigterm)}
+                            << add_termination_status.error().ToString();
         return false;
     }
     const auto pthread_sig_mask_status =
         signal_->PthreadSigMask(m_signal_set); /* NOLINT(score-banned-function) using PthreadSigMask by desing */
     if (pthread_sig_mask_status.has_value() == false)
     {
-        mw::log::LogError() << kFailedBlockSig << pthread_sig_mask_status.error().ToString();
+        mw::log::LogError() << score::mw::log::LogString{kFailedBlockSig, sizeof(kFailedBlockSig)}
+                            << pthread_sig_mask_status.error().ToString();
         return false;
     }
     // only start thread if everything was ok
@@ -156,7 +159,7 @@ void score::mw::lifecycle::LifeCycleManager::handle_signal()
         mw::log::LogError() << "Application will exit with status EXIT_FAILURE!";
         /* quick_exit() is used instead of exit() to avoid undefined behavior when trying to finish execution even if it
           is still possible that initialization is ongoing and using global resources i.e. logging.
-         KW_SUPPRESS_START:MISRA.STDLIB.ABORT,MISRA.USE.EXPANSION: 
+         KW_SUPPRESS_START:MISRA.STDLIB.ABORT,MISRA.USE.EXPANSION:
          (1) Exit call tolerated as we need to return an exit code. (2) Macro tolerated as failure value is
          implementation defined. */
         score::os::Stdlib::instance().quick_exit(EXIT_FAILURE);

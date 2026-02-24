@@ -20,11 +20,21 @@ using namespace score::hm;
 
 class HealthMonitorTest : public ::testing::Test
 {
+  protected:
+    void SetUp() override
+    {
+        RecordProperty("TestType", "interface-test");
+        RecordProperty("DerivationTechnique", "explorative-testing ");
+    }
 };
 
 // For first review round, only single test case to show up API
 TEST_F(HealthMonitorTest, TestName)
 {
+    RecordProperty(
+        "Description",
+        "This test demonstrates the usage of HealthMonitor and DeadlineMonitor APIs. It creates a HealthMonitor with a "
+        "DeadlineMonitor, retrieves the DeadlineMonitor, and tests starting a deadline.");
     // Setup deadline monitor construction.
     const MonitorTag deadline_monitor_tag{"deadline_monitor"};
     auto deadline_monitor_builder =

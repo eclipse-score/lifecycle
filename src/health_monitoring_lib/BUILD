@@ -16,8 +16,8 @@ load("@rules_rust//rust:defs.bzl", "rust_library", "rust_static_library", "rust_
 load("@score_baselibs//:bazel/unit_tests.bzl", "cc_gtest_unit_test")
 
 COMMON_DEPS = [
-    "@score_baselibs_rust//src/containers",
-    "@score_baselibs_rust//src/log/score_log",
+    "@score_baselibs_rust//src/containers:containers",
+    "@score_baselibs_rust//src/log/score_log:score_log",
     "//src/launch_manager_daemon/health_monitor_lib/rust_bindings:monitor_rs",
 ]
 
