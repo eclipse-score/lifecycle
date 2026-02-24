@@ -663,7 +663,7 @@ def gen_health_monitor_config(output_dir, config):
             return "REGULAR_PROCESS"
 
     def is_supervised(application_type):
-        return application_type == "Reporting_And_Supervised"
+        return application_type == "State_Manager" or application_type == "Reporting_And_Supervised"
 
     def get_all_process_group_states(run_targets):
         process_group_states = []
@@ -692,22 +692,7 @@ def gen_health_monitor_config(output_dir, config):
     hm_config["hmLocalSupervision"] = []
     hm_config["hmGlobalSupervision"] = []
     hm_config["hmRecoveryNotification"] = []
-    # Build a mapping of run_target -> list of supervised component names
-    run_target_components = {}
-    for rt_name, rt_config in config["run_targets"].items():
-        if rt_name == "Off":
-            continue
-        supervised_deps = []
-        for dep_name in rt_config.get("depends_on", []):
-            if dep_name in config["components"]:
-                comp = config["components"][dep_name]
-                if is_supervised(comp["component_properties"]["application_profile"]["application_type"]):
-                    supervised_deps.append(dep_name)
-        if supervised_deps:
-            run_target_components[rt_name] = supervised_deps
-
     index = 0
-
     for component_name, component_config in config["components"].items():
         if is_supervised(component_config["component_properties"]["application_profile"]["application_type"]):
             process = {}
@@ -776,7 +761,7 @@ def gen_health_monitor_config(output_dir, config):
         hm_config["hmGlobalSupervision"].append(global_supervision)
 
         recovery_action = {}
-        recovery_action["shortName"] = f"RecoveryNotification_{rt_name}"
+        recovery_action["shortName"] = f"recovery_notification"
         recovery_action["recoveryNotificationTimeout"] = 5000
         recovery_action["processGroupMetaModelIdentifier"] = get_recovery_process_group_state(config)
         recovery_action["refGlobalSupervisionIndex"] = hm_config["hmGlobalSupervision"].index(global_supervision)
