@@ -1,0 +1,969 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Component Requirements Statistics &#8212; Lifecycle and Health Management  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="_static/css/score.css?v=6e51530f" />
+    <link rel="stylesheet" type="text/css" href="_static/css/score_needs.css?v=e97392eb" />
+    <link rel="stylesheet" type="text/css" href="_static/css/score_design.css?v=d9fd870c" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-data-viewer/jsonview.bundle.css?v=f6ef2277" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-needs/libs/html/datatables.min.css?v=4b4fd840" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-needs/common_css/need_toggle.css?v=5c6620df" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-needs/common_css/needstable.css?v=5e1b6797" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-needs/common_css/need_core.css?v=f5b60a78" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-needs/common_css/need_links.css?v=2150a916" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-needs/common_css/need_style.css?v=92936fa5" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-needs/modern.css?v=803738c0" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/jquery.js?v=5d32c60e"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script src="_static/sphinx-data-viewer/jsonview.bundle.js?v=18cd53c5"></script>
+    <script src="_static/sphinx-data-viewer/jsonview_loader.js?v=f7ff7e7d"></script>
+    <script src="_static/sphinx-needs/libs/html/datatables.min.js?v=8a4aee21"></script>
+    <script src="_static/sphinx-needs/libs/html/datatables_loader.js?v=a2cae175"></script>
+    <script src="_static/sphinx-needs/libs/html/sphinx_needs_collapse.js?v=dca66431"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'statistics';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://eclipse-score.github.io/lifecycle/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Component Classification" href="module/health_monitor/component_classification.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Eclipse S-CORE</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="module/health_monitor/index.html">
+    HealthMonitor
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Component Requirements Statistics
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/eclipse-score" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="module/health_monitor/index.html">
+    HealthMonitor
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Component Requirements Statistics
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/eclipse-score" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Component Requirements Statistics</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="component-requirements-statistics">
+<span id="life-statistics"></span><h1>Component Requirements Statistics<a class="headerlink" href="#component-requirements-statistics" title="Link to this heading">#</a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<img alt="_images/need_pie_2b909.svg" id="needpie-statistics-0" src="_images/need_pie_2b909.svg" />
+</section>
+<section id="in-detail">
+<h2>In Detail<a class="headerlink" href="#in-detail" title="Link to this heading">#</a></h2>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 score-grid docutils">
+<div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<img alt="_images/need_pie_cce4e.svg" id="needpie-statistics-1" src="_images/need_pie_cce4e.svg" />
+</div>
+</div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<img alt="_images/need_pie_8587e.svg" id="needpie-statistics-2" src="_images/need_pie_8587e.svg" />
+</div>
+</div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<img alt="_images/need_pie_01abf.svg" id="needpie-statistics-3" src="_images/need_pie_01abf.svg" />
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<p class="sd-card-text">Failed Tests</p>
+<p class="sd-card-text"><em>Hint: This table should be empty. Before a PR can be merged all tests have to be successful.</em></p>
+<div class="pst-scrollable-table-container"><span id="needtable-statistics-0"></span><table class="NEEDS_DATATABLES table" id="needtable-statistics-0-table_node">
+<caption><span class="caption-text">FAILED TESTS</span><a class="headerlink" href="#needtable-statistics-0-table_node" title="Link to this table">#</a></caption>
+<colgroup>
+<col style="width: 14.3%" />
+<col style="width: 14.3%" />
+<col style="width: 14.3%" />
+<col style="width: 14.3%" />
+<col style="width: 14.3%" />
+<col style="width: 14.3%" />
+<col style="width: 14.3%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>testcase</p></th>
+<th class="head"><p>Result</p></th>
+<th class="head"><p>Fully Verifies</p></th>
+<th class="head"><p>Partially Verifies</p></th>
+<th class="head"><p>Test Type</p></th>
+<th class="head"><p>Derivation Technique</p></th>
+<th class="head"><p>link</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="need row-even"><td class="needs_name"><p>test_smoke</p></td>
+<td class="needs_result"><p>failed</p></td>
+<td class="needs_fully_verifies"><p></p></td>
+<td class="needs_partially_verifies"><p></p></td>
+<td class="needs_test_type"><p>interface-test</p></td>
+<td class="needs_derivation_technique"><p>explorative-testing</p></td>
+<td class="needs_id external_link"><p><a class="external_link reference external" href="https://github.com/etas-contrib/score_lifecycle/blob/8792cb23f9c5e8da2426cfda8eab19e1cb9acbcb/tests/integration/smoke/smoke.py#L21">testcase__test_smoke_MPIIE</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<p class="sd-card-text">Skipped / Disabled Tests</p>
+<p class="needs_filter_warning" id="needtable-statistics-1">No needs passed the filters</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="all-passed-tests">
+<h2>All passed Tests<a class="headerlink" href="#all-passed-tests" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><span id="needtable-statistics-2"></span><table class="NEEDS_DATATABLES table" id="needtable-statistics-2-table_node">
+<caption><span class="caption-text">SUCCESSFUL TESTS</span><a class="headerlink" href="#needtable-statistics-2-table_node" title="Link to this table">#</a></caption>
+<colgroup>
+<col style="width: 14.3%" />
+<col style="width: 14.3%" />
+<col style="width: 14.3%" />
+<col style="width: 14.3%" />
+<col style="width: 14.3%" />
+<col style="width: 14.3%" />
+<col style="width: 14.3%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>testcase</p></th>
+<th class="head"><p>Result</p></th>
+<th class="head"><p>Fully Verifies</p></th>
+<th class="head"><p>Partially Verifies</p></th>
+<th class="head"><p>Test Type</p></th>
+<th class="head"><p>Derivation Technique</p></th>
+<th class="head"><p>link</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="need row-even"><td class="needs_name"><p>HealthMonitorTest__TestName</p></td>
+<td class="needs_result"><p>passed</p></td>
+<td class="needs_fully_verifies"><p></p></td>
+<td class="needs_partially_verifies"><p></p></td>
+<td class="needs_test_type"><p>interface-test</p></td>
+<td class="needs_derivation_technique"><p>explorative-testing</p></td>
+<td class="needs_id external_link"><p><a class="external_link reference external" href="https://github.com/etas-contrib/score_lifecycle/blob/8792cb23f9c5e8da2426cfda8eab19e1cb9acbcb/src/health_monitoring_lib/cpp/tests/health_monitor_test.cpp#L32">testcase__HealthMonitorTest__TestName_JWIAP</a></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_name"><p>IdentifierHashTest__IdentifierHash_default_created</p></td>
+<td class="needs_result"><p>passed</p></td>
+<td class="needs_fully_verifies"><p></p></td>
+<td class="needs_partially_verifies"><p></p></td>
+<td class="needs_test_type"><p>interface-test</p></td>
+<td class="needs_derivation_technique"><p>explorative-testing</p></td>
+<td class="needs_id external_link"><p><a class="external_link reference external" href="https://github.com/etas-contrib/score_lifecycle/blob/8792cb23f9c5e8da2426cfda8eab19e1cb9acbcb/tests/ut/identifier_hash_UT/identifier_hash_UT.cpp#L57">testcase__IdentifierHashTest__IdentifierHash_default_created_KNMDJ</a></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_name"><p>IdentifierHashTest__IdentifierHash_invalid_hash_no_string_representation</p></td>
+<td class="needs_result"><p>passed</p></td>
+<td class="needs_fully_verifies"><p></p></td>
+<td class="needs_partially_verifies"><p></p></td>
+<td class="needs_test_type"><p>interface-test</p></td>
+<td class="needs_derivation_technique"><p>explorative-testing</p></td>
+<td class="needs_id external_link"><p><a class="external_link reference external" href="https://github.com/etas-contrib/score_lifecycle/blob/8792cb23f9c5e8da2426cfda8eab19e1cb9acbcb/tests/ut/identifier_hash_UT/identifier_hash_UT.cpp#L68">testcase__IdentifierHashTest__IdentifierHash_invalid_hash_no_string_representation_BWABE</a></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_name"><p>IdentifierHashTest__IdentifierHash_no_dangling_pointer_after_source_string_dies</p></td>
+<td class="needs_result"><p>passed</p></td>
+<td class="needs_fully_verifies"><p></p></td>
+<td class="needs_partially_verifies"><p></p></td>
+<td class="needs_test_type"><p>interface-test</p></td>
+<td class="needs_derivation_technique"><p>explorative-testing</p></td>
+<td class="needs_id external_link"><p><a class="external_link reference external" href="https://github.com/etas-contrib/score_lifecycle/blob/8792cb23f9c5e8da2426cfda8eab19e1cb9acbcb/tests/ut/identifier_hash_UT/identifier_hash_UT.cpp#L85">testcase__IdentifierHashTest__IdentifierHash_no_dangling_pointer_after_source_string_dies_TEJCS</a></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_name"><p>IdentifierHashTest__IdentifierHash_with_string_created</p></td>
+<td class="needs_result"><p>passed</p></td>
+<td class="needs_fully_verifies"><p></p></td>
+<td class="needs_partially_verifies"><p></p></td>
+<td class="needs_test_type"><p>interface-test</p></td>
+<td class="needs_derivation_technique"><p>explorative-testing</p></td>
+<td class="needs_id external_link"><p><a class="external_link reference external" href="https://github.com/etas-contrib/score_lifecycle/blob/8792cb23f9c5e8da2426cfda8eab19e1cb9acbcb/tests/ut/identifier_hash_UT/identifier_hash_UT.cpp#L45">testcase__IdentifierHashTest__IdentifierHash_with_string_created_IGMAI</a></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_name"><p>IdentifierHashTest__IdentifierHash_with_string_view_created</p></td>
+<td class="needs_result"><p>passed</p></td>
+<td class="needs_fully_verifies"><p></p></td>
+<td class="needs_partially_verifies"><p></p></td>
+<td class="needs_test_type"><p>interface-test</p></td>
+<td class="needs_derivation_technique"><p>explorative-testing</p></td>
+<td class="needs_id external_link"><p><a class="external_link reference external" href="https://github.com/etas-contrib/score_lifecycle/blob/8792cb23f9c5e8da2426cfda8eab19e1cb9acbcb/tests/ut/identifier_hash_UT/identifier_hash_UT.cpp#L33">testcase__IdentifierHashTest__IdentifierHash_with_string_view_created_AMIBK</a></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_name"><p>ProcessStateClient_UT__ProcessStateClient_ConstructReceiver_Succeeds</p></td>
+<td class="needs_result"><p>passed</p></td>
+<td class="needs_fully_verifies"><p></p></td>
+<td class="needs_partially_verifies"><p></p></td>
+<td class="needs_test_type"><p>interface-test</p></td>
+<td class="needs_derivation_technique"><p>explorative-testing</p></td>
+<td class="needs_id external_link"><p><a class="external_link reference external" href="https://github.com/etas-contrib/score_lifecycle/blob/8792cb23f9c5e8da2426cfda8eab19e1cb9acbcb/src/launch_manager_daemon/process_state_client_lib/src/processstateclient_UT.cpp#L43">testcase__ProcessStateClient_UT__ProcessStateClient_ConstructReceiver_Succeeds_NUBZV</a></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_name"><p>ProcessStateClient_UT__ProcessStateClient_QueueMaxNumberOfProcesses_Succeeds</p></td>
+<td class="needs_result"><p>passed</p></td>
+<td class="needs_fully_verifies"><p></p></td>
+<td class="needs_partially_verifies"><p></p></td>
+<td class="needs_test_type"><p>interface-test</p></td>
+<td class="needs_derivation_technique"><p>explorative-testing</p></td>
+<td class="needs_id external_link"><p><a class="external_link reference external" href="https://github.com/etas-contrib/score_lifecycle/blob/8792cb23f9c5e8da2426cfda8eab19e1cb9acbcb/src/launch_manager_daemon/process_state_client_lib/src/processstateclient_UT.cpp#L81">testcase__ProcessStateClient_UT__ProcessStateClient_QueueMaxNumberOfProcesses_Succeeds_HFAAP</a></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_name"><p>ProcessStateClient_UT__ProcessStateClient_QueueOneProcess_Succeeds</p></td>
+<td class="needs_result"><p>passed</p></td>
+<td class="needs_fully_verifies"><p></p></td>
+<td class="needs_partially_verifies"><p></p></td>
+<td class="needs_test_type"><p>interface-test</p></td>
+<td class="needs_derivation_technique"><p>explorative-testing</p></td>
+<td class="needs_id external_link"><p><a class="external_link reference external" href="https://github.com/etas-contrib/score_lifecycle/blob/8792cb23f9c5e8da2426cfda8eab19e1cb9acbcb/src/launch_manager_daemon/process_state_client_lib/src/processstateclient_UT.cpp#L52">testcase__ProcessStateClient_UT__ProcessStateClient_QueueOneProcess_Succeeds_JUTUU</a></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_name"><p>ProcessStateClient_UT__ProcessStateClient_QueueOneProcessTooMany_Fails</p></td>
+<td class="needs_result"><p>passed</p></td>
+<td class="needs_fully_verifies"><p></p></td>
+<td class="needs_partially_verifies"><p></p></td>
+<td class="needs_test_type"><p>interface-test</p></td>
+<td class="needs_derivation_technique"><p>explorative-testing</p></td>
+<td class="needs_id external_link"><p><a class="external_link reference external" href="https://github.com/etas-contrib/score_lifecycle/blob/8792cb23f9c5e8da2426cfda8eab19e1cb9acbcb/src/launch_manager_daemon/process_state_client_lib/src/processstateclient_UT.cpp#L114">testcase__ProcessStateClient_UT__ProcessStateClient_QueueOneProcessTooMany_Fails_LFZAU</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="details-about-testcases">
+<h2>Details About Testcases<a class="headerlink" href="#details-about-testcases" title="Link to this heading">#</a></h2>
+<img alt="_images/need_pie_d5f3b.svg" id="needpie-statistics-4" src="_images/need_pie_d5f3b.svg" />
+<img alt="_images/need_pie_34de7.svg" id="needpie-statistics-5" src="_images/need_pie_34de7.svg" />
+</section>
+<section id="test-log-files">
+<h2>Test Log Files<a class="headerlink" href="#test-log-files" title="Link to this heading">#</a></h2>
+<p class="rubric">tests-report/tests/integration/smoke/smoke/test.log</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
+Executing tests from //tests/integration/smoke:smoke
+-----------------------------------------------------------------------------
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.1, pluggy-1.6.0
+rootdir: /home/runner/.bazel/sandbox/processwrapper-sandbox/513/execroot/_main/bazel-out/k8-fastbuild/bin/tests/integration/smoke/smoke.runfiles/score_tooling+/python_basics/score_pytest
+configfile: pytest.ini
+collected 1 item
+
+../score_tooling+/python_basics/score_pytest::test_smoke FAILED          [100%]
+
+=================================== FAILURES ===================================
+__________________________________ test_smoke __________________________________
+
+    @add_test_properties(
+            partially_verifies=[],
+            test_type=&quot;interface-test&quot;,
+            derivation_technique=&quot;explorative-testing&quot;,
+    )
+    def test_smoke():
+        &quot;&quot;&quot;Smoke test for the launch manager daemon.&quot;&quot;&quot;
+        code, stdout, stderr = get_common_interface().run_until_file_deployed(
+            &quot;src/launch_manager_daemon/launch_manager&quot;
+        )
+    
+        print(format_logs(code, stdout, stderr))
+    
+&gt;       check_for_failures(Path(&quot;tests/integration/smoke&quot;), 2)
+
+tests/integration/smoke/smoke.py:34: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath(&#39;tests/integration/smoke&#39;), expected_count = 2
+
+    def check_for_failures(path: Path, expected_count: int):
+        &quot;&quot;&quot;Check expected_count xml files for failures, raising an exception if
+        a failure is found or a different number of xml files are found.
+        &quot;&quot;&quot;
+        failing_files = []
+        checked_files = []
+        for file in path.iterdir():
+            if file.suffix == &quot;.xml&quot;:
+                gtest_xml = open(file).read()
+                query = &#39;failures=&quot;&#39;
+                failure_number = gtest_xml[gtest_xml.find(query) + len(query)]
+                if failure_number != &quot;0&quot;:
+                    failing_files.append(file.name)
+                checked_files.append(file.name)
+                shutil.copy(file, get_bazel_out_dir())
+        if len(failing_files) &gt; 0:
+            raise RuntimeError(
+                f&quot;Failures found in the following files:\n {&#39;\n&#39;.join(failing_files)}&quot;
+            )
+        if len(checked_files) != expected_count:
+&gt;           raise RuntimeError(
+                f&quot;Expected to find {expected_count} xml files, instead found {len(checked_files)}:\n{&#39;\n&#39;.join(checked_files)}&quot;
+            )
+E           RuntimeError: Expected to find 2 xml files, instead found 0:
+
+tests/integration/testing_utils.py:181: RuntimeError
+----------------------------- Captured stdout call -----------------------------
+stdout:
+
+
+stderr:
+/usr/bin/fakeroot: 175: /usr/bin/fakechroot: not found
+
+
+Exit status = 127
+- generated xml file: /home/runner/.bazel/sandbox/processwrapper-sandbox/513/execroot/_main/bazel-out/k8-fastbuild/testlogs/tests/integration/smoke/smoke/test.xml -
+=========================== short test summary info ============================
+FAILED ../score_tooling+/python_basics/score_pytest::test_smoke - RuntimeErro...
+============================== 1 failed in 0.12s ===============================
+</pre></div>
+</div>
+<p class="rubric">tests-report/tests/ut/identifier_hash_UT/identifier_hash_UT/test.log</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
+Executing tests from //tests/ut/identifier_hash_UT:identifier_hash_UT
+-----------------------------------------------------------------------------
+Running main() from gmock_main.cc
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from IdentifierHashTest
+[ RUN      ] IdentifierHashTest.IdentifierHash_with_string_view_created
+[       OK ] IdentifierHashTest.IdentifierHash_with_string_view_created (0 ms)
+[ RUN      ] IdentifierHashTest.IdentifierHash_with_string_created
+[       OK ] IdentifierHashTest.IdentifierHash_with_string_created (0 ms)
+[ RUN      ] IdentifierHashTest.IdentifierHash_default_created
+[       OK ] IdentifierHashTest.IdentifierHash_default_created (0 ms)
+[ RUN      ] IdentifierHashTest.IdentifierHash_invalid_hash_no_string_representation
+[       OK ] IdentifierHashTest.IdentifierHash_invalid_hash_no_string_representation (0 ms)
+[ RUN      ] IdentifierHashTest.IdentifierHash_no_dangling_pointer_after_source_string_dies
+[       OK ] IdentifierHashTest.IdentifierHash_no_dangling_pointer_after_source_string_dies (0 ms)
+[----------] 5 tests from IdentifierHashTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 5 tests.
+</pre></div>
+</div>
+<p class="rubric">tests-report/src/health_monitoring_lib/tests/test.log</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
+Executing tests from //src/health_monitoring_lib:tests
+-----------------------------------------------------------------------------
+
+running 82 tests
+test deadline::common::tests::new_and_fields ... ok
+test deadline::common::tests::acquire_and_release_deadline ... ok
+test deadline::deadline_monitor::tests::get_deadline_unknown_tag ... ok
+test deadline::deadline_monitor::tests::deadline_outside_time_range_is_error_when_dropped_after_evaluate ... ok
+test deadline::common::tests::concurrent_acquire ... ok
+test deadline::deadline_monitor::tests::start_stop_deadline_outside_ranges_is_error_when_dropped_before_evaluate ... ok
+test deadline::deadline_monitor::tests::start_stop_deadline_outside_ranges_is_evaluated_as_error ... ok
+test deadline::deadline_state::tests::as_u64_and_new ... ok
+test deadline::deadline_state::tests::deadline_state_default_and_snapshot ... ok
+test deadline::deadline_state::tests::deadline_state_update_none_returns_err ... ok
+test deadline::deadline_state::tests::deadline_state_update_success ... ok
+test deadline::deadline_state::tests::default_state ... ok
+test deadline::deadline_state::tests::set_and_get_timestamp_ms ... ok
+test deadline::deadline_monitor::tests::deadline_failed_on_first_run_and_then_restarted_is_evaluated_as_error ... ok
+test deadline::deadline_state::tests::set_running ... ok
+test deadline::deadline_state::tests::set_underrun ... ok
+test deadline::ffi::tests::deadline_destroy_null_deadline ... ok
+test deadline::ffi::tests::deadline_monitor_builder_add_deadline_invalid_range ... ok
+test deadline::ffi::tests::deadline_monitor_builder_add_deadline_null_deadline_tag ... ok
+test deadline::ffi::tests::deadline_monitor_builder_add_deadline_null_builder ... ok
+test deadline::ffi::tests::deadline_monitor_builder_add_deadline_succeeds ... ok
+test deadline::ffi::tests::deadline_monitor_builder_create_null_builder ... ok
+test deadline::ffi::tests::deadline_monitor_builder_create_succeeds ... ok
+test deadline::ffi::tests::deadline_monitor_destroy_null_monitor ... ok
+test deadline::ffi::tests::deadline_monitor_get_deadline_null_deadline_handle ... ok
+test deadline::ffi::tests::deadline_monitor_builder_destroy_null_builder ... ok
+test deadline::ffi::tests::deadline_monitor_get_deadline_null_monitor ... ok
+test deadline::ffi::tests::deadline_monitor_get_deadline_succeeds ... ok
+test deadline::ffi::tests::deadline_monitor_get_deadline_unknown_deadline ... ok
+test deadline::ffi::tests::deadline_start_already_started ... ok
+test deadline::ffi::tests::deadline_start_null_deadline ... ok
+test deadline::ffi::tests::deadline_start_succeeds ... ok
+test deadline::ffi::tests::deadline_monitor_get_deadline_null_deadline_tag ... ok
+test deadline::ffi::tests::deadline_stop_succeeds ... ok
+test ffi::tests::health_monitor_builder_add_deadline_monitor_null_deadline_monitor_builder ... ok
+test ffi::tests::health_monitor_builder_add_deadline_monitor_null_hmon_builder ... ok
+test ffi::tests::health_monitor_builder_add_deadline_monitor_null_monitor_tag ... ok
+test ffi::tests::health_monitor_builder_add_deadline_monitor_succeeds ... ok
+test ffi::tests::health_monitor_builder_build_invalid_cycle_intervals ... ok
+test ffi::tests::health_monitor_builder_build_null_builder_handle ... ok
+test ffi::tests::health_monitor_builder_build_null_monitor_handle ... ok
+test ffi::tests::health_monitor_builder_build_succeeds ... ok
+test ffi::tests::health_monitor_builder_create_null_handle ... ok
+test ffi::tests::health_monitor_builder_create_succeeds ... ok
+test ffi::tests::health_monitor_builder_destroy_null_handle ... ok
+test ffi::tests::health_monitor_destroy_null_hmon ... ok
+test ffi::tests::health_monitor_get_deadline_monitor_already_taken ... ok
+test ffi::tests::health_monitor_get_deadline_monitor_null_deadline_monitor ... ok
+test ffi::tests::health_monitor_get_deadline_monitor_null_hmon ... ok
+test ffi::tests::health_monitor_get_deadline_monitor_null_monitor_tag ... ok
+test ffi::tests::health_monitor_get_deadline_monitor_succeeds ... ok
+test deadline::ffi::tests::deadline_stop_null_deadline ... ok
+test ffi::tests::health_monitor_start_monitor_not_taken ... ok
+test ffi::tests::health_monitor_start_null_hmon ... ok
+test ffi::tests::health_monitor_start_no_monitors ... ok
+test tag::tests::deadline_tag_debug ... ok
+test tag::tests::deadline_tag_from_str ... ok
+test tag::tests::deadline_tag_from_string ... ok
+test tag::tests::deadline_tag_score_debug ... ok
+test tag::tests::monitor_tag_debug ... ok
+test tag::tests::monitor_tag_from_str ... ok
+test tag::tests::monitor_tag_from_string ... ok
+test tag::tests::monitor_tag_score_debug ... ok
+test tag::tests::tag_debug ... ok
+test tag::tests::tag_hash ... ok
+test tag::tests::tag_partial_eq_is_eq ... ok
+test tag::tests::tag_partial_eq_is_ne ... ok
+test tag::tests::tag_score_debug ... ok
+test tag::tests::test_from_str ... ok
+test tag::tests::test_from_string ... ok
+test tests::hm_get_deadline_monitor_works ... ok
+test tests::hm_with_monitors_shall_not_start_with_not_taken_monitors - should panic ... ok
+test ffi::tests::health_monitor_start_succeeds ... ok
+test tests::hm_with_no_monitors_shall_panic_on_start - should panic ... ok
+test tests::hm_with_taken_monitors_starts ... ok
+test tests::hm_with_wrong_cycle_fails_to_build - should panic ... ok
+test worker::tests::monitoring_logic_report_alive_on_each_call_when_no_error ... ok
+test worker::tests::monitoring_logic_report_error_when_deadline_failed ... ok
+test deadline::deadline_monitor::tests::monitor_with_multiple_running_deadlines ... ok
+test worker::tests::unique_thread_runner_monitoring_works ... ok
+test worker::tests::monitoring_logic_report_alive_respect_cycle ... ok
+test deadline::deadline_monitor::tests::start_stop_deadline_within_range_works ... ok
+
+test result: ok. 82 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.00s
+</pre></div>
+</div>
+<p class="rubric">tests-report/src/health_monitoring_lib/cpp_tests/test.log</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
+Executing tests from //src/health_monitoring_lib:cpp_tests
+-----------------------------------------------------------------------------
+Running main() from gmock_main.cc
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from HealthMonitorTest
+[ RUN      ] HealthMonitorTest.TestName
+[2026/02/24 10:11:52.4455061][src/health_monitoring_lib/rust/deadline/deadline_monitor.rs:243][7318][HMON][ERROR] Deadline DeadlineTag(deadline_1) stopped too early by 100 ms
+[2026/02/24 10:11:52.4456174][src/health_monitoring_lib/rust/worker.rs:98][7318][HMON][INFO] Monitoring thread started.
+[2026/02/24 10:11:52.4456295][src/health_monitoring_lib/rust/worker.rs:115][7318][HMON][INFO] Monitoring thread exiting.
+[       OK ] HealthMonitorTest.TestName (0 ms)
+[----------] 1 test from HealthMonitorTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+</pre></div>
+</div>
+<p class="rubric">tests-report/src/launch_manager_daemon/process_state_client_lib/processstateclient_UT/test.log</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
+Executing tests from //src/launch_manager_daemon/process_state_client_lib:processstateclient_UT
+-----------------------------------------------------------------------------
+Running main() from gmock_main.cc
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from ProcessStateClient_UT
+[ RUN      ] ProcessStateClient_UT.ProcessStateClient_ConstructReceiver_Succeeds
+[       OK ] ProcessStateClient_UT.ProcessStateClient_ConstructReceiver_Succeeds (0 ms)
+[ RUN      ] ProcessStateClient_UT.ProcessStateClient_QueueOneProcess_Succeeds
+[       OK ] ProcessStateClient_UT.ProcessStateClient_QueueOneProcess_Succeeds (0 ms)
+[ RUN      ] ProcessStateClient_UT.ProcessStateClient_QueueMaxNumberOfProcesses_Succeeds
+[       OK ] ProcessStateClient_UT.ProcessStateClient_QueueMaxNumberOfProcesses_Succeeds (22 ms)
+[ RUN      ] ProcessStateClient_UT.ProcessStateClient_QueueOneProcessTooMany_Fails
+ [101;30m !!! -&gt; [0m [0;34m 2026/2/24 10:10:30 LCLM LCLM ERROR:   [ Failed to queue posix process ][0m
+ [101;30m !!! -&gt; [0m [0;34m 2026/2/24 10:10:30 LCLM LCLM ERROR:   [ ProcessStateReceiver::getNextChangedPosixProcess: Overflow occurred, will be reported as kCommunicationError ][0m
+[       OK ] ProcessStateClient_UT.ProcessStateClient_QueueOneProcessTooMany_Fails (3 ms)
+[----------] 4 tests from ProcessStateClient_UT (26 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (26 ms total)
+[  PASSED  ] 4 tests.
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="module/health_monitor/component_classification.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Component Classification</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#in-detail">In Detail</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#all-passed-tests">All passed Tests</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#details-about-testcases">Details About Testcases</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#test-log-files">Test Log Files</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/eclipse-score/lifecycle/edit/main/docs/statistics.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/statistics.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
