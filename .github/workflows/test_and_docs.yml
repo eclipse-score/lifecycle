@@ -20,9 +20,15 @@ permissions:
   id-token: write
 
 on:
-  workflow_run:
-    workflows: ["Code Coverage"]
-    types: [completed]
+  pull_request_target:
+    types: [opened, reopened, synchronize] # Allows forks to trigger the docs build
+  push:
+    branches:
+      - main
+  merge_group:
+    types: [checks_requested]
+  release:
+    types: [created]
 
 jobs:
   docs-verify:
@@ -32,26 +38,17 @@ jobs:
       contents: read
     with:
       bazel-docs-verify-target: "//:docs_check"
-  fetch-testlogs:
-    runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    steps:
-      - name: Download test logs from Code Coverage run
-        uses: actions/download-artifact@v4
-        with:
-          name: bazel-testlogs
-          path: bazel-testlogs
-          run-id: ${{ github.event.workflow_run.id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Re-upload test logs for docs build
-        uses: actions/upload-artifact@v4
-        with:
-          name: bazel-testlogs
-          path: bazel-testlogs/
-          retention-days: 10
+  run-tests:
+    uses: eclipse-score/cicd-workflows/.github/workflows/tests.yml@main
+    permissions:
+      contents: read
+      pull-requests: read
+    with:
+      bazel-target: 'test //src/... //tests/... --config=x86_64-linux'
+      upload-name: 'bazel-testlogs'
   build-docs:
-    needs: fetch-testlogs
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    needs: run-tests
+    if: ${{ needs.run-tests.result == 'success' }}
     uses: eclipse-score/cicd-workflows/.github/workflows/docs.yml@main
     permissions:
       contents: write

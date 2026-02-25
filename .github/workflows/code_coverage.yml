@@ -29,14 +29,10 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v6
 
-      - name: Install dependencies
-        uses: eclipse-score/apt-install@main
-        with:
-          packages: |
-            lcov
-            fakechroot
-          cache: false
-             
+      - name: Install lcov
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lcov
 
       - name: Setup Bazel
         uses: bazel-contrib/setup-bazel@0.18.0
@@ -52,7 +48,7 @@ jobs:
             --test_output=errors \
             --nocache_test_results \
             --config=x86_64-linux \
-            //src/... //tests/...
+            //src/...
 
       - name: Generate HTML Coverage Report
         shell: bash
@@ -69,16 +65,6 @@ jobs:
         with:
           name: ${{ github.event.repository.name }}_cpp_coverage_report
           path: cpp_coverage/
-          retention-days: 10
-
-      - name: Upload test logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: bazel-testlogs-cpp
-          path: |
-            bazel-testlogs/**/test.xml
-            bazel-testlogs/**/test.log
           retention-days: 10
   rust:
     runs-on: ubuntu-latest
@@ -117,27 +103,4 @@ jobs:
         with:
           name: ${{ github.event.repository.name }}_rust_coverage_report
           path: ${{ env.COVERAGE_DIR }}
-          retention-days: 10
-
-      - name: Upload test logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: bazel-testlogs-rust
-          path: |
-            bazel-testlogs/**/test.xml
-            bazel-testlogs/**/test.log
-          retention-days: 10
-
-  merge-testlogs:
-    needs: [cpp, rust]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Merge test log artifacts
-        uses: actions/upload-artifact/merge@v4
-        with:
-          name: bazel-testlogs
-          pattern: bazel-testlogs-*
-          delete-merged: true
           retention-days: 10
