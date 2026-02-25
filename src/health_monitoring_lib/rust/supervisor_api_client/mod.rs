@@ -11,7 +11,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
-//! Module for selecting [`SupervisorAPIClient`] implementation.
+//! Module providing [`SupervisorAPIClient`] implementations.
 //! Currently `ScoreSupervisorAPIClient` and `StubSupervisorAPIClient` are supported.
 //! The latter is meant for testing purposes.
 
@@ -20,19 +20,9 @@ pub trait SupervisorAPIClient {
     fn notify_alive(&self);
 }
 
-// Disallow both and none features.
-#[cfg(any(
-    all(feature = "score_supervisor_api_client", feature = "stub_supervisor_api_client"),
-    not(any(feature = "score_supervisor_api_client", feature = "stub_supervisor_api_client"))
-))]
-compile_error!("Either 'score_supervisor_api_client' or 'stub_supervisor_api_client' must be enabled!");
+// NOTE: various implementations are not mutually exclusive.
 
 #[cfg(feature = "score_supervisor_api_client")]
-mod score_supervisor_api_client;
+pub mod score_supervisor_api_client;
 #[cfg(feature = "stub_supervisor_api_client")]
-mod stub_supervisor_api_client;
-
-#[cfg(feature = "score_supervisor_api_client")]
-pub use score_supervisor_api_client::ScoreSupervisorAPIClient as SupervisorAPIClientImpl;
-#[cfg(feature = "stub_supervisor_api_client")]
-pub use stub_supervisor_api_client::StubSupervisorAPIClient as SupervisorAPIClientImpl;
+pub mod stub_supervisor_api_client;

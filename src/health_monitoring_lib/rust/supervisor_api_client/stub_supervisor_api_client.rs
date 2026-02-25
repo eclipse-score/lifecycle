@@ -11,11 +11,12 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
+#![allow(dead_code)]
+
 use crate::log::warn;
 use crate::supervisor_api_client::SupervisorAPIClient;
 
 /// A stub implementation of the SupervisorAPIClient that logs alive notifications.
-#[allow(dead_code)]
 pub struct StubSupervisorAPIClient;
 
 impl StubSupervisorAPIClient {
@@ -24,7 +25,6 @@ impl StubSupervisorAPIClient {
     }
 }
 
-#[allow(dead_code)]
 impl SupervisorAPIClient for StubSupervisorAPIClient {
     fn notify_alive(&self) {
         warn!("StubSupervisorAPIClient: notify_alive called");
