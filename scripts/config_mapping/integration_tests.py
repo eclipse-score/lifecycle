@@ -9,7 +9,8 @@ script_dir = Path(__file__).parent
 tests_dir = script_dir / "tests"
 lifecycle_script = script_dir / "lifecycle_config.py"
 
-def run(input_file : Path, test_name : str, compare_files_only=[], exclude_files=[]):
+
+def run(input_file: Path, test_name: str, compare_files_only=[], exclude_files=[]):
     """
     Execute the mapping script with the given input file and compare the generated output with the expected output.
     Input:
@@ -20,7 +21,9 @@ def run(input_file : Path, test_name : str, compare_files_only=[], exclude_files
     expected_output_dir = tests_dir / test_name / "expected_output"
 
     if compare_files_only and exclude_files:
-        raise AssertionError("You may only make use of either parameters: compare_files_only or exclude_files, but not both.")
+        raise AssertionError(
+            "You may only make use of either parameters: compare_files_only or exclude_files, but not both."
+        )
 
     # Clean and create actual output directory
     if actual_output_dir.exists():
@@ -29,10 +32,11 @@ def run(input_file : Path, test_name : str, compare_files_only=[], exclude_files
 
     # Execute lifecycle_config.py
     cmd = [
-        "python3", 
+        "python3",
         str(lifecycle_script),
         str(input_file),
-        "-o", str(actual_output_dir)
+        "-o",
+        str(actual_output_dir),
     ]
 
     try:
@@ -46,33 +50,41 @@ def run(input_file : Path, test_name : str, compare_files_only=[], exclude_files
 
     if compare_files_only:
         # Compare only specific files
-        if not compare_files(actual_output_dir, expected_output_dir, compare_files_only):
-            raise AssertionError("Actual output files do not match expected output files.")
+        if not compare_files(
+            actual_output_dir, expected_output_dir, compare_files_only
+        ):
+            raise AssertionError(
+                "Actual output files do not match expected output files."
+            )
     else:
         # Compare the complete directory content
-        if not compare_directories(actual_output_dir, expected_output_dir, exclude_files):
+        if not compare_directories(
+            actual_output_dir, expected_output_dir, exclude_files
+        ):
             raise AssertionError("Actual output does not match expected output.")
 
-def compare_directories(dir1: Path, dir2: Path, exclude_files : list) -> bool:
+
+def compare_directories(dir1: Path, dir2: Path, exclude_files: list) -> bool:
     """
     Compare two directories recursively. Return True if they are the same, False otherwise.
     """
     dcmp = filecmp.dircmp(dir1, dir2, ignore=exclude_files)
-    
+
     if dcmp.left_only or dcmp.right_only or dcmp.diff_files:
         print(f"Directories differ: {dir1} vs {dir2}")
         print(f"Only in {dir1}: {dcmp.left_only}")
         print(f"Only in {dir2}: {dcmp.right_only}")
         print(f"Different files: {dcmp.diff_files}")
         return False
-    
+
     for common_dir in dcmp.common_dirs:
         if not compare_directories(dir1 / common_dir, dir2 / common_dir):
             return False
-            
+
     return True
 
-def compare_files(dir1 : Path, dir2 : Path, files : list) -> bool:
+
+def compare_files(dir1: Path, dir2: Path, files: list) -> bool:
     """
     Compare specific files in two directories. Return True if they are the same, False otherwise.
     """
@@ -84,6 +96,7 @@ def compare_files(dir1 : Path, dir2 : Path, files : list) -> bool:
             return False
     return True
 
+
 def test_basic():
     """
     Basic Smoketest for generating both launch manager and health monitoring configuration
@@ -92,6 +105,7 @@ def test_basic():
     input_file = tests_dir / test_name / "input" / "lm_config.json"
 
     run(input_file, test_name)
+
 
 def test_health_config_mapping():
     """
@@ -102,8 +116,9 @@ def test_health_config_mapping():
     """
     test_name = "health_config_test"
     input_file = tests_dir / test_name / "input" / "lm_config.json"
-    
+
     run(input_file, test_name, exclude_files=["lm_demo.json"])
+
 
 def test_empty_health_config_mapping():
     """
@@ -111,8 +126,9 @@ def test_empty_health_config_mapping():
     """
     test_name = "empty_health_config_test"
     input_file = tests_dir / test_name / "input" / "lm_config.json"
-    
+
     run(input_file, test_name, exclude_files=["lm_demo.json"])
+
 
 def test_launch_config_mapping():
     """
@@ -123,8 +139,9 @@ def test_launch_config_mapping():
     """
     test_name = "lm_config_test"
     input_file = tests_dir / test_name / "input" / "lm_config.json"
-    
+
     run(input_file, test_name, compare_files_only=["lm_demo.json"])
+
 
 def test_empty_launch_config_mapping():
     """
@@ -132,5 +149,5 @@ def test_empty_launch_config_mapping():
     """
     test_name = "empty_lm_config_test"
     input_file = tests_dir / test_name / "input" / "lm_config.json"
-    
+
     run(input_file, test_name, compare_files_only=["lm_demo.json"])

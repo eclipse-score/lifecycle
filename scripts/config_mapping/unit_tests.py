@@ -3,12 +3,13 @@
 from lifecycle_config import preprocess_defaults
 import json
 
+
 def test_preprocessing_basic():
     """
     Basic smoketest for the preprocess_defaults function, to ensure that defaults are being applied and overridden correctly.
     """
 
-    global_defaults = json.loads('''
+    global_defaults = json.loads("""
     {
         "deployment_config": {
             "ready_timeout": 0.5,
@@ -32,9 +33,9 @@ def test_preprocessing_basic():
             "evaluation_cycle": 0.5
         },
         "watchdogs": {}
-    }''')
+    }""")
 
-    config = json.loads('''{
+    config = json.loads("""{
         "defaults": {
             "deployment_config": {
                 "shutdown_timeout": 1.0,
@@ -89,11 +90,11 @@ def test_preprocessing_basic():
                 "require_magic_close": false
             }
         }
-    }''')
+    }""")
 
     preprocessed_config = preprocess_defaults(global_defaults, config)
 
-    expected_config=json.loads('''{
+    expected_config = json.loads("""{
         "components": {
             "test_comp": {
                 "description": "Test component",
@@ -137,9 +138,11 @@ def test_preprocessing_basic():
                 "require_magic_close": false
             }
         }
-    }''')
+    }""")
 
     print("Dumping preprocessed configuration:")
     print(json.dumps(preprocessed_config, indent=4))
 
-    assert preprocessed_config == expected_config, "Preprocessed config does not match expected config."
+    assert preprocessed_config == expected_config, (
+        "Preprocessed config does not match expected config."
+    )

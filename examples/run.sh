@@ -37,24 +37,26 @@ file_exists $RUST_APP_BINARY
 file_exists $CONTROL_APP_BINARY
 file_exists $CONTROL_CLI_BINARY
 
-NUMBER_OF_CPP_PROCESSES_PER_PROCESS_GROUP=1
-NUMBER_OF_RUST_PROCESSES_PER_PROCESS_GROUP=1
-NUMBER_OF_NON_SUPERVISED_CPP_PROCESSES_PER_PROCESS_GROUP=1
-PROCESS_GROUPS="--process_groups MainPG ProcessGroup1"
+NUMBER_OF_CPP_PROCESSES=1
+NUMBER_OF_RUST_PROCESSES=1
+NUMBER_OF_NON_SUPERVISED_CPP_PROCESSES=1
 
 rm -rf tmp
 rm -rf config/tmp
 mkdir config/tmp
-python3 config/gen_health_monitor_process_cfg.py -c "$NUMBER_OF_CPP_PROCESSES_PER_PROCESS_GROUP" -r "$NUMBER_OF_RUST_PROCESSES_PER_PROCESS_GROUP"  $PROCESS_GROUPS -o config/tmp/
-../bazel-bin/external/flatbuffers+/flatc --binary -o config/tmp ../src/launch_manager_daemon/health_monitor_lib/config/hm_flatcfg.fbs config/tmp/health_monitor_process_cfg_*.json
 
-python3 config/gen_health_monitor_cfg.py -c "$NUMBER_OF_CPP_PROCESSES_PER_PROCESS_GROUP" -r "$NUMBER_OF_RUST_PROCESSES_PER_PROCESS_GROUP" $PROCESS_GROUPS -o config/tmp/
-../bazel-bin/external/flatbuffers+/flatc --binary -o config/tmp ../src/launch_manager_daemon/health_monitor_lib/config/hm_flatcfg.fbs config/tmp/hm_demo.json
+python3 ../scripts/config_mapping/lifecycle_config.py config/lifecycle_demo.json -o config/tmp/
 
-python3 config/gen_launch_manager_cfg.py -c "$NUMBER_OF_CPP_PROCESSES_PER_PROCESS_GROUP" -r "$NUMBER_OF_RUST_PROCESSES_PER_PROCESS_GROUP" -n "$NUMBER_OF_NON_SUPERVISED_CPP_PROCESSES_PER_PROCESS_GROUP" $PROCESS_GROUPS -o config/tmp/
+for f in config/tmp/*.json; do
+    base=$(basename "$f")
+    if [[ "$base" != "lm_demo.json" && "$base" != "hmcore.json" && "$base" != "lifecycle_demo.json" ]]; then
+        ../bazel-bin/external/flatbuffers+/flatc --binary -o config/tmp ../src/launch_manager_daemon/health_monitor_lib/config/hm_flatcfg.fbs "$f"
+    fi
+done
+
 ../bazel-bin/external/flatbuffers+/flatc --binary -o config/tmp ../src/launch_manager_daemon/config/lm_flatcfg.fbs config/tmp/lm_demo.json
 
-../bazel-bin/external/flatbuffers+/flatc --binary -o config/tmp ../src/launch_manager_daemon/health_monitor_lib/config/hmcore_flatcfg.fbs config/hmcore.json
+../bazel-bin/external/flatbuffers+/flatc --binary -o config/tmp ../src/launch_manager_daemon/health_monitor_lib/config/hmcore_flatcfg.fbs config/tmp/hmcore.json
 
 mkdir -p tmp/launch_manager/etc
 cp $LM_BINARY tmp/launch_manager/launch_manager
@@ -66,13 +68,12 @@ cp config/tmp/hmcore.bin tmp/launch_manager/etc/
 
 mkdir -p tmp/supervision_demo/etc
 cp $DEMO_APP_BINARY tmp/supervision_demo/
-cp config/tmp/health_monitor_process_cfg_*.bin tmp/supervision_demo/etc/
+cp config/tmp/*app.bin tmp/supervision_demo/etc/
 
 mkdir -p tmp/cpp_lifecycle_app/etc
 cp $DEMO_APP_WO_HM_BINARY tmp/cpp_lifecycle_app/
 
 cp $RUST_APP_BINARY tmp/supervision_demo/
-cp config/tmp/health_monitor_process_cfg_*.bin tmp/supervision_demo/etc/
 
 mkdir -p tmp/control_app
 cp $CONTROL_APP_BINARY tmp/control_app/
