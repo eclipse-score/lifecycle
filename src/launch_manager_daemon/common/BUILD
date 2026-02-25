@@ -101,3 +101,16 @@ cc_library(
         ":osal",
     ],
 )
+
+# TESTS
+load("@rules_cc//cc:defs.bzl", "cc_test")
+
+cc_test(
+    name = "identifier_hash_UT",
+    srcs = ["src/identifier_hash_UT.cpp"],
+    visibility = ["//tests:__subpackages__"],
+    deps = [
+        ":identifier_hash",
+        "@googletest//:gtest_main",
+    ],
+)
