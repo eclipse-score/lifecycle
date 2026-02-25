@@ -46,6 +46,7 @@ jobs:
     with:
       bazel-target: 'test //src/... //tests/... --config=x86_64-linux'
       upload-name: 'bazel-testlogs'
+      packages: 'fakechroot'
   build-docs:
     needs: run-tests
     if: ${{ needs.run-tests.result == 'success' }}
