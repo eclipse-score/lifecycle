@@ -1,5 +1,5 @@
 # *******************************************************************************
-# Copyright (c) 2025 Contributors to the Eclipse Foundation
+# Copyright (c) 2026 Contributors to the Eclipse Foundation
 #
 # See the NOTICE file(s) distributed with this work for additional
 # information regarding copyright ownership.
@@ -10,6 +10,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+load("@rules_cc//cc:defs.bzl", "cc_test")
 load("//config:common_cc.bzl", "cc_binary_with_common_opts", "cc_library_with_common_opts")
 
 cc_library(
@@ -101,9 +102,6 @@ cc_library(
         ":osal",
     ],
 )
-
-# TESTS
-load("@rules_cc//cc:defs.bzl", "cc_test")
 
 cc_test(
     name = "identifier_hash_UT",
