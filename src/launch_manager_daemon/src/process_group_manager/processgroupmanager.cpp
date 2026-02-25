@@ -65,8 +65,6 @@ void ProcessGroupManager::setLaunchManagerConfiguration(const OsProcess* launch_
 }
 
 bool ProcessGroupManager::initialize() {
-    bool success = false;
-
     // setup signal handler
     em_cancelled.store(false);
     // RULECHECKER_comment(1, 1, check_union_object, "Union type defined in external library is used.", true)
@@ -86,22 +84,24 @@ bool ProcessGroupManager::initialize() {
     sigaction(SIGUSR2, &action, NULL);
     sigaction(SIGVTALRM, &action, NULL);
 
-    success = initializeControlClientHandler() && initializeProcessGroups();
-
-    if (success) {
-        LM_LOG_DEBUG() << "Process Group initialization done";
-        createProcessComponentsObjects();
-        initializeGraphNodes();
-        //success = ucm_polling_thread_.startPolling();
-        success = health_monitor_thread_->start();
+    if (!initializeControlClientHandler() || !initializeProcessGroups()) {
+        return false;
     }
 
-    if (success && launch_manager_config_ &&
+    LM_LOG_DEBUG() << "Process Group initialization done";
+    createProcessComponentsObjects();
+    initializeGraphNodes();
+    if (!health_monitor_thread_->start()) {
+        LM_LOG_ERROR() << "Health monitor thread failed to start";
+        return false;
+    }
+
+    if (launch_manager_config_ &&
         OsalReturnType::kFail == IProcess::setSchedulingAndSecurity(launch_manager_config_->startup_config_)) {
-        success = false;
+        return false;
     }
 
-    return success;
+    return true;
 }
 
 void ProcessGroupManager::deinitialize() {

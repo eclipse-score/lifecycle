@@ -10,13 +10,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
-use crate::{common::MonitorEvaluator, log::debug};
+use crate::common::{MonitorEvalHandle, MonitorEvaluator};
+use crate::log::{debug, info, warn};
 use containers::fixed_capacity::FixedCapacityVec;
-
-use crate::{
-    common::MonitorEvalHandle,
-    log::{info, warn},
-};
 
 /// An abstraction over the API used to notify the supervisor about process liveness.
 pub(super) trait SupervisorAPIClient {
@@ -53,9 +49,10 @@ impl<T: SupervisorAPIClient> MonitoringLogic<T> {
         let mut has_any_error = false;
 
         for monitor in self.monitors.iter() {
-            monitor.evaluate(&mut |tag, error| {
+            monitor.evaluate(&mut |monitor_tag, error| {
                 has_any_error = true;
-                warn!("Monitor with tag {:?} reported error: {:?}.", tag, error);
+                // TODO: monitor type should be mentioned.
+                warn!("Monitor with tag {:?} reported error: {:?}.", monitor_tag, error);
             });
         }
 
@@ -185,12 +182,10 @@ impl SupervisorAPIClient for ScoreSupervisorAPIClient {
 #[score_testing_macros::test_mod_with_log]
 #[cfg(test)]
 mod tests {
-
-    use crate::{
-        deadline::{DeadlineMonitor, DeadlineMonitorBuilder},
-        protected_memory::ProtectedMemoryAllocator,
-        IdentTag, TimeRange,
-    };
+    use crate::deadline::{DeadlineMonitor, DeadlineMonitorBuilder};
+    use crate::protected_memory::ProtectedMemoryAllocator;
+    use crate::tag::{DeadlineTag, MonitorTag};
+    use crate::TimeRange;
 
     use super::*;
 
@@ -219,19 +214,20 @@ mod tests {
 
     fn create_monitor_with_deadlines() -> DeadlineMonitor {
         let allocator = ProtectedMemoryAllocator {};
+        let monitor_tag = MonitorTag::from("deadline_monitor");
         DeadlineMonitorBuilder::new()
             .add_deadline(
-                &IdentTag::from("deadline_long"),
+                DeadlineTag::from("deadline_long"),
                 TimeRange::new(core::time::Duration::from_secs(1), core::time::Duration::from_secs(50)),
             )
             .add_deadline(
-                &IdentTag::from("deadline_fast"),
+                DeadlineTag::from("deadline_fast"),
                 TimeRange::new(
                     core::time::Duration::from_millis(0),
                     core::time::Duration::from_millis(50),
                 ),
             )
-            .build(&allocator)
+            .build(monitor_tag, &allocator)
     }
 
     #[test]
@@ -249,7 +245,9 @@ mod tests {
             alive_mock.clone(),
         );
 
-        let mut deadline = deadline_monitor.get_deadline(&IdentTag::from("deadline_long")).unwrap();
+        let mut deadline = deadline_monitor
+            .get_deadline(DeadlineTag::from("deadline_long"))
+            .unwrap();
         let handle = deadline.start().unwrap();
 
         drop(handle);
@@ -273,7 +271,9 @@ mod tests {
             alive_mock.clone(),
         );
 
-        let mut deadline = deadline_monitor.get_deadline(&IdentTag::from("deadline_long")).unwrap();
+        let mut deadline = deadline_monitor
+            .get_deadline(DeadlineTag::from("deadline_long"))
+            .unwrap();
         let _handle = deadline.start().unwrap();
 
         assert!(logic.run());
@@ -300,7 +300,9 @@ mod tests {
             alive_mock.clone(),
         );
 
-        let mut deadline = deadline_monitor.get_deadline(&IdentTag::from("deadline_long")).unwrap();
+        let mut deadline = deadline_monitor
+            .get_deadline(DeadlineTag::from("deadline_long"))
+            .unwrap();
         let _handle = deadline.start().unwrap();
 
         std::thread::sleep(core::time::Duration::from_millis(30));
@@ -340,7 +342,9 @@ mod tests {
         let mut worker = UniqueThreadRunner::new(core::time::Duration::from_millis(10));
         worker.start(logic);
 
-        let mut deadline = deadline_monitor.get_deadline(&IdentTag::from("deadline_fast")).unwrap();
+        let mut deadline = deadline_monitor
+            .get_deadline(DeadlineTag::from("deadline_fast"))
+            .unwrap();
 
         let handle = deadline.start().unwrap();
 

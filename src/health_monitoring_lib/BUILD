@@ -16,8 +16,8 @@ load("@rules_rust//rust:defs.bzl", "rust_library", "rust_static_library", "rust_
 load("@score_baselibs//:bazel/unit_tests.bzl", "cc_gtest_unit_test")
 
 COMMON_DEPS = [
-    "@score_baselibs_rust//src/containers",
-    "@score_baselibs_rust//src/log/score_log",
+    "@score_baselibs_rust//src/containers:containers",
+    "@score_baselibs_rust//src/log/score_log:score_log",
     "//src/launch_manager_daemon/health_monitor_lib/rust_bindings:monitor_rs",
 ]
 
@@ -28,12 +28,12 @@ PROC_MACRO_DEPS = [
 CC_SOURCES = [
     "cpp/common.cpp",
     "cpp/deadline_monitor.cpp",
-    "cpp/ffi_helpers.h",
     "cpp/health_monitor.cpp",
 ]
 
 CC_HDRS = [
     "cpp/include/score/hm/common.h",
+    "cpp/include/score/hm/tag.h",
     "cpp/include/score/hm/deadline/deadline_monitor.h",
     "cpp/include/score/hm/health_monitor.h",
 ]

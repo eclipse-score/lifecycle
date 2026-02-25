@@ -16,15 +16,15 @@ module(
 )
 
 # Bazel global rules
-bazel_dep(name = "rules_python", version = "1.4.1")
+bazel_dep(name = "rules_python", version = "1.8.3")
 bazel_dep(name = "rules_rust", version = "0.61.0")
-bazel_dep(name = "rules_cc", version = "0.2.14")
-bazel_dep(name = "aspect_rules_lint", version = "1.5.3")
+bazel_dep(name = "rules_cc", version = "0.2.16")
+bazel_dep(name = "aspect_rules_lint", version = "2.0.0")
 bazel_dep(name = "buildifier_prebuilt", version = "8.2.0.2")
 bazel_dep(name = "platforms", version = "1.0.0")
 bazel_dep(name = "flatbuffers", version = "25.9.23")
-bazel_dep(name = "download_utils", version = "1.0.1")
-bazel_dep(name = "googletest", version = "1.17.0.bcr.1")
+bazel_dep(name = "download_utils", version = "1.2.2")
+bazel_dep(name = "googletest", version = "1.17.0.bcr.2")
 
 # S-CORE process rules
 bazel_dep(name = "score_bazel_platforms", version = "0.0.4")

@@ -15,6 +15,7 @@
 
 #include <score/hm/common.h>
 #include <score/hm/deadline/deadline_monitor.h>
+#include <score/hm/tag.h>
 
 namespace score::hm
 {
@@ -27,7 +28,7 @@ class HealthMonitor;
 class HealthMonitorBuilder final
 {
   public:
-    ///  Creates a new HealthMonitorBuilder
+    /// Create a new `HealthMonitorBuilder`.
     HealthMonitorBuilder();
 
     ~HealthMonitorBuilder() = default;
@@ -38,7 +39,8 @@ class HealthMonitorBuilder final
     HealthMonitorBuilder& operator=(HealthMonitorBuilder&&) = delete;
 
     /// Adds a deadline monitor to the builder to construct DeadlineMonitor instances during HealthMonitor build.
-    HealthMonitorBuilder add_deadline_monitor(const IdentTag& tag, deadline::DeadlineMonitorBuilder&& monitor) &&;
+    HealthMonitorBuilder add_deadline_monitor(const MonitorTag& monitor_tag,
+                                              deadline::DeadlineMonitorBuilder&& monitor) &&;
 
     /// Sets the cycle duration for supervisor API notifications.
     /// This duration determines how often the health monitor notifies the supervisor that the system is alive.
@@ -48,7 +50,7 @@ class HealthMonitorBuilder final
     /// This duration determines how often the health monitor checks deadlines.
     HealthMonitorBuilder with_internal_processing_cycle(std::chrono::milliseconds cycle_duration) &&;
 
-    /// Builds and returns the HealthMonitor instance.
+    /// Build a new `HealthMonitor` instance based on provided parameters.
     HealthMonitor build() &&;
 
   private:
@@ -69,7 +71,7 @@ class HealthMonitor final
 
     ~HealthMonitor();
 
-    score::cpp::expected<deadline::DeadlineMonitor, Error> get_deadline_monitor(const IdentTag& tag);
+    score::cpp::expected<deadline::DeadlineMonitor, Error> get_deadline_monitor(const MonitorTag& monitor_tag);
 
     void start();
 
