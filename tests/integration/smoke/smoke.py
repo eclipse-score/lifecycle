@@ -18,10 +18,11 @@ from tests.integration.testing_utils import (
 from pathlib import Path
 from attribute_plugin import add_test_properties
 
+
 @add_test_properties(
-        partially_verifies=[],
-        test_type="interface-test",
-        derivation_technique="explorative-testing",
+    partially_verifies=[],
+    test_type="interface-test",
+    derivation_technique="explorative-testing",
 )
 def test_smoke():
     """Smoke test for the launch manager daemon."""
