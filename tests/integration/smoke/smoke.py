@@ -16,9 +16,15 @@ from tests.integration.testing_utils import (
     format_logs,
 )
 from pathlib import Path
+from attribute_plugin import add_test_properties
 
-
+@add_test_properties(
+        partially_verifies=[],
+        test_type="interface-test",
+        derivation_technique="explorative-testing",
+)
 def test_smoke():
+    """Smoke test for the launch manager daemon."""
     code, stdout, stderr = get_common_interface().run_until_file_deployed(
         "src/launch_manager_daemon/launch_manager"
     )
