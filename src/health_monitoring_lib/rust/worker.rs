@@ -14,12 +14,15 @@ use crate::common::{MonitorEvalHandle, MonitorEvaluator};
 use crate::log::{info, warn};
 use crate::supervisor_api_client::SupervisorAPIClient;
 use containers::fixed_capacity::FixedCapacityVec;
+use core::sync::atomic::{AtomicBool, Ordering};
 use core::time::Duration;
+use std::sync::Arc;
+use std::time::Instant;
 
 pub(super) struct MonitoringLogic<T: SupervisorAPIClient> {
     monitors: FixedCapacityVec<MonitorEvalHandle>,
     client: T,
-    last_notification: std::time::Instant,
+    last_notification: Instant,
     supervisor_api_cycle: Duration,
 }
 
@@ -38,7 +41,7 @@ impl<T: SupervisorAPIClient> MonitoringLogic<T> {
             monitors,
             client,
             supervisor_api_cycle,
-            last_notification: std::time::Instant::now(),
+            last_notification: Instant::now(),
         }
     }
 
@@ -55,7 +58,7 @@ impl<T: SupervisorAPIClient> MonitoringLogic<T> {
 
         if !has_any_error {
             if self.last_notification.elapsed() > self.supervisor_api_cycle {
-                self.last_notification = std::time::Instant::now();
+                self.last_notification = Instant::now();
                 self.client.notify_alive();
             }
         } else {
@@ -70,7 +73,7 @@ impl<T: SupervisorAPIClient> MonitoringLogic<T> {
 /// A struct that manages a unique thread for running monitoring logic periodically.
 pub struct UniqueThreadRunner {
     handle: Option<std::thread::JoinHandle<()>>,
-    should_stop: std::sync::Arc<core::sync::atomic::AtomicBool>,
+    should_stop: Arc<AtomicBool>,
     internal_duration_cycle: Duration,
 }
 
@@ -78,7 +81,7 @@ impl UniqueThreadRunner {
     pub(super) fn new(internal_duration_cycle: Duration) -> Self {
         Self {
             handle: None,
-            should_stop: std::sync::Arc::new(core::sync::atomic::AtomicBool::new(false)),
+            should_stop: Arc::new(AtomicBool::new(false)),
             internal_duration_cycle,
         }
     }
@@ -96,10 +99,10 @@ impl UniqueThreadRunner {
                 let mut next_sleep_time = interval;
 
                 // TODO Add some checks and log if cyclicly here is not met.
-                while !should_stop.load(core::sync::atomic::Ordering::Relaxed) {
+                while !should_stop.load(Ordering::Relaxed) {
                     std::thread::sleep(next_sleep_time);
 
-                    let now = std::time::Instant::now();
+                    let now = Instant::now();
 
                     if !monitoring_logic.run() {
                         info!("Monitoring logic failed, stopping thread.");
@@ -115,7 +118,7 @@ impl UniqueThreadRunner {
     }
 
     pub fn join(&mut self) {
-        self.should_stop.store(true, core::sync::atomic::Ordering::Relaxed);
+        self.should_stop.store(true, Ordering::Relaxed);
         if let Some(handle) = self.handle.take() {
             let _ = handle.join();
         }
@@ -152,28 +155,30 @@ mod tests {
     use crate::worker::{MonitoringLogic, UniqueThreadRunner};
     use crate::TimeRange;
     use containers::fixed_capacity::FixedCapacityVec;
+    use core::sync::atomic::{AtomicUsize, Ordering};
     use core::time::Duration;
+    use std::sync::Arc;
 
     #[derive(Clone)]
     struct MockSupervisorAPIClient {
-        pub notify_called: std::sync::Arc<core::sync::atomic::AtomicUsize>,
+        pub notify_called: Arc<AtomicUsize>,
     }
 
     impl MockSupervisorAPIClient {
         pub fn new() -> Self {
             Self {
-                notify_called: std::sync::Arc::new(core::sync::atomic::AtomicUsize::new(0)),
+                notify_called: Arc::new(AtomicUsize::new(0)),
             }
         }
 
         fn get_notify_count(&self) -> usize {
-            self.notify_called.load(core::sync::atomic::Ordering::Acquire)
+            self.notify_called.load(Ordering::Acquire)
         }
     }
 
     impl SupervisorAPIClient for MockSupervisorAPIClient {
         fn notify_alive(&self) {
-            self.notify_called.fetch_add(1, core::sync::atomic::Ordering::AcqRel);
+            self.notify_called.fetch_add(1, Ordering::AcqRel);
         }
     }
 

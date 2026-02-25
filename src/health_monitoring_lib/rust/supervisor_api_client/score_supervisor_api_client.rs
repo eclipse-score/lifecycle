@@ -11,18 +11,18 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
+#![allow(dead_code)]
+
 use crate::log::debug;
 use crate::supervisor_api_client::SupervisorAPIClient;
 use crate::worker::Checks;
 
-#[allow(dead_code)]
 pub struct ScoreSupervisorAPIClient {
     supervisor_link: monitor_rs::Monitor<Checks>,
 }
 
 unsafe impl Send for ScoreSupervisorAPIClient {} // Just assuming it's safe to send across threads, this is a temporary solution
 
-#[allow(dead_code)]
 impl ScoreSupervisorAPIClient {
     pub fn new() -> Self {
         let value = std::env::var("IDENTIFIER").expect("IDENTIFIER env not set");

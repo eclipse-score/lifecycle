@@ -39,6 +39,9 @@ pub(crate) enum MonitorEvaluationError {
 
 /// Trait for evaluating monitors and reporting errors to be used by HealthMonitor.
 pub(crate) trait MonitorEvaluator {
+    /// Run monitor evaluation.
+    ///
+    /// - `on_error` - error handling, containing tag of failing object and error code.
     fn evaluate(&self, on_error: &mut dyn FnMut(&MonitorTag, MonitorEvaluationError));
 }
 
