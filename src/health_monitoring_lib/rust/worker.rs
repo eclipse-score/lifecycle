@@ -45,11 +45,11 @@ impl<T: SupervisorAPIClient> MonitoringLogic<T> {
         }
     }
 
-    fn run(&mut self) -> bool {
+    fn run(&mut self, hmon_starting_point: Instant) -> bool {
         let mut has_any_error = false;
 
         for monitor in self.monitors.iter() {
-            monitor.evaluate(&mut |monitor_tag, error| {
+            monitor.evaluate(hmon_starting_point, &mut |monitor_tag, error| {
                 has_any_error = true;
 
                 match error {
@@ -59,7 +59,12 @@ impl<T: SupervisorAPIClient> MonitoringLogic<T> {
                             monitor_tag, deadline_evaluation_error
                         )
                     },
-                    MonitorEvaluationError::Heartbeat => unimplemented!(),
+                    MonitorEvaluationError::Heartbeat(heartbeat_evaluation_error) => {
+                        warn!(
+                            "Heartbeat monitor with tag {:?} reported error: {:?}.",
+                            monitor_tag, heartbeat_evaluation_error
+                        )
+                    },
                     MonitorEvaluationError::Logic => unimplemented!(),
                 }
             });
@@ -105,6 +110,7 @@ impl UniqueThreadRunner {
 
             std::thread::spawn(move || {
                 info!("Monitoring thread started.");
+                let hmon_starting_point = Instant::now();
                 let mut next_sleep_time = interval;
 
                 // TODO Add some checks and log if cyclicly here is not met.
@@ -113,7 +119,7 @@ impl UniqueThreadRunner {
 
                     let now = Instant::now();
 
-                    if !monitoring_logic.run() {
+                    if !monitoring_logic.run(hmon_starting_point) {
                         info!("Monitoring logic failed, stopping thread.");
                         break;
                     }
@@ -168,6 +174,7 @@ mod tests {
     use core::sync::atomic::{AtomicUsize, Ordering};
     use core::time::Duration;
     use std::sync::Arc;
+    use std::time::Instant;
 
     #[derive(Clone)]
     struct MockSupervisorAPIClient {
@@ -211,6 +218,7 @@ mod tests {
     fn monitoring_logic_report_error_when_deadline_failed() {
         let deadline_monitor = create_monitor_with_deadlines();
         let alive_mock = MockSupervisorAPIClient::new();
+        let hmon_starting_point = Instant::now();
 
         let mut logic = MonitoringLogic::new(
             {
@@ -229,7 +237,7 @@ mod tests {
 
         drop(handle);
 
-        assert!(!logic.run());
+        assert!(!logic.run(hmon_starting_point));
         assert_eq!(alive_mock.get_notify_count(), 0);
     }
 
@@ -237,6 +245,7 @@ mod tests {
     fn monitoring_logic_report_alive_on_each_call_when_no_error() {
         let deadline_monitor = create_monitor_with_deadlines();
         let alive_mock = MockSupervisorAPIClient::new();
+        let hmon_starting_point = Instant::now();
 
         let mut logic = MonitoringLogic::new(
             {
@@ -253,11 +262,11 @@ mod tests {
             .unwrap();
         let _handle = deadline.start().unwrap();
 
-        assert!(logic.run());
-        assert!(logic.run());
-        assert!(logic.run());
-        assert!(logic.run());
-        assert!(logic.run());
+        assert!(logic.run(hmon_starting_point));
+        assert!(logic.run(hmon_starting_point));
+        assert!(logic.run(hmon_starting_point));
+        assert!(logic.run(hmon_starting_point));
+        assert!(logic.run(hmon_starting_point));
 
         assert_eq!(alive_mock.get_notify_count(), 5);
     }
@@ -266,6 +275,7 @@ mod tests {
     fn monitoring_logic_report_alive_respect_cycle() {
         let deadline_monitor = create_monitor_with_deadlines();
         let alive_mock = MockSupervisorAPIClient::new();
+        let hmon_starting_point = Instant::now();
 
         let mut logic = MonitoringLogic::new(
             {
@@ -283,19 +293,19 @@ mod tests {
         let _handle = deadline.start().unwrap();
 
         std::thread::sleep(Duration::from_millis(30));
-        assert!(logic.run());
+        assert!(logic.run(hmon_starting_point));
 
         std::thread::sleep(Duration::from_millis(30));
-        assert!(logic.run());
+        assert!(logic.run(hmon_starting_point));
 
         std::thread::sleep(Duration::from_millis(30));
-        assert!(logic.run());
+        assert!(logic.run(hmon_starting_point));
 
         std::thread::sleep(Duration::from_millis(30));
-        assert!(logic.run());
+        assert!(logic.run(hmon_starting_point));
 
         std::thread::sleep(Duration::from_millis(30));
-        assert!(logic.run());
+        assert!(logic.run(hmon_starting_point));
 
         assert_eq!(alive_mock.get_notify_count(), 5);
     }
