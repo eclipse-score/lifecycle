@@ -12,6 +12,7 @@
 // *******************************************************************************
 use crate::deadline::ffi::DeadlineMonitorCpp;
 use crate::deadline::DeadlineMonitorBuilder;
+use crate::heartbeat::HeartbeatMonitorBuilder;
 use crate::tag::MonitorTag;
 use crate::{HealthMonitor, HealthMonitorBuilder, HealthMonitorError};
 use core::mem::ManuallyDrop;
@@ -172,6 +173,40 @@ pub extern "C" fn health_monitor_builder_add_deadline_monitor(
 }
 
 #[no_mangle]
+pub extern "C" fn health_monitor_builder_add_heartbeat_monitor(
+    health_monitor_builder_handle: FFIHandle,
+    monitor_tag: *const MonitorTag,
+    heartbeat_monitor_builder_handle: FFIHandle,
+) -> FFICode {
+    if health_monitor_builder_handle.is_null() || monitor_tag.is_null() || heartbeat_monitor_builder_handle.is_null() {
+        return FFICode::NullParameter;
+    }
+
+    // SAFETY:
+    // Validity of the pointer is ensured.
+    // `MonitorTag` type must be compatible between C++ and Rust.
+    let monitor_tag = unsafe { *monitor_tag };
+
+    // SAFETY:
+    // Validity of this pointer is ensured.
+    // It is assumed that the pointer was created by a call to `heartbeat_monitor_builder_create`.
+    // It is assumed that the pointer was not consumed by a call to `heartbeat_monitor_builder_destroy`.
+    let heartbeat_monitor_builder =
+        unsafe { Box::from_raw(heartbeat_monitor_builder_handle as *mut HeartbeatMonitorBuilder) };
+
+    // SAFETY:
+    // Validity of the pointer is ensured.
+    // It is assumed that the pointer was created by a call to `health_monitor_builder_create`.
+    // It is assumed that the pointer was not consumed by calls to `health_monitor_builder_destroy` or `health_monitor_builder_build`.
+    let mut health_monitor_builder =
+        FFIBorrowed::new(unsafe { Box::from_raw(health_monitor_builder_handle as *mut HealthMonitorBuilder) });
+
+    health_monitor_builder.add_heartbeat_monitor_internal(monitor_tag, *heartbeat_monitor_builder);
+
+    FFICode::Success
+}
+
+#[no_mangle]
 pub extern "C" fn health_monitor_get_deadline_monitor(
     health_monitor_handle: FFIHandle,
     monitor_tag: *const MonitorTag,
@@ -195,6 +230,37 @@ pub extern "C" fn health_monitor_get_deadline_monitor(
     if let Some(deadline_monitor) = health_monitor.get_deadline_monitor(monitor_tag) {
         unsafe {
             *deadline_monitor_handle_out = Box::into_raw(Box::new(DeadlineMonitorCpp::new(deadline_monitor))).cast();
+        }
+        FFICode::Success
+    } else {
+        FFICode::NotFound
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn health_monitor_get_heartbeat_monitor(
+    health_monitor_handle: FFIHandle,
+    monitor_tag: *const MonitorTag,
+    heartbeat_monitor_handle_out: *mut FFIHandle,
+) -> FFICode {
+    if health_monitor_handle.is_null() || monitor_tag.is_null() || heartbeat_monitor_handle_out.is_null() {
+        return FFICode::NullParameter;
+    }
+
+    // SAFETY:
+    // Validity of the pointer is ensured.
+    // `MonitorTag` type must be compatible between C++ and Rust.
+    let monitor_tag = unsafe { *monitor_tag };
+
+    // SAFETY:
+    // Validity of the pointer is ensured.
+    // It is assumed that the pointer was created by a call to `health_monitor_builder_build`.
+    // It is assumed that the pointer was not consumed by a call to `health_monitor_destroy`.
+    let mut health_monitor = FFIBorrowed::new(unsafe { Box::from_raw(health_monitor_handle as *mut HealthMonitor) });
+
+    if let Some(heartbeat_monitor) = health_monitor.get_heartbeat_monitor(monitor_tag) {
+        unsafe {
+            *heartbeat_monitor_handle_out = Box::into_raw(Box::new(heartbeat_monitor)).cast();
         }
         FFICode::Success
     } else {
@@ -244,9 +310,13 @@ mod tests {
         deadline_monitor_builder_create, deadline_monitor_builder_destroy, deadline_monitor_destroy,
     };
     use crate::ffi::{
-        health_monitor_builder_add_deadline_monitor, health_monitor_builder_build, health_monitor_builder_create,
-        health_monitor_builder_destroy, health_monitor_destroy, health_monitor_get_deadline_monitor,
+        health_monitor_builder_add_deadline_monitor, health_monitor_builder_add_heartbeat_monitor,
+        health_monitor_builder_build, health_monitor_builder_create, health_monitor_builder_destroy,
+        health_monitor_destroy, health_monitor_get_deadline_monitor, health_monitor_get_heartbeat_monitor,
         health_monitor_start, FFICode, FFIHandle,
+    };
+    use crate::heartbeat::ffi::{
+        heartbeat_monitor_builder_create, heartbeat_monitor_builder_destroy, heartbeat_monitor_destroy,
     };
     use crate::tag::MonitorTag;
     use core::ptr::null_mut;
@@ -456,6 +526,92 @@ mod tests {
     }
 
     #[test]
+    fn health_monitor_builder_add_heartbeat_monitor_succeeds() {
+        let mut health_monitor_builder_handle: FFIHandle = null_mut();
+        let mut heartbeat_monitor_builder_handle: FFIHandle = null_mut();
+
+        let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
+
+        let heartbeat_monitor_tag = MonitorTag::from("heartbeat_monitor");
+        let _ = heartbeat_monitor_builder_create(100, 200, &mut heartbeat_monitor_builder_handle as *mut FFIHandle);
+
+        let health_monitor_builder_add_heartbeat_monitor_result = health_monitor_builder_add_heartbeat_monitor(
+            health_monitor_builder_handle,
+            &heartbeat_monitor_tag as *const MonitorTag,
+            heartbeat_monitor_builder_handle,
+        );
+        assert_eq!(health_monitor_builder_add_heartbeat_monitor_result, FFICode::Success);
+
+        // Clean-up.
+        health_monitor_builder_destroy(health_monitor_builder_handle);
+    }
+
+    #[test]
+    fn health_monitor_builder_add_heartbeat_monitor_null_hmon_builder() {
+        let mut heartbeat_monitor_builder_handle: FFIHandle = null_mut();
+
+        let heartbeat_monitor_tag = MonitorTag::from("heartbeat_monitor");
+        let _ = heartbeat_monitor_builder_create(100, 200, &mut heartbeat_monitor_builder_handle as *mut FFIHandle);
+
+        let health_monitor_builder_add_heartbeat_monitor_result = health_monitor_builder_add_heartbeat_monitor(
+            null_mut(),
+            &heartbeat_monitor_tag as *const MonitorTag,
+            heartbeat_monitor_builder_handle,
+        );
+        assert_eq!(
+            health_monitor_builder_add_heartbeat_monitor_result,
+            FFICode::NullParameter
+        );
+
+        // Clean-up.
+        heartbeat_monitor_builder_destroy(heartbeat_monitor_builder_handle);
+    }
+
+    #[test]
+    fn health_monitor_builder_add_heartbeat_monitor_null_monitor_tag() {
+        let mut health_monitor_builder_handle: FFIHandle = null_mut();
+        let mut heartbeat_monitor_builder_handle: FFIHandle = null_mut();
+
+        let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
+        let _ = heartbeat_monitor_builder_create(100, 200, &mut heartbeat_monitor_builder_handle as *mut FFIHandle);
+
+        let health_monitor_builder_add_heartbeat_monitor_result = health_monitor_builder_add_heartbeat_monitor(
+            health_monitor_builder_handle,
+            null_mut(),
+            heartbeat_monitor_builder_handle,
+        );
+        assert_eq!(
+            health_monitor_builder_add_heartbeat_monitor_result,
+            FFICode::NullParameter
+        );
+
+        // Clean-up.
+        heartbeat_monitor_builder_destroy(heartbeat_monitor_builder_handle);
+        health_monitor_builder_destroy(health_monitor_builder_handle);
+    }
+
+    #[test]
+    fn health_monitor_builder_add_heartbeat_monitor_null_heartbeat_monitor_builder() {
+        let mut health_monitor_builder_handle: FFIHandle = null_mut();
+
+        let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
+        let heartbeat_monitor_tag = MonitorTag::from("heartbeat_monitor");
+
+        let health_monitor_builder_add_heartbeat_monitor_result = health_monitor_builder_add_heartbeat_monitor(
+            health_monitor_builder_handle,
+            &heartbeat_monitor_tag as *const MonitorTag,
+            null_mut(),
+        );
+        assert_eq!(
+            health_monitor_builder_add_heartbeat_monitor_result,
+            FFICode::NullParameter
+        );
+
+        // Clean-up.
+        health_monitor_builder_destroy(health_monitor_builder_handle);
+    }
+
+    #[test]
     fn health_monitor_get_deadline_monitor_succeeds() {
         let mut health_monitor_builder_handle: FFIHandle = null_mut();
         let mut health_monitor_handle: FFIHandle = null_mut();
@@ -631,6 +787,187 @@ mod tests {
             null_mut(),
         );
         assert_eq!(health_monitor_get_deadline_monitor_result, FFICode::NullParameter);
+
+        // Clean-up.
+        health_monitor_destroy(health_monitor_handle);
+    }
+
+    #[test]
+    fn health_monitor_get_heartbeat_monitor_succeeds() {
+        let mut health_monitor_builder_handle: FFIHandle = null_mut();
+        let mut health_monitor_handle: FFIHandle = null_mut();
+        let mut heartbeat_monitor_builder_handle: FFIHandle = null_mut();
+        let mut heartbeat_monitor_handle: FFIHandle = null_mut();
+
+        let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
+        let heartbeat_monitor_tag = MonitorTag::from("heartbeat_monitor");
+        let _ = heartbeat_monitor_builder_create(100, 200, &mut heartbeat_monitor_builder_handle as *mut FFIHandle);
+        let _ = health_monitor_builder_add_heartbeat_monitor(
+            health_monitor_builder_handle,
+            &heartbeat_monitor_tag as *const MonitorTag,
+            heartbeat_monitor_builder_handle,
+        );
+        let _ = health_monitor_builder_build(
+            health_monitor_builder_handle,
+            200,
+            100,
+            &mut health_monitor_handle as *mut FFIHandle,
+        );
+
+        let health_monitor_get_heartbeat_monitor_result = health_monitor_get_heartbeat_monitor(
+            health_monitor_handle,
+            &heartbeat_monitor_tag as *const MonitorTag,
+            &mut heartbeat_monitor_handle as *mut FFIHandle,
+        );
+        assert!(!heartbeat_monitor_handle.is_null());
+        assert_eq!(health_monitor_get_heartbeat_monitor_result, FFICode::Success);
+
+        // Clean-up.
+        heartbeat_monitor_destroy(heartbeat_monitor_handle);
+        health_monitor_destroy(health_monitor_handle);
+    }
+
+    #[test]
+    fn health_monitor_get_heartbeat_monitor_already_taken() {
+        let mut health_monitor_builder_handle: FFIHandle = null_mut();
+        let mut health_monitor_handle: FFIHandle = null_mut();
+        let mut heartbeat_monitor_builder_handle: FFIHandle = null_mut();
+        let mut heartbeat_monitor_1_handle: FFIHandle = null_mut();
+        let mut heartbeat_monitor_2_handle: FFIHandle = null_mut();
+
+        let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
+        let heartbeat_monitor_tag = MonitorTag::from("heartbeat_monitor");
+        let _ = heartbeat_monitor_builder_create(100, 200, &mut heartbeat_monitor_builder_handle as *mut FFIHandle);
+        let _ = health_monitor_builder_add_heartbeat_monitor(
+            health_monitor_builder_handle,
+            &heartbeat_monitor_tag as *const MonitorTag,
+            heartbeat_monitor_builder_handle,
+        );
+        let _ = health_monitor_builder_build(
+            health_monitor_builder_handle,
+            200,
+            100,
+            &mut health_monitor_handle as *mut FFIHandle,
+        );
+
+        // First get.
+        let health_monitor_get_heartbeat_monitor_result_1 = health_monitor_get_heartbeat_monitor(
+            health_monitor_handle,
+            &heartbeat_monitor_tag as *const MonitorTag,
+            &mut heartbeat_monitor_1_handle as *mut FFIHandle,
+        );
+        assert!(!heartbeat_monitor_1_handle.is_null());
+        assert_eq!(health_monitor_get_heartbeat_monitor_result_1, FFICode::Success);
+
+        // Second get.
+        let health_monitor_get_heartbeat_monitor_result_2 = health_monitor_get_heartbeat_monitor(
+            health_monitor_handle,
+            &heartbeat_monitor_tag as *const MonitorTag,
+            &mut heartbeat_monitor_2_handle as *mut FFIHandle,
+        );
+        assert!(heartbeat_monitor_2_handle.is_null());
+        assert_eq!(health_monitor_get_heartbeat_monitor_result_2, FFICode::NotFound);
+
+        // Clean-up.
+        heartbeat_monitor_destroy(heartbeat_monitor_1_handle);
+        health_monitor_destroy(health_monitor_handle);
+    }
+
+    #[test]
+    fn health_monitor_get_heartbeat_monitor_null_hmon() {
+        let mut health_monitor_builder_handle: FFIHandle = null_mut();
+        let mut health_monitor_handle: FFIHandle = null_mut();
+        let mut heartbeat_monitor_builder_handle: FFIHandle = null_mut();
+        let mut heartbeat_monitor_handle: FFIHandle = null_mut();
+
+        let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
+        let heartbeat_monitor_tag = MonitorTag::from("heartbeat_monitor");
+        let _ = heartbeat_monitor_builder_create(100, 200, &mut heartbeat_monitor_builder_handle as *mut FFIHandle);
+        let _ = health_monitor_builder_add_heartbeat_monitor(
+            health_monitor_builder_handle,
+            &heartbeat_monitor_tag as *const MonitorTag,
+            heartbeat_monitor_builder_handle,
+        );
+        let _ = health_monitor_builder_build(
+            health_monitor_builder_handle,
+            200,
+            100,
+            &mut health_monitor_handle as *mut FFIHandle,
+        );
+
+        let health_monitor_get_heartbeat_monitor_result = health_monitor_get_heartbeat_monitor(
+            null_mut(),
+            &heartbeat_monitor_tag as *const MonitorTag,
+            &mut heartbeat_monitor_handle as *mut FFIHandle,
+        );
+        assert!(heartbeat_monitor_handle.is_null());
+        assert_eq!(health_monitor_get_heartbeat_monitor_result, FFICode::NullParameter);
+
+        // Clean-up.
+        health_monitor_destroy(health_monitor_handle);
+    }
+
+    #[test]
+    fn health_monitor_get_heartbeat_monitor_null_monitor_tag() {
+        let mut health_monitor_builder_handle: FFIHandle = null_mut();
+        let mut health_monitor_handle: FFIHandle = null_mut();
+        let mut heartbeat_monitor_builder_handle: FFIHandle = null_mut();
+        let mut heartbeat_monitor_handle: FFIHandle = null_mut();
+
+        let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
+        let heartbeat_monitor_tag = MonitorTag::from("heartbeat_monitor");
+        let _ = heartbeat_monitor_builder_create(100, 200, &mut heartbeat_monitor_builder_handle as *mut FFIHandle);
+        let _ = health_monitor_builder_add_heartbeat_monitor(
+            health_monitor_builder_handle,
+            &heartbeat_monitor_tag as *const MonitorTag,
+            heartbeat_monitor_builder_handle,
+        );
+        let _ = health_monitor_builder_build(
+            health_monitor_builder_handle,
+            200,
+            100,
+            &mut health_monitor_handle as *mut FFIHandle,
+        );
+
+        let health_monitor_get_heartbeat_monitor_result = health_monitor_get_heartbeat_monitor(
+            health_monitor_handle,
+            null_mut(),
+            &mut heartbeat_monitor_handle as *mut FFIHandle,
+        );
+        assert!(heartbeat_monitor_handle.is_null());
+        assert_eq!(health_monitor_get_heartbeat_monitor_result, FFICode::NullParameter);
+
+        // Clean-up.
+        health_monitor_destroy(health_monitor_handle);
+    }
+
+    #[test]
+    fn health_monitor_get_heartbeat_monitor_null_heartbeat_monitor() {
+        let mut health_monitor_builder_handle: FFIHandle = null_mut();
+        let mut health_monitor_handle: FFIHandle = null_mut();
+        let mut heartbeat_monitor_builder_handle: FFIHandle = null_mut();
+
+        let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
+        let heartbeat_monitor_tag = MonitorTag::from("heartbeat_monitor");
+        let _ = heartbeat_monitor_builder_create(100, 200, &mut heartbeat_monitor_builder_handle as *mut FFIHandle);
+        let _ = health_monitor_builder_add_heartbeat_monitor(
+            health_monitor_builder_handle,
+            &heartbeat_monitor_tag as *const MonitorTag,
+            heartbeat_monitor_builder_handle,
+        );
+        let _ = health_monitor_builder_build(
+            health_monitor_builder_handle,
+            200,
+            100,
+            &mut health_monitor_handle as *mut FFIHandle,
+        );
+
+        let health_monitor_get_heartbeat_monitor_result = health_monitor_get_heartbeat_monitor(
+            health_monitor_handle,
+            &heartbeat_monitor_tag as *const MonitorTag,
+            null_mut(),
+        );
+        assert_eq!(health_monitor_get_heartbeat_monitor_result, FFICode::NullParameter);
 
         // Clean-up.
         health_monitor_destroy(health_monitor_handle);
