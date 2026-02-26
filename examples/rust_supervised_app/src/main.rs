@@ -68,13 +68,14 @@ fn main_logic(args: &Args, stop: Arc<AtomicBool>) -> Result<(), Box<dyn std::err
         .add_deadline_monitor(MonitorTag::from("mon1"), builder)
         .with_supervisor_api_cycle(std::time::Duration::from_millis(50))
         .with_internal_processing_cycle(std::time::Duration::from_millis(50))
-        .build();
+        .build()
+        .expect("Failed to build health monitor");
 
     let mon = hm
         .get_deadline_monitor(MonitorTag::from("mon1"))
         .expect("Failed to get monitor");
 
-    hm.start();
+    hm.start().expect("Failed to start health monitor");
 
     if !lifecycle_client_rs::report_execution_state_running() {
         error!("Rust app FAILED to report execution state!");

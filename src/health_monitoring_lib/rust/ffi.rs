@@ -13,7 +13,7 @@
 use crate::deadline::ffi::DeadlineMonitorCpp;
 use crate::deadline::DeadlineMonitorBuilder;
 use crate::tag::MonitorTag;
-use crate::{HealthMonitor, HealthMonitorBuilder};
+use crate::{HealthMonitor, HealthMonitorBuilder, HealthMonitorError};
 use core::mem::ManuallyDrop;
 use core::ops::{Deref, DerefMut};
 use core::time::Duration;
@@ -34,6 +34,16 @@ pub enum FFICode {
     InvalidArgument,
     WrongState,
     Failed,
+}
+
+impl From<HealthMonitorError> for FFICode {
+    fn from(value: HealthMonitorError) -> Self {
+        match value {
+            HealthMonitorError::NotFound => FFICode::NotFound,
+            HealthMonitorError::InvalidArgument => FFICode::InvalidArgument,
+            HealthMonitorError::WrongState => FFICode::WrongState,
+        }
+    }
 }
 
 /// A wrapper to represent borrowed data over FFI boundary without taking ownership.
@@ -115,18 +125,16 @@ pub extern "C" fn health_monitor_builder_build(
     health_monitor_builder.with_internal_processing_cycle_internal(Duration::from_millis(internal_cycle_ms as u64));
     health_monitor_builder.with_supervisor_api_cycle_internal(Duration::from_millis(supervisor_cycle_ms as u64));
 
-    // Check cycle interval args.
-    if !health_monitor_builder.check_cycle_args_internal() {
-        return FFICode::InvalidArgument;
-    }
-
     // Build instance.
-    let health_monitor = health_monitor_builder.build_internal();
-    unsafe {
-        *health_monitor_handle_out = Box::into_raw(Box::new(health_monitor)).cast();
+    match health_monitor_builder.build() {
+        Ok(health_monitor) => {
+            unsafe {
+                *health_monitor_handle_out = Box::into_raw(Box::new(health_monitor)).cast();
+            }
+            FFICode::Success
+        },
+        Err(e) => e.into(),
     }
-
-    FFICode::Success
 }
 
 #[no_mangle]
@@ -206,19 +214,11 @@ pub extern "C" fn health_monitor_start(health_monitor_handle: FFIHandle) -> FFIC
     // It is assumed that the pointer was not consumed by a call to `health_monitor_destroy`.
     let mut health_monitor = FFIBorrowed::new(unsafe { Box::from_raw(health_monitor_handle as *mut HealthMonitor) });
 
-    // Check state, collect monitors and start.
-    if !health_monitor.check_monitors_exist_internal() {
-        return FFICode::WrongState;
+    // Start monitoring logic.
+    match health_monitor.start() {
+        Ok(_) => FFICode::Success,
+        Err(error) => error.into(),
     }
-
-    let monitors = match health_monitor.collect_monitors_internal() {
-        Ok(m) => m,
-        Err(_) => return FFICode::WrongState,
-    };
-
-    health_monitor.start_internal(monitors);
-
-    FFICode::Success
 }
 
 #[no_mangle]
@@ -282,8 +282,16 @@ mod tests {
     fn health_monitor_builder_build_succeeds() {
         let mut health_monitor_builder_handle: FFIHandle = null_mut();
         let mut health_monitor_handle: FFIHandle = null_mut();
+        let mut deadline_monitor_builder_handle = null_mut();
 
         let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
+        let deadline_monitor_tag = MonitorTag::from("deadline_monitor");
+        let _ = deadline_monitor_builder_create(&mut deadline_monitor_builder_handle as *mut FFIHandle);
+        let _ = health_monitor_builder_add_deadline_monitor(
+            health_monitor_builder_handle,
+            &deadline_monitor_tag as *const MonitorTag,
+            deadline_monitor_builder_handle,
+        );
 
         let health_monitor_builder_build_result = health_monitor_builder_build(
             health_monitor_builder_handle,
@@ -315,6 +323,24 @@ mod tests {
         );
         assert!(health_monitor_handle.is_null());
         assert_eq!(health_monitor_builder_build_result, FFICode::InvalidArgument);
+
+        // Clean-up not needed - health monitor builder was already consumed by the `build`.
+    }
+
+    #[test]
+    fn health_monitor_builder_build_no_monitors() {
+        let mut health_monitor_builder_handle: FFIHandle = null_mut();
+        let mut health_monitor_handle: FFIHandle = null_mut();
+
+        let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
+
+        let health_monitor_builder_build_result = health_monitor_builder_build(
+            health_monitor_builder_handle,
+            200,
+            100,
+            &mut health_monitor_handle as *mut FFIHandle,
+        );
+        assert_eq!(health_monitor_builder_build_result, FFICode::WrongState);
 
         // Clean-up not needed - health monitor builder was already consumed by the `build`.
     }
@@ -660,26 +686,6 @@ mod tests {
             &deadline_monitor_tag as *const MonitorTag,
             deadline_monitor_builder_handle,
         );
-        let _ = health_monitor_builder_build(
-            health_monitor_builder_handle,
-            200,
-            100,
-            &mut health_monitor_handle as *mut FFIHandle,
-        );
-
-        let health_monitor_start_result = health_monitor_start(health_monitor_handle);
-        assert_eq!(health_monitor_start_result, FFICode::WrongState);
-
-        // Clean-up.
-        health_monitor_destroy(health_monitor_handle);
-    }
-
-    #[test]
-    fn health_monitor_start_no_monitors() {
-        let mut health_monitor_builder_handle: FFIHandle = null_mut();
-        let mut health_monitor_handle: FFIHandle = null_mut();
-
-        let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
         let _ = health_monitor_builder_build(
             health_monitor_builder_handle,
             200,
