@@ -55,17 +55,6 @@
     "FullyVerifies": null
   },
   {
-    "name": "HealthMonitorTest__TestName",
-    "file": "src/health_monitoring_lib/cpp/tests/health_monitor_test.cpp",
-    "line": "32",
-    "result": "passed",
-    "TestType": "interface-test",
-    "DerivationTechnique": "explorative-testing ",
-    "result_text": "",
-    "PartiallyVerifies": null,
-    "FullyVerifies": null
-  },
-  {
     "name": "ProcessStateClient_UT__ProcessStateClient_ConstructReceiver_Succeeds",
     "file": "src/launch_manager_daemon/process_state_client_lib/src/processstateclient_UT.cpp",
     "line": "43",
@@ -102,6 +91,17 @@
     "name": "ProcessStateClient_UT__ProcessStateClient_QueueOneProcessTooMany_Fails",
     "file": "src/launch_manager_daemon/process_state_client_lib/src/processstateclient_UT.cpp",
     "line": "114",
+    "result": "passed",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing ",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "HealthMonitorTest__TestName",
+    "file": "src/health_monitoring_lib/cpp/tests/health_monitor_test.cpp",
+    "line": "32",
     "result": "passed",
     "TestType": "interface-test",
     "DerivationTechnique": "explorative-testing ",
