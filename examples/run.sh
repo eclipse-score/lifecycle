@@ -29,6 +29,7 @@ DEMO_APP_WO_HM_BINARY="$PWD/../bazel-bin/examples/cpp_lifecycle_app/cpp_lifecycl
 RUST_APP_BINARY="$PWD/../bazel-bin/examples/rust_supervised_app/rust_supervised_app"
 CONTROL_APP_BINARY="$PWD/../bazel-bin/examples/control_application/control_daemon"
 CONTROL_CLI_BINARY="$PWD/../bazel-bin/examples/control_application/lmcontrol"
+CFG_DIR="$PWD/../bazel-bin/examples/flatbuffer_out/"
 
 file_exists $LM_BINARY
 file_exists $DEMO_APP_BINARY
@@ -45,30 +46,17 @@ rm -rf tmp
 rm -rf config/tmp
 mkdir config/tmp
 
-python3 ../scripts/config_mapping/lifecycle_config.py config/lifecycle_demo.json -o config/tmp/
-
-for f in config/tmp/*.json; do
-    base=$(basename "$f")
-    if [[ "$base" != "lm_demo.json" && "$base" != "hmcore.json" && "$base" != "lifecycle_demo.json" ]]; then
-        ../bazel-bin/external/flatbuffers+/flatc --binary -o config/tmp ../src/launch_manager_daemon/health_monitor_lib/config/hm_flatcfg.fbs "$f"
-    fi
-done
-
-../bazel-bin/external/flatbuffers+/flatc --binary -o config/tmp ../src/launch_manager_daemon/config/lm_flatcfg.fbs config/tmp/lm_demo.json
-
-../bazel-bin/external/flatbuffers+/flatc --binary -o config/tmp ../src/launch_manager_daemon/health_monitor_lib/config/hmcore_flatcfg.fbs config/tmp/hmcore.json
-
 mkdir -p tmp/launch_manager/etc
 cp $LM_BINARY tmp/launch_manager/launch_manager
-cp config/tmp/lm_demo.bin tmp/launch_manager/etc/
+cp $CFG_DIR/lm_demo.bin tmp/launch_manager/etc/
 cp config/lm_logging.json tmp/launch_manager/etc/logging.json
 
-cp config/tmp/hm_demo.bin tmp/launch_manager/etc/
-cp config/tmp/hmcore.bin tmp/launch_manager/etc/
+cp $CFG_DIR/hm_demo.bin tmp/launch_manager/etc/
+cp $CFG_DIR/hmcore.bin tmp/launch_manager/etc/
 
 mkdir -p tmp/supervision_demo/etc
 cp $DEMO_APP_BINARY tmp/supervision_demo/
-cp config/tmp/*app.bin tmp/supervision_demo/etc/
+cp $CFG_DIR/*_supervised_app.bin tmp/supervision_demo/etc/
 
 mkdir -p tmp/cpp_lifecycle_app/etc
 cp $DEMO_APP_WO_HM_BINARY tmp/cpp_lifecycle_app/

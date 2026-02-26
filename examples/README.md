@@ -2,23 +2,21 @@
 
 ## Building & Running the demo setup
 
-1. Build launch_manager and health_monitor, in the parent folder, first.
+1. Build launch_manager and examples first
 2. Then start run.sh script in this folder: `cd demo && ./run.sh`
 
 The run.sh script will:
 
-- Copy the required binaries to a temporary directory demo/tmp
-- Compile the json configuration to flatbuffer using flatc
 - Build a docker image for execution with the required artifacts inside
 - Start the docker container that runs launch_manager
 
 ## Interacting with the Demo
 
-### Changing ProcessGroup States
+### Changing RunTargets
 
-There is a CLI application that allows to request transition to a certain ProcessGroup State.
+There is a CLI application that allows to request transition to a certain RunTarget.
 
-Example: `lmcontrol ProcessGroup1/Startup`
+Example: `lmcontrol Startup`
 
 ### Triggering Supervision Failure
 

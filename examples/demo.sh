@@ -20,9 +20,9 @@ ps -a | head -n 40
 echo "$> ps -a | wc -l"
 ps -a | wc -l
 
-read -p "$(echo -e  ${COLOR}Next: Turning on MainPG/Running${NC})"
-echo "$> lmcontrol MainPG/Running"
-lmcontrol MainPG/Running
+read -p "$(echo -e  ${COLOR}Next: Turning on RunTarget Running${NC})"
+echo "$> lmcontrol Running"
+lmcontrol Running
 
 read -p "$(echo -e  ${COLOR}Next: Show running processes${NC})"
 echo "$> ps -a | wc -l"
@@ -32,18 +32,19 @@ read -p "$(echo -e  ${COLOR}Next: Show CPU utilization${NC})"
 echo "$> top"
 top
 
-read -p "$(echo -e  ${COLOR}Next: Turning off demo apps via MainPG/Startup${NC})"
-echo "$> lmcontrol MainPG/Startup"
-lmcontrol MainPG/Startup
+read -p "$(echo -e  ${COLOR}Next: Turning off demo apps via RunTarget Startup${NC})"
+echo "$> lmcontrol Startup"
+lmcontrol Startup
 
 read -p "$(echo -e  ${COLOR}Next: Show running processes${NC})"
 echo "$> ps -a | wc -l"
 ps -a | wc -l
 
+read -p "$(echo -e  ${COLOR}Next: Transition back to RunTarget Running${NC})"
+echo "$> lmcontrol Running"
+lmcontrol Running
+
 read -p "$(echo -e  ${COLOR}Next: Killing an application process${NC})"
-echo "$> lmcontrol MainPG/Running"
-lmcontrol MainPG/Running
-sleep 2
 echo "$> pkill -9 cpp_supervised"
 pkill -9 cpp_supervised
 read -p "$(echo -e  ${COLOR}Next: Show running processes${NC})"
@@ -52,9 +53,9 @@ ps -a
 echo "$> ps -a | wc -l"
 ps -a | wc -l
 
-read -p "$(echo -e  ${COLOR}Next: Moving back to MainPG/Running${NC})"
-echo "$> lmcontrol MainPG/Running"
-lmcontrol MainPG/Running
+read -p "$(echo -e  ${COLOR}Next: Moving back to RunTarget Running${NC})"
+echo "$> lmcontrol Running"
+lmcontrol Running
 
 read -p "$(echo -e  ${COLOR}Next: Trigger supervision failure${NC})"
 echo "$> fail $(pgrep cpp_supervised)"
