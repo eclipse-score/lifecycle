@@ -49,9 +49,17 @@ TEST_F(HealthMonitorTest, TestName)
     const TimeRange heartbeat_range{std::chrono::milliseconds{100}, std::chrono::milliseconds{200}};
     auto heartbeat_monitor_builder = heartbeat::HeartbeatMonitorBuilder(heartbeat_range);
 
+    // Setup logic monitor construction.
+    const MonitorTag logic_monitor_tag{"logic_monitor"};
+    StateTag from_state{"from_state"};
+    StateTag to_state{"to_state"};
+    auto logic_monitor_builder =
+        logic::LogicMonitorBuilder{from_state}.add_state(to_state).add_transition(from_state, to_state);
+
     auto hm = HealthMonitorBuilder()
                   .add_deadline_monitor(deadline_monitor_tag, std::move(deadline_monitor_builder))
                   .add_heartbeat_monitor(heartbeat_monitor_tag, std::move(heartbeat_monitor_builder))
+                  .add_logic_monitor(logic_monitor_tag, std::move(logic_monitor_builder))
                   .with_internal_processing_cycle(std::chrono::milliseconds(50))
                   .with_supervisor_api_cycle(std::chrono::milliseconds(50))
                   .build();
@@ -80,10 +88,24 @@ TEST_F(HealthMonitorTest, TestName)
 
     auto heartbeat_monitor{std::move(*heartbeat_monitor_res)};
 
+    // Obtain logic monitor from HMON.
+    auto logic_monitor_res{hm.get_logic_monitor(logic_monitor_tag)};
+    EXPECT_TRUE(logic_monitor_res.has_value());
+
+    {
+        // Try again to get the same monitor.
+        auto logic_monitor_res{hm.get_logic_monitor(logic_monitor_tag)};
+        EXPECT_FALSE(logic_monitor_res.has_value());
+    }
+
+    auto logic_monitor{std::move(*logic_monitor_res)};
+
     // Start HMON.
     hm.start();
 
     heartbeat_monitor.heartbeat();
+
+    EXPECT_TRUE(logic_monitor.transition(to_state).has_value());
 
     auto deadline_res = deadline_mon.get_deadline(DeadlineTag("deadline_1"));
 

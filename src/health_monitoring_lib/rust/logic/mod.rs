@@ -14,3 +14,6 @@
 mod logic_monitor;
 
 pub use logic_monitor::{LogicEvaluationError, LogicMonitor, LogicMonitorBuilder};
+
+// FFI bindings
+pub(super) mod ffi;
