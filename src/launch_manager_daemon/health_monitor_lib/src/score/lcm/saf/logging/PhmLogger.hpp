@@ -72,7 +72,7 @@ inline LogLevel GetLevelFromEnv() {
          }
 
     } else {
-        return LogLevel::kInfo;
+        return LogLevel::kDebug;
     }
 }
 

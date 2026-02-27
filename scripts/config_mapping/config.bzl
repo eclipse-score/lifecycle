@@ -66,8 +66,15 @@ def _gen_lifecycle_config_impl(ctx):
         ),
         arguments = []
     )
-    
-    return DefaultInfo(files = depset([gen_dir_flatbuffer]))
+
+    rf = ctx.runfiles(
+        files = [gen_dir_flatbuffer],
+        root_symlinks = {
+            ("_main/" + ctx.attr.flatbuffer_out_dir): gen_dir_flatbuffer,
+        }
+    )
+
+    return DefaultInfo(files = depset([gen_dir_flatbuffer]), runfiles = rf)
 
 
 gen_lifecycle_config = rule(
