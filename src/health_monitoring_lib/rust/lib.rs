@@ -15,6 +15,7 @@ mod common;
 mod ffi;
 mod log;
 mod protected_memory;
+mod supervisor_api_client;
 mod tag;
 mod worker;
 
@@ -217,12 +218,10 @@ impl HealthMonitor {
         let monitoring_logic = worker::MonitoringLogic::new(
             monitors,
             self.supervisor_api_cycle,
-            // Currently only `ScoreSupervisorAPIClient` and `StubSupervisorAPIClient` are supported.
-            // The later is meant to be used for testing purposes.
             #[cfg(not(any(test, feature = "stub_supervisor_api_client")))]
-            worker::ScoreSupervisorAPIClient::new(),
+            supervisor_api_client::score_supervisor_api_client::ScoreSupervisorAPIClient::new(),
             #[cfg(any(test, feature = "stub_supervisor_api_client"))]
-            worker::StubSupervisorAPIClient {},
+            supervisor_api_client::stub_supervisor_api_client::StubSupervisorAPIClient::new(),
         );
 
         self.worker.start(monitoring_logic)

@@ -100,6 +100,7 @@ cc_library(
 rust_test(
     name = "tests",
     crate = ":health_monitoring_lib",
+    crate_features = ["stub_supervisor_api_client"],
     rustc_flags = [
         "-C",
         "link-arg=-lm",
