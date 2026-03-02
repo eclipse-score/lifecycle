@@ -42,7 +42,6 @@ CC_HDRS = [
 rust_library(
     name = "health_monitoring_lib",
     srcs = glob(["rust/**/*.rs"]),
-    crate_features = ["score_supervisor_api_client"],
     crate_root = "rust/lib.rs",
     proc_macro_deps = PROC_MACRO_DEPS,
     visibility = ["//visibility:public"],
@@ -66,7 +65,6 @@ cc_library(
 rust_static_library(
     name = "health_monitoring_lib_ffi",
     srcs = glob(["rust/**/*.rs"]),
-    crate_features = ["score_supervisor_api_client"],
     crate_name = "health_monitoring_lib",
     crate_root = "rust/lib.rs",
     proc_macro_deps = [

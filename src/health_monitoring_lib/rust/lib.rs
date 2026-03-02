@@ -218,12 +218,9 @@ impl HealthMonitor {
         let monitoring_logic = worker::MonitoringLogic::new(
             monitors,
             self.supervisor_api_cycle,
-            #[cfg(all(not(test), feature = "score_supervisor_api_client"))]
+            #[cfg(not(any(test, feature = "stub_supervisor_api_client")))]
             supervisor_api_client::score_supervisor_api_client::ScoreSupervisorAPIClient::new(),
-            #[cfg(any(
-                test,
-                all(feature = "stub_supervisor_api_client", not(feature = "score_supervisor_api_client"))
-            ))]
+            #[cfg(any(test, feature = "stub_supervisor_api_client"))]
             supervisor_api_client::stub_supervisor_api_client::StubSupervisorAPIClient::new(),
         );
 

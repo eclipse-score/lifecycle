@@ -22,7 +22,7 @@ pub trait SupervisorAPIClient {
 
 // NOTE: various implementations are not mutually exclusive.
 
-#[cfg(feature = "score_supervisor_api_client")]
+#[cfg(not(feature = "stub_supervisor_api_client"))]
 pub mod score_supervisor_api_client;
 #[cfg(feature = "stub_supervisor_api_client")]
 pub mod stub_supervisor_api_client;
