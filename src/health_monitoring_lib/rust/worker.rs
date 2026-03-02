@@ -157,7 +157,7 @@ impl From<Checks> for u32 {
 #[score_testing_macros::test_mod_with_log]
 #[cfg(test)]
 mod tests {
-    use crate::common::HasEvalHandle;
+    use crate::common::Monitor;
     use crate::deadline::{DeadlineMonitor, DeadlineMonitorBuilder};
     use crate::protected_memory::ProtectedMemoryAllocator;
     use crate::supervisor_api_client::SupervisorAPIClient;

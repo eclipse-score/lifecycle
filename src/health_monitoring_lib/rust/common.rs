@@ -32,13 +32,13 @@ impl TimeRange {
     }
 }
 
-/// The monitor has an evaluation handle available.
-pub(crate) trait HasEvalHandle {
+/// A monitor with an evaluation handle available.
+pub(crate) trait Monitor {
     /// Get an evaluation handle for this monitor.
     ///
     /// # NOTE
     ///
-    /// This method is intended to be called from a background thread periodically.
+    /// This evaluation handle is intended to be called from a background thread periodically.
     fn get_eval_handle(&self) -> MonitorEvalHandle;
 }
 

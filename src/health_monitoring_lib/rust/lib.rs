@@ -21,7 +21,7 @@ mod worker;
 
 pub mod deadline;
 
-use crate::common::{HasEvalHandle, MonitorEvalHandle};
+use crate::common::{Monitor, MonitorEvalHandle};
 use crate::deadline::{DeadlineMonitor, DeadlineMonitorBuilder};
 use crate::log::{error, ScoreDebug};
 pub use common::TimeRange;
@@ -147,9 +147,9 @@ impl HealthMonitorBuilder {
 }
 
 /// Monitor ownership state in the [`HealthMonitor`].
-enum MonitorState<Monitor> {
+enum MonitorState<M> {
     /// Monitor is available.
-    Available(Monitor),
+    Available(M),
     /// Monitor is already taken.
     Taken(MonitorEvalHandle),
 }
@@ -157,7 +157,7 @@ enum MonitorState<Monitor> {
 /// Monitor container.
 /// - Must be an option to ensure monitor can be taken out (not referenced).
 /// - Must be an enum to ensure evaluation handle is still available for HMON after monitor is taken.
-type MonitorContainer<Monitor> = Option<MonitorState<Monitor>>;
+type MonitorContainer<M> = Option<MonitorState<M>>;
 
 /// Health monitor.
 pub struct HealthMonitor {
@@ -167,10 +167,10 @@ pub struct HealthMonitor {
 }
 
 impl HealthMonitor {
-    fn get_monitor<Monitor: HasEvalHandle>(
-        monitors: &mut HashMap<MonitorTag, MonitorContainer<Monitor>>,
+    fn get_monitor<M: Monitor>(
+        monitors: &mut HashMap<MonitorTag, MonitorContainer<M>>,
         monitor_tag: MonitorTag,
-    ) -> Option<Monitor> {
+    ) -> Option<M> {
         let monitor_state = monitors.get_mut(&monitor_tag)?;
 
         match monitor_state.take() {
@@ -197,8 +197,8 @@ impl HealthMonitor {
         Self::get_monitor(&mut self.deadline_monitors, monitor_tag)
     }
 
-    fn collect_given_monitors<Monitor>(
-        monitors_to_collect: &mut HashMap<MonitorTag, MonitorContainer<Monitor>>,
+    fn collect_given_monitors<M>(
+        monitors_to_collect: &mut HashMap<MonitorTag, MonitorContainer<M>>,
         collected_monitors: &mut FixedCapacityVec<MonitorEvalHandle>,
     ) -> Result<(), HealthMonitorError> {
         for (tag, monitor) in monitors_to_collect.iter_mut() {
@@ -210,7 +210,9 @@ impl HealthMonitor {
                         return Err(HealthMonitorError::WrongState);
                     }
                 },
-                Some(MonitorState::Available(_)) => {
+                Some(MonitorState::Available(m)) => {
+                    // Reinsert into collection.
+                    monitor.replace(MonitorState::Available(m));
                     error!(
                         "All monitors must be taken before starting HealthMonitor but {:?} is not taken.",
                         tag
@@ -238,17 +240,10 @@ impl HealthMonitor {
     /// This method shall be called before `Lifecycle.running()`.
     /// Otherwise the supervisor might consider the process not alive.
     ///
-    /// Health monitoring logic stop when the [`HealthMonitor`] is dropped.
+    /// Health monitoring logic stops when the [`HealthMonitor`] is dropped.
     pub fn start(&mut self) -> Result<(), HealthMonitorError> {
-        // Check number of monitors.
-        // Should never occur if created by `HealthMonitorBuilder`!
-        let num_monitors = self.deadline_monitors.len();
-        if num_monitors == 0 {
-            error!("No monitors have been added. HealthMonitor cannot be created.");
-            return Err(HealthMonitorError::WrongState);
-        }
-
         // Collect all monitors.
+        let num_monitors = self.deadline_monitors.len();
         let mut collected_monitors = FixedCapacityVec::new(num_monitors);
         Self::collect_given_monitors(&mut self.deadline_monitors, &mut collected_monitors)?;
 
@@ -276,7 +271,6 @@ mod tests {
     use crate::tag::MonitorTag;
     use crate::{HealthMonitorBuilder, HealthMonitorError};
     use core::time::Duration;
-    use std::collections::HashMap;
 
     #[test]
     fn health_monitor_builder_new_succeeds() {
@@ -400,7 +394,7 @@ mod tests {
     }
 
     #[test]
-    fn health_monitor_start_no_monitors() {
+    fn health_monitor_start_not_taken_then_restart() {
         let deadline_monitor_tag = MonitorTag::from("deadline_monitor");
         let deadline_monitor_builder = DeadlineMonitorBuilder::new();
 
@@ -409,10 +403,16 @@ mod tests {
             .build()
             .unwrap();
 
-        // Inject broken state - unreachable otherwise.
-        health_monitor.deadline_monitors = HashMap::new();
+        // Start without taking any monitor.
+        let start_result = health_monitor.start();
+        assert!(start_result.is_err_and(|e| e == HealthMonitorError::WrongState));
 
-        let result = health_monitor.start();
-        assert!(result.is_err_and(|e| e == HealthMonitorError::WrongState));
+        // Take monitor.
+        let get_deadline_monitor_result = health_monitor.get_deadline_monitor(deadline_monitor_tag);
+        assert!(get_deadline_monitor_result.is_some());
+
+        // Try to start again, this time should be successful.
+        let start_result = health_monitor.start();
+        assert!(start_result.is_ok());
     }
 }

@@ -10,7 +10,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
-use crate::common::{HasEvalHandle, MonitorEvalHandle, MonitorEvaluationError, MonitorEvaluator};
+use crate::common::{Monitor, MonitorEvalHandle, MonitorEvaluationError, MonitorEvaluator};
 use crate::deadline::common::{DeadlineTemplate, StateIndex};
 use crate::deadline::deadline_state::{DeadlineState, DeadlineStateSnapshot};
 use crate::log::{error, warn, ScoreDebug};
@@ -102,7 +102,7 @@ impl DeadlineMonitor {
     }
 }
 
-impl HasEvalHandle for DeadlineMonitor {
+impl Monitor for DeadlineMonitor {
     fn get_eval_handle(&self) -> MonitorEvalHandle {
         MonitorEvalHandle::new(Arc::clone(&self.inner))
     }
@@ -305,7 +305,6 @@ impl DeadlineMonitorInner {
             })
             .collect();
 
-        #[allow(clippy::arc_with_non_send_sync)] // This will be fixed once we add background thread
         Self {
             monitor_tag,
             deadlines,
