@@ -38,11 +38,11 @@
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-data-viewer/jsonview.bundle.css?v=f6ef2277" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-needs/libs/html/datatables.min.css?v=4b4fd840" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinx-needs/common_css/need_toggle.css?v=5c6620df" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinx-needs/common_css/needstable.css?v=5e1b6797" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinx-needs/common_css/need_core.css?v=f5b60a78" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-needs/common_css/need_links.css?v=2150a916" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-needs/common_css/need_style.css?v=92936fa5" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-needs/common_css/needstable.css?v=5e1b6797" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-needs/common_css/need_toggle.css?v=5c6620df" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-needs/common_css/need_core.css?v=f5b60a78" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-needs/modern.css?v=803738c0" />
   
   <!-- So that users can add custom icons -->
@@ -613,7 +613,7 @@ Executing tests from //tests/integration/smoke:smoke
 -----------------------------------------------------------------------------
 ============================= test session starts ==============================
 platform linux -- Python 3.12.12, pytest-9.0.1, pluggy-1.6.0
-rootdir: /home/runner/.bazel/sandbox/processwrapper-sandbox/513/execroot/_main/bazel-out/k8-fastbuild/bin/tests/integration/smoke/smoke.runfiles/score_tooling+/python_basics/score_pytest
+rootdir: /home/runner/.bazel/sandbox/processwrapper-sandbox/444/execroot/_main/bazel-out/k8-fastbuild/bin/tests/integration/smoke/smoke.runfiles/score_tooling+/python_basics/score_pytest
 configfile: pytest.ini
 collected 1 item
 
@@ -677,10 +677,10 @@ stderr:
 
 
 Exit status = 127
-- generated xml file: /home/runner/.bazel/sandbox/processwrapper-sandbox/513/execroot/_main/bazel-out/k8-fastbuild/testlogs/tests/integration/smoke/smoke/test.xml -
+- generated xml file: /home/runner/.bazel/sandbox/processwrapper-sandbox/444/execroot/_main/bazel-out/k8-fastbuild/testlogs/tests/integration/smoke/smoke/test.xml -
 =========================== short test summary info ============================
 FAILED ../score_tooling+/python_basics/score_pytest::test_smoke - RuntimeErro...
-============================== 1 failed in 0.13s ===============================
+============================== 1 failed in 0.11s ===============================
 </pre></div>
 </div>
 <p class="rubric">tests-report/tests/ut/identifier_hash_UT/identifier_hash_UT/test.log</p>
@@ -708,47 +708,73 @@ Running main() from gmock_main.cc
 [  PASSED  ] 5 tests.
 </pre></div>
 </div>
+<p class="rubric">tests-report/src/launch_manager_daemon/process_state_client_lib/processstateclient_UT/test.log</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
+Executing tests from //src/launch_manager_daemon/process_state_client_lib:processstateclient_UT
+-----------------------------------------------------------------------------
+Running main() from gmock_main.cc
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from ProcessStateClient_UT
+[ RUN      ] ProcessStateClient_UT.ProcessStateClient_ConstructReceiver_Succeeds
+[       OK ] ProcessStateClient_UT.ProcessStateClient_ConstructReceiver_Succeeds (0 ms)
+[ RUN      ] ProcessStateClient_UT.ProcessStateClient_QueueOneProcess_Succeeds
+[       OK ] ProcessStateClient_UT.ProcessStateClient_QueueOneProcess_Succeeds (0 ms)
+[ RUN      ] ProcessStateClient_UT.ProcessStateClient_QueueMaxNumberOfProcesses_Succeeds
+[       OK ] ProcessStateClient_UT.ProcessStateClient_QueueMaxNumberOfProcesses_Succeeds (27 ms)
+[ RUN      ] ProcessStateClient_UT.ProcessStateClient_QueueOneProcessTooMany_Fails
+ [101;30m !!! -&gt; [0m [0;34m 2026/3/2 9:27:30 LCLM LCLM ERROR:   [ Failed to queue posix process ][0m
+ [101;30m !!! -&gt; [0m [0;34m 2026/3/2 9:27:30 LCLM LCLM ERROR:   [ ProcessStateReceiver::getNextChangedPosixProcess: Overflow occurred, will be reported as kCommunicationError ][0m
+[       OK ] ProcessStateClient_UT.ProcessStateClient_QueueOneProcessTooMany_Fails (9 ms)
+[----------] 4 tests from ProcessStateClient_UT (37 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (41 ms total)
+[  PASSED  ] 4 tests.
+</pre></div>
+</div>
 <p class="rubric">tests-report/src/health_monitoring_lib/tests/test.log</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
 Executing tests from //src/health_monitoring_lib:tests
 -----------------------------------------------------------------------------
 
 running 82 tests
-test deadline::common::tests::new_and_fields ... ok
 test deadline::common::tests::acquire_and_release_deadline ... ok
-test deadline::deadline_monitor::tests::get_deadline_unknown_tag ... ok
+test deadline::common::tests::new_and_fields ... ok
+test deadline::deadline_monitor::tests::deadline_failed_on_first_run_and_then_restarted_is_evaluated_as_error ... ok
 test deadline::deadline_monitor::tests::deadline_outside_time_range_is_error_when_dropped_after_evaluate ... ok
+test deadline::deadline_monitor::tests::get_deadline_unknown_tag ... ok
 test deadline::common::tests::concurrent_acquire ... ok
-test deadline::deadline_monitor::tests::start_stop_deadline_outside_ranges_is_error_when_dropped_before_evaluate ... ok
 test deadline::deadline_monitor::tests::start_stop_deadline_outside_ranges_is_evaluated_as_error ... ok
+test deadline::deadline_monitor::tests::start_stop_deadline_outside_ranges_is_error_when_dropped_before_evaluate ... ok
 test deadline::deadline_state::tests::as_u64_and_new ... ok
 test deadline::deadline_state::tests::deadline_state_default_and_snapshot ... ok
 test deadline::deadline_state::tests::deadline_state_update_none_returns_err ... ok
 test deadline::deadline_state::tests::deadline_state_update_success ... ok
 test deadline::deadline_state::tests::default_state ... ok
 test deadline::deadline_state::tests::set_and_get_timestamp_ms ... ok
-test deadline::deadline_monitor::tests::deadline_failed_on_first_run_and_then_restarted_is_evaluated_as_error ... ok
 test deadline::deadline_state::tests::set_running ... ok
 test deadline::deadline_state::tests::set_underrun ... ok
 test deadline::ffi::tests::deadline_destroy_null_deadline ... ok
 test deadline::ffi::tests::deadline_monitor_builder_add_deadline_invalid_range ... ok
-test deadline::ffi::tests::deadline_monitor_builder_add_deadline_null_deadline_tag ... ok
 test deadline::ffi::tests::deadline_monitor_builder_add_deadline_null_builder ... ok
+test deadline::ffi::tests::deadline_monitor_builder_add_deadline_null_deadline_tag ... ok
 test deadline::ffi::tests::deadline_monitor_builder_add_deadline_succeeds ... ok
 test deadline::ffi::tests::deadline_monitor_builder_create_null_builder ... ok
 test deadline::ffi::tests::deadline_monitor_builder_create_succeeds ... ok
+test deadline::ffi::tests::deadline_monitor_builder_destroy_null_builder ... ok
 test deadline::ffi::tests::deadline_monitor_destroy_null_monitor ... ok
 test deadline::ffi::tests::deadline_monitor_get_deadline_null_deadline_handle ... ok
-test deadline::ffi::tests::deadline_monitor_builder_destroy_null_builder ... ok
+test deadline::ffi::tests::deadline_monitor_get_deadline_null_deadline_tag ... ok
 test deadline::ffi::tests::deadline_monitor_get_deadline_null_monitor ... ok
 test deadline::ffi::tests::deadline_monitor_get_deadline_succeeds ... ok
 test deadline::ffi::tests::deadline_monitor_get_deadline_unknown_deadline ... ok
-test deadline::ffi::tests::deadline_start_already_started ... ok
 test deadline::ffi::tests::deadline_start_null_deadline ... ok
+test deadline::ffi::tests::deadline_start_already_started ... ok
 test deadline::ffi::tests::deadline_start_succeeds ... ok
-test deadline::ffi::tests::deadline_monitor_get_deadline_null_deadline_tag ... ok
-test deadline::ffi::tests::deadline_stop_succeeds ... ok
+test deadline::ffi::tests::deadline_stop_null_deadline ... ok
 test ffi::tests::health_monitor_builder_add_deadline_monitor_null_deadline_monitor_builder ... ok
+test deadline::ffi::tests::deadline_stop_succeeds ... ok
 test ffi::tests::health_monitor_builder_add_deadline_monitor_null_hmon_builder ... ok
 test ffi::tests::health_monitor_builder_add_deadline_monitor_null_monitor_tag ... ok
 test ffi::tests::health_monitor_builder_add_deadline_monitor_succeeds ... ok
@@ -765,10 +791,9 @@ test ffi::tests::health_monitor_get_deadline_monitor_null_deadline_monitor ... o
 test ffi::tests::health_monitor_get_deadline_monitor_null_hmon ... ok
 test ffi::tests::health_monitor_get_deadline_monitor_null_monitor_tag ... ok
 test ffi::tests::health_monitor_get_deadline_monitor_succeeds ... ok
-test deadline::ffi::tests::deadline_stop_null_deadline ... ok
 test ffi::tests::health_monitor_start_monitor_not_taken ... ok
-test ffi::tests::health_monitor_start_null_hmon ... ok
 test ffi::tests::health_monitor_start_no_monitors ... ok
+test ffi::tests::health_monitor_start_null_hmon ... ok
 test tag::tests::deadline_tag_debug ... ok
 test tag::tests::deadline_tag_from_str ... ok
 test tag::tests::deadline_tag_from_string ... ok
@@ -786,15 +811,15 @@ test tag::tests::test_from_str ... ok
 test tag::tests::test_from_string ... ok
 test tests::hm_get_deadline_monitor_works ... ok
 test tests::hm_with_monitors_shall_not_start_with_not_taken_monitors - should panic ... ok
-test ffi::tests::health_monitor_start_succeeds ... ok
 test tests::hm_with_no_monitors_shall_panic_on_start - should panic ... ok
 test tests::hm_with_taken_monitors_starts ... ok
 test tests::hm_with_wrong_cycle_fails_to_build - should panic ... ok
 test worker::tests::monitoring_logic_report_alive_on_each_call_when_no_error ... ok
-test worker::tests::monitoring_logic_report_error_when_deadline_failed ... ok
 test deadline::deadline_monitor::tests::monitor_with_multiple_running_deadlines ... ok
-test worker::tests::unique_thread_runner_monitoring_works ... ok
+test worker::tests::monitoring_logic_report_error_when_deadline_failed ... ok
+test ffi::tests::health_monitor_start_succeeds ... ok
 test worker::tests::monitoring_logic_report_alive_respect_cycle ... ok
+test worker::tests::unique_thread_runner_monitoring_works ... ok
 test deadline::deadline_monitor::tests::start_stop_deadline_within_range_works ... ok
 
 test result: ok. 82 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.00s
@@ -809,40 +834,19 @@ Running main() from gmock_main.cc
 [----------] Global test environment set-up.
 [----------] 1 test from HealthMonitorTest
 [ RUN      ] HealthMonitorTest.TestName
-[2026/02/24 10:11:52.4455061][src/health_monitoring_lib/rust/deadline/deadline_monitor.rs:243][7318][HMON][ERROR] Deadline DeadlineTag(deadline_1) stopped too early by 100 ms
-[2026/02/24 10:11:52.4456174][src/health_monitoring_lib/rust/worker.rs:98][7318][HMON][INFO] Monitoring thread started.
-[2026/02/24 10:11:52.4456295][src/health_monitoring_lib/rust/worker.rs:115][7318][HMON][INFO] Monitoring thread exiting.
-[       OK ] HealthMonitorTest.TestName (0 ms)
-[----------] 1 test from HealthMonitorTest (0 ms total)
+[2026/03/02 09:29:28.0912557][src/health_monitoring_lib/rust/worker.rs:98][7395][HMON][INFO] Monitoring thread started.
+[2026/03/02 09:29:28.0913356][src/health_monitoring_lib/rust/deadline/deadline_monitor.rs:243][7395][HMON][ERROR] Deadline DeadlineTag(deadline_1) stopped too early by 100 ms
+[2026/03/02 09:29:28.1413648][src/health_monitoring_lib/rust/deadline/deadline_monitor.rs:314][7395][HMON][WARN] Deadline (DeadlineTag(deadline_1)) finished too early!
+[2026/03/02 09:29:28.1413911][src/health_monitoring_lib/rust/worker.rs:55][7395][HMON][WARN] Monitor with tag MonitorTag(deadline_monitor) reported error: TooEarly.
+[2026/03/02 09:29:28.1414011][src/health_monitoring_lib/rust/worker.rs:65][7395][HMON][WARN] One or more monitors reported errors, skipping AliveAPI notification.
+[2026/03/02 09:29:28.1414088][src/health_monitoring_lib/rust/worker.rs:108][7395][HMON][INFO] Monitoring logic failed, stopping thread.
+[2026/03/02 09:29:28.1414159][src/health_monitoring_lib/rust/worker.rs:115][7395][HMON][INFO] Monitoring thread exiting.
+[       OK ] HealthMonitorTest.TestName (50 ms)
+[----------] 1 test from HealthMonitorTest (50 ms total)
 
 [----------] Global test environment tear-down
-[==========] 1 test from 1 test suite ran. (0 ms total)
+[==========] 1 test from 1 test suite ran. (50 ms total)
 [  PASSED  ] 1 test.
-</pre></div>
-</div>
-<p class="rubric">tests-report/src/launch_manager_daemon/process_state_client_lib/processstateclient_UT/test.log</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
-Executing tests from //src/launch_manager_daemon/process_state_client_lib:processstateclient_UT
------------------------------------------------------------------------------
-Running main() from gmock_main.cc
-[==========] Running 4 tests from 1 test suite.
-[----------] Global test environment set-up.
-[----------] 4 tests from ProcessStateClient_UT
-[ RUN      ] ProcessStateClient_UT.ProcessStateClient_ConstructReceiver_Succeeds
-[       OK ] ProcessStateClient_UT.ProcessStateClient_ConstructReceiver_Succeeds (0 ms)
-[ RUN      ] ProcessStateClient_UT.ProcessStateClient_QueueOneProcess_Succeeds
-[       OK ] ProcessStateClient_UT.ProcessStateClient_QueueOneProcess_Succeeds (0 ms)
-[ RUN      ] ProcessStateClient_UT.ProcessStateClient_QueueMaxNumberOfProcesses_Succeeds
-[       OK ] ProcessStateClient_UT.ProcessStateClient_QueueMaxNumberOfProcesses_Succeeds (22 ms)
-[ RUN      ] ProcessStateClient_UT.ProcessStateClient_QueueOneProcessTooMany_Fails
- [101;30m !!! -&gt; [0m [0;34m 2026/2/24 10:10:30 LCLM LCLM ERROR:   [ Failed to queue posix process ][0m
- [101;30m !!! -&gt; [0m [0;34m 2026/2/24 10:10:30 LCLM LCLM ERROR:   [ ProcessStateReceiver::getNextChangedPosixProcess: Overflow occurred, will be reported as kCommunicationError ][0m
-[       OK ] ProcessStateClient_UT.ProcessStateClient_QueueOneProcessTooMany_Fails (3 ms)
-[----------] 4 tests from ProcessStateClient_UT (26 ms total)
-
-[----------] Global test environment tear-down
-[==========] 4 tests from 1 test suite ran. (26 ms total)
-[  PASSED  ] 4 tests.
 </pre></div>
 </div>
 </section>
