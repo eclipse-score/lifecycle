@@ -71,7 +71,7 @@ impl DeadlineTemplate {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, not(loom)))]
 mod tests {
     use super::*;
     use std::sync::Arc;

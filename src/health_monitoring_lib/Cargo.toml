@@ -7,7 +7,6 @@ edition.workspace = true
 authors.workspace = true
 license-file.workspace = true
 
-
 [lib]
 path = "rust/lib.rs"
 
@@ -18,11 +17,14 @@ workspace = true
 score_log.workspace = true
 score_testing_macros.workspace = true
 containers.workspace = true
-monitor_rs.workspace = true
+monitor_rs = { workspace = true, optional = true }
 
 [dev-dependencies]
 stdout_logger.workspace = true
 
+[target.'cfg(loom)'.dependencies]
+loom = { version = "0.7.2", features = ["checkpoint"] }
+
 [features]
-default = []
+default = ["monitor_rs"]
 stub_supervisor_api_client = []

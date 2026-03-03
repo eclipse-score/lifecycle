@@ -87,7 +87,7 @@ jobs:
             --config=x86_64-linux \
             --config=ferrocene-coverage \
             --nocache_test_results \
-            "$(bazel query 'kind(rust_test, //src/...)')"
+            $(bazel query 'kind(rust_test, //src/...) except attr("tags", "loom", //src/...)')
 
       - name: Generate Ferrocene coverage reports
         run: |

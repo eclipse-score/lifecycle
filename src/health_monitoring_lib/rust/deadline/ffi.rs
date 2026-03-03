@@ -210,7 +210,7 @@ pub extern "C" fn deadline_destroy(deadline_handle: FFIHandle) -> FFICode {
 }
 
 #[score_testing_macros::test_mod_with_log]
-#[cfg(test)]
+#[cfg(all(test, not(loom)))]
 mod tests {
     use crate::deadline::ffi::{
         deadline_destroy, deadline_monitor_builder_add_deadline, deadline_monitor_builder_create,
