@@ -10,24 +10,17 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-
-name: License check preparation
+name: Bzlmod Lockfile Check
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, reopened, synchronize]
   merge_group:
     types: [checks_requested]
-
-permissions:
-  pull-requests: write
-  issues: write
-
-
+  push:
+    branches:
+      - main
 jobs:
-  license-check:
-    uses: eclipse-score/cicd-workflows/.github/workflows/license-check.yml@main
+  bzlmod-lock:
+    uses: eclipse-score/cicd-workflows/.github/workflows/bzlmod-lock-check.yml@main
     with:
-      repo-url: "${{ github.server_url }}/${{ github.repository }}"
-      bazel-target: "run --lockfile_mode=error //:license-check"
-    secrets:
-      dash-api-token: ${{ secrets.ECLIPSE_GITLAB_API_TOKEN }}
+      working-directory: .

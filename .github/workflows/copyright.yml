@@ -21,4 +21,4 @@ jobs:
   copyright-check:
     uses: eclipse-score/cicd-workflows/.github/workflows/copyright.yml@main
     with:
-      bazel-target: "run //:copyright.check"
+      bazel-target: "run --lockfile_mode=error //:copyright.check"
