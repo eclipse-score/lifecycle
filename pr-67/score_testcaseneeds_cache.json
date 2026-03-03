@@ -12,7 +12,7 @@
   },
   {
     "name": "IdentifierHashTest__IdentifierHash_with_string_view_created",
-    "file": "tests/ut/identifier_hash_UT/identifier_hash_UT.cpp",
+    "file": "src/launch_manager_daemon/common/src/identifier_hash_UT.cpp",
     "line": "33",
     "result": "passed",
     "TestType": "interface-test",
@@ -23,7 +23,7 @@
   },
   {
     "name": "IdentifierHashTest__IdentifierHash_with_string_created",
-    "file": "tests/ut/identifier_hash_UT/identifier_hash_UT.cpp",
+    "file": "src/launch_manager_daemon/common/src/identifier_hash_UT.cpp",
     "line": "45",
     "result": "passed",
     "TestType": "interface-test",
@@ -34,7 +34,7 @@
   },
   {
     "name": "IdentifierHashTest__IdentifierHash_default_created",
-    "file": "tests/ut/identifier_hash_UT/identifier_hash_UT.cpp",
+    "file": "src/launch_manager_daemon/common/src/identifier_hash_UT.cpp",
     "line": "57",
     "result": "passed",
     "TestType": "interface-test",
@@ -45,7 +45,7 @@
   },
   {
     "name": "IdentifierHashTest__IdentifierHash_invalid_hash_no_string_representation",
-    "file": "tests/ut/identifier_hash_UT/identifier_hash_UT.cpp",
+    "file": "src/launch_manager_daemon/common/src/identifier_hash_UT.cpp",
     "line": "68",
     "result": "passed",
     "TestType": "interface-test",
@@ -56,7 +56,7 @@
   },
   {
     "name": "IdentifierHashTest__IdentifierHash_no_dangling_pointer_after_source_string_dies",
-    "file": "tests/ut/identifier_hash_UT/identifier_hash_UT.cpp",
+    "file": "src/launch_manager_daemon/common/src/identifier_hash_UT.cpp",
     "line": "85",
     "result": "passed",
     "TestType": "interface-test",
