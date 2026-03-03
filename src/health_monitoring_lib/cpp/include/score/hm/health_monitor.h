@@ -60,7 +60,7 @@ class HealthMonitorBuilder final
     HealthMonitorBuilder with_internal_processing_cycle(std::chrono::milliseconds cycle_duration) &&;
 
     /// Build a new `HealthMonitor` instance based on provided parameters.
-    HealthMonitor build() &&;
+    score::cpp::expected<HealthMonitor, Error> build() &&;
 
   private:
     internal::DroppableFFIHandle health_monitor_builder_handle_;
@@ -84,7 +84,7 @@ class HealthMonitor final
     score::cpp::expected<heartbeat::HeartbeatMonitor, Error> get_heartbeat_monitor(const MonitorTag& monitor_tag);
     score::cpp::expected<logic::LogicMonitor, Error> get_logic_monitor(const MonitorTag& monitor_tag);
 
-    void start();
+    score::cpp::expected_blank<Error> start();
 
   private:
     // Allow only the builder to create HealthMonitor instances.

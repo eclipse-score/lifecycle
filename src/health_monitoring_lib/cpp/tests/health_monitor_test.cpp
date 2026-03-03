@@ -56,13 +56,15 @@ TEST_F(HealthMonitorTest, TestName)
     auto logic_monitor_builder =
         logic::LogicMonitorBuilder{from_state}.add_state(from_state, std::vector{to_state}).add_state(to_state, {});
 
-    auto hm = HealthMonitorBuilder()
-                  .add_deadline_monitor(deadline_monitor_tag, std::move(deadline_monitor_builder))
-                  .add_heartbeat_monitor(heartbeat_monitor_tag, std::move(heartbeat_monitor_builder))
-                  .add_logic_monitor(logic_monitor_tag, std::move(logic_monitor_builder))
-                  .with_internal_processing_cycle(std::chrono::milliseconds(50))
-                  .with_supervisor_api_cycle(std::chrono::milliseconds(50))
-                  .build();
+    auto hmon_result{HealthMonitorBuilder()
+                         .add_deadline_monitor(deadline_monitor_tag, std::move(deadline_monitor_builder))
+                         .add_heartbeat_monitor(heartbeat_monitor_tag, std::move(heartbeat_monitor_builder))
+                         .add_logic_monitor(logic_monitor_tag, std::move(logic_monitor_builder))
+                         .with_internal_processing_cycle(std::chrono::milliseconds(50))
+                         .with_supervisor_api_cycle(std::chrono::milliseconds(50))
+                         .build()};
+    EXPECT_TRUE(hmon_result.has_value());
+    auto hm{std::move(hmon_result.value())};
 
     // Obtain deadline monitor from HMON.
     auto deadline_monitor_res = hm.get_deadline_monitor(deadline_monitor_tag);
@@ -101,7 +103,8 @@ TEST_F(HealthMonitorTest, TestName)
     auto logic_monitor{std::move(*logic_monitor_res)};
 
     // Start HMON.
-    hm.start();
+    auto start_result{hm.start()};
+    EXPECT_TRUE(start_result.has_value());
 
     heartbeat_monitor.heartbeat();
 

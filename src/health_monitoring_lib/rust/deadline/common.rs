@@ -10,12 +10,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
-use core::{
-    ops::Deref,
-    sync::atomic::{AtomicBool, Ordering},
-};
-
-use crate::TimeRange;
+use crate::common::TimeRange;
+use core::ops::Deref;
+use core::sync::atomic::{AtomicBool, Ordering};
 
 /// Index type for identifying states associated with deadlines.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -73,11 +70,11 @@ impl DeadlineTemplate {
 
 #[cfg(all(test, not(loom)))]
 mod tests {
-    use super::*;
-    use std::sync::Arc;
-
-    use crate::TimeRange;
+    use crate::common::TimeRange;
+    use crate::deadline::common::{DeadlineTemplate, StateIndex};
+    use core::sync::atomic::Ordering;
     use core::time::Duration;
+    use std::sync::Arc;
 
     #[test]
     fn new_and_fields() {
