@@ -12,10 +12,10 @@
 // *******************************************************************************
 use crate::deadline::ffi::DeadlineMonitorCpp;
 use crate::deadline::DeadlineMonitorBuilder;
+use crate::health_monitor::{HealthMonitor, HealthMonitorBuilder, HealthMonitorError};
 use crate::heartbeat::HeartbeatMonitorBuilder;
 use crate::logic::LogicMonitorBuilder;
 use crate::tag::MonitorTag;
-use crate::{HealthMonitor, HealthMonitorBuilder, HealthMonitorError};
 use core::mem::ManuallyDrop;
 use core::ops::{Deref, DerefMut};
 use core::time::Duration;

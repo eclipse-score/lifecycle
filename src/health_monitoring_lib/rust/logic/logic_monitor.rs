@@ -12,11 +12,11 @@
 // *******************************************************************************
 
 use crate::common::{Monitor, MonitorEvalHandle, MonitorEvaluationError, MonitorEvaluator, PhantomUnsync};
+use crate::health_monitor::HealthMonitorError;
 use crate::log::{error, warn, ScoreDebug};
 use crate::logic::logic_state::LogicState;
 use crate::protected_memory::ProtectedMemoryAllocator;
 use crate::tag::{MonitorTag, StateTag};
-use crate::HealthMonitorError;
 use core::hash::Hash;
 use core::marker::PhantomData;
 use std::collections::HashMap;
@@ -301,10 +301,10 @@ impl LogicMonitorInner {
 #[cfg(all(test, not(loom)))]
 mod tests {
     use crate::common::MonitorEvaluator;
+    use crate::health_monitor::HealthMonitorError;
     use crate::logic::{LogicEvaluationError, LogicMonitorBuilder};
     use crate::protected_memory::ProtectedMemoryAllocator;
     use crate::tag::{MonitorTag, StateTag};
-    use crate::HealthMonitorError;
     use std::time::Instant;
 
     #[test]

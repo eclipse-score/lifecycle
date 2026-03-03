@@ -14,11 +14,11 @@
 use crate::common::{
     duration_to_int, time_offset, Monitor, MonitorEvalHandle, MonitorEvaluationError, MonitorEvaluator, TimeRange,
 };
+use crate::health_monitor::HealthMonitorError;
 use crate::heartbeat::heartbeat_state::HeartbeatState;
 use crate::log::{error, warn};
 use crate::protected_memory::ProtectedMemoryAllocator;
 use crate::tag::MonitorTag;
-use crate::HealthMonitorError;
 use core::sync::atomic::{AtomicU64, Ordering};
 use core::time::Duration;
 use score_log::ScoreDebug;
@@ -293,11 +293,11 @@ mod test_common {
 #[cfg(all(test, not(loom)))]
 mod tests {
     use crate::common::{Monitor, MonitorEvaluationError, MonitorEvaluator, TimeRange};
+    use crate::health_monitor::HealthMonitorError;
     use crate::heartbeat::heartbeat_monitor::test_common::{range_from_ms, sleep_until, TAG};
     use crate::heartbeat::{HeartbeatEvaluationError, HeartbeatMonitor, HeartbeatMonitorBuilder};
     use crate::protected_memory::ProtectedMemoryAllocator;
     use crate::tag::MonitorTag;
-    use crate::HealthMonitorError;
     use core::sync::atomic::{AtomicBool, Ordering};
     use core::time::Duration;
     use std::sync::Arc;

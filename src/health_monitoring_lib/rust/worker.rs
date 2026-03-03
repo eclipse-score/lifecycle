@@ -168,13 +168,12 @@ impl From<Checks> for u32 {
 #[score_testing_macros::test_mod_with_log]
 #[cfg(all(test, not(loom)))]
 mod tests {
-    use crate::common::Monitor;
+    use crate::common::{Monitor, TimeRange};
     use crate::deadline::{DeadlineMonitor, DeadlineMonitorBuilder};
     use crate::protected_memory::ProtectedMemoryAllocator;
     use crate::supervisor_api_client::SupervisorAPIClient;
     use crate::tag::{DeadlineTag, MonitorTag};
     use crate::worker::{MonitoringLogic, UniqueThreadRunner};
-    use crate::TimeRange;
     use containers::fixed_capacity::FixedCapacityVec;
     use core::sync::atomic::{AtomicUsize, Ordering};
     use core::time::Duration;

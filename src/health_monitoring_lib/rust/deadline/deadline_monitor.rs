@@ -441,6 +441,7 @@ mod tests {
                 );
             });
     }
+
     #[test]
     fn deadline_outside_time_range_is_error_when_dropped_after_evaluate() {
         let monitor = create_monitor_with_deadlines();
