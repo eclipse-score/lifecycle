@@ -123,7 +123,7 @@ impl DeadlineState {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, not(loom)))]
 mod tests {
     use super::*;
 

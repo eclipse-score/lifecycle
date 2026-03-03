@@ -120,6 +120,36 @@ rust_test(
     ],
 )
 
+rust_test(
+    name = "loom_tests",
+    crate = ":health_monitoring_lib",
+    crate_features = ["stub_supervisor_api_client"],
+    rustc_flags = [
+        "--cfg",
+        "loom",
+        "-C",
+        "link-arg=-lm",
+        "-C",
+        "link-arg=-lc",
+    ] + select({
+        "@platforms//os:qnx": [
+            "-Clink-arg=-lc++",
+        ],
+        "@platforms//os:linux": [
+            "-Clink-arg=-lrt",
+            "-Clink-arg=-lstdc++",
+        ],
+    }),
+    tags = ["loom"],
+    target_compatible_with = [
+        "@platforms//os:linux",
+    ],
+    deps = [
+        "@score_baselibs_rust//src/log/stdout_logger",
+        "@score_crates//:loom",
+    ],
+)
+
 cc_gtest_unit_test(
     name = "cpp_tests",
     srcs = [

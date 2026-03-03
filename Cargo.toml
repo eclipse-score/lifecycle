@@ -29,3 +29,6 @@ containers = { git = "https://github.com/eclipse-score/baselibs_rust.git", tag =
 [workspace.lints.clippy]
 std_instead_of_core = "warn"
 alloc_instead_of_core = "warn"
+
+[workspace.lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(loom)'] }

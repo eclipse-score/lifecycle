@@ -81,7 +81,12 @@ use_repo(
 bazel_dep(name = "score_toolchains_rust", version = "0.4.0", dev_dependency = True)
 
 # S-CORE crates
-bazel_dep(name = "score_crates", version = "0.0.7")
+bazel_dep(name = "score_crates", version = "0.0.8")
+git_override(
+    module_name = "score_crates",
+    commit = "c56d8f4006ff1cfe5be532496225255c5ee6c2d6",
+    remote = "https://github.com/eclipse-score/score-crates.git",
+)
 
 git_override(
     module_name = "rules_rust",

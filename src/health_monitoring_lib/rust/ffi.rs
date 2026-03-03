@@ -238,7 +238,7 @@ pub extern "C" fn health_monitor_destroy(health_monitor_handle: FFIHandle) -> FF
 }
 
 #[score_testing_macros::test_mod_with_log]
-#[cfg(test)]
+#[cfg(all(test, not(loom)))]
 mod tests {
     use crate::deadline::ffi::{
         deadline_monitor_builder_create, deadline_monitor_builder_destroy, deadline_monitor_destroy,

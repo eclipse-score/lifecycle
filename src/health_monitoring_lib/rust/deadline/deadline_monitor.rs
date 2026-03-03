@@ -346,7 +346,7 @@ impl DeadlineMonitorInner {
 }
 
 #[score_testing_macros::test_mod_with_log]
-#[cfg(test)]
+#[cfg(all(test, not(loom)))]
 mod tests {
     use super::*;
 

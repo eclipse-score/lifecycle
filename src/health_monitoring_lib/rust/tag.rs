@@ -151,7 +151,7 @@ impl From<&str> for DeadlineTag {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, not(loom)))]
 mod tests {
     use crate::log::score_write;
     use crate::tag::{DeadlineTag, MonitorTag, Tag};
