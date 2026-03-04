@@ -301,6 +301,8 @@ mod tests {
     }
 
     #[test]
+    // Test is flaky for Miri.
+    #[cfg_attr(miri, ignore)]
     fn unique_thread_runner_monitoring_works() {
         let deadline_monitor = create_monitor_with_deadlines();
 
