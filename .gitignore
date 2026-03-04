@@ -57,7 +57,7 @@ __pycache__/
 
 # Rust
 debug/
-target/
+/target/
 /build/
 
 *~

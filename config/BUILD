@@ -12,22 +12,40 @@
 # *******************************************************************************
 config_setting(
     name = "x86_64-linux",
-    define_values = {
-        "config": "x86_64-linux",
-    },
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+)
+
+config_setting(
+    name = "arm64-linux",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:arm64",
+    ],
 )
 
 config_setting(
     name = "x86_64-qnx",
-    define_values = {
-        "config": "x86_64-qnx",
-    },
+    constraint_values = [
+        "@platforms//os:qnx",
+        "@platforms//cpu:x86_64",
+    ],
 )
 
 config_setting(
-    name = "build_qnx8",
+    name = "arm64-qnx",
+    constraint_values = [
+        "@platforms//os:qnx",
+        "@platforms//cpu:arm64",
+    ],
+)
+
+config_setting(
+    name = "host",
     define_values = {
-        "config": "build_qnx8",
+        "config": "host",
     },
 )
 

@@ -32,14 +32,7 @@ def _flatbuffer_json_to_bin_impl(ctx):
         mnemonic = "FlatcGeneration",
     )
 
-    rf = ctx.runfiles(
-        files = [out],
-        root_symlinks = {
-            ("_main/" + ctx.attr.out_dir + "/" + out_name): out,
-        },
-    )
-
-    return DefaultInfo(files = depset([out]), runfiles = rf)
+    return DefaultInfo(files = depset([out]))
 
 flatbuffer_json_to_bin = rule(
     implementation = _flatbuffer_json_to_bin_impl,

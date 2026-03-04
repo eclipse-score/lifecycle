@@ -11,6 +11,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
+#include <cstring>
 #include <string_view>
 #include <score/lcm/exec_error_domain.h>
 

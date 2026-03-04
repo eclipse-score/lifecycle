@@ -10,13 +10,18 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-from tests.integration.testing_utils import (
-    get_common_interface,
+from tests.utils.fixtures import (
+    file_interface,
+    control_interface,
+    target,
+    setup_tests,
+    download_test_results,
+    test_dir,
     check_for_failures,
-    format_logs,
 )
 from pathlib import Path
 from attribute_plugin import add_test_properties
+import logging
 
 
 @add_test_properties(
@@ -24,13 +29,19 @@ from attribute_plugin import add_test_properties
     test_type="interface-test",
     derivation_technique="explorative-testing",
 )
-def test_smoke():
+def test_smoke(setup_tests, control_interface, download_test_results, test_dir):
     """Smoke test for the launch manager daemon."""
-    code, stdout, stderr = get_common_interface().run_until_file_deployed(
-        "src/launch_manager_daemon/launch_manager"
+
+    code, stdout, stderr = control_interface.run_until_file_deployed(
+        "./launch_manager",
+        Path("/opt/score/tests/smoke/test_end"),
+        cwd="/opt/score/tests/smoke/bin",
+        timeout=1,
     )
+    logging.info(stdout)
+    logging.info(stderr)
 
-    print(format_logs(code, stdout, stderr))
+    assert code == 0, f"Exit code was not 0! {code} instead"
 
-    check_for_failures(Path("tests/integration/smoke"), 2)
-    assert code == 0
+    download_test_results()
+    check_for_failures(test_dir, 2)

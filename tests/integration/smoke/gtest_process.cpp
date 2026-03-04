@@ -17,7 +17,7 @@
 #include <unistd.h>
 
 #include <csignal>
-#include "tests/integration/test_helper.hpp"
+#include <test_helper.hpp>
 
 TEST(Smoke, Process) {
     // report kRunning

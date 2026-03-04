@@ -44,7 +44,7 @@ jobs:
       contents: read
       pull-requests: read
     with:
-      bazel-target: 'test //src/... //tests/... --config=x86_64-linux'
+      bazel-target: 'test //src/... //tests/... --config=host' # use host for now until linux qemu is available
       upload-name: 'bazel-testlogs'
       packages: 'fakechroot'
   build-docs:

@@ -34,6 +34,15 @@ bazel_dep(name = "score_rust_policies", version = "0.0.3")
 
 bazel_dep(name = "score_process", version = "1.4.3", dev_dependency = True)
 bazel_dep(name = "score_platform", version = "0.5.3", dev_dependency = True)
+bazel_dep(name = "score_toolchains_qnx", version = "0.0.6", dev_dependency = True)
+
+toolchains_qnx = use_extension("@score_toolchains_qnx//:extensions.bzl", "toolchains_qnx", dev_dependency = True)
+toolchains_qnx.sdp(
+    sha256 = "f2e0cb21c6baddbcb65f6a70610ce498e7685de8ea2e0f1648f01b327f6bac63",
+    strip_prefix = "installation",
+    url = "https://www.qnx.com/download/download/79858/installation.tgz",
+)
+use_repo(toolchains_qnx, "toolchains_qnx_ifs")
 
 ## Configure the C++ toolchain
 bazel_dep(name = "score_bazel_cpp_toolchains", version = "0.2.2", dev_dependency = True)
@@ -122,7 +131,7 @@ pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip", dev_depen
 pip.parse(
     hub_name = "pip_score_venv_test",
     python_version = PYTHON_VERSION,
-    requirements_lock = "//tests/integration:requirements.lock",
+    requirements_lock = "//tests/utils:requirements.lock",
 )
 use_repo(pip, "pip_score_venv_test")
 
@@ -139,3 +148,10 @@ git_override(
     # Replace the commit hash (above) with the latest (https://github.com/hedronvision/bazel-compile-commands-extractor/commits/main).
     # Even better, set up Renovate and let it do the work for you (see "Suggestion: Updates" in the README).
 )
+
+bazel_dep(name = "score_itf", version = "0.1.0")
+git_override(
+    module_name = "score_itf",
+    commit = "7b99c23ccccd9a75113ab4c1ef5c22dee98316f8",
+    remote = "https://github.com/etas-contrib/score_itf.git",
+)  # Using a fork until itf is stable
