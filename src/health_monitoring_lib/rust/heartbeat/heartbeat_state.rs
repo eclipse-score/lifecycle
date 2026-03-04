@@ -20,29 +20,22 @@ use loom::sync::atomic::{AtomicU64, Ordering};
 
 /// Snapshot of a heartbeat state.
 /// Data layout:
-/// - cycle start timestamp: 32 bits
-/// - heartbeat timestamp offset: 29 bits
+/// - heartbeat timestamp: 61 bits
 /// - heartbeat counter: 2 bits
 /// - post-init flag: 1 bit
 #[derive(Clone, Copy, Default)]
 pub struct HeartbeatStateSnapshot(u64);
 
-const START_MASK: u64 = 0xFFFFFFFF_00000000;
-const START_OFFSET: u32 = u32::BITS;
-const BEAT_MASK: u64 = 0x00000000_FFFFFFF8;
+const BEAT_MASK: u64 = 0xFFFFFFFF_FFFFFFF8;
 const BEAT_OFFSET: u32 = 3;
 const COUNT_MASK: u64 = 0b0110;
 const COUNT_OFFSET: u32 = 1;
 const POST_INIT_MASK: u64 = 0b0001;
 
 impl HeartbeatStateSnapshot {
-    /// Create a new snapshot with known starting point.
-    /// `post_init` flag is implicitly set to 1.
-    pub fn new(start_timestamp: u32) -> Self {
-        let mut snapshot = Self::default();
-        snapshot.set_start_timestamp(start_timestamp);
-        snapshot.set_post_init(true);
-        snapshot
+    /// Create a new snapshot.
+    pub fn new() -> Self {
+        Self(0)
     }
 
     /// Return underlying data.
@@ -50,26 +43,16 @@ impl HeartbeatStateSnapshot {
         self.0
     }
 
-    /// Cycle start timestamp.
-    pub fn start_timestamp(&self) -> u32 {
-        ((self.0 & START_MASK) >> START_OFFSET) as u32
+    /// Heartbeat timestamp.
+    pub fn heartbeat_timestamp(&self) -> u64 {
+        (self.0 & BEAT_MASK) >> BEAT_OFFSET
     }
 
-    /// Set cycle start timestamp.
-    pub fn set_start_timestamp(&mut self, value: u32) {
-        self.0 = ((value as u64) << START_OFFSET) | (self.0 & !START_MASK);
-    }
-
-    /// Heartbeat timestamp offset.
-    pub fn heartbeat_timestamp_offset(&self) -> u32 {
-        ((self.0 & BEAT_MASK) >> BEAT_OFFSET) as u32
-    }
-
-    /// Set heartbeat timestamp offset.
-    /// Value is 29-bit, must be lower than 0x1FFFFFFF.
-    pub fn set_heartbeat_timestamp_offset(&mut self, value: u32) {
-        assert!(value < 1 << 29, "provided heartbeat offset is out of range");
-        self.0 = ((value as u64) << BEAT_OFFSET) | (self.0 & !BEAT_MASK);
+    /// Set heartbeat timestamp.
+    /// Value is 61-bit, must be lower than 0x1FFFFFFF_FFFFFFFF.
+    pub fn set_heartbeat_timestamp(&mut self, value: u64) {
+        assert!(value < 1 << 61, "provided heartbeat offset is out of range");
+        self.0 = (value << BEAT_OFFSET) | (self.0 & !BEAT_MASK);
     }
 
     /// Heartbeat counter.
@@ -142,45 +125,21 @@ mod tests {
     use core::sync::atomic::Ordering;
 
     #[test]
-    fn snapshot_new_zero() {
-        let state = HeartbeatStateSnapshot::new(0);
+    fn snapshot_new_succeeds() {
+        let state = HeartbeatStateSnapshot::new();
 
-        assert_eq!(state.as_u64(), 0x01);
-        assert_eq!(state.start_timestamp(), 0);
-        assert_eq!(state.heartbeat_timestamp_offset(), 0);
+        assert_eq!(state.as_u64(), 0x00);
+        assert_eq!(state.heartbeat_timestamp(), 0);
         assert_eq!(state.counter(), 0);
-        assert!(state.post_init());
-    }
-
-    #[test]
-    fn snapshot_new_valid() {
-        let state = HeartbeatStateSnapshot::new(0xDEADBEEF);
-
-        assert_eq!(state.as_u64(), (0xDEADBEEF << u32::BITS) + 0x01);
-        assert_eq!(state.start_timestamp(), 0xDEADBEEF);
-        assert_eq!(state.heartbeat_timestamp_offset(), 0);
-        assert_eq!(state.counter(), 0);
-        assert!(state.post_init());
-    }
-
-    #[test]
-    fn snapshot_new_max() {
-        let state = HeartbeatStateSnapshot::new(u32::MAX);
-
-        assert_eq!(state.as_u64(), ((u32::MAX as u64) << u32::BITS) + 0x01);
-        assert_eq!(state.start_timestamp(), u32::MAX);
-        assert_eq!(state.heartbeat_timestamp_offset(), 0);
-        assert_eq!(state.counter(), 0);
-        assert!(state.post_init());
+        assert!(!state.post_init());
     }
 
     #[test]
     fn snapshot_from_u64_zero() {
         let state = HeartbeatStateSnapshot::from(0);
 
-        assert_eq!(state.as_u64(), 0);
-        assert_eq!(state.start_timestamp(), 0);
-        assert_eq!(state.heartbeat_timestamp_offset(), 0);
+        assert_eq!(state.as_u64(), 0x00);
+        assert_eq!(state.heartbeat_timestamp(), 0);
         assert_eq!(state.counter(), 0);
         assert!(!state.post_init());
     }
@@ -190,8 +149,7 @@ mod tests {
         let state = HeartbeatStateSnapshot::from(0xDEADBEEF_DEADBEEF);
 
         assert_eq!(state.as_u64(), 0xDEADBEEF_DEADBEEF);
-        assert_eq!(state.start_timestamp(), 0xDEADBEEF);
-        assert_eq!(state.heartbeat_timestamp_offset(), 0xDEADBEEF >> 3);
+        assert_eq!(state.heartbeat_timestamp(), 0xDEADBEEF_DEADBEEF >> 3);
         assert_eq!(state.counter(), 3);
         assert!(state.post_init());
     }
@@ -201,8 +159,7 @@ mod tests {
         let state = HeartbeatStateSnapshot::from(u64::MAX);
 
         assert_eq!(state.as_u64(), u64::MAX);
-        assert_eq!(state.start_timestamp(), u32::MAX);
-        assert_eq!(state.heartbeat_timestamp_offset(), u32::MAX >> 3);
+        assert_eq!(state.heartbeat_timestamp(), u64::MAX >> 3);
         assert_eq!(state.counter(), 3);
         assert!(state.post_init());
     }
@@ -211,35 +168,20 @@ mod tests {
     fn snapshot_default() {
         let state = HeartbeatStateSnapshot::default();
 
-        assert_eq!(state.as_u64(), 0);
-        assert_eq!(state.start_timestamp(), 0);
-        assert_eq!(state.heartbeat_timestamp_offset(), 0);
+        assert_eq!(state.as_u64(), 0x00);
+        assert_eq!(state.heartbeat_timestamp(), 0);
         assert_eq!(state.counter(), 0);
         assert!(!state.post_init());
     }
 
     #[test]
-    fn snapshot_set_start_timestamp() {
-        let mut state = HeartbeatStateSnapshot::from(0xDEADBEEF_DEADBEEF);
-        state.set_start_timestamp(0xCAFEBAAD);
-
-        assert_eq!(state.start_timestamp(), 0xCAFEBAAD);
-
-        // Check other parameters unchanged.
-        assert_eq!(state.heartbeat_timestamp_offset(), 0xDEADBEEF >> 3);
-        assert_eq!(state.counter(), 3);
-        assert!(state.post_init());
-    }
-
-    #[test]
     fn snapshot_set_heartbeat_timestamp_valid() {
         let mut state = HeartbeatStateSnapshot::from(0xDEADBEEF_DEADBEEF);
-        state.set_heartbeat_timestamp_offset(0x1CAFEBAD);
+        state.set_heartbeat_timestamp(0x1CAFEBAD_CAFEBAAD);
 
-        assert_eq!(state.heartbeat_timestamp_offset(), 0x1CAFEBAD);
+        assert_eq!(state.heartbeat_timestamp(), 0x1CAFEBAD_CAFEBAAD);
 
         // Check other parameters unchanged.
-        assert_eq!(state.start_timestamp(), 0xDEADBEEF);
         assert_eq!(state.counter(), 3);
         assert!(state.post_init());
     }
@@ -248,7 +190,7 @@ mod tests {
     #[should_panic(expected = "provided heartbeat offset is out of range")]
     fn snapshot_set_heartbeat_timestamp_out_of_range() {
         let mut state = HeartbeatStateSnapshot::from(0xDEADBEEF_DEADBEEF);
-        state.set_heartbeat_timestamp_offset(0x20000000);
+        state.set_heartbeat_timestamp(0x20000000_00000000);
     }
 
     #[test]
@@ -262,8 +204,7 @@ mod tests {
         }
 
         // Check other parameters unchanged.
-        assert_eq!(state.start_timestamp(), 0xDEADBEEF);
-        assert_eq!(state.heartbeat_timestamp_offset(), 0xDEADBEEF >> 3);
+        assert_eq!(state.heartbeat_timestamp(), 0xDEADBEEF_DEADBEE9 >> 3);
         assert!(state.post_init());
     }
 
@@ -277,8 +218,7 @@ mod tests {
         assert!(state.post_init());
 
         // Check other parameters unchanged.
-        assert_eq!(state.start_timestamp(), 0xDEADBEEF);
-        assert_eq!(state.heartbeat_timestamp_offset(), 0xDEADBEEF >> 3);
+        assert_eq!(state.heartbeat_timestamp(), 0xDEADBEEF_DEADBEEF >> 3);
         assert_eq!(state.counter(), 3);
     }
 
@@ -300,8 +240,7 @@ mod tests {
         let _ = state.update(|prev_snapshot| {
             // Make sure state is as expected.
             assert_eq!(prev_snapshot.as_u64(), 0xDEADBEEF_DEADBEEF);
-            assert_eq!(prev_snapshot.start_timestamp(), 0xDEADBEEF);
-            assert_eq!(prev_snapshot.heartbeat_timestamp_offset(), 0xDEADBEEF >> 3);
+            assert_eq!(prev_snapshot.heartbeat_timestamp(), 0xDEADBEEF_DEADBEEF >> 3);
             assert_eq!(prev_snapshot.counter(), 3);
             assert!(prev_snapshot.post_init());
 

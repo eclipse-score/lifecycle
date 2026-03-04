@@ -10,7 +10,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
-use crate::common::{duration_to_u32, Monitor, MonitorEvalHandle, MonitorEvaluationError, MonitorEvaluator, TimeRange};
+use crate::common::{duration_to_int, Monitor, MonitorEvalHandle, MonitorEvaluationError, MonitorEvaluator, TimeRange};
 use crate::deadline::common::{DeadlineTemplate, StateIndex};
 use crate::deadline::deadline_state::{DeadlineState, DeadlineStateSnapshot};
 use crate::log::{error, warn, ScoreDebug};
@@ -152,7 +152,7 @@ impl Deadline {
     /// Caller must ensure that deadline is not used until it's stopped.
     /// After this call You shall assure there's only a single owner of the `Deadline` instance and it does not call start before stopping.
     pub(super) unsafe fn start_internal(&mut self) -> Result<(), DeadlineError> {
-        let now = duration_to_u32(self.monitor.monitor_starting_point.elapsed());
+        let now = duration_to_int::<u32>(self.monitor.monitor_starting_point.elapsed());
         let max_time = now + self.range.max.as_millis() as u32;
 
         let mut is_broken = false;
@@ -177,7 +177,7 @@ impl Deadline {
     }
 
     pub(super) fn stop_internal(&mut self) {
-        let now = duration_to_u32(self.monitor.monitor_starting_point.elapsed());
+        let now = duration_to_int::<u32>(self.monitor.monitor_starting_point.elapsed());
         let max = self.range.max.as_millis() as u32;
         let min = self.range.min.as_millis() as u32;
 
@@ -274,7 +274,7 @@ impl MonitorEvaluator for DeadlineMonitorInner {
                     "Deadline snapshot cannot be both running and stopped"
                 );
 
-                let now = duration_to_u32(self.monitor_starting_point.elapsed());
+                let now = duration_to_int::<u32>(self.monitor_starting_point.elapsed());
                 let expected = snapshot.timestamp_ms();
                 if now > expected {
                     // Deadline missed, report
