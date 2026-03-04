@@ -12,13 +12,14 @@
 // *******************************************************************************
 
 use crate::common::{
-    duration_to_u32, hmon_time_offset, Monitor, MonitorEvalHandle, MonitorEvaluationError, MonitorEvaluator, TimeRange,
+    duration_to_int, hmon_time_offset, Monitor, MonitorEvalHandle, MonitorEvaluationError, MonitorEvaluator, TimeRange,
 };
 use crate::heartbeat::heartbeat_state::{HeartbeatState, HeartbeatStateSnapshot};
 use crate::log::{error, warn};
 use crate::protected_memory::ProtectedMemoryAllocator;
 use crate::tag::MonitorTag;
 use crate::HealthMonitorError;
+use core::sync::atomic::{AtomicU64, Ordering};
 use core::time::Duration;
 use score_log::ScoreDebug;
 use std::sync::Arc;
@@ -96,34 +97,52 @@ impl HeartbeatMonitor {
 
 impl Monitor for HeartbeatMonitor {
     fn get_eval_handle(&self) -> crate::common::MonitorEvalHandle {
-        MonitorEvalHandle::new(Arc::clone(&self.inner))
+        MonitorEvalHandle::new(Arc::new(HeartbeatMonitorHandle {
+            inner: Arc::clone(&self.inner),
+            start_timestamp: AtomicU64::new(0),
+        }))
     }
 }
 
-/// Time range using [`u32`].
+struct HeartbeatMonitorHandle {
+    inner: Arc<HeartbeatMonitorInner>,
+    start_timestamp: AtomicU64,
+}
+
+impl MonitorEvaluator for HeartbeatMonitorHandle {
+    fn evaluate(&self, hmon_starting_point: Instant, on_error: &mut dyn FnMut(&MonitorTag, MonitorEvaluationError)) {
+        let start_timestamp = self.start_timestamp.load(Ordering::Relaxed);
+        let evaluate_result = self.inner.evaluate(start_timestamp, hmon_starting_point, on_error);
+        if let Some(new_start_timestamp) = evaluate_result {
+            self.start_timestamp.store(new_start_timestamp, Ordering::Relaxed);
+        }
+    }
+}
+
+/// Time range using [`u64`].
 #[derive(ScoreDebug)]
 struct InternalRange {
-    min: u32,
-    max: u32,
+    min: u64,
+    max: u64,
 }
 
 impl InternalRange {
     /// Create range using provided values.
-    fn new(min: u32, max: u32) -> Self {
+    fn new(min: u64, max: u64) -> Self {
         assert!(min <= max, "provided min is greater than provided max");
         Self { min, max }
     }
 
     /// Create range with values offset by timestamp.
-    fn offset(&self, timestamp: u32) -> Self {
+    fn offset(&self, timestamp: u64) -> Self {
         Self::new(self.min + timestamp, self.max + timestamp)
     }
 }
 
 impl From<TimeRange> for InternalRange {
     fn from(value: TimeRange) -> Self {
-        let min = duration_to_u32(value.min);
-        let max = duration_to_u32(value.max);
+        let min = duration_to_int(value.min);
+        let max = duration_to_int(value.max);
         Self::new(min, max)
     }
 }
@@ -144,77 +163,6 @@ pub(crate) struct HeartbeatMonitorInner {
     heartbeat_state: HeartbeatState,
 }
 
-impl MonitorEvaluator for HeartbeatMonitorInner {
-    fn evaluate(&self, hmon_starting_point: Instant, on_error: &mut dyn FnMut(&MonitorTag, MonitorEvaluationError)) {
-        // Get current timestamp, with offset to HMON time.
-        let offset = hmon_time_offset(hmon_starting_point, self.monitor_starting_point);
-        let now = offset + duration_to_u32(hmon_starting_point.elapsed());
-
-        // Load current monitor state.
-        let snapshot = self.heartbeat_state.snapshot();
-
-        // Get and recalculate snapshot timestamps.
-        // IMPORTANT: first heartbeat is obtained when HMON time is unknown.
-        // It is necessary to:
-        // - use offset as cycle starting point.
-        // - get heartbeat snapshot in relation to zero point.
-        let (start_timestamp, heartbeat_timestamp) = if snapshot.post_init() {
-            let start_timestamp = snapshot.start_timestamp();
-            let heartbeat_timestamp = start_timestamp + snapshot.heartbeat_timestamp_offset();
-            (start_timestamp, heartbeat_timestamp)
-        } else {
-            let start_timestamp = offset;
-            let heartbeat_timestamp = snapshot.heartbeat_timestamp_offset();
-            (start_timestamp, heartbeat_timestamp)
-        };
-
-        // Get allowed time range as absolute values.
-        let range = self.range.offset(start_timestamp);
-
-        // Check current counter state.
-        let counter = snapshot.counter();
-        // Disallow multiple heartbeats in same heartbeat cycle.
-        if counter > 1 {
-            warn!("Multiple heartbeats detected");
-            on_error(&self.monitor_tag, HeartbeatEvaluationError::MultipleHeartbeats.into());
-            return;
-        }
-        // Handle no heartbeats.
-        else if counter == 0 {
-            // Disallow no heartbeats when already out of time range.
-            // Stop execution if still in range.
-            if now > range.max {
-                let offset = now - range.max;
-                warn!("No heartbeat detected, observed after range: {}", offset);
-                on_error(&self.monitor_tag, HeartbeatEvaluationError::TooLate.into());
-            }
-            // Either way - execution is stopped here.
-            return;
-        }
-
-        // Check current heartbeat state.
-        // Heartbeat before allowed range.
-        if heartbeat_timestamp < range.min {
-            let offset = range.min - heartbeat_timestamp;
-            warn!("Heartbeat occurred too early, offset to range: {}", offset);
-            on_error(&self.monitor_tag, HeartbeatEvaluationError::TooEarly.into());
-        }
-        // Heartbeat after allowed range.
-        else if heartbeat_timestamp > range.max {
-            let offset = heartbeat_timestamp - range.max;
-            warn!("Heartbeat occurred too late, offset to range: {}", offset);
-            on_error(&self.monitor_tag, HeartbeatEvaluationError::TooLate.into());
-        }
-        // Heartbeat in allowed state.
-        else {
-            // Update heartbeat monitor state with a current heartbeat as a beginning of a new cycle.
-            let _ = self
-                .heartbeat_state
-                .update(|_| Some(HeartbeatStateSnapshot::new(heartbeat_timestamp)));
-        }
-    }
-}
-
 impl HeartbeatMonitorInner {
     fn new(monitor_tag: MonitorTag, range: TimeRange) -> Self {
         let monitor_starting_point = Instant::now();
@@ -231,15 +179,86 @@ impl HeartbeatMonitorInner {
     /// Provide a heartbeat.
     fn heartbeat(&self) {
         // Get current timestamp.
-        let now = duration_to_u32(self.monitor_starting_point.elapsed());
+        let now = duration_to_int(self.monitor_starting_point.elapsed());
 
         // Set heartbeat timestamp and update counter.
         let _ = self.heartbeat_state.update(|mut state| {
-            let start_ts = state.start_timestamp();
-            state.set_heartbeat_timestamp_offset(now - start_ts);
+            state.set_heartbeat_timestamp(now);
             state.increment_counter();
             Some(state)
         });
+    }
+
+    pub fn evaluate(
+        &self,
+        start_timestamp: u64,
+        hmon_starting_point: Instant,
+        on_error: &mut dyn FnMut(&MonitorTag, MonitorEvaluationError),
+    ) -> Option<u64> {
+        // Get current timestamp, with offset to HMON time.
+        let offset = hmon_time_offset(hmon_starting_point, self.monitor_starting_point);
+        let now = offset + duration_to_int::<u64>(hmon_starting_point.elapsed());
+
+        // Load current monitor state.
+        let snapshot = self.heartbeat_state.snapshot();
+
+        // Get and recalculate snapshot timestamps.
+        // IMPORTANT: first heartbeat is obtained when HMON time is unknown.
+        // It is necessary to:
+        // - use offset as cycle starting point.
+        // - get heartbeat snapshot in relation to zero point.
+        let start_timestamp = if snapshot.post_init() { start_timestamp } else { offset };
+        let heartbeat_timestamp = snapshot.heartbeat_timestamp();
+
+        // Get allowed time range as absolute values.
+        let range = self.range.offset(start_timestamp);
+
+        // Check current counter state.
+        let counter = snapshot.counter();
+        // Disallow multiple heartbeats in same heartbeat cycle.
+        if counter > 1 {
+            warn!("Multiple heartbeats detected");
+            on_error(&self.monitor_tag, HeartbeatEvaluationError::MultipleHeartbeats.into());
+            return None;
+        }
+        // Handle no heartbeats.
+        else if counter == 0 {
+            // Disallow no heartbeats when already out of time range.
+            // Stop execution if still in range.
+            if now > range.max {
+                let offset = now - range.max;
+                warn!("No heartbeat detected, observed after range: {}", offset);
+                on_error(&self.monitor_tag, HeartbeatEvaluationError::TooLate.into());
+            }
+            // Either way - execution is stopped here.
+            return None;
+        }
+
+        // Check current heartbeat state.
+        // Heartbeat before allowed range.
+        if heartbeat_timestamp < range.min {
+            let offset = range.min - heartbeat_timestamp;
+            warn!("Heartbeat occurred too early, offset to range: {}", offset);
+            on_error(&self.monitor_tag, HeartbeatEvaluationError::TooEarly.into());
+            None
+        }
+        // Heartbeat after allowed range.
+        else if heartbeat_timestamp > range.max {
+            let offset = heartbeat_timestamp - range.max;
+            warn!("Heartbeat occurred too late, offset to range: {}", offset);
+            on_error(&self.monitor_tag, HeartbeatEvaluationError::TooLate.into());
+            None
+        }
+        // Heartbeat in allowed state.
+        else {
+            let _ = self.heartbeat_state.update(|_| {
+                let mut snapshot = HeartbeatStateSnapshot::new();
+                snapshot.set_post_init(true);
+                Some(snapshot)
+            });
+            // Update heartbeat monitor state with a current heartbeat as a beginning of a new cycle.
+            Some(heartbeat_timestamp)
+        }
     }
 }
 
@@ -266,7 +285,7 @@ mod test_common {
 #[score_testing_macros::test_mod_with_log]
 #[cfg(all(test, not(loom)))]
 mod tests {
-    use crate::common::{MonitorEvaluationError, MonitorEvaluator, TimeRange};
+    use crate::common::{Monitor, MonitorEvaluationError, MonitorEvaluator, TimeRange};
     use crate::heartbeat::heartbeat_monitor::test_common::{range_from_ms, sleep_until, TAG};
     use crate::heartbeat::{HeartbeatEvaluationError, HeartbeatMonitor, HeartbeatMonitorBuilder};
     use crate::protected_memory::ProtectedMemoryAllocator;
@@ -314,12 +333,15 @@ mod tests {
         let hmon_starting_point = Instant::now();
 
         // No beat happened, no error is expected.
-        monitor.inner.evaluate(hmon_starting_point, &mut |monitor_tag, error| {
-            panic!("error happened, tag: {monitor_tag:?}, error: {error:?}")
-        });
+        monitor
+            .get_eval_handle()
+            .evaluate(hmon_starting_point, &mut |monitor_tag, error| {
+                panic!("error happened, tag: {monitor_tag:?}, error: {error:?}")
+            });
     }
 
     #[test]
+    #[cfg_attr(miri, ignore)]
     fn heartbeat_monitor_no_beat_evaluate_in_range() {
         let range = range_from_ms(80, 120);
         let monitor = create_monitor_single_cycle(range);
@@ -329,10 +351,13 @@ mod tests {
         sleep_until(Duration::from_millis(100), hmon_starting_point);
 
         // No beat happened, no error is expected.
-        monitor.inner.evaluate(hmon_starting_point, &mut |monitor_tag, error| {
-            panic!("error happened, tag: {monitor_tag:?}, error: {error:?}")
-        });
+        monitor
+            .get_eval_handle()
+            .evaluate(hmon_starting_point, &mut |monitor_tag, error| {
+                panic!("error happened, tag: {monitor_tag:?}, error: {error:?}")
+            });
     }
+
     #[test]
     fn heartbeat_monitor_no_beat_evaluate_late() {
         let range = range_from_ms(80, 120);
@@ -343,10 +368,12 @@ mod tests {
         sleep_until(Duration::from_millis(150), hmon_starting_point);
 
         // No beat happened, too late error is expected.
-        monitor.inner.evaluate(hmon_starting_point, &mut |monitor_tag, error| {
-            assert_eq!(*monitor_tag, MonitorTag::from(TAG));
-            assert_eq!(error, HeartbeatEvaluationError::TooLate.into());
-        });
+        monitor
+            .get_eval_handle()
+            .evaluate(hmon_starting_point, &mut |monitor_tag, error| {
+                assert_eq!(*monitor_tag, MonitorTag::from(TAG));
+                assert_eq!(error, HeartbeatEvaluationError::TooLate.into());
+            });
     }
 
     fn beat_eval_test(
@@ -364,7 +391,7 @@ mod tests {
 
         // Wait and evaluate.
         sleep_until(eval_time, hmon_starting_point);
-        monitor.inner.evaluate(hmon_starting_point, on_error);
+        monitor.get_eval_handle().evaluate(hmon_starting_point, on_error);
     }
 
     fn beat_early_test(eval_time: Duration) {
@@ -431,10 +458,12 @@ mod tests {
 
         // Wait and evaluate.
         sleep_until(eval_time, hmon_starting_point);
-        monitor.inner.evaluate(hmon_starting_point, &mut |monitor_tag, error| {
-            assert_eq!(*monitor_tag, MonitorTag::from(TAG));
-            assert_eq!(error, HeartbeatEvaluationError::MultipleHeartbeats.into());
-        });
+        monitor
+            .get_eval_handle()
+            .evaluate(hmon_starting_point, &mut |monitor_tag, error| {
+                assert_eq!(*monitor_tag, MonitorTag::from(TAG));
+                assert_eq!(error, HeartbeatEvaluationError::MultipleHeartbeats.into());
+            });
     }
 
     #[test]
@@ -478,6 +507,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg_attr(miri, ignore)]
     fn heartbeat_monitor_cycle_early() {
         let cycle = Duration::from_millis(20);
         let monitor = create_monitor_multiple_cycles(cycle);
@@ -506,10 +536,11 @@ mod tests {
         });
 
         // Run evaluation thread.
+        let eval_handle = monitor.get_eval_handle();
         while !heartbeat_finished.load(Ordering::Acquire) {
             sleep(cycle);
             // Too early error is expected.
-            monitor.inner.evaluate(hmon_starting_point, &mut |monitor_tag, error| {
+            eval_handle.evaluate(hmon_starting_point, &mut |monitor_tag, error| {
                 assert_eq!(*monitor_tag, MonitorTag::from(TAG));
                 assert_eq!(error, HeartbeatEvaluationError::TooEarly.into());
             });
@@ -519,6 +550,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg_attr(miri, ignore)]
     fn heartbeat_monitor_cycle_in_range() {
         let cycle = Duration::from_millis(20);
         let monitor = create_monitor_multiple_cycles(cycle);
@@ -539,10 +571,11 @@ mod tests {
         });
 
         // Run evaluation thread.
+        let eval_handle = monitor.get_eval_handle();
         while !heartbeat_finished.load(Ordering::Acquire) {
             sleep(cycle);
             // No error is expected.
-            monitor.inner.evaluate(hmon_starting_point, &mut |monitor_tag, error| {
+            eval_handle.evaluate(hmon_starting_point, &mut |monitor_tag, error| {
                 panic!("error happened, tag: {monitor_tag:?}, error: {error:?}")
             });
         }
@@ -551,6 +584,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg_attr(miri, ignore)]
     fn heartbeat_monitor_cycle_late() {
         let cycle = Duration::from_millis(20);
         let monitor = create_monitor_multiple_cycles(cycle);
@@ -579,10 +613,11 @@ mod tests {
         });
 
         // Run evaluation thread.
+        let eval_handle = monitor.get_eval_handle();
         while !heartbeat_finished.load(Ordering::Acquire) {
             sleep(cycle);
             // No heartbeat or too late error is expected.
-            monitor.inner.evaluate(hmon_starting_point, &mut |monitor_tag, error| {
+            eval_handle.evaluate(hmon_starting_point, &mut |monitor_tag, error| {
                 assert_eq!(*monitor_tag, MonitorTag::from(TAG));
                 assert_eq!(error, HeartbeatEvaluationError::TooLate.into());
             });
@@ -606,15 +641,17 @@ mod tests {
 
         // Wait and evaluate.
         sleep_until(Duration::from_millis(100), hmon_starting_point);
-        monitor.inner.evaluate(hmon_starting_point, &mut |monitor_tag, error| {
-            panic!("error happened, tag: {monitor_tag:?}, error: {error:?}")
-        });
+        monitor
+            .get_eval_handle()
+            .evaluate(hmon_starting_point, &mut |monitor_tag, error| {
+                panic!("error happened, tag: {monitor_tag:?}, error: {error:?}")
+            });
     }
 }
 
 #[cfg(all(test, loom))]
 mod loom_tests {
-    use crate::common::MonitorEvaluator;
+    use crate::common::{Monitor, MonitorEvaluator};
     use crate::heartbeat::heartbeat_monitor::test_common::{range_from_ms, sleep_until, TAG};
     use crate::heartbeat::{HeartbeatEvaluationError, HeartbeatMonitor, HeartbeatMonitorBuilder};
     use crate::protected_memory::ProtectedMemoryAllocator;
@@ -647,10 +684,12 @@ mod loom_tests {
             let heartbeat_thread = spawn(move || monitor_clone.heartbeat());
 
             // Evaluate.
-            monitor.inner.evaluate(hmon_starting_point, &mut |monitor_tag, error| {
-                assert_eq!(*monitor_tag, MonitorTag::from(TAG));
-                assert_eq!(error, HeartbeatEvaluationError::TooEarly.into());
-            });
+            monitor
+                .get_eval_handle()
+                .evaluate(hmon_starting_point, &mut |monitor_tag, error| {
+                    assert_eq!(*monitor_tag, MonitorTag::from(TAG));
+                    assert_eq!(error, HeartbeatEvaluationError::TooEarly.into());
+                });
 
             heartbeat_thread.join().unwrap();
         });
@@ -671,9 +710,11 @@ mod loom_tests {
             let heartbeat_thread = spawn(move || monitor_clone.heartbeat());
 
             // Evaluate.
-            monitor.inner.evaluate(hmon_starting_point, &mut |monitor_tag, error| {
-                panic!("error happened, tag: {monitor_tag:?}, error: {error:?}");
-            });
+            monitor
+                .get_eval_handle()
+                .evaluate(hmon_starting_point, &mut |monitor_tag, error| {
+                    panic!("error happened, tag: {monitor_tag:?}, error: {error:?}");
+                });
 
             heartbeat_thread.join().unwrap();
         });
@@ -695,11 +736,13 @@ mod loom_tests {
 
             // Evaluate.
             let mut error_detected = false;
-            monitor.inner.evaluate(hmon_starting_point, &mut |monitor_tag, error| {
-                assert_eq!(*monitor_tag, MonitorTag::from(TAG));
-                assert_eq!(error, HeartbeatEvaluationError::TooLate.into());
-                error_detected = true;
-            });
+            monitor
+                .get_eval_handle()
+                .evaluate(hmon_starting_point, &mut |monitor_tag, error| {
+                    assert_eq!(*monitor_tag, MonitorTag::from(TAG));
+                    assert_eq!(error, HeartbeatEvaluationError::TooLate.into());
+                    error_detected = true;
+                });
 
             heartbeat_thread.join().unwrap();
             assert!(error_detected);

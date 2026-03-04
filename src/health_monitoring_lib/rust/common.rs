@@ -92,22 +92,30 @@ impl MonitorEvaluator for MonitorEvalHandle {
     }
 }
 
-/// Get offset between HMON and monitor starting time points as [`u32`].
-pub(crate) fn hmon_time_offset(hmon_starting_point: Instant, monitor_starting_point: Instant) -> u32 {
+/// Get offset between HMON and monitor starting time points as integers.
+pub(crate) fn hmon_time_offset<T>(hmon_starting_point: Instant, monitor_starting_point: Instant) -> T
+where
+    T: TryFrom<u128>,
+    <T as TryFrom<u128>>::Error: core::fmt::Debug,
+{
     let result = hmon_starting_point.checked_duration_since(monitor_starting_point);
     let duration_since = result.expect("HMON starting point is earlier than monitor starting point");
-    duration_to_u32(duration_since)
+    duration_to_int(duration_since)
 }
 
-/// Get duration as [`u32`].
-pub(crate) fn duration_to_u32(duration: Duration) -> u32 {
+/// Get duration as an integer.
+pub(crate) fn duration_to_int<T>(duration: Duration) -> T
+where
+    T: TryFrom<u128>,
+    <T as TryFrom<u128>>::Error: core::fmt::Debug,
+{
     let millis = duration.as_millis();
-    u32::try_from(millis).expect("Monitor running for too long")
+    T::try_from(millis).expect("Monitor running for too long")
 }
 
 #[cfg(all(test, not(loom)))]
 mod tests {
-    use crate::common::{duration_to_u32, hmon_time_offset};
+    use crate::common::{duration_to_int, hmon_time_offset};
     use core::time::Duration;
     use std::time::Instant;
 
@@ -115,7 +123,7 @@ mod tests {
     fn hmon_time_offset_valid() {
         let monitor_starting_point = Instant::now();
         let hmon_starting_point = Instant::now();
-        let offset = hmon_time_offset(hmon_starting_point, monitor_starting_point);
+        let offset: u32 = hmon_time_offset(hmon_starting_point, monitor_starting_point);
         // Allow small offset.
         assert!(offset < 10);
     }
@@ -125,7 +133,7 @@ mod tests {
     fn hmon_time_offset_wrong_order() {
         let hmon_starting_point = Instant::now();
         let monitor_starting_point = Instant::now();
-        let _offset = hmon_time_offset(hmon_starting_point, monitor_starting_point);
+        let _offset: u32 = hmon_time_offset(hmon_starting_point, monitor_starting_point);
     }
 
     #[test]
@@ -136,19 +144,19 @@ mod tests {
         let hmon_starting_point = Instant::now()
             .checked_add(Duration::from_secs(HUNDRED_DAYS_AS_SECS))
             .unwrap();
-        let _offset = hmon_time_offset(hmon_starting_point, monitor_starting_point);
+        let _offset: u32 = hmon_time_offset(hmon_starting_point, monitor_starting_point);
     }
 
     #[test]
-    fn duration_to_u32_valid() {
-        let result = duration_to_u32(Duration::from_millis(1234));
+    fn duration_to_int_valid() {
+        let result: u32 = duration_to_int(Duration::from_millis(1234));
         assert_eq!(result, 1234);
     }
 
     #[test]
     #[should_panic(expected = "Monitor running for too long")]
-    fn duration_to_u32_too_large() {
+    fn duration_to_int_too_large() {
         const HUNDRED_DAYS_AS_SECS: u64 = 100 * 24 * 60 * 60;
-        let _result = duration_to_u32(Duration::from_secs(HUNDRED_DAYS_AS_SECS));
+        let _result: u32 = duration_to_int(Duration::from_secs(HUNDRED_DAYS_AS_SECS));
     }
 }
