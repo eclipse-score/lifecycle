@@ -596,7 +596,7 @@ collected 1 item
 ../score_tooling+/python_basics/score_pytest::test_smoke PASSED          [100%]
 
 - generated xml file: /home/runner/.bazel/sandbox/processwrapper-sandbox/729/execroot/_main/bazel-out/k8-fastbuild/testlogs/tests/integration/smoke/smoke/test.xml -
-============================== 1 passed in 0.54s ===============================
+============================== 1 passed in 0.59s ===============================
 </pre></div>
 </div>
 <p class="rubric">tests-report/src/launch_manager_daemon/common/identifier_hash_UT/test.log</p>
@@ -655,49 +655,49 @@ Executing tests from //src/health_monitoring_lib:tests
 -----------------------------------------------------------------------------
 
 running 132 tests
+test common::tests::hmon_time_offset_diff_too_large - should panic ... ok
 test common::tests::duration_to_int_too_large - should panic ... ok
 test common::tests::hmon_time_offset_valid ... ok
-test common::tests::duration_to_int_valid ... ok
-test common::tests::hmon_time_offset_diff_too_large - should panic ... ok
 test common::tests::hmon_time_offset_wrong_order - should panic ... ok
+test common::tests::duration_to_int_valid ... ok
 test deadline::common::tests::acquire_and_release_deadline ... ok
 test deadline::common::tests::new_and_fields ... ok
-test deadline::deadline_monitor::tests::deadline_failed_on_first_run_and_then_restarted_is_evaluated_as_error ... ok
 test deadline::deadline_monitor::tests::deadline_outside_time_range_is_error_when_dropped_after_evaluate ... ok
+test deadline::deadline_monitor::tests::deadline_failed_on_first_run_and_then_restarted_is_evaluated_as_error ... ok
 test deadline::deadline_monitor::tests::get_deadline_unknown_tag ... ok
-test deadline::deadline_monitor::tests::start_stop_deadline_outside_ranges_is_evaluated_as_error ... ok
-test deadline::deadline_monitor::tests::start_stop_deadline_outside_ranges_is_error_when_dropped_before_evaluate ... ok
-test deadline::deadline_state::tests::as_u64_and_new ... ok
 test deadline::common::tests::concurrent_acquire ... ok
+test deadline::deadline_monitor::tests::start_stop_deadline_outside_ranges_is_evaluated_as_error ... ok
+test deadline::deadline_state::tests::as_u64_and_new ... ok
+test deadline::deadline_monitor::tests::start_stop_deadline_outside_ranges_is_error_when_dropped_before_evaluate ... ok
 test deadline::deadline_state::tests::deadline_state_default_and_snapshot ... ok
+test deadline::deadline_state::tests::deadline_state_update_success ... ok
 test deadline::deadline_state::tests::deadline_state_update_none_returns_err ... ok
 test deadline::deadline_state::tests::default_state ... ok
-test deadline::deadline_state::tests::deadline_state_update_success ... ok
+test deadline::deadline_state::tests::set_running ... ok
 test deadline::deadline_state::tests::set_and_get_timestamp_ms ... ok
 test deadline::deadline_state::tests::set_underrun ... ok
-test deadline::deadline_state::tests::set_running ... ok
 test deadline::ffi::tests::deadline_destroy_null_deadline ... ok
 test deadline::ffi::tests::deadline_monitor_builder_add_deadline_invalid_range ... ok
-test deadline::ffi::tests::deadline_monitor_builder_add_deadline_null_builder ... ok
-test deadline::ffi::tests::deadline_monitor_builder_add_deadline_succeeds ... ok
-test deadline::ffi::tests::deadline_monitor_builder_create_null_builder ... ok
 test deadline::ffi::tests::deadline_monitor_builder_add_deadline_null_deadline_tag ... ok
-test deadline::ffi::tests::deadline_monitor_builder_destroy_null_builder ... ok
+test deadline::ffi::tests::deadline_monitor_builder_add_deadline_null_builder ... ok
+test deadline::ffi::tests::deadline_monitor_builder_create_null_builder ... ok
+test deadline::ffi::tests::deadline_monitor_builder_add_deadline_succeeds ... ok
 test deadline::ffi::tests::deadline_monitor_builder_create_succeeds ... ok
+test deadline::ffi::tests::deadline_monitor_builder_destroy_null_builder ... ok
 test deadline::ffi::tests::deadline_monitor_destroy_null_monitor ... ok
-test deadline::ffi::tests::deadline_monitor_get_deadline_null_deadline_handle ... ok
 test deadline::ffi::tests::deadline_monitor_get_deadline_null_deadline_tag ... ok
 test deadline::ffi::tests::deadline_monitor_get_deadline_null_monitor ... ok
 test deadline::ffi::tests::deadline_monitor_get_deadline_succeeds ... ok
+test deadline::ffi::tests::deadline_monitor_get_deadline_null_deadline_handle ... ok
 test deadline::ffi::tests::deadline_monitor_get_deadline_unknown_deadline ... ok
+test deadline::ffi::tests::deadline_start_already_started ... ok
 test deadline::ffi::tests::deadline_start_null_deadline ... ok
 test deadline::ffi::tests::deadline_start_succeeds ... ok
-test deadline::ffi::tests::deadline_start_already_started ... ok
 test deadline::ffi::tests::deadline_stop_null_deadline ... ok
 test deadline::ffi::tests::deadline_stop_succeeds ... ok
 test ffi::tests::health_monitor_builder_add_deadline_monitor_null_deadline_monitor_builder ... ok
-test ffi::tests::health_monitor_builder_add_deadline_monitor_null_monitor_tag ... ok
 test ffi::tests::health_monitor_builder_add_deadline_monitor_null_hmon_builder ... ok
+test ffi::tests::health_monitor_builder_add_deadline_monitor_null_monitor_tag ... ok
 test ffi::tests::health_monitor_builder_add_deadline_monitor_succeeds ... ok
 test ffi::tests::health_monitor_builder_build_invalid_cycle_intervals ... ok
 test ffi::tests::health_monitor_builder_build_null_builder_handle ... ok
@@ -705,14 +705,14 @@ test ffi::tests::health_monitor_builder_build_no_monitors ... ok
 test ffi::tests::health_monitor_builder_build_null_monitor_handle ... ok
 test ffi::tests::health_monitor_builder_build_succeeds ... ok
 test ffi::tests::health_monitor_builder_create_null_handle ... ok
-test ffi::tests::health_monitor_builder_destroy_null_handle ... ok
 test ffi::tests::health_monitor_builder_create_succeeds ... ok
+test ffi::tests::health_monitor_builder_destroy_null_handle ... ok
 test ffi::tests::health_monitor_destroy_null_hmon ... ok
 test ffi::tests::health_monitor_get_deadline_monitor_already_taken ... ok
 test ffi::tests::health_monitor_get_deadline_monitor_null_deadline_monitor ... ok
 test ffi::tests::health_monitor_get_deadline_monitor_null_hmon ... ok
-test ffi::tests::health_monitor_get_deadline_monitor_succeeds ... ok
 test ffi::tests::health_monitor_get_deadline_monitor_null_monitor_tag ... ok
+test ffi::tests::health_monitor_get_deadline_monitor_succeeds ... ok
 test ffi::tests::health_monitor_start_monitor_not_taken ... ok
 test ffi::tests::health_monitor_start_null_hmon ... ok
 test ffi::tests::health_monitor_start_succeeds ... ok
@@ -729,12 +729,12 @@ test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_cycle_early ... ok
 test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_multiple_beats_early_evaluate_early ... ok
 test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_cycle_in_range ... ok
 test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_multiple_beats_early_evaluate_in_range ... ok
-test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_multiple_beats_in_range_evaluate_in_range ... ok
 test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_cycle_late ... ok
 test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_multiple_beats_early_evaluate_late ... ok
+test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_multiple_beats_in_range_evaluate_in_range ... ok
 test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_no_beat_evaluate_early ... ok
-test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_no_beat_evaluate_in_range ... ok
 test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_multiple_beats_in_range_evaluate_late ... ok
+test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_no_beat_evaluate_in_range ... ok
 test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_multiple_beats_late_evaluate_late ... ok
 test heartbeat::heartbeat_state::tests::snapshot_counter_increment ... ok
 test heartbeat::heartbeat_state::tests::snapshot_default ... ok
@@ -781,14 +781,14 @@ test tests::health_monitor_start_monitors_not_taken ... ok
 test tests::health_monitor_start_not_taken_then_restart ... ok
 test tests::health_monitor_start_succeeds ... ok
 test worker::tests::monitoring_logic_report_alive_on_each_call_when_no_error ... ok
+test deadline::deadline_monitor::tests::start_stop_deadline_within_range_works ... ok
 test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_no_beat_evaluate_late ... ok
 test worker::tests::monitoring_logic_report_error_when_deadline_failed ... ok
-test deadline::deadline_monitor::tests::start_stop_deadline_within_range_works ... ok
 test worker::tests::monitoring_logic_report_alive_respect_cycle ... ok
 test worker::tests::unique_thread_runner_monitoring_works ... ok
 test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_timestamp_offset ... ok
 
-test result: ok. 132 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.27s
+test result: ok. 132 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.33s
 </pre></div>
 </div>
 <p class="rubric">tests-report/src/health_monitoring_lib/cpp_tests/test.log</p>
@@ -800,14 +800,14 @@ Running main() from gmock_main.cc
 [----------] Global test environment set-up.
 [----------] 1 test from HealthMonitorTest
 [ RUN      ] HealthMonitorTest.TestName
-[2026/03/04 11:34:51.0342719][src/health_monitoring_lib/rust/deadline/deadline_monitor.rs:217][4743][HMON][ERROR] Deadline DeadlineTag(deadline_1) stopped too early by 100 ms
-[2026/03/04 11:34:51.0343940][src/health_monitoring_lib/rust/worker.rs:112][4743][HMON][INFO] Monitoring thread started.
-[2026/03/04 11:34:51.0344074][src/health_monitoring_lib/rust/worker.rs:130][4743][HMON][INFO] Monitoring thread exiting.
-[       OK ] HealthMonitorTest.TestName (0 ms)
-[----------] 1 test from HealthMonitorTest (0 ms total)
+[2026/03/04 11:36:34.1309433][src/health_monitoring_lib/rust/deadline/deadline_monitor.rs:217][4919][HMON][ERROR] Deadline DeadlineTag(deadline_1) stopped too early by 100 ms
+[2026/03/04 11:36:34.1320866][src/health_monitoring_lib/rust/worker.rs:112][4919][HMON][INFO] Monitoring thread started.
+[2026/03/04 11:36:34.1321045][src/health_monitoring_lib/rust/worker.rs:130][4919][HMON][INFO] Monitoring thread exiting.
+[       OK ] HealthMonitorTest.TestName (1 ms)
+[----------] 1 test from HealthMonitorTest (1 ms total)
 
 [----------] Global test environment tear-down
-[==========] 1 test from 1 test suite ran. (0 ms total)
+[==========] 1 test from 1 test suite ran. (1 ms total)
 [  PASSED  ] 1 test.
 </pre></div>
 </div>
