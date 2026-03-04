@@ -47,9 +47,9 @@ cc_library(
         "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
         "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/memory:string_literal",
-        "@score_baselibs//score/mw/log",
         "@score_baselibs//score/os:stdlib",
         "@score_baselibs//score/os/utils:signal",
+        "@score_logging//score/mw/log",
     ],
 )
 
@@ -65,9 +65,9 @@ cc_library(
     tags = ["FUSA"],
     deps = [
         "@score_baselibs//score/memory:string_literal",
-        "@score_baselibs//score/mw/log",
         "@score_baselibs//score/os:stdlib",
         "@score_baselibs//score/os/utils:signal",
+        "@score_logging//score/mw/log",
     ],
 )
 
@@ -117,9 +117,9 @@ cc_library(
     deps = [
         ":application",
         "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
-        "@score_baselibs//score/mw/log",
         "@score_baselibs//score/os:stdlib",
         "@score_baselibs//score/os/utils:signal",
+        "@score_logging//score/mw/log",
     ],
 )
 
