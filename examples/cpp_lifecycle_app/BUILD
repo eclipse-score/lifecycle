@@ -21,10 +21,14 @@ cc_binary(
     }),
     linkopts = select({
         "@platforms//os:qnx": [],
-        "@platforms//os:linux": ["-lpthread"],
+        "@platforms//os:linux": [
+            "-lpthread",
+            "-lrt",
+        ],
     }),
     visibility = ["//visibility:public"],
     deps = [
         "//src/lifecycle_client_lib",
+        "@score_baselibs//score/mw/log:console_only_backend",
     ],
 )
