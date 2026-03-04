@@ -26,5 +26,6 @@ cc_binary(
     visibility = ["//visibility:public"],
     deps = [
         "//src/lifecycle_client_lib",
+        "@score_logging//score/mw/log",
     ],
 )
