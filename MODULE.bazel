@@ -128,6 +128,15 @@ use_repo(pip, "pip_score_venv_test")
 
 bazel_dep(name = "score_baselibs_rust", version = "0.1.0")
 bazel_dep(name = "score_baselibs", version = "0.2.4")
+bazel_dep(name = "score_logging", version = "0.1.0")
+
+# TODO: remove once inherited properly from `score_logging`.
+bazel_dep(name = "trlc", version = "0.0.0", dev_dependency = True)
+git_override(
+    module_name = "trlc",
+    commit = "650b51a47264a4f232b3341f473527710fc32669",  # trlc-2.0.2 release
+    remote = "https://github.com/bmw-software-engineering/trlc.git",
+)
 
 # Hedron's Compile Commands Extractor for Bazel
 # https://github.com/hedronvision/bazel-compile-commands-extractor

@@ -48,7 +48,7 @@ cc_library_with_common_opts(
     ],
     visibility = ["//src:__pkg__"],
     deps = [
-        "@score_baselibs//score/mw/log",
+        "@score_logging//score/mw/log",
     ],
 )
 
@@ -68,7 +68,7 @@ cc_library_with_common_opts(
     visibility = ["//src:__pkg__"],
     deps = [
         "//src/launch_manager_daemon/process_state_client_lib:process_state_client",
-        "@score_baselibs//score/mw/log",
+        "@score_logging//score/mw/log",
     ],
 )
 
@@ -118,7 +118,7 @@ cc_library_with_common_opts(
         "src/score/lcm/saf/logging",
     ],
     deps = [
-        "@score_baselibs//score/mw/log",
+        "@score_logging//score/mw/log",
     ],
 )
 
@@ -138,7 +138,7 @@ cc_library_with_common_opts(
     deps = [
         ":config",
         "//src/launch_manager_daemon/recovery_client_lib:recovery_client",
-        "@score_baselibs//score/mw/log",
+        "@score_logging//score/mw/log",
     ],
 )
 
@@ -305,7 +305,7 @@ cc_library_with_common_opts(
         ":supervision",
         ":timers",
         "@flatbuffers//:flatc",
-        "@score_baselibs//score/mw/log",
+        "@score_logging//score/mw/log",
     ],
 )
 
