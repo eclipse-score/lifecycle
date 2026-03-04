@@ -21,6 +21,7 @@ Lifecycle
    :titlesonly:
 
    module/*/index
+   statistics.rst
 
 Overview
 --------
