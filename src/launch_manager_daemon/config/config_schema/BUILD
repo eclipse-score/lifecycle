@@ -1,0 +1,1 @@
+exports_files(["s-core_launch_manager.schema.json"])

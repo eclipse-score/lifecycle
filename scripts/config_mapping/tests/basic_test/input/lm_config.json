@@ -159,12 +159,10 @@
     "alive_supervision" : {
         "evaluation_cycle": 0.5
     },
-    "watchdogs": {
-        "simple_watchdog": {
-            "device_file_path": "/dev/watchdog",
-            "max_timeout": 2,
-            "deactivate_on_shutdown": true,
-            "require_magic_close": false
-        }
+    "watchdog": {
+        "device_file_path": "/dev/watchdog",
+        "max_timeout": 2,
+        "deactivate_on_shutdown": true,
+        "require_magic_close": false
     }
 }

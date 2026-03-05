@@ -54,7 +54,7 @@ score_defaults = json.loads("""
     "alive_supervision" : {
         "evaluation_cycle": 0.5
     },
-    "watchdogs": {}
+    "watchdog": {}
 }
 """)
 
@@ -152,8 +152,8 @@ def preprocess_defaults(global_defaults, config):
     new_config["alive_supervision"] = dict_merge(
         merged_defaults["alive_supervision"], config.get("alive_supervision", {})
     )
-    new_config["watchdogs"] = dict_merge(
-        merged_defaults["watchdogs"], config.get("watchdogs", {})
+    new_config["watchdog"] = dict_merge(
+        merged_defaults["watchdog"], config.get("watchdog", {})
     )
 
     for key in ("initial_run_target", "fallback_run_target"):
@@ -351,9 +351,10 @@ def gen_health_monitor_config(output_dir, config):
             )
         }
     ]
-    for watchdog_name, watchdog_config in config.get("watchdogs", {}).items():
+ 
+    if watchdog_config := config.get("watchdog", {}):
         watchdog = {}
-        watchdog["shortName"] = watchdog_name
+        watchdog["shortName"] = "Watchdog"
         watchdog["deviceFilePath"] = watchdog_config["device_file_path"]
         watchdog["maxTimeout"] = sec_to_ms(watchdog_config["max_timeout"])
         watchdog["deactivateOnShutdown"] = watchdog_config["deactivate_on_shutdown"]

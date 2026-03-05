@@ -70,5 +70,5 @@
     "alive_supervision" : {
         "evaluation_cycle": 0.123
     },
-    "watchdogs": {}
+    "watchdog": {}
 }

@@ -12,7 +12,7 @@ from lifecycle_config import (
 )
 
 script_dir = Path(__file__).parent
-schema_path = script_dir.parent.parent / "src" / "launch_manager_daemon" / "config" / "s-core_launch_manager.schema.json"
+schema_path = script_dir.parent.parent / "src" / "launch_manager_daemon" / "config" / "config_schema" / "s-core_launch_manager.schema.json"
 tests_dir = script_dir / "tests"
 lifecycle_script = script_dir / "lifecycle_config.py"
 

@@ -17,6 +17,5 @@
             "description": "Run Target with missing recovery action",
             "depends_on": []
         }
-    },
-    "initial_run_target": "Minimal"
+    }
 }
