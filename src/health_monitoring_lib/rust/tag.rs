@@ -177,6 +177,12 @@ impl From<&str> for DeadlineTag {
 #[repr(C)]
 pub struct StateTag(Tag);
 
+impl StateTag {
+    pub const fn new(value: &str) -> Self {
+        StateTag(Tag::new(value))
+    }
+}
+
 impl fmt::Debug for StateTag {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // SAFETY: the underlying data was created from a valid `&str`.
@@ -447,6 +453,13 @@ mod tests {
         let example_str = "EXAMPLE";
         let tag = DeadlineTag::from(example_str);
         compare_tag(tag.0, example_str);
+    }
+
+    #[test]
+    fn state_tag_new() {
+        const EXAMPLE_STR: &str = "EXAMPLE";
+        const TAG: StateTag = StateTag::new(EXAMPLE_STR);
+        compare_tag(TAG.0, EXAMPLE_STR);
     }
 
     #[test]

@@ -372,8 +372,8 @@ mod tests {
         let state1 = StateTag::from("state1");
         let state2 = StateTag::from("state2");
         LogicMonitorBuilder::new(state1)
-            .add_state(state2)
-            .add_transition((state1, state2))
+            .add_state(state1, &[state2])
+            .add_state(state2, &[state1])
     }
 
     #[test]
