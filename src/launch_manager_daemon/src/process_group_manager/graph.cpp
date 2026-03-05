@@ -39,7 +39,7 @@ Graph::Graph(uint32_t max_num_nodes, ProcessGroupManager* pgm)
       last_state_manager_(),
       last_execution_error_(0U),
       is_initial_state_transition_(false),
-      pending_state_("(Initial)"),
+      pending_state_(""),
       event_(ControlClientCode::kNotSet),
       cancel_message_(),
       request_start_time_() {

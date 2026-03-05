@@ -25,8 +25,5 @@ def test_smoke():
 
     print(format_logs(code, stdout, stderr))
 
-    with open("exm_logs.txt", "w") as f:
-        f.write(format_logs(code, stdout, stderr))
-
     check_for_failures(Path("tests/integration/smoke"), 2)
     assert code == 0
