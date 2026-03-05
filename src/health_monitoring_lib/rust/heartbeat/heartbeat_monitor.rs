@@ -12,7 +12,7 @@
 // *******************************************************************************
 
 use crate::common::{
-    duration_to_int, hmon_time_offset, Monitor, MonitorEvalHandle, MonitorEvaluationError, MonitorEvaluator, TimeRange,
+    duration_to_int, time_offset, Monitor, MonitorEvalHandle, MonitorEvaluationError, MonitorEvaluator, TimeRange,
 };
 use crate::heartbeat::heartbeat_state::{HeartbeatState, HeartbeatStateSnapshot};
 use crate::log::{error, warn};
@@ -97,6 +97,7 @@ impl HeartbeatMonitor {
 
 impl Monitor for HeartbeatMonitor {
     fn get_eval_handle(&self) -> crate::common::MonitorEvalHandle {
+        // TODO: rethink design - currently two `Arc`s are needed.
         MonitorEvalHandle::new(Arc::new(HeartbeatMonitorHandle {
             inner: Arc::clone(&self.inner),
             start_timestamp: AtomicU64::new(0),
@@ -106,15 +107,19 @@ impl Monitor for HeartbeatMonitor {
 
 struct HeartbeatMonitorHandle {
     inner: Arc<HeartbeatMonitorInner>,
+    /// Current cycle start timestamp.
+    ///
+    /// `AtomicU64` is used to allow mutability inside `Arc`.
+    /// Variable is only accessed by worker thread.
     start_timestamp: AtomicU64,
 }
 
 impl MonitorEvaluator for HeartbeatMonitorHandle {
     fn evaluate(&self, hmon_starting_point: Instant, on_error: &mut dyn FnMut(&MonitorTag, MonitorEvaluationError)) {
-        let start_timestamp = self.start_timestamp.load(Ordering::Relaxed);
+        let start_timestamp = self.start_timestamp.load(Ordering::Acquire);
         let evaluate_result = self.inner.evaluate(start_timestamp, hmon_starting_point, on_error);
         if let Some(new_start_timestamp) = evaluate_result {
-            self.start_timestamp.store(new_start_timestamp, Ordering::Relaxed);
+            self.start_timestamp.store(new_start_timestamp, Ordering::Release);
         }
     }
 }
@@ -135,7 +140,15 @@ impl InternalRange {
 
     /// Create range with values offset by timestamp.
     fn offset(&self, timestamp: u64) -> Self {
-        Self::new(self.min + timestamp, self.max + timestamp)
+        let min = self
+            .min
+            .checked_add(timestamp)
+            .expect("offset min overflow in InternalRange");
+        let max = self
+            .max
+            .checked_add(timestamp)
+            .expect("offset max overflow in InternalRange");
+        Self::new(min, max)
     }
 }
 
@@ -155,7 +168,6 @@ pub(crate) struct HeartbeatMonitorInner {
     range: InternalRange,
 
     /// Monitor starting point.
-    /// Offset is calculated during evaluation in relation to provided health monitor starting point.
     monitor_starting_point: Instant,
 
     /// Current heartbeat state.
@@ -166,8 +178,7 @@ pub(crate) struct HeartbeatMonitorInner {
 impl HeartbeatMonitorInner {
     fn new(monitor_tag: MonitorTag, range: TimeRange) -> Self {
         let monitor_starting_point = Instant::now();
-        let heartbeat_state_snapshot = HeartbeatStateSnapshot::default();
-        let heartbeat_state = HeartbeatState::new(heartbeat_state_snapshot);
+        let heartbeat_state = HeartbeatState::new();
         Self {
             monitor_tag,
             range: InternalRange::from(range),
@@ -179,13 +190,13 @@ impl HeartbeatMonitorInner {
     /// Provide a heartbeat.
     fn heartbeat(&self) {
         // Get current timestamp.
-        let now = duration_to_int(self.monitor_starting_point.elapsed());
+        let monitor_now = duration_to_int(self.monitor_starting_point.elapsed());
 
         // Set heartbeat timestamp and update counter.
-        let _ = self.heartbeat_state.update(|mut state| {
-            state.set_heartbeat_timestamp(now);
-            state.increment_counter();
-            Some(state)
+        let _ = self.heartbeat_state.update(|mut current_state| {
+            current_state.set_heartbeat_timestamp(monitor_now);
+            current_state.increment_counter();
+            Some(current_state)
         });
     }
 
@@ -196,8 +207,9 @@ impl HeartbeatMonitorInner {
         on_error: &mut dyn FnMut(&MonitorTag, MonitorEvaluationError),
     ) -> Option<u64> {
         // Get current timestamp, with offset to HMON time.
-        let offset = hmon_time_offset(hmon_starting_point, self.monitor_starting_point);
-        let now = offset + duration_to_int::<u64>(hmon_starting_point.elapsed());
+        let offset = time_offset(hmon_starting_point, self.monitor_starting_point)
+            .expect("HMON starting point is earlier than monitor starting point");
+        let monitor_now = offset + duration_to_int::<u64>(hmon_starting_point.elapsed());
 
         // Load current monitor state.
         let snapshot = self.heartbeat_state.snapshot();
@@ -207,7 +219,7 @@ impl HeartbeatMonitorInner {
         // It is necessary to:
         // - use offset as cycle starting point.
         // - get heartbeat snapshot in relation to zero point.
-        let start_timestamp = if snapshot.post_init() { start_timestamp } else { offset };
+        let start_timestamp = if start_timestamp > 0 { start_timestamp } else { offset };
         let heartbeat_timestamp = snapshot.heartbeat_timestamp();
 
         // Get allowed time range as absolute values.
@@ -223,10 +235,10 @@ impl HeartbeatMonitorInner {
         }
         // Handle no heartbeats.
         else if counter == 0 {
-            // Disallow no heartbeats when already out of time range.
-            // Stop execution if still in range.
-            if now > range.max {
-                let offset = now - range.max;
+            // No heartbeats after time range is an error.
+            // Otherwise it's accepted, but function should not continue.
+            if monitor_now > range.max {
+                let offset = monitor_now - range.max;
                 warn!("No heartbeat detected, observed after range: {}", offset);
                 on_error(&self.monitor_tag, HeartbeatEvaluationError::TooLate.into());
             }
@@ -251,11 +263,9 @@ impl HeartbeatMonitorInner {
         }
         // Heartbeat in allowed state.
         else {
-            let _ = self.heartbeat_state.update(|_| {
-                let mut snapshot = HeartbeatStateSnapshot::new();
-                snapshot.set_post_init(true);
-                Some(snapshot)
-            });
+            let _ = self
+                .heartbeat_state
+                .compare_exchange(snapshot, HeartbeatStateSnapshot::new());
             // Update heartbeat monitor state with a current heartbeat as a beginning of a new cycle.
             Some(heartbeat_timestamp)
         }
@@ -264,7 +274,7 @@ impl HeartbeatMonitorInner {
 
 #[cfg(test)]
 mod test_common {
-    use crate::TimeRange;
+    use crate::common::TimeRange;
     use core::time::Duration;
     use std::thread::sleep;
     use std::time::Instant;
@@ -651,12 +661,11 @@ mod tests {
 
 #[cfg(all(test, loom))]
 mod loom_tests {
-    use crate::common::{Monitor, MonitorEvaluator};
+    use crate::common::{Monitor, MonitorEvaluator, TimeRange};
     use crate::heartbeat::heartbeat_monitor::test_common::{range_from_ms, sleep_until, TAG};
     use crate::heartbeat::{HeartbeatEvaluationError, HeartbeatMonitor, HeartbeatMonitorBuilder};
     use crate::protected_memory::ProtectedMemoryAllocator;
     use crate::tag::MonitorTag;
-    use crate::TimeRange;
     use core::time::Duration;
     use loom::thread::spawn;
     use std::sync::Arc;

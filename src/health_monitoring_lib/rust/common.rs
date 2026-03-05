@@ -28,8 +28,22 @@ pub struct TimeRange {
 }
 
 impl TimeRange {
+    /// Create [`TimeRange`] with specified range.
+    /// Created range: `<min; max>`.
     pub fn new(min: Duration, max: Duration) -> Self {
         assert!(min <= max, "TimeRange min must be less than or equal to max");
+        Self { min, max }
+    }
+
+    /// Create [`TimeRange`] with specified interval and tolerance.
+    /// Created range: `<interval - lower_tolerance; interval + upper_tolerance>`.
+    pub fn from_interval(interval: Duration, lower_tolerance: Duration, upper_tolerance: Duration) -> Self {
+        assert!(
+            interval >= lower_tolerance,
+            "TimeRange interval must be greater than lower tolerance"
+        );
+        let min = interval - lower_tolerance;
+        let max = interval + upper_tolerance;
         Self { min, max }
     }
 }
@@ -92,15 +106,15 @@ impl MonitorEvaluator for MonitorEvalHandle {
     }
 }
 
-/// Get offset between HMON and monitor starting time points as integers.
-pub(crate) fn hmon_time_offset<T>(hmon_starting_point: Instant, monitor_starting_point: Instant) -> T
+/// Get offset between two time points.
+/// [`None`] is returned if `later_time_point` is actually earlier than `earlier_time_point`.
+pub(crate) fn time_offset<T>(later_time_point: Instant, earlier_time_point: Instant) -> Option<T>
 where
     T: TryFrom<u128>,
     <T as TryFrom<u128>>::Error: core::fmt::Debug,
 {
-    let result = hmon_starting_point.checked_duration_since(monitor_starting_point);
-    let duration_since = result.expect("HMON starting point is earlier than monitor starting point");
-    duration_to_int(duration_since)
+    let duration_since = later_time_point.checked_duration_since(earlier_time_point)?;
+    Some(duration_to_int(duration_since))
 }
 
 /// Get duration as an integer.
@@ -115,36 +129,72 @@ where
 
 #[cfg(all(test, not(loom)))]
 mod tests {
-    use crate::common::{duration_to_int, hmon_time_offset};
+    use crate::common::{duration_to_int, time_offset, TimeRange};
     use core::time::Duration;
     use std::time::Instant;
 
     #[test]
-    fn hmon_time_offset_valid() {
-        let monitor_starting_point = Instant::now();
-        let hmon_starting_point = Instant::now();
-        let offset: u32 = hmon_time_offset(hmon_starting_point, monitor_starting_point);
-        // Allow small offset.
-        assert!(offset < 10);
+    fn time_range_new_valid() {
+        let min = Duration::from_millis(100);
+        let max = Duration::from_millis(200);
+        let range = TimeRange::new(min, max);
+        assert_eq!(range.min, min);
+        assert_eq!(range.max, max);
     }
 
     #[test]
-    #[should_panic(expected = "HMON starting point is earlier than monitor starting point")]
-    fn hmon_time_offset_wrong_order() {
+    #[should_panic(expected = "TimeRange min must be less than or equal to max")]
+    fn time_range_new_wrong_order() {
+        let min = Duration::from_millis(200);
+        let max = Duration::from_millis(100);
+        let _ = TimeRange::new(min, max);
+    }
+
+    #[test]
+    fn time_range_from_interval_valid() {
+        let interval = Duration::from_millis(100);
+        let lower_tolerance = Duration::from_millis(20);
+        let upper_tolerance = Duration::from_millis(50);
+        let range = TimeRange::from_interval(interval, lower_tolerance, upper_tolerance);
+        assert_eq!(range.min, interval - lower_tolerance);
+        assert_eq!(range.max, interval + upper_tolerance);
+    }
+
+    #[test]
+    #[should_panic(expected = "TimeRange interval must be greater than lower tolerance")]
+    fn time_range_from_interval_lower_too_large() {
+        let interval = Duration::from_millis(100);
+        let lower_tolerance = Duration::from_millis(200);
+        let upper_tolerance = Duration::from_millis(50);
+        let _ = TimeRange::from_interval(interval, lower_tolerance, upper_tolerance);
+    }
+
+    #[test]
+    fn time_offset_valid() {
+        let monitor_starting_point = Instant::now();
+        let hmon_starting_point = Instant::now();
+        let result = time_offset::<u32>(hmon_starting_point, monitor_starting_point);
+        // Allow small offset.
+        assert!(result.is_some_and(|o| o < 10));
+    }
+
+    #[test]
+    fn time_offset_wrong_order() {
         let hmon_starting_point = Instant::now();
         let monitor_starting_point = Instant::now();
-        let _offset: u32 = hmon_time_offset(hmon_starting_point, monitor_starting_point);
+        let result = time_offset::<u32>(hmon_starting_point, monitor_starting_point);
+        assert!(result.is_none());
     }
 
     #[test]
     #[should_panic(expected = "Monitor running for too long")]
-    fn hmon_time_offset_diff_too_large() {
+    fn time_offset_diff_too_large() {
         const HUNDRED_DAYS_AS_SECS: u64 = 100 * 24 * 60 * 60;
         let monitor_starting_point = Instant::now();
         let hmon_starting_point = Instant::now()
             .checked_add(Duration::from_secs(HUNDRED_DAYS_AS_SECS))
             .unwrap();
-        let _offset: u32 = hmon_time_offset(hmon_starting_point, monitor_starting_point);
+        let _ = time_offset::<u32>(hmon_starting_point, monitor_starting_point);
     }
 
     #[test]
