@@ -11,14 +11,18 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
-mod common;
-mod deadline_monitor;
-mod deadline_state;
+//! Module providing [`SupervisorAPIClient`] implementations.
+//! Currently `ScoreSupervisorAPIClient` and `StubSupervisorAPIClient` are supported.
+//! The latter is meant for testing purposes.
 
-pub(crate) use deadline_monitor::DeadlineEvaluationError;
-pub use deadline_monitor::{
-    DeadlineError, DeadlineHandle, DeadlineMonitor, DeadlineMonitorBuilder, DeadlineMonitorError,
-};
+/// An abstraction over the API used to notify the supervisor about process liveness.
+pub trait SupervisorAPIClient {
+    fn notify_alive(&self);
+}
 
-// FFI bindings
-pub(super) mod ffi;
+// NOTE: various implementations are not mutually exclusive.
+
+#[cfg(not(feature = "stub_supervisor_api_client"))]
+pub mod score_supervisor_api_client;
+#[cfg(feature = "stub_supervisor_api_client")]
+pub mod stub_supervisor_api_client;

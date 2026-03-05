@@ -81,7 +81,12 @@ use_repo(
 bazel_dep(name = "score_toolchains_rust", version = "0.4.0", dev_dependency = True)
 
 # S-CORE crates
-bazel_dep(name = "score_crates", version = "0.0.7")
+bazel_dep(name = "score_crates", version = "0.0.8")
+git_override(
+    module_name = "score_crates",
+    commit = "c56d8f4006ff1cfe5be532496225255c5ee6c2d6",
+    remote = "https://github.com/eclipse-score/score-crates.git",
+)
 
 git_override(
     module_name = "rules_rust",
@@ -124,6 +129,15 @@ use_repo(pip, "score_lifecycle_pip")
 
 bazel_dep(name = "score_baselibs_rust", version = "0.1.0")
 bazel_dep(name = "score_baselibs", version = "0.2.4")
+bazel_dep(name = "score_logging", version = "0.1.0")
+
+# TODO: remove once inherited properly from `score_logging`.
+bazel_dep(name = "trlc", version = "0.0.0", dev_dependency = True)
+git_override(
+    module_name = "trlc",
+    commit = "650b51a47264a4f232b3341f473527710fc32669",  # trlc-2.0.2 release
+    remote = "https://github.com/bmw-software-engineering/trlc.git",
+)
 
 # Hedron's Compile Commands Extractor for Bazel
 # https://github.com/hedronvision/bazel-compile-commands-extractor

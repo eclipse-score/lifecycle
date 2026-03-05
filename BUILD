@@ -59,7 +59,7 @@ rust_coverage_report(
         "x86_64-linux",
         "ferrocene-coverage",
     ],
-    query = 'kind("rust_test", //src/...)',
+    query = 'kind("rust_test", //src/...) except attr("tags", "loom", //src/...)',
     visibility = ["//visibility:public"],
 )
 

@@ -46,9 +46,10 @@ jobs:
     with:
       bazel-target: 'test //src/... //tests/... --config=x86_64-linux'
       upload-name: 'bazel-testlogs'
+      packages: 'fakechroot'
   build-docs:
     needs: run-tests
-    if: ${{ always() }}
+    if: ${{ needs.run-tests.result == 'success' }}
     uses: eclipse-score/cicd-workflows/.github/workflows/docs.yml@main
     permissions:
       contents: write
