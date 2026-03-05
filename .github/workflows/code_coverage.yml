@@ -54,7 +54,7 @@ jobs:
       - name: Generate HTML Coverage Report
         shell: bash
         run: |
-          genhtml "$(bazel info --lockfile_mode=error output_path)/_coverage/_coverage_report.dat" \
+          genhtml "$(bazel info output_path)/_coverage/_coverage_report.dat" \
             -o=cpp_coverage \
             --show-details \
             --legend \
@@ -89,7 +89,7 @@ jobs:
             --config=x86_64-linux \
             --config=ferrocene-coverage \
             --nocache_test_results \
-            $(bazel query --lockfile_mode=error 'kind(rust_test, //src/...) except attr("tags", "loom", //src/...)')
+            $(bazel query 'kind(rust_test, //src/...) except attr("tags", "loom", //src/...)')
 
       - name: Generate Ferrocene coverage reports
         run: |
@@ -98,7 +98,7 @@ jobs:
 
       - name: Locate coverage artifacts
         run: |
-          echo "COVERAGE_DIR=$(bazel info --lockfile_mode=error bazel-bin)/coverage/rust-tests" >> "${GITHUB_ENV}"
+          echo "COVERAGE_DIR=$(bazel info bazel-bin)/coverage/rust-tests" >> "${GITHUB_ENV}"
 
       - name: Upload coverage HTML
         uses: actions/upload-artifact@v4
