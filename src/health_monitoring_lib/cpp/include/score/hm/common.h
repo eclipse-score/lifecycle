@@ -44,7 +44,7 @@ class RustDroppable
     /// Marks object as no longer managed by C++ side, releasing handle to be passed to Rust side for dropping
     std::optional<FFIHandle> drop_by_rust()
     {
-        return static_cast<T*>(this)->__drop_by_rust_impl();
+        return static_cast<T*>(this)->_drop_by_rust_impl();
     }
 };
 
