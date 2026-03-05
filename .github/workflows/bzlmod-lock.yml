@@ -11,6 +11,8 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 name: Bzlmod Lockfile Check
+permissions:
+  contents: read
 on:
   pull_request:
     types: [opened, reopened, synchronize]
