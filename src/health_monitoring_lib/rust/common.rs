@@ -30,21 +30,38 @@ pub struct TimeRange {
 impl TimeRange {
     /// Create [`TimeRange`] with specified range.
     /// Created range: `<min; max>`.
+    ///
+    /// # Panics
+    ///
+    /// `max` cannot be smaller than `min`.
     pub fn new(min: Duration, max: Duration) -> Self {
-        assert!(min <= max, "TimeRange min must be less than or equal to max");
-        Self { min, max }
+        Self::new_internal(min, max).expect("TimeRange min must be less than or equal to max")
     }
 
     /// Create [`TimeRange`] with specified interval and tolerance.
-    /// Created range: `<interval - lower_tolerance; interval + upper_tolerance>`.
-    pub fn from_interval(interval: Duration, lower_tolerance: Duration, upper_tolerance: Duration) -> Self {
+    /// Created range: `<interval - tolerance.min; interval + tolerance.max>`.
+    ///
+    /// # Panics
+    ///
+    /// `tolerance.min` cannot be smaller than `interval`.
+    pub fn from_interval(interval: Duration, tolerance: TimeRange) -> Self {
         assert!(
-            interval >= lower_tolerance,
-            "TimeRange interval must be greater than lower tolerance"
+            interval >= tolerance.min,
+            "TimeRange interval must be greater than tolerance min"
         );
-        let min = interval - lower_tolerance;
-        let max = interval + upper_tolerance;
+        let min = interval - tolerance.min;
+        let max = interval + tolerance.max;
         Self { min, max }
+    }
+
+    /// Create new [`TimeRange`].
+    /// [`None`] if `max` is smaller than `min`.
+    pub(crate) fn new_internal(min: Duration, max: Duration) -> Option<Self> {
+        if min <= max {
+            Some(Self { min, max })
+        } else {
+            None
+        }
     }
 }
 
@@ -117,14 +134,14 @@ where
     Some(duration_to_int(duration_since))
 }
 
-/// Get duration as an integer.
+/// Get duration as an integer containing milliseconds.
 pub(crate) fn duration_to_int<T>(duration: Duration) -> T
 where
     T: TryFrom<u128>,
     <T as TryFrom<u128>>::Error: core::fmt::Debug,
 {
     let millis = duration.as_millis();
-    T::try_from(millis).expect("Monitor running for too long")
+    T::try_from(millis).expect("Duration is too big for the integer of this type")
 }
 
 #[cfg(all(test, not(loom)))]
@@ -153,20 +170,18 @@ mod tests {
     #[test]
     fn time_range_from_interval_valid() {
         let interval = Duration::from_millis(100);
-        let lower_tolerance = Duration::from_millis(20);
-        let upper_tolerance = Duration::from_millis(50);
-        let range = TimeRange::from_interval(interval, lower_tolerance, upper_tolerance);
-        assert_eq!(range.min, interval - lower_tolerance);
-        assert_eq!(range.max, interval + upper_tolerance);
+        let tolerance = TimeRange::new(Duration::from_millis(20), Duration::from_millis(50));
+        let range = TimeRange::from_interval(interval, tolerance);
+        assert_eq!(range.min, interval - tolerance.min);
+        assert_eq!(range.max, interval + tolerance.max);
     }
 
     #[test]
-    #[should_panic(expected = "TimeRange interval must be greater than lower tolerance")]
+    #[should_panic(expected = "TimeRange interval must be greater than tolerance min")]
     fn time_range_from_interval_lower_too_large() {
         let interval = Duration::from_millis(100);
-        let lower_tolerance = Duration::from_millis(200);
-        let upper_tolerance = Duration::from_millis(50);
-        let _ = TimeRange::from_interval(interval, lower_tolerance, upper_tolerance);
+        let tolerance = TimeRange::new(Duration::from_millis(200), Duration::from_millis(300));
+        let _ = TimeRange::from_interval(interval, tolerance);
     }
 
     #[test]
@@ -187,7 +202,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Monitor running for too long")]
+    #[should_panic(expected = "Duration is too big for the integer of this type")]
     fn time_offset_diff_too_large() {
         const HUNDRED_DAYS_AS_SECS: u64 = 100 * 24 * 60 * 60;
         let monitor_starting_point = Instant::now();
@@ -204,7 +219,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Monitor running for too long")]
+    #[should_panic(expected = "Duration is too big for the integer of this type")]
     fn duration_to_int_too_large() {
         const HUNDRED_DAYS_AS_SECS: u64 = 100 * 24 * 60 * 60;
         let _result: u32 = duration_to_int(Duration::from_secs(HUNDRED_DAYS_AS_SECS));
