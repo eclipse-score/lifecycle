@@ -45,6 +45,7 @@ jobs:
       - name: Run Bazel Coverage
         run: |
           bazel coverage \
+            --lockfile_mode=error \
             --test_output=errors \
             --nocache_test_results \
             --config=x86_64-linux \
@@ -84,6 +85,7 @@ jobs:
         run: |
           set -euo pipefail
           bazel test \
+            --lockfile_mode=error \
             --config=x86_64-linux \
             --config=ferrocene-coverage \
             --nocache_test_results \
@@ -92,7 +94,7 @@ jobs:
       - name: Generate Ferrocene coverage reports
         run: |
           set -euo pipefail
-          bazel run //:rust_coverage -- --min-line-coverage 66
+          bazel run --lockfile_mode=error //:rust_coverage -- --min-line-coverage 66
 
       - name: Locate coverage artifacts
         run: |

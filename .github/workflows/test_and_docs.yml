@@ -37,14 +37,14 @@ jobs:
       pull-requests: write
       contents: read
     with:
-      bazel-docs-verify-target: "//:docs_check"
+      bazel-docs-verify-target: "--lockfile_mode=error //:docs_check"
   run-tests:
     uses: eclipse-score/cicd-workflows/.github/workflows/tests.yml@main
     permissions:
       contents: read
       pull-requests: read
     with:
-      bazel-target: 'test //src/... //tests/... --config=x86_64-linux'
+      bazel-target: 'test --lockfile_mode=error //src/... //tests/... --config=x86_64-linux'
       upload-name: 'bazel-testlogs'
       packages: 'fakechroot'
   build-docs:
@@ -59,6 +59,6 @@ jobs:
 
     with:
       # the bazel-target depends on your repo specific docs_targets configuration (e.g. "suffix")
-      bazel-target: "//:docs -- --github_user=${{ github.repository_owner }} --github_repo=${{ github.event.repository.name }}"
+      bazel-target: "--lockfile_mode=error //:docs -- --github_user=${{ github.repository_owner }} --github_repo=${{ github.event.repository.name }}"
       retention-days: 3
       tests-report-artifact: bazel-testlogs
