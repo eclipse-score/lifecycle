@@ -23,6 +23,15 @@ struct Tag {
     length: usize,
 }
 
+impl Tag {
+    const fn new(value: &str) -> Self {
+        Self {
+            data: value.as_ptr(),
+            length: value.len(),
+        }
+    }
+}
+
 unsafe impl Send for Tag {}
 unsafe impl Sync for Tag {}
 
@@ -86,6 +95,12 @@ impl From<&str> for Tag {
 #[repr(C)]
 pub struct MonitorTag(Tag);
 
+impl MonitorTag {
+    pub const fn new(value: &str) -> Self {
+        MonitorTag(Tag::new(value))
+    }
+}
+
 impl fmt::Debug for MonitorTag {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // SAFETY: the underlying data was created from a valid `&str`.
@@ -120,6 +135,12 @@ impl From<&str> for MonitorTag {
 #[derive(Clone, Copy, Eq, Hash, PartialEq)]
 #[repr(C)]
 pub struct DeadlineTag(Tag);
+
+impl DeadlineTag {
+    pub const fn new(value: &str) -> Self {
+        DeadlineTag(Tag::new(value))
+    }
+}
 
 impl fmt::Debug for DeadlineTag {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -231,6 +252,13 @@ mod tests {
     }
 
     #[test]
+    fn tag_new() {
+        const EXAMPLE_STR: &str = "EXAMPLE";
+        const TAG: Tag = Tag::new(EXAMPLE_STR);
+        compare_tag(TAG, EXAMPLE_STR);
+    }
+
+    #[test]
     fn tag_debug() {
         let example_str = "EXAMPLE";
         let tag = Tag::from(example_str.to_string());
@@ -313,6 +341,13 @@ mod tests {
     }
 
     #[test]
+    fn monitor_tag_new() {
+        const EXAMPLE_STR: &str = "EXAMPLE";
+        const TAG: MonitorTag = MonitorTag::new(EXAMPLE_STR);
+        compare_tag(TAG.0, EXAMPLE_STR);
+    }
+
+    #[test]
     fn monitor_tag_debug() {
         let example_str = "EXAMPLE";
         let tag = MonitorTag::from(example_str.to_string());
@@ -340,6 +375,13 @@ mod tests {
         let example_str = "EXAMPLE";
         let tag = MonitorTag::from(example_str);
         compare_tag(tag.0, example_str);
+    }
+
+    #[test]
+    fn deadline_tag_new() {
+        const EXAMPLE_STR: &str = "EXAMPLE";
+        const TAG: DeadlineTag = DeadlineTag::new(EXAMPLE_STR);
+        compare_tag(TAG.0, EXAMPLE_STR);
     }
 
     #[test]

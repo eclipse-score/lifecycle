@@ -40,7 +40,7 @@ impl DeadlineMonitorCpp {
     }
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn deadline_monitor_builder_create(deadline_monitor_builder_handle_out: *mut FFIHandle) -> FFICode {
     if deadline_monitor_builder_handle_out.is_null() {
         return FFICode::NullParameter;
@@ -54,7 +54,7 @@ pub extern "C" fn deadline_monitor_builder_create(deadline_monitor_builder_handl
     FFICode::Success
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn deadline_monitor_builder_destroy(deadline_monitor_builder_handle: FFIHandle) -> FFICode {
     if deadline_monitor_builder_handle.is_null() {
         return FFICode::NullParameter;
@@ -70,7 +70,7 @@ pub extern "C" fn deadline_monitor_builder_destroy(deadline_monitor_builder_hand
     FFICode::Success
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn deadline_monitor_builder_add_deadline(
     deadline_monitor_builder_handle: FFIHandle,
     deadline_tag: *const DeadlineTag,
@@ -108,7 +108,7 @@ pub extern "C" fn deadline_monitor_builder_add_deadline(
     FFICode::Success
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn deadline_monitor_get_deadline(
     deadline_monitor_handle: FFIHandle,
     deadline_tag: *const DeadlineTag,
@@ -141,7 +141,7 @@ pub extern "C" fn deadline_monitor_get_deadline(
     }
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn deadline_monitor_destroy(deadline_monitor_handle: FFIHandle) -> FFICode {
     if deadline_monitor_handle.is_null() {
         return FFICode::NullParameter;
@@ -157,7 +157,7 @@ pub extern "C" fn deadline_monitor_destroy(deadline_monitor_handle: FFIHandle) -
     FFICode::Success
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn deadline_start(deadline_handle: FFIHandle) -> FFICode {
     if deadline_handle.is_null() {
         return FFICode::NullParameter;
@@ -176,7 +176,7 @@ pub extern "C" fn deadline_start(deadline_handle: FFIHandle) -> FFICode {
     }
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn deadline_stop(deadline_handle: FFIHandle) -> FFICode {
     if deadline_handle.is_null() {
         return FFICode::NullParameter;
@@ -193,7 +193,7 @@ pub extern "C" fn deadline_stop(deadline_handle: FFIHandle) -> FFICode {
     FFICode::Success
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn deadline_destroy(deadline_handle: FFIHandle) -> FFICode {
     if deadline_handle.is_null() {
         return FFICode::NullParameter;

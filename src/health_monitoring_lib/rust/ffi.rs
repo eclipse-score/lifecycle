@@ -73,7 +73,7 @@ impl<T: DerefMut> DerefMut for FFIBorrowed<T> {
     }
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn health_monitor_builder_create(health_monitor_builder_handle_out: *mut FFIHandle) -> FFICode {
     if health_monitor_builder_handle_out.is_null() {
         return FFICode::NullParameter;
@@ -87,7 +87,7 @@ pub extern "C" fn health_monitor_builder_create(health_monitor_builder_handle_ou
     FFICode::Success
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn health_monitor_builder_destroy(health_monitor_builder_handle: FFIHandle) -> FFICode {
     if health_monitor_builder_handle.is_null() {
         return FFICode::NullParameter;
@@ -104,7 +104,7 @@ pub extern "C" fn health_monitor_builder_destroy(health_monitor_builder_handle: 
     FFICode::Success
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn health_monitor_builder_build(
     health_monitor_builder_handle: FFIHandle,
     supervisor_cycle_ms: u32,
@@ -137,7 +137,7 @@ pub extern "C" fn health_monitor_builder_build(
     }
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn health_monitor_builder_add_deadline_monitor(
     health_monitor_builder_handle: FFIHandle,
     monitor_tag: *const MonitorTag,
@@ -171,7 +171,7 @@ pub extern "C" fn health_monitor_builder_add_deadline_monitor(
     FFICode::Success
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn health_monitor_get_deadline_monitor(
     health_monitor_handle: FFIHandle,
     monitor_tag: *const MonitorTag,
@@ -202,7 +202,7 @@ pub extern "C" fn health_monitor_get_deadline_monitor(
     }
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn health_monitor_start(health_monitor_handle: FFIHandle) -> FFICode {
     if health_monitor_handle.is_null() {
         return FFICode::NullParameter;
@@ -221,7 +221,7 @@ pub extern "C" fn health_monitor_start(health_monitor_handle: FFIHandle) -> FFIC
     }
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn health_monitor_destroy(health_monitor_handle: FFIHandle) -> FFICode {
     if health_monitor_handle.is_null() {
         return FFICode::NullParameter;
