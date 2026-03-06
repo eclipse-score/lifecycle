@@ -11,19 +11,11 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
-mod common;
-mod ffi;
-mod health_monitor;
-mod log;
-mod protected_memory;
-mod supervisor_api_client;
-mod tag;
-mod worker;
+mod heartbeat_monitor;
+mod heartbeat_state;
 
-pub mod deadline;
-pub mod heartbeat;
-pub mod logic;
+pub(crate) use heartbeat_monitor::HeartbeatEvaluationError;
+pub use heartbeat_monitor::{HeartbeatMonitor, HeartbeatMonitorBuilder};
 
-pub use common::TimeRange;
-pub use health_monitor::{HealthMonitor, HealthMonitorBuilder, HealthMonitorError};
-pub use tag::{DeadlineTag, MonitorTag, StateTag};
+// FFI bindings
+pub(super) mod ffi;

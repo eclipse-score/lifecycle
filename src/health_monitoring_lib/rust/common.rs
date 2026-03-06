@@ -12,11 +12,14 @@
 // *******************************************************************************
 
 use crate::deadline::DeadlineEvaluationError;
+use crate::heartbeat::HeartbeatEvaluationError;
 use crate::log::ScoreDebug;
+use crate::logic::LogicEvaluationError;
 use crate::tag::MonitorTag;
 use core::hash::Hash;
 use core::time::Duration;
 use std::sync::Arc;
+use std::time::Instant;
 
 /// Range of accepted time.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -48,8 +51,8 @@ pub(crate) trait Monitor {
 #[allow(dead_code)]
 pub(crate) enum MonitorEvaluationError {
     Deadline(DeadlineEvaluationError),
-    Heartbeat,
-    Logic,
+    Heartbeat(HeartbeatEvaluationError),
+    Logic(LogicEvaluationError),
 }
 
 impl From<DeadlineEvaluationError> for MonitorEvaluationError {
@@ -58,12 +61,25 @@ impl From<DeadlineEvaluationError> for MonitorEvaluationError {
     }
 }
 
+impl From<HeartbeatEvaluationError> for MonitorEvaluationError {
+    fn from(value: HeartbeatEvaluationError) -> Self {
+        MonitorEvaluationError::Heartbeat(value)
+    }
+}
+
+impl From<LogicEvaluationError> for MonitorEvaluationError {
+    fn from(value: LogicEvaluationError) -> Self {
+        MonitorEvaluationError::Logic(value)
+    }
+}
+
 /// Trait for evaluating monitors and reporting errors to be used by HealthMonitor.
 pub(crate) trait MonitorEvaluator {
     /// Run monitor evaluation.
     ///
+    /// - `hmon_starting_point` - starting point of all monitors.
     /// - `on_error` - error handling, containing tag of failing object and error code.
-    fn evaluate(&self, on_error: &mut dyn FnMut(&MonitorTag, MonitorEvaluationError));
+    fn evaluate(&self, hmon_starting_point: Instant, on_error: &mut dyn FnMut(&MonitorTag, MonitorEvaluationError));
 }
 
 /// Handle to a monitor evaluator, allowing for dynamic dispatch.
@@ -78,7 +94,76 @@ impl MonitorEvalHandle {
 }
 
 impl MonitorEvaluator for MonitorEvalHandle {
-    fn evaluate(&self, on_error: &mut dyn FnMut(&MonitorTag, MonitorEvaluationError)) {
-        self.inner.evaluate(on_error)
+    fn evaluate(&self, hmon_starting_point: Instant, on_error: &mut dyn FnMut(&MonitorTag, MonitorEvaluationError)) {
+        self.inner.evaluate(hmon_starting_point, on_error)
+    }
+}
+
+/// Get offset between HMON and monitor starting time points as integers.
+pub(crate) fn hmon_time_offset<T>(hmon_starting_point: Instant, monitor_starting_point: Instant) -> T
+where
+    T: TryFrom<u128>,
+    <T as TryFrom<u128>>::Error: core::fmt::Debug,
+{
+    let result = hmon_starting_point.checked_duration_since(monitor_starting_point);
+    let duration_since = result.expect("HMON starting point is earlier than monitor starting point");
+    duration_to_int(duration_since)
+}
+
+/// Get duration as an integer.
+pub(crate) fn duration_to_int<T>(duration: Duration) -> T
+where
+    T: TryFrom<u128>,
+    <T as TryFrom<u128>>::Error: core::fmt::Debug,
+{
+    let millis = duration.as_millis();
+    T::try_from(millis).expect("Monitor running for too long")
+}
+
+#[cfg(all(test, not(loom)))]
+mod tests {
+    use crate::common::{duration_to_int, hmon_time_offset};
+    use core::time::Duration;
+    use std::time::Instant;
+
+    #[test]
+    fn hmon_time_offset_valid() {
+        let monitor_starting_point = Instant::now();
+        let hmon_starting_point = Instant::now();
+        let offset: u32 = hmon_time_offset(hmon_starting_point, monitor_starting_point);
+        // Allow small offset.
+        assert!(offset < 10);
+    }
+
+    #[test]
+    #[should_panic(expected = "HMON starting point is earlier than monitor starting point")]
+    fn hmon_time_offset_wrong_order() {
+        let hmon_starting_point = Instant::now();
+        let monitor_starting_point = Instant::now();
+        let _offset: u32 = hmon_time_offset(hmon_starting_point, monitor_starting_point);
+    }
+
+    #[test]
+    #[should_panic(expected = "Monitor running for too long")]
+    fn hmon_time_offset_diff_too_large() {
+        const HUNDRED_DAYS_AS_SECS: u64 = 100 * 24 * 60 * 60;
+        let monitor_starting_point = Instant::now();
+        let hmon_starting_point = Instant::now()
+            .checked_add(Duration::from_secs(HUNDRED_DAYS_AS_SECS))
+            .unwrap();
+        let _offset: u32 = hmon_time_offset(hmon_starting_point, monitor_starting_point);
+    }
+
+    #[test]
+    fn duration_to_int_valid() {
+        let result: u32 = duration_to_int(Duration::from_millis(1234));
+        assert_eq!(result, 1234);
+    }
+
+    #[test]
+    #[should_panic(expected = "Monitor running for too long")]
+    fn duration_to_int_too_large() {
+        const HUNDRED_DAYS_AS_SECS: u64 = 100 * 24 * 60 * 60;
+        let _result: u32 = duration_to_int(Duration::from_secs(HUNDRED_DAYS_AS_SECS));
     }
 }

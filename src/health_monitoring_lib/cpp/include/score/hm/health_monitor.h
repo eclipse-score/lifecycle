@@ -15,6 +15,8 @@
 
 #include <score/hm/common.h>
 #include <score/hm/deadline/deadline_monitor.h>
+#include <score/hm/heartbeat/heartbeat_monitor.h>
+#include <score/hm/logic/logic_monitor.h>
 #include <score/hm/tag.h>
 
 namespace score::hm
@@ -42,6 +44,13 @@ class HealthMonitorBuilder final
     HealthMonitorBuilder add_deadline_monitor(const MonitorTag& monitor_tag,
                                               deadline::DeadlineMonitorBuilder&& monitor) &&;
 
+    /// Adds a heartbeat monitor for a specific identifier tag.
+    HealthMonitorBuilder add_heartbeat_monitor(const MonitorTag& monitor_tag,
+                                               heartbeat::HeartbeatMonitorBuilder&& monitor) &&;
+
+    /// Adds a logic monitor for a specific identifier tag.
+    HealthMonitorBuilder add_logic_monitor(const MonitorTag& monitor_tag, logic::LogicMonitorBuilder&& monitor) &&;
+
     /// Sets the cycle duration for supervisor API notifications.
     /// This duration determines how often the health monitor notifies the supervisor that the system is alive.
     HealthMonitorBuilder with_supervisor_api_cycle(std::chrono::milliseconds cycle_duration) &&;
@@ -51,7 +60,7 @@ class HealthMonitorBuilder final
     HealthMonitorBuilder with_internal_processing_cycle(std::chrono::milliseconds cycle_duration) &&;
 
     /// Build a new `HealthMonitor` instance based on provided parameters.
-    HealthMonitor build() &&;
+    score::cpp::expected<HealthMonitor, Error> build() &&;
 
   private:
     internal::DroppableFFIHandle health_monitor_builder_handle_;
@@ -72,8 +81,10 @@ class HealthMonitor final
     ~HealthMonitor();
 
     score::cpp::expected<deadline::DeadlineMonitor, Error> get_deadline_monitor(const MonitorTag& monitor_tag);
+    score::cpp::expected<heartbeat::HeartbeatMonitor, Error> get_heartbeat_monitor(const MonitorTag& monitor_tag);
+    score::cpp::expected<logic::LogicMonitor, Error> get_logic_monitor(const MonitorTag& monitor_tag);
 
-    void start();
+    score::cpp::expected_blank<Error> start();
 
   private:
     // Allow only the builder to create HealthMonitor instances.
