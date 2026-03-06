@@ -103,17 +103,17 @@ The new configuration format allows to configure a single watchdog. There is sim
 
 ### Component
 
-* The sandbox parameters `max_memory_usage` and `max_cpu_usage` are currently not supported.
-* For ReadyCondition `process_state:Terminated`, the mapping is only supported for Components that have at least one Component depending on it
-* The `ready_recovery_action` only supports the RecoveryAction of type `restart`. The parameter `delay_before_restart` is currently not supported.
-* The `recovery_action` only supports `switch_run_target` with the `run_target` set to `fallback_run_target`
-* The `ready_timeout` is used as the timeout until process state Running is reached, even in case the ReadyCondition is `process_state:Terminated`
-* The parameter `deployment_config/working_dir` is currently ont supported
+* The sandbox parameters `max_memory_usage` and `max_cpu_usage` are currently not supported and will be ignored.
+* For ReadyCondition `process_state:Terminated`, the mapping is only supported for Components that have at least one Component depending on it.
+* The `ready_recovery_action` only supports the RecoveryAction of type `restart`. The parameter `delay_before_restart` is currently not supported and will be ignored.
+* The `recovery_action` only supports `switch_run_target` with the `run_target` set to `fallback_run_target`.
+* The `ready_timeout` is used as the timeout until process state Running is reached, even in case the ReadyCondition is `process_state:Terminated`.
+* The parameter `deployment_config/working_dir` is currently not supported and will be ignored.
 
 ### Run Target
 
 * The initial RunTarget must be named `Startup` and the `initial_run_target` must be configured to `Startup`.
-* The parameter `run_targets/<RunTarget>/transition_timeout` is currently not supported
-* The `recovery_action` only supports `switch_run_target` with the `run_target` set to `fallback_run_target`
+* The parameter `run_targets/<RunTarget>/transition_timeout` is currently not supported and will be ignored.
+* The `recovery_action` only supports `switch_run_target` with the `run_target` set to `fallback_run_target`.
 
 
