@@ -81,10 +81,6 @@ pub extern "C" fn deadline_monitor_builder_add_deadline(
         return FFICode::NullParameter;
     }
 
-    if min_ms > max_ms {
-        return FFICode::InvalidArgument;
-    }
-
     // SAFETY:
     // Validity of the pointer is ensured.
     // `DeadlineTag` type must be compatible between C++ and Rust.
@@ -97,13 +93,14 @@ pub extern "C" fn deadline_monitor_builder_add_deadline(
     let mut deadline_monitor_builder =
         FFIBorrowed::new(unsafe { Box::from_raw(deadline_monitor_builder_handle as *mut DeadlineMonitorBuilder) });
 
-    deadline_monitor_builder.add_deadline_internal(
-        deadline_tag,
-        TimeRange::new(
-            Duration::from_millis(min_ms as u64),
-            Duration::from_millis(max_ms as u64),
-        ),
-    );
+    let range_min = Duration::from_millis(min_ms as u64);
+    let range_max = Duration::from_millis(max_ms as u64);
+    let range = match TimeRange::new_internal(range_min, range_max) {
+        Some(range) => range,
+        None => return FFICode::InvalidArgument,
+    };
+
+    deadline_monitor_builder.add_deadline_internal(deadline_tag, range);
 
     FFICode::Success
 }

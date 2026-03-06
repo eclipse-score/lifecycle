@@ -16,3 +16,6 @@ mod heartbeat_state;
 
 pub(crate) use heartbeat_monitor::HeartbeatEvaluationError;
 pub use heartbeat_monitor::{HeartbeatMonitor, HeartbeatMonitorBuilder};
+
+// FFI bindings
+pub(super) mod ffi;
