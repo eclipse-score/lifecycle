@@ -60,7 +60,12 @@ impl<T: SupervisorAPIClient> MonitoringLogic<T> {
                         )
                     },
                     MonitorEvaluationError::Heartbeat => unimplemented!(),
-                    MonitorEvaluationError::Logic => unimplemented!(),
+                    MonitorEvaluationError::Logic(logic_evaluation_error) => {
+                        warn!(
+                            "Logic monitor with tag {:?} reported error: {:?}.",
+                            monitor_tag, logic_evaluation_error
+                        )
+                    },
                 }
             });
         }

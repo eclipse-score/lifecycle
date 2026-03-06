@@ -20,10 +20,12 @@ mod tag;
 mod worker;
 
 pub mod deadline;
+pub mod logic;
 
 use crate::common::{Monitor, MonitorEvalHandle};
 use crate::deadline::{DeadlineMonitor, DeadlineMonitorBuilder};
 use crate::log::{error, ScoreDebug};
+use crate::logic::{LogicMonitor, LogicMonitorBuilder};
 pub use common::TimeRange;
 use containers::fixed_capacity::FixedCapacityVec;
 use core::time::Duration;
@@ -45,6 +47,7 @@ pub enum HealthMonitorError {
 #[derive(Default)]
 pub struct HealthMonitorBuilder {
     deadline_monitor_builders: HashMap<MonitorTag, DeadlineMonitorBuilder>,
+    logic_monitor_builders: HashMap<MonitorTag, LogicMonitorBuilder>,
     supervisor_api_cycle: Duration,
     internal_processing_cycle: Duration,
 }
@@ -54,6 +57,7 @@ impl HealthMonitorBuilder {
     pub fn new() -> Self {
         Self {
             deadline_monitor_builders: HashMap::new(),
+            logic_monitor_builders: HashMap::new(),
             supervisor_api_cycle: Duration::from_millis(500),
             internal_processing_cycle: Duration::from_millis(100),
         }
@@ -69,6 +73,19 @@ impl HealthMonitorBuilder {
     /// If a deadline monitor with the same tag already exists, it will be overwritten.
     pub fn add_deadline_monitor(mut self, monitor_tag: MonitorTag, monitor_builder: DeadlineMonitorBuilder) -> Self {
         self.add_deadline_monitor_internal(monitor_tag, monitor_builder);
+        self
+    }
+
+    /// Add a [`LogicMonitor`] for the given [`MonitorTag`].
+    ///
+    /// - `monitor_tag` - unique tag for the [`LogicMonitor`].
+    /// - `monitor_builder` - monitor builder to finalize.
+    ///
+    /// # Note
+    ///
+    /// If a logic monitor with the same tag already exists, it will be overwritten.
+    pub fn add_logic_monitor(mut self, monitor_tag: MonitorTag, monitor_builder: LogicMonitorBuilder) -> Self {
+        self.add_logic_monitor_internal(monitor_tag, monitor_builder);
         self
     }
 
@@ -104,7 +121,7 @@ impl HealthMonitorBuilder {
         }
 
         // Check number of monitors.
-        let num_monitors = self.deadline_monitor_builders.len();
+        let num_monitors = self.deadline_monitor_builders.len() + self.logic_monitor_builders.len();
         if num_monitors == 0 {
             error!("No monitors have been added. HealthMonitor cannot be created.");
             return Err(HealthMonitorError::WrongState);
@@ -120,8 +137,16 @@ impl HealthMonitorBuilder {
             deadline_monitors.insert(tag, Some(MonitorState::Available(monitor)));
         }
 
+        // Create logic monitors.
+        let mut logic_monitors = HashMap::new();
+        for (tag, builder) in self.logic_monitor_builders {
+            let monitor = builder.build(tag, &allocator)?;
+            logic_monitors.insert(tag, Some(MonitorState::Available(monitor)));
+        }
+
         Ok(HealthMonitor {
             deadline_monitors,
+            logic_monitors,
             worker: worker::UniqueThreadRunner::new(self.internal_processing_cycle),
             supervisor_api_cycle: self.supervisor_api_cycle,
         })
@@ -135,6 +160,10 @@ impl HealthMonitorBuilder {
         monitor_builder: DeadlineMonitorBuilder,
     ) {
         self.deadline_monitor_builders.insert(monitor_tag, monitor_builder);
+    }
+
+    pub(crate) fn add_logic_monitor_internal(&mut self, monitor_tag: MonitorTag, monitor_builder: LogicMonitorBuilder) {
+        self.logic_monitor_builders.insert(monitor_tag, monitor_builder);
     }
 
     pub(crate) fn with_supervisor_api_cycle_internal(&mut self, cycle_duration: Duration) {
@@ -162,6 +191,7 @@ type MonitorContainer<M> = Option<MonitorState<M>>;
 /// Health monitor.
 pub struct HealthMonitor {
     deadline_monitors: HashMap<MonitorTag, MonitorContainer<DeadlineMonitor>>,
+    logic_monitors: HashMap<MonitorTag, MonitorContainer<LogicMonitor>>,
     worker: worker::UniqueThreadRunner,
     supervisor_api_cycle: Duration,
 }
@@ -195,6 +225,16 @@ impl HealthMonitor {
     /// Otherwise returns [`None`].
     pub fn get_deadline_monitor(&mut self, monitor_tag: MonitorTag) -> Option<DeadlineMonitor> {
         Self::get_monitor(&mut self.deadline_monitors, monitor_tag)
+    }
+
+    /// Get and pass ownership of a [`LogicMonitor`] for the given [`MonitorTag`].
+    ///
+    /// - `monitor_tag` - unique tag for the [`LogicMonitor`].
+    ///
+    /// Returns [`Some`] containing [`LogicMonitor`] if found and not taken.
+    /// Otherwise returns [`None`].
+    pub fn get_logic_monitor(&mut self, monitor_tag: MonitorTag) -> Option<LogicMonitor> {
+        Self::get_monitor(&mut self.logic_monitors, monitor_tag)
     }
 
     fn collect_given_monitors<M>(
@@ -243,9 +283,10 @@ impl HealthMonitor {
     /// Health monitoring logic stops when the [`HealthMonitor`] is dropped.
     pub fn start(&mut self) -> Result<(), HealthMonitorError> {
         // Collect all monitors.
-        let num_monitors = self.deadline_monitors.len();
+        let num_monitors = self.deadline_monitors.len() + self.logic_monitors.len();
         let mut collected_monitors = FixedCapacityVec::new(num_monitors);
         Self::collect_given_monitors(&mut self.deadline_monitors, &mut collected_monitors)?;
+        Self::collect_given_monitors(&mut self.logic_monitors, &mut collected_monitors)?;
 
         // Start monitoring logic.
         let monitoring_logic = worker::MonitoringLogic::new(
@@ -268,14 +309,24 @@ impl HealthMonitor {
 #[cfg(all(test, not(loom)))]
 mod tests {
     use crate::deadline::DeadlineMonitorBuilder;
-    use crate::tag::MonitorTag;
+    use crate::logic::LogicMonitorBuilder;
+    use crate::tag::{MonitorTag, StateTag};
     use crate::{HealthMonitorBuilder, HealthMonitorError};
     use core::time::Duration;
+
+    fn def_logic_monitor_builder() -> LogicMonitorBuilder {
+        let state1 = StateTag::from("state1");
+        let state2 = StateTag::from("state2");
+        LogicMonitorBuilder::new(state1)
+            .add_state(state2)
+            .add_transition((state1, state2))
+    }
 
     #[test]
     fn health_monitor_builder_new_succeeds() {
         let health_monitor_builder = HealthMonitorBuilder::new();
         assert!(health_monitor_builder.deadline_monitor_builders.is_empty());
+        assert!(health_monitor_builder.logic_monitor_builders.is_empty());
         assert_eq!(health_monitor_builder.supervisor_api_cycle, Duration::from_millis(500));
         assert_eq!(
             health_monitor_builder.internal_processing_cycle,
@@ -287,9 +338,12 @@ mod tests {
     fn health_monitor_builder_build_succeeds() {
         let deadline_monitor_tag = MonitorTag::from("deadline_monitor");
         let deadline_monitor_builder = DeadlineMonitorBuilder::new();
+        let logic_monitor_tag = MonitorTag::from("logic_monitor");
+        let logic_monitor_builder = def_logic_monitor_builder();
 
         let result = HealthMonitorBuilder::new()
             .add_deadline_monitor(deadline_monitor_tag, deadline_monitor_builder)
+            .add_logic_monitor(logic_monitor_tag, logic_monitor_builder)
             .build();
         assert!(result.is_ok());
     }
@@ -365,16 +419,75 @@ mod tests {
     }
 
     #[test]
+    fn health_monitor_get_logic_monitor_available() {
+        let logic_monitor_tag = MonitorTag::from("logic_monitor");
+        let logic_monitor_builder = def_logic_monitor_builder();
+        let mut health_monitor = HealthMonitorBuilder::new()
+            .add_logic_monitor(logic_monitor_tag, logic_monitor_builder)
+            .build()
+            .unwrap();
+
+        let result = health_monitor.get_logic_monitor(logic_monitor_tag);
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn health_monitor_get_logic_monitor_taken() {
+        let logic_monitor_tag = MonitorTag::from("logic_monitor");
+        let logic_monitor_builder = def_logic_monitor_builder();
+        let mut health_monitor = HealthMonitorBuilder::new()
+            .add_logic_monitor(logic_monitor_tag, logic_monitor_builder)
+            .build()
+            .unwrap();
+
+        let _ = health_monitor.get_logic_monitor(logic_monitor_tag);
+        let result = health_monitor.get_logic_monitor(logic_monitor_tag);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn health_monitor_get_logic_monitor_unknown() {
+        let logic_monitor_builder = def_logic_monitor_builder();
+        let mut health_monitor = HealthMonitorBuilder::new()
+            .add_logic_monitor(MonitorTag::from("logic_monitor"), logic_monitor_builder)
+            .build()
+            .unwrap();
+
+        let result = health_monitor.get_logic_monitor(MonitorTag::from("undefined_monitor"));
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn health_monitor_get_logic_monitor_invalid_state() {
+        let logic_monitor_tag = MonitorTag::from("logic_monitor");
+        let logic_monitor_builder = def_logic_monitor_builder();
+        let mut health_monitor = HealthMonitorBuilder::new()
+            .add_logic_monitor(logic_monitor_tag, logic_monitor_builder)
+            .build()
+            .unwrap();
+
+        // Inject broken state - unreachable otherwise.
+        health_monitor.logic_monitors.insert(logic_monitor_tag, None);
+
+        let result = health_monitor.get_logic_monitor(logic_monitor_tag);
+        assert!(result.is_none());
+    }
+
+    #[test]
     fn health_monitor_start_succeeds() {
         let deadline_monitor_tag = MonitorTag::from("deadline_monitor");
         let deadline_monitor_builder = DeadlineMonitorBuilder::new();
+        let logic_monitor_tag = MonitorTag::from("logic_monitor");
+        let logic_monitor_builder = def_logic_monitor_builder();
 
         let mut health_monitor = HealthMonitorBuilder::new()
             .add_deadline_monitor(deadline_monitor_tag, deadline_monitor_builder)
+            .add_logic_monitor(logic_monitor_tag, logic_monitor_builder)
             .build()
             .unwrap();
 
         let _deadline_monitor = health_monitor.get_deadline_monitor(deadline_monitor_tag).unwrap();
+        let _logic_monitor = health_monitor.get_logic_monitor(logic_monitor_tag).unwrap();
 
         let result = health_monitor.start();
         assert!(result.is_ok());
@@ -383,9 +496,11 @@ mod tests {
     #[test]
     fn health_monitor_start_monitors_not_taken() {
         let deadline_monitor_builder = DeadlineMonitorBuilder::new();
+        let logic_monitor_builder = def_logic_monitor_builder();
 
         let mut health_monitor = HealthMonitorBuilder::new()
             .add_deadline_monitor(MonitorTag::from("deadline_monitor"), deadline_monitor_builder)
+            .add_logic_monitor(MonitorTag::from("logic_monitor"), logic_monitor_builder)
             .build()
             .unwrap();
 
@@ -397,9 +512,12 @@ mod tests {
     fn health_monitor_start_not_taken_then_restart() {
         let deadline_monitor_tag = MonitorTag::from("deadline_monitor");
         let deadline_monitor_builder = DeadlineMonitorBuilder::new();
+        let logic_monitor_tag = MonitorTag::from("logic_monitor");
+        let logic_monitor_builder = def_logic_monitor_builder();
 
         let mut health_monitor = HealthMonitorBuilder::new()
             .add_deadline_monitor(deadline_monitor_tag, deadline_monitor_builder)
+            .add_logic_monitor(logic_monitor_tag, logic_monitor_builder)
             .build()
             .unwrap();
 
@@ -407,9 +525,11 @@ mod tests {
         let start_result = health_monitor.start();
         assert!(start_result.is_err_and(|e| e == HealthMonitorError::WrongState));
 
-        // Take monitor.
+        // Take monitors.
         let get_deadline_monitor_result = health_monitor.get_deadline_monitor(deadline_monitor_tag);
         assert!(get_deadline_monitor_result.is_some());
+        let get_logic_monitor_result = health_monitor.get_logic_monitor(logic_monitor_tag);
+        assert!(get_logic_monitor_result.is_some());
 
         // Try to start again, this time should be successful.
         let start_result = health_monitor.start();

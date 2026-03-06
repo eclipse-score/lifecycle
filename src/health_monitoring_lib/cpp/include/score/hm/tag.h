@@ -23,6 +23,9 @@ namespace score::hm
 class Tag
 {
   public:
+    /// Create an empty tag.
+    Tag() : data_{nullptr}, length_{0} {}
+
     /// Create a new tag from a C-style string.
     template <size_t N>
     explicit Tag(const char (&tag)[N]) : data_(tag), length_(N - 1)
@@ -44,6 +47,13 @@ class MonitorTag : public Tag
 
 /// Deadline tag.
 class DeadlineTag : public Tag
+{
+  public:
+    using Tag::Tag;
+};
+
+/// State tag.
+class StateTag : public Tag
 {
   public:
     using Tag::Tag;

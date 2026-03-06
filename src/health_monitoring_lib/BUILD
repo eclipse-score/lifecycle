@@ -28,6 +28,7 @@ PROC_MACRO_DEPS = [
 CC_SOURCES = [
     "cpp/common.cpp",
     "cpp/deadline_monitor.cpp",
+    "cpp/logic_monitor.cpp",
     "cpp/health_monitor.cpp",
 ]
 
@@ -35,6 +36,7 @@ CC_HDRS = [
     "cpp/include/score/hm/common.h",
     "cpp/include/score/hm/tag.h",
     "cpp/include/score/hm/deadline/deadline_monitor.h",
+    "cpp/include/score/hm/logic/logic_monitor.h",
     "cpp/include/score/hm/health_monitor.h",
 ]
 

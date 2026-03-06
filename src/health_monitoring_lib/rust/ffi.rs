@@ -12,6 +12,7 @@
 // *******************************************************************************
 use crate::deadline::ffi::DeadlineMonitorCpp;
 use crate::deadline::DeadlineMonitorBuilder;
+use crate::logic::LogicMonitorBuilder;
 use crate::tag::MonitorTag;
 use crate::{HealthMonitor, HealthMonitorBuilder, HealthMonitorError};
 use core::mem::ManuallyDrop;
@@ -172,6 +173,39 @@ pub extern "C" fn health_monitor_builder_add_deadline_monitor(
 }
 
 #[unsafe(no_mangle)]
+pub extern "C" fn health_monitor_builder_add_logic_monitor(
+    health_monitor_builder_handle: FFIHandle,
+    monitor_tag: *const MonitorTag,
+    logic_monitor_builder_handle: FFIHandle,
+) -> FFICode {
+    if health_monitor_builder_handle.is_null() || monitor_tag.is_null() || logic_monitor_builder_handle.is_null() {
+        return FFICode::NullParameter;
+    }
+
+    // SAFETY:
+    // Validity of the pointer is ensured.
+    // `MonitorTag` type must be compatible between C++ and Rust.
+    let monitor_tag = unsafe { *monitor_tag };
+
+    // SAFETY:
+    // Validity of this pointer is ensured.
+    // It is assumed that the pointer was created by a call to `logic_monitor_builder_create`.
+    // It is assumed that the pointer was not consumed by a call to `logic_monitor_builder_destroy`.
+    let logic_monitor_builder = unsafe { Box::from_raw(logic_monitor_builder_handle as *mut LogicMonitorBuilder) };
+
+    // SAFETY:
+    // Validity of the pointer is ensured.
+    // It is assumed that the pointer was created by a call to `health_monitor_builder_create`.
+    // It is assumed that the pointer was not consumed by calls to `health_monitor_builder_destroy` or `health_monitor_builder_build`.
+    let mut health_monitor_builder =
+        FFIBorrowed::new(unsafe { Box::from_raw(health_monitor_builder_handle as *mut HealthMonitorBuilder) });
+
+    health_monitor_builder.add_logic_monitor_internal(monitor_tag, *logic_monitor_builder);
+
+    FFICode::Success
+}
+
+#[unsafe(no_mangle)]
 pub extern "C" fn health_monitor_get_deadline_monitor(
     health_monitor_handle: FFIHandle,
     monitor_tag: *const MonitorTag,
@@ -195,6 +229,37 @@ pub extern "C" fn health_monitor_get_deadline_monitor(
     if let Some(deadline_monitor) = health_monitor.get_deadline_monitor(monitor_tag) {
         unsafe {
             *deadline_monitor_handle_out = Box::into_raw(Box::new(DeadlineMonitorCpp::new(deadline_monitor))).cast();
+        }
+        FFICode::Success
+    } else {
+        FFICode::NotFound
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn health_monitor_get_logic_monitor(
+    health_monitor_handle: FFIHandle,
+    monitor_tag: *const MonitorTag,
+    logic_monitor_handle_out: *mut FFIHandle,
+) -> FFICode {
+    if health_monitor_handle.is_null() || monitor_tag.is_null() || logic_monitor_handle_out.is_null() {
+        return FFICode::NullParameter;
+    }
+
+    // SAFETY:
+    // Validity of the pointer is ensured.
+    // `MonitorTag` type must be compatible between C++ and Rust.
+    let monitor_tag = unsafe { *monitor_tag };
+
+    // SAFETY:
+    // Validity of the pointer is ensured.
+    // It is assumed that the pointer was created by a call to `health_monitor_builder_build`.
+    // It is assumed that the pointer was not consumed by a call to `health_monitor_destroy`.
+    let mut health_monitor = FFIBorrowed::new(unsafe { Box::from_raw(health_monitor_handle as *mut HealthMonitor) });
+
+    if let Some(logic_monitor) = health_monitor.get_logic_monitor(monitor_tag) {
+        unsafe {
+            *logic_monitor_handle_out = Box::into_raw(Box::new(logic_monitor)).cast();
         }
         FFICode::Success
     } else {
@@ -244,12 +309,36 @@ mod tests {
         deadline_monitor_builder_create, deadline_monitor_builder_destroy, deadline_monitor_destroy,
     };
     use crate::ffi::{
-        health_monitor_builder_add_deadline_monitor, health_monitor_builder_build, health_monitor_builder_create,
-        health_monitor_builder_destroy, health_monitor_destroy, health_monitor_get_deadline_monitor,
+        health_monitor_builder_add_deadline_monitor, health_monitor_builder_add_logic_monitor,
+        health_monitor_builder_build, health_monitor_builder_create, health_monitor_builder_destroy,
+        health_monitor_destroy, health_monitor_get_deadline_monitor, health_monitor_get_logic_monitor,
         health_monitor_start, FFICode, FFIHandle,
     };
-    use crate::tag::MonitorTag;
+    use crate::logic::ffi::{
+        logic_monitor_builder_add_state, logic_monitor_builder_add_transition, logic_monitor_builder_create,
+        logic_monitor_builder_destroy, logic_monitor_destroy,
+    };
+    use crate::tag::{MonitorTag, StateTag};
     use core::ptr::null_mut;
+
+    fn def_logic_monitor_builder() -> FFIHandle {
+        let mut logic_monitor_builder_handle = null_mut();
+        let state1 = StateTag::from("state1");
+        let state2 = StateTag::from("state2");
+        let _ = logic_monitor_builder_create(
+            &state1 as *const StateTag,
+            &mut logic_monitor_builder_handle as *mut FFIHandle,
+        );
+
+        let _ = logic_monitor_builder_add_state(logic_monitor_builder_handle, &state2 as *const StateTag);
+        let _ = logic_monitor_builder_add_transition(
+            logic_monitor_builder_handle,
+            &state1 as *const StateTag,
+            &state2 as *const StateTag,
+        );
+
+        logic_monitor_builder_handle
+    }
 
     #[test]
     fn health_monitor_builder_create_succeeds() {
@@ -456,6 +545,95 @@ mod tests {
     }
 
     #[test]
+    fn health_monitor_builder_add_logic_monitor_succeeds() {
+        let mut health_monitor_builder_handle: FFIHandle = null_mut();
+        let mut logic_monitor_builder_handle: FFIHandle = null_mut();
+
+        let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
+
+        let logic_monitor_tag = MonitorTag::from("logic_monitor");
+        let initial_state = StateTag::from("initial_state");
+        let _ = logic_monitor_builder_create(
+            &initial_state as *const StateTag,
+            &mut logic_monitor_builder_handle as *mut FFIHandle,
+        );
+
+        let health_monitor_builder_add_logic_monitor_result = health_monitor_builder_add_logic_monitor(
+            health_monitor_builder_handle,
+            &logic_monitor_tag as *const MonitorTag,
+            logic_monitor_builder_handle,
+        );
+        assert_eq!(health_monitor_builder_add_logic_monitor_result, FFICode::Success);
+
+        // Clean-up.
+        health_monitor_builder_destroy(health_monitor_builder_handle);
+    }
+
+    #[test]
+    fn health_monitor_builder_add_logic_monitor_null_hmon_builder() {
+        let mut logic_monitor_builder_handle: FFIHandle = null_mut();
+
+        let logic_monitor_tag = MonitorTag::from("logic_monitor");
+        let initial_state = StateTag::from("initial_state");
+        let _ = logic_monitor_builder_create(
+            &initial_state as *const StateTag,
+            &mut logic_monitor_builder_handle as *mut FFIHandle,
+        );
+
+        let health_monitor_builder_add_logic_monitor_result = health_monitor_builder_add_logic_monitor(
+            null_mut(),
+            &logic_monitor_tag as *const MonitorTag,
+            logic_monitor_builder_handle,
+        );
+        assert_eq!(health_monitor_builder_add_logic_monitor_result, FFICode::NullParameter);
+
+        // Clean-up.
+        logic_monitor_builder_destroy(logic_monitor_builder_handle);
+    }
+
+    #[test]
+    fn health_monitor_builder_add_logic_monitor_null_monitor_tag() {
+        let mut health_monitor_builder_handle: FFIHandle = null_mut();
+        let mut logic_monitor_builder_handle: FFIHandle = null_mut();
+
+        let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
+        let initial_state = StateTag::from("initial_state");
+        let _ = logic_monitor_builder_create(
+            &initial_state as *const StateTag,
+            &mut logic_monitor_builder_handle as *mut FFIHandle,
+        );
+
+        let health_monitor_builder_add_logic_monitor_result = health_monitor_builder_add_logic_monitor(
+            health_monitor_builder_handle,
+            null_mut(),
+            logic_monitor_builder_handle,
+        );
+        assert_eq!(health_monitor_builder_add_logic_monitor_result, FFICode::NullParameter);
+
+        // Clean-up.
+        logic_monitor_builder_destroy(logic_monitor_builder_handle);
+        health_monitor_builder_destroy(health_monitor_builder_handle);
+    }
+
+    #[test]
+    fn health_monitor_builder_add_logic_monitor_null_logic_monitor_builder() {
+        let mut health_monitor_builder_handle: FFIHandle = null_mut();
+
+        let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
+        let logic_monitor_tag = MonitorTag::from("logic_monitor");
+
+        let health_monitor_builder_add_logic_monitor_result = health_monitor_builder_add_logic_monitor(
+            health_monitor_builder_handle,
+            &logic_monitor_tag as *const MonitorTag,
+            null_mut(),
+        );
+        assert_eq!(health_monitor_builder_add_logic_monitor_result, FFICode::NullParameter);
+
+        // Clean-up.
+        health_monitor_builder_destroy(health_monitor_builder_handle);
+    }
+
+    #[test]
     fn health_monitor_get_deadline_monitor_succeeds() {
         let mut health_monitor_builder_handle: FFIHandle = null_mut();
         let mut health_monitor_handle: FFIHandle = null_mut();
@@ -631,6 +809,182 @@ mod tests {
             null_mut(),
         );
         assert_eq!(health_monitor_get_deadline_monitor_result, FFICode::NullParameter);
+
+        // Clean-up.
+        health_monitor_destroy(health_monitor_handle);
+    }
+
+    #[test]
+    fn health_monitor_get_logic_monitor_succeeds() {
+        let mut health_monitor_builder_handle: FFIHandle = null_mut();
+        let mut health_monitor_handle: FFIHandle = null_mut();
+        let mut logic_monitor_handle: FFIHandle = null_mut();
+
+        let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
+        let logic_monitor_tag = MonitorTag::from("logic_monitor");
+        let logic_monitor_builder_handle = def_logic_monitor_builder();
+        let _ = health_monitor_builder_add_logic_monitor(
+            health_monitor_builder_handle,
+            &logic_monitor_tag as *const MonitorTag,
+            logic_monitor_builder_handle,
+        );
+        let _ = health_monitor_builder_build(
+            health_monitor_builder_handle,
+            200,
+            100,
+            &mut health_monitor_handle as *mut FFIHandle,
+        );
+
+        let health_monitor_get_logic_monitor_result = health_monitor_get_logic_monitor(
+            health_monitor_handle,
+            &logic_monitor_tag as *const MonitorTag,
+            &mut logic_monitor_handle as *mut FFIHandle,
+        );
+        assert!(!logic_monitor_handle.is_null());
+        assert_eq!(health_monitor_get_logic_monitor_result, FFICode::Success);
+
+        // Clean-up.
+        logic_monitor_destroy(logic_monitor_handle);
+        health_monitor_destroy(health_monitor_handle);
+    }
+
+    #[test]
+    fn health_monitor_get_logic_monitor_already_taken() {
+        let mut health_monitor_builder_handle: FFIHandle = null_mut();
+        let mut health_monitor_handle: FFIHandle = null_mut();
+        let mut logic_monitor_1_handle: FFIHandle = null_mut();
+        let mut logic_monitor_2_handle: FFIHandle = null_mut();
+
+        let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
+        let logic_monitor_tag = MonitorTag::from("logic_monitor");
+        let logic_monitor_builder_handle = def_logic_monitor_builder();
+        let _ = health_monitor_builder_add_logic_monitor(
+            health_monitor_builder_handle,
+            &logic_monitor_tag as *const MonitorTag,
+            logic_monitor_builder_handle,
+        );
+        let _ = health_monitor_builder_build(
+            health_monitor_builder_handle,
+            200,
+            100,
+            &mut health_monitor_handle as *mut FFIHandle,
+        );
+
+        // First get.
+        let health_monitor_get_logic_monitor_result_1 = health_monitor_get_logic_monitor(
+            health_monitor_handle,
+            &logic_monitor_tag as *const MonitorTag,
+            &mut logic_monitor_1_handle as *mut FFIHandle,
+        );
+        assert!(!logic_monitor_1_handle.is_null());
+        assert_eq!(health_monitor_get_logic_monitor_result_1, FFICode::Success);
+
+        // Second get.
+        let health_monitor_get_logic_monitor_result_2 = health_monitor_get_logic_monitor(
+            health_monitor_handle,
+            &logic_monitor_tag as *const MonitorTag,
+            &mut logic_monitor_2_handle as *mut FFIHandle,
+        );
+        assert!(logic_monitor_2_handle.is_null());
+        assert_eq!(health_monitor_get_logic_monitor_result_2, FFICode::NotFound);
+
+        // Clean-up.
+        logic_monitor_destroy(logic_monitor_1_handle);
+        health_monitor_destroy(health_monitor_handle);
+    }
+
+    #[test]
+    fn health_monitor_get_logic_monitor_null_hmon() {
+        let mut health_monitor_builder_handle: FFIHandle = null_mut();
+        let mut health_monitor_handle: FFIHandle = null_mut();
+        let mut logic_monitor_handle: FFIHandle = null_mut();
+
+        let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
+        let logic_monitor_tag = MonitorTag::from("logic_monitor");
+        let logic_monitor_builder_handle = def_logic_monitor_builder();
+        let _ = health_monitor_builder_add_logic_monitor(
+            health_monitor_builder_handle,
+            &logic_monitor_tag as *const MonitorTag,
+            logic_monitor_builder_handle,
+        );
+        let _ = health_monitor_builder_build(
+            health_monitor_builder_handle,
+            200,
+            100,
+            &mut health_monitor_handle as *mut FFIHandle,
+        );
+
+        let health_monitor_get_logic_monitor_result = health_monitor_get_logic_monitor(
+            null_mut(),
+            &logic_monitor_tag as *const MonitorTag,
+            &mut logic_monitor_handle as *mut FFIHandle,
+        );
+        assert!(logic_monitor_handle.is_null());
+        assert_eq!(health_monitor_get_logic_monitor_result, FFICode::NullParameter);
+
+        // Clean-up.
+        health_monitor_destroy(health_monitor_handle);
+    }
+
+    #[test]
+    fn health_monitor_get_logic_monitor_null_monitor_tag() {
+        let mut health_monitor_builder_handle: FFIHandle = null_mut();
+        let mut health_monitor_handle: FFIHandle = null_mut();
+        let mut logic_monitor_handle: FFIHandle = null_mut();
+
+        let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
+        let logic_monitor_tag = MonitorTag::from("logic_monitor");
+        let logic_monitor_builder_handle = def_logic_monitor_builder();
+        let _ = health_monitor_builder_add_logic_monitor(
+            health_monitor_builder_handle,
+            &logic_monitor_tag as *const MonitorTag,
+            logic_monitor_builder_handle,
+        );
+        let _ = health_monitor_builder_build(
+            health_monitor_builder_handle,
+            200,
+            100,
+            &mut health_monitor_handle as *mut FFIHandle,
+        );
+
+        let health_monitor_get_logic_monitor_result = health_monitor_get_logic_monitor(
+            health_monitor_handle,
+            null_mut(),
+            &mut logic_monitor_handle as *mut FFIHandle,
+        );
+        assert!(logic_monitor_handle.is_null());
+        assert_eq!(health_monitor_get_logic_monitor_result, FFICode::NullParameter);
+
+        // Clean-up.
+        health_monitor_destroy(health_monitor_handle);
+    }
+
+    #[test]
+    fn health_monitor_get_logic_monitor_null_logic_monitor() {
+        let mut health_monitor_builder_handle: FFIHandle = null_mut();
+        let mut health_monitor_handle: FFIHandle = null_mut();
+
+        let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
+        let logic_monitor_tag = MonitorTag::from("logic_monitor");
+        let logic_monitor_builder_handle = def_logic_monitor_builder();
+        let _ = health_monitor_builder_add_logic_monitor(
+            health_monitor_builder_handle,
+            &logic_monitor_tag as *const MonitorTag,
+            logic_monitor_builder_handle,
+        );
+        let _ = health_monitor_builder_build(
+            health_monitor_builder_handle,
+            200,
+            100,
+            &mut health_monitor_handle as *mut FFIHandle,
+        );
+
+        let health_monitor_get_logic_monitor_result = health_monitor_get_logic_monitor(
+            health_monitor_handle,
+            &logic_monitor_tag as *const MonitorTag,
+            null_mut(),
+        );
+        assert_eq!(health_monitor_get_logic_monitor_result, FFICode::NullParameter);
 
         // Clean-up.
         health_monitor_destroy(health_monitor_handle);
