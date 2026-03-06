@@ -116,7 +116,6 @@ python.toolchain(
     is_default = True,
     python_version = PYTHON_VERSION,
 )
-use_repo(python)
 
 pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip", dev_dependency = True)
 pip.parse(
