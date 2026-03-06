@@ -14,7 +14,7 @@
 use crate::common::{
     duration_to_int, time_offset, Monitor, MonitorEvalHandle, MonitorEvaluationError, MonitorEvaluator, TimeRange,
 };
-use crate::heartbeat::heartbeat_state::{HeartbeatState, HeartbeatStateSnapshot};
+use crate::heartbeat::heartbeat_state::HeartbeatState;
 use crate::log::{error, warn};
 use crate::protected_memory::ProtectedMemoryAllocator;
 use crate::tag::MonitorTag;
@@ -211,8 +211,8 @@ impl HeartbeatMonitorInner {
             .expect("HMON starting point is earlier than monitor starting point");
         let monitor_now = offset + duration_to_int::<u64>(hmon_starting_point.elapsed());
 
-        // Load current monitor state.
-        let snapshot = self.heartbeat_state.snapshot();
+        // Load and reset current monitor state.
+        let snapshot = self.heartbeat_state.reset();
 
         // Get and recalculate snapshot timestamps.
         // IMPORTANT: first heartbeat is obtained when HMON time is unknown.
@@ -263,9 +263,6 @@ impl HeartbeatMonitorInner {
         }
         // Heartbeat in allowed state.
         else {
-            let _ = self
-                .heartbeat_state
-                .compare_exchange(snapshot, HeartbeatStateSnapshot::new());
             // Update heartbeat monitor state with a current heartbeat as a beginning of a new cycle.
             Some(heartbeat_timestamp)
         }

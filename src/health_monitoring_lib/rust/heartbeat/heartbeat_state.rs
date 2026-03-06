@@ -80,6 +80,7 @@ impl HeartbeatState {
     }
 
     /// Return a snapshot of the current heartbeat state.
+    #[allow(dead_code)]
     pub fn snapshot(&self) -> HeartbeatStateSnapshot {
         HeartbeatStateSnapshot::from(self.0.load(Ordering::Acquire))
     }
@@ -100,16 +101,11 @@ impl HeartbeatState {
             .map_err(HeartbeatStateSnapshot::from)
     }
 
-    /// Update the heartbeat state using `compare_exchange`.
-    pub fn compare_exchange(
-        &self,
-        current: HeartbeatStateSnapshot,
-        new: HeartbeatStateSnapshot,
-    ) -> Result<HeartbeatStateSnapshot, HeartbeatStateSnapshot> {
+    /// Reset the heartbeat state, returning the previous one.
+    pub fn reset(&self) -> HeartbeatStateSnapshot {
         self.0
-            .compare_exchange(current.as_u64(), new.as_u64(), Ordering::AcqRel, Ordering::Acquire)
-            .map(HeartbeatStateSnapshot::from)
-            .map_err(HeartbeatStateSnapshot::from)
+            .swap(HeartbeatStateSnapshot::new().as_u64(), Ordering::AcqRel)
+            .into()
     }
 }
 
@@ -246,5 +242,18 @@ mod tests {
         let _ = state.update(|_| None);
 
         assert_eq!(state.snapshot().as_u64(), 0xDEADBEEF_DEADBEEF);
+    }
+
+    #[test]
+    fn state_reset() {
+        let state = HeartbeatState::new();
+        let snapshot_initial = HeartbeatStateSnapshot::from(0xDEADBEEF_DEADBEEF);
+        let _ = state.update(|_| Some(snapshot_initial));
+
+        let snapshot_from_reset = state.reset();
+        let snapshot_after_reset = state.snapshot();
+
+        assert_eq!(snapshot_initial.as_u64(), snapshot_from_reset.as_u64());
+        assert_eq!(snapshot_after_reset.as_u64(), 0);
     }
 }
