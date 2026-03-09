@@ -11,10 +11,9 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
-#[cfg(not(loom))]
-use core::sync::atomic::{AtomicU64, Ordering};
-#[cfg(loom)]
-use loom::sync::atomic::{AtomicU64, Ordering};
+use crate::common::{AtomicU64, Ordering};
+use crate::logic::logic_monitor::OK_STATE;
+use crate::logic::LogicEvaluationError;
 
 /// Snapshot of a logic state.
 /// Layout (u64) = | current state index: 56 bits | monitor status: u8 |
@@ -53,12 +52,17 @@ impl LogicStateSnapshot {
     /// Monitor status.
     /// - zero if healthy.
     /// - `LogicEvaluationError` if not.
-    pub fn monitor_status(&self) -> u8 {
-        (self.0 & STATUS_MASK) as u8
+    pub fn monitor_status(&self) -> Result<(), LogicEvaluationError> {
+        let value = (self.0 & STATUS_MASK) as u8;
+        if value == OK_STATE {
+            Ok(())
+        } else {
+            Err(value.try_into().map_err(|_| LogicEvaluationError::UnmappedError)?)
+        }
     }
 
     /// Set monitor status.
-    pub fn set_monitor_status(&mut self, value: u8) {
+    pub fn set_monitor_status(&mut self, value: LogicEvaluationError) {
         self.0 = (value as u64) | (self.0 & !STATUS_MASK);
     }
 }
@@ -85,26 +89,16 @@ impl LogicState {
         LogicStateSnapshot::from(self.0.load(Ordering::Acquire))
     }
 
-    /// Update the logic state using the provided closure.
-    /// Closure receives the current state and should return an [`Option`] containing a new state.
-    /// If [`None`] is returned then the state was not updated.
-    pub fn update<F: FnMut(LogicStateSnapshot) -> Option<LogicStateSnapshot>>(
-        &self,
-        mut f: F,
-    ) -> Result<LogicStateSnapshot, LogicStateSnapshot> {
-        self.0
-            .fetch_update(Ordering::AcqRel, Ordering::Acquire, |prev| {
-                let snapshot = LogicStateSnapshot::from(prev);
-                f(snapshot).map(|new_snapshot: LogicStateSnapshot| new_snapshot.as_u64())
-            })
-            .map(LogicStateSnapshot::from)
-            .map_err(LogicStateSnapshot::from)
+    /// Store a new [`LogicStateSnapshot`] and return the previous one.
+    pub fn swap(&self, new: LogicStateSnapshot) -> LogicStateSnapshot {
+        self.0.swap(new.as_u64(), Ordering::AcqRel).into()
     }
 }
 
 #[cfg(all(test, not(loom)))]
 mod tests {
     use crate::logic::logic_state::{LogicState, LogicStateSnapshot};
+    use crate::logic::LogicEvaluationError;
     use core::sync::atomic::Ordering;
 
     #[test]
@@ -114,7 +108,7 @@ mod tests {
 
         assert_eq!(state.as_u64(), (initial_state_index as u64) << u8::BITS);
         assert_eq!(state.current_state_index(), initial_state_index);
-        assert_eq!(state.monitor_status(), 0);
+        assert!(state.monitor_status().is_ok());
     }
 
     #[test]
@@ -123,16 +117,18 @@ mod tests {
 
         assert_eq!(state.as_u64(), 0x00);
         assert_eq!(state.current_state_index(), 0);
-        assert_eq!(state.monitor_status(), 0);
+        assert!(state.monitor_status().is_ok());
     }
 
     #[test]
     fn snapshot_from_u64_valid() {
-        let state = LogicStateSnapshot::from(0xDEADBEEF_DEADBEEF);
+        let state = LogicStateSnapshot::from(0xDEADBEEF_DEADBE01);
 
-        assert_eq!(state.as_u64(), 0xDEADBEEF_DEADBEEF);
-        assert_eq!(state.current_state_index(), 0xDEADBEEF_DEADBEEF >> u8::BITS);
-        assert_eq!(state.monitor_status(), 0xEF);
+        assert_eq!(state.as_u64(), 0xDEADBEEF_DEADBE01);
+        assert_eq!(state.current_state_index(), 0xDEADBEEF_DEADBE01 >> u8::BITS);
+        assert!(state
+            .monitor_status()
+            .is_err_and(|e| e == LogicEvaluationError::InvalidState));
     }
 
     #[test]
@@ -141,18 +137,20 @@ mod tests {
 
         assert_eq!(state.as_u64(), u64::MAX);
         assert_eq!(state.current_state_index(), (u64::MAX >> u8::BITS) as usize);
-        assert_eq!(state.monitor_status(), u8::MAX);
+        assert!(state
+            .monitor_status()
+            .is_err_and(|e| e == LogicEvaluationError::UnmappedError));
     }
 
     #[test]
     fn snapshot_set_current_state_index_valid() {
-        let mut state = LogicStateSnapshot::from(0xDEADBEEF_DEADBEEF);
+        let mut state = LogicStateSnapshot::from(0xDEADBEEF_DEADBE00);
         state.set_current_state_index(0x00CAFEBA_DCAFEBAD);
 
         assert_eq!(state.current_state_index(), 0x00CAFEBA_DCAFEBAD);
 
         // Check other parameters unchanged.
-        assert_eq!(state.monitor_status(), 0xEF);
+        assert!(state.monitor_status().is_ok());
     }
 
     #[test]
@@ -165,9 +163,11 @@ mod tests {
     #[test]
     fn snapshot_set_monitor_status_valid() {
         let mut state = LogicStateSnapshot::from(0xDEADBEEF_DEADBEEF);
-        state.set_monitor_status(0xFA);
+        state.set_monitor_status(LogicEvaluationError::InvalidTransition);
 
-        assert_eq!(state.monitor_status(), 0xFA);
+        assert!(state
+            .monitor_status()
+            .is_err_and(|e| e == LogicEvaluationError::InvalidTransition));
 
         // Check other parameters unchanged.
         assert_eq!(state.current_state_index(), 0xDEADBEEF_DEADBEEF >> u8::BITS);
@@ -191,35 +191,19 @@ mod tests {
     }
 
     #[test]
-    fn state_update_some() {
+    fn state_swap() {
         let state = LogicState::new(0);
-        let _ = state.update(|prev_snapshot| {
-            // Make sure state is as expected.
-            assert_eq!(prev_snapshot.as_u64(), 0x00);
-            assert_eq!(prev_snapshot.current_state_index(), 0);
-            assert_eq!(prev_snapshot.monitor_status(), 0);
+        let prev_snapshot = state.swap(LogicStateSnapshot::from(0xDEADBEEF_DEADBE02));
 
-            Some(LogicStateSnapshot::from(0xDEADBEEF_DEADBEEF))
-        });
+        assert_eq!(prev_snapshot.as_u64(), 0x00);
+        assert_eq!(prev_snapshot.current_state_index(), 0);
+        assert!(prev_snapshot.monitor_status().is_ok());
 
-        let _ = state.update(|prev_snapshot| {
-            // Make sure state is as expected.
-            assert_eq!(prev_snapshot.as_u64(), 0xDEADBEEF_DEADBEEF);
-            assert_eq!(prev_snapshot.current_state_index(), 0xDEADBEEF_DEADBEEF >> u8::BITS);
-            assert_eq!(prev_snapshot.monitor_status(), 0xEF);
-
-            Some(LogicStateSnapshot::from(0))
-        });
-
-        assert_eq!(state.snapshot().as_u64(), 0);
-    }
-
-    #[test]
-    fn state_update_none() {
-        let state = LogicState::new(4321);
-        let _ = state.update(|_| Some(LogicStateSnapshot::from(0xDEADBEEF_DEADBEEF)));
-        let _ = state.update(|_| None);
-
-        assert_eq!(state.snapshot().as_u64(), 0xDEADBEEF_DEADBEEF);
+        let curr_snapshot = state.snapshot();
+        assert_eq!(curr_snapshot.as_u64(), 0xDEADBEEF_DEADBE02);
+        assert_eq!(curr_snapshot.current_state_index(), 0xDEADBEEF_DEADBE02 >> u8::BITS);
+        assert!(curr_snapshot
+            .monitor_status()
+            .is_err_and(|e| e == LogicEvaluationError::InvalidTransition));
     }
 }

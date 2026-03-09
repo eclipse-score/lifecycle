@@ -11,19 +11,20 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
-use crate::common::{Monitor, MonitorEvalHandle, MonitorEvaluationError, MonitorEvaluator};
+use crate::common::{Monitor, MonitorEvalHandle, MonitorEvaluationError, MonitorEvaluator, PhantomUnsync};
 use crate::log::{error, warn, ScoreDebug};
 use crate::logic::logic_state::LogicState;
 use crate::protected_memory::ProtectedMemoryAllocator;
 use crate::tag::{MonitorTag, StateTag};
 use crate::HealthMonitorError;
 use core::hash::Hash;
+use core::marker::PhantomData;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Instant;
 
 /// Internal OK state representation.
-const OK_STATE: u8 = 0;
+pub(super) const OK_STATE: u8 = 0;
 
 /// Logic evaluation errors.
 #[repr(u8)]
@@ -33,6 +34,8 @@ pub enum LogicEvaluationError {
     InvalidState = OK_STATE + 1,
     /// Transition is invalid.
     InvalidTransition,
+    /// Unknown error.
+    UnmappedError,
 }
 
 impl From<LogicEvaluationError> for u8 {
@@ -41,12 +44,18 @@ impl From<LogicEvaluationError> for u8 {
     }
 }
 
-impl From<u8> for LogicEvaluationError {
-    fn from(value: u8) -> Self {
+impl TryFrom<u8> for LogicEvaluationError {
+    type Error = ();
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        const INVALID_STATE: u8 = LogicEvaluationError::InvalidState as u8;
+        const INVALID_TRANSITION: u8 = LogicEvaluationError::InvalidTransition as u8;
+        const UNMAPPED_ERROR: u8 = LogicEvaluationError::UnmappedError as u8;
         match value {
-            value if value == LogicEvaluationError::InvalidState as u8 => LogicEvaluationError::InvalidState,
-            value if value == LogicEvaluationError::InvalidTransition as u8 => LogicEvaluationError::InvalidTransition,
-            _ => panic!("Invalid underlying value of logic evaluation error."),
+            INVALID_STATE => Ok(LogicEvaluationError::InvalidState),
+            INVALID_TRANSITION => Ok(LogicEvaluationError::InvalidTransition),
+            UNMAPPED_ERROR => Ok(LogicEvaluationError::UnmappedError),
+            _ => Err(()),
         }
     }
 }
@@ -157,12 +166,16 @@ impl LogicMonitorBuilder {
 /// Logic monitor.
 pub struct LogicMonitor {
     inner: Arc<LogicMonitorInner>,
+    _unsync: PhantomUnsync,
 }
 
 impl LogicMonitor {
     /// Create a new [`LogicMonitor`] instance.
     fn new(inner: Arc<LogicMonitorInner>) -> Self {
-        Self { inner }
+        Self {
+            inner,
+            _unsync: PhantomData,
+        }
     }
 
     /// Perform transition to a new state.
@@ -198,8 +211,7 @@ struct LogicMonitorInner {
 impl MonitorEvaluator for LogicMonitorInner {
     fn evaluate(&self, _hmon_starting_point: Instant, on_error: &mut dyn FnMut(&MonitorTag, MonitorEvaluationError)) {
         let snapshot = self.logic_state.snapshot();
-        if snapshot.monitor_status() != OK_STATE {
-            let error = LogicEvaluationError::from(snapshot.monitor_status());
+        if let Err(error) = snapshot.monitor_status() {
             warn!("Logic monitor error observed: {:?}", error);
             on_error(&self.monitor_tag, error.into());
         }
@@ -235,10 +247,10 @@ impl LogicMonitorInner {
 
     fn transition(&self, target_state: StateTag) -> Result<StateTag, LogicEvaluationError> {
         // Load current monitor state.
-        let snapshot = self.logic_state.snapshot();
+        let mut snapshot = self.logic_state.snapshot();
 
         // Disallow operation in erroneous state.
-        if snapshot.monitor_status() != OK_STATE {
+        if snapshot.monitor_status().is_err() {
             warn!("Current logic monitor state cannot be determined");
             return Err(LogicEvaluationError::InvalidState);
         }
@@ -254,20 +266,17 @@ impl LogicMonitorInner {
                 "Requested state transition is invalid: {:?} -> {:?}",
                 current_state_node.tag, target_state
             );
+
             let error = LogicEvaluationError::InvalidTransition;
-            let _ = self.logic_state.update(|mut current_state| {
-                current_state.set_monitor_status(error.into());
-                Some(current_state)
-            });
+            snapshot.set_monitor_status(error);
+            let _ = self.logic_state.swap(snapshot);
             return Err(error);
         }
 
         // Find index of target state, then change current state.
         let target_state_index = self.find_index_by_tag(target_state)?;
-        let _ = self.logic_state.update(|mut current_state| {
-            current_state.set_current_state_index(target_state_index);
-            Some(current_state)
-        });
+        snapshot.set_current_state_index(target_state_index);
+        let _ = self.logic_state.swap(snapshot);
 
         Ok(target_state)
     }
@@ -277,7 +286,7 @@ impl LogicMonitorInner {
         let snapshot = self.logic_state.snapshot();
 
         // Disallow operation in erroneous state.
-        if snapshot.monitor_status() != OK_STATE {
+        if snapshot.monitor_status().is_err() {
             warn!("Current logic monitor state cannot be determined");
             return Err(LogicEvaluationError::InvalidState);
         }

@@ -11,12 +11,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
+use crate::common::{AtomicU64, Ordering};
 use core::cmp::min;
-
-#[cfg(not(loom))]
-use core::sync::atomic::{AtomicU64, Ordering};
-#[cfg(loom)]
-use loom::sync::atomic::{AtomicU64, Ordering};
 
 /// Snapshot of a heartbeat state.
 /// Layout (u64) = | heartbeat timestamp: 62 bits | heartbeat counter: 2 bits |
