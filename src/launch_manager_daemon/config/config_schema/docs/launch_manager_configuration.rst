@@ -37,9 +37,9 @@ Run Targets: Grouping and Components Activation
 
 A **Run Target** defines a specific collection of components. Essentially, it is a named group that lists the components intended to be active together. When a particular **Run Target** is activated, the **Launch Manager** performs the following sequence of operations to manage the components associated with it:
 
-*   **Deactivation of Unassigned Components:** All components currently in the **Ready State** that are **not** part of the **Run Target** being activated will be deactivated.
-*   **Activation of Assigned Components:** All components that are not currently in the **Ready State** but **are** assigned to the **Run Target** being activated will be started and brought to their **Ready State**.
-*   **Maintenance of Active Assigned Components:** Any components already in the **Ready State** and also assigned to the **Run Target** being activated will remain active and unchanged.
+* **Deactivation of Unassigned Components:** All components currently in the **Ready State** that are **not** part of the **Run Target** being activated will be deactivated.
+* **Activation of Assigned Components:** All components that are not currently in the **Ready State** but **are** assigned to the **Run Target** being activated will be started and brought to their **Ready State**.
+* **Maintenance of Active Assigned Components:** Any components already in the **Ready State** and also assigned to the **Run Target** being activated will remain active and unchanged.
 
 Ready State: Confirmation of Operational Readiness
 ==================================================
@@ -55,8 +55,8 @@ When the Launch Manager Starts a Component
 
 With the definitions of **Components**, **Run Targets**, and **Ready State** established, let us clarify the conditions under which the **Launch Manager** will initiate a component's startup sequence. Components will be started for two primary reasons:
 
-*   A component is directly assigned to a **Run Target** that is currently being activated.
-*   Another component, which is assigned to a **Run Target** being activated, explicitly depends on that component.
+* A component is directly assigned to a **Run Target** that is currently being activated.
+* Another component, which is assigned to a **Run Target** being activated, explicitly depends on that component.
 
 Understanding Dependencies: How Components and Run Targets Relate
 =================================================================
@@ -74,10 +74,10 @@ Rules for Configuring Dependencies
 
 When configuring dependencies within the **Launch Manager**, the following rules must be observed to ensure correct system behavior:
 
-*   A **Component** can depend on another **Component**.
-*   A **Run Target** can depend on a **Component**.
-*   A **Run Target** can depend on another **Run Target**.
-*   A **Component** cannot depend on a **Run Target**.
+* A **Component** can depend on another **Component**.
+* A **Run Target** can depend on a **Component**.
+* A **Run Target** can depend on another **Run Target**.
+* A **Component** cannot depend on a **Run Target**.
 
 Having discussed these basic concepts and the fundamental operation of the **Launch Manager**, we are now ready to explore the detailed configuration structure.
 
@@ -93,8 +93,8 @@ All time values in the **Launch Manager** configuration are specified in **secon
 
 For example:
 
-*   ``0.5`` represents a time interval of 500 milliseconds.
-*   ``1.5`` represents a time interval of 1500 milliseconds.
+* ``0.5`` represents a time interval of 500 milliseconds.
+* ``1.5`` represents a time interval of 1500 milliseconds.
 
 Using a consistent unit prevents ambiguity and makes the configuration values easier to compare and understand.
 
@@ -105,8 +105,8 @@ All configuration values representing memory sizes are specified in **bytes**.
 
 For example:
 
-*   ``1000`` represents one kilobyte (kB), following the **SI** standard.
-*   ``1024`` represents one kibibyte (KiB), following the **IEC** standard.
+* ``1000`` represents one kilobyte (kB), following the **SI** standard.
+* ``1024`` represents one kibibyte (KiB), following the **IEC** standard.
 
 Storing memory values in bytes ensures that all size-related settings remain precise and unambiguous.
 
@@ -130,9 +130,9 @@ alive_supervision (object)
 
 **Properties:**
 
-*   **evaluation_cycle** (number, optional)
-    *   **Description:** Specifies the length, in seconds (e.g., ``0.5`` for 500 milliseconds), of the time window used by the **Launch Manager** to assess incoming alive supervision reports from components.
-    *   **Constraint:** Must be greater than 0.
+* **evaluation_cycle** (number, optional)
+    * **Description:** Specifies the length, in seconds (e.g., ``0.5`` for 500 milliseconds), of the time window used by the **Launch Manager** to assess incoming alive supervision reports from components.
+    * **Constraint:** Must be greater than 0.
 
 watchdog (object)
 -----------------
@@ -142,15 +142,15 @@ watchdog (object)
 
 **Properties:**
 
-*   **device_file_path** (string, optional)
-    *   **Description:** Specifies the absolute path to the external watchdog device file (e.g., ``/dev/watchdog``).
-*   **max_timeout** (number, optional)
-    *   **Description:** Specifies the maximum timeout value, in seconds (e.g., ``0.5`` for 500 milliseconds), that the **Launch Manager** configures on the external watchdog during startup. The external watchdog uses this timeout as the deadline for receiving periodic alive reports from the **Launch Manager**.
-    *   **Constraint:** Must be 0 or greater.
-*   **deactivate_on_shutdown** (boolean, optional)
-    *   **Description:** Specifies whether the **Launch Manager** disables the external watchdog during shutdown. When set to ``true``, the watchdog is deactivated; when ``false``, it remains active, potentially triggering a reset if the shutdown is prolonged.
-*   **require_magic_close** (boolean, optional)
-    *   **Description:** Specifies whether the **Launch Manager** performs a defined shutdown sequence to inform the external watchdog that the shutdown is intentional and to prevent a watchdog-initiated reset. When ``true``, the magic close sequence is performed; when ``false``, it is not, which might lead to an unintentional reset.
+* **device_file_path** (string, optional)
+    * **Description:** Specifies the absolute path to the external watchdog device file (e.g., ``/dev/watchdog``).
+* **max_timeout** (number, optional)
+    * **Description:** Specifies the maximum timeout value, in seconds (e.g., ``0.5`` for 500 milliseconds), that the **Launch Manager** configures on the external watchdog during startup. The external watchdog uses this timeout as the deadline for receiving periodic alive reports from the **Launch Manager**.
+    * **Constraint:** Must be 0 or greater.
+* **deactivate_on_shutdown** (boolean, optional)
+    * **Description:** Specifies whether the **Launch Manager** disables the external watchdog during shutdown. When set to ``true``, the watchdog is deactivated; when ``false``, it remains active, potentially triggering a reset if the shutdown is prolonged.
+* **require_magic_close** (boolean, optional)
+    * **Description:** Specifies whether the **Launch Manager** performs a defined shutdown sequence to inform the external watchdog that the shutdown is intentional and to prevent a watchdog-initiated reset. When ``true``, the magic close sequence is performed; when ``false``, it is not, which might lead to an unintentional reset.
 
 recovery_action (object)
 ------------------------
@@ -160,20 +160,20 @@ recovery_action (object)
 
 **Properties:**
 
-*   **restart** (object, optional)
-    *   **Description:** Defines a recovery action that restarts the POSIX process associated with this component.
-    *   **Properties:**
-        *   **number_of_attempts** (integer, optional)
-            *   **Description:** Specifies the maximum number of restart attempts before the **Launch Manager** concludes that recovery cannot succeed for the component.
-            *   **Constraint:** Must be 0 or greater.
-        *   **delay_before_restart** (number, optional)
-            *   **Description:** Specifies the delay duration, in seconds (e.g., ``0.25`` for 250 milliseconds), that the **Launch Manager** waits before initiating a restart attempt.
-            *   **Constraint:** Must be 0 or greater.
-*   **switch_run_target** (object, optional)
-    *   **Description:** Defines a recovery action that switches to a different **Run Target**. This can be a new **Run Target** or the current one to retry its activation.
-    *   **Properties:**
-        *   **run_target** (string, optional)
-            *   **Description:** Specifies the name of the **Run Target** that the **Launch Manager** should switch to upon failure.
+* **restart** (object, optional)
+    * **Description:** Defines a recovery action that restarts the POSIX process associated with this component.
+    * **Properties:**
+        * **number_of_attempts** (integer, optional)
+            * **Description:** Specifies the maximum number of restart attempts before the **Launch Manager** concludes that recovery cannot succeed for the component.
+            * **Constraint:** Must be 0 or greater.
+        * **delay_before_restart** (number, optional)
+            * **Description:** Specifies the delay duration, in seconds (e.g., ``0.25`` for 250 milliseconds), that the **Launch Manager** waits before initiating a restart attempt.
+            * **Constraint:** Must be 0 or greater.
+* **switch_run_target** (object, optional)
+    * **Description:** Defines a recovery action that switches to a different **Run Target**. This can be a new **Run Target** or the current one to retry its activation.
+    * **Properties:**
+        * **run_target** (string, optional)
+            * **Description:** Specifies the name of the **Run Target** that the **Launch Manager** should switch to upon failure.
 
 run_target (object)
 -------------------
@@ -183,17 +183,17 @@ run_target (object)
 
 **Properties:**
 
-*   **description** (string, optional)
-    *   **Description:** Specifies a user-defined description of the **Run Target's** purpose or operational context.
-*   **depends_on** (array of strings, optional)
-    *   **Description:** Specifies the names of components and other **Run Targets** that must be successfully activated when this **Run Target** is activated. This defines the dependencies for a given operational mode.
-    *   **Items:** Each item is a string specifying the name of a component or **Run Target** on which this **Run Target** depends.
-*   **transition_timeout** (number, optional)
-    *   **Description:** Specifies the time limit, in seconds (e.g., ``1.5`` for 1500 milliseconds), for the **Run Target** transition to complete. If this limit is exceeded, the transition is considered failed.
-    *   **Constraint:** Must be greater than 0.
-*   **recovery_action** (object, optional)
-    *   **Description:** Specifies the recovery action to execute when a component assigned to this **Run Target** fails. This action is limited to ``switch_run_target`` operations.
-    *   **Reference:** This property refers to the `recovery_action` reusable type defined in this schema, specifically enforcing the ``switch_run_target`` option.
+* **description** (string, optional)
+    * **Description:** Specifies a user-defined description of the **Run Target's** purpose or operational context.
+* **depends_on** (array of strings, optional)
+    * **Description:** Specifies the names of components and other **Run Targets** that must be successfully activated when this **Run Target** is activated. This defines the dependencies for a given operational mode.
+    * **Items:** Each item is a string specifying the name of a component or **Run Target** on which this **Run Target** depends.
+* **transition_timeout** (number, optional)
+    * **Description:** Specifies the time limit, in seconds (e.g., ``1.5`` for 1500 milliseconds), for the **Run Target** transition to complete. If this limit is exceeded, the transition is considered failed.
+    * **Constraint:** Must be greater than 0.
+* **recovery_action** (object, optional)
+    * **Description:** Specifies the recovery action to execute when a component assigned to this **Run Target** fails. This action is limited to ``switch_run_target`` operations.
+    * **Reference:** This property refers to the `recovery_action` reusable type defined in this schema, specifically enforcing the ``switch_run_target`` option.
 
 component_properties (object)
 -----------------------------
@@ -203,50 +203,50 @@ component_properties (object)
 
 **Properties:**
 
-*   **binary_name** (string, optional)
-    *   **Description:** Specifies the relative path of the executable file within the directory defined by ``deployment_config.bin_dir``. The final executable path will be resolved as ``{deployment_config.bin_dir}/{binary_name}``. Example values include simple filenames (e.g., ``test_app1``) or paths to executables within subdirectories (e.g., ``bin/test_app1``).
-*   **application_profile** (object, optional)
-    *   **Description:** Defines the application profile that specifies the runtime behavior and capabilities of this component, particularly concerning its interaction with the **Launch Manager**.
-    *   **Properties:**
-        *   **application_type** (string, optional)
-            *   **Description:** Specifies the level of integration between the component and the **Launch Manager**.
-            *   **Allowed Values:**
-                *   ``"Native"``: Indicates no integration with the **Launch Manager**.
-                *   ``"Reporting"``: Implies the component uses **Launch Manager** lifecycle APIs for basic reporting.
-                *   ``"Reporting_And_Supervised"``: Implies the component uses lifecycle APIs and sends alive notifications to the **Launch Manager**.
-                *   ``"State_Manager"``: Implies the component uses lifecycle APIs, sends alive notifications, and has permission to change the active **Run Target**.
-        *   **is_self_terminating** (boolean, optional)
-            *   **Description:** Indicates whether the component is designed to terminate automatically once its planned tasks are completed (``true``), or if it is expected to remain running until explicitly requested to terminate by the **Launch Manager** (``false``).
-        *   **alive_supervision** (object, optional)
-            *   **Description:** Defines the configuration parameters used for monitoring the "aliveness" of the component.
-            *   **Reference:** This property refers to the ``alive_supervision`` reusable type defined in this schema.
-            *   **Properties:** (These properties are also inherited from ``alive_supervision`` but are listed here for quick reference and clarity on the local context.)
-                *   **reporting_cycle** (number, optional)
-                    *   **Description:** Specifies the duration, in seconds (e.g., ``0.5`` for 500 milliseconds), of the time interval used to verify that the component sends alive notifications within the expected time frame.
-                    *   **Constraint:** Must be greater than 0.
-                *   **failed_cycles_tolerance** (integer, optional)
-                    *   **Description:** Specifies the maximum number of consecutive reporting cycle failures. Once the number of failed cycles exceeds this maximum, the **Launch Manager** will trigger the configured recovery action.
-                    *   **Constraint:** Must be 0 or greater.
-                *   **min_indications** (integer, optional)
-                    *   **Description:** Specifies the minimum number of checkpoints that must be reported within each configured ``reporting_cycle``.
-                    *   **Constraint:** Must be 0 or greater.
-                *   **max_indications** (integer, optional)
-                    *   **Description:** Specifies the maximum number of checkpoints that may be reported within each configured ``reporting_cycle``.
-                    *   **Constraint:** Must be 0 or greater.
-*   **depends_on** (array of strings, optional)
-    *   **Description:** Specifies the names of components that this component depends on. Each specified dependency must be initialized and reach its **Ready State** before the **Launch Manager** will start this component. This ensures proper startup order.
-    *   **Items:** Each item is a string specifying the name of a component on which this component depends.
-*   **process_arguments** (array of strings, optional)
-    *   **Description:** Specifies an ordered list of command-line arguments to be passed to the component at startup.
-    *   **Items:** Each item is a string specifying a single command-line argument token as a UTF-8 string; the order of arguments is preserved.
-*   **ready_condition** (object, optional)
-        *   **Description:** Defines the set of conditions that determine when the component completes its initializing state and enters the **Ready State**.
-    *   **Properties:**
-        *   **process_state** (string, optional)
-            *   **Description:** Specifies the required state of the component's POSIX process for it to be considered ready.
-            *   **Allowed Values:**
-                *   ``"Running"``: The process has started and reached its running state.
-                *   ``"Terminated"``: The process has started, reached its running state, and then terminated successfully.
+* **binary_name** (string, optional)
+    * **Description:** Specifies the relative path of the executable file within the directory defined by ``deployment_config.bin_dir``. The final executable path will be resolved as ``{deployment_config.bin_dir}/{binary_name}``. Example values include simple filenames (e.g., ``test_app1``) or paths to executables within subdirectories (e.g., ``bin/test_app1``).
+* **application_profile** (object, optional)
+    * **Description:** Defines the application profile that specifies the runtime behavior and capabilities of this component, particularly concerning its interaction with the **Launch Manager**.
+    * **Properties:**
+        * **application_type** (string, optional)
+            * **Description:** Specifies the level of integration between the component and the **Launch Manager**.
+            * **Allowed Values:**
+                * ``"Native"``: Indicates no integration with the **Launch Manager**.
+                * ``"Reporting"``: Implies the component uses **Launch Manager** lifecycle APIs for basic reporting.
+                * ``"Reporting_And_Supervised"``: Implies the component uses lifecycle APIs and sends alive notifications to the **Launch Manager**.
+                * ``"State_Manager"``: Implies the component uses lifecycle APIs, sends alive notifications, and has permission to change the active **Run Target**.
+        * **is_self_terminating** (boolean, optional)
+            * **Description:** Indicates whether the component is designed to terminate automatically once its planned tasks are completed (``true``), or if it is expected to remain running until explicitly requested to terminate by the **Launch Manager** (``false``).
+        * **alive_supervision** (object, optional)
+            * **Description:** Defines the configuration parameters used for monitoring the "aliveness" of the component.
+            * **Reference:** This property refers to the ``alive_supervision`` reusable type defined in this schema.
+            * **Properties:** (These properties are also inherited from ``alive_supervision`` but are listed here for quick reference and clarity on the local context.)
+                * **reporting_cycle** (number, optional)
+                    * **Description:** Specifies the duration, in seconds (e.g., ``0.5`` for 500 milliseconds), of the time interval used to verify that the component sends alive notifications within the expected time frame.
+                    * **Constraint:** Must be greater than 0.
+                * **failed_cycles_tolerance** (integer, optional)
+                    * **Description:** Specifies the maximum number of consecutive reporting cycle failures. Once the number of failed cycles exceeds this maximum, the **Launch Manager** will trigger the configured recovery action.
+                    * **Constraint:** Must be 0 or greater.
+                * **min_indications** (integer, optional)
+                    * **Description:** Specifies the minimum number of checkpoints that must be reported within each configured ``reporting_cycle``.
+                    * **Constraint:** Must be 0 or greater.
+                * **max_indications** (integer, optional)
+                    * **Description:** Specifies the maximum number of checkpoints that may be reported within each configured ``reporting_cycle``.
+                    * **Constraint:** Must be 0 or greater.
+* **depends_on** (array of strings, optional)
+    * **Description:** Specifies the names of components that this component depends on. Each specified dependency must be initialized and reach its **Ready State** before the **Launch Manager** will start this component. This ensures proper startup order.
+    * **Items:** Each item is a string specifying the name of a component on which this component depends.
+* **process_arguments** (array of strings, optional)
+    * **Description:** Specifies an ordered list of command-line arguments to be passed to the component at startup.
+    * **Items:** Each item is a string specifying a single command-line argument token as a UTF-8 string; the order of arguments is preserved.
+* **ready_condition** (object, optional)
+        * **Description:** Defines the set of conditions that determine when the component completes its initializing state and enters the **Ready State**.
+    * **Properties:**
+        * **process_state** (string, optional)
+            * **Description:** Specifies the required state of the component's POSIX process for it to be considered ready.
+            * **Allowed Values:**
+                * ``"Running"``: The process has started and reached its running state.
+                * ``"Terminated"``: The process has started, reached its running state, and then terminated successfully.
 
 deployment_config (object)
 --------------------------
@@ -256,50 +256,50 @@ deployment_config (object)
 
 **Properties:**
 
-*   **ready_timeout** (number, optional)
-    *   **Description:** Specifies the maximum time, in seconds (e.g., ``0.25`` for 250 milliseconds), allowed for the component to reach its **Ready State**. The timeout is measured from when the component's process is created until the ready conditions specified in ``component_properties.ready_condition`` are met.
-    *   **Constraint:** Must be greater than 0.
-*   **shutdown_timeout** (number, optional)
-    *   **Description:** Specifies the maximum time, in seconds (e.g., ``0.75`` for 750 milliseconds), allowed for the component to terminate after it receives a SIGTERM signal from the **Launch Manager**. The timeout is measured from when the **Launch Manager** sends the SIGTERM signal until the operating system notifies the **Launch Manager** that the child process has terminated.
-    *   **Constraint:** Must be greater than 0.
-*   **environmental_variables** (object, optional)
-    *   **Description:** Defines the set of environment variables passed to the component at startup.
-    *   **Additional Properties:** Each key represents an environment variable name, and its value (a string) specifies the environment variable's value. An empty string is allowed and represents an intentionally empty environment variable.
-*   **bin_dir** (string, optional)
-    *   **Description:** Specifies the absolute filesystem path to the directory where the component's executable is installed.
-*   **working_dir** (string, optional)
-    *   **Description:** Specifies the directory to be used as the working directory for the component during execution.
-*   **ready_recovery_action** (object, optional)
-    *   **Description:** Specifies the recovery action to execute when the component fails to reach its **Ready State** within the configured ``ready_timeout``. This action is limited to ``restart`` operations.
-    *   **Reference:** This property refers to the ``recovery_action`` reusable type defined in this schema, specifically enforcing the ``restart`` option.
-*   **recovery_action** (object, optional)
-    *   **Description:** Specifies the recovery action to execute when the component malfunctions after successfully reaching its **Ready State**. This action is limited to ``switch_run_target`` operations.
-    *   **Reference:** This property refers to the ``recovery_action`` reusable type defined in this schema, specifically enforcing the ``switch_run_target`` option.
-*   **sandbox** (object, optional)
-    *   **Description:** Defines the sandbox configuration parameters that isolate and constrain the component's runtime execution, enhancing system security and stability.
-    *   **Properties:**
-        *   **uid** (integer, optional)
-            *   **Description:** Specifies the POSIX user ID (UID) under which this component executes.
-            *   **Constraint:** Must be 0 or greater.
-        *   **gid** (integer, optional)
-            *   **Description:** Specifies the primary POSIX group ID (GID) under which this component executes.
-            *   **Constraint:** Must be 0 or greater.
-        *   **supplementary_group_ids** (array of integers, optional)
-            *   **Description:** Specifies the list of supplementary POSIX group IDs (GIDs) assigned to this component. These provide additional access permissions.
-            *   **Items:** Each item is an integer specifying a single supplementary POSIX group ID (GID).
-            *   **Constraint:** Each item must be 0 or greater.
-        *   **security_policy** (string, optional)
-            *   **Description:** Specifies the security policy or confinement profile name (such as an SELinux or AppArmor profile) assigned to the component, dictating its operating privileges.
-        *   **scheduling_policy** (string, optional)
-            *   **Description:** Specifies the scheduling policy applied to the component's initial thread. Supported values correspond to OS-defined policies (e.g., ``SCHED_FIFO``, ``SCHED_RR``, ``SCHED_OTHER``). Custom string values may also be supported depending on the operating system.
-        *   **scheduling_priority** (integer, optional)
-            *   **Description:** Specifies the scheduling priority applied to the component's initial thread, influencing its allocation of CPU time.
-        *   **max_memory_usage** (integer, optional)
-            *   **Description:** Specifies the maximum amount of memory, in bytes, that the component is permitted to use during runtime.
-            *   **Constraint:** Must be greater than 0.
-        *   **max_cpu_usage** (integer, optional)
-            *   **Description:** Specifies the maximum CPU usage limit for the component, expressed as a percentage (%) of total CPU capacity.
-            *   **Constraint:** Must be greater than 0.
+* **ready_timeout** (number, optional)
+    * **Description:** Specifies the maximum time, in seconds (e.g., ``0.25`` for 250 milliseconds), allowed for the component to reach its **Ready State**. The timeout is measured from when the component's process is created until the ready conditions specified in ``component_properties.ready_condition`` are met.
+    * **Constraint:** Must be greater than 0.
+* **shutdown_timeout** (number, optional)
+    * **Description:** Specifies the maximum time, in seconds (e.g., ``0.75`` for 750 milliseconds), allowed for the component to terminate after it receives a SIGTERM signal from the **Launch Manager**. The timeout is measured from when the **Launch Manager** sends the SIGTERM signal until the operating system notifies the **Launch Manager** that the child process has terminated.
+    * **Constraint:** Must be greater than 0.
+* **environmental_variables** (object, optional)
+    * **Description:** Defines the set of environment variables passed to the component at startup.
+    * **Additional Properties:** Each key represents an environment variable name, and its value (a string) specifies the environment variable's value. An empty string is allowed and represents an intentionally empty environment variable.
+* **bin_dir** (string, optional)
+    * **Description:** Specifies the absolute filesystem path to the directory where the component's executable is installed.
+* **working_dir** (string, optional)
+    * **Description:** Specifies the directory to be used as the working directory for the component during execution.
+* **ready_recovery_action** (object, optional)
+    * **Description:** Specifies the recovery action to execute when the component fails to reach its **Ready State** within the configured ``ready_timeout``. This action is limited to ``restart`` operations.
+    * **Reference:** This property refers to the ``recovery_action`` reusable type defined in this schema, specifically enforcing the ``restart`` option.
+* **recovery_action** (object, optional)
+    * **Description:** Specifies the recovery action to execute when the component malfunctions after successfully reaching its **Ready State**. This action is limited to ``switch_run_target`` operations.
+    * **Reference:** This property refers to the ``recovery_action`` reusable type defined in this schema, specifically enforcing the ``switch_run_target`` option.
+* **sandbox** (object, optional)
+    * **Description:** Defines the sandbox configuration parameters that isolate and constrain the component's runtime execution, enhancing system security and stability.
+    * **Properties:**
+        * **uid** (integer, optional)
+            * **Description:** Specifies the POSIX user ID (UID) under which this component executes.
+            * **Constraint:** Must be 0 or greater.
+        * **gid** (integer, optional)
+            * **Description:** Specifies the primary POSIX group ID (GID) under which this component executes.
+            * **Constraint:** Must be 0 or greater.
+        * **supplementary_group_ids** (array of integers, optional)
+            * **Description:** Specifies the list of supplementary POSIX group IDs (GIDs) assigned to this component. These provide additional access permissions.
+            * **Items:** Each item is an integer specifying a single supplementary POSIX group ID (GID).
+            * **Constraint:** Each item must be 0 or greater.
+        * **security_policy** (string, optional)
+            * **Description:** Specifies the security policy or confinement profile name (such as an SELinux or AppArmor profile) assigned to the component, dictating its operating privileges.
+        * **scheduling_policy** (string, optional)
+            * **Description:** Specifies the scheduling policy applied to the component's initial thread. Supported values correspond to OS-defined policies (e.g., ``SCHED_FIFO``, ``SCHED_RR``, ``SCHED_OTHER``). Custom string values may also be supported depending on the operating system.
+        * **scheduling_priority** (integer, optional)
+            * **Description:** Specifies the scheduling priority applied to the component's initial thread, influencing its allocation of CPU time.
+        * **max_memory_usage** (integer, optional)
+            * **Description:** Specifies the maximum amount of memory, in bytes, that the component is permitted to use during runtime.
+            * **Constraint:** Must be greater than 0.
+        * **max_cpu_usage** (integer, optional)
+            * **Description:** Specifies the maximum CPU usage limit for the component, expressed as a percentage (%) of total CPU capacity.
+            * **Constraint:** Must be greater than 0.
 
 Launch Manager Root Properties
 ==============================
@@ -336,21 +336,21 @@ defaults (object, optional)
 
 **Properties:**
 
-*   **component_properties** (object, optional)
-    *   **Description:** Defines default component property values applied to all components unless overridden in individual component definitions.
-    *   **Reference:** This property refers to the ``component_properties`` reusable type defined in this schema.
-*   **deployment_config** (object, optional)
-    *   **Description:** Defines default deployment configuration values applied to all components unless overridden in individual component definitions.
-    *   **Reference:** This property refers to the ``deployment_config`` reusable type defined in this schema.
-*   **run_target** (object, optional)
-    *   **Description:** Defines default **Run Target** configuration values applied to all **Run Targets** unless overridden in individual **Run Target** definitions.
-    *   **Reference:** This property refers to the ``run_target`` reusable type defined in this schema.
-*   **alive_supervision** (object, optional)
-    *   **Description:** Defines default alive supervision configuration values. These values are used unless a global ``alive_supervision`` configuration is explicitly specified at the root level of the configuration file.
-    *   **Reference:** This property refers to the ``alive_supervision`` reusable type defined in this schema.
-*   **watchdog** (object, optional)
-    *   **Description:** Defines default watchdog configuration values. These values are applied to all watchdogs unless overridden in individual watchdog definitions.
-    *   **Reference:** This property refers to the ``watchdog`` reusable type defined in this schema.
+* **component_properties** (object, optional)
+    * **Description:** Defines default component property values applied to all components unless overridden in individual component definitions.
+    * **Reference:** This property refers to the ``component_properties`` reusable type defined in this schema.
+* **deployment_config** (object, optional)
+    * **Description:** Defines default deployment configuration values applied to all components unless overridden in individual component definitions.
+    * **Reference:** This property refers to the ``deployment_config`` reusable type defined in this schema.
+* **run_target** (object, optional)
+    * **Description:** Defines default **Run Target** configuration values applied to all **Run Targets** unless overridden in individual **Run Target** definitions.
+    * **Reference:** This property refers to the ``run_target`` reusable type defined in this schema.
+* **alive_supervision** (object, optional)
+    * **Description:** Defines default alive supervision configuration values. These values are used unless a global ``alive_supervision`` configuration is explicitly specified at the root level of the configuration file.
+    * **Reference:** This property refers to the ``alive_supervision`` reusable type defined in this schema.
+* **watchdog** (object, optional)
+    * **Description:** Defines default watchdog configuration values. These values are applied to all watchdogs unless overridden in individual watchdog definitions.
+    * **Reference:** This property refers to the ``watchdog`` reusable type defined in this schema.
 
 components (object, optional)
 -----------------------------
@@ -360,17 +360,17 @@ components (object, optional)
 
 **Pattern Properties:** Keys must be valid identifiers (alphanumeric characters, underscores, and hyphens).
 
-*   **Component Definition** (object)
-    *   **Description:** Defines an individual component's configuration properties and deployment settings.
-    *   **Properties:**
-        *   **description** (string, optional)
-            *   **Description:** Specifies a human-readable description of the component's purpose.
-        *   **component_properties** (object, optional)
-            *   **Description:** Defines specific component properties for this component. Any properties not explicitly specified here will be inherited from ``defaults.component_properties``.
-            *   **Reference:** This property refers to the ``component_properties`` reusable type defined in this schema.
-        *   **deployment_config** (object, optional)
-            *   **Description:** Defines deployment configuration for this component. Any properties not explicitly specified here will be inherited from ``defaults.deployment_config``.
-            *   **Reference:** This property refers to the ``deployment_config`` reusable type defined in this schema.
+* **Component Definition** (object)
+    * **Description:** Defines an individual component's configuration properties and deployment settings.
+    * **Properties:**
+        * **description** (string, optional)
+            * **Description:** Specifies a human-readable description of the component's purpose.
+        * **component_properties** (object, optional)
+            * **Description:** Defines specific component properties for this component. Any properties not explicitly specified here will be inherited from ``defaults.component_properties``.
+            * **Reference:** This property refers to the ``component_properties`` reusable type defined in this schema.
+        * **deployment_config** (object, optional)
+            * **Description:** Defines deployment configuration for this component. Any properties not explicitly specified here will be inherited from ``defaults.deployment_config``.
+            * **Reference:** This property refers to the ``deployment_config`` reusable type defined in this schema.
 
 run_targets (object, optional)
 ------------------------------
@@ -380,9 +380,9 @@ run_targets (object, optional)
 
 **Pattern Properties:** Keys must be valid identifiers (alphanumeric characters, underscores, and hyphens).
 
-*   **Run Target Definition** (object)
-    *   **Description:** Defines an individual **Run Target's** configuration, specifying the components and dependencies that constitute a particular operational mode.
-    *   **Reference:** This property refers to the ``run_target`` reusable type defined in this schema.
+* **Run Target Definition** (object)
+    * **Description:** Defines an individual **Run Target's** configuration, specifying the components and dependencies that constitute a particular operational mode.
+    * **Reference:** This property refers to the ``run_target`` reusable type defined in this schema.
 
 initial_run_target (string, required)
 -------------------------------------
@@ -398,14 +398,14 @@ fallback_run_target (object, optional)
 
 **Properties:**
 
-*   **description** (string, optional)
-    *   **Description:** Specifies a human-readable description of the fallback **Run Target**.
-*   **depends_on** (array of strings, required)
-    *   **Description:** Specifies the names of components and **Run Targets** that must be activated when this fallback **Run Target** is activated.
-    *   **Items:** Each item is a string specifying the name of a component or **Run Target** upon which this **Run Target** depends.
-*   **transition_timeout** (number, optional)
-    *   **Description:** Specifies the time limit, in seconds (e.g., ``1.5`` for 1500 milliseconds), for the **Run Target** transition. If this limit is exceeded, the transition is considered failed.
-    *   **Constraint:** Must be greater than 0.
+* **description** (string, optional)
+    * **Description:** Specifies a human-readable description of the fallback **Run Target**.
+* **depends_on** (array of strings, required)
+    * **Description:** Specifies the names of components and **Run Targets** that must be activated when this fallback **Run Target** is activated.
+    * **Items:** Each item is a string specifying the name of a component or **Run Target** upon which this **Run Target** depends.
+* **transition_timeout** (number, optional)
+    * **Description:** Specifies the time limit, in seconds (e.g., ``1.5`` for 1500 milliseconds), for the **Run Target** transition. If this limit is exceeded, the transition is considered failed.
+    * **Constraint:** Must be greater than 0.
 
 alive_supervision (object, optional)
 ------------------------------------
@@ -428,8 +428,8 @@ The **Launch Manager** configuration extensively utilizes the concept of default
 
 To achieve this robust defaulting mechanism, the **Launch Manager** employs two distinct levels of default values:
 
-1.  **User-Defined Defaults:** These are specified within the ``defaults`` section of the **Launch Manager** configuration. Users can define a set of configuration options here, which will be applied if those options are not provided at a more specific level within the configuration (e.g., within an individual component, a **Run Target**, or at the root level for properties like ``alive_supervision`` or ``watchdog``).
-2.  **S-CORE Standard Defaults:** These represent a second tier of default values, provided by the S-CORE standard itself. The purpose of these defaults is to ensure a valid configuration value is available even if an option is entirely absent from both its specific definition and the user-defined ``defaults`` section.
+1. **User-Defined Defaults:** These are specified within the ``defaults`` section of the **Launch Manager** configuration. Users can define a set of configuration options here, which will be applied if those options are not provided at a more specific level within the configuration (e.g., within an individual component, a **Run Target**, or at the root level for properties like ``alive_supervision`` or ``watchdog``).
+2. **S-CORE Standard Defaults:** These represent a second tier of default values, provided by the S-CORE standard itself. The purpose of these defaults is to ensure a valid configuration value is available even if an option is entirely absent from both its specific definition and the user-defined ``defaults`` section.
 
 The S-CORE standard defaults are particularly beneficial during the development phase. They allow developers to concentrate on core tasks without needing to meticulously define every configuration option, as a functional default is guaranteed.
 
@@ -548,5 +548,5 @@ Inheritance Of Default Values
 
 Given that the **Launch Manager** supports multiple levels of default values, specific rules govern their inheritance and application. The inheritance order is straightforward:
 
-1.  If a configuration value is not explicitly specified at a specific location (e.g., within an individual component's definition, a **Run Target**'s definition, or a root-level property like ``alive_supervision``), the **Launch Manager** will first attempt to use the corresponding value from the user-defined ``defaults`` section.
-2.  If the value is also not specified within the user-defined ``defaults`` section, then the **Launch Manager** will apply the S-CORE standard default value for that option.
+1. If a configuration value is not explicitly specified at a specific location (e.g., within an individual component's definition, a **Run Target**'s definition, or a root-level property like ``alive_supervision``), the **Launch Manager** will first attempt to use the corresponding value from the user-defined ``defaults`` section.
+2. If the value is also not specified within the user-defined ``defaults`` section, then the **Launch Manager** will apply the S-CORE standard default value for that option.
