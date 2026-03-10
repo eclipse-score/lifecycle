@@ -240,7 +240,7 @@ component_properties (object)
     * **Description:** Specifies an ordered list of command-line arguments to be passed to the component at startup.
     * **Items:** Each item is a string specifying a single command-line argument token as a UTF-8 string; the order of arguments is preserved.
 * **ready_condition** (object, optional)
-        * **Description:** Defines the set of conditions that determine when the component completes its initializing state and enters the **Ready State**.
+    * **Description:** Defines the set of conditions that determine when the component completes its initializing state and enters the **Ready State**.
     * **Properties:**
         * **process_state** (string, optional)
             * **Description:** Specifies the required state of the component's POSIX process for it to be considered ready.
