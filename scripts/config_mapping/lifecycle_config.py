@@ -59,7 +59,7 @@ score_defaults = json.loads("""
 """)
 
 def report_error(message):
-    print(message, file=sys.stderr)
+    print(f"Error: {message}", file=sys.stderr)
 
 # There are various dictionaries in the config where only a single entry is allowed.
 # We do not want to merge the defaults with the user specified values for these dictionaries.
@@ -446,7 +446,7 @@ def gen_launch_manager_config(output_dir, config):
                 # If the dependency is not a component, it must be a run target
                 if dependency_name not in config["run_targets"]:
                     raise ValueError(
-                        f"Run target depends on unknown run target '{dependency_name}'."
+                        f"Run target depends on unknown run target or component '{dependency_name}'."
                     )
                 if dependency_name in ancestors_run_targets:
                     path = format_dependency_path(
@@ -651,7 +651,7 @@ def schema_validation(json_input, schema):
         print("Schema Validation successful")
         return True
     except ValidationError as err:
-        print(err.message, file=sys.stderr)
+        print(f"Error: Schema validation failed with error: {err.message}", file=sys.stderr)
         return False
 
 # Possible exit codes returned from this script
