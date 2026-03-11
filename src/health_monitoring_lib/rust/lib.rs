@@ -20,9 +20,11 @@ mod tag;
 mod worker;
 
 pub mod deadline;
+pub mod heartbeat;
 
 use crate::common::{Monitor, MonitorEvalHandle};
 use crate::deadline::{DeadlineMonitor, DeadlineMonitorBuilder};
+use crate::heartbeat::{HeartbeatMonitor, HeartbeatMonitorBuilder};
 use crate::log::{error, ScoreDebug};
 pub use common::TimeRange;
 use containers::fixed_capacity::FixedCapacityVec;
@@ -45,6 +47,7 @@ pub enum HealthMonitorError {
 #[derive(Default)]
 pub struct HealthMonitorBuilder {
     deadline_monitor_builders: HashMap<MonitorTag, DeadlineMonitorBuilder>,
+    heartbeat_monitor_builders: HashMap<MonitorTag, HeartbeatMonitorBuilder>,
     supervisor_api_cycle: Duration,
     internal_processing_cycle: Duration,
 }
@@ -54,6 +57,7 @@ impl HealthMonitorBuilder {
     pub fn new() -> Self {
         Self {
             deadline_monitor_builders: HashMap::new(),
+            heartbeat_monitor_builders: HashMap::new(),
             supervisor_api_cycle: Duration::from_millis(500),
             internal_processing_cycle: Duration::from_millis(100),
         }
@@ -69,6 +73,19 @@ impl HealthMonitorBuilder {
     /// If a deadline monitor with the same tag already exists, it will be overwritten.
     pub fn add_deadline_monitor(mut self, monitor_tag: MonitorTag, monitor_builder: DeadlineMonitorBuilder) -> Self {
         self.add_deadline_monitor_internal(monitor_tag, monitor_builder);
+        self
+    }
+
+    /// Add a [`HeartbeatMonitor`] for the given [`MonitorTag`].
+    ///
+    /// - `monitor_tag` - unique tag for the [`HeartbeatMonitor`].
+    /// - `monitor_builder` - monitor builder to finalize.
+    ///
+    /// # Note
+    ///
+    /// If a heartbeat monitor with the same tag already exists, it will be overwritten.
+    pub fn add_heartbeat_monitor(mut self, monitor_tag: MonitorTag, monitor_builder: HeartbeatMonitorBuilder) -> Self {
+        self.add_heartbeat_monitor_internal(monitor_tag, monitor_builder);
         self
     }
 
@@ -104,7 +121,7 @@ impl HealthMonitorBuilder {
         }
 
         // Check number of monitors.
-        let num_monitors = self.deadline_monitor_builders.len();
+        let num_monitors = self.deadline_monitor_builders.len() + self.heartbeat_monitor_builders.len();
         if num_monitors == 0 {
             error!("No monitors have been added. HealthMonitor cannot be created.");
             return Err(HealthMonitorError::WrongState);
@@ -120,8 +137,16 @@ impl HealthMonitorBuilder {
             deadline_monitors.insert(tag, Some(MonitorState::Available(monitor)));
         }
 
+        // Create heartbeat monitors.
+        let mut heartbeat_monitors = HashMap::new();
+        for (tag, builder) in self.heartbeat_monitor_builders {
+            let monitor = builder.build(tag, self.internal_processing_cycle, &allocator)?;
+            heartbeat_monitors.insert(tag, Some(MonitorState::Available(monitor)));
+        }
+
         Ok(HealthMonitor {
             deadline_monitors,
+            heartbeat_monitors,
             worker: worker::UniqueThreadRunner::new(self.internal_processing_cycle),
             supervisor_api_cycle: self.supervisor_api_cycle,
         })
@@ -135,6 +160,14 @@ impl HealthMonitorBuilder {
         monitor_builder: DeadlineMonitorBuilder,
     ) {
         self.deadline_monitor_builders.insert(monitor_tag, monitor_builder);
+    }
+
+    pub(crate) fn add_heartbeat_monitor_internal(
+        &mut self,
+        monitor_tag: MonitorTag,
+        monitor_builder: HeartbeatMonitorBuilder,
+    ) {
+        self.heartbeat_monitor_builders.insert(monitor_tag, monitor_builder);
     }
 
     pub(crate) fn with_supervisor_api_cycle_internal(&mut self, cycle_duration: Duration) {
@@ -162,6 +195,7 @@ type MonitorContainer<M> = Option<MonitorState<M>>;
 /// Health monitor.
 pub struct HealthMonitor {
     deadline_monitors: HashMap<MonitorTag, MonitorContainer<DeadlineMonitor>>,
+    heartbeat_monitors: HashMap<MonitorTag, MonitorContainer<HeartbeatMonitor>>,
     worker: worker::UniqueThreadRunner,
     supervisor_api_cycle: Duration,
 }
@@ -195,6 +229,16 @@ impl HealthMonitor {
     /// Otherwise returns [`None`].
     pub fn get_deadline_monitor(&mut self, monitor_tag: MonitorTag) -> Option<DeadlineMonitor> {
         Self::get_monitor(&mut self.deadline_monitors, monitor_tag)
+    }
+
+    /// Get and pass ownership of a [`HeartbeatMonitor`] for the given [`MonitorTag`].
+    ///
+    /// - `monitor_tag` - unique tag for the [`HeartbeatMonitor`].
+    ///
+    /// Returns [`Some`] containing [`HeartbeatMonitor`] if found and not taken.
+    /// Otherwise returns [`None`].
+    pub fn get_heartbeat_monitor(&mut self, monitor_tag: MonitorTag) -> Option<HeartbeatMonitor> {
+        Self::get_monitor(&mut self.heartbeat_monitors, monitor_tag)
     }
 
     fn collect_given_monitors<M>(
@@ -243,9 +287,10 @@ impl HealthMonitor {
     /// Health monitoring logic stops when the [`HealthMonitor`] is dropped.
     pub fn start(&mut self) -> Result<(), HealthMonitorError> {
         // Collect all monitors.
-        let num_monitors = self.deadline_monitors.len();
+        let num_monitors = self.deadline_monitors.len() + self.heartbeat_monitors.len();
         let mut collected_monitors = FixedCapacityVec::new(num_monitors);
         Self::collect_given_monitors(&mut self.deadline_monitors, &mut collected_monitors)?;
+        Self::collect_given_monitors(&mut self.heartbeat_monitors, &mut collected_monitors)?;
 
         // Start monitoring logic.
         let monitoring_logic = worker::MonitoringLogic::new(
@@ -267,15 +312,23 @@ impl HealthMonitor {
 #[score_testing_macros::test_mod_with_log]
 #[cfg(all(test, not(loom)))]
 mod tests {
+    use crate::common::TimeRange;
     use crate::deadline::DeadlineMonitorBuilder;
+    use crate::heartbeat::HeartbeatMonitorBuilder;
     use crate::tag::MonitorTag;
     use crate::{HealthMonitorBuilder, HealthMonitorError};
     use core::time::Duration;
+
+    fn def_heartbeat_monitor_builder() -> HeartbeatMonitorBuilder {
+        let range = TimeRange::new(Duration::from_millis(100), Duration::from_millis(200));
+        HeartbeatMonitorBuilder::new(range)
+    }
 
     #[test]
     fn health_monitor_builder_new_succeeds() {
         let health_monitor_builder = HealthMonitorBuilder::new();
         assert!(health_monitor_builder.deadline_monitor_builders.is_empty());
+        assert!(health_monitor_builder.heartbeat_monitor_builders.is_empty());
         assert_eq!(health_monitor_builder.supervisor_api_cycle, Duration::from_millis(500));
         assert_eq!(
             health_monitor_builder.internal_processing_cycle,
@@ -287,9 +340,12 @@ mod tests {
     fn health_monitor_builder_build_succeeds() {
         let deadline_monitor_tag = MonitorTag::from("deadline_monitor");
         let deadline_monitor_builder = DeadlineMonitorBuilder::new();
+        let heartbeat_monitor_tag = MonitorTag::from("heartbeat_monitor");
+        let heartbeat_monitor_builder = def_heartbeat_monitor_builder();
 
         let result = HealthMonitorBuilder::new()
             .add_deadline_monitor(deadline_monitor_tag, deadline_monitor_builder)
+            .add_heartbeat_monitor(heartbeat_monitor_tag, heartbeat_monitor_builder)
             .build();
         assert!(result.is_ok());
     }
@@ -365,16 +421,75 @@ mod tests {
     }
 
     #[test]
+    fn health_monitor_get_heartbeat_monitor_available() {
+        let heartbeat_monitor_tag = MonitorTag::from("heartbeat_monitor");
+        let heartbeat_monitor_builder = def_heartbeat_monitor_builder();
+        let mut health_monitor = HealthMonitorBuilder::new()
+            .add_heartbeat_monitor(heartbeat_monitor_tag, heartbeat_monitor_builder)
+            .build()
+            .unwrap();
+
+        let result = health_monitor.get_heartbeat_monitor(heartbeat_monitor_tag);
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn health_monitor_get_heartbeat_monitor_taken() {
+        let heartbeat_monitor_tag = MonitorTag::from("heartbeat_monitor");
+        let heartbeat_monitor_builder = def_heartbeat_monitor_builder();
+        let mut health_monitor = HealthMonitorBuilder::new()
+            .add_heartbeat_monitor(heartbeat_monitor_tag, heartbeat_monitor_builder)
+            .build()
+            .unwrap();
+
+        let _ = health_monitor.get_heartbeat_monitor(heartbeat_monitor_tag);
+        let result = health_monitor.get_heartbeat_monitor(heartbeat_monitor_tag);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn health_monitor_get_heartbeat_monitor_unknown() {
+        let heartbeat_monitor_builder = def_heartbeat_monitor_builder();
+        let mut health_monitor = HealthMonitorBuilder::new()
+            .add_heartbeat_monitor(MonitorTag::from("heartbeat_monitor"), heartbeat_monitor_builder)
+            .build()
+            .unwrap();
+
+        let result = health_monitor.get_heartbeat_monitor(MonitorTag::from("undefined_monitor"));
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn health_monitor_get_heartbeat_monitor_invalid_state() {
+        let heartbeat_monitor_tag = MonitorTag::from("heartbeat_monitor");
+        let heartbeat_monitor_builder = def_heartbeat_monitor_builder();
+        let mut health_monitor = HealthMonitorBuilder::new()
+            .add_heartbeat_monitor(heartbeat_monitor_tag, heartbeat_monitor_builder)
+            .build()
+            .unwrap();
+
+        // Inject broken state - unreachable otherwise.
+        health_monitor.heartbeat_monitors.insert(heartbeat_monitor_tag, None);
+
+        let result = health_monitor.get_heartbeat_monitor(heartbeat_monitor_tag);
+        assert!(result.is_none());
+    }
+
+    #[test]
     fn health_monitor_start_succeeds() {
         let deadline_monitor_tag = MonitorTag::from("deadline_monitor");
         let deadline_monitor_builder = DeadlineMonitorBuilder::new();
+        let heartbeat_monitor_tag = MonitorTag::from("heartbeat_monitor");
+        let heartbeat_monitor_builder = def_heartbeat_monitor_builder();
 
         let mut health_monitor = HealthMonitorBuilder::new()
             .add_deadline_monitor(deadline_monitor_tag, deadline_monitor_builder)
+            .add_heartbeat_monitor(heartbeat_monitor_tag, heartbeat_monitor_builder)
             .build()
             .unwrap();
 
         let _deadline_monitor = health_monitor.get_deadline_monitor(deadline_monitor_tag).unwrap();
+        let _heartbeat_monitor = health_monitor.get_heartbeat_monitor(heartbeat_monitor_tag).unwrap();
 
         let result = health_monitor.start();
         assert!(result.is_ok());
@@ -383,9 +498,11 @@ mod tests {
     #[test]
     fn health_monitor_start_monitors_not_taken() {
         let deadline_monitor_builder = DeadlineMonitorBuilder::new();
+        let heartbeat_monitor_builder = def_heartbeat_monitor_builder();
 
         let mut health_monitor = HealthMonitorBuilder::new()
             .add_deadline_monitor(MonitorTag::from("deadline_monitor"), deadline_monitor_builder)
+            .add_heartbeat_monitor(MonitorTag::from("heartbeat_monitor"), heartbeat_monitor_builder)
             .build()
             .unwrap();
 
@@ -397,9 +514,12 @@ mod tests {
     fn health_monitor_start_not_taken_then_restart() {
         let deadline_monitor_tag = MonitorTag::from("deadline_monitor");
         let deadline_monitor_builder = DeadlineMonitorBuilder::new();
+        let heartbeat_monitor_tag = MonitorTag::from("heartbeat_monitor");
+        let heartbeat_monitor_builder = def_heartbeat_monitor_builder();
 
         let mut health_monitor = HealthMonitorBuilder::new()
             .add_deadline_monitor(deadline_monitor_tag, deadline_monitor_builder)
+            .add_heartbeat_monitor(heartbeat_monitor_tag, heartbeat_monitor_builder)
             .build()
             .unwrap();
 
@@ -407,9 +527,11 @@ mod tests {
         let start_result = health_monitor.start();
         assert!(start_result.is_err_and(|e| e == HealthMonitorError::WrongState));
 
-        // Take monitor.
+        // Take monitors.
         let get_deadline_monitor_result = health_monitor.get_deadline_monitor(deadline_monitor_tag);
         assert!(get_deadline_monitor_result.is_some());
+        let get_heartbeat_monitor_result = health_monitor.get_heartbeat_monitor(heartbeat_monitor_tag);
+        assert!(get_heartbeat_monitor_result.is_some());
 
         // Try to start again, this time should be successful.
         let start_result = health_monitor.start();

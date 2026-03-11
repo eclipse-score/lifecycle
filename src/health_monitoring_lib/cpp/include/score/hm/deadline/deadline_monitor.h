@@ -51,7 +51,7 @@ class DeadlineMonitorBuilder final : public internal::RustDroppable<DeadlineMoni
     DeadlineMonitorBuilder add_deadline(const DeadlineTag& deadline_tag, const TimeRange& range) &&;
 
   protected:
-    std::optional<internal::FFIHandle> __drop_by_rust_impl()
+    std::optional<internal::FFIHandle> _drop_by_rust_impl()
     {
         return monitor_builder_handler_.drop_by_rust();
     }

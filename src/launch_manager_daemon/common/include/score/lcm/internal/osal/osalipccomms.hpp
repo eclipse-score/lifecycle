@@ -11,7 +11,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-
 #ifndef OSAL_IPC_COMMS_HPP_INCLUDED
 #define OSAL_IPC_COMMS_HPP_INCLUDED
 
@@ -22,13 +21,17 @@
 
 #include "semaphore.hpp"
 
-namespace score {
+namespace score
+{
 
-namespace lcm {
+namespace lcm
+{
 
-namespace internal {
+namespace internal
+{
 
-namespace osal {
+namespace osal
+{
 
 struct IpcCommsSync;
 using IpcCommsP = std::shared_ptr<IpcCommsSync>;
@@ -37,8 +40,10 @@ using IpcCommsP = std::shared_ptr<IpcCommsSync>;
 /// The `IpcCommsSync` structure is designed to handle synchronization mechanisms required
 /// for inter-process communication. It uses semaphores to manage synchronization,
 /// a process ID to identify the communicating process, and a flag to manage file descriptor closure.
-// RULECHECKER_comment(1, 1, check_incomplete_data_member_construction, "wi 45913 - This struct is POD, which doesn't have user-declared constructor. The rule doesn’t apply.", false)
-struct IpcCommsSync final {
+// RULECHECKER_comment(1, 1, check_incomplete_data_member_construction, "wi 45913 - This struct is POD, which doesn't
+// have user-declared constructor. The rule doesn’t apply.", false)
+struct IpcCommsSync final
+{
     /// @brief Semaphore for synchronizing replies.
     /// The `reply_sync_` semaphore is used to synchronize the reception of replies
     /// from a communicating process. It ensures that the reply is received before
@@ -68,6 +73,11 @@ struct IpcCommsSync final {
     /// during communication. It is set to a value of 3 by default.
     static const int sync_fd = 3;
 
+    /// @brief Constant for the file descriptor used to signal state transitions
+    /// The semaphore used to signal state transitions is stored in an unlinked shared memory area. This requires
+    /// the constant “control_client_handler_nudge_fd” so that the spawned processes can access this resource.
+    static const int control_client_handler_nudge_fd = 4;
+
     // Cannot construct or destruct objects of this type
 
     /// @brief Constructor (deleted)
@@ -95,25 +105,32 @@ struct IpcCommsSync final {
     /// file descriptor. The Lifecycle Client library will use the default file descriptor
     /// whereas Launch Manager supplies whatever file descriptor it is using for
     /// the process it is creating.
-    static IpcCommsP getCommsObject(int fd = IpcCommsSync::sync_fd) {
+    static IpcCommsP getCommsObject(int fd = IpcCommsSync::sync_fd)
+    {
         IpcCommsP ret = nullptr;
         void* buf = mmap(nullptr, sizeof(IpcCommsSync), PROT_WRITE, MAP_SHARED, fd, 0);
 
-        // RULECHECKER_comment(1, 1, check_c_style_cast, "This is the definition provided by the OS and does a C-style cast.", true)
-        if (MAP_FAILED != buf) {
+        // RULECHECKER_comment(1, 1, check_c_style_cast, "This is the definition provided by the OS and does a C-style
+        // cast.", true)
+        if (MAP_FAILED != buf)
+        {
             ret = IpcCommsP(static_cast<IpcCommsSync*>(buf), IpcCommsDeletor());
         }
 
         return ret;
     }
 
-   private:
+  private:
     /// @brief Deleter to release IpcCommsSync object
     /// This is passed to the constructor of a shared pointer
-    struct IpcCommsDeletor {
-        void operator()(IpcCommsSync* ptr) const {
-            if (nullptr != ptr) {
-                if (munmap(ptr, sizeof(IpcCommsSync)) == -1) {
+    struct IpcCommsDeletor
+    {
+        void operator()(IpcCommsSync* ptr) const
+        {
+            if (nullptr != ptr)
+            {
+                if (munmap(ptr, sizeof(IpcCommsSync)) == -1)
+                {
                     LM_LOG_ERROR() << "Unmapping of shared memory failed";
                 }
             }
@@ -123,9 +140,9 @@ struct IpcCommsSync final {
 
 }  // namespace osal
 
-}  // namespace lcm
-
 }  // namespace internal
+
+}  // namespace lcm
 
 }  // namespace score
 
