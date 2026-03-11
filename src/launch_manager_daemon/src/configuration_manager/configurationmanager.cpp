@@ -80,7 +80,8 @@ const char* kEnvVarDefaultValue = "/opt/internal/launch_manager/etc/ecu-cfg";  /
 
 const uint32_t ConfigurationManager::kDefaultProcessExecutionError = 1U;
 uint32_t ConfigurationManager::kDefaultProcessorAffinityMask() {
-    return (1U << osal::getNumCores()) - 1U;
+    uint32_t core = osal::getNumCores();
+    return (1U << (core > 31 ? 31 : core)) - 1U;
 }
 const int32_t ConfigurationManager::kDefaultSchedulingPolicy = SCHED_OTHER;
 const int32_t ConfigurationManager::kDefaultRealtimeSchedulingPriority = 99;
