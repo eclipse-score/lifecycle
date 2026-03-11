@@ -716,7 +716,12 @@ def main():
             print("Schema validation will be skipped.")
         else:
             json_schema = load_json_file(args.schema)
-            validation_successful = schema_validation(input_config, json_schema, config_path=args.filename, schema_path=args.schema)
+            validation_successful = schema_validation(
+                input_config,
+                json_schema,
+                config_path=args.filename,
+                schema_path=args.schema,
+            )
             if not validation_successful:
                 exit(SCHEMA_VALIDATION_FAILURE)
 
