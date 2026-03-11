@@ -57,8 +57,8 @@ Documentation
 
 The ``docs`` folder contains comprehensive documentation related to the **Launch Manager** configuration. It is highly recommended to consult these resources for detailed explanations and advanced usage patterns.
 
-* ``launch_manager_configuration.rst``: Provides in-depth information about configuring the **Launch Manager**.
-* ``examples.rst``: Offers further explanations and context for the examples provided in the ``examples/`` directory.
+* `launch_manager_configuration.rst <docs/launch_manager_configuration.rst>`_: Provides in-depth information about configuring the **Launch Manager**.
+* `examples.rst <docs/examples.rst>`_: Offers further explanations and context for the examples provided in the ``examples/`` directory.
 
 Default Values
 **************
