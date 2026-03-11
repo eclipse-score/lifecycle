@@ -26,7 +26,7 @@ Users can examine this basic example to understand the core principles. These pr
 
 A high-level overview of this configuration, which highlights its dependencies, is shown below:
 
-.. image:: images/example_conf_graph.png
+.. image:: ../images/example_conf_graph.png
    :alt: Graphical representation of example configuration
    :width: 70%
    :align: center
