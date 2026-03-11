@@ -660,7 +660,7 @@ def check_validation_dependency():
     return True
 
 
-def schema_validation(json_input, schema):
+def schema_validation(json_input, schema, config_path=None, schema_path=None):
     try:
         from jsonschema import validate, ValidationError
 
@@ -668,8 +668,12 @@ def schema_validation(json_input, schema):
         print("Schema Validation successful")
         return True
     except ValidationError as err:
+        path = " -> ".join(str(p) for p in err.absolute_path)
+        location = f" (at: {path})" if path else ""
+        config_info = f"Validated Config: {config_path}" if config_path else ""
+        schema_info = f"Schema File: {schema_path}" if schema_path else ""
         print(
-            f"Error: Schema validation failed with error: {err.message}",
+            f"Error: Schema validation failed{location}: {err.message}\n{config_info}\n{schema_info}",
             file=sys.stderr,
         )
         return False
@@ -712,7 +716,7 @@ def main():
             print("Schema validation will be skipped.")
         else:
             json_schema = load_json_file(args.schema)
-            validation_successful = schema_validation(input_config, json_schema)
+            validation_successful = schema_validation(input_config, json_schema, config_path=args.filename, schema_path=args.schema)
             if not validation_successful:
                 exit(SCHEMA_VALIDATION_FAILURE)
 
