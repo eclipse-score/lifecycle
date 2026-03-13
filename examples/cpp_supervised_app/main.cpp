@@ -147,12 +147,7 @@ int main(int argc, char** argv)
             return EXIT_FAILURE;
         }
 
-        auto start_res = hm.start();
-        if (!start_res.has_value())
-        {
-            std::cerr << "Failed to start health monitor" << std::endl;
-            return EXIT_FAILURE;
-        }
+        hm.start();
 
         score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
 

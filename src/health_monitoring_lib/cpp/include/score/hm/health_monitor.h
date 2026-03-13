@@ -84,7 +84,7 @@ class HealthMonitor final
     score::cpp::expected<heartbeat::HeartbeatMonitor, Error> get_heartbeat_monitor(const MonitorTag& monitor_tag);
     score::cpp::expected<logic::LogicMonitor, Error> get_logic_monitor(const MonitorTag& monitor_tag);
 
-    score::cpp::expected_blank<Error> start();
+    void start();
 
   private:
     // Allow only the builder to create HealthMonitor instances.

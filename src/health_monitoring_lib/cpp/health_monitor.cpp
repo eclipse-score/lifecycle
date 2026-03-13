@@ -191,15 +191,10 @@ score::cpp::expected<LogicMonitor, Error> HealthMonitor::get_logic_monitor(const
     return score::cpp::expected<LogicMonitor, Error>(LogicMonitor{handle});
 }
 
-score::cpp::expected_blank<Error> HealthMonitor::start()
+void HealthMonitor::start()
 {
     auto result{health_monitor_start(health_monitor_)};
-    if (result != kSuccess)
-    {
-        return score::cpp::unexpected(static_cast<Error>(result));
-    }
-
-    return score::cpp::expected_blank<Error>{};
+    SCORE_LANGUAGE_FUTURECPP_ASSERT(result == kSuccess);
 }
 
 HealthMonitor::~HealthMonitor()

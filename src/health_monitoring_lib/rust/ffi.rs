@@ -346,7 +346,7 @@ pub extern "C" fn health_monitor_start(health_monitor_handle: FFIHandle) -> FFIC
     let mut health_monitor = FFIBorrowed::new(unsafe { Box::from_raw(health_monitor_handle as *mut HealthMonitor) });
 
     // Start monitoring logic.
-    match health_monitor.start() {
+    match health_monitor.start_internal() {
         Ok(_) => FFICode::Success,
         Err(error) => error.into(),
     }
