@@ -172,10 +172,51 @@ impl From<&str> for DeadlineTag {
     }
 }
 
+/// State tag.
+#[derive(Clone, Copy, Eq, Hash, PartialEq)]
+#[repr(C)]
+pub struct StateTag(Tag);
+
+impl StateTag {
+    pub const fn new(value: &str) -> Self {
+        StateTag(Tag::new(value))
+    }
+}
+
+impl fmt::Debug for StateTag {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // SAFETY: the underlying data was created from a valid `&str`.
+        let bytes = unsafe { core::slice::from_raw_parts(self.0.data, self.0.length) };
+        let s = unsafe { core::str::from_utf8_unchecked(bytes) };
+        write!(f, "StateTag({})", s)
+    }
+}
+
+impl log::ScoreDebug for StateTag {
+    fn fmt(&self, f: log::Writer, _spec: &log::FormatSpec) -> Result<(), log::Error> {
+        // SAFETY: the underlying data was created from a valid `&str`.
+        let bytes = unsafe { core::slice::from_raw_parts(self.0.data, self.0.length) };
+        let s = unsafe { core::str::from_utf8_unchecked(bytes) };
+        log::score_write!(f, "StateTag({})", s)
+    }
+}
+
+impl From<String> for StateTag {
+    fn from(value: String) -> Self {
+        Self(Tag::from(value))
+    }
+}
+
+impl From<&str> for StateTag {
+    fn from(value: &str) -> Self {
+        Self(Tag::from(value))
+    }
+}
+
 #[cfg(all(test, not(loom)))]
 mod tests {
     use crate::log::score_write;
-    use crate::tag::{DeadlineTag, MonitorTag, Tag};
+    use crate::tag::{DeadlineTag, MonitorTag, StateTag, Tag};
     use core::fmt::Write;
     use core::hash::{Hash, Hasher};
     use score_log::fmt::{Error, FormatSpec, Result as FmtResult, ScoreWrite};
@@ -411,6 +452,43 @@ mod tests {
     fn deadline_tag_from_str() {
         let example_str = "EXAMPLE";
         let tag = DeadlineTag::from(example_str);
+        compare_tag(tag.0, example_str);
+    }
+
+    #[test]
+    fn state_tag_new() {
+        const EXAMPLE_STR: &str = "EXAMPLE";
+        const TAG: StateTag = StateTag::new(EXAMPLE_STR);
+        compare_tag(TAG.0, EXAMPLE_STR);
+    }
+
+    #[test]
+    fn state_tag_debug() {
+        let example_str = "EXAMPLE";
+        let tag = StateTag::from(example_str.to_string());
+        assert_eq!(format!("{:?}", tag), "StateTag(EXAMPLE)");
+    }
+
+    #[test]
+    fn state_tag_score_debug() {
+        let example_str = "EXAMPLE";
+        let tag = StateTag::from(example_str.to_string());
+        let mut writer = StringWriter::new();
+        assert!(score_write!(&mut writer, "{:?}", tag).is_ok());
+        assert_eq!(writer.get(), "StateTag(EXAMPLE)");
+    }
+
+    #[test]
+    fn state_tag_from_string() {
+        let example_str = "EXAMPLE";
+        let tag = StateTag::from(example_str.to_string());
+        compare_tag(tag.0, example_str);
+    }
+
+    #[test]
+    fn state_tag_from_str() {
+        let example_str = "EXAMPLE";
+        let tag = StateTag::from(example_str);
         compare_tag(tag.0, example_str);
     }
 }

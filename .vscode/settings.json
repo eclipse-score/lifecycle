@@ -12,6 +12,7 @@
     "rust-analyzer.cargo.features": [
         "stub_supervisor_api_client"
     ],
+    "rust-analyzer.cargo.noDefaultFeatures": true,
     "rust-analyzer.check.command": "clippy",
     "rust-analyzer.rustfmt.overrideCommand": [
         "${workspaceFolder}/.vscode/rustfmt.sh"
