@@ -18,6 +18,7 @@ use core::sync::atomic::{AtomicBool, Ordering};
 use core::time::Duration;
 use std::sync::Arc;
 use std::time::Instant;
+use thread::{spawn, JoinHandle, ThreadParameters};
 
 pub(super) struct MonitoringLogic<T: SupervisorAPIClient> {
     monitors: FixedCapacityVec<MonitorEvalHandle>,
@@ -91,17 +92,19 @@ impl<T: SupervisorAPIClient> MonitoringLogic<T> {
 
 /// A struct that manages a unique thread for running monitoring logic periodically.
 pub struct UniqueThreadRunner {
-    handle: Option<std::thread::JoinHandle<()>>,
+    handle: Option<JoinHandle<()>>,
     should_stop: Arc<AtomicBool>,
     internal_duration_cycle: Duration,
+    thread_parameters: ThreadParameters,
 }
 
 impl UniqueThreadRunner {
-    pub(super) fn new(internal_duration_cycle: Duration) -> Self {
+    pub(super) fn new(internal_duration_cycle: Duration, thread_parameters: ThreadParameters) -> Self {
         Self {
             handle: None,
             should_stop: Arc::new(AtomicBool::new(false)),
             internal_duration_cycle,
+            thread_parameters,
         }
     }
 
@@ -113,27 +116,30 @@ impl UniqueThreadRunner {
             let should_stop = self.should_stop.clone();
             let interval = self.internal_duration_cycle;
 
-            std::thread::spawn(move || {
-                info!("Monitoring thread started.");
-                let hmon_starting_point = Instant::now();
-                let mut next_sleep_time = interval;
+            spawn(
+                move || {
+                    info!("Monitoring thread started.");
+                    let hmon_starting_point = Instant::now();
+                    let mut next_sleep_time = interval;
 
-                // TODO Add some checks and log if cyclicly here is not met.
-                while !should_stop.load(Ordering::Relaxed) {
-                    std::thread::sleep(next_sleep_time);
+                    // TODO Add some checks and log if cyclicly here is not met.
+                    while !should_stop.load(Ordering::Relaxed) {
+                        std::thread::sleep(next_sleep_time);
 
-                    let now = Instant::now();
+                        let now = Instant::now();
 
-                    if !monitoring_logic.run(hmon_starting_point) {
-                        info!("Monitoring logic failed, stopping thread.");
-                        break;
+                        if !monitoring_logic.run(hmon_starting_point) {
+                            info!("Monitoring logic failed, stopping thread.");
+                            break;
+                        }
+
+                        next_sleep_time = interval - now.elapsed();
                     }
 
-                    next_sleep_time = interval - now.elapsed();
-                }
-
-                info!("Monitoring thread exiting.");
-            })
+                    info!("Monitoring thread exiting.");
+                },
+                self.thread_parameters.clone(),
+            )
         });
     }
 
@@ -179,6 +185,7 @@ mod tests {
     use core::time::Duration;
     use std::sync::Arc;
     use std::time::Instant;
+    use thread::ThreadParameters;
 
     #[derive(Clone)]
     struct MockSupervisorAPIClient {
@@ -332,7 +339,8 @@ mod tests {
             alive_mock.clone(),
         );
 
-        let mut worker = UniqueThreadRunner::new(Duration::from_millis(10));
+        let thread_parameters = ThreadParameters::default();
+        let mut worker = UniqueThreadRunner::new(Duration::from_millis(10), thread_parameters);
         worker.start(logic);
 
         let mut deadline = deadline_monitor

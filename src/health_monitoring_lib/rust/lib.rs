@@ -18,6 +18,7 @@ mod log;
 mod protected_memory;
 mod supervisor_api_client;
 mod tag;
+mod thread_ffi;
 mod worker;
 
 pub mod deadline;

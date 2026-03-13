@@ -56,12 +56,16 @@ TEST_F(HealthMonitorTest, TestName)
     auto logic_monitor_builder =
         logic::LogicMonitorBuilder{from_state}.add_state(from_state, std::vector{to_state}).add_state(to_state, {});
 
+    // Thread parameters.
+    auto thread_parameters{ThreadParameters().affinity(std::vector<size_t>{0})};
+
     auto hmon_result{HealthMonitorBuilder()
                          .add_deadline_monitor(deadline_monitor_tag, std::move(deadline_monitor_builder))
                          .add_heartbeat_monitor(heartbeat_monitor_tag, std::move(heartbeat_monitor_builder))
                          .add_logic_monitor(logic_monitor_tag, std::move(logic_monitor_builder))
                          .with_internal_processing_cycle(std::chrono::milliseconds(50))
                          .with_supervisor_api_cycle(std::chrono::milliseconds(50))
+                         .thread_parameters(std::move(thread_parameters))
                          .build()};
     EXPECT_TRUE(hmon_result.has_value());
     auto hm{std::move(hmon_result.value())};

@@ -16,6 +16,7 @@ use crate::health_monitor::{HealthMonitor, HealthMonitorBuilder, HealthMonitorEr
 use crate::heartbeat::HeartbeatMonitorBuilder;
 use crate::logic::LogicMonitorBuilder;
 use crate::tag::MonitorTag;
+use crate::thread_ffi::ThreadParametersCpp;
 use core::mem::ManuallyDrop;
 use core::ops::{Deref, DerefMut};
 use core::time::Duration;
@@ -111,6 +112,7 @@ pub extern "C" fn health_monitor_builder_build(
     health_monitor_builder_handle: FFIHandle,
     supervisor_cycle_ms: u32,
     internal_cycle_ms: u32,
+    thread_parameters_handle: FFIHandle,
     health_monitor_handle_out: *mut FFIHandle,
 ) -> FFICode {
     if health_monitor_builder_handle.is_null() || health_monitor_handle_out.is_null() {
@@ -126,6 +128,15 @@ pub extern "C" fn health_monitor_builder_build(
 
     health_monitor_builder.with_internal_processing_cycle_internal(Duration::from_millis(internal_cycle_ms as u64));
     health_monitor_builder.with_supervisor_api_cycle_internal(Duration::from_millis(supervisor_cycle_ms as u64));
+
+    // SAFETY:
+    // Validity of the pointer is ensured.
+    // It is assumed that the pointer was created by a call to `thread_parameters_create`.
+    // It is assumed that the pointer was not consumed by a call to `thread_parameters_destroy`.
+    if !thread_parameters_handle.is_null() {
+        let thread_parameters = unsafe { Box::from_raw(thread_parameters_handle as *mut ThreadParametersCpp) };
+        health_monitor_builder.thread_parameters_internal(thread_parameters.build());
+    }
 
     // Build instance.
     match health_monitor_builder.build() {
@@ -389,6 +400,7 @@ mod tests {
         logic_monitor_destroy,
     };
     use crate::tag::{MonitorTag, StateTag};
+    use crate::thread_ffi::thread_parameters_create;
     use core::ptr::null_mut;
 
     fn def_logic_monitor_builder() -> FFIHandle {
@@ -458,6 +470,7 @@ mod tests {
             health_monitor_builder_handle,
             200,
             100,
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
         assert!(!health_monitor_handle.is_null());
@@ -480,6 +493,7 @@ mod tests {
             health_monitor_builder_handle,
             123,
             100,
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
         assert!(health_monitor_handle.is_null());
@@ -499,6 +513,7 @@ mod tests {
             health_monitor_builder_handle,
             200,
             100,
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
         assert_eq!(health_monitor_builder_build_result, FFICode::WrongState);
@@ -510,8 +525,13 @@ mod tests {
     fn health_monitor_builder_build_null_builder_handle() {
         let mut health_monitor_handle: FFIHandle = null_mut();
 
-        let health_monitor_builder_build_result =
-            health_monitor_builder_build(null_mut(), 200, 100, &mut health_monitor_handle as *mut FFIHandle);
+        let health_monitor_builder_build_result = health_monitor_builder_build(
+            null_mut(),
+            200,
+            100,
+            null_mut(),
+            &mut health_monitor_handle as *mut FFIHandle,
+        );
         assert!(health_monitor_handle.is_null());
         assert_eq!(health_monitor_builder_build_result, FFICode::NullParameter);
     }
@@ -523,11 +543,43 @@ mod tests {
         let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
 
         let health_monitor_builder_build_result =
-            health_monitor_builder_build(health_monitor_builder_handle, 200, 100, null_mut());
+            health_monitor_builder_build(health_monitor_builder_handle, 200, 100, null_mut(), null_mut());
         assert_eq!(health_monitor_builder_build_result, FFICode::NullParameter);
 
         // Clean-up.
         health_monitor_builder_destroy(health_monitor_builder_handle);
+    }
+
+    #[test]
+    fn health_monitor_builder_build_thread_parameters() {
+        let mut health_monitor_builder_handle: FFIHandle = null_mut();
+        let mut health_monitor_handle: FFIHandle = null_mut();
+        let mut deadline_monitor_builder_handle = null_mut();
+        let mut thread_parameters_handle = null_mut();
+
+        let _ = health_monitor_builder_create(&mut health_monitor_builder_handle as *mut FFIHandle);
+        let deadline_monitor_tag = MonitorTag::from("deadline_monitor");
+        let _ = deadline_monitor_builder_create(&mut deadline_monitor_builder_handle as *mut FFIHandle);
+        let _ = health_monitor_builder_add_deadline_monitor(
+            health_monitor_builder_handle,
+            &deadline_monitor_tag as *const MonitorTag,
+            deadline_monitor_builder_handle,
+        );
+
+        let _ = thread_parameters_create(&mut thread_parameters_handle as *mut FFIHandle);
+
+        let health_monitor_builder_build_result = health_monitor_builder_build(
+            health_monitor_builder_handle,
+            200,
+            100,
+            thread_parameters_handle,
+            &mut health_monitor_handle as *mut FFIHandle,
+        );
+        assert!(!health_monitor_handle.is_null());
+        assert_eq!(health_monitor_builder_build_result, FFICode::Success);
+
+        // Clean-up.
+        health_monitor_destroy(health_monitor_handle);
     }
 
     #[test]
@@ -810,6 +862,7 @@ mod tests {
             health_monitor_builder_handle,
             200,
             100,
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
 
@@ -846,6 +899,7 @@ mod tests {
             health_monitor_builder_handle,
             200,
             100,
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
 
@@ -891,6 +945,7 @@ mod tests {
             health_monitor_builder_handle,
             200,
             100,
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
 
@@ -925,6 +980,7 @@ mod tests {
             health_monitor_builder_handle,
             200,
             100,
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
 
@@ -958,6 +1014,7 @@ mod tests {
             health_monitor_builder_handle,
             200,
             100,
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
 
@@ -991,6 +1048,7 @@ mod tests {
             health_monitor_builder_handle,
             200,
             100,
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
 
@@ -1027,6 +1085,7 @@ mod tests {
             health_monitor_builder_handle,
             200,
             100,
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
 
@@ -1072,6 +1131,7 @@ mod tests {
             health_monitor_builder_handle,
             200,
             100,
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
 
@@ -1106,6 +1166,7 @@ mod tests {
             health_monitor_builder_handle,
             200,
             100,
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
 
@@ -1139,6 +1200,7 @@ mod tests {
             health_monitor_builder_handle,
             200,
             100,
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
 
@@ -1171,6 +1233,7 @@ mod tests {
             health_monitor_builder_handle,
             200,
             100,
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
 
@@ -1206,6 +1269,7 @@ mod tests {
             health_monitor_builder_handle,
             200,
             100,
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
 
@@ -1250,6 +1314,7 @@ mod tests {
             health_monitor_builder_handle,
             200,
             100,
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
 
@@ -1283,6 +1348,7 @@ mod tests {
             health_monitor_builder_handle,
             200,
             100,
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
 
@@ -1315,6 +1381,7 @@ mod tests {
             health_monitor_builder_handle,
             200,
             100,
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
 
@@ -1330,6 +1397,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg_attr(miri, ignore)]
     fn health_monitor_start_succeeds() {
         let mut health_monitor_builder_handle: FFIHandle = null_mut();
         let mut health_monitor_handle: FFIHandle = null_mut();
@@ -1348,6 +1416,7 @@ mod tests {
             health_monitor_builder_handle,
             200,
             100,
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
 
@@ -1383,6 +1452,7 @@ mod tests {
             health_monitor_builder_handle,
             200,
             100,
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
 
