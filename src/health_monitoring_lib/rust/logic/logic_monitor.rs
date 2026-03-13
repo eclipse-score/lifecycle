@@ -89,7 +89,7 @@ impl LogicMonitorBuilder {
     }
 
     /// Add state along with allowed transitions.
-    /// If state already exist - it is overwritten.
+    /// If state already exists - it is overwritten.
     pub fn add_state(mut self, state: StateTag, allowed_targets: &[StateTag]) -> Self {
         self.add_state_internal(state, allowed_targets);
         self
