@@ -13,11 +13,13 @@
    # *******************************************************************************
 
 
+.. _lm_conf_launch_manager_configuration:
 Launch Manager Configuration
 ############################
 
 This document describes the configuration schema for the S-CORE **Launch Manager**, covering core concepts and providing detailed technical insights into how the **Launch Manager** configuration is structured and operates.
 
+.. _lm_conf_introduction_to_launch_manager_configuration:
 Introduction to Launch Manager Configuration
 ********************************************
 
@@ -25,6 +27,7 @@ Before diving into the specifics of the configuration structure, it is crucial t
 
 The **Launch Manager** is an essential system component responsible for managing and orchestrating software units installed on a machine. This orchestration is primarily achieved through the use of **Run Targets**. To fully understand this process, we first need to define three key terms: **Components**, **Run Targets**, and the **Ready State**.
 
+.. _lm_conf_components_the_building_blocks_of_your_system:
 Components: The Building Blocks of Your System
 ==============================================
 
@@ -32,6 +35,7 @@ A **Component**, often referred to as a software component, is an independent, d
 
 A single component might be deployed across several different systems. To facilitate this, the specific deployment configuration (how and where a component runs) is intentionally kept separate from the inherent properties of the component itself. This separation promotes flexibility and reusability.
 
+.. _lm_conf_run_targets_grouping_and_components_activation:
 Run Targets: Grouping and Components Activation
 ===============================================
 
@@ -41,6 +45,7 @@ A **Run Target** defines a specific collection of components. Essentially, it is
 * **Activation of Assigned Components:** All components that are not currently in the **Ready State** but **are** assigned to the **Run Target** being activated will be started and brought to their **Ready State**.
 * **Maintenance of Active Assigned Components:** Any components already in the **Ready State** and also assigned to the **Run Target** being activated will remain active and unchanged.
 
+.. _lm_conf_ready_state_confirmation_of_operational_readiness:
 Ready State: Confirmation of Operational Readiness
 ==================================================
 
@@ -50,6 +55,7 @@ It is vital to understand that a component's lifecycle, and consequently its **R
 
 Consider an example: a script designed to mount a file system. When this component starts, the script will execute and complete its task as soon as the mount operation is finished. The component representing this script, however, will only reach its **Ready State** when the files within that file system become genuinely available for use by other processes. In this scenario, despite the script having finished its execution, the component remains in the **Ready State** because the file system is still mounted and accessible to the rest of the system. This illustrates how the **Ready State** reflects a component's functional availability, rather than merely the availability of its process.
 
+.. _lm_conf_when_the_launch_manager_starts_a_component:
 When the Launch Manager Starts a Component
 ================================================
 
@@ -58,6 +64,7 @@ With the definitions of **Components**, **Run Targets**, and **Ready State** est
 * A component is directly assigned to a **Run Target** that is currently being activated.
 * Another component, which is assigned to a **Run Target** being activated, explicitly depends on that component.
 
+.. _lm_conf_understanding_dependencies_how_components_and_run_targets_relate:
 Understanding Dependencies: How Components and Run Targets Relate
 =================================================================
 
@@ -69,6 +76,7 @@ Similarly, when a component depends on another component, its own ``component_pr
 
 Additionally, a **Run Target** can declare a dependency on another **Run Target**. In this scenario, the name of the dependent **Run Target** is listed within the ``depends_on`` configuration parameter of the primary **Run Target**. The most effective way to conceptualize this relationship is to imagine that the list of components assigned to the dependent **Run Target** is effectively included in the list of components of the primary **Run Target**.
 
+.. _lm_conf_rules_for_configuring_dependencies:
 Rules for Configuring Dependencies
 ==================================
 
@@ -81,11 +89,13 @@ When configuring dependencies within the **Launch Manager**, the following rules
 
 Having discussed these basic concepts and the fundamental operation of the **Launch Manager**, we are now ready to explore the detailed configuration structure.
 
+.. _lm_conf_measurement_units:
 Measurement units
 *****************
 
 This section provides an overview of the measurement units used within the configuration and explains how they ensure consistent representation of values within the system.
 
+.. _lm_conf_time_intervals:
 Time Intervals
 ==============
 
@@ -98,6 +108,7 @@ For example:
 
 Using a consistent unit prevents ambiguity and makes the configuration values easier to compare and understand.
 
+.. _lm_conf_memory:
 Memory
 ======
 
@@ -110,6 +121,7 @@ For example:
 
 Storing memory values in bytes ensures that all size-related settings remain precise and unambiguous.
 
+.. _lm_conf_configuration_schema:
 Configuration schema
 ********************
 
@@ -117,11 +129,13 @@ This section provides a detailed description of the **Launch Manager** configura
 
 The **Launch Manager** configuration leverages reusable definitions, primarily found within the standard ``$defs`` object. These reusable types are the fundamental building blocks of the **Launch Manager** configuration. A thorough understanding of these types will simplify comprehension of the overall configuration structure and the interaction between different settings.
 
+.. _lm_conf_reusable_types:
 Reusable Types
 ==============
 
 The following sections describe the reusable types that form the basis of the **Launch Manager** configuration.
 
+.. _lm_conf_alive_supervision_object_:
 alive_supervision (object)
 --------------------------
 
@@ -134,6 +148,7 @@ alive_supervision (object)
     * **Description:** Specifies the length, in seconds (e.g., ``0.5`` for 500 milliseconds), of the time window used by the **Launch Manager** to assess incoming alive supervision reports from components.
     * **Constraint:** Must be greater than 0.
 
+.. _lm_conf_watchdog_object_:
 watchdog (object)
 -----------------
 
@@ -152,6 +167,7 @@ watchdog (object)
 * **require_magic_close** (boolean, optional)
     * **Description:** Specifies whether the **Launch Manager** performs a defined shutdown sequence to inform the external watchdog that the shutdown is intentional and to prevent a watchdog-initiated reset. When ``true``, the magic close sequence is performed; when ``false``, it is not, which might lead to an unintentional reset.
 
+.. _lm_conf_recovery_action_object_:
 recovery_action (object)
 ------------------------
 
@@ -175,6 +191,7 @@ recovery_action (object)
         * **run_target** (string, optional)
             * **Description:** Specifies the name of the **Run Target** that the **Launch Manager** should switch to upon failure.
 
+.. _lm_conf_run_target_object_:
 run_target (object)
 -------------------
 
@@ -195,6 +212,7 @@ run_target (object)
     * **Description:** Specifies the recovery action to execute when a component assigned to this **Run Target** fails. This action is limited to ``switch_run_target`` operations.
     * **Reference:** This property refers to the `recovery_action` reusable type defined in this schema, specifically enforcing the ``switch_run_target`` option.
 
+.. _lm_conf_component_properties_object_:
 component_properties (object)
 -----------------------------
 
@@ -248,6 +266,7 @@ component_properties (object)
                 * ``"Running"``: The process has started and reached its running state.
                 * ``"Terminated"``: The process has started, reached its running state, and then terminated successfully.
 
+.. _lm_conf_deployment_config_object_:
 deployment_config (object)
 --------------------------
 
@@ -301,6 +320,7 @@ deployment_config (object)
             * **Description:** Specifies the maximum CPU usage limit for the component, expressed as a percentage (%) of total CPU capacity.
             * **Constraint:** Must be greater than 0.
 
+.. _lm_conf_launch_manager_root_properties:
 Launch Manager Root Properties
 ==============================
 
@@ -320,6 +340,7 @@ The ``alive_supervision`` property defines the global evaluation cycle parameter
 
 With this overview in mind, let us now examine each root configuration property in detail.
 
+.. _lm_conf_schema_version_integer_required_:
 schema_version (integer, required)
 ----------------------------------
 
@@ -328,6 +349,7 @@ schema_version (integer, required)
 **Allowed Value:**
   ``1``
 
+.. _lm_conf_defaults_object_optional_:
 defaults (object, optional)
 ---------------------------
 
@@ -352,6 +374,7 @@ defaults (object, optional)
     * **Description:** Defines default watchdog configuration values. These values are applied to all watchdogs unless overridden in individual watchdog definitions.
     * **Reference:** This property refers to the ``watchdog`` reusable type defined in this schema.
 
+.. _lm_conf_components_object_optional_:
 components (object, optional)
 -----------------------------
 
@@ -372,6 +395,7 @@ components (object, optional)
             * **Description:** Defines deployment configuration for this component. Any properties not explicitly specified here will be inherited from ``defaults.deployment_config``.
             * **Reference:** This property refers to the ``deployment_config`` reusable type defined in this schema.
 
+.. _lm_conf_run_targets_object_optional_:
 run_targets (object, optional)
 ------------------------------
 
@@ -384,12 +408,14 @@ run_targets (object, optional)
     * **Description:** Defines an individual **Run Target's** configuration, specifying the components and dependencies that constitute a particular operational mode.
     * **Reference:** This property refers to the ``run_target`` reusable type defined in this schema.
 
+.. _lm_conf_initial_run_target_string_required_:
 initial_run_target (string, required)
 -------------------------------------
 
 **Description:**
   Specifies the name of the **Run Target** that the **Launch Manager** activates during its startup sequence. This name must precisely match a **Run Target** defined within the ``run_targets`` section.
 
+.. _lm_conf_fallback_run_target_object_optional_:
 fallback_run_target (object, optional)
 --------------------------------------
 
@@ -407,6 +433,7 @@ fallback_run_target (object, optional)
     * **Description:** Specifies the time limit, in seconds (e.g., ``1.5`` for 1500 milliseconds), for the **Run Target** transition. If this limit is exceeded, the transition is considered failed.
     * **Constraint:** Must be greater than 0.
 
+.. _lm_conf_alive_supervision_object_optional_:
 alive_supervision (object, optional)
 ------------------------------------
 
@@ -414,6 +441,7 @@ alive_supervision (object, optional)
   Defines the global alive supervision configuration parameters used to monitor component health. If specified, this configuration will override any default values set in ``defaults.alive_supervision``.
 **Reference:** This property refers to the ``alive_supervision`` reusable type defined in this schema.
 
+.. _lm_conf_watchdog_object_optional_:
 watchdog (object, optional)
 ---------------------------
 
@@ -421,6 +449,7 @@ watchdog (object, optional)
   Defines the global external watchdog device configuration used by the **Launch Manager**. If specified, this configuration will override any default values set in ``defaults.watchdog``.
 **Reference:** This property refers to the ``watchdog`` reusable type defined in this schema.
 
+.. _lm_conf_default_values:
 Default Values
 **************
 
@@ -433,11 +462,13 @@ To achieve this robust defaulting mechanism, the **Launch Manager** employs two 
 
 The S-CORE standard defaults are particularly beneficial during the development phase. They allow developers to concentrate on core tasks without needing to meticulously define every configuration option, as a functional default is guaranteed.
 
+.. _lm_conf_s_core_standard_defaults:
 S-CORE Standard Defaults
 ========================
 
 The **Launch Manager** guarantees the availability of these specific default values, which are applied when no corresponding configuration is found in the explicit definition of a property (e.g., within a component's ``deployment_config``, a **Run Target's** settings, or a root-level property) or within the user-defined ``defaults`` section.
 
+.. _lm_conf_alive_supervision:
 alive_supervision
 -----------------
 
@@ -449,6 +480,7 @@ The S-CORE standard provides the following default values for ``alive_supervisio
       "evaluation_cycle": 0.5
    }
 
+.. _lm_conf_watchdog:
 watchdog
 --------
 
@@ -463,6 +495,7 @@ The S-CORE standard provides the following default values for ``watchdog`` prope
       "require_magic_close": false
    }
 
+.. _lm_conf_run_target:
 run_target
 ----------
 
@@ -481,6 +514,7 @@ The S-CORE standard provides the following default values for ``run_target`` pro
       }
    }
 
+.. _lm_conf_component_properties:
 component_properties
 --------------------
 
@@ -507,6 +541,7 @@ The S-CORE standard provides the following default values for ``component_proper
       }
    }
 
+.. _lm_conf_deployment_config:
 deployment_config
 -----------------
 
@@ -543,6 +578,7 @@ The S-CORE standard provides the following default values for ``deployment_confi
       }
    }
 
+.. _lm_conf_fallback_run_target:
 fallback_run_target
 -------------------
 
@@ -550,6 +586,7 @@ The ``fallback_run_target`` is a critical configuration option within the **Laun
 
 If ``fallback_run_target`` is not explicitly configured by the user, the Bazel target responsible for generating configuration files will create a **Run Target** that does not depend on any component. In this specific scenario, the ``fallback_run_target`` will effectively cause all components to shut down, with the exception of the **Launch Manager** itself. Understanding this default behavior is crucial for ensuring the desired system state during operation.
 
+.. _lm_conf_inheritance_of_default_values:
 Inheritance Of Default Values
 =============================
 
