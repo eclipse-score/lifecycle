@@ -75,7 +75,7 @@ fn main_logic(args: &Args, stop: Arc<AtomicBool>) -> Result<(), Box<dyn std::err
         .get_deadline_monitor(MonitorTag::from("mon1"))
         .expect("Failed to get monitor");
 
-    hm.start().expect("Failed to start health monitor");
+    hm.start();
 
     if !lifecycle_client_rs::report_execution_state_running() {
         error!("Rust app FAILED to report execution state!");

@@ -317,7 +317,15 @@ impl HealthMonitor {
     /// Otherwise the supervisor might consider the process not alive.
     ///
     /// Health monitoring logic stops when the [`HealthMonitor`] is dropped.
-    pub fn start(&mut self) -> Result<(), HealthMonitorError> {
+    ///
+    /// # Panics
+    ///
+    /// Method panics if [`HealthMonitor`] is unable to start.
+    pub fn start(&mut self) {
+        self.start_internal().expect("Failed to start HealthMonitor");
+    }
+
+    pub(crate) fn start_internal(&mut self) -> Result<(), HealthMonitorError> {
         // Collect all monitors.
         let num_monitors = self.deadline_monitors.len() + self.heartbeat_monitors.len() + self.logic_monitors.len();
         let mut collected_monitors = FixedCapacityVec::new(num_monitors);
@@ -596,11 +604,11 @@ mod tests {
         let _heartbeat_monitor = health_monitor.get_heartbeat_monitor(heartbeat_monitor_tag).unwrap();
         let _logic_monitor = health_monitor.get_logic_monitor(logic_monitor_tag).unwrap();
 
-        let result = health_monitor.start();
-        assert!(result.is_ok());
+        health_monitor.start();
     }
 
     #[test]
+    #[should_panic(expected = "Failed to start HealthMonitor")]
     fn health_monitor_start_monitors_not_taken() {
         let deadline_monitor_builder = DeadlineMonitorBuilder::new();
         let heartbeat_monitor_builder = def_heartbeat_monitor_builder();
@@ -613,40 +621,6 @@ mod tests {
             .build()
             .unwrap();
 
-        let result = health_monitor.start();
-        assert!(result.is_err_and(|e| e == HealthMonitorError::WrongState));
-    }
-
-    #[test]
-    fn health_monitor_start_not_taken_then_restart() {
-        let deadline_monitor_tag = MonitorTag::from("deadline_monitor");
-        let deadline_monitor_builder = DeadlineMonitorBuilder::new();
-        let heartbeat_monitor_tag = MonitorTag::from("heartbeat_monitor");
-        let heartbeat_monitor_builder = def_heartbeat_monitor_builder();
-        let logic_monitor_tag = MonitorTag::from("logic_monitor");
-        let logic_monitor_builder = def_logic_monitor_builder();
-
-        let mut health_monitor = HealthMonitorBuilder::new()
-            .add_deadline_monitor(deadline_monitor_tag, deadline_monitor_builder)
-            .add_heartbeat_monitor(heartbeat_monitor_tag, heartbeat_monitor_builder)
-            .add_logic_monitor(logic_monitor_tag, logic_monitor_builder)
-            .build()
-            .unwrap();
-
-        // Start without taking any monitor.
-        let start_result = health_monitor.start();
-        assert!(start_result.is_err_and(|e| e == HealthMonitorError::WrongState));
-
-        // Take monitors.
-        let get_deadline_monitor_result = health_monitor.get_deadline_monitor(deadline_monitor_tag);
-        assert!(get_deadline_monitor_result.is_some());
-        let get_heartbeat_monitor_result = health_monitor.get_heartbeat_monitor(heartbeat_monitor_tag);
-        assert!(get_heartbeat_monitor_result.is_some());
-        let get_logic_monitor_result = health_monitor.get_logic_monitor(logic_monitor_tag);
-        assert!(get_logic_monitor_result.is_some());
-
-        // Try to start again, this time should be successful.
-        let start_result = health_monitor.start();
-        assert!(start_result.is_ok());
+        health_monitor.start();
     }
 }

@@ -103,8 +103,7 @@ TEST_F(HealthMonitorTest, TestName)
     auto logic_monitor{std::move(*logic_monitor_res)};
 
     // Start HMON.
-    auto start_result{hm.start()};
-    EXPECT_TRUE(start_result.has_value());
+    hm.start();
 
     heartbeat_monitor.heartbeat();
 
