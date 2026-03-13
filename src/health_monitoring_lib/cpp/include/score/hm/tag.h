@@ -15,11 +15,13 @@
 #define SCORE_HM_TAG_H
 
 #include <cstddef>
+#include <string_view>
 
 namespace score::hm
 {
 
 /// Common string-based tag.
+template <typename T>
 class Tag
 {
   public:
@@ -29,21 +31,40 @@ class Tag
     {
     }
 
+    bool operator==(const T& other) const noexcept
+    {
+        std::string_view this_sv{data_, length_};
+        std::string_view other_sv{other.data_, other.length_};
+        return this_sv.compare(other_sv) == 0;
+    }
+
+    bool operator!=(const T& other) const noexcept
+    {
+        return !(*this == other);
+    }
+
   private:
     /// SAFETY: This has to be FFI compatible with the Rust side representation.
-    const char* const data_;
+    const char* data_;
     size_t length_;
 };
 
 /// Monitor tag.
-class MonitorTag : public Tag
+class MonitorTag : public Tag<MonitorTag>
 {
   public:
     using Tag::Tag;
 };
 
 /// Deadline tag.
-class DeadlineTag : public Tag
+class DeadlineTag : public Tag<DeadlineTag>
+{
+  public:
+    using Tag::Tag;
+};
+
+/// State tag.
+class StateTag : public Tag<StateTag>
 {
   public:
     using Tag::Tag;
