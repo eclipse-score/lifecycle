@@ -14,8 +14,11 @@
 use crate::deadline::DeadlineEvaluationError;
 use crate::heartbeat::HeartbeatEvaluationError;
 use crate::log::ScoreDebug;
+use crate::logic::LogicEvaluationError;
 use crate::tag::MonitorTag;
+use core::cell::Cell;
 use core::hash::Hash;
+use core::marker::PhantomData;
 use core::time::Duration;
 use std::sync::Arc;
 use std::time::Instant;
@@ -82,7 +85,7 @@ pub(crate) trait Monitor {
 pub(crate) enum MonitorEvaluationError {
     Deadline(DeadlineEvaluationError),
     Heartbeat(HeartbeatEvaluationError),
-    Logic,
+    Logic(LogicEvaluationError),
 }
 
 impl From<DeadlineEvaluationError> for MonitorEvaluationError {
@@ -94,6 +97,12 @@ impl From<DeadlineEvaluationError> for MonitorEvaluationError {
 impl From<HeartbeatEvaluationError> for MonitorEvaluationError {
     fn from(value: HeartbeatEvaluationError) -> Self {
         MonitorEvaluationError::Heartbeat(value)
+    }
+}
+
+impl From<LogicEvaluationError> for MonitorEvaluationError {
+    fn from(value: LogicEvaluationError) -> Self {
+        MonitorEvaluationError::Logic(value)
     }
 }
 
@@ -143,6 +152,14 @@ where
     let millis = duration.as_millis();
     T::try_from(millis).expect("Duration is too big for the integer of this type")
 }
+
+/// Marker for disabling [`Sync`].
+pub(crate) type PhantomUnsync = PhantomData<Cell<()>>;
+
+#[cfg(not(loom))]
+pub use core::sync::atomic::{AtomicU64, Ordering};
+#[cfg(loom)]
+pub use loom::sync::atomic::{AtomicU64, Ordering};
 
 #[cfg(all(test, not(loom)))]
 mod tests {
