@@ -165,6 +165,7 @@ mod tests {
             health_monitor_builder_handle,
             null_mut(),
             null_mut(),
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
         let _ = health_monitor_get_heartbeat_monitor(

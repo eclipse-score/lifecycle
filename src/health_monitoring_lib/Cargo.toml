@@ -14,6 +14,7 @@ path = "rust/lib.rs"
 workspace = true
 
 [dependencies]
+thread.workspace = true
 score_log.workspace = true
 score_testing_macros.workspace = true
 containers.workspace = true
