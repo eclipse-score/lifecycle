@@ -22,8 +22,10 @@ on:
       - main
 jobs:
   build:
-    name: Build Bazel Code
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        config: [x86_64-linux, arm64-linux]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
@@ -32,7 +34,7 @@ jobs:
         uses: bazel-contrib/setup-bazel@0.18.0
         with:
           bazelisk-cache: true
-          disk-cache: ${{ github.workflow }}
+          disk-cache: ${{ github.workflow }}-${{ matrix.config }}
           repository-cache: true
           cache-save: ${{ github.event_name == 'push' }}
 
@@ -46,4 +48,4 @@ jobs:
 
       - name: Build with Bazel
         run: |
-          bazel build --lockfile_mode=error --config x86_64-linux //src/... //examples/...
+          bazel build --lockfile_mode=error --config ${{ matrix.config }} //src/... //examples/...
