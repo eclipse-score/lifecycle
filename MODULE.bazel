@@ -109,6 +109,13 @@ deb(
     visibility = ["//visibility:public"],
 )
 
+deb(
+    name = "acl-deb-aarch64",
+    build = "//externals/acl:acl.BUILD",
+    urls = ["https://launchpadlibrarian.net/581258948/libacl1-dev_2.3.1-1_arm64.deb"],
+    visibility = ["//visibility:public"],
+)
+
 PYTHON_VERSION = "3.12"
 
 python = use_extension("@rules_python//python/extensions:python.bzl", "python", dev_dependency = True)
