@@ -60,7 +60,7 @@ class HealthMonitorBuilder final
     HealthMonitorBuilder with_internal_processing_cycle(std::chrono::milliseconds cycle_duration) &&;
 
     /// Build a new `HealthMonitor` instance based on provided parameters.
-    HealthMonitor build() &&;
+    score::cpp::expected<HealthMonitor, Error> build() &&;
 
   private:
     internal::DroppableFFIHandle health_monitor_builder_handle_;

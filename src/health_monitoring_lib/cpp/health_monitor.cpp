@@ -125,7 +125,7 @@ HealthMonitorBuilder HealthMonitorBuilder::with_supervisor_api_cycle(std::chrono
     return std::move(*this);
 }
 
-HealthMonitor HealthMonitorBuilder::build() &&
+score::cpp::expected<HealthMonitor, Error> HealthMonitorBuilder::build() &&
 {
     auto health_monitor_builder_handle = health_monitor_builder_handle_.drop_by_rust();
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(health_monitor_builder_handle.has_value());
@@ -136,9 +136,12 @@ HealthMonitor HealthMonitorBuilder::build() &&
     FFIHandle health_monitor_handle{nullptr};
     auto result{health_monitor_builder_build(
         health_monitor_builder_handle.value(), supervisor_duration_ms, internal_duration_ms, &health_monitor_handle)};
-    SCORE_LANGUAGE_FUTURECPP_ASSERT(result == kSuccess);
+    if (result != kSuccess)
+    {
+        return score::cpp::unexpected(static_cast<Error>(result));
+    }
 
-    return HealthMonitor{health_monitor_handle};
+    return score::cpp::expected<HealthMonitor, Error>(HealthMonitor{health_monitor_handle});
 }
 
 HealthMonitor::HealthMonitor(FFIHandle handle) : health_monitor_(handle)

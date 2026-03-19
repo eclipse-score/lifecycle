@@ -12,10 +12,10 @@
 // *******************************************************************************
 use crate::deadline::ffi::DeadlineMonitorCpp;
 use crate::deadline::DeadlineMonitorBuilder;
+use crate::health_monitor::{HealthMonitor, HealthMonitorBuilder, HealthMonitorError};
 use crate::heartbeat::HeartbeatMonitorBuilder;
 use crate::logic::LogicMonitorBuilder;
 use crate::tag::MonitorTag;
-use crate::{HealthMonitor, HealthMonitorBuilder, HealthMonitorError};
 use core::mem::ManuallyDrop;
 use core::ops::{Deref, DerefMut};
 use core::time::Duration;
@@ -346,7 +346,7 @@ pub extern "C" fn health_monitor_start(health_monitor_handle: FFIHandle) -> FFIC
     let mut health_monitor = FFIBorrowed::new(unsafe { Box::from_raw(health_monitor_handle as *mut HealthMonitor) });
 
     // Start monitoring logic.
-    match health_monitor.start() {
+    match health_monitor.start_internal() {
         Ok(_) => FFICode::Success,
         Err(error) => error.into(),
     }

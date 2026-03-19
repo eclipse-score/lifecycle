@@ -128,11 +128,17 @@ int main(int argc, char** argv)
     MonitorTag ident("monitor");
 
     {
-        auto hm = HealthMonitorBuilder()
-                      .add_deadline_monitor(ident, std::move(builder_mon))
-                      .with_internal_processing_cycle(std::chrono::milliseconds(50))
-                      .with_supervisor_api_cycle(std::chrono::milliseconds(50))
-                      .build();
+        auto hm_res = HealthMonitorBuilder()
+                          .add_deadline_monitor(ident, std::move(builder_mon))
+                          .with_internal_processing_cycle(std::chrono::milliseconds(50))
+                          .with_supervisor_api_cycle(std::chrono::milliseconds(50))
+                          .build();
+        if (!hm_res.has_value())
+        {
+            std::cerr << "Failed to build health monitor" << std::endl;
+            return EXIT_FAILURE;
+        }
+        auto hm = std::move(*hm_res);
 
         auto deadline_monitor_res = hm.get_deadline_monitor(ident);
         if (!deadline_monitor_res.has_value())
@@ -142,6 +148,7 @@ int main(int argc, char** argv)
         }
 
         hm.start();
+
         score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
 
         auto deadline_mon = std::move(*deadline_monitor_res);

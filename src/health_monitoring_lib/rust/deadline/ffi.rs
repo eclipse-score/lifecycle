@@ -10,11 +10,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
+use crate::common::TimeRange;
 use crate::deadline::deadline_monitor::Deadline;
 use crate::deadline::{DeadlineMonitor, DeadlineMonitorBuilder, DeadlineMonitorError};
 use crate::ffi::{FFIBorrowed, FFICode, FFIHandle};
 use crate::tag::DeadlineTag;
-use crate::TimeRange;
 use core::time::Duration;
 
 pub(crate) struct DeadlineMonitorCpp {
