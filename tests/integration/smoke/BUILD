@@ -10,9 +10,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-load("@pip_score_venv_test//:requirements.bzl", "all_requirements")
-load("@score_tooling//:defs.bzl", "score_py_pytest")
+load("@score_itf//:defs.bzl", "py_itf_test")
 load("//config:flatbuffers_rules.bzl", "flatbuffer_json_to_bin")
+load("//tests/utils/bazel:integration.bzl", "integration_test")
+load("//tests/utils/bazel:package_test_binaries.bzl", "package_test_binaries")
 
 flatbuffer_json_to_bin(
     name = "test_lm_cfg",
@@ -36,7 +37,7 @@ cc_binary(
     deps = [
         "//src/control_client_lib",
         "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
-        "//tests/integration:test_helper",
+        "//tests/utils/test_helper",
         "@googletest//:gtest_main",
     ],
 )
@@ -47,27 +48,27 @@ cc_binary(
     deps = [
         "//src/control_client_lib",
         "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
-        "//tests/integration:test_helper",
+        "//tests/utils/test_helper",
         "@googletest//:gtest_main",
     ],
 )
 
-score_py_pytest(
+package_test_binaries(
+    name = "smoke_binaries",
+    test_name = "smoke",
+    binaries = {
+        "//src/launch_manager_daemon:launch_manager": "",
+        ":control_daemon_mock": "",
+        ":gtest_process": "",
+        ":test_lm_cfg": "etc",
+        ":test_hm_cfg": "etc",
+    },
+)
+
+integration_test(
     name = "smoke",
-    srcs = [
-        "smoke.py",
-    ],
-    args = [
-    ],
-    data = [
-        ":control_daemon_mock",
-        ":gtest_process",
-        "//src/launch_manager_daemon:launch_manager",
-    ],
-    tags = [
-        "integration",
-    ],
-    deps = all_requirements + [
-        "//tests/integration:testing_utils",
-    ],
+    srcs = ["smoke.py"],
+    test_binaries = ":smoke_binaries",
+    deps = ["//tests/utils/testing_utils"],
+    tags = ["integration"],
 )

@@ -19,6 +19,7 @@ module(
 bazel_dep(name = "rules_python", version = "1.8.3")
 bazel_dep(name = "rules_rust", version = "0.61.0")
 bazel_dep(name = "rules_cc", version = "0.2.16")
+bazel_dep(name = "rules_oci", version = "2.3.0")
 bazel_dep(name = "aspect_rules_lint", version = "2.0.0")
 bazel_dep(name = "buildifier_prebuilt", version = "8.2.0.2")
 bazel_dep(name = "platforms", version = "1.0.0")
@@ -131,6 +132,22 @@ pip.parse(
     requirements_lock = "//tests/integration:requirements.lock",
 )
 use_repo(pip, "pip_score_venv_test")
+
+bazel_dep(name = "score_itf", version = "0.1.0", dev_dependency = True)
+
+oci = use_extension("@rules_oci//oci:extensions.bzl", "oci", dev_dependency = True)
+oci.pull(
+    name = "linux_runtime",
+    image = "index.docker.io/library/debian",
+    tag = "bookworm",
+    platforms = ["linux/amd64"],
+)
+use_repo(oci, "linux_runtime")
+
+local_path_override(
+    module_name = "score_itf",
+    path = "/home/kam1yok/score/itf",
+)
 
 bazel_dep(name = "score_baselibs_rust", version = "0.1.0")
 bazel_dep(name = "score_baselibs", version = "0.2.4")

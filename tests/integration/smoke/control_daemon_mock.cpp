@@ -18,7 +18,7 @@
 #include <score/lcm/lifecycle_client.h>
 #include <score/lcm/control_client.h>
 #include <score/lcm/identifier_hash.hpp>
-#include "tests/integration/test_helper.hpp"
+#include "tests/utils/test_helper/test_helper.hpp"
 
 score::lcm::ControlClient client([](const score::lcm::ExecutionErrorEvent& event) {
     std::cerr << "Undefined state callback invoked for process group id: " << event.processGroup.data() << std::endl;

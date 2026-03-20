@@ -12,7 +12,7 @@
 # *******************************************************************************
 load("@pip_score_venv_test//:requirements.bzl", "all_requirements")
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
-load("@score_tooling//python_basics:defs.bzl", "score_py_pytest", "score_virtualenv")
+load("@score_tooling//python_basics:defs.bzl", "score_virtualenv")
 
 # In order to update the requirements, change the `requirements.txt` file and run:
 # `bazel run //tests/integration:requirements.update`.
@@ -40,24 +40,3 @@ score_virtualenv(
     venv_name = ".python_tc_venv",
 )
 
-cc_library(
-    name = "test_helper",
-    hdrs = ["test_helper.hpp"],
-    visibility = ["//tests:__subpackages__"],
-    deps = [
-        "@googletest//:gtest_main",
-    ],
-)
-
-py_library(
-    name = "control_interface",
-    srcs = ["control_interface.py"],
-    visibility = ["//tests:__subpackages__"],
-)
-
-py_library(
-    name = "testing_utils",
-    srcs = ["testing_utils.py"],
-    visibility = ["//tests:__subpackages__"],
-    deps = [":control_interface"],
-)

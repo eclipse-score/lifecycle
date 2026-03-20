@@ -6,7 +6,7 @@
       "identifier": "control_daemon",
       "uid": 0,
       "gid": 0,
-      "path": "/tests/integration/smoke/control_daemon_mock",
+      "path": "/opt/score/tests/smoke/control_daemon_mock",
       "functionClusterAffiliation": "STATE_MANAGEMENT",
       "numberOfRestartAttempts": 0,
       "executable_reportingBehavior": "ReportsExecutionState",
@@ -49,7 +49,7 @@
       "identifier": "demo_app0_DefaultPG",
       "uid": 0,
       "gid": 0,
-      "path": "/tests/integration/smoke/gtest_process",
+      "path": "/opt/score/tests/smoke/gtest_process",
       "numberOfRestartAttempts": 0,
       "executable_reportingBehavior": "ReportsExecutionState",
       "sgids": [],
@@ -79,7 +79,7 @@
             },
             {
               "key": "CONFIG_PATH",
-              "value": "/opt/supervision_demo/etc/health_monitor_process_cfg_0_MainPG.bin"
+              "value": "/opt/score/tests/smoke/etc/hm_demo.bin"
             }
           ]
         }
