@@ -35,16 +35,6 @@ A **Component**, often referred to as a software component, is an independent, d
 
 A single component might be deployed across several different systems. To facilitate this, the specific deployment configuration (how and where a component runs) is intentionally kept separate from the inherent properties of the component itself. This separation promotes flexibility and reusability.
 
-.. _lm_conf_run_targets_grouping_and_components_activation:
-Run Targets: Grouping and Components Activation
-===============================================
-
-A **Run Target** defines a specific collection of components. Essentially, it is a named group that lists the components intended to be active together. When a particular **Run Target** is activated, the **Launch Manager** performs the following sequence of operations to manage the components associated with it:
-
-* **Deactivation of Unassigned Components:** All components currently in the **Ready State** that are **not** part of the **Run Target** being activated will be deactivated.
-* **Activation of Assigned Components:** All components that are not currently in the **Ready State** but **are** assigned to the **Run Target** being activated will be started and brought to their **Ready State**.
-* **Maintenance of Active Assigned Components:** Any components already in the **Ready State** and also assigned to the **Run Target** being activated will remain active and unchanged.
-
 .. _lm_conf_ready_state_confirmation_of_operational_readiness:
 Ready State: Confirmation of Operational Readiness
 ==================================================
@@ -54,6 +44,16 @@ Each component possesses a **Ready State**. This state signifies that the compon
 It is vital to understand that a component's lifecycle, and consequently its **Ready State**, is distinct from the lifecycle of the underlying operating system process initiated during the component's startup sequence.
 
 Consider an example: a script designed to mount a file system. When this component starts, the script will execute and complete its task as soon as the mount operation is finished. The component representing this script, however, will only reach its **Ready State** when the files within that file system become genuinely available for use by other processes. In this scenario, despite the script having finished its execution, the component remains in the **Ready State** because the file system is still mounted and accessible to the rest of the system. This illustrates how the **Ready State** reflects a component's functional availability, rather than merely the availability of its process.
+
+.. _lm_conf_run_targets_grouping_of_components:
+Run Targets: Grouping of Components
+===================================
+
+A **Run Target** defines a specific collection of components. Essentially, it is a named group that lists the components intended to be active together. When a particular **Run Target** is activated, the **Launch Manager** performs the following sequence of operations to manage the components associated with it:
+
+* **Deactivation of Unassigned Components:** All components currently in the **Ready State** that are **not** part of the **Run Target** being activated will be deactivated. This means that for each component not assigned to the activated **Run Target**, the **Launch Manager** will initiate its shutdown sequence, gracefully terminating the component and its associated process.
+* **Activation of Assigned Components:** All components not currently in the **Ready State** but **assigned** to the **Run Target** being activated will be activated. This involves the **Launch Manager** starting each component and waiting for it to successfully reach its **Ready State**.
+* **Maintenance of Active Assigned Components:** Any components already in the **Ready State** and also assigned to the **Run Target** being activated will remain active and unchanged.
 
 .. _lm_conf_when_the_launch_manager_starts_a_component:
 When the Launch Manager Starts a Component
