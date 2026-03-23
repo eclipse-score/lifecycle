@@ -489,11 +489,9 @@ The S-CORE standard provides the following default values for ``watchdog`` prope
 .. code-block:: json
 
    {
-      "device_file_path": "/dev/watchdog",
-      "max_timeout": 2.0,
-      "deactivate_on_shutdown": true,
-      "require_magic_close": false
    }
+
+Please note that an empty object (``{}``) for ``watchdog`` by default signifies that the **Launch Manager** will disable watchdog functionality.
 
 .. _lm_conf_run_target:
 run_target
