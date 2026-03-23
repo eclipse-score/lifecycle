@@ -155,12 +155,22 @@ void Notification::verifyRecoveryHandlerResponse(void)
     const auto result = recoveryStateFutureOutput.Get(score::cpp::stop_token{});
     if (!result.has_value())
     {
-        logger_r.LogWarn() << messageHeader << "Recovery state request returned with error:" << result.error().Message();
-        logger_r.LogDebug() << messageHeader << "Incorrect response received from the Recovery state request call";
+        // We may be already in the requested state, due to LM executing recovery on its own.
+        // This is e.g. the case if the process crashed and LM transitions to its recovery state before supervisions expire.
+        if (*result.error() == static_cast<score::result::ErrorCode>(score::lcm::ExecErrc::kAlreadyInState))
+        {
+            logger_r.LogWarn() << messageHeader
+                               << "Recovery state request returned:" << result.error().Message();
+        }
+        else {
+            logger_r.LogWarn() << messageHeader
+                            << "Recovery state request returned with error:" << result.error().Message();
+            logger_r.LogDebug() << messageHeader << "Incorrect response received from the Recovery state request call";
 
-        startTimestamp = 0U;
-        setFinalTimeoutState();
-        return;
+            startTimestamp = 0U;
+            setFinalTimeoutState();
+            return;
+        }
     }
 
     logger_r.LogDebug() << messageHeader << "Correct response received from the Recovery state request call";

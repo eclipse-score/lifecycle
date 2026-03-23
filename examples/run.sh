@@ -23,12 +23,22 @@ file_exists() {
     fi
 }
 
-LM_BINARY="$PWD/../bazel-bin/src/launch_manager_daemon/launch_manager"
-DEMO_APP_BINARY="$PWD/../bazel-bin/examples/cpp_supervised_app/cpp_supervised_app"
-DEMO_APP_WO_HM_BINARY="$PWD/../bazel-bin/examples/cpp_lifecycle_app/cpp_lifecycle_app"
-RUST_APP_BINARY="$PWD/../bazel-bin/examples/rust_supervised_app/rust_supervised_app"
-CONTROL_APP_BINARY="$PWD/../bazel-bin/examples/control_application/control_daemon"
-CONTROL_CLI_BINARY="$PWD/../bazel-bin/examples/control_application/lmcontrol"
+# When run via 'bazel run', BUILD_WORKSPACE_DIRECTORY is set to the workspace root.
+# Otherwise, assume we're running from the examples/ directory.
+if [ -n "$BUILD_WORKSPACE_DIRECTORY" ]; then
+    BAZEL_BIN="$BUILD_WORKSPACE_DIRECTORY/bazel-bin"
+    cd "$BUILD_WORKSPACE_DIRECTORY/examples"
+else
+    BAZEL_BIN="$PWD/../bazel-bin"
+fi
+
+LM_BINARY="$BAZEL_BIN/src/launch_manager_daemon/launch_manager"
+DEMO_APP_BINARY="$BAZEL_BIN/examples/cpp_supervised_app/cpp_supervised_app"
+DEMO_APP_WO_HM_BINARY="$BAZEL_BIN/examples/cpp_lifecycle_app/cpp_lifecycle_app"
+RUST_APP_BINARY="$BAZEL_BIN/examples/rust_supervised_app/rust_supervised_app"
+CONTROL_APP_BINARY="$BAZEL_BIN/examples/control_application/control_daemon"
+CONTROL_CLI_BINARY="$BAZEL_BIN/examples/control_application/lmcontrol"
+CFG_DIR="$BAZEL_BIN/examples/flatbuffer_out/"
 
 file_exists $LM_BINARY
 file_exists $DEMO_APP_BINARY
@@ -37,51 +47,33 @@ file_exists $RUST_APP_BINARY
 file_exists $CONTROL_APP_BINARY
 file_exists $CONTROL_CLI_BINARY
 
-NUMBER_OF_CPP_PROCESSES_PER_PROCESS_GROUP=1
-NUMBER_OF_RUST_PROCESSES_PER_PROCESS_GROUP=1
-NUMBER_OF_NON_SUPERVISED_CPP_PROCESSES_PER_PROCESS_GROUP=1
-PROCESS_GROUPS="--process_groups MainPG ProcessGroup1"
-
 rm -rf tmp
-rm -rf config/tmp
-mkdir config/tmp
-python3 config/gen_health_monitor_process_cfg.py -c "$NUMBER_OF_CPP_PROCESSES_PER_PROCESS_GROUP" -r "$NUMBER_OF_RUST_PROCESSES_PER_PROCESS_GROUP"  $PROCESS_GROUPS -o config/tmp/
-../bazel-bin/external/flatbuffers+/flatc --binary -o config/tmp ../src/launch_manager_daemon/health_monitor_lib/config/hm_flatcfg.fbs config/tmp/health_monitor_process_cfg_*.json
-
-python3 config/gen_health_monitor_cfg.py -c "$NUMBER_OF_CPP_PROCESSES_PER_PROCESS_GROUP" -r "$NUMBER_OF_RUST_PROCESSES_PER_PROCESS_GROUP" $PROCESS_GROUPS -o config/tmp/
-../bazel-bin/external/flatbuffers+/flatc --binary -o config/tmp ../src/launch_manager_daemon/health_monitor_lib/config/hm_flatcfg.fbs config/tmp/hm_demo.json
-
-python3 config/gen_launch_manager_cfg.py -c "$NUMBER_OF_CPP_PROCESSES_PER_PROCESS_GROUP" -r "$NUMBER_OF_RUST_PROCESSES_PER_PROCESS_GROUP" -n "$NUMBER_OF_NON_SUPERVISED_CPP_PROCESSES_PER_PROCESS_GROUP" $PROCESS_GROUPS -o config/tmp/
-../bazel-bin/external/flatbuffers+/flatc --binary -o config/tmp ../src/launch_manager_daemon/config/lm_flatcfg.fbs config/tmp/lm_demo.json
-
-../bazel-bin/external/flatbuffers+/flatc --binary -o config/tmp ../src/launch_manager_daemon/health_monitor_lib/config/hmcore_flatcfg.fbs config/hmcore.json
 
 mkdir -p tmp/launch_manager/etc
 cp $LM_BINARY tmp/launch_manager/launch_manager
-cp config/tmp/lm_demo.bin tmp/launch_manager/etc/
+cp $CFG_DIR/lm_demo.bin tmp/launch_manager/etc/
 cp config/lm_logging.json tmp/launch_manager/etc/logging.json
 
-cp config/tmp/hm_demo.bin tmp/launch_manager/etc/
-cp config/tmp/hmcore.bin tmp/launch_manager/etc/
+cp $CFG_DIR/hm_demo.bin tmp/launch_manager/etc/
+cp $CFG_DIR/hmcore.bin tmp/launch_manager/etc/
 
 mkdir -p tmp/supervision_demo/etc
 cp $DEMO_APP_BINARY tmp/supervision_demo/
-cp config/tmp/health_monitor_process_cfg_*.bin tmp/supervision_demo/etc/
+cp $CFG_DIR/*_supervised_app.bin tmp/supervision_demo/etc/
 
 mkdir -p tmp/cpp_lifecycle_app/etc
 cp $DEMO_APP_WO_HM_BINARY tmp/cpp_lifecycle_app/
 
 cp $RUST_APP_BINARY tmp/supervision_demo/
-cp config/tmp/health_monitor_process_cfg_*.bin tmp/supervision_demo/etc/
 
 mkdir -p tmp/control_app
 cp $CONTROL_APP_BINARY tmp/control_app/
 cp $CONTROL_CLI_BINARY tmp/control_app/
 
 mkdir -p tmp/lib
-cp $PWD/../bazel-bin/src/launch_manager_daemon/process_state_client_lib/libprocess_state_client.so tmp/lib/
-cp $PWD/../bazel-bin/src/launch_manager_daemon/lifecycle_client_lib/liblifecycle_client.so tmp/lib/
-cp $PWD/../bazel-bin/src/control_client_lib/libcontrol_client_lib.so tmp/lib/
+cp $BAZEL_BIN/src/launch_manager_daemon/process_state_client_lib/libprocess_state_client.so tmp/lib/
+cp $BAZEL_BIN/src/launch_manager_daemon/lifecycle_client_lib/liblifecycle_client.so tmp/lib/
+cp $BAZEL_BIN/src/control_client_lib/libcontrol_client_lib.so tmp/lib/
 
 docker build . -t demo
 

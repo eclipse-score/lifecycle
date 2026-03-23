@@ -24,6 +24,7 @@
 #include <score/lcm/internal/config.hpp>
 #include <score/lcm/internal/osal/semaphore.hpp>
 #include <score/lcm/internal/controlclientchannel.hpp>
+#include "execution_error_event.h"
 
 namespace score {
 

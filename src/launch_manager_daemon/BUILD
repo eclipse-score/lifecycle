@@ -16,13 +16,13 @@ package(default_visibility = ["//tests:__subpackages__"])
 
 filegroup(
     name = "lm_flatcfg_fbs",
-    srcs = ["config/lm_flatcfg.fbs"],
+    srcs = ["//src/launch_manager_daemon/config:lm_flatcfg.fbs"],
     visibility = ["//visibility:public"],
 )
 
 cc_library(
     name = "config",
-    hdrs = ["config/lm_flatcfg_generated.h"],
+    hdrs = ["//src/launch_manager_daemon/config:lm_flatcfg_generated.h"],
     includes = ["config"],
     visibility = ["//src:__pkg__"],
 )

@@ -21,7 +21,6 @@
 
 #include "score/concurrency/future/interruptible_future.h"
 #include "score/concurrency/future/interruptible_promise.h"
-#include <score/lcm/execution_error_event.h>
 #include <score/lcm/control_client.h>
 
 #include <score/lcm/identifier_hash.hpp>
