@@ -507,7 +507,7 @@ The S-CORE standard provides the following default values for ``run_target`` pro
       "transition_timeout": 3,
       "recovery_action": {
          "switch_run_target": {
-            "run_target": "Off"
+            "run_target": "fallback_run_target"
          }
       }
    }
