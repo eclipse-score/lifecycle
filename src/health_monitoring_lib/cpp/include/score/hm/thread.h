@@ -13,8 +13,8 @@
 #ifndef SCORE_HM_THREAD_H
 #define SCORE_HM_THREAD_H
 
-#include "common.h"
 #include <cstdint>
+#include <optional>
 #include <vector>
 
 namespace score::hm
@@ -44,10 +44,10 @@ class SchedulerParameters final
     SchedulerParameters(SchedulerPolicy policy, int32_t priority);
 
     /// Scheduler policy.
-    SchedulerPolicy policy() const;
+    const SchedulerPolicy& policy() const;
 
     /// Thread priority.
-    int32_t priority() const;
+    const int32_t& priority() const;
 
   private:
     SchedulerPolicy policy_;
@@ -55,12 +55,9 @@ class SchedulerParameters final
 };
 
 /// Thread parameters.
-class ThreadParameters final : public internal::RustDroppable<ThreadParameters>
+class ThreadParameters final
 {
   public:
-    /// Create a new `ThreadParameters` containing default values.
-    ThreadParameters();
-
     /// Scheduler parameters, including scheduler policy and thread priority.
     ThreadParameters scheduler_parameters(SchedulerParameters scheduler_parameters) &&;
 
@@ -70,20 +67,13 @@ class ThreadParameters final : public internal::RustDroppable<ThreadParameters>
     /// Set stack size.
     ThreadParameters stack_size(size_t stack_size) &&;
 
-  protected:
-    std::optional<internal::FFIHandle> _drop_by_rust_impl()
-    {
-        return thread_parameters_handle_.drop_by_rust();
-    }
-
   private:
-    internal::DroppableFFIHandle thread_parameters_handle_;
+    std::optional<SchedulerParameters> scheduler_parameters_;
+    std::optional<std::vector<size_t>> affinity_;
+    std::optional<size_t> stack_size_;
 
-    // Allow to hide `drop_by_rust` implementation.
-    friend class internal::RustDroppable<ThreadParameters>;
-
-    // Allow `HealthMonitorBuilder` to access `drop_by_rust` implementation.
-    friend class score::hm::HealthMonitorBuilder;
+    // Allow `HealthMonitorBuilder` to access fields.
+    friend class HealthMonitorBuilder;
 };
 
 }  // namespace score::hm

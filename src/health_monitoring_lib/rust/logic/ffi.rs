@@ -353,6 +353,10 @@ mod tests {
             200,
             100,
             null_mut(),
+            null_mut(),
+            null_mut(),
+            0,
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
         let _ = health_monitor_get_logic_monitor(
@@ -401,6 +405,10 @@ mod tests {
             health_monitor_builder_handle,
             200,
             100,
+            null_mut(),
+            null_mut(),
+            null_mut(),
+            0,
             null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
@@ -459,6 +467,10 @@ mod tests {
             200,
             100,
             null_mut(),
+            null_mut(),
+            null_mut(),
+            0,
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
         let _ = health_monitor_get_logic_monitor(
@@ -507,6 +519,10 @@ mod tests {
             health_monitor_builder_handle,
             200,
             100,
+            null_mut(),
+            null_mut(),
+            null_mut(),
+            0,
             null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
@@ -558,6 +574,10 @@ mod tests {
             health_monitor_builder_handle,
             200,
             100,
+            null_mut(),
+            null_mut(),
+            null_mut(),
+            0,
             null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
@@ -618,6 +638,10 @@ mod tests {
             health_monitor_builder_handle,
             200,
             100,
+            null_mut(),
+            null_mut(),
+            null_mut(),
+            0,
             null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );

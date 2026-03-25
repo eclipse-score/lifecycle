@@ -28,7 +28,11 @@ FFICode health_monitor_builder_destroy(FFIHandle health_monitor_builder_handle);
 FFICode health_monitor_builder_build(FFIHandle health_monitor_builder_handle,
                                      uint32_t supervisor_cycle_ms,
                                      uint32_t internal_cycle_ms,
-                                     FFIHandle thread_parameters_handle,
+                                     const SchedulerPolicy* scheduler_policy,
+                                     const int32_t* scheduler_priority,
+                                     const size_t* affinity,
+                                     size_t num_affinity,
+                                     const size_t* stack_size,
                                      FFIHandle* health_monitor_handle_out);
 FFICode health_monitor_builder_add_deadline_monitor(FFIHandle health_monitor_builder_handle,
                                                     const MonitorTag* monitor_tag,
@@ -137,21 +141,48 @@ score::cpp::expected<HealthMonitor, Error> HealthMonitorBuilder::build() &&
     auto health_monitor_builder_handle = health_monitor_builder_handle_.drop_by_rust();
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(health_monitor_builder_handle.has_value());
 
+    // Gather and set health monitor parameters.
     uint32_t supervisor_duration_ms = static_cast<uint32_t>(supervisor_api_cycle_duration_.count());
     uint32_t internal_duration_ms = static_cast<uint32_t>(internal_processing_cycle_duration_.count());
-    FFIHandle thread_parameters_handle{nullptr};
+
+    // Optional thread parameters.
+    const SchedulerPolicy* scheduler_policy{nullptr};
+    const int32_t* scheduler_priority{nullptr};
+    const size_t* affinity{nullptr};
+    size_t num_affinity{0};
+    const size_t* stack_size{nullptr};
     if (thread_parameters_.has_value())
     {
-        auto rust_handle{thread_parameters_.value().drop_by_rust()};
-        SCORE_LANGUAGE_FUTURECPP_ASSERT(rust_handle.has_value());
-        thread_parameters_handle = rust_handle.value();
+        // Scheduler parameters.
+        if (thread_parameters_->scheduler_parameters_.has_value())
+        {
+            scheduler_policy = &thread_parameters_->scheduler_parameters_->policy();
+            scheduler_priority = &thread_parameters_->scheduler_parameters_->priority();
+        }
+
+        // Affinity.
+        if (thread_parameters_->affinity_.has_value())
+        {
+            affinity = thread_parameters_->affinity_->data();
+            num_affinity = thread_parameters_->affinity_->size();
+        }
+
+        // Stack size.
+        if (thread_parameters_->stack_size_.has_value())
+        {
+            stack_size = &thread_parameters_->stack_size_.value();
+        }
     }
 
     FFIHandle health_monitor_handle{nullptr};
     auto result{health_monitor_builder_build(health_monitor_builder_handle.value(),
                                              supervisor_duration_ms,
                                              internal_duration_ms,
-                                             thread_parameters_handle,
+                                             scheduler_policy,
+                                             scheduler_priority,
+                                             affinity,
+                                             num_affinity,
+                                             stack_size,
                                              &health_monitor_handle)};
     if (result != kSuccess)
     {
