@@ -1,0 +1,281 @@
+{
+    "versionMajor": 8,
+    "versionMinor": 0,
+    "process": [
+        {
+            "index": 0,
+            "shortName": "state_manager",
+            "identifier": "state_manager",
+            "processType": "STM_PROCESS",
+            "refProcessGroupStates": [
+                {
+                    "identifier": "MainPG/Startup"
+                },
+                {
+                    "identifier": "MainPG/Full"
+                },
+                {
+                    "identifier": "MainPG/fallback_run_target"
+                }
+            ],
+            "processExecutionErrors": [
+                {
+                    "processExecutionError": 1
+                },
+                {
+                    "processExecutionError": 1
+                },
+                {
+                    "processExecutionError": 1
+                }
+            ]
+        },
+        {
+            "index": 1,
+            "shortName": "reporting_supervised_component",
+            "identifier": "reporting_supervised_component",
+            "processType": "REGULAR_PROCESS",
+            "refProcessGroupStates": [
+                {
+                    "identifier": "MainPG/Startup"
+                },
+                {
+                    "identifier": "MainPG/Full"
+                },
+                {
+                    "identifier": "MainPG/fallback_run_target"
+                }
+            ],
+            "processExecutionErrors": [
+                {
+                    "processExecutionError": 1
+                },
+                {
+                    "processExecutionError": 1
+                },
+                {
+                    "processExecutionError": 1
+                }
+            ]
+        },
+        {
+            "index": 2,
+            "shortName": "reporting_supervised_component_with_no_max_indications",
+            "identifier": "reporting_supervised_component_with_no_max_indications",
+            "processType": "REGULAR_PROCESS",
+            "refProcessGroupStates": [
+                {
+                    "identifier": "MainPG/Startup"
+                },
+                {
+                    "identifier": "MainPG/Full"
+                },
+                {
+                    "identifier": "MainPG/fallback_run_target"
+                }
+            ],
+            "processExecutionErrors": [
+                {
+                    "processExecutionError": 1
+                },
+                {
+                    "processExecutionError": 1
+                },
+                {
+                    "processExecutionError": 1
+                }
+            ]
+        }
+    ],
+    "hmMonitorInterface": [
+        {
+            "instanceSpecifier": "state_manager",
+            "processShortName": "state_manager",
+            "portPrototype": "DefaultPort",
+            "interfacePath": "lifecycle_health_state_manager",
+            "refProcessIndex": 0,
+            "permittedUid": 4
+        },
+        {
+            "instanceSpecifier": "reporting_supervised_component",
+            "processShortName": "reporting_supervised_component",
+            "portPrototype": "DefaultPort",
+            "interfacePath": "lifecycle_health_reporting_supervised_component",
+            "refProcessIndex": 1,
+            "permittedUid": 5
+        },
+        {
+            "instanceSpecifier": "reporting_supervised_component_with_no_max_indications",
+            "processShortName": "reporting_supervised_component_with_no_max_indications",
+            "portPrototype": "DefaultPort",
+            "interfacePath": "lifecycle_health_reporting_supervised_component_with_no_max_indications",
+            "refProcessIndex": 2,
+            "permittedUid": 5
+        }
+    ],
+    "hmSupervisionCheckpoint": [
+        {
+            "shortName": "state_manager_checkpoint",
+            "checkpointId": 1,
+            "refInterfaceIndex": 0
+        },
+        {
+            "shortName": "reporting_supervised_component_checkpoint",
+            "checkpointId": 1,
+            "refInterfaceIndex": 1
+        },
+        {
+            "shortName": "reporting_supervised_component_with_no_max_indications_checkpoint",
+            "checkpointId": 1,
+            "refInterfaceIndex": 2
+        }
+    ],
+    "hmAliveSupervision": [
+        {
+            "ruleContextKey": "state_manager_alive_supervision",
+            "refCheckPointIndex": 0,
+            "aliveReferenceCycle": 100,
+            "minAliveIndications": 0,
+            "maxAliveIndications": 2,
+            "isMinCheckDisabled": true,
+            "isMaxCheckDisabled": false,
+            "failedSupervisionCyclesTolerance": 0,
+            "refProcessIndex": 0,
+            "refProcessGroupStates": [
+                {
+                    "identifier": "MainPG/Startup"
+                },
+                {
+                    "identifier": "MainPG/Full"
+                },
+                {
+                    "identifier": "MainPG/fallback_run_target"
+                }
+            ]
+        },
+        {
+            "ruleContextKey": "reporting_supervised_component_alive_supervision",
+            "refCheckPointIndex": 1,
+            "aliveReferenceCycle": 500,
+            "minAliveIndications": 1,
+            "maxAliveIndications": 3,
+            "isMinCheckDisabled": false,
+            "isMaxCheckDisabled": false,
+            "failedSupervisionCyclesTolerance": 2,
+            "refProcessIndex": 1,
+            "refProcessGroupStates": [
+                {
+                    "identifier": "MainPG/Startup"
+                },
+                {
+                    "identifier": "MainPG/Full"
+                },
+                {
+                    "identifier": "MainPG/fallback_run_target"
+                }
+            ]
+        },
+        {
+            "ruleContextKey": "reporting_supervised_component_with_no_max_indications_alive_supervision",
+            "refCheckPointIndex": 2,
+            "aliveReferenceCycle": 500,
+            "minAliveIndications": 1,
+            "maxAliveIndications": 0,
+            "isMinCheckDisabled": false,
+            "isMaxCheckDisabled": true,
+            "failedSupervisionCyclesTolerance": 2,
+            "refProcessIndex": 2,
+            "refProcessGroupStates": [
+                {
+                    "identifier": "MainPG/Startup"
+                },
+                {
+                    "identifier": "MainPG/Full"
+                },
+                {
+                    "identifier": "MainPG/fallback_run_target"
+                }
+            ]
+        }
+    ],
+    "hmDeadlineSupervision": [],
+    "hmLogicalSupervision": [],
+    "hmLocalSupervision": [
+        {
+            "ruleContextKey": "state_manager_local_supervision",
+            "infoRefInterfacePath": "",
+            "hmRefAliveSupervision": [
+                {
+                    "refAliveSupervisionIdx": 0
+                }
+            ]
+        },
+        {
+            "ruleContextKey": "reporting_supervised_component_local_supervision",
+            "infoRefInterfacePath": "",
+            "hmRefAliveSupervision": [
+                {
+                    "refAliveSupervisionIdx": 1
+                }
+            ]
+        },
+        {
+            "ruleContextKey": "reporting_supervised_component_with_no_max_indications_local_supervision",
+            "infoRefInterfacePath": "",
+            "hmRefAliveSupervision": [
+                {
+                    "refAliveSupervisionIdx": 2
+                }
+            ]
+        }
+    ],
+    "hmGlobalSupervision": [
+        {
+            "ruleContextKey": "global_supervision",
+            "isSeverityCritical": false,
+            "localSupervision": [
+                {
+                    "refLocalSupervisionIndex": 0
+                },
+                {
+                    "refLocalSupervisionIndex": 1
+                },
+                {
+                    "refLocalSupervisionIndex": 2
+                }
+            ],
+            "refProcesses": [
+                {
+                    "index": 0
+                },
+                {
+                    "index": 1
+                },
+                {
+                    "index": 2
+                }
+            ],
+            "refProcessGroupStates": [
+                {
+                    "identifier": "MainPG/Startup"
+                },
+                {
+                    "identifier": "MainPG/Full"
+                },
+                {
+                    "identifier": "MainPG/fallback_run_target"
+                }
+            ]
+        }
+    ],
+    "hmRecoveryNotification": [
+        {
+            "shortName": "recovery_notification",
+            "recoveryNotificationTimeout": 5000,
+            "processGroupMetaModelIdentifier": "MainPG/fallback_run_target",
+            "refGlobalSupervisionIndex": 0,
+            "instanceSpecifier": "",
+            "shouldFireWatchdog": false
+        }
+    ]
+}

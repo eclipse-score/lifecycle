@@ -17,10 +17,10 @@ cc_library(
         "src/control_client.cpp",
         "src/control_client_impl.cpp",
         "src/control_client_impl.hpp",
+        "src/execution_error_event.h",
     ],
     hdrs = [
         "include/score/lcm/control_client.h",
-        "include/score/lcm/execution_error_event.h",
     ],
     includes = ["include"],
     visibility = ["//visibility:public"],

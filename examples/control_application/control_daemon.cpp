@@ -18,7 +18,6 @@
 
 #include <score/lcm/lifecycle_client.h>
 #include <score/lcm/control_client.h>
-#include <score/lcm/identifier_hash.hpp>
 #include "ipc_dropin/socket.hpp"
 #include "control.hpp"
 
@@ -33,31 +32,26 @@ int main(int argc, char** argv) {
 
     score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
 
-    ipc_dropin::Socket<static_cast<size_t>(sizeof(ProcessGroupInfo)), control_socket_capacity> sm_control_socket{};
+    ipc_dropin::Socket<static_cast<size_t>(sizeof(RunTargetInfo)), control_socket_capacity> sm_control_socket{};
     if (sm_control_socket.create(control_socket_path, 600) != ipc_dropin::ReturnCode::kOk) {
         std::cerr << "Could not create control socket" << std::endl;
         return EXIT_FAILURE;
     }
 
-    score::lcm::ControlClient client([](const score::lcm::ExecutionErrorEvent& event) {
-        std::cerr << "Undefined state callback invoked for process group id: " << event.processGroup << std::endl;
-    });
+    score::lcm::ControlClient client;
 
     score::safecpp::Scope<> scope{};
     while (!exitRequested) {
-        ProcessGroupInfo pgInfo{};
-        if (ipc_dropin::ReturnCode::kOk == sm_control_socket.tryReceive(pgInfo)) {
+        RunTargetInfo info{};
+        if (ipc_dropin::ReturnCode::kOk == sm_control_socket.tryReceive(info)) {
 
-            std::string targetProcessGroupState{pgInfo.processGroupStatePath};
-            std::string targetProcessGroup = targetProcessGroupState.substr(0, targetProcessGroupState.find_last_of('/'));
-
-            const score::lcm::IdentifierHash processGroup{targetProcessGroup};
-            const score::lcm::IdentifierHash processGroupState{targetProcessGroupState};
-            client.SetState(processGroup, processGroupState).Then({scope, [targetProcessGroupState](auto& result) noexcept {
+            std::string runTargetName{info.runTargetName};
+            std::cout << "Activating Run Target: " << runTargetName << std::endl;
+            client.ActivateRunTarget(runTargetName).Then({scope, [runTargetName](auto& result) noexcept {
                if (!result) {
-                   std::cerr << "Setting ProcessGroup state " << targetProcessGroupState << " failed with error: " << result.error().Message() << std::endl;
+                   std::cerr << "Activating Run Target " << runTargetName << " failed with error: " << result.error().Message() << std::endl;
                } else {
-                   std::cout << "Setting ProcessGroup state " << targetProcessGroupState << " succeeded" << std::endl;
+                   std::cout << "Activating Run Target " << runTargetName << " succeeded" << std::endl;
                }
             }});
         }

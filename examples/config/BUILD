@@ -1,5 +1,5 @@
 # *******************************************************************************
-# Copyright (c) 2025 Contributors to the Eclipse Foundation
+# Copyright (c) 2026 Contributors to the Eclipse Foundation
 #
 # See the NOTICE file(s) distributed with this work for additional
 # information regarding copyright ownership.
@@ -10,10 +10,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-def get_process_index_range(process_count: int, process_group_index: int):
-    # Every ProcessGroup gets the same number of processes
-    # The Process Index is a globally unique increasing number
-    return range(
-        process_group_index * process_count,
-        (process_group_index * process_count) + process_count,
-    )
+exports_files(
+    ["lifecycle_demo.json"],
+    visibility = ["//examples:__subpackages__"],
+)
+
+filegroup(
+    name = "lifecycle_demo_config",
+    srcs = ["lifecycle_demo.json"],
+    visibility = ["//examples:__subpackages__"],
+)

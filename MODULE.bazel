@@ -79,13 +79,13 @@ use_repo(
 )
 
 ## Rust Toolchain
-bazel_dep(name = "score_toolchains_rust", version = "0.4.0", dev_dependency = True)
+bazel_dep(name = "score_toolchains_rust", version = "0.8.0", dev_dependency = True)
 
 # S-CORE crates
 bazel_dep(name = "score_crates", version = "0.0.8")
 git_override(
     module_name = "score_crates",
-    commit = "c56d8f4006ff1cfe5be532496225255c5ee6c2d6",
+    commit = "90539da0fd3e7e23e01f2b4de1679f7dfadd3b6b",
     remote = "https://github.com/eclipse-score/score-crates.git",
 )
 
@@ -125,13 +125,14 @@ python.toolchain(
     python_version = PYTHON_VERSION,
 )
 
-pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip", dev_dependency = True)
+# Python pip dependencies
+pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
 pip.parse(
-    hub_name = "pip_score_venv_test",
+    hub_name = "score_lifecycle_pip",
     python_version = PYTHON_VERSION,
-    requirements_lock = "//tests/integration:requirements.lock",
+    requirements_lock = "//:requirements_lock.txt",
 )
-use_repo(pip, "pip_score_venv_test")
+use_repo(pip, "score_lifecycle_pip")
 
 bazel_dep(name = "score_itf", version = "0.1.0", dev_dependency = True)
 
@@ -142,7 +143,7 @@ oci.pull(
     tag = "bookworm",
     platforms = ["linux/amd64"],
 )
-use_repo(oci, "linux_runtime")
+use_repo(oci, "linux_runtime", "linux_runtime_linux_amd64")
 
 local_path_override(
     module_name = "score_itf",

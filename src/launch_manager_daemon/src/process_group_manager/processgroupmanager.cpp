@@ -708,7 +708,7 @@ inline void ProcessGroupManager::processGroupHandler(Graph& pg)
             }
         }
 
-        if (GraphState::kUndefinedState == graph_state)
+        if (GraphState::kUndefinedState == pg.getState()) 
         {
             // at the moment graph is not running...
             // i.e. it is not in kInTransition, kAborting or kCancelled state

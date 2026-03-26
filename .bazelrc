@@ -51,7 +51,12 @@ build:x86_64-linux --extra_toolchains=@score_gcc_x86_64_toolchain//:x86_64-linux
 build:x86_64-linux --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_x86_64_unknown_linux_gnu
 build:x86_64-linux --define config=x86_64-linux
 
-# TODO arm64-linux when rust support is there
+# Target configuration for CPU:AArch64|OS:Linux build (do not use it in case of system toolchains!)
+build:arm64-linux --config=stub
+build:arm64-linux --config=toolchain_common
+build:arm64-linux --platforms=@score_bazel_platforms//:aarch64-linux-gcc_12.2.0-posix
+build:arm64-linux --extra_toolchains=@score_gcc_aarch64_toolchain//:aarch64-linux-gcc_12.2.0-posix
+build:arm64-linux --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_aarch64_unknown_linux_gnu
 
 # Target configuration for CPU:x86-64|OS:QNX build (do not use it in case of system toolchains!)
 build:x86_64-qnx --config=stub

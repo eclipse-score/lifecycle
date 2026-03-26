@@ -30,7 +30,8 @@ inline score::concurrency::InterruptibleFuture<void> GetErrorFuture(score::lcm::
     return tmp_.GetInterruptibleFuture().value();
 }
 
-ControlClient::ControlClient(std::function<void(const score::lcm::ExecutionErrorEvent&)> undefinedStateCallback) noexcept {
+ControlClient::ControlClient() noexcept {
+    static std::function<void(const score::lcm::ExecutionErrorEvent&)> undefinedStateCallback = [](const score::lcm::ExecutionErrorEvent& event) {};
     try {
         control_client_impl_ = std::make_unique<ControlClientImpl>(undefinedStateCallback);
     } catch (...) {
@@ -50,46 +51,20 @@ ControlClient::ControlClient(ControlClient&& rval) noexcept {
 ControlClient& ControlClient::operator=(ControlClient&& rval) noexcept = default;
 
 
-score::concurrency::InterruptibleFuture<void> ControlClient::SetState( const IdentifierHash& pg_name, const IdentifierHash& pg_state ) const noexcept
+score::concurrency::InterruptibleFuture<void> ControlClient::ActivateRunTarget(std::string_view runTargetName) const noexcept
 {
     score::concurrency::InterruptibleFuture<void> retVal_ {};
 
     if( control_client_impl_ != nullptr )
     {
+        static IdentifierHash pg_name{"MainPG"};
+        IdentifierHash pg_state{"MainPG/" + std::string(runTargetName)};
         retVal_ = control_client_impl_->SetState(pg_name, pg_state);
     }
     else
     {
         retVal_ = GetErrorFuture(ExecErrc::kCommunicationError);
     }
-
-    return retVal_;
-}
-
-score::concurrency::InterruptibleFuture<void> ControlClient::GetInitialMachineStateTransitionResult() const noexcept {
-    score::concurrency::InterruptibleFuture<void> retVal_{};
-
-    if( control_client_impl_ != nullptr )
-    {
-        retVal_ = control_client_impl_->GetInitialMachineStateTransitionResult();
-    }
-    else
-    {
-        retVal_ = GetErrorFuture(ExecErrc::kCommunicationError);
-    }
-
-    return retVal_;
-}
-
-score::Result<score::lcm::ExecutionErrorEvent> ControlClient::GetExecutionError(
-    const score::lcm::IdentifierHash& processGroup ) noexcept
-{
-    score::Result<score::lcm::ExecutionErrorEvent> retVal_ {score::MakeUnexpected(score::lcm::ExecErrc::kCommunicationError) };
-
-    if (control_client_impl_ != nullptr) {
-        retVal_ = control_client_impl_->GetExecutionError(processGroup);
-    }
-    // else not needed as kCommunicationError is the default return value
 
     return retVal_;
 }

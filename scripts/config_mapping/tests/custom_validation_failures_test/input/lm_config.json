@@ -1,0 +1,46 @@
+{
+    "schema_version": 1,
+    "defaults": {},
+    "components": {
+        "test_app1": {
+            "description": "Simple test application",
+            "component_properties": {
+                "binary_name": "test_app1"
+            },
+            "deployment_config": {
+                "bin_dir" : "/opt/apps/test_app1"
+            }
+        }
+    },
+    "run_targets": {
+        "Minimal": {
+            "description": "Minimal functionality of the system",
+            "depends_on": ["test_app1"],
+            "recovery_action": {
+                "switch_run_target": {
+                    "run_target": "Fallback"
+                }
+            }
+        },
+        "Fallback": {
+            "description": "Nothing running",
+            "depends_on": [],
+            "transition_timeout": 5,
+            "recovery_action": {
+                "switch_run_target": {
+                    "run_target": "fallback_run_target"
+                }
+            }
+        },
+        "fallback_run_target": {
+            "description": "Fallback run target",
+            "depends_on": [],
+            "recovery_action": {
+                "switch_run_target": {
+                    "run_target": "fallback_run_target"
+                }
+            }
+        }
+    },
+    "initial_run_target": "Minimal"
+}

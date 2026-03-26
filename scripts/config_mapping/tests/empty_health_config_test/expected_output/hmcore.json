@@ -4,8 +4,7 @@
     "watchdogs": [],
     "config": [
         {
-            "periodicity": 50,
-            "bufferSizeGlobalSupervision": "512"
+            "periodicity": 123
         }
     ]
 }

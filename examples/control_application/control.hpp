@@ -15,8 +15,8 @@
 
 #include <cstddef>
 
-struct ProcessGroupInfo {
-    char processGroupStatePath[1024]{};
+struct RunTargetInfo {
+    char runTargetName[1024]{};
 };
 
 static constexpr char const* control_socket_path = "/sm_control";

@@ -304,14 +304,14 @@ bool ConfigurationManager::parseMachineConfigurations(const ModeGroup* node, con
         process_group_data.name_ = getStringViewFromFlatBuffer(node->identifier());
         process_group_data.sw_cluster_ = cluster;
         LM_LOG_DEBUG() << "FlatBufferParser::getModeGroupPgName:" << getStringFromFlatBuffer(node->identifier())
-                       << "( IdentifierHash:" << process_group_data.name_ << ")";
+                       << "( IdentifierHash:" << process_group_data.name_.data() << ")";
 
         if (process_group_data.name_ != score::lcm::IdentifierHash(std::string_view(""))) {
             // Add process group name to the PG name list
             process_group_names_.push_back(process_group_data.name_);
             result = parseModeGroups(node, process_group_data);
         } else {
-            LM_LOG_WARN() << "parseMachineConfigurations: Process group name is empty furz";
+            LM_LOG_WARN() << "parseMachineConfigurations: Process group name is empty";
         }
     }
     return result;
@@ -339,7 +339,7 @@ bool ConfigurationManager::parseModeGroups(const ModeGroup* node, ProcessGroup& 
                 pg_state.name_ = getStringViewFromFlatBuffer(flatbuffer_string);
                 LM_LOG_DEBUG() << "FlatBufferParser::getModeGroupPgStateName:"
                                << mode_declaration_node->identifier()->c_str()
-                               << "( IdentifierHash:" << pg_state.name_ << ")";
+                               << "( IdentifierHash:" << pg_state.name_.data() << ")";
                 process_group_data.states_.push_back(pg_state);
                 // Is this the "Off" state, i.e. does it end with "/Off" ?
                 auto str_len = string_name.length();

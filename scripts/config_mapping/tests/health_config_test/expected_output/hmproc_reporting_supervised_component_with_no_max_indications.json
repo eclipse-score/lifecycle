@@ -1,0 +1,15 @@
+{
+    "versionMajor": 8,
+    "versionMinor": 0,
+    "process": [],
+    "hmMonitorInterface": [
+        {
+            "instanceSpecifier": "reporting_supervised_component_with_no_max_indications",
+            "processShortName": "reporting_supervised_component_with_no_max_indications",
+            "portPrototype": "DefaultPort",
+            "interfacePath": "lifecycle_health_reporting_supervised_component_with_no_max_indications",
+            "refProcessIndex": 2,
+            "permittedUid": 5
+        }
+    ]
+}
