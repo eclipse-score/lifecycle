@@ -68,9 +68,28 @@ cc_library(
 )
 
 cc_gtest_unit_test(
-    name = "cpp_tests",
+    name = "cpp_unit_tests",
     srcs = [
-        "health_monitor_test.cpp",
+        "tests/deadline_monitor_test.cpp",
+        "tests/health_monitor_test.cpp",
+        "tests/heartbeat_monitor_test.cpp",
+        "tests/logic_monitor_test.cpp",
+        "tests/time_range_test.cpp",
+    ],
+    linkopts = select({
+        "@platforms//os:qnx": ["-lsocket"],
+        "@platforms//os:linux": [],
+    }),
+    deps = [
+        "//score/health_monitor/src/cpp:health_monitoring_cc_stub_supervisor",
+        "//score/health_monitor/src/cpp/details:log_init",
+    ],
+)
+
+cc_gtest_unit_test(
+    name = "cpp_integration_tests",
+    srcs = [
+        "tests/integrated_test.cpp",
     ],
     linkopts = select({
         "@platforms//os:qnx": ["-lsocket"],
