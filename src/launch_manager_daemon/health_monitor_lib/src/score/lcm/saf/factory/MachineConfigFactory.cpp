@@ -141,8 +141,6 @@ void MachineConfigFactory::loadHmSettings(const HMCOREFlatBuffer::HMCOREEcuCfg& 
     {
         const auto* config{configContainer->Get(0U)};
         updateNonDefaultValue(supBufferCfg.bufferSizeAliveSupervision, config->bufferSizeAliveSupervision());
-        updateNonDefaultValue(supBufferCfg.bufferSizeDeadlineSupervision, config->bufferSizeDeadlineSupervision());
-        updateNonDefaultValue(supBufferCfg.bufferSizeLogicalSupervision, config->bufferSizeLogicalSupervision());
         updateNonDefaultValue(supBufferCfg.bufferSizeLocalSupervision, config->bufferSizeLocalSupervision());
         updateNonDefaultValue(supBufferCfg.bufferSizeGlobalSupervision, config->bufferSizeGlobalSupervision());
         updateNonDefaultValue(supBufferCfg.bufferSizeMonitor, config->bufferSizeMonitor());
@@ -185,10 +183,6 @@ void MachineConfigFactory::logConfiguration() noexcept(true)
 {
     /* RULECHECKER_comment(0, 18, check_conditional_as_sub_expression, "Ternary operation is very simple", true_no_defect) */
     logger_r.LogDebug() << kLogPrefix << "Alive Supervision buffer size:" << supBufferCfg.bufferSizeAliveSupervision;
-    logger_r.LogDebug() << kLogPrefix
-                        << "Deadline Supervision buffer size:" << supBufferCfg.bufferSizeDeadlineSupervision;
-    logger_r.LogDebug() << kLogPrefix
-                        << "Logical Supervision buffer size:" << supBufferCfg.bufferSizeLogicalSupervision;
     logger_r.LogDebug() << kLogPrefix << "Local Supervision buffer size:" << supBufferCfg.bufferSizeLocalSupervision;
     logger_r.LogDebug() << kLogPrefix << "Global Supervision buffer size:" << supBufferCfg.bufferSizeGlobalSupervision;
     logger_r.LogDebug() << kLogPrefix << "Monitor buffer size:" << supBufferCfg.bufferSizeMonitor;

@@ -28,10 +28,8 @@
 #include "score/lcm/saf/common/TimeSortingBuffer.hpp"
 #include "score/lcm/saf/logging/PhmLogger.hpp"
 #include "score/lcm/saf/supervision/Alive.hpp"
-#include "score/lcm/saf/supervision/Deadline.hpp"
 #include "score/lcm/saf/supervision/ICheckpointSupervision.hpp"
 #include "score/lcm/saf/supervision/ISupervision.hpp"
-#include "score/lcm/saf/supervision/Logical.hpp"
 #include "score/lcm/saf/supervision/SupervisionCfg.hpp"
 
 namespace score
@@ -75,8 +73,6 @@ struct CheckpointSupervisionEvent final
  with a pure virtual function, hence the rule is followed.", false) */
 class Local : public ISupervision,
               public common::Observer<Alive>,
-              public common::Observer<Deadline>,
-              public common::Observer<Logical>,
               public common::Observable<Local>
 {
 public:
@@ -116,14 +112,6 @@ public:
     /// @brief Update data received from Alive supervisions
     /// @param [in]  f_observable_r Checkpoint Supervision object which has sent the update
     void updateData(const Alive& f_observable_r) noexcept(true) override;
-
-    /// @brief Update data received from Deadline supervisions
-    /// @param [in]  f_observable_r Checkpoint Supervision object which has sent the update
-    void updateData(const Deadline& f_observable_r) noexcept(true) override;
-
-    /// @brief Update data received from Logical supervisions
-    /// @param [in]  f_observable_r Checkpoint Supervision object which has sent the update
-    void updateData(const Logical& f_observable_r) noexcept(true) override;
 
     /// @copydoc ISupervision::evaluate()
     void evaluate(const timers::NanoSecondType f_syncTimestamp) override;

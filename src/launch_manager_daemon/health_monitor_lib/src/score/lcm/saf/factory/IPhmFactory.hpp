@@ -47,8 +47,6 @@ class Checkpoint;
 namespace supervision
 {
 class Alive;
-class Deadline;
-class Logical;
 class Local;
 class Global;
 }  // namespace supervision
@@ -123,25 +121,6 @@ public:
                                          std::vector<ifappl::Checkpoint>& f_checkpoints_r,
                                          std::vector<ifexm::ProcessState>& f_processStates_r) = 0;
 
-    /// @brief Create deadline supervision worker objects
-    /// @details Create all required deadline supervision worker objects
-    /// @param [out] f_deadline_r           Vector of created deadline supervision worker
-    /// @param [in,out] f_checkpoints_r     Vector of Supervision Checkpoints
-    /// @param [in,out] f_processStates_r   Vector of Process States
-    /// @return                             Object creation successful (true), otherwise failed (false)
-    virtual bool createDeadlineSupervisions(std::vector<supervision::Deadline>& f_deadline_r,
-                                            std::vector<ifappl::Checkpoint>& f_checkpoints_r,
-                                            std::vector<ifexm::ProcessState>& f_processStates_r) = 0;
-
-    /// @brief Create logical supervision worker objects
-    /// @param [out] f_logical_r            Vector of created logical supervision worker
-    /// @param [in,out] f_checkpoints_r     Vector of Supervision Checkpoints
-    /// @param [in,out] f_processStates_r   Vector of Process States
-    /// @return                             Object creation successful (true), otherwise failed (false)
-    virtual bool createLogicalSupervisions(std::vector<supervision::Logical>& f_logical_r,
-                                           std::vector<ifappl::Checkpoint>& f_checkpoints_r,
-                                           std::vector<ifexm::ProcessState>& f_processStates_r) = 0;
-
     /// @brief Create local supervision worker objects
     /// @details Create all required local supervision worker objects from configuration
     /// @param [out] f_local_r          Vector of created local supervision worker
@@ -150,9 +129,7 @@ public:
     /// @param [in,out] f_logical_r     Vector of logical supervision worker
     /// @return                         Object creation successful (true), otherwise failed (false)
     virtual bool createLocalSupervisions(std::vector<supervision::Local>& f_local_r,
-                                         std::vector<supervision::Alive>& f_alive_r,
-                                         std::vector<supervision::Deadline>& f_deadline_r,
-                                         std::vector<supervision::Logical>& f_logical_r) = 0;
+                                         std::vector<supervision::Alive>& f_alive_r) = 0;
 
     /// @brief Create global supervision worker objects
     /// @details Create all required global supervision worker objects from configuration
