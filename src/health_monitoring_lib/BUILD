@@ -160,8 +160,13 @@ rust_test(
 cc_gtest_unit_test(
     name = "cpp_tests",
     srcs = [
+        "cpp/tests/deadline_monitor_test.cpp",
         "cpp/tests/health_monitor_test.cpp",
+        "cpp/tests/heartbeat_monitor_test.cpp",
+        "cpp/tests/integrated_test.cpp",
         "cpp/tests/log_init.cpp",
+        "cpp/tests/logic_monitor_test.cpp",
+        "cpp/tests/time_range_test.cpp",
     ],
     linkopts = select({
         "@platforms//os:qnx": ["-lsocket"],
