@@ -65,8 +65,8 @@ class HealthMonitorBuilder final
   private:
     internal::DroppableFFIHandle health_monitor_builder_handle_;
 
-    std::chrono::milliseconds supervisor_api_cycle_duration_;
-    std::chrono::milliseconds internal_processing_cycle_duration_;
+    std::optional<uint64_t> supervisor_api_cycle_ms_;
+    std::optional<uint64_t> internal_processing_cycle_ms_;
 };
 
 class HealthMonitor final
