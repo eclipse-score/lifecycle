@@ -108,5 +108,16 @@
     "result_text": "",
     "PartiallyVerifies": null,
     "FullyVerifies": null
+  },
+  {
+    "name": "HealthMonitorTest__Integrated",
+    "file": "src/health_monitoring_lib/cpp/tests/integrated_test.cpp",
+    "line": "32",
+    "result": "passed",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing ",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
   }
 ]
