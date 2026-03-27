@@ -23,6 +23,7 @@ use crate::worker::{MonitoringLogic, UniqueThreadRunner};
 use containers::fixed_capacity::FixedCapacityVec;
 use core::time::Duration;
 use std::collections::HashMap;
+use thread::ThreadParameters;
 
 /// Health monitor errors.
 #[derive(PartialEq, Eq, Debug, ScoreDebug)]
@@ -43,6 +44,7 @@ pub struct HealthMonitorBuilder {
     logic_monitor_builders: HashMap<MonitorTag, LogicMonitorBuilder>,
     supervisor_api_cycle: Duration,
     internal_processing_cycle: Duration,
+    thread_parameters: ThreadParameters,
 }
 
 impl HealthMonitorBuilder {
@@ -54,6 +56,7 @@ impl HealthMonitorBuilder {
             logic_monitor_builders: HashMap::new(),
             supervisor_api_cycle: Duration::from_millis(500),
             internal_processing_cycle: Duration::from_millis(100),
+            thread_parameters: ThreadParameters::default(),
         }
     }
 
@@ -113,6 +116,14 @@ impl HealthMonitorBuilder {
         self
     }
 
+    /// Set the monitoring thread parameters.
+    ///
+    /// - `thread_parameters` - monitoring thread parameters.
+    pub fn thread_parameters(mut self, thread_parameters: ThreadParameters) -> Self {
+        self.thread_parameters_internal(thread_parameters);
+        self
+    }
+
     /// Build a new [`HealthMonitor`] instance based on provided parameters.
     pub fn build(self) -> Result<HealthMonitor, HealthMonitorError> {
         // Check cycle values.
@@ -164,7 +175,7 @@ impl HealthMonitorBuilder {
             deadline_monitors,
             heartbeat_monitors,
             logic_monitors,
-            worker: UniqueThreadRunner::new(self.internal_processing_cycle),
+            worker: UniqueThreadRunner::new(self.internal_processing_cycle, self.thread_parameters),
             supervisor_api_cycle: self.supervisor_api_cycle,
         })
     }
@@ -197,6 +208,10 @@ impl HealthMonitorBuilder {
 
     pub(crate) fn with_internal_processing_cycle_internal(&mut self, cycle_duration: Duration) {
         self.internal_processing_cycle = cycle_duration;
+    }
+
+    pub(crate) fn thread_parameters_internal(&mut self, thread_parameters: ThreadParameters) {
+        self.thread_parameters = thread_parameters;
     }
 }
 
@@ -585,6 +600,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg_attr(miri, ignore)]
     fn health_monitor_start_succeeds() {
         let deadline_monitor_tag = MonitorTag::from("deadline_monitor");
         let deadline_monitor_builder = DeadlineMonitorBuilder::new();

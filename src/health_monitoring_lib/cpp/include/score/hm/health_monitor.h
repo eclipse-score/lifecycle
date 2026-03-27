@@ -18,6 +18,7 @@
 #include <score/hm/heartbeat/heartbeat_monitor.h>
 #include <score/hm/logic/logic_monitor.h>
 #include <score/hm/tag.h>
+#include <score/hm/thread.h>
 
 namespace score::hm
 {
@@ -59,6 +60,9 @@ class HealthMonitorBuilder final
     /// This duration determines how often the health monitor checks deadlines.
     HealthMonitorBuilder with_internal_processing_cycle(std::chrono::milliseconds cycle_duration) &&;
 
+    /// Sets the monitoring thread parameters.
+    HealthMonitorBuilder thread_parameters(score::hm::ThreadParameters&& thread_parameters) &&;
+
     /// Build a new `HealthMonitor` instance based on provided parameters.
     score::cpp::expected<HealthMonitor, Error> build() &&;
 
@@ -67,6 +71,7 @@ class HealthMonitorBuilder final
 
     std::optional<uint64_t> supervisor_api_cycle_ms_;
     std::optional<uint64_t> internal_processing_cycle_ms_;
+    std::optional<ThreadParameters> thread_parameters_;
 };
 
 class HealthMonitor final
