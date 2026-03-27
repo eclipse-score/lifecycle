@@ -350,8 +350,8 @@ mod tests {
         );
         let _ = health_monitor_builder_build(
             health_monitor_builder_handle,
-            200,
-            100,
+            null_mut(),
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
         let _ = health_monitor_get_logic_monitor(
@@ -398,8 +398,8 @@ mod tests {
         );
         let _ = health_monitor_builder_build(
             health_monitor_builder_handle,
-            200,
-            100,
+            null_mut(),
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
         let _ = health_monitor_get_logic_monitor(
@@ -454,8 +454,8 @@ mod tests {
         );
         let _ = health_monitor_builder_build(
             health_monitor_builder_handle,
-            200,
-            100,
+            null_mut(),
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
         let _ = health_monitor_get_logic_monitor(
@@ -502,8 +502,8 @@ mod tests {
         );
         let _ = health_monitor_builder_build(
             health_monitor_builder_handle,
-            200,
-            100,
+            null_mut(),
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
         let _ = health_monitor_get_logic_monitor(
@@ -552,8 +552,8 @@ mod tests {
         );
         let _ = health_monitor_builder_build(
             health_monitor_builder_handle,
-            200,
-            100,
+            null_mut(),
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
         let _ = health_monitor_get_logic_monitor(
@@ -611,8 +611,8 @@ mod tests {
         );
         let _ = health_monitor_builder_build(
             health_monitor_builder_handle,
-            200,
-            100,
+            null_mut(),
+            null_mut(),
             &mut health_monitor_handle as *mut FFIHandle,
         );
         let _ = health_monitor_get_logic_monitor(
