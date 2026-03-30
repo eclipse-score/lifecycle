@@ -150,7 +150,7 @@ oci.pull(
 )
 use_repo(oci, "linux_runtime", "linux_runtime_linux_amd64")
 
-bazel_dep(name = "score_baselibs_rust", version = "0.1.0")
+bazel_dep(name = "score_baselibs_rust", version = "0.1.1")
 bazel_dep(name = "score_baselibs", version = "0.2.4")
 bazel_dep(name = "score_logging", version = "0.1.0")
 

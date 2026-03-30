@@ -17,6 +17,7 @@ load("@score_baselibs//:bazel/unit_tests.bzl", "cc_gtest_unit_test")
 
 COMMON_DEPS = [
     "@score_baselibs_rust//src/containers:containers",
+    "@score_baselibs_rust//src/thread:thread",
     "@score_baselibs_rust//src/log/score_log:score_log",
     "//src/launch_manager_daemon/health_monitor_lib/rust_bindings:monitor_rs",
 ]
@@ -31,11 +32,13 @@ CC_SOURCES = [
     "cpp/heartbeat_monitor.cpp",
     "cpp/logic_monitor.cpp",
     "cpp/health_monitor.cpp",
+    "cpp/thread.cpp",
 ]
 
 CC_HDRS = [
     "cpp/include/score/hm/common.h",
     "cpp/include/score/hm/tag.h",
+    "cpp/include/score/hm/thread.h",
     "cpp/include/score/hm/deadline/deadline_monitor.h",
     "cpp/include/score/hm/heartbeat/heartbeat_monitor.h",
     "cpp/include/score/hm/logic/logic_monitor.h",

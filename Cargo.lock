@@ -126,7 +126,7 @@ checksum = "b05b61dc5112cbb17e4b6cd61790d9845d13888356391624cbe7e41efeac1e75"
 [[package]]
 name = "containers"
 version = "0.1.0"
-source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.0.4#d36362e03664f65117145d6fc90e38505d54a900"
+source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.1.1#7227b67c45dff719901d8f3763d5a37fb55aa0ad"
 
 [[package]]
 name = "find-msvc-tools"
@@ -159,6 +159,7 @@ dependencies = [
  "score_log",
  "score_testing_macros",
  "stdout_logger",
+ "thread",
 ]
 
 [[package]]
@@ -263,6 +264,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "384b8ab6d37215f3c5301a95a4accb5d64aa607f1fcb26a11b5303878451b4fe"
 
 [[package]]
+name = "pal"
+version = "0.0.1"
+source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.1.1#7227b67c45dff719901d8f3763d5a37fb55aa0ad"
+dependencies = [
+ "containers",
+ "libc",
+ "score_log",
+]
+
+[[package]]
 name = "pin-project-lite"
 version = "0.2.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -332,7 +343,7 @@ checksum = "e1cf6437eb19a8f4a6cc0f7dca544973b0b78843adbfeb3683d1a94a0024a294"
 [[package]]
 name = "score_log"
 version = "0.0.1"
-source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.0.4#d36362e03664f65117145d6fc90e38505d54a900"
+source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.1.1#7227b67c45dff719901d8f3763d5a37fb55aa0ad"
 dependencies = [
  "score_log_fmt",
  "score_log_fmt_macro",
@@ -341,12 +352,12 @@ dependencies = [
 [[package]]
 name = "score_log_fmt"
 version = "0.0.1"
-source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.0.4#d36362e03664f65117145d6fc90e38505d54a900"
+source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.1.1#7227b67c45dff719901d8f3763d5a37fb55aa0ad"
 
 [[package]]
 name = "score_log_fmt_macro"
 version = "0.0.1"
-source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.0.4#d36362e03664f65117145d6fc90e38505d54a900"
+source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.1.1#7227b67c45dff719901d8f3763d5a37fb55aa0ad"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -357,7 +368,7 @@ dependencies = [
 [[package]]
 name = "score_testing_macros"
 version = "0.0.1"
-source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.0.4#d36362e03664f65117145d6fc90e38505d54a900"
+source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.1.1#7227b67c45dff719901d8f3763d5a37fb55aa0ad"
 dependencies = [
  "quote",
  "stdout_logger",
@@ -450,7 +461,7 @@ checksum = "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03"
 [[package]]
 name = "stdout_logger"
 version = "0.0.1"
-source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.0.4#d36362e03664f65117145d6fc90e38505d54a900"
+source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.1.1#7227b67c45dff719901d8f3763d5a37fb55aa0ad"
 dependencies = [
  "score_log",
 ]
@@ -470,6 +481,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
+]
+
+[[package]]
+name = "thread"
+version = "0.0.1"
+source = "git+https://github.com/eclipse-score/baselibs_rust.git?tag=v0.1.1#7227b67c45dff719901d8f3763d5a37fb55aa0ad"
+dependencies = [
+ "pal",
+ "score_log",
 ]
 
 [[package]]
