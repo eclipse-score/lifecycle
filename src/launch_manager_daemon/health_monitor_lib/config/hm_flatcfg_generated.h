@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2025 Contributors to the Eclipse Foundation
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -54,29 +54,11 @@ struct HmCheckpointTransitionBuilder;
 struct HmAliveSupervision;
 struct HmAliveSupervisionBuilder;
 
-struct HmDeadlineSupervision;
-struct HmDeadlineSupervisionBuilder;
-
-struct HmLogicalSupervision;
-struct HmLogicalSupervisionBuilder;
-
-struct HmLogicalCheckpoint;
-struct HmLogicalCheckpointBuilder;
-
-struct HmLogicalTransition;
-struct HmLogicalTransitionBuilder;
-
 struct HmLocalSupervision;
 struct HmLocalSupervisionBuilder;
 
 struct HmRefAliveSupervision;
 struct HmRefAliveSupervisionBuilder;
-
-struct HmRefDeadlineSupervision;
-struct HmRefDeadlineSupervisionBuilder;
-
-struct HmRefLogicalSupervision;
-struct HmRefLogicalSupervisionBuilder;
 
 struct HmGlobalSupervision;
 struct HmGlobalSupervisionBuilder;
@@ -132,11 +114,9 @@ struct HMEcuCfg FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_HMMONITORINTERFACE = 10,
     VT_HMSUPERVISIONCHECKPOINT = 12,
     VT_HMALIVESUPERVISION = 14,
-    VT_HMDEADLINESUPERVISION = 16,
-    VT_HMLOGICALSUPERVISION = 18,
-    VT_HMLOCALSUPERVISION = 20,
-    VT_HMGLOBALSUPERVISION = 22,
-    VT_HMRECOVERYNOTIFICATION = 24
+    VT_HMLOCALSUPERVISION = 16,
+    VT_HMGLOBALSUPERVISION = 18,
+    VT_HMRECOVERYNOTIFICATION = 20
   };
   int32_t versionMajor() const {
     return GetField<int32_t>(VT_VERSIONMAJOR, 0);
@@ -155,12 +135,6 @@ struct HMEcuCfg FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmAliveSupervision>> *hmAliveSupervision() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmAliveSupervision>> *>(VT_HMALIVESUPERVISION);
-  }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmDeadlineSupervision>> *hmDeadlineSupervision() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmDeadlineSupervision>> *>(VT_HMDEADLINESUPERVISION);
-  }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmLogicalSupervision>> *hmLogicalSupervision() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmLogicalSupervision>> *>(VT_HMLOGICALSUPERVISION);
   }
   const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmLocalSupervision>> *hmLocalSupervision() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmLocalSupervision>> *>(VT_HMLOCALSUPERVISION);
@@ -187,12 +161,6 @@ struct HMEcuCfg FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyOffset(verifier, VT_HMALIVESUPERVISION) &&
            verifier.VerifyVector(hmAliveSupervision()) &&
            verifier.VerifyVectorOfTables(hmAliveSupervision()) &&
-           VerifyOffset(verifier, VT_HMDEADLINESUPERVISION) &&
-           verifier.VerifyVector(hmDeadlineSupervision()) &&
-           verifier.VerifyVectorOfTables(hmDeadlineSupervision()) &&
-           VerifyOffset(verifier, VT_HMLOGICALSUPERVISION) &&
-           verifier.VerifyVector(hmLogicalSupervision()) &&
-           verifier.VerifyVectorOfTables(hmLogicalSupervision()) &&
            VerifyOffset(verifier, VT_HMLOCALSUPERVISION) &&
            verifier.VerifyVector(hmLocalSupervision()) &&
            verifier.VerifyVectorOfTables(hmLocalSupervision()) &&
@@ -228,12 +196,6 @@ struct HMEcuCfgBuilder {
   void add_hmAliveSupervision(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmAliveSupervision>>> hmAliveSupervision) {
     fbb_.AddOffset(HMEcuCfg::VT_HMALIVESUPERVISION, hmAliveSupervision);
   }
-  void add_hmDeadlineSupervision(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmDeadlineSupervision>>> hmDeadlineSupervision) {
-    fbb_.AddOffset(HMEcuCfg::VT_HMDEADLINESUPERVISION, hmDeadlineSupervision);
-  }
-  void add_hmLogicalSupervision(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmLogicalSupervision>>> hmLogicalSupervision) {
-    fbb_.AddOffset(HMEcuCfg::VT_HMLOGICALSUPERVISION, hmLogicalSupervision);
-  }
   void add_hmLocalSupervision(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmLocalSupervision>>> hmLocalSupervision) {
     fbb_.AddOffset(HMEcuCfg::VT_HMLOCALSUPERVISION, hmLocalSupervision);
   }
@@ -262,8 +224,6 @@ inline ::flatbuffers::Offset<HMEcuCfg> CreateHMEcuCfg(
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmMonitorInterface>>> hmMonitorInterface = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmSupervisionCheckpoint>>> hmSupervisionCheckpoint = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmAliveSupervision>>> hmAliveSupervision = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmDeadlineSupervision>>> hmDeadlineSupervision = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmLogicalSupervision>>> hmLogicalSupervision = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmLocalSupervision>>> hmLocalSupervision = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmGlobalSupervision>>> hmGlobalSupervision = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::RecoveryNotification>>> hmRecoveryNotification = 0) {
@@ -271,8 +231,6 @@ inline ::flatbuffers::Offset<HMEcuCfg> CreateHMEcuCfg(
   builder_.add_hmRecoveryNotification(hmRecoveryNotification);
   builder_.add_hmGlobalSupervision(hmGlobalSupervision);
   builder_.add_hmLocalSupervision(hmLocalSupervision);
-  builder_.add_hmLogicalSupervision(hmLogicalSupervision);
-  builder_.add_hmDeadlineSupervision(hmDeadlineSupervision);
   builder_.add_hmAliveSupervision(hmAliveSupervision);
   builder_.add_hmSupervisionCheckpoint(hmSupervisionCheckpoint);
   builder_.add_hmMonitorInterface(hmMonitorInterface);
@@ -290,8 +248,6 @@ inline ::flatbuffers::Offset<HMEcuCfg> CreateHMEcuCfgDirect(
     const std::vector<::flatbuffers::Offset<HMFlatBuffer::HmMonitorInterface>> *hmMonitorInterface = nullptr,
     const std::vector<::flatbuffers::Offset<HMFlatBuffer::HmSupervisionCheckpoint>> *hmSupervisionCheckpoint = nullptr,
     const std::vector<::flatbuffers::Offset<HMFlatBuffer::HmAliveSupervision>> *hmAliveSupervision = nullptr,
-    const std::vector<::flatbuffers::Offset<HMFlatBuffer::HmDeadlineSupervision>> *hmDeadlineSupervision = nullptr,
-    const std::vector<::flatbuffers::Offset<HMFlatBuffer::HmLogicalSupervision>> *hmLogicalSupervision = nullptr,
     const std::vector<::flatbuffers::Offset<HMFlatBuffer::HmLocalSupervision>> *hmLocalSupervision = nullptr,
     const std::vector<::flatbuffers::Offset<HMFlatBuffer::HmGlobalSupervision>> *hmGlobalSupervision = nullptr,
     const std::vector<::flatbuffers::Offset<HMFlatBuffer::RecoveryNotification>> *hmRecoveryNotification = nullptr) {
@@ -299,8 +255,6 @@ inline ::flatbuffers::Offset<HMEcuCfg> CreateHMEcuCfgDirect(
   auto hmMonitorInterface__ = hmMonitorInterface ? _fbb.CreateVector<::flatbuffers::Offset<HMFlatBuffer::HmMonitorInterface>>(*hmMonitorInterface) : 0;
   auto hmSupervisionCheckpoint__ = hmSupervisionCheckpoint ? _fbb.CreateVector<::flatbuffers::Offset<HMFlatBuffer::HmSupervisionCheckpoint>>(*hmSupervisionCheckpoint) : 0;
   auto hmAliveSupervision__ = hmAliveSupervision ? _fbb.CreateVector<::flatbuffers::Offset<HMFlatBuffer::HmAliveSupervision>>(*hmAliveSupervision) : 0;
-  auto hmDeadlineSupervision__ = hmDeadlineSupervision ? _fbb.CreateVector<::flatbuffers::Offset<HMFlatBuffer::HmDeadlineSupervision>>(*hmDeadlineSupervision) : 0;
-  auto hmLogicalSupervision__ = hmLogicalSupervision ? _fbb.CreateVector<::flatbuffers::Offset<HMFlatBuffer::HmLogicalSupervision>>(*hmLogicalSupervision) : 0;
   auto hmLocalSupervision__ = hmLocalSupervision ? _fbb.CreateVector<::flatbuffers::Offset<HMFlatBuffer::HmLocalSupervision>>(*hmLocalSupervision) : 0;
   auto hmGlobalSupervision__ = hmGlobalSupervision ? _fbb.CreateVector<::flatbuffers::Offset<HMFlatBuffer::HmGlobalSupervision>>(*hmGlobalSupervision) : 0;
   auto hmRecoveryNotification__ = hmRecoveryNotification ? _fbb.CreateVector<::flatbuffers::Offset<HMFlatBuffer::RecoveryNotification>>(*hmRecoveryNotification) : 0;
@@ -312,8 +266,6 @@ inline ::flatbuffers::Offset<HMEcuCfg> CreateHMEcuCfgDirect(
       hmMonitorInterface__,
       hmSupervisionCheckpoint__,
       hmAliveSupervision__,
-      hmDeadlineSupervision__,
-      hmLogicalSupervision__,
       hmLocalSupervision__,
       hmGlobalSupervision__,
       hmRecoveryNotification__);
@@ -998,353 +950,12 @@ inline ::flatbuffers::Offset<HmAliveSupervision> CreateHmAliveSupervisionDirect(
       refProcessGroupStates__);
 }
 
-struct HmDeadlineSupervision FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef HmDeadlineSupervisionBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_RULECONTEXTKEY = 4,
-    VT_MAXDEADLINE = 6,
-    VT_MINDEADLINE = 8,
-    VT_CHECKPOINTTRANSITION = 10,
-    VT_REFPROCESSINDICES = 12,
-    VT_REFPROCESSGROUPSTATES = 14
-  };
-  const ::flatbuffers::String *ruleContextKey() const {
-    return GetPointer<const ::flatbuffers::String *>(VT_RULECONTEXTKEY);
-  }
-  double maxDeadline() const {
-    return GetField<double>(VT_MAXDEADLINE, 0.0);
-  }
-  double minDeadline() const {
-    return GetField<double>(VT_MINDEADLINE, 0.0);
-  }
-  const HMFlatBuffer::HmCheckpointTransition *checkpointTransition() const {
-    return GetPointer<const HMFlatBuffer::HmCheckpointTransition *>(VT_CHECKPOINTTRANSITION);
-  }
-  const ::flatbuffers::Vector<uint32_t> *refProcessIndices() const {
-    return GetPointer<const ::flatbuffers::Vector<uint32_t> *>(VT_REFPROCESSINDICES);
-  }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefProcessGroupStates>> *refProcessGroupStates() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefProcessGroupStates>> *>(VT_REFPROCESSGROUPSTATES);
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_RULECONTEXTKEY) &&
-           verifier.VerifyString(ruleContextKey()) &&
-           VerifyField<double>(verifier, VT_MAXDEADLINE, 8) &&
-           VerifyField<double>(verifier, VT_MINDEADLINE, 8) &&
-           VerifyOffset(verifier, VT_CHECKPOINTTRANSITION) &&
-           verifier.VerifyTable(checkpointTransition()) &&
-           VerifyOffset(verifier, VT_REFPROCESSINDICES) &&
-           verifier.VerifyVector(refProcessIndices()) &&
-           VerifyOffset(verifier, VT_REFPROCESSGROUPSTATES) &&
-           verifier.VerifyVector(refProcessGroupStates()) &&
-           verifier.VerifyVectorOfTables(refProcessGroupStates()) &&
-           verifier.EndTable();
-  }
-};
-
-struct HmDeadlineSupervisionBuilder {
-  typedef HmDeadlineSupervision Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_ruleContextKey(::flatbuffers::Offset<::flatbuffers::String> ruleContextKey) {
-    fbb_.AddOffset(HmDeadlineSupervision::VT_RULECONTEXTKEY, ruleContextKey);
-  }
-  void add_maxDeadline(double maxDeadline) {
-    fbb_.AddElement<double>(HmDeadlineSupervision::VT_MAXDEADLINE, maxDeadline, 0.0);
-  }
-  void add_minDeadline(double minDeadline) {
-    fbb_.AddElement<double>(HmDeadlineSupervision::VT_MINDEADLINE, minDeadline, 0.0);
-  }
-  void add_checkpointTransition(::flatbuffers::Offset<HMFlatBuffer::HmCheckpointTransition> checkpointTransition) {
-    fbb_.AddOffset(HmDeadlineSupervision::VT_CHECKPOINTTRANSITION, checkpointTransition);
-  }
-  void add_refProcessIndices(::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> refProcessIndices) {
-    fbb_.AddOffset(HmDeadlineSupervision::VT_REFPROCESSINDICES, refProcessIndices);
-  }
-  void add_refProcessGroupStates(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefProcessGroupStates>>> refProcessGroupStates) {
-    fbb_.AddOffset(HmDeadlineSupervision::VT_REFPROCESSGROUPSTATES, refProcessGroupStates);
-  }
-  explicit HmDeadlineSupervisionBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<HmDeadlineSupervision> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<HmDeadlineSupervision>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<HmDeadlineSupervision> CreateHmDeadlineSupervision(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<::flatbuffers::String> ruleContextKey = 0,
-    double maxDeadline = 0.0,
-    double minDeadline = 0.0,
-    ::flatbuffers::Offset<HMFlatBuffer::HmCheckpointTransition> checkpointTransition = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> refProcessIndices = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefProcessGroupStates>>> refProcessGroupStates = 0) {
-  HmDeadlineSupervisionBuilder builder_(_fbb);
-  builder_.add_minDeadline(minDeadline);
-  builder_.add_maxDeadline(maxDeadline);
-  builder_.add_refProcessGroupStates(refProcessGroupStates);
-  builder_.add_refProcessIndices(refProcessIndices);
-  builder_.add_checkpointTransition(checkpointTransition);
-  builder_.add_ruleContextKey(ruleContextKey);
-  return builder_.Finish();
-}
-
-inline ::flatbuffers::Offset<HmDeadlineSupervision> CreateHmDeadlineSupervisionDirect(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    const char *ruleContextKey = nullptr,
-    double maxDeadline = 0.0,
-    double minDeadline = 0.0,
-    ::flatbuffers::Offset<HMFlatBuffer::HmCheckpointTransition> checkpointTransition = 0,
-    const std::vector<uint32_t> *refProcessIndices = nullptr,
-    const std::vector<::flatbuffers::Offset<HMFlatBuffer::HmRefProcessGroupStates>> *refProcessGroupStates = nullptr) {
-  auto ruleContextKey__ = ruleContextKey ? _fbb.CreateString(ruleContextKey) : 0;
-  auto refProcessIndices__ = refProcessIndices ? _fbb.CreateVector<uint32_t>(*refProcessIndices) : 0;
-  auto refProcessGroupStates__ = refProcessGroupStates ? _fbb.CreateVector<::flatbuffers::Offset<HMFlatBuffer::HmRefProcessGroupStates>>(*refProcessGroupStates) : 0;
-  return HMFlatBuffer::CreateHmDeadlineSupervision(
-      _fbb,
-      ruleContextKey__,
-      maxDeadline,
-      minDeadline,
-      checkpointTransition,
-      refProcessIndices__,
-      refProcessGroupStates__);
-}
-
-struct HmLogicalSupervision FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef HmLogicalSupervisionBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_RULECONTEXTKEY = 4,
-    VT_CHECKPOINTS = 6,
-    VT_TRANSITIONS = 8,
-    VT_REFPROCESSINDICES = 10,
-    VT_REFPROCESSGROUPSTATES = 12
-  };
-  const ::flatbuffers::String *ruleContextKey() const {
-    return GetPointer<const ::flatbuffers::String *>(VT_RULECONTEXTKEY);
-  }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmLogicalCheckpoint>> *checkpoints() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmLogicalCheckpoint>> *>(VT_CHECKPOINTS);
-  }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmLogicalTransition>> *transitions() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmLogicalTransition>> *>(VT_TRANSITIONS);
-  }
-  const ::flatbuffers::Vector<uint32_t> *refProcessIndices() const {
-    return GetPointer<const ::flatbuffers::Vector<uint32_t> *>(VT_REFPROCESSINDICES);
-  }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefProcessGroupStates>> *refProcessGroupStates() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefProcessGroupStates>> *>(VT_REFPROCESSGROUPSTATES);
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_RULECONTEXTKEY) &&
-           verifier.VerifyString(ruleContextKey()) &&
-           VerifyOffset(verifier, VT_CHECKPOINTS) &&
-           verifier.VerifyVector(checkpoints()) &&
-           verifier.VerifyVectorOfTables(checkpoints()) &&
-           VerifyOffset(verifier, VT_TRANSITIONS) &&
-           verifier.VerifyVector(transitions()) &&
-           verifier.VerifyVectorOfTables(transitions()) &&
-           VerifyOffset(verifier, VT_REFPROCESSINDICES) &&
-           verifier.VerifyVector(refProcessIndices()) &&
-           VerifyOffset(verifier, VT_REFPROCESSGROUPSTATES) &&
-           verifier.VerifyVector(refProcessGroupStates()) &&
-           verifier.VerifyVectorOfTables(refProcessGroupStates()) &&
-           verifier.EndTable();
-  }
-};
-
-struct HmLogicalSupervisionBuilder {
-  typedef HmLogicalSupervision Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_ruleContextKey(::flatbuffers::Offset<::flatbuffers::String> ruleContextKey) {
-    fbb_.AddOffset(HmLogicalSupervision::VT_RULECONTEXTKEY, ruleContextKey);
-  }
-  void add_checkpoints(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmLogicalCheckpoint>>> checkpoints) {
-    fbb_.AddOffset(HmLogicalSupervision::VT_CHECKPOINTS, checkpoints);
-  }
-  void add_transitions(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmLogicalTransition>>> transitions) {
-    fbb_.AddOffset(HmLogicalSupervision::VT_TRANSITIONS, transitions);
-  }
-  void add_refProcessIndices(::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> refProcessIndices) {
-    fbb_.AddOffset(HmLogicalSupervision::VT_REFPROCESSINDICES, refProcessIndices);
-  }
-  void add_refProcessGroupStates(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefProcessGroupStates>>> refProcessGroupStates) {
-    fbb_.AddOffset(HmLogicalSupervision::VT_REFPROCESSGROUPSTATES, refProcessGroupStates);
-  }
-  explicit HmLogicalSupervisionBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<HmLogicalSupervision> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<HmLogicalSupervision>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<HmLogicalSupervision> CreateHmLogicalSupervision(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<::flatbuffers::String> ruleContextKey = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmLogicalCheckpoint>>> checkpoints = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmLogicalTransition>>> transitions = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> refProcessIndices = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefProcessGroupStates>>> refProcessGroupStates = 0) {
-  HmLogicalSupervisionBuilder builder_(_fbb);
-  builder_.add_refProcessGroupStates(refProcessGroupStates);
-  builder_.add_refProcessIndices(refProcessIndices);
-  builder_.add_transitions(transitions);
-  builder_.add_checkpoints(checkpoints);
-  builder_.add_ruleContextKey(ruleContextKey);
-  return builder_.Finish();
-}
-
-inline ::flatbuffers::Offset<HmLogicalSupervision> CreateHmLogicalSupervisionDirect(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    const char *ruleContextKey = nullptr,
-    const std::vector<::flatbuffers::Offset<HMFlatBuffer::HmLogicalCheckpoint>> *checkpoints = nullptr,
-    const std::vector<::flatbuffers::Offset<HMFlatBuffer::HmLogicalTransition>> *transitions = nullptr,
-    const std::vector<uint32_t> *refProcessIndices = nullptr,
-    const std::vector<::flatbuffers::Offset<HMFlatBuffer::HmRefProcessGroupStates>> *refProcessGroupStates = nullptr) {
-  auto ruleContextKey__ = ruleContextKey ? _fbb.CreateString(ruleContextKey) : 0;
-  auto checkpoints__ = checkpoints ? _fbb.CreateVector<::flatbuffers::Offset<HMFlatBuffer::HmLogicalCheckpoint>>(*checkpoints) : 0;
-  auto transitions__ = transitions ? _fbb.CreateVector<::flatbuffers::Offset<HMFlatBuffer::HmLogicalTransition>>(*transitions) : 0;
-  auto refProcessIndices__ = refProcessIndices ? _fbb.CreateVector<uint32_t>(*refProcessIndices) : 0;
-  auto refProcessGroupStates__ = refProcessGroupStates ? _fbb.CreateVector<::flatbuffers::Offset<HMFlatBuffer::HmRefProcessGroupStates>>(*refProcessGroupStates) : 0;
-  return HMFlatBuffer::CreateHmLogicalSupervision(
-      _fbb,
-      ruleContextKey__,
-      checkpoints__,
-      transitions__,
-      refProcessIndices__,
-      refProcessGroupStates__);
-}
-
-struct HmLogicalCheckpoint FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef HmLogicalCheckpointBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_REFCHECKPOINTINDEX = 4,
-    VT_ISINITIAL = 6,
-    VT_ISFINAL = 8
-  };
-  uint32_t refCheckPointIndex() const {
-    return GetField<uint32_t>(VT_REFCHECKPOINTINDEX, 0);
-  }
-  bool isInitial() const {
-    return GetField<uint8_t>(VT_ISINITIAL, 0) != 0;
-  }
-  bool isFinal() const {
-    return GetField<uint8_t>(VT_ISFINAL, 0) != 0;
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyField<uint32_t>(verifier, VT_REFCHECKPOINTINDEX, 4) &&
-           VerifyField<uint8_t>(verifier, VT_ISINITIAL, 1) &&
-           VerifyField<uint8_t>(verifier, VT_ISFINAL, 1) &&
-           verifier.EndTable();
-  }
-};
-
-struct HmLogicalCheckpointBuilder {
-  typedef HmLogicalCheckpoint Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_refCheckPointIndex(uint32_t refCheckPointIndex) {
-    fbb_.AddElement<uint32_t>(HmLogicalCheckpoint::VT_REFCHECKPOINTINDEX, refCheckPointIndex, 0);
-  }
-  void add_isInitial(bool isInitial) {
-    fbb_.AddElement<uint8_t>(HmLogicalCheckpoint::VT_ISINITIAL, static_cast<uint8_t>(isInitial), 0);
-  }
-  void add_isFinal(bool isFinal) {
-    fbb_.AddElement<uint8_t>(HmLogicalCheckpoint::VT_ISFINAL, static_cast<uint8_t>(isFinal), 0);
-  }
-  explicit HmLogicalCheckpointBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<HmLogicalCheckpoint> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<HmLogicalCheckpoint>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<HmLogicalCheckpoint> CreateHmLogicalCheckpoint(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint32_t refCheckPointIndex = 0,
-    bool isInitial = false,
-    bool isFinal = false) {
-  HmLogicalCheckpointBuilder builder_(_fbb);
-  builder_.add_refCheckPointIndex(refCheckPointIndex);
-  builder_.add_isFinal(isFinal);
-  builder_.add_isInitial(isInitial);
-  return builder_.Finish();
-}
-
-struct HmLogicalTransition FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef HmLogicalTransitionBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_CHECKPOINTSOURCEIDX = 4,
-    VT_CHECKPOINTTARGETIDX = 6
-  };
-  uint32_t checkpointSourceIdx() const {
-    return GetField<uint32_t>(VT_CHECKPOINTSOURCEIDX, 0);
-  }
-  uint32_t checkpointTargetIdx() const {
-    return GetField<uint32_t>(VT_CHECKPOINTTARGETIDX, 0);
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyField<uint32_t>(verifier, VT_CHECKPOINTSOURCEIDX, 4) &&
-           VerifyField<uint32_t>(verifier, VT_CHECKPOINTTARGETIDX, 4) &&
-           verifier.EndTable();
-  }
-};
-
-struct HmLogicalTransitionBuilder {
-  typedef HmLogicalTransition Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_checkpointSourceIdx(uint32_t checkpointSourceIdx) {
-    fbb_.AddElement<uint32_t>(HmLogicalTransition::VT_CHECKPOINTSOURCEIDX, checkpointSourceIdx, 0);
-  }
-  void add_checkpointTargetIdx(uint32_t checkpointTargetIdx) {
-    fbb_.AddElement<uint32_t>(HmLogicalTransition::VT_CHECKPOINTTARGETIDX, checkpointTargetIdx, 0);
-  }
-  explicit HmLogicalTransitionBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<HmLogicalTransition> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<HmLogicalTransition>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<HmLogicalTransition> CreateHmLogicalTransition(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint32_t checkpointSourceIdx = 0,
-    uint32_t checkpointTargetIdx = 0) {
-  HmLogicalTransitionBuilder builder_(_fbb);
-  builder_.add_checkpointTargetIdx(checkpointTargetIdx);
-  builder_.add_checkpointSourceIdx(checkpointSourceIdx);
-  return builder_.Finish();
-}
-
 struct HmLocalSupervision FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef HmLocalSupervisionBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RULECONTEXTKEY = 4,
     VT_INFOREFINTERFACEPATH = 6,
-    VT_HMREFALIVESUPERVISION = 8,
-    VT_HMREFDEADLINESUPERVISION = 10,
-    VT_HMREFLOGICALSUPERVISION = 12
+    VT_HMREFALIVESUPERVISION = 8
   };
   const ::flatbuffers::String *ruleContextKey() const {
     return GetPointer<const ::flatbuffers::String *>(VT_RULECONTEXTKEY);
@@ -1355,12 +966,6 @@ struct HmLocalSupervision FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table
   const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefAliveSupervision>> *hmRefAliveSupervision() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefAliveSupervision>> *>(VT_HMREFALIVESUPERVISION);
   }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefDeadlineSupervision>> *hmRefDeadlineSupervision() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefDeadlineSupervision>> *>(VT_HMREFDEADLINESUPERVISION);
-  }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefLogicalSupervision>> *hmRefLogicalSupervision() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefLogicalSupervision>> *>(VT_HMREFLOGICALSUPERVISION);
-  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_RULECONTEXTKEY) &&
@@ -1370,12 +975,6 @@ struct HmLocalSupervision FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table
            VerifyOffset(verifier, VT_HMREFALIVESUPERVISION) &&
            verifier.VerifyVector(hmRefAliveSupervision()) &&
            verifier.VerifyVectorOfTables(hmRefAliveSupervision()) &&
-           VerifyOffset(verifier, VT_HMREFDEADLINESUPERVISION) &&
-           verifier.VerifyVector(hmRefDeadlineSupervision()) &&
-           verifier.VerifyVectorOfTables(hmRefDeadlineSupervision()) &&
-           VerifyOffset(verifier, VT_HMREFLOGICALSUPERVISION) &&
-           verifier.VerifyVector(hmRefLogicalSupervision()) &&
-           verifier.VerifyVectorOfTables(hmRefLogicalSupervision()) &&
            verifier.EndTable();
   }
 };
@@ -1393,12 +992,6 @@ struct HmLocalSupervisionBuilder {
   void add_hmRefAliveSupervision(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefAliveSupervision>>> hmRefAliveSupervision) {
     fbb_.AddOffset(HmLocalSupervision::VT_HMREFALIVESUPERVISION, hmRefAliveSupervision);
   }
-  void add_hmRefDeadlineSupervision(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefDeadlineSupervision>>> hmRefDeadlineSupervision) {
-    fbb_.AddOffset(HmLocalSupervision::VT_HMREFDEADLINESUPERVISION, hmRefDeadlineSupervision);
-  }
-  void add_hmRefLogicalSupervision(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefLogicalSupervision>>> hmRefLogicalSupervision) {
-    fbb_.AddOffset(HmLocalSupervision::VT_HMREFLOGICALSUPERVISION, hmRefLogicalSupervision);
-  }
   explicit HmLocalSupervisionBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -1414,12 +1007,8 @@ inline ::flatbuffers::Offset<HmLocalSupervision> CreateHmLocalSupervision(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<::flatbuffers::String> ruleContextKey = 0,
     ::flatbuffers::Offset<::flatbuffers::String> infoRefInterfacePath = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefAliveSupervision>>> hmRefAliveSupervision = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefDeadlineSupervision>>> hmRefDeadlineSupervision = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefLogicalSupervision>>> hmRefLogicalSupervision = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefAliveSupervision>>> hmRefAliveSupervision = 0) {
   HmLocalSupervisionBuilder builder_(_fbb);
-  builder_.add_hmRefLogicalSupervision(hmRefLogicalSupervision);
-  builder_.add_hmRefDeadlineSupervision(hmRefDeadlineSupervision);
   builder_.add_hmRefAliveSupervision(hmRefAliveSupervision);
   builder_.add_infoRefInterfacePath(infoRefInterfacePath);
   builder_.add_ruleContextKey(ruleContextKey);
@@ -1430,21 +1019,15 @@ inline ::flatbuffers::Offset<HmLocalSupervision> CreateHmLocalSupervisionDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *ruleContextKey = nullptr,
     const char *infoRefInterfacePath = nullptr,
-    const std::vector<::flatbuffers::Offset<HMFlatBuffer::HmRefAliveSupervision>> *hmRefAliveSupervision = nullptr,
-    const std::vector<::flatbuffers::Offset<HMFlatBuffer::HmRefDeadlineSupervision>> *hmRefDeadlineSupervision = nullptr,
-    const std::vector<::flatbuffers::Offset<HMFlatBuffer::HmRefLogicalSupervision>> *hmRefLogicalSupervision = nullptr) {
+    const std::vector<::flatbuffers::Offset<HMFlatBuffer::HmRefAliveSupervision>> *hmRefAliveSupervision = nullptr) {
   auto ruleContextKey__ = ruleContextKey ? _fbb.CreateString(ruleContextKey) : 0;
   auto infoRefInterfacePath__ = infoRefInterfacePath ? _fbb.CreateString(infoRefInterfacePath) : 0;
   auto hmRefAliveSupervision__ = hmRefAliveSupervision ? _fbb.CreateVector<::flatbuffers::Offset<HMFlatBuffer::HmRefAliveSupervision>>(*hmRefAliveSupervision) : 0;
-  auto hmRefDeadlineSupervision__ = hmRefDeadlineSupervision ? _fbb.CreateVector<::flatbuffers::Offset<HMFlatBuffer::HmRefDeadlineSupervision>>(*hmRefDeadlineSupervision) : 0;
-  auto hmRefLogicalSupervision__ = hmRefLogicalSupervision ? _fbb.CreateVector<::flatbuffers::Offset<HMFlatBuffer::HmRefLogicalSupervision>>(*hmRefLogicalSupervision) : 0;
   return HMFlatBuffer::CreateHmLocalSupervision(
       _fbb,
       ruleContextKey__,
       infoRefInterfacePath__,
-      hmRefAliveSupervision__,
-      hmRefDeadlineSupervision__,
-      hmRefLogicalSupervision__);
+      hmRefAliveSupervision__);
 }
 
 struct HmRefAliveSupervision FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -1495,98 +1078,6 @@ inline ::flatbuffers::Offset<HmRefAliveSupervision> CreateHmRefAliveSupervision(
   HmRefAliveSupervisionBuilder builder_(_fbb);
   builder_.add_refAliveSupervisionIdx(refAliveSupervisionIdx);
   builder_.add_ruleContextKey(ruleContextKey);
-  return builder_.Finish();
-}
-
-struct HmRefDeadlineSupervision FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef HmRefDeadlineSupervisionBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_RULECONTEXTKEY = 4,
-    VT_REFDEADLINESUPERVISIONIDX = 6
-  };
-  int32_t ruleContextKey() const {
-    return GetField<int32_t>(VT_RULECONTEXTKEY, 0);
-  }
-  uint32_t refDeadlineSupervisionIdx() const {
-    return GetField<uint32_t>(VT_REFDEADLINESUPERVISIONIDX, 0);
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyField<int32_t>(verifier, VT_RULECONTEXTKEY, 4) &&
-           VerifyField<uint32_t>(verifier, VT_REFDEADLINESUPERVISIONIDX, 4) &&
-           verifier.EndTable();
-  }
-};
-
-struct HmRefDeadlineSupervisionBuilder {
-  typedef HmRefDeadlineSupervision Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_ruleContextKey(int32_t ruleContextKey) {
-    fbb_.AddElement<int32_t>(HmRefDeadlineSupervision::VT_RULECONTEXTKEY, ruleContextKey, 0);
-  }
-  void add_refDeadlineSupervisionIdx(uint32_t refDeadlineSupervisionIdx) {
-    fbb_.AddElement<uint32_t>(HmRefDeadlineSupervision::VT_REFDEADLINESUPERVISIONIDX, refDeadlineSupervisionIdx, 0);
-  }
-  explicit HmRefDeadlineSupervisionBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<HmRefDeadlineSupervision> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<HmRefDeadlineSupervision>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<HmRefDeadlineSupervision> CreateHmRefDeadlineSupervision(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    int32_t ruleContextKey = 0,
-    uint32_t refDeadlineSupervisionIdx = 0) {
-  HmRefDeadlineSupervisionBuilder builder_(_fbb);
-  builder_.add_refDeadlineSupervisionIdx(refDeadlineSupervisionIdx);
-  builder_.add_ruleContextKey(ruleContextKey);
-  return builder_.Finish();
-}
-
-struct HmRefLogicalSupervision FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef HmRefLogicalSupervisionBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_REFLOGICALSUPERVISIONIDX = 4
-  };
-  uint32_t refLogicalSupervisionIdx() const {
-    return GetField<uint32_t>(VT_REFLOGICALSUPERVISIONIDX, 0);
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyField<uint32_t>(verifier, VT_REFLOGICALSUPERVISIONIDX, 4) &&
-           verifier.EndTable();
-  }
-};
-
-struct HmRefLogicalSupervisionBuilder {
-  typedef HmRefLogicalSupervision Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_refLogicalSupervisionIdx(uint32_t refLogicalSupervisionIdx) {
-    fbb_.AddElement<uint32_t>(HmRefLogicalSupervision::VT_REFLOGICALSUPERVISIONIDX, refLogicalSupervisionIdx, 0);
-  }
-  explicit HmRefLogicalSupervisionBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<HmRefLogicalSupervision> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<HmRefLogicalSupervision>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<HmRefLogicalSupervision> CreateHmRefLogicalSupervision(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint32_t refLogicalSupervisionIdx = 0) {
-  HmRefLogicalSupervisionBuilder builder_(_fbb);
-  builder_.add_refLogicalSupervisionIdx(refLogicalSupervisionIdx);
   return builder_.Finish();
 }
 

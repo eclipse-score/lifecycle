@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2025 Contributors to the Eclipse Foundation
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -255,22 +255,12 @@ inline ::flatbuffers::Offset<Watchdog> CreateWatchdogDirect(
 struct HmConfig FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef HmConfigBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_ENABLETERMINATIONREQUEST = 4,
-    VT_HASVALUEENABLETERMINATIONREQUEST = 6,
-    VT_PERIODICITY = 8,
-    VT_BUFFERSIZEMONITOR = 10,
-    VT_BUFFERSIZEALIVESUPERVISION = 12,
-    VT_BUFFERSIZEDEADLINESUPERVISION = 14,
-    VT_BUFFERSIZELOGICALSUPERVISION = 16,
-    VT_BUFFERSIZELOCALSUPERVISION = 18,
-    VT_BUFFERSIZEGLOBALSUPERVISION = 20
+    VT_PERIODICITY = 4,
+    VT_BUFFERSIZEMONITOR = 6,
+    VT_BUFFERSIZEALIVESUPERVISION = 8,
+    VT_BUFFERSIZELOCALSUPERVISION = 10,
+    VT_BUFFERSIZEGLOBALSUPERVISION = 12
   };
-  bool enableTerminationRequest() const {
-    return GetField<uint8_t>(VT_ENABLETERMINATIONREQUEST, 0) != 0;
-  }
-  bool hasValueEnableTerminationRequest() const {
-    return GetField<uint8_t>(VT_HASVALUEENABLETERMINATIONREQUEST, 0) != 0;
-  }
   uint32_t periodicity() const {
     return GetField<uint32_t>(VT_PERIODICITY, 0);
   }
@@ -280,12 +270,6 @@ struct HmConfig FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   uint16_t bufferSizeAliveSupervision() const {
     return GetField<uint16_t>(VT_BUFFERSIZEALIVESUPERVISION, 0);
   }
-  uint16_t bufferSizeDeadlineSupervision() const {
-    return GetField<uint16_t>(VT_BUFFERSIZEDEADLINESUPERVISION, 0);
-  }
-  uint16_t bufferSizeLogicalSupervision() const {
-    return GetField<uint16_t>(VT_BUFFERSIZELOGICALSUPERVISION, 0);
-  }
   uint16_t bufferSizeLocalSupervision() const {
     return GetField<uint16_t>(VT_BUFFERSIZELOCALSUPERVISION, 0);
   }
@@ -294,13 +278,9 @@ struct HmConfig FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<uint8_t>(verifier, VT_ENABLETERMINATIONREQUEST, 1) &&
-           VerifyField<uint8_t>(verifier, VT_HASVALUEENABLETERMINATIONREQUEST, 1) &&
            VerifyField<uint32_t>(verifier, VT_PERIODICITY, 4) &&
            VerifyField<uint16_t>(verifier, VT_BUFFERSIZEMONITOR, 2) &&
            VerifyField<uint16_t>(verifier, VT_BUFFERSIZEALIVESUPERVISION, 2) &&
-           VerifyField<uint16_t>(verifier, VT_BUFFERSIZEDEADLINESUPERVISION, 2) &&
-           VerifyField<uint16_t>(verifier, VT_BUFFERSIZELOGICALSUPERVISION, 2) &&
            VerifyField<uint16_t>(verifier, VT_BUFFERSIZELOCALSUPERVISION, 2) &&
            VerifyField<uint16_t>(verifier, VT_BUFFERSIZEGLOBALSUPERVISION, 2) &&
            verifier.EndTable();
@@ -311,12 +291,6 @@ struct HmConfigBuilder {
   typedef HmConfig Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_enableTerminationRequest(bool enableTerminationRequest) {
-    fbb_.AddElement<uint8_t>(HmConfig::VT_ENABLETERMINATIONREQUEST, static_cast<uint8_t>(enableTerminationRequest), 0);
-  }
-  void add_hasValueEnableTerminationRequest(bool hasValueEnableTerminationRequest) {
-    fbb_.AddElement<uint8_t>(HmConfig::VT_HASVALUEENABLETERMINATIONREQUEST, static_cast<uint8_t>(hasValueEnableTerminationRequest), 0);
-  }
   void add_periodicity(uint32_t periodicity) {
     fbb_.AddElement<uint32_t>(HmConfig::VT_PERIODICITY, periodicity, 0);
   }
@@ -325,12 +299,6 @@ struct HmConfigBuilder {
   }
   void add_bufferSizeAliveSupervision(uint16_t bufferSizeAliveSupervision) {
     fbb_.AddElement<uint16_t>(HmConfig::VT_BUFFERSIZEALIVESUPERVISION, bufferSizeAliveSupervision, 0);
-  }
-  void add_bufferSizeDeadlineSupervision(uint16_t bufferSizeDeadlineSupervision) {
-    fbb_.AddElement<uint16_t>(HmConfig::VT_BUFFERSIZEDEADLINESUPERVISION, bufferSizeDeadlineSupervision, 0);
-  }
-  void add_bufferSizeLogicalSupervision(uint16_t bufferSizeLogicalSupervision) {
-    fbb_.AddElement<uint16_t>(HmConfig::VT_BUFFERSIZELOGICALSUPERVISION, bufferSizeLogicalSupervision, 0);
   }
   void add_bufferSizeLocalSupervision(uint16_t bufferSizeLocalSupervision) {
     fbb_.AddElement<uint16_t>(HmConfig::VT_BUFFERSIZELOCALSUPERVISION, bufferSizeLocalSupervision, 0);
@@ -351,25 +319,17 @@ struct HmConfigBuilder {
 
 inline ::flatbuffers::Offset<HmConfig> CreateHmConfig(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    bool enableTerminationRequest = false,
-    bool hasValueEnableTerminationRequest = false,
     uint32_t periodicity = 0,
     uint16_t bufferSizeMonitor = 0,
     uint16_t bufferSizeAliveSupervision = 0,
-    uint16_t bufferSizeDeadlineSupervision = 0,
-    uint16_t bufferSizeLogicalSupervision = 0,
     uint16_t bufferSizeLocalSupervision = 0,
     uint16_t bufferSizeGlobalSupervision = 0) {
   HmConfigBuilder builder_(_fbb);
   builder_.add_periodicity(periodicity);
   builder_.add_bufferSizeGlobalSupervision(bufferSizeGlobalSupervision);
   builder_.add_bufferSizeLocalSupervision(bufferSizeLocalSupervision);
-  builder_.add_bufferSizeLogicalSupervision(bufferSizeLogicalSupervision);
-  builder_.add_bufferSizeDeadlineSupervision(bufferSizeDeadlineSupervision);
   builder_.add_bufferSizeAliveSupervision(bufferSizeAliveSupervision);
   builder_.add_bufferSizeMonitor(bufferSizeMonitor);
-  builder_.add_hasValueEnableTerminationRequest(hasValueEnableTerminationRequest);
-  builder_.add_enableTerminationRequest(enableTerminationRequest);
   return builder_.Finish();
 }
 

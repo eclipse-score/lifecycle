@@ -5,8 +5,6 @@
     "hmMonitorInterface": [],
     "hmSupervisionCheckpoint": [],
     "hmAliveSupervision": [],
-    "hmDeadlineSupervision": [],
-    "hmLogicalSupervision": [],
     "hmLocalSupervision": [],
     "hmGlobalSupervision": [],
     "hmRecoveryNotification": []

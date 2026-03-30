@@ -203,12 +203,10 @@ cc_library_with_common_opts(
     name = "supervision",
     srcs = [
         "src/score/lcm/saf/supervision/Alive.cpp",
-        "src/score/lcm/saf/supervision/Deadline.cpp",
         "src/score/lcm/saf/supervision/Global.cpp",
         "src/score/lcm/saf/supervision/ICheckpointSupervision.cpp",
         "src/score/lcm/saf/supervision/ISupervision.cpp",
         "src/score/lcm/saf/supervision/Local.cpp",
-        "src/score/lcm/saf/supervision/Logical.cpp",
         "src/score/lcm/saf/supervision/ProcessStateTracker.cpp",
     ],
     hdrs = glob([

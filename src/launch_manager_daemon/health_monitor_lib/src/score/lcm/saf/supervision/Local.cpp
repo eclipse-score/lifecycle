@@ -30,8 +30,6 @@ namespace supervision
 Local::Local(const LocalSupervisionCfg f_localCfg) :
     ISupervision(f_localCfg.cfgName_p),
     Observer<Alive>(),
-    Observer<Deadline>(),
-    Observer<Logical>(),
     Observable<Local>(),
     logger_r(logging::PhmLogger::getLogger(logging::PhmLogger::EContext::supervision)),
     timeSortingCheckpointSupEvent(
@@ -56,16 +54,6 @@ void Local::registerCheckpointSupervision(ICheckpointSupervision& f_supervision_
 void Local::updateData(const Alive& f_observable_r) noexcept(true)
 {
     updateDataGeneralized(f_observable_r, ICheckpointSupervision::EType::aliveSupervision);
-}
-
-void Local::updateData(const Deadline& f_observable_r) noexcept(true)
-{
-    updateDataGeneralized(f_observable_r, ICheckpointSupervision::EType::deadlineSupervision);
-}
-
-void Local::updateData(const Logical& f_observable_r) noexcept(true)
-{
-    updateDataGeneralized(f_observable_r, ICheckpointSupervision::EType::logicalSupervision);
 }
 
 // coverity[exn_spec_violation:FALSE] std::length_error is not thrown from push() which uses fixed-size-vector

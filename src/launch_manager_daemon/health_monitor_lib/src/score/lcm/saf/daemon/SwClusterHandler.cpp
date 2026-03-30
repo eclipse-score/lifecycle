@@ -17,10 +17,8 @@
 #include "score/lcm/saf/ifappl/Checkpoint.hpp"
 #include "score/lcm/saf/ifappl/MonitorIfDaemon.hpp"
 #include "score/lcm/saf/supervision/Alive.hpp"
-#include "score/lcm/saf/supervision/Deadline.hpp"
 #include "score/lcm/saf/supervision/Global.hpp"
 #include "score/lcm/saf/supervision/Local.hpp"
-#include "score/lcm/saf/supervision/Logical.hpp"
 
 namespace score
 {
@@ -39,8 +37,6 @@ SwClusterHandler::SwClusterHandler(const std::string& f_swClusterName_r) :
     monitorInterfaces{},
     checkpoints{},
     aliveSupervisions{},
-    deadlineSupervisions{},
-    logicalSupervisions{},
     localSupervisions{},
     globalSupervisions{},
     recoveryNotifications{}
@@ -87,16 +83,7 @@ bool SwClusterHandler::constructWorkers(std::shared_ptr<score::lcm::IRecoveryCli
     }
     if (isSuccess)
     {
-        isSuccess = flatCfgFactory.createDeadlineSupervisions(deadlineSupervisions, checkpoints, processStates);
-    }
-    if (isSuccess)
-    {
-        isSuccess = flatCfgFactory.createLogicalSupervisions(logicalSupervisions, checkpoints, processStates);
-    }
-    if (isSuccess)
-    {
-        isSuccess = flatCfgFactory.createLocalSupervisions(localSupervisions, aliveSupervisions, deadlineSupervisions,
-                                                           logicalSupervisions);
+        isSuccess = flatCfgFactory.createLocalSupervisions(localSupervisions, aliveSupervisions);
     }
     if (isSuccess)
     {
@@ -138,16 +125,6 @@ void SwClusterHandler::evaluateSupervisions(const timers::NanoSecondType f_syncT
     for (auto& alive : aliveSupervisions)
     {
         alive.evaluate(f_syncTimestamp);
-    }
-
-    for (auto& deadline : deadlineSupervisions)
-    {
-        deadline.evaluate(f_syncTimestamp);
-    }
-
-    for (auto& logical : logicalSupervisions)
-    {
-        logical.evaluate(f_syncTimestamp);
     }
 
     for (auto& local : localSupervisions)

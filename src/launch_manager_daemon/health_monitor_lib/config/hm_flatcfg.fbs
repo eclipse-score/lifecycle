@@ -18,11 +18,9 @@ table HMEcuCfg {
   hmMonitorInterface: [HmMonitorInterface] (id:3);
   hmSupervisionCheckpoint: [HmSupervisionCheckpoint] (id:4);
   hmAliveSupervision: [HmAliveSupervision] (id:5);
-  hmDeadlineSupervision: [HmDeadlineSupervision] (id:6);
-  hmLogicalSupervision: [HmLogicalSupervision] (id:7);
-  hmLocalSupervision: [HmLocalSupervision] (id:8);
-  hmGlobalSupervision: [HmGlobalSupervision] (id:9);
-  hmRecoveryNotification: [RecoveryNotification] (id:10);
+  hmLocalSupervision: [HmLocalSupervision] (id:6);
+  hmGlobalSupervision: [HmGlobalSupervision] (id:7);
+  hmRecoveryNotification: [RecoveryNotification] (id:8);
 }
 
 table Process {
@@ -81,54 +79,15 @@ table HmAliveSupervision {
   refProcessGroupStates: [HmRefProcessGroupStates] (id:9);
 }
 
-table HmDeadlineSupervision {
-  ruleContextKey: string (id:0);
-  maxDeadline: double (id:1);
-  minDeadline: double (id:2);
-  checkpointTransition: HmCheckpointTransition (id:3);
-  refProcessIndices: [uint32] (id:4);
-  refProcessGroupStates: [HmRefProcessGroupStates] (id:5);
-}
-
-table HmLogicalSupervision {
-  ruleContextKey: string (id:0);
-  checkpoints: [HmLogicalCheckpoint] (id:1);
-  transitions: [HmLogicalTransition] (id:2);
-  refProcessIndices: [uint32] (id:3);
-  refProcessGroupStates: [HmRefProcessGroupStates] (id:4);
-}
-
-table HmLogicalCheckpoint {
-  refCheckPointIndex: uint32 (id:0);
-  isInitial: bool (id:1);
-  isFinal: bool (id:2);
-}
-
-table HmLogicalTransition {
-  checkpointSourceIdx: uint32 (id:0);
-  checkpointTargetIdx: uint32 (id:1);
-}
-
 table HmLocalSupervision {
   ruleContextKey: string (id:0);
   infoRefInterfacePath: string (id:1);
   hmRefAliveSupervision: [HmRefAliveSupervision] (id:2);
-  hmRefDeadlineSupervision: [HmRefDeadlineSupervision] (id:3);
-  hmRefLogicalSupervision: [HmRefLogicalSupervision] (id:4);
 }
 
 table HmRefAliveSupervision {
   ruleContextKey: int (id:0);
   refAliveSupervisionIdx: uint32 (id:1);
-}
-
-table HmRefDeadlineSupervision {
-  ruleContextKey: int (id:0);
-  refDeadlineSupervisionIdx: uint32 (id:1);
-}
-
-table HmRefLogicalSupervision {
-  refLogicalSupervisionIdx: uint32 (id:0);
 }
 
 table HmGlobalSupervision {

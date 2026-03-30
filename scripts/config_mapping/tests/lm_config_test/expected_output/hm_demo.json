@@ -261,8 +261,6 @@
             ]
         }
     ],
-    "hmDeadlineSupervision": [],
-    "hmLogicalSupervision": [],
     "hmLocalSupervision": [
         {
             "ruleContextKey": "test_app2_local_supervision",
