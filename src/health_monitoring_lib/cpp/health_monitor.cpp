@@ -26,8 +26,9 @@ using namespace score::hm::logic;
 FFICode health_monitor_builder_create(FFIHandle* health_monitor_builder_handle_out);
 FFICode health_monitor_builder_destroy(FFIHandle health_monitor_builder_handle);
 FFICode health_monitor_builder_build(FFIHandle health_monitor_builder_handle,
-                                     uint32_t supervisor_cycle_ms,
-                                     uint32_t internal_cycle_ms,
+                                     const uint64_t* supervisor_cycle_ms,
+                                     const uint64_t* internal_cycle_ms,
+                                     FFIHandle thread_parameters_handle,
                                      FFIHandle* health_monitor_handle_out);
 FFICode health_monitor_builder_add_deadline_monitor(FFIHandle health_monitor_builder_handle,
                                                     const MonitorTag* monitor_tag,
@@ -115,13 +116,23 @@ HealthMonitorBuilder HealthMonitorBuilder::add_logic_monitor(const MonitorTag& m
 
 HealthMonitorBuilder HealthMonitorBuilder::with_internal_processing_cycle(std::chrono::milliseconds cycle_duration) &&
 {
-    internal_processing_cycle_duration_ = cycle_duration;
+    auto count{cycle_duration.count()};
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(count >= 0, "cycle duration must be positive");
+    internal_processing_cycle_ms_ = count;
     return std::move(*this);
 }
 
 HealthMonitorBuilder HealthMonitorBuilder::with_supervisor_api_cycle(std::chrono::milliseconds cycle_duration) &&
 {
-    supervisor_api_cycle_duration_ = cycle_duration;
+    auto count{cycle_duration.count()};
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(count >= 0, "cycle duration must be positive");
+    supervisor_api_cycle_ms_ = count;
+    return std::move(*this);
+}
+
+HealthMonitorBuilder HealthMonitorBuilder::thread_parameters(score::hm::ThreadParameters&& thread_parameters) &&
+{
+    thread_parameters_ = std::move(thread_parameters);
     return std::move(*this);
 }
 
@@ -130,12 +141,33 @@ score::cpp::expected<HealthMonitor, Error> HealthMonitorBuilder::build() &&
     auto health_monitor_builder_handle = health_monitor_builder_handle_.drop_by_rust();
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(health_monitor_builder_handle.has_value());
 
-    uint32_t supervisor_duration_ms = static_cast<uint32_t>(supervisor_api_cycle_duration_.count());
-    uint32_t internal_duration_ms = static_cast<uint32_t>(internal_processing_cycle_duration_.count());
+    // Handle optional parameters.
+    const uint64_t* supervisor_api_cycle_ms{nullptr};
+    const uint64_t* internal_processing_cycle_ms{nullptr};
+    if (supervisor_api_cycle_ms_.has_value())
+    {
+        supervisor_api_cycle_ms = &supervisor_api_cycle_ms_.value();
+    }
+    if (internal_processing_cycle_ms_.has_value())
+    {
+        internal_processing_cycle_ms = &internal_processing_cycle_ms_.value();
+    }
+
+    // Handle thread parameters.
+    FFIHandle thread_parameters_handle{nullptr};
+    if (thread_parameters_.has_value())
+    {
+        auto rust_handle{thread_parameters_.value().drop_by_rust()};
+        SCORE_LANGUAGE_FUTURECPP_ASSERT(rust_handle.has_value());
+        thread_parameters_handle = rust_handle.value();
+    }
 
     FFIHandle health_monitor_handle{nullptr};
-    auto result{health_monitor_builder_build(
-        health_monitor_builder_handle.value(), supervisor_duration_ms, internal_duration_ms, &health_monitor_handle)};
+    auto result{health_monitor_builder_build(health_monitor_builder_handle.value(),
+                                             supervisor_api_cycle_ms,
+                                             internal_processing_cycle_ms,
+                                             thread_parameters_handle,
+                                             &health_monitor_handle)};
     if (result != kSuccess)
     {
         return score::cpp::unexpected(static_cast<Error>(result));
