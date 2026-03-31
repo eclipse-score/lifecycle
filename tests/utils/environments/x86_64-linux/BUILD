@@ -2,7 +2,7 @@ load("@rules_oci//oci:defs.bzl", "oci_image", "oci_load")
 
 oci_image(
     name = "image",
-    base = "@linux_runtime",
+    base = "@debian-test-runtime",
 )
 
 oci_load(

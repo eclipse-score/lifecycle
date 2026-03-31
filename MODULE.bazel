@@ -143,12 +143,13 @@ git_override(
 
 oci = use_extension("@rules_oci//oci:extensions.bzl", "oci", dev_dependency = True)
 oci.pull(
-    name = "linux_runtime",
+    name = "debian-test-runtime",
     image = "index.docker.io/library/debian",
     platforms = ["linux/amd64"],
-    tag = "bookworm",
+    tag = "bookworm-slim",
+    digest = "sha256:f06537653ac770703bc45b4b113475bd402f451e85223f0f2837acbf89ab020a",
 )
-use_repo(oci, "linux_runtime", "linux_runtime_linux_amd64")
+use_repo(oci, "debian-test-runtime")
 
 bazel_dep(name = "score_baselibs_rust", version = "0.1.1")
 bazel_dep(name = "score_baselibs", version = "0.2.4")
@@ -173,8 +174,3 @@ git_override(
     # Even better, set up Renovate and let it do the work for you (see "Suggestion: Updates" in the README).
 )
 
-# TODO: remove once dependencies are working
-single_version_override(
-    module_name = "grpc-java",
-    version = "1.70.0",
-)
