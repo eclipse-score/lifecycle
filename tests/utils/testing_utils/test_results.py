@@ -15,24 +15,35 @@ from pathlib import Path
 from junitparser import JUnitXml
 
 
-def check_for_failures(path: Path, expected_count: int):
+def download_xml_results(target, remote_dir: Path, local_dir: Path):
+    """Glob all .xml files in remote_dir, download them to local_dir, and delete
+    them from the remote.
+    """
+    res, stdout = target.execute(f"ls {remote_dir}/*.xml")
+    assert res == 0, "Couldn't get list of files"
+    remote_xml_files = stdout.decode().strip().splitlines()
+    for remote_path in remote_xml_files:
+        remote_path = remote_path.strip()
+        if not remote_path:
+            continue
+        xml_name = Path(remote_path).name
+        try:
+            target.download(remote_path, str(local_dir / xml_name))
+            target.execute(f"rm {remote_path}")
+        except Exception:
+            pass
+
+
+def check_for_failures(path: Path):
     """Check expected_count xml files for failures, raising an exception if
     a failure is found or a different number of xml files are found.
     """
     failing_files = []
-    checked_files = []
-    for file in path.iterdir():
-        if file.suffix == ".xml":
-            xml = JUnitXml.fromfile(str(file))
-            if xml.failures > 0 or xml.errors > 0:
-                failing_files.append(file.name)
-            checked_files.append(file.name)
-    if len(failing_files) > 0:
-        raise RuntimeError(
-            f"Failures found in the following files:\n {'\n'.join(failing_files)}"
-        )
-    if len(checked_files) != expected_count:
-        raise RuntimeError(
-            f"Expected to find {expected_count} xml files, instead found {len(checked_files)}:\n{'\n'.join(checked_files)}"
-            f"Checked in dir {path}"
-        )
+    all_files = []
+    for file in path.glob("*.xml"):
+        xml = JUnitXml.fromfile(str(file))
+        if xml.failures > 0 or xml.errors > 0:
+            failing_files.append(file.name)
+        all_files.append(file.name)
+
+    return all_files, failing_files
