@@ -144,12 +144,12 @@ git_override(
 oci = use_extension("@rules_oci//oci:extensions.bzl", "oci", dev_dependency = True)
 oci.pull(
     name = "debian-test-runtime",
+    digest = "sha256:f06537653ac770703bc45b4b113475bd402f451e85223f0f2837acbf89ab020a",
     image = "index.docker.io/library/debian",
     platforms = ["linux/amd64"],
     tag = "bookworm-slim",
-    digest = "sha256:f06537653ac770703bc45b4b113475bd402f451e85223f0f2837acbf89ab020a",
 )
-use_repo(oci, "debian-test-runtime")
+use_repo(oci, "debian-test-runtime", "debian-test-runtime_linux_amd64")
 
 bazel_dep(name = "score_baselibs_rust", version = "0.1.1")
 bazel_dep(name = "score_baselibs", version = "0.2.4")
@@ -173,4 +173,3 @@ git_override(
     # Replace the commit hash (above) with the latest (https://github.com/hedronvision/bazel-compile-commands-extractor/commits/main).
     # Even better, set up Renovate and let it do the work for you (see "Suggestion: Updates" in the README).
 )
-

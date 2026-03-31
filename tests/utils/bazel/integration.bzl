@@ -25,7 +25,7 @@ def integration_test(name, srcs, test_binaries, args = [], deps = [], data = [],
 
     merged_data = data + [test_binaries] + select({
         "//config:host": [],
-        "//conditions:default": [ "//tests/utils/environments:test_environment" ],
+        "//conditions:default": ["//tests/utils/environments:test_environment"],
     })
 
     py_itf_test(
