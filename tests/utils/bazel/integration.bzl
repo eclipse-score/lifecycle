@@ -13,7 +13,6 @@
 load("@score_itf//:defs.bzl", "py_itf_test")
 load("@score_lifecycle_pip//:requirements.bzl", "all_requirements")
 load("//tests/utils/bazel:constants.bzl", "SCORE_TEST_INSTALL_PREFIX")
-load("//tests/utils/bazel:package_test_binaries.bzl", "package_test_binaries")
 
 def integration_test(name, srcs, test_binaries, args = [], deps = [], data = [], install_prefix = SCORE_TEST_INSTALL_PREFIX, **kwargs):
     """Creates an integration test with test binaries available, also adds all

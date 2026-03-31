@@ -20,32 +20,22 @@ logger = logging.getLogger(__name__)
 
 @pytest.fixture(autouse=True, scope="function")
 def setup_test(request, target):
-    """Setsup the test by uploading all the binaries to the target"""
+    """Sets up the test by uploading and extracting the test binaries tar"""
 
-    bin_paths = request.config.getoption("--score-test-binary-path")
-    bin_paths = [Path(p) for p in bin_paths.split(" ")]
-
+    bin_path = Path(request.config.getoption("--score-test-binary-path"))
     remote_dir = Path(request.config.getoption("--score-test-remote-directory"))
-    anchor = remote_dir.parts[1]  # first path component, e.g. "opt" or "tmp"
-    root_path_index = list(bin_paths[-1].parts).index(anchor)
 
-    def upload_file(file):
-        remote_path = Path("/", *file.parts[root_path_index:])
-        res, _ = target.execute(f"mkdir -p {remote_path.parent}")
-        assert res != 1, f"Couldn't create directory {remote_path.parent}"
-        res, _ = target.execute(f"chmod 777 -R {remote_path.parent}")
-        assert res != 1, f"Couldn't chmod directory {remote_path.parent}"
-        target.upload(
-            file.resolve(), remote_path
-        )  # Need to resolve for https://github.com/eclipse-score/itf/pull/71
+    extract_dir = Path("/") / remote_dir.parts[1]  # e.g. /tmp
+    remote_tar = extract_dir / bin_path.name
 
-    for path in bin_paths:
-        if path.is_dir():
-            for file in path.rglob("*"):
-                if file.is_file():
-                    upload_file(file)
-        else:
-            assert path.is_file(), f"{path} is not a file or directory"
-            upload_file(path)
+    res, _ = target.execute(f"mkdir -p {extract_dir}")
+    assert res != 1, f"Couldn't create directory {extract_dir}"
+
+    target.upload(
+        bin_path.resolve(), remote_tar
+    )  # Need to resolve for https://github.com/eclipse-score/itf/pull/71
+
+    res, _ = target.execute(f"tar -xf {remote_tar} -C {extract_dir}")
+    assert res == 0, f"Couldn't extract tar {remote_tar}"
 
     logger.info("Test case setup finished")
