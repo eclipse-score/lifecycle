@@ -101,20 +101,8 @@ public:
                                  std::vector<ifexm::ProcessState>& f_processStates_r) override;
 
     /// Refer to the description of the base class (IPhmFactory)
-    bool createDeadlineSupervisions(std::vector<supervision::Deadline>& f_deadline_r,
-                                    std::vector<ifappl::Checkpoint>& f_checkpoints_r,
-                                    std::vector<ifexm::ProcessState>& f_processStates_r) override;
-
-    /// Refer to the description of the base class (IPhmFactory)
-    bool createLogicalSupervisions(std::vector<supervision::Logical>& f_logical_r,
-                                   std::vector<ifappl::Checkpoint>& f_checkpoints_r,
-                                   std::vector<ifexm::ProcessState>& f_processStates_r) override;
-
-    /// Refer to the description of the base class (IPhmFactory)
     bool createLocalSupervisions(std::vector<supervision::Local>& f_local_r,
-                                 std::vector<supervision::Alive>& f_alive_r,
-                                 std::vector<supervision::Deadline>& f_deadline_r,
-                                 std::vector<supervision::Logical>& f_logical_r) override;
+                                 std::vector<supervision::Alive>& f_alive_r) override;
 
     /// Refer to the description of the base class (IPhmFactory)
     bool createGlobalSupervisions(std::vector<supervision::Global>& f_global_r,

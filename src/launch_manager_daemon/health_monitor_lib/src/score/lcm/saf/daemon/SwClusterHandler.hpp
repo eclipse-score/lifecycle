@@ -42,8 +42,6 @@ class Checkpoint;
 namespace supervision
 {
 class Alive;
-class Deadline;
-class Logical;
 class Local;
 class Global;
 }  // namespace supervision
@@ -143,12 +141,6 @@ private:
 
     /// Vector of Alive Supervisions
     std::vector<supervision::Alive> aliveSupervisions;
-
-    /// Vector of Deadline Supervisions
-    std::vector<supervision::Deadline> deadlineSupervisions;
-
-    /// Vector of Logical Supervisions
-    std::vector<supervision::Logical> logicalSupervisions;
 
     /// Vector of Local Supervisions
     std::vector<supervision::Local> localSupervisions;

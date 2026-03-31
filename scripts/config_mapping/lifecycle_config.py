@@ -227,8 +227,6 @@ def gen_health_monitor_config(output_dir, config):
     hm_config["hmMonitorInterface"] = []
     hm_config["hmSupervisionCheckpoint"] = []
     hm_config["hmAliveSupervision"] = []
-    hm_config["hmDeadlineSupervision"] = []
-    hm_config["hmLogicalSupervision"] = []
     hm_config["hmLocalSupervision"] = []
     hm_config["hmGlobalSupervision"] = []
     hm_config["hmRecoveryNotification"] = []

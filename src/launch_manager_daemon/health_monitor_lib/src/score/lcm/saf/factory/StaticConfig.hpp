@@ -37,10 +37,6 @@ class StaticConfig
 public:
     /// Default buffer size of Alive Supervision checkpoint buffer
     static constexpr uint16_t k_DefaultAliveSupCheckpointBufferElements{100U};
-    /// Default buffer size of Deadline Supervision checkpoint buffer
-    static constexpr uint16_t k_DefaultDeadlineSupCheckpointBufferElements{100U};
-    /// Default buffer size of Logical Supervision checkpoint buffer
-    static constexpr uint16_t k_DefaultLogicalSupCheckpointBufferElements{100U};
     /// Default buffer size of Local Supervision buffer
     static constexpr uint16_t k_DefaultLocalSupStatusUpdateBufferElements{100U};
     /// Default buffer size of Global Supervision buffer

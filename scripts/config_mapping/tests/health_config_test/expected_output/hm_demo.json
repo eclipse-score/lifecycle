@@ -198,8 +198,6 @@
             ]
         }
     ],
-    "hmDeadlineSupervision": [],
-    "hmLogicalSupervision": [],
     "hmLocalSupervision": [
         {
             "ruleContextKey": "state_manager_local_supervision",

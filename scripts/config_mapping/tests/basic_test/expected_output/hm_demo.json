@@ -198,8 +198,6 @@
             ]
         }
     ],
-    "hmDeadlineSupervision": [],
-    "hmLogicalSupervision": [],
     "hmLocalSupervision": [
         {
             "ruleContextKey": "someip-daemon_local_supervision",
