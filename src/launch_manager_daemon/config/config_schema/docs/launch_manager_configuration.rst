@@ -468,121 +468,37 @@ S-CORE Standard Defaults
 
 The **Launch Manager** guarantees the availability of these specific default values, which are applied when no corresponding configuration is found in the explicit definition of a property (e.g., within a component's ``deployment_config``, a **Run Target's** settings, or a root-level property) or within the user-defined ``defaults`` section.
 
-.. _lm_conf_alive_supervision:
-alive_supervision
------------------
+The full, canonical definitions for these S-CORE standard defaults are provided in separate JSON files. You can find links to these files below:
 
-The S-CORE standard provides the following default values for ``alive_supervision`` properties if they are not explicitly defined elsewhere:
+alive_supervision (`alive_supervision_defaults.json <../default_values/alive_supervision_defaults.json>`_)
 
-.. code-block:: json
+    Defines default values for ``alive_supervision`` properties, governing the behavior of reporting and supervision mechanisms.
 
-   {
-      "evaluation_cycle": 0.5
-   }
+watchdog (`watchdog_defaults.json <../default_values/watchdog_defaults.json>`_)
 
-.. _lm_conf_watchdog:
-watchdog
---------
+    Defines default values for ``watchdog`` properties.
 
-The S-CORE standard provides the following default values for ``watchdog`` properties if they are not explicitly defined elsewhere:
+    Please note that an empty object (``{}``) for ``watchdog`` signifies that the **Launch Manager** will disable watchdog functionality by default.
 
-.. code-block:: json
+run_target (`run_target_defaults.json <../default_values/run_target_defaults.json>`_)
 
-   {
-   }
+    Defines default values for ``run_target`` properties, including the basic structure, behavior, and recovery actions for a **Run Target**.
 
-Please note that an empty object (``{}``) for ``watchdog`` by default signifies that the **Launch Manager** will disable watchdog functionality.
+component_properties (`component_properties_defaults.json <../default_values/component_properties_defaults.json>`_)
 
-.. _lm_conf_run_target:
-run_target
-----------
+    Defines default values for ``component_properties``, which specify fundamental characteristics and operational parameters for individual components.
 
-The S-CORE standard provides the following default values for ``run_target`` properties if they are not explicitly defined elsewhere:
+deployment_config (`deployment_config_defaults.json <../default_values/deployment_config_defaults.json>`_)
 
-.. code-block:: json
+    Defines default values for ``deployment_config``, covering aspects of how a component is deployed and managed, such as resource limits and recovery.
 
-   {
-      "description": "",
-      "depends_on": [],
-      "transition_timeout": 3,
-      "recovery_action": {
-         "switch_run_target": {
-            "run_target": "fallback_run_target"
-         }
-      }
-   }
-
-.. _lm_conf_component_properties:
-component_properties
---------------------
-
-The S-CORE standard provides the following default values for ``component_properties`` if they are not explicitly defined elsewhere:
-
-.. code-block:: json
-
-   {
-      "binary_name": "",
-      "application_profile": {
-         "application_type": "Reporting_And_Supervised",
-         "is_self_terminating": false,
-         "alive_supervision": {
-            "reporting_cycle": 0.5,
-            "failed_cycles_tolerance": 2,
-            "min_indications": 1,
-            "max_indications": 3
-         }
-      },
-      "depends_on": [],
-      "process_arguments": [],
-      "ready_condition": {
-         "process_state": "Running"
-      }
-   }
-
-.. _lm_conf_deployment_config:
-deployment_config
------------------
-
-The S-CORE standard provides the following default values for ``deployment_config`` if they are not explicitly defined elsewhere:
-
-.. code-block:: json
-
-   {
-      "ready_timeout": 0.5,
-      "shutdown_timeout": 0.5,
-      "environmental_variables": {},
-      "bin_dir": "/opt",
-      "working_dir": "/tmp",
-      "ready_recovery_action": {
-         "restart": {
-            "number_of_attempts": 0,
-            "delay_before_restart": 0
-         }
-      },
-      "recovery_action": {
-         "switch_run_target": {
-            "run_target": "fallback_run_target"
-         }
-      },
-      "sandbox": {
-         "uid": 1000,
-         "gid": 1000,
-         "supplementary_group_ids": [],
-         "security_policy": "",
-         "scheduling_policy": "SCHED_OTHER",
-         "scheduling_priority": 0,
-         "max_memory_usage": 0,
-         "max_cpu_usage": 0
-      }
-   }
-
-.. _lm_conf_fallback_run_target:
 fallback_run_target
--------------------
 
-The ``fallback_run_target`` is a critical configuration option within the **Launch Manager**. While the S-CORE standard does not currently provide official default values for the ``fallback_run_target``, its behavior when unconfigured is important to understand.
+    The ``fallback_run_target`` is a critical configuration option within the **Launch Manager**.
 
-If ``fallback_run_target`` is not explicitly configured by the user, the Bazel target responsible for generating configuration files will create a **Run Target** that does not depend on any component. In this specific scenario, the ``fallback_run_target`` will effectively cause all components to shut down, with the exception of the **Launch Manager** itself. Understanding this default behavior is crucial for ensuring the desired system state during operation.
+    While the S-CORE standard does not currently provide an official default JSON configuration for ``fallback_run_target``, its behavior when unconfigured is important to understand.
+
+    If ``fallback_run_target`` is not explicitly configured by the user, the Bazel target responsible for generating configuration files will create a **Run Target** that does not depend on any component. In this specific scenario, the ``fallback_run_target`` will effectively cause all components to shut down, with the exception of the **Launch Manager** itself. Understanding this default behavior is crucial for ensuring the desired system state during operation.
 
 .. _lm_conf_inheritance_of_default_values:
 Inheritance Of Default Values
