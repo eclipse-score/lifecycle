@@ -12,9 +12,10 @@
 # *******************************************************************************
 load("@score_itf//:defs.bzl", "py_itf_test")
 load("@score_lifecycle_pip//:requirements.bzl", "all_requirements")
+load("//tests/utils/bazel:constants.bzl", "SCORE_TEST_INSTALL_PREFIX")
 load("//tests/utils/bazel:package_test_binaries.bzl", "package_test_binaries")
 
-def integration_test(name, srcs, test_binaries, args = [], deps = [], data = [], **kwargs):
+def integration_test(name, srcs, test_binaries, args = [], deps = [], data = [], install_prefix = SCORE_TEST_INSTALL_PREFIX, **kwargs):
     """Creates an integration test with test binaries available, also adds all
     the required dependencies.
 
@@ -34,7 +35,7 @@ def integration_test(name, srcs, test_binaries, args = [], deps = [], data = [],
         data = merged_data,
         args = args + [
             "--score-test-binary-path=$(locations {})".format(test_binaries),
-            "--score-test-remote-directory=/opt/score/tests/{}".format(name),
+            "--score-test-remote-directory={}/tests/{}".format(install_prefix, name),
         ] + select({
             "//config:x86_64-linux": [
                 "--docker-image-bootstrap=$(location //tests/utils/environments:test_environment)",

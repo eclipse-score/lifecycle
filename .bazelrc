@@ -41,7 +41,6 @@ build:stub --@score_baselibs//score/json:base_library=nlohmann
 
 # Target configuration for running integration tests on localhost
 build:host --define config=host
-test:host --sandbox_writable_path=/opt/score
 
 # Target configuration for CPU:x86-64|OS:Linux build (do not use it in case of system toolchains!)
 build:x86_64-linux --config=stub
