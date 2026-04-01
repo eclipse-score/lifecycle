@@ -18,7 +18,7 @@
 #include <score/lcm/lifecycle_client.h>
 #include <score/lcm/control_client.h>
 #include <score/lcm/identifier_hash.hpp>
-#include "tests/integration/test_helper.hpp"
+#include "tests/utils/test_helper/test_helper.hpp"
 
 score::lcm::ControlClient client;
 
@@ -26,12 +26,12 @@ TEST(Smoke, Daemon) {
     TEST_STEP("Control daemon report kRunning") {
         // report kRunning
         auto result = score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
-        ASSERT_TRUE(result.has_value()) << "client.ReportExecutionState() failed";
+        ASSERT_TRUE(result.has_value()) << "client.ReportExecutionState() failed: " << result.error().Message();
     }
     TEST_STEP("Activate RunTarget Running") {
         score::cpp::stop_token stop_token;
         auto result = client.ActivateRunTarget("Running").Get(stop_token);
-        EXPECT_TRUE(result.has_value());
+        EXPECT_TRUE(result.has_value()) << "Activating target Running failed: " << result.error().Message();
     }
     TEST_STEP("Activate RunTarget Startup") {
         score::cpp::stop_token stop_token;
