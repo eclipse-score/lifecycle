@@ -1,16 +1,5 @@
 [
   {
-    "name": "test_smoke",
-    "file": "tests/integration/smoke/smoke.py",
-    "line": "22",
-    "result": "passed",
-    "TestType": "interface-test",
-    "DerivationTechnique": "explorative-testing",
-    "result_text": "",
-    "PartiallyVerifies": null,
-    "FullyVerifies": null
-  },
-  {
     "name": "IdentifierHashTest__IdentifierHash_with_string_view_created",
     "file": "src/launch_manager_daemon/common/src/identifier_hash_UT.cpp",
     "line": "33",
