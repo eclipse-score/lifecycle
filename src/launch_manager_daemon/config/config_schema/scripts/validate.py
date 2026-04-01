@@ -17,10 +17,10 @@ Validate JSON instance(s) against a multi-file JSON Schema with relative $ref pa
 
 Usage examples:
   Validate a single file:
-    python validate_config.py --schema ./schema/s-core_launch_manager.schema.json --instance ./examples/config.json
+    python validate_config.py --schema ./schema/launch_manager.schema.json --instance ./examples/config.json
 
   Validate all JSON files in a directory (recursively):
-    python validate_config.py --schema ./schema/s-core_launch_manager.schema.json --instances-dir ./examples
+    python validate_config.py --schema ./schema/launch_manager.schema.json --instances-dir ./examples
 
 Exit codes:
   0 -> all instances are valid
@@ -113,7 +113,7 @@ def main():
         "--schema",
         required=True,
         type=Path,
-        help="Path to the top-level schema (e.g., ./schema/s-core_launch_manager.schema.json)",
+        help="Path to the top-level schema (e.g., ./schema/launch_manager.schema.json)",
     )
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(

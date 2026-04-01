@@ -18,7 +18,7 @@ schema_path = (
     / "launch_manager_daemon"
     / "config"
     / "config_schema"
-    / "s-core_launch_manager.schema.json"
+    / "launch_manager.schema.json"
 )
 tests_dir = script_dir / "tests"
 lifecycle_script = script_dir / "lifecycle_config.py"

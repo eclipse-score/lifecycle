@@ -10,4 +10,4 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-exports_files(["s-core_launch_manager.schema.json"])
+exports_files(["launch_manager.schema.json"])

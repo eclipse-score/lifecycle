@@ -91,7 +91,7 @@ launch_manager_config = rule(
             doc = "Json file to convert. Note that the binary file will have the same name as the json (minus the suffix)",
         ),
         "schema": attr.label(
-            default = Label("//src/launch_manager_daemon/config/config_schema:s-core_launch_manager.schema.json"),
+            default = Label("//src/launch_manager_daemon/config/config_schema:launch_manager.schema.json"),
             allow_single_file = [".json"],
             doc = "Json schema file to validate the input json against",
         ),

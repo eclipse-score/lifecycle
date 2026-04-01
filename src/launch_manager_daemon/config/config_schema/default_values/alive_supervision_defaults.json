@@ -1,0 +1,5 @@
+{
+    "alive_supervision" : {
+        "evaluation_cycle": 0.5
+    }
+}
