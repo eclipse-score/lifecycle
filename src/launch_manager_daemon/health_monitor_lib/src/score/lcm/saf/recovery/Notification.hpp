@@ -182,7 +182,7 @@ public:
     /// @brief Boolean flag to indicate if this class was constructed with the recovery notification configuration
     /// data (true: this class is to be used to trigger notifications to State Management, false: this class is to be
     /// used to directly set the final timeout state such that the recovery is performed via watchdog)
-    bool isNotificationConfigAvailable{false};
+    const bool isNotificationConfigAvailable;
 
     IdentifierHash recoveryProcessGroup;
 
