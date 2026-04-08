@@ -37,6 +37,21 @@ class Socket
             name_ = "/" + name_;
         }
 
+        // shm_open will reopen shmem files if they already exist
+        // need to perform this check explicitly beforehand
+        if (exists(name_, mode))
+        {
+            // shm was likely not cleaned up from last run (e.g. due to a crash)
+            if (shm_unlink(name_.c_str()) != 0)
+            {
+                if (errno == EACCES)
+                {
+                    return ReturnCode::kPermissionDenied;
+                }
+                return ReturnCode::kError;
+            }
+        }
+
         fd_ = shm_open(name_.c_str(), O_CREAT | O_RDWR | O_CLOEXEC, mode);
         if (fd_ < 0)
         {
@@ -46,6 +61,7 @@ class Socket
             }
             return ReturnCode::kError;
         }
+        owns_shared_memory_ = true;
         const std::size_t bytes = sizeof(RingBuffer<Capacity, ElementSize>);
         if (ftruncate(fd_, bytes) != 0)
         {
@@ -68,7 +84,6 @@ class Socket
         }
         buffer_ = static_cast<RingBuffer<Capacity, ElementSize>*>(ptr);
         buffer_->initialize();
-        is_server_ = true;
         return ReturnCode::kOk;
     }
 
@@ -117,7 +132,6 @@ class Socket
             buffer_ = nullptr;
         }
         cleanup();
-        is_server_ = false;
     }
 
     std::string_view getName() const noexcept
@@ -219,16 +233,33 @@ class Socket
             ::close(fd_);
             fd_ = -1;
         }
-        if (is_server_ && !name_.empty())
+        if (owns_shared_memory_ && !name_.empty())
         {
             shm_unlink(name_.c_str());
+            owns_shared_memory_ = false;
         }
     }
 
-    bool is_server_{false};
+    bool owns_shared_memory_{false};
     std::string name_;
     int fd_{-1};
     RingBuffer<Capacity, ElementSize>* buffer_{nullptr};
+
+    /// @brief Check if a shared memory file with given path already exists
+    /// @param [in] f_name The name of shared memory file
+    /// @param [in] f_mode The permission bits of shared memory file
+    /// @return True if shmem file already exists, else false
+    static bool exists(const std::string& f_name, mode_t f_mode) noexcept(false)
+    {
+        // Try opening the shmem without creating it to check if shmem files already exist
+        auto fd = shm_open(f_name.c_str(), O_RDONLY, f_mode);
+        if (fd >= 0)
+        {
+            ::close(fd);
+            return true;
+        }
+        return false;
+    }
 };
 
 }  // namespace ipc_dropin
