@@ -22,7 +22,7 @@ namespace lcm {
 /// @brief Represents a recovery request for a failed process group.
 struct RecoveryRequest {
     /// @brief The id of the process group the failed process is running in
-    score::lcm::IdentifierHash process_group_identifier_;
+    score::lcm::IdentifierHash process_group_identifier_{};
 };
 
 /// @brief The RecoveryClient allows the HealthMonitor component to report supervision failures to the ProcessGroupManager

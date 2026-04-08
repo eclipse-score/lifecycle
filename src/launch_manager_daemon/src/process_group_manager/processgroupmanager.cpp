@@ -538,8 +538,8 @@ inline void ProcessGroupManager::recoveryActionHandler()
             continue;
         }
 
-        IdentifierHash old_state = pg->getProcessGroupState();
-        IdentifierHash recovery_state =
+        const IdentifierHash old_state = pg->getProcessGroupState();
+        const IdentifierHash recovery_state =
                 configuration_manager_.getNameOfRecoveryState(pg->getProcessGroupName());
         GraphState graph_state = pg->getState();
 
