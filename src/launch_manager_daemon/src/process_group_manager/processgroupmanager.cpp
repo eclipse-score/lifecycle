@@ -541,7 +541,7 @@ inline void ProcessGroupManager::recoveryActionHandler()
         const IdentifierHash old_state = pg->getProcessGroupState();
         const IdentifierHash recovery_state =
                 configuration_manager_.getNameOfRecoveryState(pg->getProcessGroupName());
-        GraphState graph_state = pg->getState();
+        const GraphState graph_state = pg->getState();
 
         LM_LOG_DEBUG() << "recoveryActionHandler: Processing recovery request for PG "
                        << recovery_request->process_group_identifier_ << " to state " << recovery_state;
