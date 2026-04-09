@@ -37,4 +37,5 @@ application setups.
 A high-level overview of this configuration, which highlights its dependencies,
 is shown below:
 
-.. uml:: ../images/example_config.puml
+.. uml:: ./images/example_config.puml
+

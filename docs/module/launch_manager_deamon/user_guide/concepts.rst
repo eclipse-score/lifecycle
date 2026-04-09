@@ -12,6 +12,11 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
+.. _lm_user_guide:
+
+User Guide
+**********
+
 .. _lm_introduction:
 
 Introduction
@@ -102,11 +107,11 @@ this point is decided by the application developer. This
 allows for other components to safely rely on other components services
 and for the startup procedure to be evaluated by the Launch Manager.
 
-.. uml:: ../images/lm_non_reporting.puml
+.. uml:: ./images/lm_non_reporting.puml
 
-.. uml:: ../images/lm_reporting_running.puml
+.. uml:: ./images/lm_reporting_running.puml
 
-.. uml:: ../images/lm_reporting_terminated.puml
+.. uml:: ./images/lm_reporting_terminated.puml
 
 
 .. _lm_run_targets:
@@ -199,11 +204,11 @@ components and each having components exclusive to them. When
 transitioning from *Startup* to *Full*, the Launch Manager deactivates
 components not assigned to *Full* and activates those that are.
 
-.. uml:: ../images/lm_run_targets.puml
+.. uml:: ./images/lm_run_targets.puml
 
 The order in which components are started and stopped within a
 transition is determined by their configured dependencies.
 And so the following is the sequence diagram showing the
 processes being started:
 
-.. uml:: ../images/lm_run_targets_starting.puml
+.. uml:: ./images/lm_run_targets_starting.puml
