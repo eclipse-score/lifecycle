@@ -58,6 +58,19 @@ NotificationConfig getNotificationConfig(const std::string& process_group="TestP
 
 using xaap::lcm::saf::recovery::supervision::SupervisionErrorInfo;
 
+TEST_F(NotificationWithConfigTest, CanGetNotificationName)
+{
+    RecordProperty("Description",
+                   "Notification created with a configuration returns the correct name from getName method.");
+
+    NotificationConfig config{};
+    config.configName = "MyName";
+    auto mock_client = std::make_shared<MockRecoveryClient>();
+    Notification notification(config, mock_client);
+
+    ASSERT_EQ(notification.getConfigName(), "MyName");
+}
+
 TEST_F(NotificationWithConfigTest, SendsRequestAndNeverTimesOut)
 {
     RecordProperty("Description",
