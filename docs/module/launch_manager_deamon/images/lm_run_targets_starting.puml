@@ -1,0 +1,26 @@
+@startuml lm_run_targets_starting
+title "Example Run Target Transition Sequence"
+participant "Control Client" as cc
+participant "Launch Manager" as lm
+participant "Log Daemon" as ld
+participant "App A" as appA
+participant "App B" as appB
+
+cc --> lm: Activate Startup
+
+lm --> ld
+activate ld
+ld --> lm: kReady
+
+lm --> cc: Ready
+
+cc --> lm: Activate Full
+
+lm --> appA
+activate appA
+lm --> appB
+activate appB
+
+appA --> lm: kReady
+appB --> lm: kReady
+@enduml

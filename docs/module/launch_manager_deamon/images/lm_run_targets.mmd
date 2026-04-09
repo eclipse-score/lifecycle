@@ -1,0 +1,22 @@
+---
+title: Example Run Targets
+---
+flowchart TD
+    startup["Startup"]:::runTarget
+    comp1["Log Daemon"]
+    comp2["Platform Init Script"]
+
+    startup -->|"depends on"| comp2
+    comp2 -->|"depends on"| comp1
+
+    normal["Normal"]:::runTarget
+    comp2b["Log Daemon"]
+    comp3["App A"]
+    comp4["App B"]
+
+    normal -->|"depends on"| comp3
+    normal -->|"depends on"| comp4
+    comp3 -->|"depends on"| comp2b
+    comp4 -->|"depends on"| comp2b
+
+    classDef runTarget fill:#87CEEB

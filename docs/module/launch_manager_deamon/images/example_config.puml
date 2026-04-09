@@ -1,0 +1,30 @@
+@startuml example_config
+title "Example Config Visualized "
+
+skinparam ComponentStyle rectangle
+skinparam component<<run-target>> {
+    BackgroundColor SkyBlue
+}
+
+skinparam component<<component>> {
+}
+
+component "Minimal" as minimal <<run-target>>
+component "Full" as full <<run-target>>
+
+component "Dlt-Daemon" as dlt <<component>>
+component "State Manager" as stm <<component>>
+component "Test App" as test_app <<component>>
+component "Setup Filesystem" as setup_fs <<component>>
+component "Someip-Daemon" as someip <<component>>
+
+
+full --> minimal
+full --> test_app
+test_app --> dlt: Running
+dlt --> setup_fs: Terminated
+test_app --> someip: Running
+
+minimal --> stm
+stm --> setup_fs: Terminated
+@enduml

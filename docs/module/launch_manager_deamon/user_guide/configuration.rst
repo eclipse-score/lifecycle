@@ -15,17 +15,24 @@
 ..
    [TODO] Most of this file should be generated in #146
 
+.. _lm_config:
+
+Configuration
+*************
+
+The following section will exaplin all configuration parameters.
+
 .. _lm_conf_measurement_units:
 
 Measurement units
-*****************
+=================
 
 This section provides an overview of the measurement units used within the configuration and explains how they ensure consistent representation of values within the system.
 
 .. _lm_conf_time_intervals:
 
 Time Intervals
-==============
+--------------
 
 All time values in the **Launch Manager** configuration are specified in **seconds**. When a fraction of a second is required, a **decimal point** must be used.
 
@@ -39,7 +46,7 @@ Using a consistent unit prevents ambiguity and makes the configuration values ea
 .. _lm_conf_memory:
 
 Memory
-======
+------
 
 All configuration values representing memory sizes are specified in **bytes**.
 
@@ -53,7 +60,7 @@ Storing memory values in bytes ensures that all size-related settings remain pre
 .. _lm_conf_configuration_schema:
 
 Configuration schema
-********************
+====================
 
 This section provides a detailed description of the **Launch Manager** configuration schema. This section is organized to facilitate understanding, starting with common building blocks and then proceeding to the top-level configuration properties.
 
@@ -62,14 +69,14 @@ The **Launch Manager** configuration leverages reusable definitions, primarily f
 .. _lm_conf_reusable_types:
 
 Reusable Types
-==============
+--------------
 
 The following sections describe the reusable types that form the basis of the **Launch Manager** configuration.
 
 .. _lm_conf_alive_supervision_object_:
 
 alive_supervision (object)
---------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Description:**
   Defines a reusable type that contains configuration parameters for alive supervision, which helps monitor the health and responsiveness of components.
@@ -83,7 +90,7 @@ alive_supervision (object)
 .. _lm_conf_watchdog_object_:
 
 watchdog (object)
------------------
+^^^^^^^^^^^^^^^^^
 
 **Description:**
   Defines a reusable type that contains configuration parameters for the external watchdog device, used to monitor the overall system health and initiate resets if necessary.
@@ -103,7 +110,7 @@ watchdog (object)
 .. _lm_conf_recovery_action_object_:
 
 recovery_action (object)
-------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Description:**
   Defines a reusable type that specifies recovery actions to execute when an error or failure occurs. This object must contain exactly one of the defined recovery actions.
@@ -128,7 +135,7 @@ recovery_action (object)
 .. _lm_conf_run_target_object_:
 
 run_target (object)
--------------------
+^^^^^^^^^^^^^^^^^^^
 
 **Description:**
   Defines a reusable type that specifies configuration parameters for a **Run Target**, outlining a particular operational mode for the system.
@@ -150,7 +157,7 @@ run_target (object)
 .. _lm_conf_component_properties_object_:
 
 component_properties (object)
------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Description:**
   Defines a reusable type that captures essential characteristics of a software component, influencing how the **Launch Manager** interacts with it.
@@ -205,7 +212,7 @@ component_properties (object)
 .. _lm_conf_deployment_config_object_:
 
 deployment_config (object)
---------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Description:**
   Defines a reusable type that contains configuration parameters specific to a particular deployment environment or system setup.
@@ -260,7 +267,7 @@ deployment_config (object)
 .. _lm_conf_launch_manager_root_properties:
 
 Launch Manager Root Properties
-==============================
+------------------------------
 
 The top-level configuration of the **Launch Manager** is structured into several distinct sections, each serving a specific purpose in defining the system's behavior and managed components. While reusable types provide the foundational building blocks, these root properties orchestrate their application to form a complete and functional configuration.
 
@@ -281,7 +288,7 @@ With this overview in mind, let us now examine each root configuration property 
 .. _lm_conf_schema_version_integer_required_:
 
 schema_version (integer, required)
-----------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Description:**
   Specifies the schema version number that the **Launch Manager** uses to determine how to parse and validate this configuration file.
@@ -291,7 +298,7 @@ schema_version (integer, required)
 .. _lm_conf_defaults_object_optional_:
 
 defaults (object, optional)
----------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Description:**
   Defines default configuration values that components and **Run Targets** inherit unless they provide their own overriding values. Settings specified here apply globally to all components and **Run Targets**, reducing redundant configurations.
@@ -317,7 +324,7 @@ defaults (object, optional)
 .. _lm_conf_components_object_optional_:
 
 components (object, optional)
------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Description:**
   Defines the software components managed by the **Launch Manager**. Each property name within this object serves as a unique identifier for a component, and its corresponding value contains the component's specific configuration.
@@ -339,7 +346,7 @@ components (object, optional)
 .. _lm_conf_run_targets_object_optional_:
 
 run_targets (object, optional)
-------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Description:**
   Defines the **Run Targets** that represent different operational modes of the system. Each property name within this object serves as a unique identifier for a **Run Target**, and its corresponding value contains the **Run Target's** specific configuration.
@@ -353,7 +360,7 @@ run_targets (object, optional)
 .. _lm_conf_initial_run_target_string_required_:
 
 initial_run_target (string, required)
--------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Description:**
   Specifies the name of the **Run Target** that the **Launch Manager** activates during its startup sequence. This name must precisely match a **Run Target** defined within the ``run_targets`` section.
@@ -361,7 +368,7 @@ initial_run_target (string, required)
 .. _lm_conf_fallback_run_target_object_optional_:
 
 fallback_run_target (object, optional)
---------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Description:**
   Defines the fallback **Run Target** configuration. The **Launch Manager** activates this **Run Target** when all recovery attempts for other **Run Targets** have been exhausted. This specific **Run Target** does not include a ``recovery_action`` property, as it represents the final state; if its activation also fails, the external watchdog will be triggered.
@@ -380,7 +387,7 @@ fallback_run_target (object, optional)
 .. _lm_conf_alive_supervision_object_optional_:
 
 alive_supervision (object, optional)
-------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Description:** Defines the global alive supervision configuration parameters used to monitor component health. If specified, this configuration will override any default values set in ``defaults.alive_supervision``.
 **Reference:** This property refers to the ``alive_supervision`` reusable type defined in this schema.
@@ -388,7 +395,7 @@ alive_supervision (object, optional)
 .. _lm_conf_watchdog_object_optional_:
 
 watchdog (object, optional)
----------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Description:** Defines the global external watchdog device configuration used by the **Launch Manager**. If specified, this configuration will override any default values set in ``defaults.watchdog``.
 **Reference:** This property refers to the ``watchdog`` reusable type defined in this schema.
@@ -396,7 +403,7 @@ watchdog (object, optional)
 .. _lm_conf_default_values:
 
 Default Values
-**************
+==============
 
 The **Launch Manager** configuration extensively utilizes the concept of default values to streamline the configuration process and simplify initial setup. The fundamental principle is that even if a specific configuration value is not explicitly provided by the user, a default value will always be applied, ensuring a complete and valid configuration.
 
@@ -410,7 +417,7 @@ The S-CORE standard defaults are particularly beneficial during the development 
 .. _lm_conf_s_core_standard_defaults:
 
 S-CORE Standard Defaults
-========================
+------------------------
 
 The **Launch Manager** guarantees the availability of these specific default values, which are applied when no corresponding configuration is found in the explicit definition of a property (e.g., within a component's ``deployment_config``, a **Run Target's** settings, or a root-level property) or within the user-defined ``defaults`` section.
 
@@ -443,7 +450,7 @@ fallback_run_target
 .. _lm_conf_inheritance_of_default_values:
 
 Inheritance Of Default Values
-=============================
+-----------------------------
 
 Given that the **Launch Manager** supports multiple levels of default values, specific rules govern their inheritance and application. The inheritance order is straightforward:
 

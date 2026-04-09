@@ -1,0 +1,32 @@
+---
+title: Example Run Target Transition Sequence
+---
+sequenceDiagram
+    participant cc as Control Client
+    participant lm as Launch Manager
+    participant ld as Log Daemon
+    participant pi as Platform Init
+    participant appA as App A
+    participant appB as App B
+
+    cc-->>lm: Activate Startup
+
+    lm-->>ld:
+    activate ld
+    ld-->>lm: kReady
+
+    lm-->>pi:
+    activate pi
+    lm-->>cc: Ready
+
+    cc-->>lm: Activate Normal
+    lm-->>pi: Terminate Platform Init
+    destroy pi
+
+    lm-->>appA:
+    activate appA
+    appA-->>lm: kReady
+
+    lm-->>appB:
+    activate appB
+    appB-->>lm: kReady

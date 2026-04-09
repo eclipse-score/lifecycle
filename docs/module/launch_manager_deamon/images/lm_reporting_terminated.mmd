@@ -1,0 +1,14 @@
+---
+title: Ready State of a Reporting Component (Terminated)
+---
+sequenceDiagram
+    participant lm as Launch Manager
+    participant rt as Reporting<br/>Ready State: Terminated
+
+    activate lm
+    lm->>rt:
+    activate rt
+    rt->>lm: kRunning
+    rt->>lm: Termination
+    destroy rt
+    Note left of lm: Reporting process has achieved ready state

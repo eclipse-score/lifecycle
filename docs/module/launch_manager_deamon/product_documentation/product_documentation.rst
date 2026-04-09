@@ -12,28 +12,10 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-Launch Manager Daemon
-#####################
+Product Documentation
+*********************
 
 .. toctree::
    :hidden:
 
-   user_guide/user_guide.rst
-   product_documentation/product_documentation.rst
-
-.. _lm_user_guide:
-
-User Guide
-**********
-
-.. include:: user_guide/concepts.rst
-.. include:: user_guide/configuration.rst
-.. include:: user_guide/examples.rst
-.. include:: user_guide/implementation.rst
-
-.. _lm_product_documentation:
-
-Product Documentation
-*********************
-
-.. include:: product_documentation/known_limitations.rst
+   known_limitations.rst
