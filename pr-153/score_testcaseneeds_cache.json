@@ -1,6 +1,6 @@
 [
   {
-    "name": "NotificationWithConfigTest__SendsRequestAndNeverTimesOut",
+    "name": "NotificationWithConfigTest__CanGetNotificationName",
     "file": "src/launch_manager_daemon/health_monitor_lib/src/score/lcm/saf/recovery/Notification_UT.cpp",
     "line": "61",
     "result": "passed",
@@ -11,9 +11,20 @@
     "FullyVerifies": null
   },
   {
+    "name": "NotificationWithConfigTest__SendsRequestAndNeverTimesOut",
+    "file": "src/launch_manager_daemon/health_monitor_lib/src/score/lcm/saf/recovery/Notification_UT.cpp",
+    "line": "74",
+    "result": "passed",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing ",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
     "name": "NotificationWithConfigTest__TimesOutWhenSendingRequestFails",
     "file": "src/launch_manager_daemon/health_monitor_lib/src/score/lcm/saf/recovery/Notification_UT.cpp",
-    "line": "80",
+    "line": "93",
     "result": "passed",
     "TestType": "interface-test",
     "DerivationTechnique": "explorative-testing ",
@@ -24,7 +35,7 @@
   {
     "name": "NotificationWithConfigTest__ProxyInitializationFails",
     "file": "src/launch_manager_daemon/health_monitor_lib/src/score/lcm/saf/recovery/Notification_UT.cpp",
-    "line": "99",
+    "line": "112",
     "result": "passed",
     "TestType": "interface-test",
     "DerivationTechnique": "explorative-testing ",
@@ -35,7 +46,7 @@
   {
     "name": "NotificationWithoutConfigTest__WatchdogNotificationGoesDirectlyToTimeout",
     "file": "src/launch_manager_daemon/health_monitor_lib/src/score/lcm/saf/recovery/Notification_UT.cpp",
-    "line": "114",
+    "line": "127",
     "result": "passed",
     "TestType": "interface-test",
     "DerivationTechnique": "explorative-testing ",
@@ -190,6 +201,28 @@
     "name": "IdentifierHashTest__IdentifierHash_no_dangling_pointer_after_source_string_dies",
     "file": "src/launch_manager_daemon/common/src/identifier_hash_UT.cpp",
     "line": "85",
+    "result": "passed",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing ",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "IdentifierHashTest__IdentifierHash_EqualityOperators",
+    "file": "src/launch_manager_daemon/common/src/identifier_hash_UT.cpp",
+    "line": "106",
+    "result": "passed",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing ",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "IdentifierHashTest__IdentifierHash_LessThanOperator",
+    "file": "src/launch_manager_daemon/common/src/identifier_hash_UT.cpp",
+    "line": "128",
     "result": "passed",
     "TestType": "interface-test",
     "DerivationTechnique": "explorative-testing ",
