@@ -24,6 +24,11 @@ apply various features effectively.
 `example_conf.json`
 *******************
 
+.. dropdown:: example_conf.json
+
+   .. literalinclude:: ../../../../src/launch_manager_daemon/config/config_schema/examples/example_conf.json
+      :language: json
+
 The `example_conf.json` file is a fundamental example within the **Launch
 Manager** system. While it presents a relatively simple setup, its main goal is
 to clearly show the key ideas behind defining a **Run Target**, specifying its
@@ -37,5 +42,9 @@ application setups.
 A high-level overview of this configuration, which highlights its dependencies,
 is shown below:
 
-.. uml:: ./images/example_config.puml
+
+.. figure:: images/example_conf_graph.svg
+   :alt: Graphical representation of example configuration
+   :width: 70%
+   :align: center
 
