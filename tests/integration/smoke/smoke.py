@@ -32,7 +32,7 @@ def test_smoke(target, setup_test, test_output_dir, remote_test_dir):
         binary_path=str(remote_test_dir / "launch_manager"),
         file_path=remote_test_dir.parent / "test_end",
         cwd=str(remote_test_dir),
-        timeout_s=60.0,
+        timeout_s=2.0,
     )
 
     download_xml_results(target, remote_test_dir, test_output_dir)

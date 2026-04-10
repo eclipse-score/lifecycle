@@ -11,6 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 import logging
+import os
 import shutil
 import signal
 import subprocess
@@ -76,7 +77,10 @@ class LocalAsyncProcess(AsyncProcess):
 
     def stop(self) -> int:
         if self.is_running():
-            self._process.send_signal(signal.SIGTERM)
+            # Kill the entire process group so that children (e.g. the actual
+            # daemon binary launched under fakeroot) receive SIGTERM and can
+            # run their cleanup code before exiting.
+            os.killpg(os.getpgid(self._process.pid), signal.SIGTERM)
             for _ in range(5):
                 time.sleep(1)
                 if not self.is_running():
@@ -85,7 +89,7 @@ class LocalAsyncProcess(AsyncProcess):
                 logger.error(
                     f"Process [{self._process.pid}] did not terminate, sending SIGKILL"
                 )
-                self._process.send_signal(signal.SIGKILL)
+                os.killpg(os.getpgid(self._process.pid), signal.SIGKILL)
                 self._process.wait()
         self._output_thread.join()
         return self._process.returncode
@@ -130,6 +134,7 @@ class LocalTarget(Target):
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             cwd=cwd,
+            start_new_session=True,  # Start under a new process group
         )
 
         def _async_log(proc: subprocess.Popen):

@@ -88,20 +88,11 @@ public:
     IpcServer& operator=(const IpcServer&) = delete;
 
     /// @brief Create ipc channel (i.e. shared memory)
-    /// If a shared memory file with the same name already exists,
-    /// initialization fails.
     /// @param [in] f_ipcName_r The name of the ipc channel
     /// @param [in] f_mode The permission bits of the ipc channel
-    /// @return True if initialization of ipc channel successful, else false
+    /// @return kOk if initialization of ipc channel successful, else kPermissionDenied or kFailed
     EIpcInitResult init(const std::string& f_ipcName_r, mode_t f_mode = kOwnerReadWrite) noexcept(false)
     {
-        // pipc is not aborting if shmem files already exist
-        // need to perform this check explicitly beforehand
-        if (exists(f_ipcName_r, f_mode))
-        {
-            return EIpcInitResult::kFailed;
-        }
-
         ipc_dropin::ReturnCode result{socket->create(f_ipcName_r.c_str(), f_mode)};
         if (result == ipc_dropin::ReturnCode::kOk)
         {
@@ -214,24 +205,6 @@ public:
         }
 
         return exit_function(true);
-    }
-
-private:
-    /// @brief Check if a shared memory file with given path already exists
-    /// @param [in] f_name The name of shared memory file
-    /// @param [in] f_mode The permission bits of shared memory file
-    /// @return True if shmem file already exists, else false
-    static bool exists(const std::string& f_name, mode_t f_mode) noexcept(false)
-    {
-        const std::string name{"/" + f_name};
-        // Try opening the shmem without creating it to check if shmem files already exist
-        auto fd = shm_open(name.c_str(), O_RDONLY, f_mode);
-        if (fd >= 0)
-        {
-            close(fd);
-            return true;
-        }
-        return false;
     }
 };
 
