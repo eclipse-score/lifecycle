@@ -1107,19 +1107,117 @@ The <code class="docutils literal notranslate"><span class="pre">alive_supervisi
 <section id="s-core-standard-defaults">
 <span id="lm-conf-s-core-standard-defaults"></span><h3>S-CORE Standard Defaults<a class="headerlink" href="#s-core-standard-defaults" title="Link to this heading">#</a></h3>
 <p>The <strong>Launch Manager</strong> guarantees the availability of these specific default values, which are applied when no corresponding configuration is found in the explicit definition of a property (e.g., within a component’s <code class="docutils literal notranslate"><span class="pre">deployment_config</span></code>, a <strong>Run Target’s</strong> settings, or a root-level property) or within the user-defined <code class="docutils literal notranslate"><span class="pre">defaults</span></code> section.</p>
-<p>The full, canonical definitions for these S-CORE standard defaults are provided in separate JSON files. You can find links to these files below:</p>
+<p>The full, canonical definitions for these S-CORE standard defaults are provided in separate JSON files, shown below:</p>
 <dl>
-<dt>alive_supervision (<a class="reference external" href="../default_values/alive_supervision_defaults.json">alive_supervision_defaults.json</a>)</dt><dd><p>Defines default values for <code class="docutils literal notranslate"><span class="pre">alive_supervision</span></code> properties, governing the behavior of reporting and supervision mechanisms.</p>
-</dd>
-<dt>watchdog (<a class="reference external" href="../default_values/watchdog_defaults.json">watchdog_defaults.json</a>)</dt><dd><p>Defines default values for <code class="docutils literal notranslate"><span class="pre">watchdog</span></code> properties.</p>
+<dt>alive_supervision</dt><dd><p>Defines default values for <code class="docutils literal notranslate"><span class="pre">alive_supervision</span></code> properties, governing the behavior of reporting and supervision mechanisms.</p>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">alive_supervision_defaults.json</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;alive_supervision&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;evaluation_cycle&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</details></dd>
+<dt>watchdog</dt><dd><p>Defines default values for <code class="docutils literal notranslate"><span class="pre">watchdog</span></code> properties.</p>
 <p>Please note that an empty object (<code class="docutils literal notranslate"><span class="pre">{}</span></code>) for <code class="docutils literal notranslate"><span class="pre">watchdog</span></code> signifies that the <strong>Launch Manager</strong> will disable watchdog functionality by default.</p>
-</dd>
-<dt>run_target (<a class="reference external" href="../default_values/run_target_defaults.json">run_target_defaults.json</a>)</dt><dd><p>Defines default values for <code class="docutils literal notranslate"><span class="pre">run_target</span></code> properties, including the basic structure, behavior, and recovery actions for a <strong>Run Target</strong>.</p>
-</dd>
-<dt>component_properties (<a class="reference external" href="../default_values/component_properties_defaults.json">component_properties_defaults.json</a>)</dt><dd><p>Defines default values for <code class="docutils literal notranslate"><span class="pre">component_properties</span></code>, which specify fundamental characteristics and operational parameters for individual components.</p>
-</dd>
-<dt>deployment_config (<a class="reference external" href="../default_values/deployment_config_defaults.json">deployment_config_defaults.json</a>)</dt><dd><p>Defines default values for <code class="docutils literal notranslate"><span class="pre">deployment_config</span></code>, covering aspects of how a component is deployed and managed, such as resource limits and recovery.</p>
-</dd>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">watchdog_defaults.json</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;watchdog&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</details></dd>
+<dt>run_target</dt><dd><p>Defines default values for <code class="docutils literal notranslate"><span class="pre">run_target</span></code> properties, including the basic structure, behavior, and recovery actions for a <strong>Run Target</strong>.</p>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">run_target_defaults.json</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;run_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;depends_on&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">        </span><span class="nt">&quot;transition_timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;recovery_action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;switch_run_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;run_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fallback_run_target&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</details></dd>
+<dt>component_properties</dt><dd><p>Defines default values for <code class="docutils literal notranslate"><span class="pre">component_properties</span></code>, which specify fundamental characteristics and operational parameters for individual components.</p>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">component_properties_defaults.json</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;component_properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;binary_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;application_profile&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;application_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Reporting_And_Supervised&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;is_self_terminating&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;alive_supervision&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;reporting_cycle&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;failed_cycles_tolerance&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;min_indications&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;max_indications&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;depends_on&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">        </span><span class="nt">&quot;process_arguments&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">        </span><span class="nt">&quot;ready_condition&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;process_state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Running&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</details></dd>
+<dt>deployment_config</dt><dd><p>Defines default values for <code class="docutils literal notranslate"><span class="pre">deployment_config</span></code>, covering aspects of how a component is deployed and managed, such as resource limits and recovery.</p>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">deployment_config_defaults.json</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;deployment_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;ready_timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;shutdown_timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;environmental_variables&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">        </span><span class="nt">&quot;bin_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/opt&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;working_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/tmp&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;ready_recovery_action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;restart&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;number_of_attempts&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;delay_before_restart&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;recovery_action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;switch_run_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;run_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fallback_run_target&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;sandbox&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;uid&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;gid&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;supplementary_group_ids&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">            </span><span class="nt">&quot;security_policy&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;scheduling_policy&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SCHED_OTHER&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;scheduling_priority&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</details></dd>
 <dt>fallback_run_target</dt><dd><p>The <code class="docutils literal notranslate"><span class="pre">fallback_run_target</span></code> is a critical configuration option within the <strong>Launch Manager</strong>.</p>
 <p>While the S-CORE standard does not currently provide an official default JSON configuration for <code class="docutils literal notranslate"><span class="pre">fallback_run_target</span></code>, its behavior when unconfigured is important to understand.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">fallback_run_target</span></code> is not explicitly configured by the user, the Bazel target responsible for generating configuration files will create a <strong>Run Target</strong> that does not depend on any component. In this specific scenario, the <code class="docutils literal notranslate"><span class="pre">fallback_run_target</span></code> will effectively cause all components to shut down, with the exception of the <strong>Launch Manager</strong> itself. Understanding this default behavior is crucial for ensuring the desired system state during operation.</p>

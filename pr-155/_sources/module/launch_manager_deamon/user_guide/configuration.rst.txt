@@ -421,24 +421,49 @@ S-CORE Standard Defaults
 
 The **Launch Manager** guarantees the availability of these specific default values, which are applied when no corresponding configuration is found in the explicit definition of a property (e.g., within a component's ``deployment_config``, a **Run Target's** settings, or a root-level property) or within the user-defined ``defaults`` section.
 
-The full, canonical definitions for these S-CORE standard defaults are provided in separate JSON files. You can find links to these files below:
+The full, canonical definitions for these S-CORE standard defaults are provided in separate JSON files, shown below:
 
-alive_supervision (`alive_supervision_defaults.json <../default_values/alive_supervision_defaults.json>`_)
+alive_supervision
   Defines default values for ``alive_supervision`` properties, governing the behavior of reporting and supervision mechanisms.
 
-watchdog (`watchdog_defaults.json <../default_values/watchdog_defaults.json>`_)
+  .. dropdown:: alive_supervision_defaults.json
+
+     .. literalinclude:: ../../../../src/launch_manager_daemon/config/config_schema/default_values/alive_supervision_defaults.json
+        :language: json
+
+watchdog
   Defines default values for ``watchdog`` properties.
 
   Please note that an empty object (``{}``) for ``watchdog`` signifies that the **Launch Manager** will disable watchdog functionality by default.
 
-run_target (`run_target_defaults.json <../default_values/run_target_defaults.json>`_)
+  .. dropdown:: watchdog_defaults.json
+
+     .. literalinclude:: ../../../../src/launch_manager_daemon/config/config_schema/default_values/watchdog_defaults.json
+        :language: json
+
+run_target
   Defines default values for ``run_target`` properties, including the basic structure, behavior, and recovery actions for a **Run Target**.
 
-component_properties (`component_properties_defaults.json <../default_values/component_properties_defaults.json>`_)
+  .. dropdown:: run_target_defaults.json
+
+     .. literalinclude:: ../../../../src/launch_manager_daemon/config/config_schema/default_values/run_target_defaults.json
+        :language: json
+
+component_properties
   Defines default values for ``component_properties``, which specify fundamental characteristics and operational parameters for individual components.
 
-deployment_config (`deployment_config_defaults.json <../default_values/deployment_config_defaults.json>`_)
+  .. dropdown:: component_properties_defaults.json
+
+     .. literalinclude:: ../../../../src/launch_manager_daemon/config/config_schema/default_values/component_properties_defaults.json
+        :language: json
+
+deployment_config
   Defines default values for ``deployment_config``, covering aspects of how a component is deployed and managed, such as resource limits and recovery.
+
+  .. dropdown:: deployment_config_defaults.json
+
+     .. literalinclude:: ../../../../src/launch_manager_daemon/config/config_schema/default_values/deployment_config_defaults.json
+        :language: json
 
 fallback_run_target
   The ``fallback_run_target`` is a critical configuration option within the **Launch Manager**.
