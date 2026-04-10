@@ -59,10 +59,13 @@ def run_until_file_deployed(
 
         exit_code, _ = target.execute(f"test -f {file_path}")
         if exit_code == 0:
-            kill_cmd = f"kill -15 {proc.pid()}"
+            # Kill the entire process group so that children (e.g. the actual
+            # daemon binary launched under fakeroot) receive SIGTERM and can
+            # run their cleanup code before exiting.
+            kill_cmd = f"kill -15 -{proc.pid()}"
             res, _ = target.execute(kill_cmd)
             time.sleep(0.5)
-            assert proc.is_running() == False, "LCM still runing"
+            assert proc.is_running() == False, "LCM still running"
             assert res == 0, "Couldn't kill lcm"
             return proc
         logger.debug(f"Waiting for {file_path}")
