@@ -16,15 +16,15 @@
     "url": "https://eclipse-score.github.io/lifecycle/pr-152/"
   },
   {
-    "version": "v0.1.0",
-    "url": "https://eclipse-score.github.io/lifecycle/v0.1.0/"
-  },
-  {
     "version": "pr-153",
     "url": "https://eclipse-score.github.io/lifecycle/pr-153/"
   },
   {
     "version": "pr-155",
     "url": "https://eclipse-score.github.io/lifecycle/pr-155/"
+  },
+  {
+    "version": "v0.1.0",
+    "url": "https://eclipse-score.github.io/lifecycle/v0.1.0/"
   }
 ]
