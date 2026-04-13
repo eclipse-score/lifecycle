@@ -82,12 +82,12 @@ Ready state
 
 Each component has a **Ready State**. A component reaches the Ready State when
 it has started successfully and has satisfied its configured ready condition.
-A ready condition can be ``Running`` or ``Terminated``.
-To report a successful start and achieve the ``Running`` condition, the binary
-has to call the API provided by the life cycle library.
-Currently the following languages are supported C, C++, Rust, note that a
-process has to first report a successful start before termination for the
-``Terminated`` condition to be achieved.
+
+Supported ready conditions include ``Running``, where the component is
+considered ready as soon as its process has reported ``kRunning`` via the
+lifecycle API, and ``Terminated``, where the component is considered ready
+once it has reported ``kRunning`` and subsequently exited successfully.
+For the full list of supported conditions, see :ref:`lm_ready_conditions`.
 
 A component can also be configured to be **non-reporting**. The Launch Manager
 considers it to be in the **Ready State** as soon as its process has been
