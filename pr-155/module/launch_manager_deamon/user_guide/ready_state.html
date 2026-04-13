@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Known Limitations &#8212; Lifecycle and Health Management  documentation</title>
+    <title>Ready Conditions &#8212; Lifecycle and Health Management  documentation</title>
   
   
   
@@ -62,7 +62,7 @@
     <script src="../../../_static/sphinx-needs/libs/html/datatables.min.js?v=8a4aee21"></script>
     <script src="../../../_static/sphinx-needs/libs/html/datatables_loader.js?v=a2cae175"></script>
     <script src="../../../_static/sphinx-needs/libs/html/sphinx_needs_collapse.js?v=dca66431"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'module/launch_manager_deamon/product_documentation/known_limitations';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'module/launch_manager_deamon/user_guide/ready_state';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://eclipse-score.github.io/lifecycle/versions.json';
@@ -72,8 +72,8 @@
         </script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Component Requirements Statistics" href="../../../statistics.html" />
-    <link rel="prev" title="Implementation" href="../user_guide/implementation.html" />
+    <link rel="next" title="Configuration" href="configuration.html" />
+    <link rel="prev" title="User Guide" href="concepts.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.1" />
@@ -365,12 +365,12 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../user_guide/concepts.html">User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user_guide/ready_state.html">Ready Conditions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user_guide/configuration.html">Configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user_guide/examples.html">Configuration Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user_guide/implementation.html">Implementation</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Known Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concepts.html">User Guide</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Ready Conditions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Configuration Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementation.html">Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../product_documentation/known_limitations.html">Known Limitations</a></li>
 </ul>
 </div>
 </nav></div>
@@ -414,7 +414,7 @@
     
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Launch Manager Daemon</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Known Limitations</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Ready Conditions</span></li>
   </ul>
 </nav>
 </div>
@@ -431,40 +431,31 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="known-limitations">
-<h1>Known Limitations<a class="headerlink" href="#known-limitations" title="Link to this heading">#</a></h1>
-<section id="configuration">
-<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">#</a></h2>
-<section id="component">
-<h3>Component<a class="headerlink" href="#component" title="Link to this heading">#</a></h3>
-<ul class="simple">
-<li><p>The sandbox parameters <code class="docutils literal notranslate"><span class="pre">max_memory_usage</span></code> and <code class="docutils literal notranslate"><span class="pre">max_cpu_usage</span></code> are
-currently not supported and are ignored.</p></li>
-<li><p>For ReadyCondition <code class="docutils literal notranslate"><span class="pre">process_state:Terminated</span></code>, the mapping is only
-supported for Components that have at least one Component depending on it.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">ready_recovery_action</span></code> only supports the RecoveryAction of type
-<code class="docutils literal notranslate"><span class="pre">restart</span></code>. The parameter <code class="docutils literal notranslate"><span class="pre">delay_before_restart</span></code> is currently not
-supported and is ignored. Setting it to a non-zero value will have no effect
-and the component will be restarted immediately.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">recovery_action</span></code> only supports <code class="docutils literal notranslate"><span class="pre">switch_run_target</span></code> with the
-<code class="docutils literal notranslate"><span class="pre">run_target</span></code> set to <code class="docutils literal notranslate"><span class="pre">fallback_run_target</span></code>.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">ready_timeout</span></code> is used as the timeout until process state Running is
-reached, even in case the ReadyCondition is <code class="docutils literal notranslate"><span class="pre">process_state:Terminated</span></code>.</p></li>
-<li><p>The parameter <code class="docutils literal notranslate"><span class="pre">deployment_config/working_dir</span></code> is currently not supported
-and is ignored.</p></li>
-</ul>
+  <section id="ready-conditions">
+<span id="lm-ready-conditions"></span><h1>Ready Conditions<a class="headerlink" href="#ready-conditions" title="Link to this heading">#</a></h1>
+<p>A <strong>Ready Condition</strong> defines what must be true of a component before the
+<strong>Launch Manager</strong> considers that component to have reached its <strong>Ready
+State</strong>.</p>
+<p>The following ready conditions are supported:</p>
+<section id="running">
+<span id="lm-ready-condition-running"></span><h2>Running<a class="headerlink" href="#running" title="Link to this heading">#</a></h2>
+<p><strong>Configuration value:</strong> <code class="docutils literal notranslate"><span class="pre">&quot;Running&quot;</span></code></p>
+<p>The component is considered ready as soon as its process has reported
+<code class="docutils literal notranslate"><span class="pre">kRunning</span></code> to the <strong>Launch Manager</strong> via the lifecycle API. The process is
+expected to remain alive and continue providing its service.</p>
+<p>Use this condition for long-running daemons that signal readiness once their
+initialization is complete.</p>
 </section>
-<section id="run-target">
-<h3>Run target<a class="headerlink" href="#run-target" title="Link to this heading">#</a></h3>
-<ul class="simple">
-<li><p>The initial Run Target must be named <code class="docutils literal notranslate"><span class="pre">Startup</span></code> and the
-<code class="docutils literal notranslate"><span class="pre">initial_run_target</span></code> must be configured to <code class="docutils literal notranslate"><span class="pre">Startup</span></code>.</p></li>
-<li><p>The parameter <code class="docutils literal notranslate"><span class="pre">run_targets/&lt;RunTarget&gt;/transition_timeout</span></code> is currently not
-supported and is ignored.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">recovery_action</span></code> only supports <code class="docutils literal notranslate"><span class="pre">switch_run_target</span></code> with the
-<code class="docutils literal notranslate"><span class="pre">run_target</span></code> set to <code class="docutils literal notranslate"><span class="pre">fallback_run_target</span></code>.</p></li>
-</ul>
-</section>
+<section id="terminated">
+<span id="lm-ready-condition-terminated"></span><h2>Terminated<a class="headerlink" href="#terminated" title="Link to this heading">#</a></h2>
+<p><strong>Configuration value:</strong> <code class="docutils literal notranslate"><span class="pre">&quot;Terminated&quot;</span></code></p>
+<p>The component is considered ready once its process has reported <code class="docutils literal notranslate"><span class="pre">kRunning</span></code>
+via the lifecycle API <strong>and</strong> subsequently terminated with a successful exit
+code.
+A process that exits without first reporting <code class="docutils literal notranslate"><span class="pre">kRunning</span></code> is treated as a
+failure, not as reaching the Ready State.</p>
+<p>Use this condition for one-shot tasks (e.g. mounting a filesystem, applying
+configuration) that signal completion by exiting cleanly.</p>
 </section>
 </section>
 
@@ -479,20 +470,20 @@ supported and is ignored.</p></li>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../user_guide/implementation.html"
+       href="concepts.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Implementation</p>
+        <p class="prev-next-title">User Guide</p>
       </div>
     </a>
     <a class="right-next"
-       href="../../../statistics.html"
+       href="configuration.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Component Requirements Statistics</p>
+        <p class="prev-next-title">Configuration</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -515,11 +506,8 @@ supported and is ignored.</p></li>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration">Configuration</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#component">Component</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#run-target">Run target</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running">Running</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#terminated">Terminated</a></li>
 </ul>
   </nav></div>
 
@@ -527,7 +515,7 @@ supported and is ignored.</p></li>
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/eclipse-score/lifecycle/edit/main/docs/module/launch_manager_deamon/product_documentation/known_limitations.rst">
+    <a href="https://github.com/eclipse-score/lifecycle/edit/main/docs/module/launch_manager_deamon/user_guide/ready_state.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
@@ -543,7 +531,7 @@ supported and is ignored.</p></li>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../../../_sources/module/launch_manager_deamon/product_documentation/known_limitations.rst.txt"
+      <li><a href="../../../_sources/module/launch_manager_deamon/user_guide/ready_state.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

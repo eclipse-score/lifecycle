@@ -18,6 +18,7 @@ Launch Manager Daemon
 .. toctree::
 
    user_guide/concepts.rst
+   user_guide/ready_state.rst
    user_guide/configuration.rst
    user_guide/examples.rst
    user_guide/implementation.rst

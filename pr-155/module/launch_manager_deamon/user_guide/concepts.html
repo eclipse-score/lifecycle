@@ -72,7 +72,7 @@
         </script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Configuration" href="configuration.html" />
+    <link rel="next" title="Ready Conditions" href="ready_state.html" />
     <link rel="prev" title="Launch Manager Daemon" href="../index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -366,9 +366,9 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ready_state.html">Ready Conditions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Configuration Examples</a></li>
-
 <li class="toctree-l1"><a class="reference internal" href="implementation.html">Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../product_documentation/known_limitations.html">Known Limitations</a></li>
 </ul>
@@ -480,13 +480,12 @@ configurations.</p>
 <section id="ready-state">
 <span id="lm-ready-state"></span><h3>Ready state<a class="headerlink" href="#ready-state" title="Link to this heading">#</a></h3>
 <p>Each component has a <strong>Ready State</strong>. A component reaches the Ready State when
-it has started successfully and has satisfied its configured ready condition.
-A ready condition can be <code class="docutils literal notranslate"><span class="pre">Running</span></code> or <code class="docutils literal notranslate"><span class="pre">Terminated</span></code>.
-To report a successful start and achieve the <code class="docutils literal notranslate"><span class="pre">Running</span></code> condition, the binary
-has to call the API provided by the life cycle library.
-Currently the following languages are supported C, C++, Rust, note that a
-process has to first report a successful start before termination for the
-<code class="docutils literal notranslate"><span class="pre">Terminated</span></code> condition to be achieved.</p>
+it has started successfully and has satisfied its configured ready condition.</p>
+<p>Supported ready conditions include <code class="docutils literal notranslate"><span class="pre">Running</span></code>, where the component is
+considered ready as soon as its process has reported <code class="docutils literal notranslate"><span class="pre">kRunning</span></code> via the
+lifecycle API, and <code class="docutils literal notranslate"><span class="pre">Terminated</span></code>, where the component is considered ready
+once it has reported <code class="docutils literal notranslate"><span class="pre">kRunning</span></code> and subsequently exited successfully.
+For the full list of supported conditions, see <a class="reference internal" href="ready_state.html#lm-ready-conditions"><span class="std std-ref">Ready Conditions</span></a>.</p>
 <p>A component can also be configured to be <strong>non-reporting</strong>. The Launch Manager
 considers it to be in the <strong>Ready State</strong> as soon as its process has been
 spawned.
@@ -519,10 +518,10 @@ are terminated.</p>
 <p>When a Run Target is activated, the Launch Manager performs the
 following:</p>
 <ul class="simple">
-<li><p>All components currently in the <strong>Ready State</strong> that are <strong>not</strong> assigned to
+<li><p>All components currently in the <strong>active</strong> that are <strong>not</strong> assigned to
 the new Run Target are terminated.</p></li>
-<li><p>All components that are assigned to the new Run Target but are <strong>not</strong> yet in
-the <strong>Ready State</strong> are started.</p></li>
+<li><p>All components that are assigned to the new Run Target but are <strong>not</strong> yet
+<strong>active</strong> are started.</p></li>
 </ul>
 </section>
 <section id="starting-components">
@@ -563,6 +562,15 @@ In this scenario, the name of the dependent <strong>Run Target</strong> is liste
 The most effective way to conceptualize this relationship is to imagine that
 the list of components assigned to the dependent <strong>Run Target</strong> is effectively
 included in the list of components of the primary <strong>Run Target</strong>.</p>
+<p>Dependencies in the <strong>Launch Manager</strong> are resolved transitively.
+When a <strong>Run Target</strong> is activated, the <strong>Launch Manager</strong> does not only start
+the components and <strong>Run Targets</strong> directly listed in its <code class="docutils literal notranslate"><span class="pre">depends_on</span></code>, it
+follows the full dependency chain recursively until all dependencies are
+accounted for.</p>
+<p>This means that a component brought in by a <strong>Run Target</strong> dependency is
+treated as if it were directly assigned to the activating <strong>Run Target</strong>.
+If that component itself depends on further components, those are pulled in as
+well.</p>
 <section id="rules-for-configuring-dependencies">
 <span id="lm-dependency-rules"></span><h4>Rules for Configuring Dependencies<a class="headerlink" href="#rules-for-configuring-dependencies" title="Link to this heading">#</a></h4>
 <p>When configuring dependencies within the <strong>Launch Manager</strong>, the following
@@ -613,11 +621,11 @@ processes being started:</p>
       </div>
     </a>
     <a class="right-next"
-       href="configuration.html"
+       href="ready_state.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Configuration</p>
+        <p class="prev-next-title">Ready Conditions</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

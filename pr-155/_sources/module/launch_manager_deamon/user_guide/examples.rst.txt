@@ -13,7 +13,7 @@
    # *******************************************************************************
 
 Configuration Examples
-**********************
+======================
 
 This document provides a set of configuration examples that come with the
 **Launch Manager** schema. These examples are designed to show common ways to
@@ -22,7 +22,7 @@ structured. They serve as practical guides, helping users understand how to
 apply various features effectively.
 
 `example_conf.json`
-*******************
+-------------------
 
 .. dropdown:: example_conf.json
 

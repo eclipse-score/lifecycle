@@ -366,9 +366,9 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="concepts.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ready_state.html">Ready Conditions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Configuration Examples</a></li>
-
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../product_documentation/known_limitations.html">Known Limitations</a></li>
 </ul>
@@ -439,16 +439,17 @@
 started successfully by calling the lifecycle API for the language it is
 implemented in. This is done by reporting the <code class="docutils literal notranslate"><span class="pre">kRunning</span></code> execution
 state.</p>
-<p>A <code class="docutils literal notranslate"><span class="pre">startup_timeout</span></code> can be configured for each component. If the
+<p>A <code class="docutils literal notranslate"><span class="pre">ready_timeout</span></code> can be configured for each component. If the
 process does not report <code class="docutils literal notranslate"><span class="pre">kRunning</span></code> within that timeout, the Launch
 Manager terminates the process and registers an error.</p>
 </section>
 <section id="stopping-a-process">
 <h2>Stopping a process<a class="headerlink" href="#stopping-a-process" title="Link to this heading">#</a></h2>
-<p>A process can be configured to terminate in 2 ways:
--  <strong>Self-terminating</strong> - The process terminates whenever it wants.
--  <strong>Non-self-terminating</strong> - The process remains alive until LCM requests
-the process to end using a <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code> signal.</p>
+<p>A process can be configured to terminate in 2 ways:</p>
+<ul class="simple">
+<li><p><strong>Self-terminating</strong> - The process terminates whenever it wants.</p></li>
+<li><p><strong>Non-self-terminating</strong> - The process remains alive until LCM requests the process to end using a <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code> signal.</p></li>
+</ul>
 <p>For a process to support being terminated by LCM, it needs to respond to
 a <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code> signal by ending ongoing tasks, freeing resources and
 exiting.</p>

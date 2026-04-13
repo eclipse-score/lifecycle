@@ -23,7 +23,7 @@ started successfully by calling the lifecycle API for the language it is
 implemented in. This is done by reporting the ``kRunning`` execution
 state.
 
-A ``startup_timeout`` can be configured for each component. If the
+A ``ready_timeout`` can be configured for each component. If the
 process does not report ``kRunning`` within that timeout, the Launch
 Manager terminates the process and registers an error.
 
@@ -31,9 +31,9 @@ Stopping a process
 ==================
 
 A process can be configured to terminate in 2 ways:
+
 -  **Self-terminating** - The process terminates whenever it wants.
--  **Non-self-terminating** - The process remains alive until LCM requests
-the process to end using a ``SIGTERM`` signal.
+-  **Non-self-terminating** - The process remains alive until LCM requests the process to end using a ``SIGTERM`` signal.
 
 For a process to support being terminated by LCM, it needs to respond to
 a ``SIGTERM`` signal by ending ongoing tasks, freeing resources and
