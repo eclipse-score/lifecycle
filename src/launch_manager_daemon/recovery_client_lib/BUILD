@@ -27,7 +27,14 @@ cc_library(
     deps = [
         "//externals/ipc_dropin",
         "//src/launch_manager_daemon/common:identifier_hash",
-        "//src/launch_manager_daemon/common:lifecycle_error",
-        "@score_baselibs//score/concurrency/future",
+    ],
+)
+
+cc_test(
+    name = "recovery_client_UT",
+    srcs = ["src/recovery_client_UT.cpp"],
+    deps = [
+        ":recovery_client",
+        "@googletest//:gtest_main",
     ],
 )

@@ -137,6 +137,7 @@ cc_library_with_common_opts(
     ],
     deps = [
         ":config",
+        ":phm_logging",
         "//src/launch_manager_daemon/recovery_client_lib:recovery_client",
         "@score_baselibs//score/mw/log",
     ],
@@ -304,6 +305,16 @@ cc_library_with_common_opts(
         ":timers",
         "@flatbuffers//:flatc",
         "@score_baselibs//score/mw/log",
+    ],
+)
+
+cc_test(
+    name = "Notification_UT",
+    srcs = ["src/score/lcm/saf/recovery/Notification_UT.cpp"],
+    deps = [
+        ":recoverynotify",
+        "@googletest//:gtest_main",
+        "@score_baselibs//score/mw/log:backend_stub_testutil",
     ],
 )
 

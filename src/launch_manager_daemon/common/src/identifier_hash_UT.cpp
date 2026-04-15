@@ -102,3 +102,51 @@ TEST_F(IdentifierHashTest, IdentifierHash_no_dangling_pointer_after_source_strin
 
     ASSERT_EQ(strStream.str(), idStrView);
 }
+
+TEST_F(IdentifierHashTest, IdentifierHash_EqualityOperators)
+{
+    RecordProperty("Description",
+                   "This test verifies that the equality and inequality operators of IdentifierHash work correctly when "
+                   "comparing with other IdentifierHash objects and with std::string_view.");
+    IdentifierHash hash1("ProcessGroup1/Startup");
+    IdentifierHash hash2("ProcessGroup1/Startup");
+    IdentifierHash hash3("ProcessGroup2/Startup");
+
+    // Test equality between IdentifierHash objects
+    ASSERT_TRUE(hash1 == hash2);
+    ASSERT_FALSE(hash1 == hash3);
+    ASSERT_TRUE(hash1 != hash3);
+
+    // Test equality between IdentifierHash and std::string_view
+    std::string_view idStrView = "ProcessGroup1/Startup";
+    std::string_view differentIdStrView = "ProcessGroup2/Startup";
+    ASSERT_TRUE(hash1 == idStrView);
+    ASSERT_FALSE(hash1 == differentIdStrView);
+    ASSERT_TRUE(hash1 != differentIdStrView);
+}
+
+TEST_F(IdentifierHashTest, IdentifierHash_LessThanOperator)
+{
+    RecordProperty("Description",
+                   "This test verifies that the less than operator of IdentifierHash provides a consistent ordering based on "
+                   "the hash values, and that it can be used to compare different IdentifierHash objects.");
+    IdentifierHash hash1("ProcessGroup1/Startup");
+    IdentifierHash hash2("ProcessGroup2/Startup");
+
+    if(hash1.data() < hash2.data())
+    {
+        ASSERT_TRUE(hash1 < hash2);
+        ASSERT_FALSE(hash2 < hash1);
+    }
+    else if(hash2.data() < hash1.data())
+    {
+        ASSERT_TRUE(hash2 < hash1);
+        ASSERT_FALSE(hash1 < hash2);
+    }
+    else
+    {
+        // In the unlikely event of a hash collision, they should be considered equal and neither should be less than the other.
+        ASSERT_FALSE(hash1 < hash2);
+        ASSERT_FALSE(hash2 < hash1);
+    }
+}

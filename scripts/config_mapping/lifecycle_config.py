@@ -338,14 +338,12 @@ def gen_health_monitor_config(output_dir, config):
 
         recovery_action = {}
         recovery_action["shortName"] = f"recovery_notification"
-        recovery_action["recoveryNotificationTimeout"] = 5000
         recovery_action["processGroupMetaModelIdentifier"] = (
             get_recovery_process_group_state(config)
         )
         recovery_action["refGlobalSupervisionIndex"] = hm_config[
             "hmGlobalSupervision"
         ].index(global_supervision)
-        recovery_action["instanceSpecifier"] = ""
         recovery_action["shouldFireWatchdog"] = False
         hm_config["hmRecoveryNotification"].append(recovery_action)
 
