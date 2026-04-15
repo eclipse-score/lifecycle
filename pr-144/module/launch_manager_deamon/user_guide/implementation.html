@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>FMEA (Failure Modes and Effects Analysis) &#8212; Lifecycle and Health Management  documentation</title>
+    <title>Implementation &#8212; Lifecycle and Health Management  documentation</title>
   
   
   
@@ -62,7 +62,7 @@
     <script src="../../../_static/sphinx-needs/libs/html/datatables.min.js?v=8a4aee21"></script>
     <script src="../../../_static/sphinx-needs/libs/html/datatables_loader.js?v=a2cae175"></script>
     <script src="../../../_static/sphinx-needs/libs/html/sphinx_needs_collapse.js?v=dca66431"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'module/health_monitor/safety_analysis/fmea';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'module/launch_manager_deamon/user_guide/implementation';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://eclipse-score.github.io/lifecycle/versions.json';
@@ -72,8 +72,8 @@
         </script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="DFA (Dependent Failure Analysis)" href="dfa.html" />
-    <link rel="prev" title="Detailed Design" href="../detailed_design/index.html" />
+    <link rel="next" title="Known Limitations" href="../product_documentation/known_limitations.html" />
+    <link rel="prev" title="Configuration Examples" href="examples.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.1" />
@@ -152,15 +152,15 @@
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-<li class="nav-item current active">
-  <a class="nav-link nav-internal" href="../index.html">
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../health_monitor/index.html">
     HealthMonitor
   </a>
 </li>
 
 
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../launch_manager_deamon/index.html">
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
     Launch Manager Daemon
   </a>
 </li>
@@ -281,15 +281,15 @@
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-<li class="nav-item current active">
-  <a class="nav-link nav-internal" href="../index.html">
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../health_monitor/index.html">
     HealthMonitor
   </a>
 </li>
 
 
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../launch_manager_deamon/index.html">
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
     Launch Manager Daemon
   </a>
 </li>
@@ -365,14 +365,12 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../requirements/index.html">Requirements</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../architecture/index.html">Component Architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../detailed_design/index.html">Detailed Design</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">FMEA (Failure Modes and Effects Analysis)</a></li>
-
-
-<li class="toctree-l1"><a class="reference internal" href="dfa.html">DFA (Dependent Failure Analysis)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../component_classification.html">Component Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concepts.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ready_state.html">Ready Conditions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Configuration Examples</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../product_documentation/known_limitations.html">Known Limitations</a></li>
 </ul>
 </div>
 </nav></div>
@@ -414,9 +412,9 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">HealthMonitor</a></li>
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Launch Manager Daemon</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">FMEA (Failure Modes and Effects Analysis)</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Implementation</span></li>
   </ul>
 </nav>
 </div>
@@ -433,219 +431,58 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="fmea-failure-modes-and-effects-analysis">
-<h1>FMEA (Failure Modes and Effects Analysis)<a class="headerlink" href="#fmea-failure-modes-and-effects-analysis" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-ff8fe7ff">
-<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__health_monitor_fmea">
-<tbody>
-<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
-<div class="line"><span><span class="needs_title"><span class="needs_data">Health Monitor FMEA</span></span></span></div>
-</div>
-</td>
-<td class="head_center" colspan="2"><div class="needs_head line-block">
-<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">draft</span></span></span></div>
-<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">NO</span></span></span></div>
-<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
-</div>
-</td>
-<td class="head_right" colspan="2"><div class="needs_head_right line-block">
-<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
-</div>
-</td>
-</tr>
-<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
-<div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">template</span><span class="needs_spacer">, </span><span class="needs_data">health_monitor</span></span></span></div>
-</span></span></div>
-<div class="line"><span><div class="line">realizes: <span class="realizes"><span><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/safety_analysis/safety_analysis_workproducts.html#wp__sw_component_fmea">wp__sw_component_fmea</a></span></span></div>
-</span></div>
-</div>
-</td>
-<td class="meta" colspan="3"></td>
-</tr>
-<tr class="content row-odd"><td class="content" colspan="6"></td>
-</tr>
-<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
-<div class="line"><span><span class="needs-id"><a class="reference internal" href="#doc__health_monitor_fmea" title="doc__health_monitor_fmea">doc__health_monitor_fmea</a></span></span></div>
-</div>
-</td>
-<td class="footer" colspan="2"><div class="needs_footer line-block">
-<div class="line"><span><span class="needs_type_name"><span class="needs_data">Generic Document</span></span></span></div>
-</div>
-</td>
-<td class="footer_right" colspan="2"></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<section id="failure-mode-evaluation-table">
-<h2>Failure Mode Evaluation Table<a class="headerlink" href="#failure-mode-evaluation-table" title="Link to this heading">#</a></h2>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Title</p></th>
-<th class="head"><p>id</p></th>
-<th class="head"><p>failure_effect</p></th>
-<th class="head"><p>mitigation_proposal</p></th>
-<th class="head"><p>sufficient</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>Missing processing time</p></td>
-<td><p>HM_FMEA_001</p></td>
-<td><p>Background thread does not receive CPU time slice, leading to miss specified alive notification internal towards Launch Daemon</p></td>
-<td><div class="line-block">
-<div class="line"><strong>Detection:</strong></div>
-<div class="line-block">
-<div class="line">- Missing notifications will be detected by Launch Daemon and lead to safety reaction at Launch Daemon.</div>
-</div>
-</div>
-<div class="line-block">
-<div class="line"><strong>Mitigation:</strong></div>
-<div class="line-block">
-<div class="line">- Provide <cite>AoU</cite> that integrator has to ensure Health Monitor background thread receives sufficient CPU time slice by configuring it’s scheduling parameters accordingly.</div>
-<div class="line">- All code within process is developed according to <strong>ASIL-B</strong> development process</div>
-</div>
-</div>
-</td>
-<td><p>Yes</p></td>
-</tr>
-<tr class="row-odd"><td><p>Loss of execution</p></td>
-<td><p>HM_FMEA_002</p></td>
-<td><p>Background thread does not advance in its execution (ie. deadlock, endless loop failure), leading to miss specified alive notification internal towards Launch Daemon</p></td>
-<td><div class="line-block">
-<div class="line"><strong>Detection:</strong></div>
-<div class="line-block">
-<div class="line">-  Missing notifications will be detected by Launch Daemon and lead to safety reaction at Launch Daemon.</div>
-</div>
-</div>
-<div class="line-block">
-<div class="line"><strong>Mitigation:</strong></div>
-<div class="line-block">
-<div class="line">- All code within process is developed according to <strong>ASIL-B</strong> development process</div>
-</div>
-</div>
-</td>
-<td><p>Yes</p></td>
-</tr>
-<tr class="row-even"><td><p>Memory corruption of monitoring data structures</p></td>
-<td><p>HM_FMEA_003</p></td>
-<td><p>Corruption of internal data structures used for monitoring, leading to missed detection of failure of monitored components (bitflips, out of range data, etc.)</p></td>
-<td><div class="line-block">
-<div class="line"><strong>Detection:</strong></div>
-<div class="line-block">
-<div class="line">- Using protected memory pages around internal data structures used for monitoring to detect memory corruption (see below)</div>
-</div>
-</div>
-<div class="line-block">
-<div class="line"><strong>Mitigation:</strong></div>
-<div class="line-block">
-<div class="line">- All code within process is developed according to <strong>ASIL-B</strong> development process</div>
-</div>
-</div>
-</td>
-<td><p>Yes</p></td>
-</tr>
-</tbody>
-</table>
-</div>
+  <section id="implementation">
+<h1>Implementation<a class="headerlink" href="#implementation" title="Link to this heading">#</a></h1>
+<section id="starting-a-process">
+<h2>Starting a process<a class="headerlink" href="#starting-a-process" title="Link to this heading">#</a></h2>
+<p>A reporting process must signal to the Launch Manager that it has
+started successfully by calling the lifecycle API for the language it is
+implemented in. This is done by reporting the <code class="docutils literal notranslate"><span class="pre">kRunning</span></code> execution
+state.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">ready_timeout</span></code> can be configured for each component. If the
+process does not report <code class="docutils literal notranslate"><span class="pre">kRunning</span></code> within that timeout, the Launch
+Manager terminates the process and registers an error.</p>
 </section>
-<section id="hm-fmea-003">
-<h2>HM_FMEA_003<a class="headerlink" href="#hm-fmea-003" title="Link to this heading">#</a></h2>
-<p>Health Monitoring Library is placed in same process as monitored components. Therefore, any other component that shares same process can corrupt memory of Health Monitoring Library. This can lead to missed detection of failure of monitored components.
-Since we are using <strong>Rust</strong> as programming language for Health Monitoring Library implementation, we could rely on Rust memory safety guarantees and avoid memory corruption due to programming errors. However we are also supporting C/C++ components
-that can introduce memory issues due to programming errors. Therefore, we need to consider additional detection mechanisms. Below description of possible detection mechanisms:</p>
-<section id="checksums">
-<h3>Checksums<a class="headerlink" href="#checksums" title="Link to this heading">#</a></h3>
-<p>One of possible detection mechanisms is to use checksums for data structures used for monitors.</p>
-<p><strong>Pros</strong></p>
+<section id="stopping-a-process">
+<h2>Stopping a process<a class="headerlink" href="#stopping-a-process" title="Link to this heading">#</a></h2>
+<p>A process can be configured to terminate in 2 ways:</p>
 <ul class="simple">
-<li><p>Low performance overhead</p></li>
+<li><p><strong>Self-terminating</strong> - The process terminates whenever it wants.</p></li>
+<li><p><strong>Non-self-terminating</strong> - The process remains alive until LCM requests the process to end using a <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code> signal.</p></li>
 </ul>
-<p><strong>Cons</strong></p>
-<ul class="simple">
-<li><p>hard to implement for complex data structures that are mutated frequently</p></li>
-</ul>
+<p>For a process to support being terminated by LCM, it needs to respond to
+a <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code> signal by ending ongoing tasks, freeing resources and
+exiting.</p>
+<p>If a process does not terminate after receiving a <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code>, and a
+<code class="docutils literal notranslate"><span class="pre">shutdown_timeout</span></code> is configured, then after the timeout is fired a
+<code class="docutils literal notranslate"><span class="pre">SIGKILL</span></code> is sent and the process is forcefully terminated.</p>
+</section>
+<section id="state-management">
+<h2>State Management<a class="headerlink" href="#state-management" title="Link to this heading">#</a></h2>
+<p>A <strong>state manager</strong> is an application that dictates which run-targets shall be
+active by communicating with the launch manager using the <code class="docutils literal notranslate"><span class="pre">ControlClient</span></code>.
+The <strong>control client</strong> exposes a single API <code class="docutils literal notranslate"><span class="pre">ActivateRunTarget</span></code> which allows
+the user to provide the name of the run-target to activate.
+<code class="docutils literal notranslate"><span class="pre">ActivateRunTarget</span></code> returns a future that resolves once the transition
+is complete.
+Whether to <code class="docutils literal notranslate"><span class="pre">.wait()</span></code> on it is up to the implementation, a state manager may
+choose to wait before issuing the next transition, or fire and continue without
+blocking.</p>
+<p>The <strong>state manager</strong> is itself a managed component and <strong>must</strong> report
+<code class="docutils literal notranslate"><span class="pre">kRunning</span></code> to the Launch Manager using the lifecycle API before calling
+<code class="docutils literal notranslate"><span class="pre">ActivateRunTarget</span></code>.
+Failing to do so means the Launch Manager does not consider the <strong>state
+manager</strong> ready, which blocks the startup procedure from completing.
+The configuration also requires that the component that is the <strong>state manager</strong> has
+to have the field <code class="docutils literal notranslate"><span class="pre">application_profile.application_type</span></code> set to
+<code class="docutils literal notranslate"><span class="pre">State_Manager</span></code>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Not implemented due to complexity of implementation for complex data structures.</p>
-</div>
-</section>
-<section id="protected-pages">
-<h3>Protected pages<a class="headerlink" href="#protected-pages" title="Link to this heading">#</a></h3>
-<p>Another possible detection mechanism is to use protected memory pages. Region before and after data structures used for monitors can be marked as non-accessible.
-Since other components do not have knowledge where internal structures were allocated, <strong>likelihood</strong> of memory corruption only in data structures used for monitors and not around them is <strong>low</strong>.</p>
-<p><strong>Pros</strong></p>
-<ul class="simple">
-<li><p>Easy to implement</p></li>
-<li><p>0 performance overhead</p></li>
-</ul>
-<p><strong>Cons</strong></p>
-<ul class="simple">
-<li><p>Increased memory overhead</p></li>
-<li><p>Can detect only <cite>pass through</cite> corruption - ie. bulk write over memory area</p></li>
-<li><p>Protection can be disabled by malicious component however this shall be judged as <strong>extremely low</strong> likelihood because this requires knowledge of internal memory layout of Health Monitoring Library and code review approval.</p></li>
-</ul>
-</section>
-<section id="dual-banking">
-<h3>Dual banking<a class="headerlink" href="#dual-banking" title="Link to this heading">#</a></h3>
-<p>Another possible detection mechanism is to use dual banking for data structures used for monitors. One bank is actively used, while the other one is kept on side
-as either <strong>mirrored data</strong> or  <strong>inverse byte copy</strong>. During runtime, background checking thread will fetch both banks and compare them. If mismatch is detected, then memory corruption is detected.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This pattern can be extended to triple banking where voting can be used to <strong>recover</strong> corrupted data if needed.</p>
-</div>
-<p><strong>Pros</strong></p>
-<ul class="simple">
-<li><p>Can recover corrupted data if triple banking with voting is used</p></li>
-<li><p>Detects wide range of memory corruption patterns</p></li>
-</ul>
-<p><strong>Cons</strong></p>
-<ul class="simple">
-<li><p>Increased memory overhead</p></li>
-<li><p>More complex internal implementation</p></li>
-</ul>
-</section>
-</section>
-</section>
-<section id="decision">
-<h1>Decision<a class="headerlink" href="#decision" title="Link to this heading">#</a></h1>
-<ul class="simple">
-<li><p>Status: Accepted</p></li>
-<li><p>Date: 2026-01-09</p></li>
-</ul>
-<p>After evaluation of above detection mechanisms, it was decided that <strong>Health Monitoring Library</strong> shall be implemented as library within monitored process as FMEA confirms safety goals are met.</p>
-</section>
-<section id="rationale">
-<h1>Rationale<a class="headerlink" href="#rationale" title="Link to this heading">#</a></h1>
-<ul class="simple">
-<li><p>All code within process is developed according to <strong>ASIL-B</strong> development process</p></li>
-<li><p>Library will use <strong>protected pages</strong> mechanism to detect <cite>pass through</cite> memory corruption</p></li>
-<li><p>Lifecycle CFT will investigate possibility to harden memory protection using <strong>ARM MTE</strong> extension (<a class="reference external" href="https://learn.arm.com/learning-paths/mobile-graphics-and-gaming/mte/">more here</a> ) in future releases - <a class="github reference external" href="https://github.com/eclipse-score/score/issues/2397">eclipse-score/score#2397</a></p></li>
-</ul>
-<section id="failure-mode-list">
-<h2>Failure Mode List<a class="headerlink" href="#failure-mode-list" title="Link to this heading">#</a></h2>
-<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="p">..</span> <span class="ow">comp_saf_fmea</span><span class="p">::</span> <span class="nt">&lt;Title&gt;</span>
-   <span class="nc">:violates:</span> <span class="nt">&lt;Component architecture&gt;</span>
-   <span class="nc">:id:</span> comp_saf_fmea__&lt;Component&gt;__&lt;Element descriptor&gt;
-   <span class="nc">:fault_id:</span> <span class="nt">&lt;ID from fault model :need:`gd_guidl__fault_models`&gt;</span>
-   <span class="nc">:failure_effect:</span> &quot;description of failure effect of the fault model on the element&quot;
-   <span class="nc">:mitigated_by:</span> <span class="nt">&lt;ID from Component Requirement | ID from AoU Component Requirement&gt;</span>
-   <span class="nc">:mitigation_issue:</span> <span class="nt">&lt;ID from Issue Tracker&gt;</span>
-   <span class="nc">:sufficient:</span> <span class="nt">&lt;yes|no&gt;</span>
-   <span class="nc">:status:</span> <span class="nt">&lt;valid|invalid&gt;</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>argument is inside the ‘content’. Therefore content is mandatory</p>
-</div>
-<div class="admonition attention">
-<p class="admonition-title">Attention</p>
-<p>The above directive must be updated according to your component FMEA.</p>
-<ul class="simple">
-<li><p>The above “code-block” directive must be updated</p></li>
-<li><p>Fill in all the needed information in the &lt;brackets&gt;</p></li>
-</ul>
+<p>If <code class="docutils literal notranslate"><span class="pre">ActivateRunTarget</span></code> is called while a transition is already in
+progress, the in-flight transition is cancelled, its returned future will
+resolve with a <code class="docutils literal notranslate"><span class="pre">kCancelled</span></code> error, and the new transition will be served
+instead. Always check the result of each <code class="docutils literal notranslate"><span class="pre">ActivateRunTarget</span></code> call to
+detect cancellation.</p>
 </div>
 </section>
 </section>
@@ -661,20 +498,20 @@ as either <strong>mirrored data</strong> or  <strong>inverse byte copy</strong>.
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../detailed_design/index.html"
+       href="examples.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Detailed Design</p>
+        <p class="prev-next-title">Configuration Examples</p>
       </div>
     </a>
     <a class="right-next"
-       href="dfa.html"
+       href="../product_documentation/known_limitations.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">DFA (Dependent Failure Analysis)</p>
+        <p class="prev-next-title">Known Limitations</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -697,30 +534,17 @@ as either <strong>mirrored data</strong> or  <strong>inverse byte copy</strong>.
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">FMEA (Failure Modes and Effects Analysis)</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#failure-mode-evaluation-table">Failure Mode Evaluation Table</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hm-fmea-003">HM_FMEA_003</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#checksums">Checksums</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#protected-pages">Protected pages</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dual-banking">Dual banking</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#starting-a-process">Starting a process</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stopping-a-process">Stopping a process</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#state-management">State Management</a></li>
 </ul>
-</li>
-</ul>
-</li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#decision">Decision</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#rationale">Rationale</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#failure-mode-list">Failure Mode List</a></li>
-</ul>
-</li>
-</ul>
-
   </nav></div>
 
   <div class="sidebar-secondary-item">
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/eclipse-score/lifecycle/edit/main/docs/module/health_monitor/safety_analysis/fmea.rst">
+    <a href="https://github.com/eclipse-score/lifecycle/edit/main/docs/module/launch_manager_deamon/user_guide/implementation.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
@@ -736,7 +560,7 @@ as either <strong>mirrored data</strong> or  <strong>inverse byte copy</strong>.
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../../../_sources/module/health_monitor/safety_analysis/fmea.rst.txt"
+      <li><a href="../../../_sources/module/launch_manager_deamon/user_guide/implementation.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>
