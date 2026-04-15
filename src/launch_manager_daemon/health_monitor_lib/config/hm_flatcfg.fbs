@@ -109,11 +109,9 @@ table HmRefProcessGroupStatesGlobal {
 
 table RecoveryNotification {
   shortName: string (id:0, required);
-  recoveryNotificationTimeout: double (id:1);
-  processGroupMetaModelIdentifier: string (id:2);
-  refGlobalSupervisionIndex: uint32 (id:3);
-  instanceSpecifier: string (id:4);
-  shouldFireWatchdog: bool (id:5);
+  processGroupMetaModelIdentifier: string (id:1);
+  refGlobalSupervisionIndex: uint32 (id:2);
+  shouldFireWatchdog: bool (id:3);
 }
 
 root_type HMEcuCfg;

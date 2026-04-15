@@ -732,12 +732,8 @@ void FlatCfgFactory::createNotification(std::shared_ptr<score::lcm::IRecoveryCli
     }
 
     notifConfig.configName = f_recoveryNotificationData_r.shortName()->c_str();
-    notifConfig.serviceInstanceSpecifierPath = f_recoveryNotificationData_r.instanceSpecifier()->c_str();
     notifConfig.processGroupMetaModelIdentifier =
         f_recoveryNotificationData_r.processGroupMetaModelIdentifier()->c_str();
-    double timeout;
-    timeout = f_recoveryNotificationData_r.recoveryNotificationTimeout();
-    notifConfig.timeout = timers::TimeConversion::convertMilliSecToNanoSec(timeout);
 
     f_notification_r.emplace_back(notifConfig, f_recoveryClient_r);
 

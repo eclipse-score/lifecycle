@@ -1297,17 +1297,12 @@ struct RecoveryNotification FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
   typedef RecoveryNotificationBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_SHORTNAME = 4,
-    VT_RECOVERYNOTIFICATIONTIMEOUT = 6,
-    VT_PROCESSGROUPMETAMODELIDENTIFIER = 8,
-    VT_REFGLOBALSUPERVISIONINDEX = 10,
-    VT_INSTANCESPECIFIER = 12,
-    VT_SHOULDFIREWATCHDOG = 14
+    VT_PROCESSGROUPMETAMODELIDENTIFIER = 6,
+    VT_REFGLOBALSUPERVISIONINDEX = 8,
+    VT_SHOULDFIREWATCHDOG = 10
   };
   const ::flatbuffers::String *shortName() const {
     return GetPointer<const ::flatbuffers::String *>(VT_SHORTNAME);
-  }
-  double recoveryNotificationTimeout() const {
-    return GetField<double>(VT_RECOVERYNOTIFICATIONTIMEOUT, 0.0);
   }
   const ::flatbuffers::String *processGroupMetaModelIdentifier() const {
     return GetPointer<const ::flatbuffers::String *>(VT_PROCESSGROUPMETAMODELIDENTIFIER);
@@ -1315,22 +1310,16 @@ struct RecoveryNotification FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
   uint32_t refGlobalSupervisionIndex() const {
     return GetField<uint32_t>(VT_REFGLOBALSUPERVISIONINDEX, 0);
   }
-  const ::flatbuffers::String *instanceSpecifier() const {
-    return GetPointer<const ::flatbuffers::String *>(VT_INSTANCESPECIFIER);
-  }
   bool shouldFireWatchdog() const {
     return GetField<uint8_t>(VT_SHOULDFIREWATCHDOG, 0) != 0;
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_SHORTNAME) &&
+           VerifyOffsetRequired(verifier, VT_SHORTNAME) &&
            verifier.VerifyString(shortName()) &&
-           VerifyField<double>(verifier, VT_RECOVERYNOTIFICATIONTIMEOUT, 8) &&
            VerifyOffset(verifier, VT_PROCESSGROUPMETAMODELIDENTIFIER) &&
            verifier.VerifyString(processGroupMetaModelIdentifier()) &&
            VerifyField<uint32_t>(verifier, VT_REFGLOBALSUPERVISIONINDEX, 4) &&
-           VerifyOffset(verifier, VT_INSTANCESPECIFIER) &&
-           verifier.VerifyString(instanceSpecifier()) &&
            VerifyField<uint8_t>(verifier, VT_SHOULDFIREWATCHDOG, 1) &&
            verifier.EndTable();
   }
@@ -1343,17 +1332,11 @@ struct RecoveryNotificationBuilder {
   void add_shortName(::flatbuffers::Offset<::flatbuffers::String> shortName) {
     fbb_.AddOffset(RecoveryNotification::VT_SHORTNAME, shortName);
   }
-  void add_recoveryNotificationTimeout(double recoveryNotificationTimeout) {
-    fbb_.AddElement<double>(RecoveryNotification::VT_RECOVERYNOTIFICATIONTIMEOUT, recoveryNotificationTimeout, 0.0);
-  }
   void add_processGroupMetaModelIdentifier(::flatbuffers::Offset<::flatbuffers::String> processGroupMetaModelIdentifier) {
     fbb_.AddOffset(RecoveryNotification::VT_PROCESSGROUPMETAMODELIDENTIFIER, processGroupMetaModelIdentifier);
   }
   void add_refGlobalSupervisionIndex(uint32_t refGlobalSupervisionIndex) {
     fbb_.AddElement<uint32_t>(RecoveryNotification::VT_REFGLOBALSUPERVISIONINDEX, refGlobalSupervisionIndex, 0);
-  }
-  void add_instanceSpecifier(::flatbuffers::Offset<::flatbuffers::String> instanceSpecifier) {
-    fbb_.AddOffset(RecoveryNotification::VT_INSTANCESPECIFIER, instanceSpecifier);
   }
   void add_shouldFireWatchdog(bool shouldFireWatchdog) {
     fbb_.AddElement<uint8_t>(RecoveryNotification::VT_SHOULDFIREWATCHDOG, static_cast<uint8_t>(shouldFireWatchdog), 0);
@@ -1365,6 +1348,7 @@ struct RecoveryNotificationBuilder {
   ::flatbuffers::Offset<RecoveryNotification> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = ::flatbuffers::Offset<RecoveryNotification>(end);
+    fbb_.Required(o, RecoveryNotification::VT_SHORTNAME);
     return o;
   }
 };
@@ -1372,14 +1356,10 @@ struct RecoveryNotificationBuilder {
 inline ::flatbuffers::Offset<RecoveryNotification> CreateRecoveryNotification(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<::flatbuffers::String> shortName = 0,
-    double recoveryNotificationTimeout = 0.0,
     ::flatbuffers::Offset<::flatbuffers::String> processGroupMetaModelIdentifier = 0,
     uint32_t refGlobalSupervisionIndex = 0,
-    ::flatbuffers::Offset<::flatbuffers::String> instanceSpecifier = 0,
     bool shouldFireWatchdog = false) {
   RecoveryNotificationBuilder builder_(_fbb);
-  builder_.add_recoveryNotificationTimeout(recoveryNotificationTimeout);
-  builder_.add_instanceSpecifier(instanceSpecifier);
   builder_.add_refGlobalSupervisionIndex(refGlobalSupervisionIndex);
   builder_.add_processGroupMetaModelIdentifier(processGroupMetaModelIdentifier);
   builder_.add_shortName(shortName);
@@ -1390,21 +1370,16 @@ inline ::flatbuffers::Offset<RecoveryNotification> CreateRecoveryNotification(
 inline ::flatbuffers::Offset<RecoveryNotification> CreateRecoveryNotificationDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *shortName = nullptr,
-    double recoveryNotificationTimeout = 0.0,
     const char *processGroupMetaModelIdentifier = nullptr,
     uint32_t refGlobalSupervisionIndex = 0,
-    const char *instanceSpecifier = nullptr,
     bool shouldFireWatchdog = false) {
   auto shortName__ = shortName ? _fbb.CreateString(shortName) : 0;
   auto processGroupMetaModelIdentifier__ = processGroupMetaModelIdentifier ? _fbb.CreateString(processGroupMetaModelIdentifier) : 0;
-  auto instanceSpecifier__ = instanceSpecifier ? _fbb.CreateString(instanceSpecifier) : 0;
   return HMFlatBuffer::CreateRecoveryNotification(
       _fbb,
       shortName__,
-      recoveryNotificationTimeout,
       processGroupMetaModelIdentifier__,
       refGlobalSupervisionIndex,
-      instanceSpecifier__,
       shouldFireWatchdog);
 }
 

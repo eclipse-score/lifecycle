@@ -22,13 +22,6 @@ namespace saf
 namespace recovery
 {
 
-namespace {
-    template<typename Future>
-    bool is_ready(const Future& future) {
-        return future.WaitFor(score::cpp::stop_token{}, std::chrono::seconds(0)).has_value();
-    }
-}
-
 Notification::Notification(std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r) :
     currentState(State::kIdle),
     messageHeader("Notification ( / )"),
@@ -61,6 +54,10 @@ Notification::Notification(Notification&&) = default;
 
 bool Notification::initProxy() noexcept(false)
 {
+    if(!isNotificationConfigAvailable) {
+        return true;
+    }
+
     const auto processGroupStateStartPos = k_notificationConfig.processGroupMetaModelIdentifier.find_last_of('/');
     if(processGroupStateStartPos == std::string::npos || processGroupStateStartPos == 0U)
     {
@@ -71,27 +68,22 @@ bool Notification::initProxy() noexcept(false)
     }
 
     const std::string recoveryProcessGroupId{k_notificationConfig.processGroupMetaModelIdentifier.substr(0, processGroupStateStartPos)};
-    const std::string recoveryProcessGroupStateId{k_notificationConfig.processGroupMetaModelIdentifier};
-
-
-
     recoveryProcessGroup = score::lcm::IdentifierHash(recoveryProcessGroupId);
-    recoveryProcessGroupState = score::lcm::IdentifierHash(recoveryProcessGroupStateId);
     return true;
 }
 
 void Notification::send(const xaap::lcm::saf::recovery::supervision::SupervisionErrorInfo& f_executionErrorInfo_r)
 {
+    static_cast<void>(f_executionErrorInfo_r); // Unused, to be removed in the future together with the Notification class
+
     if (isNotificationConfigAvailable)
     {
         if (currentState == State::kIdle)
         {
             currentState = State::kSending;
         }
-    }
-    else
-    {
-        setFinalTimeoutState();
+    } else {
+        currentState = State::kTimeout;
     }
 }
 
@@ -100,10 +92,6 @@ void Notification::cyclicTrigger(void)
     if (currentState == State::kSending)
     {
         invokeRecoveryHandler();
-    }
-    if (currentState == State::kWaitingForResponse)
-    {
-        verifyRecoveryHandlerResponse();
     }
 }
 
@@ -114,75 +102,20 @@ bool Notification::isFinalTimeoutStateReached(void) const noexcept
 
 void Notification::invokeRecoveryHandler(void)
 {
-    recoveryStateFutureOutput = recoveryClient->sendRecoveryRequest(recoveryProcessGroup, recoveryProcessGroupState);
+    // TODO: As a next step, we shall pass the Id of the Process which failed supervision
+    // instead of the process group id. However, this required other refactoring first.
+    const bool enqueued = recoveryClient->sendRecoveryRequest(recoveryProcessGroup);
 
-    startTimestamp = timers::OsClock::getMonotonicSystemClock();
-
-    logger_r.LogInfo() << messageHeader << "Recovery state" << k_notificationConfig.processGroupMetaModelIdentifier << "requested, timestamp:"
-                        << static_cast<int>(timers::TimeConversion::convertNanoSecToMilliSec(startTimestamp))
-                        << "[msec]";
-
-    currentState = State::kWaitingForResponse;
-}
-
-void Notification::verifyRecoveryHandlerResponse(void)
-{
-    if(!recoveryStateFutureOutput.Valid()) {
-        logger_r.LogDebug() << messageHeader << "The future result of the Recovery has invalid state";
-
-        startTimestamp = 0U;
-        setFinalTimeoutState();
-        return;
-    }
-
-    if(!is_ready(recoveryStateFutureOutput))
+    if (enqueued)
     {
-        timers::NanoSecondType endTimeStamp{timers::OsClock::getMonotonicSystemClock()};
-        timers::NanoSecondType lapsedTime{endTimeStamp - startTimestamp};
-
-        if (lapsedTime > k_notificationConfig.timeout)
-        {
-            logger_r.LogDebug() << messageHeader << "Timeout occurred for the requested Recovery state. End timestamp:"
-                                << static_cast<int>(timers::TimeConversion::convertNanoSecToMilliSec(endTimeStamp))
-                                << "[msec]";
-
-            startTimestamp = 0U;
-            setFinalTimeoutState();
-        }
-        return;
+        logger_r.LogInfo() << messageHeader << "Recovery request enqueued successfully";
+        currentState = State::kIdle;
     }
-
-    const auto result = recoveryStateFutureOutput.Get(score::cpp::stop_token{});
-    if (!result.has_value())
+    else
     {
-        // We may be already in the requested state, due to LM executing recovery on its own.
-        // This is e.g. the case if the process crashed and LM transitions to its recovery state before supervisions expire.
-        if (*result.error() == static_cast<score::result::ErrorCode>(score::lcm::ExecErrc::kAlreadyInState))
-        {
-            logger_r.LogWarn() << messageHeader
-                               << "Recovery state request returned:" << result.error().Message();
-        }
-        else {
-            logger_r.LogWarn() << messageHeader
-                            << "Recovery state request returned with error:" << result.error().Message();
-            logger_r.LogDebug() << messageHeader << "Incorrect response received from the Recovery state request call";
-
-            startTimestamp = 0U;
-            setFinalTimeoutState();
-            return;
-        }
+        logger_r.LogError() << messageHeader << "Failed to enqueue recovery request (ring buffer full)";
+        currentState = State::kTimeout;
     }
-
-    logger_r.LogDebug() << messageHeader << "Correct response received from the Recovery state request call";
-    startTimestamp = 0U;
-    currentState = State::kIdle;
-}
-
-void Notification::setFinalTimeoutState(void)
-{
-    logger_r.LogWarn() << messageHeader << "Final timeout state reached for the RecoveryHandler";
-
-    currentState = State::kTimeout;
 }
 
 /* RULECHECKER_comment(1:0,2:0, check_min_instructions, "False positive", false) */

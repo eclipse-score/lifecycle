@@ -347,10 +347,8 @@
     "hmRecoveryNotification": [
         {
             "shortName": "recovery_notification",
-            "recoveryNotificationTimeout": 5000,
             "processGroupMetaModelIdentifier": "MainPG/fallback_run_target",
             "refGlobalSupervisionIndex": 0,
-            "instanceSpecifier": "",
             "shouldFireWatchdog": false
         }
     ]
