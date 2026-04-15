@@ -1,0 +1,25 @@
+@startuml lm_run_targets
+title "Example Run Targets"
+
+skinparam ComponentStyle rectangle
+skinparam component<<run-target>> {
+    BackgroundColor SkyBlue
+}
+
+skinparam component<<component>> {
+}
+
+component "Startup" as startup <<run-target>>
+component "Log Daemon" as log <<component>>
+
+startup -down-> log: depends on
+
+component "Full" as full <<run-target>>
+component "App A" as appa <<component>>
+component "App B" as appb <<component>>
+
+full -down-> appa: depends on
+full -down-> appb: depends on
+appa -down-> log:depends on
+appb -down-> log:depends on
+@enduml

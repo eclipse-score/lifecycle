@@ -1,0 +1,14 @@
+@startuml lm_non_reporting
+title "Ready State of a Non Reporting"
+participant "Launch Manager" as lm
+participant “Non Reporting” as nr
+
+activate lm
+lm -> nr
+activate nr
+activate lm
+note left of lm
+    Assume the non reporting process is in ready state
+end note
+
+@enduml
