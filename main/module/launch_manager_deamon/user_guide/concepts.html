@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>FMEA (Failure Modes and Effects Analysis) &#8212; Lifecycle and Health Management  documentation</title>
+    <title>User Guide &#8212; Lifecycle and Health Management  documentation</title>
   
   
   
@@ -62,7 +62,7 @@
     <script src="../../../_static/sphinx-needs/libs/html/datatables.min.js?v=8a4aee21"></script>
     <script src="../../../_static/sphinx-needs/libs/html/datatables_loader.js?v=a2cae175"></script>
     <script src="../../../_static/sphinx-needs/libs/html/sphinx_needs_collapse.js?v=dca66431"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'module/health_monitor/safety_analysis/fmea';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'module/launch_manager_deamon/user_guide/concepts';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://eclipse-score.github.io/lifecycle/versions.json';
@@ -72,8 +72,8 @@
         </script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="DFA (Dependent Failure Analysis)" href="dfa.html" />
-    <link rel="prev" title="Detailed Design" href="../detailed_design/index.html" />
+    <link rel="next" title="Ready Conditions" href="ready_state.html" />
+    <link rel="prev" title="Launch Manager Daemon" href="../index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.1" />
@@ -152,15 +152,15 @@
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-<li class="nav-item current active">
-  <a class="nav-link nav-internal" href="../index.html">
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../health_monitor/index.html">
     HealthMonitor
   </a>
 </li>
 
 
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../launch_manager_deamon/index.html">
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
     Launch Manager Daemon
   </a>
 </li>
@@ -281,15 +281,15 @@
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-<li class="nav-item current active">
-  <a class="nav-link nav-internal" href="../index.html">
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../health_monitor/index.html">
     HealthMonitor
   </a>
 </li>
 
 
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../launch_manager_deamon/index.html">
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
     Launch Manager Daemon
   </a>
 </li>
@@ -365,14 +365,12 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../requirements/index.html">Requirements</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../architecture/index.html">Component Architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../detailed_design/index.html">Detailed Design</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">FMEA (Failure Modes and Effects Analysis)</a></li>
-
-
-<li class="toctree-l1"><a class="reference internal" href="dfa.html">DFA (Dependent Failure Analysis)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../component_classification.html">Component Classification</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ready_state.html">Ready Conditions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Configuration Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementation.html">Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../product_documentation/known_limitations.html">Known Limitations</a></li>
 </ul>
 </div>
 </nav></div>
@@ -414,9 +412,9 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">HealthMonitor</a></li>
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Launch Manager Daemon</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">FMEA (Failure Modes and Effects Analysis)</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">User Guide</span></li>
   </ul>
 </nav>
 </div>
@@ -433,220 +431,173 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="fmea-failure-modes-and-effects-analysis">
-<h1>FMEA (Failure Modes and Effects Analysis)<a class="headerlink" href="#fmea-failure-modes-and-effects-analysis" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-112ea843">
-<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__health_monitor_fmea">
-<tbody>
-<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
-<div class="line"><span><span class="needs_title"><span class="needs_data">Health Monitor FMEA</span></span></span></div>
-</div>
-</td>
-<td class="head_center" colspan="2"><div class="needs_head line-block">
-<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">draft</span></span></span></div>
-<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">NO</span></span></span></div>
-<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
-</div>
-</td>
-<td class="head_right" colspan="2"><div class="needs_head_right line-block">
-<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
-</div>
-</td>
-</tr>
-<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
-<div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">template</span><span class="needs_spacer">, </span><span class="needs_data">health_monitor</span></span></span></div>
-</span></span></div>
-<div class="line"><span><div class="line">realizes: <span class="realizes"><span><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/safety_analysis/safety_analysis_workproducts.html#wp__sw_component_fmea">wp__sw_component_fmea</a></span></span></div>
-</span></div>
-</div>
-</td>
-<td class="meta" colspan="3"></td>
-</tr>
-<tr class="content row-odd"><td class="content" colspan="6"></td>
-</tr>
-<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
-<div class="line"><span><span class="needs-id"><a class="reference internal" href="#doc__health_monitor_fmea" title="doc__health_monitor_fmea">doc__health_monitor_fmea</a></span></span></div>
-</div>
-</td>
-<td class="footer" colspan="2"><div class="needs_footer line-block">
-<div class="line"><span><span class="needs_type_name"><span class="needs_data">Generic Document</span></span></span></div>
-</div>
-</td>
-<td class="footer_right" colspan="2"></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<section id="failure-mode-evaluation-table">
-<h2>Failure Mode Evaluation Table<a class="headerlink" href="#failure-mode-evaluation-table" title="Link to this heading">#</a></h2>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Title</p></th>
-<th class="head"><p>id</p></th>
-<th class="head"><p>failure_effect</p></th>
-<th class="head"><p>mitigation_proposal</p></th>
-<th class="head"><p>sufficient</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>Missing processing time</p></td>
-<td><p>HM_FMEA_001</p></td>
-<td><p>Background thread does not receive CPU time slice, leading to miss specified alive notification internal towards Launch Daemon</p></td>
-<td><div class="line-block">
-<div class="line"><strong>Detection:</strong></div>
-<div class="line-block">
-<div class="line">- Missing notifications will be detected by Launch Daemon and lead to safety reaction at Launch Daemon.</div>
-</div>
-</div>
-<div class="line-block">
-<div class="line"><strong>Mitigation:</strong></div>
-<div class="line-block">
-<div class="line">- Provide <cite>AoU</cite> that integrator has to ensure Health Monitor background thread receives sufficient CPU time slice by configuring it’s scheduling parameters accordingly.</div>
-<div class="line">- All code within process is developed according to <strong>ASIL-B</strong> development process</div>
-</div>
-</div>
-</td>
-<td><p>Yes</p></td>
-</tr>
-<tr class="row-odd"><td><p>Loss of execution</p></td>
-<td><p>HM_FMEA_002</p></td>
-<td><p>Background thread does not advance in its execution (ie. deadlock, endless loop failure), leading to miss specified alive notification internal towards Launch Daemon</p></td>
-<td><div class="line-block">
-<div class="line"><strong>Detection:</strong></div>
-<div class="line-block">
-<div class="line">-  Missing notifications will be detected by Launch Daemon and lead to safety reaction at Launch Daemon.</div>
-</div>
-</div>
-<div class="line-block">
-<div class="line"><strong>Mitigation:</strong></div>
-<div class="line-block">
-<div class="line">- All code within process is developed according to <strong>ASIL-B</strong> development process</div>
-</div>
-</div>
-</td>
-<td><p>Yes</p></td>
-</tr>
-<tr class="row-even"><td><p>Memory corruption of monitoring data structures</p></td>
-<td><p>HM_FMEA_003</p></td>
-<td><p>Corruption of internal data structures used for monitoring, leading to missed detection of failure of monitored components (bitflips, out of range data, etc.)</p></td>
-<td><div class="line-block">
-<div class="line"><strong>Detection:</strong></div>
-<div class="line-block">
-<div class="line">- Using protected memory pages around internal data structures used for monitoring to detect memory corruption (see below)</div>
-</div>
-</div>
-<div class="line-block">
-<div class="line"><strong>Mitigation:</strong></div>
-<div class="line-block">
-<div class="line">- All code within process is developed according to <strong>ASIL-B</strong> development process</div>
-</div>
-</div>
-</td>
-<td><p>Yes</p></td>
-</tr>
-</tbody>
-</table>
-</div>
+  <section id="user-guide">
+<span id="lm-user-guide"></span><h1>User Guide<a class="headerlink" href="#user-guide" title="Link to this heading">#</a></h1>
+<section id="introduction">
+<span id="lm-introduction"></span><h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">#</a></h2>
+<section id="what-is-the-launch-manager">
+<span id="lm-what-is-the-launch-manager"></span><h3>What is the Launch Manager?<a class="headerlink" href="#what-is-the-launch-manager" title="Link to this heading">#</a></h3>
+<p>The <strong>Launch Manager</strong> is a system daemon responsible for managing the
+execution of software components on an embedded target. It is designed
+to run for the lifetime of the target and take care of platform
+initialization, ordered start-up and shutdown of components, and
+recovery from unexpected failures.</p>
 </section>
-<section id="hm-fmea-003">
-<h2>HM_FMEA_003<a class="headerlink" href="#hm-fmea-003" title="Link to this heading">#</a></h2>
-<p>Health Monitoring Library is placed in same process as monitored components. Therefore, any other component that shares same process can corrupt memory of Health Monitoring Library. This can lead to missed detection of failure of monitored components.
-Since we are using <strong>Rust</strong> as programming language for Health Monitoring Library implementation, we could rely on Rust memory safety guarantees and avoid memory corruption due to programming errors. However we are also supporting C/C++ components
-that can introduce memory issues due to programming errors. Therefore, we need to consider additional detection mechanisms. Below description of possible detection mechanisms:</p>
-<section id="checksums">
-<h3>Checksums<a class="headerlink" href="#checksums" title="Link to this heading">#</a></h3>
-<p>One of possible detection mechanisms is to use checksums for data structures used for monitors.</p>
-<p><strong>Pros</strong></p>
+<section id="responsibilities">
+<span id="lm-responsibilities"></span><h3>Responsibilities<a class="headerlink" href="#responsibilities" title="Link to this heading">#</a></h3>
+<p>The Launch Manager is responsible for:</p>
 <ul class="simple">
-<li><p>Low performance overhead</p></li>
+<li><p><strong>Component lifecycle control</strong> - spawning and terminating OS
+processes according to their configured parameters (executable path,
+user/group identity, environment, scheduling policy).</p></li>
+<li><p><strong>Dependency resolution</strong> - ensuring components start and stop in the
+correct order based on declared startup and shutdown dependencies.</p></li>
+<li><p><strong>Failure recovery</strong> - detecting unexpected process termination and
+executing configured recovery actions such as restarting a component
+or switching to a recovery Run Target.</p></li>
+<li><p><strong>Run Target management</strong> - determining which components are active
+at any given time by activating and deactivating named Run Targets in
+response to requests from a Control Client.</p></li>
 </ul>
-<p><strong>Cons</strong></p>
+</section>
+</section>
+<section id="key-concepts">
+<span id="lm-key-concepts"></span><h2>Key concepts<a class="headerlink" href="#key-concepts" title="Link to this heading">#</a></h2>
+<section id="components">
+<span id="lm-components"></span><h3>Components<a class="headerlink" href="#components" title="Link to this heading">#</a></h3>
+<p>A <strong>Component</strong> is an independent, deployable software unit managed by
+the Launch Manager. This can be a long-running daemon developed with the
+lifecycle API, a one-shot application, or any arbitrary binary such as <code class="docutils literal notranslate"><span class="pre">ls</span></code>.
+Components are defined independently of the
+systems they run on, which allows the same component to be deployed
+across multiple target configurations without modification.</p>
+<p>The specific deployment parameters of a component (such as which run
+targets it is included in, its startup timeout, or its termination
+behavior) are kept separate from the component’s inherent properties.
+This separation allows for reusability across different system
+configurations.</p>
+</section>
+<section id="ready-state">
+<span id="lm-ready-state"></span><h3>Ready state<a class="headerlink" href="#ready-state" title="Link to this heading">#</a></h3>
+<p>Each component has a <strong>Ready State</strong>. A component reaches the Ready State when
+it has started successfully and has satisfied its configured ready condition.</p>
+<p>Supported ready conditions include <code class="docutils literal notranslate"><span class="pre">Running</span></code>, where the component is
+considered ready as soon as its process has reported <code class="docutils literal notranslate"><span class="pre">kRunning</span></code> via the
+lifecycle API, and <code class="docutils literal notranslate"><span class="pre">Terminated</span></code>, where the component is considered ready
+once it has reported <code class="docutils literal notranslate"><span class="pre">kRunning</span></code> and subsequently exited successfully.
+For the full list of supported conditions, see <a class="reference internal" href="ready_state.html#lm-ready-conditions"><span class="std std-ref">Ready Conditions</span></a>.</p>
+<p>A component can also be configured to be <strong>non-reporting</strong>. The Launch Manager
+considers it to be in the <strong>Ready State</strong> as soon as its process has been
+spawned.
+This is useful for integrating third-party binaries or system utilities where
+the source code cannot be modified to report the running state.</p>
+<p>It is important to understand that the Ready State reflects a
+component’s <em>functional availability</em>, not merely the existence of its
+OS process. For example, a component that mounts a file system remains
+in the Ready State for as long as the mount is active, even if the
+process that performed the mount has already exited.</p>
+<p>Reaching the <strong>Ready State</strong> signals to the Launch Manager that the
+component is fully operational and capable of providing its services,
+this point is decided by the application developer. This
+allows for other components to safely rely on other components services
+and for the startup procedure to be evaluated by the Launch Manager.</p>
+<p class="plantuml">
+<object data="../../../_images/plantuml-e3d4dd43864ac0d0efa100dc447f20a765a4172b.svg" type="image/svg+xml" style="width:564px;height:178px;background:#FFFFFF;"></object></p>
+<p class="plantuml">
+<object data="../../../_images/plantuml-d1d5251f146894037a1d32396ecb0f672a49e6da.svg" type="image/svg+xml" style="width:570px;height:268px;background:#FFFFFF;"></object></p>
+<p class="plantuml">
+<object data="../../../_images/plantuml-6f128c5315c86b7fbbbf0886f9e13bb27d5520b0.svg" type="image/svg+xml" style="width:593px;height:268px;background:#FFFFFF;"></object></p>
+</section>
+<section id="run-targets">
+<span id="lm-run-targets"></span><h3>Run targets<a class="headerlink" href="#run-targets" title="Link to this heading">#</a></h3>
+<p>A <strong>Run Target</strong> defines a named collection of components that are
+intended to be active together. Only <strong>one Run Target can be active at a
+time</strong>. When a Run Target is activated, the Launch Manager transitions
+the system exclusively to that target, any components not assigned to it
+are terminated.</p>
+<p>When a Run Target is activated, the Launch Manager performs the
+following:</p>
 <ul class="simple">
-<li><p>hard to implement for complex data structures that are mutated frequently</p></li>
+<li><p>All components currently in the <strong>active</strong> that are <strong>not</strong> assigned to
+the new Run Target are terminated.</p></li>
+<li><p>All components that are assigned to the new Run Target but are <strong>not</strong> yet
+<strong>active</strong> are started.</p></li>
+</ul>
+</section>
+<section id="starting-components">
+<span id="lm-starting-components"></span><h3>Starting Components<a class="headerlink" href="#starting-components" title="Link to this heading">#</a></h3>
+<p>With the definitions of <strong>Components</strong>, <strong>Run Targets</strong>, and <strong>Ready State</strong>
+established, let us clarify the conditions under which the <strong>Launch Manager</strong>
+will initiate a component’s startup sequence. Components will be started for
+two primary reasons:</p>
+<ul class="simple">
+<li><p>A component is directly assigned to a <strong>Run Target</strong> that is currently being activated.</p></li>
+<li><p>Another component, which is assigned to a <strong>Run Target</strong> being activated, explicitly depends on that component.</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Not implemented due to complexity of implementation for complex data structures.</p>
+<p>The exact interleaving of terminations and starts during a transition is not
+defined, new components may be started before, after, or concurrently with
+the termination of outgoing components. If a component depends on another
+being fully stopped or fully ready before it proceeds, this should be
+expressed using dependencies between components or run-targets rather than
+relying on transition ordering.</p>
 </div>
 </section>
-<section id="protected-pages">
-<h3>Protected pages<a class="headerlink" href="#protected-pages" title="Link to this heading">#</a></h3>
-<p>Another possible detection mechanism is to use protected memory pages. Region before and after data structures used for monitors can be marked as non-accessible.
-Since other components do not have knowledge where internal structures were allocated, <strong>likelihood</strong> of memory corruption only in data structures used for monitors and not around them is <strong>low</strong>.</p>
-<p><strong>Pros</strong></p>
+<section id="dependencies">
+<span id="lm-dependencies"></span><h3>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading">#</a></h3>
+<p>A fundamental aspect of <strong>Launch Manager</strong> configuration involves understanding
+how components are assigned to a <strong>Run Target</strong> and how dependencies are
+declared.</p>
+<p>When a component is said to be assigned to a <strong>Run Target</strong>, it means the <strong>Run
+Target’s</strong> configuration explicitly lists the component’s name within its
+<code class="docutils literal notranslate"><span class="pre">depends_on</span></code> parameter.</p>
+<p>Similarly, when a component depends on another component, its own
+<code class="docutils literal notranslate"><span class="pre">component_properties.depends_on</span></code> configuration parameter will list the name
+of the other component it requires.</p>
+<p>Additionally, a <strong>Run Target</strong> can declare a dependency on another <strong>Run
+Target</strong>.
+In this scenario, the name of the dependent <strong>Run Target</strong> is listed within the
+<code class="docutils literal notranslate"><span class="pre">depends_on</span></code> configuration parameter of the primary <strong>Run Target</strong>.
+The most effective way to conceptualize this relationship is to imagine that
+the list of components assigned to the dependent <strong>Run Target</strong> is effectively
+included in the list of components of the primary <strong>Run Target</strong>.</p>
+<p>Dependencies in the <strong>Launch Manager</strong> are resolved transitively.
+When a <strong>Run Target</strong> is activated, the <strong>Launch Manager</strong> does not only start
+the components and <strong>Run Targets</strong> directly listed in its <code class="docutils literal notranslate"><span class="pre">depends_on</span></code>, it
+follows the full dependency chain recursively until all dependencies are
+accounted for.</p>
+<p>This means that a component brought in by a <strong>Run Target</strong> dependency is
+treated as if it were directly assigned to the activating <strong>Run Target</strong>.
+If that component itself depends on further components, those are pulled in as
+well.</p>
+<section id="rules-for-configuring-dependencies">
+<span id="lm-dependency-rules"></span><h4>Rules for Configuring Dependencies<a class="headerlink" href="#rules-for-configuring-dependencies" title="Link to this heading">#</a></h4>
+<p>When configuring dependencies within the <strong>Launch Manager</strong>, the following
+rules must be observed to ensure correct system behavior:</p>
 <ul class="simple">
-<li><p>Easy to implement</p></li>
-<li><p>0 performance overhead</p></li>
-</ul>
-<p><strong>Cons</strong></p>
-<ul class="simple">
-<li><p>Increased memory overhead</p></li>
-<li><p>Can detect only <cite>pass through</cite> corruption - ie. bulk write over memory area</p></li>
-<li><p>Protection can be disabled by malicious component however this shall be judged as <strong>extremely low</strong> likelihood because this requires knowledge of internal memory layout of Health Monitoring Library and code review approval.</p></li>
+<li><p>A <strong>Component</strong> can depend on another <strong>Component</strong>.</p></li>
+<li><p>A <strong>Run Target</strong> can depend on a <strong>Component</strong>.</p></li>
+<li><p>A <strong>Run Target</strong> can depend on another <strong>Run Target</strong>.</p></li>
+<li><p>A <strong>Component</strong> cannot depend on a <strong>Run Target</strong>.</p></li>
 </ul>
 </section>
-<section id="dual-banking">
-<h3>Dual banking<a class="headerlink" href="#dual-banking" title="Link to this heading">#</a></h3>
-<p>Another possible detection mechanism is to use dual banking for data structures used for monitors. One bank is actively used, while the other one is kept on side
-as either <strong>mirrored data</strong> or  <strong>inverse byte copy</strong>. During runtime, background checking thread will fetch both banks and compare them. If mismatch is detected, then memory corruption is detected.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This pattern can be extended to triple banking where voting can be used to <strong>recover</strong> corrupted data if needed.</p>
-</div>
-<p><strong>Pros</strong></p>
-<ul class="simple">
-<li><p>Can recover corrupted data if triple banking with voting is used</p></li>
-<li><p>Detects wide range of memory corruption patterns</p></li>
-</ul>
-<p><strong>Cons</strong></p>
-<ul class="simple">
-<li><p>Increased memory overhead</p></li>
-<li><p>More complex internal implementation</p></li>
-</ul>
+<section id="example">
+<span id="lm-run-targets-example"></span><h4>Example<a class="headerlink" href="#example" title="Link to this heading">#</a></h4>
+<p>The following diagram illustrates two Run Targets sharing some
+components and each having components exclusive to them. When
+transitioning from <em>Startup</em> to <em>Full</em>, the Launch Manager deactivates
+components not assigned to <em>Full</em> and activates those that are.</p>
+<p class="plantuml">
+<object data="../../../_images/plantuml-11cf35281f794af72530b469dee576fe1f7cab39.svg" type="image/svg+xml" style="width:430px;height:362px;background:#FFFFFF;"></object></p>
+<p>The order in which components are started and stopped within a
+transition is determined by their configured dependencies.
+And so the following is the sequence diagram showing the
+processes being started:</p>
+<p class="plantuml">
+<object data="../../../_images/plantuml-2cf30eb7e9454d708b605a6624eda99258d065fe.svg" type="image/svg+xml" style="width:504px;height:345px;background:#FFFFFF;"></object></p>
 </section>
 </section>
-</section>
-<section id="decision">
-<h1>Decision<a class="headerlink" href="#decision" title="Link to this heading">#</a></h1>
-<ul class="simple">
-<li><p>Status: Accepted</p></li>
-<li><p>Date: 2026-01-09</p></li>
-</ul>
-<p>After evaluation of above detection mechanisms, it was decided that <strong>Health Monitoring Library</strong> shall be implemented as library within monitored process as FMEA confirms safety goals are met.</p>
-</section>
-<section id="rationale">
-<h1>Rationale<a class="headerlink" href="#rationale" title="Link to this heading">#</a></h1>
-<ul class="simple">
-<li><p>All code within process is developed according to <strong>ASIL-B</strong> development process</p></li>
-<li><p>Library will use <strong>protected pages</strong> mechanism to detect <cite>pass through</cite> memory corruption</p></li>
-<li><p>Lifecycle CFT will investigate possibility to harden memory protection using <strong>ARM MTE</strong> extension (<a class="reference external" href="https://learn.arm.com/learning-paths/mobile-graphics-and-gaming/mte/">more here</a> ) in future releases - <a class="github reference external" href="https://github.com/eclipse-score/score/issues/2397">eclipse-score/score#2397</a></p></li>
-</ul>
-<section id="failure-mode-list">
-<h2>Failure Mode List<a class="headerlink" href="#failure-mode-list" title="Link to this heading">#</a></h2>
-<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="p">..</span> <span class="ow">comp_saf_fmea</span><span class="p">::</span> <span class="nt">&lt;Title&gt;</span>
-   <span class="nc">:violates:</span> <span class="nt">&lt;Component architecture&gt;</span>
-   <span class="nc">:id:</span> comp_saf_fmea__&lt;Component&gt;__&lt;Element descriptor&gt;
-   <span class="nc">:fault_id:</span> <span class="nt">&lt;ID from fault model :need:`gd_guidl__fault_models`&gt;</span>
-   <span class="nc">:failure_effect:</span> &quot;description of failure effect of the fault model on the element&quot;
-   <span class="nc">:mitigated_by:</span> <span class="nt">&lt;ID from Component Requirement | ID from AoU Component Requirement&gt;</span>
-   <span class="nc">:mitigation_issue:</span> <span class="nt">&lt;ID from Issue Tracker&gt;</span>
-   <span class="nc">:sufficient:</span> <span class="nt">&lt;yes|no&gt;</span>
-   <span class="nc">:status:</span> <span class="nt">&lt;valid|invalid&gt;</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>argument is inside the ‘content’. Therefore content is mandatory</p>
-</div>
-<div class="admonition attention">
-<p class="admonition-title">Attention</p>
-<p>The above directive must be updated according to your component FMEA.</p>
-<ul class="simple">
-<li><p>The above “code-block” directive must be updated</p></li>
-<li><p>Fill in all the needed information in the &lt;brackets&gt;</p></li>
-</ul>
-</div>
 </section>
 </section>
 
@@ -661,20 +612,20 @@ as either <strong>mirrored data</strong> or  <strong>inverse byte copy</strong>.
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../detailed_design/index.html"
+       href="../index.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Detailed Design</p>
+        <p class="prev-next-title">Launch Manager Daemon</p>
       </div>
     </a>
     <a class="right-next"
-       href="dfa.html"
+       href="ready_state.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">DFA (Dependent Failure Analysis)</p>
+        <p class="prev-next-title">Ready Conditions</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -697,30 +648,31 @@ as either <strong>mirrored data</strong> or  <strong>inverse byte copy</strong>.
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">FMEA (Failure Modes and Effects Analysis)</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#failure-mode-evaluation-table">Failure Mode Evaluation Table</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hm-fmea-003">HM_FMEA_003</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#checksums">Checksums</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#protected-pages">Protected pages</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dual-banking">Dual banking</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">Introduction</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-the-launch-manager">What is the Launch Manager?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#responsibilities">Responsibilities</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-concepts">Key concepts</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#components">Components</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ready-state">Ready state</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#run-targets">Run targets</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#starting-components">Starting Components</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dependencies">Dependencies</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#rules-for-configuring-dependencies">Rules for Configuring Dependencies</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#decision">Decision</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#rationale">Rationale</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#failure-mode-list">Failure Mode List</a></li>
 </ul>
-</li>
-</ul>
-
   </nav></div>
 
   <div class="sidebar-secondary-item">
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/eclipse-score/lifecycle/edit/main/docs/module/health_monitor/safety_analysis/fmea.rst">
+    <a href="https://github.com/eclipse-score/lifecycle/edit/main/docs/module/launch_manager_deamon/user_guide/concepts.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
@@ -736,7 +688,7 @@ as either <strong>mirrored data</strong> or  <strong>inverse byte copy</strong>.
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../../../_sources/module/health_monitor/safety_analysis/fmea.rst.txt"
+      <li><a href="../../../_sources/module/launch_manager_deamon/user_guide/concepts.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>
