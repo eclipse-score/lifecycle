@@ -12,22 +12,34 @@
 # *******************************************************************************
 load("@score_baselibs//score/flatbuffers/bazel:codegen.bzl", "generate_cpp")
 
+
 exports_files([
-    "lm_flatcfg.fbs",
+    "hm_flatcfg.fbs",
+    "hmcore_flatcfg.fbs",
     ],
     visibility = ["//visibility:public"],
 )
 
 generate_cpp(
-    name = "config",
-    output = "lm_flatcfg_generated.h",
-    schema = "lm_flatcfg.fbs",
-    visibility = ["//visibility:public"],
+    name = "hm_config",
+    output = "hm_flatcfg_generated.h",
+    schema = "hm_flatcfg.fbs",
+    visibility = ["//visibility:private"],
+)
+
+generate_cpp(
+    name = "hmcore_config",
+    output = "hmcore_flatcfg_generated.h",
+    schema = "hmcore_flatcfg.fbs",
+    visibility = ["//visibility:private"],
 )
 
 cc_library(
-    name = "config_lib",
-    hdrs = [":config"],
+    name = "config",
+    hdrs = [
+        ":hm_config",
+        ":hmcore_config",
+    ],
     strip_include_prefix = ".",
     visibility = ["//visibility:public"],
 )
