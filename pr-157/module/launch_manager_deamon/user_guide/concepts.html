@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Detailed Design &#8212; Lifecycle and Health Management  documentation</title>
+    <title>User Guide &#8212; Lifecycle and Health Management  documentation</title>
   
   
   
@@ -62,7 +62,7 @@
     <script src="../../../_static/sphinx-needs/libs/html/datatables.min.js?v=8a4aee21"></script>
     <script src="../../../_static/sphinx-needs/libs/html/datatables_loader.js?v=a2cae175"></script>
     <script src="../../../_static/sphinx-needs/libs/html/sphinx_needs_collapse.js?v=dca66431"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'module/health_monitor/detailed_design/index';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'module/launch_manager_deamon/user_guide/concepts';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://eclipse-score.github.io/lifecycle/versions.json';
@@ -72,8 +72,8 @@
         </script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="FMEA (Failure Modes and Effects Analysis)" href="../safety_analysis/fmea.html" />
-    <link rel="prev" title="Component Architecture" href="../architecture/index.html" />
+    <link rel="next" title="Ready Conditions" href="ready_state.html" />
+    <link rel="prev" title="Launch Manager Daemon" href="../index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.1" />
@@ -152,15 +152,15 @@
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-<li class="nav-item current active">
-  <a class="nav-link nav-internal" href="../index.html">
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../health_monitor/index.html">
     HealthMonitor
   </a>
 </li>
 
 
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../launch_manager_deamon/index.html">
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
     Launch Manager Daemon
   </a>
 </li>
@@ -281,15 +281,15 @@
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-<li class="nav-item current active">
-  <a class="nav-link nav-internal" href="../index.html">
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../health_monitor/index.html">
     HealthMonitor
   </a>
 </li>
 
 
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../launch_manager_deamon/index.html">
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
     Launch Manager Daemon
   </a>
 </li>
@@ -365,14 +365,12 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../requirements/index.html">Requirements</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../architecture/index.html">Component Architecture</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Detailed Design</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../safety_analysis/fmea.html">FMEA (Failure Modes and Effects Analysis)</a></li>
-
-
-<li class="toctree-l1"><a class="reference internal" href="../safety_analysis/dfa.html">DFA (Dependent Failure Analysis)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../component_classification.html">Component Classification</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ready_state.html">Ready Conditions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Configuration Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implementation.html">Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../product_documentation/known_limitations.html">Known Limitations</a></li>
 </ul>
 </div>
 </nav></div>
@@ -414,9 +412,9 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">HealthMonitor</a></li>
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Launch Manager Daemon</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Detailed Design</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">User Guide</span></li>
   </ul>
 </nav>
 </div>
@@ -433,171 +431,172 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="detailed-design">
-<span id="component-detailed-design-hm"></span><h1>Detailed Design<a class="headerlink" href="#detailed-design" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-e3415fe0">
-<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__health_monitor_detailed_design">
-<tbody>
-<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
-<div class="line"><span><span class="needs_title"><span class="needs_data">HealthMonitor Detailed Design</span></span></span></div>
-</div>
-</td>
-<td class="head_center" colspan="2"><div class="needs_head line-block">
-<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">draft</span></span></span></div>
-<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">NO</span></span></span></div>
-<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
-</div>
-</td>
-<td class="head_right" colspan="2"><div class="needs_head_right line-block">
-<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
-</div>
-</td>
-</tr>
-<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
-<div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">template</span><span class="needs_spacer">, </span><span class="needs_data">health_monitor</span></span></span></div>
-</span></span></div>
-<div class="line"><span><div class="line">realizes: <span class="realizes"><span><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/implementation/implementation_workproducts.html#wp__sw_implementation">wp__sw_implementation</a></span></span></div>
-</span></div>
-</div>
-</td>
-<td class="meta" colspan="3"></td>
-</tr>
-<tr class="content row-odd"><td class="content" colspan="6"></td>
-</tr>
-<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
-<div class="line"><span><span class="needs-id"><a class="reference internal" href="#doc__health_monitor_detailed_design" title="doc__health_monitor_detailed_design">doc__health_monitor_detailed_design</a></span></span></div>
-</div>
-</td>
-<td class="footer" colspan="2"><div class="needs_footer line-block">
-<div class="line"><span><span class="needs_type_name"><span class="needs_data">Generic Document</span></span></span></div>
-</div>
-</td>
-<td class="footer_right" colspan="2"></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="admonition attention">
-<p class="admonition-title">Attention</p>
-<p>The above directive must be updated according to your Component.</p>
-<ul class="simple">
-<li><p>Modify <code class="docutils literal notranslate"><span class="pre">Your</span> <span class="pre">Component</span> <span class="pre">Name</span></code> to be your Component Name</p></li>
-<li><p>Modify <code class="docutils literal notranslate"><span class="pre">id</span></code> to be your Component Name in upper snake case preceded by <code class="docutils literal notranslate"><span class="pre">doc__</span></code> and followed by <code class="docutils literal notranslate"><span class="pre">_detailed_design</span></code></p></li>
-<li><p>Adjust <code class="docutils literal notranslate"><span class="pre">status</span></code> to be <code class="docutils literal notranslate"><span class="pre">valid</span></code></p></li>
-<li><p>Adjust <code class="docutils literal notranslate"><span class="pre">safety</span></code> and <code class="docutils literal notranslate"><span class="pre">tags</span></code> according to your needs</p></li>
-</ul>
-</div>
-<section id="detailed-design-for-component-healthmonitor">
-<h2>Detailed Design for Component: HealthMonitor<a class="headerlink" href="#detailed-design-for-component-healthmonitor" title="Link to this heading">#</a></h2>
-<section id="description">
-<h3>Description<a class="headerlink" href="#description" title="Link to this heading">#</a></h3>
-<p>HealthMonitor component consists of these units:</p>
-<ul class="simple">
-<li><p><cite>deadline_monitor</cite></p></li>
-<li><p><cite>logic_monitor</cite></p></li>
-<li><p><cite>health_monitor</cite></p></li>
-</ul>
-<div class="line-block">
-<div class="line">Design Decisions - For the documentation of the decision the <a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/change_management/guidance/change_management_decision_record_template.html#gd_temp__change_decision_record">gd_temp__change_decision_record</a> can be used.</div>
-<div class="line">Design Constraints</div>
-</div>
+  <section id="user-guide">
+<span id="lm-user-guide"></span><h1>User Guide<a class="headerlink" href="#user-guide" title="Link to this heading">#</a></h1>
+<section id="introduction">
+<span id="lm-introduction"></span><h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">#</a></h2>
+<section id="what-is-the-launch-manager">
+<span id="lm-what-is-the-launch-manager"></span><h3>What is the Launch Manager?<a class="headerlink" href="#what-is-the-launch-manager" title="Link to this heading">#</a></h3>
+<p>The <strong>Launch Manager</strong> is a system daemon responsible for managing the
+execution of software components on an embedded target. It is designed
+to run for the lifetime of the target and take care of platform
+initialization, ordered start-up and shutdown of components, and
+recovery from unexpected failures.</p>
 </section>
-<section id="implementation-structure">
-<h3>Implementation structure<a class="headerlink" href="#implementation-structure" title="Link to this heading">#</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>src
-└──<span class="w"> </span>health_monitoring_lib
-<span class="w">    </span>├──<span class="w"> </span>cpp<span class="w">             </span><span class="c1"># C++ API using Rust FFI</span>
-<span class="w">    </span>│<span class="w">   </span>├──<span class="w"> </span>include<span class="w">     </span><span class="c1"># C++ public header files.</span>
-<span class="w">    </span>│<span class="w">   </span>│<span class="w">   </span>└──<span class="w"> </span>...
-<span class="w">    </span>│<span class="w">   </span>└──<span class="w"> </span>tests
-<span class="w">    </span>└──<span class="w"> </span>rust<span class="w">            </span><span class="c1"># Rust implementation + FFI for C++</span>
-<span class="w">        </span>└──<span class="w"> </span>deadline
-</pre></div>
-</div>
-<section id="implementation-approach-for-multi-language">
-<h4>Implementation approach for multi language<a class="headerlink" href="#implementation-approach-for-multi-language" title="Link to this heading">#</a></h4>
-<p>The implementation is done primarily in <cite>Rust</cite> language to leverage its memory safety features and concurrency model.
-Due to a need to interface with existing C++ codebases, a C-compatible Foreign Function Interface (FFI) is provided by this <cite>Rust</cite> implementation.
-<cite>C++</cite> API is designed to be idiomatic wrapping around the <cite>Rust</cite> FFI, ensuring ease of use for C++ developers while maintaining the safe usage.</p>
+<section id="responsibilities">
+<span id="lm-responsibilities"></span><h3>Responsibilities<a class="headerlink" href="#responsibilities" title="Link to this heading">#</a></h3>
+<p>The Launch Manager is responsible for:</p>
+<ul class="simple">
+<li><p><strong>Component lifecycle control</strong> - spawning and terminating OS
+processes according to their configured parameters (executable path,
+user/group identity, environment, scheduling policy).</p></li>
+<li><p><strong>Dependency resolution</strong> - ensuring components start and stop in the
+correct order based on declared startup and shutdown dependencies.</p></li>
+<li><p><strong>Failure recovery</strong> - detecting unexpected process termination and
+executing configured recovery actions such as restarting a component
+or switching to a recovery Run Target.</p></li>
+<li><p><strong>Run Target management</strong> - determining which components are active
+at any given time by activating and deactivating named Run Targets in
+response to requests from a Control Client.</p></li>
+</ul>
 </section>
-<section id="rationale-behind-decomposition-into-units">
-<h4>Rationale Behind Decomposition into Units<a class="headerlink" href="#rationale-behind-decomposition-into-units" title="Link to this heading">#</a></h4>
-<div class="line-block">
-<div class="line">mandatory: a motivation for the decomposition into one or more units.</div>
-</div>
+</section>
+<section id="key-concepts">
+<span id="lm-key-concepts"></span><h2>Key concepts<a class="headerlink" href="#key-concepts" title="Link to this heading">#</a></h2>
+<section id="components">
+<span id="lm-components"></span><h3>Components<a class="headerlink" href="#components" title="Link to this heading">#</a></h3>
+<p>A <strong>Component</strong> is an independent, deployable software unit managed by
+the Launch Manager. This can be a long-running daemon developed with the
+lifecycle API, a one-shot application, or any arbitrary binary such as <code class="docutils literal notranslate"><span class="pre">ls</span></code>.
+Components are defined independently of the
+systems they run on, which allows the same component to be deployed
+across multiple target configurations without modification.</p>
+<p>The specific deployment parameters of a component (such as which run
+targets it is included in, its startup timeout, or its termination
+behavior) are kept separate from the component’s inherent properties.
+This separation allows for reusability across different system
+configurations.</p>
+</section>
+<section id="ready-state">
+<span id="lm-ready-state"></span><h3>Ready state<a class="headerlink" href="#ready-state" title="Link to this heading">#</a></h3>
+<p>Each component has a <strong>Ready State</strong>. A component reaches the Ready State when
+it has started successfully and has satisfied its configured ready condition.</p>
+<p>Supported ready conditions include <code class="docutils literal notranslate"><span class="pre">Running</span></code>, where the component is
+considered ready as soon as its process has reported <code class="docutils literal notranslate"><span class="pre">kRunning</span></code> via the
+lifecycle API, and <code class="docutils literal notranslate"><span class="pre">Terminated</span></code>, where the component is considered ready
+once it has reported <code class="docutils literal notranslate"><span class="pre">kRunning</span></code> and subsequently exited successfully.
+For the full list of supported conditions, see <a class="reference internal" href="ready_state.html#lm-ready-conditions"><span class="std std-ref">Ready Conditions</span></a>.</p>
+<p>A component can also be configured to be <strong>non-reporting</strong>. The Launch Manager
+considers it to be in the <strong>Ready State</strong> as soon as its process has been
+spawned.
+This is useful for integrating third-party binaries or system utilities where
+the source code cannot be modified to report the running state.</p>
+<p>It is important to understand that the Ready State reflects a
+component’s <em>functional availability</em>, not merely the existence of its
+OS process. For example, a component that mounts a file system remains
+in the Ready State for as long as the mount is active, even if the
+process that performed the mount has already exited.</p>
+<p>Reaching the <strong>Ready State</strong> signals to the Launch Manager that the
+component is fully operational and capable of providing its services,
+this point is decided by the application developer. This
+allows for other components to safely rely on other components services
+and for the startup procedure to be evaluated by the Launch Manager.</p>
+<p class="plantuml">
+<object data="../../../_images/plantuml-e3d4dd43864ac0d0efa100dc447f20a765a4172b.svg" type="image/svg+xml" style="width:564px;height:178px;background:#FFFFFF;"></object></p>
+<p class="plantuml">
+<object data="../../../_images/plantuml-d1d5251f146894037a1d32396ecb0f672a49e6da.svg" type="image/svg+xml" style="width:570px;height:268px;background:#FFFFFF;"></object></p>
+<p class="plantuml">
+<object data="../../../_images/plantuml-6f128c5315c86b7fbbbf0886f9e13bb27d5520b0.svg" type="image/svg+xml" style="width:593px;height:268px;background:#FFFFFF;"></object></p>
+</section>
+<section id="run-targets">
+<span id="lm-run-targets"></span><h3>Run targets<a class="headerlink" href="#run-targets" title="Link to this heading">#</a></h3>
+<p>A <strong>Run Target</strong> defines a named collection of components that are
+intended to be active together. Only <strong>one Run Target can be active at a
+time</strong>. When a Run Target is activated, the Launch Manager transitions
+the system exclusively to that target, any components not assigned to it
+are terminated.</p>
+<p>When a Run Target is activated, the Launch Manager performs the
+following:</p>
+<ul class="simple">
+<li><p>All components currently in the <strong>active</strong> that are <strong>not</strong> assigned to
+the new Run Target are terminated.</p></li>
+<li><p>All components that are assigned to the new Run Target but are <strong>not</strong> yet
+<strong>active</strong> are started.</p></li>
+</ul>
+</section>
+<section id="starting-components">
+<span id="lm-starting-components"></span><h3>Starting Components<a class="headerlink" href="#starting-components" title="Link to this heading">#</a></h3>
+<p>With the definitions of <strong>Components</strong>, <strong>Run Targets</strong>, and <strong>Ready State</strong>
+established, let us clarify the conditions under which the <strong>Launch Manager</strong>
+will initiate a component’s startup sequence. Components will be started for
+two primary reasons:</p>
+<ul class="simple">
+<li><p>A component is directly assigned to a <strong>Run Target</strong> that is currently being activated.</p></li>
+<li><p>Another component, which is assigned to a <strong>Run Target</strong> being activated, explicitly depends on that component.</p></li>
+</ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Reason for split into multiple units could be-
-- Based on design principles like SOLID,DRY etc
-- Based on design pattern’s etc.</p>
+<p>The exact interleaving of terminations and starts during a transition is not
+defined, new components may be started before, after, or concurrently with
+the termination of outgoing components. If a component depends on another
+being fully stopped or fully ready before it proceeds, this should be
+expressed using dependencies between components or run-targets rather than
+relying on transition ordering.</p>
 </div>
 </section>
+<section id="dependencies">
+<span id="lm-dependencies"></span><h3>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading">#</a></h3>
+<p>A fundamental aspect of <strong>Launch Manager</strong> configuration involves understanding
+how components are assigned to a <strong>Run Target</strong> and how dependencies are
+declared.</p>
+<p>When a component is said to be assigned to a <strong>Run Target</strong>, it means the <strong>Run
+Target’s</strong> configuration explicitly lists the component’s name within its
+<code class="docutils literal notranslate"><span class="pre">depends_on</span></code> parameter.</p>
+<p>Similarly, when a component depends on another component, its own
+<code class="docutils literal notranslate"><span class="pre">component_properties.depends_on</span></code> configuration parameter will list the name
+of the other component it requires.</p>
+<p>Additionally, a <strong>Run Target</strong> can declare a dependency on another <strong>Run
+Target</strong>.
+In this scenario, the name of the dependent <strong>Run Target</strong> is listed within the
+<code class="docutils literal notranslate"><span class="pre">depends_on</span></code> configuration parameter of the primary <strong>Run Target</strong>.
+The most effective way to conceptualize this relationship is to imagine that
+the list of components assigned to the dependent <strong>Run Target</strong> is effectively
+included in the list of components of the primary <strong>Run Target</strong>.</p>
+<p>Dependencies in the <strong>Launch Manager</strong> are resolved transitively.
+When a <strong>Run Target</strong> is activated, the <strong>Launch Manager</strong> does not only start
+the components and <strong>Run Targets</strong> directly listed in its <code class="docutils literal notranslate"><span class="pre">depends_on</span></code>, it
+follows the full dependency chain recursively until all dependencies are
+accounted for.</p>
+<p>This means that a component brought in by a <strong>Run Target</strong> dependency is
+treated as if it were directly assigned to the activating <strong>Run Target</strong>.
+If that component itself depends on further components, those are pulled in as
+well.</p>
+<section id="rules-for-configuring-dependencies">
+<span id="lm-dependency-rules"></span><h4>Rules for Configuring Dependencies<a class="headerlink" href="#rules-for-configuring-dependencies" title="Link to this heading">#</a></h4>
+<p>When configuring dependencies within the <strong>Launch Manager</strong>, the following
+rules must be observed to ensure correct system behavior:</p>
+<ul class="simple">
+<li><p>A <strong>Component</strong> can depend on another <strong>Component</strong>.</p></li>
+<li><p>A <strong>Run Target</strong> can depend on a <strong>Component</strong>.</p></li>
+<li><p>A <strong>Run Target</strong> can depend on another <strong>Run Target</strong>.</p></li>
+<li><p>A <strong>Component</strong> cannot depend on a <strong>Run Target</strong>.</p></li>
+</ul>
 </section>
-<section id="static-diagrams-for-unit-interactions">
-<h3>Static Diagrams for Unit Interactions<a class="headerlink" href="#static-diagrams-for-unit-interactions" title="Link to this heading">#</a></h3>
-<div class="need_container docutils container" id="SNCB-59b874a9">
-<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_dd_sta table" id="dd_sta__health_monitor__class_diagram">
-<tbody>
-<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
-<div class="line"><span><span class="needs_title"><span class="needs_data">Class Diagram</span></span></span></div>
-</div>
-</td>
-<td class="head_center" colspan="2"><div class="needs_head line-block">
-<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
-<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">NO</span></span></span></div>
-<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
-</div>
-</td>
-<td class="head_right" colspan="2"><div class="needs_head_right line-block">
-<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
-</div>
-</td>
-</tr>
-<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
-<div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">health_monitor</span></span></span></div>
-</span></span></div>
-<div class="line"><span><div class="line">satisfies: <span class="satisfies"><span><a class="reference internal" href="../architecture/index.html#comp_arc_sta__deadline_monitor__static_view" title="dd_sta__health_monitor__class_diagram">comp_arc_sta__deadline_monitor__static_view</a>, <a class="reference internal" href="../architecture/index.html#comp_arc_sta__logic_monitor__static_view" title="dd_sta__health_monitor__class_diagram">comp_arc_sta__logic_monitor__static_view</a>, <a class="reference internal" href="../architecture/index.html#comp_arc_sta__health_monitor__static_view" title="dd_sta__health_monitor__class_diagram">comp_arc_sta__health_monitor__static_view</a></span></span></div>
-<div class="line">implements: <span class="implements"><span><a class="reference internal" href="../requirements/index.html#comp_req__health_monitor__dummy" title="dd_sta__health_monitor__class_diagram">comp_req__health_monitor__dummy</a></span></span></div>
-</span></div>
-</div>
-</td>
-<td class="meta" colspan="3"></td>
-</tr>
-<tr class="content row-odd"><td class="content" colspan="6"><blockquote>
-<div><p class="plantuml">
-<object data="../../../_images/plantuml-fa0405b9048597f0152c1bd1b3eae9743fa38692.svg" type="image/svg+xml" style="width:2569px;height:1034px;background:#FFFFFF;"></object></p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
-<div class="line"><span><span class="needs-id"><a class="reference internal" href="#dd_sta__health_monitor__class_diagram" title="dd_sta__health_monitor__class_diagram">dd_sta__health_monitor__class_diagram</a></span></span></div>
-</div>
-</td>
-<td class="footer" colspan="2"><div class="needs_footer line-block">
-<div class="line"><span><span class="needs_type_name"><span class="needs_data">Static detailed design</span></span></span></div>
-</div>
-</td>
-<td class="footer_right" colspan="2"></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<section id="example">
+<span id="lm-run-targets-example"></span><h4>Example<a class="headerlink" href="#example" title="Link to this heading">#</a></h4>
+<p>The following diagram illustrates two Run Targets sharing some
+components and each having components exclusive to them. When
+transitioning from <em>Startup</em> to <em>Full</em>, the Launch Manager deactivates
+components not assigned to <em>Full</em> and activates those that are.</p>
+<p class="plantuml">
+<object data="../../../_images/plantuml-11cf35281f794af72530b469dee576fe1f7cab39.svg" type="image/svg+xml" style="width:430px;height:362px;background:#FFFFFF;"></object></p>
+<p>The order in which components are started and stopped within a
+transition is determined by their configured dependencies.
+And so the following is the sequence diagram showing the
+processes being started:</p>
+<p class="plantuml">
+<object data="../../../_images/plantuml-2cf30eb7e9454d708b605a6624eda99258d065fe.svg" type="image/svg+xml" style="width:504px;height:345px;background:#FFFFFF;"></object></p>
 </section>
-<section id="dynamic-diagrams-for-unit-interactions">
-<h3>Dynamic Diagrams for Unit Interactions<a class="headerlink" href="#dynamic-diagrams-for-unit-interactions" title="Link to this heading">#</a></h3>
-<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="p">..</span> <span class="ow">dd_dyn</span><span class="p">::</span> <span class="nt">&lt;Title&gt;</span>
-   <span class="nc">:id:</span> dd_dyn__&lt;Feature&gt;__&lt;Title&gt;
-   <span class="nc">:security:</span> <span class="nt">&lt;YES|NO&gt;</span>
-   <span class="nc">:safety:</span> <span class="nt">&lt;QM|ASIL_B&gt;</span>
-   <span class="nc">:status:</span> <span class="nt">&lt;valid|invalid&gt;</span>
-   <span class="nc">:implements:</span> <span class="nt">&lt;link to component requirement id&gt;</span>
-   <span class="nc">:satisfies:</span> <span class="nt">&lt;link to component architecture id&gt;</span>
-
-<span class="p">     ..</span> <span class="ow">image</span><span class="p">::</span> <span class="nt">&lt;link to drawio image&gt;</span> or .. uml::  assets/&lt;link to plantuml&gt;
-</pre></div>
-</div>
 </section>
 </section>
 </section>
@@ -613,20 +612,20 @@ Due to a need to interface with existing C++ codebases, a C-compatible Foreign F
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../architecture/index.html"
+       href="../index.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Component Architecture</p>
+        <p class="prev-next-title">Launch Manager Daemon</p>
       </div>
     </a>
     <a class="right-next"
-       href="../safety_analysis/fmea.html"
+       href="ready_state.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">FMEA (Failure Modes and Effects Analysis)</p>
+        <p class="prev-next-title">Ready Conditions</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -649,15 +648,21 @@ Due to a need to interface with existing C++ codebases, a C-compatible Foreign F
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#detailed-design-for-component-healthmonitor">Detailed Design for Component: HealthMonitor</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#description">Description</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation-structure">Implementation structure</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation-approach-for-multi-language">Implementation approach for multi language</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#rationale-behind-decomposition-into-units">Rationale Behind Decomposition into Units</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">Introduction</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-the-launch-manager">What is the Launch Manager?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#responsibilities">Responsibilities</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#static-diagrams-for-unit-interactions">Static Diagrams for Unit Interactions</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamic-diagrams-for-unit-interactions">Dynamic Diagrams for Unit Interactions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-concepts">Key concepts</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#components">Components</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ready-state">Ready state</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#run-targets">Run targets</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#starting-components">Starting Components</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dependencies">Dependencies</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#rules-for-configuring-dependencies">Rules for Configuring Dependencies</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -667,7 +672,7 @@ Due to a need to interface with existing C++ codebases, a C-compatible Foreign F
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/eclipse-score/lifecycle/edit/main/docs/module/health_monitor/detailed_design/index.rst">
+    <a href="https://github.com/eclipse-score/lifecycle/edit/main/docs/module/launch_manager_deamon/user_guide/concepts.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
@@ -683,7 +688,7 @@ Due to a need to interface with existing C++ codebases, a C-compatible Foreign F
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../../../_sources/module/health_monitor/detailed_design/index.rst.txt"
+      <li><a href="../../../_sources/module/launch_manager_deamon/user_guide/concepts.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>
