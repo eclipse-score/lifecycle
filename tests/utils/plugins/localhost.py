@@ -117,6 +117,8 @@ class LocalTarget(Target):
         dest = Path(remote_path)
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(local_path, dest)
+        # If a .tar is left over, this allows the next run to remove it
+        os.chmod(dest, 0o777)
 
     def download(self, remote_path: str, local_path: str) -> None:
         Path(local_path).parent.mkdir(parents=True, exist_ok=True)

@@ -13,4 +13,6 @@
 
 # Default installation prefix for test binaries on target systems.
 # Change this value to relocate all test binaries to a different base path.
+# Note that if any directory other than /tmp is used, you must also use the
+# --sandbox_writable_path=/your/test/path argument
 SCORE_TEST_INSTALL_PREFIX = "/tmp"

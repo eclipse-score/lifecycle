@@ -25,7 +25,7 @@ def setup_test(request, target):
     bin_path = Path(request.config.getoption("--score-test-binary-path"))
     remote_dir = Path(request.config.getoption("--score-test-remote-directory"))
 
-    extract_dir = Path("/") / remote_dir.parts[1]  # e.g. /tmp
+    extract_dir = remote_dir.parent.parent  # e.g. /tmp
     remote_tar = extract_dir / bin_path.name
 
     res, _ = target.execute(f"mkdir -p {extract_dir}")
