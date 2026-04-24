@@ -1,0 +1,472 @@
+{
+    "schema_version": 1,
+    "components": [
+        {
+            "name": "test_app2",
+            "description": "Another simple test application",
+            "component_properties": {
+                "binary_name": "test_app2",
+                "application_profile": {
+                    "application_type": "Reporting_And_Supervised",
+                    "is_self_terminating": false,
+                    "alive_supervision": {
+                        "reporting_cycle": 0.5,
+                        "failed_cycles_tolerance": 2,
+                        "min_indications": 1,
+                        "max_indications": 3
+                    }
+                },
+                "depends_on": [],
+                "process_arguments": [
+                    "-a",
+                    "-b",
+                    "--xyz"
+                ],
+                "ready_condition": {
+                    "process_state": "Running"
+                }
+            },
+            "deployment_config": {
+                "ready_timeout": 0.5,
+                "shutdown_timeout": 0.5,
+                "environmental_variables": [
+                    {
+                        "key": "LD_LIBRARY_PATH",
+                        "value": "/opt/lib"
+                    },
+                    {
+                        "key": "GLOBAL_ENV_VAR",
+                        "value": "overridden_value"
+                    },
+                    {
+                        "key": "EMPTY_GLOBAL_ENV_VAR",
+                        "value": ""
+                    },
+                    {
+                        "key": "APP_SPECIFIC_ENV_VAR",
+                        "value": "def"
+                    }
+                ],
+                "bin_dir": "/opt/apps/test_app2",
+                "working_dir": "/tmp",
+                "ready_recovery_action_type": "RestartAction",
+                "ready_recovery_action": {
+                    "number_of_attempts": 1,
+                    "delay_before_restart": 0.5
+                },
+                "recovery_action_type": "SwitchRunTargetAction",
+                "recovery_action": {
+                    "run_target": "fallback_run_target"
+                },
+                "sandbox": {
+                    "uid": 2000,
+                    "gid": 2000,
+                    "supplementary_group_ids": [
+                        800,
+                        900
+                    ],
+                    "security_policy": "policy_name_2",
+                    "scheduling_policy": "SCHED_FIFO",
+                    "scheduling_priority": 99,
+                    "max_memory_usage": 2048,
+                    "max_cpu_usage": 50
+                }
+            }
+        },
+        {
+            "name": "setup_filesystem_sh",
+            "description": "Script to mount partitions at the right directories",
+            "component_properties": {
+                "binary_name": "bin/setup_filesystem.sh",
+                "application_profile": {
+                    "application_type": "Native",
+                    "is_self_terminating": true,
+                    "alive_supervision": {
+                        "reporting_cycle": 0.5,
+                        "failed_cycles_tolerance": 2,
+                        "min_indications": 1,
+                        "max_indications": 3
+                    }
+                },
+                "depends_on": [
+                    "test_app2"
+                ],
+                "process_arguments": [
+                    "-a",
+                    "-b"
+                ],
+                "ready_condition": {
+                    "process_state": "Terminated"
+                }
+            },
+            "deployment_config": {
+                "ready_timeout": 0.5,
+                "shutdown_timeout": 0.5,
+                "environmental_variables": [
+                    {
+                        "key": "LD_LIBRARY_PATH",
+                        "value": "/opt/lib"
+                    },
+                    {
+                        "key": "GLOBAL_ENV_VAR",
+                        "value": "abc"
+                    },
+                    {
+                        "key": "EMPTY_GLOBAL_ENV_VAR",
+                        "value": ""
+                    }
+                ],
+                "bin_dir": "/opt/scripts",
+                "working_dir": "/tmp",
+                "ready_recovery_action_type": "RestartAction",
+                "ready_recovery_action": {
+                    "number_of_attempts": 1,
+                    "delay_before_restart": 0.5
+                },
+                "recovery_action_type": "SwitchRunTargetAction",
+                "recovery_action": {
+                    "run_target": "fallback_run_target"
+                },
+                "sandbox": {
+                    "uid": 1000,
+                    "gid": 1000,
+                    "supplementary_group_ids": [
+                        500,
+                        600,
+                        700
+                    ],
+                    "security_policy": "policy_name",
+                    "scheduling_policy": "SCHED_OTHER",
+                    "scheduling_priority": 0,
+                    "max_memory_usage": 1024,
+                    "max_cpu_usage": 75
+                }
+            }
+        },
+        {
+            "name": "dlt-daemon",
+            "description": "Logging application",
+            "component_properties": {
+                "binary_name": "dltd",
+                "application_profile": {
+                    "application_type": "Native",
+                    "is_self_terminating": false,
+                    "alive_supervision": {
+                        "reporting_cycle": 0.5,
+                        "failed_cycles_tolerance": 2,
+                        "min_indications": 1,
+                        "max_indications": 3
+                    }
+                },
+                "depends_on": [
+                    "setup_filesystem_sh"
+                ],
+                "process_arguments": [
+                    "-a",
+                    "-b",
+                    "--xyz"
+                ],
+                "ready_condition": {
+                    "process_state": "Running"
+                }
+            },
+            "deployment_config": {
+                "ready_timeout": 0.5,
+                "shutdown_timeout": 0.5,
+                "environmental_variables": [
+                    {
+                        "key": "LD_LIBRARY_PATH",
+                        "value": "/opt/lib"
+                    },
+                    {
+                        "key": "GLOBAL_ENV_VAR",
+                        "value": "abc"
+                    },
+                    {
+                        "key": "EMPTY_GLOBAL_ENV_VAR",
+                        "value": ""
+                    }
+                ],
+                "bin_dir": "/opt/apps/dlt-daemon",
+                "working_dir": "/tmp",
+                "ready_recovery_action_type": "RestartAction",
+                "ready_recovery_action": {
+                    "number_of_attempts": 1,
+                    "delay_before_restart": 0.5
+                },
+                "recovery_action_type": "SwitchRunTargetAction",
+                "recovery_action": {
+                    "run_target": "fallback_run_target"
+                },
+                "sandbox": {
+                    "uid": 1000,
+                    "gid": 1000,
+                    "supplementary_group_ids": [
+                        500,
+                        600,
+                        700
+                    ],
+                    "security_policy": "policy_name",
+                    "scheduling_policy": "SCHED_OTHER",
+                    "scheduling_priority": 0,
+                    "max_memory_usage": 1024,
+                    "max_cpu_usage": 75
+                }
+            }
+        },
+        {
+            "name": "someip-daemon",
+            "description": "SOME/IP application",
+            "component_properties": {
+                "binary_name": "someipd",
+                "application_profile": {
+                    "application_type": "Reporting_And_Supervised",
+                    "is_self_terminating": false,
+                    "alive_supervision": {
+                        "reporting_cycle": 0.5,
+                        "failed_cycles_tolerance": 2,
+                        "min_indications": 1,
+                        "max_indications": 3
+                    }
+                },
+                "depends_on": [],
+                "process_arguments": [
+                    "-a",
+                    "-b",
+                    "--xyz"
+                ],
+                "ready_condition": {
+                    "process_state": "Running"
+                }
+            },
+            "deployment_config": {
+                "ready_timeout": 0.5,
+                "shutdown_timeout": 0.5,
+                "environmental_variables": [
+                    {
+                        "key": "LD_LIBRARY_PATH",
+                        "value": "/opt/lib"
+                    },
+                    {
+                        "key": "GLOBAL_ENV_VAR",
+                        "value": "abc"
+                    },
+                    {
+                        "key": "EMPTY_GLOBAL_ENV_VAR",
+                        "value": ""
+                    }
+                ],
+                "bin_dir": "/opt/apps/someip",
+                "working_dir": "/tmp",
+                "ready_recovery_action_type": "RestartAction",
+                "ready_recovery_action": {
+                    "number_of_attempts": 1,
+                    "delay_before_restart": 0.5
+                },
+                "recovery_action_type": "SwitchRunTargetAction",
+                "recovery_action": {
+                    "run_target": "fallback_run_target"
+                },
+                "sandbox": {
+                    "uid": 1000,
+                    "gid": 1000,
+                    "supplementary_group_ids": [
+                        500,
+                        600,
+                        700
+                    ],
+                    "security_policy": "policy_name",
+                    "scheduling_policy": "SCHED_OTHER",
+                    "scheduling_priority": 0,
+                    "max_memory_usage": 1024,
+                    "max_cpu_usage": 75
+                }
+            }
+        },
+        {
+            "name": "test_app1",
+            "description": "Simple test application",
+            "component_properties": {
+                "binary_name": "test_app1",
+                "application_profile": {
+                    "application_type": "Reporting_And_Supervised",
+                    "is_self_terminating": false,
+                    "alive_supervision": {
+                        "reporting_cycle": 0.5,
+                        "failed_cycles_tolerance": 2,
+                        "min_indications": 1,
+                        "max_indications": 3
+                    }
+                },
+                "depends_on": [
+                    "dlt-daemon",
+                    "someip-daemon"
+                ],
+                "process_arguments": [
+                    "-a",
+                    "-b",
+                    "--xyz"
+                ],
+                "ready_condition": {
+                    "process_state": "Running"
+                }
+            },
+            "deployment_config": {
+                "ready_timeout": 0.5,
+                "shutdown_timeout": 0.5,
+                "environmental_variables": [
+                    {
+                        "key": "LD_LIBRARY_PATH",
+                        "value": "/opt/lib"
+                    },
+                    {
+                        "key": "GLOBAL_ENV_VAR",
+                        "value": "abc"
+                    },
+                    {
+                        "key": "EMPTY_GLOBAL_ENV_VAR",
+                        "value": ""
+                    }
+                ],
+                "bin_dir": "/opt/apps/test_app1",
+                "working_dir": "/tmp",
+                "ready_recovery_action_type": "RestartAction",
+                "ready_recovery_action": {
+                    "number_of_attempts": 1,
+                    "delay_before_restart": 0.5
+                },
+                "recovery_action_type": "SwitchRunTargetAction",
+                "recovery_action": {
+                    "run_target": "fallback_run_target"
+                },
+                "sandbox": {
+                    "uid": 1000,
+                    "gid": 1000,
+                    "supplementary_group_ids": [
+                        500,
+                        600,
+                        700
+                    ],
+                    "security_policy": "policy_name",
+                    "scheduling_policy": "SCHED_OTHER",
+                    "scheduling_priority": 0,
+                    "max_memory_usage": 1024,
+                    "max_cpu_usage": 75
+                }
+            }
+        },
+        {
+            "name": "state_manager",
+            "description": "Application that manages life cycle of the ECU",
+            "component_properties": {
+                "binary_name": "sm",
+                "application_profile": {
+                    "application_type": "State_Manager",
+                    "is_self_terminating": false,
+                    "alive_supervision": {
+                        "reporting_cycle": 0.5,
+                        "failed_cycles_tolerance": 2,
+                        "min_indications": 1,
+                        "max_indications": 3
+                    }
+                },
+                "depends_on": [
+                    "setup_filesystem_sh"
+                ],
+                "process_arguments": [
+                    "-a",
+                    "-b",
+                    "--xyz"
+                ],
+                "ready_condition": {
+                    "process_state": "Running"
+                }
+            },
+            "deployment_config": {
+                "ready_timeout": 0.5,
+                "shutdown_timeout": 0.5,
+                "environmental_variables": [
+                    {
+                        "key": "LD_LIBRARY_PATH",
+                        "value": "/opt/lib"
+                    },
+                    {
+                        "key": "GLOBAL_ENV_VAR",
+                        "value": "abc"
+                    },
+                    {
+                        "key": "EMPTY_GLOBAL_ENV_VAR",
+                        "value": ""
+                    }
+                ],
+                "bin_dir": "/opt/apps/state_manager",
+                "working_dir": "/tmp",
+                "ready_recovery_action_type": "RestartAction",
+                "ready_recovery_action": {
+                    "number_of_attempts": 1,
+                    "delay_before_restart": 0.5
+                },
+                "recovery_action_type": "SwitchRunTargetAction",
+                "recovery_action": {
+                    "run_target": "fallback_run_target"
+                },
+                "sandbox": {
+                    "uid": 1000,
+                    "gid": 1000,
+                    "supplementary_group_ids": [
+                        500,
+                        600,
+                        700
+                    ],
+                    "security_policy": "policy_name",
+                    "scheduling_policy": "SCHED_OTHER",
+                    "scheduling_priority": 0,
+                    "max_memory_usage": 1024,
+                    "max_cpu_usage": 75
+                }
+            }
+        }
+    ],
+    "run_targets": [
+        {
+            "name": "Startup",
+            "description": "Minimal functionality of the system",
+            "depends_on": [
+                "state_manager"
+            ],
+            "transition_timeout": 5,
+            "recovery_action_type": "SwitchRunTargetAction",
+            "recovery_action": {
+                "run_target": "fallback_run_target"
+            }
+        },
+        {
+            "name": "Full",
+            "description": "Everything running",
+            "depends_on": [
+                "test_app1",
+                "Startup"
+            ],
+            "transition_timeout": 5,
+            "recovery_action_type": "SwitchRunTargetAction",
+            "recovery_action": {
+                "run_target": "fallback_run_target"
+            }
+        }
+    ],
+    "initial_run_target": "Startup",
+    "fallback_run_target": {
+        "description": "Switching off everything",
+        "depends_on": [],
+        "transition_timeout": 1.5
+    },
+    "alive_supervision": {
+        "evaluation_cycle": 0.5
+    },
+    "watchdog": {
+        "device_file_path": "/dev/watchdog",
+        "max_timeout": 2,
+        "deactivate_on_shutdown": true,
+        "require_magic_close": false
+    }
+}
