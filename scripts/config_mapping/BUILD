@@ -32,3 +32,9 @@ score_py_pytest(
         requirement("jsonschema"),
     ],
 )
+
+filegroup(
+    name = "pip_requirements",
+    srcs = ["requirements.txt"],
+    visibility = ["//:__pkg__"],
+)
