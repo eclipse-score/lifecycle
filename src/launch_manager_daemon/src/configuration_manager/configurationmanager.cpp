@@ -825,7 +825,7 @@ osal::CommsType ConfigurationManager::isReportingProcess(const ExecutionStateRep
                                                          const std::string_view process_name) {
     osal::CommsType reporting_status = osal::CommsType::kNoComms;
 
-    if (reporting_behaviour == ExecutionStateReportingBehaviorEnum::ExecutionStateReportingBehaviorEnum_ReportsExecutionState) {
+    if (reporting_behaviour == ExecutionStateReportingBehaviorEnum::ReportsExecutionState) {
         reporting_status = osal::CommsType::kReporting;
         LM_LOG_DEBUG() << "Process" << process_name << "is Reporting execution state";
     } else {
@@ -840,7 +840,7 @@ bool ConfigurationManager::isSelfTerminatingProcess(const TerminationBehaviorEnu
                                                     const std::string_view process_name) {
     bool termination_status = false;
 
-    if (termination_behavior == TerminationBehaviorEnum::TerminationBehaviorEnum_ProcessIsSelfTerminating) {
+    if (termination_behavior == TerminationBehaviorEnum::ProcessIsSelfTerminating) {
         termination_status = true;
         LM_LOG_DEBUG() << "Process" << process_name << "is Self terminating";
     } else {

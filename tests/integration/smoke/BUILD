@@ -16,7 +16,6 @@ load("@score_itf//:defs.bzl", "py_itf_test")
 load("@score_lifecycle_pip//:requirements.bzl", "all_requirements")
 load("@score_tooling//:defs.bzl", "score_py_pytest")
 load("//:defs.bzl", "launch_manager_config")
-load("//config:flatbuffers_rules.bzl", "flatbuffer_json_to_bin")
 load("//tests/utils/bazel:integration.bzl", "integration_test")
 
 exports_files(

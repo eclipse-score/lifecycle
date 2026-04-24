@@ -154,7 +154,11 @@ use_repo(oci, "debian-test-runtime", "debian-test-runtime_linux_amd64")
 
 bazel_dep(name = "score_baselibs_rust", version = "0.1.1")
 bazel_dep(name = "score_baselibs", version = "0.2.4")
-bazel_dep(name = "score_logging", version = "0.1.0")
+git_override(
+    module_name = "score_baselibs",
+    commit = "4de0029b909ae039e159c73d17511926cf476d19",
+    remote = "https://github.com/eclipse-score/baselibs.git",
+)
 
 # TODO: remove once inherited properly from `score_logging`.
 bazel_dep(name = "trlc", version = "0.0.0", dev_dependency = True)

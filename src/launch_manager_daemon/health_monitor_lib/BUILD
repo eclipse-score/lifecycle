@@ -12,31 +12,6 @@
 # *******************************************************************************
 load("//config:common_cc.bzl", "cc_binary_with_common_opts", "cc_library_with_common_opts")
 
-filegroup(
-    name = "hm_flatcfg_fbs",
-    srcs = ["config/hm_flatcfg.fbs"],
-    visibility = ["//visibility:public"],
-)
-
-filegroup(
-    name = "hmcore_flatcfg_fbs",
-    srcs = ["config/hmcore_flatcfg.fbs"],
-    visibility = ["//visibility:public"],
-)
-
-# flatcfg configuration
-exports_files(["config/hm_flatcfg.fbs"])
-
-cc_library(
-    name = "config",
-    hdrs = [
-        "config/hm_flatcfg_generated.h",
-        "config/hmcore_flatcfg_generated.h",
-    ],
-    includes = ["config"],
-    visibility = ["//src:__pkg__"],
-)
-
 # library for logging
 cc_library_with_common_opts(
     name = "phm_logging",
@@ -136,7 +111,7 @@ cc_library_with_common_opts(
         "src",
     ],
     deps = [
-        ":config",
+        "//src/launch_manager_daemon/health_monitor_lib/config",
         ":phm_logging",
         "//src/launch_manager_daemon/recovery_client_lib:recovery_client",
         "@score_baselibs//score/mw/log",
@@ -159,7 +134,7 @@ cc_library_with_common_opts(
     ],
     visibility = ["//src:__pkg__"],
     deps = [
-        ":config",
+        "//src/launch_manager_daemon/health_monitor_lib/config",
         ":recoverynotify",
         "//externals/ipc_dropin",
         "//src/launch_manager_daemon/process_state_client_lib:process_state_client",
@@ -243,7 +218,7 @@ cc_library_with_common_opts(
     ],
     visibility = ["//src:__subpackages__"],
     deps = [
-        ":config",
+        "//src/launch_manager_daemon/health_monitor_lib/config",
         ":ipc_if",
         ":phm_logging",
         "@flatbuffers",

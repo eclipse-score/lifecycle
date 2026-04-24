@@ -14,18 +14,6 @@ load("//config:common_cc.bzl", "cc_binary_with_common_opts", "cc_library_with_co
 
 package(default_visibility = ["//tests:__subpackages__"])
 
-filegroup(
-    name = "lm_flatcfg_fbs",
-    srcs = ["//src/launch_manager_daemon/config:lm_flatcfg.fbs"],
-    visibility = ["//visibility:public"],
-)
-
-cc_library(
-    name = "config",
-    hdrs = ["//src/launch_manager_daemon/config:lm_flatcfg_generated.h"],
-    includes = ["config"],
-    visibility = ["//src:__pkg__"],
-)
 
 cc_binary_with_common_opts(
     name = "launch_manager",
@@ -42,7 +30,7 @@ cc_binary_with_common_opts(
     }),
     visibility = ["//visibility:public"],
     deps = [
-        ":config",
+        "//src/launch_manager_daemon/config:config_lib",
         "//externals/ipc_dropin",
         "//src/launch_manager_daemon/common",
         "//src/launch_manager_daemon/common:control_client_channel",
@@ -74,8 +62,7 @@ cc_library(
         "src",
     ],
     deps = [
-        # Must match launch_manager deps
-        ":config",
+        "//src/launch_manager_daemon/config:config_lib",
         "//externals/ipc_dropin",
         "//src/launch_manager_daemon/common",
         "//src/launch_manager_daemon/common:control_client_channel",

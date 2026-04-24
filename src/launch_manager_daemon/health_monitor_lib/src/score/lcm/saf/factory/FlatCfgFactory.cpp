@@ -148,7 +148,7 @@ bool FlatCfgFactory::createProcessStates(std::vector<ifexm::ProcessState>& f_pro
                 }
 
                 // Not an EXM Process
-                if (process_p->processType() != HMFlatBuffer::ProcessType::ProcessType_LM_PROCESS)
+                if (process_p->processType() != HMFlatBuffer::ProcessType::LM_PROCESS)
                 {
                     // coverity[cert_exp34_c_violation] PHM.ecucfgdsl Process.identifier MANDATORY
                     // coverity[dereference] PHM.ecucfgdsl Process.identifier MANDATORY

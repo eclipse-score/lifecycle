@@ -117,17 +117,17 @@ launch_manager_config = rule(
         ),
         "lm_schema": attr.label(
             allow_single_file = [".fbs"],
-            default = Label("//src/launch_manager_daemon:lm_flatcfg_fbs"),
+            default = Label("//src/launch_manager_daemon/config:lm_flatcfg.fbs"),
             doc = "Launch Manager fbs file to use",
         ),
         "hm_schema": attr.label(
             allow_single_file = [".fbs"],
-            default = Label("//src/launch_manager_daemon/health_monitor_lib:hm_flatcfg_fbs"),
+            default = Label("//src/launch_manager_daemon/health_monitor_lib/config:hm_flatcfg.fbs"),
             doc = "HealthMonitor fbs file to use",
         ),
         "hmcore_schema": attr.label(
             allow_single_file = [".fbs"],
-            default = Label("//src/launch_manager_daemon/health_monitor_lib:hmcore_flatcfg_fbs"),
+            default = Label("//src/launch_manager_daemon/health_monitor_lib/config:hmcore_flatcfg.fbs"),
             doc = "HealthMonitor core fbs file to use",
         ),
     },
