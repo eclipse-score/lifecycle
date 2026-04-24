@@ -1,0 +1,44 @@
+@startuml sequence_view
+title Application Lifecycle Sequence Diagram
+
+participant "OS_ExecMgmt" as OS
+participant "Process" as Process
+participant "AppContext" as AppCtx
+participant "Application" as App
+participant "LifecycleManager" as LM
+participant "StopSource" as StopSrc
+participant "StopToken" as StopTok
+
+== Initialization ==
+OS ->> Process: create
+Process ->> Process: main(argc, argv)
+Process ->> AppCtx: ctor(argc, argv)
+Process ->> App: ctor()
+Process ->> StopSrc: ctor()
+Process ->> LM: ctor(Application&, AppContext&)
+OS ->> LM: registerSignalHandler()
+
+== Execution ==
+Process ->> LM: run()
+LM ->> App: Initialize(AppContext&)
+App -->> LM: return
+LM ->> StopTok: create
+LM ->> App: run(StopToken)
+
+== Signal Handling ==
+OS ->> LM: Signal(SigTerm)
+LM ->> StopSrc: request_stop()
+StopSrc ->> StopTok: notify()
+
+== Polling ==
+note over App: Check stop_requested()
+
+App ->> StopTok: stop_requested()
+StopTok -->> App: TRUE/FALSE
+
+== Shutdown ==
+App -->> LM: return exitCode
+LM ->> Process: return exitCode
+Process ->> OS: return exitCode
+
+@enduml

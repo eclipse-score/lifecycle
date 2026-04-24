@@ -1,0 +1,52 @@
+..
+   # *******************************************************************************
+   # Copyright (c) 2026 Contributors to the Eclipse Foundation
+   #
+   # See the NOTICE file(s) distributed with this work for additional
+   # information regarding copyright ownership.
+   #
+   # This program and the accompanying materials are made available under the
+   # terms of the Apache License Version 2.0 which is available at
+   # https://www.apache.org/licenses/LICENSE-2.0
+   #
+   # SPDX-License-Identifier: Apache-2.0
+   # *******************************************************************************
+
+.. _lifecyclemanager_class:
+
+Lifecyclemanager class
+======================
+
+Introduction
+------------
+
+Purpose of ``score::mw::lifecycle::LifecycleManager`` component is to have a layer of abstraction, that unifies API, for execution managers.
+
+.. note::
+
+   This component has ``ASIL-B`` safety level.
+
+External C++ interfaces
+-----------------------
+
+``LifecycleManager`` class is a decoration of :ref:`score::mw::lifecycle::Application <application_lifecycle>` class. It adds POSIX signal handling for SIGTERM signal, for decorated ``Application``.
+
+Methods which have to be implemented in case of adding new lifecycle manager:
+
+report_running
+~~~~~~~~~~~~~~
+
+Hook function for reporting running state in lifecycle manager
+
+report_shutdown
+~~~~~~~~~~~~~~~
+
+Hook function for reporting shutdown state in lifecycle manager
+
+POSIX signals
+~~~~~~~~~~~~~
+
+SIGTERM
+^^^^^^^
+
+Lifecycle manager ``handle_signal`` function waits for SIGTERM signal, if signal is received it's shuts down application, reports shutdown to execution manager and exits itself.

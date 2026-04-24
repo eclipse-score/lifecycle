@@ -1,0 +1,36 @@
+@startuml lifecycle_system_view
+title Lifecycle System View
+
+class "mw:Application" as mwApp #FFFF00
+
+class "Application" as App #0000FF {
+}
+
+class "mw:LifecycleManager" as LifecycleManager #FFFF00
+
+class "Execution Manager" as ExecMgr
+
+class "OS" as OS
+
+class "Application Context" as AppCtx #0000FF {
+}
+
+App --|> mwApp : <<uses>>
+App --> LifecycleManager : manages (run, terminate)
+
+LifecycleManager --> ExecMgr : reports state (run, terminate)
+LifecycleManager --> OS : handles application SIGTERM
+
+AppCtx --> ExecMgr : starts
+
+AppCtx --> LifecycleManager : starts
+
+note left of App
+  Application
+end note
+
+note right of LifecycleManager
+  mw::lifecycle
+end note
+
+@enduml

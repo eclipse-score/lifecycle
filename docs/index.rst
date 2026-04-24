@@ -21,6 +21,8 @@ Lifecycle
    :titlesonly:
 
    module/*/index
+   module/lifecycle_client_lib/lifecycle
+   module/lifecycle_client_lib/lifecyclemanager
    statistics.rst
 
 Overview

@@ -1,0 +1,79 @@
+@startuml structural_view
+title Structural View
+
+' Interfaces and Classes
+interface "<<interface>>\nscore::mw::lifecycle::Application" as IApplication {
+    + initialize(const ApplicationContext&): int32_t {abstract}
+    + run(amp::stop_token stop_token): int32_t {abstract}
+}
+
+class "score::mw::lifecycle::ApplicationContext" as ApplicationContext {
+    + ApplicationContext(const int32_t argc, const score::StringLiteral argv[])
+    + get_arguments(): const std::vector<std::string>& const noexcept
+    + get_argument(const amp::string_view flag): std::string const noexcept
+    --
+    - m_args: std::vector<std::string>
+    - m_app_path: std::string
+}
+
+class "score::mw::lifecycle::LifecycleManager" as LifecycleManager {
+    + LifecycleManager(std::unique_ptr<score::os::Signal> signal_interface)
+    + LifecycleManager(LifecycleManager&& other) = delete
+    + LifecycleManager(const LifecycleManager& other) = delete
+    + LifecycleManager& operator=(LifecycleManager&& other) = delete
+    + LifecycleManager& operator=(const LifecycleManager& other) = delete
+    + run(Application& app, const ApplicationContext&): int32_t
+    --
+    - m_stop_source: amp::stop_source
+    - m_app: Application*
+    - m_signal_set: sigset_t
+    - m_signal_handler_thread: std::thread
+    - signal_: std::unique_ptr<score::os::Signal>
+}
+
+class "score::mw::lifecycle::AasApplicationContainer" as AasApplicationContainer {
+    + initialize(const ApplicationContext&): int32_t override
+    + run(amp::stop_token stop_token): int32_t override
+    + AasApplicationContainer(const int32_t argc, const score::StringLiteral* argv, const std::size_t count_expected_applications): noexcept
+    + With<App,...Args>(Args&&.. args): AasApplicationContainer&
+    + Launch(): int32_t
+    --
+    - context_: score::mw::lifecycle::ApplicationContext
+    - applications_: std::vector<std::unique_ptr<Application>>
+    - count_expected_applications_: std::size_t
+}
+
+class "Run<ApplicationType>" as RunTemplate {
+    + Run(const int32_t argc, const score::StringLiteral* argv)
+    + AsPosixProcess(Args&&... args): int32_t const
+    --
+    - context_: ApplicationContext
+}
+
+' Relationships
+AasApplicationContainer --|> IApplication : implements
+LifecycleManager --> IApplication : manages
+LifecycleManager --> ApplicationContext : uses
+AasApplicationContainer --> ApplicationContext : uses
+RunTemplate --> LifecycleManager : creates & runs
+RunTemplate --> IApplication : creates & runs
+RunTemplate --> ApplicationContext : uses
+
+note right of LifecycleManager
+    Note
+    --
+    Implementation is platform specific.
+    It typically implements
+    a (POSIX) signal handling as we expect,
+    that termination of apps is
+    done via signaling in all environments.
+end note
+
+note right of RunTemplate
+    Note
+    --
+    Enable the easy usage of our
+    application in different environments
+end note
+
+@enduml

@@ -1,0 +1,51 @@
+@startuml sequence_application_container
+title AasApplicationContainer Sequence Diagram
+
+participant "main" as Main
+participant "Container" as Container
+participant "LifecycleManager" as LM
+participant "Application" as App
+
+== Container Setup ==
+Main ->> Container: new AasApplicationContainer()
+Main ->> Container: With<App1>(args)
+Main ->> Container: With<App2>(args)
+
+== Launch ==
+Main ->> Container: Launch()
+activate Container
+
+Container ->> LM: new LifecycleManager()
+Container ->> LM: run(*this, context_)
+activate LM
+
+LM ->> Container: Initialize(context)
+
+== Initialize Applications ==
+loop for each application
+    LM ->> App: Initialize(context)
+    App -->> LM: result
+end
+
+alt initialization failed
+    LM -->> Container: error
+    Container -->> Main: error
+else initialization success
+    
+    == Run Applications ==
+    loop for each application (except last)
+        LM ->> App: run(stop_token) [threaded]
+    end
+    
+    LM ->> App: run(stop_token) [last app, main thread]
+    App -->> LM: result
+    
+    LM -->> Container: result
+end
+
+deactivate LM
+deactivate Container
+
+Container -->> Main: exit code
+
+@enduml

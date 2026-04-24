@@ -1,0 +1,25 @@
+@startuml app_lifecycle
+!define DIRECTION top to bottom direction
+
+title Application Lifecycle State Machine
+
+state Terminated {
+}
+
+state Initializing {
+}
+
+state Run {
+}
+
+[*] --> Terminated
+
+Terminated --> Initializing: fork/exec
+
+Initializing --> Run: Report Run
+
+Run --> Terminated: exit/Sig Term/Sig Kill
+
+Terminated --> [*]
+
+@enduml
