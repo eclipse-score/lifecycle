@@ -1,0 +1,31 @@
+{
+    "schema_version": 1,
+    "components": [],
+    "run_targets": [
+        {
+            "name": "Startup",
+            "description": "Empty",
+            "depends_on": [],
+            "transition_timeout": 5,
+            "recovery_action_type": "SwitchRunTargetAction",
+            "recovery_action": {
+                "run_target": "fallback_run_target"
+            }
+        }
+    ],
+    "initial_run_target": "Startup",
+    "fallback_run_target": {
+        "description": "Switching off everything",
+        "depends_on": [],
+        "transition_timeout": 1.5
+    },
+    "alive_supervision": {
+        "evaluation_cycle": 0.5
+    },
+    "watchdog": {
+        "device_file_path": "/dev/watchdog",
+        "max_timeout": 2,
+        "deactivate_on_shutdown": true,
+        "require_magic_close": false
+    }
+}
