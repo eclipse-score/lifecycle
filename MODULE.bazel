@@ -29,16 +29,26 @@ bazel_dep(name = "download_utils", version = "1.2.2")
 bazel_dep(name = "googletest", version = "1.17.0.bcr.2")
 
 # S-CORE process rules
-bazel_dep(name = "score_bazel_platforms", version = "0.0.4")
-bazel_dep(name = "score_docs_as_code", version = "3.0.0")
+bazel_dep(name = "score_bazel_platforms", version = "0.1.2")
+bazel_dep(name = "score_docs_as_code", version = "4.0.3")
+single_version_override(
+    module_name="score_docs_as_code",
+    version="4.0.3"
+)
 bazel_dep(name = "score_tooling", version = "1.1.0")
 bazel_dep(name = "score_rust_policies", version = "0.0.3")
 
-bazel_dep(name = "score_process", version = "1.4.4", dev_dependency = True)
+bazel_dep(name = "score_process", version = "1.5.4", dev_dependency = True)
 bazel_dep(name = "score_platform", version = "0.5.3", dev_dependency = True)
+# Will be removed once new score_platform is released (>0.5.3)
+git_override(
+    module_name = "score_platform",
+    commit="5b8a1e34c417384d919bb8c08d32213896ffe5aa",
+    remote="https://github.com/eclipse-score/score.git"
+)
 
 ## Configure the C++ toolchain
-bazel_dep(name = "score_bazel_cpp_toolchains", version = "0.2.2", dev_dependency = True)
+bazel_dep(name = "score_bazel_cpp_toolchains", version = "0.5.1", dev_dependency = True)
 
 gcc = use_extension("@score_bazel_cpp_toolchains//extensions:gcc.bzl", "gcc", dev_dependency = True)
 gcc.toolchain(
@@ -153,7 +163,12 @@ oci.pull(
 use_repo(oci, "debian-test-runtime", "debian-test-runtime_linux_amd64")
 
 bazel_dep(name = "score_baselibs_rust", version = "0.1.1")
-bazel_dep(name = "score_baselibs", version = "0.2.4")
+git_override(
+    module_name="score_baselibs_rust",
+    commit="e839926863ce71e8d92ebc97e24960a6b68c684e",
+    remote="https://github.com/eclipse-score/baselibs_rust.git"
+)
+bazel_dep(name = "score_baselibs", version = "0.2.6")
 bazel_dep(name = "score_logging", version = "0.1.0")
 
 # TODO: remove once inherited properly from `score_logging`.
@@ -169,7 +184,7 @@ git_override(
 bazel_dep(name = "hedron_compile_commands", dev_dependency = True)
 git_override(
     module_name = "hedron_compile_commands",
-    commit = "0e990032f3c5a866e72615cf67e5ce22186dcb97",
+    commit = "abb61a688167623088f8768cc9264798df6a9d10",
     remote = "https://github.com/hedronvision/bazel-compile-commands-extractor.git",
     # Replace the commit hash (above) with the latest (https://github.com/hedronvision/bazel-compile-commands-extractor/commits/main).
     # Even better, set up Renovate and let it do the work for you (see "Suggestion: Updates" in the README).
