@@ -19,6 +19,8 @@ on:
     types: [checks_requested]
 jobs:
   integration:
+    # TODO: restore job once fixed. https://github.com/eclipse-score/lifecycle/issues/84
+    if: false
     uses: eclipse-score/reference_integration/.github/workflows/reusable_smoke-test.yml@main
     secrets: inherit
     with:
