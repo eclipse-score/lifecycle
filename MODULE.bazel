@@ -18,7 +18,7 @@ module(
 # Bazel global rules
 bazel_dep(name = "rules_pkg", version = "1.1.0")
 bazel_dep(name = "rules_python", version = "1.8.5")
-bazel_dep(name = "rules_rust", version = "0.61.0")
+bazel_dep(name = "rules_rust", version = "0.68.1-score")
 bazel_dep(name = "rules_cc", version = "0.2.17")
 bazel_dep(name = "rules_oci", version = "2.3.0")
 bazel_dep(name = "aspect_rules_lint", version = "2.0.0")
@@ -158,13 +158,7 @@ oci.pull(
 )
 use_repo(oci, "debian-test-runtime", "debian-test-runtime_linux_amd64")
 
-bazel_dep(name = "score_baselibs_rust", version = "0.1.1")
-git_override(
-    module_name = "score_baselibs_rust",
-    commit = "e839926863ce71e8d92ebc97e24960a6b68c684e",
-    remote = "https://github.com/eclipse-score/baselibs_rust.git",
-)
-
+bazel_dep(name = "score_baselibs_rust", version = "0.1.2")
 bazel_dep(name = "score_baselibs", version = "0.2.6")
 
 # Hedron's Compile Commands Extractor for Bazel
