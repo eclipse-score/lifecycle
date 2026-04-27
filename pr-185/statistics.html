@@ -39,10 +39,10 @@
     <link rel="stylesheet" type="text/css" href="_static/sphinx-data-viewer/jsonview.bundle.css?v=f6ef2277" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-needs/libs/html/datatables.min.css?v=4b4fd840" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-needs/common_css/need_core.css?v=f5b60a78" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinx-needs/common_css/need_toggle.css?v=5c6620df" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-needs/common_css/needstable.css?v=5e1b6797" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-needs/common_css/need_links.css?v=2150a916" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-needs/common_css/need_style.css?v=92936fa5" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-needs/common_css/need_toggle.css?v=5c6620df" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-needs/modern.css?v=803738c0" />
   
   <!-- So that users can add custom icons -->
@@ -497,87 +497,6 @@
 </section>
 <section id="test-log-files">
 <h2>Test Log Files<a class="headerlink" href="#test-log-files" title="Link to this heading">#</a></h2>
-<p class="rubric">tests-report/src/launch_manager_daemon/health_monitor_lib/Notification_UT/test.log</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
-Executing tests from //src/launch_manager_daemon/health_monitor_lib:Notification_UT
------------------------------------------------------------------------------
-Running main() from gmock_main.cc
-[==========] Running 5 tests from 2 test suites.
-[----------] Global test environment set-up.
-[----------] 4 tests from NotificationWithConfigTest
-[ RUN      ] NotificationWithConfigTest.CanGetNotificationName
-[       OK ] NotificationWithConfigTest.CanGetNotificationName (0 ms)
-[ RUN      ] NotificationWithConfigTest.SendsRequestAndNeverTimesOut
- [0;32m 2026/4/27 15:57:16 LCHM Rcvy INFO:    [ Notification (TestNotification) Recovery request enqueued successfully ][0m
-[       OK ] NotificationWithConfigTest.SendsRequestAndNeverTimesOut (0 ms)
-[ RUN      ] NotificationWithConfigTest.TimesOutWhenSendingRequestFails
- [101;30m !!! -&gt; [0m [0;32m 2026/4/27 15:57:16 LCHM Rcvy ERROR:   [ Notification (TestNotification) Failed to enqueue recovery request (ring buffer full) ][0m
-[       OK ] NotificationWithConfigTest.TimesOutWhenSendingRequestFails (0 ms)
-[ RUN      ] NotificationWithConfigTest.ProxyInitializationFails
- [101;30m !!! -&gt; [0m [0;32m 2026/4/27 15:57:16 LCHM Rcvy ERROR:   [ Notification (TestNotification) Invalid ProcessGroupState identifier: InvalidIdentifier ][0m
-[       OK ] NotificationWithConfigTest.ProxyInitializationFails (0 ms)
-[----------] 4 tests from NotificationWithConfigTest (0 ms total)
-
-[----------] 1 test from NotificationWithoutConfigTest
-[ RUN      ] NotificationWithoutConfigTest.WatchdogNotificationGoesDirectlyToTimeout
-[       OK ] NotificationWithoutConfigTest.WatchdogNotificationGoesDirectlyToTimeout (0 ms)
-[----------] 1 test from NotificationWithoutConfigTest (0 ms total)
-
-[----------] Global test environment tear-down
-[==========] 5 tests from 2 test suites ran. (1 ms total)
-[  PASSED  ] 5 tests.
-</pre></div>
-</div>
-<p class="rubric">tests-report/src/launch_manager_daemon/process_state_client_lib/processstateclient_UT/test.log</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
-Executing tests from //src/launch_manager_daemon/process_state_client_lib:processstateclient_UT
------------------------------------------------------------------------------
-Running main() from gmock_main.cc
-[==========] Running 4 tests from 1 test suite.
-[----------] Global test environment set-up.
-[----------] 4 tests from ProcessStateClient_UT
-[ RUN      ] ProcessStateClient_UT.ProcessStateClient_ConstructReceiver_Succeeds
-[       OK ] ProcessStateClient_UT.ProcessStateClient_ConstructReceiver_Succeeds (0 ms)
-[ RUN      ] ProcessStateClient_UT.ProcessStateClient_QueueOneProcess_Succeeds
-[       OK ] ProcessStateClient_UT.ProcessStateClient_QueueOneProcess_Succeeds (0 ms)
-[ RUN      ] ProcessStateClient_UT.ProcessStateClient_QueueMaxNumberOfProcesses_Succeeds
-[       OK ] ProcessStateClient_UT.ProcessStateClient_QueueMaxNumberOfProcesses_Succeeds (11 ms)
-[ RUN      ] ProcessStateClient_UT.ProcessStateClient_QueueOneProcessTooMany_Fails
- [101;30m !!! -&gt; [0m [0;34m 2026/4/27 15:56:7 LCLM LCLM ERROR:   [ Failed to queue posix process ][0m
- [101;30m !!! -&gt; [0m [0;34m 2026/4/27 15:56:7 LCLM LCLM ERROR:   [ ProcessStateReceiver::getNextChangedPosixProcess: Overflow occurred, will be reported as kCommunicationError ][0m
-[       OK ] ProcessStateClient_UT.ProcessStateClient_QueueOneProcessTooMany_Fails (3 ms)
-[----------] 4 tests from ProcessStateClient_UT (15 ms total)
-
-[----------] Global test environment tear-down
-[==========] 4 tests from 1 test suite ran. (15 ms total)
-[  PASSED  ] 4 tests.
-</pre></div>
-</div>
-<p class="rubric">tests-report/src/launch_manager_daemon/recovery_client_lib/recovery_client_UT/test.log</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
-Executing tests from //src/launch_manager_daemon/recovery_client_lib:recovery_client_UT
------------------------------------------------------------------------------
-Running main() from gmock_main.cc
-[==========] Running 5 tests from 1 test suite.
-[----------] Global test environment set-up.
-[----------] 5 tests from RecoveryClientTest
-[ RUN      ] RecoveryClientTest.SendSingleRequest
-[       OK ] RecoveryClientTest.SendSingleRequest (0 ms)
-[ RUN      ] RecoveryClientTest.GetNextRequest
-[       OK ] RecoveryClientTest.GetNextRequest (0 ms)
-[ RUN      ] RecoveryClientTest.GetNextRequestEmpty
-[       OK ] RecoveryClientTest.GetNextRequestEmpty (0 ms)
-[ RUN      ] RecoveryClientTest.RingBufferFull
-[       OK ] RecoveryClientTest.RingBufferFull (0 ms)
-[ RUN      ] RecoveryClientTest.FIFOOrdering
-[       OK ] RecoveryClientTest.FIFOOrdering (0 ms)
-[----------] 5 tests from RecoveryClientTest (0 ms total)
-
-[----------] Global test environment tear-down
-[==========] 5 tests from 1 test suite ran. (0 ms total)
-[  PASSED  ] 5 tests.
-</pre></div>
-</div>
 <p class="rubric">tests-report/src/launch_manager_daemon/common/identifier_hash_UT/test.log</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
 Executing tests from //src/launch_manager_daemon/common:identifier_hash_UT
@@ -607,34 +526,128 @@ Running main() from gmock_main.cc
 [  PASSED  ] 7 tests.
 </pre></div>
 </div>
+<p class="rubric">tests-report/src/launch_manager_daemon/process_state_client_lib/processstateclient_UT/test.log</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
+Executing tests from //src/launch_manager_daemon/process_state_client_lib:processstateclient_UT
+-----------------------------------------------------------------------------
+Running main() from gmock_main.cc
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from ProcessStateClient_UT
+[ RUN      ] ProcessStateClient_UT.ProcessStateClient_ConstructReceiver_Succeeds
+[       OK ] ProcessStateClient_UT.ProcessStateClient_ConstructReceiver_Succeeds (0 ms)
+[ RUN      ] ProcessStateClient_UT.ProcessStateClient_QueueOneProcess_Succeeds
+[       OK ] ProcessStateClient_UT.ProcessStateClient_QueueOneProcess_Succeeds (0 ms)
+[ RUN      ] ProcessStateClient_UT.ProcessStateClient_QueueMaxNumberOfProcesses_Succeeds
+[       OK ] ProcessStateClient_UT.ProcessStateClient_QueueMaxNumberOfProcesses_Succeeds (13 ms)
+[ RUN      ] ProcessStateClient_UT.ProcessStateClient_QueueOneProcessTooMany_Fails
+ [101;30m !!! -&gt; [0m [0;34m 2026/4/27 16:3:38 LCLM LCLM ERROR:   [ Failed to queue posix process ][0m
+ [101;30m !!! -&gt; [0m [0;34m 2026/4/27 16:3:38 LCLM LCLM ERROR:   [ ProcessStateReceiver::getNextChangedPosixProcess: Overflow occurred, will be reported as kCommunicationError ][0m
+[       OK ] ProcessStateClient_UT.ProcessStateClient_QueueOneProcessTooMany_Fails (3 ms)
+[----------] 4 tests from ProcessStateClient_UT (17 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (17 ms total)
+[  PASSED  ] 4 tests.
+</pre></div>
+</div>
+<p class="rubric">tests-report/src/launch_manager_daemon/recovery_client_lib/recovery_client_UT/test.log</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
+Executing tests from //src/launch_manager_daemon/recovery_client_lib:recovery_client_UT
+-----------------------------------------------------------------------------
+Running main() from gmock_main.cc
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from RecoveryClientTest
+[ RUN      ] RecoveryClientTest.SendSingleRequest
+[       OK ] RecoveryClientTest.SendSingleRequest (0 ms)
+[ RUN      ] RecoveryClientTest.GetNextRequest
+[       OK ] RecoveryClientTest.GetNextRequest (0 ms)
+[ RUN      ] RecoveryClientTest.GetNextRequestEmpty
+[       OK ] RecoveryClientTest.GetNextRequestEmpty (0 ms)
+[ RUN      ] RecoveryClientTest.RingBufferFull
+[       OK ] RecoveryClientTest.RingBufferFull (0 ms)
+[ RUN      ] RecoveryClientTest.FIFOOrdering
+[       OK ] RecoveryClientTest.FIFOOrdering (0 ms)
+[----------] 5 tests from RecoveryClientTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 5 tests.
+</pre></div>
+</div>
+<p class="rubric">tests-report/src/launch_manager_daemon/health_monitor_lib/Notification_UT/test.log</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
+Executing tests from //src/launch_manager_daemon/health_monitor_lib:Notification_UT
+-----------------------------------------------------------------------------
+Running main() from gmock_main.cc
+[==========] Running 5 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 4 tests from NotificationWithConfigTest
+[ RUN      ] NotificationWithConfigTest.CanGetNotificationName
+[       OK ] NotificationWithConfigTest.CanGetNotificationName (0 ms)
+[ RUN      ] NotificationWithConfigTest.SendsRequestAndNeverTimesOut
+ [0;32m 2026/4/27 16:4:26 LCHM Rcvy INFO:    [ Notification (TestNotification) Recovery request enqueued successfully ][0m
+[       OK ] NotificationWithConfigTest.SendsRequestAndNeverTimesOut (0 ms)
+[ RUN      ] NotificationWithConfigTest.TimesOutWhenSendingRequestFails
+ [101;30m !!! -&gt; [0m [0;32m 2026/4/27 16:4:26 LCHM Rcvy ERROR:   [ Notification (TestNotification) Failed to enqueue recovery request (ring buffer full) ][0m
+[       OK ] NotificationWithConfigTest.TimesOutWhenSendingRequestFails (0 ms)
+[ RUN      ] NotificationWithConfigTest.ProxyInitializationFails
+ [101;30m !!! -&gt; [0m [0;32m 2026/4/27 16:4:26 LCHM Rcvy ERROR:   [ Notification (TestNotification) Invalid ProcessGroupState identifier: InvalidIdentifier ][0m
+[       OK ] NotificationWithConfigTest.ProxyInitializationFails (0 ms)
+[----------] 4 tests from NotificationWithConfigTest (0 ms total)
+
+[----------] 1 test from NotificationWithoutConfigTest
+[ RUN      ] NotificationWithoutConfigTest.WatchdogNotificationGoesDirectlyToTimeout
+[       OK ] NotificationWithoutConfigTest.WatchdogNotificationGoesDirectlyToTimeout (0 ms)
+[----------] 1 test from NotificationWithoutConfigTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 2 test suites ran. (1 ms total)
+[  PASSED  ] 5 tests.
+</pre></div>
+</div>
+<p class="rubric">tests-report/src/health_monitoring_lib/loom_tests/test.log</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
+Executing tests from //src/health_monitoring_lib:loom_tests
+-----------------------------------------------------------------------------
+
+running 3 tests
+test heartbeat::heartbeat_monitor::loom_tests::heartbeat_monitor_heartbeat_evaluate_too_early ... ok
+test heartbeat::heartbeat_monitor::loom_tests::heartbeat_monitor_heartbeat_evaluate_in_range ... ok
+test heartbeat::heartbeat_monitor::loom_tests::heartbeat_monitor_heartbeat_evaluate_too_late ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.70s
+</pre></div>
+</div>
 <p class="rubric">tests-report/src/health_monitoring_lib/tests/test.log</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
 Executing tests from //src/health_monitoring_lib:tests
 -----------------------------------------------------------------------------
 
 running 232 tests
-test common::tests::duration_to_int_too_large - should panic ... ok
-test common::tests::time_offset_valid ... ok
 test common::tests::duration_to_int_valid ... ok
-test common::tests::time_offset_wrong_order ... ok
+test common::tests::duration_to_int_too_large - should panic ... ok
 test common::tests::time_offset_diff_too_large - should panic ... ok
+test common::tests::time_offset_valid ... ok
+test common::tests::time_offset_wrong_order ... ok
 test common::tests::time_range_from_interval_lower_too_large - should panic ... ok
-test common::tests::time_range_from_interval_valid ... ok
 test common::tests::time_range_new_valid ... ok
 test common::tests::time_range_new_wrong_order - should panic ... ok
+test common::tests::time_range_from_interval_valid ... ok
 test deadline::common::tests::acquire_and_release_deadline ... ok
 test deadline::common::tests::new_and_fields ... ok
+test deadline::deadline_monitor::tests::get_deadline_unknown_tag ... ok
+test deadline::common::tests::concurrent_acquire ... ok
 test deadline::deadline_monitor::tests::deadline_failed_on_first_run_and_then_restarted_is_evaluated_as_error ... ok
 test deadline::deadline_monitor::tests::deadline_outside_time_range_is_error_when_dropped_after_evaluate ... ok
-test deadline::deadline_monitor::tests::get_deadline_unknown_tag ... ok
-test deadline::deadline_monitor::tests::start_stop_deadline_outside_ranges_is_error_when_dropped_before_evaluate ... ok
 test deadline::deadline_monitor::tests::start_stop_deadline_outside_ranges_is_evaluated_as_error ... ok
+test deadline::deadline_monitor::tests::start_stop_deadline_outside_ranges_is_error_when_dropped_before_evaluate ... ok
 test deadline::deadline_state::tests::as_u64_and_new ... ok
-test deadline::common::tests::concurrent_acquire ... ok
-test deadline::deadline_state::tests::deadline_state_default_and_snapshot ... ok
 test deadline::deadline_state::tests::deadline_state_update_none_returns_err ... ok
-test deadline::deadline_state::tests::default_state ... ok
+test deadline::deadline_state::tests::deadline_state_default_and_snapshot ... ok
 test deadline::deadline_state::tests::deadline_state_update_success ... ok
+test deadline::deadline_state::tests::default_state ... ok
 test deadline::deadline_state::tests::set_and_get_timestamp_ms ... ok
 test deadline::deadline_state::tests::set_running ... ok
 test deadline::deadline_state::tests::set_underrun ... ok
@@ -643,39 +656,39 @@ test deadline::ffi::tests::deadline_monitor_builder_add_deadline_invalid_range .
 test deadline::ffi::tests::deadline_monitor_builder_add_deadline_null_builder ... ok
 test deadline::ffi::tests::deadline_monitor_builder_add_deadline_null_deadline_tag ... ok
 test deadline::ffi::tests::deadline_monitor_builder_add_deadline_succeeds ... ok
-test deadline::ffi::tests::deadline_monitor_builder_create_null_builder ... ok
 test deadline::ffi::tests::deadline_monitor_builder_create_succeeds ... ok
-test deadline::ffi::tests::deadline_monitor_builder_destroy_null_builder ... ok
+test deadline::ffi::tests::deadline_monitor_builder_create_null_builder ... ok
 test deadline::ffi::tests::deadline_monitor_destroy_null_monitor ... ok
-test deadline::ffi::tests::deadline_monitor_get_deadline_null_deadline_handle ... ok
+test deadline::ffi::tests::deadline_monitor_builder_destroy_null_builder ... ok
 test deadline::ffi::tests::deadline_monitor_get_deadline_null_deadline_tag ... ok
 test deadline::ffi::tests::deadline_monitor_get_deadline_null_monitor ... ok
+test deadline::ffi::tests::deadline_monitor_get_deadline_null_deadline_handle ... ok
 test deadline::ffi::tests::deadline_monitor_get_deadline_succeeds ... ok
 test deadline::ffi::tests::deadline_monitor_get_deadline_unknown_deadline ... ok
 test deadline::ffi::tests::deadline_start_already_started ... ok
 test deadline::ffi::tests::deadline_start_succeeds ... ok
-test deadline::ffi::tests::deadline_stop_null_deadline ... ok
-test deadline::ffi::tests::deadline_stop_succeeds ... ok
-test ffi::tests::health_monitor_builder_add_deadline_monitor_null_deadline_monitor_builder ... ok
-test ffi::tests::health_monitor_builder_add_deadline_monitor_null_hmon_builder ... ok
 test deadline::ffi::tests::deadline_start_null_deadline ... ok
+test deadline::ffi::tests::deadline_stop_succeeds ... ok
+test deadline::ffi::tests::deadline_stop_null_deadline ... ok
+test ffi::tests::health_monitor_builder_add_deadline_monitor_null_deadline_monitor_builder ... ok
 test ffi::tests::health_monitor_builder_add_deadline_monitor_null_monitor_tag ... ok
+test ffi::tests::health_monitor_builder_add_deadline_monitor_null_hmon_builder ... ok
 test ffi::tests::health_monitor_builder_add_deadline_monitor_succeeds ... ok
 test ffi::tests::health_monitor_builder_add_heartbeat_monitor_null_heartbeat_monitor_builder ... ok
-test ffi::tests::health_monitor_builder_add_heartbeat_monitor_null_hmon_builder ... ok
 test ffi::tests::health_monitor_builder_add_heartbeat_monitor_null_monitor_tag ... ok
-test ffi::tests::health_monitor_builder_add_logic_monitor_null_hmon_builder ... ok
 test ffi::tests::health_monitor_builder_add_heartbeat_monitor_succeeds ... ok
+test ffi::tests::health_monitor_builder_add_logic_monitor_null_hmon_builder ... ok
 test ffi::tests::health_monitor_builder_add_logic_monitor_null_logic_monitor_builder ... ok
+test ffi::tests::health_monitor_builder_add_heartbeat_monitor_null_hmon_builder ... ok
 test ffi::tests::health_monitor_builder_add_logic_monitor_null_monitor_tag ... ok
 test ffi::tests::health_monitor_builder_add_logic_monitor_succeeds ... ok
 test ffi::tests::health_monitor_builder_build_invalid_cycle_intervals ... ok
 test ffi::tests::health_monitor_builder_build_no_monitors ... ok
-test ffi::tests::health_monitor_builder_build_null_builder_handle ... ok
 test ffi::tests::health_monitor_builder_build_null_monitor_handle ... ok
 test ffi::tests::health_monitor_builder_build_succeeds ... ok
 test ffi::tests::health_monitor_builder_build_thread_parameters ... ok
 test ffi::tests::health_monitor_builder_build_valid_cycle_intervals_succeeds ... ok
+test ffi::tests::health_monitor_builder_build_null_builder_handle ... ok
 test ffi::tests::health_monitor_builder_create_null_handle ... ok
 test ffi::tests::health_monitor_builder_create_succeeds ... ok
 test ffi::tests::health_monitor_builder_destroy_null_handle ... ok
@@ -686,7 +699,6 @@ test ffi::tests::health_monitor_get_deadline_monitor_null_hmon ... ok
 test ffi::tests::health_monitor_get_deadline_monitor_null_monitor_tag ... ok
 test ffi::tests::health_monitor_get_deadline_monitor_succeeds ... ok
 test ffi::tests::health_monitor_get_heartbeat_monitor_already_taken ... ok
-test ffi::tests::health_monitor_get_heartbeat_monitor_null_heartbeat_monitor ... ok
 test ffi::tests::health_monitor_get_heartbeat_monitor_null_hmon ... ok
 test ffi::tests::health_monitor_get_heartbeat_monitor_null_monitor_tag ... ok
 test ffi::tests::health_monitor_get_heartbeat_monitor_succeeds ... ok
@@ -694,14 +706,14 @@ test ffi::tests::health_monitor_get_logic_monitor_already_taken ... ok
 test ffi::tests::health_monitor_get_logic_monitor_null_hmon ... ok
 test ffi::tests::health_monitor_get_logic_monitor_null_logic_monitor ... ok
 test ffi::tests::health_monitor_get_logic_monitor_null_monitor_tag ... ok
-test ffi::tests::health_monitor_get_logic_monitor_succeeds ... ok
+test ffi::tests::health_monitor_get_heartbeat_monitor_null_heartbeat_monitor ... ok
 test ffi::tests::health_monitor_start_monitor_not_taken ... ok
 test ffi::tests::health_monitor_start_null_hmon ... ok
-[2026/04/27 15:58:53.7339062][9561][HMON][INFO] Monitoring thread started.
-[2026/04/27 15:58:53.7339231][9561][HMON][INFO] Monitoring thread exiting.
-test health_monitor::tests::health_monitor_builder_build_invalid_cycles ... ok
+[2026/04/27 16:06:56.8988194][9464][HMON][INFO] Monitoring thread started.
+[2026/04/27 16:06:56.8988342][9464][HMON][INFO] Monitoring thread exiting.
 test ffi::tests::health_monitor_start_succeeds ... ok
-test health_monitor::tests::health_monitor_builder_build_no_monitors ... ok
+test health_monitor::tests::health_monitor_builder_build_invalid_cycles ... ok
+test ffi::tests::health_monitor_get_logic_monitor_succeeds ... ok
 test health_monitor::tests::health_monitor_builder_build_succeeds ... ok
 test health_monitor::tests::health_monitor_builder_new_succeeds ... ok
 test health_monitor::tests::health_monitor_get_deadline_monitor_available ... ok
@@ -709,22 +721,23 @@ test health_monitor::tests::health_monitor_get_deadline_monitor_invalid_state ..
 test health_monitor::tests::health_monitor_get_deadline_monitor_taken ... ok
 test health_monitor::tests::health_monitor_get_deadline_monitor_unknown ... ok
 test health_monitor::tests::health_monitor_get_heartbeat_monitor_available ... ok
+test health_monitor::tests::health_monitor_builder_build_no_monitors ... ok
 test health_monitor::tests::health_monitor_get_heartbeat_monitor_invalid_state ... ok
 test health_monitor::tests::health_monitor_get_heartbeat_monitor_taken ... ok
 test health_monitor::tests::health_monitor_get_heartbeat_monitor_unknown ... ok
-test health_monitor::tests::health_monitor_get_logic_monitor_available ... ok
 test health_monitor::tests::health_monitor_get_logic_monitor_invalid_state ... ok
 test health_monitor::tests::health_monitor_get_logic_monitor_taken ... ok
 test health_monitor::tests::health_monitor_get_logic_monitor_unknown ... ok
 test health_monitor::tests::health_monitor_start_monitors_not_taken - should panic ... ok
-[2026/04/27 15:58:53.7352193][9561][HMON][INFO] Monitoring thread started.
-[2026/04/27 15:58:53.7352303][9561][HMON][INFO] Monitoring thread exiting.
-test heartbeat::ffi::tests::heartbeat_monitor_builder_create_invalid_range ... ok
+test health_monitor::tests::health_monitor_get_logic_monitor_available ... ok
+[2026/04/27 16:06:56.9021345][9464][HMON][INFO] Monitoring thread started.
+[2026/04/27 16:06:56.9021517][9464][HMON][INFO] Monitoring thread exiting.
 test health_monitor::tests::health_monitor_start_succeeds ... ok
 test heartbeat::ffi::tests::heartbeat_monitor_builder_create_null_builder ... ok
-test heartbeat::ffi::tests::heartbeat_monitor_builder_destroy_null_builder ... ok
 test heartbeat::ffi::tests::heartbeat_monitor_builder_create_succeeds ... ok
+test heartbeat::ffi::tests::heartbeat_monitor_builder_destroy_null_builder ... ok
 test heartbeat::ffi::tests::heartbeat_monitor_destroy_null_monitor ... ok
+test heartbeat::ffi::tests::heartbeat_monitor_builder_create_invalid_range ... ok
 test heartbeat::ffi::tests::heartbeat_monitor_heartbeat_null_monitor ... ok
 test heartbeat::ffi::tests::heartbeat_monitor_heartbeat_succeeds ... ok
 test deadline::deadline_monitor::tests::monitor_with_multiple_running_deadlines ... ok
@@ -740,9 +753,9 @@ test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_cycle_early ... ok
 test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_multiple_beats_early_evaluate_early ... ok
 test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_cycle_in_range ... ok
 test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_multiple_beats_early_evaluate_in_range ... ok
+test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_multiple_beats_in_range_evaluate_in_range ... ok
 test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_cycle_late ... ok
 test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_multiple_beats_early_evaluate_late ... ok
-test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_multiple_beats_in_range_evaluate_in_range ... ok
 test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_no_beat_evaluate_early ... ok
 test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_no_beat_evaluate_in_range ... ok
 test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_multiple_beats_in_range_evaluate_late ... ok
@@ -843,33 +856,20 @@ test thread_ffi::tests::thread_parameters_scheduler_parameters_succeeds ... ok
 test thread_ffi::tests::thread_parameters_stack_size_null_handle ... ok
 test thread_ffi::tests::thread_parameters_stack_size_succeeds ... ok
 test worker::tests::monitoring_logic_report_alive_on_each_call_when_no_error ... ok
-test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_no_beat_evaluate_late ... ok
-test worker::tests::monitoring_logic_report_error_when_deadline_failed ... ok
-[2026/04/27 15:58:54.6941634][9561][HMON][INFO] Monitoring thread started.
 test deadline::deadline_monitor::tests::start_stop_deadline_within_range_works ... ok
-[2026/04/27 15:58:54.7550165][9561][HMON][WARN] Deadline (DeadlineTag(deadline_fast)) missed! Expected: 50, now: 60
-[2026/04/27 15:58:54.7550610][9561][HMON][WARN] Deadline monitor with tag MonitorTag(deadline_monitor) reported error: TooLate.
-[2026/04/27 15:58:54.7550679][9561][HMON][WARN] One or more monitors reported errors, skipping AliveAPI notification.
-[2026/04/27 15:58:54.7550726][9561][HMON][INFO] Monitoring logic failed, stopping thread.
-[2026/04/27 15:58:54.7550770][9561][HMON][INFO] Monitoring thread exiting.
+test worker::tests::monitoring_logic_report_error_when_deadline_failed ... ok
+[2026/04/27 16:06:57.8640223][9464][HMON][INFO] Monitoring thread started.
+test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_no_beat_evaluate_late ... ok
+[2026/04/27 16:06:57.9245152][9464][HMON][WARN] Deadline (DeadlineTag(deadline_fast)) missed! Expected: 50, now: 60
+[2026/04/27 16:06:57.9245426][9464][HMON][WARN] Deadline monitor with tag MonitorTag(deadline_monitor) reported error: TooLate.
+[2026/04/27 16:06:57.9245506][9464][HMON][WARN] One or more monitors reported errors, skipping AliveAPI notification.
+[2026/04/27 16:06:57.9245560][9464][HMON][INFO] Monitoring logic failed, stopping thread.
+[2026/04/27 16:06:57.9245614][9464][HMON][INFO] Monitoring thread exiting.
 test worker::tests::monitoring_logic_report_alive_respect_cycle ... ok
 test worker::tests::unique_thread_runner_monitoring_works ... ok
 test heartbeat::heartbeat_monitor::tests::heartbeat_monitor_timestamp_offset ... ok
 
-test result: ok. 232 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.25s
-</pre></div>
-</div>
-<p class="rubric">tests-report/src/health_monitoring_lib/loom_tests/test.log</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
-Executing tests from //src/health_monitoring_lib:loom_tests
------------------------------------------------------------------------------
-
-running 3 tests
-test heartbeat::heartbeat_monitor::loom_tests::heartbeat_monitor_heartbeat_evaluate_too_early ... ok
-test heartbeat::heartbeat_monitor::loom_tests::heartbeat_monitor_heartbeat_evaluate_in_range ... ok
-test heartbeat::heartbeat_monitor::loom_tests::heartbeat_monitor_heartbeat_evaluate_too_late ... ok
-
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.70s
+test result: ok. 232 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.28s
 </pre></div>
 </div>
 <p class="rubric">tests-report/src/health_monitoring_lib/cpp_tests/test.log</p>
@@ -881,20 +881,14 @@ Running main() from gmock_main.cc
 [----------] Global test environment set-up.
 [----------] 1 test from HealthMonitorTest
 [ RUN      ] HealthMonitorTest.TestName
-[2026/04/27 15:58:52.0987854][src/health_monitoring_lib/rust/worker.rs:121][9507][HMON][INFO] Monitoring thread started.
-[2026/04/27 15:58:52.0995562][src/health_monitoring_lib/rust/deadline/deadline_monitor.rs:217][9507][HMON][ERROR] Deadline DeadlineTag(deadline_1) stopped too early by 99 ms
-[2026/04/27 15:58:52.1496814][src/health_monitoring_lib/rust/deadline/deadline_monitor.rs:267][9507][HMON][WARN] Deadline (DeadlineTag(deadline_1)) finished too early!
-[2026/04/27 15:58:52.1497200][src/health_monitoring_lib/rust/worker.rs:58][9507][HMON][WARN] Deadline monitor with tag MonitorTag(deadline_monitor) reported error: TooEarly.
-[2026/04/27 15:58:52.1497330][src/health_monitoring_lib/rust/heartbeat/heartbeat_monitor.rs:253][9507][HMON][WARN] Heartbeat occurred too early, offset to range: 100
-[2026/04/27 15:58:52.1497409][src/health_monitoring_lib/rust/worker.rs:64][9507][HMON][WARN] Heartbeat monitor with tag MonitorTag(heartbeat_monitor) reported error: TooEarly.
-[2026/04/27 15:58:52.1497495][src/health_monitoring_lib/rust/worker.rs:85][9507][HMON][WARN] One or more monitors reported errors, skipping AliveAPI notification.
-[2026/04/27 15:58:52.1497561][src/health_monitoring_lib/rust/worker.rs:132][9507][HMON][INFO] Monitoring logic failed, stopping thread.
-[2026/04/27 15:58:52.1497630][src/health_monitoring_lib/rust/worker.rs:139][9507][HMON][INFO] Monitoring thread exiting.
-[       OK ] HealthMonitorTest.TestName (51 ms)
-[----------] 1 test from HealthMonitorTest (51 ms total)
+[2026/04/27 16:06:57.6408090][src/health_monitoring_lib/rust/deadline/deadline_monitor.rs:217][9636][HMON][ERROR] Deadline DeadlineTag(deadline_1) stopped too early by 100 ms
+[2026/04/27 16:06:57.6408358][src/health_monitoring_lib/rust/worker.rs:121][9636][HMON][INFO] Monitoring thread started.
+[2026/04/27 16:06:57.6408516][src/health_monitoring_lib/rust/worker.rs:139][9636][HMON][INFO] Monitoring thread exiting.
+[       OK ] HealthMonitorTest.TestName (0 ms)
+[----------] 1 test from HealthMonitorTest (0 ms total)
 
 [----------] Global test environment tear-down
-[==========] 1 test from 1 test suite ran. (52 ms total)
+[==========] 1 test from 1 test suite ran. (0 ms total)
 [  PASSED  ] 1 test.
 </pre></div>
 </div>
@@ -904,112 +898,112 @@ Executing tests from //tests/integration/smoke:smoke
 -----------------------------------------------------------------------------
 ============================= test session starts ==============================
 platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.5.0
-rootdir: /home/runner/.bazel/sandbox/processwrapper-sandbox/671/execroot/_main/bazel-out/k8-fastbuild/bin/tests/integration/smoke/smoke.runfiles/score_itf+
+rootdir: /home/runner/.bazel/sandbox/processwrapper-sandbox/651/execroot/_main/bazel-out/k8-fastbuild/bin/tests/integration/smoke/smoke.runfiles/score_itf+
 configfile: pytest.ini
 collected 1 item
 
 ../score_itf+::test_smoke 
 -------------------------------- live log setup --------------------------------
-[2026-04-27 15:57:19.802] [INFO] [score.itf.plugins.docker] Executing custom image bootstrap command: tests/utils/environments/x86_64-linux/x86_64-linux.sh
-[2026-04-27 15:57:21.656] [DEBUG] [docker.utils.config] Trying paths: [&#39;/home/runner/.docker/config.json&#39;, &#39;/home/runner/.dockercfg&#39;]
-[2026-04-27 15:57:21.657] [DEBUG] [docker.utils.config] Found file at path: /home/runner/.docker/config.json
-[2026-04-27 15:57:21.657] [DEBUG] [docker.auth] Found &#39;auths&#39; section
-[2026-04-27 15:57:21.657] [DEBUG] [docker.auth] Found entry (registry=&#39;https://index.docker.io/v1/&#39;, username=&#39;githubactions&#39;)
-[2026-04-27 15:57:21.685] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /version HTTP/1.1&quot; 200 823
-[2026-04-27 15:57:22.101] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/create HTTP/1.1&quot; 201 88
-[2026-04-27 15:57:22.103] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/containers/333a41874afafa50379de69505e1aa6ef1ccb4ef16be97845d33eed9c1a01a17/json HTTP/1.1&quot; 200 None
-[2026-04-27 15:57:22.338] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/333a41874afafa50379de69505e1aa6ef1ccb4ef16be97845d33eed9c1a01a17/start HTTP/1.1&quot; 204 0
-[2026-04-27 15:57:22.338] [DEBUG] [docker.utils.config] Trying paths: [&#39;/home/runner/.docker/config.json&#39;, &#39;/home/runner/.dockercfg&#39;]
-[2026-04-27 15:57:22.339] [DEBUG] [docker.utils.config] Found file at path: /home/runner/.docker/config.json
-[2026-04-27 15:57:22.339] [DEBUG] [docker.auth] Found &#39;auths&#39; section
-[2026-04-27 15:57:22.339] [DEBUG] [docker.auth] Found entry (registry=&#39;https://index.docker.io/v1/&#39;, username=&#39;githubactions&#39;)
-[2026-04-27 15:57:22.363] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /version HTTP/1.1&quot; 200 823
-[2026-04-27 15:57:22.372] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/333a41874afafa50379de69505e1aa6ef1ccb4ef16be97845d33eed9c1a01a17/exec HTTP/1.1&quot; 201 74
-[2026-04-27 15:57:22.380] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/c58403bc22a166a83dbda0bab6fa4e47678957a6fd7448ff28e67b381b67fea1/start HTTP/1.1&quot; 101 0
-[2026-04-27 15:57:22.610] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/c58403bc22a166a83dbda0bab6fa4e47678957a6fd7448ff28e67b381b67fea1/json HTTP/1.1&quot; 200 390
-[2026-04-27 15:57:22.734] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;PUT /v1.48/containers/333a41874afafa50379de69505e1aa6ef1ccb4ef16be97845d33eed9c1a01a17/archive?path=%2Ftmp HTTP/1.1&quot; 200 0
-[2026-04-27 15:57:22.741] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/333a41874afafa50379de69505e1aa6ef1ccb4ef16be97845d33eed9c1a01a17/exec HTTP/1.1&quot; 201 74
-[2026-04-27 15:57:22.758] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/40965c9dfaa046af581317a83e201216089ba9f18c43f6eb3f25ea46ab4401da/start HTTP/1.1&quot; 101 0
-[2026-04-27 15:57:22.857] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/40965c9dfaa046af581317a83e201216089ba9f18c43f6eb3f25ea46ab4401da/json HTTP/1.1&quot; 200 416
-[2026-04-27 15:57:22.857] [INFO] [tests.utils.testing_utils.setup_test] Test case setup finished
+[2026-04-27 16:04:43.234] [INFO] [score.itf.plugins.docker] Executing custom image bootstrap command: tests/utils/environments/x86_64-linux/x86_64-linux.sh
+[2026-04-27 16:04:44.609] [DEBUG] [docker.utils.config] Trying paths: [&#39;/home/runner/.docker/config.json&#39;, &#39;/home/runner/.dockercfg&#39;]
+[2026-04-27 16:04:44.610] [DEBUG] [docker.utils.config] Found file at path: /home/runner/.docker/config.json
+[2026-04-27 16:04:44.610] [DEBUG] [docker.auth] Found &#39;auths&#39; section
+[2026-04-27 16:04:44.610] [DEBUG] [docker.auth] Found entry (registry=&#39;https://index.docker.io/v1/&#39;, username=&#39;githubactions&#39;)
+[2026-04-27 16:04:44.617] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /version HTTP/1.1&quot; 200 823
+[2026-04-27 16:04:45.149] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/create HTTP/1.1&quot; 201 88
+[2026-04-27 16:04:45.154] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/containers/98579afdfcee2bdf47b16b125b7b3ccb90982ab67f86f6836f124d18d834f656/json HTTP/1.1&quot; 200 None
+[2026-04-27 16:04:45.347] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/98579afdfcee2bdf47b16b125b7b3ccb90982ab67f86f6836f124d18d834f656/start HTTP/1.1&quot; 204 0
+[2026-04-27 16:04:45.350] [DEBUG] [docker.utils.config] Trying paths: [&#39;/home/runner/.docker/config.json&#39;, &#39;/home/runner/.dockercfg&#39;]
+[2026-04-27 16:04:45.350] [DEBUG] [docker.utils.config] Found file at path: /home/runner/.docker/config.json
+[2026-04-27 16:04:45.351] [DEBUG] [docker.auth] Found &#39;auths&#39; section
+[2026-04-27 16:04:45.351] [DEBUG] [docker.auth] Found entry (registry=&#39;https://index.docker.io/v1/&#39;, username=&#39;githubactions&#39;)
+[2026-04-27 16:04:45.358] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /version HTTP/1.1&quot; 200 823
+[2026-04-27 16:04:45.361] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/98579afdfcee2bdf47b16b125b7b3ccb90982ab67f86f6836f124d18d834f656/exec HTTP/1.1&quot; 201 74
+[2026-04-27 16:04:45.364] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/d5e97e6e8886d048dd75f187a4640a8041e31a6f41dcf12b3903418b343131ba/start HTTP/1.1&quot; 101 0
+[2026-04-27 16:04:45.431] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/d5e97e6e8886d048dd75f187a4640a8041e31a6f41dcf12b3903418b343131ba/json HTTP/1.1&quot; 200 390
+[2026-04-27 16:04:45.585] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;PUT /v1.48/containers/98579afdfcee2bdf47b16b125b7b3ccb90982ab67f86f6836f124d18d834f656/archive?path=%2Ftmp HTTP/1.1&quot; 200 0
+[2026-04-27 16:04:45.590] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/98579afdfcee2bdf47b16b125b7b3ccb90982ab67f86f6836f124d18d834f656/exec HTTP/1.1&quot; 201 74
+[2026-04-27 16:04:45.595] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/5e350a0f68a8c034c8ba2586a25a9ac463ac64ddfafcb93962df8414cf0e251f/start HTTP/1.1&quot; 101 0
+[2026-04-27 16:04:45.687] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/5e350a0f68a8c034c8ba2586a25a9ac463ac64ddfafcb93962df8414cf0e251f/json HTTP/1.1&quot; 200 416
+[2026-04-27 16:04:45.687] [INFO] [tests.utils.testing_utils.setup_test] Test case setup finished
 -------------------------------- live log call ---------------------------------
-[2026-04-27 15:57:22.866] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/333a41874afafa50379de69505e1aa6ef1ccb4ef16be97845d33eed9c1a01a17/exec HTTP/1.1&quot; 201 74
-[2026-04-27 15:57:22.875] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/93d03f0ac6c8c42df555e8de0016ccb1e0d65ab1b0240c5dfad7bf511fc1293d/start HTTP/1.1&quot; 101 0
-[2026-04-27 15:57:22.931] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/93d03f0ac6c8c42df555e8de0016ccb1e0d65ab1b0240c5dfad7bf511fc1293d/json HTTP/1.1&quot; 200 404
-[2026-04-27 15:57:22.935] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/333a41874afafa50379de69505e1aa6ef1ccb4ef16be97845d33eed9c1a01a17/exec HTTP/1.1&quot; 201 74
-[2026-04-27 15:57:22.938] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/17d13319f9c39df42f33551d48a6873dcff65aa4a3b4e1c8a357e2b7370c22a5/start HTTP/1.1&quot; 101 0
-[2026-04-27 15:57:23.008] [INFO] [launch_manager] [0;32m 2026/4/27 15:57:23 LCHM Fcty INFO:    [ Factory for FlatCfg MachineConfig: Loading of HM Machine Configuration succeeded. ][0m
-[2026-04-27 15:57:23.012] [INFO] [launch_manager] [101;30m !!! -&gt; [0m [0;32m 2026/4/27 15:57:23 LCHM Fcty WARNING: [ Factory for FlatCfg MachineConfig: No watchdog configured ][0m
-[2026-04-27 15:57:23.012] [INFO] [launch_manager] [0;32m 2026/4/27 15:57:23 LCHM Fcty INFO:    [ Phm Daemon: The (configured) periodicity in [ns] is set to: 50000000 ][0m
-[2026-04-27 15:57:23.013] [INFO] [launch_manager] [0;34m 2026/4/27 15:57:23 LCLM LCLM INFO:    [ LCM started successfully ][0m
-[2026-04-27 15:57:23.013] [INFO] [launch_manager] [==========] Running 1 test from 1 test suite.
-[2026-04-27 15:57:23.013] [INFO] [launch_manager] [----------] Global test environment set-up.
-[2026-04-27 15:57:23.013] [INFO] [launch_manager] [----------] 1 test from Smoke
-[2026-04-27 15:57:23.013] [INFO] [launch_manager] [ RUN      ] Smoke.Daemon
-[2026-04-27 15:57:23.013] [INFO] [launch_manager] [ STEP     ] Control daemon report kRunning
-[2026-04-27 15:57:23.010] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/17d13319f9c39df42f33551d48a6873dcff65aa4a3b4e1c8a357e2b7370c22a5/json HTTP/1.1&quot; 200 442
-[2026-04-27 15:57:23.016] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/333a41874afafa50379de69505e1aa6ef1ccb4ef16be97845d33eed9c1a01a17/exec HTTP/1.1&quot; 201 74
-[2026-04-27 15:57:23.019] [INFO] [launch_manager] [ END STEP ] Control daemon report kRunning
-[2026-04-27 15:57:23.019] [INFO] [launch_manager] [ STEP     ] Activate RunTarget Running
-[2026-04-27 15:57:23.019] [INFO] [launch_manager] [101;30m !!! -&gt; [0m [0;34m 2026/4/27 15:57:23 LCLM LCLM FATAL:   [ clock() at failed initial state transition: 39.107 ms ][0m
-[2026-04-27 15:57:23.019] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/0fd5c1c895fe0b419541d5874605522c3373282f8bef7672d2c32bb69351b236/start HTTP/1.1&quot; 101 0
-[2026-04-27 15:57:23.024] [INFO] [launch_manager] [==========] Running 1 test from 1 test suite.
-[2026-04-27 15:57:23.025] [INFO] [launch_manager] [----------] Global test environment set-up.
-[2026-04-27 15:57:23.025] [INFO] [launch_manager] [----------] 1 test from Smoke
-[2026-04-27 15:57:23.025] [INFO] [launch_manager] [ RUN      ] Smoke.Process
-[2026-04-27 15:57:23.028] [INFO] [launch_manager] [       OK ] Smoke.Process (2 ms)
-[2026-04-27 15:57:23.028] [INFO] [launch_manager] [----------] 1 test from Smoke (2 ms total)
-[2026-04-27 15:57:23.029] [INFO] [launch_manager] [----------] Global test environment tear-down
-[2026-04-27 15:57:23.029] [INFO] [launch_manager]  [0;34m 2026/4/27 15:57:23 LCLM LCLM INFO:    [ Completed the request for PG MainPG to State MainPG/Running in 11 ms ][0m
-[2026-04-27 15:57:23.029] [INFO] [launch_manager] [==========] 1 test from 1 test suite ran. (2 ms total)
-[2026-04-27 15:57:23.029] [INFO] [launch_manager] [  PASSED  ] 1 test.
-[2026-04-27 15:57:23.069] [INFO] [launch_manager] [0;32m 2026/4/27 15:57:23 LCHM Sprv INFO:    [ Alive Supervision ( control_daemon_alive_supervision ) switched to OK. ][0m
-[2026-04-27 15:57:23.069] [INFO] [launch_manager]  [0;32m 2026/4/27 15:57:23 LCHM Sprv INFO:    [ Local Supervision ( control_daemon_local_supervision ) switched to OK. ][0m
-[2026-04-27 15:57:23.069] [INFO] [launch_manager]  [0;32m 2026/4/27 15:57:23 LCHM Sprv INFO:    [ Global Supervision ( global_supervision ) switched to OK. ][0m
-[2026-04-27 15:57:23.075] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/0fd5c1c895fe0b419541d5874605522c3373282f8bef7672d2c32bb69351b236/json HTTP/1.1&quot; 200 404
-[2026-04-27 15:57:23.077] [DEBUG] [tests.utils.testing_utils.run_until_file_deployed] Waiting for /tmp/tests/test_end
-[2026-04-27 15:57:23.112] [INFO] [launch_manager] [ END STEP ] Activate RunTarget Running
-[2026-04-27 15:57:23.112] [INFO] [launch_manager] [ STEP     ] Activate RunTarget Startup
-[2026-04-27 15:57:23.117] [INFO] [launch_manager] [0;34m 2026/4/27 15:57:23 LCLM LCLM INFO:    [ Completed the request for PG MainPG to State MainPG/Startup in 2 ms ][0m
-[2026-04-27 15:57:23.212] [INFO] [launch_manager] [ END STEP ] Activate RunTarget Startup
-[2026-04-27 15:57:23.212] [INFO] [launch_manager] [ STEP     ] Activate RunTarget Off
-[2026-04-27 15:57:23.214] [INFO] [launch_manager] [ END STEP ] Activate RunTarget Off
-[2026-04-27 15:57:23.214] [INFO] [launch_manager] [       OK ] Smoke.Daemon (201 ms)
-[2026-04-27 15:57:23.214] [INFO] [launch_manager] [----------] 1 test from Smoke (201 ms total)
-[2026-04-27 15:57:23.214] [INFO] [launch_manager] [----------] Global test environment tear-down
-[2026-04-27 15:57:23.216] [INFO] [launch_manager] [==========] 1 test from 1 test suite ran. (201 ms total)
-[2026-04-27 15:57:23.216] [INFO] [launch_manager] [  PASSED  ] 1 test.
-[2026-04-27 15:57:23.315] [INFO] [launch_manager] [0;34m 2026/4/27 15:57:23 LCLM LCLM INFO:    [ Completed the request for PG MainPG to State MainPG/Off in 101 ms ][0m
-[2026-04-27 15:57:23.590] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/17d13319f9c39df42f33551d48a6873dcff65aa4a3b4e1c8a357e2b7370c22a5/json HTTP/1.1&quot; 200 442
-[2026-04-27 15:57:23.593] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/333a41874afafa50379de69505e1aa6ef1ccb4ef16be97845d33eed9c1a01a17/exec HTTP/1.1&quot; 201 74
-[2026-04-27 15:57:23.595] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/8f58485b2b5e185c85e7663baa0557954ad824f71467b7680e574b8933bc511e/start HTTP/1.1&quot; 101 0
-[2026-04-27 15:57:23.652] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/8f58485b2b5e185c85e7663baa0557954ad824f71467b7680e574b8933bc511e/json HTTP/1.1&quot; 200 404
-[2026-04-27 15:57:23.657] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/333a41874afafa50379de69505e1aa6ef1ccb4ef16be97845d33eed9c1a01a17/exec HTTP/1.1&quot; 201 74
-[2026-04-27 15:57:23.678] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/35c8b4ca0f2a689b2c574f75e971ec66b467d34ca430d47b859bce9e9121952b/start HTTP/1.1&quot; 101 0
-[2026-04-27 15:57:23.722] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/35c8b4ca0f2a689b2c574f75e971ec66b467d34ca430d47b859bce9e9121952b/json HTTP/1.1&quot; 200 389
-[2026-04-27 15:57:23.738] [INFO] [launch_manager] [0;34m 2026/4/27 15:57:23 LCLM LCLM INFO:    [ Completed the request for PG MainPG to State MainPG/Off in 0 ms ][0m
-[2026-04-27 15:57:23.860] [INFO] [launch_manager] [0;32m 2026/4/27 15:57:23 LCHM Fcty INFO:    [ Phm Daemon: Received termination request - shutting down ][0m
-[2026-04-27 15:57:23.862] [INFO] [launch_manager] [0;34m 2026/4/27 15:57:23 LCLM LCLM INFO:    [ Launch Manager completed with exit code value: 0 ][0m
-[2026-04-27 15:57:24.225] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/17d13319f9c39df42f33551d48a6873dcff65aa4a3b4e1c8a357e2b7370c22a5/json HTTP/1.1&quot; 200 440
-[2026-04-27 15:57:24.230] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/333a41874afafa50379de69505e1aa6ef1ccb4ef16be97845d33eed9c1a01a17/exec HTTP/1.1&quot; 201 74
-[2026-04-27 15:57:24.232] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/6a66f04d21c4a143b3963067eebbd85c8adfe0ab8961ed2c1764467c20148bed/start HTTP/1.1&quot; 101 0
-[2026-04-27 15:57:24.294] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/6a66f04d21c4a143b3963067eebbd85c8adfe0ab8961ed2c1764467c20148bed/json HTTP/1.1&quot; 200 402
-[2026-04-27 15:57:24.303] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/containers/333a41874afafa50379de69505e1aa6ef1ccb4ef16be97845d33eed9c1a01a17/archive?path=%2Ftmp%2Ftests%2Fsmoke%2Fcontrol_daemon_mock.xml HTTP/1.1&quot; 200 None
-[2026-04-27 15:57:24.314] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/333a41874afafa50379de69505e1aa6ef1ccb4ef16be97845d33eed9c1a01a17/exec HTTP/1.1&quot; 201 74
-[2026-04-27 15:57:24.316] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/5fff99fee202d0be46ce7ed9b0c2f6163d3de79f38b155cd6a4c15a860e3020c/start HTTP/1.1&quot; 101 0
-[2026-04-27 15:57:24.376] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/5fff99fee202d0be46ce7ed9b0c2f6163d3de79f38b155cd6a4c15a860e3020c/json HTTP/1.1&quot; 200 420
-[2026-04-27 15:57:24.384] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/containers/333a41874afafa50379de69505e1aa6ef1ccb4ef16be97845d33eed9c1a01a17/archive?path=%2Ftmp%2Ftests%2Fsmoke%2Fgtest_process.xml HTTP/1.1&quot; 200 None
-[2026-04-27 15:57:24.390] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/333a41874afafa50379de69505e1aa6ef1ccb4ef16be97845d33eed9c1a01a17/exec HTTP/1.1&quot; 201 74
-[2026-04-27 15:57:24.396] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/535be5142d176ac73a3966b89a60ea06bd5d8ff4177927a96553e3177f77728e/start HTTP/1.1&quot; 101 0
-[2026-04-27 15:57:24.472] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/535be5142d176ac73a3966b89a60ea06bd5d8ff4177927a96553e3177f77728e/json HTTP/1.1&quot; 200 414
+[2026-04-27 16:04:45.707] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/98579afdfcee2bdf47b16b125b7b3ccb90982ab67f86f6836f124d18d834f656/exec HTTP/1.1&quot; 201 74
+[2026-04-27 16:04:45.721] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/b4b84999bd352892fdeb749432ed25f0cb1b0a3b304edd6ea92d910a581b855b/start HTTP/1.1&quot; 101 0
+[2026-04-27 16:04:45.792] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/b4b84999bd352892fdeb749432ed25f0cb1b0a3b304edd6ea92d910a581b855b/json HTTP/1.1&quot; 200 404
+[2026-04-27 16:04:45.801] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/98579afdfcee2bdf47b16b125b7b3ccb90982ab67f86f6836f124d18d834f656/exec HTTP/1.1&quot; 201 74
+[2026-04-27 16:04:45.803] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/33be84689a9a14adbef5b7f97699d6e703da3c1f536bf9e67e9af1d5d26f4d91/start HTTP/1.1&quot; 101 0
+[2026-04-27 16:04:45.862] [INFO] [launch_manager] [0;32m 2026/4/27 16:4:45 LCHM Fcty INFO:    [ Factory for FlatCfg MachineConfig: Loading of HM Machine Configuration succeeded. ][0m
+[2026-04-27 16:04:45.863] [INFO] [launch_manager] [101;30m !!! -&gt; [0m [0;32m 2026/4/27 16:4:45 LCHM Fcty WARNING: [ Factory for FlatCfg MachineConfig: No watchdog configured ][0m
+[2026-04-27 16:04:45.863] [INFO] [launch_manager] [0;32m 2026/4/27 16:4:45 LCHM Fcty INFO:    [ Phm Daemon: The (configured) periodicity in [ns] is set to: 50000000 ][0m
+[2026-04-27 16:04:45.863] [INFO] [launch_manager] [0;34m 2026/4/27 16:4:45 LCLM LCLM INFO:    [ LCM started successfully ][0m
+[2026-04-27 16:04:45.866] [INFO] [launch_manager] [==========] Running 1 test from 1 test suite.
+[2026-04-27 16:04:45.866] [INFO] [launch_manager] [----------] Global test environment set-up.
+[2026-04-27 16:04:45.866] [INFO] [launch_manager] [----------] 1 test from Smoke
+[2026-04-27 16:04:45.867] [INFO] [launch_manager] [ RUN      ] Smoke.Daemon
+[2026-04-27 16:04:45.867] [INFO] [launch_manager] [ STEP     ] Control daemon report kRunning
+[2026-04-27 16:04:45.867] [INFO] [launch_manager] [ END STEP ] Control daemon report kRunning
+[2026-04-27 16:04:45.867] [INFO] [launch_manager] [ STEP     ] Activate RunTarget Running
+[2026-04-27 16:04:45.867] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/33be84689a9a14adbef5b7f97699d6e703da3c1f536bf9e67e9af1d5d26f4d91/json HTTP/1.1&quot; 200 442
+[2026-04-27 16:04:45.872] [INFO] [launch_manager] [101;30m !!! -&gt; [0m [0;34m 2026/4/27 16:4:45 LCLM LCLM FATAL:   [ clock() at failed initial state transition: 39.878 ms ][0m
+[2026-04-27 16:04:45.874] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/98579afdfcee2bdf47b16b125b7b3ccb90982ab67f86f6836f124d18d834f656/exec HTTP/1.1&quot; 201 74
+[2026-04-27 16:04:45.879] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/87fed9a23b2257e0e0f7f1f24bb3e6fd780587e07f0955f2d4fff0b8f4526996/start HTTP/1.1&quot; 101 0
+[2026-04-27 16:04:45.882] [INFO] [launch_manager] [==========] Running 1 test from 1 test suite.
+[2026-04-27 16:04:45.882] [INFO] [launch_manager] [----------] Global test environment set-up.
+[2026-04-27 16:04:45.882] [INFO] [launch_manager] [----------] 1 test from Smoke
+[2026-04-27 16:04:45.882] [INFO] [launch_manager] [ RUN      ] Smoke.Process
+[2026-04-27 16:04:45.883] [INFO] [launch_manager] [       OK ] Smoke.Process (2 ms)
+[2026-04-27 16:04:45.883] [INFO] [launch_manager] [----------] 1 test from Smoke (2 ms total)
+[2026-04-27 16:04:45.883] [INFO] [launch_manager] [----------] Global test environment tear-down
+[2026-04-27 16:04:45.883] [INFO] [launch_manager] [0;34m 2026/4/27 16:4:45 LCLM LCLM INFO:    [ Completed the request for PG MainPG to State MainPG/Running in 9 ms ][0m
+[2026-04-27 16:04:45.883] [INFO] [launch_manager] [==========] 1 test from 1 test suite ran. (2 ms total)
+[2026-04-27 16:04:45.883] [INFO] [launch_manager] [  PASSED  ] 1 test.
+[2026-04-27 16:04:45.915] [INFO] [launch_manager] [0;32m 2026/4/27 16:4:45 LCHM Sprv INFO:    [ Alive Supervision ( control_daemon_alive_supervision ) switched to OK. ][0m
+[2026-04-27 16:04:45.915] [INFO] [launch_manager]  [0;32m 2026/4/27 16:4:45 LCHM Sprv INFO:    [ Local Supervision ( control_daemon_local_supervision ) switched to OK. ][0m
+[2026-04-27 16:04:45.915] [INFO] [launch_manager]  [0;32m 2026/4/27 16:4:45 LCHM Sprv INFO:    [ Global Supervision ( global_supervision ) switched to OK. ][0m
+[2026-04-27 16:04:45.945] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/87fed9a23b2257e0e0f7f1f24bb3e6fd780587e07f0955f2d4fff0b8f4526996/json HTTP/1.1&quot; 200 404
+[2026-04-27 16:04:45.945] [DEBUG] [tests.utils.testing_utils.run_until_file_deployed] Waiting for /tmp/tests/test_end
+[2026-04-27 16:04:45.965] [INFO] [launch_manager] [ END STEP ] Activate RunTarget Running
+[2026-04-27 16:04:45.965] [INFO] [launch_manager] [ STEP     ] Activate RunTarget Startup
+[2026-04-27 16:04:45.973] [INFO] [launch_manager] [0;34m 2026/4/27 16:4:45 LCLM LCLM INFO:    [ Completed the request for PG MainPG to State MainPG/Startup in 2 ms ][0m
+[2026-04-27 16:04:46.066] [INFO] [launch_manager] [ END STEP ] Activate RunTarget Startup
+[2026-04-27 16:04:46.066] [INFO] [launch_manager] [ STEP     ] Activate RunTarget Off
+[2026-04-27 16:04:46.066] [INFO] [launch_manager] [ END STEP ] Activate RunTarget Off
+[2026-04-27 16:04:46.066] [INFO] [launch_manager] [       OK ] Smoke.Daemon (201 ms)
+[2026-04-27 16:04:46.066] [INFO] [launch_manager] [----------] 1 test from Smoke (201 ms total)
+[2026-04-27 16:04:46.067] [INFO] [launch_manager] [----------] Global test environment tear-down
+[2026-04-27 16:04:46.067] [INFO] [launch_manager] [==========] 1 test from 1 test suite ran. (201 ms total)
+[2026-04-27 16:04:46.067] [INFO] [launch_manager] [  PASSED  ] 1 test.
+[2026-04-27 16:04:46.170] [INFO] [launch_manager] [0;34m 2026/4/27 16:4:46 LCLM LCLM INFO:    [ Completed the request for PG MainPG to State MainPG/Off in 100 ms ][0m
+[2026-04-27 16:04:46.448] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/33be84689a9a14adbef5b7f97699d6e703da3c1f536bf9e67e9af1d5d26f4d91/json HTTP/1.1&quot; 200 442
+[2026-04-27 16:04:46.452] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/98579afdfcee2bdf47b16b125b7b3ccb90982ab67f86f6836f124d18d834f656/exec HTTP/1.1&quot; 201 74
+[2026-04-27 16:04:46.453] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/1f550920cf78838245034b565740a939fbbfa62869388d2330782e6edf9e92b2/start HTTP/1.1&quot; 101 0
+[2026-04-27 16:04:46.534] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/1f550920cf78838245034b565740a939fbbfa62869388d2330782e6edf9e92b2/json HTTP/1.1&quot; 200 404
+[2026-04-27 16:04:46.540] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/98579afdfcee2bdf47b16b125b7b3ccb90982ab67f86f6836f124d18d834f656/exec HTTP/1.1&quot; 201 74
+[2026-04-27 16:04:46.553] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/01b10340b963b9c45faad58474cb3a6e6407b7f57862657353e4eb23dbb05c13/start HTTP/1.1&quot; 101 0
+[2026-04-27 16:04:46.611] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/01b10340b963b9c45faad58474cb3a6e6407b7f57862657353e4eb23dbb05c13/json HTTP/1.1&quot; 200 389
+[2026-04-27 16:04:46.693] [INFO] [launch_manager] [0;34m 2026/4/27 16:4:46 LCLM LCLM INFO:    [ Completed the request for PG MainPG to State MainPG/Off in 0 ms ][0m
+[2026-04-27 16:04:46.823] [INFO] [launch_manager] [0;32m 2026/4/27 16:4:46 LCHM Fcty INFO:    [ Phm Daemon: Received termination request - shutting down ][0m
+[2026-04-27 16:04:46.823] [INFO] [launch_manager]  [0;34m 2026/4/27 16:4:46 LCLM LCLM INFO:    [ Launch Manager completed with exit code value: 0 ][0m
+[2026-04-27 16:04:47.115] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/33be84689a9a14adbef5b7f97699d6e703da3c1f536bf9e67e9af1d5d26f4d91/json HTTP/1.1&quot; 200 440
+[2026-04-27 16:04:47.125] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/98579afdfcee2bdf47b16b125b7b3ccb90982ab67f86f6836f124d18d834f656/exec HTTP/1.1&quot; 201 74
+[2026-04-27 16:04:47.130] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/71349f10e4791c53c27bf023aa058b1d82f9f457f43854a86815a1e4738b2c38/start HTTP/1.1&quot; 101 0
+[2026-04-27 16:04:47.194] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/71349f10e4791c53c27bf023aa058b1d82f9f457f43854a86815a1e4738b2c38/json HTTP/1.1&quot; 200 402
+[2026-04-27 16:04:47.204] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/containers/98579afdfcee2bdf47b16b125b7b3ccb90982ab67f86f6836f124d18d834f656/archive?path=%2Ftmp%2Ftests%2Fsmoke%2Fcontrol_daemon_mock.xml HTTP/1.1&quot; 200 None
+[2026-04-27 16:04:47.214] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/98579afdfcee2bdf47b16b125b7b3ccb90982ab67f86f6836f124d18d834f656/exec HTTP/1.1&quot; 201 74
+[2026-04-27 16:04:47.220] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/625bdd58f32b74a79889d64a710fb8cb21c0233cf7e69f66aad02667d2f89e6d/start HTTP/1.1&quot; 101 0
+[2026-04-27 16:04:47.283] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/625bdd58f32b74a79889d64a710fb8cb21c0233cf7e69f66aad02667d2f89e6d/json HTTP/1.1&quot; 200 420
+[2026-04-27 16:04:47.299] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/containers/98579afdfcee2bdf47b16b125b7b3ccb90982ab67f86f6836f124d18d834f656/archive?path=%2Ftmp%2Ftests%2Fsmoke%2Fgtest_process.xml HTTP/1.1&quot; 200 None
+[2026-04-27 16:04:47.303] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/98579afdfcee2bdf47b16b125b7b3ccb90982ab67f86f6836f124d18d834f656/exec HTTP/1.1&quot; 201 74
+[2026-04-27 16:04:47.315] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/0974d6e19265a9578476f7927d8a8fe1abc48e8d01217539905d24224254b57f/start HTTP/1.1&quot; 101 0
+[2026-04-27 16:04:47.378] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/0974d6e19265a9578476f7927d8a8fe1abc48e8d01217539905d24224254b57f/json HTTP/1.1&quot; 200 414
 PASSED                                                                   [100%]
 ------------------------------ live log teardown -------------------------------
-[2026-04-27 15:57:24.625] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/333a41874afafa50379de69505e1aa6ef1ccb4ef16be97845d33eed9c1a01a17/stop?t=1 HTTP/1.1&quot; 204 0
-[2026-04-27 15:57:24.641] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;DELETE /v1.48/containers/333a41874afafa50379de69505e1aa6ef1ccb4ef16be97845d33eed9c1a01a17?v=False&amp;link=False&amp;force=True HTTP/1.1&quot; 204 0
+[2026-04-27 16:04:47.538] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/98579afdfcee2bdf47b16b125b7b3ccb90982ab67f86f6836f124d18d834f656/stop?t=1 HTTP/1.1&quot; 204 0
+[2026-04-27 16:04:47.570] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;DELETE /v1.48/containers/98579afdfcee2bdf47b16b125b7b3ccb90982ab67f86f6836f124d18d834f656?v=False&amp;link=False&amp;force=True HTTP/1.1&quot; 204 0
 
 
-- generated xml file: /home/runner/.bazel/sandbox/processwrapper-sandbox/671/execroot/_main/bazel-out/k8-fastbuild/testlogs/tests/integration/smoke/smoke/test.xml -
-============================== 1 passed in 4.89s ===============================
+- generated xml file: /home/runner/.bazel/sandbox/processwrapper-sandbox/651/execroot/_main/bazel-out/k8-fastbuild/testlogs/tests/integration/smoke/smoke/test.xml -
+============================== 1 passed in 4.37s ===============================
 </pre></div>
 </div>
 </section>
