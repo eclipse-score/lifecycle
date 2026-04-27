@@ -24,7 +24,7 @@ bazel_dep(name = "rules_oci", version = "2.3.0")
 bazel_dep(name = "aspect_rules_lint", version = "2.0.0")
 bazel_dep(name = "buildifier_prebuilt", version = "8.2.0.2")
 bazel_dep(name = "platforms", version = "1.0.0")
-bazel_dep(name = "flatbuffers", version = "v25.12.19")
+bazel_dep(name = "flatbuffers", version = "25.9.23")
 bazel_dep(name = "download_utils", version = "1.2.2")
 bazel_dep(name = "googletest", version = "1.17.0.bcr.2")
 
@@ -82,24 +82,7 @@ use_repo(
 bazel_dep(name = "score_toolchains_rust", version = "0.8.0", dev_dependency = True)
 
 # S-CORE crates
-bazel_dep(name = "score_crates", version = "0.0.8")
-git_override(
-    module_name = "score_crates",
-    commit = "90539da0fd3e7e23e01f2b4de1679f7dfadd3b6b",
-    remote = "https://github.com/eclipse-score/score-crates.git",
-)
-
-git_override(
-    module_name = "rules_rust",
-    commit = "293337fd6402ec3dfbeb8f2d589f38ad9124dadd",
-    remote = "https://github.com/pawelrutkaq/rules_rust.git",  # To be fixed once rule_rust is in score bazel registry
-)
-
-git_override(
-    module_name = "flatbuffers",
-    commit = "187240970746d00bbd26b0f5873ed54d2477f9f3",
-    remote = "https://github.com/google/flatbuffers.git",
-)
+bazel_dep(name = "score_crates", version = "0.0.9")
 
 deb = use_repo_rule("@download_utils//download/deb:defs.bzl", "download_deb")
 
@@ -134,12 +117,7 @@ pip.parse(
 )
 use_repo(pip, "score_lifecycle_pip")
 
-bazel_dep(name = "score_itf", version = "0.1.0", dev_dependency = True)
-git_override(
-    module_name = "score_itf",
-    commit = "e0afbd741929c18b5951029f348dbbd5877cc120",
-    remote = "https://github.com/eclipse-score/itf.git",
-)
+bazel_dep(name = "score_itf", version = "0.3.0", dev_dependency = True)
 
 oci = use_extension("@rules_oci//oci:extensions.bzl", "oci", dev_dependency = True)
 oci.pull(
