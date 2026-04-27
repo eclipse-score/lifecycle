@@ -39,13 +39,7 @@ bazel_dep(name = "score_tooling", version = "1.1.0")
 bazel_dep(name = "score_rust_policies", version = "0.0.3")
 
 bazel_dep(name = "score_process", version = "1.5.4", dev_dependency = True)
-bazel_dep(name = "score_platform", version = "0.5.3", dev_dependency = True)
-# Will be removed once new score_platform is released (>0.5.3)
-git_override(
-    module_name = "score_platform",
-    commit="5b8a1e34c417384d919bb8c08d32213896ffe5aa",
-    remote="https://github.com/eclipse-score/score.git"
-)
+bazel_dep(name = "score_platform", version = "0.5.5", dev_dependency = True)
 
 ## Configure the C++ toolchain
 bazel_dep(name = "score_bazel_cpp_toolchains", version = "0.5.1", dev_dependency = True)
