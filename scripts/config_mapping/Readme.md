@@ -40,7 +40,7 @@ python3 lifecycle_config.py <new_configuration.json> --schema <path/to/schema> -
 # Running Tests
 
 ```bash
-bazel test //scripts/config_mapping:lifecycle_config_tests
+bazel test //scripts/config_mapping/tests:lifecycle_config_tests
 ```
 
 # Mapping Details

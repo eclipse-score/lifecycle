@@ -17,9 +17,9 @@ module(
 
 # Bazel global rules
 bazel_dep(name = "rules_pkg", version = "1.1.0")
-bazel_dep(name = "rules_python", version = "1.8.3")
-bazel_dep(name = "rules_rust", version = "0.61.0")
-bazel_dep(name = "rules_cc", version = "0.2.16")
+bazel_dep(name = "rules_python", version = "1.8.5")
+bazel_dep(name = "rules_rust", version = "0.68.1-score")
+bazel_dep(name = "rules_cc", version = "0.2.17")
 bazel_dep(name = "rules_oci", version = "2.3.0")
 bazel_dep(name = "aspect_rules_lint", version = "2.0.0")
 bazel_dep(name = "buildifier_prebuilt", version = "8.2.0.2")
@@ -29,13 +29,13 @@ bazel_dep(name = "download_utils", version = "1.2.2")
 bazel_dep(name = "googletest", version = "1.17.0.bcr.2")
 
 # S-CORE process rules
-bazel_dep(name = "score_bazel_platforms", version = "0.0.4")
-bazel_dep(name = "score_docs_as_code", version = "3.0.0")
-bazel_dep(name = "score_tooling", version = "1.1.0")
-bazel_dep(name = "score_rust_policies", version = "0.0.3")
 
-bazel_dep(name = "score_process", version = "1.4.4", dev_dependency = True)
-bazel_dep(name = "score_platform", version = "0.5.3", dev_dependency = True)
+bazel_dep(name = "score_bazel_platforms", version = "0.1.2", dev_dependency = True)
+bazel_dep(name = "score_docs_as_code", version = "4.0.3", dev_dependency = True)
+bazel_dep(name = "score_tooling", version = "1.2.0", dev_dependency = True)
+bazel_dep(name = "score_rust_policies", version = "0.0.5", dev_dependency = True)
+bazel_dep(name = "score_process", version = "1.5.4", dev_dependency = True)
+bazel_dep(name = "score_platform", version = "0.5.5", dev_dependency = True)
 
 ## Configure the C++ toolchain
 bazel_dep(name = "score_bazel_cpp_toolchains", version = "0.2.2", dev_dependency = True)
@@ -83,24 +83,7 @@ use_repo(
 bazel_dep(name = "score_toolchains_rust", version = "0.8.0", dev_dependency = True)
 
 # S-CORE crates
-bazel_dep(name = "score_crates", version = "0.0.8")
-git_override(
-    module_name = "score_crates",
-    commit = "90539da0fd3e7e23e01f2b4de1679f7dfadd3b6b",
-    remote = "https://github.com/eclipse-score/score-crates.git",
-)
-
-git_override(
-    module_name = "rules_rust",
-    commit = "293337fd6402ec3dfbeb8f2d589f38ad9124dadd",
-    remote = "https://github.com/pawelrutkaq/rules_rust.git",  # To be fixed once rule_rust is in score bazel registry
-)
-
-git_override(
-    module_name = "flatbuffers",
-    commit = "187240970746d00bbd26b0f5873ed54d2477f9f3",
-    remote = "https://github.com/google/flatbuffers.git",
-)
+bazel_dep(name = "score_crates", version = "0.0.9")
 
 deb = use_repo_rule("@download_utils//download/deb:defs.bzl", "download_deb")
 
@@ -135,12 +118,7 @@ pip.parse(
 )
 use_repo(pip, "score_lifecycle_pip")
 
-bazel_dep(name = "score_itf", version = "0.1.0", dev_dependency = True)
-git_override(
-    module_name = "score_itf",
-    commit = "e0afbd741929c18b5951029f348dbbd5877cc120",
-    remote = "https://github.com/eclipse-score/itf.git",
-)
+bazel_dep(name = "score_itf", version = "0.3.0", dev_dependency = True)
 
 oci = use_extension("@rules_oci//oci:extensions.bzl", "oci", dev_dependency = True)
 oci.pull(
@@ -152,17 +130,8 @@ oci.pull(
 )
 use_repo(oci, "debian-test-runtime", "debian-test-runtime_linux_amd64")
 
-bazel_dep(name = "score_baselibs_rust", version = "0.1.1")
-bazel_dep(name = "score_baselibs", version = "0.2.4")
-bazel_dep(name = "score_logging", version = "0.1.0")
-
-# TODO: remove once inherited properly from `score_logging`.
-bazel_dep(name = "trlc", version = "0.0.0", dev_dependency = True)
-git_override(
-    module_name = "trlc",
-    commit = "650b51a47264a4f232b3341f473527710fc32669",  # trlc-2.0.2 release
-    remote = "https://github.com/bmw-software-engineering/trlc.git",
-)
+bazel_dep(name = "score_baselibs_rust", version = "0.1.2")
+bazel_dep(name = "score_baselibs", version = "0.2.6")
 
 # Hedron's Compile Commands Extractor for Bazel
 # https://github.com/hedronvision/bazel-compile-commands-extractor
