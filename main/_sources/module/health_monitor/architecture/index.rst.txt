@@ -43,6 +43,7 @@ Document describes HealthMonitor component architecture.
    :security: YES
    :safety: ASIL_B
    :status: valid
+   :belongs_to: feat__lifecycle
 
    Health Monitor component provides a set of functionalities to verify the health of the system and its components. It includes monitoring deadlines, logic, and heartbeats to ensure proper system functioning.
 
