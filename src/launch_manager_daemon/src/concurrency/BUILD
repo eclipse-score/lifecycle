@@ -67,7 +67,7 @@ cc_test(
         "-g",
     ],
     linkopts = ["-fsanitize=thread"],
-    tags = ["tsan"],
+    tags = ["tsan", "no-coverage"],
     visibility = ["//tests:__subpackages__"],
     deps = [
         ":mpmc_concurrent_queue",
