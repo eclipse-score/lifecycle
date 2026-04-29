@@ -50,8 +50,8 @@ class MPMCConcurrentQueue
     // optimization to work out the turns
     static_assert((Capacity & (Capacity - 1U)) == 0U, "Capacity must be a power of 2");
 
-    /// @brief Cache line size used to prevent false sharing between m_head,
-    /// m_tail, and m_stopped.
+    /// @brief Cache line size used to prevent false sharing between m_tail,
+    /// m_head, and m_stopped.
     /// Defined as a literal rather than std::hardware_destructive_interference_size to avoid
     /// -Winterference-size: that value is not ABI-stable across compiler versions and tuning flags.
     /// 64 bytes is the cache line size on all targeted x86_64 and aarch64 platforms.
@@ -92,7 +92,7 @@ class MPMCConcurrentQueue
     MPMCConcurrentQueue& operator=(MPMCConcurrentQueue&&) = delete;
 
     /// @brief Blocks until a slot is free, then writes the item into the queue.
-    /// @detail Producers claim slots via fetch_add on m_head, and sleep inside
+    /// @detail Producers claim slots via fetch_add on m_tail, and sleep inside
     ///         m_spaces.wait() when all slots are occupied.
     ///         The turn counter ensures a slot cannot be written until the
     ///         previous consumer has finished reading it.
@@ -107,7 +107,7 @@ class MPMCConcurrentQueue
     }
 
     /// @brief Blocks until a slot is free, then writes the item into the queue.
-    /// @detail Producers claim slots via fetch_add on m_head, and sleep inside
+    /// @detail Producers claim slots via fetch_add on m_tail, and sleep inside
     ///         m_spaces.wait() when all slots are occupied.
     ///         The turn counter ensures a slot cannot be written until the
     ///         previous consumer has finished reading it.
@@ -130,7 +130,7 @@ class MPMCConcurrentQueue
     }
 
     /// @brief Blocks until an item is available or stop() is called.
-    /// @detail Consumers claim slots via fetch_add on m_tail and sleep
+    /// @detail Consumers claim slots via fetch_add on m_head and sleep
     ///         inside m_items.wait() when the queue is empty.
     ///         When stopped returns std::nullopt.
     /// @return The next item, or std::nullopt if stop() was called.
@@ -147,7 +147,7 @@ class MPMCConcurrentQueue
             return std::nullopt;
         }
 
-        return consume_slot(m_tail.fetch_add(1, std::memory_order_relaxed));
+        return consume_slot(m_head.fetch_add(1, std::memory_order_relaxed));
     }
 
   private:
@@ -197,12 +197,12 @@ class MPMCConcurrentQueue
             return false;
         }
 
-        const auto head = m_head.fetch_add(1, std::memory_order_relaxed);
-        auto& slot = m_slots[head & (Capacity - 1U)];
+        const auto tail = m_tail.fetch_add(1, std::memory_order_relaxed);
+        auto& slot = m_slots[tail & (Capacity - 1U)];
 
         // even turns belong to producers, odd turns to consumers
         // each lap of the ring increments the expected turn by 2
-        const auto expected_turn = (head / Capacity) * 2;
+        const auto expected_turn = (tail / Capacity) * 2;
 
         while (slot.turn.load(std::memory_order_acquire) != expected_turn)
         {
@@ -225,18 +225,18 @@ class MPMCConcurrentQueue
     /// @brief Underlying storage.
     std::array<Slot, Capacity> m_slots;
 
-    /// @brief The front of the queue.
+    /// @brief The front of the queue; claimed by consumers via fetch_add in pop.
     /// @detail Aligned so that m_head and m_tail do not share a cache line.
     alignas(CacheLineSize) std::atomic<std::size_t> m_head{0};
 
-    /// @brief The back of the queue.
+    /// @brief The back of the queue; claimed by producers via fetch_add in push_impl.
     /// @detail Aligned so that m_head and m_tail do not share a cache line.
     alignas(CacheLineSize) std::atomic<std::size_t> m_tail{0};
 
     /// @brief Set to true by stop(); causes push() to return false and pop() to
     ///        return std::nullopt instead of blocking.
     /// @detail Aligned on its own cache line so that the single stop() write
-    ///         does not cause false sharing with m_tail updates in pop().
+    ///         does not cause false sharing with m_tail updates in push_impl().
     alignas(CacheLineSize) std::atomic<bool> m_stopped{false};
 
     /// @brief Counts items currently in the queue; consumers block on this when
