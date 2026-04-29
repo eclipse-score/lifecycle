@@ -25,10 +25,6 @@ cc_library(
     hdrs = ["mpmc_concurrent_queue.hpp",
             "concurrency_error_domain.hpp"
     ],
-
-    linkopts = [
-            "-latomic",
-    ],
     strip_include_prefix = "//src/launch_manager_daemon/src",
     visibility = ["//src:__subpackages__"],
     deps = [

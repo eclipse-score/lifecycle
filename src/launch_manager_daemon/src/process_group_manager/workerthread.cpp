@@ -11,48 +11,71 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "processinfonode.hpp"
 #include "workerthread.hpp"
+#include "processinfonode.hpp"
 
-namespace score {
+namespace score
+{
 
-namespace lcm {
+namespace lcm
+{
 
-namespace internal {
+namespace internal
+{
 
 template <class T>
-WorkerThread<T>::WorkerThread(std::shared_ptr<Queue> queue, uint32_t num_threads)
-    : the_job_queue_(queue) {
+WorkerThread<T>::WorkerThread(std::shared_ptr<Queue> queue, uint32_t num_threads) : the_job_queue_(queue)
+{
     worker_threads_.reserve(num_threads);
 
-    for (uint32_t i = 0U; i < num_threads; ++i) {
+    for (uint32_t i = 0U; i < num_threads; ++i)
+    {
         static_cast<void>(i);
         worker_threads_.emplace_back(std::make_unique<std::thread>(&WorkerThread::run, this));
     }
 }
 
 template <class T>
-WorkerThread<T>::~WorkerThread() {
+WorkerThread<T>::~WorkerThread()
+{
     stop();
 
-    for (auto& thread : worker_threads_) {
-        if (thread->joinable()) {
+    for (auto& thread : worker_threads_)
+    {
+        if (thread->joinable())
+        {
             thread->join();
         }
     }
 }
 
 template <class T>
-void WorkerThread<T>::stop() {
-    the_job_queue_->stop();
+void WorkerThread<T>::stop()
+{
+    static_cast<void>(the_job_queue_->stop());
 }
 
 template <class T>
-void WorkerThread<T>::run() {
-    while (auto job = the_job_queue_->pop()) {
-        if(*job)
+void WorkerThread<T>::run()
+{
+    while (auto job = the_job_queue_->pop(kMaxQueueDelay))
+    {
+        if (job)
         {
             (*job)->doWork();
+        }
+        else if (job.error() == ConcurrencyErrc::kStopped)
+        {
+            break;
+        }
+        else if(job.error() == ConcurrencyErrc::kTimeout)
+        {
+            continue;
+        }
+        else
+        {
+            LM_LOG_ERROR() << "Got an error getting a job: " << job.error();
+            continue;
         }
     }
 }
@@ -60,8 +83,8 @@ void WorkerThread<T>::run() {
 // Explicit instantiation for ProcessInfoNode
 template class WorkerThread<ProcessInfoNode>;
 
-}  // namespace lcm
-
 }  // namespace internal
+
+}  // namespace lcm
 
 }  // namespace score

@@ -150,10 +150,12 @@ class MPMCConcurrentQueue
     /// @details Consumers claim slots via fetch_add on m_head and sleep
     ///          inside m_items.wait() when the queue is empty.
     ///          When stopped returns std::nullopt.
+    /// @param timeout Maximum time to wait for an item. Zero means wait forever.
     /// @return The next item, or error.
-    [[nodiscard]] score::Result<T> pop()
+    [[nodiscard]] score::Result<T> pop(std::chrono::milliseconds timeout = std::chrono::milliseconds{0})
     {
-        auto wait_result = m_items.wait();
+        const auto wait_result =
+            (timeout == std::chrono::milliseconds{0}) ? m_items.wait() : m_items.timedWait(timeout);
 
         if(wait_result == osal::OsalReturnType::kTimeout)
         {
