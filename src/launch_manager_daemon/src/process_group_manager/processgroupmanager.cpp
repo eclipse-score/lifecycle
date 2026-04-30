@@ -20,13 +20,7 @@
 #include <process_group_manager/processgroupmanager.hpp>
 #include <score/lcm/internal/log.hpp>
 
-namespace score
-{
-
-namespace lcm
-{
-
-namespace internal
+namespace score::lcm::internal
 {
 
 using namespace score::lcm::internal::osal;
@@ -238,8 +232,8 @@ inline void ProcessGroupManager::createProcessComponentsObjects()
     LM_LOG_DEBUG() << "Creating Safe Process Map with" << total_processes_ << "entries";
     process_map_ = std::make_shared<SafeProcessMap>(total_processes_);
 
-    LM_LOG_DEBUG() << "Creating job queue with" << total_processes_ << "entries";
-    worker_jobs_ = std::make_shared<JobQueue<ProcessInfoNode>>(total_processes_);
+    LM_LOG_DEBUG() << "Creating job queue with capacity" << static_cast<std::size_t>(ProcessLimits::kMaxProcesses);
+    worker_jobs_ = std::make_shared<WorkerQueue>();
 
     LM_LOG_DEBUG() << "Creating worker threads...";
     worker_threads_ = std::make_unique<WorkerThread<ProcessInfoNode>>(
@@ -364,7 +358,7 @@ inline void ProcessGroupManager::allProcessGroupsOff()
     if (!waitForStateCompletion(process_groups_, GraphState::kInTransition, 1000))
     {
         LM_LOG_ERROR() << "NOTE: Transition to Off state timed out";
-        worker_jobs_->stopQueue(static_cast<std::size_t>(ProcessLimits::kNumWorkerThreads));
+        worker_threads_->stop();
         for (auto& pg : process_groups_)
         {
             for (auto& node : pg->getNodes())
@@ -704,7 +698,7 @@ inline void ProcessGroupManager::processGroupHandler(Graph& pg)
             }
         }
 
-        if (GraphState::kUndefinedState == pg.getState()) 
+        if (GraphState::kUndefinedState == pg.getState())
         {
             // at the moment graph is not running...
             // i.e. it is not in kInTransition, kAborting or kCancelled state
@@ -785,13 +779,9 @@ std::shared_ptr<SafeProcessMap> ProcessGroupManager::getProcessMap()
     return process_map_;
 }
 
-std::shared_ptr<JobQueue<ProcessInfoNode>> ProcessGroupManager::getWorkerJobs()
+std::shared_ptr<ProcessGroupManager::WorkerQueue> ProcessGroupManager::getWorkerJobs()
 {
     return worker_jobs_;
 }
 
-}  // namespace internal
-
-}  // namespace lcm
-
-}  // namespace score
+}  // namespace score::lcm::internal
