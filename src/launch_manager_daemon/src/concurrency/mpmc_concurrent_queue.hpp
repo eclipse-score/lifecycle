@@ -119,8 +119,7 @@ class MPMCConcurrentQueue
     ///          The turn counter ensures a slot cannot be written until the
     ///          previous consumer has finished reading it.
     /// @param timeout Maximum time to wait for a free slot. Zero means wait forever.
-    /// @return true if the item was pushed, false if stop() was called or the
-    ///         timeout expired before a slot became available (item is not enqueued).
+    /// @return Success if item was pushed, Error otherwise.
     [[nodiscard]] score::Result<void> push(const T& item,
                                            std::chrono::milliseconds timeout = std::chrono::milliseconds{0})
     {

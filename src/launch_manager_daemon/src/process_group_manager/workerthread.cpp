@@ -58,21 +58,19 @@ void WorkerThread<T>::stop()
 template <class T>
 void WorkerThread<T>::run()
 {
-    while (auto job = the_job_queue_->pop())
+    while (true)
     {
-        if (job)
+        auto job = the_job_queue_->pop();
+        if (!job)
         {
-            (*job)->doWork();
-        }
-        else if (job.error() == ConcurrencyErrc::kStopped)
-        {
-            break;
-        }
-        else
-        {
+            if (job.error() == ConcurrencyErrc::kStopped)
+            {
+                break;
+            }
             LM_LOG_ERROR() << "Got an error getting a job: " << job.error();
             continue;
         }
+        (*job)->doWork();
     }
 }
 

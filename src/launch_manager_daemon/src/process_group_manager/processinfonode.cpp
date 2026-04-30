@@ -477,6 +477,10 @@ void ProcessInfoNode::checkForEmptyDependencies(std::shared_ptr<ProcessInfoNode>
                 graph_->markNodeInFlight();
                 break;
             }
+            else if (push_res.error() == ConcurrencyErrc::kTimeout)
+            {
+                continue;
+            }
             else
             {
                 break;
