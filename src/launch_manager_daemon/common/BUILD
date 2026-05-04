@@ -52,6 +52,14 @@ cc_library(
     name = "log",
     hdrs = ["include/score/lcm/internal/log.hpp"],
     includes = ["include"],
+    defines = select({
+        "//config:lm_use_cout_log": [],
+        "//conditions:default": ["LC_LOG_SCORE_MW_LOG"],
+    }),
+    deps = [] + select({
+        "//config:lm_use_cout_log": [],
+        "//conditions:default": ["@score_baselibs//score/mw/log"],
+    }),
     visibility = ["//src:__subpackages__"],
 )
 
