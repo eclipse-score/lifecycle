@@ -497,150 +497,6 @@
 </section>
 <section id="test-log-files">
 <h2>Test Log Files<a class="headerlink" href="#test-log-files" title="Link to this heading">#</a></h2>
-<p class="rubric">tests-report/src/launch_manager_daemon/src/concurrency/concurrency_error_domain_test/test.log</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
-Executing tests from //src/launch_manager_daemon/src/concurrency:concurrency_error_domain_test
------------------------------------------------------------------------------
-Running main() from gmock_main.cc
-[==========] Running 6 tests from 2 test suites.
-[----------] Global test environment set-up.
-[----------] 1 test from ConcurrencyErrorDomainTest
-[ RUN      ] ConcurrencyErrorDomainTest.MakeError
-[       OK ] ConcurrencyErrorDomainTest.MakeError (0 ms)
-[----------] 1 test from ConcurrencyErrorDomainTest (0 ms total)
-
-[----------] 5 tests from AllCodes/ConcurrencyErrorDomainMessageForTest
-[ RUN      ] AllCodes/ConcurrencyErrorDomainMessageForTest.CoversAllBranches/0
-[       OK ] AllCodes/ConcurrencyErrorDomainMessageForTest.CoversAllBranches/0 (0 ms)
-[ RUN      ] AllCodes/ConcurrencyErrorDomainMessageForTest.CoversAllBranches/1
-[       OK ] AllCodes/ConcurrencyErrorDomainMessageForTest.CoversAllBranches/1 (0 ms)
-[ RUN      ] AllCodes/ConcurrencyErrorDomainMessageForTest.CoversAllBranches/2
-[       OK ] AllCodes/ConcurrencyErrorDomainMessageForTest.CoversAllBranches/2 (0 ms)
-[ RUN      ] AllCodes/ConcurrencyErrorDomainMessageForTest.CoversAllBranches/3
-[       OK ] AllCodes/ConcurrencyErrorDomainMessageForTest.CoversAllBranches/3 (0 ms)
-[ RUN      ] AllCodes/ConcurrencyErrorDomainMessageForTest.CoversAllBranches/4
-[       OK ] AllCodes/ConcurrencyErrorDomainMessageForTest.CoversAllBranches/4 (0 ms)
-[----------] 5 tests from AllCodes/ConcurrencyErrorDomainMessageForTest (0 ms total)
-
-[----------] Global test environment tear-down
-[==========] 6 tests from 2 test suites ran. (0 ms total)
-[  PASSED  ] 6 tests.
-</pre></div>
-</div>
-<p class="rubric">tests-report/src/launch_manager_daemon/src/concurrency/mpmc_concurrent_queue_tsan_test/test.log</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
-Executing tests from //src/launch_manager_daemon/src/concurrency:mpmc_concurrent_queue_tsan_test
------------------------------------------------------------------------------
-Running main() from gmock_main.cc
-[==========] Running 15 tests from 5 test suites.
-[----------] Global test environment set-up.
-[----------] 5 tests from MPMCConcurrentQueueTest_Basic
-[ RUN      ] MPMCConcurrentQueueTest_Basic.PushAndPopSingleItem
-[       OK ] MPMCConcurrentQueueTest_Basic.PushAndPopSingleItem (0 ms)
-[ RUN      ] MPMCConcurrentQueueTest_Basic.PushAndPopPreservesOrder
-[       OK ] MPMCConcurrentQueueTest_Basic.PushAndPopPreservesOrder (0 ms)
-[ RUN      ] MPMCConcurrentQueueTest_Basic.LvaluePushCopiesItem
-[       OK ] MPMCConcurrentQueueTest_Basic.LvaluePushCopiesItem (0 ms)
-[ RUN      ] MPMCConcurrentQueueTest_Basic.RvaluePushWorksWithMoveOnlyType
-[       OK ] MPMCConcurrentQueueTest_Basic.RvaluePushWorksWithMoveOnlyType (0 ms)
-[ RUN      ] MPMCConcurrentQueueTest_Basic.PopReturnsNulloptOnSemaphoreWaitFailure
-[       OK ] MPMCConcurrentQueueTest_Basic.PopReturnsNulloptOnSemaphoreWaitFailure (20 ms)
-[----------] 5 tests from MPMCConcurrentQueueTest_Basic (21 ms total)
-
-[----------] 2 tests from MPMCConcurrentQueueTest_Timeout
-[ RUN      ] MPMCConcurrentQueueTest_Timeout.PushWithTimeoutSucceedsWhenSlotAvailable
-[       OK ] MPMCConcurrentQueueTest_Timeout.PushWithTimeoutSucceedsWhenSlotAvailable (0 ms)
-[ RUN      ] MPMCConcurrentQueueTest_Timeout.PushWithTimeoutReturnsFalseWhenFull
-[       OK ] MPMCConcurrentQueueTest_Timeout.PushWithTimeoutReturnsFalseWhenFull (20 ms)
-[----------] 2 tests from MPMCConcurrentQueueTest_Timeout (21 ms total)
-
-[----------] 3 tests from MPMCConcurrentQueueTest_Stop
-[ RUN      ] MPMCConcurrentQueueTest_Stop.PushReturnsFalseAfterStop
-[       OK ] MPMCConcurrentQueueTest_Stop.PushReturnsFalseAfterStop (0 ms)
-[ RUN      ] MPMCConcurrentQueueTest_Stop.PopReturnsNulloptWhenStoppedAndEmpty
-[       OK ] MPMCConcurrentQueueTest_Stop.PopReturnsNulloptWhenStoppedAndEmpty (0 ms)
-[ RUN      ] MPMCConcurrentQueueTest_Stop.ItemsAreDroppedAfterStop
-[       OK ] MPMCConcurrentQueueTest_Stop.ItemsAreDroppedAfterStop (0 ms)
-[----------] 3 tests from MPMCConcurrentQueueTest_Stop (0 ms total)
-
-[----------] 4 tests from MPMCConcurrentQueueTest_Blocking
-[ RUN      ] MPMCConcurrentQueueTest_Blocking.PopBlocksUntilItemAvailable
-[       OK ] MPMCConcurrentQueueTest_Blocking.PopBlocksUntilItemAvailable (0 ms)
-[ RUN      ] MPMCConcurrentQueueTest_Blocking.PushBlocksWhenFull
-[       OK ] MPMCConcurrentQueueTest_Blocking.PushBlocksWhenFull (0 ms)
-[ RUN      ] MPMCConcurrentQueueTest_Blocking.StopUnblocksBlockedConsumer
-[       OK ] MPMCConcurrentQueueTest_Blocking.StopUnblocksBlockedConsumer (0 ms)
-[ RUN      ] MPMCConcurrentQueueTest_Blocking.StopUnblocksBlockedProducer
-[       OK ] MPMCConcurrentQueueTest_Blocking.StopUnblocksBlockedProducer (0 ms)
-[----------] 4 tests from MPMCConcurrentQueueTest_Blocking (1 ms total)
-
-[----------] 1 test from MPMCConcurrentQueueTest_MPMC
-[ RUN      ] MPMCConcurrentQueueTest_MPMC.AllItemsDelivered
-[       OK ] MPMCConcurrentQueueTest_MPMC.AllItemsDelivered (3 ms)
-[----------] 1 test from MPMCConcurrentQueueTest_MPMC (3 ms total)
-
-[----------] Global test environment tear-down
-[==========] 15 tests from 5 test suites ran. (48 ms total)
-[  PASSED  ] 15 tests.
-</pre></div>
-</div>
-<p class="rubric">tests-report/src/launch_manager_daemon/src/concurrency/mpmc_concurrent_queue_test/test.log</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
-Executing tests from //src/launch_manager_daemon/src/concurrency:mpmc_concurrent_queue_test
------------------------------------------------------------------------------
-Running main() from gmock_main.cc
-[==========] Running 15 tests from 5 test suites.
-[----------] Global test environment set-up.
-[----------] 5 tests from MPMCConcurrentQueueTest_Basic
-[ RUN      ] MPMCConcurrentQueueTest_Basic.PushAndPopSingleItem
-[       OK ] MPMCConcurrentQueueTest_Basic.PushAndPopSingleItem (2 ms)
-[ RUN      ] MPMCConcurrentQueueTest_Basic.PushAndPopPreservesOrder
-[       OK ] MPMCConcurrentQueueTest_Basic.PushAndPopPreservesOrder (0 ms)
-[ RUN      ] MPMCConcurrentQueueTest_Basic.LvaluePushCopiesItem
-[       OK ] MPMCConcurrentQueueTest_Basic.LvaluePushCopiesItem (0 ms)
-[ RUN      ] MPMCConcurrentQueueTest_Basic.RvaluePushWorksWithMoveOnlyType
-[       OK ] MPMCConcurrentQueueTest_Basic.RvaluePushWorksWithMoveOnlyType (0 ms)
-[ RUN      ] MPMCConcurrentQueueTest_Basic.PopReturnsNulloptOnSemaphoreWaitFailure
-[       OK ] MPMCConcurrentQueueTest_Basic.PopReturnsNulloptOnSemaphoreWaitFailure (23 ms)
-[----------] 5 tests from MPMCConcurrentQueueTest_Basic (26 ms total)
-
-[----------] 2 tests from MPMCConcurrentQueueTest_Timeout
-[ RUN      ] MPMCConcurrentQueueTest_Timeout.PushWithTimeoutSucceedsWhenSlotAvailable
-[       OK ] MPMCConcurrentQueueTest_Timeout.PushWithTimeoutSucceedsWhenSlotAvailable (0 ms)
-[ RUN      ] MPMCConcurrentQueueTest_Timeout.PushWithTimeoutReturnsFalseWhenFull
-[       OK ] MPMCConcurrentQueueTest_Timeout.PushWithTimeoutReturnsFalseWhenFull (26 ms)
-[----------] 2 tests from MPMCConcurrentQueueTest_Timeout (27 ms total)
-
-[----------] 3 tests from MPMCConcurrentQueueTest_Stop
-[ RUN      ] MPMCConcurrentQueueTest_Stop.PushReturnsFalseAfterStop
-[       OK ] MPMCConcurrentQueueTest_Stop.PushReturnsFalseAfterStop (0 ms)
-[ RUN      ] MPMCConcurrentQueueTest_Stop.PopReturnsNulloptWhenStoppedAndEmpty
-[       OK ] MPMCConcurrentQueueTest_Stop.PopReturnsNulloptWhenStoppedAndEmpty (0 ms)
-[ RUN      ] MPMCConcurrentQueueTest_Stop.ItemsAreDroppedAfterStop
-[       OK ] MPMCConcurrentQueueTest_Stop.ItemsAreDroppedAfterStop (0 ms)
-[----------] 3 tests from MPMCConcurrentQueueTest_Stop (0 ms total)
-
-[----------] 4 tests from MPMCConcurrentQueueTest_Blocking
-[ RUN      ] MPMCConcurrentQueueTest_Blocking.PopBlocksUntilItemAvailable
-[       OK ] MPMCConcurrentQueueTest_Blocking.PopBlocksUntilItemAvailable (2 ms)
-[ RUN      ] MPMCConcurrentQueueTest_Blocking.PushBlocksWhenFull
-[       OK ] MPMCConcurrentQueueTest_Blocking.PushBlocksWhenFull (2 ms)
-[ RUN      ] MPMCConcurrentQueueTest_Blocking.StopUnblocksBlockedConsumer
-[       OK ] MPMCConcurrentQueueTest_Blocking.StopUnblocksBlockedConsumer (0 ms)
-[ RUN      ] MPMCConcurrentQueueTest_Blocking.StopUnblocksBlockedProducer
-[       OK ] MPMCConcurrentQueueTest_Blocking.StopUnblocksBlockedProducer (0 ms)
-[----------] 4 tests from MPMCConcurrentQueueTest_Blocking (5 ms total)
-
-[----------] 1 test from MPMCConcurrentQueueTest_MPMC
-[ RUN      ] MPMCConcurrentQueueTest_MPMC.AllItemsDelivered
-[       OK ] MPMCConcurrentQueueTest_MPMC.AllItemsDelivered (9 ms)
-[----------] 1 test from MPMCConcurrentQueueTest_MPMC (9 ms total)
-
-[----------] Global test environment tear-down
-[==========] 15 tests from 5 test suites ran. (68 ms total)
-[  PASSED  ] 15 tests.
-</pre></div>
-</div>
 <p class="rubric">tests-report/src/launch_manager_daemon/health_monitor_lib/Notification_UT/test.log</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
 Executing tests from //src/launch_manager_daemon/health_monitor_lib:Notification_UT
@@ -749,6 +605,120 @@ Running main() from gmock_main.cc
 [----------] Global test environment tear-down
 [==========] 7 tests from 1 test suite ran. (0 ms total)
 [  PASSED  ] 7 tests.
+</pre></div>
+</div>
+<p class="rubric">tests-report/src/launch_manager_daemon/common/concurrency/mpmc_concurrent_queue_tsan_test/test.log</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
+Executing tests from //src/launch_manager_daemon/common/concurrency:mpmc_concurrent_queue_tsan_test
+-----------------------------------------------------------------------------
+Running main() from gmock_main.cc
+[==========] Running 15 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 5 tests from MPMCConcurrentQueueTest_Basic
+[ RUN      ] MPMCConcurrentQueueTest_Basic.PushAndPopSingleItem
+[       OK ] MPMCConcurrentQueueTest_Basic.PushAndPopSingleItem (0 ms)
+[ RUN      ] MPMCConcurrentQueueTest_Basic.PushAndPopPreservesOrder
+[       OK ] MPMCConcurrentQueueTest_Basic.PushAndPopPreservesOrder (0 ms)
+[ RUN      ] MPMCConcurrentQueueTest_Basic.LvaluePushCopiesItem
+[       OK ] MPMCConcurrentQueueTest_Basic.LvaluePushCopiesItem (0 ms)
+[ RUN      ] MPMCConcurrentQueueTest_Basic.RvaluePushWorksWithMoveOnlyType
+[       OK ] MPMCConcurrentQueueTest_Basic.RvaluePushWorksWithMoveOnlyType (0 ms)
+[ RUN      ] MPMCConcurrentQueueTest_Basic.PopReturnsNulloptOnSemaphoreWaitFailure
+[       OK ] MPMCConcurrentQueueTest_Basic.PopReturnsNulloptOnSemaphoreWaitFailure (20 ms)
+[----------] 5 tests from MPMCConcurrentQueueTest_Basic (21 ms total)
+
+[----------] 2 tests from MPMCConcurrentQueueTest_Timeout
+[ RUN      ] MPMCConcurrentQueueTest_Timeout.PushWithTimeoutSucceedsWhenSlotAvailable
+[       OK ] MPMCConcurrentQueueTest_Timeout.PushWithTimeoutSucceedsWhenSlotAvailable (0 ms)
+[ RUN      ] MPMCConcurrentQueueTest_Timeout.PushWithTimeoutReturnsFalseWhenFull
+[       OK ] MPMCConcurrentQueueTest_Timeout.PushWithTimeoutReturnsFalseWhenFull (21 ms)
+[----------] 2 tests from MPMCConcurrentQueueTest_Timeout (21 ms total)
+
+[----------] 3 tests from MPMCConcurrentQueueTest_Stop
+[ RUN      ] MPMCConcurrentQueueTest_Stop.PushReturnsFalseAfterStop
+[       OK ] MPMCConcurrentQueueTest_Stop.PushReturnsFalseAfterStop (0 ms)
+[ RUN      ] MPMCConcurrentQueueTest_Stop.PopReturnsNulloptWhenStoppedAndEmpty
+[       OK ] MPMCConcurrentQueueTest_Stop.PopReturnsNulloptWhenStoppedAndEmpty (0 ms)
+[ RUN      ] MPMCConcurrentQueueTest_Stop.ItemsAreDroppedAfterStop
+[       OK ] MPMCConcurrentQueueTest_Stop.ItemsAreDroppedAfterStop (0 ms)
+[----------] 3 tests from MPMCConcurrentQueueTest_Stop (0 ms total)
+
+[----------] 4 tests from MPMCConcurrentQueueTest_Blocking
+[ RUN      ] MPMCConcurrentQueueTest_Blocking.PopBlocksUntilItemAvailable
+[       OK ] MPMCConcurrentQueueTest_Blocking.PopBlocksUntilItemAvailable (1 ms)
+[ RUN      ] MPMCConcurrentQueueTest_Blocking.PushBlocksWhenFull
+[       OK ] MPMCConcurrentQueueTest_Blocking.PushBlocksWhenFull (0 ms)
+[ RUN      ] MPMCConcurrentQueueTest_Blocking.StopUnblocksBlockedConsumer
+[       OK ] MPMCConcurrentQueueTest_Blocking.StopUnblocksBlockedConsumer (0 ms)
+[ RUN      ] MPMCConcurrentQueueTest_Blocking.StopUnblocksBlockedProducer
+[       OK ] MPMCConcurrentQueueTest_Blocking.StopUnblocksBlockedProducer (0 ms)
+[----------] 4 tests from MPMCConcurrentQueueTest_Blocking (2 ms total)
+
+[----------] 1 test from MPMCConcurrentQueueTest_MPMC
+[ RUN      ] MPMCConcurrentQueueTest_MPMC.AllItemsDelivered
+[       OK ] MPMCConcurrentQueueTest_MPMC.AllItemsDelivered (9 ms)
+[----------] 1 test from MPMCConcurrentQueueTest_MPMC (9 ms total)
+
+[----------] Global test environment tear-down
+[==========] 15 tests from 5 test suites ran. (55 ms total)
+[  PASSED  ] 15 tests.
+</pre></div>
+</div>
+<p class="rubric">tests-report/src/launch_manager_daemon/common/concurrency/mpmc_concurrent_queue_test/test.log</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
+Executing tests from //src/launch_manager_daemon/common/concurrency:mpmc_concurrent_queue_test
+-----------------------------------------------------------------------------
+Running main() from gmock_main.cc
+[==========] Running 15 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 5 tests from MPMCConcurrentQueueTest_Basic
+[ RUN      ] MPMCConcurrentQueueTest_Basic.PushAndPopSingleItem
+[       OK ] MPMCConcurrentQueueTest_Basic.PushAndPopSingleItem (0 ms)
+[ RUN      ] MPMCConcurrentQueueTest_Basic.PushAndPopPreservesOrder
+[       OK ] MPMCConcurrentQueueTest_Basic.PushAndPopPreservesOrder (0 ms)
+[ RUN      ] MPMCConcurrentQueueTest_Basic.LvaluePushCopiesItem
+[       OK ] MPMCConcurrentQueueTest_Basic.LvaluePushCopiesItem (0 ms)
+[ RUN      ] MPMCConcurrentQueueTest_Basic.RvaluePushWorksWithMoveOnlyType
+[       OK ] MPMCConcurrentQueueTest_Basic.RvaluePushWorksWithMoveOnlyType (0 ms)
+[ RUN      ] MPMCConcurrentQueueTest_Basic.PopReturnsNulloptOnSemaphoreWaitFailure
+[       OK ] MPMCConcurrentQueueTest_Basic.PopReturnsNulloptOnSemaphoreWaitFailure (20 ms)
+[----------] 5 tests from MPMCConcurrentQueueTest_Basic (20 ms total)
+
+[----------] 2 tests from MPMCConcurrentQueueTest_Timeout
+[ RUN      ] MPMCConcurrentQueueTest_Timeout.PushWithTimeoutSucceedsWhenSlotAvailable
+[       OK ] MPMCConcurrentQueueTest_Timeout.PushWithTimeoutSucceedsWhenSlotAvailable (0 ms)
+[ RUN      ] MPMCConcurrentQueueTest_Timeout.PushWithTimeoutReturnsFalseWhenFull
+[       OK ] MPMCConcurrentQueueTest_Timeout.PushWithTimeoutReturnsFalseWhenFull (21 ms)
+[----------] 2 tests from MPMCConcurrentQueueTest_Timeout (21 ms total)
+
+[----------] 3 tests from MPMCConcurrentQueueTest_Stop
+[ RUN      ] MPMCConcurrentQueueTest_Stop.PushReturnsFalseAfterStop
+[       OK ] MPMCConcurrentQueueTest_Stop.PushReturnsFalseAfterStop (0 ms)
+[ RUN      ] MPMCConcurrentQueueTest_Stop.PopReturnsNulloptWhenStoppedAndEmpty
+[       OK ] MPMCConcurrentQueueTest_Stop.PopReturnsNulloptWhenStoppedAndEmpty (0 ms)
+[ RUN      ] MPMCConcurrentQueueTest_Stop.ItemsAreDroppedAfterStop
+[       OK ] MPMCConcurrentQueueTest_Stop.ItemsAreDroppedAfterStop (0 ms)
+[----------] 3 tests from MPMCConcurrentQueueTest_Stop (0 ms total)
+
+[----------] 4 tests from MPMCConcurrentQueueTest_Blocking
+[ RUN      ] MPMCConcurrentQueueTest_Blocking.PopBlocksUntilItemAvailable
+[       OK ] MPMCConcurrentQueueTest_Blocking.PopBlocksUntilItemAvailable (2 ms)
+[ RUN      ] MPMCConcurrentQueueTest_Blocking.PushBlocksWhenFull
+[       OK ] MPMCConcurrentQueueTest_Blocking.PushBlocksWhenFull (0 ms)
+[ RUN      ] MPMCConcurrentQueueTest_Blocking.StopUnblocksBlockedConsumer
+[       OK ] MPMCConcurrentQueueTest_Blocking.StopUnblocksBlockedConsumer (0 ms)
+[ RUN      ] MPMCConcurrentQueueTest_Blocking.StopUnblocksBlockedProducer
+[       OK ] MPMCConcurrentQueueTest_Blocking.StopUnblocksBlockedProducer (0 ms)
+[----------] 4 tests from MPMCConcurrentQueueTest_Blocking (3 ms total)
+
+[----------] 1 test from MPMCConcurrentQueueTest_MPMC
+[ RUN      ] MPMCConcurrentQueueTest_MPMC.AllItemsDelivered
+[       OK ] MPMCConcurrentQueueTest_MPMC.AllItemsDelivered (3 ms)
+[----------] 1 test from MPMCConcurrentQueueTest_MPMC (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 15 tests from 5 test suites ran. (49 ms total)
+[  PASSED  ] 15 tests.
 </pre></div>
 </div>
 <p class="rubric">tests-report/src/health_monitoring_lib/tests/test.log</p>
@@ -1042,112 +1012,112 @@ Executing tests from //tests/integration/smoke:smoke
 -----------------------------------------------------------------------------
 ============================= test session starts ==============================
 platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.5.0
-rootdir: /home/runner/.bazel/sandbox/processwrapper-sandbox/811/execroot/_main/bazel-out/k8-fastbuild/bin/tests/integration/smoke/smoke.runfiles/score_itf+
+rootdir: /home/runner/.bazel/sandbox/processwrapper-sandbox/807/execroot/_main/bazel-out/k8-fastbuild/bin/tests/integration/smoke/smoke.runfiles/score_itf+
 configfile: pytest.ini
 collected 1 item
 
 ../score_itf+::test_smoke 
 -------------------------------- live log setup --------------------------------
-[2026-05-01 06:46:07.206] [INFO] [score.itf.plugins.docker] Executing custom image bootstrap command: tests/utils/environments/x86_64-linux/x86_64-linux.sh
-[2026-05-01 06:46:08.544] [DEBUG] [docker.utils.config] Trying paths: [&#39;/home/runner/.docker/config.json&#39;, &#39;/home/runner/.dockercfg&#39;]
-[2026-05-01 06:46:08.544] [DEBUG] [docker.utils.config] Found file at path: /home/runner/.docker/config.json
-[2026-05-01 06:46:08.544] [DEBUG] [docker.auth] Found &#39;auths&#39; section
-[2026-05-01 06:46:08.544] [DEBUG] [docker.auth] Found entry (registry=&#39;https://index.docker.io/v1/&#39;, username=&#39;githubactions&#39;)
-[2026-05-01 06:46:08.551] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /version HTTP/1.1&quot; 200 823
-[2026-05-01 06:46:10.686] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/create HTTP/1.1&quot; 201 88
-[2026-05-01 06:46:10.688] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/containers/4c4e30aa51ef8bffe2e5ad1a46a5bc654e0010e37800d9a09e9aed7b03ca5d9f/json HTTP/1.1&quot; 200 None
-[2026-05-01 06:46:10.814] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/4c4e30aa51ef8bffe2e5ad1a46a5bc654e0010e37800d9a09e9aed7b03ca5d9f/start HTTP/1.1&quot; 204 0
-[2026-05-01 06:46:10.814] [DEBUG] [docker.utils.config] Trying paths: [&#39;/home/runner/.docker/config.json&#39;, &#39;/home/runner/.dockercfg&#39;]
-[2026-05-01 06:46:10.814] [DEBUG] [docker.utils.config] Found file at path: /home/runner/.docker/config.json
-[2026-05-01 06:46:10.814] [DEBUG] [docker.auth] Found &#39;auths&#39; section
-[2026-05-01 06:46:10.814] [DEBUG] [docker.auth] Found entry (registry=&#39;https://index.docker.io/v1/&#39;, username=&#39;githubactions&#39;)
-[2026-05-01 06:46:10.820] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /version HTTP/1.1&quot; 200 823
-[2026-05-01 06:46:10.821] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/4c4e30aa51ef8bffe2e5ad1a46a5bc654e0010e37800d9a09e9aed7b03ca5d9f/exec HTTP/1.1&quot; 201 74
-[2026-05-01 06:46:10.822] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/faaee0f141af9058926ebb46637f65e94fbf0cf5ba6b17b98dee2ce0aa79303b/start HTTP/1.1&quot; 101 0
-[2026-05-01 06:46:10.860] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/faaee0f141af9058926ebb46637f65e94fbf0cf5ba6b17b98dee2ce0aa79303b/json HTTP/1.1&quot; 200 390
-[2026-05-01 06:46:10.888] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;PUT /v1.48/containers/4c4e30aa51ef8bffe2e5ad1a46a5bc654e0010e37800d9a09e9aed7b03ca5d9f/archive?path=%2Ftmp HTTP/1.1&quot; 200 0
-[2026-05-01 06:46:10.889] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/4c4e30aa51ef8bffe2e5ad1a46a5bc654e0010e37800d9a09e9aed7b03ca5d9f/exec HTTP/1.1&quot; 201 74
-[2026-05-01 06:46:10.890] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/0db7d659183576acdd0afafd01da7bf86fa6f94371927f96218310ae14294414/start HTTP/1.1&quot; 101 0
-[2026-05-01 06:46:10.944] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/0db7d659183576acdd0afafd01da7bf86fa6f94371927f96218310ae14294414/json HTTP/1.1&quot; 200 416
-[2026-05-01 06:46:10.944] [INFO] [tests.utils.testing_utils.setup_test] Test case setup finished
+[2026-05-04 11:09:12.452] [INFO] [score.itf.plugins.docker] Executing custom image bootstrap command: tests/utils/environments/x86_64-linux/x86_64-linux.sh
+[2026-05-04 11:09:13.854] [DEBUG] [docker.utils.config] Trying paths: [&#39;/home/runner/.docker/config.json&#39;, &#39;/home/runner/.dockercfg&#39;]
+[2026-05-04 11:09:13.855] [DEBUG] [docker.utils.config] Found file at path: /home/runner/.docker/config.json
+[2026-05-04 11:09:13.855] [DEBUG] [docker.auth] Found &#39;auths&#39; section
+[2026-05-04 11:09:13.855] [DEBUG] [docker.auth] Found entry (registry=&#39;https://index.docker.io/v1/&#39;, username=&#39;githubactions&#39;)
+[2026-05-04 11:09:13.862] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /version HTTP/1.1&quot; 200 823
+[2026-05-04 11:09:15.325] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/create HTTP/1.1&quot; 201 88
+[2026-05-04 11:09:15.327] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/containers/f4fbdf28bc12dce23baad5ba80a8f078863976f6d6de693d54804f06193d4c03/json HTTP/1.1&quot; 200 None
+[2026-05-04 11:09:15.453] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/f4fbdf28bc12dce23baad5ba80a8f078863976f6d6de693d54804f06193d4c03/start HTTP/1.1&quot; 204 0
+[2026-05-04 11:09:15.453] [DEBUG] [docker.utils.config] Trying paths: [&#39;/home/runner/.docker/config.json&#39;, &#39;/home/runner/.dockercfg&#39;]
+[2026-05-04 11:09:15.453] [DEBUG] [docker.utils.config] Found file at path: /home/runner/.docker/config.json
+[2026-05-04 11:09:15.453] [DEBUG] [docker.auth] Found &#39;auths&#39; section
+[2026-05-04 11:09:15.453] [DEBUG] [docker.auth] Found entry (registry=&#39;https://index.docker.io/v1/&#39;, username=&#39;githubactions&#39;)
+[2026-05-04 11:09:15.458] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /version HTTP/1.1&quot; 200 823
+[2026-05-04 11:09:15.460] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/f4fbdf28bc12dce23baad5ba80a8f078863976f6d6de693d54804f06193d4c03/exec HTTP/1.1&quot; 201 74
+[2026-05-04 11:09:15.461] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/bb80a9bf3bc1f03066a760fd56c3e4949e6067b3d6d0ab6eab903e97deb7c75f/start HTTP/1.1&quot; 101 0
+[2026-05-04 11:09:15.497] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/bb80a9bf3bc1f03066a760fd56c3e4949e6067b3d6d0ab6eab903e97deb7c75f/json HTTP/1.1&quot; 200 390
+[2026-05-04 11:09:15.525] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;PUT /v1.48/containers/f4fbdf28bc12dce23baad5ba80a8f078863976f6d6de693d54804f06193d4c03/archive?path=%2Ftmp HTTP/1.1&quot; 200 0
+[2026-05-04 11:09:15.527] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/f4fbdf28bc12dce23baad5ba80a8f078863976f6d6de693d54804f06193d4c03/exec HTTP/1.1&quot; 201 74
+[2026-05-04 11:09:15.528] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/b8affc9e873f5ccd32e5b9b324fb806fb4276a56f0a2a6010d162fecf9e46110/start HTTP/1.1&quot; 101 0
+[2026-05-04 11:09:15.581] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/b8affc9e873f5ccd32e5b9b324fb806fb4276a56f0a2a6010d162fecf9e46110/json HTTP/1.1&quot; 200 416
+[2026-05-04 11:09:15.581] [INFO] [tests.utils.testing_utils.setup_test] Test case setup finished
 -------------------------------- live log call ---------------------------------
-[2026-05-01 06:46:10.946] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/4c4e30aa51ef8bffe2e5ad1a46a5bc654e0010e37800d9a09e9aed7b03ca5d9f/exec HTTP/1.1&quot; 201 74
-[2026-05-01 06:46:10.947] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/853fe474a9cf81043ee564a516d71399882be91e81c13a0a1602c8640c02b6f9/start HTTP/1.1&quot; 101 0
-[2026-05-01 06:46:10.981] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/853fe474a9cf81043ee564a516d71399882be91e81c13a0a1602c8640c02b6f9/json HTTP/1.1&quot; 200 404
-[2026-05-01 06:46:10.982] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/4c4e30aa51ef8bffe2e5ad1a46a5bc654e0010e37800d9a09e9aed7b03ca5d9f/exec HTTP/1.1&quot; 201 74
-[2026-05-01 06:46:10.983] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/538ff70393116731dc514e7904c9c14c144eb5686c19ea6b44d2e125b59b0876/start HTTP/1.1&quot; 101 0
-[2026-05-01 06:46:11.019] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/538ff70393116731dc514e7904c9c14c144eb5686c19ea6b44d2e125b59b0876/json HTTP/1.1&quot; 200 442
-[2026-05-01 06:46:11.020] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/4c4e30aa51ef8bffe2e5ad1a46a5bc654e0010e37800d9a09e9aed7b03ca5d9f/exec HTTP/1.1&quot; 201 74
-[2026-05-01 06:46:11.021] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/88cf098af5e591152e781f000dab0c0d4e2af4c0e6ee96ac1878893bdcd03390/start HTTP/1.1&quot; 101 0
-[2026-05-01 06:46:11.022] [INFO] [launch_manager] [0;32m 2026/5/1 6:46:11 LCHM Fcty INFO:    [ Factory for FlatCfg MachineConfig: Loading of HM Machine Configuration succeeded. ][0m
-[2026-05-01 06:46:11.022] [INFO] [launch_manager]  [101;30m !!! -&gt; [0m [0;32m 2026/5/1 6:46:11 LCHM Fcty WARNING: [ Factory for FlatCfg MachineConfig: No watchdog configured ][0m
-[2026-05-01 06:46:11.022] [INFO] [launch_manager]  [0;32m 2026/5/1 6:46:11 LCHM Fcty INFO:    [ Phm Daemon: The (configured) periodicity in [ns] is set to: 50000000 ][0m
-[2026-05-01 06:46:11.022] [INFO] [launch_manager] [0;34m 2026/5/1 6:46:11 LCLM LCLM INFO:    [ LCM started successfully ][0m
-[2026-05-01 06:46:11.025] [INFO] [launch_manager] [==========] Running 1 test from 1 test suite.
-[2026-05-01 06:46:11.025] [INFO] [launch_manager] [----------] Global test environment set-up.
-[2026-05-01 06:46:11.025] [INFO] [launch_manager] [----------] 1 test from Smoke
-[2026-05-01 06:46:11.025] [INFO] [launch_manager] [ RUN      ] Smoke.Daemon
-[2026-05-01 06:46:11.025] [INFO] [launch_manager] [ STEP     ] Control daemon report kRunning
-[2026-05-01 06:46:11.027] [INFO] [launch_manager] [ END STEP ] Control daemon report kRunning
-[2026-05-01 06:46:11.027] [INFO] [launch_manager] [ STEP     ] Activate RunTarget Running
-[2026-05-01 06:46:11.029] [INFO] [launch_manager] [101;30m !!! -&gt; [0m [0;34m 2026/5/1 6:46:11 LCLM LCLM FATAL:   [ clock() at failed initial state transition: 29.837 ms ][0m
-[2026-05-01 06:46:11.032] [INFO] [launch_manager] [==========] Running 1 test from 1 test suite.
-[2026-05-01 06:46:11.032] [INFO] [launch_manager] [----------] Global test environment set-up.
-[2026-05-01 06:46:11.032] [INFO] [launch_manager] [----------] 1 test from Smoke
-[2026-05-01 06:46:11.032] [INFO] [launch_manager] [ RUN      ] Smoke.Process
-[2026-05-01 06:46:11.034] [INFO] [launch_manager] [       OK ] Smoke.Process (2 ms)
-[2026-05-01 06:46:11.034] [INFO] [launch_manager] [----------] 1 test from Smoke (2 ms total)
-[2026-05-01 06:46:11.034] [INFO] [launch_manager] [----------] Global test environment tear-down
-[2026-05-01 06:46:11.034] [INFO] [launch_manager] [==========] 1 test from 1 test suite ran. (2 ms total)
-[2026-05-01 06:46:11.034] [INFO] [launch_manager] [  PASSED  ] 1 test.
-[2026-05-01 06:46:11.035] [INFO] [launch_manager] [0;34m 2026/5/1 6:46:11 LCLM LCLM INFO:    [ Completed the request for PG MainPG to State MainPG/Running in 6 ms ][0m
-[2026-05-01 06:46:11.057] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/88cf098af5e591152e781f000dab0c0d4e2af4c0e6ee96ac1878893bdcd03390/json HTTP/1.1&quot; 200 404
-[2026-05-01 06:46:11.057] [DEBUG] [tests.utils.testing_utils.run_until_file_deployed] Waiting for /tmp/tests/test_end
-[2026-05-01 06:46:11.072] [INFO] [launch_manager] [0;32m 2026/5/1 6:46:11 LCHM Sprv INFO:    [ Alive Supervision ( control_daemon_alive_supervision ) switched to OK. ][0m
-[2026-05-01 06:46:11.072] [INFO] [launch_manager]  [0;32m 2026/5/1 6:46:11 LCHM Sprv INFO:    [ Local Supervision ( control_daemon_local_supervision ) switched to OK. ][0m
-[2026-05-01 06:46:11.072] [INFO] [launch_manager]  [0;32m 2026/5/1 6:46:11 LCHM Sprv INFO:    [ Global Supervision ( global_supervision ) switched to OK. ][0m
-[2026-05-01 06:46:11.124] [INFO] [launch_manager] [ END STEP ] Activate RunTarget Running
-[2026-05-01 06:46:11.125] [INFO] [launch_manager] [ STEP     ] Activate RunTarget Startup
-[2026-05-01 06:46:11.128] [INFO] [launch_manager] [0;34m 2026/5/1 6:46:11 LCLM LCLM INFO:    [ Completed the request for PG MainPG to State MainPG/Startup in 2 ms ][0m
-[2026-05-01 06:46:11.225] [INFO] [launch_manager] [ END STEP ] Activate RunTarget Startup
-[2026-05-01 06:46:11.225] [INFO] [launch_manager] [ STEP     ] Activate RunTarget Off
-[2026-05-01 06:46:11.226] [INFO] [launch_manager] [ END STEP ] Activate RunTarget Off
-[2026-05-01 06:46:11.226] [INFO] [launch_manager] [       OK ] Smoke.Daemon (201 ms)
-[2026-05-01 06:46:11.226] [INFO] [launch_manager] [----------] 1 test from Smoke (201 ms total)
-[2026-05-01 06:46:11.226] [INFO] [launch_manager] [----------] Global test environment tear-down
-[2026-05-01 06:46:11.226] [INFO] [launch_manager] [==========] 1 test from 1 test suite ran. (201 ms total)
-[2026-05-01 06:46:11.226] [INFO] [launch_manager] [  PASSED  ] 1 test.
-[2026-05-01 06:46:11.326] [INFO] [launch_manager] [0;34m 2026/5/1 6:46:11 LCLM LCLM INFO:    [ Completed the request for PG MainPG to State MainPG/Off in 101 ms ][0m
-[2026-05-01 06:46:11.559] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/538ff70393116731dc514e7904c9c14c144eb5686c19ea6b44d2e125b59b0876/json HTTP/1.1&quot; 200 442
-[2026-05-01 06:46:11.560] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/4c4e30aa51ef8bffe2e5ad1a46a5bc654e0010e37800d9a09e9aed7b03ca5d9f/exec HTTP/1.1&quot; 201 74
-[2026-05-01 06:46:11.561] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/8096e051f319e49e652d924a0f3ff22a17e8f31d3202b506cf4ae57af88c1f2b/start HTTP/1.1&quot; 101 0
-[2026-05-01 06:46:11.599] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/8096e051f319e49e652d924a0f3ff22a17e8f31d3202b506cf4ae57af88c1f2b/json HTTP/1.1&quot; 200 404
-[2026-05-01 06:46:11.600] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/4c4e30aa51ef8bffe2e5ad1a46a5bc654e0010e37800d9a09e9aed7b03ca5d9f/exec HTTP/1.1&quot; 201 74
-[2026-05-01 06:46:11.603] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/27714925c295fbf873e3389e093f9cafa235eb4025721580fc9102898af83ca0/start HTTP/1.1&quot; 101 0
-[2026-05-01 06:46:11.635] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/27714925c295fbf873e3389e093f9cafa235eb4025721580fc9102898af83ca0/json HTTP/1.1&quot; 200 389
-[2026-05-01 06:46:11.639] [INFO] [launch_manager] [0;34m 2026/5/1 6:46:11 LCLM LCLM INFO:    [ Completed the request for PG MainPG to State MainPG/Off in 0 ms ][0m
-[2026-05-01 06:46:11.772] [INFO] [launch_manager] [0;32m 2026/5/1 6:46:11 LCHM Fcty INFO:    [ Phm Daemon: Received termination request - shutting down ][0m
-[2026-05-01 06:46:11.773] [INFO] [launch_manager] [0;34m 2026/5/1 6:46:11 LCLM LCLM INFO:    [ Launch Manager completed with exit code value: 0 ][0m
-[2026-05-01 06:46:12.137] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/538ff70393116731dc514e7904c9c14c144eb5686c19ea6b44d2e125b59b0876/json HTTP/1.1&quot; 200 440
-[2026-05-01 06:46:12.138] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/4c4e30aa51ef8bffe2e5ad1a46a5bc654e0010e37800d9a09e9aed7b03ca5d9f/exec HTTP/1.1&quot; 201 74
-[2026-05-01 06:46:12.139] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/0da53bd26dd63f33d3561704708dc9e56bbf0d977edacbb01252d45d9c47ff1c/start HTTP/1.1&quot; 101 0
-[2026-05-01 06:46:12.173] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/0da53bd26dd63f33d3561704708dc9e56bbf0d977edacbb01252d45d9c47ff1c/json HTTP/1.1&quot; 200 402
-[2026-05-01 06:46:12.176] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/containers/4c4e30aa51ef8bffe2e5ad1a46a5bc654e0010e37800d9a09e9aed7b03ca5d9f/archive?path=%2Ftmp%2Ftests%2Fsmoke%2Fcontrol_daemon_mock.xml HTTP/1.1&quot; 200 None
-[2026-05-01 06:46:12.179] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/4c4e30aa51ef8bffe2e5ad1a46a5bc654e0010e37800d9a09e9aed7b03ca5d9f/exec HTTP/1.1&quot; 201 74
-[2026-05-01 06:46:12.180] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/989b39f708268da98597605165d9e63888c65bebedcaaaa3fe37fed985fa05fe/start HTTP/1.1&quot; 101 0
-[2026-05-01 06:46:12.215] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/989b39f708268da98597605165d9e63888c65bebedcaaaa3fe37fed985fa05fe/json HTTP/1.1&quot; 200 420
-[2026-05-01 06:46:12.217] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/containers/4c4e30aa51ef8bffe2e5ad1a46a5bc654e0010e37800d9a09e9aed7b03ca5d9f/archive?path=%2Ftmp%2Ftests%2Fsmoke%2Fgtest_process.xml HTTP/1.1&quot; 200 None
-[2026-05-01 06:46:12.218] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/4c4e30aa51ef8bffe2e5ad1a46a5bc654e0010e37800d9a09e9aed7b03ca5d9f/exec HTTP/1.1&quot; 201 74
-[2026-05-01 06:46:12.219] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/b7133530e832c1e3a6503ebbd89df57eadaf88e185f885281acd83cde4d113c3/start HTTP/1.1&quot; 101 0
-[2026-05-01 06:46:12.254] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/b7133530e832c1e3a6503ebbd89df57eadaf88e185f885281acd83cde4d113c3/json HTTP/1.1&quot; 200 414
+[2026-05-04 11:09:15.583] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/f4fbdf28bc12dce23baad5ba80a8f078863976f6d6de693d54804f06193d4c03/exec HTTP/1.1&quot; 201 74
+[2026-05-04 11:09:15.585] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/fd3e6c230c19948ff83ee220f1bc9523b9554569a95d38c0cf7a897bdb08a434/start HTTP/1.1&quot; 101 0
+[2026-05-04 11:09:15.617] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/fd3e6c230c19948ff83ee220f1bc9523b9554569a95d38c0cf7a897bdb08a434/json HTTP/1.1&quot; 200 404
+[2026-05-04 11:09:15.618] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/f4fbdf28bc12dce23baad5ba80a8f078863976f6d6de693d54804f06193d4c03/exec HTTP/1.1&quot; 201 74
+[2026-05-04 11:09:15.619] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/2fd1fe0aa88f7c27e5bfa67e276c4a47c1158ba8c39e344f4eb379cd718eaf5a/start HTTP/1.1&quot; 101 0
+[2026-05-04 11:09:15.653] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/2fd1fe0aa88f7c27e5bfa67e276c4a47c1158ba8c39e344f4eb379cd718eaf5a/json HTTP/1.1&quot; 200 442
+[2026-05-04 11:09:15.654] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/f4fbdf28bc12dce23baad5ba80a8f078863976f6d6de693d54804f06193d4c03/exec HTTP/1.1&quot; 201 74
+[2026-05-04 11:09:15.656] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/1ec8deb77cb91f1faf821a99399a8073056cd9787d986bbb0b11255ce88f2231/start HTTP/1.1&quot; 101 0
+[2026-05-04 11:09:15.656] [INFO] [launch_manager] [0;32m 2026/5/4 11:9:15 LCHM Fcty INFO:    [ Factory for FlatCfg MachineConfig: Loading of HM Machine Configuration succeeded. ][0m
+[2026-05-04 11:09:15.656] [INFO] [launch_manager]  [101;30m !!! -&gt; [0m [0;32m 2026/5/4 11:9:15 LCHM Fcty WARNING: [ Factory for FlatCfg MachineConfig: No watchdog configured ][0m
+[2026-05-04 11:09:15.657] [INFO] [launch_manager] [0;32m 2026/5/4 11:9:15 LCHM Fcty INFO:    [ Phm Daemon: The (configured) periodicity in [ns] is set to: 50000000 ][0m
+[2026-05-04 11:09:15.657] [INFO] [launch_manager]  [0;34m 2026/5/4 11:9:15 LCLM LCLM INFO:    [ LCM started successfully ][0m
+[2026-05-04 11:09:15.660] [INFO] [launch_manager] [==========] Running 1 test from 1 test suite.
+[2026-05-04 11:09:15.660] [INFO] [launch_manager] [----------] Global test environment set-up.
+[2026-05-04 11:09:15.660] [INFO] [launch_manager] [----------] 1 test from Smoke
+[2026-05-04 11:09:15.661] [INFO] [launch_manager] [ RUN      ] Smoke.Daemon
+[2026-05-04 11:09:15.661] [INFO] [launch_manager] [ STEP     ] Control daemon report kRunning
+[2026-05-04 11:09:15.662] [INFO] [launch_manager] [ END STEP ] Control daemon report kRunning
+[2026-05-04 11:09:15.662] [INFO] [launch_manager] [ STEP     ] Activate RunTarget Running
+[2026-05-04 11:09:15.662] [INFO] [launch_manager] [0;34m 2026/5/4 11:9:15 LCLM LCLM INFO:    [ Completed the request for PG MainPG to State MainPG/Startup in 4 ms ][0m
+[2026-05-04 11:09:15.666] [INFO] [launch_manager] [==========] Running 1 test from 1 test suite.
+[2026-05-04 11:09:15.666] [INFO] [launch_manager] [----------] Global test environment set-up.
+[2026-05-04 11:09:15.666] [INFO] [launch_manager] [----------] 1 test from Smoke
+[2026-05-04 11:09:15.666] [INFO] [launch_manager] [ RUN      ] Smoke.Process
+[2026-05-04 11:09:15.668] [INFO] [launch_manager] [       OK ] Smoke.Process (2 ms)
+[2026-05-04 11:09:15.668] [INFO] [launch_manager] [----------] 1 test from Smoke (2 ms total)
+[2026-05-04 11:09:15.668] [INFO] [launch_manager] [----------] Global test environment tear-down
+[2026-05-04 11:09:15.668] [INFO] [launch_manager] [==========] 1 test from 1 test suite ran. (2 ms total)
+[2026-05-04 11:09:15.669] [INFO] [launch_manager] [  PASSED  ] 1 test.
+[2026-05-04 11:09:15.669] [INFO] [launch_manager] [0;34m 2026/5/4 11:9:15 LCLM LCLM INFO:    [ Completed the request for PG MainPG to State MainPG/Running in 4 ms ][0m
+[2026-05-04 11:09:15.694] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/1ec8deb77cb91f1faf821a99399a8073056cd9787d986bbb0b11255ce88f2231/json HTTP/1.1&quot; 200 404
+[2026-05-04 11:09:15.695] [DEBUG] [tests.utils.testing_utils.run_until_file_deployed] Waiting for /tmp/tests/test_end
+[2026-05-04 11:09:15.707] [INFO] [launch_manager] [0;32m 2026/5/4 11:9:15 LCHM Sprv INFO:    [ Alive Supervision ( control_daemon_alive_supervision ) switched to OK. ][0m
+[2026-05-04 11:09:15.708] [INFO] [launch_manager]  [0;32m 2026/5/4 11:9:15 LCHM Sprv INFO:    [ Local Supervision ( control_daemon_local_supervision ) switched to OK. ][0m
+[2026-05-04 11:09:15.708] [INFO] [launch_manager]  [0;32m 2026/5/4 11:9:15 LCHM Sprv INFO:    [ Global Supervision ( global_supervision ) switched to OK. ][0m
+[2026-05-04 11:09:15.760] [INFO] [launch_manager] [ END STEP ] Activate RunTarget Running
+[2026-05-04 11:09:15.760] [INFO] [launch_manager] [ STEP     ] Activate RunTarget Startup
+[2026-05-04 11:09:15.763] [INFO] [launch_manager] [0;34m 2026/5/4 11:9:15 LCLM LCLM INFO:    [ Completed the request for PG MainPG to State MainPG/Startup in 2 ms ][0m
+[2026-05-04 11:09:15.860] [INFO] [launch_manager] [ END STEP ] Activate RunTarget Startup
+[2026-05-04 11:09:15.860] [INFO] [launch_manager] [ STEP     ] Activate RunTarget Off
+[2026-05-04 11:09:15.861] [INFO] [launch_manager] [ END STEP ] Activate RunTarget Off
+[2026-05-04 11:09:15.861] [INFO] [launch_manager] [       OK ] Smoke.Daemon (201 ms)
+[2026-05-04 11:09:15.861] [INFO] [launch_manager] [----------] 1 test from Smoke (201 ms total)
+[2026-05-04 11:09:15.861] [INFO] [launch_manager] [----------] Global test environment tear-down
+[2026-05-04 11:09:15.861] [INFO] [launch_manager] [==========] 1 test from 1 test suite ran. (201 ms total)
+[2026-05-04 11:09:15.862] [INFO] [launch_manager] [  PASSED  ] 1 test.
+[2026-05-04 11:09:15.962] [INFO] [launch_manager] [0;34m 2026/5/4 11:9:15 LCLM LCLM INFO:    [ Completed the request for PG MainPG to State MainPG/Off in 101 ms ][0m
+[2026-05-04 11:09:16.196] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/2fd1fe0aa88f7c27e5bfa67e276c4a47c1158ba8c39e344f4eb379cd718eaf5a/json HTTP/1.1&quot; 200 442
+[2026-05-04 11:09:16.197] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/f4fbdf28bc12dce23baad5ba80a8f078863976f6d6de693d54804f06193d4c03/exec HTTP/1.1&quot; 201 74
+[2026-05-04 11:09:16.198] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/959d2032ff45333de4d0deb86da0e573118539c7fd965cd2c0c853091ddaa599/start HTTP/1.1&quot; 101 0
+[2026-05-04 11:09:16.233] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/959d2032ff45333de4d0deb86da0e573118539c7fd965cd2c0c853091ddaa599/json HTTP/1.1&quot; 200 404
+[2026-05-04 11:09:16.234] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/f4fbdf28bc12dce23baad5ba80a8f078863976f6d6de693d54804f06193d4c03/exec HTTP/1.1&quot; 201 74
+[2026-05-04 11:09:16.237] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/7d5187c583bf071659be6eedb9e0c45adb4b4824b8ea197ad96baf213cca1a1d/start HTTP/1.1&quot; 101 0
+[2026-05-04 11:09:16.270] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/7d5187c583bf071659be6eedb9e0c45adb4b4824b8ea197ad96baf213cca1a1d/json HTTP/1.1&quot; 200 389
+[2026-05-04 11:09:16.275] [INFO] [launch_manager] [0;34m 2026/5/4 11:9:16 LCLM LCLM INFO:    [ Completed the request for PG MainPG to State MainPG/Off in 0 ms ][0m
+[2026-05-04 11:09:16.407] [INFO] [launch_manager] [0;32m 2026/5/4 11:9:16 LCHM Fcty INFO:    [ Phm Daemon: Received termination request - shutting down ][0m
+[2026-05-04 11:09:16.409] [INFO] [launch_manager] [0;34m 2026/5/4 11:9:16 LCLM LCLM INFO:    [ Launch Manager completed with exit code value: 0 ][0m
+[2026-05-04 11:09:16.772] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/2fd1fe0aa88f7c27e5bfa67e276c4a47c1158ba8c39e344f4eb379cd718eaf5a/json HTTP/1.1&quot; 200 440
+[2026-05-04 11:09:16.773] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/f4fbdf28bc12dce23baad5ba80a8f078863976f6d6de693d54804f06193d4c03/exec HTTP/1.1&quot; 201 74
+[2026-05-04 11:09:16.774] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/6d6dffc752611eceee4c2d6db9e7620475f27c68970716f80cc35ba5f79e41c6/start HTTP/1.1&quot; 101 0
+[2026-05-04 11:09:16.809] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/6d6dffc752611eceee4c2d6db9e7620475f27c68970716f80cc35ba5f79e41c6/json HTTP/1.1&quot; 200 402
+[2026-05-04 11:09:16.811] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/containers/f4fbdf28bc12dce23baad5ba80a8f078863976f6d6de693d54804f06193d4c03/archive?path=%2Ftmp%2Ftests%2Fsmoke%2Fcontrol_daemon_mock.xml HTTP/1.1&quot; 200 None
+[2026-05-04 11:09:16.814] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/f4fbdf28bc12dce23baad5ba80a8f078863976f6d6de693d54804f06193d4c03/exec HTTP/1.1&quot; 201 74
+[2026-05-04 11:09:16.815] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/bd3fb867b0cbc5f6431c19dc3b74b3795c0f92699cdb6568d0454dc1856c60f3/start HTTP/1.1&quot; 101 0
+[2026-05-04 11:09:16.849] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/bd3fb867b0cbc5f6431c19dc3b74b3795c0f92699cdb6568d0454dc1856c60f3/json HTTP/1.1&quot; 200 420
+[2026-05-04 11:09:16.851] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/containers/f4fbdf28bc12dce23baad5ba80a8f078863976f6d6de693d54804f06193d4c03/archive?path=%2Ftmp%2Ftests%2Fsmoke%2Fgtest_process.xml HTTP/1.1&quot; 200 None
+[2026-05-04 11:09:16.853] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/f4fbdf28bc12dce23baad5ba80a8f078863976f6d6de693d54804f06193d4c03/exec HTTP/1.1&quot; 201 74
+[2026-05-04 11:09:16.854] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/9ec4686ba0e2750ebfe3e9323a868f8aab64ab6b90e80d3a94d5b06b2e2773ae/start HTTP/1.1&quot; 101 0
+[2026-05-04 11:09:16.887] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/9ec4686ba0e2750ebfe3e9323a868f8aab64ab6b90e80d3a94d5b06b2e2773ae/json HTTP/1.1&quot; 200 414
 PASSED                                                                   [100%]
 ------------------------------ live log teardown -------------------------------
-[2026-05-01 06:46:12.336] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/4c4e30aa51ef8bffe2e5ad1a46a5bc654e0010e37800d9a09e9aed7b03ca5d9f/stop?t=1 HTTP/1.1&quot; 204 0
-[2026-05-01 06:46:12.346] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;DELETE /v1.48/containers/4c4e30aa51ef8bffe2e5ad1a46a5bc654e0010e37800d9a09e9aed7b03ca5d9f?v=False&amp;link=False&amp;force=True HTTP/1.1&quot; 204 0
+[2026-05-04 11:09:16.970] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/f4fbdf28bc12dce23baad5ba80a8f078863976f6d6de693d54804f06193d4c03/stop?t=1 HTTP/1.1&quot; 204 0
+[2026-05-04 11:09:16.979] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;DELETE /v1.48/containers/f4fbdf28bc12dce23baad5ba80a8f078863976f6d6de693d54804f06193d4c03?v=False&amp;link=False&amp;force=True HTTP/1.1&quot; 204 0
 
 
-- generated xml file: /home/runner/.bazel/sandbox/processwrapper-sandbox/811/execroot/_main/bazel-out/k8-fastbuild/testlogs/tests/integration/smoke/smoke/test.xml -
-============================== 1 passed in 5.16s ===============================
+- generated xml file: /home/runner/.bazel/sandbox/processwrapper-sandbox/807/execroot/_main/bazel-out/k8-fastbuild/testlogs/tests/integration/smoke/smoke/test.xml -
+============================== 1 passed in 4.55s ===============================
 </pre></div>
 </div>
 </section>
