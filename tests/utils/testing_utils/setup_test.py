@@ -39,3 +39,24 @@ def setup_test(request, target):
     assert res == 0, f"Couldn't extract tar {remote_tar}"
 
     logger.info("Test case setup finished")
+
+
+@pytest.fixture(autouse=True, scope="function")
+def download_core_dumps(target, remote_test_dir, test_output_dir):
+    """Downloads any core dump files from the remote after a test completes."""
+    yield
+
+    res, stdout = target.execute(f"find {remote_test_dir} -name 'core*' -type f")
+    if res != 0:
+        return
+    core_files = stdout.decode().strip().splitlines()
+    for remote_path in core_files:
+        remote_path = remote_path.strip()
+        if not remote_path:
+            continue
+        local_path = test_output_dir / Path(remote_path).name
+        try:
+            target.download(remote_path, str(local_path))
+            logger.info(f"Downloaded core dump: {remote_path} -> {local_path}")
+        except Exception as e:
+            logger.warning(f"Failed to download core dump {remote_path}: {e}")
