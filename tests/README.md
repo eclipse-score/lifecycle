@@ -2,14 +2,14 @@
 
 ## Bazel Args
 
-| Arg                          | What It Does |
-|:-----------------------------|:--------|
-|`--sandbox_add_mount_pair=/tmp` | Uses the users real `/tmp` dir for testing (only for `--config=host` builds|
-|`--test_output=streamed` | logs apear while running |
-|`--test_output=all`| outputs all logs after test |
-|`--nocache_test_results` | Reruns tests even if they have previously passed|
-|`--runs_per_test=N` | Reruns the thests N times|
-|`--compilation_mode=dbg` | Builds the binaries in debug mode (debug symbols & `NDEBUG` **not** defined ) |
+| Arg                            | What It Does                                                                |
+|:-------------------------------:-----------------------------------------------------------------------------|
+|`--sandbox_add_mount_pair=/tmp` | Uses the users real `/tmp` dir for testing (only for `--config=host` builds |
+|`--test_output=streamed`        | logs apear while running                                                    |
+|`--test_output=all`             | outputs all logs after test                                                 |
+|`--nocache_test_results`        | Reruns tests even if they have previously passed                            |
+|`--runs_per_test=N`             | Reruns the thests N times                                                   |
+|`--compilation_mode=dbg`        | Builds the binaries in debug mode (debug symbols & `NDEBUG` **not** defined)|
 
 
 ## Pytest Args
@@ -17,7 +17,7 @@
 Note the arguments are written so that you can add them to the end of the bazel
 test command.
 
-| Arg                          | What It Does |
-|:-----------------------------|:--------|
-|`--test_arg=--no-local-cleanup` | Integration tests don't cleanup after  running     |
-|`--test_arg=-s` | More logging from the python test framework     |
+| Arg                            | What It Does                                  |
+|:-------------------------------|:----------------------------------------------|
+|`--test_arg=--no-local-cleanup` | Integration tests don't cleanup after running |
+|`--test_arg=-s`                 | More logging from the python test framework   |
