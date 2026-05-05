@@ -15,6 +15,7 @@
 #include <grp.h>
 #include <libgen.h>
 #include <sys/mman.h>
+#include <sys/prctl.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <limits.h>
@@ -167,6 +168,16 @@ void implementMemoryResourceLimits(const score::lcm::internal::osal::OsalConfig&
         {
             LM_LOG_ERROR() << "[New process] setrlimit(RLIMIT_CPU," << limit.rlim_cur
                            << ") failed:" << std::strerror(errno);
+            sysexit(EXIT_FAILURE);
+        }
+    }
+
+    if (score::lcm::internal::kCoreDumps != 0U)
+    {
+        limit.rlim_max = limit.rlim_cur = RLIM_INFINITY;
+        if (setrlimit(RLIMIT_CORE, &limit) == -1)
+        {
+            LM_LOG_ERROR() << "[New process] setrlimit(RLIMIT_CORE) failed:" << std::strerror(errno);
             sysexit(EXIT_FAILURE);
         }
     }
@@ -422,6 +433,16 @@ OsalReturnType IProcess::setSchedulingAndSecurity(const OsalConfig& config)
     {
         LM_LOG_ERROR() << "setuid(" << config.uid_ << ") failed:" << std::strerror(errno);
         retval = OsalReturnType::kFail;
+    }
+
+    // setuid() clears the dumpable flag
+    if (score::lcm::internal::kCoreDumps != 0U)
+    {
+        if (-1 == prctl(PR_SET_DUMPABLE, 1))
+        {
+            LM_LOG_ERROR() << "prctl(PR_SET_DUMPABLE) failed:" << std::strerror(errno);
+            retval = OsalReturnType::kFail;
+        }
     }
 
     return retval;

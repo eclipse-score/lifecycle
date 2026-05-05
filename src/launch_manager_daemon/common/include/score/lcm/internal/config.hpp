@@ -70,6 +70,9 @@ enum class ProcessLimits : std::uint32_t {
     maxLocalBuffSize = 32U    ///< Maximum size for local buffer
 };
 
+// coverity[autosar_cpp14_a0_1_1_violation:INTENTIONAL] These are constants that are used globally.
+constexpr std::uint32_t kCoreDumps = 1U;  ///< Enable core dumps for managed processes (1 = enabled, 0 = disabled)
+
 }  // namespace lcm
 
 }  // namespace internal
