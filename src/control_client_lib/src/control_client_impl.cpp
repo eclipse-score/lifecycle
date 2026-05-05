@@ -74,7 +74,7 @@ ControlClientImpl::ControlClientImpl(std::function<void(const score::lcm::Execut
 
         std::unique_lock<std::mutex> lock(instance_creation_mutex_);
         if (instance_created_) {
-            std::cerr << "[Control Client] Only one instance of ControlClient is allowed per process." << std::endl;
+            LM_LOG_ERROR() << "[Control Client] Only one instance of ControlClient is allowed per process.";
             std::abort();
         } else {
             instance_created_ = true;
@@ -85,7 +85,7 @@ ControlClientImpl::ControlClientImpl(std::function<void(const score::lcm::Execut
     // Check size we have access of to avoid a crash if fd is not pointing to correct data
     const auto needed_size = sizeof(internal::osal::IpcCommsSync) + sizeof(internal::ControlClientChannel);
     if (fstat_ret == -1 || stats.st_size != static_cast<off_t>(needed_size)) {
-        std::cerr << "Control client channel at sync_fd is not valid!" << std::endl;
+        LM_LOG_ERROR() << "Control client channel at sync_fd is not valid!";
         instance_created_ = false;
         std::abort();
     }
