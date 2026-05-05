@@ -11,9 +11,31 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
+load("@rules_python//python:pip.bzl", "compile_pip_requirements")
 load("@score_docs_as_code//:docs.bzl", "docs")
 load("@score_tooling//:defs.bzl", "copyright_checker", "dash_license_checker", "rust_coverage_report", "setup_starpls", "use_format_targets")
 load("//:project_config.bzl", "PROJECT_CONFIG")
+
+# In order to update the requirements, change the `requirements.in` file and run:
+# `bazel run //:requirements.update`.
+# This will update the `requirements_lock.txt` file.
+# To upgrade all dependencies to their latest versions, run:
+# `bazel run //:requirements.update -- --upgrade`.
+compile_pip_requirements(
+    name = "requirements",
+    src = "requirements.in",
+    data = [
+        "//scripts/config_mapping:pip_requirements",
+        "//tests/integration:pip_requirements",
+    ],
+    extra_args = [
+        "--no-annotate",
+    ],
+    requirements_txt = "requirements_lock.txt",
+    tags = [
+        "manual",
+    ],
+)
 
 setup_starpls(
     name = "starpls_server",

@@ -12,31 +12,21 @@ load("@rules_python//python:pip.bzl", "compile_pip_requirements")
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-load("@score_lifecycle_pip//:requirements.bzl", "all_requirements")
+load("@score_lifecycle_pip//:requirements.bzl", "requirement")
 load("@score_tooling//python_basics:defs.bzl", "score_virtualenv")
 
-# In order to update the requirements, change the `requirements.txt` file and run:
-# `bazel run //tests/integration:requirements.update`.
-# This will update the `requirements.lock` file.
-# To upgrade all dependencies to their latest versions, run:
-# `bazel run //tests/integration:requirements.update -- --upgrade`.
-compile_pip_requirements(
-    name = "requirements",
-    srcs = [
-        "requirements.txt",
-        "@score_tooling//python_basics:requirements.txt",
-    ],
-    extra_args = [
-        "--no-annotate",
-    ],
-    requirements_txt = "requirements.lock",
-    tags = [
-        "manual",
-    ],
+filegroup(
+    name = "pip_requirements",
+    srcs = ["requirements.txt"],
+    visibility = ["//:__pkg__"],
 )
 
+# Only pass packages that don't overlap with pip_tooling (which already
+# provides: iniconfig, packaging, pluggy, pygments, pytest).
 score_virtualenv(
     name = "python_tc_venv",
-    reqs = all_requirements,
+    reqs = [
+        requirement("junitparser"),
+    ],
     venv_name = ".python_tc_venv",
 )
