@@ -22,8 +22,14 @@ from attribute_plugin import add_test_properties
     test_type="interface-test",
     derivation_technique="explorative-testing",
 )
-def test_smoke(target, setup_test, assert_test_results, remote_test_dir):
-    """Smoke test for the launch manager daemon running inside a Docker container."""
+def test_incorrect_config_non_reporting(
+    target, setup_test, assert_test_results, remote_test_dir
+):
+    """
+    Objective: Test robustness of LifecycleClient API
+    Input: Component wrongly configured as `native` application type, acquires a file descriptor ordinarily used by LM communication, and reports the Running state to LaunchManager.
+    Expected Outcome: Reporting Running state fails, LifecycleClient API returns an error.
+    """
     run_until_file_deployed(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
@@ -32,4 +38,4 @@ def test_smoke(target, setup_test, assert_test_results, remote_test_dir):
         timeout_s=2.0,
     )
 
-    assert_test_results(expected_xml_count=2)
+    assert_test_results(expected_xml_count=1)
