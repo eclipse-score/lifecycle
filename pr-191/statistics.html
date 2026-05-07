@@ -511,12 +511,12 @@ mw::log initialization error: Error No logging configuration files could be foun
 [ RUN      ] NotificationWithConfigTest.SendsRequestAndNeverTimesOut
 [       OK ] NotificationWithConfigTest.SendsRequestAndNeverTimesOut (3 ms)
 [ RUN      ] NotificationWithConfigTest.TimesOutWhenSendingRequestFails
-2026/05/07 10:16:31.8991266 4430889 000 ECU1 NONE Rcvy log error verbose 2 Notification (TestNotification) Failed to enqueue recovery request (ring buffer full) 
-[       OK ] NotificationWithConfigTest.TimesOutWhenSendingRequestFails (0 ms)
+2026/05/07 16:46:15.2375490 1983681 000 ECU1 NONE Rcvy log error verbose 2 Notification (TestNotification) Failed to enqueue recovery request (ring buffer full) 
+[       OK ] NotificationWithConfigTest.TimesOutWhenSendingRequestFails (4 ms)
 [ RUN      ] NotificationWithConfigTest.ProxyInitializationFails
-2026/05/07 10:16:31.8991267 4430892 000 ECU1 NONE Rcvy log error verbose 3 Notification (TestNotification) Invalid ProcessGroupState identifier: InvalidIdentifier 
+2026/05/07 16:46:15.2375491 1983684 000 ECU1 NONE Rcvy log error verbose 3 Notification (TestNotification) Invalid ProcessGroupState identifier: InvalidIdentifier 
 [       OK ] NotificationWithConfigTest.ProxyInitializationFails (0 ms)
-[----------] 4 tests from NotificationWithConfigTest (10 ms total)
+[----------] 4 tests from NotificationWithConfigTest (13 ms total)
 
 [----------] 1 test from NotificationWithoutConfigTest
 [ RUN      ] NotificationWithoutConfigTest.WatchdogNotificationGoesDirectlyToTimeout
@@ -524,7 +524,7 @@ mw::log initialization error: Error No logging configuration files could be foun
 [----------] 1 test from NotificationWithoutConfigTest (0 ms total)
 
 [----------] Global test environment tear-down
-[==========] 5 tests from 2 test suites ran. (10 ms total)
+[==========] 5 tests from 2 test suites ran. (14 ms total)
 [  PASSED  ] 5 tests.
 </pre></div>
 </div>
@@ -541,16 +541,16 @@ Running main() from gmock_main.cc
 [ RUN      ] ProcessStateClient_UT.ProcessStateClient_QueueOneProcess_Succeeds
 [       OK ] ProcessStateClient_UT.ProcessStateClient_QueueOneProcess_Succeeds (0 ms)
 [ RUN      ] ProcessStateClient_UT.ProcessStateClient_QueueMaxNumberOfProcesses_Succeeds
-[       OK ] ProcessStateClient_UT.ProcessStateClient_QueueMaxNumberOfProcesses_Succeeds (23 ms)
+[       OK ] ProcessStateClient_UT.ProcessStateClient_QueueMaxNumberOfProcesses_Succeeds (12 ms)
 [ RUN      ] ProcessStateClient_UT.ProcessStateClient_QueueOneProcessTooMany_Fails
 mw::log initialization error: Error No logging configuration files could be found. occurred with context information: Failed to load configuration files. Fallback to console logging.
-2026/05/07 10:16:31.8991500 4433223 000 ECU1 NONE LM log error verbose 1 Failed to queue posix process 
-2026/05/07 10:16:31.8991500 4433225 000 ECU1 NONE LM log error verbose 1 ProcessStateReceiver::getNextChangedPosixProcess: Overflow occurred, will be reported as kCommunicationError 
-[       OK ] ProcessStateClient_UT.ProcessStateClient_QueueOneProcessTooMany_Fails (12 ms)
-[----------] 4 tests from ProcessStateClient_UT (36 ms total)
+2026/05/07 16:46:15.2375320 1981980 000 ECU1 NONE LM log error verbose 1 Failed to queue posix process 
+2026/05/07 16:46:15.2375321 1981982 000 ECU1 NONE LM log error verbose 1 ProcessStateReceiver::getNextChangedPosixProcess: Overflow occurred, will be reported as kCommunicationError 
+[       OK ] ProcessStateClient_UT.ProcessStateClient_QueueOneProcessTooMany_Fails (7 ms)
+[----------] 4 tests from ProcessStateClient_UT (20 ms total)
 
 [----------] Global test environment tear-down
-[==========] 4 tests from 1 test suite ran. (36 ms total)
+[==========] 4 tests from 1 test suite ran. (20 ms total)
 [  PASSED  ] 4 tests.
 </pre></div>
 </div>
@@ -569,13 +569,13 @@ Running main() from gmock_main.cc
 [ RUN      ] RecoveryClientTest.GetNextRequestEmpty
 [       OK ] RecoveryClientTest.GetNextRequestEmpty (0 ms)
 [ RUN      ] RecoveryClientTest.RingBufferFull
-[       OK ] RecoveryClientTest.RingBufferFull (3 ms)
+[       OK ] RecoveryClientTest.RingBufferFull (0 ms)
 [ RUN      ] RecoveryClientTest.FIFOOrdering
 [       OK ] RecoveryClientTest.FIFOOrdering (0 ms)
-[----------] 5 tests from RecoveryClientTest (3 ms total)
+[----------] 5 tests from RecoveryClientTest (0 ms total)
 
 [----------] Global test environment tear-down
-[==========] 5 tests from 1 test suite ran. (3 ms total)
+[==========] 5 tests from 1 test suite ran. (0 ms total)
 [  PASSED  ] 5 tests.
 </pre></div>
 </div>
@@ -905,155 +905,71 @@ collected 1 item
 
 ../score_itf+::test_incorrect_config_non_reporting 
 -------------------------------- live log setup --------------------------------
-[2026-05-07 10:16:37.938] [INFO] [score.itf.plugins.docker] Executing custom image bootstrap command: tests/utils/environments/x86_64-linux/x86_64-linux.sh
-[2026-05-07 10:16:39.924] [DEBUG] [docker.utils.config] Trying paths: [&#39;/home/runner/.docker/config.json&#39;, &#39;/home/runner/.dockercfg&#39;]
-[2026-05-07 10:16:39.924] [DEBUG] [docker.utils.config] Found file at path: /home/runner/.docker/config.json
-[2026-05-07 10:16:39.924] [DEBUG] [docker.auth] Found &#39;auths&#39; section
-[2026-05-07 10:16:39.924] [DEBUG] [docker.auth] Found entry (registry=&#39;https://index.docker.io/v1/&#39;, username=&#39;githubactions&#39;)
-[2026-05-07 10:16:39.932] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /version HTTP/1.1&quot; 200 823
-[2026-05-07 10:16:41.572] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/create HTTP/1.1&quot; 201 88
-[2026-05-07 10:16:41.574] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/containers/66d524d151493ad0850e29b5e10d7af8adccd4448e416b83eb2309e6056639ca/json HTTP/1.1&quot; 200 None
-[2026-05-07 10:16:41.739] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/66d524d151493ad0850e29b5e10d7af8adccd4448e416b83eb2309e6056639ca/start HTTP/1.1&quot; 204 0
-[2026-05-07 10:16:41.740] [DEBUG] [docker.utils.config] Trying paths: [&#39;/home/runner/.docker/config.json&#39;, &#39;/home/runner/.dockercfg&#39;]
-[2026-05-07 10:16:41.740] [DEBUG] [docker.utils.config] Found file at path: /home/runner/.docker/config.json
-[2026-05-07 10:16:41.740] [DEBUG] [docker.auth] Found &#39;auths&#39; section
-[2026-05-07 10:16:41.740] [DEBUG] [docker.auth] Found entry (registry=&#39;https://index.docker.io/v1/&#39;, username=&#39;githubactions&#39;)
-[2026-05-07 10:16:41.747] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /version HTTP/1.1&quot; 200 823
-[2026-05-07 10:16:41.748] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/66d524d151493ad0850e29b5e10d7af8adccd4448e416b83eb2309e6056639ca/exec HTTP/1.1&quot; 201 74
-[2026-05-07 10:16:41.750] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/3a51c1ed8968281b9721244b15065f55bbf18d4290461f5ca495b23087edde1e/start HTTP/1.1&quot; 101 0
-[2026-05-07 10:16:41.793] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/3a51c1ed8968281b9721244b15065f55bbf18d4290461f5ca495b23087edde1e/json HTTP/1.1&quot; 200 390
-[2026-05-07 10:16:41.822] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;PUT /v1.48/containers/66d524d151493ad0850e29b5e10d7af8adccd4448e416b83eb2309e6056639ca/archive?path=%2Ftmp HTTP/1.1&quot; 200 0
-[2026-05-07 10:16:41.823] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/66d524d151493ad0850e29b5e10d7af8adccd4448e416b83eb2309e6056639ca/exec HTTP/1.1&quot; 201 74
-[2026-05-07 10:16:41.824] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/eaeddaf1ca8a855d0455d7a79e380931976a394e530f7cf6d4047b4aa80971ed/start HTTP/1.1&quot; 101 0
-[2026-05-07 10:16:41.888] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/eaeddaf1ca8a855d0455d7a79e380931976a394e530f7cf6d4047b4aa80971ed/json HTTP/1.1&quot; 200 424
-[2026-05-07 10:16:41.888] [INFO] [tests.utils.testing_utils.setup_test] Test case setup finished
+[2026-05-07 16:46:23.747] [INFO] [score.itf.plugins.docker] Executing custom image bootstrap command: tests/utils/environments/x86_64-linux/x86_64-linux.sh
+[2026-05-07 16:46:25.912] [DEBUG] [docker.utils.config] Trying paths: [&#39;/home/runner/.docker/config.json&#39;, &#39;/home/runner/.dockercfg&#39;]
+[2026-05-07 16:46:25.912] [DEBUG] [docker.utils.config] Found file at path: /home/runner/.docker/config.json
+[2026-05-07 16:46:25.913] [DEBUG] [docker.auth] Found &#39;auths&#39; section
+[2026-05-07 16:46:25.913] [DEBUG] [docker.auth] Found entry (registry=&#39;https://index.docker.io/v1/&#39;, username=&#39;githubactions&#39;)
+[2026-05-07 16:46:25.925] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /version HTTP/1.1&quot; 200 823
+[2026-05-07 16:46:27.006] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/create HTTP/1.1&quot; 201 88
+[2026-05-07 16:46:27.007] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/containers/d2d54e97b73906810e375a78b9629ead469319b6655f66fa51b677bc13637dcf/json HTTP/1.1&quot; 200 None
+[2026-05-07 16:46:27.185] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/d2d54e97b73906810e375a78b9629ead469319b6655f66fa51b677bc13637dcf/start HTTP/1.1&quot; 204 0
+[2026-05-07 16:46:27.185] [DEBUG] [docker.utils.config] Trying paths: [&#39;/home/runner/.docker/config.json&#39;, &#39;/home/runner/.dockercfg&#39;]
+[2026-05-07 16:46:27.185] [DEBUG] [docker.utils.config] Found file at path: /home/runner/.docker/config.json
+[2026-05-07 16:46:27.186] [DEBUG] [docker.auth] Found &#39;auths&#39; section
+[2026-05-07 16:46:27.186] [DEBUG] [docker.auth] Found entry (registry=&#39;https://index.docker.io/v1/&#39;, username=&#39;githubactions&#39;)
+[2026-05-07 16:46:27.193] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /version HTTP/1.1&quot; 200 823
+[2026-05-07 16:46:27.195] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/d2d54e97b73906810e375a78b9629ead469319b6655f66fa51b677bc13637dcf/exec HTTP/1.1&quot; 201 74
+[2026-05-07 16:46:27.196] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/6de8eb9e23a27bf5a1c2f30e872252e7e798057bfb7469bbb40b5b398e020747/start HTTP/1.1&quot; 101 0
+[2026-05-07 16:46:27.238] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/6de8eb9e23a27bf5a1c2f30e872252e7e798057bfb7469bbb40b5b398e020747/json HTTP/1.1&quot; 200 390
+[2026-05-07 16:46:27.263] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;PUT /v1.48/containers/d2d54e97b73906810e375a78b9629ead469319b6655f66fa51b677bc13637dcf/archive?path=%2Ftmp HTTP/1.1&quot; 200 0
+[2026-05-07 16:46:27.265] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/d2d54e97b73906810e375a78b9629ead469319b6655f66fa51b677bc13637dcf/exec HTTP/1.1&quot; 201 74
+[2026-05-07 16:46:27.266] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/b33373c75b76dc2d64d94527e06de24e2b3478062d3f244b61135304951e3da3/start HTTP/1.1&quot; 101 0
+[2026-05-07 16:46:27.331] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/b33373c75b76dc2d64d94527e06de24e2b3478062d3f244b61135304951e3da3/json HTTP/1.1&quot; 200 424
+[2026-05-07 16:46:27.331] [INFO] [tests.utils.testing_utils.setup_test] Test case setup finished
 -------------------------------- live log call ---------------------------------
-[2026-05-07 10:16:41.890] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/66d524d151493ad0850e29b5e10d7af8adccd4448e416b83eb2309e6056639ca/exec HTTP/1.1&quot; 201 74
-[2026-05-07 10:16:41.892] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/07da797a62c09f03a4a9665796d8c3b8e98c477b399e8da3f807d17b3d612a7f/start HTTP/1.1&quot; 101 0
-[2026-05-07 10:16:41.941] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/07da797a62c09f03a4a9665796d8c3b8e98c477b399e8da3f807d17b3d612a7f/json HTTP/1.1&quot; 200 404
-[2026-05-07 10:16:41.942] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/66d524d151493ad0850e29b5e10d7af8adccd4448e416b83eb2309e6056639ca/exec HTTP/1.1&quot; 201 74
-[2026-05-07 10:16:41.944] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/18d099c0c972313793260d2fce13b5c2ac90448ee4ab41d23127cfa9c4f8fd03/start HTTP/1.1&quot; 101 0
-[2026-05-07 10:16:41.982] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/18d099c0c972313793260d2fce13b5c2ac90448ee4ab41d23127cfa9c4f8fd03/json HTTP/1.1&quot; 200 467
-[2026-05-07 10:16:41.983] [INFO] [launch_manager] mw::log initialization error:
-[2026-05-07 10:16:41.984] [INFO] [launch_manager] Error No logging configuration files could be found.
-[2026-05-07 10:16:41.984] [INFO] [launch_manager] occurred with context information: Failed to load configuration files. Fallback to console logging.
-[2026-05-07 10:16:41.984] [INFO] [launch_manager] 2026/05/07 10:16:41.9001983 4538056 000 ECU1 NONE LM log warn verbose 1 Launch Manager Started !!!!
-[2026-05-07 10:16:41.984] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/66d524d151493ad0850e29b5e10d7af8adccd4448e416b83eb2309e6056639ca/exec HTTP/1.1&quot; 201 74
-[2026-05-07 10:16:41.985] [INFO] [launch_manager] 2026/05/07 10:16:41.9001983 4538059 000 ECU1 NONE LM log warn verbose 1 Loading LCM Configurations... 
-[2026-05-07 10:16:41.985] [INFO] [launch_manager] 2026/05/07 10:16:41.9001983 4538060 000 ECU1 NONE LM log warn verbose 1 ECUCFG_ENV_VAR_ROOTFOLDER set successfully
-[2026-05-07 10:16:41.986] [INFO] [launch_manager] 2026/05/07 10:16:41.9001984 4538061 000 ECU1 NONE LM log warn verbose 5 FlatBufferParser::getModeGroupPgName: MainPG ( IdentifierHash: 18079021346025578134 )
-[2026-05-07 10:16:41.986] [INFO] [launch_manager] 2026/05/07 10:16:41.9001984 4538062 000 ECU1 NONE LM log warn verbose 5 FlatBufferParser::getModeGroupPgStateName: MainPG/Startup ( IdentifierHash: 10504605499600661529 )
-[2026-05-07 10:16:41.986] [INFO] [launch_manager] 2026/05/07 10:16:41.9001984 4538063 000 ECU1 NONE LM log warn verbose 5
-[2026-05-07 10:16:41.986] [INFO] [launch_manager] FlatBufferParser::getModeGroupPgStateName: MainPG/Off ( IdentifierHash: 15281793077830264047 ) 
-[2026-05-07 10:16:41.986] [INFO] [launch_manager] 2026/05/07 10:16:41.9001984 4538063 000 ECU1 NONE LM log warn verbose 5 FlatBufferParser::getModeGroupPgStateName: MainPG/fallback_run_target ( IdentifierHash: 4059409696722237352 ) 
-[2026-05-07 10:16:41.986] [INFO] [launch_manager] 2026/05/07 10:16:41.9001984 4538064 000 ECU1 NONE LM log warn verbose 4 parseProcessConfigurations: Process index: 0 executable_path_: /tmp/tests/incorrect_config_non_reporting/non_reporting_process 
-[2026-05-07 10:16:41.987] [INFO] [launch_manager] 2026/05/07 10:16:41.9001984 4538065 000 ECU1 NONE LM log warn verbose 3 Process non_reporting_process is NOT Reporting execution state 
-[2026-05-07 10:16:41.987] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/67af2a6e67f143bd0338f4eb222b9eb1b632eb9b4fc06867d2dcce17a6c3e88e/start HTTP/1.1&quot; 101 0
-[2026-05-07 10:16:41.987] [INFO] [launch_manager] 2026/05/07 10:16:41.9001984 4538065 000 ECU1 NONE LM log warn verbose 1 Process is NOT associated with any function Cluster Affiliation 
-[2026-05-07 10:16:41.988] [INFO] [launch_manager] 2026/05/07 10:16:41.9001984 4538065 000 ECU1 NONE LM log warn verbose 3 Process non_reporting_process is Self terminating 
-[2026-05-07 10:16:41.988] [INFO] [launch_manager] 2026/05/07 10:16:41.9001984 4538065 000 ECU1 NONE LM log warn verbose 4 ParseProcessProcessGroup: id:::pg_name_: MainPG , pg_state_name_: MainPG/Startup 
-[2026-05-07 10:16:41.988] [INFO] [launch_manager] 2026/05/07 10:16:41.9001984 4538066 000 ECU1 NONE LM log warn verbose 3 Loading SWCL Nr. 0 Succeeded 
-[2026-05-07 10:16:41.988] [INFO] [launch_manager] 2026/05/07 10:16:41.9001984 4538066 000 ECU1 NONE LM log warn verbose 2 1 process group(s) 
-[2026-05-07 10:16:41.988] [INFO] [launch_manager] 2026/05/07 10:16:41.9001984 4538066 000 ECU1 NONE LM log warn verbose 3 Creating graph with 1 nodes 
-[2026-05-07 10:16:41.988] [INFO] [launch_manager] 2026/05/07 10:16:41.9001984 4538066 000 ECU1 NONE LM log warn verbose 1 Process groups initialized successfully 
-[2026-05-07 10:16:41.988] [INFO] [launch_manager] 2026/05/07 10:16:41.9001984 4538066 000 ECU1 NONE LM log warn verbose 1 Process Group initialization done 
-[2026-05-07 10:16:41.988] [INFO] [launch_manager] 2026/05/07 10:16:41.9001984 4538067 000 ECU1 NONE LM log warn verbose 3 Creating Safe Process Map with 1 entries 
-[2026-05-07 10:16:41.988] [INFO] [launch_manager] 2026/05/07 10:16:41.9001984 4538067 000 ECU1 NONE LM log warn verbose 3 Creating job queue with 1 entries 
-[2026-05-07 10:16:41.988] [INFO] [launch_manager] 2026/05/07 10:16:41.9001984 4538067 000 ECU1 NONE LM log warn verbose 1 Creating worker threads...
-[2026-05-07 10:16:41.988] [INFO] [launch_manager] 2026/05/07 10:16:41.9001986 4538083 000 ECU1 NONE LM log warn verbose 7 Process group index 0 (with name MainPG ) has 1 processes 
-[2026-05-07 10:16:41.988] [INFO] [launch_manager] 2026/05/07 10:16:41.9001986 4538084 000 ECU1 NONE LM log warn verbose 2 Creating process node with id: 0 
-[2026-05-07 10:16:41.989] [INFO] [launch_manager] 2026/05/07 10:16:41.9001986 4538085 000 ECU1 NONE LM log warn verbose 5 Process 0 has 0 start dependencies 
-[2026-05-07 10:16:41.989] [INFO] [launch_manager] 2026/05/07 10:16:41.9001986 4538086 000 ECU1 NONE LM log warn verbose 3 Created 1 process nodes 
-[2026-05-07 10:16:41.989] [INFO] [launch_manager] 2026/05/07 10:16:41.9001986 4538086 000 ECU1 NONE LM log warn verbose 2 Creating successor lists for process group MainPG 
-[2026-05-07 10:16:41.989] [INFO] [launch_manager] 2026/05/07 10:16:41.9001986 4538087 000 ECU1 NONE LM log warn verbose 1 Graphs initialized
-[2026-05-07 10:16:41.989] [INFO] [launch_manager] 2026/05/07 10:16:41.9001986 4538090 000 ECU1 NONE Fcty log warn verbose 2 Factory for FlatCfg MachineConfig: No watchdog configured
-[2026-05-07 10:16:41.989] [INFO] [launch_manager] 2026/05/07 10:16:41.9001987 4538092 000 ECU1 NONE LM log warn verbose 1
-[2026-05-07 10:16:41.989] [INFO] [launch_manager] LCM started successfully
-[2026-05-07 10:16:41.989] [INFO] [launch_manager] 2026/05/07 10:16:41.9001987 4538093 000 ECU1 NONE LM log warn verbose 3
-[2026-05-07 10:16:41.989] [INFO] [launch_manager] clock() at run(): 33.184000 ms
-[2026-05-07 10:16:41.989] [INFO] [launch_manager] 2026/05/07 10:16:41.9001987 4538095 000 ECU1 NONE LM log warn verbose 1 =============STARTING MAINPG STARTUP STATE============
-[2026-05-07 10:16:41.990] [INFO] [launch_manager] 2026/05/07 10:16:41.9001987 4538096 000 ECU1 NONE LM log warn verbose 2
-[2026-05-07 10:16:41.990] [INFO] [launch_manager] wait failed: Unable to wait for any child process to terminate. Error: No child processes
-[2026-05-07 10:16:41.990] [INFO] [launch_manager] 2026/05/07 10:16:41.9001987 4538098 000 ECU1 NONE LM log warn verbose 9
-[2026-05-07 10:16:41.990] [INFO] [launch_manager] Graph::setState changes from kSuccess to kInTransition for PG 0 ( MainPG )
-[2026-05-07 10:16:41.990] [INFO] [launch_manager] 2026/05/07 10:16:41.9001989 4538111 000 ECU1 NONE LM log warn verbose 2
-[2026-05-07 10:16:41.990] [INFO] [launch_manager] Stop Dependencies: 0
-[2026-05-07 10:16:41.991] [INFO] [launch_manager] 2026/05/07 10:16:41.9001991 4538136 000 ECU1 NONE LM log warn verbose 2
-[2026-05-07 10:16:41.991] [INFO] [launch_manager] Start Dependencies: 0
-[2026-05-07 10:16:41.991] [INFO] [launch_manager] 2026/05/07 10:16:41.9001991 4538138 000 ECU1 NONE LM log warn verbose 6 Starting process 0 ( non_reporting_process ) from executable /tmp/tests/incorrect_config_non_reporting/non_reporting_process
-[2026-05-07 10:16:41.992] [INFO] [launch_manager] 2026/05/07 10:16:41.9001992 4538145 000 ECU1 NONE LM log warn verbose 4
-[2026-05-07 10:16:41.992] [INFO] [launch_manager] startProcess pid 69 received for process: non_reporting_process
-[2026-05-07 10:16:41.993] [INFO] [launch_manager] 2026/05/07 10:16:41.9001993 4538158 000 ECU1 NONE LM log warn verbose 8
-[2026-05-07 10:16:41.994] [INFO] [launch_manager] Considered kRunning for Non Reporting Process pid 69 ( non_reporting_process ) process 0 of group MainPG
-[2026-05-07 10:16:41.994] [INFO] [launch_manager] 2026/05/07 10:16:41.9001993 4538160 000 ECU1 NONE LM log warn verbose 7
-[2026-05-07 10:16:41.994] [INFO] [launch_manager] startProcess for MainPG process 0 ( non_reporting_process ) done
-[2026-05-07 10:16:41.994] [INFO] [launch_manager] 2026/05/07 10:16:41.9001994 4538162 000 ECU1 NONE LM log warn verbose 1
-[2026-05-07 10:16:41.994] [INFO] [launch_manager] Control Client handler nudged
-[2026-05-07 10:16:41.994] [INFO] [launch_manager] 2026/05/07 10:16:41.9001994 4538164 000 ECU1 NONE LM log warn verbose 3
-[2026-05-07 10:16:41.994] [INFO] [launch_manager] clock() at successful initial state transition: 34.543000 ms
-[2026-05-07 10:16:41.994] [INFO] [launch_manager] 2026/05/07 10:16:41.9001994 4538167 000 ECU1 NONE LM log warn verbose 9
-[2026-05-07 10:16:41.995] [INFO] [launch_manager] Graph::setState changes from kInTransition to kSuccess for PG 0 ( MainPG )
-[2026-05-07 10:16:41.995] [INFO] [launch_manager] 2026/05/07 10:16:41.9001994 4538169 000 ECU1 NONE LM log warn verbose 7
-[2026-05-07 10:16:41.995] [INFO] [launch_manager] Completed the request for PG MainPG to State MainPG/Startup in 7 ms
-[2026-05-07 10:16:41.995] [INFO] [launch_manager] 2026/05/07 10:16:41.9001994 4538170 000 ECU1 NONE LM log warn verbose 1
-[2026-05-07 10:16:41.995] [INFO] [launch_manager] Control Client handler nudged
-[2026-05-07 10:16:41.995] [INFO] [launch_manager] [==========] Running 1 test from 1 test suite.
-[2026-05-07 10:16:41.995] [INFO] [launch_manager] [----------] Global test environment set-up.
-[2026-05-07 10:16:41.995] [INFO] [launch_manager] [----------] 1 test from NonReporting
-[2026-05-07 10:16:41.995] [INFO] [launch_manager] [ RUN      ] NonReporting.Process
-[2026-05-07 10:16:41.996] [INFO] [launch_manager] mw::log
-[2026-05-07 10:16:41.996] [INFO] [launch_manager] initialization error:
-[2026-05-07 10:16:41.996] [INFO] [launch_manager] Error
-[2026-05-07 10:16:41.996] [INFO] [launch_manager] No logging configuration files could be found.
-[2026-05-07 10:16:41.996] [INFO] [launch_manager] occurred
-[2026-05-07 10:16:41.996] [INFO] [launch_manager] with context information:
-[2026-05-07 10:16:41.996] [INFO] [launch_manager] Failed to load configuration files. Fallback to console logging.
-[2026-05-07 10:16:41.996] [INFO] [launch_manager] 2026/05/07 10:16:41.9001996 4538186 000 ECU1 NONE LM log error verbose 3
-[2026-05-07 10:16:41.996] [INFO] [launch_manager] [Lifecycle client] FD  3  is invalid for kRunning report
-[2026-05-07 10:16:41.997] [INFO] [launch_manager] [       OK ] NonReporting.Process (1 ms)
-[2026-05-07 10:16:41.997] [INFO] [launch_manager] [----------] 1 test from NonReporting (1 ms total)
-[2026-05-07 10:16:41.997] [INFO] [launch_manager] [----------] Global test environment tear-down
-[2026-05-07 10:16:41.997] [INFO] [launch_manager] [==========] 1 test from 1 test suite ran. (1 ms total)
-[2026-05-07 10:16:41.997] [INFO] [launch_manager] [  PASSED  ] 1 test.
-[2026-05-07 10:16:42.047] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/67af2a6e67f143bd0338f4eb222b9eb1b632eb9b4fc06867d2dcce17a6c3e88e/json HTTP/1.1&quot; 200 404
-[2026-05-07 10:16:42.048] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/66d524d151493ad0850e29b5e10d7af8adccd4448e416b83eb2309e6056639ca/exec HTTP/1.1&quot; 201 74
-[2026-05-07 10:16:42.049] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/d6120bc17b085c76c97a9be2169d2fad3cf96d9f70eb06fa8e5d92254aedd8a2/start HTTP/1.1&quot; 101 0
-[2026-05-07 10:16:42.088] [INFO] [launch_manager] 2026/05/07 10:16:42.9002088 4539101 000 ECU1 NONE LM log warn verbose 12
-[2026-05-07 10:16:42.088] [INFO] [launch_manager] Child process 0 of MainPG pid 69 ( non_reporting_process ) for node True terminated with status 0
-[2026-05-07 10:16:42.088] [INFO] [launch_manager] 2026/05/07 10:16:42.9002088 4539102 000 ECU1 NONE LM log warn verbose 2
-[2026-05-07 10:16:42.088] [INFO] [launch_manager] wait failed: Unable to wait for any child process to terminate. Error: No child processes
-[2026-05-07 10:16:42.093] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/d6120bc17b085c76c97a9be2169d2fad3cf96d9f70eb06fa8e5d92254aedd8a2/json HTTP/1.1&quot; 200 389
-[2026-05-07 10:16:42.106] [INFO] [launch_manager] 2026/05/07 10:16:42.9002106 4539282 000 ECU1 NONE LM log warn verbose 1 Cancel all process group transitions 
-[2026-05-07 10:16:42.106] [INFO] [launch_manager] 2026/05/07 10:16:42.9002106 4539282 000 ECU1 NONE LM log warn verbose 9 Graph::setState changes from kSuccess to kUndefinedState for PG 0 ( MainPG )
-[2026-05-07 10:16:42.106] [INFO] [launch_manager] 2026/05/07 10:16:42.9002106 4539282 000 ECU1 NONE LM log warn verbose 1 Wait for process group cancellations
-[2026-05-07 10:16:42.106] [INFO] [launch_manager] 2026/05/07 10:16:42.9002106 4539282 000 ECU1 NONE LM log warn verbose 1 Start transitioning process groups to Off state
-[2026-05-07 10:16:42.106] [INFO] [launch_manager] 2026/05/07 10:16:42.9002106 4539283 000 ECU1 NONE LM log warn verbose 9 Graph::setState changes from kUndefinedState to kInTransition for PG 0 ( MainPG ) 
-[2026-05-07 10:16:42.106] [INFO] [launch_manager] 2026/05/07 10:16:42.9002106 4539283 000 ECU1 NONE LM log warn verbose 2 Stop Dependencies: 0
-[2026-05-07 10:16:42.106] [INFO] [launch_manager] 2026/05/07 10:16:42.9002106 4539283 000 ECU1 NONE LM log warn verbose 2 Start Dependencies: 0 
-[2026-05-07 10:16:42.106] [INFO] [launch_manager] 2026/05/07 10:16:42.9002106 4539284 000 ECU1 NONE LM log warn verbose 9 Graph::setState changes from kInTransition to kSuccess for PG 0 ( MainPG )
-[2026-05-07 10:16:42.107] [INFO] [launch_manager] 2026/05/07 10:16:42.9002106 4539284 000 ECU1 NONE LM log warn verbose 7
-[2026-05-07 10:16:42.107] [INFO] [launch_manager] Completed the request for PG MainPG to State MainPG/Off in 0 ms 
-[2026-05-07 10:16:42.107] [INFO] [launch_manager] 2026/05/07 10:16:42.9002106 4539285 000 ECU1 NONE LM log warn verbose 1 Control Client handler nudged
-[2026-05-07 10:16:42.107] [INFO] [launch_manager] 2026/05/07 10:16:42.9002106 4539285 000 ECU1 NONE LM log warn verbose 1 Wait for all process groups to complete the transition
-[2026-05-07 10:16:42.188] [INFO] [launch_manager] 2026/05/07 10:16:42.9002188 4540104 000 ECU1 NONE LM log warn verbose 1 LCM run successfully
-[2026-05-07 10:16:42.238] [INFO] [launch_manager] 2026/05/07 10:16:42.9002237 4540600 000 ECU1 NONE LM log warn verbose 1 Graph destroyed
-[2026-05-07 10:16:42.238] [INFO] [launch_manager] 2026/05/07 10:16:42.9002238 4540601 000 ECU1 NONE LM log warn verbose 2 Launch Manager completed with exit code value: 0
-[2026-05-07 10:16:42.595] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/18d099c0c972313793260d2fce13b5c2ac90448ee4ab41d23127cfa9c4f8fd03/json HTTP/1.1&quot; 200 465
-[2026-05-07 10:16:42.596] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/66d524d151493ad0850e29b5e10d7af8adccd4448e416b83eb2309e6056639ca/exec HTTP/1.1&quot; 201 74
-[2026-05-07 10:16:42.597] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/6a83d2968fcc856e31873776ab78a23471e7b0e8cb2f61175ece341748cdadf2/start HTTP/1.1&quot; 101 0
-[2026-05-07 10:16:42.639] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/6a83d2968fcc856e31873776ab78a23471e7b0e8cb2f61175ece341748cdadf2/json HTTP/1.1&quot; 200 427
-[2026-05-07 10:16:42.643] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/containers/66d524d151493ad0850e29b5e10d7af8adccd4448e416b83eb2309e6056639ca/archive?path=%2Ftmp%2Ftests%2Fincorrect_config_non_reporting%2Fnon_reporting_process.xml HTTP/1.1&quot; 200 None
-[2026-05-07 10:16:42.646] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/66d524d151493ad0850e29b5e10d7af8adccd4448e416b83eb2309e6056639ca/exec HTTP/1.1&quot; 201 74
-[2026-05-07 10:16:42.646] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/7cf397962ef26ea23e00727545bbdb4a1b863449a60b34a2711dab3df920d317/start HTTP/1.1&quot; 101 0
-[2026-05-07 10:16:42.680] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/7cf397962ef26ea23e00727545bbdb4a1b863449a60b34a2711dab3df920d317/json HTTP/1.1&quot; 200 447
+[2026-05-07 16:46:27.333] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/d2d54e97b73906810e375a78b9629ead469319b6655f66fa51b677bc13637dcf/exec HTTP/1.1&quot; 201 74
+[2026-05-07 16:46:27.334] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/813e2e8658ce67217862ad7c7434cbee471119f12a6216b05cb0ae86e78e5bb3/start HTTP/1.1&quot; 101 0
+[2026-05-07 16:46:27.377] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/813e2e8658ce67217862ad7c7434cbee471119f12a6216b05cb0ae86e78e5bb3/json HTTP/1.1&quot; 200 404
+[2026-05-07 16:46:27.379] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/d2d54e97b73906810e375a78b9629ead469319b6655f66fa51b677bc13637dcf/exec HTTP/1.1&quot; 201 74
+[2026-05-07 16:46:27.380] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/37e1b86e17f84aa6d719f13e0032bd0f1db3b3fcbdf8472e9b512a72592d69f5/start HTTP/1.1&quot; 101 0
+[2026-05-07 16:46:27.422] [INFO] [launch_manager] mw::log initialization error: Error No logging configuration files could be found. occurred with context information: Failed to load configuration files. Fallback to console logging.
+[2026-05-07 16:46:27.424] [INFO] [launch_manager] 2026/05/07 16:46:27.2387423 2103009 000 ECU1 NONE Fcty log warn verbose 2 Factory for FlatCfg MachineConfig: No watchdog configured
+[2026-05-07 16:46:27.424] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/37e1b86e17f84aa6d719f13e0032bd0f1db3b3fcbdf8472e9b512a72592d69f5/json HTTP/1.1&quot; 200 467
+[2026-05-07 16:46:27.425] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/d2d54e97b73906810e375a78b9629ead469319b6655f66fa51b677bc13637dcf/exec HTTP/1.1&quot; 201 74
+[2026-05-07 16:46:27.427] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/4f8d7c8727cc1d1b01805407d1bc4a631408ebfc89c81dc6f4f30172eb31644f/start HTTP/1.1&quot; 101 0
+[2026-05-07 16:46:27.428] [INFO] [launch_manager] [==========] Running 1 test from 1 test suite.
+[2026-05-07 16:46:27.428] [INFO] [launch_manager] [----------] Global test environment set-up.
+[2026-05-07 16:46:27.428] [INFO] [launch_manager] [----------] 1 test from NonReporting
+[2026-05-07 16:46:27.428] [INFO] [launch_manager] [ RUN      ] NonReporting.Process
+[2026-05-07 16:46:27.429] [INFO] [launch_manager] mw::log initialization error:
+[2026-05-07 16:46:27.429] [INFO] [launch_manager] Error No logging configuration files could be found. occurred with context information: Failed to load configuration files. Fallback to console logging.
+[2026-05-07 16:46:27.429] [INFO] [launch_manager] 2026/05/07 16:46:27.2387428 2103059 000 ECU1 NONE LM log error verbose 3 [Lifecycle client] FD  3  is invalid for kRunning report 
+[2026-05-07 16:46:27.429] [INFO] [launch_manager] [       OK ] NonReporting.Process (0 ms)
+[2026-05-07 16:46:27.429] [INFO] [launch_manager] [----------] 1 test from NonReporting (0 ms total)
+[2026-05-07 16:46:27.429] [INFO] [launch_manager] [----------] Global test environment tear-down
+[2026-05-07 16:46:27.429] [INFO] [launch_manager] [==========] 1 test from 1 test suite ran. (0 ms total)
+[2026-05-07 16:46:27.429] [INFO] [launch_manager] [  PASSED  ] 1 test.
+[2026-05-07 16:46:27.477] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/4f8d7c8727cc1d1b01805407d1bc4a631408ebfc89c81dc6f4f30172eb31644f/json HTTP/1.1&quot; 200 404
+[2026-05-07 16:46:27.478] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/d2d54e97b73906810e375a78b9629ead469319b6655f66fa51b677bc13637dcf/exec HTTP/1.1&quot; 201 74
+[2026-05-07 16:46:27.480] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/a1770e19737fd1e67db1af46be4b5cb3cc2eb9fb69bcecc25191c52582663568/start HTTP/1.1&quot; 101 0
+[2026-05-07 16:46:27.516] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/a1770e19737fd1e67db1af46be4b5cb3cc2eb9fb69bcecc25191c52582663568/json HTTP/1.1&quot; 200 389
+[2026-05-07 16:46:28.018] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/37e1b86e17f84aa6d719f13e0032bd0f1db3b3fcbdf8472e9b512a72592d69f5/json HTTP/1.1&quot; 200 465
+[2026-05-07 16:46:28.019] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/d2d54e97b73906810e375a78b9629ead469319b6655f66fa51b677bc13637dcf/exec HTTP/1.1&quot; 201 74
+[2026-05-07 16:46:28.020] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/ff3b4676b874586e9a861ae715dd161d2690ced155de97ad743ceddbb966ed86/start HTTP/1.1&quot; 101 0
+[2026-05-07 16:46:28.065] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/ff3b4676b874586e9a861ae715dd161d2690ced155de97ad743ceddbb966ed86/json HTTP/1.1&quot; 200 427
+[2026-05-07 16:46:28.068] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/containers/d2d54e97b73906810e375a78b9629ead469319b6655f66fa51b677bc13637dcf/archive?path=%2Ftmp%2Ftests%2Fincorrect_config_non_reporting%2Fnon_reporting_process.xml HTTP/1.1&quot; 200 None
+[2026-05-07 16:46:28.071] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/d2d54e97b73906810e375a78b9629ead469319b6655f66fa51b677bc13637dcf/exec HTTP/1.1&quot; 201 74
+[2026-05-07 16:46:28.072] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/06a1e2629dc772b6e39db4692fbb579bbe02b6abab07342cd5305b09201a5be1/start HTTP/1.1&quot; 101 0
+[2026-05-07 16:46:28.109] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/06a1e2629dc772b6e39db4692fbb579bbe02b6abab07342cd5305b09201a5be1/json HTTP/1.1&quot; 200 447
 PASSED                                                                   [100%]
 ------------------------------ live log teardown -------------------------------
-[2026-05-07 10:16:42.776] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/66d524d151493ad0850e29b5e10d7af8adccd4448e416b83eb2309e6056639ca/stop?t=1 HTTP/1.1&quot; 204 0
-[2026-05-07 10:16:42.784] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;DELETE /v1.48/containers/66d524d151493ad0850e29b5e10d7af8adccd4448e416b83eb2309e6056639ca?v=False&amp;link=False&amp;force=True HTTP/1.1&quot; 204 0
+[2026-05-07 16:46:28.214] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/d2d54e97b73906810e375a78b9629ead469319b6655f66fa51b677bc13637dcf/stop?t=1 HTTP/1.1&quot; 204 0
+[2026-05-07 16:46:28.222] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;DELETE /v1.48/containers/d2d54e97b73906810e375a78b9629ead469319b6655f66fa51b677bc13637dcf?v=False&amp;link=False&amp;force=True HTTP/1.1&quot; 204 0
 
 
 - generated xml file: /home/runner/.bazel/sandbox/processwrapper-sandbox/813/execroot/_main/bazel-out/k8-fastbuild/testlogs/tests/integration/incorrect_config_non_reporting/incorrect_config_non_reporting/test.xml -
-============================== 1 passed in 4.87s ===============================
+============================== 1 passed in 4.50s ===============================
 </pre></div>
 </div>
 <p class="rubric">tests-report/tests/integration/smoke/smoke/test.log</p>
@@ -1068,254 +984,96 @@ collected 1 item
 
 ../score_itf+::test_smoke 
 -------------------------------- live log setup --------------------------------
-[2026-05-07 10:16:37.937] [INFO] [score.itf.plugins.docker] Executing custom image bootstrap command: tests/utils/environments/x86_64-linux/x86_64-linux.sh
-[2026-05-07 10:16:39.568] [DEBUG] [docker.utils.config] Trying paths: [&#39;/home/runner/.docker/config.json&#39;, &#39;/home/runner/.dockercfg&#39;]
-[2026-05-07 10:16:39.568] [DEBUG] [docker.utils.config] Found file at path: /home/runner/.docker/config.json
-[2026-05-07 10:16:39.568] [DEBUG] [docker.auth] Found &#39;auths&#39; section
-[2026-05-07 10:16:39.568] [DEBUG] [docker.auth] Found entry (registry=&#39;https://index.docker.io/v1/&#39;, username=&#39;githubactions&#39;)
-[2026-05-07 10:16:39.576] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /version HTTP/1.1&quot; 200 823
-[2026-05-07 10:16:41.572] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/create HTTP/1.1&quot; 201 88
-[2026-05-07 10:16:41.574] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/containers/e8205726a97c2b48d7ba55246627cc38470bd42dfde2e8a8af86f49391e5e11c/json HTTP/1.1&quot; 200 None
-[2026-05-07 10:16:41.748] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/e8205726a97c2b48d7ba55246627cc38470bd42dfde2e8a8af86f49391e5e11c/start HTTP/1.1&quot; 204 0
-[2026-05-07 10:16:41.748] [DEBUG] [docker.utils.config] Trying paths: [&#39;/home/runner/.docker/config.json&#39;, &#39;/home/runner/.dockercfg&#39;]
-[2026-05-07 10:16:41.748] [DEBUG] [docker.utils.config] Found file at path: /home/runner/.docker/config.json
-[2026-05-07 10:16:41.748] [DEBUG] [docker.auth] Found &#39;auths&#39; section
-[2026-05-07 10:16:41.749] [DEBUG] [docker.auth] Found entry (registry=&#39;https://index.docker.io/v1/&#39;, username=&#39;githubactions&#39;)
-[2026-05-07 10:16:41.758] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /version HTTP/1.1&quot; 200 823
-[2026-05-07 10:16:41.760] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/e8205726a97c2b48d7ba55246627cc38470bd42dfde2e8a8af86f49391e5e11c/exec HTTP/1.1&quot; 201 74
-[2026-05-07 10:16:41.761] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/a0545592c83bf5cc3a77c9a11d21ee93114a94f1d21487fb474b49c7080e56e9/start HTTP/1.1&quot; 101 0
-[2026-05-07 10:16:41.809] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/a0545592c83bf5cc3a77c9a11d21ee93114a94f1d21487fb474b49c7080e56e9/json HTTP/1.1&quot; 200 390
-[2026-05-07 10:16:41.844] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;PUT /v1.48/containers/e8205726a97c2b48d7ba55246627cc38470bd42dfde2e8a8af86f49391e5e11c/archive?path=%2Ftmp HTTP/1.1&quot; 200 0
-[2026-05-07 10:16:41.845] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/e8205726a97c2b48d7ba55246627cc38470bd42dfde2e8a8af86f49391e5e11c/exec HTTP/1.1&quot; 201 74
-[2026-05-07 10:16:41.846] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/151f544961d874fb2bedd102ca988a13275fd826e4df81c5bd3af7b226b33922/start HTTP/1.1&quot; 101 0
-[2026-05-07 10:16:41.912] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/151f544961d874fb2bedd102ca988a13275fd826e4df81c5bd3af7b226b33922/json HTTP/1.1&quot; 200 416
-[2026-05-07 10:16:41.913] [INFO] [tests.utils.testing_utils.setup_test] Test case setup finished
+[2026-05-07 16:46:23.747] [INFO] [score.itf.plugins.docker] Executing custom image bootstrap command: tests/utils/environments/x86_64-linux/x86_64-linux.sh
+[2026-05-07 16:46:25.458] [DEBUG] [docker.utils.config] Trying paths: [&#39;/home/runner/.docker/config.json&#39;, &#39;/home/runner/.dockercfg&#39;]
+[2026-05-07 16:46:25.458] [DEBUG] [docker.utils.config] Found file at path: /home/runner/.docker/config.json
+[2026-05-07 16:46:25.458] [DEBUG] [docker.auth] Found &#39;auths&#39; section
+[2026-05-07 16:46:25.458] [DEBUG] [docker.auth] Found entry (registry=&#39;https://index.docker.io/v1/&#39;, username=&#39;githubactions&#39;)
+[2026-05-07 16:46:25.467] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /version HTTP/1.1&quot; 200 823
+[2026-05-07 16:46:27.006] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/create HTTP/1.1&quot; 201 88
+[2026-05-07 16:46:27.008] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/containers/c6e82833c6cec23a9a1119159a3d779a375582ec5a42936da4c4c2af4d2ad227/json HTTP/1.1&quot; 200 None
+[2026-05-07 16:46:27.188] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/c6e82833c6cec23a9a1119159a3d779a375582ec5a42936da4c4c2af4d2ad227/start HTTP/1.1&quot; 204 0
+[2026-05-07 16:46:27.189] [DEBUG] [docker.utils.config] Trying paths: [&#39;/home/runner/.docker/config.json&#39;, &#39;/home/runner/.dockercfg&#39;]
+[2026-05-07 16:46:27.189] [DEBUG] [docker.utils.config] Found file at path: /home/runner/.docker/config.json
+[2026-05-07 16:46:27.189] [DEBUG] [docker.auth] Found &#39;auths&#39; section
+[2026-05-07 16:46:27.189] [DEBUG] [docker.auth] Found entry (registry=&#39;https://index.docker.io/v1/&#39;, username=&#39;githubactions&#39;)
+[2026-05-07 16:46:27.197] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /version HTTP/1.1&quot; 200 823
+[2026-05-07 16:46:27.198] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/c6e82833c6cec23a9a1119159a3d779a375582ec5a42936da4c4c2af4d2ad227/exec HTTP/1.1&quot; 201 74
+[2026-05-07 16:46:27.199] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/a9f0c0cfda7c612fb92e03d50fb5457b921639e1045e2c0c2f01e09095441e58/start HTTP/1.1&quot; 101 0
+[2026-05-07 16:46:27.247] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/a9f0c0cfda7c612fb92e03d50fb5457b921639e1045e2c0c2f01e09095441e58/json HTTP/1.1&quot; 200 390
+[2026-05-07 16:46:27.279] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;PUT /v1.48/containers/c6e82833c6cec23a9a1119159a3d779a375582ec5a42936da4c4c2af4d2ad227/archive?path=%2Ftmp HTTP/1.1&quot; 200 0
+[2026-05-07 16:46:27.280] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/c6e82833c6cec23a9a1119159a3d779a375582ec5a42936da4c4c2af4d2ad227/exec HTTP/1.1&quot; 201 74
+[2026-05-07 16:46:27.281] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/724d4e0bc9b95c58c9dacfb919aed536a3e5366506c1a67f0d877d5c60a1b8bf/start HTTP/1.1&quot; 101 0
+[2026-05-07 16:46:27.345] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/724d4e0bc9b95c58c9dacfb919aed536a3e5366506c1a67f0d877d5c60a1b8bf/json HTTP/1.1&quot; 200 416
+[2026-05-07 16:46:27.345] [INFO] [tests.utils.testing_utils.setup_test] Test case setup finished
 -------------------------------- live log call ---------------------------------
-[2026-05-07 10:16:41.915] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/e8205726a97c2b48d7ba55246627cc38470bd42dfde2e8a8af86f49391e5e11c/exec HTTP/1.1&quot; 201 74
-[2026-05-07 10:16:41.916] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/4513fc88d3d7fe554cd110b0b7d71ec3b7373f6f7dca10ee0a33767d62dc350f/start HTTP/1.1&quot; 101 0
-[2026-05-07 10:16:41.961] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/4513fc88d3d7fe554cd110b0b7d71ec3b7373f6f7dca10ee0a33767d62dc350f/json HTTP/1.1&quot; 200 404
-[2026-05-07 10:16:41.963] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/e8205726a97c2b48d7ba55246627cc38470bd42dfde2e8a8af86f49391e5e11c/exec HTTP/1.1&quot; 201 74
-[2026-05-07 10:16:41.964] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/0104d758511db0db5e06a5b9239646664ad2649289f440dd5ec010614dc23afd/start HTTP/1.1&quot; 101 0
-[2026-05-07 10:16:42.016] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/0104d758511db0db5e06a5b9239646664ad2649289f440dd5ec010614dc23afd/json HTTP/1.1&quot; 200 442
-[2026-05-07 10:16:42.017] [INFO] [launch_manager] mw::log initialization error: Error No logging configuration files could be found. occurred with context information: Failed to load configuration files. Fallback to console logging.
-[2026-05-07 10:16:42.018] [INFO] [launch_manager] 2026/05/07 10:16:42.9002016 4538389 000 ECU1 NONE LM log warn verbose 1
-[2026-05-07 10:16:42.018] [INFO] [launch_manager] Launch Manager Started !!!!
-[2026-05-07 10:16:42.018] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538393 000 ECU1 NONE LM log warn verbose 1 Loading LCM Configurations... 
-[2026-05-07 10:16:42.018] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538393 000 ECU1 NONE LM log warn verbose 1 ECUCFG_ENV_VAR_ROOTFOLDER set successfully
-[2026-05-07 10:16:42.018] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538394 000 ECU1 NONE LM log warn verbose 5 FlatBufferParser::getModeGroupPgName: MainPG ( IdentifierHash: 18079021346025578134 )
-[2026-05-07 10:16:42.018] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538394 000 ECU1 NONE LM log warn verbose 5 FlatBufferParser::getModeGroupPgStateName: MainPG/Startup ( IdentifierHash: 10504605499600661529 ) 
-[2026-05-07 10:16:42.018] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538395 000 ECU1 NONE LM log warn verbose 5 FlatBufferParser::getModeGroupPgStateName: MainPG/Running ( IdentifierHash: 15039935902284124227 )
-[2026-05-07 10:16:42.018] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538395 000 ECU1 NONE LM log warn verbose 5 FlatBufferParser::getModeGroupPgStateName: MainPG/Off ( IdentifierHash: 15281793077830264047 )
-[2026-05-07 10:16:42.019] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538395 000 ECU1 NONE LM log warn verbose 5 FlatBufferParser::getModeGroupPgStateName: MainPG/fallback_run_target ( IdentifierHash: 4059409696722237352 )
-[2026-05-07 10:16:42.019] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538396 000 ECU1 NONE LM log warn verbose 4 parseProcessConfigurations: Process index: 0 executable_path_: /tmp/tests/smoke/control_daemon_mock 
-[2026-05-07 10:16:42.019] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538397 000 ECU1 NONE LM log warn verbose 3 Process control_daemon is Reporting execution state 
-[2026-05-07 10:16:42.019] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538397 000 ECU1 NONE LM log warn verbose 1 Process is STATE_MANAGEMENT function Cluster Affiliation 
-[2026-05-07 10:16:42.019] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538397 000 ECU1 NONE LM log warn verbose 3 Process control_daemon is NOT Self terminating 
-[2026-05-07 10:16:42.020] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/e8205726a97c2b48d7ba55246627cc38470bd42dfde2e8a8af86f49391e5e11c/exec HTTP/1.1&quot; 201 74
-[2026-05-07 10:16:42.020] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538397 000 ECU1 NONE LM log warn verbose 4 ParseProcessProcessGroup: id:::pg_name_: MainPG , pg_state_name_: MainPG/Startup 
-[2026-05-07 10:16:42.021] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538397 000 ECU1 NONE LM log warn verbose 4 ParseProcessProcessGroup: id:::pg_name_: MainPG , pg_state_name_: MainPG/Running 
-[2026-05-07 10:16:42.021] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538398 000 ECU1 NONE LM log warn verbose 4 parseProcessConfigurations: Process index: 1 executable_path_: /tmp/tests/smoke/gtest_process 
-[2026-05-07 10:16:42.021] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538398 000 ECU1 NONE LM log warn verbose 3 Process gtest_process is Reporting execution state 
-[2026-05-07 10:16:42.021] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538398 000 ECU1 NONE LM log warn verbose 1 Process is NOT associated with any function Cluster Affiliation 
-[2026-05-07 10:16:42.021] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538398 000 ECU1 NONE LM log warn verbose 3 Process gtest_process is NOT Self terminating 
-[2026-05-07 10:16:42.021] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538398 000 ECU1 NONE LM log warn verbose 4 ParseProcessProcessGroup: id:::pg_name_: MainPG , pg_state_name_: MainPG/Running 
-[2026-05-07 10:16:42.021] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538398 000 ECU1 NONE LM log warn verbose 3 Loading SWCL Nr. 0 Succeeded 
-[2026-05-07 10:16:42.021] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538399 000 ECU1 NONE LM log warn verbose 2 1 process group(s) 
-[2026-05-07 10:16:42.021] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538399 000 ECU1 NONE LM log warn verbose 3 Creating graph with 2 nodes 
-[2026-05-07 10:16:42.022] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538399 000 ECU1 NONE LM log warn verbose 1 Process groups initialized successfully 
-[2026-05-07 10:16:42.022] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538399 000 ECU1 NONE LM log warn verbose 1 Process Group initialization done 
-[2026-05-07 10:16:42.022] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538399 000 ECU1 NONE LM log warn verbose 3 Creating Safe Process Map with 2 entries 
-[2026-05-07 10:16:42.022] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538399 000 ECU1 NONE LM log warn verbose 3 Creating job queue with 2 entries 
-[2026-05-07 10:16:42.022] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/e76d83fc3e36c95955f1868168d17e1e6b4f77af18faa2c9f04f8721bacb8b9a/start HTTP/1.1&quot; 101 0
-[2026-05-07 10:16:42.023] [INFO] [launch_manager] 2026/05/07 10:16:42.9002017 4538399 000 ECU1 NONE LM log warn verbose 1 Creating worker threads...
-[2026-05-07 10:16:42.023] [INFO] [launch_manager] 2026/05/07 10:16:42.9002019 4538413 000 ECU1 NONE LM log warn verbose 7 Process group index 0 (with name MainPG ) has 2 processes 
-[2026-05-07 10:16:42.023] [INFO] [launch_manager] 2026/05/07 10:16:42.9002019 4538413 000 ECU1 NONE LM log warn verbose 2 Creating process node with id: 0
-[2026-05-07 10:16:42.023] [INFO] [launch_manager] 2026/05/07 10:16:42.9002019 4538413 000 ECU1 NONE LM log warn verbose 5 Process 0 has 0 start dependencies
-[2026-05-07 10:16:42.023] [INFO] [launch_manager] 2026/05/07 10:16:42.9002019 4538413 000 ECU1 NONE LM log warn verbose 2 Creating process node with id: 1 
-[2026-05-07 10:16:42.023] [INFO] [launch_manager] 2026/05/07 10:16:42.9002019 4538414 000 ECU1 NONE LM log warn verbose 5 Process 1 has 0 start dependencies
-[2026-05-07 10:16:42.024] [INFO] [launch_manager] 2026/05/07 10:16:42.9002019 4538414 000 ECU1 NONE LM log warn verbose 3 Created 2 process nodes 
-[2026-05-07 10:16:42.024] [INFO] [launch_manager] 2026/05/07 10:16:42.9002019 4538414 000 ECU1 NONE LM log warn verbose 2 Creating successor lists for process group MainPG 
-[2026-05-07 10:16:42.024] [INFO] [launch_manager] 2026/05/07 10:16:42.9002019 4538415 000 ECU1 NONE LM log warn verbose 1 Graphs initialized
-[2026-05-07 10:16:42.024] [INFO] [launch_manager] 2026/05/07 10:16:42.9002019 4538416 000 ECU1 NONE Fcty log warn verbose 2 Factory for FlatCfg MachineConfig: No watchdog configured
-[2026-05-07 10:16:42.024] [INFO] [launch_manager] 2026/05/07 10:16:42.9002019 4538419 000 ECU1 NONE LM log warn verbose 1 LCM started successfully
-[2026-05-07 10:16:42.024] [INFO] [launch_manager] 2026/05/07 10:16:42.9002019 4538419 000 ECU1 NONE LM log warn verbose 3 clock() at run(): 37.014000 ms
-[2026-05-07 10:16:42.024] [INFO] [launch_manager] 2026/05/07 10:16:42.9002019 4538420 000 ECU1 NONE LM log warn verbose 1 =============STARTING MAINPG STARTUP STATE============
-[2026-05-07 10:16:42.024] [INFO] [launch_manager] 2026/05/07 10:16:42.9002020 4538421 000 ECU1 NONE LM log warn verbose 9 Graph::setState changes from kSuccess to kInTransition for PG 0 ( MainPG ) 
-[2026-05-07 10:16:42.025] [INFO] [launch_manager] 2026/05/07 10:16:42.9002020 4538421 000 ECU1 NONE LM log warn verbose 2 Stop Dependencies: 0 
-[2026-05-07 10:16:42.025] [INFO] [launch_manager] 2026/05/07 10:16:42.9002020 4538421 000 ECU1 NONE LM log warn verbose 2 Stop Dependencies: 0
-[2026-05-07 10:16:42.025] [INFO] [launch_manager] 2026/05/07 10:16:42.9002020 4538422 000 ECU1 NONE LM log warn verbose 2 Start Dependencies: 0 
-[2026-05-07 10:16:42.025] [INFO] [launch_manager] 2026/05/07 10:16:42.9002020 4538422 000 ECU1 NONE LM log warn verbose 2 Start Dependencies: 0
-[2026-05-07 10:16:42.025] [INFO] [launch_manager] 2026/05/07 10:16:42.9002020 4538423 000 ECU1 NONE LM log warn verbose 2
-[2026-05-07 10:16:42.025] [INFO] [launch_manager] wait failed: Unable to wait for any child process to terminate. Error: No child processes
-[2026-05-07 10:16:42.025] [INFO] [launch_manager] 2026/05/07 10:16:42.9002020 4538424 000 ECU1 NONE LM log warn verbose 6 Starting process 0 ( control_daemon ) from executable /tmp/tests/smoke/control_daemon_mock
-[2026-05-07 10:16:42.025] [INFO] [launch_manager] 2026/05/07 10:16:42.9002020 4538424 000 ECU1 NONE LM log warn verbose 3 Initialize the control client for control_daemon  process
-[2026-05-07 10:16:42.026] [INFO] [launch_manager] 2026/05/07 10:16:42.9002020 4538425 000 ECU1 NONE LM log warn verbose 1 ControlClientChannel initialized
-[2026-05-07 10:16:42.026] [INFO] [launch_manager] 2026/05/07 10:16:42.9002020 4538429 000 ECU1 NONE LM log warn verbose 4 startProcess pid 67 received for process: control_daemon 
-[2026-05-07 10:16:42.026] [INFO] [launch_manager] 2026/05/07 10:16:42.9002020 4538429 000 ECU1 NONE LM log warn verbose 1 ControlClientChannel obtained from sync.
-[2026-05-07 10:16:42.026] [INFO] [launch_manager] [==========] Running 1 test from 1 test suite.
-[2026-05-07 10:16:42.026] [INFO] [launch_manager] [----------] Global test environment set-up.
-[2026-05-07 10:16:42.026] [INFO] [launch_manager] [----------] 1 test from Smoke
-[2026-05-07 10:16:42.026] [INFO] [launch_manager] [ RUN      ] Smoke.Daemon
-[2026-05-07 10:16:42.026] [INFO] [launch_manager] [ STEP     ] Control daemon report kRunning
-[2026-05-07 10:16:42.027] [INFO] [launch_manager] [ END STEP ] Control daemon report kRunning
-[2026-05-07 10:16:42.027] [INFO] [launch_manager] [ STEP     ] Activate RunTarget Running
-[2026-05-07 10:16:42.027] [INFO] [launch_manager] 2026/05/07 10:16:42.9002026 4538483 000 ECU1 NONE LM log warn verbose 1 Request sent. Waiting for acknowledgment...
-[2026-05-07 10:16:42.027] [INFO] [launch_manager] mw::log initialization error: Error No logging configuration files could be found. occurred with context information: Failed to load configuration files. Fallback to console logging.
-[2026-05-07 10:16:42.027] [INFO] [launch_manager] 2026/05/07 10:16:42.9002026 4538489 000 ECU1 NONE LM log warn verbose 8 ProcessGroupManager::ControlClientHandler: got request kSetStateRequest ( 16 ) re state MainPG/Running of PG MainPG
-[2026-05-07 10:16:42.027] [INFO] [launch_manager] 2026/05/07 10:16:42.9002026 4538490 000 ECU1 NONE LM log warn verbose 6 Pending state for process group MainPG changed from to MainPG/Running
-[2026-05-07 10:16:42.027] [INFO] [launch_manager] 2026/05/07 10:16:42.9002026 4538490 000 ECU1 NONE LM log warn verbose 9 Graph::setState changes from kInTransition to kCancelled for PG 0 ( MainPG )
-[2026-05-07 10:16:42.028] [INFO] [launch_manager] 2026/05/07 10:16:42.9002027 4538491 000 ECU1 NONE LM log warn verbose 1
-[2026-05-07 10:16:42.028] [INFO] [launch_manager] Control Client handler nudged 
-[2026-05-07 10:16:42.028] [INFO] [launch_manager] 2026/05/07 10:16:42.9002027 4538500 000 ECU1 NONE LM log warn verbose 1 Request acknowledged.
-[2026-05-07 10:16:42.028] [INFO] [launch_manager] 2026/05/07 10:16:42.9002028 4538501 000 ECU1 NONE LM log warn verbose 8 Got kRunning for pid 67 ( control_daemon ) process 0 of group MainPG 
-[2026-05-07 10:16:42.028] [INFO] [launch_manager] 2026/05/07 10:16:42.9002028 4538501 000 ECU1 NONE LM log warn verbose 7 startProcess for MainPG process 0 ( control_daemon ) done 
-[2026-05-07 10:16:42.028] [INFO] [launch_manager] 2026/05/07 10:16:42.9002028 4538502 000 ECU1 NONE LM log warn verbose 1 Control Client handler nudged 
-[2026-05-07 10:16:42.028] [INFO] [launch_manager] 2026/05/07 10:16:42.9002028 4538502 000 ECU1 NONE LM log fatal verbose 3 clock() at failed initial state transition: 38.492000 ms 
-[2026-05-07 10:16:42.029] [INFO] [launch_manager] 2026/05/07 10:16:42.9002028 4538502 000 ECU1 NONE LM log warn verbose 9 Graph::setState changes from kCancelled to kUndefinedState for PG 0 ( MainPG ) 
-[2026-05-07 10:16:42.029] [INFO] [launch_manager] 2026/05/07 10:16:42.9002028 4538502 000 ECU1 NONE LM log warn verbose 1 Control Client handler nudged
-[2026-05-07 10:16:42.029] [INFO] [launch_manager] 2026/05/07 10:16:42.9002028 4538503 000 ECU1 NONE LM log warn verbose 1
-[2026-05-07 10:16:42.029] [INFO] [launch_manager] Request acknowledged.
-[2026-05-07 10:16:42.030] [INFO] [launch_manager] 2026/05/07 10:16:42.9002030 4538522 000 ECU1 NONE LM log warn verbose 6
-[2026-05-07 10:16:42.030] [INFO] [launch_manager] Pending state for process group MainPG changed from MainPG/Running to
-[2026-05-07 10:16:42.030] [INFO] [launch_manager] 2026/05/07 10:16:42.9002030 4538523 000 ECU1 NONE LM log warn verbose 4
-[2026-05-07 10:16:42.030] [INFO] [launch_manager] Start transition to MainPG/Running for PG MainPG
-[2026-05-07 10:16:42.030] [INFO] [launch_manager] 2026/05/07 10:16:42.9002030 4538524 000 ECU1 NONE LM log warn verbose 9
-[2026-05-07 10:16:42.030] [INFO] [launch_manager] Graph::setState changes from kUndefinedState to kInTransition for PG 0 ( MainPG )
-[2026-05-07 10:16:42.030] [INFO] [launch_manager] 2026/05/07 10:16:42.9002030 4538525 000 ECU1 NONE LM log warn verbose 2
-[2026-05-07 10:16:42.031] [INFO] [launch_manager] Stop Dependencies: 0
-[2026-05-07 10:16:42.031] [INFO] [launch_manager] 2026/05/07 10:16:42.9002030 4538526 000 ECU1 NONE LM log warn verbose 2
-[2026-05-07 10:16:42.031] [INFO] [launch_manager] Stop Dependencies: 0
-[2026-05-07 10:16:42.031] [INFO] [launch_manager] 2026/05/07 10:16:42.9002030 4538527 000 ECU1 NONE LM log warn verbose 2
-[2026-05-07 10:16:42.031] [INFO] [launch_manager] Start Dependencies: 0
-[2026-05-07 10:16:42.031] [INFO] [launch_manager] 2026/05/07 10:16:42.9002030 4538528 000 ECU1 NONE LM log warn verbose 2 Start Dependencies: 0
-[2026-05-07 10:16:42.031] [INFO] [launch_manager] 2026/05/07 10:16:42.9002030 4538530 000 ECU1 NONE LM log warn verbose 6
-[2026-05-07 10:16:42.031] [INFO] [launch_manager] Starting process 1 ( gtest_process ) from executable /tmp/tests/smoke/gtest_process
-[2026-05-07 10:16:42.032] [INFO] [launch_manager] 2026/05/07 10:16:42.9002031 4538536 000 ECU1 NONE LM log warn verbose 4 startProcess pid 69 received for process: gtest_process
-[2026-05-07 10:16:42.038] [INFO] [launch_manager] [==========] Running 1 test from 1 test suite.
-[2026-05-07 10:16:42.038] [INFO] [launch_manager] [----------] Global test environment set-up.
-[2026-05-07 10:16:42.038] [INFO] [launch_manager] [----------] 1 test from Smoke
-[2026-05-07 10:16:42.038] [INFO] [launch_manager] [ RUN      ] Smoke.Process
-[2026-05-07 10:16:42.040] [INFO] [launch_manager] [       OK ] Smoke.Process (2 ms)
-[2026-05-07 10:16:42.040] [INFO] [launch_manager] [----------] 1 test from Smoke (2 ms total)
-[2026-05-07 10:16:42.041] [INFO] [launch_manager] [----------] Global test environment tear-down
-[2026-05-07 10:16:42.041] [INFO] [launch_manager] [==========] 1 test from 1 test suite ran. (2 ms total)
-[2026-05-07 10:16:42.041] [INFO] [launch_manager] [  PASSED  ] 1 test.
-[2026-05-07 10:16:42.042] [INFO] [launch_manager] 2026/05/07 10:16:42.9002042 4538642 000 ECU1 NONE LM log warn verbose 8 Got kRunning for pid 69 ( gtest_process ) process 1 of group MainPG
-[2026-05-07 10:16:42.043] [INFO] [launch_manager] 2026/05/07 10:16:42.9002042 4538649 000 ECU1 NONE LM log warn verbose 7 startProcess for MainPG process 1 ( gtest_process ) done
-[2026-05-07 10:16:42.043] [INFO] [launch_manager] 2026/05/07 10:16:42.9002042 4538650 000 ECU1 NONE LM log warn verbose 9 Graph::setState changes from kInTransition to kSuccess for PG 0 ( MainPG )
-[2026-05-07 10:16:42.043] [INFO] [launch_manager] 2026/05/07 10:16:42.9002043 4538651 000 ECU1 NONE LM log warn verbose 7
-[2026-05-07 10:16:42.043] [INFO] [launch_manager] Completed the request for PG MainPG to State MainPG/Running in 16 ms
-[2026-05-07 10:16:42.043] [INFO] [launch_manager] 2026/05/07 10:16:42.9002043 4538653 000 ECU1 NONE LM log warn verbose 1
-[2026-05-07 10:16:42.043] [INFO] [launch_manager] Control Client handler nudged
-[2026-05-07 10:16:42.043] [INFO] [launch_manager] 2026/05/07 10:16:42.9002043 4538654 000 ECU1 NONE LM log warn verbose 8 ProcessGroupManager::ControlClientHandler: Sending kSetStateSuccess ( 20 ) re state MainPG/Running of PG MainPG
-[2026-05-07 10:16:42.044] [INFO] [launch_manager] 2026/05/07 10:16:42.9002043 4538655 000 ECU1 NONE LM log warn verbose 1
-[2026-05-07 10:16:42.044] [INFO] [launch_manager] Response sent.
-[2026-05-07 10:16:42.066] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/e76d83fc3e36c95955f1868168d17e1e6b4f77af18faa2c9f04f8721bacb8b9a/json HTTP/1.1&quot; 200 404
-[2026-05-07 10:16:42.067] [DEBUG] [tests.utils.testing_utils.run_until_file_deployed] Waiting for /tmp/tests/test_end
-[2026-05-07 10:16:42.123] [INFO] [launch_manager] 2026/05/07 10:16:42.9002123 4539455 000 ECU1 NONE LM log warn verbose 1 Response retrieved. 
-[2026-05-07 10:16:42.123] [INFO] [launch_manager] [ END STEP ] Activate RunTarget Running
-[2026-05-07 10:16:42.123] [INFO] [launch_manager] [ STEP     ] Activate RunTarget Startup
-[2026-05-07 10:16:42.123] [INFO] [launch_manager] 2026/05/07 10:16:42.9002123 4539457 000 ECU1 NONE LM log warn verbose 1 Request sent. Waiting for acknowledgment...
-[2026-05-07 10:16:42.125] [INFO] [launch_manager] 2026/05/07 10:16:42.9002125 4539474 000 ECU1 NONE LM log warn verbose 8 ProcessGroupManager::ControlClientHandler: got request kSetStateRequest ( 16 ) re state MainPG/Startup of PG MainPG 
-[2026-05-07 10:16:42.125] [INFO] [launch_manager] 2026/05/07 10:16:42.9002125 4539475 000 ECU1 NONE LM log warn verbose 6 Pending state for process group MainPG changed from to MainPG/Startup
-[2026-05-07 10:16:42.125] [INFO] [launch_manager] 2026/05/07 10:16:42.9002125 4539475 000 ECU1 NONE LM log warn verbose 1 Request acknowledged.
-[2026-05-07 10:16:42.125] [INFO] [launch_manager] 2026/05/07 10:16:42.9002125 4539475 000 ECU1 NONE LM log warn verbose 6 Pending state for process group MainPG changed from MainPG/Startup to 
-[2026-05-07 10:16:42.126] [INFO] [launch_manager] 2026/05/07 10:16:42.9002125 4539476 000 ECU1 NONE LM log warn verbose 4 Start transition to MainPG/Startup for PG MainPG 
-[2026-05-07 10:16:42.126] [INFO] [launch_manager] 2026/05/07 10:16:42.9002125 4539476 000 ECU1 NONE LM log warn verbose 9 Graph::setState changes from kSuccess to kInTransition for PG 0 ( MainPG ) 
-[2026-05-07 10:16:42.126] [INFO] [launch_manager] 2026/05/07 10:16:42.9002125 4539476 000 ECU1 NONE LM log warn verbose 2 Stop Dependencies: 0 
-[2026-05-07 10:16:42.126] [INFO] [launch_manager] 2026/05/07 10:16:42.9002125 4539476 000 ECU1 NONE LM log warn verbose 2 Stop Dependencies: 0
-[2026-05-07 10:16:42.126] [INFO] [launch_manager] 2026/05/07 10:16:42.9002125 4539477 000 ECU1 NONE LM log warn verbose 5 terminating process 1 ( gtest_process )
-[2026-05-07 10:16:42.126] [INFO] [launch_manager] 2026/05/07 10:16:42.9002125 4539478 000 ECU1 NONE LM log warn verbose 9 Requesting termination of process 1 of MainPG pid 69 ( gtest_process ) 
-[2026-05-07 10:16:42.126] [INFO] [launch_manager] 2026/05/07 10:16:42.9002125 4539478 000 ECU1 NONE LM log warn verbose 2 2026/05/07 10:16:42.9002125 4539479 000 ECU1 NONE LM log warn verbose 1 Request acknowledged.
-[2026-05-07 10:16:42.126] [INFO] [launch_manager] Request termination received for 69
-[2026-05-07 10:16:42.126] [INFO] [launch_manager] 2026/05/07 10:16:42.9002126 4539484 000 ECU1 NONE LM log warn verbose 12 Child process 1 of MainPG pid 69 ( gtest_process ) for node True terminated with status 0
-[2026-05-07 10:16:42.128] [INFO] [launch_manager] 2026/05/07 10:16:42.9002127 4539500 000 ECU1 NONE LM log warn verbose 5 Queuing jobs after regular termination of process wait 1 ( gtest_process ) 
-[2026-05-07 10:16:42.128] [INFO] [launch_manager] 2026/05/07 10:16:42.9002127 4539500 000 ECU1 NONE LM log warn verbose 7 terminateProcess for MainPG process 1 ( gtest_process ) done
-[2026-05-07 10:16:42.128] [INFO] [launch_manager] 2026/05/07 10:16:42.9002127 4539500 000 ECU1 NONE LM log warn verbose 2 Start Dependencies: 0 
-[2026-05-07 10:16:42.128] [INFO] [launch_manager] 2026/05/07 10:16:42.9002128 4539501 000 ECU1 NONE LM log warn verbose 2 Start Dependencies: 0
-[2026-05-07 10:16:42.128] [INFO] [launch_manager] 2026/05/07 10:16:42.9002128 4539501 000 ECU1 NONE LM log warn verbose 9 Graph::setState changes from kInTransition to kSuccess for PG 0 ( MainPG ) 
-[2026-05-07 10:16:42.128] [INFO] [launch_manager] 2026/05/07 10:16:42.9002128 4539501 000 ECU1 NONE LM log warn verbose 7 Completed the request for PG MainPG to State MainPG/Startup in 2 ms 
-[2026-05-07 10:16:42.128] [INFO] [launch_manager] 2026/05/07 10:16:42.9002128 4539502 000 ECU1 NONE LM log warn verbose 1 Control Client handler nudged
-[2026-05-07 10:16:42.129] [INFO] [launch_manager] 2026/05/07 10:16:42.9002129 4539518 000 ECU1 NONE LM log warn verbose 8 ProcessGroupManager::ControlClientHandler: Sending kSetStateSuccess ( 20 ) re state MainPG/Startup of PG MainPG 
-[2026-05-07 10:16:42.130] [INFO] [launch_manager] 2026/05/07 10:16:42.9002129 4539519 000 ECU1 NONE LM log warn verbose 1 Response sent.
-[2026-05-07 10:16:42.223] [INFO] [launch_manager] 2026/05/07 10:16:42.9002223 4540457 000 ECU1 NONE LM log warn verbose 1 Response retrieved. 
-[2026-05-07 10:16:42.223] [INFO] [launch_manager] [ END STEP ] Activate RunTarget Startup
-[2026-05-07 10:16:42.224] [INFO] [launch_manager] [ STEP     ] Activate RunTarget Off
-[2026-05-07 10:16:42.224] [INFO] [launch_manager] 2026/05/07 10:16:42.9002223 4540458 000 ECU1 NONE LM log warn verbose 1 Request sent. Waiting for acknowledgment...
-[2026-05-07 10:16:42.225] [INFO] [launch_manager] 2026/05/07 10:16:42.9002224 4540470 000 ECU1 NONE LM log warn verbose 8 ProcessGroupManager::ControlClientHandler: got request kSetStateRequest ( 16 ) re state MainPG/Off of PG MainPG 
-[2026-05-07 10:16:42.225] [INFO] [launch_manager] 2026/05/07 10:16:42.9002225 4540471 000 ECU1 NONE LM log warn verbose 6 Pending state for process group MainPG changed from to MainPG/Off
-[2026-05-07 10:16:42.225] [INFO] [launch_manager] 2026/05/07 10:16:42.9002225 4540471 000 ECU1 NONE LM log warn verbose 1 Request acknowledged.
-[2026-05-07 10:16:42.225] [INFO] [launch_manager] 2026/05/07 10:16:42.9002225 4540471 000 ECU1 NONE LM log warn verbose 6 Pending state for process group MainPG changed from MainPG/Off to
-[2026-05-07 10:16:42.225] [INFO] [launch_manager] 2026/05/07 10:16:42.9002225 4540472 000 ECU1 NONE LM log warn verbose 4 Start transition to MainPG/Off for PG MainPG
-[2026-05-07 10:16:42.225] [INFO] [launch_manager] 2026/05/07 10:16:42.9002225 4540472 000 ECU1 NONE LM log warn verbose 9 Graph::setState changes from kSuccess to kInTransition for PG 0 ( MainPG ) 
-[2026-05-07 10:16:42.225] [INFO] [launch_manager] 2026/05/07 10:16:42.9002225 4540472 000 ECU1 NONE LM log warn verbose 2 Stop Dependencies: 0
-[2026-05-07 10:16:42.226] [INFO] [launch_manager] 2026/05/07 10:16:42.9002225 4540472 000 ECU1 NONE LM log warn verbose 2 Stop Dependencies: 0 
-[2026-05-07 10:16:42.226] [INFO] [launch_manager] 2026/05/07 10:16:42.9002225 4540473 000 ECU1 NONE LM log warn verbose 5 terminating process 0 ( control_daemon ) 
-[2026-05-07 10:16:42.226] [INFO] [launch_manager] 2026/05/07 10:16:42.9002225 4540474 000 ECU1 NONE LM log warn verbose 9 Requesting termination of process 0 of MainPG pid 67 ( control_daemon ) 
-[2026-05-07 10:16:42.226] [INFO] [launch_manager] 2026/05/07 10:16:42.9002225 4540474 000 ECU1 NONE LM log warn verbose 2 Request termination received for 67
-[2026-05-07 10:16:42.226] [INFO] [launch_manager] 2026/05/07 10:16:42.9002225 4540480 000 ECU1 NONE LM log warn verbose 1 Request acknowledged. 
-[2026-05-07 10:16:42.226] [INFO] [launch_manager] [ END STEP ] Activate RunTarget Off
-[2026-05-07 10:16:42.324] [INFO] [launch_manager] [       OK ] Smoke.Daemon (301 ms)
-[2026-05-07 10:16:42.324] [INFO] [launch_manager] [----------] 1 test from Smoke (301 ms total)
-[2026-05-07 10:16:42.324] [INFO] [launch_manager] [----------] Global test environment tear-down
-[2026-05-07 10:16:42.324] [INFO] [launch_manager] [==========] 1 test from 1 test suite ran. (301 ms total)
-[2026-05-07 10:16:42.324] [INFO] [launch_manager] [  PASSED  ] 1 test.
-[2026-05-07 10:16:42.325] [INFO] [launch_manager] 2026/05/07 10:16:42.9002325 4541472 000 ECU1 NONE LM log warn verbose 12 Child process 0 of MainPG pid 67 ( control_daemon ) for node True terminated with status 0
-[2026-05-07 10:16:42.325] [INFO] [launch_manager] 2026/05/07 10:16:42.9002325 4541473 000 ECU1 NONE LM log warn verbose 2 wait failed: Unable to wait for any child process to terminate. Error: No child processes
-[2026-05-07 10:16:42.326] [INFO] [launch_manager] 2026/05/07 10:16:42.9002326 4541488 000 ECU1 NONE LM log warn verbose 5 Queuing jobs after regular termination of process wait 0 ( control_daemon ) 
-[2026-05-07 10:16:42.327] [INFO] [launch_manager] 2026/05/07 10:16:42.9002326 4541488 000 ECU1 NONE LM log warn verbose 7 terminateProcess for MainPG process 0 ( control_daemon ) done
-[2026-05-07 10:16:42.327] [INFO] [launch_manager] 2026/05/07 10:16:42.9002326 4541489 000 ECU1 NONE LM log warn verbose 2 Start Dependencies: 0
-[2026-05-07 10:16:42.327] [INFO] [launch_manager] 2026/05/07 10:16:42.9002326 4541489 000 ECU1 NONE LM log warn verbose 2 Start Dependencies: 0
-[2026-05-07 10:16:42.327] [INFO] [launch_manager] 2026/05/07 10:16:42.9002326 4541489 000 ECU1 NONE LM log warn verbose 9 Graph::setState changes from kInTransition to kSuccess for PG 0 ( MainPG ) 
-[2026-05-07 10:16:42.327] [INFO] [launch_manager] 2026/05/07 10:16:42.9002326 4541490 000 ECU1 NONE LM log warn verbose 7 Completed the request for PG MainPG to State MainPG/Off in 101 ms 
-[2026-05-07 10:16:42.327] [INFO] [launch_manager] 2026/05/07 10:16:42.9002326 4541490 000 ECU1 NONE LM log warn verbose 1 Control Client handler nudged
-[2026-05-07 10:16:42.425] [INFO] [launch_manager] 2026/05/07 10:16:42.9002425 4542474 000 ECU1 NONE LM log warn verbose 2 wait failed: Unable to wait for any child process to terminate. Error: No child processes
-[2026-05-07 10:16:42.525] [INFO] [launch_manager] 2026/05/07 10:16:42.9002525 4543476 000 ECU1 NONE LM log warn verbose 2 wait failed: Unable to wait for any child process to terminate. Error: No child processes
-[2026-05-07 10:16:42.568] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/0104d758511db0db5e06a5b9239646664ad2649289f440dd5ec010614dc23afd/json HTTP/1.1&quot; 200 442
-[2026-05-07 10:16:42.569] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/e8205726a97c2b48d7ba55246627cc38470bd42dfde2e8a8af86f49391e5e11c/exec HTTP/1.1&quot; 201 74
-[2026-05-07 10:16:42.570] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/11f88e2ac8a2abc88d7af0b0934520f15accd5901de957d56a6de8d94221add0/start HTTP/1.1&quot; 101 0
-[2026-05-07 10:16:42.606] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/11f88e2ac8a2abc88d7af0b0934520f15accd5901de957d56a6de8d94221add0/json HTTP/1.1&quot; 200 404
-[2026-05-07 10:16:42.607] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/e8205726a97c2b48d7ba55246627cc38470bd42dfde2e8a8af86f49391e5e11c/exec HTTP/1.1&quot; 201 74
-[2026-05-07 10:16:42.608] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/15b082a8dfc3f1408827027a16359b1ec16b0f7d594794455f3ed3dfe81fd2eb/start HTTP/1.1&quot; 101 0
-[2026-05-07 10:16:42.627] [INFO] [launch_manager] 2026/05/07 10:16:42.9002626 4544491 000 ECU1 NONE LM log warn verbose 2 wait failed: Unable to wait for any child process to terminate. Error: No child processes
-[2026-05-07 10:16:42.643] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/15b082a8dfc3f1408827027a16359b1ec16b0f7d594794455f3ed3dfe81fd2eb/json HTTP/1.1&quot; 200 389
-[2026-05-07 10:16:42.727] [INFO] [launch_manager] 2026/05/07 10:16:42.9002727 4545492 000 ECU1 NONE LM log warn verbose 2 wait failed: Unable to wait for any child process to terminate. Error: No child processes
-[2026-05-07 10:16:42.746] [INFO] [launch_manager] 2026/05/07 10:16:42.9002746 4545681 000 ECU1 NONE LM log warn verbose 1 Cancel all process group transitions
-[2026-05-07 10:16:42.746] [INFO] [launch_manager] 2026/05/07 10:16:42.9002746 4545686 000 ECU1 NONE LM log warn verbose 9 Graph::setState changes from kSuccess to kUndefinedState for PG 0 ( MainPG ) 
-[2026-05-07 10:16:42.747] [INFO] [launch_manager] 2026/05/07 10:16:42.9002746 4545686 000 ECU1 NONE LM log warn verbose 1 Wait for process group cancellations 
-[2026-05-07 10:16:42.747] [INFO] [launch_manager] 2026/05/07 10:16:42.9002746 4545686 000 ECU1 NONE LM log warn verbose 1 Start transitioning process groups to Off state 
-[2026-05-07 10:16:42.747] [INFO] [launch_manager] 2026/05/07 10:16:42.9002746 4545686 000 ECU1 NONE LM log warn verbose 9 Graph::setState changes from kUndefinedState to kInTransition for PG 0 ( MainPG ) 
-[2026-05-07 10:16:42.748] [INFO] [launch_manager] 2026/05/07 10:16:42.9002746 4545687 000 ECU1 NONE LM log warn verbose 2 Stop Dependencies: 0 
-[2026-05-07 10:16:42.748] [INFO] [launch_manager] 2026/05/07 10:16:42.9002746 4545687 000 ECU1 NONE LM log warn verbose 2 Stop Dependencies: 0 
-[2026-05-07 10:16:42.748] [INFO] [launch_manager] 2026/05/07 10:16:42.9002746 4545687 000 ECU1 NONE LM log warn verbose 2 Start Dependencies: 0 
-[2026-05-07 10:16:42.748] [INFO] [launch_manager] 2026/05/07 10:16:42.9002746 4545687 000 ECU1 NONE LM log warn verbose 2 Start Dependencies: 0
-[2026-05-07 10:16:42.748] [INFO] [launch_manager] 2026/05/07 10:16:42.9002746 4545688 000 ECU1 NONE LM log warn verbose 9 Graph::setState changes from kInTransition to kSuccess for PG 0 ( MainPG ) 
-[2026-05-07 10:16:42.748] [INFO] [launch_manager] 2026/05/07 10:16:42.9002746 4545688 000 ECU1 NONE LM log warn verbose 7 Completed the request for PG MainPG to State MainPG/Off in 0 ms 
-[2026-05-07 10:16:42.748] [INFO] [launch_manager] 2026/05/07 10:16:42.9002746 4545688 000 ECU1 NONE LM log warn verbose 1 Control Client handler nudged
-[2026-05-07 10:16:42.748] [INFO] [launch_manager] 2026/05/07 10:16:42.9002746 4545688 000 ECU1 NONE LM log warn verbose 1 Wait for all process groups to complete the transition
-[2026-05-07 10:16:42.827] [INFO] [launch_manager] 2026/05/07 10:16:42.9002827 4546494 000 ECU1 NONE LM log warn verbose 1 LCM run successfully
-[2026-05-07 10:16:42.871] [INFO] [launch_manager] 2026/05/07 10:16:42.9002870 4546930 000 ECU1 NONE LM log warn verbose 1 Graph destroyed 
-[2026-05-07 10:16:42.871] [INFO] [launch_manager] 2026/05/07 10:16:42.9002871 4546931 000 ECU1 NONE LM log warn verbose 2 Launch Manager completed with exit code value: 0
-[2026-05-07 10:16:43.144] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/0104d758511db0db5e06a5b9239646664ad2649289f440dd5ec010614dc23afd/json HTTP/1.1&quot; 200 440
-[2026-05-07 10:16:43.145] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/e8205726a97c2b48d7ba55246627cc38470bd42dfde2e8a8af86f49391e5e11c/exec HTTP/1.1&quot; 201 74
-[2026-05-07 10:16:43.146] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/5c206860c565673a605ea7d6352ab313ea74a4292b0135b73691bfac9ea42342/start HTTP/1.1&quot; 101 0
-[2026-05-07 10:16:43.183] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/5c206860c565673a605ea7d6352ab313ea74a4292b0135b73691bfac9ea42342/json HTTP/1.1&quot; 200 402
-[2026-05-07 10:16:43.185] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/containers/e8205726a97c2b48d7ba55246627cc38470bd42dfde2e8a8af86f49391e5e11c/archive?path=%2Ftmp%2Ftests%2Fsmoke%2Fcontrol_daemon_mock.xml HTTP/1.1&quot; 200 None
-[2026-05-07 10:16:43.187] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/e8205726a97c2b48d7ba55246627cc38470bd42dfde2e8a8af86f49391e5e11c/exec HTTP/1.1&quot; 201 74
-[2026-05-07 10:16:43.188] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/1de92f3bf0e211c61ae766153c660944d96f5f178472f22b5dad7f0c31963bdd/start HTTP/1.1&quot; 101 0
-[2026-05-07 10:16:43.225] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/1de92f3bf0e211c61ae766153c660944d96f5f178472f22b5dad7f0c31963bdd/json HTTP/1.1&quot; 200 420
-[2026-05-07 10:16:43.227] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/containers/e8205726a97c2b48d7ba55246627cc38470bd42dfde2e8a8af86f49391e5e11c/archive?path=%2Ftmp%2Ftests%2Fsmoke%2Fgtest_process.xml HTTP/1.1&quot; 200 None
-[2026-05-07 10:16:43.228] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/e8205726a97c2b48d7ba55246627cc38470bd42dfde2e8a8af86f49391e5e11c/exec HTTP/1.1&quot; 201 74
-[2026-05-07 10:16:43.229] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/b6872866a7d659e9c2657a036821b0cef5ec39f8c2813744f9dc490ac78cc2ee/start HTTP/1.1&quot; 101 0
-[2026-05-07 10:16:43.263] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/b6872866a7d659e9c2657a036821b0cef5ec39f8c2813744f9dc490ac78cc2ee/json HTTP/1.1&quot; 200 414
+[2026-05-07 16:46:27.348] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/c6e82833c6cec23a9a1119159a3d779a375582ec5a42936da4c4c2af4d2ad227/exec HTTP/1.1&quot; 201 74
+[2026-05-07 16:46:27.349] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/ceeb5a0df45e984e54770302d62ad6c86fa6830fcd5769beef95e68901411409/start HTTP/1.1&quot; 101 0
+[2026-05-07 16:46:27.396] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/ceeb5a0df45e984e54770302d62ad6c86fa6830fcd5769beef95e68901411409/json HTTP/1.1&quot; 200 404
+[2026-05-07 16:46:27.397] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/c6e82833c6cec23a9a1119159a3d779a375582ec5a42936da4c4c2af4d2ad227/exec HTTP/1.1&quot; 201 74
+[2026-05-07 16:46:27.398] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/e61e722bc05f655ac61e34627cbe2a23b287a2585f4165dfc7f9351fa74ada02/start HTTP/1.1&quot; 101 0
+[2026-05-07 16:46:27.442] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/e61e722bc05f655ac61e34627cbe2a23b287a2585f4165dfc7f9351fa74ada02/json HTTP/1.1&quot; 200 442
+[2026-05-07 16:46:27.443] [INFO] [launch_manager] mw::log initialization error: Error No logging configuration files could be found. occurred with context information: Failed to load configuration files. Fallback to console logging.
+[2026-05-07 16:46:27.444] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/c6e82833c6cec23a9a1119159a3d779a375582ec5a42936da4c4c2af4d2ad227/exec HTTP/1.1&quot; 201 74
+[2026-05-07 16:46:27.445] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/d19d941b57a449dac8c443bf594d0acf97369c1fbeaa4b33ddfe79d85c1b2cae/start HTTP/1.1&quot; 101 0
+[2026-05-07 16:46:27.447] [INFO] [launch_manager] 2026/05/07 16:46:27.2387446 2103238 000 ECU1 NONE Fcty log warn verbose 2 Factory for FlatCfg MachineConfig: No watchdog configured
+[2026-05-07 16:46:27.449] [INFO] [launch_manager] [==========] Running 1 test from 1 test suite.
+[2026-05-07 16:46:27.449] [INFO] [launch_manager] [----------] Global test environment set-up.
+[2026-05-07 16:46:27.450] [INFO] [launch_manager] [----------] 1 test from Smoke
+[2026-05-07 16:46:27.450] [INFO] [launch_manager] [ RUN      ] Smoke.Daemon
+[2026-05-07 16:46:27.450] [INFO] [launch_manager] [ STEP     ] Control daemon report kRunning
+[2026-05-07 16:46:27.452] [INFO] [launch_manager] [ END STEP ] Control daemon report kRunning
+[2026-05-07 16:46:27.452] [INFO] [launch_manager] [ STEP     ] Activate RunTarget Running
+[2026-05-07 16:46:27.453] [INFO] [launch_manager] mw::log initialization error: Error No logging configuration files could be found. occurred with context information: Failed to load configuration files. Fallback to console logging.
+[2026-05-07 16:46:27.454] [INFO] [launch_manager] 2026/05/07 16:46:27.2387454 2103310 000 ECU1 NONE LM log fatal verbose 3 clock() at failed initial state transition: 33.543000 ms
+[2026-05-07 16:46:27.457] [INFO] [launch_manager] [==========] Running 1 test from 1 test suite.
+[2026-05-07 16:46:27.458] [INFO] [launch_manager] [----------] Global test environment set-up.
+[2026-05-07 16:46:27.458] [INFO] [launch_manager] [----------] 1 test from Smoke
+[2026-05-07 16:46:27.458] [INFO] [launch_manager] [ RUN      ] Smoke.Process
+[2026-05-07 16:46:27.460] [INFO] [launch_manager] [       OK ] Smoke.Process (2 ms)
+[2026-05-07 16:46:27.460] [INFO] [launch_manager] [----------] 1 test from Smoke (2 ms total)
+[2026-05-07 16:46:27.460] [INFO] [launch_manager] [----------] Global test environment tear-down
+[2026-05-07 16:46:27.460] [INFO] [launch_manager] [==========] 1 test from 1 test suite ran. (2 ms total)
+[2026-05-07 16:46:27.460] [INFO] [launch_manager] [  PASSED  ] 1 test.
+[2026-05-07 16:46:27.487] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/d19d941b57a449dac8c443bf594d0acf97369c1fbeaa4b33ddfe79d85c1b2cae/json HTTP/1.1&quot; 200 404
+[2026-05-07 16:46:27.487] [DEBUG] [tests.utils.testing_utils.run_until_file_deployed] Waiting for /tmp/tests/test_end
+[2026-05-07 16:46:27.550] [INFO] [launch_manager] [ END STEP ] Activate RunTarget Running
+[2026-05-07 16:46:27.551] [INFO] [launch_manager] [ STEP     ] Activate RunTarget Startup
+[2026-05-07 16:46:27.650] [INFO] [launch_manager] [ END STEP ] Activate RunTarget Startup
+[2026-05-07 16:46:27.651] [INFO] [launch_manager] [ STEP     ] Activate RunTarget Off
+[2026-05-07 16:46:27.651] [INFO] [launch_manager] [ END STEP ] Activate RunTarget Off
+[2026-05-07 16:46:27.751] [INFO] [launch_manager] [       OK ] Smoke.Daemon (301 ms)
+[2026-05-07 16:46:27.751] [INFO] [launch_manager] [----------] 1 test from Smoke (301 ms total)
+[2026-05-07 16:46:27.751] [INFO] [launch_manager] [----------] Global test environment tear-down
+[2026-05-07 16:46:27.752] [INFO] [launch_manager] [==========] 1 test from 1 test suite ran. (301 ms total)
+[2026-05-07 16:46:27.752] [INFO] [launch_manager] [  PASSED  ] 1 test.
+[2026-05-07 16:46:27.989] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/e61e722bc05f655ac61e34627cbe2a23b287a2585f4165dfc7f9351fa74ada02/json HTTP/1.1&quot; 200 442
+[2026-05-07 16:46:27.990] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/c6e82833c6cec23a9a1119159a3d779a375582ec5a42936da4c4c2af4d2ad227/exec HTTP/1.1&quot; 201 74
+[2026-05-07 16:46:27.991] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/8dced978350fcf16778760b2a1efd10adb0a53c56c8275bd5db43d0042f4039d/start HTTP/1.1&quot; 101 0
+[2026-05-07 16:46:28.026] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/8dced978350fcf16778760b2a1efd10adb0a53c56c8275bd5db43d0042f4039d/json HTTP/1.1&quot; 200 404
+[2026-05-07 16:46:28.028] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/c6e82833c6cec23a9a1119159a3d779a375582ec5a42936da4c4c2af4d2ad227/exec HTTP/1.1&quot; 201 74
+[2026-05-07 16:46:28.029] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/bee4d3996346e5b0d78e71e938caf48e2997b73cccd4263788651c45fccee867/start HTTP/1.1&quot; 101 0
+[2026-05-07 16:46:28.066] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/bee4d3996346e5b0d78e71e938caf48e2997b73cccd4263788651c45fccee867/json HTTP/1.1&quot; 200 389
+[2026-05-07 16:46:28.567] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/e61e722bc05f655ac61e34627cbe2a23b287a2585f4165dfc7f9351fa74ada02/json HTTP/1.1&quot; 200 440
+[2026-05-07 16:46:28.569] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/c6e82833c6cec23a9a1119159a3d779a375582ec5a42936da4c4c2af4d2ad227/exec HTTP/1.1&quot; 201 74
+[2026-05-07 16:46:28.570] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/62971048302b8caebc5cf5fa1c19cf0b4c4a6b839736b976e551943e9f280142/start HTTP/1.1&quot; 101 0
+[2026-05-07 16:46:28.609] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/62971048302b8caebc5cf5fa1c19cf0b4c4a6b839736b976e551943e9f280142/json HTTP/1.1&quot; 200 402
+[2026-05-07 16:46:28.611] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/containers/c6e82833c6cec23a9a1119159a3d779a375582ec5a42936da4c4c2af4d2ad227/archive?path=%2Ftmp%2Ftests%2Fsmoke%2Fcontrol_daemon_mock.xml HTTP/1.1&quot; 200 None
+[2026-05-07 16:46:28.614] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/c6e82833c6cec23a9a1119159a3d779a375582ec5a42936da4c4c2af4d2ad227/exec HTTP/1.1&quot; 201 74
+[2026-05-07 16:46:28.615] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/3d7659dc0364568012d0c64d3f2526e8ab006229fa9836807473401175d55972/start HTTP/1.1&quot; 101 0
+[2026-05-07 16:46:28.649] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/3d7659dc0364568012d0c64d3f2526e8ab006229fa9836807473401175d55972/json HTTP/1.1&quot; 200 420
+[2026-05-07 16:46:28.652] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/containers/c6e82833c6cec23a9a1119159a3d779a375582ec5a42936da4c4c2af4d2ad227/archive?path=%2Ftmp%2Ftests%2Fsmoke%2Fgtest_process.xml HTTP/1.1&quot; 200 None
+[2026-05-07 16:46:28.653] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/c6e82833c6cec23a9a1119159a3d779a375582ec5a42936da4c4c2af4d2ad227/exec HTTP/1.1&quot; 201 74
+[2026-05-07 16:46:28.654] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/exec/cf00f91c4cb3a00557f6449de00d14970aa51c809b5ec367a0c76107db9ca7d3/start HTTP/1.1&quot; 101 0
+[2026-05-07 16:46:28.688] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;GET /v1.48/exec/cf00f91c4cb3a00557f6449de00d14970aa51c809b5ec367a0c76107db9ca7d3/json HTTP/1.1&quot; 200 414
 PASSED                                                                   [100%]
 ------------------------------ live log teardown -------------------------------
-[2026-05-07 10:16:43.330] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/e8205726a97c2b48d7ba55246627cc38470bd42dfde2e8a8af86f49391e5e11c/stop?t=1 HTTP/1.1&quot; 204 0
-[2026-05-07 10:16:43.342] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;DELETE /v1.48/containers/e8205726a97c2b48d7ba55246627cc38470bd42dfde2e8a8af86f49391e5e11c?v=False&amp;link=False&amp;force=True HTTP/1.1&quot; 204 0
+[2026-05-07 16:46:28.764] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;POST /v1.48/containers/c6e82833c6cec23a9a1119159a3d779a375582ec5a42936da4c4c2af4d2ad227/stop?t=1 HTTP/1.1&quot; 204 0
+[2026-05-07 16:46:28.774] [DEBUG] [urllib3.connectionpool] http://localhost:None &quot;DELETE /v1.48/containers/c6e82833c6cec23a9a1119159a3d779a375582ec5a42936da4c4c2af4d2ad227?v=False&amp;link=False&amp;force=True HTTP/1.1&quot; 204 0
 
 
 - generated xml file: /home/runner/.bazel/sandbox/processwrapper-sandbox/814/execroot/_main/bazel-out/k8-fastbuild/testlogs/tests/integration/smoke/smoke/test.xml -
-============================== 1 passed in 5.43s ===============================
+============================== 1 passed in 5.05s ===============================
 </pre></div>
 </div>
 </section>
