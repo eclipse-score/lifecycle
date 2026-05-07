@@ -32,22 +32,22 @@ concurrency:
 jobs:
   build-linux:
     uses: ./.github/workflows/build.yml
-  
+
   build-qnx:
     uses: ./.github/workflows/build_qnx8.yml
     permissions:
       contents: read
       pull-requests: read
     secrets: inherit
-  
+
   coverage-report:
     uses: ./.github/workflows/code_coverage.yml
 
-#  lint:
-#    uses: ./.github/workflows/lint.yml
-#  sanitizers:
-#    uses: ./.github/workflows/sanitizers_linux.yml
-  
+  #  lint:
+  #    uses: ./.github/workflows/lint.yml
+  #  sanitizers:
+  #    uses: ./.github/workflows/sanitizers_linux.yml
+
   create-release:
     needs: [build-linux, build-qnx, coverage-report]
     runs-on: ubuntu-latest

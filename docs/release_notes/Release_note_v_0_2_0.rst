@@ -48,14 +48,14 @@ New Features
 Improvements
 ------------
 
-- **Quality improvements:** testing anddocumentation updates.
+- **Quality improvements:** testing and documentation updates.
 
 Bug Fixes
 ---------
 
 - 
 
-Other changes by Label
+Other Changes by Label
 ----------------------
 
 - 
@@ -64,6 +64,7 @@ Compatibility
 -------------
 
 - The following platforms are supported using the [bazel_cpp_toolchains](https://github.com/eclipse-score/bazel_cpp_toolchains):
+
   - `x86_64-unknown-linux-gnu`
   - `aarch64-unknown-linux-gnu`
   - `x86_64-unknown-nto-qnx800`
