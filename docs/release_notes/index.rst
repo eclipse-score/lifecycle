@@ -34,4 +34,4 @@ being a non-profit and open source organization, can not take over any liability
    :maxdepth: 1
    :caption: Content
 
-   release_note_v_0_2_0
+   ./release_note_v_0_2_0.rst
