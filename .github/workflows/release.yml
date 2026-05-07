@@ -75,9 +75,9 @@ jobs:
       - name: Find Latest Release Note
         run: |
           LATEST_RELEASE_NOTE=$(
-            for f in docs/release_notes/Release_note_v_*.rst; do
+            for f in docs/release_notes/release_note_v_*.rst; do
               [ -e "$f" ] || continue
-              ver=$(basename "$f" .rst | sed 's/Release_note_v_//' | tr '_' '.')
+              ver=$(basename "$f" .rst | sed 's/release_note_v_//' | tr '_' '.')
               echo "$ver $f"
             done | sort -t '.' -k1,1n -k2,2n -k3,3n | tail -1 | awk '{print $2}'
           )
@@ -85,8 +85,8 @@ jobs:
       - name: Append Release Note to Release Body
         if: env.LATEST_RELEASE_NOTE != ''
         run: |
-          printf '\n---\n\n## Release Notes\n\n' >> release_body.md
-          sed -n '/^Changes to the Module$/,$p' "$LATEST_RELEASE_NOTE" >> release_body.md
+          printf '\n---\n\n## Changes to the Module\n\n' >> release_body.md
+          sed -n '/^Changes to the Module$/,$p' "$LATEST_RELEASE_NOTE" | sed '1,2d' >> release_body.md
       - name: Download Coverage Report Artifact
         uses: actions/download-artifact@v7
         with:
