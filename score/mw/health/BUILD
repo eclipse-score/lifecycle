@@ -10,22 +10,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-cc_binary(
-    name = "cpp_lifecycle_app",
-    srcs = [
-        "main.cpp",
-    ],
-    copts = select({
-        "@platforms//os:qnx": [],
-        "@platforms//os:linux": ["-pthread"],
-    }),
-    linkopts = select({
-        "@platforms//os:qnx": [],
-        "@platforms//os:linux": ["-lpthread"],
-    }),
-    visibility = ["//visibility:public"],
-    deps = [
-        "//score/mw/lifecycle:lifecycle_cc",
-        "@score_baselibs//score/mw/log",
-    ],
+
+package(default_visibility = ["//visibility:public"])
+
+alias(
+    name = "health_monitoring_cc",
+    actual = "//src/health_monitoring_lib:health_monitoring_lib_cc",
+)
+
+alias(
+    name = "health_monitoring_rust",
+    actual = "//src/health_monitoring_lib:health_monitoring_lib",
 )
