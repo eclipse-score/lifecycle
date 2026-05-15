@@ -11,3 +11,9 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 exports_files(["launch_manager.schema.json"])
+
+filegroup(
+    name = "config_schema_files",
+    srcs = glob(["**/*.json"]),
+    visibility = ["//visibility:public"],
+)
