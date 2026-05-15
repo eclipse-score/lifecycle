@@ -16,10 +16,8 @@
 #include "score/lcm/saf/factory/FlatCfgFactory.hpp"
 #include "score/lcm/saf/ifappl/MonitorIfDaemon.hpp"
 #include "score/lcm/saf/supervision/Alive.hpp"
-#include "score/lcm/saf/supervision/Deadline.hpp"
 #include "score/lcm/saf/supervision/Global.hpp"
 #include "score/lcm/saf/supervision/Local.hpp"
-#include "score/lcm/saf/supervision/Logical.hpp"
 #include "score/lcm/saf/timers/Timers_OsClock.hpp"
 
 namespace score

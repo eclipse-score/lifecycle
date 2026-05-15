@@ -1,0 +1,20 @@
+{
+    "component_properties": {
+        "binary_name": "",
+        "application_profile": {
+            "application_type": "Reporting_And_Supervised",
+            "is_self_terminating": false,
+            "alive_supervision": {
+                "reporting_cycle": 0.5,
+                "failed_cycles_tolerance": 2,
+                "min_indications": 1,
+                "max_indications": 3
+            }
+        },
+        "depends_on": [],
+        "process_arguments": [],
+        "ready_condition": {
+            "process_state": "Running"
+        }
+    }
+}

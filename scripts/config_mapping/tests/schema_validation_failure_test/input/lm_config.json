@@ -1,0 +1,21 @@
+{
+    "schema_version": 1,
+    "defaults": {},
+    "components": {
+        "test_app1": {
+            "description": "Simple test application",
+            "component_properties": {
+                "binary_name": "test_app1"
+            },
+            "deployment_config": {
+                "bin_dir" : "/opt/apps/test_app1"
+            }
+        }
+    },
+    "run_targets": {
+        "Minimal": {
+            "description": "Run Target with missing recovery action",
+            "depends_on": []
+        }
+    }
+}

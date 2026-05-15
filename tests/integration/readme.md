@@ -1,12 +1,12 @@
 # Local integration testing
 
-## Prerequisites
-- fakechroot must be installed to run these tests
-    - `sudo apt install fakechroot`
+## Running the integration tests
 
-## Running the tests
+To run all tests, simply run `bazel test //tests/integration/... --config=x86_64-linux`
 
-To run all tests, simply run `bazel test //tests/integration/...`
+## Config
 
-## Running a single test
-You can run a single integration test locally using `bazel test //tests/integration/<test name>`
+Currently the following configs are supported:
+- `host`
+- `x86_64-linux`
+

@@ -1,0 +1,17 @@
+@startuml lm_reporting_running
+title "Ready State of a Reporting Component"
+participant "Launch Manager" as lm
+participant "Reporting\nReady State: Running" as rs
+activate lm
+lm -> rs
+activate rs
+rs -> lm: "kRunning"
+activate lm
+note left of lm
+    Reporting process has achieved ready state
+end note
+rs -> lm: Termination
+deactivate lm
+destroy rs
+
+@enduml

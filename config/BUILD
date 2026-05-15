@@ -32,6 +32,13 @@ config_setting(
 )
 
 config_setting(
+    name = "host",
+    define_values = {
+        "config": "host",
+    },
+)
+
+config_setting(
     name = "thread_sanitizer_enabled",
     define_values = {"sanitize": "thread"},
 )

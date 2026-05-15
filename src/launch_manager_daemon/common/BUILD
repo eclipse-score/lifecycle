@@ -80,7 +80,10 @@ cc_library(
         allow_empty = False,
     ),
     includes = ["include"],
-    visibility = ["//src:__subpackages__"],
+    visibility = [
+        "//src:__subpackages__",
+        "//tests:__subpackages__",
+    ],
     deps = [
         ":common",
         ":log",

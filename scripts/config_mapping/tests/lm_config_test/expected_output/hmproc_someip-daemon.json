@@ -1,0 +1,15 @@
+{
+    "versionMajor": 8,
+    "versionMinor": 0,
+    "process": [],
+    "hmMonitorInterface": [
+        {
+            "instanceSpecifier": "someip-daemon",
+            "processShortName": "someip-daemon",
+            "portPrototype": "DefaultPort",
+            "interfacePath": "lifecycle_health_someip-daemon",
+            "refProcessIndex": 1,
+            "permittedUid": 1000
+        }
+    ]
+}

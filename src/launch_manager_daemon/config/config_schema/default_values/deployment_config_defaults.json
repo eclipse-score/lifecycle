@@ -1,0 +1,28 @@
+{
+    "deployment_config": {
+        "ready_timeout": 0.5,
+        "shutdown_timeout": 0.5,
+        "environmental_variables": {},
+        "bin_dir": "/opt",
+        "working_dir": "/tmp",
+        "ready_recovery_action": {
+            "restart": {
+                "number_of_attempts": 0,
+                "delay_before_restart": 0
+            }
+        },
+        "recovery_action": {
+            "switch_run_target": {
+                "run_target": "fallback_run_target"
+            }
+        },
+        "sandbox": {
+            "uid": 1000,
+            "gid": 1000,
+            "supplementary_group_ids": [],
+            "security_policy": "",
+            "scheduling_policy": "SCHED_OTHER",
+            "scheduling_priority": 0
+        }
+    }
+}

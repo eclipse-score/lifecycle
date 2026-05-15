@@ -10,72 +10,35 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-#include "score/concurrency/future/interruptible_future.h"
-
+#include <optional>
 #include <score/lcm/recovery_client.hpp>
 
 namespace score {
 namespace lcm {
 
-inline score::concurrency::InterruptibleFuture<void> GetErrorFuture(score::lcm::ExecErrc errType) noexcept
-{
-    score::concurrency::InterruptiblePromise<void> tmp_ {};
-    tmp_.SetError( errType );
-    return tmp_.GetInterruptibleFuture().value();
-}
-
-RecoveryClient::RecoveryClient() noexcept  : ringBuffer_{}, requests_{} {
+RecoveryClient::RecoveryClient() noexcept : ringBuffer_{} {
     ringBuffer_.initialize();
 }
 
-score::concurrency::InterruptibleFuture<void> RecoveryClient::sendRecoveryRequest(
-            const score::lcm::IdentifierHash& pg_name, const score::lcm::IdentifierHash& pg_state) noexcept {
-    std::size_t i = 0u;
-    score::concurrency::InterruptibleFuture<void> retVal;
-    for (; i < requests_.size(); ++i) {
-        bool expected = false;
-        if (requests_[i].in_use_.compare_exchange_strong(expected, true)) {
-            break;
-        }
+bool RecoveryClient::sendRecoveryRequest(const score::lcm::IdentifierHash& process_group_identifier) noexcept {
+    RecoveryRequest req{process_group_identifier};
+    if (!ringBuffer_.tryEnqueue(req)) {
+        overflow_flag_ = true;
+        return false;
     }
-
-    if (i < requests_.size()) {
-        requests_[i].promise_ = score::concurrency::InterruptiblePromise<void>{};
-        auto futureResult = requests_[i].promise_.GetInterruptibleFuture();
-        if (futureResult.has_value()) {
-            retVal = std::move(futureResult.value());
-        } else {
-            requests_[i].in_use_ = false;
-            return GetErrorFuture(ExecErrc::kFailed);
-        }
-
-        RecoveryRequest req{pg_name, pg_state, i};
-        if(!ringBuffer_.tryEnqueue(req)) {
-            requests_[i].promise_.SetError(score::lcm::ExecErrc::kFailed);
-            requests_[i].in_use_ = false;
-        }
-    } else {
-        retVal = GetErrorFuture(ExecErrc::kFailed);
-    }
-    return retVal;
+    return true;
 }
 
-void RecoveryClient::setResponseSuccess(std::size_t promise_id) noexcept {
-    requests_[promise_id].promise_.SetValue();
-    requests_[promise_id].in_use_ = false;
+bool RecoveryClient::hasOverflow() const noexcept {
+    return overflow_flag_.load();
 }
 
-void RecoveryClient::setResponseError(std::size_t promise_id, score::lcm::ExecErrc errType) noexcept {
-    requests_[promise_id].promise_.SetError(errType);
-    requests_[promise_id].in_use_ = false;
-}
-
-RecoveryRequest* RecoveryClient::getNextRequest() noexcept {
-    if(ringBuffer_.tryDequeue(temp_request_)) {
-        return &temp_request_;
-    } else {
-        return nullptr;
+std::optional<RecoveryRequest> RecoveryClient::getNextRequest() noexcept {
+    RecoveryRequest req;
+    if(ringBuffer_.tryDequeue(req)) {
+        return req;
     }
+    return std::nullopt;
 }
 }
 }

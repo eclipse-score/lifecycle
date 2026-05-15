@@ -26,8 +26,6 @@
 #include <array>
 #include <string>
 #include "score/lcm/saf/logging/PhmLogger.hpp"
-#include "score/lcm/saf/timers/TimeConversion.hpp"
-#include "score/lcm/saf/timers/Timers_OsClock.hpp"
 #include <score/lcm/irecovery_client.h>
 
 namespace xaap
@@ -87,12 +85,8 @@ class NotificationConfig final
 public:
     /// @brief Name of the RecoveryNotification configuration container
     std::string configName{""};
-    /// @brief Instance specifier metamodel path of the PPortPrototype of Phm RecoveryActionInterface
-    std::string serviceInstanceSpecifierPath{""};
     /// @brief Process Group Meta Model identifier of the process that is responsible for the monitoring event
     std::string processGroupMetaModelIdentifier{""};
-    /// @brief Maximum acceptable amount of time to wait for an acknowledgment after sending the notification
-    timers::NanoSecondType timeout{UINT64_MAX};
 };
 
 /// @brief Notification class which initiates the recovery action.
@@ -168,10 +162,9 @@ public:
     /// @brief Internal states of the Notification
     enum class State : std::uint8_t
     {
-        kIdle,               //< Not Sending or waiting for any response
-        kTimeout,            //< Final timeout reached
-        kSending,            //< Should invoke the RecoveryHandler next
-        kWaitingForResponse  //< Waiting for feedback from STM
+        kIdle,    //< Not sending
+        kSending, //< Should invoke the RecoveryHandler next
+        kTimeout  //< Final timeout reached
     };
 
     /// @brief The current internal state
@@ -180,31 +173,19 @@ public:
     /// @brief Method to invoke the call to the recovery handler method of State Management
     void invokeRecoveryHandler(void);
 
-    /// @brief Method to verify the response from the RecoveryHandler method of State Management
-    /// @note This method is responsible to verify if the call to recovery handler of State Management has executed
-    /// within the configured timeout
-    void verifyRecoveryHandlerResponse(void);
-
-    /// @brief Set the final timeout state for the Recovery notification
-    void setFinalTimeoutState(void);
-
     /// @brief Instance of the structure containing the configuration data pertaining to the Recovery notification
     const NotificationConfig k_notificationConfig{};
 
     /// @brief Message header used for logging
     const std::string messageHeader;
 
-    /// @brief Start timestamp for evaluation of recovery notification timeout
-    timers::NanoSecondType startTimestamp{0U};
-
     /// @brief Boolean flag to indicate if this class was constructed with the recovery notification configuration
     /// data (true: this class is to be used to trigger notifications to State Management, false: this class is to be
     /// used to directly set the final timeout state such that the recovery is performed via watchdog)
-    bool isNotificationConfigAvailable{false};
+    const bool isNotificationConfigAvailable;
 
-    score::concurrency::InterruptibleFuture<void> recoveryStateFutureOutput;
-    score::lcm::IdentifierHash recoveryProcessGroup;
-    score::lcm::IdentifierHash recoveryProcessGroupState;
+    IdentifierHash recoveryProcessGroup;
+
     std::shared_ptr<score::lcm::IRecoveryClient> recoveryClient;
 
     /// @brief Logger
