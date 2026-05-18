@@ -12,6 +12,7 @@
 # *******************************************************************************
 from pathlib import Path
 
+import pytest
 from junitparser import JUnitXml
 
 
@@ -47,3 +48,29 @@ def check_for_failures(path: Path):
         all_files.append(file.name)
 
     return all_files, failing_files
+
+
+@pytest.fixture
+def assert_test_results(target, remote_test_dir, test_output_dir):
+    """Returns a callable that downloads XML results and asserts the expected
+    count with no failures.
+    Takes `target`, `remote_test_dir`, and `test_output_dir` from fixtures automatically.
+
+    Usage::
+
+        def test_foo(assert_test_results, ...):
+            ...
+            assert_test_results(expected_count=2)
+    """
+
+    def _assert(expected_xml_count: int):
+        # Show the error as coming from the call in the test rather than here
+        __tracebackhide__ = True
+        download_xml_results(target, remote_test_dir, test_output_dir)
+        all_files, failing_files = check_for_failures(test_output_dir)
+        assert len(all_files) == expected_xml_count, (
+            f"Didn't find the expected number of files {all_files}"
+        )
+        assert len(failing_files) == 0, f"Found failures in files {failing_files}"
+
+    return _assert

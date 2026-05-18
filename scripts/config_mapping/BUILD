@@ -12,3 +12,9 @@ py_binary(
     visibility = ["//visibility:public"],
     deps = [requirement("jsonschema")],
 )
+
+filegroup(
+    name = "pip_requirements",
+    srcs = ["requirements.txt"],
+    visibility = ["//:__pkg__"],
+)

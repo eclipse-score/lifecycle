@@ -12,6 +12,7 @@
  ********************************************************************************/
 
 #include <sys/mman.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <atomic>
 #include <variant>
@@ -62,90 +63,63 @@ namespace score
 
         score::Result<std::monostate> LifecycleClient::LifecycleClientImpl::reportKRunningtoDaemon() const noexcept
         {
-            score::Result<std::monostate> retVal{score::MakeUnexpected(score::lcm::ExecErrc::kCommunicationError)};
+            score::Result<std::monostate> comms_error {score::MakeUnexpected(score::lcm::ExecErrc::kCommunicationError)};
 
             // Define necessary constants
             const int sync_fd = IpcCommsSync::sync_fd;
 
+            struct stat stats;  // Check accessible size to avoid a crash when we do other checks
+            const bool correct_fd = fstat(sync_fd, &stats) != -1 && stats.st_size >= static_cast<off_t>(sizeof(IpcCommsSync));
+
+            if (!correct_fd) {
+                LM_LOG_ERROR() << "[Lifecycle client] FD " << sync_fd << " is invalid for kRunning report";
+                return comms_error;
+            }
+
             // coverity[autosar_cpp14_a18_5_8_violation:FALSE] sync is a shared memory object and so has to be allocated.
-            IpcCommsP sync = IpcCommsSync::getCommsObject(sync_fd);
+            const IpcCommsP sync = IpcCommsSync::getCommsObject(sync_fd);
 
-
-            // The Lambda function is used to check if the file descriptor is closed successfully
-            auto checkClose = [&]()
-            {
-                if ((sync->comms_type_ == CommsType::kReporting) && close(sync_fd) < 0)
-                {
-                    LM_LOG_ERROR() << "[Lifecycle Client] Closing file descriptor failed.";
-
-                    return false;
-                }
-
-                return true;
-            };
-
-            // The Lambda function is used to check if the PID is matched
-            auto checkPid = [&]()
-            {
-                if (sync->pid_ != getpid())
-                {
-                    LM_LOG_ERROR() << "[Lifecycle Client] PID mismatch.";
-
-                    return false;
-                }
-
-                return true;
-            };
-
-            // The Lambda function is used to report kRunning to LM.
-            // Reporting is implemented as posting on send_sync_ semaphore.
-            auto checkSendSync = [&]()
-            {
-                if (sync->send_sync_.post() == OsalReturnType::kFail)
-                {
-                    LM_LOG_ERROR() << "[Lifecycle Client] Sending kRunning to Launch Manager failed.";
-
-                    return false;
-                }
-
-                return true;
-            };
-
-            // The Lambda function is used to wait for a replay from LM.
-            // By posting on the reply_sync_ semaphore, LM confirms that it read and processed our kRunning report.
-            auto checkReplySync = [&]()
-            {
-                if (sync->reply_sync_.timedWait(score::lcm::internal::kMaxKRunningDelay) == OsalReturnType::kFail)
-                {
-                    LM_LOG_ERROR() << "[Lifecycle Client] Launch Manager failed to acknowledge kRunning report.";
-
-                    return false;
-                }
-
-                return true;
-            };
-
-            /* RULECHECKER_comment(1, 1, check_c_style_cast, "This is the definition provided by the system header and does a C-style cast.", true) */
-            if (!sync)
-            {
+            if (!sync) {
                 LM_LOG_ERROR() << "[Lifecycle Client] Failed to access communication channel with Launch Manager.";
-            }
-            else
-            {
-                // Check all the conditions
-                if (!(checkClose() && checkPid() && checkSendSync() && checkReplySync()))
-                {
-                    return retVal;
-                }
-                // Final post to semaphore, so LM know that communication channel can be closed now
-                sync->send_sync_.post();
-                // Mark as reported if successful
-                reported = true;
-                // Set return value to success
-                retVal = score::Result<std::monostate>{};
+
+                return comms_error;
             }
 
-            return retVal;
+            const bool correct_type = sync->comms_type_ == CommsType::kReporting || sync->comms_type_ == CommsType::kControlClient;
+
+            // This is our best safeguard against incorrect data treated as an IPCCommsSync
+            if (!correct_type || sync->pid_ != getpid()) {
+                LM_LOG_ERROR() << "[Lifecycle client] Cannot report kRunning from a non-reporting process or a process not started by Launch Manager";
+                return comms_error;
+            }
+
+            if ((sync->comms_type_ == CommsType::kReporting) && close(sync_fd) < 0)
+            {
+                LM_LOG_ERROR() << "[Lifecycle Client] Closing file descriptor failed.";
+
+                return comms_error;
+            }
+
+            if (sync->send_sync_.post() == OsalReturnType::kFail)
+            {
+                LM_LOG_ERROR() << "[Lifecycle Client] Sending kRunning to Launch Manager failed.";
+
+                return comms_error;
+            }
+
+            if (sync->reply_sync_.timedWait(score::lcm::internal::kMaxKRunningDelay) == OsalReturnType::kFail)
+            {
+                LM_LOG_ERROR() << "[Lifecycle Client] Launch Manager failed to acknowledge kRunning report.";
+
+                return comms_error;
+            }
+            
+            // Final post to semaphore, so LM know that communication channel can be closed now
+            sync->send_sync_.post();
+            // Mark as reported if successful
+            reported = true;
+            // Set return value to success
+            return score::Result<std::monostate>{};
         }
 
     } // namespace lcm

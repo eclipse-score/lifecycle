@@ -19,34 +19,17 @@ load("//:defs.bzl", "launch_manager_config")
 load("//config:flatbuffers_rules.bzl", "flatbuffer_json_to_bin")
 load("//tests/utils/bazel:integration.bzl", "integration_test")
 
-exports_files(
-    ["lm_demo.json"],
-    visibility = ["//examples:__subpackages__"],
-)
-
 launch_manager_config(
-    name = "lm_smoketest_config",
-    config = "//tests/integration/smoke:lifecycle_smoketest.json",
+    name = "lm_non_reporting_config",
+    config = ":non_reporting_config.json",
     flatbuffer_out_dir = "etc",
 )
 
 cc_binary(
-    name = "control_daemon_mock",
-    srcs = ["control_daemon_mock.cpp"],
-    data = [],
+    name = "non_reporting_process",
+    srcs = ["non_reporting_process.cpp"],
     deps = [
-        "//score/mw/lifecycle:control_cc",
-        "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
-        "//tests/utils/test_helper",
-        "@googletest//:gtest_main",
-    ],
-)
-
-cc_binary(
-    name = "gtest_process",
-    srcs = ["gtest_process.cpp"],
-    deps = [
-        "//score/mw/lifecycle:control_cc",
+        "//src/launch_manager_daemon/common:osal",
         "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
@@ -54,34 +37,33 @@ cc_binary(
 )
 
 pkg_files(
-    name = "smoke_main_files",
+    name = "non_reporting_main_files",
     srcs = [
-        ":control_daemon_mock",
-        ":gtest_process",
+        ":non_reporting_process",
         "//score/mw/lifecycle:launch_manager",
     ],
     attributes = pkg_attributes(mode = "0755"),
-    prefix = "tests/smoke",
+    prefix = "tests/incorrect_config_non_reporting",
 )
 
 pkg_files(
-    name = "smoke_etc_files",
-    srcs = [":lm_smoketest_config"],
-    prefix = "tests/smoke",
+    name = "non_reporting_etc_files",
+    srcs = [":lm_non_reporting_config"],
+    prefix = "tests/incorrect_config_non_reporting",
 )
 
 pkg_tar(
-    name = "smoke_binaries",
+    name = "non_reporting_binaries",
     srcs = [
-        ":smoke_etc_files",
-        ":smoke_main_files",
+        ":non_reporting_etc_files",
+        ":non_reporting_main_files",
     ],
 )
 
 integration_test(
-    name = "smoke",
-    srcs = ["smoke.py"],
+    name = "incorrect_config_non_reporting",
+    srcs = ["test_incorrect_config_non_reporting.py"],
     tags = ["integration"],
-    test_binaries = ":smoke_binaries",
+    test_binaries = ":non_reporting_binaries",
     deps = ["//tests/utils/testing_utils"],
 )

@@ -45,22 +45,21 @@ inline testing::AssertionResult touch_file(const std::string_view file_path) {
 
 /// @brief Helper class to setup, run, and clean up GTEST tests
 class TestRunner {
-    inline static std::atomic<bool> exitRequested = false;
-
     static void signalHandler(int) {
         exitRequested = true;
     }
 
     bool signal_completion;
 
+    std::string_view m_test_path;
+
 public:
     /// @brief TestRunner constructor
     /// @param[in] test_path location to write the GTEST xml file (usually __FILE__)
     /// @param[in] do_signal_completion whether this test should deploy a file signaling the test has completed
     ///            Usually the control daemon should deploy this file.
-    TestRunner(std::string test_path, bool do_signal_completion=false) {
-        ::testing::GTEST_FLAG(output) = "xml:" + xmlPath(test_path);
-        testing::InitGoogleTest();
+    TestRunner(std::string_view test_path, bool do_signal_completion=false) {
+        m_test_path = test_path;
 
         signal(SIGINT, signalHandler);
         signal(SIGTERM, signalHandler);
@@ -77,8 +76,14 @@ public:
         }
     }
 
+    /// @brief True if the test process has received SIGINT or SIGTERM
+    inline static std::atomic<bool> exitRequested = false;
+
     /// @brief Use this function in main() to run all tests. It returns 0 if all tests are successful, or 1 otherwise.
     int RunTests() {
+        ::testing::GTEST_FLAG(output) = "xml:" + xmlPath(m_test_path);
+        testing::InitGoogleTest();
+        
         auto res = RUN_ALL_TESTS();
 
         return res;

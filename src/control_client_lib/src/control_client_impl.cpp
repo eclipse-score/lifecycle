@@ -18,6 +18,7 @@
 #include <thread>
 #include <map>
 #include <iostream>
+#include <sys/stat.h>
 
 #include "score/concurrency/future/interruptible_future.h"
 #include "score/concurrency/future/interruptible_promise.h"
@@ -73,11 +74,21 @@ ControlClientImpl::ControlClientImpl(std::function<void(const score::lcm::Execut
 
         std::unique_lock<std::mutex> lock(instance_creation_mutex_);
         if (instance_created_) {
-            std::cerr << "[Control Client] Only one instance of ControlClient is allowed per process." << std::endl;
+            LM_LOG_ERROR() << "[Control Client] Only one instance of ControlClient is allowed per process.";
             std::abort();
         } else {
             instance_created_ = true;
         }
+
+    struct stat stats;
+    const auto fstat_ret = fstat(internal::osal::IpcCommsSync::sync_fd, &stats);
+    // Check size we have access of to avoid a crash if fd is not pointing to correct data
+    const auto needed_size = sizeof(internal::osal::IpcCommsSync) + sizeof(internal::ControlClientChannel);
+    if (fstat_ret == -1 || stats.st_size != static_cast<off_t>(needed_size)) {
+        LM_LOG_ERROR() << "Control client channel at sync_fd is not valid!";
+        instance_created_ = false;
+        std::abort();
+    }
 
     // initialization of control_client_requests_ is a bit more complicated...
     // std::atomic_bool is not copyable so we can't use fill method,
