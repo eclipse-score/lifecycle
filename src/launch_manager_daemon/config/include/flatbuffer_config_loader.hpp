@@ -16,18 +16,39 @@
 
 #include "config_loader.hpp"
 
+#include "score/flatbuffers/load_buffer.hpp"
+
 #include <cstdint>
 #include <vector>
 
 namespace score::launch_manager::config {
 
+namespace details {
+
+score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::vector<uint8_t>& buffer);
+IConfigLoader::Error mapOsError(const score::os::Error& error);
+
+}  // namespace details
+
+struct DefaultBufferLoader {
+    static score::os::Result<std::vector<uint8_t>> load(const score::filesystem::Path& path)
+    {
+        return score::flatbuffers::LoadBuffer(path);
+    }
+};
+
+template <typename BufferLoaderT = DefaultBufferLoader>
 class FlatbufferConfigLoader : public IConfigLoader {
   public:
-    score::cpp::expected<Config, Error> load(const score::filesystem::Path& path) override;
-
-  private:
-    score::cpp::expected<std::vector<uint8_t>, Error> readFile(const score::filesystem::Path& path);
-    score::cpp::expected<Config, Error> parseBuffer(const std::vector<uint8_t>& buffer);
+    score::cpp::expected<Config, Error> load(const score::filesystem::Path& path) override
+    {
+        auto buffer_result = BufferLoaderT::load(path);
+        if (!buffer_result.has_value())
+        {
+            return score::cpp::make_unexpected(details::mapOsError(buffer_result.error()));
+        }
+        return details::parseFlatbuffer(buffer_result.value());
+    }
 };
 
 }  // namespace score::launch_manager::config

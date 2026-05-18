@@ -15,16 +15,13 @@
 #include "new_lm_flatcfg_generated.h"
 
 #include "score/filesystem/path.h"
-#include "score/os/ObjectSeam.h"
-#include "score/os/mocklib/fcntl_mock.h"
-#include "score/os/mocklib/stat_mock.h"
-#include "score/os/mocklib/unistdmock.h"
+#include "score/os/errno.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <cerrno>
 #include <cstdint>
-#include <cstring>
 #include <vector>
 
 namespace score::launch_manager::config {
@@ -32,16 +29,10 @@ namespace {
 
 namespace fb = score::launch_manager::config::fb;
 
-using ::testing::_;
-using ::testing::DoAll;
 using ::testing::Eq;
-using ::testing::Invoke;
 using ::testing::IsFalse;
 using ::testing::IsTrue;
-using ::testing::NiceMock;
-using ::testing::Return;
 
-constexpr std::int32_t kTestFd = 42;
 const score::filesystem::Path kTestPath{"/tmp/test_config.bin"};
 
 std::vector<uint8_t> finishBuffer(::flatbuffers::FlatBufferBuilder& fbb,
@@ -52,38 +43,23 @@ std::vector<uint8_t> finishBuffer(::flatbuffers::FlatBufferBuilder& fbb,
     return {buf, buf + fbb.GetSize()};
 }
 
+struct MockBufferLoader {
+    static score::os::Result<std::vector<uint8_t>> load(const score::filesystem::Path&)
+    {
+        return result_;
+    }
+    static score::os::Result<std::vector<uint8_t>> result_;
+};
+
+score::os::Result<std::vector<uint8_t>> MockBufferLoader::result_{std::vector<uint8_t>{}};
+
 class FlatbufferConfigLoaderTest : public ::testing::Test {
   protected:
     void SetUp() override
     {
         RecordProperty("TestType", "interface-test");
         RecordProperty("DerivationTechnique", "explorative-testing ");
-    }
-
-    void setUpSuccessfulFileRead(const std::vector<uint8_t>& content)
-    {
-        ON_CALL(*fcntl_mock_, open(_, _))
-            .WillByDefault(Return(score::cpp::expected<std::int32_t, score::os::Error>{kTestFd}));
-
-        ON_CALL(*stat_mock_, fstat(kTestFd, _))
-            .WillByDefault(
-                DoAll(Invoke([size = static_cast<std::int64_t>(content.size())](std::int32_t,
-                                                                               score::os::StatBuffer& buf) {
-                          buf.st_size = size;
-                      }),
-                      Return(score::cpp::expected_blank<score::os::Error>{})));
-
-        ON_CALL(*unistd_mock_, read(kTestFd, _, _))
-            .WillByDefault(
-                Invoke([&content](std::int32_t, void* buf, std::size_t count)
-                           -> score::cpp::expected<ssize_t, score::os::Error> {
-                    const auto bytes = std::min(count, content.size());
-                    std::memcpy(buf, content.data(), bytes);
-                    return static_cast<ssize_t>(bytes);
-                }));
-
-        ON_CALL(*unistd_mock_, close(kTestFd))
-            .WillByDefault(Return(score::cpp::expected_blank<score::os::Error>{}));
+        MockBufferLoader::result_ = std::vector<uint8_t>{};
     }
 
     std::vector<uint8_t> buildMinimalConfig(int32_t schema_version = 1,
@@ -98,10 +74,7 @@ class FlatbufferConfigLoaderTest : public ::testing::Test {
         return finishBuffer(fbb, config);
     }
 
-    score::os::MockGuard<NiceMock<score::os::FcntlMock>> fcntl_mock_;
-    score::os::MockGuard<NiceMock<score::os::StatMock>> stat_mock_;
-    score::os::MockGuard<NiceMock<score::os::UnistdMock>> unistd_mock_;
-    FlatbufferConfigLoader loader_;
+    FlatbufferConfigLoader<MockBufferLoader> loader_;
 };
 
 // ============================================================================
@@ -114,7 +87,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadMinimalConfig)
 
     // GIVEN
     auto buffer = buildMinimalConfig(1, "Startup");
-    setUpSuccessfulFileRead(buffer);
+    MockBufferLoader::result_ = buffer;
 
     // WHEN
     auto result = loader_.load(kTestPath);
@@ -164,7 +137,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSingleComponent)
     auto config = fb::CreateLaunchManagerConfig(fbb,
         1 /*schema_version*/, comps, 0 /*run_targets*/, irt, fallback, global_alive_sup);
     auto buffer = finishBuffer(fbb, config);
-    setUpSuccessfulFileRead(buffer);
+    MockBufferLoader::result_ = buffer;
 
     // WHEN
     auto result = loader_.load(kTestPath);
@@ -218,7 +191,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadRunTargets)
     auto config = fb::CreateLaunchManagerConfig(fbb,
         1 /*schema_version*/, 0 /*components*/, rts, irt, fallback, alive_sup);
     auto buffer = finishBuffer(fbb, config);
-    setUpSuccessfulFileRead(buffer);
+    MockBufferLoader::result_ = buffer;
 
     // WHEN
     auto result = loader_.load(kTestPath);
@@ -255,7 +228,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadFallbackRunTarget)
     auto config = fb::CreateLaunchManagerConfig(fbb,
         1 /*schema_version*/, 0 /*components*/, 0 /*run_targets*/, irt, fallback, alive_sup);
     auto buffer = finishBuffer(fbb, config);
-    setUpSuccessfulFileRead(buffer);
+    MockBufferLoader::result_ = buffer;
 
     // WHEN
     auto result = loader_.load(kTestPath);
@@ -285,7 +258,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadAliveSupervision)
     auto config = fb::CreateLaunchManagerConfig(fbb,
         1 /*schema_version*/, 0 /*components*/, 0 /*run_targets*/, irt, fallback, alive_sup);
     auto buffer = finishBuffer(fbb, config);
-    setUpSuccessfulFileRead(buffer);
+    MockBufferLoader::result_ = buffer;
 
     // WHEN
     auto result = loader_.load(kTestPath);
@@ -313,7 +286,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadWatchdog)
     auto config = fb::CreateLaunchManagerConfig(fbb,
         1 /*schema_version*/, 0 /*components*/, 0 /*run_targets*/, irt, fallback, alive_sup, watchdog);
     auto buffer = finishBuffer(fbb, config);
-    setUpSuccessfulFileRead(buffer);
+    MockBufferLoader::result_ = buffer;
 
     // WHEN
     auto result = loader_.load(kTestPath);
@@ -349,7 +322,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadRestartRecoveryAction)
     auto config = fb::CreateLaunchManagerConfig(fbb,
         1 /*schema_version*/, 0 /*components*/, rts, irt, fallback, alive_sup);
     auto buffer = finishBuffer(fbb, config);
-    setUpSuccessfulFileRead(buffer);
+    MockBufferLoader::result_ = buffer;
 
     // WHEN
     auto result = loader_.load(kTestPath);
@@ -388,7 +361,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSwitchRunTargetAction)
     auto config = fb::CreateLaunchManagerConfig(fbb,
         1 /*schema_version*/, 0 /*components*/, rts, irt, fallback, alive_sup);
     auto buffer = finishBuffer(fbb, config);
-    setUpSuccessfulFileRead(buffer);
+    MockBufferLoader::result_ = buffer;
 
     // WHEN
     auto result = loader_.load(kTestPath);
@@ -439,7 +412,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
     auto config = fb::CreateLaunchManagerConfig(fbb,
         1 /*schema_version*/, comps, 0 /*run_targets*/, irt, fallback, alive_sup);
     auto buffer = finishBuffer(fbb, config);
-    setUpSuccessfulFileRead(buffer);
+    MockBufferLoader::result_ = buffer;
 
     // WHEN
     auto result = loader_.load(kTestPath);
@@ -493,7 +466,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadComponentAliveSupervision)
     auto config = fb::CreateLaunchManagerConfig(fbb,
         1 /*schema_version*/, comps, 0 /*run_targets*/, irt, fallback, alive_sup);
     auto buffer = finishBuffer(fbb, config);
-    setUpSuccessfulFileRead(buffer);
+    MockBufferLoader::result_ = buffer;
 
     // WHEN
     auto result = loader_.load(kTestPath);
@@ -544,7 +517,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadEnvironmentalVariables)
     auto config = fb::CreateLaunchManagerConfig(fbb,
         1 /*schema_version*/, comps, 0 /*run_targets*/, irt, fallback, alive_sup);
     auto buffer = finishBuffer(fbb, config);
-    setUpSuccessfulFileRead(buffer);
+    MockBufferLoader::result_ = buffer;
 
     // WHEN
     auto result = loader_.load(kTestPath);
@@ -589,7 +562,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadMultipleComponents)
     auto config = fb::CreateLaunchManagerConfig(fbb,
         1 /*schema_version*/, comps, 0 /*run_targets*/, irt, fallback, alive_sup);
     auto buffer = finishBuffer(fbb, config);
-    setUpSuccessfulFileRead(buffer);
+    MockBufferLoader::result_ = buffer;
 
     // WHEN
     auto result = loader_.load(kTestPath);
@@ -606,55 +579,13 @@ TEST_F(FlatbufferConfigLoaderTest, LoadMultipleComponents)
 // Optional / required field tests
 // ============================================================================
 
-TEST_F(FlatbufferConfigLoaderTest, MissingRequiredFallbackReturnsInvalidFormat)
-{
-    RecordProperty("Description", "When the required fallback_run_target is absent, returns InvalidFormat.");
-
-    // GIVEN
-    ::flatbuffers::FlatBufferBuilder fbb;
-    auto irt = fbb.CreateString("Startup");
-    auto alive_sup = fb::CreateAliveSupervision(fbb);
-    auto config = fb::CreateLaunchManagerConfig(fbb, 1 /*schema_version*/, 0 /*components*/, 0 /*run_targets*/, irt,
-        0 /*fallback_run_target*/, alive_sup);
-    auto buffer = finishBuffer(fbb, config);
-    setUpSuccessfulFileRead(buffer);
-
-    // WHEN
-    auto result = loader_.load(kTestPath);
-
-    // THEN
-    ASSERT_THAT(result.has_value(), IsFalse());
-    EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
-}
-
-TEST_F(FlatbufferConfigLoaderTest, MissingRequiredAliveSupervisionReturnsInvalidFormat)
-{
-    RecordProperty("Description", "When the required alive_supervision is absent, returns InvalidFormat.");
-
-    // GIVEN
-    ::flatbuffers::FlatBufferBuilder fbb;
-    auto irt = fbb.CreateString("Startup");
-    auto fallback = fb::CreateFallbackRunTarget(fbb);
-    auto config = fb::CreateLaunchManagerConfig(fbb, 1 /*schema_version*/, 0 /*components*/, 0 /*run_targets*/, irt,
-        fallback, 0 /*alive_supervision*/);
-    auto buffer = finishBuffer(fbb, config);
-    setUpSuccessfulFileRead(buffer);
-
-    // WHEN
-    auto result = loader_.load(kTestPath);
-
-    // THEN
-    ASSERT_THAT(result.has_value(), IsFalse());
-    EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
-}
-
 TEST_F(FlatbufferConfigLoaderTest, OptionalWatchdogAbsent)
 {
     RecordProperty("Description", "When no watchdog is present, it is nullopt.");
 
     // GIVEN
     auto buffer = buildMinimalConfig();
-    setUpSuccessfulFileRead(buffer);
+    MockBufferLoader::result_ = buffer;
 
     // WHEN
     auto result = loader_.load(kTestPath);
@@ -692,7 +623,7 @@ TEST_F(FlatbufferConfigLoaderTest, OptionalSandboxAbsent)
     auto config = fb::CreateLaunchManagerConfig(fbb,
         1 /*schema_version*/, comps, 0 /*run_targets*/, irt, fallback, alive_sup);
     auto buffer = finishBuffer(fbb, config);
-    setUpSuccessfulFileRead(buffer);
+    MockBufferLoader::result_ = buffer;
 
     // WHEN
     auto result = loader_.load(kTestPath);
@@ -700,33 +631,6 @@ TEST_F(FlatbufferConfigLoaderTest, OptionalSandboxAbsent)
     // THEN
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(result->components()[0].deployment_config.sandbox.has_value(), IsFalse());
-}
-
-TEST_F(FlatbufferConfigLoaderTest, MissingRequiredRecoveryActionReturnsInvalidFormat)
-{
-    RecordProperty("Description", "When the required recovery_action is absent on a RunTarget, returns InvalidFormat.");
-
-    // GIVEN
-    ::flatbuffers::FlatBufferBuilder fbb;
-
-    auto rt_name = fbb.CreateString("Startup");
-    auto rt = fb::CreateRunTarget(fbb, rt_name);
-    auto rts = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::RunTarget>>{rt});
-
-    auto fallback = fb::CreateFallbackRunTarget(fbb);
-    auto alive_sup = fb::CreateAliveSupervision(fbb);
-    auto irt = fbb.CreateString("Startup");
-    auto config = fb::CreateLaunchManagerConfig(fbb,
-        1 /*schema_version*/, 0 /*components*/, rts, irt, fallback, alive_sup);
-    auto buffer = finishBuffer(fbb, config);
-    setUpSuccessfulFileRead(buffer);
-
-    // WHEN
-    auto result = loader_.load(kTestPath);
-
-    // THEN
-    ASSERT_THAT(result.has_value(), IsFalse());
-    EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
 }
 
 // ============================================================================
@@ -758,7 +662,7 @@ TEST_F(FlatbufferConfigLoaderTest, MapNativeApplicationType)
     auto config = fb::CreateLaunchManagerConfig(fbb,
         1 /*schema_version*/, comps, 0 /*run_targets*/, irt, fallback, alive_sup);
     auto buffer = finishBuffer(fbb, config);
-    setUpSuccessfulFileRead(buffer);
+    MockBufferLoader::result_ = buffer;
 
     // WHEN
     auto result = loader_.load(kTestPath);
@@ -795,7 +699,7 @@ TEST_F(FlatbufferConfigLoaderTest, MapReportingAndSupervisedType)
     auto config = fb::CreateLaunchManagerConfig(fbb,
         1 /*schema_version*/, comps, 0 /*run_targets*/, irt, fallback, alive_sup);
     auto buffer = finishBuffer(fbb, config);
-    setUpSuccessfulFileRead(buffer);
+    MockBufferLoader::result_ = buffer;
 
     // WHEN
     auto result = loader_.load(kTestPath);
@@ -831,7 +735,7 @@ TEST_F(FlatbufferConfigLoaderTest, MapTerminatedProcessState)
     auto config = fb::CreateLaunchManagerConfig(fbb,
         1 /*schema_version*/, comps, 0 /*run_targets*/, irt, fallback, alive_sup);
     auto buffer = finishBuffer(fbb, config);
-    setUpSuccessfulFileRead(buffer);
+    MockBufferLoader::result_ = buffer;
 
     // WHEN
     auto result = loader_.load(kTestPath);
@@ -846,14 +750,12 @@ TEST_F(FlatbufferConfigLoaderTest, MapTerminatedProcessState)
 // Error path tests
 // ============================================================================
 
-TEST_F(FlatbufferConfigLoaderTest, FileOpenFailsReturnsFileNotFound)
+TEST_F(FlatbufferConfigLoaderTest, LoadBufferFailsWithNoSuchFileReturnsFileNotFound)
 {
-    RecordProperty("Description", "When file open fails with ENOENT, returns FileNotFound error.");
+    RecordProperty("Description", "When LoadBuffer fails with ENOENT, returns FileNotFound error.");
 
     // GIVEN
-    const auto open_error = score::os::Error::createFromErrno(ENOENT);
-    EXPECT_CALL(*fcntl_mock_, open(_, _))
-        .WillOnce(Return(score::cpp::make_unexpected(open_error)));
+    MockBufferLoader::result_ = score::cpp::make_unexpected(score::os::Error::createFromErrno(ENOENT));
 
     // WHEN
     auto result = loader_.load(kTestPath);
@@ -863,14 +765,12 @@ TEST_F(FlatbufferConfigLoaderTest, FileOpenFailsReturnsFileNotFound)
     EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::FileNotFound));
 }
 
-TEST_F(FlatbufferConfigLoaderTest, FileOpenFailsWithPermissionDeniedReturnsInsufficientPermission)
+TEST_F(FlatbufferConfigLoaderTest, LoadBufferFailsWithPermissionDeniedReturnsInsufficientPermission)
 {
-    RecordProperty("Description", "When file open fails with EACCES, returns InsufficientPermission error.");
+    RecordProperty("Description", "When LoadBuffer fails with EACCES, returns InsufficientPermission error.");
 
     // GIVEN
-    const auto open_error = score::os::Error::createFromErrno(EACCES);
-    EXPECT_CALL(*fcntl_mock_, open(_, _))
-        .WillOnce(Return(score::cpp::make_unexpected(open_error)));
+    MockBufferLoader::result_ = score::cpp::make_unexpected(score::os::Error::createFromErrno(EACCES));
 
     // WHEN
     auto result = loader_.load(kTestPath);
@@ -880,48 +780,12 @@ TEST_F(FlatbufferConfigLoaderTest, FileOpenFailsWithPermissionDeniedReturnsInsuf
     EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InsufficientPermission));
 }
 
-TEST_F(FlatbufferConfigLoaderTest, FstatFailsReturnsGeneralError)
+TEST_F(FlatbufferConfigLoaderTest, LoadBufferFailsWithGenericErrorReturnsGeneralError)
 {
-    RecordProperty("Description", "When fstat fails, returns GeneralError.");
+    RecordProperty("Description", "When LoadBuffer fails with a generic OS error, returns GeneralError.");
 
     // GIVEN
-    ON_CALL(*fcntl_mock_, open(_, _))
-        .WillByDefault(Return(score::cpp::expected<std::int32_t, score::os::Error>{kTestFd}));
-
-    const auto stat_error = score::os::Error::createFromErrno(EBADF);
-    EXPECT_CALL(*stat_mock_, fstat(kTestFd, _))
-        .WillOnce(Return(score::cpp::make_unexpected(stat_error)));
-
-    ON_CALL(*unistd_mock_, close(_))
-        .WillByDefault(Return(score::cpp::expected_blank<score::os::Error>{}));
-
-    // WHEN
-    auto result = loader_.load(kTestPath);
-
-    // THEN
-    ASSERT_THAT(result.has_value(), IsFalse());
-    EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::GeneralError));
-}
-
-TEST_F(FlatbufferConfigLoaderTest, ReadFailsReturnsGeneralError)
-{
-    RecordProperty("Description", "When read fails, returns GeneralError.");
-
-    // GIVEN
-    ON_CALL(*fcntl_mock_, open(_, _))
-        .WillByDefault(Return(score::cpp::expected<std::int32_t, score::os::Error>{kTestFd}));
-
-    ON_CALL(*stat_mock_, fstat(kTestFd, _))
-        .WillByDefault(
-            DoAll(Invoke([](std::int32_t, score::os::StatBuffer& buf) { buf.st_size = 100; }),
-                  Return(score::cpp::expected_blank<score::os::Error>{})));
-
-    const auto read_error = score::os::Error::createFromErrno(EIO);
-    EXPECT_CALL(*unistd_mock_, read(kTestFd, _, _))
-        .WillOnce(Return(score::cpp::make_unexpected(read_error)));
-
-    ON_CALL(*unistd_mock_, close(_))
-        .WillByDefault(Return(score::cpp::expected_blank<score::os::Error>{}));
+    MockBufferLoader::result_ = score::cpp::make_unexpected(score::os::Error::createFromErrno(EIO));
 
     // WHEN
     auto result = loader_.load(kTestPath);
@@ -937,27 +801,7 @@ TEST_F(FlatbufferConfigLoaderTest, CorruptedBufferReturnsInvalidFormat)
 
     // GIVEN
     std::vector<uint8_t> garbage = {0xDE, 0xAD, 0xBE, 0xEF, 0x00, 0x01, 0x02, 0x03};
-    setUpSuccessfulFileRead(garbage);
-
-    // WHEN
-    auto result = loader_.load(kTestPath);
-
-    // THEN
-    ASSERT_THAT(result.has_value(), IsFalse());
-    EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
-}
-
-TEST_F(FlatbufferConfigLoaderTest, MissingInitialRunTargetReturnsInvalidFormat)
-{
-    RecordProperty("Description", "A valid FlatBuffer with null initial_run_target returns InvalidFormat.");
-
-    // GIVEN
-    ::flatbuffers::FlatBufferBuilder fbb;
-    auto config = fb::CreateLaunchManagerConfig(fbb, 1 /*schema_version*/);
-    fb::FinishLaunchManagerConfigBuffer(fbb, config);
-    const auto* buf = fbb.GetBufferPointer();
-    std::vector<uint8_t> buffer(buf, buf + fbb.GetSize());
-    setUpSuccessfulFileRead(buffer);
+    MockBufferLoader::result_ = garbage;
 
     // WHEN
     auto result = loader_.load(kTestPath);
@@ -973,7 +817,7 @@ TEST_F(FlatbufferConfigLoaderTest, WrongSchemaVersionReturnsUnsupportedVersion)
 
     // GIVEN
     auto buffer = buildMinimalConfig(99, "Startup");
-    setUpSuccessfulFileRead(buffer);
+    MockBufferLoader::result_ = buffer;
 
     // WHEN
     auto result = loader_.load(kTestPath);

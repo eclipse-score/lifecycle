@@ -56,9 +56,7 @@ cc_library(
     deps = [
         ":config_loader",
         "@flatbuffers",
-        "@score_baselibs//score/os:fcntl",
-        "@score_baselibs//score/os:stat",
-        "@score_baselibs//score/os:unistd",
+        "@score_baselibs//score/flatbuffers:flatbufferutils",
     ],
 )
 
@@ -70,10 +68,6 @@ cc_test(
         ":flatbuffer_config_loader",
         "@flatbuffers",
         "@googletest//:gtest_main",
-        "@score_baselibs//score/os:object_seam",
-        "@score_baselibs//score/os/mocklib:fcntl_mock",
-        "@score_baselibs//score/os/mocklib:stat_mock",
-        "@score_baselibs//score/os/mocklib:unistd_mock",
     ],
 )
 
