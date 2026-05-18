@@ -57,21 +57,15 @@ cc_library(
 
 cc_library(
     name = "osal",
-    srcs = select({
+    srcs = glob(["src/internal/osal/posix/*.cpp"]) + select({
         "@platforms//os:qnx": glob(
             [
-                "src/internal/osal/**/*.cpp",
-            ],
-            exclude = [
-                "src/internal/osal/linux/**",
+                "src/internal/osal/qnx/*.cpp",
             ],
         ),
         "@platforms//os:linux": glob(
             [
-                "src/internal/osal/**/*.cpp",
-            ],
-            exclude = [
-                "src/internal/osal/qnx/**",
+                "src/internal/osal/linux/*.cpp",
             ],
         ),
     }),

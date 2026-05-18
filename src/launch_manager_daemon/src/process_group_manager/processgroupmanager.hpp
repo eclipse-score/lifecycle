@@ -24,7 +24,7 @@
 #include <configuration_manager/configurationmanager.hpp>
 #include <process_group_manager/iprocess.hpp>
 #include <process_group_manager/graph.hpp>
-#include <process_group_manager/jobqueue.hpp>
+#include <concurrency/mpmc_concurrent_queue.hpp>
 #include <process_group_manager/oshandler.hpp>
 #include <score/lcm/iprocessstatenotifier.hpp>
 #include <process_group_manager/processinfonode.hpp>
@@ -32,12 +32,10 @@
 #include <process_group_manager/workerthread.hpp>
 #include <process_group_manager/ihealth_monitor_thread.hpp>
 #include <score/lcm/recovery_client.hpp>
+#include <score/lcm/internal/config.hpp>
 
-namespace score {
 
-namespace lcm {
-
-namespace internal {
+namespace score::lcm::internal {
 
 /// @brief ProcessGroupManager provides the core functionality of LCM.
 /// Software that is deployed to the machine, should be managed through Process Groups.
@@ -52,6 +50,8 @@ namespace internal {
 ///     Interaction with OSAL to discover when processes terminated in an unexpected way.
 ///     Fulfilling PG State transitions requests from SM, as well as informing SM about unexpected problems (for example process crashes).
 class ProcessGroupManager final {
+    using WorkerQueue = MPMCConcurrentQueue<std::shared_ptr<ProcessInfoNode>,
+                                            static_cast<std::size_t>(ProcessLimits::kMaxProcesses)>;
    public:
     /// @brief Constructs a new ProcessGroupManager object.
     ///
@@ -118,8 +118,8 @@ class ProcessGroupManager final {
     std::shared_ptr<SafeProcessMap> getProcessMap();
 
     /// @brief Gets the job queue for worker threads.
-    /// @return Shared pointer to the JobQueue object for ProcessInfoNode jobs.
-    std::shared_ptr<JobQueue<ProcessInfoNode>> getWorkerJobs();
+    /// @return Shared pointer to the MpmcQueue object for ProcessInfoNode jobs.
+    std::shared_ptr<WorkerQueue> getWorkerJobs();
 
     /// @brief Calls QueuePosixProcess method of psn data member
     /// @details Writes via IPC the latest Process State change, so that PHM can be informed about it.
@@ -271,7 +271,7 @@ class ProcessGroupManager final {
     std::unique_ptr<WorkerThread<ProcessInfoNode>> worker_threads_;
 
     /// @brief Shared pointer to the job queue for ProcessInfoNode jobs.
-    std::shared_ptr<JobQueue<ProcessInfoNode>> worker_jobs_;
+    std::shared_ptr<WorkerQueue> worker_jobs_;
 
     /// @brief Total number of processes.
     /// @deprecated there is no reason to store the total number of processes in the class
@@ -304,10 +304,7 @@ class ProcessGroupManager final {
     std::shared_ptr<score::lcm::IRecoveryClient> recovery_client_{};
 };
 
-}  // namespace lcm
+}  // namespace score::lcm::internal
 
-}  // namespace internal
-
-}  // namespace score
 
 #endif  /// PROCESSGROUPMANAGER_HPP_INCLUDED
