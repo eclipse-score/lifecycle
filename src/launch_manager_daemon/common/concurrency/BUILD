@@ -81,6 +81,7 @@ cc_test(
         "no-coverage",  # coverage + tsan might cause problems
         "tsan",
     ],
+    target_compatible_with = ["@platforms//os:linux"],  # no tsan on qnx
     visibility = ["//tests:__subpackages__"],
     deps = [
         ":mpmc_concurrent_queue",

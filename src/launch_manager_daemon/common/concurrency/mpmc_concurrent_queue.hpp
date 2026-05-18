@@ -204,6 +204,9 @@ class MPMCConcurrentQueue
             // was preempted before completing its write and a full turn
             // happened, should rarely happen
         }
+        // helgrind can't analyze std::atomic acquire/release
+        // manually add annotations so it doesn't false-positive on slot.item
+        // as the atomic slot.turn is used for syncing
         ANNOTATE_HAPPENS_AFTER(&slot.turn);
 
         T item = std::move_if_noexcept(slot.item);
@@ -252,6 +255,9 @@ class MPMCConcurrentQueue
             // was preempted before completing its write and a full turn
             // happened, should rarely happen
         }
+        // helgrind can't analyze std::atomic acquire/release
+        // manually add annotations so it doesn't false-positive on slot.item
+        // as the atomic slot.turn is used for syncing
         ANNOTATE_HAPPENS_AFTER(&slot.turn);
 
         slot.item = std::forward<U>(item);
