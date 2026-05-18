@@ -15,15 +15,8 @@
 #include "new_lm_flatcfg_generated.h"
 
 #include "score/os/errno.h"
-#include "score/os/fcntl.h"
-#include "score/os/stat.h"
-#include "score/os/unistd.h"
 
-#include <cerrno>
-#include <cstddef>
 #include <cstdint>
-#include <iterator>
-#include <new>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -316,6 +309,10 @@ std::optional<WatchdogConfig> convertWatchdog(const fb::Watchdog* fb_wd)
     return result;
 }
 
+}  // anonymous namespace
+
+namespace details {
+
 // --- File I/O error mapping ---
 
 IConfigLoader::Error mapOsError(const score::os::Error& error)
@@ -331,112 +328,9 @@ IConfigLoader::Error mapOsError(const score::os::Error& error)
     return IConfigLoader::Error::GeneralError;
 }
 
-}  // anonymous namespace
-
-// --- Public interface ---
-
-score::cpp::expected<Config, IConfigLoader::Error> FlatbufferConfigLoader::load(const score::filesystem::Path& path)
-{
-    auto buffer_result = readFile(path);
-    if (!buffer_result.has_value())
-    {
-        return score::cpp::make_unexpected(buffer_result.error());
-    }
-    return parseBuffer(buffer_result.value());
-}
-
-// --- File loading using OS abstractions ---
-
-score::cpp::expected<std::vector<uint8_t>, IConfigLoader::Error> FlatbufferConfigLoader::readFile(
-    const score::filesystem::Path& path)
-{
-    auto& fcntl = score::os::Fcntl::instance();
-    auto& stat = score::os::Stat::instance();
-    auto& unistd = score::os::Unistd::instance();
-
-    const auto fd_result = fcntl.open(path.CStr(), score::os::Fcntl::Open::kReadOnly);
-    if (!fd_result.has_value())
-    {
-        return score::cpp::make_unexpected(mapOsError(fd_result.error()));
-    }
-    const std::int32_t file_desc = fd_result.value();
-
-    auto close_fd = [&unistd, file_desc](const IConfigLoader::Error* prior_error)
-        -> score::cpp::expected<std::vector<uint8_t>, IConfigLoader::Error> {
-        unistd.close(file_desc);
-        if (prior_error != nullptr)
-        {
-            return score::cpp::make_unexpected(*prior_error);
-        }
-        return score::cpp::make_unexpected(IConfigLoader::Error::GeneralError);
-    };
-
-    score::os::StatBuffer stat_buf{};
-    const auto stat_result = stat.fstat(file_desc, stat_buf);
-    if (!stat_result.has_value())
-    {
-        auto err = IConfigLoader::Error::GeneralError;
-        return close_fd(&err);
-    }
-
-    if (stat_buf.st_size <= 0)
-    {
-        auto err = IConfigLoader::Error::InvalidFormat;
-        return close_fd(&err);
-    }
-
-    const auto file_size = static_cast<std::size_t>(stat_buf.st_size);
-    std::vector<uint8_t> buffer;
-    try
-    {
-        buffer.resize(file_size);
-    }
-    catch (const std::bad_alloc&)
-    {
-        auto err = IConfigLoader::Error::GeneralError;
-        return close_fd(&err);
-    }
-
-    std::size_t total_bytes_read = 0U;
-    while (total_bytes_read < file_size)
-    {
-        const auto read_result = unistd.read(
-            file_desc,
-            std::next(buffer.data(), static_cast<std::ptrdiff_t>(total_bytes_read)),
-            file_size - total_bytes_read);
-        if (!read_result.has_value())
-        {
-            if (read_result.error() == score::os::Error::Code::kOperationWasInterruptedBySignal)
-            {
-                continue;
-            }
-            auto err = IConfigLoader::Error::GeneralError;
-            return close_fd(&err);
-        }
-
-        const auto bytes_read = read_result.value();
-        if (bytes_read == 0)
-        {
-            auto err = IConfigLoader::Error::GeneralError;
-            return close_fd(&err);
-        }
-
-        total_bytes_read += static_cast<std::size_t>(bytes_read);
-    }
-
-    const auto close_result = unistd.close(file_desc);
-    if (!close_result.has_value())
-    {
-        return score::cpp::make_unexpected(IConfigLoader::Error::GeneralError);
-    }
-
-    return buffer;
-}
-
 // --- FlatBuffer parsing and conversion ---
 
-score::cpp::expected<Config, IConfigLoader::Error> FlatbufferConfigLoader::parseBuffer(
-    const std::vector<uint8_t>& buffer)
+score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::vector<uint8_t>& buffer)
 {
     ::flatbuffers::Verifier verifier(buffer.data(), buffer.size());
     if (!fb::VerifyLaunchManagerConfigBuffer(verifier))
@@ -455,12 +349,9 @@ score::cpp::expected<Config, IConfigLoader::Error> FlatbufferConfigLoader::parse
         return score::cpp::make_unexpected(IConfigLoader::Error::UnsupportedVersion);
     }
 
-    if (config->initial_run_target() == nullptr)
-    {
-        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
-    }
-
     Config::Builder builder;
+
+    // initial_run_target is a required field, guaranteed non-null by the schema and verifier.
     builder.setInitialRunTarget(config->initial_run_target()->str());
 
     if (config->components() != nullptr)
@@ -491,11 +382,10 @@ score::cpp::expected<Config, IConfigLoader::Error> FlatbufferConfigLoader::parse
         builder.setRunTargets(std::move(run_targets));
     }
 
-    if (config->fallback_run_target() != nullptr)
-    {
-        builder.setFallbackRunTarget(convertFallbackRunTarget(config->fallback_run_target()));
-    }
+    // fallback_run_target is a required field, guaranteed non-null by the schema and verifier.
+    builder.setFallbackRunTarget(convertFallbackRunTarget(config->fallback_run_target()));
 
+    // alive_supervision is a required field, guaranteed non-null by the schema and verifier.
     auto alive_sup = convertAliveSupervision(config->alive_supervision());
     if (alive_sup.has_value())
     {
@@ -511,4 +401,5 @@ score::cpp::expected<Config, IConfigLoader::Error> FlatbufferConfigLoader::parse
     return builder.build();
 }
 
+}  // namespace details
 }  // namespace score::launch_manager::config
