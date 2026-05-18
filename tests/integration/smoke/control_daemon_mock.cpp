@@ -20,9 +20,11 @@
 #include <score/lcm/identifier_hash.hpp>
 #include "tests/utils/test_helper/test_helper.hpp"
 
-score::lcm::ControlClient client;
 
 TEST(Smoke, Daemon) {
+
+    score::lcm::ControlClient client {};
+
     TEST_STEP("Control daemon report kRunning") {
         // report kRunning
         auto result = score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);

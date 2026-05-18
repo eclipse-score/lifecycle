@@ -61,7 +61,7 @@ bool SwClusterHandler::constructWorkers(std::shared_ptr<score::lcm::IRecoveryCli
     isSuccess = flatCfgFactory.init(filename);
     if (isSuccess)
     {
-        logger_r.LogDebug() << "Software Cluster Handler starts constructing workers:" << f_swClusterName.c_str();
+        logger_r.LogDebug() << "Software Cluster Handler starts constructing workers:" << f_swClusterName;
         isSuccess = flatCfgFactory.createProcessStates(processStates, f_processStateReader_r);
     }
     if (isSuccess)

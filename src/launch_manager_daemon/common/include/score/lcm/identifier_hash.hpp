@@ -15,16 +15,13 @@
 #define IDENTIFIER_HASH_H_
 
 #include <cstddef>
-#include <optional>
 #include <ostream>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <unordered_map>
 
-namespace score
-{
-
-namespace lcm
+namespace score::lcm
 {
 
 /// @file identifier_hash.hpp
@@ -145,23 +142,47 @@ class IdentifierHash final
 /// @param os The output stream.
 /// @param id The IdentifierHash object to output.
 /// @return A reference to the output stream.
-inline std::ostream& operator<<(std::ostream& os, const IdentifierHash& id)
+inline std::ostream& operator<<(std::ostream& stream, const IdentifierHash& id_hash) noexcept(false)
 {
     const auto& reg = IdentifierHash::get_registry();
-    const auto it = reg.find(id.data());
+    const auto it = reg.find(id_hash.data());
     if (it != reg.end())
     {
-        os << it->second;
+        stream << it->second;
     }
     else
     {
-        os << "<Unknown IdentifierHash: " << id.data() << ">";
+        stream << "<Unknown IdentifierHash: " << id_hash.data() << ">";
     }
-    return os;
+    return stream;
 }
 
-}  // namespace lcm
+}  // namespace score::lcm
 
-}  // namespace score
+#ifdef LC_LOG_SCORE_MW_LOG
+#include "score/mw/log/logger.h"
+
+namespace score::lcm
+{
+
+inline score::mw::log::LogStream& operator<<(score::mw::log::LogStream& stream,
+                                             const IdentifierHash& id_hash) noexcept(false)
+{
+    const auto& reg = IdentifierHash::get_registry();
+    const auto it = reg.find(id_hash.data());
+    if (it != reg.end())
+    {
+        stream << it->second;
+    }
+    else
+    {
+        stream << "<Unknown IdentifierHash: " << id_hash.data() << ">";
+    }
+    return stream;
+}
+
+}  // namespace score::lcm
+
+#endif  // LC_LOG_SCORE_MW_LOG
 
 #endif  // IDENTIFIER_HASH_H_

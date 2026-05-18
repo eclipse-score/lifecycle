@@ -10,6 +10,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
+
 config_setting(
     name = "x86_64-linux",
     define_values = {
@@ -51,4 +53,18 @@ config_setting(
 config_setting(
     name = "ub_sanitizer_enabled",
     define_values = {"sanitize": "undefined"},
+)
+
+bool_flag(
+    name = "use_cout_log",
+    build_setting_default = False,
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "lm_use_cout_log",
+    flag_values = {
+        ":use_cout_log": "True",
+    },
+    visibility = ["//visibility:public"],
 )

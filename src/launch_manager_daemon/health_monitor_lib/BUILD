@@ -42,6 +42,10 @@ cc_library_with_common_opts(
     name = "phm_logging",
     srcs = ["src/score/lcm/saf/logging/PhmLogger.cpp"],
     hdrs = ["src/score/lcm/saf/logging/PhmLogger.hpp"],
+    defines = select({
+        "//config:lm_use_cout_log": [],
+        "//conditions:default": ["LC_LOG_SCORE_MW_LOG"],
+    }),
     includes = [
         "src",
         "src/score/lcm/saf/logging",

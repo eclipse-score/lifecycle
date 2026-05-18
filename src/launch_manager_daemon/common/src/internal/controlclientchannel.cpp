@@ -171,8 +171,6 @@ ControlClientChannelP ControlClientChannel::initializeControlClientChannel(int f
         std::next(static_cast<char*>(channelMemory), static_cast<std::ptrdiff_t>(sizeof(osal::IpcCommsSync)));
     result = ControlClientChannelP(static_cast<ControlClientChannel*>(static_cast<void*>(controlClientStartPtr)),
                                    [](ControlClientChannel*) {});
-    LM_LOG_DEBUG() << "ControlClientChannel mapped (creation path: " << std::boolalpha << (mem_ptr != nullptr) << ")";
-
     if (result)
     {
         std::unique_lock<std::mutex> lock(init_mutex_);
