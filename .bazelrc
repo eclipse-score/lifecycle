@@ -29,6 +29,7 @@ test --cxxopt=-Wno-deprecated-declarations
 coverage --features=coverage
 coverage --combined_report=lcov
 coverage --cache_test_results=no
+coverage --test_tag_filters=-no-coverage
 
 # Common Lifecycle Toolchain flags for build (do not use it in case of system toolchains!)
 build:toolchain_common --incompatible_strict_action_env

@@ -158,7 +158,7 @@ void ProcessStateTracker::updateProcessState(const ifexm::ProcessState& f_proces
     }
 
     // coverity[autosar_cpp14_a8_5_2_violation:FALSE] type auto shall not be initialized with {} AUTOSAR.8.5.3A
-    const auto& it = std::find(k_refProcesses.begin(), k_refProcesses.end(), &f_processIdentifier_r);
+    const auto it = std::find(k_refProcesses.begin(), k_refProcesses.end(), &f_processIdentifier_r);
     if (it != k_refProcesses.end())
     {
         const bool processActive{isProcessActive(f_state)};
