@@ -40,7 +40,7 @@ pkg_files(
     name = "non_reporting_main_files",
     srcs = [
         ":non_reporting_process",
-        "//src/launch_manager_daemon:launch_manager",
+        "//score/mw/lifecycle:launch_manager",
     ],
     attributes = pkg_attributes(mode = "0755"),
     prefix = "tests/incorrect_config_non_reporting",

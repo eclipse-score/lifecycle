@@ -19,7 +19,7 @@ COMMON_DEPS = [
     "@score_baselibs_rust//src/containers:containers",
     "@score_baselibs_rust//src/thread:thread",
     "@score_baselibs_rust//src/log/score_log:score_log",
-    "//src/launch_manager_daemon/health_monitor_lib/rust_bindings:monitor_rs",
+    "//score/mw/lifecycle:alive_rust",
 ]
 
 PROC_MACRO_DEPS = [

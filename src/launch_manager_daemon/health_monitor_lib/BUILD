@@ -281,7 +281,7 @@ cc_library_with_common_opts(
         ":factory",
         ":rb-watchdog-if",
         "//externals/ipc_dropin",
-        "//src/control_client_lib",
+        "//score/mw/lifecycle:control_cc",
         "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
     ],
 )
