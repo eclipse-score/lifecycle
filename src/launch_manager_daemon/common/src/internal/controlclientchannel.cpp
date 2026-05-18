@@ -134,7 +134,7 @@ ControlClientChannelP ControlClientChannel::initializeControlClientChannel(int f
 
     if (MAP_FAILED == channelMemory)
     {
-        LM_LOG_ERROR() << "mmap failed in initializeControlClientChannel:" << std::string_view{std::strerror(errno)};
+        LM_LOG_ERROR() << "mmap failed in initializeControlClientChannel:" << errno_message(errno);
         return nullptr;
     }
 

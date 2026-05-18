@@ -52,7 +52,8 @@ void applyLimitOrDie(const int resource, const rlimit& limit, const std::string_
 {
     if (::setrlimit(resource, &limit) == -1)
     {
-        LM_LOG_FATAL() << "[New process] Failed to set rlimit " << rlimit_name << " " << std::strerror(errno);
+        LM_LOG_FATAL() << "[New process] Failed to set rlimit " << rlimit_name << " "
+                       << score::lcm::internal::errno_message(errno);
         sysexit(EXIT_FAILURE);
     }
 }
@@ -148,7 +149,7 @@ void changeCurrentWorkingDirectory(const score::lcm::internal::osal::OsalConfig&
     if (-1 == chdir(dirname(strncpy(path_copy, config.executable_path_.c_str(), string_size))))
     {
         LM_LOG_ERROR() << "[New process] chdir(" << config.executable_path_
-                       << ") failed:" << std::string_view{std::strerror(errno)};
+                       << ") failed:" << score::lcm::internal::errno_message(errno);
         sysexit(EXIT_FAILURE);
     }
 }
@@ -280,7 +281,7 @@ inline bool IProcess::setupComms(IpcCommsP& block, int& fd, const OsalConfig& co
     if (fd < 0)
     {
         LM_LOG_ERROR() << "shm_open failed:" << config.executable_path_
-                       << "Unable to open shared memory object. Error:" << std::string_view{std::strerror(errno)};
+                       << "Unable to open shared memory object. Error:" << score::lcm::internal::errno_message(errno);
         comms_result = false;
     }
     else
@@ -292,7 +293,7 @@ inline bool IProcess::setupComms(IpcCommsP& block, int& fd, const OsalConfig& co
             comms_result = false;
             LM_LOG_ERROR() << "ftruncate failed:" << config.executable_path_
                            << "Unable to set size of shared memory file descriptor. Error:"
-                           << std::string_view{std::strerror(errno)};
+                           << score::lcm::internal::errno_message(errno);
         }
 
         if (config.comms_type_ == CommsType::kControlClient)
@@ -360,7 +361,7 @@ OsalReturnType IProcess::setSchedulingAndSecurity(const OsalConfig& config)
     // setpgid will fail if called by a session lader (which LCMd is), so skip
     if (config.comms_type_ != osal::CommsType::kLaunchManager && 0 != setpgid(0, getpid()))
     {
-        LM_LOG_ERROR() << "setpgid() failed:" << std::string_view{std::strerror(errno)};
+        LM_LOG_ERROR() << "setpgid() failed:" << score::lcm::internal::errno_message(errno);
         retval = OsalReturnType::kFail;
     }
     // Set scheduling policy with sched_setscheduler
@@ -384,21 +385,22 @@ OsalReturnType IProcess::setSchedulingAndSecurity(const OsalConfig& config)
 
     if (-1 == sched_setscheduler(0, config.scheduling_policy_, &sch_param))
     {
-        LM_LOG_ERROR() << "sched_setscheduler() failed:" << std::string_view{std::strerror(errno)};
+        LM_LOG_ERROR() << "sched_setscheduler() failed:" << score::lcm::internal::errno_message(errno);
         retval = OsalReturnType::kFail;
     }
 
     // Set core affinity using OS specific functionality in osal
     if (-1 == osal::setaffinity(config.cpu_mask_))
     {
-        LM_LOG_ERROR() << "setaffinity(" << config.cpu_mask_ << ") failed:" << std::string_view{std::strerror(errno)};
+        LM_LOG_ERROR() << "setaffinity(" << config.cpu_mask_
+                       << ") failed:" << score::lcm::internal::errno_message(errno);
         retval = OsalReturnType::kFail;
     }
 
     // Set group ID
     if (-1 == setgid(config.gid_))
     {
-        LM_LOG_ERROR() << "setgid(" << config.gid_ << ") failed:" << std::string_view{std::strerror(errno)};
+        LM_LOG_ERROR() << "setgid(" << config.gid_ << ") failed:" << score::lcm::internal::errno_message(errno);
         retval = OsalReturnType::kFail;
     }
     // Set supplementary group ids
@@ -408,14 +410,14 @@ OsalReturnType IProcess::setSchedulingAndSecurity(const OsalConfig& config)
     if (supplementary_gids_number > 0 &&
         -1 == osal::setgroups(supplementary_gids_number, config.supplementary_gids_.data()))
     {
-        LM_LOG_ERROR() << "setgroups() failed:" << std::string_view{std::strerror(errno)};
+        LM_LOG_ERROR() << "setgroups() failed:" << score::lcm::internal::errno_message(errno);
         retval = OsalReturnType::kFail;
     }
 
     // Set user ID
     if (-1 == setuid(config.uid_))
     {
-        LM_LOG_ERROR() << "setuid(" << config.uid_ << ") failed:" << std::string_view{std::strerror(errno)};
+        LM_LOG_ERROR() << "setuid(" << config.uid_ << ") failed:" << score::lcm::internal::errno_message(errno);
         retval = OsalReturnType::kFail;
     }
 
@@ -442,7 +444,7 @@ inline void IProcess::handleChildProcess(ChildProcessConfig& param)
     if (-1 == execve(param.config->argv_[0], const_cast<char* const*>(param.config->argv_.data()), param.config->envp_))
     {
         LM_LOG_ERROR() << "[New process] execve failed: Unable to execute the" << param.config->executable_path_
-                       << "app. Error:" << std::string_view{std::strerror(errno)};
+                       << "app. Error:" << score::lcm::internal::errno_message(errno);
         sysexit(EXIT_FAILURE);
     }
 }
@@ -462,7 +464,7 @@ OsalReturnType IProcess::requestTermination(ProcessID pid)
         else
         {
             LM_LOG_ERROR() << "SIGTERM failed: Unable to send SIGTERM to process ID" << pid
-                           << ". Error:" << std::string_view{std::strerror(errno)};
+                           << ". Error:" << score::lcm::internal::errno_message(errno);
         }
     }
     else
@@ -519,7 +521,7 @@ OsalReturnType IProcess::waitForTermination(osal::ProcessID& pid, int32_t& statu
     {
         /// exiting with pid == 0 is perfectly normal behaviour when all process groups are in the Off state.
         LM_LOG_DEBUG() << "wait failed: Unable to wait for any child process to terminate. Error:"
-                       << std::string_view{std::strerror(errno)};
+                       << score::lcm::internal::errno_message(errno);
     }
 
     return result;
@@ -561,7 +563,7 @@ OsalReturnType IProcess::waitForkRunning(IpcCommsP sync, std::chrono::millisecon
         else
         {
             LM_LOG_WARN() << "Skipping semaphore deinitialization - shared memory region appears invalid: "
-                          << std::string_view{std::strerror(errno)};
+                          << score::lcm::internal::errno_message(errno);
         }
     }
     else
