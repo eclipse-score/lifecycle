@@ -43,3 +43,14 @@ To run tests:
 .. code-block:: bash
 
    bazel test //tests/...
+
+
+Release Notes
+-------------
+
+Release notes collection.
+
+.. toctree::
+   :maxdepth: 1
+
+   release_notes/index
