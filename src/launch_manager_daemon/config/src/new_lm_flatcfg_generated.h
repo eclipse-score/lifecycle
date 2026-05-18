@@ -9,8 +9,8 @@
 // Ensure the included flatbuffers.h is the same version as when this file was
 // generated, otherwise it may not be compatible.
 static_assert(FLATBUFFERS_VERSION_MAJOR == 25 &&
-              FLATBUFFERS_VERSION_MINOR == 9 &&
-              FLATBUFFERS_VERSION_REVISION == 23,
+              FLATBUFFERS_VERSION_MINOR == 12 &&
+              FLATBUFFERS_VERSION_REVISION == 19,
              "Non-compatible flatbuffers version included");
 
 namespace score {
@@ -174,8 +174,10 @@ template<> struct RecoveryActionTraits<score::launch_manager::config::fb::Switch
   static const RecoveryAction enum_value = RecoveryAction_SwitchRunTargetAction;
 };
 
-bool VerifyRecoveryAction(::flatbuffers::Verifier &verifier, const void *obj, RecoveryAction type);
-bool VerifyRecoveryActionVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
+template <bool B = false>
+bool VerifyRecoveryAction(::flatbuffers::VerifierTemplate<B> &verifier, const void *obj, RecoveryAction type);
+template <bool B = false>
+bool VerifyRecoveryActionVector(::flatbuffers::VerifierTemplate<B> &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
 
 struct ComponentAliveSupervision FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef ComponentAliveSupervisionBuilder Builder;
@@ -197,7 +199,8 @@ struct ComponentAliveSupervision FLATBUFFERS_FINAL_CLASS : private ::flatbuffers
   ::flatbuffers::Optional<uint32_t> max_indications() const {
     return GetOptional<uint32_t, uint32_t>(VT_MAX_INDICATIONS);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<double>(verifier, VT_REPORTING_CYCLE, 8) &&
            VerifyField<uint32_t>(verifier, VT_FAILED_CYCLES_TOLERANCE, 4) &&
@@ -264,7 +267,8 @@ struct ApplicationProfile FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table
   const score::launch_manager::config::fb::ComponentAliveSupervision *alive_supervision() const {
     return GetPointer<const score::launch_manager::config::fb::ComponentAliveSupervision *>(VT_ALIVE_SUPERVISION);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int8_t>(verifier, VT_APPLICATION_TYPE, 1) &&
            VerifyField<uint8_t>(verifier, VT_IS_SELF_TERMINATING, 1) &&
@@ -318,7 +322,8 @@ struct ReadyCondition FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   ::flatbuffers::Optional<score::launch_manager::config::fb::ProcessState> process_state() const {
     return GetOptional<int8_t, score::launch_manager::config::fb::ProcessState>(VT_PROCESS_STATE);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int8_t>(verifier, VT_PROCESS_STATE, 1) &&
            verifier.EndTable();
@@ -375,7 +380,8 @@ struct ComponentProperties FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   const score::launch_manager::config::fb::ReadyCondition *ready_condition() const {
     return GetPointer<const score::launch_manager::config::fb::ReadyCondition *>(VT_READY_CONDITION);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffsetRequired(verifier, VT_BINARY_NAME) &&
            verifier.VerifyString(binary_name()) &&
@@ -473,7 +479,8 @@ struct RestartAction FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   double delay_before_restart() const {
     return GetField<double>(VT_DELAY_BEFORE_RESTART, 0.0);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_NUMBER_OF_ATTEMPTS, 4) &&
            VerifyField<double>(verifier, VT_DELAY_BEFORE_RESTART, 8) &&
@@ -520,7 +527,8 @@ struct SwitchRunTargetAction FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Ta
   const ::flatbuffers::String *run_target() const {
     return GetPointer<const ::flatbuffers::String *>(VT_RUN_TARGET);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffsetRequired(verifier, VT_RUN_TARGET) &&
            verifier.VerifyString(run_target()) &&
@@ -576,7 +584,8 @@ struct EnvironmentalVariable FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Ta
   const ::flatbuffers::String *value() const {
     return GetPointer<const ::flatbuffers::String *>(VT_VALUE);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffsetRequired(verifier, VT_KEY) &&
            verifier.VerifyString(key()) &&
@@ -667,7 +676,8 @@ struct Sandbox FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   ::flatbuffers::Optional<uint32_t> max_cpu_usage() const {
     return GetOptional<uint32_t, uint32_t>(VT_MAX_CPU_USAGE);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_UID, 4) &&
            VerifyField<uint32_t>(verifier, VT_GID, 4) &&
@@ -828,7 +838,8 @@ struct DeploymentConfig FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const score::launch_manager::config::fb::Sandbox *sandbox() const {
     return GetPointer<const score::launch_manager::config::fb::Sandbox *>(VT_SANDBOX);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<double>(verifier, VT_READY_TIMEOUT, 8) &&
            VerifyField<double>(verifier, VT_SHUTDOWN_TIMEOUT, 8) &&
@@ -1003,7 +1014,8 @@ struct RunTarget FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const score::launch_manager::config::fb::SwitchRunTargetAction *recovery_action_as_SwitchRunTargetAction() const {
     return recovery_action_type() == score::launch_manager::config::fb::RecoveryAction_SwitchRunTargetAction ? static_cast<const score::launch_manager::config::fb::SwitchRunTargetAction *>(recovery_action()) : nullptr;
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffsetRequired(verifier, VT_NAME) &&
            verifier.VerifyString(name()) &&
@@ -1122,7 +1134,8 @@ struct Component FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const score::launch_manager::config::fb::DeploymentConfig *deployment_config() const {
     return GetPointer<const score::launch_manager::config::fb::DeploymentConfig *>(VT_DEPLOYMENT_CONFIG);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffsetRequired(verifier, VT_NAME) &&
            verifier.VerifyString(name()) &&
@@ -1204,7 +1217,8 @@ struct AliveSupervision FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   double evaluation_cycle() const {
     return GetField<double>(VT_EVALUATION_CYCLE, 0.0);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<double>(verifier, VT_EVALUATION_CYCLE, 8) &&
            verifier.EndTable();
@@ -1257,7 +1271,8 @@ struct Watchdog FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   ::flatbuffers::Optional<bool> require_magic_close() const {
     return GetOptional<uint8_t, bool>(VT_REQUIRE_MAGIC_CLOSE);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffsetRequired(verifier, VT_DEVICE_FILE_PATH) &&
            verifier.VerifyString(device_file_path()) &&
@@ -1341,7 +1356,8 @@ struct FallbackRunTarget FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table 
   double transition_timeout() const {
     return GetField<double>(VT_TRANSITION_TIMEOUT, 0.0);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_DESCRIPTION) &&
            verifier.VerifyString(description()) &&
@@ -1435,7 +1451,8 @@ struct LaunchManagerConfig FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   const score::launch_manager::config::fb::Watchdog *watchdog() const {
     return GetPointer<const score::launch_manager::config::fb::Watchdog *>(VT_WATCHDOG);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int32_t>(verifier, VT_SCHEMA_VERSION, 4) &&
            VerifyOffset(verifier, VT_COMPONENTS) &&
@@ -1538,7 +1555,8 @@ inline ::flatbuffers::Offset<LaunchManagerConfig> CreateLaunchManagerConfigDirec
       watchdog);
 }
 
-inline bool VerifyRecoveryAction(::flatbuffers::Verifier &verifier, const void *obj, RecoveryAction type) {
+template <bool B>
+inline bool VerifyRecoveryAction(::flatbuffers::VerifierTemplate<B> &verifier, const void *obj, RecoveryAction type) {
   switch (type) {
     case RecoveryAction_NONE: {
       return true;
@@ -1555,7 +1573,8 @@ inline bool VerifyRecoveryAction(::flatbuffers::Verifier &verifier, const void *
   }
 }
 
-inline bool VerifyRecoveryActionVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types) {
+template <bool B>
+inline bool VerifyRecoveryActionVector(::flatbuffers::VerifierTemplate<B> &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types) {
   if (!values || !types) return !values && !types;
   if (values->size() != types->size()) return false;
   for (::flatbuffers::uoffset_t i = 0; i < values->size(); ++i) {
@@ -1575,14 +1594,16 @@ inline const score::launch_manager::config::fb::LaunchManagerConfig *GetSizePref
   return ::flatbuffers::GetSizePrefixedRoot<score::launch_manager::config::fb::LaunchManagerConfig>(buf);
 }
 
+template <bool B = false>
 inline bool VerifyLaunchManagerConfigBuffer(
-    ::flatbuffers::Verifier &verifier) {
-  return verifier.VerifyBuffer<score::launch_manager::config::fb::LaunchManagerConfig>(nullptr);
+    ::flatbuffers::VerifierTemplate<B> &verifier) {
+  return verifier.template VerifyBuffer<score::launch_manager::config::fb::LaunchManagerConfig>(nullptr);
 }
 
+template <bool B = false>
 inline bool VerifySizePrefixedLaunchManagerConfigBuffer(
-    ::flatbuffers::Verifier &verifier) {
-  return verifier.VerifySizePrefixedBuffer<score::launch_manager::config::fb::LaunchManagerConfig>(nullptr);
+    ::flatbuffers::VerifierTemplate<B> &verifier) {
+  return verifier.template VerifySizePrefixedBuffer<score::launch_manager::config::fb::LaunchManagerConfig>(nullptr);
 }
 
 inline void FinishLaunchManagerConfigBuffer(
