@@ -22,7 +22,7 @@ from attribute_plugin import add_test_properties
     test_type="interface-test",
     derivation_technique="explorative-testing",
 )
-def test_smoke(target, setup_test, assert_test_results, remote_test_dir):
+def test_smoke(setup_test, target, assert_test_results, remote_test_dir):
     """
     Objective: Verifies the basic end-to-end lifecycle flow of the launch manager, including process startup, run target transitions, and execution state reporting.
 
