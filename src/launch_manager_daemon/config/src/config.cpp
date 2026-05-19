@@ -20,8 +20,8 @@ namespace score::launch_manager::config {
 Config::Config(std::vector<ComponentConfig> components,
                std::vector<RunTargetConfig> run_targets,
                std::string initial_run_target,
-               std::optional<FallbackRunTargetConfig> fallback_run_target,
-               std::optional<AliveSupervisionConfig> alive_supervision,
+               FallbackRunTargetConfig fallback_run_target,
+               AliveSupervisionConfig alive_supervision,
                std::optional<WatchdogConfig> watchdog)
     : components_{std::move(components)},
       run_targets_{std::move(run_targets)},

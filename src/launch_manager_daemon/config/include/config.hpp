@@ -104,7 +104,7 @@ struct RunTargetConfig {
     std::string description;
     std::vector<std::string> depends_on;
     uint32_t transition_timeout_ms{};
-    std::optional<SwitchRunTargetAction> recovery_action;
+    SwitchRunTargetAction recovery_action;
 };
 
 struct FallbackRunTargetConfig {
@@ -129,6 +129,10 @@ struct WatchdogConfig {
 /// Loaded once by an IConfigLoader, then individual parts are moved out via
 /// the `take_*()` accessors to transfer ownership to dedicated domain objects
 /// (e.g. ComponentConfig to Component).
+///
+/// @note As of now, everything is expected in a single config file.
+/// Even though some fields appear as optional in the json schema, they are only optional if the configuration would be split across multiple files.
+/// As only a single file is supported, the single config will contain all fields.
 class Config {
   public:
     Config(const Config&) = delete;
@@ -151,8 +155,8 @@ class Config {
         std::string initial_run_target_;
         std::vector<ComponentConfig> components_;
         std::vector<RunTargetConfig> run_targets_;
-        std::optional<FallbackRunTargetConfig> fallback_run_target_;
-        std::optional<AliveSupervisionConfig> alive_supervision_;
+        FallbackRunTargetConfig fallback_run_target_;
+        AliveSupervisionConfig alive_supervision_;
         std::optional<WatchdogConfig> watchdog_;
     };
 
@@ -160,16 +164,16 @@ class Config {
     const std::vector<ComponentConfig>& components() const { return components_; }
     const std::vector<RunTargetConfig>& run_targets() const { return run_targets_; }
     std::string_view initial_run_target() const { return initial_run_target_; }
-    const std::optional<FallbackRunTargetConfig>& fallback_run_target() const { return fallback_run_target_; }
-    const std::optional<AliveSupervisionConfig>& alive_supervision() const { return alive_supervision_; }
+    const FallbackRunTargetConfig& fallback_run_target() const { return fallback_run_target_; }
+    const AliveSupervisionConfig& alive_supervision() const { return alive_supervision_; }
     const std::optional<WatchdogConfig>& watchdog() const { return watchdog_; }
 
     // Ownership transfer — source is left in a moved-from state after the call
     std::vector<ComponentConfig> take_components() { return std::move(components_); }
     std::vector<RunTargetConfig> take_run_targets() { return std::move(run_targets_); }
     std::string take_initial_run_target() { return std::move(initial_run_target_); }
-    std::optional<FallbackRunTargetConfig> take_fallback_run_target() { return std::move(fallback_run_target_); }
-    std::optional<AliveSupervisionConfig> take_alive_supervision() { return std::move(alive_supervision_); }
+    FallbackRunTargetConfig take_fallback_run_target() { return std::move(fallback_run_target_); }
+    AliveSupervisionConfig take_alive_supervision() { return std::move(alive_supervision_); }
     std::optional<WatchdogConfig> take_watchdog() { return std::move(watchdog_); }
 
   private:
@@ -178,15 +182,15 @@ class Config {
     Config(std::vector<ComponentConfig> components,
            std::vector<RunTargetConfig> run_targets,
            std::string initial_run_target,
-           std::optional<FallbackRunTargetConfig> fallback_run_target,
-           std::optional<AliveSupervisionConfig> alive_supervision,
+           FallbackRunTargetConfig fallback_run_target,
+           AliveSupervisionConfig alive_supervision,
            std::optional<WatchdogConfig> watchdog);
 
     std::vector<ComponentConfig> components_;
     std::vector<RunTargetConfig> run_targets_;
     std::string initial_run_target_;
-    std::optional<FallbackRunTargetConfig> fallback_run_target_;
-    std::optional<AliveSupervisionConfig> alive_supervision_;
+    FallbackRunTargetConfig fallback_run_target_;
+    AliveSupervisionConfig alive_supervision_;
     std::optional<WatchdogConfig> watchdog_;
 };
 
