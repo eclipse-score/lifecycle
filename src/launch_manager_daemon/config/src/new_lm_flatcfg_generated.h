@@ -788,11 +788,10 @@ struct DeploymentConfig FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_ENVIRONMENTAL_VARIABLES = 8,
     VT_BIN_DIR = 10,
     VT_WORKING_DIR = 12,
-    VT_READY_RECOVERY_ACTION_TYPE = 14,
-    VT_READY_RECOVERY_ACTION = 16,
-    VT_RECOVERY_ACTION_TYPE = 18,
-    VT_RECOVERY_ACTION = 20,
-    VT_SANDBOX = 22
+    VT_READY_RECOVERY_ACTION = 14,
+    VT_RECOVERY_ACTION_TYPE = 16,
+    VT_RECOVERY_ACTION = 18,
+    VT_SANDBOX = 20
   };
   double ready_timeout() const {
     return GetField<double>(VT_READY_TIMEOUT, 0.0);
@@ -809,18 +808,8 @@ struct DeploymentConfig FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const ::flatbuffers::String *working_dir() const {
     return GetPointer<const ::flatbuffers::String *>(VT_WORKING_DIR);
   }
-  score::launch_manager::config::fb::RecoveryAction ready_recovery_action_type() const {
-    return static_cast<score::launch_manager::config::fb::RecoveryAction>(GetField<uint8_t>(VT_READY_RECOVERY_ACTION_TYPE, 0));
-  }
-  const void *ready_recovery_action() const {
-    return GetPointer<const void *>(VT_READY_RECOVERY_ACTION);
-  }
-  template<typename T> const T *ready_recovery_action_as() const;
-  const score::launch_manager::config::fb::RestartAction *ready_recovery_action_as_RestartAction() const {
-    return ready_recovery_action_type() == score::launch_manager::config::fb::RecoveryAction_RestartAction ? static_cast<const score::launch_manager::config::fb::RestartAction *>(ready_recovery_action()) : nullptr;
-  }
-  const score::launch_manager::config::fb::SwitchRunTargetAction *ready_recovery_action_as_SwitchRunTargetAction() const {
-    return ready_recovery_action_type() == score::launch_manager::config::fb::RecoveryAction_SwitchRunTargetAction ? static_cast<const score::launch_manager::config::fb::SwitchRunTargetAction *>(ready_recovery_action()) : nullptr;
+  const score::launch_manager::config::fb::RestartAction *ready_recovery_action() const {
+    return GetPointer<const score::launch_manager::config::fb::RestartAction *>(VT_READY_RECOVERY_ACTION);
   }
   score::launch_manager::config::fb::RecoveryAction recovery_action_type() const {
     return static_cast<score::launch_manager::config::fb::RecoveryAction>(GetField<uint8_t>(VT_RECOVERY_ACTION_TYPE, 0));
@@ -850,9 +839,8 @@ struct DeploymentConfig FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            verifier.VerifyString(bin_dir()) &&
            VerifyOffset(verifier, VT_WORKING_DIR) &&
            verifier.VerifyString(working_dir()) &&
-           VerifyField<uint8_t>(verifier, VT_READY_RECOVERY_ACTION_TYPE, 1) &&
            VerifyOffset(verifier, VT_READY_RECOVERY_ACTION) &&
-           VerifyRecoveryAction(verifier, ready_recovery_action(), ready_recovery_action_type()) &&
+           verifier.VerifyTable(ready_recovery_action()) &&
            VerifyField<uint8_t>(verifier, VT_RECOVERY_ACTION_TYPE, 1) &&
            VerifyOffset(verifier, VT_RECOVERY_ACTION) &&
            VerifyRecoveryAction(verifier, recovery_action(), recovery_action_type()) &&
@@ -861,14 +849,6 @@ struct DeploymentConfig FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            verifier.EndTable();
   }
 };
-
-template<> inline const score::launch_manager::config::fb::RestartAction *DeploymentConfig::ready_recovery_action_as<score::launch_manager::config::fb::RestartAction>() const {
-  return ready_recovery_action_as_RestartAction();
-}
-
-template<> inline const score::launch_manager::config::fb::SwitchRunTargetAction *DeploymentConfig::ready_recovery_action_as<score::launch_manager::config::fb::SwitchRunTargetAction>() const {
-  return ready_recovery_action_as_SwitchRunTargetAction();
-}
 
 template<> inline const score::launch_manager::config::fb::RestartAction *DeploymentConfig::recovery_action_as<score::launch_manager::config::fb::RestartAction>() const {
   return recovery_action_as_RestartAction();
@@ -897,10 +877,7 @@ struct DeploymentConfigBuilder {
   void add_working_dir(::flatbuffers::Offset<::flatbuffers::String> working_dir) {
     fbb_.AddOffset(DeploymentConfig::VT_WORKING_DIR, working_dir);
   }
-  void add_ready_recovery_action_type(score::launch_manager::config::fb::RecoveryAction ready_recovery_action_type) {
-    fbb_.AddElement<uint8_t>(DeploymentConfig::VT_READY_RECOVERY_ACTION_TYPE, static_cast<uint8_t>(ready_recovery_action_type), 0);
-  }
-  void add_ready_recovery_action(::flatbuffers::Offset<void> ready_recovery_action) {
+  void add_ready_recovery_action(::flatbuffers::Offset<score::launch_manager::config::fb::RestartAction> ready_recovery_action) {
     fbb_.AddOffset(DeploymentConfig::VT_READY_RECOVERY_ACTION, ready_recovery_action);
   }
   void add_recovery_action_type(score::launch_manager::config::fb::RecoveryAction recovery_action_type) {
@@ -931,8 +908,7 @@ inline ::flatbuffers::Offset<DeploymentConfig> CreateDeploymentConfig(
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<score::launch_manager::config::fb::EnvironmentalVariable>>> environmental_variables = 0,
     ::flatbuffers::Offset<::flatbuffers::String> bin_dir = 0,
     ::flatbuffers::Offset<::flatbuffers::String> working_dir = 0,
-    score::launch_manager::config::fb::RecoveryAction ready_recovery_action_type = score::launch_manager::config::fb::RecoveryAction_NONE,
-    ::flatbuffers::Offset<void> ready_recovery_action = 0,
+    ::flatbuffers::Offset<score::launch_manager::config::fb::RestartAction> ready_recovery_action = 0,
     score::launch_manager::config::fb::RecoveryAction recovery_action_type = score::launch_manager::config::fb::RecoveryAction_NONE,
     ::flatbuffers::Offset<void> recovery_action = 0,
     ::flatbuffers::Offset<score::launch_manager::config::fb::Sandbox> sandbox = 0) {
@@ -946,7 +922,6 @@ inline ::flatbuffers::Offset<DeploymentConfig> CreateDeploymentConfig(
   builder_.add_bin_dir(bin_dir);
   builder_.add_environmental_variables(environmental_variables);
   builder_.add_recovery_action_type(recovery_action_type);
-  builder_.add_ready_recovery_action_type(ready_recovery_action_type);
   return builder_.Finish();
 }
 
@@ -957,8 +932,7 @@ inline ::flatbuffers::Offset<DeploymentConfig> CreateDeploymentConfigDirect(
     const std::vector<::flatbuffers::Offset<score::launch_manager::config::fb::EnvironmentalVariable>> *environmental_variables = nullptr,
     const char *bin_dir = nullptr,
     const char *working_dir = nullptr,
-    score::launch_manager::config::fb::RecoveryAction ready_recovery_action_type = score::launch_manager::config::fb::RecoveryAction_NONE,
-    ::flatbuffers::Offset<void> ready_recovery_action = 0,
+    ::flatbuffers::Offset<score::launch_manager::config::fb::RestartAction> ready_recovery_action = 0,
     score::launch_manager::config::fb::RecoveryAction recovery_action_type = score::launch_manager::config::fb::RecoveryAction_NONE,
     ::flatbuffers::Offset<void> recovery_action = 0,
     ::flatbuffers::Offset<score::launch_manager::config::fb::Sandbox> sandbox = 0) {
@@ -972,7 +946,6 @@ inline ::flatbuffers::Offset<DeploymentConfig> CreateDeploymentConfigDirect(
       environmental_variables__,
       bin_dir__,
       working_dir__,
-      ready_recovery_action_type,
       ready_recovery_action,
       recovery_action_type,
       recovery_action,

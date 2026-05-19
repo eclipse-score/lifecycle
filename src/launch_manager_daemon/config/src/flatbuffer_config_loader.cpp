@@ -121,6 +121,15 @@ std::unordered_map<std::string, std::string> convertEnvironmentalVariables(
 
 // --- Recovery action conversion ---
 
+std::optional<RestartAction> convertRestartAction(const fb::RestartAction* ra)
+{
+    if (ra == nullptr)
+    {
+        return std::nullopt;
+    }
+    return RestartAction{ra->number_of_attempts(), secondsToMs(ra->delay_before_restart())};
+}
+
 std::optional<RecoveryAction> convertRecoveryAction(fb::RecoveryAction type, const void* action)
 {
     switch (type)
@@ -239,8 +248,7 @@ DeploymentConfig convertDeploymentConfig(const fb::DeploymentConfig* fb_dc)
         result.environmental_variables = convertEnvironmentalVariables(fb_dc->environmental_variables());
         result.bin_dir = safeString(fb_dc->bin_dir());
         result.working_dir = safeString(fb_dc->working_dir());
-        result.ready_recovery_action =
-            convertRecoveryAction(fb_dc->ready_recovery_action_type(), fb_dc->ready_recovery_action());
+        result.ready_recovery_action = convertRestartAction(fb_dc->ready_recovery_action());
         result.recovery_action = convertRecoveryAction(fb_dc->recovery_action_type(), fb_dc->recovery_action());
         result.sandbox = convertSandbox(fb_dc->sandbox());
     }
