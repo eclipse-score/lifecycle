@@ -140,7 +140,7 @@ class FlatbufferConfigLoaderTest : public ::testing::Test {
         return loader_.load(kTestPath);
     }
 
-    FlatbufferConfigLoader<MockBufferLoader> loader_;
+    FlatbufferConfigLoaderImpl<MockBufferLoader> loader_;
 };
 
 // ============================================================================

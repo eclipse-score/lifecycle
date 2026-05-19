@@ -126,6 +126,11 @@ struct WatchdogConfig {
     bool require_magic_close{};
 };
 
+/// @brief Move-only value object holding the parsed launch-manager configuration.
+///
+/// Loaded once by an IConfigLoader, then individual parts are moved out via
+/// the `take_*()` accessors to transfer ownership to dedicated domain objects
+/// (e.g. ComponentConfig to Component).
 class Config {
   public:
     Config(const Config&) = delete;
