@@ -111,8 +111,8 @@ table DeploymentConfig {
   // Working directory for the component during execution.
   working_dir:string;
   // Recovery action when the component fails to reach ready state.
-  // Must be RestartAction per the JSON schema constraint.
-  ready_recovery_action:RecoveryAction;
+  // Can only be a RestartAction per the JSON schema constraint.
+  ready_recovery_action:RestartAction;
   // Recovery action when the component malfunctions after reaching ready state.
   // Must be SwitchRunTargetAction per the JSON schema constraint.
   recovery_action:RecoveryAction;

@@ -89,7 +89,7 @@ struct DeploymentConfig {
     std::unordered_map<std::string, std::string> environmental_variables;
     std::string bin_dir;
     std::string working_dir;
-    std::optional<RecoveryAction> ready_recovery_action;
+    std::optional<RestartAction> ready_recovery_action;
     std::optional<RecoveryAction> recovery_action;
     std::optional<Sandbox> sandbox;
 };
