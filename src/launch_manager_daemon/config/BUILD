@@ -10,6 +10,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+
+load("@score_baselibs//score/flatbuffers/bazel:codegen.bzl", "generate_cpp")
+
 exports_files([
     "lm_flatcfg.fbs",
     "lm_flatcfg_generated.h",
@@ -19,6 +22,12 @@ filegroup(
     name = "new_lm_flatcfg_fbs",
     srcs = ["src/new_lm_flatcfg.fbs"],
     visibility = ["//visibility:public"],
+)
+
+generate_cpp(
+    name = "new_lm_flatcfg_generated",
+    output = "new_lm_flatcfg_generated.h",
+    schema = "src/new_lm_flatcfg.fbs",
 )
 
 cc_library(
@@ -45,10 +54,11 @@ cc_library(
     name = "flatbuffer_config_loader",
     srcs = [
         "src/flatbuffer_config_loader.cpp",
-        "src/new_lm_flatcfg_generated.h",
+        ":new_lm_flatcfg_generated",
     ],
     hdrs = ["include/flatbuffer_config_loader.hpp"],
     includes = [
+        ".",
         "include",
         "src",
     ],
