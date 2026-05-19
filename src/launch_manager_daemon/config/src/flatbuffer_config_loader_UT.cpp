@@ -171,13 +171,13 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSingleComponent)
     auto alive_sup = fb::CreateComponentAliveSupervision(fbb,
         0.5 /*reporting_cycle*/, 2 /*failed_cycles_tolerance*/, 1 /*min_indications*/, 3 /*max_indications*/);
     auto app_profile =
-        fb::CreateApplicationProfile(fbb, fb::ApplicationType_Reporting_And_Supervised, true /*is_self_terminating*/, alive_sup);
+        fb::CreateApplicationProfile(fbb, fb::ApplicationType::Reporting_And_Supervised, true /*is_self_terminating*/, alive_sup);
     auto bin_name = fbb.CreateString("my_binary");
     auto dep = fbb.CreateString("other_comp");
     auto deps_vec = fbb.CreateVector(std::vector<::flatbuffers::Offset<::flatbuffers::String>>{dep});
     auto arg = fbb.CreateString("--verbose");
     auto args_vec = fbb.CreateVector(std::vector<::flatbuffers::Offset<::flatbuffers::String>>{arg});
-    auto ready_cond = fb::CreateReadyCondition(fbb, fb::ProcessState_Running);
+    auto ready_cond = fb::CreateReadyCondition(fbb, fb::ProcessState::Running);
     auto comp_props = fb::CreateComponentProperties(fbb, bin_name, app_profile, deps_vec, args_vec, ready_cond);
 
     auto bin_dir = fbb.CreateString("/opt/bin");
@@ -230,7 +230,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadRunTargets)
     auto rt_dep = fbb.CreateString("component_a");
     auto rt_deps = fbb.CreateVector(std::vector<::flatbuffers::Offset<::flatbuffers::String>>{rt_dep});
     auto rt = fb::CreateRunTarget(fbb, rt_name, rt_desc, rt_deps, 5.0 /*transition_timeout*/,
-        fb::RecoveryAction_SwitchRunTargetAction, switch_action.Union());
+        fb::RecoveryAction::SwitchRunTargetAction, switch_action.Union());
     auto rts = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::RunTarget>>{rt});
 
     auto result = loadBuffer(buildConfigWithRunTargets(fbb, rts));
@@ -359,7 +359,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSwitchRunTargetAction)
     auto rt_name = fbb.CreateString("Startup");
     auto rt = fb::CreateRunTarget(
         fbb, rt_name, 0, 0, 0.0,
-        fb::RecoveryAction_SwitchRunTargetAction, switch_action.Union());
+        fb::RecoveryAction::SwitchRunTargetAction, switch_action.Union());
     auto rts = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::RunTarget>>{rt});
 
     auto result = loadBuffer(buildConfigWithRunTargets(fbb, rts));
@@ -390,7 +390,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
     auto deploy = fb::CreateDeploymentConfig(fbb,
         0.5, 0.5, 0 /*environmental_variables*/, bin_dir, work_dir,
         0 /*ready_recovery_action*/,
-        fb::RecoveryAction_NONE, 0 /*recovery_action*/, sandbox);
+        fb::RecoveryAction::NONE, 0 /*recovery_action*/, sandbox);
 
     auto comp = buildDefaultComponent(fbb, "sandboxed_comp",
         buildDefaultComponentProperties(fbb), deploy);
@@ -425,7 +425,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadComponentAliveSupervision)
     auto comp_alive_sup = fb::CreateComponentAliveSupervision(fbb,
         1.0 /*reporting_cycle*/, 3 /*failed_cycles_tolerance*/, 2 /*min_indications*/, 5 /*max_indications*/);
     auto app_profile = fb::CreateApplicationProfile(fbb,
-        fb::ApplicationType_Reporting_And_Supervised, false /*is_self_terminating*/, comp_alive_sup);
+        fb::ApplicationType::Reporting_And_Supervised, false /*is_self_terminating*/, comp_alive_sup);
     auto bin_name = fbb.CreateString("supervised_bin");
     auto ready_cond = fb::CreateReadyCondition(fbb);
     auto comp_props = fb::CreateComponentProperties(fbb, bin_name, app_profile, 0, 0, ready_cond);
@@ -536,7 +536,7 @@ TEST_F(FlatbufferConfigLoaderTest, MapNativeApplicationType)
 
     ::flatbuffers::FlatBufferBuilder fbb;
 
-    auto app_profile = fb::CreateApplicationProfile(fbb, fb::ApplicationType_Native);
+    auto app_profile = fb::CreateApplicationProfile(fbb, fb::ApplicationType::Native);
     auto bin_name = fbb.CreateString("native_bin");
     auto ready_cond = fb::CreateReadyCondition(fbb);
     auto comp_props = fb::CreateComponentProperties(fbb, bin_name, app_profile, 0, 0, ready_cond);
@@ -558,7 +558,7 @@ TEST_F(FlatbufferConfigLoaderTest, MapReportingAndSupervisedType)
 
     ::flatbuffers::FlatBufferBuilder fbb;
 
-    auto app_profile = fb::CreateApplicationProfile(fbb, fb::ApplicationType_Reporting_And_Supervised);
+    auto app_profile = fb::CreateApplicationProfile(fbb, fb::ApplicationType::Reporting_And_Supervised);
     auto bin_name = fbb.CreateString("supervised_bin");
     auto ready_cond = fb::CreateReadyCondition(fbb);
     auto comp_props = fb::CreateComponentProperties(fbb, bin_name, app_profile, 0, 0, ready_cond);
@@ -580,7 +580,7 @@ TEST_F(FlatbufferConfigLoaderTest, MapTerminatedProcessState)
     ::flatbuffers::FlatBufferBuilder fbb;
 
     auto app_profile = fb::CreateApplicationProfile(fbb);
-    auto ready_cond = fb::CreateReadyCondition(fbb, fb::ProcessState_Terminated);
+    auto ready_cond = fb::CreateReadyCondition(fbb, fb::ProcessState::Terminated);
     auto bin_name = fbb.CreateString("term_bin");
     auto comp_props = fb::CreateComponentProperties(fbb,
         bin_name, app_profile, 0, 0, ready_cond);

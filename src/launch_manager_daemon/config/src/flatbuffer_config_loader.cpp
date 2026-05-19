@@ -41,13 +41,13 @@ ApplicationType convertApplicationType(fb::ApplicationType fb_type)
 {
     switch (fb_type)
     {
-        case fb::ApplicationType_Reporting:
+        case fb::ApplicationType::Reporting:
             return ApplicationType::Reporting;
-        case fb::ApplicationType_Reporting_And_Supervised:
+        case fb::ApplicationType::Reporting_And_Supervised:
             return ApplicationType::ReportingAndSupervised;
-        case fb::ApplicationType_State_Manager:
+        case fb::ApplicationType::State_Manager:
             return ApplicationType::StateManager;
-        case fb::ApplicationType_Native:
+        case fb::ApplicationType::Native:
         default:
             return ApplicationType::Native;
     }
@@ -57,9 +57,9 @@ ProcessState convertProcessState(fb::ProcessState fb_state)
 {
     switch (fb_state)
     {
-        case fb::ProcessState_Terminated:
+        case fb::ProcessState::Terminated:
             return ProcessState::Terminated;
-        case fb::ProcessState_Running:
+        case fb::ProcessState::Running:
         default:
             return ProcessState::Running;
     }
@@ -134,7 +134,7 @@ std::optional<RecoveryAction> convertRecoveryAction(fb::RecoveryAction type, con
 {
     switch (type)
     {
-        case fb::RecoveryAction_RestartAction:
+        case fb::RecoveryAction::RestartAction:
         {
             const auto* ra = static_cast<const fb::RestartAction*>(action);
             if (ra == nullptr)
@@ -143,7 +143,7 @@ std::optional<RecoveryAction> convertRecoveryAction(fb::RecoveryAction type, con
             }
             return RestartAction{ra->number_of_attempts(), secondsToMs(ra->delay_before_restart())};
         }
-        case fb::RecoveryAction_SwitchRunTargetAction:
+        case fb::RecoveryAction::SwitchRunTargetAction:
         {
             const auto* sa = static_cast<const fb::SwitchRunTargetAction*>(action);
             if (sa == nullptr)
