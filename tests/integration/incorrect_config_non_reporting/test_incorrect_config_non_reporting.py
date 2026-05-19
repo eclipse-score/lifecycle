@@ -12,7 +12,7 @@
 # *******************************************************************************
 import logging
 from tests.utils.testing_utils.run_until_file_deployed import run_until_file_deployed
-from tests.utils.testing_utils.setup_test import setup_test
+from tests.utils.testing_utils.setup_test import setup_test, download_core_dumps
 from tests.utils.testing_utils.test_results import assert_test_results
 from attribute_plugin import add_test_properties
 
