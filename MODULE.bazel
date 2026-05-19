@@ -133,13 +133,13 @@ use_repo(oci, "debian-test-runtime", "debian-test-runtime_linux_amd64")
 
 bazel_dep(name = "score_baselibs_rust", version = "0.1.2")
 bazel_dep(name = "score_baselibs", version = "0.2.6")
+
 # Temporarily overwrite baselibs to use the new flatbuffer config loader until there is a new release
 git_override(
     module_name = "score_baselibs",
     commit = "498a4b256c9073602140243d30c33b106e279f75",
     remote = "https://github.com/eclipse-score/baselibs.git",
 )
-
 
 # Hedron's Compile Commands Extractor for Bazel
 # https://github.com/hedronvision/bazel-compile-commands-extractor

@@ -1,16 +1,15 @@
-// *******************************************************************************
-// Copyright (c) 2026 Contributors to the Eclipse Foundation
-//
-// See the NOTICE file(s) distributed with this work for additional
-// information regarding copyright ownership.
-//
-// This program and the accompanying materials are made available under the
-// terms of the Apache License Version 2.0 which is available at
-// https://www.apache.org/licenses/LICENSE-2.0
-//
-// SPDX-License-Identifier: Apache-2.0
-// *******************************************************************************
-
+/********************************************************************************
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ********************************************************************************/
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 
@@ -21,38 +20,45 @@
 #include <unordered_map>
 #include <vector>
 
-namespace score::launch_manager::config {
+namespace score::launch_manager::config
+{
 
-enum class ApplicationType : uint8_t {
+enum class ApplicationType : uint8_t
+{
     Native = 0,
     Reporting = 1,
     ReportingAndSupervised = 2,
     StateManager = 3
 };
 
-enum class ProcessState : uint8_t {
+enum class ProcessState : uint8_t
+{
     Running = 0,
     Terminated = 1
 };
 
-struct ComponentAliveSupervision {
+struct ComponentAliveSupervision
+{
     uint32_t reporting_cycle_ms{};
     uint32_t failed_cycles_tolerance{};
     uint32_t min_indications{};
     uint32_t max_indications{};
 };
 
-struct ApplicationProfile {
+struct ApplicationProfile
+{
     ApplicationType application_type{ApplicationType::Native};
     bool is_self_terminating{};
     std::optional<ComponentAliveSupervision> alive_supervision;
 };
 
-struct ReadyCondition {
+struct ReadyCondition
+{
     ProcessState process_state{ProcessState::Running};
 };
 
-struct ComponentProperties {
+struct ComponentProperties
+{
     std::string binary_name;
     ApplicationProfile application_profile;
     std::vector<std::string> depends_on;
@@ -60,16 +66,19 @@ struct ComponentProperties {
     ReadyCondition ready_condition;
 };
 
-struct RestartAction {
+struct RestartAction
+{
     uint32_t number_of_attempts{};
     uint32_t delay_before_restart_ms{};
 };
 
-struct SwitchRunTargetAction {
+struct SwitchRunTargetAction
+{
     std::string run_target;
 };
 
-struct Sandbox {
+struct Sandbox
+{
     uint32_t uid{};
     uint32_t gid{};
     std::vector<uint32_t> supplementary_group_ids;
@@ -80,7 +89,8 @@ struct Sandbox {
     std::optional<uint32_t> max_cpu_usage;
 };
 
-struct DeploymentConfig {
+struct DeploymentConfig
+{
     uint32_t ready_timeout_ms{};
     uint32_t shutdown_timeout_ms{};
     std::unordered_map<std::string, std::string> environmental_variables;
@@ -92,14 +102,16 @@ struct DeploymentConfig {
     std::optional<Sandbox> sandbox;
 };
 
-struct ComponentConfig {
+struct ComponentConfig
+{
     std::string name;
     std::string description;
     ComponentProperties component_properties;
     DeploymentConfig deployment_config;
 };
 
-struct RunTargetConfig {
+struct RunTargetConfig
+{
     std::string name;
     std::string description;
     std::vector<std::string> depends_on;
@@ -107,17 +119,20 @@ struct RunTargetConfig {
     SwitchRunTargetAction recovery_action;
 };
 
-struct FallbackRunTargetConfig {
+struct FallbackRunTargetConfig
+{
     std::string description;
     std::vector<std::string> depends_on;
     uint32_t transition_timeout_ms{};
 };
 
-struct AliveSupervisionConfig {
+struct AliveSupervisionConfig
+{
     uint32_t evaluation_cycle_ms{};
 };
 
-struct WatchdogConfig {
+struct WatchdogConfig
+{
     std::string device_file_path;
     uint32_t max_timeout_ms{};
     bool deactivate_on_shutdown{};
@@ -131,16 +146,18 @@ struct WatchdogConfig {
 /// (e.g. ComponentConfig to Component).
 ///
 /// @note As of now, everything is expected in a single config file.
-/// Even though some fields appear as optional in the json schema, they are only optional if the configuration would be split across multiple files.
-/// As only a single file is supported, the single config will contain all fields.
-class Config {
+/// Even though some fields appear as optional in the json schema, they are only optional if the configuration would be
+/// split across multiple files. As only a single file is supported, the single config will contain all fields.
+class Config
+{
   public:
     Config(const Config&) = delete;
     Config& operator=(const Config&) = delete;
     Config(Config&&) = default;
     Config& operator=(Config&&) = default;
 
-    class Builder {
+    class Builder
+    {
       public:
         Builder& setComponents(std::vector<ComponentConfig> components);
         Builder& setRunTargets(std::vector<RunTargetConfig> run_targets);
@@ -161,20 +178,56 @@ class Config {
     };
 
     // Read access
-    const std::vector<ComponentConfig>& components() const { return components_; }
-    const std::vector<RunTargetConfig>& run_targets() const { return run_targets_; }
-    std::string_view initial_run_target() const { return initial_run_target_; }
-    const FallbackRunTargetConfig& fallback_run_target() const { return fallback_run_target_; }
-    const AliveSupervisionConfig& alive_supervision() const { return alive_supervision_; }
-    const std::optional<WatchdogConfig>& watchdog() const { return watchdog_; }
+    const std::vector<ComponentConfig>& components() const
+    {
+        return components_;
+    }
+    const std::vector<RunTargetConfig>& run_targets() const
+    {
+        return run_targets_;
+    }
+    std::string_view initial_run_target() const
+    {
+        return initial_run_target_;
+    }
+    const FallbackRunTargetConfig& fallback_run_target() const
+    {
+        return fallback_run_target_;
+    }
+    const AliveSupervisionConfig& alive_supervision() const
+    {
+        return alive_supervision_;
+    }
+    const std::optional<WatchdogConfig>& watchdog() const
+    {
+        return watchdog_;
+    }
 
     // Ownership transfer — source is left in a moved-from state after the call
-    std::vector<ComponentConfig> take_components() { return std::move(components_); }
-    std::vector<RunTargetConfig> take_run_targets() { return std::move(run_targets_); }
-    std::string take_initial_run_target() { return std::move(initial_run_target_); }
-    FallbackRunTargetConfig take_fallback_run_target() { return std::move(fallback_run_target_); }
-    AliveSupervisionConfig take_alive_supervision() { return std::move(alive_supervision_); }
-    std::optional<WatchdogConfig> take_watchdog() { return std::move(watchdog_); }
+    std::vector<ComponentConfig> take_components()
+    {
+        return std::move(components_);
+    }
+    std::vector<RunTargetConfig> take_run_targets()
+    {
+        return std::move(run_targets_);
+    }
+    std::string take_initial_run_target()
+    {
+        return std::move(initial_run_target_);
+    }
+    FallbackRunTargetConfig take_fallback_run_target()
+    {
+        return std::move(fallback_run_target_);
+    }
+    AliveSupervisionConfig take_alive_supervision()
+    {
+        return std::move(alive_supervision_);
+    }
+    std::optional<WatchdogConfig> take_watchdog()
+    {
+        return std::move(watchdog_);
+    }
 
   private:
     friend class Builder;
