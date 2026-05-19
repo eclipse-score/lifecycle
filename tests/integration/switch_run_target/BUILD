@@ -57,7 +57,7 @@ cc_binary(
 ]
 
 cc_binary(
-    name = "component_c",
+    name = "component_e",
     srcs = ["//tests/utils/test_helper:reporting_process.cpp"],
     deps = [
         "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
@@ -71,8 +71,8 @@ pkg_files(
     srcs = [
         ":component_a",
         ":component_b",
-        ":component_c",
         ":component_d",
+        ":component_e",
         ":control_client_mock",
         "//src/launch_manager_daemon:launch_manager",
     ],

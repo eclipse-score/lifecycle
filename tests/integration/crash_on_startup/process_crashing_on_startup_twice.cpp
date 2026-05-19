@@ -41,8 +41,8 @@ void deploy_and_crash_if_not_present(const std::string_view name)
 
 int main()
 {
-    deploy_and_crash_if_not_present("crashed_once");
-    deploy_and_crash_if_not_present("crashed_twice");
+    deploy_and_crash_if_not_present(crashed_once_file);
+    deploy_and_crash_if_not_present(crashed_twice_file);
 
     std::cout << "Process starting successfully..." << std::endl;
     return TestRunner(__FILE__).RunTests();

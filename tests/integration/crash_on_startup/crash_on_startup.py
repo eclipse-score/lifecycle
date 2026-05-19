@@ -25,8 +25,15 @@ from attribute_plugin import add_test_properties
     derivation_technique="requirements-analysis",
 )
 def test_crash_on_startup(target, setup_test, test_output_dir, remote_test_dir):
-    """Integration test verifying that the launch manager correctly handles processes
-    that crash before reporting kRunning."""
+    """
+    Objective: Verifies that the launch manager correctly handles processes that crash before reporting kRunning.
+
+    Case 1: Process crashes before Running state but eventually starts up successfully before the configured number of restart attempts is exceeded.
+    Expected Behaviour: Process startup successful, RunTarget activation successful
+
+    Case 2: Process keeps crashing, exceeding the number of restart attempts.
+    Expected Behaviour: Process startup fails, LaunchManager executes recovery action.
+    """
 
     run_until_file_deployed(
         target=target,

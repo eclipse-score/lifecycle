@@ -81,13 +81,13 @@
                 }
             }
         },
-        "component_c": {
+        "component_e": {
             "component_properties": {
                 "binary_name": "reporting_process"
             },
             "deployment_config": {
                 "environmental_variables": {
-                    "PROCESSIDENTIFIER": "component_c"
+                    "PROCESSIDENTIFIER": "component_e"
                 }
             }
         },

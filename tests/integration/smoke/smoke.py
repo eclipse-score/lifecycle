@@ -23,7 +23,12 @@ from attribute_plugin import add_test_properties
     derivation_technique="explorative-testing",
 )
 def test_smoke(target, setup_test, assert_test_results, remote_test_dir):
-    """Smoke test for the launch manager daemon running inside a Docker container."""
+    """
+    Objective: Verifies the basic end-to-end lifecycle flow of the launch manager, including process startup, run target transitions, and execution state reporting.
+
+    The launch manager starts with an initial run target. The control daemon activates the "Running" run target (starting the managed process), then transitions back to "Startup", and finally activates "Off".
+    Expected Behaviour: All run target transitions complete successfully and all processes report kRunning.
+    """
     run_until_file_deployed(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),

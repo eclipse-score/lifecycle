@@ -21,7 +21,7 @@ score::lcm::ControlClient client;
 
 TEST(CrashOnStartup, ControlClientMock)
 {
-    ASSERT_TRUE(check_clean({test_end_location, fallback_file}));
+    ASSERT_TRUE(check_clean({crashed_once_file, crashed_twice_file, test_end_location, fallback_file}));
 
     TEST_STEP("Report kRunning")
     {
@@ -42,9 +42,9 @@ TEST(CrashOnStartup, ControlClientMock)
                                         << result.error().Message();
     }
 
-    TEST_STEP("Verify fallback run target was not activated")
+    TEST_STEP("Verify fallback run target was not activated, i.e. process eventually started successfully")
     {
-        EXPECT_FALSE(std::filesystem::exists(fallback_file)) << "Fallback should not be activated yet";
+        EXPECT_FALSE(std::filesystem::exists(fallback_file)) << "Fallback run target should not be activated yet";
     }
 
     // Given a process that crashes on startup more times than the configured restart attempts
@@ -59,7 +59,7 @@ TEST(CrashOnStartup, ControlClientMock)
     // Then, the LM should exhaust retries and trigger the fallback
     TEST_STEP("Verify fallback run target was activated")
     {
-        EXPECT_TRUE(std::filesystem::exists(fallback_file)) << "Fallback run target was not activated";
+        EXPECT_TRUE(std::filesystem::exists(fallback_file)) << "Fallback run target was activated";
     }
 
     TEST_STEP("Activate RunTarget Off")

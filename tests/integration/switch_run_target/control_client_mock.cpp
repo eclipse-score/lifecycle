@@ -27,14 +27,16 @@ score::lcm::ControlClient client;
 //         - component_b: No dependencies
 //     - run_target_c: Depends on component component_d
 //         - component_d: No dependencies
+// - component_e: No dependencies, not included in any run target 
 
 // The only constraint on process startup order is that A must start after B.
 // This is because, even though run target A depends on run target C (where
 // component D is contained), *component* A only depends on component B.
+// Component E is not included in any run target, so it should never be launched.
 
 TEST(SwitchRunTarget, ControlClientMock)
 {
-    ASSERT_TRUE(check_clean({test_end_location, a_started, b_started, c_started, d_started}));
+    ASSERT_TRUE(check_clean({test_end_location, a_started, b_started, d_started, e_started}));
     TEST_STEP("Report kRunning")
     {
         auto result = score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
@@ -67,7 +69,7 @@ TEST(SwitchRunTarget, ControlClientMock)
     TEST_STEP("Activate RunTarget Off")
     {
         client.ActivateRunTarget("Off");
-        EXPECT_FALSE(std::filesystem::exists(c_started)) << "Component C should not be launched";
+        EXPECT_FALSE(std::filesystem::exists(e_started)) << "Component E should not be launched";
     }
 }
 

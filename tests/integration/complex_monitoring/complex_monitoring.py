@@ -28,7 +28,12 @@ from attribute_plugin import add_test_properties
     derivation_technique="requirements-analysis",
 )
 def test_complex_monitoring(target, setup_test, test_output_dir, remote_test_dir):
-    """Integration test for recovery actions triggered by heartbeat monitor failure. See component_complex_monitoring.cpp for detailed spec"""
+    """
+    Objective: Verifies that the launch manager correctly handles recovery actions triggered by a heartbeat monitor failure.
+
+    Process registers a heartbeat monitor, sends heartbeats within the configured time range for 1 second, then stops sending heartbeats.
+    Expected Behaviour: Health monitor detects the missed heartbeats and triggers a recovery action, activating the fallback run target.
+    """
 
     run_until_file_deployed(
         target=target,

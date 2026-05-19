@@ -30,7 +30,12 @@ from attribute_plugin import add_test_properties
     derivation_technique="requirements-analysis",
 )
 def test_process_launch_args(target, setup_test, test_output_dir, remote_test_dir):
-    """Integration test verifying that the launch manager correctly passes launch arguments to processes."""
+    """
+    Objective: Verifies that the launch manager correctly passes configured launch arguments to processes.
+
+    A process is configured with a command line argument and launched via the initial run target.
+    Expected Behaviour: Process starts successfully, reports kRunning, and receives the configured argument value.
+    """
 
     run_until_file_deployed(
         target=target,
