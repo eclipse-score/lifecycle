@@ -1,16 +1,15 @@
-// *******************************************************************************
-// Copyright (c) 2026 Contributors to the Eclipse Foundation
-//
-// See the NOTICE file(s) distributed with this work for additional
-// information regarding copyright ownership.
-//
-// This program and the accompanying materials are made available under the
-// terms of the Apache License Version 2.0 which is available at
-// https://www.apache.org/licenses/LICENSE-2.0
-//
-// SPDX-License-Identifier: Apache-2.0
-// *******************************************************************************
-
+/********************************************************************************
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ********************************************************************************/
 #include "flatbuffer_config_loader.hpp"
 #include "new_lm_flatcfg_generated.h"
 
@@ -21,11 +20,13 @@
 #include <unordered_map>
 #include <vector>
 
-namespace score::launch_manager::config {
+namespace score::launch_manager::config
+{
 
 namespace fb = score::launch_manager::config::fb;
 
-namespace {
+namespace
+{
 
 constexpr int32_t kExpectedSchemaVersion = 1;
 constexpr double kSecondsToMilliseconds = 1000.0;
@@ -212,14 +213,13 @@ std::optional<Sandbox> convertSandbox(const fb::Sandbox* fb_sb)
     result.uid = fb_sb->uid();
     result.gid = fb_sb->gid();
     result.supplementary_group_ids = convertUint32Vector(fb_sb->supplementary_group_ids());
-    result.security_policy =
-        fb_sb->security_policy() != nullptr ? std::optional<std::string>{fb_sb->security_policy()->str()}
-                                            : std::nullopt;
+    result.security_policy = fb_sb->security_policy() != nullptr
+                                 ? std::optional<std::string>{fb_sb->security_policy()->str()}
+                                 : std::nullopt;
     result.scheduling_policy = safeString(fb_sb->scheduling_policy());
     result.scheduling_priority = fb_sb->scheduling_priority().value_or(0);
-    result.max_memory_usage = fb_sb->max_memory_usage().has_value()
-                                  ? std::optional<uint64_t>{*fb_sb->max_memory_usage()}
-                                  : std::nullopt;
+    result.max_memory_usage =
+        fb_sb->max_memory_usage().has_value() ? std::optional<uint64_t>{*fb_sb->max_memory_usage()} : std::nullopt;
     result.max_cpu_usage =
         fb_sb->max_cpu_usage().has_value() ? std::optional<uint32_t>{*fb_sb->max_cpu_usage()} : std::nullopt;
     return result;
@@ -299,14 +299,16 @@ std::optional<WatchdogConfig> convertWatchdog(const fb::Watchdog* fb_wd)
     WatchdogConfig result{};
     result.device_file_path = safeString(fb_wd->device_file_path());
     result.max_timeout_ms = secondsToMs(fb_wd->max_timeout());
-    result.deactivate_on_shutdown = fb_wd->deactivate_on_shutdown().has_value() ? *fb_wd->deactivate_on_shutdown() : false;
+    result.deactivate_on_shutdown =
+        fb_wd->deactivate_on_shutdown().has_value() ? *fb_wd->deactivate_on_shutdown() : false;
     result.require_magic_close = fb_wd->require_magic_close().has_value() ? *fb_wd->require_magic_close() : false;
     return result;
 }
 
 }  // anonymous namespace
 
-namespace details {
+namespace details
+{
 
 // --- File I/O error mapping ---
 

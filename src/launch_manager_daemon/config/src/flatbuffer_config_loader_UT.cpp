@@ -1,16 +1,15 @@
-// *******************************************************************************
-// Copyright (c) 2026 Contributors to the Eclipse Foundation
-//
-// See the NOTICE file(s) distributed with this work for additional
-// information regarding copyright ownership.
-//
-// This program and the accompanying materials are made available under the
-// terms of the Apache License Version 2.0 which is available at
-// https://www.apache.org/licenses/LICENSE-2.0
-//
-// SPDX-License-Identifier: Apache-2.0
-// *******************************************************************************
-
+/********************************************************************************
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ********************************************************************************/
 #include "flatbuffer_config_loader.hpp"
 #include "new_lm_flatcfg_generated.h"
 
@@ -24,8 +23,10 @@
 #include <cstdint>
 #include <vector>
 
-namespace score::launch_manager::config {
-namespace {
+namespace score::launch_manager::config
+{
+namespace
+{
 
 namespace fb = score::launch_manager::config::fb;
 
@@ -47,20 +48,20 @@ std::vector<uint8_t> finishBuffer(::flatbuffers::FlatBufferBuilder& fbb,
 // Helper functions to reduce test boilerplate
 // ============================================================================
 
-::flatbuffers::Offset<fb::ComponentProperties> buildDefaultComponentProperties(
-    ::flatbuffers::FlatBufferBuilder& fbb)
+::flatbuffers::Offset<fb::ComponentProperties> buildDefaultComponentProperties(::flatbuffers::FlatBufferBuilder& fbb)
 {
     auto bin_name = fbb.CreateString("default_bin");
     auto app_profile = fb::CreateApplicationProfile(fbb);
     auto ready_cond = fb::CreateReadyCondition(fbb);
-    return fb::CreateComponentProperties(fbb, bin_name, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
+    return fb::CreateComponentProperties(
+        fbb, bin_name, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
 }
 
-::flatbuffers::Offset<fb::DeploymentConfig> buildDefaultDeploymentConfig(
-    ::flatbuffers::FlatBufferBuilder& fbb)
+::flatbuffers::Offset<fb::DeploymentConfig> buildDefaultDeploymentConfig(::flatbuffers::FlatBufferBuilder& fbb)
 {
     auto bin_dir = fbb.CreateString("/opt");
-    return fb::CreateDeploymentConfig(fbb, 0.0 /*ready_timeout*/, 0.0 /*shutdown_timeout*/, 0 /*environmental_variables*/, bin_dir);
+    return fb::CreateDeploymentConfig(
+        fbb, 0.0 /*ready_timeout*/, 0.0 /*shutdown_timeout*/, 0 /*environmental_variables*/, bin_dir);
 }
 
 ::flatbuffers::Offset<fb::Component> buildDefaultComponent(
@@ -69,10 +70,12 @@ std::vector<uint8_t> finishBuffer(::flatbuffers::FlatBufferBuilder& fbb,
     ::flatbuffers::Offset<fb::ComponentProperties> comp_props = 0,
     ::flatbuffers::Offset<fb::DeploymentConfig> deploy = 0)
 {
-    if (comp_props.IsNull()) {
+    if (comp_props.IsNull())
+    {
         comp_props = buildDefaultComponentProperties(fbb);
     }
-    if (deploy.IsNull()) {
+    if (deploy.IsNull())
+    {
         deploy = buildDefaultDeploymentConfig(fbb);
     }
     auto comp_name = fbb.CreateString(name);
@@ -86,7 +89,8 @@ std::vector<uint8_t> buildConfigWithComponents(
     auto fallback = fb::CreateFallbackRunTarget(fbb);
     auto alive_sup = fb::CreateAliveSupervision(fbb);
     auto irt = fbb.CreateString("Startup");
-    auto config = fb::CreateLaunchManagerConfig(fbb, 1 /*schema_version*/, comps, 0 /*run_targets*/, irt, fallback, alive_sup);
+    auto config =
+        fb::CreateLaunchManagerConfig(fbb, 1 /*schema_version*/, comps, 0 /*run_targets*/, irt, fallback, alive_sup);
     return finishBuffer(fbb, config);
 }
 
@@ -97,13 +101,15 @@ std::vector<uint8_t> buildConfigWithRunTargets(
     auto fallback = fb::CreateFallbackRunTarget(fbb);
     auto alive_sup = fb::CreateAliveSupervision(fbb);
     auto irt = fbb.CreateString("Startup");
-    auto config = fb::CreateLaunchManagerConfig(fbb, 1 /*schema_version*/, 0 /*components*/, rts, irt, fallback, alive_sup);
+    auto config =
+        fb::CreateLaunchManagerConfig(fbb, 1 /*schema_version*/, 0 /*components*/, rts, irt, fallback, alive_sup);
     return finishBuffer(fbb, config);
 }
 
 // ============================================================================
 
-struct MockBufferLoader {
+struct MockBufferLoader
+{
     static score::os::Result<std::vector<uint8_t>> load(const score::filesystem::Path&)
     {
         return result_;
@@ -113,7 +119,8 @@ struct MockBufferLoader {
 
 score::os::Result<std::vector<uint8_t>> MockBufferLoader::result_{std::vector<uint8_t>{}};
 
-class FlatbufferConfigLoaderTest : public ::testing::Test {
+class FlatbufferConfigLoaderTest : public ::testing::Test
+{
   protected:
     void SetUp() override
     {
@@ -122,8 +129,7 @@ class FlatbufferConfigLoaderTest : public ::testing::Test {
         MockBufferLoader::result_ = std::vector<uint8_t>{};
     }
 
-    std::vector<uint8_t> buildMinimalConfig(int32_t schema_version = 1,
-                                            const char* initial_run_target = "Startup")
+    std::vector<uint8_t> buildMinimalConfig(int32_t schema_version = 1, const char* initial_run_target = "Startup")
     {
         ::flatbuffers::FlatBufferBuilder fbb;
         auto irt = fbb.CreateString(initial_run_target);
@@ -166,10 +172,10 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSingleComponent)
 
     ::flatbuffers::FlatBufferBuilder fbb;
 
-    auto alive_sup = fb::CreateComponentAliveSupervision(fbb,
-        0.5 /*reporting_cycle*/, 2 /*failed_cycles_tolerance*/, 1 /*min_indications*/, 3 /*max_indications*/);
-    auto app_profile =
-        fb::CreateApplicationProfile(fbb, fb::ApplicationType::Reporting_And_Supervised, true /*is_self_terminating*/, alive_sup);
+    auto alive_sup = fb::CreateComponentAliveSupervision(
+        fbb, 0.5 /*reporting_cycle*/, 2 /*failed_cycles_tolerance*/, 1 /*min_indications*/, 3 /*max_indications*/);
+    auto app_profile = fb::CreateApplicationProfile(
+        fbb, fb::ApplicationType::Reporting_And_Supervised, true /*is_self_terminating*/, alive_sup);
     auto bin_name = fbb.CreateString("my_binary");
     auto dep = fbb.CreateString("other_comp");
     auto deps_vec = fbb.CreateVector(std::vector<::flatbuffers::Offset<::flatbuffers::String>>{dep});
@@ -180,8 +186,8 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSingleComponent)
 
     auto bin_dir = fbb.CreateString("/opt/bin");
     auto work_dir = fbb.CreateString("/tmp");
-    auto deploy = fb::CreateDeploymentConfig(fbb,
-        1.5 /*ready_timeout*/, 2.5 /*shutdown_timeout*/, 0 /*environmental_variables*/, bin_dir, work_dir);
+    auto deploy = fb::CreateDeploymentConfig(
+        fbb, 1.5 /*ready_timeout*/, 2.5 /*shutdown_timeout*/, 0 /*environmental_variables*/, bin_dir, work_dir);
 
     auto comp_name = fbb.CreateString("TestComponent");
     auto comp_desc = fbb.CreateString("A test component");
@@ -197,7 +203,8 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSingleComponent)
     EXPECT_THAT(comp.name, Eq("TestComponent"));
     EXPECT_THAT(comp.description, Eq("A test component"));
     EXPECT_THAT(comp.component_properties.binary_name, Eq("my_binary"));
-    EXPECT_THAT(comp.component_properties.application_profile.application_type, Eq(ApplicationType::ReportingAndSupervised));
+    EXPECT_THAT(comp.component_properties.application_profile.application_type,
+                Eq(ApplicationType::ReportingAndSupervised));
     EXPECT_THAT(comp.component_properties.application_profile.is_self_terminating, IsTrue());
     ASSERT_THAT(comp.component_properties.application_profile.alive_supervision.has_value(), IsTrue());
     EXPECT_THAT(comp.component_properties.application_profile.alive_supervision->reporting_cycle_ms, Eq(500U));
@@ -257,7 +264,8 @@ TEST_F(FlatbufferConfigLoaderTest, LoadFallbackRunTarget)
 
     auto alive_sup = fb::CreateAliveSupervision(fbb);
     auto irt = fbb.CreateString("Startup");
-    auto config = fb::CreateLaunchManagerConfig(fbb, 1 /*schema_version*/, 0 /*components*/, 0 /*run_targets*/, irt, fallback, alive_sup);
+    auto config = fb::CreateLaunchManagerConfig(
+        fbb, 1 /*schema_version*/, 0 /*components*/, 0 /*run_targets*/, irt, fallback, alive_sup);
 
     auto result = loadBuffer(finishBuffer(fbb, config));
 
@@ -278,7 +286,8 @@ TEST_F(FlatbufferConfigLoaderTest, LoadAliveSupervision)
     auto alive_sup = fb::CreateAliveSupervision(fbb, 0.25 /*evaluation_cycle*/);
     auto fallback = fb::CreateFallbackRunTarget(fbb);
     auto irt = fbb.CreateString("Startup");
-    auto config = fb::CreateLaunchManagerConfig(fbb, 1 /*schema_version*/, 0 /*components*/, 0 /*run_targets*/, irt, fallback, alive_sup);
+    auto config = fb::CreateLaunchManagerConfig(
+        fbb, 1 /*schema_version*/, 0 /*components*/, 0 /*run_targets*/, irt, fallback, alive_sup);
 
     auto result = loadBuffer(finishBuffer(fbb, config));
 
@@ -293,13 +302,14 @@ TEST_F(FlatbufferConfigLoaderTest, LoadWatchdog)
     ::flatbuffers::FlatBufferBuilder fbb;
 
     auto dev_path = fbb.CreateString("/dev/watchdog0");
-    auto watchdog = fb::CreateWatchdog(fbb, dev_path,
-        30.0 /*max_timeout*/, true /*deactivate_on_shutdown*/, false /*require_magic_close*/);
+    auto watchdog = fb::CreateWatchdog(
+        fbb, dev_path, 30.0 /*max_timeout*/, true /*deactivate_on_shutdown*/, false /*require_magic_close*/);
 
     auto fallback = fb::CreateFallbackRunTarget(fbb);
     auto alive_sup = fb::CreateAliveSupervision(fbb);
     auto irt = fbb.CreateString("Startup");
-    auto config = fb::CreateLaunchManagerConfig(fbb, 1 /*schema_version*/, 0 /*components*/, 0 /*run_targets*/, irt, fallback, alive_sup, watchdog);
+    auto config = fb::CreateLaunchManagerConfig(
+        fbb, 1 /*schema_version*/, 0 /*components*/, 0 /*run_targets*/, irt, fallback, alive_sup, watchdog);
 
     auto result = loadBuffer(finishBuffer(fbb, config));
 
@@ -322,11 +332,14 @@ TEST_F(FlatbufferConfigLoaderTest, LoadRestartRecoveryAction)
     auto restart = fb::CreateRestartAction(fbb, 3 /*number_of_attempts*/, 1.5 /*delay_before_restart*/);
     auto bin_dir = fbb.CreateString("/opt");
     auto deploy = fb::CreateDeploymentConfig(fbb,
-        0.0 /*ready_timeout*/, 0.0 /*shutdown_timeout*/, 0 /*environmental_variables*/, bin_dir, 0 /*working_dir*/,
-        restart);
+                                             0.0 /*ready_timeout*/,
+                                             0.0 /*shutdown_timeout*/,
+                                             0 /*environmental_variables*/,
+                                             bin_dir,
+                                             0 /*working_dir*/,
+                                             restart);
 
-    auto comp = buildDefaultComponent(fbb, "restart_comp",
-        buildDefaultComponentProperties(fbb), deploy);
+    auto comp = buildDefaultComponent(fbb, "restart_comp", buildDefaultComponentProperties(fbb), deploy);
     auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{comp});
 
     auto result = loadBuffer(buildConfigWithComponents(fbb, comps));
@@ -349,7 +362,8 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSwitchRunTargetAction)
     auto target_name = fbb.CreateString("Fallback");
     auto switch_action = fb::CreateSwitchRunTargetAction(fbb, target_name);
     auto rt_name = fbb.CreateString("Startup");
-    auto rt = fb::CreateRunTarget(fbb, rt_name, 0 /*description*/, 0 /*depends_on*/, 0.0 /*transition_timeout*/, switch_action);
+    auto rt = fb::CreateRunTarget(
+        fbb, rt_name, 0 /*description*/, 0 /*depends_on*/, 0.0 /*transition_timeout*/, switch_action);
     auto rts = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::RunTarget>>{rt});
 
     auto result = loadBuffer(buildConfigWithRunTargets(fbb, rts));
@@ -368,18 +382,28 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
     auto sched_policy = fbb.CreateString("SCHED_FIFO");
     auto supp_gids = fbb.CreateVector(std::vector<uint32_t>{100, 200});
     auto sandbox = fb::CreateSandbox(fbb,
-        1000 /*uid*/, 1000 /*gid*/, supp_gids, sec_policy, sched_policy,
-        50 /*scheduling_priority*/, 4096 /*max_memory_usage*/, 80 /*max_cpu_usage*/);
+                                     1000 /*uid*/,
+                                     1000 /*gid*/,
+                                     supp_gids,
+                                     sec_policy,
+                                     sched_policy,
+                                     50 /*scheduling_priority*/,
+                                     4096 /*max_memory_usage*/,
+                                     80 /*max_cpu_usage*/);
 
     auto bin_dir = fbb.CreateString("/opt");
     auto work_dir = fbb.CreateString("/tmp");
     auto deploy = fb::CreateDeploymentConfig(fbb,
-        0.5 /*ready_timeout*/, 0.5 /*shutdown_timeout*/, 0 /*environmental_variables*/, bin_dir, work_dir,
-        0 /*ready_recovery_action*/,
-        0 /*recovery_action*/, sandbox);
+                                             0.5 /*ready_timeout*/,
+                                             0.5 /*shutdown_timeout*/,
+                                             0 /*environmental_variables*/,
+                                             bin_dir,
+                                             work_dir,
+                                             0 /*ready_recovery_action*/,
+                                             0 /*recovery_action*/,
+                                             sandbox);
 
-    auto comp = buildDefaultComponent(fbb, "sandboxed_comp",
-        buildDefaultComponentProperties(fbb), deploy);
+    auto comp = buildDefaultComponent(fbb, "sandboxed_comp", buildDefaultComponentProperties(fbb), deploy);
     auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{comp});
 
     auto result = loadBuffer(buildConfigWithComponents(fbb, comps));
@@ -408,13 +432,14 @@ TEST_F(FlatbufferConfigLoaderTest, LoadComponentAliveSupervision)
 
     ::flatbuffers::FlatBufferBuilder fbb;
 
-    auto comp_alive_sup = fb::CreateComponentAliveSupervision(fbb,
-        1.0 /*reporting_cycle*/, 3 /*failed_cycles_tolerance*/, 2 /*min_indications*/, 5 /*max_indications*/);
-    auto app_profile = fb::CreateApplicationProfile(fbb,
-        fb::ApplicationType::Reporting_And_Supervised, false /*is_self_terminating*/, comp_alive_sup);
+    auto comp_alive_sup = fb::CreateComponentAliveSupervision(
+        fbb, 1.0 /*reporting_cycle*/, 3 /*failed_cycles_tolerance*/, 2 /*min_indications*/, 5 /*max_indications*/);
+    auto app_profile = fb::CreateApplicationProfile(
+        fbb, fb::ApplicationType::Reporting_And_Supervised, false /*is_self_terminating*/, comp_alive_sup);
     auto bin_name = fbb.CreateString("supervised_bin");
     auto ready_cond = fb::CreateReadyCondition(fbb);
-    auto comp_props = fb::CreateComponentProperties(fbb, bin_name, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
+    auto comp_props = fb::CreateComponentProperties(
+        fbb, bin_name, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
 
     auto comp = buildDefaultComponent(fbb, "supervised_comp", comp_props);
     auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{comp});
@@ -446,11 +471,10 @@ TEST_F(FlatbufferConfigLoaderTest, LoadEnvironmentalVariables)
 
     auto bin_dir = fbb.CreateString("/opt");
     auto work_dir = fbb.CreateString("/tmp");
-    auto deploy = fb::CreateDeploymentConfig(fbb,
-        0.5 /*ready_timeout*/, 0.5 /*shutdown_timeout*/, env_vars, bin_dir, work_dir);
+    auto deploy =
+        fb::CreateDeploymentConfig(fbb, 0.5 /*ready_timeout*/, 0.5 /*shutdown_timeout*/, env_vars, bin_dir, work_dir);
 
-    auto comp = buildDefaultComponent(fbb, "env_comp",
-        buildDefaultComponentProperties(fbb), deploy);
+    auto comp = buildDefaultComponent(fbb, "env_comp", buildDefaultComponentProperties(fbb), deploy);
     auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{comp});
 
     auto result = loadBuffer(buildConfigWithComponents(fbb, comps));
@@ -471,8 +495,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadMultipleComponents)
     auto comp_a = buildDefaultComponent(fbb, "CompA");
     auto comp_b = buildDefaultComponent(fbb, "CompB");
     auto comp_c = buildDefaultComponent(fbb, "CompC");
-    auto comps = fbb.CreateVector(
-        std::vector<::flatbuffers::Offset<fb::Component>>{comp_a, comp_b, comp_c});
+    auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{comp_a, comp_b, comp_c});
 
     auto result = loadBuffer(buildConfigWithComponents(fbb, comps));
 
@@ -525,7 +548,8 @@ TEST_F(FlatbufferConfigLoaderTest, MapNativeApplicationType)
     auto app_profile = fb::CreateApplicationProfile(fbb, fb::ApplicationType::Native);
     auto bin_name = fbb.CreateString("native_bin");
     auto ready_cond = fb::CreateReadyCondition(fbb);
-    auto comp_props = fb::CreateComponentProperties(fbb, bin_name, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
+    auto comp_props = fb::CreateComponentProperties(
+        fbb, bin_name, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
 
     auto comp = buildDefaultComponent(fbb, "native_comp", comp_props);
     auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{comp});
@@ -547,7 +571,8 @@ TEST_F(FlatbufferConfigLoaderTest, MapReportingAndSupervisedType)
     auto app_profile = fb::CreateApplicationProfile(fbb, fb::ApplicationType::Reporting_And_Supervised);
     auto bin_name = fbb.CreateString("supervised_bin");
     auto ready_cond = fb::CreateReadyCondition(fbb);
-    auto comp_props = fb::CreateComponentProperties(fbb, bin_name, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
+    auto comp_props = fb::CreateComponentProperties(
+        fbb, bin_name, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
 
     auto comp = buildDefaultComponent(fbb, "supervised_comp", comp_props);
     auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{comp});
@@ -568,8 +593,8 @@ TEST_F(FlatbufferConfigLoaderTest, MapTerminatedProcessState)
     auto app_profile = fb::CreateApplicationProfile(fbb);
     auto ready_cond = fb::CreateReadyCondition(fbb, fb::ProcessState::Terminated);
     auto bin_name = fbb.CreateString("term_bin");
-    auto comp_props = fb::CreateComponentProperties(fbb,
-        bin_name, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
+    auto comp_props = fb::CreateComponentProperties(
+        fbb, bin_name, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
 
     auto comp = buildDefaultComponent(fbb, "term_comp", comp_props);
     auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{comp});
