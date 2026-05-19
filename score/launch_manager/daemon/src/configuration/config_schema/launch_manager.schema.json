@@ -95,7 +95,9 @@
           "additionalProperties": false
         }
       },
-      "required": [],
+      "required": [
+        "recovery_action"
+      ],
       "additionalProperties": false
     },
     "recovery_action": {

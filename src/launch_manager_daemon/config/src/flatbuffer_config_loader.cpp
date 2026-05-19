@@ -139,6 +139,11 @@ std::optional<SwitchRunTargetAction> convertSwitchRunTargetAction(const fb::Swit
     return SwitchRunTargetAction{safeString(sa->run_target())};
 }
 
+SwitchRunTargetAction convertRequiredSwitchRunTargetAction(const fb::SwitchRunTargetAction* sa)
+{
+    return convertSwitchRunTargetAction(sa).value();
+}
+
 // --- Struct conversion helpers ---
 
 ComponentAliveSupervision convertComponentAliveSupervision(const fb::ComponentAliveSupervision* fb_cas)
@@ -259,7 +264,7 @@ RunTargetConfig convertRunTarget(const fb::RunTarget* fb_rt)
         result.description = safeString(fb_rt->description());
         result.depends_on = convertStringVector(fb_rt->depends_on());
         result.transition_timeout_ms = secondsToMs(fb_rt->transition_timeout());
-        result.recovery_action = convertSwitchRunTargetAction(fb_rt->recovery_action());
+        result.recovery_action = convertRequiredSwitchRunTargetAction(fb_rt->recovery_action());
     }
     return result;
 }
@@ -276,11 +281,11 @@ FallbackRunTargetConfig convertFallbackRunTarget(const fb::FallbackRunTarget* fb
     return result;
 }
 
-std::optional<AliveSupervisionConfig> convertAliveSupervision(const fb::AliveSupervision* fb_as)
+AliveSupervisionConfig convertAliveSupervision(const fb::AliveSupervision* fb_as)
 {
     if (fb_as == nullptr)
     {
-        return std::nullopt;
+        return AliveSupervisionConfig{};
     }
     return AliveSupervisionConfig{secondsToMs(fb_as->evaluation_cycle())};
 }
@@ -376,11 +381,7 @@ score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::ve
     builder.setFallbackRunTarget(convertFallbackRunTarget(config->fallback_run_target()));
 
     // alive_supervision is a required field, guaranteed non-null by the schema and verifier.
-    auto alive_sup = convertAliveSupervision(config->alive_supervision());
-    if (alive_sup.has_value())
-    {
-        builder.setAliveSupervision(std::move(*alive_sup));
-    }
+    builder.setAliveSupervision(convertAliveSupervision(config->alive_supervision()));
 
     auto wd = convertWatchdog(config->watchdog());
     if (wd.has_value())
