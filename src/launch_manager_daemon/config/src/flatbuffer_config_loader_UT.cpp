@@ -229,8 +229,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadRunTargets)
     auto rt_desc = fbb.CreateString("Initial state");
     auto rt_dep = fbb.CreateString("component_a");
     auto rt_deps = fbb.CreateVector(std::vector<::flatbuffers::Offset<::flatbuffers::String>>{rt_dep});
-    auto rt = fb::CreateRunTarget(fbb, rt_name, rt_desc, rt_deps, 5.0 /*transition_timeout*/,
-        fb::RecoveryAction::SwitchRunTargetAction, switch_action.Union());
+    auto rt = fb::CreateRunTarget(fbb, rt_name, rt_desc, rt_deps, 5.0 /*transition_timeout*/, switch_action);
     auto rts = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::RunTarget>>{rt});
 
     auto result = loadBuffer(buildConfigWithRunTargets(fbb, rts));
@@ -245,8 +244,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadRunTargets)
     EXPECT_THAT(target.depends_on[0], Eq("component_a"));
     EXPECT_THAT(target.transition_timeout_ms, Eq(5000U));
     ASSERT_THAT(target.recovery_action.has_value(), IsTrue());
-    ASSERT_THAT(std::holds_alternative<SwitchRunTargetAction>(target.recovery_action.value()), IsTrue());
-    EXPECT_THAT(std::get<SwitchRunTargetAction>(target.recovery_action.value()).run_target, Eq("SafeState"));
+    EXPECT_THAT(target.recovery_action->run_target, Eq("SafeState"));
 }
 
 TEST_F(FlatbufferConfigLoaderTest, LoadFallbackRunTarget)
@@ -357,9 +355,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSwitchRunTargetAction)
     auto target_name = fbb.CreateString("Fallback");
     auto switch_action = fb::CreateSwitchRunTargetAction(fbb, target_name);
     auto rt_name = fbb.CreateString("Startup");
-    auto rt = fb::CreateRunTarget(
-        fbb, rt_name, 0, 0, 0.0,
-        fb::RecoveryAction::SwitchRunTargetAction, switch_action.Union());
+    auto rt = fb::CreateRunTarget(fbb, rt_name, 0, 0, 0.0, switch_action);
     auto rts = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::RunTarget>>{rt});
 
     auto result = loadBuffer(buildConfigWithRunTargets(fbb, rts));
@@ -367,9 +363,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSwitchRunTargetAction)
     ASSERT_THAT(result.has_value(), IsTrue());
     ASSERT_THAT(result->run_targets()[0].recovery_action.has_value(), IsTrue());
 
-    const auto& action = result->run_targets()[0].recovery_action.value();
-    ASSERT_THAT(std::holds_alternative<SwitchRunTargetAction>(action), IsTrue());
-    EXPECT_THAT(std::get<SwitchRunTargetAction>(action).run_target, Eq("Fallback"));
+    EXPECT_THAT(result->run_targets()[0].recovery_action->run_target, Eq("Fallback"));
 }
 
 TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
@@ -390,7 +384,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
     auto deploy = fb::CreateDeploymentConfig(fbb,
         0.5, 0.5, 0 /*environmental_variables*/, bin_dir, work_dir,
         0 /*ready_recovery_action*/,
-        fb::RecoveryAction::NONE, 0 /*recovery_action*/, sandbox);
+        0 /*recovery_action*/, sandbox);
 
     auto comp = buildDefaultComponent(fbb, "sandboxed_comp",
         buildDefaultComponentProperties(fbb), deploy);

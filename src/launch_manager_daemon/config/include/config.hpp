@@ -19,7 +19,6 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
-#include <variant>
 #include <vector>
 
 namespace score::launch_manager::config {
@@ -70,8 +69,6 @@ struct SwitchRunTargetAction {
     std::string run_target;
 };
 
-using RecoveryAction = std::variant<RestartAction, SwitchRunTargetAction>;
-
 struct Sandbox {
     uint32_t uid{};
     uint32_t gid{};
@@ -90,7 +87,8 @@ struct DeploymentConfig {
     std::string bin_dir;
     std::string working_dir;
     std::optional<RestartAction> ready_recovery_action;
-    std::optional<RecoveryAction> recovery_action;
+    // Currently only SwitchRunTargetAction is supported here, RestartAction to be added in the future
+    std::optional<SwitchRunTargetAction> recovery_action;
     std::optional<Sandbox> sandbox;
 };
 
@@ -106,7 +104,7 @@ struct RunTargetConfig {
     std::string description;
     std::vector<std::string> depends_on;
     uint32_t transition_timeout_ms{};
-    std::optional<RecoveryAction> recovery_action;
+    std::optional<SwitchRunTargetAction> recovery_action;
 };
 
 struct FallbackRunTargetConfig {

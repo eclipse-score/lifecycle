@@ -130,31 +130,13 @@ std::optional<RestartAction> convertRestartAction(const fb::RestartAction* ra)
     return RestartAction{ra->number_of_attempts(), secondsToMs(ra->delay_before_restart())};
 }
 
-std::optional<RecoveryAction> convertRecoveryAction(fb::RecoveryAction type, const void* action)
+std::optional<SwitchRunTargetAction> convertSwitchRunTargetAction(const fb::SwitchRunTargetAction* sa)
 {
-    switch (type)
+    if (sa == nullptr)
     {
-        case fb::RecoveryAction::RestartAction:
-        {
-            const auto* ra = static_cast<const fb::RestartAction*>(action);
-            if (ra == nullptr)
-            {
-                return std::nullopt;
-            }
-            return RestartAction{ra->number_of_attempts(), secondsToMs(ra->delay_before_restart())};
-        }
-        case fb::RecoveryAction::SwitchRunTargetAction:
-        {
-            const auto* sa = static_cast<const fb::SwitchRunTargetAction*>(action);
-            if (sa == nullptr)
-            {
-                return std::nullopt;
-            }
-            return SwitchRunTargetAction{safeString(sa->run_target())};
-        }
-        default:
-            return std::nullopt;
+        return std::nullopt;
     }
+    return SwitchRunTargetAction{safeString(sa->run_target())};
 }
 
 // --- Struct conversion helpers ---
@@ -249,7 +231,7 @@ DeploymentConfig convertDeploymentConfig(const fb::DeploymentConfig* fb_dc)
         result.bin_dir = safeString(fb_dc->bin_dir());
         result.working_dir = safeString(fb_dc->working_dir());
         result.ready_recovery_action = convertRestartAction(fb_dc->ready_recovery_action());
-        result.recovery_action = convertRecoveryAction(fb_dc->recovery_action_type(), fb_dc->recovery_action());
+        result.recovery_action = convertSwitchRunTargetAction(fb_dc->recovery_action());
         result.sandbox = convertSandbox(fb_dc->sandbox());
     }
     return result;
@@ -277,7 +259,7 @@ RunTargetConfig convertRunTarget(const fb::RunTarget* fb_rt)
         result.description = safeString(fb_rt->description());
         result.depends_on = convertStringVector(fb_rt->depends_on());
         result.transition_timeout_ms = secondsToMs(fb_rt->transition_timeout());
-        result.recovery_action = convertRecoveryAction(fb_rt->recovery_action_type(), fb_rt->recovery_action());
+        result.recovery_action = convertSwitchRunTargetAction(fb_rt->recovery_action());
     }
     return result;
 }

@@ -68,10 +68,6 @@ table SwitchRunTargetAction {
   run_target:string (required);
 }
 
-// Specifies recovery actions to execute when an error or failure occurs.
-// Exactly one variant is set. Maps to the JSON schema's oneOf constraint.
-union RecoveryAction { RestartAction, SwitchRunTargetAction }
-
 // A key-value pair representing an environment variable.
 table EnvironmentalVariable {
   key:string (required);
@@ -114,8 +110,7 @@ table DeploymentConfig {
   // Can only be a RestartAction per the JSON schema constraint.
   ready_recovery_action:RestartAction;
   // Recovery action when the component malfunctions after reaching ready state.
-  // Must be SwitchRunTargetAction per the JSON schema constraint.
-  recovery_action:RecoveryAction;
+  recovery_action:SwitchRunTargetAction;
   sandbox:Sandbox;
 }
 
@@ -130,8 +125,7 @@ table RunTarget {
   // Time limit in seconds for the Run Target transition.
   transition_timeout:double;
   // Recovery action when a component in this Run Target fails.
-  // Must be SwitchRunTargetAction per the JSON schema constraint.
-  recovery_action:RecoveryAction (required);
+  recovery_action:SwitchRunTargetAction (required);
 }
 
 // An individual component entry with its identifier.
