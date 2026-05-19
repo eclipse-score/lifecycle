@@ -11,56 +11,62 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-
 #ifndef PROCESSGROUPMANAGER_HPP_INCLUDED
 #define PROCESSGROUPMANAGER_HPP_INCLUDED
 
 #include <cstdint>
-#include <memory>
 #include <ctime>
+#include <memory>
 
-#include <score/lcm/identifier_hash.hpp>
-#include <score/lcm/internal/controlclientchannel.hpp>
-#include <configuration_manager/configurationmanager.hpp>
-#include <process_group_manager/iprocess.hpp>
-#include <process_group_manager/graph.hpp>
 #include <concurrency/mpmc_concurrent_queue.hpp>
+#include <configuration_manager/configurationmanager.hpp>
+#include <process_group_manager/graph.hpp>
+#include <process_group_manager/ialive_monitor_thread.hpp>
+#include <process_group_manager/iprocess.hpp>
 #include <process_group_manager/oshandler.hpp>
-#include <score/lcm/iprocessstatenotifier.hpp>
 #include <process_group_manager/processinfonode.hpp>
 #include <process_group_manager/safeprocessmap.hpp>
 #include <process_group_manager/workerthread.hpp>
-#include <process_group_manager/ihealth_monitor_thread.hpp>
-#include <score/lcm/recovery_client.hpp>
+#include <score/lcm/identifier_hash.hpp>
 #include <score/lcm/internal/config.hpp>
+#include <score/lcm/internal/controlclientchannel.hpp>
+#include <score/lcm/iprocessstatenotifier.hpp>
+#include <score/lcm/recovery_client.hpp>
 
-
-namespace score::lcm::internal {
+namespace score::lcm::internal
+{
 
 /// @brief ProcessGroupManager provides the core functionality of LCM.
 /// Software that is deployed to the machine, should be managed through Process Groups.
-/// A Process Group (PG) can be described as a set of applications, or executable files, that should be controlled in a coherent way.
-/// Through a Process Group, Launch Manager will control the life cycle of Operating System (OS) processes.
-/// They will be started and stopped when State Management (SM) request so and they will be started and stopped in a way, that is described by integrator through configuration.
-/// When SM request PG change, ProcessGroupManager will use ConfigurationManager to figure out what processes shall be started, or stopped, as well as their startup configuration.
-/// Then ProcessGroupManager will use Operating System Abstraction Layer (OSAL) to start, or stop, processes as per configuration.
-/// Some of the responsibilities of ProcessGroupManager include:
-///     Interaction with ConfigurationManager to ensure that, the list of processes that are running on Machine, is as configured by integrator.
-///     Interaction with OSAL to start and stop processes.
-///     Interaction with OSAL to discover when processes terminated in an unexpected way.
-///     Fulfilling PG State transitions requests from SM, as well as informing SM about unexpected problems (for example process crashes).
-class ProcessGroupManager final {
-    using WorkerQueue = MPMCConcurrentQueue<std::shared_ptr<ProcessInfoNode>,
-                                            static_cast<std::size_t>(ProcessLimits::kMaxProcesses)>;
-   public:
+/// A Process Group (PG) can be described as a set of applications, or executable files, that should be controlled in a
+/// coherent way. Through a Process Group, Launch Manager will control the life cycle of Operating System (OS)
+/// processes. They will be started and stopped when State Management (SM) request so and they will be started and
+/// stopped in a way, that is described by integrator through configuration. When SM request PG change,
+/// ProcessGroupManager will use ConfigurationManager to figure out what processes shall be started, or stopped, as well
+/// as their startup configuration. Then ProcessGroupManager will use Operating System Abstraction Layer (OSAL) to
+/// start, or stop, processes as per configuration. Some of the responsibilities of ProcessGroupManager include:
+///     Interaction with ConfigurationManager to ensure that, the list of processes that are running on Machine, is as
+///     configured by integrator. Interaction with OSAL to start and stop processes. Interaction with OSAL to discover
+///     when processes terminated in an unexpected way. Fulfilling PG State transitions requests from SM, as well as
+///     informing SM about unexpected problems (for example process crashes).
+class ProcessGroupManager final
+{
+    using WorkerQueue =
+        MPMCConcurrentQueue<std::shared_ptr<ProcessInfoNode>, static_cast<std::size_t>(ProcessLimits::kMaxProcesses)>;
+
+  public:
     /// @brief Constructs a new ProcessGroupManager object.
     ///
     /// This constructor initializes the ProcessGroupManager instance,
     /// setting up any necessary internal state and preparing it for use.
-    /// @param health_monitor A unique pointer to an IHealthMonitor instance for managing health monitoring.
+    /// @param alive_monitor_thread A unique pointer to an IAliveMonitorThread instance for managing health
+    /// monitoring.
     /// @param recovery_client A shared pointer to an IRecoveryClient instance for handling recovery operations.
-    /// @param process_state_notifier A unique pointer to an IProcessStateNotifier instance for notifying the HM thread of process state changes.
-    ProcessGroupManager(std::unique_ptr<IHealthMonitorThread> health_monitor, std::shared_ptr<IRecoveryClient> recovery_client, std::unique_ptr<score::lcm::IProcessStateNotifier> process_state_notifier);
+    /// @param process_state_notifier A unique pointer to an IProcessStateNotifier instance for notifying the Alive
+    /// Monitor thread of process state changes.
+    ProcessGroupManager(std::unique_ptr<IAliveMonitorThread> alive_monitor_thread,
+                        std::shared_ptr<IRecoveryClient> recovery_client,
+                        std::unique_ptr<score::lcm::IProcessStateNotifier> process_state_notifier);
 
     /// @brief Initializes the process group manager.
     /// Loads the flat configuration through ConfigurationManager.
@@ -102,7 +108,8 @@ class ProcessGroupManager final {
 
     /// @brief Send a response message to a Control Client
     /// @param msg the message to send, containing the Control Client id as the address to send it
-    /// @return true when either no error or the state manager no longer exists, false when the state manager had not read the previous response
+    /// @return true when either no error or the state manager no longer exists, false when the state manager had not
+    /// read the previous response
     bool sendResponse(ControlClientMessage msg);
 
     /// @brief Gets the process interface.
@@ -128,7 +135,8 @@ class ProcessGroupManager final {
     ///          if no more free shared memory, the PosixProcess is not sent.
     /// @param[in]   f_posixProcess   The PosixProcess to be queued
     /// @returns True on success, false for failure (corresponding to kCommunicationError).
-    bool queuePosixProcess(const score::lcm::PosixProcess& f_posixProcess) {
+    bool queuePosixProcess(const score::lcm::PosixProcess& f_posixProcess)
+    {
         return process_state_notifier_->queuePosixProcess(f_posixProcess);
     }
 
@@ -138,8 +146,7 @@ class ProcessGroupManager final {
     /// @brief Set the internal pointer for the Launch Manager ProcessInfoNode
     void setLaunchManagerConfiguration(const OsProcess* launch_manager_config);
 
-
-   private:
+  private:
     /// @brief Perform the function of Control Client handler
     /// @details (a) check for requests from any state manager processes in this process group\n
     /// (b) check to see if the process group has a pending response to send to a state manager
@@ -169,7 +176,7 @@ class ProcessGroupManager final {
     /// @param pg Reference of the process group (Graph) to check for pending responses
     void controlClientResponses(Graph& pg);
 
-    /// @brief Handle recovery actions requested by the Health Monitor
+    /// @brief Handle recovery actions requested by the Alive Monitor
     void recoveryActionHandler();
 
     /// @brief Manage the process group by starting any pending transitions that were requested
@@ -214,8 +221,8 @@ class ProcessGroupManager final {
     /// @brief process a get execution error request
     /// @details If the process group given in the `process_group_state_` exists:\n
     ///     if the corresponding graph is in the `kUndefined` state:\n
-    ///         set the `execution_error_code_` of the message to the result of calling `getLastExecutionError` method of the graph\n
-    ///         set the request code of the message to `kExecutionErrorRequestSuccess`\n
+    ///         set the `execution_error_code_` of the message to the result of calling `getLastExecutionError` method
+    ///         of the graph\n set the request code of the message to `kExecutionErrorRequestSuccess`\n
     ///     else:\n
     ///         set the request code of the message to `kExecutionErrorRequestFailed`\n
     /// else:\n
@@ -242,7 +249,8 @@ class ProcessGroupManager final {
     /// @details cancel any Graph for a process group not in the "Off" state, wait for up to 2 seconds for all graphs
     /// to be no longer in the `kCancelled` state, start a transition of remaining process groups to "Off" state,
     /// and finally wait for up to a second for all graphs to complete.
-    /// @warning Side effect: Depending if it is needed to forcefully terminate processes, worker jobs might be stopped after this call
+    /// @warning Side effect: Depending if it is needed to forcefully terminate processes, worker jobs might be stopped
+    /// after this call
     void allProcessGroupsOff();
 
     /// @brief Initializes the process groups.
@@ -299,12 +307,11 @@ class ProcessGroupManager final {
     /// @brief pointer to the configuration for Launch Manager
     const OsProcess* launch_manager_config_{nullptr};
 
-    std::unique_ptr<IHealthMonitorThread> health_monitor_thread_;
+    std::unique_ptr<IAliveMonitorThread> alive_monitor_thread_;
 
     std::shared_ptr<score::lcm::IRecoveryClient> recovery_client_{};
 };
 
 }  // namespace score::lcm::internal
-
 
 #endif  /// PROCESSGROUPMANAGER_HPP_INCLUDED

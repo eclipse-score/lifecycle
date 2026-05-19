@@ -17,7 +17,7 @@
 
 #include <score/lcm/internal/log.hpp>
 
-#include <process_group_manager/health_monitor_thread.hpp>
+#include <process_group_manager/alive_monitor_thread.hpp>
 #include <process_group_manager/processgroupmanager.hpp>
 #include <score/lcm/processstatenotifier.hpp>
 #include <score/lcm/recovery_client.hpp>
@@ -134,11 +134,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char* argv[])
         std::unique_ptr<score::lcm::saf::daemon::IHealthMonitor> healthMonitor{
             std::make_unique<score::lcm::saf::daemon::HealthMonitorImpl>(
                 recoveryClient, std::move(watchdog), process_state_notifier->constructReceiver())};
-        std::unique_ptr<score::lcm::internal::IHealthMonitorThread> healthMonitorThread{
-            std::make_unique<score::lcm::internal::HealthMonitorThread>(std::move(healthMonitor))};
+        std::unique_ptr<score::lcm::internal::IAliveMonitorThread> aliveMonitorThread{
+            std::make_unique<score::lcm::internal::AliveMonitorThread>(std::move(healthMonitor))};
 
         std::unique_ptr<ProcessGroupManager> process_group_manager = std::make_unique<ProcessGroupManager>(
-            std::move(healthMonitorThread), recoveryClient, std::move(process_state_notifier));
+            std::move(aliveMonitorThread), recoveryClient, std::move(process_state_notifier));
 
         if (initializeLCMDaemon(*process_group_manager))
         {
