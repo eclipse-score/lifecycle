@@ -185,7 +185,7 @@ bool FlatCfgFactory::createProcessStates(std::vector<ifexm::ProcessState>& f_pro
         {
             isSuccess = false;
             logger_r.LogError() << kLogPrefix
-                                << "Could not create Process States due to exception:" << f_exception_r.what();
+                                << "Could not create Process States due to exception:" << std::string_view{f_exception_r.what()};
         }
     }
     else
@@ -272,7 +272,7 @@ bool FlatCfgFactory::createMonitorIfIpcs(std::vector<ifappl::CheckpointIpcServer
         {
             isSuccess = false;
             logger_r.LogError() << kLogPrefix << "Could not create Monitor interface IPC due to exception:"
-                                << f_exception_r.what();
+                                << std::string_view{f_exception_r.what()};
         }
     }
     else
@@ -332,7 +332,7 @@ bool FlatCfgFactory::createMonitorIf(std::vector<ifappl::MonitorIfDaemon>& f_int
         f_interfaces_r.clear();
         logger_r.LogError() << kLogPrefix
                             << "Could not create all necessary Monitor interfaces due to exception:"
-                            << f_exception_r.what();
+                            << std::string_view{f_exception_r.what()};
     }
 
     return isSuccess;
@@ -375,7 +375,7 @@ bool FlatCfgFactory::createSupervisionCheckpoints(std::vector<ifappl::Checkpoint
         {
             isSuccess = false;
             logger_r.LogError() << kLogPrefix << "Could not create supervision worker objects, due to exception:"
-                                << f_exception_r.what();
+                                << std::string_view{f_exception_r.what()};
         }
     }
     else
@@ -477,7 +477,7 @@ bool FlatCfgFactory::createAliveSupervisions(std::vector<supervision::Alive>& f_
             logger_r.LogError() << kLogPrefix
                                 << "Could not create all necessary alive supervision "
                                    "worker objects, due to exception:"
-                                << f_exception_r.what();
+                                << std::string_view{f_exception_r.what()};
         }
     }
 
@@ -541,7 +541,7 @@ bool FlatCfgFactory::createLocalSupervisions(std::vector<supervision::Local>& f_
         {
             isSuccess = false;
             logger_r.LogError() << kLogPrefix << "Could not create local supervision worker objects, due to exception:"
-                                << f_exception_r.what();
+                                << std::string_view{f_exception_r.what()};
         }
     }
     else
@@ -649,7 +649,7 @@ bool FlatCfgFactory::createGlobalSupervisions(std::vector<supervision::Global>& 
         {
             isGlobalSupCfgSuccess = false;
             logger_r.LogError() << kLogPrefix << "Could not create all necessary global supervision due to exception:"
-                                << f_exception_r.what();
+                                << std::string_view{f_exception_r.what()};
         }
     }
     else
@@ -702,7 +702,7 @@ bool FlatCfgFactory::createRecoveryNotifications(std::shared_ptr<score::lcm::IRe
             logger_r.LogError() << kLogPrefix
                                 << "Could not create all necessary recovery notifications "
                                    "due to exception:"
-                                << f_exception_r.what();
+                                << std::string_view{f_exception_r.what()};
         }
     }
 

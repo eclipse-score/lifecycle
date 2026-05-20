@@ -19,6 +19,7 @@
 #include <memory>
 #include <atomic>
 #include <mutex>
+#include <string_view>
 #include <vector>
 
 #include <score/lcm/identifier_hash.hpp>
@@ -302,7 +303,7 @@ class Graph final {
     /// @brief A utility function that converts codes to strings for logging purposes
     /// @param state The state to convert
     /// @return A string representing the state
-    static const char* toString(GraphState state);
+    static std::string_view toString(GraphState state);
 
     /// @brief Sets the state transition request start time
     void setRequestStartTime();

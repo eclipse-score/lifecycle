@@ -13,6 +13,7 @@
 #include "score/lcm/saf/factory/MachineConfigFactory.hpp"
 
 #include <limits>
+#include <string_view>
 #include <fstream>
 #include "score/lcm/saf/timers/TimeConversion.hpp"
 #include "hmcore_flatcfg_generated.h"
@@ -191,8 +192,8 @@ void MachineConfigFactory::logConfiguration() noexcept(true)
     std::uint32_t wdgCount{1U};
     for (const auto& wdgConfig : watchdogConfigs)
     {
-        const char* const wdgMagicCloseBool{wdgConfig.needsMagicClose ? "true" : "false"};
-        const char* const wdgDeactivatedBool{wdgConfig.canBeDeactivated ? "true" : "false"};
+        const std::string_view wdgMagicCloseBool{wdgConfig.needsMagicClose ? "true" : "false"};
+        const std::string_view wdgDeactivatedBool{wdgConfig.canBeDeactivated ? "true" : "false"};
         logger_r.LogDebug() << kLogPrefix << "Watchdog" << wdgCount << "- device file:" << wdgConfig.fileName;
         logger_r.LogDebug() << kLogPrefix << "Watchdog" << wdgCount << "- max timeout:" << wdgConfig.timeoutMax << "ms";
         logger_r.LogDebug() << kLogPrefix << "Watchdog" << wdgCount << "- needs magic close:" << wdgMagicCloseBool;

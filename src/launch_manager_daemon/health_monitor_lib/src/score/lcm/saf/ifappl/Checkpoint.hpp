@@ -15,6 +15,7 @@
 #define CHECKPOINT_HPP_INCLUDED
 
 #include <string>
+#include <string_view>
 
 #include <cstdint>
 
@@ -93,7 +94,7 @@ public:
 
     /// @brief Get the configuration name of the corresponding SupervisionCheckpoint
     /// @return     Name of the corresponding SupervisionCheckpoint (configuration element)
-    const char* getConfigName(void) const noexcept(true);
+    std::string_view getConfigName(void) const noexcept(true);
 
     /// @brief Return the process that is reporting this checkpoint
     /// @return process state

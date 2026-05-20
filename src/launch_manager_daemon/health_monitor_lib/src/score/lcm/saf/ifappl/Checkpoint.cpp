@@ -67,9 +67,9 @@ bool Checkpoint::getDataLossEvent(void) const noexcept(true)
     return isDataLossEvent;
 }
 
-const char* Checkpoint::getConfigName(void) const noexcept(true)
+std::string_view Checkpoint::getConfigName(void) const noexcept(true)
 {
-    return k_configName.c_str();
+    return k_configName;
 }
 
 const ifexm::ProcessState* Checkpoint::getProcess(void) const noexcept(true)
