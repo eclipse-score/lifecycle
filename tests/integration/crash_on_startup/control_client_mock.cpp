@@ -17,10 +17,11 @@
 #include <score/lcm/control_client.h>
 #include <score/lcm/lifecycle_client.h>
 
-score::lcm::ControlClient client;
 
 TEST(CrashOnStartup, ControlClientMock)
 {
+    score::lcm::ControlClient client;
+    
     ASSERT_TRUE(check_clean({crashed_once_file, crashed_twice_file, test_end_location, fallback_file}));
 
     TEST_STEP("Report kRunning")

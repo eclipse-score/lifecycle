@@ -20,10 +20,11 @@
 #include <score/lcm/identifier_hash.hpp>
 #include <score/lcm/lifecycle_client.h>
 
-score::lcm::ControlClient client;
 
 TEST(Smoke, Daemon)
 {
+    score::lcm::ControlClient client;
+    
     ASSERT_TRUE(check_clean({test_end_location}));
     TEST_STEP("Control daemon report kRunning")
     {

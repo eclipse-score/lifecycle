@@ -17,7 +17,6 @@
 #include <score/lcm/control_client.h>
 #include <score/lcm/lifecycle_client.h>
 
-score::lcm::ControlClient client;
 
 // Given a configuration with the following dependency tree:
 // - Startup - which is the initial run target - depends on component component_initial
@@ -36,6 +35,8 @@ score::lcm::ControlClient client;
 
 TEST(SwitchRunTarget, ControlClientMock)
 {
+    score::lcm::ControlClient client;
+    
     ASSERT_TRUE(check_clean({test_end_location, a_started, b_started, d_started, e_started}));
     TEST_STEP("Report kRunning")
     {

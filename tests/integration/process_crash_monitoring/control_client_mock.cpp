@@ -17,7 +17,6 @@
 #include <score/lcm/control_client.h>
 #include <score/lcm/lifecycle_client.h>
 
-score::lcm::ControlClient client;
 
 // Given a correct configuration with:
 //   - An initial Run Target named "Startup" containing "control_client_mock"
@@ -26,6 +25,8 @@ score::lcm::ControlClient client;
 
 TEST(ProcessCrashMonitoring, ControlClientMock)
 {
+    score::lcm::ControlClient client;
+    
     ASSERT_TRUE(check_clean({test_end_location, fallback_file}));
     // Establish communication with launch manager
     TEST_STEP("Report kRunning")
