@@ -19,6 +19,7 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/daemon/src/process_group_manager/details",
     visibility = ["//score/launch_manager/daemon/src/process_group_manager:__pkg__"],
     deps = [
+        ":safe_process_map",
         "//score/launch_manager/daemon/src/configuration:configuration_manager",
         "//score/launch_manager/daemon/src/control:control_client_channel",
         "//score/launch_manager/daemon/src/osal:ipc_comms",
@@ -35,6 +36,7 @@ cc_library(
     visibility = ["//score/launch_manager/daemon/src/process_group_manager:__pkg__"],
     deps = [
         ":process_info_node",
+        ":safe_process_map",
         "//score/launch_manager/daemon/src/common:identifier_hash",
         "//score/launch_manager/daemon/src/configuration:configuration_manager",
         "//score/launch_manager/daemon/src/control:control_client_channel",
@@ -51,8 +53,16 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/daemon/src/process_group_manager/details",
     visibility = ["//score/launch_manager/daemon/src/process_group_manager:__pkg__"],
     deps = [
-        ":process_info_node",
         "//score/launch_manager/daemon/src/process_group_manager:iprocess",
+    ],
+)
+
+cc_test(
+    name = "safeprocessmap_UT",
+    srcs = ["safeprocessmap_UT.cpp"],
+    deps = [
+        ":safe_process_map",
+        "@googletest//:gtest_main",
     ],
 )
 
