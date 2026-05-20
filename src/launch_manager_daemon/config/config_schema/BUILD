@@ -15,5 +15,5 @@ exports_files(["launch_manager.schema.json"])
 filegroup(
     name = "config_schema_files",
     srcs = glob(["**/*.json"]),
-    visibility = ["//visibility:public"],
+    visibility = ["//:__pkg__"],
 )
