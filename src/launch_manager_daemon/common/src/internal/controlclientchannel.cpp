@@ -134,7 +134,7 @@ ControlClientChannelP ControlClientChannel::initializeControlClientChannel(int f
 
     if (MAP_FAILED == channelMemory)
     {
-        LM_LOG_ERROR() << "mmap failed in initializeControlClientChannel:" << std::strerror(errno);
+        LM_LOG_ERROR() << "mmap failed in initializeControlClientChannel:" << errno_message(errno);
         return nullptr;
     }
 
@@ -237,7 +237,7 @@ void ControlClientChannel::releaseParentMapping()
     ipc_parent_.reset();
 }
 
-const char* ControlClientChannel::toString(ControlClientCode code)
+std::string_view ControlClientChannel::toString(ControlClientCode code)
 {
     for (const auto& mapping : stateArray)
     {

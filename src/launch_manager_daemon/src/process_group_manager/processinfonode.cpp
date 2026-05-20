@@ -305,7 +305,7 @@ void ProcessInfoNode::startProcess()
             if (osal::CommsType::kLaunchManager == config_->startup_config_.comms_type_)
             {
                 // Don't start launch manager, we're already running
-                LM_LOG_DEBUG() << "Found myself (" << config_->startup_config_.argv_[0U]
+                LM_LOG_DEBUG() << "Found myself (" << std::string_view{config_->startup_config_.argv_[0U]}
                                << ") in a process group to start, not starting, reporting kRunning";
                 pid_ = getpid();
                 static_cast<void>(setState(score::lcm::ProcessState::kRunning));  // Cannot fail by design
@@ -497,7 +497,7 @@ void ProcessInfoNode::terminateProcess()
     {
         if (osal::CommsType::kLaunchManager == config_->startup_config_.comms_type_)
         {
-            LM_LOG_DEBUG() << "Found myself (" << config_->startup_config_.argv_[0U]
+            LM_LOG_DEBUG() << "Found myself (" << std::string_view{config_->startup_config_.argv_[0U]}
                            << ") in a process group to terminate, not terminating, reporting kTerminated";
             static_cast<void>(setState(score::lcm::ProcessState::kTerminated));  // Cannot fail by design
         }

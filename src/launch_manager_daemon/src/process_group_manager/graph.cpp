@@ -563,7 +563,7 @@ ControlClientMessage& Graph::getCancelMessage()
     return cancel_message_;
 }
 
-const char* Graph::toString(GraphState state)
+std::string_view Graph::toString(GraphState state)
 {
     switch (state)
     {

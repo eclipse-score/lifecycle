@@ -14,6 +14,7 @@
 #include "score/lcm/saf/supervision/Alive.hpp"
 
 #include <cassert>
+#include <string_view>
 
 #include "score/lcm/saf/common/Types.hpp"
 #include "score/lcm/saf/ifexm/ProcessState.hpp"
@@ -546,7 +547,7 @@ bool Alive::isMaxError(void) const noexcept(true)
 
 void Alive::logExpiredFailedStateDetails() const noexcept(true)
 {
-    const char* failedState{""};
+    std::string_view failedState{""};
     if (aliveStatus == Alive::EStatus::failed)
     {
         // failedSupervisionCycles == 1 if just switched to FAILED and > 1 if were already in FAILED before
@@ -559,11 +560,10 @@ void Alive::logExpiredFailedStateDetails() const noexcept(true)
 
     const bool minError{isMinError()};
     /* RULECHECKER_comment(0, 4, check_conditional_as_sub_expression, "Ternary operation is very simple", true_no_defect) */
-    const char* indication{((indicationCount != 1U) ? "indications" : "indication")};
     const std::uint64_t aliveIndicationMargin{minError ? k_minAliveIndications : k_maxAliveIndications};
-    const char* expectedComparison{minError ? ">=" : "<="};
+    const std::string_view expectedComparison{minError ? ">=" : "<="};
     logger_r.LogWarn() << "Alive Supervision (" << getConfigName() << ")" << failedState << ", due to"
-                       << indicationCount << "reported alive" << indication << "(expected" << expectedComparison
+                       << indicationCount << "reported alive indication(s) (expected" << expectedComparison
                        << aliveIndicationMargin << "). Failed supervision cycles:" << failedSupervisionCycles << "/"
                        << k_failedSupervisionCyclesTolerance;
 }

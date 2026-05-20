@@ -17,6 +17,7 @@
 #include <cstdint>
 
 #include <string>
+#include <string_view>
 #include <vector>
 #include "score/lcm/saf/timers/Timers_OsClock.hpp"
 
@@ -56,9 +57,8 @@ public:
     virtual void evaluate(const timers::NanoSecondType f_syncTimestamp) = 0;
 
     /// @brief Get the name of the configuration element for the corresponding supervision container
-    /// @return std::string   Constant string containing the name of the
-    ///                             corresponding supervision configuration container
-    const char* getConfigName(void) const;
+    /// @return std::string_view   View over the name of the corresponding supervision configuration container
+    std::string_view getConfigName(void) const noexcept;
 
 protected:
     /// @brief Default Move Constructor

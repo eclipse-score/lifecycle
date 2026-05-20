@@ -28,9 +28,9 @@ ISupervision::ISupervision(const char* const f_supervisionConfigName_p) : k_cfgN
     static_cast<void>(0);
 }
 
-const char* ISupervision::getConfigName(void) const
+std::string_view ISupervision::getConfigName(void) const noexcept
 {
-    return static_cast<const char*>(k_cfgName.c_str());
+    return k_cfgName;
 }
 
 }  // namespace supervision

@@ -14,6 +14,7 @@
 #include "score/lcm/saf/supervision/Local.hpp"
 
 #include <cassert>
+#include <string_view>
 
 #include "score/lcm/saf/logging/PhmLogger.hpp"
 #include "score/lcm/saf/timers/Timers_OsClock.hpp"
@@ -282,7 +283,7 @@ void Local::switchToOk(ICheckpointSupervision::EType f_type) noexcept
     pushResultToObservers();
 }
 
-void Local::switchToFailed(ICheckpointSupervision::EType f_type, const char* reason_p) noexcept
+void Local::switchToFailed(ICheckpointSupervision::EType f_type, std::string_view reason_p) noexcept
 {
     supervisionType = f_type;
     logger_r.LogWarn() << "Local Supervision (" << getConfigName() << ") switched to FAILED," << reason_p;
@@ -291,11 +292,11 @@ void Local::switchToFailed(ICheckpointSupervision::EType f_type, const char* rea
 }
 
 void Local::switchToExpired(ICheckpointSupervision::EType f_type,
-                            ifexm::ProcessCfg::ProcessExecutionError f_executionError, const char* reason_p) noexcept
+                            ifexm::ProcessCfg::ProcessExecutionError f_executionError, std::string_view reason_p) noexcept
 {
     supervisionType = f_type;
     processExecutionError = f_executionError;
-    if (nullptr == reason_p)
+    if (reason_p.empty())
     {
         if (ICheckpointSupervision::EType::aliveSupervision == f_type)
         {
