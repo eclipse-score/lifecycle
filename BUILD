@@ -94,6 +94,7 @@ alias(
 # Docs
 docs(
     data = [
+        "//src/launch_manager_daemon/config/config_schema:config_schema_files",
         "@score_platform//:needs_json",  # This allows linking to feature requirements.
         "@score_process//:needs_json",  # This allows linking to requirements (wp__requirements_comp, etc.) from the process_description repository.
     ],
