@@ -13,24 +13,27 @@
 #ifndef IPROCESSSTATERECEIVER_HPP_INCLUDED
 #define IPROCESSSTATERECEIVER_HPP_INCLUDED
 
-#include <optional>
 #include "score/result/result.h"
 #include <score/lcm/exec_error_domain.h>
 #include <memory>
+#include <optional>
 
 #include <score/lcm/posixprocess.hpp>
 
-namespace score {
+namespace score
+{
 
-namespace lcm {
+namespace lcm
+{
 
 /// @brief IProcessStateReceiver interface for handling the information about each Process current state.
-///        Health Monitor (HM) shall use this interface in order to properly receive
+///        Alive Monitor (AM) shall use this interface in order to properly receive
 ///        information about the current state from the posix processes running in the scope of an Adaptive Machine.
-///        Each posix process state change is sent by Launch Manager (LCM) and can be read by HM.
+///        Each posix process state change is sent by Launch Manager (LCM) and can be read by AM.
 
-class IProcessStateReceiver {
-   public:
+class IProcessStateReceiver
+{
+  public:
     virtual ~IProcessStateReceiver() noexcept = default;
 
     /// @brief Returns a queued PosixProcess that has not yet been parsed.
@@ -38,8 +41,8 @@ class IProcessStateReceiver {
     virtual score::Result<std::optional<PosixProcess>> getNextChangedPosixProcess() noexcept = 0;
 };
 
-} // namespace lcm
+}  // namespace lcm
 
-} // namespace score
+}  // namespace score
 
 #endif
