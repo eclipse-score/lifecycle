@@ -16,17 +16,11 @@
 #include <unistd.h>
 #include <csignal>
 
-#include <process_group_manager/ihealth_monitor_thread.hpp>
+#include <process_group_manager/ialive_monitor_thread.hpp>
 #include <process_group_manager/processgroupmanager.hpp>
 #include <score/lcm/internal/log.hpp>
 
-namespace score
-{
-
-namespace lcm
-{
-
-namespace internal
+namespace score::lcm::internal
 {
 
 using namespace score::lcm::internal::osal;
@@ -43,7 +37,7 @@ void ProcessGroupManager::cancel()
     my_signal_handler(SIGTERM);
 }
 
-ProcessGroupManager::ProcessGroupManager(std::unique_ptr<IHealthMonitorThread> health_monitor,
+ProcessGroupManager::ProcessGroupManager(std::unique_ptr<IAliveMonitorThread> alive_monitor_thread,
                                          std::shared_ptr<IRecoveryClient> recovery_client,
                                          std::unique_ptr<score::lcm::IProcessStateNotifier> process_state_notifier)
     : configuration_manager_(),
@@ -55,7 +49,7 @@ ProcessGroupManager::ProcessGroupManager(std::unique_ptr<IHealthMonitorThread> h
       num_process_groups_(0U),
       process_groups_(),
       process_state_notifier_(std::move(process_state_notifier)),
-      health_monitor_thread_(std::move(health_monitor)),
+      alive_monitor_thread_(std::move(alive_monitor_thread)),
       recovery_client_(recovery_client)  //,
                                          // ucm_polling_thread_(
 //  [this](const Message::Action act, const Message::UpdateContext updateCtx, const lib::fun::string& swc) -> bool
@@ -104,9 +98,9 @@ bool ProcessGroupManager::initialize()
     LM_LOG_DEBUG() << "Process Group initialization done";
     createProcessComponentsObjects();
     initializeGraphNodes();
-    if (!health_monitor_thread_->start())
+    if (!alive_monitor_thread_->start())
     {
-        LM_LOG_ERROR() << "Health monitor thread failed to start";
+        LM_LOG_ERROR() << "Alive monitor thread failed to start";
         return false;
     }
 
@@ -122,7 +116,7 @@ bool ProcessGroupManager::initialize()
 void ProcessGroupManager::deinitialize()
 {
     // ucm_polling_thread_.stopPolling();
-    health_monitor_thread_->stop();
+    alive_monitor_thread_->stop();
     configuration_manager_.deinitialize();
     process_groups_.clear();
 
@@ -238,8 +232,8 @@ inline void ProcessGroupManager::createProcessComponentsObjects()
     LM_LOG_DEBUG() << "Creating Safe Process Map with" << total_processes_ << "entries";
     process_map_ = std::make_shared<SafeProcessMap>(total_processes_);
 
-    LM_LOG_DEBUG() << "Creating job queue with" << total_processes_ << "entries";
-    worker_jobs_ = std::make_shared<JobQueue<ProcessInfoNode>>(total_processes_);
+    LM_LOG_DEBUG() << "Creating job queue with capacity" << static_cast<std::size_t>(ProcessLimits::kMaxProcesses);
+    worker_jobs_ = std::make_shared<WorkerQueue>();
 
     LM_LOG_DEBUG() << "Creating worker threads...";
     worker_threads_ = std::make_unique<WorkerThread<ProcessInfoNode>>(
@@ -364,7 +358,7 @@ inline void ProcessGroupManager::allProcessGroupsOff()
     if (!waitForStateCompletion(process_groups_, GraphState::kInTransition, 1000))
     {
         LM_LOG_ERROR() << "NOTE: Transition to Off state timed out";
-        worker_jobs_->stopQueue(static_cast<std::size_t>(ProcessLimits::kNumWorkerThreads));
+        worker_threads_->stop();
         for (auto& pg : process_groups_)
         {
             for (auto& node : pg->getNodes())
@@ -534,13 +528,13 @@ inline void ProcessGroupManager::recoveryActionHandler()
 
         if (nullptr == pg)
         {
-            LM_LOG_ERROR() << "recoveryActionHandler: Unknown process group " << recovery_request->process_group_identifier_;
+            LM_LOG_ERROR() << "recoveryActionHandler: Unknown process group "
+                           << recovery_request->process_group_identifier_;
             continue;
         }
 
         const IdentifierHash old_state = pg->getProcessGroupState();
-        const IdentifierHash recovery_state =
-                configuration_manager_.getNameOfRecoveryState(pg->getProcessGroupName());
+        const IdentifierHash recovery_state = configuration_manager_.getNameOfRecoveryState(pg->getProcessGroupName());
         const GraphState graph_state = pg->getState();
 
         LM_LOG_DEBUG() << "recoveryActionHandler: Processing recovery request for PG "
@@ -704,7 +698,7 @@ inline void ProcessGroupManager::processGroupHandler(Graph& pg)
             }
         }
 
-        if (GraphState::kUndefinedState == pg.getState()) 
+        if (GraphState::kUndefinedState == pg.getState())
         {
             // at the moment graph is not running...
             // i.e. it is not in kInTransition, kAborting or kCancelled state
@@ -785,13 +779,9 @@ std::shared_ptr<SafeProcessMap> ProcessGroupManager::getProcessMap()
     return process_map_;
 }
 
-std::shared_ptr<JobQueue<ProcessInfoNode>> ProcessGroupManager::getWorkerJobs()
+std::shared_ptr<ProcessGroupManager::WorkerQueue> ProcessGroupManager::getWorkerJobs()
 {
     return worker_jobs_;
 }
 
-}  // namespace internal
-
-}  // namespace lcm
-
-}  // namespace score
+}  // namespace score::lcm::internal

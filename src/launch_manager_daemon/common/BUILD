@@ -51,27 +51,29 @@ cc_library(
 cc_library(
     name = "log",
     hdrs = ["include/score/lcm/internal/log.hpp"],
+    defines = select({
+        "//config:lm_use_cout_log": [],
+        "//conditions:default": ["LC_LOG_SCORE_MW_LOG"],
+    }),
     includes = ["include"],
     visibility = ["//src:__subpackages__"],
+    deps = [] + select({
+        "//config:lm_use_cout_log": [],
+        "//conditions:default": ["@score_baselibs//score/mw/log"],
+    }),
 )
 
 cc_library(
     name = "osal",
-    srcs = select({
+    srcs = glob(["src/internal/osal/posix/*.cpp"]) + select({
         "@platforms//os:qnx": glob(
             [
-                "src/internal/osal/**/*.cpp",
-            ],
-            exclude = [
-                "src/internal/osal/linux/**",
+                "src/internal/osal/qnx/*.cpp",
             ],
         ),
         "@platforms//os:linux": glob(
             [
-                "src/internal/osal/**/*.cpp",
-            ],
-            exclude = [
-                "src/internal/osal/qnx/**",
+                "src/internal/osal/linux/*.cpp",
             ],
         ),
     }),

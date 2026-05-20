@@ -134,7 +134,7 @@ ControlClientChannelP ControlClientChannel::initializeControlClientChannel(int f
 
     if (MAP_FAILED == channelMemory)
     {
-        LM_LOG_ERROR() << "mmap failed in initializeControlClientChannel:" << std::strerror(errno);
+        LM_LOG_ERROR() << "mmap failed in initializeControlClientChannel:" << errno_message(errno);
         return nullptr;
     }
 
@@ -171,8 +171,6 @@ ControlClientChannelP ControlClientChannel::initializeControlClientChannel(int f
         std::next(static_cast<char*>(channelMemory), static_cast<std::ptrdiff_t>(sizeof(osal::IpcCommsSync)));
     result = ControlClientChannelP(static_cast<ControlClientChannel*>(static_cast<void*>(controlClientStartPtr)),
                                    [](ControlClientChannel*) {});
-    LM_LOG_DEBUG() << "ControlClientChannel mapped (creation path: " << std::boolalpha << (mem_ptr != nullptr) << ")";
-
     if (result)
     {
         std::unique_lock<std::mutex> lock(init_mutex_);
@@ -239,7 +237,7 @@ void ControlClientChannel::releaseParentMapping()
     ipc_parent_.reset();
 }
 
-const char* ControlClientChannel::toString(ControlClientCode code)
+std::string_view ControlClientChannel::toString(ControlClientCode code)
 {
     for (const auto& mapping : stateArray)
     {

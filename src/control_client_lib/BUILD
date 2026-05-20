@@ -32,6 +32,5 @@ cc_library(
         "//src/launch_manager_daemon/common:log",
         "//src/launch_manager_daemon/common:osal",
         "@score_baselibs//score/concurrency/future",
-        "@score_baselibs//score/mw/log",
     ],
 )

@@ -20,14 +20,11 @@
 #include <score/lcm/identifier_hash.hpp>
 #include <score/lcm/lifecycle_client.h>
 
-
 TEST(Smoke, Daemon)
 {
-    score::lcm::ControlClient client;
-    
+    score::lcm::ControlClient client {};
     ASSERT_TRUE(check_clean({test_end_location}));
-    TEST_STEP("Control daemon report kRunning")
-    {
+    TEST_STEP("Control daemon report kRunning") {
         // report kRunning
         auto result = score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
         ASSERT_TRUE(result.has_value()) << "client.ReportExecutionState() failed: " << result.error().Message();

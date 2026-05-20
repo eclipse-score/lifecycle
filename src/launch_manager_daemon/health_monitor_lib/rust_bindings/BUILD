@@ -22,7 +22,7 @@ rust_library(
         "src/monitor.rs",
     ],
     deps = [
-        "//src/launch_manager_daemon/health_monitor_lib:hm_shared_lib",
+        "//score/mw/lifecycle:alive_cc",
         "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
         "@score_crates//:libc",
     ],

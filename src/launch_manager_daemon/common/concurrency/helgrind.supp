@@ -1,0 +1,42 @@
+# *******************************************************************************
+# Copyright (c) 2025 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+
+# Helgrind suppression file
+
+
+# --- mpmc_concurrent_queue_helgrind_test ----
+
+# tests intentionally exercise semaphore failure paths and therefore
+# trigger Helgrind's PthAPIerror reports 
+#
+#   * MPMCConcurrentQueueTest_Basic.PopReturnsNulloptOnSemaphoreWaitFailure
+#       Sends SIGUSR1 to the consumer so sem_wait() returns -1 / EINTR and
+#       the kFail path in Semaphore::wait() is taken.
+{
+   mpmc_queue_sem_wait_eintr_intentional
+   Helgrind:PthAPIerror
+   obj:*/vgpreload_helgrind-*.so
+   fun:_ZN5score3lcm8internal4osal9Semaphore4waitEv
+   ...
+}
+
+#   * MPMCConcurrentQueueTest_Timeout.PushWithTimeoutReturnsFalseWhenFull
+#       Fills the queue so sem_trywait() inside Semaphore::timedWait()
+#       returns -1 / EAGAIN until the timeout expires.
+{
+   mpmc_queue_sem_trywait_eagain_intentional
+   Helgrind:PthAPIerror
+   obj:*/vgpreload_helgrind-*.so
+   fun:_ZN5score3lcm8internal4osal9Semaphore9timedWaitENSt6chrono8durationIlSt5ratioILl1ELl1000EEEE
+   ...
+}

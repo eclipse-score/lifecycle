@@ -10,27 +10,30 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-#include "health_monitor_thread.hpp"
+#include "alive_monitor_thread.hpp"
 
 namespace score
 {
 namespace lcm
 {
-namespace internal 
+namespace internal
 {
 
-HealthMonitorThread::HealthMonitorThread(std::unique_ptr<saf::daemon::IHealthMonitor> health_monitor) : m_health_monitor(std::move(health_monitor)) {
-
+AliveMonitorThread::AliveMonitorThread(std::unique_ptr<saf::daemon::IHealthMonitor> health_monitor)
+    : m_health_monitor(std::move(health_monitor))
+{
 }
 
-bool HealthMonitorThread::start() {
+bool AliveMonitorThread::start()
+{
     score::lcm::saf::daemon::EInitCode init_status{score::lcm::saf::daemon::EInitCode::kNotInitialized};
-    health_monitor_thread_ = std::thread([this, &init_status]() {
+    alive_monitor_thread_ = std::thread([this, &init_status]() {
         const auto initResult = m_health_monitor->init();
-        
+
         notifyInitializationComplete(init_status, initResult);
 
-        if (initResult == saf::daemon::EInitCode::kNoError) {
+        if (initResult == saf::daemon::EInitCode::kNoError)
+        {
             m_health_monitor->run(stop_thread_);
         }
     });
@@ -40,16 +43,18 @@ bool HealthMonitorThread::start() {
     return init_status == saf::daemon::EInitCode::kNoError;
 }
 
-void HealthMonitorThread::stop() {
+void AliveMonitorThread::stop()
+{
     stop_thread_.store(true);
-    if (health_monitor_thread_.joinable()) {
-        health_monitor_thread_.join();
+    if (alive_monitor_thread_.joinable())
+    {
+        alive_monitor_thread_.join();
     }
 }
 
-void HealthMonitorThread::notifyInitializationComplete(
-    score::lcm::saf::daemon::EInitCode& f_init_status_r,
-    const score::lcm::saf::daemon::EInitCode f_init_result) {
+void AliveMonitorThread::notifyInitializationComplete(score::lcm::saf::daemon::EInitCode& f_init_status_r,
+                                                      const score::lcm::saf::daemon::EInitCode f_init_result)
+{
     {
         std::lock_guard lk(m_initialization_mutex);
         f_init_status_r = f_init_result;
@@ -57,16 +62,14 @@ void HealthMonitorThread::notifyInitializationComplete(
     m_initialization_cv.notify_all();
 }
 
-void HealthMonitorThread::waitForInitializationCompleted(
-    score::lcm::saf::daemon::EInitCode& f_init_status_r) {
+void AliveMonitorThread::waitForInitializationCompleted(score::lcm::saf::daemon::EInitCode& f_init_status_r)
+{
     std::unique_lock lk(m_initialization_mutex);
-    m_initialization_cv.wait(
-        lk,
-        [&f_init_status_r]() {
-            return f_init_status_r != score::lcm::saf::daemon::EInitCode::kNotInitialized;
-        });
+    m_initialization_cv.wait(lk, [&f_init_status_r]() {
+        return f_init_status_r != score::lcm::saf::daemon::EInitCode::kNotInitialized;
+    });
 }
 
-}
-}
-}
+}  // namespace internal
+}  // namespace lcm
+}  // namespace score

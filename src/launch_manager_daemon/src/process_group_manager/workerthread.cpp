@@ -11,53 +11,74 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "processinfonode.hpp"
 #include "workerthread.hpp"
+#include "processinfonode.hpp"
 
-namespace score {
+namespace score
+{
 
-namespace lcm {
+namespace lcm
+{
 
-namespace internal {
+namespace internal
+{
 
 template <class T>
-WorkerThread<T>::WorkerThread(std::shared_ptr<JobQueue<T>> queue, uint32_t num_threads)
-    : the_job_queue_(queue), num_threads_(num_threads) {
-    worker_threads_.reserve(num_threads_);
+WorkerThread<T>::WorkerThread(std::shared_ptr<Queue> queue, uint32_t num_threads) : the_job_queue_(queue)
+{
+    worker_threads_.reserve(num_threads);
 
-    for (uint32_t i = 0U; i < num_threads_; ++i) {
+    for (uint32_t i = 0U; i < num_threads; ++i)
+    {
         static_cast<void>(i);
         worker_threads_.emplace_back(std::make_unique<std::thread>(&WorkerThread::run, this));
     }
 }
 
 template <class T>
-WorkerThread<T>::~WorkerThread() {
-    the_job_queue_->stopQueue(num_threads_);
+WorkerThread<T>::~WorkerThread()
+{
+    stop();
 
-    for (auto& thread : worker_threads_) {
-        if (thread->joinable()) {
+    for (auto& thread : worker_threads_)
+    {
+        if (thread->joinable())
+        {
             thread->join();
         }
     }
 }
 
 template <class T>
-void WorkerThread<T>::run() {
-    while (the_job_queue_->isRunning()) {
-        auto job = the_job_queue_->getJobFromQueue();
+void WorkerThread<T>::stop()
+{
+    static_cast<void>(the_job_queue_->stop());
+}
 
-        if (job) {
-            job->doWork();
+template <class T>
+void WorkerThread<T>::run()
+{
+    while (true)
+    {
+        auto job = the_job_queue_->pop();
+        if (!job)
+        {
+            if (job.error() == ConcurrencyErrc::kStopped)
+            {
+                break;
+            }
+            LM_LOG_ERROR() << "Got an error getting a job: " << job.error();
+            continue;
         }
+        (*job)->doWork();
     }
 }
 
 // Explicit instantiation for ProcessInfoNode
 template class WorkerThread<ProcessInfoNode>;
 
-}  // namespace lcm
-
 }  // namespace internal
+
+}  // namespace lcm
 
 }  // namespace score

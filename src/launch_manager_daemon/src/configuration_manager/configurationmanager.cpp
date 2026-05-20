@@ -303,7 +303,7 @@ bool ConfigurationManager::parseMachineConfigurations(const ModeGroup* node, con
         ProcessGroup process_group_data;
         process_group_data.name_ = getStringViewFromFlatBuffer(node->identifier());
         process_group_data.sw_cluster_ = cluster;
-        LM_LOG_DEBUG() << "FlatBufferParser::getModeGroupPgName:" << getStringFromFlatBuffer(node->identifier())
+        LM_LOG_DEBUG() << "FlatBufferParser::getModeGroupPgName:" << std::string_view{getStringFromFlatBuffer(node->identifier())}
                        << "( IdentifierHash:" << process_group_data.name_.data() << ")";
 
         if (process_group_data.name_ != score::lcm::IdentifierHash(std::string_view(""))) {
@@ -338,7 +338,7 @@ bool ConfigurationManager::parseModeGroups(const ModeGroup* node, ProcessGroup& 
                 std::string string_name(flatbuffer_string->c_str(), flatbuffer_string->size());
                 pg_state.name_ = getStringViewFromFlatBuffer(flatbuffer_string);
                 LM_LOG_DEBUG() << "FlatBufferParser::getModeGroupPgStateName:"
-                               << mode_declaration_node->identifier()->c_str()
+                               << std::string_view{flatbuffer_string->c_str(), flatbuffer_string->size()}
                                << "( IdentifierHash:" << pg_state.name_.data() << ")";
                 process_group_data.states_.push_back(pg_state);
                 // Is this the "Off" state, i.e. does it end with "/Off" ?
@@ -395,7 +395,7 @@ static void setSchedulingParameters(const Process& node, const ProcessStartupCon
         } else if (strcasecmp("SCHED_OTHER", attribute->c_str()) == 0) {
             instance.startup_config_.scheduling_policy_ = SCHED_OTHER;
         } else {
-            LM_LOG_WARN() << "scheduling policy" << attribute->c_str() << "is not supported, using default";
+            LM_LOG_WARN() << "scheduling policy" << std::string_view{attribute->c_str(), attribute->size()} << "is not supported, using default";
         }
     }
     attribute = config.schedulingPriority();
@@ -617,7 +617,7 @@ void ConfigurationManager::parseExecutionDependency(
                 dep.process_state_ = getProcessState(state_name);
                 dep.target_process_id_ = getStringViewFromFlatBuffer(process_dependency_node->targetProcess_identifier());
                 LM_LOG_DEBUG() << "ParseProcessExecutionDependency: target process path:"
-                                << getStringFromFlatBuffer(process_dependency_node->targetProcess_identifier())
+                                << std::string_view{getStringFromFlatBuffer(process_dependency_node->targetProcess_identifier())}
                                 << "ID:" << dep.target_process_id_;
                 process_instance.dependencies_.push_back(dep);
 
@@ -761,7 +761,7 @@ bool ConfigurationManager::checkOrSetFlatConfigEnvVar(const std::string& name, c
     const char* value = getenv(name.c_str());
 
     if (value && strlen(value)) {
-        LM_LOG_DEBUG() << name.c_str() << "already set. Current value:" << value;
+        LM_LOG_DEBUG() << name << "already set. Current value:" << std::string_view{value};
         result = true;
     } else {
         if (setenv(name.c_str(), path.c_str(), overwrite_) == 0) {

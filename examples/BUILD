@@ -32,8 +32,8 @@ filegroup(
 filegroup(
     name = "lm_binaries",
     srcs = [
-        "//src/control_client_lib",
-        "//src/launch_manager_daemon:launch_manager",
+        "//score/mw/lifecycle:control_cc",
+        "//score/mw/lifecycle:launch_manager",
         "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
         "//src/launch_manager_daemon/process_state_client_lib:process_state_client",
     ],
