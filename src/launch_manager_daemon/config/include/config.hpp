@@ -178,56 +178,20 @@ class Config
     };
 
     // Read access
-    const std::vector<ComponentConfig>& components() const
-    {
-        return components_;
-    }
-    const std::vector<RunTargetConfig>& runTargets() const
-    {
-        return run_targets_;
-    }
-    std::string_view initialRunTarget() const
-    {
-        return initial_run_target_;
-    }
-    const FallbackRunTargetConfig& fallbackRunTarget() const
-    {
-        return fallback_run_target_;
-    }
-    const AliveSupervisionConfig& aliveSupervision() const
-    {
-        return alive_supervision_;
-    }
-    const std::optional<WatchdogConfig>& watchdog() const
-    {
-        return watchdog_;
-    }
+    const std::vector<ComponentConfig>& components() const;
+    const std::vector<RunTargetConfig>& runTargets() const;
+    std::string_view initialRunTarget() const;
+    const FallbackRunTargetConfig& fallbackRunTarget() const;
+    const AliveSupervisionConfig& aliveSupervision() const;
+    const std::optional<WatchdogConfig>& watchdog() const;
 
     // Ownership transfer — source is left in a moved-from state after the call
-    std::vector<ComponentConfig> takeComponents()
-    {
-        return std::move(components_);
-    }
-    std::vector<RunTargetConfig> takeRunTargets()
-    {
-        return std::move(run_targets_);
-    }
-    std::string takeInitialRunTarget()
-    {
-        return std::move(initial_run_target_);
-    }
-    FallbackRunTargetConfig takeFallbackRunTarget()
-    {
-        return std::move(fallback_run_target_);
-    }
-    AliveSupervisionConfig takeAliveSupervision()
-    {
-        return std::move(alive_supervision_);
-    }
-    std::optional<WatchdogConfig> takeWatchdog()
-    {
-        return std::move(watchdog_);
-    }
+    std::vector<ComponentConfig> takeComponents();
+    std::vector<RunTargetConfig> takeRunTargets();
+    std::string takeInitialRunTarget();
+    FallbackRunTargetConfig takeFallbackRunTarget();
+    AliveSupervisionConfig takeAliveSupervision();
+    std::optional<WatchdogConfig> takeWatchdog();
 
   private:
     friend class Builder;
