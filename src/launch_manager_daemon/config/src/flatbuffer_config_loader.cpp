@@ -346,7 +346,7 @@ score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::ve
         return score::cpp::make_unexpected(IConfigLoader::Error::UnsupportedVersion);
     }
 
-    Config::Builder builder;
+    ConfigBuilder builder;
 
     // initial_run_target is a required field, guaranteed non-null by the schema and verifier.
     builder.setInitialRunTarget(config->initial_run_target()->str());
