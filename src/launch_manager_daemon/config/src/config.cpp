@@ -78,4 +78,64 @@ Config Config::Builder::build()
                   std::move(watchdog_));
 }
 
+const std::vector<ComponentConfig>& Config::components() const
+{
+    return components_;
+}
+
+const std::vector<RunTargetConfig>& Config::runTargets() const
+{
+    return run_targets_;
+}
+
+std::string_view Config::initialRunTarget() const
+{
+    return initial_run_target_;
+}
+
+const FallbackRunTargetConfig& Config::fallbackRunTarget() const
+{
+    return fallback_run_target_;
+}
+
+const AliveSupervisionConfig& Config::aliveSupervision() const
+{
+    return alive_supervision_;
+}
+
+const std::optional<WatchdogConfig>& Config::watchdog() const
+{
+    return watchdog_;
+}
+
+std::vector<ComponentConfig> Config::takeComponents()
+{
+    return std::move(components_);
+}
+
+std::vector<RunTargetConfig> Config::takeRunTargets()
+{
+    return std::move(run_targets_);
+}
+
+std::string Config::takeInitialRunTarget()
+{
+    return std::move(initial_run_target_);
+}
+
+FallbackRunTargetConfig Config::takeFallbackRunTarget()
+{
+    return std::move(fallback_run_target_);
+}
+
+AliveSupervisionConfig Config::takeAliveSupervision()
+{
+    return std::move(alive_supervision_);
+}
+
+std::optional<WatchdogConfig> Config::takeWatchdog()
+{
+    return std::move(watchdog_);
+}
+
 }  // namespace score::launch_manager::config
