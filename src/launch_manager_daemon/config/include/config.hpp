@@ -213,4 +213,4 @@ class Config
 
 }  // namespace score::launch_manager::config
 
-#endif
+#endif // CONFIG_HPP
