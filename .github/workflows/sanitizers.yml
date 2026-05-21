@@ -30,7 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        config: [asan_ubsan_lsan]
+        config: [asan_ubsan_lsan, tsan]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
@@ -43,9 +43,13 @@ jobs:
           repository-cache: true
           cache-save: ${{ github.event_name == 'push' }}
 
+      - name: Configure kernel for TSan (ASLR breaks TSan shadow memory layout)
+        if: matrix.config == 'tsan'
+        run: sudo sysctl -w kernel.randomize_va_space=0
+
       - name: Run tests with sanitizers
         run: |
-          bazel test --lockfile_mode=error --config=${{ matrix.config }} --config=x86_64-linux //score/... //tests/... --verbose_failures
+          bazel test --lockfile_mode=error --config=${{ matrix.config }} --config=x86_64-linux //src/... //tests/... --verbose_failures
 
       - name: Upload test logs on failure
         if: failure()

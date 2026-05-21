@@ -171,6 +171,15 @@ use_repo(oci, "debian-test-runtime", "debian-test-runtime_linux_amd64")
 
 bazel_dep(name = "score_baselibs", version = "0.2.9")
 
+# Centralized C++ quality tool policies (sanitizers, etc.)
+# https://github.com/eclipse-score/score_cpp_policies
+bazel_dep(name = "score_cpp_policies", dev_dependency = True)
+git_override(
+    module_name = "score_cpp_policies",
+    commit = "6348b27a04d64936d7e828c9dd3d04667109104a",
+    remote = "https://github.com/eclipse-score/score_cpp_policies.git",
+)
+
 # Hedron's Compile Commands Extractor for Bazel
 # https://github.com/hedronvision/bazel-compile-commands-extractor
 bazel_dep(name = "hedron_compile_commands", dev_dependency = True)
