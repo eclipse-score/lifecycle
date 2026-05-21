@@ -50,4 +50,4 @@ class IConfigLoader
 
 }  // namespace score::launch_manager::config
 
-#endif
+#endif // CONFIG_LOADER_HPP
