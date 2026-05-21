@@ -11,9 +11,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-
-#ifndef SCORE_LCM_IHEALTH_MONITOR_HPP_INCLUDED
-#define SCORE_LCM_IHEALTH_MONITOR_HPP_INCLUDED
+#ifndef SCORE_LCM_IALIVE_MONITOR_THREAD_HPP_INCLUDED
+#define SCORE_LCM_IALIVE_MONITOR_THREAD_HPP_INCLUDED
 
 namespace score
 {
@@ -21,15 +20,16 @@ namespace lcm
 {
 namespace internal
 {
-class IHealthMonitorThread {
- public:
+class IAliveMonitorThread
+{
+  public:
     virtual bool start() = 0;
     virtual void stop() = 0;
 
-    virtual ~IHealthMonitorThread() = default;
+    virtual ~IAliveMonitorThread() = default;
 };
-}
-}
-}
+}  // namespace internal
+}  // namespace lcm
+}  // namespace score
 
 #endif

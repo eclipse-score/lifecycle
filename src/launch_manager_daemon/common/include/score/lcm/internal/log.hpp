@@ -14,6 +14,8 @@
 #ifndef LCM_LOG_HPP_INCLUDED
 #define LCM_LOG_HPP_INCLUDED
 
+#include <cstring>
+
 // Compile time switch to use different logging subsystems.
 // Parts of LM code will be compiled into different binaries, think IPC between LifecycleClient and LM daemon.
 // In this situation, this code will need to inherit logging mechanism of the binary file.
@@ -270,9 +272,19 @@ inline Logger& _getLmLogger() noexcept
 
 }  // namespace score::lcm::internal
 
-// namespace internal
-
 #endif  // LC_LOG_SCORE_MW_LOG
+
+namespace score::lcm::internal
+{
+
+/// @brief Returns a string_view of the errno error message.
+/// @warning This method is not thread safe.
+inline std::string_view errno_message(const int err) noexcept(true)
+{
+    return std::string_view{std::strerror(err)};
+}
+
+}  // namespace score::lcm::internal
 
 // wrapper macros for Launch Manager
 #define LM_LOG_FATAL() (score::lcm::internal::_getLmLogger().LogFatal())

@@ -16,6 +16,8 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+import os
+import shutil
 from itertools import chain
 from pathlib import Path
 
@@ -99,3 +101,28 @@ class DisplayTestLogs(Directive):
 
 def setup(app):
     app.add_directive("display-test-logs", DisplayTestLogs)
+
+    # When Sphinx runs inside a Bazel action (bazel build //:needs_json), the
+    # CWD is the execroot / sandbox root and the JSON schema files are linked
+    # there at their workspace-relative paths (src/...) because they are
+    # declared as tools.  However, the Sphinx source tree lives under
+    # bazel-out/…/_needs_json/_sources/, so literalinclude directives that
+    # traverse four levels up from docs/module/…/user_guide/ land at
+    # _sources/src/…, which Bazel does not populate automatically.  Copying
+    # the files into the source tree directory makes literalinclude work
+    # without touching the RST files or the external docs macro.
+    #
+    # For non-Bazel runs (bazel run //:docs, local sphinx-build) the source
+    # JSON files already exist at srcdir.parent / "src" / …, so the guard
+    # below is a no-op.
+    srcdir = Path(app.srcdir)
+    workspace_root = Path(os.getcwd())
+    src_json_dir = (
+        workspace_root / "src" / "launch_manager_daemon" / "config" / "config_schema"
+    )
+    dest_json_dir = (
+        srcdir.parent / "src" / "launch_manager_daemon" / "config" / "config_schema"
+    )
+    if src_json_dir.exists() and not dest_json_dir.exists():
+        dest_json_dir.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(src_json_dir, dest_json_dir)

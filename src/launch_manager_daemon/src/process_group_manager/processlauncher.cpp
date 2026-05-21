@@ -11,6 +11,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
+#include <string_view>
+
 #include <fcntl.h>
 #include <grp.h>
 #include <libgen.h>
@@ -50,12 +52,11 @@ void applyLimitOrDie(const int resource, const rlimit& limit, const std::string_
 {
     if (::setrlimit(resource, &limit) == -1)
     {
-        LM_LOG_FATAL() << "[New process] Failed to set rlimit " << rlimit_name
-            << " " << std::strerror(errno);
+        LM_LOG_FATAL() << "[New process] Failed to set rlimit " << rlimit_name << " "
+                       << score::lcm::internal::errno_message(errno);
         sysexit(EXIT_FAILURE);
     }
 }
-
 
 /// @brief Sets the limit if given a non-zero value, otherwise skips.
 /// @warning This will sysexit if the set is not succesful.
@@ -66,14 +67,13 @@ void setLimit(const int resource, const std::size_t amount, const std::string_vi
         return;
     }
 
-    const struct rlimit limit {
+    const struct rlimit limit{
         .rlim_cur = amount,
         .rlim_max = amount,
     };
 
     applyLimitOrDie(resource, limit, rlimit_name);
 }
-
 
 void handleComms(score::lcm::internal::osal::ChildProcessConfig& param)
 {
@@ -101,7 +101,8 @@ void handleComms(score::lcm::internal::osal::ChildProcessConfig& param)
         case CommsType::kReporting:
             if (-1 == fcntl(IpcCommsSync::sync_fd, F_SETFD, 0))
             {
-                LM_LOG_ERROR() << "[New process] fcntl() at line" << __LINE__ << "failed:" << std::strerror(errno);
+                LM_LOG_ERROR() << "[New process] fcntl() at line" << __LINE__
+                               << "failed:" << score::lcm::internal::errno_message(errno);
                 sysexit(EXIT_FAILURE);
             }
             close(IpcCommsSync::control_client_handler_nudge_fd);
@@ -109,12 +110,14 @@ void handleComms(score::lcm::internal::osal::ChildProcessConfig& param)
         case CommsType::kControlClient:
             if (-1 == fcntl(IpcCommsSync::sync_fd, F_SETFD, 0))
             {
-                LM_LOG_ERROR() << "[New process] fcntl() at line" << __LINE__ << "failed:" << std::strerror(errno);
+                LM_LOG_ERROR() << "[New process] fcntl() at line" << __LINE__
+                               << "failed:" << score::lcm::internal::errno_message(errno);
                 sysexit(EXIT_FAILURE);
             }
             if (-1 == fcntl(IpcCommsSync::control_client_handler_nudge_fd, F_SETFD, 0))
             {
-                LM_LOG_ERROR() << "[New process] fcntl() at line" << __LINE__ << "failed:" << std::strerror(errno);
+                LM_LOG_ERROR() << "[New process] fcntl() at line" << __LINE__
+                               << "failed:" << score::lcm::internal::errno_message(errno);
             }
             break;
         case CommsType::kLaunchManager:
@@ -122,7 +125,7 @@ void handleComms(score::lcm::internal::osal::ChildProcessConfig& param)
             break;
         default:
             LM_LOG_ERROR() << "[New process] at line" << __LINE__ << "unknown CommsType"
-                            << static_cast<std::int32_t>(param.shared_block->comms_type_);
+                           << static_cast<std::int32_t>(param.shared_block->comms_type_);
             sysexit(EXIT_FAILURE);
             break;
     }
@@ -145,7 +148,8 @@ void changeCurrentWorkingDirectory(const score::lcm::internal::osal::OsalConfig&
 
     if (-1 == chdir(dirname(strncpy(path_copy, config.executable_path_.c_str(), string_size))))
     {
-        LM_LOG_ERROR() << "[New process] chdir(" << config.executable_path_ << ") failed:" << std::strerror(errno);
+        LM_LOG_ERROR() << "[New process] chdir(" << config.executable_path_
+                       << ") failed:" << score::lcm::internal::errno_message(errno);
         sysexit(EXIT_FAILURE);
     }
 }
@@ -170,7 +174,7 @@ void changeSecurityPolicy(const score::lcm::internal::osal::OsalConfig& config)
         if (score::lcm::internal::osal::setSecurityPolicy(config.security_policy_.c_str()) != 0)
         {
             LM_LOG_ERROR() << "[New process] changeSecurityPolicy(" << config.security_policy_
-                           << ") failed:" << strerror(errno);
+                           << ") failed:" << score::lcm::internal::errno_message(errno);
             sysexit(EXIT_FAILURE);
         }
     }
@@ -277,7 +281,7 @@ inline bool IProcess::setupComms(IpcCommsP& block, int& fd, const OsalConfig& co
     if (fd < 0)
     {
         LM_LOG_ERROR() << "shm_open failed:" << config.executable_path_
-                       << "Unable to open shared memory object. Error:" << std::strerror(errno);
+                       << "Unable to open shared memory object. Error:" << score::lcm::internal::errno_message(errno);
         comms_result = false;
     }
     else
@@ -288,7 +292,8 @@ inline bool IProcess::setupComms(IpcCommsP& block, int& fd, const OsalConfig& co
         {
             comms_result = false;
             LM_LOG_ERROR() << "ftruncate failed:" << config.executable_path_
-                           << "Unable to set size of shared memory file descriptor. Error:" << std::strerror(errno);
+                           << "Unable to set size of shared memory file descriptor. Error:"
+                           << score::lcm::internal::errno_message(errno);
         }
 
         if (config.comms_type_ == CommsType::kControlClient)
@@ -356,7 +361,7 @@ OsalReturnType IProcess::setSchedulingAndSecurity(const OsalConfig& config)
     // setpgid will fail if called by a session lader (which LCMd is), so skip
     if (config.comms_type_ != osal::CommsType::kLaunchManager && 0 != setpgid(0, getpid()))
     {
-        LM_LOG_ERROR() << "setpgid() failed:" << std::strerror(errno);
+        LM_LOG_ERROR() << "setpgid() failed:" << score::lcm::internal::errno_message(errno);
         retval = OsalReturnType::kFail;
     }
     // Set scheduling policy with sched_setscheduler
@@ -380,21 +385,22 @@ OsalReturnType IProcess::setSchedulingAndSecurity(const OsalConfig& config)
 
     if (-1 == sched_setscheduler(0, config.scheduling_policy_, &sch_param))
     {
-        LM_LOG_ERROR() << "sched_setscheduler() failed:" << std::strerror(errno);
+        LM_LOG_ERROR() << "sched_setscheduler() failed:" << score::lcm::internal::errno_message(errno);
         retval = OsalReturnType::kFail;
     }
 
     // Set core affinity using OS specific functionality in osal
     if (-1 == osal::setaffinity(config.cpu_mask_))
     {
-        LM_LOG_ERROR() << "setaffinity(" << config.cpu_mask_ << ") failed:" << std::strerror(errno);
+        LM_LOG_ERROR() << "setaffinity(" << config.cpu_mask_
+                       << ") failed:" << score::lcm::internal::errno_message(errno);
         retval = OsalReturnType::kFail;
     }
 
     // Set group ID
     if (-1 == setgid(config.gid_))
     {
-        LM_LOG_ERROR() << "setgid(" << config.gid_ << ") failed:" << std::strerror(errno);
+        LM_LOG_ERROR() << "setgid(" << config.gid_ << ") failed:" << score::lcm::internal::errno_message(errno);
         retval = OsalReturnType::kFail;
     }
     // Set supplementary group ids
@@ -404,14 +410,14 @@ OsalReturnType IProcess::setSchedulingAndSecurity(const OsalConfig& config)
     if (supplementary_gids_number > 0 &&
         -1 == osal::setgroups(supplementary_gids_number, config.supplementary_gids_.data()))
     {
-        LM_LOG_ERROR() << "setgroups() failed:" << std::strerror(errno);
+        LM_LOG_ERROR() << "setgroups() failed:" << score::lcm::internal::errno_message(errno);
         retval = OsalReturnType::kFail;
     }
 
     // Set user ID
     if (-1 == setuid(config.uid_))
     {
-        LM_LOG_ERROR() << "setuid(" << config.uid_ << ") failed:" << std::strerror(errno);
+        LM_LOG_ERROR() << "setuid(" << config.uid_ << ") failed:" << score::lcm::internal::errno_message(errno);
         retval = OsalReturnType::kFail;
     }
 
@@ -438,7 +444,7 @@ inline void IProcess::handleChildProcess(ChildProcessConfig& param)
     if (-1 == execve(param.config->argv_[0], const_cast<char* const*>(param.config->argv_.data()), param.config->envp_))
     {
         LM_LOG_ERROR() << "[New process] execve failed: Unable to execute the" << param.config->executable_path_
-                       << "app. Error:" << std::strerror(errno);
+                       << "app. Error:" << score::lcm::internal::errno_message(errno);
         sysexit(EXIT_FAILURE);
     }
 }
@@ -458,7 +464,7 @@ OsalReturnType IProcess::requestTermination(ProcessID pid)
         else
         {
             LM_LOG_ERROR() << "SIGTERM failed: Unable to send SIGTERM to process ID" << pid
-                           << ". Error:" << std::strerror(errno);
+                           << ". Error:" << score::lcm::internal::errno_message(errno);
         }
     }
     else
@@ -515,7 +521,7 @@ OsalReturnType IProcess::waitForTermination(osal::ProcessID& pid, int32_t& statu
     {
         /// exiting with pid == 0 is perfectly normal behaviour when all process groups are in the Off state.
         LM_LOG_DEBUG() << "wait failed: Unable to wait for any child process to terminate. Error:"
-                       << std::strerror(errno);
+                       << score::lcm::internal::errno_message(errno);
     }
 
     return result;
@@ -557,7 +563,7 @@ OsalReturnType IProcess::waitForkRunning(IpcCommsP sync, std::chrono::millisecon
         else
         {
             LM_LOG_WARN() << "Skipping semaphore deinitialization - shared memory region appears invalid: "
-                          << std::strerror(errno);
+                          << score::lcm::internal::errno_message(errno);
         }
     }
     else

@@ -16,7 +16,7 @@
 #include <unistd.h>
 #include <csignal>
 
-#include <process_group_manager/ihealth_monitor_thread.hpp>
+#include <process_group_manager/ialive_monitor_thread.hpp>
 #include <process_group_manager/processgroupmanager.hpp>
 #include <score/lcm/internal/log.hpp>
 
@@ -37,7 +37,7 @@ void ProcessGroupManager::cancel()
     my_signal_handler(SIGTERM);
 }
 
-ProcessGroupManager::ProcessGroupManager(std::unique_ptr<IHealthMonitorThread> health_monitor,
+ProcessGroupManager::ProcessGroupManager(std::unique_ptr<IAliveMonitorThread> alive_monitor_thread,
                                          std::shared_ptr<IRecoveryClient> recovery_client,
                                          std::unique_ptr<score::lcm::IProcessStateNotifier> process_state_notifier)
     : configuration_manager_(),
@@ -49,7 +49,7 @@ ProcessGroupManager::ProcessGroupManager(std::unique_ptr<IHealthMonitorThread> h
       num_process_groups_(0U),
       process_groups_(),
       process_state_notifier_(std::move(process_state_notifier)),
-      health_monitor_thread_(std::move(health_monitor)),
+      alive_monitor_thread_(std::move(alive_monitor_thread)),
       recovery_client_(recovery_client)  //,
                                          // ucm_polling_thread_(
 //  [this](const Message::Action act, const Message::UpdateContext updateCtx, const lib::fun::string& swc) -> bool
@@ -98,9 +98,9 @@ bool ProcessGroupManager::initialize()
     LM_LOG_DEBUG() << "Process Group initialization done";
     createProcessComponentsObjects();
     initializeGraphNodes();
-    if (!health_monitor_thread_->start())
+    if (!alive_monitor_thread_->start())
     {
-        LM_LOG_ERROR() << "Health monitor thread failed to start";
+        LM_LOG_ERROR() << "Alive monitor thread failed to start";
         return false;
     }
 
@@ -116,7 +116,7 @@ bool ProcessGroupManager::initialize()
 void ProcessGroupManager::deinitialize()
 {
     // ucm_polling_thread_.stopPolling();
-    health_monitor_thread_->stop();
+    alive_monitor_thread_->stop();
     configuration_manager_.deinitialize();
     process_groups_.clear();
 
@@ -528,13 +528,13 @@ inline void ProcessGroupManager::recoveryActionHandler()
 
         if (nullptr == pg)
         {
-            LM_LOG_ERROR() << "recoveryActionHandler: Unknown process group " << recovery_request->process_group_identifier_;
+            LM_LOG_ERROR() << "recoveryActionHandler: Unknown process group "
+                           << recovery_request->process_group_identifier_;
             continue;
         }
 
         const IdentifierHash old_state = pg->getProcessGroupState();
-        const IdentifierHash recovery_state =
-                configuration_manager_.getNameOfRecoveryState(pg->getProcessGroupName());
+        const IdentifierHash recovery_state = configuration_manager_.getNameOfRecoveryState(pg->getProcessGroupName());
         const GraphState graph_state = pg->getState();
 
         LM_LOG_DEBUG() << "recoveryActionHandler: Processing recovery request for PG "

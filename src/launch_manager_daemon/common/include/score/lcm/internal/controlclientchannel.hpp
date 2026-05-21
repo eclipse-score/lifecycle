@@ -16,6 +16,7 @@
 #define CONTROL_CLIENT_CHANNEL_HPP_INCLUDED
 
 #include <atomic>
+#include <string_view>
 #include <score/lcm/internal/process_group_state_id.hpp>
 #include <score/lcm/internal/osal/osalipccomms.hpp>
 #include <condition_variable>
@@ -247,7 +248,7 @@ class ControlClientChannel final {
     /// @brief A utility function that converts codes to strings for logging purposes
     /// @param code The code to convert
     /// @return A string representing the code
-    const char* toString(ControlClientCode code);
+    std::string_view toString(ControlClientCode code);
 
    private:
 

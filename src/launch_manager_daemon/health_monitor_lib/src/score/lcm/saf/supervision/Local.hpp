@@ -19,6 +19,7 @@
 #endif
 
 #include <map>
+#include <string_view>
 
 #include <cstdint>
 
@@ -174,7 +175,7 @@ PHM_PRIVATE:
     /// @brief Switch to state Failed
     /// @param [in] f_type      Type of Supervision
     /// @param [in] reason_p    Reason for switch to Failed
-    void switchToFailed(const ICheckpointSupervision::EType f_type, const char* reason_p) noexcept;
+    void switchToFailed(const ICheckpointSupervision::EType f_type, std::string_view reason_p) noexcept;
 
     /// @brief Switch to state Expired
     /// @details In case reason_p was given f_type will be ignored.
@@ -183,7 +184,7 @@ PHM_PRIVATE:
     /// @param [in] reason_p    [Optional] Other reason for switch to Expired
     void switchToExpired(ICheckpointSupervision::EType f_type,
                          ifexm::ProcessCfg::ProcessExecutionError f_executionError,
-                         const char* reason_p = nullptr) noexcept;
+                         std::string_view reason_p = {}) noexcept;
 
     /// @brief Check if ALL attached Supervisions are in status Deactivated
     bool isAllDeactivated() const noexcept;

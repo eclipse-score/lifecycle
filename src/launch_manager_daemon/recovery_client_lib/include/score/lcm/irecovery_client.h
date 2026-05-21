@@ -13,25 +13,28 @@
 #ifndef SCORE_LCM_IRECOVERYCLIENT_H_
 #define SCORE_LCM_IRECOVERYCLIENT_H_
 
-#include <optional>
 #include <score/lcm/identifier_hash.hpp>
+#include <optional>
 
-namespace score {
-namespace lcm {
+namespace score
+{
+namespace lcm
+{
 
 /// @brief Represents a recovery request for a failed process group.
-struct RecoveryRequest {
+struct RecoveryRequest
+{
     /// @brief The id of the process group the failed process is running in
     score::lcm::IdentifierHash process_group_identifier_{};
 };
 
-/// @brief The RecoveryClient allows the HealthMonitor component to report supervision failures to the ProcessGroupManager
-/// thus requesting recovery for a specific process group.
-/// The requests are queued and periodically processed by the ProcessGroupManager.
-/// In case the buffer is full and request cannot be queued, the overflow flag is set.
-/// A detected overflow shall be handled as a critical failure by the ProcessGroupManager.
-class IRecoveryClient {
-public:
+/// @brief The RecoveryClient allows the AliveMonitor component to report supervision failures to the
+/// ProcessGroupManager thus requesting recovery for a specific process group. The requests are queued and periodically
+/// processed by the ProcessGroupManager. In case the buffer is full and request cannot be queued, the overflow flag is
+/// set. A detected overflow shall be handled as a critical failure by the ProcessGroupManager.
+class IRecoveryClient
+{
+  public:
     IRecoveryClient() noexcept = default;
     virtual ~IRecoveryClient() noexcept = default;
     IRecoveryClient(const IRecoveryClient&) = delete;
@@ -48,12 +51,13 @@ public:
     /// @return The request, or std::nullopt if no request is available
     virtual std::optional<RecoveryRequest> getNextRequest() noexcept = 0;
 
-    /// @brief Checks if overflow has been set, by previously calling `sendRecoveryRequest` while the queue was already full
+    /// @brief Checks if overflow has been set, by previously calling `sendRecoveryRequest` while the queue was already
+    /// full
     /// @details Since overflow is a critical error, the flag is never reset
     /// @return True if overflow has occurred, else false.
     virtual bool hasOverflow() const noexcept = 0;
 };
-} // namespace lcm
-} // namespace score
+}  // namespace lcm
+}  // namespace score
 
 #endif
