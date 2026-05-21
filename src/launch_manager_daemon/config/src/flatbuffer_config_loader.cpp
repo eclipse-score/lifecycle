@@ -34,7 +34,9 @@ constexpr double kSecondsToMilliseconds = 1000.0;
 
 uint32_t secondsToMs(double seconds)
 {
-    return static_cast<uint32_t>(seconds * kSecondsToMilliseconds);
+    const auto result = static_cast<uint32_t>(seconds * kSecondsToMilliseconds);
+    assert(!(seconds > 0.0 && result == 0U) && "Sub-millisecond precision is not supported: value rounds to 0ms");
+    return result;
 }
 
 // --- Enum conversion helpers ---
