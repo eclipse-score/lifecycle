@@ -160,9 +160,9 @@ TEST_F(FlatbufferConfigLoaderTest, LoadMinimalConfig)
     auto result = loadBuffer(buildMinimalConfig(1, "Startup"));
 
     ASSERT_THAT(result.has_value(), IsTrue());
-    EXPECT_THAT(result->initial_run_target(), Eq("Startup"));
+    EXPECT_THAT(result->initialRunTarget(), Eq("Startup"));
     EXPECT_THAT(result->components().empty(), IsTrue());
-    EXPECT_THAT(result->run_targets().empty(), IsTrue());
+    EXPECT_THAT(result->runTargets().empty(), IsTrue());
     EXPECT_THAT(result->watchdog().has_value(), IsFalse());
 }
 
@@ -240,9 +240,9 @@ TEST_F(FlatbufferConfigLoaderTest, LoadRunTargets)
     auto result = loadBuffer(buildConfigWithRunTargets(fbb, rts));
 
     ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result->run_targets().size(), Eq(1U));
+    ASSERT_THAT(result->runTargets().size(), Eq(1U));
 
-    const auto& target = result->run_targets()[0];
+    const auto& target = result->runTargets()[0];
     EXPECT_THAT(target.name, Eq("Startup"));
     EXPECT_THAT(target.description, Eq("Initial state"));
     ASSERT_THAT(target.depends_on.size(), Eq(1U));
@@ -270,7 +270,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadFallbackRunTarget)
     auto result = loadBuffer(finishBuffer(fbb, config));
 
     ASSERT_THAT(result.has_value(), IsTrue());
-    const auto& fb = result->fallback_run_target();
+    const auto& fb = result->fallbackRunTarget();
     EXPECT_THAT(fb.description, Eq("Fallback state"));
     ASSERT_THAT(fb.depends_on.size(), Eq(1U));
     EXPECT_THAT(fb.depends_on[0], Eq("critical_comp"));
@@ -292,7 +292,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadAliveSupervision)
     auto result = loadBuffer(finishBuffer(fbb, config));
 
     ASSERT_THAT(result.has_value(), IsTrue());
-    EXPECT_THAT(result->alive_supervision().evaluation_cycle_ms, Eq(250U));
+    EXPECT_THAT(result->aliveSupervision().evaluation_cycle_ms, Eq(250U));
 }
 
 TEST_F(FlatbufferConfigLoaderTest, LoadWatchdog)
@@ -369,7 +369,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSwitchRunTargetAction)
     auto result = loadBuffer(buildConfigWithRunTargets(fbb, rts));
 
     ASSERT_THAT(result.has_value(), IsTrue());
-    EXPECT_THAT(result->run_targets()[0].recovery_action.run_target, Eq("Fallback"));
+    EXPECT_THAT(result->runTargets()[0].recovery_action.run_target, Eq("Fallback"));
 }
 
 TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)

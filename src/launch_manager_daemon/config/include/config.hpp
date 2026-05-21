@@ -142,7 +142,7 @@ struct WatchdogConfig
 /// @brief Move-only value object holding the parsed launch-manager configuration.
 ///
 /// Loaded once by an IConfigLoader, then individual parts are moved out via
-/// the `take_*()` accessors to transfer ownership to dedicated domain objects
+/// the `take*()` accessors to transfer ownership to dedicated domain objects
 /// (e.g. ComponentConfig to Component).
 ///
 /// @note As of now, everything is expected in a single config file.
@@ -182,19 +182,19 @@ class Config
     {
         return components_;
     }
-    const std::vector<RunTargetConfig>& run_targets() const
+    const std::vector<RunTargetConfig>& runTargets() const
     {
         return run_targets_;
     }
-    std::string_view initial_run_target() const
+    std::string_view initialRunTarget() const
     {
         return initial_run_target_;
     }
-    const FallbackRunTargetConfig& fallback_run_target() const
+    const FallbackRunTargetConfig& fallbackRunTarget() const
     {
         return fallback_run_target_;
     }
-    const AliveSupervisionConfig& alive_supervision() const
+    const AliveSupervisionConfig& aliveSupervision() const
     {
         return alive_supervision_;
     }
@@ -204,27 +204,27 @@ class Config
     }
 
     // Ownership transfer — source is left in a moved-from state after the call
-    std::vector<ComponentConfig> take_components()
+    std::vector<ComponentConfig> takeComponents()
     {
         return std::move(components_);
     }
-    std::vector<RunTargetConfig> take_run_targets()
+    std::vector<RunTargetConfig> takeRunTargets()
     {
         return std::move(run_targets_);
     }
-    std::string take_initial_run_target()
+    std::string takeInitialRunTarget()
     {
         return std::move(initial_run_target_);
     }
-    FallbackRunTargetConfig take_fallback_run_target()
+    FallbackRunTargetConfig takeFallbackRunTarget()
     {
         return std::move(fallback_run_target_);
     }
-    AliveSupervisionConfig take_alive_supervision()
+    AliveSupervisionConfig takeAliveSupervision()
     {
         return std::move(alive_supervision_);
     }
-    std::optional<WatchdogConfig> take_watchdog()
+    std::optional<WatchdogConfig> takeWatchdog()
     {
         return std::move(watchdog_);
     }
