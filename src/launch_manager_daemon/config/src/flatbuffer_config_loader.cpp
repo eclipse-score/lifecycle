@@ -15,6 +15,7 @@
 
 #include "score/os/errno.h"
 
+#include <cassert>
 #include <cstdint>
 #include <string>
 #include <unordered_map>
@@ -111,9 +112,11 @@ std::unordered_map<std::string, std::string> convertEnvironmentalVariables(
         result.reserve(vec->size());
         for (const auto* ev : *vec)
         {
-            if (ev != nullptr && ev->key() != nullptr)
+            if (ev != nullptr)
             {
-                result.emplace(ev->key()->str(), safeString(ev->value()));
+                assert(ev->key() && "EnvironmentalVariable::key must never be nullptr as it is required in the schema");
+                assert(ev->value() && "EnvironmentalVariable::value must never be nullptr as it is required in the schema");
+                result.emplace(ev->key()->str(), ev->value()->str());
             }
         }
     }
@@ -137,11 +140,13 @@ std::optional<SwitchRunTargetAction> convertSwitchRunTargetAction(const fb::Swit
     {
         return std::nullopt;
     }
-    return SwitchRunTargetAction{safeString(sa->run_target())};
+    assert(sa->run_target() && "SwitchRunTargetAction::run_target must never be nullptr as it is required in the schema");
+    return SwitchRunTargetAction{sa->run_target()->str()};
 }
 
 SwitchRunTargetAction convertRequiredSwitchRunTargetAction(const fb::SwitchRunTargetAction* sa)
 {
+    assert(sa && "SwitchRunTargetAction must never be nullptr as it is required in the schema");
     return convertSwitchRunTargetAction(sa).value();
 }
 
@@ -194,7 +199,10 @@ ComponentProperties convertComponentProperties(const fb::ComponentProperties* fb
     ComponentProperties result{};
     if (fb_cp != nullptr)
     {
-        result.binary_name = safeString(fb_cp->binary_name());
+        assert(fb_cp->binary_name() && "ComponentProperties::binary_name must never be nullptr as it is required in the schema");
+        assert(fb_cp->application_profile() && "ComponentProperties::application_profile must never be nullptr as it is required in the schema");
+        assert(fb_cp->ready_condition() && "ComponentProperties::ready_condition must never be nullptr as it is required in the schema");
+        result.binary_name = fb_cp->binary_name()->str();
         result.application_profile = convertApplicationProfile(fb_cp->application_profile());
         result.depends_on = convertStringVector(fb_cp->depends_on());
         result.process_arguments = convertStringVector(fb_cp->process_arguments());
@@ -230,10 +238,11 @@ DeploymentConfig convertDeploymentConfig(const fb::DeploymentConfig* fb_dc)
     DeploymentConfig result{};
     if (fb_dc != nullptr)
     {
+        assert(fb_dc->bin_dir() && "DeploymentConfig::bin_dir must never be nullptr as it is required in the schema");
         result.ready_timeout_ms = secondsToMs(fb_dc->ready_timeout());
         result.shutdown_timeout_ms = secondsToMs(fb_dc->shutdown_timeout());
         result.environmental_variables = convertEnvironmentalVariables(fb_dc->environmental_variables());
-        result.bin_dir = safeString(fb_dc->bin_dir());
+        result.bin_dir = fb_dc->bin_dir()->str();
         result.working_dir = safeString(fb_dc->working_dir());
         result.ready_recovery_action = convertRestartAction(fb_dc->ready_recovery_action());
         result.recovery_action = convertSwitchRunTargetAction(fb_dc->recovery_action());
@@ -247,7 +256,10 @@ ComponentConfig convertComponent(const fb::Component* fb_comp)
     ComponentConfig result{};
     if (fb_comp != nullptr)
     {
-        result.name = safeString(fb_comp->name());
+        assert(fb_comp->name() && "Component::name must never be nullptr as it is required in the schema");
+        assert(fb_comp->component_properties() && "Component::component_properties must never be nullptr as it is required in the schema");
+        assert(fb_comp->deployment_config() && "Component::deployment_config must never be nullptr as it is required in the schema");
+        result.name = fb_comp->name()->str();
         result.description = safeString(fb_comp->description());
         result.component_properties = convertComponentProperties(fb_comp->component_properties());
         result.deployment_config = convertDeploymentConfig(fb_comp->deployment_config());
@@ -260,7 +272,9 @@ RunTargetConfig convertRunTarget(const fb::RunTarget* fb_rt)
     RunTargetConfig result{};
     if (fb_rt != nullptr)
     {
-        result.name = safeString(fb_rt->name());
+        assert(fb_rt->name() && "RunTarget::name must never be nullptr as it is required in the schema");
+        assert(fb_rt->recovery_action() && "RunTarget::recovery_action must never be nullptr as it is required in the schema");
+        result.name = fb_rt->name()->str();
         result.description = safeString(fb_rt->description());
         result.depends_on = convertStringVector(fb_rt->depends_on());
         result.transition_timeout_ms = secondsToMs(fb_rt->transition_timeout());
@@ -296,8 +310,9 @@ std::optional<WatchdogConfig> convertWatchdog(const fb::Watchdog* fb_wd)
     {
         return std::nullopt;
     }
+    assert(fb_wd->device_file_path() && "Watchdog::device_file_path must never be nullptr as it is required in the schema");
     WatchdogConfig result{};
-    result.device_file_path = safeString(fb_wd->device_file_path());
+    result.device_file_path = fb_wd->device_file_path()->str();
     result.max_timeout_ms = secondsToMs(fb_wd->max_timeout());
     result.deactivate_on_shutdown =
         fb_wd->deactivate_on_shutdown().has_value() ? *fb_wd->deactivate_on_shutdown() : false;
@@ -348,7 +363,7 @@ score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::ve
 
     ConfigBuilder builder;
 
-    // initial_run_target is a required field, guaranteed non-null by the schema and verifier.
+    assert(config->initial_run_target() && "LaunchManagerConfig::initial_run_target must never be nullptr as it is required in the schema");
     builder.setInitialRunTarget(config->initial_run_target()->str());
 
     if (config->components() != nullptr)
@@ -379,10 +394,10 @@ score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::ve
         builder.setRunTargets(std::move(run_targets));
     }
 
-    // fallback_run_target is a required field, guaranteed non-null by the schema and verifier.
+    assert(config->fallback_run_target() && "LaunchManagerConfig::fallback_run_target must never be nullptr as it is required in the schema");
     builder.setFallbackRunTarget(convertFallbackRunTarget(config->fallback_run_target()));
 
-    // alive_supervision is a required field, guaranteed non-null by the schema and verifier.
+    assert(config->alive_supervision() && "LaunchManagerConfig::alive_supervision must never be nullptr as it is required in the schema");
     builder.setAliveSupervision(convertAliveSupervision(config->alive_supervision()));
 
     auto wd = convertWatchdog(config->watchdog());
