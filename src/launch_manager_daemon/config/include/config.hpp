@@ -139,6 +139,8 @@ struct WatchdogConfig
     bool require_magic_close{};
 };
 
+class ConfigBuilder;
+
 /// @brief Move-only value object holding the parsed launch-manager configuration.
 ///
 /// Loaded once by an IConfigLoader, then individual parts are moved out via
@@ -155,27 +157,6 @@ class Config
     Config& operator=(const Config&) = delete;
     Config(Config&&) = default;
     Config& operator=(Config&&) = default;
-
-    class Builder
-    {
-      public:
-        Builder& setComponents(std::vector<ComponentConfig> components);
-        Builder& setRunTargets(std::vector<RunTargetConfig> run_targets);
-        Builder& setInitialRunTarget(std::string initial_run_target);
-        Builder& setFallbackRunTarget(FallbackRunTargetConfig fallback);
-        Builder& setAliveSupervision(AliveSupervisionConfig alive_supervision);
-        Builder& setWatchdog(WatchdogConfig watchdog);
-
-        Config build();
-
-      private:
-        std::string initial_run_target_;
-        std::vector<ComponentConfig> components_;
-        std::vector<RunTargetConfig> run_targets_;
-        FallbackRunTargetConfig fallback_run_target_;
-        AliveSupervisionConfig alive_supervision_;
-        std::optional<WatchdogConfig> watchdog_;
-    };
 
     // Read access
     const std::vector<ComponentConfig>& components() const;
@@ -194,7 +175,7 @@ class Config
     std::optional<WatchdogConfig> takeWatchdog();
 
   private:
-    friend class Builder;
+    friend class ConfigBuilder;
 
     Config(std::vector<ComponentConfig> components,
            std::vector<RunTargetConfig> run_targets,
@@ -206,6 +187,27 @@ class Config
     std::vector<ComponentConfig> components_;
     std::vector<RunTargetConfig> run_targets_;
     std::string initial_run_target_;
+    FallbackRunTargetConfig fallback_run_target_;
+    AliveSupervisionConfig alive_supervision_;
+    std::optional<WatchdogConfig> watchdog_;
+};
+
+class ConfigBuilder
+{
+  public:
+    ConfigBuilder& setComponents(std::vector<ComponentConfig> components);
+    ConfigBuilder& setRunTargets(std::vector<RunTargetConfig> run_targets);
+    ConfigBuilder& setInitialRunTarget(std::string initial_run_target);
+    ConfigBuilder& setFallbackRunTarget(FallbackRunTargetConfig fallback);
+    ConfigBuilder& setAliveSupervision(AliveSupervisionConfig alive_supervision);
+    ConfigBuilder& setWatchdog(WatchdogConfig watchdog);
+
+    Config build();
+
+  private:
+    std::string initial_run_target_;
+    std::vector<ComponentConfig> components_;
+    std::vector<RunTargetConfig> run_targets_;
     FallbackRunTargetConfig fallback_run_target_;
     AliveSupervisionConfig alive_supervision_;
     std::optional<WatchdogConfig> watchdog_;

@@ -32,43 +32,43 @@ Config::Config(std::vector<ComponentConfig> components,
 {
 }
 
-Config::Builder& Config::Builder::setComponents(std::vector<ComponentConfig> components)
+ConfigBuilder& ConfigBuilder::setComponents(std::vector<ComponentConfig> components)
 {
     components_ = std::move(components);
     return *this;
 }
 
-Config::Builder& Config::Builder::setRunTargets(std::vector<RunTargetConfig> run_targets)
+ConfigBuilder& ConfigBuilder::setRunTargets(std::vector<RunTargetConfig> run_targets)
 {
     run_targets_ = std::move(run_targets);
     return *this;
 }
 
-Config::Builder& Config::Builder::setInitialRunTarget(std::string initial_run_target)
+ConfigBuilder& ConfigBuilder::setInitialRunTarget(std::string initial_run_target)
 {
     initial_run_target_ = std::move(initial_run_target);
     return *this;
 }
 
-Config::Builder& Config::Builder::setFallbackRunTarget(FallbackRunTargetConfig fallback)
+ConfigBuilder& ConfigBuilder::setFallbackRunTarget(FallbackRunTargetConfig fallback)
 {
     fallback_run_target_ = std::move(fallback);
     return *this;
 }
 
-Config::Builder& Config::Builder::setAliveSupervision(AliveSupervisionConfig alive_supervision)
+ConfigBuilder& ConfigBuilder::setAliveSupervision(AliveSupervisionConfig alive_supervision)
 {
     alive_supervision_ = std::move(alive_supervision);
     return *this;
 }
 
-Config::Builder& Config::Builder::setWatchdog(WatchdogConfig watchdog)
+ConfigBuilder& ConfigBuilder::setWatchdog(WatchdogConfig watchdog)
 {
     watchdog_ = std::move(watchdog);
     return *this;
 }
 
-Config Config::Builder::build()
+Config ConfigBuilder::build()
 {
     return Config(std::move(components_),
                   std::move(run_targets_),
