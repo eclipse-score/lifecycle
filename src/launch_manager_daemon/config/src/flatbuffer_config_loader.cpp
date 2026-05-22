@@ -153,13 +153,25 @@ Environment convertEnvironmentalVariables(
 
 // --- Recovery action conversion ---
 
-std::optional<RestartAction> convertRestartAction(const fb::RestartAction* ra)
+score::cpp::expected<std::optional<RestartAction>, IConfigLoader::Error> convertRestartAction(
+    const fb::RestartAction* ra)
 {
     if (ra == nullptr)
     {
-        return std::nullopt;
+        return std::optional<RestartAction>{std::nullopt};
     }
-    return RestartAction{ra->number_of_attempts(), secondsToMs(ra->delay_before_restart())};
+    if (!ra->number_of_attempts().has_value())
+    {
+        LM_LOG_ERROR() << "RestartAction::number_of_attempts is required but missing";
+        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+    }
+    if (!ra->delay_before_restart().has_value())
+    {
+        LM_LOG_ERROR() << "RestartAction::delay_before_restart is required but missing";
+        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+    }
+    return std::optional<RestartAction>{
+        RestartAction{*ra->number_of_attempts(), secondsToMs(*ra->delay_before_restart())}};
 }
 
 std::optional<SwitchRunTargetAction> convertSwitchRunTargetAction(const fb::SwitchRunTargetAction* sa)
@@ -180,73 +192,125 @@ SwitchRunTargetAction convertRequiredSwitchRunTargetAction(const fb::SwitchRunTa
 
 // --- Struct conversion helpers ---
 
-ComponentAliveSupervision convertComponentAliveSupervision(const fb::ComponentAliveSupervision* fb_cas)
+score::cpp::expected<ComponentAliveSupervision, IConfigLoader::Error> convertComponentAliveSupervision(
+    const fb::ComponentAliveSupervision* fb_cas)
 {
     ComponentAliveSupervision result{};
     if (fb_cas != nullptr)
     {
-        result.reporting_cycle_ms = secondsToMs(fb_cas->reporting_cycle());
-        result.failed_cycles_tolerance = fb_cas->failed_cycles_tolerance();
-        result.min_indications = fb_cas->min_indications().value_or(0U);
-        result.max_indications = fb_cas->max_indications().value_or(0U);
+        if (!fb_cas->reporting_cycle().has_value())
+        {
+            LM_LOG_ERROR() << "ComponentAliveSupervision::reporting_cycle is required but missing";
+            return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+        }
+        if (!fb_cas->failed_cycles_tolerance().has_value())
+        {
+            LM_LOG_ERROR() << "ComponentAliveSupervision::failed_cycles_tolerance is required but missing";
+            return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+        }
+        result.reporting_cycle_ms = secondsToMs(*fb_cas->reporting_cycle());
+        result.failed_cycles_tolerance = *fb_cas->failed_cycles_tolerance();
+        result.min_indications = fb_cas->min_indications().has_value()
+                                     ? std::optional<uint32_t>{*fb_cas->min_indications()}
+                                     : std::nullopt;
+        result.max_indications = fb_cas->max_indications().has_value()
+                                     ? std::optional<uint32_t>{*fb_cas->max_indications()}
+                                     : std::nullopt;
     }
     return result;
 }
 
-ApplicationProfile convertApplicationProfile(const fb::ApplicationProfile* fb_ap)
+score::cpp::expected<ApplicationProfile, IConfigLoader::Error> convertApplicationProfile(
+    const fb::ApplicationProfile* fb_ap)
 {
     ApplicationProfile result{};
     if (fb_ap != nullptr)
     {
-        result.application_type = convertApplicationType(fb_ap->application_type());
-        result.is_self_terminating = fb_ap->is_self_terminating();
+        if (!fb_ap->application_type().has_value())
+        {
+            LM_LOG_ERROR() << "ApplicationProfile::application_type is required but missing";
+            return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+        }
+        if (!fb_ap->is_self_terminating().has_value())
+        {
+            LM_LOG_ERROR() << "ApplicationProfile::is_self_terminating is required but missing";
+            return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+        }
+        result.application_type = convertApplicationType(*fb_ap->application_type());
+        result.is_self_terminating = *fb_ap->is_self_terminating();
         if (fb_ap->alive_supervision() != nullptr)
         {
-            result.alive_supervision = convertComponentAliveSupervision(fb_ap->alive_supervision());
+            auto alive_sup = convertComponentAliveSupervision(fb_ap->alive_supervision());
+            if (!alive_sup.has_value())
+            {
+                return score::cpp::make_unexpected(alive_sup.error());
+            }
+            result.alive_supervision = std::move(*alive_sup);
         }
     }
     return result;
 }
 
-ReadyCondition convertReadyCondition(const fb::ReadyCondition* fb_rc)
+score::cpp::expected<ReadyCondition, IConfigLoader::Error> convertReadyCondition(const fb::ReadyCondition* fb_rc)
 {
-    ReadyCondition result{ProcessState::Running};
+    ReadyCondition result{};
     if (fb_rc != nullptr)
     {
-        const auto opt = fb_rc->process_state();
-        if (opt.has_value())
+        if (!fb_rc->process_state().has_value())
         {
-            result.process_state = convertProcessState(*opt);
+            LM_LOG_ERROR() << "ReadyCondition::process_state is required but missing";
+            return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
         }
+        result.process_state = convertProcessState(*fb_rc->process_state());
     }
     return result;
 }
 
-ComponentProperties convertComponentProperties(const fb::ComponentProperties* fb_cp)
+score::cpp::expected<ComponentProperties, IConfigLoader::Error> convertComponentProperties(
+    const fb::ComponentProperties* fb_cp)
 {
     ComponentProperties result{};
     if (fb_cp != nullptr)
     {
         assert(fb_cp->binary_name() && "ComponentProperties::binary_name must never be nullptr as it is required in the schema");
         assert(fb_cp->application_profile() && "ComponentProperties::application_profile must never be nullptr as it is required in the schema");
-        assert(fb_cp->ready_condition() && "ComponentProperties::ready_condition must never be nullptr as it is required in the schema");
         result.binary_name = fb_cp->binary_name()->str();
-        result.application_profile = convertApplicationProfile(fb_cp->application_profile());
+        auto app_profile = convertApplicationProfile(fb_cp->application_profile());
+        if (!app_profile.has_value())
+        {
+            return score::cpp::make_unexpected(app_profile.error());
+        }
+        result.application_profile = std::move(*app_profile);
         result.depends_on = convertStringVector(fb_cp->depends_on());
         result.process_arguments = convertStringVector(fb_cp->process_arguments());
-        result.ready_condition = convertReadyCondition(fb_cp->ready_condition());
+        if (fb_cp->ready_condition() != nullptr)
+        {
+            auto ready_cond = convertReadyCondition(fb_cp->ready_condition());
+            if (!ready_cond.has_value())
+            {
+                return score::cpp::make_unexpected(ready_cond.error());
+            }
+            result.ready_condition = std::move(*ready_cond);
+        }
     }
     return result;
 }
 
-score::cpp::expected<std::optional<Sandbox>, IConfigLoader::Error> convertSandbox(const fb::Sandbox* fb_sb)
+score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(const fb::Sandbox* fb_sb)
 {
-    if (fb_sb == nullptr)
+    assert(fb_sb && "Sandbox must never be nullptr as it is required in the schema");
+    if (!fb_sb->uid().has_value())
     {
-        return std::nullopt;
+        LM_LOG_ERROR() << "Sandbox::uid is required but missing";
+        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
     }
-    const auto fb_uid = fb_sb->uid();
-    const auto fb_gid = fb_sb->gid();
+    if (!fb_sb->gid().has_value())
+    {
+        LM_LOG_ERROR() << "Sandbox::gid is required but missing";
+        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+    }
+    const auto fb_uid = *fb_sb->uid();
+    const auto fb_gid = *fb_sb->gid();
     if (fb_uid < std::numeric_limits<uid_t>::min() || fb_uid > std::numeric_limits<uid_t>::max())
     {
         LM_LOG_ERROR() << "Sandbox uid " << fb_uid << " is out of valid uid_t range [" << std::numeric_limits<uid_t>::min() << "," << std::numeric_limits<uid_t>::max() << "]";
@@ -255,6 +319,21 @@ score::cpp::expected<std::optional<Sandbox>, IConfigLoader::Error> convertSandbo
     if (fb_gid < std::numeric_limits<gid_t>::min() || fb_gid > std::numeric_limits<gid_t>::max())
     {
         LM_LOG_ERROR() << "Sandbox gid " << fb_gid << " is out of valid gid_t range [" << std::numeric_limits<gid_t>::min() << "," << std::numeric_limits<gid_t>::max() << "]";
+        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+    }
+    if (!fb_sb->scheduling_policy().has_value())
+    {
+        LM_LOG_ERROR() << "Sandbox::scheduling_policy is required but missing";
+        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+    }
+    auto scheduling_policy = convertSchedulingPolicy(*fb_sb->scheduling_policy());
+    if (!scheduling_policy.has_value())
+    {
+        return score::cpp::make_unexpected(scheduling_policy.error());
+    }
+    if (!fb_sb->scheduling_priority().has_value())
+    {
+        LM_LOG_ERROR() << "Sandbox::scheduling_priority is required but missing";
         return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
     }
     Sandbox result{};
@@ -269,18 +348,13 @@ score::cpp::expected<std::optional<Sandbox>, IConfigLoader::Error> convertSandbo
     result.security_policy = fb_sb->security_policy() != nullptr
                                  ? std::optional<std::string>{fb_sb->security_policy()->str()}
                                  : std::nullopt;
-    auto scheduling_policy = convertSchedulingPolicy(fb_sb->scheduling_policy());
-    if (!scheduling_policy.has_value())
-    {
-        return score::cpp::make_unexpected(scheduling_policy.error());
-    }
     result.scheduling_policy = *scheduling_policy;
-    result.scheduling_priority = fb_sb->scheduling_priority().value_or(0);
+    result.scheduling_priority = *fb_sb->scheduling_priority();
     result.max_memory_usage =
         fb_sb->max_memory_usage().has_value() ? std::optional<uint64_t>{*fb_sb->max_memory_usage()} : std::nullopt;
     result.max_cpu_usage =
         fb_sb->max_cpu_usage().has_value() ? std::optional<uint32_t>{*fb_sb->max_cpu_usage()} : std::nullopt;
-    return std::optional<Sandbox>{std::move(result)};
+    return result;
 }
 
 score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentConfig(const fb::DeploymentConfig* fb_dc)
@@ -289,12 +363,29 @@ score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentCo
     if (fb_dc != nullptr)
     {
         assert(fb_dc->bin_dir() && "DeploymentConfig::bin_dir must never be nullptr as it is required in the schema");
-        result.ready_timeout_ms = secondsToMs(fb_dc->ready_timeout());
-        result.shutdown_timeout_ms = secondsToMs(fb_dc->shutdown_timeout());
+        assert(fb_dc->working_dir() && "DeploymentConfig::working_dir must never be nullptr as it is required in the schema");
+        assert(fb_dc->sandbox() && "DeploymentConfig::sandbox must never be nullptr as it is required in the schema");
+        if (!fb_dc->ready_timeout().has_value())
+        {
+            LM_LOG_ERROR() << "DeploymentConfig::ready_timeout is required but missing";
+            return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+        }
+        if (!fb_dc->shutdown_timeout().has_value())
+        {
+            LM_LOG_ERROR() << "DeploymentConfig::shutdown_timeout is required but missing";
+            return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+        }
+        result.ready_timeout_ms = secondsToMs(*fb_dc->ready_timeout());
+        result.shutdown_timeout_ms = secondsToMs(*fb_dc->shutdown_timeout());
         result.environmental_variables = convertEnvironmentalVariables(fb_dc->environmental_variables());
         result.bin_dir = fb_dc->bin_dir()->str();
-        result.working_dir = safeString(fb_dc->working_dir());
-        result.ready_recovery_action = convertRestartAction(fb_dc->ready_recovery_action());
+        result.working_dir = fb_dc->working_dir()->str();
+        auto ready_recovery = convertRestartAction(fb_dc->ready_recovery_action());
+        if (!ready_recovery.has_value())
+        {
+            return score::cpp::make_unexpected(ready_recovery.error());
+        }
+        result.ready_recovery_action = std::move(*ready_recovery);
         result.recovery_action = convertSwitchRunTargetAction(fb_dc->recovery_action());
         auto sandbox = convertSandbox(fb_dc->sandbox());
         if (!sandbox.has_value())
@@ -316,7 +407,12 @@ score::cpp::expected<ComponentConfig, IConfigLoader::Error> convertComponent(con
         assert(fb_comp->deployment_config() && "Component::deployment_config must never be nullptr as it is required in the schema");
         result.name = fb_comp->name()->str();
         result.description = safeString(fb_comp->description());
-        result.component_properties = convertComponentProperties(fb_comp->component_properties());
+        auto component_properties = convertComponentProperties(fb_comp->component_properties());
+        if (!component_properties.has_value())
+        {
+            return score::cpp::make_unexpected(component_properties.error());
+        }
+        result.component_properties = std::move(*component_properties);
         auto deployment_config = convertDeploymentConfig(fb_comp->deployment_config());
         if (!deployment_config.has_value())
         {
@@ -327,57 +423,88 @@ score::cpp::expected<ComponentConfig, IConfigLoader::Error> convertComponent(con
     return result;
 }
 
-RunTargetConfig convertRunTarget(const fb::RunTarget* fb_rt)
+score::cpp::expected<RunTargetConfig, IConfigLoader::Error> convertRunTarget(const fb::RunTarget* fb_rt)
 {
     RunTargetConfig result{};
     if (fb_rt != nullptr)
     {
         assert(fb_rt->name() && "RunTarget::name must never be nullptr as it is required in the schema");
         assert(fb_rt->recovery_action() && "RunTarget::recovery_action must never be nullptr as it is required in the schema");
+        if (!fb_rt->transition_timeout().has_value())
+        {
+            LM_LOG_ERROR() << "RunTarget::transition_timeout is required but missing";
+            return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+        }
         result.name = fb_rt->name()->str();
         result.description = safeString(fb_rt->description());
         result.depends_on = convertStringVector(fb_rt->depends_on());
-        result.transition_timeout_ms = secondsToMs(fb_rt->transition_timeout());
+        result.transition_timeout_ms = secondsToMs(*fb_rt->transition_timeout());
         result.recovery_action = convertRequiredSwitchRunTargetAction(fb_rt->recovery_action());
     }
     return result;
 }
 
-FallbackRunTargetConfig convertFallbackRunTarget(const fb::FallbackRunTarget* fb_frt)
+score::cpp::expected<FallbackRunTargetConfig, IConfigLoader::Error> convertFallbackRunTarget(
+    const fb::FallbackRunTarget* fb_frt)
 {
     FallbackRunTargetConfig result{};
     if (fb_frt != nullptr)
     {
+        if (!fb_frt->transition_timeout().has_value())
+        {
+            LM_LOG_ERROR() << "FallbackRunTarget::transition_timeout is required but missing";
+            return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+        }
         result.description = safeString(fb_frt->description());
         result.depends_on = convertStringVector(fb_frt->depends_on());
-        result.transition_timeout_ms = secondsToMs(fb_frt->transition_timeout());
+        result.transition_timeout_ms = secondsToMs(*fb_frt->transition_timeout());
     }
     return result;
 }
 
-AliveSupervisionConfig convertAliveSupervision(const fb::AliveSupervision* fb_as)
+score::cpp::expected<AliveSupervisionConfig, IConfigLoader::Error> convertAliveSupervision(
+    const fb::AliveSupervision* fb_as)
 {
     if (fb_as == nullptr)
     {
         return AliveSupervisionConfig{};
     }
-    return AliveSupervisionConfig{secondsToMs(fb_as->evaluation_cycle())};
+    if (!fb_as->evaluation_cycle().has_value())
+    {
+        LM_LOG_ERROR() << "AliveSupervision::evaluation_cycle is required but missing";
+        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+    }
+    return AliveSupervisionConfig{secondsToMs(*fb_as->evaluation_cycle())};
 }
 
-std::optional<WatchdogConfig> convertWatchdog(const fb::Watchdog* fb_wd)
+score::cpp::expected<std::optional<WatchdogConfig>, IConfigLoader::Error> convertWatchdog(const fb::Watchdog* fb_wd)
 {
     if (fb_wd == nullptr)
     {
-        return std::nullopt;
+        return std::optional<WatchdogConfig>{std::nullopt};
     }
     assert(fb_wd->device_file_path() && "Watchdog::device_file_path must never be nullptr as it is required in the schema");
+    if (!fb_wd->max_timeout().has_value())
+    {
+        LM_LOG_ERROR() << "Watchdog::max_timeout is required but missing";
+        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+    }
+    if (!fb_wd->deactivate_on_shutdown().has_value())
+    {
+        LM_LOG_ERROR() << "Watchdog::deactivate_on_shutdown is required but missing";
+        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+    }
+    if (!fb_wd->require_magic_close().has_value())
+    {
+        LM_LOG_ERROR() << "Watchdog::require_magic_close is required but missing";
+        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+    }
     WatchdogConfig result{};
     result.device_file_path = fb_wd->device_file_path()->str();
-    result.max_timeout_ms = secondsToMs(fb_wd->max_timeout());
-    result.deactivate_on_shutdown =
-        fb_wd->deactivate_on_shutdown().has_value() ? *fb_wd->deactivate_on_shutdown() : false;
-    result.require_magic_close = fb_wd->require_magic_close().has_value() ? *fb_wd->require_magic_close() : false;
-    return result;
+    result.max_timeout_ms = secondsToMs(*fb_wd->max_timeout());
+    result.deactivate_on_shutdown = *fb_wd->deactivate_on_shutdown();
+    result.require_magic_close = *fb_wd->require_magic_close();
+    return std::optional<WatchdogConfig>{std::move(result)};
 }
 
 }  // anonymous namespace
@@ -416,7 +543,12 @@ score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::ve
         return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
     }
 
-    if (config->schema_version() != kExpectedSchemaVersion)
+    if (!config->schema_version().has_value())
+    {
+        LM_LOG_ERROR() << "LaunchManagerConfig::schema_version is required but missing";
+        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+    }
+    if (*config->schema_version() != kExpectedSchemaVersion)
     {
         return score::cpp::make_unexpected(IConfigLoader::Error::UnsupportedVersion);
     }
@@ -424,9 +556,10 @@ score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::ve
     ConfigBuilder builder;
 
     assert(config->initial_run_target() && "LaunchManagerConfig::initial_run_target must never be nullptr as it is required in the schema");
+    assert(config->components() && "LaunchManagerConfig::components must never be nullptr as it is required in the schema");
+    assert(config->run_targets() && "LaunchManagerConfig::run_targets must never be nullptr as it is required in the schema");
     builder.setInitialRunTarget(config->initial_run_target()->str());
 
-    if (config->components() != nullptr)
     {
         std::vector<ComponentConfig> components;
         components.reserve(config->components()->size());
@@ -445,7 +578,6 @@ score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::ve
         builder.setComponents(std::move(components));
     }
 
-    if (config->run_targets() != nullptr)
     {
         std::vector<RunTargetConfig> run_targets;
         run_targets.reserve(config->run_targets()->size());
@@ -453,22 +585,41 @@ score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::ve
         {
             if (rt != nullptr)
             {
-                run_targets.emplace_back(convertRunTarget(rt));
+                auto run_target = convertRunTarget(rt);
+                if (!run_target.has_value())
+                {
+                    return score::cpp::make_unexpected(run_target.error());
+                }
+                run_targets.emplace_back(std::move(*run_target));
             }
         }
         builder.setRunTargets(std::move(run_targets));
     }
 
     assert(config->fallback_run_target() && "LaunchManagerConfig::fallback_run_target must never be nullptr as it is required in the schema");
-    builder.setFallbackRunTarget(convertFallbackRunTarget(config->fallback_run_target()));
+    auto fallback = convertFallbackRunTarget(config->fallback_run_target());
+    if (!fallback.has_value())
+    {
+        return score::cpp::make_unexpected(fallback.error());
+    }
+    builder.setFallbackRunTarget(std::move(*fallback));
 
     assert(config->alive_supervision() && "LaunchManagerConfig::alive_supervision must never be nullptr as it is required in the schema");
-    builder.setAliveSupervision(convertAliveSupervision(config->alive_supervision()));
+    auto alive_sup = convertAliveSupervision(config->alive_supervision());
+    if (!alive_sup.has_value())
+    {
+        return score::cpp::make_unexpected(alive_sup.error());
+    }
+    builder.setAliveSupervision(std::move(*alive_sup));
 
     auto wd = convertWatchdog(config->watchdog());
-    if (wd.has_value())
+    if (!wd.has_value())
     {
-        builder.setWatchdog(std::move(*wd));
+        return score::cpp::make_unexpected(wd.error());
+    }
+    if (wd->has_value())
+    {
+        builder.setWatchdog(std::move(**wd));
     }
 
     return builder.build();
