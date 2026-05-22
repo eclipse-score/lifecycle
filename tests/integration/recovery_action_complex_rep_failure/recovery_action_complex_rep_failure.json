@@ -1,0 +1,156 @@
+{
+    "schema_version": 1,
+    "defaults": {
+        "deployment_config": {
+            "bin_dir": "/tmp/tests/recovery_action_complex_rep_failure",
+            "ready_timeout": 1.0,
+            "shutdown_timeout": 1.0,
+            "ready_recovery_action": {
+                "restart": {
+                    "number_of_attempts": 0
+                }
+            },
+            "recovery_action": {
+                "switch_run_target": {
+                    "run_target": "fallback_run_target"
+                }
+            },
+            "environmental_variables": {
+                "LD_LIBRARY_PATH": "/opt/lib"
+            },
+            "sandbox": {
+                "uid": 0,
+                "gid": 0,
+                "scheduling_policy": "SCHED_OTHER",
+                "scheduling_priority": 0
+            }
+        },
+        "component_properties": {
+            "application_profile": {
+                "application_type": "Reporting",
+                "is_self_terminating": true,
+                "alive_supervision": {
+                    "reporting_cycle": 0.1,
+                    "min_indications": 1,
+                    "max_indications": 3,
+                    "failed_cycles_tolerance": 1
+                }
+            },
+            "ready_condition": {
+                "process_state": "Running"
+            }
+        }
+    },
+    "components": {
+        "component_initial": {
+            "component_properties": {
+                "binary_name": "recovery_action_initial",
+                "process_arguments": [
+                    "S-CORE rules!"
+                ]
+            },
+            "deployment_config": {
+                "ready_timeout": 1.0,
+                "shutdown_timeout": 1.0,
+                "environmental_variables": {
+                    "PROCESSIDENTIFIER": "component_initial"
+                }
+            }
+        },
+        "control_client_mock": {
+            "component_properties": {
+                "binary_name": "control_client_mock",
+                "application_profile": {
+                    "application_type": "State_Manager",
+                    "alive_supervision": {
+                        "min_indications": 0
+                    }
+                }
+            },
+            "deployment_config": {
+                "ready_timeout": 1.0,
+                "shutdown_timeout": 1.0,
+                "environmental_variables": {
+                    "PROCESSIDENTIFIER": "control_client_mock"
+                }
+            }
+        },
+        "component_does_report_krunning_in_time": {
+            "component_properties": {
+                "binary_name": "recovery_action_reporting",
+                "process_arguments": [
+                    "500.0"
+                ]
+            },
+            "deployment_config": {
+                "ready_timeout": 1.0,
+                "shutdown_timeout": 1.0,
+                "environmental_variables": {
+                    "PROCESSIDENTIFIER": "component_does_report_krunning_in_time"
+                }
+            }
+        },
+        "component_does_not_report_krunning_in_time": {
+            "component_properties": {
+                "binary_name": "recovery_action_reporting",
+                "process_arguments": [
+                    "1500.0"
+                ]
+            },
+            "deployment_config": {
+                "ready_timeout": 1.0,
+                "shutdown_timeout": 1.0,
+                "environmental_variables": {
+                    "PROCESSIDENTIFIER": "component_does_not_report_krunning_in_time"
+                }
+            }
+        }
+    },
+    "run_targets": {
+        "Startup": {
+            "depends_on": [
+                "component_initial",
+                "control_client_mock"
+            ],
+            "recovery_action": {
+                "switch_run_target": {
+                    "run_target": "fallback_run_target"
+                }
+            }
+        },
+        "run_target_app_does_report_krunning_in_time": {
+            "depends_on": [
+                "control_client_mock",
+                "component_does_report_krunning_in_time"
+            ],
+            "recovery_action": {
+                "switch_run_target": {
+                    "run_target": "fallback_run_target"
+                }
+            }
+        },
+        "run_target_app_does_not_report_krunning_in_time": {
+            "depends_on": [
+                "control_client_mock",
+                "component_does_not_report_krunning_in_time"
+            ],
+            "recovery_action": {
+                "switch_run_target": {
+                    "run_target": "fallback_run_target"
+                }
+            }
+        },
+        "Off": {
+            "depends_on": []
+        }
+    },
+    "initial_run_target": "Startup",
+    "alive_supervision": {
+        "evaluation_cycle": 0.05
+    },
+    "fallback_run_target": {
+        "depends_on": [
+            "control_client_mock"
+        ]
+    }
+}
