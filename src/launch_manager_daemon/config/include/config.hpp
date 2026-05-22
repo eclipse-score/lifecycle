@@ -18,7 +18,6 @@
 #include <string>
 #include <string_view>
 #include <sys/types.h>
-#include <unordered_map>
 #include <vector>
 
 namespace score::launch_manager::config
@@ -67,6 +66,49 @@ struct ComponentProperties
     ReadyCondition ready_condition;
 };
 
+class EnvironmentVariable
+{
+  public:
+    EnvironmentVariable(std::string_view key, std::string_view value);
+
+    std::string_view key() const;
+    std::string_view value() const;
+    const char* c_str() const;
+
+  private:
+    std::string entry_;
+    std::size_t key_length_;
+};
+
+class Environment
+{
+  public:
+    using const_iterator = std::vector<EnvironmentVariable>::const_iterator;
+
+    Environment() = default;
+
+    Environment(const Environment&) = delete;
+    Environment& operator=(const Environment&) = delete;
+    Environment(Environment&& other) noexcept;
+    Environment& operator=(Environment&& other) noexcept;
+
+    ~Environment() = default;
+
+    void reserve(std::size_t count);
+    void add(std::string_view key, std::string_view value);
+
+    const_iterator begin() const;
+    const_iterator end() const;
+    std::size_t size() const;
+
+    char* const* envp() const;
+
+  private:
+    void rebuildPointers() const;
+    std::vector<EnvironmentVariable> entries_;
+    mutable std::vector<const char*> pointers_;
+};
+
 struct RestartAction
 {
     uint32_t number_of_attempts{};
@@ -94,7 +136,7 @@ struct DeploymentConfig
 {
     uint32_t ready_timeout_ms{};
     uint32_t shutdown_timeout_ms{};
-    std::unordered_map<std::string, std::string> environmental_variables;
+    Environment environmental_variables;
     std::string bin_dir;
     std::string working_dir;
     std::optional<RestartAction> ready_recovery_action;

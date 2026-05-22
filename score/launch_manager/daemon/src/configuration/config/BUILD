@@ -72,6 +72,16 @@ cc_library(
 )
 
 cc_test(
+    name = "config_UT",
+    srcs = ["src/config_UT.cpp"],
+    visibility = ["//tests:__subpackages__"],
+    deps = [
+        ":config",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_test(
     name = "flatbuffer_config_loader_UT",
     srcs = ["src/flatbuffer_config_loader_UT.cpp"],
     visibility = ["//tests:__subpackages__"],

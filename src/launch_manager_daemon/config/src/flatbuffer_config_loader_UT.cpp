@@ -34,7 +34,9 @@ namespace fb = score::launch_manager::config::fb;
 
 using ::testing::Eq;
 using ::testing::IsFalse;
+using ::testing::IsNull;
 using ::testing::IsTrue;
+using ::testing::StrEq;
 
 const score::filesystem::Path kTestPath{"/tmp/test_config.bin"};
 
@@ -459,7 +461,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadComponentAliveSupervision)
 
 TEST_F(FlatbufferConfigLoaderTest, LoadEnvironmentalVariables)
 {
-    RecordProperty("Description", "Environmental variables vector is mapped to unordered_map.");
+    RecordProperty("Description", "Environmental variables are stored as key=value strings.");
 
     ::flatbuffers::FlatBufferBuilder fbb;
 
@@ -483,9 +485,17 @@ TEST_F(FlatbufferConfigLoaderTest, LoadEnvironmentalVariables)
 
     ASSERT_THAT(result.has_value(), IsTrue());
     const auto& env = result->components()[0].deployment_config.environmental_variables;
-    EXPECT_THAT(env.size(), Eq(2U));
-    EXPECT_THAT(env.at("PATH"), Eq("/usr/bin"));
-    EXPECT_THAT(env.at("HOME"), Eq("/root"));
+    ASSERT_THAT(env.size(), Eq(2U));
+    auto it = env.begin();
+    EXPECT_THAT(it->key(), Eq("PATH"));
+    EXPECT_THAT(it->value(), Eq("/usr/bin"));
+    ++it;
+    EXPECT_THAT(it->key(), Eq("HOME"));
+    EXPECT_THAT(it->value(), Eq("/root"));
+    ASSERT_THAT(env.size(), Eq(2U));
+    EXPECT_THAT(env.envp()[0], StrEq("PATH=/usr/bin"));
+    EXPECT_THAT(env.envp()[1], StrEq("HOME=/root"));
+    EXPECT_THAT(env.envp()[2], IsNull());
 }
 
 TEST_F(FlatbufferConfigLoaderTest, LoadMultipleComponents)
