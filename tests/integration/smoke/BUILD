@@ -10,6 +10,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+load("@rules_cc//cc:defs.bzl", "cc_binary")
 load("@rules_pkg//pkg:mappings.bzl", "pkg_attributes", "pkg_files")
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 load("@score_itf//:defs.bzl", "py_itf_test")
@@ -36,7 +37,7 @@ cc_binary(
     data = [],
     deps = [
         "//score/mw/lifecycle:control_cc",
-        "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
+        "//score/mw/lifecycle/lifecycle_client",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
     ],
@@ -47,7 +48,7 @@ cc_binary(
     srcs = ["gtest_process.cpp"],
     deps = [
         "//score/mw/lifecycle:control_cc",
-        "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
+        "//score/mw/lifecycle/lifecycle_client",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
     ],

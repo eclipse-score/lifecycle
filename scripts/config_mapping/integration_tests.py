@@ -15,7 +15,7 @@ script_dir = Path(__file__).parent
 schema_path = (
     script_dir.parent.parent
     / "src"
-    / "launch_manager_daemon"
+    / "launch_manager"
     / "config"
     / "config_schema"
     / "launch_manager.schema.json"

@@ -11,11 +11,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include <score/lcm/lifecycle_client.h>
 #include <gtest/gtest.h>
+#include <csignal>
 #include <unistd.h>
 
-#include <csignal>
+#include <score/mw/lifecycle/lifecycle_client.h>
 #include "tests/utils/test_helper/test_helper.hpp"
 
 TEST(Smoke, Process) {

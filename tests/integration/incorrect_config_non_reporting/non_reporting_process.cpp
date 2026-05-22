@@ -13,15 +13,14 @@
 
 #include <fcntl.h>
 #include <gtest/gtest.h>
-#include <score/lcm/internal/osal/osalipccomms.hpp>
-#include <score/lcm/lifecycle_client.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <string.h>
-
-#include "tests/utils/test_helper/test_helper.hpp"
 #include <csignal>
+
+#include "score/mw/launch_manager/osal/ipc_comms.hpp"
+#include "tests/utils/test_helper/test_helper.hpp"
+#include <score/mw/lifecycle/lifecycle_client.h>
 
 TEST(NonReporting, Process)
 {

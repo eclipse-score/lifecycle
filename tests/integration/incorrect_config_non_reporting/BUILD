@@ -10,6 +10,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+load("@rules_cc//cc:defs.bzl", "cc_binary")
 load("@rules_pkg//pkg:mappings.bzl", "pkg_attributes", "pkg_files")
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 load("@score_itf//:defs.bzl", "py_itf_test")
@@ -29,8 +30,8 @@ cc_binary(
     name = "non_reporting_process",
     srcs = ["non_reporting_process.cpp"],
     deps = [
-        "//src/launch_manager_daemon/common:osal",
-        "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
+        "//score/mw/launch_manager/osal:ipc_comms",
+        "//score/mw/lifecycle/lifecycle_client",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
     ],

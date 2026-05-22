@@ -15,10 +15,10 @@ package(default_visibility = ["//visibility:public"])
 
 alias(
     name = "health_monitoring_cc",
-    actual = "//src/health_monitoring_lib:health_monitoring_lib_cc",
+    actual = "//score/mw/health/health_monitoring_lib:health_monitoring_lib_cc",
 )
 
 alias(
     name = "health_monitoring_rust",
-    actual = "//src/health_monitoring_lib:health_monitoring_lib",
+    actual = "//score/mw/health/health_monitoring_lib/rust:health_monitoring_lib",
 )

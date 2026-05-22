@@ -10,6 +10,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+
 cc_binary(
     name = "lmcontrol",
     srcs = [
@@ -54,6 +56,6 @@ cc_binary(
     deps = [
         "//externals/ipc_dropin",
         "//score/mw/lifecycle:control_cc",
-        "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
+        "//score/mw/lifecycle/lifecycle_client",
     ],
 )
