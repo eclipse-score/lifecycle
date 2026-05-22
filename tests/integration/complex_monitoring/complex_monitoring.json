@@ -60,7 +60,7 @@
                     "alive_supervision": {
                         "reporting_cycle": 0.1,
                         "min_indications": 1,
-                        "max_indications": 3,
+                        "max_indications": 2,
                         "failed_cycles_tolerance": 0
                     }
                 }
