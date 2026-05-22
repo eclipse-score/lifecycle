@@ -41,8 +41,8 @@ struct ComponentAliveSupervision
 {
     uint32_t reporting_cycle_ms{};
     uint32_t failed_cycles_tolerance{};
-    uint32_t min_indications{};
-    uint32_t max_indications{};
+    std::optional<uint32_t> min_indications;
+    std::optional<uint32_t> max_indications;
 };
 
 struct ApplicationProfile
@@ -63,7 +63,7 @@ struct ComponentProperties
     ApplicationProfile application_profile;
     std::vector<std::string> depends_on;
     std::vector<std::string> process_arguments;
-    ReadyCondition ready_condition;
+    std::optional<ReadyCondition> ready_condition;
 };
 
 class EnvironmentVariable
@@ -142,7 +142,7 @@ struct DeploymentConfig
     std::optional<RestartAction> ready_recovery_action;
     // Currently only SwitchRunTargetAction is supported here, RestartAction to be added in the future
     std::optional<SwitchRunTargetAction> recovery_action;
-    std::optional<Sandbox> sandbox;
+    Sandbox sandbox;
 };
 
 struct ComponentConfig
