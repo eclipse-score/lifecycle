@@ -22,7 +22,6 @@
 #include <limits>
 #include <string>
 #include <sys/types.h>
-#include <unordered_map>
 #include <vector>
 
 namespace score::launch_manager::config
@@ -115,10 +114,10 @@ score::cpp::expected<std::vector<gid_t>, IConfigLoader::Error> convertGidVector(
     return result;
 }
 
-std::unordered_map<std::string, std::string> convertEnvironmentalVariables(
+Environment convertEnvironmentalVariables(
     const ::flatbuffers::Vector<::flatbuffers::Offset<fb::EnvironmentalVariable>>* vec)
 {
-    std::unordered_map<std::string, std::string> result;
+    Environment result;
     if (vec != nullptr)
     {
         result.reserve(vec->size());
@@ -128,7 +127,7 @@ std::unordered_map<std::string, std::string> convertEnvironmentalVariables(
             {
                 assert(ev->key() && "EnvironmentalVariable::key must never be nullptr as it is required in the schema");
                 assert(ev->value() && "EnvironmentalVariable::value must never be nullptr as it is required in the schema");
-                result.emplace(ev->key()->str(), ev->value()->str());
+                result.add(ev->key()->str(), ev->value()->str());
             }
         }
     }
