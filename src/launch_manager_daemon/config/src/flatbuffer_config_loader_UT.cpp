@@ -22,6 +22,7 @@
 #include <cerrno>
 #include <cstdint>
 #include <limits>
+#include <sched.h>
 #include <sys/types.h>
 #include <vector>
 
@@ -383,14 +384,13 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
     ::flatbuffers::FlatBufferBuilder fbb;
 
     auto sec_policy = fbb.CreateString("strict");
-    auto sched_policy = fbb.CreateString("SCHED_FIFO");
     auto supp_gids = fbb.CreateVector(std::vector<uint32_t>{100, 200});
     auto sandbox = fb::CreateSandbox(fbb,
                                      1000 /*uid*/,
                                      1000 /*gid*/,
                                      supp_gids,
                                      sec_policy,
-                                     sched_policy,
+                                     fb::SchedulingPolicy::FIFO,
                                      50 /*scheduling_priority*/,
                                      4096 /*max_memory_usage*/,
                                      80 /*max_cpu_usage*/);
@@ -422,7 +422,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
     EXPECT_THAT(sb.supplementary_group_ids, Eq(std::vector<gid_t>{100, 200}));
     ASSERT_THAT(sb.security_policy.has_value(), IsTrue());
     EXPECT_THAT(sb.security_policy.value(), Eq("strict"));
-    EXPECT_THAT(sb.scheduling_policy, Eq("SCHED_FIFO"));
+    EXPECT_THAT(sb.scheduling_policy, Eq(SCHED_FIFO));
     EXPECT_THAT(sb.scheduling_priority, Eq(50));
     ASSERT_THAT(sb.max_memory_usage.has_value(), IsTrue());
     EXPECT_THAT(sb.max_memory_usage.value(), Eq(4096U));
@@ -773,6 +773,103 @@ TEST_F(FlatbufferConfigLoaderTest, SandboxSupplementaryGidOutOfRangeReturnsInval
                                              sandbox);
 
     auto comp = buildDefaultComponent(fbb, "bad_supp_gid_comp", buildDefaultComponentProperties(fbb), deploy);
+    auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{comp});
+
+    auto result = loadBuffer(buildConfigWithComponents(fbb, comps));
+
+    ASSERT_THAT(result.has_value(), IsFalse());
+    EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
+}
+
+// ============================================================================
+// Parameterized scheduling policy tests
+// ============================================================================
+
+struct SchedulingPolicyTestParam
+{
+    fb::SchedulingPolicy fb_policy;
+    int32_t expected_posix_value;
+    const char* name;
+};
+
+class SchedulingPolicyTest : public FlatbufferConfigLoaderTest,
+                             public ::testing::WithParamInterface<SchedulingPolicyTestParam>
+{
+};
+
+TEST_P(SchedulingPolicyTest, ConvertsToExpectedPosixValue)
+{
+    RecordProperty("Description", "Scheduling policy enum maps to correct POSIX value.");
+
+    ::flatbuffers::FlatBufferBuilder fbb;
+
+    auto sandbox = fb::CreateSandbox(fbb,
+                                     1000 /*uid*/,
+                                     1000 /*gid*/,
+                                     0 /*supplementary_group_ids*/,
+                                     0 /*security_policy*/,
+                                     GetParam().fb_policy);
+    auto bin_dir = fbb.CreateString("/opt");
+    auto deploy = fb::CreateDeploymentConfig(fbb,
+                                             0.0 /*ready_timeout*/,
+                                             0.0 /*shutdown_timeout*/,
+                                             0 /*environmental_variables*/,
+                                             bin_dir,
+                                             0 /*working_dir*/,
+                                             0 /*ready_recovery_action*/,
+                                             0 /*recovery_action*/,
+                                             sandbox);
+
+    auto comp = buildDefaultComponent(fbb, "sched_comp", buildDefaultComponentProperties(fbb), deploy);
+    auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{comp});
+
+    auto result = loadBuffer(buildConfigWithComponents(fbb, comps));
+
+    ASSERT_THAT(result.has_value(), IsTrue());
+    ASSERT_THAT(result->components()[0].deployment_config.sandbox.has_value(), IsTrue());
+    EXPECT_THAT(result->components()[0].deployment_config.sandbox->scheduling_policy,
+                Eq(GetParam().expected_posix_value));
+}
+
+INSTANTIATE_TEST_SUITE_P(SchedulingPolicies,
+                         SchedulingPolicyTest,
+                         ::testing::Values(SchedulingPolicyTestParam{fb::SchedulingPolicy::FIFO,
+                                                                     SCHED_FIFO,
+                                                                     "SCHED_FIFO"},
+                                           SchedulingPolicyTestParam{fb::SchedulingPolicy::RR,
+                                                                     SCHED_RR,
+                                                                     "SCHED_RR"},
+                                           SchedulingPolicyTestParam{fb::SchedulingPolicy::OTHER,
+                                                                     SCHED_OTHER,
+                                                                     "SCHED_OTHER"}),
+                         [](const ::testing::TestParamInfo<SchedulingPolicyTestParam>& info) {
+                             return info.param.name;
+                         });
+
+TEST_F(FlatbufferConfigLoaderTest, UnsupportedSchedulingPolicyReturnsInvalidFormat)
+{
+    RecordProperty("Description", "An unsupported scheduling policy value returns InvalidFormat.");
+
+    ::flatbuffers::FlatBufferBuilder fbb;
+
+    auto sandbox = fb::CreateSandbox(fbb,
+                                     1000 /*uid*/,
+                                     1000 /*gid*/,
+                                     0 /*supplementary_group_ids*/,
+                                     0 /*security_policy*/,
+                                     static_cast<fb::SchedulingPolicy>(99));
+    auto bin_dir = fbb.CreateString("/opt");
+    auto deploy = fb::CreateDeploymentConfig(fbb,
+                                             0.0 /*ready_timeout*/,
+                                             0.0 /*shutdown_timeout*/,
+                                             0 /*environmental_variables*/,
+                                             bin_dir,
+                                             0 /*working_dir*/,
+                                             0 /*ready_recovery_action*/,
+                                             0 /*recovery_action*/,
+                                             sandbox);
+
+    auto comp = buildDefaultComponent(fbb, "bad_sched_comp", buildDefaultComponentProperties(fbb), deploy);
     auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{comp});
 
     auto result = loadBuffer(buildConfigWithComponents(fbb, comps));

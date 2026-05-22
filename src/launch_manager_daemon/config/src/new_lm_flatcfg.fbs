@@ -17,6 +17,13 @@ enum ProcessState : byte {
   Terminated = 1
 }
 
+// Scheduling policy for a component's initial thread.
+enum SchedulingPolicy : byte {
+  OTHER = 0,
+  FIFO = 1,
+  RR = 2
+}
+
 // Defines the configuration parameters used for alive monitoring of a component.
 table ComponentAliveSupervision {
   // Duration in seconds of the time interval used to verify alive notifications.
@@ -84,8 +91,8 @@ table Sandbox {
   supplementary_group_ids:[uint32];
   // Security policy or confinement profile name (e.g., SELinux or AppArmor profile).
   security_policy:string;
-  // Scheduling policy for the component's initial thread (e.g., SCHED_FIFO, SCHED_RR, SCHED_OTHER).
-  scheduling_policy:string;
+  // Scheduling policy for the component's initial thread.
+  scheduling_policy:SchedulingPolicy;
   // Scheduling priority for the component's initial thread.
   scheduling_priority:int32 = null;
   // Maximum memory in bytes the component is permitted to use.
