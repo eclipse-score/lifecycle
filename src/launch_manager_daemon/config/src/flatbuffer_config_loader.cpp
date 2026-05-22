@@ -20,6 +20,7 @@
 #include <cassert>
 #include <cstdint>
 #include <limits>
+#include <sched.h>
 #include <string>
 #include <sys/types.h>
 #include <vector>
@@ -69,6 +70,22 @@ ProcessState convertProcessState(fb::ProcessState fb_state)
         case fb::ProcessState::Running:
         default:
             return ProcessState::Running;
+    }
+}
+
+score::cpp::expected<int32_t, IConfigLoader::Error> convertSchedulingPolicy(fb::SchedulingPolicy policy)
+{
+    switch (policy)
+    {
+        case fb::SchedulingPolicy::OTHER:
+            return SCHED_OTHER;
+        case fb::SchedulingPolicy::FIFO:
+            return SCHED_FIFO;
+        case fb::SchedulingPolicy::RR:
+            return SCHED_RR;
+        default:
+            LM_LOG_ERROR() << "Unsupported scheduling policy: " << static_cast<int>(policy);
+            return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
     }
 }
 
@@ -252,7 +269,12 @@ score::cpp::expected<std::optional<Sandbox>, IConfigLoader::Error> convertSandbo
     result.security_policy = fb_sb->security_policy() != nullptr
                                  ? std::optional<std::string>{fb_sb->security_policy()->str()}
                                  : std::nullopt;
-    result.scheduling_policy = safeString(fb_sb->scheduling_policy());
+    auto scheduling_policy = convertSchedulingPolicy(fb_sb->scheduling_policy());
+    if (!scheduling_policy.has_value())
+    {
+        return score::cpp::make_unexpected(scheduling_policy.error());
+    }
+    result.scheduling_policy = *scheduling_policy;
     result.scheduling_priority = fb_sb->scheduling_priority().value_or(0);
     result.max_memory_usage =
         fb_sb->max_memory_usage().has_value() ? std::optional<uint64_t>{*fb_sb->max_memory_usage()} : std::nullopt;

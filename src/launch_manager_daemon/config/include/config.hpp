@@ -126,7 +126,7 @@ struct Sandbox
     gid_t gid{};
     std::vector<gid_t> supplementary_group_ids;
     std::optional<std::string> security_policy;
-    std::string scheduling_policy;
+    int32_t scheduling_policy;
     int32_t scheduling_priority{};
     std::optional<uint64_t> max_memory_usage;
     std::optional<uint32_t> max_cpu_usage;
