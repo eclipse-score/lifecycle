@@ -15,9 +15,13 @@
 
 #include "score/os/errno.h"
 
+#include <score/lcm/internal/log.hpp>
+
 #include <cassert>
 #include <cstdint>
+#include <limits>
 #include <string>
+#include <sys/types.h>
 #include <unordered_map>
 #include <vector>
 
@@ -91,15 +95,21 @@ std::vector<std::string> convertStringVector(
     return result;
 }
 
-std::vector<uint32_t> convertUint32Vector(const ::flatbuffers::Vector<uint32_t>* vec)
+score::cpp::expected<std::vector<gid_t>, IConfigLoader::Error> convertGidVector(
+    const ::flatbuffers::Vector<uint32_t>* vec)
 {
-    std::vector<uint32_t> result;
+    std::vector<gid_t> result;
     if (vec != nullptr)
     {
         result.reserve(vec->size());
         for (const auto val : *vec)
         {
-            result.emplace_back(val);
+            if (val < std::numeric_limits<gid_t>::min() || val > std::numeric_limits<gid_t>::max())
+            {
+                LM_LOG_ERROR() << "Sandbox supplementary group id " << val << " is out of valid gid_t range [" << std::numeric_limits<gid_t>::min() << "," << std::numeric_limits<gid_t>::max() << "]";
+                return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+            }
+            result.emplace_back(static_cast<gid_t>(val));
         }
     }
     return result;
@@ -213,16 +223,33 @@ ComponentProperties convertComponentProperties(const fb::ComponentProperties* fb
     return result;
 }
 
-std::optional<Sandbox> convertSandbox(const fb::Sandbox* fb_sb)
+score::cpp::expected<std::optional<Sandbox>, IConfigLoader::Error> convertSandbox(const fb::Sandbox* fb_sb)
 {
     if (fb_sb == nullptr)
     {
         return std::nullopt;
     }
+    const auto fb_uid = fb_sb->uid();
+    const auto fb_gid = fb_sb->gid();
+    if (fb_uid < std::numeric_limits<uid_t>::min() || fb_uid > std::numeric_limits<uid_t>::max())
+    {
+        LM_LOG_ERROR() << "Sandbox uid " << fb_uid << " is out of valid uid_t range [" << std::numeric_limits<uid_t>::min() << "," << std::numeric_limits<uid_t>::max() << "]";
+        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+    }
+    if (fb_gid < std::numeric_limits<gid_t>::min() || fb_gid > std::numeric_limits<gid_t>::max())
+    {
+        LM_LOG_ERROR() << "Sandbox gid " << fb_gid << " is out of valid gid_t range [" << std::numeric_limits<gid_t>::min() << "," << std::numeric_limits<gid_t>::max() << "]";
+        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+    }
     Sandbox result{};
-    result.uid = fb_sb->uid();
-    result.gid = fb_sb->gid();
-    result.supplementary_group_ids = convertUint32Vector(fb_sb->supplementary_group_ids());
+    result.uid = static_cast<uid_t>(fb_uid);
+    result.gid = static_cast<gid_t>(fb_gid);
+    auto supplementary_gids = convertGidVector(fb_sb->supplementary_group_ids());
+    if (!supplementary_gids.has_value())
+    {
+        return score::cpp::make_unexpected(supplementary_gids.error());
+    }
+    result.supplementary_group_ids = std::move(*supplementary_gids);
     result.security_policy = fb_sb->security_policy() != nullptr
                                  ? std::optional<std::string>{fb_sb->security_policy()->str()}
                                  : std::nullopt;
@@ -232,10 +259,10 @@ std::optional<Sandbox> convertSandbox(const fb::Sandbox* fb_sb)
         fb_sb->max_memory_usage().has_value() ? std::optional<uint64_t>{*fb_sb->max_memory_usage()} : std::nullopt;
     result.max_cpu_usage =
         fb_sb->max_cpu_usage().has_value() ? std::optional<uint32_t>{*fb_sb->max_cpu_usage()} : std::nullopt;
-    return result;
+    return std::optional<Sandbox>{std::move(result)};
 }
 
-DeploymentConfig convertDeploymentConfig(const fb::DeploymentConfig* fb_dc)
+score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentConfig(const fb::DeploymentConfig* fb_dc)
 {
     DeploymentConfig result{};
     if (fb_dc != nullptr)
@@ -248,12 +275,17 @@ DeploymentConfig convertDeploymentConfig(const fb::DeploymentConfig* fb_dc)
         result.working_dir = safeString(fb_dc->working_dir());
         result.ready_recovery_action = convertRestartAction(fb_dc->ready_recovery_action());
         result.recovery_action = convertSwitchRunTargetAction(fb_dc->recovery_action());
-        result.sandbox = convertSandbox(fb_dc->sandbox());
+        auto sandbox = convertSandbox(fb_dc->sandbox());
+        if (!sandbox.has_value())
+        {
+            return score::cpp::make_unexpected(sandbox.error());
+        }
+        result.sandbox = std::move(*sandbox);
     }
     return result;
 }
 
-ComponentConfig convertComponent(const fb::Component* fb_comp)
+score::cpp::expected<ComponentConfig, IConfigLoader::Error> convertComponent(const fb::Component* fb_comp)
 {
     ComponentConfig result{};
     if (fb_comp != nullptr)
@@ -264,7 +296,12 @@ ComponentConfig convertComponent(const fb::Component* fb_comp)
         result.name = fb_comp->name()->str();
         result.description = safeString(fb_comp->description());
         result.component_properties = convertComponentProperties(fb_comp->component_properties());
-        result.deployment_config = convertDeploymentConfig(fb_comp->deployment_config());
+        auto deployment_config = convertDeploymentConfig(fb_comp->deployment_config());
+        if (!deployment_config.has_value())
+        {
+            return score::cpp::make_unexpected(deployment_config.error());
+        }
+        result.deployment_config = std::move(*deployment_config);
     }
     return result;
 }
@@ -376,7 +413,12 @@ score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::ve
         {
             if (comp != nullptr)
             {
-                components.emplace_back(convertComponent(comp));
+                auto component = convertComponent(comp);
+                if (!component.has_value())
+                {
+                    return score::cpp::make_unexpected(component.error());
+                }
+                components.emplace_back(std::move(*component));
             }
         }
         builder.setComponents(std::move(components));
