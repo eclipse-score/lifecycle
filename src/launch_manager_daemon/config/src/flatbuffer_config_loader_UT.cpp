@@ -21,6 +21,8 @@
 
 #include <cerrno>
 #include <cstdint>
+#include <limits>
+#include <sys/types.h>
 #include <vector>
 
 namespace score::launch_manager::config
@@ -415,7 +417,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
     const auto& sb = result->components()[0].deployment_config.sandbox.value();
     EXPECT_THAT(sb.uid, Eq(1000U));
     EXPECT_THAT(sb.gid, Eq(1000U));
-    EXPECT_THAT(sb.supplementary_group_ids, Eq(std::vector<uint32_t>{100, 200}));
+    EXPECT_THAT(sb.supplementary_group_ids, Eq(std::vector<gid_t>{100, 200}));
     ASSERT_THAT(sb.security_policy.has_value(), IsTrue());
     EXPECT_THAT(sb.security_policy.value(), Eq("strict"));
     EXPECT_THAT(sb.scheduling_policy, Eq("SCHED_FIFO"));
@@ -664,6 +666,109 @@ TEST_F(FlatbufferConfigLoaderTest, WrongSchemaVersionReturnsUnsupportedVersion)
 
     ASSERT_THAT(result.has_value(), IsFalse());
     EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::UnsupportedVersion));
+}
+
+TEST_F(FlatbufferConfigLoaderTest, SandboxUidOutOfRangeReturnsInvalidFormat)
+{
+    RecordProperty("Description", "A sandbox uid exceeding uid_t range returns InvalidFormat.");
+
+    if constexpr (std::numeric_limits<uid_t>::max() >= std::numeric_limits<uint32_t>::max())
+    {
+        // On Linux, uid_t and gid_t are typically 32-bit unsigned integers, so any uint32_t value is valid. In that case, this test is not applicable.
+        // On QNX, uid_t and gid_t can be int32_t, so values above INT32_MAX would be invalid.
+        GTEST_SKIP() << "uid_t range covers all uint32_t values on this platform";
+    }
+
+    ::flatbuffers::FlatBufferBuilder fbb;
+
+    auto sandbox = fb::CreateSandbox(fbb, std::numeric_limits<uint32_t>::max() /*uid*/, 1000 /*gid*/);
+    auto bin_dir = fbb.CreateString("/opt");
+    auto deploy = fb::CreateDeploymentConfig(fbb,
+                                             0.0 /*ready_timeout*/,
+                                             0.0 /*shutdown_timeout*/,
+                                             0 /*environmental_variables*/,
+                                             bin_dir,
+                                             0 /*working_dir*/,
+                                             0 /*ready_recovery_action*/,
+                                             0 /*recovery_action*/,
+                                             sandbox);
+
+    auto comp = buildDefaultComponent(fbb, "bad_uid_comp", buildDefaultComponentProperties(fbb), deploy);
+    auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{comp});
+
+    auto result = loadBuffer(buildConfigWithComponents(fbb, comps));
+
+    ASSERT_THAT(result.has_value(), IsFalse());
+    EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
+}
+
+TEST_F(FlatbufferConfigLoaderTest, SandboxGidOutOfRangeReturnsInvalidFormat)
+{
+    RecordProperty("Description", "A sandbox gid exceeding gid_t range returns InvalidFormat.");
+
+    if constexpr (std::numeric_limits<gid_t>::max() >= std::numeric_limits<uint32_t>::max())
+    {
+        // On Linux, uid_t and gid_t are typically 32-bit unsigned integers, so any uint32_t value is valid. In that case, this test is not applicable.
+        // On QNX, uid_t and gid_t can be int32_t, so values above INT32_MAX would be invalid.
+        GTEST_SKIP() << "gid_t range covers all uint32_t values on this platform";
+    }
+
+    ::flatbuffers::FlatBufferBuilder fbb;
+
+    auto sandbox = fb::CreateSandbox(fbb, 1000 /*uid*/, std::numeric_limits<uint32_t>::max() /*gid*/);
+    auto bin_dir = fbb.CreateString("/opt");
+    auto deploy = fb::CreateDeploymentConfig(fbb,
+                                             0.0 /*ready_timeout*/,
+                                             0.0 /*shutdown_timeout*/,
+                                             0 /*environmental_variables*/,
+                                             bin_dir,
+                                             0 /*working_dir*/,
+                                             0 /*ready_recovery_action*/,
+                                             0 /*recovery_action*/,
+                                             sandbox);
+
+    auto comp = buildDefaultComponent(fbb, "bad_gid_comp", buildDefaultComponentProperties(fbb), deploy);
+    auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{comp});
+
+    auto result = loadBuffer(buildConfigWithComponents(fbb, comps));
+
+    ASSERT_THAT(result.has_value(), IsFalse());
+    EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
+}
+
+TEST_F(FlatbufferConfigLoaderTest, SandboxSupplementaryGidOutOfRangeReturnsInvalidFormat)
+{
+    RecordProperty("Description", "A supplementary group id exceeding gid_t range returns InvalidFormat.");
+
+    if constexpr (std::numeric_limits<gid_t>::max() >= std::numeric_limits<uint32_t>::max())
+    {
+        // On Linux, uid_t and gid_t are typically 32-bit unsigned integers, so any uint32_t value is valid. In that case, this test is not applicable.
+        // On QNX, uid_t and gid_t can be int32_t, so values above INT32_MAX would be invalid.
+        GTEST_SKIP() << "gid_t range covers all uint32_t values on this platform";
+    }
+
+    ::flatbuffers::FlatBufferBuilder fbb;
+
+    auto supp_gids = fbb.CreateVector(std::vector<uint32_t>{100, std::numeric_limits<uint32_t>::max()});
+    auto sandbox = fb::CreateSandbox(fbb, 1000 /*uid*/, 1000 /*gid*/, supp_gids);
+    auto bin_dir = fbb.CreateString("/opt");
+    auto deploy = fb::CreateDeploymentConfig(fbb,
+                                             0.0 /*ready_timeout*/,
+                                             0.0 /*shutdown_timeout*/,
+                                             0 /*environmental_variables*/,
+                                             bin_dir,
+                                             0 /*working_dir*/,
+                                             0 /*ready_recovery_action*/,
+                                             0 /*recovery_action*/,
+                                             sandbox);
+
+    auto comp = buildDefaultComponent(fbb, "bad_supp_gid_comp", buildDefaultComponentProperties(fbb), deploy);
+    auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{comp});
+
+    auto result = loadBuffer(buildConfigWithComponents(fbb, comps));
+
+    ASSERT_THAT(result.has_value(), IsFalse());
+    EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
 }
 
 }  // namespace

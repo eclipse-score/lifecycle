@@ -17,6 +17,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <sys/types.h>
 #include <unordered_map>
 #include <vector>
 
@@ -79,9 +80,9 @@ struct SwitchRunTargetAction
 
 struct Sandbox
 {
-    uint32_t uid{};
-    uint32_t gid{};
-    std::vector<uint32_t> supplementary_group_ids;
+    uid_t uid{};
+    gid_t gid{};
+    std::vector<gid_t> supplementary_group_ids;
     std::optional<std::string> security_policy;
     std::string scheduling_policy;
     int32_t scheduling_priority{};

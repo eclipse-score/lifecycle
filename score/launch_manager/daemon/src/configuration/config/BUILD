@@ -65,6 +65,7 @@ cc_library(
     visibility = ["//src:__subpackages__"],
     deps = [
         ":config_loader",
+        "//src/launch_manager_daemon/common:log",
         "@flatbuffers",
         "@score_baselibs//score/flatbuffers:flatbufferutils",
     ],
