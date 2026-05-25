@@ -236,7 +236,7 @@ inline void ProcessGroupManager::createProcessComponentsObjects()
     worker_jobs_ = std::make_shared<WorkerQueue>();
 
     LM_LOG_DEBUG() << "Creating worker threads...";
-    worker_threads_ = std::make_unique<ThreadPool<ProcessInfoNode>>(
+    worker_threads_ = std::make_unique<WorkerThread<ProcessInfoNode>>(
         worker_jobs_, static_cast<uint32_t>(ProcessLimits::kNumWorkerThreads));
 }
 

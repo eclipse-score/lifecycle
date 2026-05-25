@@ -50,7 +50,7 @@ cc_library(
         ":iprocess",
         "//score/mw/launch_manager/common:identifier_hash",
         "//score/mw/launch_manager/common/concurrency:mpmc_concurrent_queue",
-        "//score/mw/launch_manager/common/concurrency:thread_pool",
+        "//score/mw/launch_manager/common/concurrency:workerthread",
         "//score/mw/launch_manager/configuration:configuration_manager",
         "//score/mw/launch_manager/control:control_client_channel",
         "//score/mw/launch_manager/osal:ipc_comms",

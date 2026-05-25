@@ -28,7 +28,7 @@
 #include "score/mw/launch_manager/process_state_client/iprocess_state_notifier.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
-#include "score/mw/launch_manager/common/concurrency/thread_pool.hpp"
+#include "score/mw/launch_manager/common/concurrency/workerthread.hpp"
 #include "score/mw/launch_manager/process_group_manager/ialive_monitor_thread.hpp"
 #include "score/mw/launch_manager/recovery_client/recovery_client.hpp"
 #include "score/mw/launch_manager/common/constants.hpp"
@@ -276,7 +276,7 @@ class ProcessGroupManager final
     std::shared_ptr<SafeProcessMap> process_map_;
 
     /// @brief Unique pointer to the worker threads handling ProcessInfoNode jobs.
-    std::unique_ptr<ThreadPool<ProcessInfoNode>> worker_threads_;
+    std::unique_ptr<WorkerThread<ProcessInfoNode>> worker_threads_;
 
     /// @brief Shared pointer to the job queue for ProcessInfoNode jobs.
     std::shared_ptr<WorkerQueue> worker_jobs_;

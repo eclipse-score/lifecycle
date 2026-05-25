@@ -97,7 +97,7 @@ cc_library(
         ":safe_process_map",
         "//score/mw/launch_manager/common:log",
         "//score/mw/launch_manager/common/concurrency:mpmc_concurrent_queue",
-        "//score/mw/launch_manager/common/concurrency:thread_pool",
+        "//score/mw/launch_manager/common/concurrency:workerthread",
         "//score/mw/launch_manager/configuration:configuration_manager",
         "//score/mw/launch_manager/osal:ipc_comms",
         "//score/mw/launch_manager/osal:semaphore",

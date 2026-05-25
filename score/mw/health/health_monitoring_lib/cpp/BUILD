@@ -42,8 +42,8 @@ cc_library(
     deps = [
         ":common",
         ":tag",
-        "//score/mw/health/health_monitoring_lib/cpp/details:thread",
         "//score/mw/health/health_monitoring_lib/cpp/deadline:deadline_monitor",
+        "//score/mw/health/health_monitoring_lib/cpp/details:thread",
         "//score/mw/health/health_monitoring_lib/cpp/heartbeat:heartbeat_monitor",
         "//score/mw/health/health_monitoring_lib/cpp/logic:logic_monitor",
     ],

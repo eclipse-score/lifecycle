@@ -13,8 +13,8 @@
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 
 cc_library(
-    name = "thread_pool",
-    hdrs = ["thread_pool.hpp"],
+    name = "workerthread",
+    hdrs = ["workerthread.hpp"],
     visibility = ["//score:__subpackages__"],
     deps = [
         ":mpmc_concurrent_queue",
