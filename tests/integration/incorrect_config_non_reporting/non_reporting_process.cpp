@@ -42,7 +42,7 @@ TEST(NonReporting, Process)
     }
 
     // Invalid kRunning report
-    auto result = score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
+    auto result = score::mw::lifecycle::LifecycleClient{}.ReportExecutionState(score::mw::lifecycle::ExecutionState::kRunning);
     EXPECT_FALSE(result.has_value()) << "ReportExecutionState() should not succeed";
 
     close(ipc::sync_fd);

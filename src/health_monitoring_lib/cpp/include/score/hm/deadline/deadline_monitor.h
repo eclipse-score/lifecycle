@@ -19,14 +19,14 @@
 #include <functional>
 #include <optional>
 
-namespace score::hm
+namespace score::mw::health
 {
 // Forward declaration
 class HealthMonitor;
 class HealthMonitorBuilder;
-}  // namespace score::hm
+}  // namespace score::mw::health
 
-namespace score::hm::deadline
+namespace score::mw::health::deadline
 {
 
 // Forward declaration
@@ -63,7 +63,7 @@ class DeadlineMonitorBuilder final : public internal::RustDroppable<DeadlineMoni
     friend class internal::RustDroppable<DeadlineMonitorBuilder>;
 
     // Allow HealthMonitorBuilder to access drop_by_rust implementation
-    friend class ::score::hm::HealthMonitorBuilder;
+    friend class ::score::mw::health::HealthMonitorBuilder;
 };
 
 class DeadlineMonitor final
@@ -76,13 +76,13 @@ class DeadlineMonitor final
     DeadlineMonitor(DeadlineMonitor&& other) noexcept = default;
     DeadlineMonitor& operator=(DeadlineMonitor&& other) noexcept = default;
 
-    ::score::cpp::expected<Deadline, score::hm::Error> get_deadline(const DeadlineTag& deadline_tag);
+    ::score::cpp::expected<Deadline, score::mw::health::Error> get_deadline(const DeadlineTag& deadline_tag);
 
   private:
     explicit DeadlineMonitor(internal::FFIHandle handle);
 
     // Allow only HealthMonitor to create DeadlineMonitor instances.
-    friend class score::hm::HealthMonitor;
+    friend class score::mw::health::HealthMonitor;
     internal::DroppableFFIHandle monitor_handle_;
 };
 
@@ -139,6 +139,6 @@ class DeadlineHandle final
     std::optional<std::reference_wrapper<Deadline>> deadline_;
 };
 
-}  // namespace score::hm::deadline
+}  // namespace score::mw::health::deadline
 
 #endif  // SCORE_HM_DEADLINE_DEADLINE_MONITOR_H

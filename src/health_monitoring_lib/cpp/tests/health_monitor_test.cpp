@@ -16,7 +16,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-using namespace score::hm;
+using namespace score::mw::health;
 
 class HealthMonitorTest : public ::testing::Test
 {
@@ -121,7 +121,7 @@ TEST_F(HealthMonitorTest, TestName)
     {
         auto deadline_guard = deadline_res.value().start().value();
 
-        EXPECT_EQ(deadline_res.value().start().error(), ::score::hm::Error::WrongState);
+        EXPECT_EQ(deadline_res.value().start().error(), ::score::mw::health::Error::WrongState);
         deadline_guard.stop();
     }
 }

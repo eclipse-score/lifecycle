@@ -20,9 +20,7 @@
 #include <memory>
 #include "score/lcm/exec_error_domain.h"
 
-namespace score {
-
-namespace lcm {
+namespace score::mw::lifecycle {
 
 class ControlClientImpl;
 
@@ -67,16 +65,16 @@ class ControlClient final {
     ///
     /// @param[in] runTargetName name of the Run Target that should be activated. Launch Manager will deactivate the currently active Run Target and activate Run Target identified by this parameter.
     /// @returns void if activation requested is successful, otherwise it returns ExecErrorDomain error.
-    /// @error score::lcm::ExecErrc::kCancelled if activation requested was cancelled by a newer request
-    /// @error score::lcm::ExecErrc::kFailed if activation requested failed
-    /// @error score::lcm::ExecErrc::kFailedUnexpectedTerminationOnExit if Unexpected Termination of a Process assigned to the previously active Run Target happened.
-    /// @error score::lcm::ExecErrc::kFailedUnexpectedTerminationOnEnter if Unexpected Termination of a Process assigned the requested Run Target happened.
-    /// @error score::lcm::ExecErrc::kInvalidArguments if argument passed doesn't appear to be valid (e.g. after a software update, given Run Target doesn't exist anymore)
-    /// @error score::lcm::ExecErrc::kCommunicationError if ControlClient can't communicate with Launch Manager (e.g. IPC link is down)
-    /// @error score::lcm::ExecErrc::kAlreadyInState if the requested Run Target is already active
-    /// @error score::lcm::ExecErrc::kInTransitionToSameState if there is already an ongoing request to activate requested Run Target
-    /// @error score::lcm::ExecErrc::kInvalidTransition if activation of the requested Run Target is prohibited (e.g. Off Run Target)
-    /// @error score::lcm::ExecErrc::kGeneralError if any other error occurs.
+    /// @error score::mw::lifecycle::ExecErrc::kCancelled if activation requested was cancelled by a newer request
+    /// @error score::mw::lifecycle::ExecErrc::kFailed if activation requested failed
+    /// @error score::mw::lifecycle::ExecErrc::kFailedUnexpectedTerminationOnExit if Unexpected Termination of a Process assigned to the previously active Run Target happened.
+    /// @error score::mw::lifecycle::ExecErrc::kFailedUnexpectedTerminationOnEnter if Unexpected Termination of a Process assigned the requested Run Target happened.
+    /// @error score::mw::lifecycle::ExecErrc::kInvalidArguments if argument passed doesn't appear to be valid (e.g. after a software update, given Run Target doesn't exist anymore)
+    /// @error score::mw::lifecycle::ExecErrc::kCommunicationError if ControlClient can't communicate with Launch Manager (e.g. IPC link is down)
+    /// @error score::mw::lifecycle::ExecErrc::kAlreadyInState if the requested Run Target is already active
+    /// @error score::mw::lifecycle::ExecErrc::kInTransitionToSameState if there is already an ongoing request to activate requested Run Target
+    /// @error score::mw::lifecycle::ExecErrc::kInvalidTransition if activation of the requested Run Target is prohibited (e.g. Off Run Target)
+    /// @error score::mw::lifecycle::ExecErrc::kGeneralError if any other error occurs.
     ///
     /// @threadsafety{thread-safe}
     ///
@@ -87,8 +85,6 @@ class ControlClient final {
     std::unique_ptr<ControlClientImpl> control_client_impl_;
 };
 
-}  // namespace lcm
-
-}  // namespace score
+}  // namespace score::mw::lifecycle
 
 #endif  // CONTROL_CLIENT_H_

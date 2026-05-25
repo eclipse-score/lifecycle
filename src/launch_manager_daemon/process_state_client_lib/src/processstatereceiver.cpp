@@ -31,7 +31,7 @@ ProcessStateReceiver::getNextChangedPosixProcess() noexcept {
         << "ProcessStateReceiver::getNextChangedPosixProcess: Overflow occurred, "
            "will be reported as kCommunicationError";
     return score::Result<std::optional<score::lcm::PosixProcess>>{
-        score::MakeUnexpected(score::lcm::ExecErrc::kCommunicationError)};
+        score::MakeUnexpected(score::mw::lifecycle::ExecErrc::kCommunicationError)};
   }
 
   if (ring_buffer_->empty()) {
@@ -42,7 +42,7 @@ ProcessStateReceiver::getNextChangedPosixProcess() noexcept {
   if (res) {
     return score::Result<std::optional<score::lcm::PosixProcess>>{changedProcess};
   } else {
-    return score::Result<std::optional<score::lcm::PosixProcess>>{score::MakeUnexpected(score::lcm::ExecErrc::kGeneralError)};
+    return score::Result<std::optional<score::lcm::PosixProcess>>{score::MakeUnexpected(score::mw::lifecycle::ExecErrc::kGeneralError)};
   }
 }
 } // namespace lcm

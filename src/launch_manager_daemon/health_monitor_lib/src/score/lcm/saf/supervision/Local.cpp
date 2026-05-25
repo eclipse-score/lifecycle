@@ -39,7 +39,7 @@ Local::Local(const LocalSupervisionCfg f_localCfg) :
     // Satisfy Misra for minimum number of instructions
     static_cast<void>(0);
 
-    assert((localStatus == score::lcm::LocalSupervisionStatus::kDeactivated) &&
+    assert((localStatus == score::mw::health::LocalSupervisionStatus::kDeactivated) &&
            ("Local Supervision must start in deactivated state, see SWS_PHM_00204"));
 }
 
@@ -104,7 +104,7 @@ void Local::evaluate(const timers::NanoSecondType f_syncTimestamp)
 
 void Local::handleDataLossReaction(void) noexcept
 {
-    if (score::lcm::LocalSupervisionStatus::kExpired != localStatus)
+    if (score::mw::health::LocalSupervisionStatus::kExpired != localStatus)
     {
         switchToExpired(supervisionTypeDataLoss, ifexm::ProcessCfg::kDefaultProcessExecutionError, "due to data loss.");
     }
@@ -112,7 +112,7 @@ void Local::handleDataLossReaction(void) noexcept
     timeSortingCheckpointSupEvent.clear();
 }
 
-score::lcm::LocalSupervisionStatus Local::getStatus(void) const noexcept
+score::mw::health::LocalSupervisionStatus Local::getStatus(void) const noexcept
 {
     return localStatus;
 }
@@ -131,25 +131,25 @@ void Local::updateState(const CheckpointSupervisionEvent& f_checkpointSupervisio
 {
     switch (localStatus)
     {
-        case score::lcm::LocalSupervisionStatus::kDeactivated:
+        case score::mw::health::LocalSupervisionStatus::kDeactivated:
         {
             checkTransitionsOutOfDeactivated(f_checkpointSupervision_r);
             break;
         }
 
-        case score::lcm::LocalSupervisionStatus::kOK:
+        case score::mw::health::LocalSupervisionStatus::kOK:
         {
             checkTransitionsOutOfOk(f_checkpointSupervision_r);
             break;
         }
 
-        case score::lcm::LocalSupervisionStatus::kFailed:
+        case score::mw::health::LocalSupervisionStatus::kFailed:
         {
             checkTransitionsOutOfFailed(f_checkpointSupervision_r);
             break;
         }
 
-        case score::lcm::LocalSupervisionStatus::kExpired:
+        case score::mw::health::LocalSupervisionStatus::kExpired:
         {
             checkTransitionsOutOfExpired(f_checkpointSupervision_r);
             break;
@@ -271,7 +271,7 @@ void Local::switchToDeactivated(ICheckpointSupervision::EType f_type) noexcept
 {
     supervisionType = f_type;
     logger_r.LogDebug() << "Local Supervision (" << getConfigName() << ") switched to DEACTIVATED.";
-    localStatus = score::lcm::LocalSupervisionStatus::kDeactivated;
+    localStatus = score::mw::health::LocalSupervisionStatus::kDeactivated;
     pushResultToObservers();
 }
 
@@ -279,7 +279,7 @@ void Local::switchToOk(ICheckpointSupervision::EType f_type) noexcept
 {
     supervisionType = f_type;
     logger_r.LogInfo() << "Local Supervision (" << getConfigName() << ") switched to OK.";
-    localStatus = score::lcm::LocalSupervisionStatus::kOK;
+    localStatus = score::mw::health::LocalSupervisionStatus::kOK;
     pushResultToObservers();
 }
 
@@ -287,7 +287,7 @@ void Local::switchToFailed(ICheckpointSupervision::EType f_type, std::string_vie
 {
     supervisionType = f_type;
     logger_r.LogWarn() << "Local Supervision (" << getConfigName() << ") switched to FAILED," << reason_p;
-    localStatus = score::lcm::LocalSupervisionStatus::kFailed;
+    localStatus = score::mw::health::LocalSupervisionStatus::kFailed;
     pushResultToObservers();
 }
 
@@ -322,7 +322,7 @@ void Local::switchToExpired(ICheckpointSupervision::EType f_type,
     {
         logger_r.LogWarn() << "Local Supervision (" << getConfigName() << ") switched to EXPIRED," << reason_p;
     }
-    localStatus = score::lcm::LocalSupervisionStatus::kExpired;
+    localStatus = score::mw::health::LocalSupervisionStatus::kExpired;
     pushResultToObservers();
 }
 

@@ -14,9 +14,9 @@
 
 namespace {
 extern "C" {
-using namespace score::hm;
-using namespace score::hm::internal;
-using namespace score::hm::heartbeat;
+using namespace score::mw::health;
+using namespace score::mw::health::internal;
+using namespace score::mw::health::heartbeat;
 
 FFICode heartbeat_monitor_builder_create(uint32_t range_min_ms, uint32_t range_max_ms, FFIHandle* heartbeat_monitor_builder_handle_out);
 FFICode heartbeat_monitor_builder_destroy(FFIHandle heartbeat_monitor_builder_handle);
@@ -34,7 +34,7 @@ FFIHandle heartbeat_monitor_builder_create_wrapper(uint32_t range_min_ms, uint32
 
 }
 
-namespace score::hm::heartbeat
+namespace score::mw::health::heartbeat
 {
 HeartbeatMonitorBuilder::HeartbeatMonitorBuilder(const TimeRange& range)
     : monitor_builder_handle_{heartbeat_monitor_builder_create_wrapper(range.min_ms(), range.max_ms()),
@@ -54,4 +54,4 @@ void HeartbeatMonitor::heartbeat()
     SCORE_LANGUAGE_FUTURECPP_ASSERT(heartbeat_monitor_heartbeat(monitor_handle.value()) == kSuccess);
 }
 
-}  // namespace score::hm::heartbeat
+}  // namespace score::mw::health::heartbeat

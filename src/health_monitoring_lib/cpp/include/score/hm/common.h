@@ -17,7 +17,7 @@
 #include <chrono>
 #include <optional>
 
-namespace score::hm
+namespace score::mw::health
 {
 
 /// FFI internal helpers
@@ -113,6 +113,6 @@ class TimeRange
     const std::chrono::milliseconds max_ms_;
 };
 
-}  // namespace score::hm
+}  // namespace score::mw::health
 
 #endif  // SCORE_HM_COMMON_H

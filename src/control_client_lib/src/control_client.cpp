@@ -19,12 +19,10 @@
 #include <score/lcm/identifier_hash.hpp>
 #include "control_client_impl.hpp"
 
-namespace score {
-
-namespace lcm {
+namespace score::mw::lifecycle {
 
 // coverity[exn_spec_violation:FALSE] SetError cannot raise an exception in this instance
-inline score::concurrency::InterruptibleFuture<void> GetErrorFuture(score::lcm::ExecErrc errType) noexcept {
+inline score::concurrency::InterruptibleFuture<void> GetErrorFuture(ExecErrc errType) noexcept {
     score::concurrency::InterruptiblePromise<void> tmp_{};
     tmp_.SetError(errType);
     return tmp_.GetInterruptibleFuture().value();
@@ -57,8 +55,8 @@ score::concurrency::InterruptibleFuture<void> ControlClient::ActivateRunTarget(s
 
     if( control_client_impl_ != nullptr )
     {
-        static IdentifierHash pg_name{"MainPG"};
-        IdentifierHash pg_state{"MainPG/" + std::string(runTargetName)};
+        static score::lcm::IdentifierHash pg_name{"MainPG"};
+        score::lcm::IdentifierHash pg_state{"MainPG/" + std::string(runTargetName)};
         retVal_ = control_client_impl_->SetState(pg_name, pg_state);
     }
     else
@@ -69,6 +67,4 @@ score::concurrency::InterruptibleFuture<void> ControlClient::ActivateRunTarget(s
     return retVal_;
 }
 
-}  // namespace lcm
-
-}  // namespace score
+}  // namespace score::mw::lifecycle

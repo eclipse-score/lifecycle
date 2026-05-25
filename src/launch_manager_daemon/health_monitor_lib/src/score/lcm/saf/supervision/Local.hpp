@@ -119,7 +119,7 @@ public:
 
     /// @brief Get local supervision status
     /// @return LocalSupervisionStatus  Current local supervision status
-    score::lcm::LocalSupervisionStatus getStatus(void) const noexcept;
+    score::mw::health::LocalSupervisionStatus getStatus(void) const noexcept;
 
     /// @brief Get Supervision Type
     /// @return     Type of Supervision which caused the current state transition
@@ -193,7 +193,7 @@ PHM_PRIVATE:
     bool isOneFailed() const noexcept;
 
     /// @brief Current local supervision status
-    score::lcm::LocalSupervisionStatus localStatus{score::lcm::LocalSupervisionStatus::kDeactivated};
+    score::mw::health::LocalSupervisionStatus localStatus{score::mw::health::LocalSupervisionStatus::kDeactivated};
 
     /// @brief Supervision Type that caused the current state transition
     /// @note Initial value has no special meaning it just needs to be one of the possible supervision types

@@ -24,9 +24,7 @@
 #include <fstream>
 
 #include "flatbuffers/flatbuffers.h"
-namespace score
-{
-namespace lcm
+namespace score::mw::health
 {
 
 namespace
@@ -75,7 +73,7 @@ MonitorImpl::MonitorImpl(const std::string_view& f_instanceSpecifier_r,
     connectToPhmDaemon();
 }
 
-void MonitorImpl::ReportCheckpoint(score::lcm::Checkpoint f_checkpointId) const noexcept(true)
+void MonitorImpl::ReportCheckpoint(Checkpoint f_checkpointId) const noexcept(true)
 {
     (void)ipcClient->sendEmplace(score::lcm::saf::timers::OsClock::getMonotonicSystemClock(), f_checkpointId);
 }
@@ -168,5 +166,4 @@ std::pair<bool, std::string> MonitorImpl::readConfig(std::string& f_returnIfPath
 
 }
 
-}  // namespace lcm
-}  // namespace score
+}  // namespace score::mw::health

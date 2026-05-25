@@ -18,8 +18,8 @@ namespace
 {
 extern "C" {
 
-using namespace score::hm;
-using namespace score::hm::internal;
+using namespace score::mw::health;
+using namespace score::mw::health::internal;
 
 // Functions below must match functions defined in `crate::thread_ffi`.
 
@@ -43,7 +43,7 @@ FFIHandle thread_parameters_create_wrapper()
 }
 }  // namespace
 
-namespace score::hm
+namespace score::mw::health
 {
 
 int32_t scheduler_policy_priority_min(SchedulerPolicy scheduler_policy)
@@ -120,4 +120,4 @@ ThreadParameters ThreadParameters::stack_size(size_t stack_size) &&
     return std::move(*this);
 }
 
-}  // namespace score::hm
+}  // namespace score::mw::health

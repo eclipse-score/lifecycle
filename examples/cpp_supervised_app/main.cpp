@@ -30,7 +30,7 @@
 #include <score/hm/health_monitor.h>
 #include <thread>
 
-using score::lcm::Monitor;
+using score::mw::health::Monitor;
 
 /// @brief CLI configuration options for the demo_application process
 struct Config
@@ -114,7 +114,7 @@ int main(int argc, char** argv)
     score::mw::log::rust::StdoutLoggerBuilder builder;
     builder.Context("APP").LogLevel(score::mw::log::rust::LogLevel::Verbose).SetAsDefaultLogger();
 
-    using namespace score::hm;
+    using namespace score::mw::health;
 
     auto builder_mon =
         deadline::DeadlineMonitorBuilder()
@@ -149,7 +149,7 @@ int main(int argc, char** argv)
 
         hm.start();
 
-        score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
+        score::mw::lifecycle::LifecycleClient{}.ReportExecutionState(score::mw::lifecycle::ExecutionState::kRunning);
 
         auto deadline_mon = std::move(*deadline_monitor_res);
 

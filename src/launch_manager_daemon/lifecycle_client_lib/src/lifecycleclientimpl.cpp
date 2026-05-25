@@ -26,11 +26,7 @@
 
 using namespace score::lcm::internal::osal;
 
-namespace score
-{
-
-    namespace lcm
-    {
+namespace score::mw::lifecycle {
         std::atomic_bool LifecycleClient::LifecycleClientImpl::reported{false};
 
         LifecycleClient::LifecycleClientImpl::LifecycleClientImpl() noexcept = default;
@@ -40,18 +36,18 @@ namespace score
         score::Result<std::monostate> LifecycleClient::LifecycleClientImpl::ReportExecutionState(ExecutionState state) const noexcept
         {
 
-            score::Result<std::monostate> retVal{score::MakeUnexpected(score::lcm::ExecErrc::kCommunicationError)};
+            score::Result<std::monostate> retVal{score::MakeUnexpected(ExecErrc::kCommunicationError)};
 
             // Check if the state is valid
-            if (score::lcm::ExecutionState::kRunning != state)
+            if (ExecutionState::kRunning != state)
             {
                 LM_LOG_ERROR() << "[Lifecycle Client] Invalid execution state!";
-                retVal = score::Result<std::monostate>{score::MakeUnexpected(score::lcm::ExecErrc::kInvalidTransition)};
+                retVal = score::Result<std::monostate>{score::MakeUnexpected(ExecErrc::kInvalidTransition)};
             }
             else if (reported)
             {
                 LM_LOG_INFO() << "[Lifecycle Client] Reported kRunning already!";
-                retVal = score::Result<std::monostate>{score::MakeUnexpected(score::lcm::ExecErrc::kInvalidTransition)};
+                retVal = score::Result<std::monostate>{score::MakeUnexpected(ExecErrc::kInvalidTransition)};
             }
             else
             {
@@ -63,7 +59,7 @@ namespace score
 
         score::Result<std::monostate> LifecycleClient::LifecycleClientImpl::reportKRunningtoDaemon() const noexcept
         {
-            score::Result<std::monostate> comms_error {score::MakeUnexpected(score::lcm::ExecErrc::kCommunicationError)};
+            score::Result<std::monostate> comms_error {score::MakeUnexpected(ExecErrc::kCommunicationError)};
 
             // Define necessary constants
             const int sync_fd = IpcCommsSync::sync_fd;
@@ -122,6 +118,4 @@ namespace score
             return score::Result<std::monostate>{};
         }
 
-    } // namespace lcm
-
-} // namespace score
+}  // namespace score::mw::lifecycle

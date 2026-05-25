@@ -17,7 +17,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace score::hm
+namespace score::mw::health
 {
 
 class HealthMonitorBuilder;
@@ -83,9 +83,9 @@ class ThreadParameters final : public internal::RustDroppable<ThreadParameters>
     friend class internal::RustDroppable<ThreadParameters>;
 
     // Allow `HealthMonitorBuilder` to access `drop_by_rust` implementation.
-    friend class score::hm::HealthMonitorBuilder;
+    friend class score::mw::health::HealthMonitorBuilder;
 };
 
-}  // namespace score::hm
+}  // namespace score::mw::health
 
 #endif  // SCORE_HM_THREAD_H

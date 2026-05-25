@@ -15,11 +15,11 @@
 namespace
 {
 extern "C" {
-using namespace score::hm;
-using namespace score::hm::internal;
-using namespace score::hm::deadline;
-using namespace score::hm::heartbeat;
-using namespace score::hm::logic;
+using namespace score::mw::health;
+using namespace score::mw::health::internal;
+using namespace score::mw::health::deadline;
+using namespace score::mw::health::heartbeat;
+using namespace score::mw::health::logic;
 
 // Functions below must match functions defined in `crate::ffi`.
 
@@ -64,7 +64,7 @@ FFIHandle health_monitor_builder_create_wrapper()
 
 // C++ wrapper for Rust library - the API implementation obeys the Rust API semantics and it's invariants
 
-namespace score::hm
+namespace score::mw::health
 {
 
 HealthMonitorBuilder::HealthMonitorBuilder()
@@ -130,7 +130,7 @@ HealthMonitorBuilder HealthMonitorBuilder::with_supervisor_api_cycle(std::chrono
     return std::move(*this);
 }
 
-HealthMonitorBuilder HealthMonitorBuilder::thread_parameters(score::hm::ThreadParameters&& thread_parameters) &&
+HealthMonitorBuilder HealthMonitorBuilder::thread_parameters(score::mw::health::ThreadParameters&& thread_parameters) &&
 {
     thread_parameters_ = std::move(thread_parameters);
     return std::move(*this);
@@ -251,4 +251,4 @@ HealthMonitor& HealthMonitor::operator=(HealthMonitor&& other)
     return *this;
 }
 
-}  // namespace score::hm
+}  // namespace score::mw::health
