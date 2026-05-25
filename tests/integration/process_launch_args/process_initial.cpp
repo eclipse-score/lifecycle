@@ -45,6 +45,6 @@ int main(int argc, char** argv)
 {
     g_argc = argc;
     g_argv = argv;
-    TestRunner runner{__FILE__, false, true};
+    TestRunner runner{__FILE__, TerminationBehavior::kContinue, TerminationNotification::kTestEnd};
     return runner.RunTests();
 }

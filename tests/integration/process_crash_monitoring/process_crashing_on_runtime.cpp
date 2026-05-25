@@ -26,7 +26,7 @@ TEST(ProcessCrashMonitoring, CrashingProcess)
 
 int main()
 {
-    TestRunner(__FILE__, false).RunTests();
+    TestRunner(__FILE__, TerminationBehavior::kContinue).RunTests();
     // Plenty of time to output the XML file and for LM to complete run target activation
     sleep(1);
     std::cout << "Process crashing..." << std::endl;

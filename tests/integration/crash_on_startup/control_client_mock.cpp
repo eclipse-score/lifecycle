@@ -60,7 +60,7 @@ TEST(CrashOnStartup, ControlClientMock)
     // Then, the LM should exhaust retries and trigger the fallback
     TEST_STEP("Verify fallback run target was activated")
     {
-        EXPECT_TRUE(std::filesystem::exists(fallback_file)) << "Fallback run target was activated";
+        EXPECT_TRUE(std::filesystem::exists(fallback_file)) << "Fallback run target should have been activated";
     }
 
     TEST_STEP("Activate RunTarget Off")
@@ -71,5 +71,5 @@ TEST(CrashOnStartup, ControlClientMock)
 
 int main(int argc, char** argv)
 {
-    return TestRunner(__FILE__, true, true).RunTests();
+    return TestRunner(__FILE__, TerminationBehavior::kWait, TerminationNotification::kTestEnd).RunTests();
 }

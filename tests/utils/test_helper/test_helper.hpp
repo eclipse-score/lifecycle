@@ -27,22 +27,28 @@ inline testing::AssertionResult touch_file(const std::string_view file_path)
 {
     auto openRes = fopen(file_path.data(), "w+");
     if (!openRes)
+    {
         return testing::AssertionFailure()
                << "Could not touch file " << file_path << " errno: " << errno << " message: " << strerror(errno);
+    }
 
     if (fclose(openRes) != 0)
+    {
         return testing::AssertionFailure()
                << "Couldn't close opened file " << file_path << " errno: " << errno << " message: " << strerror(errno);
+    }
     return testing::AssertionSuccess();
 }
 
 /// @brief Location to store a file signalling that the fallback state has been reached.
 constexpr std::string_view fallback_file = "fallback_reached";
 
-/// @brief Location to store a file signalling that a process has been killed on first try - used to test ready recovery action
+/// @brief Location to store a file signalling that a process has been killed on first try - used to test ready recovery
+/// action
 constexpr std::string_view crashed_once_file = "crashed_once";
 
-/// @brief Location to store a file signalling that a process has been killed on second try - used to test ready recovery action
+/// @brief Location to store a file signalling that a process has been killed on second try - used to test ready
+/// recovery action
 constexpr std::string_view crashed_twice_file = "crashed_twice";
 
 /// @brief Where to store the test_end signal file. This must be kept consistent with where the test framework
@@ -86,6 +92,18 @@ inline testing::AssertionResult check_clean(const std::initializer_list<std::str
     for (bool once = (std::cout << "[ STEP     ] " << (message) << std::endl, true); once; \
          (std::cout << "[ END STEP ] " << (message) << std::endl), once = false)
 
+enum class TerminationBehavior : std::uint8_t
+{
+    kWait = 0, // Wait for a signal before terminating
+    kContinue, // Terminate immediately
+};
+
+enum class TerminationNotification : std::uint8_t
+{
+    kNone = 0, // Terminate without any notification
+    kTestEnd,  // Signal that the test has completed
+};
+
 /// @brief Helper class to setup, run, and clean up GTEST tests
 class TestRunner
 {
@@ -94,38 +112,45 @@ class TestRunner
         exitRequested = true;
     }
 
-    bool signal_completion;
-    bool m_wait_for_termination;
+    TerminationNotification m_termination_notification;
+    TerminationBehavior m_termination_behavior;
 
     std::string_view m_test_path;
 
   public:
     /// @brief TestRunner constructor
     /// @param[in] test_path location to write the GTEST xml file (usually __FILE__)
-    /// @param[in] wait_for_termination whether to block on RunTests() until termination is requested
-    /// @param[in] do_signal_completion whether this test should deploy a file signaling the test has completed
-    ///            Usually the control daemon should deploy this file.
-    TestRunner(std::string_view test_path, bool wait_for_termination = true, bool do_signal_completion = false)
+    /// @param[in] termination_behavior what to do when running tests has completed
+    /// @param[in] termination_notification what notification to send (if any) when running tests has completed.
+    ///            Usually the control daemon should signal test end.
+    TestRunner(std::string_view test_path,
+               TerminationBehavior termination_behavior = TerminationBehavior::kWait,
+               TerminationNotification termination_notification = TerminationNotification::kNone)
+        : m_termination_notification(termination_notification),
+          m_termination_behavior(termination_behavior),
+          m_test_path(test_path)
     {
-        m_test_path = test_path;
-        m_wait_for_termination = wait_for_termination;
-
         signal(SIGINT, signalHandler);
         signal(SIGTERM, signalHandler);
-        signal_completion = do_signal_completion;
     }
+
+    TestRunner(const TestRunner&) = delete;
+    TestRunner(TestRunner&&) = delete;
+    TestRunner& operator=(const TestRunner&) = delete;
+    TestRunner& operator=(TestRunner&&) = delete;
 
     ~TestRunner()
     {
-        if (m_wait_for_termination && !exitRequested)
+        if (m_termination_behavior == TerminationBehavior::kWait && !exitRequested)
         {
             pause();
         }
 
-        if (signal_completion)
+        if (m_termination_notification == TerminationNotification::kTestEnd)
         {
             const auto res = touch_file(test_end_location);
-            if (!res) {
+            if (!res)
+            {
                 std::cerr << res.failure_message() << std::endl;
             }
         }

@@ -48,5 +48,5 @@ TEST(NonReporting, Process)
 
 int main()
 {
-    return TestRunner(__FILE__, false, true).RunTests();
+    return TestRunner(__FILE__, TerminationBehavior::kContinue, TerminationNotification::kTestEnd).RunTests();
 }
