@@ -834,6 +834,69 @@ TEST_F(FlatbufferConfigLoaderTest, SandboxSupplementaryGidOutOfRangeReturnsInval
 }
 
 // ============================================================================
+// Invalid time value tests (secondsToMs validation)
+// ============================================================================
+
+TEST_F(FlatbufferConfigLoaderTest, NegativeTimeValueReturnsInvalidFormat)
+{
+    RecordProperty("Description", "A negative time value returns InvalidFormat.");
+
+    ::flatbuffers::FlatBufferBuilder fbb;
+    auto bin_dir = fbb.CreateString("/opt");
+    auto work_dir = fbb.CreateString("/tmp");
+    auto sandbox = buildDefaultSandbox(fbb);
+    auto deploy = fb::CreateDeploymentConfig(fbb, -1.0 /*ready_timeout*/, 1.0, 0, bin_dir, work_dir, 0, 0, sandbox);
+
+    auto comp = buildDefaultComponent(fbb, "comp", buildDefaultComponentProperties(fbb), deploy);
+    auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{comp});
+
+    auto result = loadBuffer(buildConfigWithComponents(fbb, comps));
+
+    ASSERT_THAT(result.has_value(), IsFalse());
+    EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
+}
+
+TEST_F(FlatbufferConfigLoaderTest, OverflowTimeValueReturnsInvalidFormat)
+{
+    RecordProperty("Description", "A time value exceeding uint32_t max milliseconds returns InvalidFormat.");
+
+    ::flatbuffers::FlatBufferBuilder fbb;
+    auto bin_dir = fbb.CreateString("/opt");
+    auto work_dir = fbb.CreateString("/tmp");
+    auto sandbox = buildDefaultSandbox(fbb);
+    auto deploy = fb::CreateDeploymentConfig(
+        fbb, 5000000.0 /*ready_timeout*/, 1.0, 0, bin_dir, work_dir, 0, 0, sandbox);
+
+    auto comp = buildDefaultComponent(fbb, "comp", buildDefaultComponentProperties(fbb), deploy);
+    auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{comp});
+
+    auto result = loadBuffer(buildConfigWithComponents(fbb, comps));
+
+    ASSERT_THAT(result.has_value(), IsFalse());
+    EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
+}
+
+TEST_F(FlatbufferConfigLoaderTest, SubMillisecondTimeValueReturnsInvalidFormat)
+{
+    RecordProperty("Description", "A positive time value that rounds to 0ms returns InvalidFormat.");
+
+    ::flatbuffers::FlatBufferBuilder fbb;
+    auto bin_dir = fbb.CreateString("/opt");
+    auto work_dir = fbb.CreateString("/tmp");
+    auto sandbox = buildDefaultSandbox(fbb);
+    auto deploy = fb::CreateDeploymentConfig(
+        fbb, 0.0001 /*ready_timeout*/, 1.0, 0, bin_dir, work_dir, 0, 0, sandbox);
+
+    auto comp = buildDefaultComponent(fbb, "comp", buildDefaultComponentProperties(fbb), deploy);
+    auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{comp});
+
+    auto result = loadBuffer(buildConfigWithComponents(fbb, comps));
+
+    ASSERT_THAT(result.has_value(), IsFalse());
+    EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
+}
+
+// ============================================================================
 // Missing required field tests
 // ============================================================================
 
