@@ -36,10 +36,24 @@ namespace
 constexpr int32_t kExpectedSchemaVersion = 1;
 constexpr double kSecondsToMilliseconds = 1000.0;
 
-uint32_t secondsToMs(double seconds)
+score::cpp::expected<uint32_t, IConfigLoader::Error> secondsToMs(double seconds)
 {
+    if (seconds < 0.0)
+    {
+        LM_LOG_ERROR() << "Negative time value " << seconds << " seconds is not supported";
+        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+    }
+    if (seconds * kSecondsToMilliseconds > static_cast<double>(std::numeric_limits<uint32_t>::max()))
+    {
+        LM_LOG_ERROR() << "Time value " << seconds << " seconds exceeds maximum representable milliseconds";
+        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+    }
     const auto result = static_cast<uint32_t>(seconds * kSecondsToMilliseconds);
-    assert(!(seconds > 0.0 && result == 0U) && "Sub-millisecond precision is not supported: value rounds to 0ms");
+    if (seconds > 0.0 && result == 0U)
+    {
+        LM_LOG_ERROR() << "Sub-millisecond time value " << seconds << " seconds rounds to 0ms";
+        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+    }
     return result;
 }
 
@@ -170,8 +184,13 @@ score::cpp::expected<std::optional<RestartAction>, IConfigLoader::Error> convert
         LM_LOG_ERROR() << "RestartAction::delay_before_restart is required but missing";
         return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
     }
-    return std::optional<RestartAction>{
-        RestartAction{*ra->number_of_attempts(), secondsToMs(*ra->delay_before_restart())}};
+    auto delay_ms = secondsToMs(*ra->delay_before_restart());
+    if (!delay_ms.has_value())
+    {
+        LM_LOG_ERROR() << "Invalid value for RestartAction::delay_before_restart";
+        return score::cpp::make_unexpected(delay_ms.error());
+    }
+    return std::optional<RestartAction>{RestartAction{*ra->number_of_attempts(), *delay_ms}};
 }
 
 std::optional<SwitchRunTargetAction> convertSwitchRunTargetAction(const fb::SwitchRunTargetAction* sa)
@@ -208,7 +227,13 @@ score::cpp::expected<ComponentAliveSupervision, IConfigLoader::Error> convertCom
             LM_LOG_ERROR() << "ComponentAliveSupervision::failed_cycles_tolerance is required but missing";
             return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
         }
-        result.reporting_cycle_ms = secondsToMs(*fb_cas->reporting_cycle());
+        auto reporting_cycle_ms = secondsToMs(*fb_cas->reporting_cycle());
+        if (!reporting_cycle_ms.has_value())
+        {
+            LM_LOG_ERROR() << "Invalid value for ComponentAliveSupervision::reporting_cycle";
+            return score::cpp::make_unexpected(reporting_cycle_ms.error());
+        }
+        result.reporting_cycle_ms = *reporting_cycle_ms;
         result.failed_cycles_tolerance = *fb_cas->failed_cycles_tolerance();
         result.min_indications = fb_cas->min_indications().has_value()
                                      ? std::optional<uint32_t>{*fb_cas->min_indications()}
@@ -375,8 +400,20 @@ score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentCo
             LM_LOG_ERROR() << "DeploymentConfig::shutdown_timeout is required but missing";
             return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
         }
-        result.ready_timeout_ms = secondsToMs(*fb_dc->ready_timeout());
-        result.shutdown_timeout_ms = secondsToMs(*fb_dc->shutdown_timeout());
+        auto ready_timeout_ms = secondsToMs(*fb_dc->ready_timeout());
+        if (!ready_timeout_ms.has_value())
+        {
+            LM_LOG_ERROR() << "Invalid value for DeploymentConfig::ready_timeout";
+            return score::cpp::make_unexpected(ready_timeout_ms.error());
+        }
+        auto shutdown_timeout_ms = secondsToMs(*fb_dc->shutdown_timeout());
+        if (!shutdown_timeout_ms.has_value())
+        {
+            LM_LOG_ERROR() << "Invalid value for DeploymentConfig::shutdown_timeout";
+            return score::cpp::make_unexpected(shutdown_timeout_ms.error());
+        }
+        result.ready_timeout_ms = *ready_timeout_ms;
+        result.shutdown_timeout_ms = *shutdown_timeout_ms;
         result.environmental_variables = convertEnvironmentalVariables(fb_dc->environmental_variables());
         result.bin_dir = fb_dc->bin_dir()->str();
         result.working_dir = fb_dc->working_dir()->str();
@@ -410,12 +447,14 @@ score::cpp::expected<ComponentConfig, IConfigLoader::Error> convertComponent(con
         auto component_properties = convertComponentProperties(fb_comp->component_properties());
         if (!component_properties.has_value())
         {
+            LM_LOG_ERROR() << "Invalid component_properties for Component '" << result.name << "'";
             return score::cpp::make_unexpected(component_properties.error());
         }
         result.component_properties = std::move(*component_properties);
         auto deployment_config = convertDeploymentConfig(fb_comp->deployment_config());
         if (!deployment_config.has_value())
         {
+            LM_LOG_ERROR() << "Invalid deployment_config for Component '" << result.name << "'";
             return score::cpp::make_unexpected(deployment_config.error());
         }
         result.deployment_config = std::move(*deployment_config);
@@ -438,7 +477,13 @@ score::cpp::expected<RunTargetConfig, IConfigLoader::Error> convertRunTarget(con
         result.name = fb_rt->name()->str();
         result.description = safeString(fb_rt->description());
         result.depends_on = convertStringVector(fb_rt->depends_on());
-        result.transition_timeout_ms = secondsToMs(*fb_rt->transition_timeout());
+        auto transition_timeout_ms = secondsToMs(*fb_rt->transition_timeout());
+        if (!transition_timeout_ms.has_value())
+        {
+            LM_LOG_ERROR() << "Invalid value for RunTarget::transition_timeout";
+            return score::cpp::make_unexpected(transition_timeout_ms.error());
+        }
+        result.transition_timeout_ms = *transition_timeout_ms;
         result.recovery_action = convertRequiredSwitchRunTargetAction(fb_rt->recovery_action());
     }
     return result;
@@ -457,7 +502,13 @@ score::cpp::expected<FallbackRunTargetConfig, IConfigLoader::Error> convertFallb
         }
         result.description = safeString(fb_frt->description());
         result.depends_on = convertStringVector(fb_frt->depends_on());
-        result.transition_timeout_ms = secondsToMs(*fb_frt->transition_timeout());
+        auto transition_timeout_ms = secondsToMs(*fb_frt->transition_timeout());
+        if (!transition_timeout_ms.has_value())
+        {
+            LM_LOG_ERROR() << "Invalid value for FallbackRunTarget::transition_timeout";
+            return score::cpp::make_unexpected(transition_timeout_ms.error());
+        }
+        result.transition_timeout_ms = *transition_timeout_ms;
     }
     return result;
 }
@@ -474,7 +525,13 @@ score::cpp::expected<AliveSupervisionConfig, IConfigLoader::Error> convertAliveS
         LM_LOG_ERROR() << "AliveSupervision::evaluation_cycle is required but missing";
         return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
     }
-    return AliveSupervisionConfig{secondsToMs(*fb_as->evaluation_cycle())};
+    auto evaluation_cycle_ms = secondsToMs(*fb_as->evaluation_cycle());
+    if (!evaluation_cycle_ms.has_value())
+    {
+        LM_LOG_ERROR() << "Invalid value for AliveSupervision::evaluation_cycle";
+        return score::cpp::make_unexpected(evaluation_cycle_ms.error());
+    }
+    return AliveSupervisionConfig{*evaluation_cycle_ms};
 }
 
 score::cpp::expected<std::optional<WatchdogConfig>, IConfigLoader::Error> convertWatchdog(const fb::Watchdog* fb_wd)
@@ -501,7 +558,13 @@ score::cpp::expected<std::optional<WatchdogConfig>, IConfigLoader::Error> conver
     }
     WatchdogConfig result{};
     result.device_file_path = fb_wd->device_file_path()->str();
-    result.max_timeout_ms = secondsToMs(*fb_wd->max_timeout());
+    auto max_timeout_ms = secondsToMs(*fb_wd->max_timeout());
+    if (!max_timeout_ms.has_value())
+    {
+        LM_LOG_ERROR() << "Invalid value for Watchdog::max_timeout";
+        return score::cpp::make_unexpected(max_timeout_ms.error());
+    }
+    result.max_timeout_ms = *max_timeout_ms;
     result.deactivate_on_shutdown = *fb_wd->deactivate_on_shutdown();
     result.require_magic_close = *fb_wd->require_magic_close();
     return std::optional<WatchdogConfig>{std::move(result)};
@@ -570,6 +633,7 @@ score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::ve
                 auto component = convertComponent(comp);
                 if (!component.has_value())
                 {
+                    LM_LOG_ERROR() << "Failed to load configuration for Component '" << safeString(comp->name()) << "'";
                     return score::cpp::make_unexpected(component.error());
                 }
                 components.emplace_back(std::move(*component));
@@ -588,6 +652,7 @@ score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::ve
                 auto run_target = convertRunTarget(rt);
                 if (!run_target.has_value())
                 {
+                    LM_LOG_ERROR() << "Failed to load configuration for RunTarget '" << safeString(rt->name()) << "'";
                     return score::cpp::make_unexpected(run_target.error());
                 }
                 run_targets.emplace_back(std::move(*run_target));
@@ -600,6 +665,7 @@ score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::ve
     auto fallback = convertFallbackRunTarget(config->fallback_run_target());
     if (!fallback.has_value())
     {
+        LM_LOG_ERROR() << "Failed to load configuration for FallbackRunTarget";
         return score::cpp::make_unexpected(fallback.error());
     }
     builder.setFallbackRunTarget(std::move(*fallback));
@@ -608,6 +674,7 @@ score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::ve
     auto alive_sup = convertAliveSupervision(config->alive_supervision());
     if (!alive_sup.has_value())
     {
+        LM_LOG_ERROR() << "Failed to load configuration for AliveSupervision";
         return score::cpp::make_unexpected(alive_sup.error());
     }
     builder.setAliveSupervision(std::move(*alive_sup));
@@ -615,6 +682,7 @@ score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::ve
     auto wd = convertWatchdog(config->watchdog());
     if (!wd.has_value())
     {
+        LM_LOG_ERROR() << "Failed to load configuration for Watchdog";
         return score::cpp::make_unexpected(wd.error());
     }
     if (wd->has_value())
