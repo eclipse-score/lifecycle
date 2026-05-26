@@ -66,13 +66,18 @@ struct ComponentProperties
     std::optional<ReadyCondition> ready_condition;
 };
 
+/// @brief A single environment variable
 class EnvironmentVariable
 {
   public:
+    /// @brief Constructs an environment variable from a key and value.
     EnvironmentVariable(std::string_view key, std::string_view value);
 
+    /// @brief Returns the key portion.
     std::string_view key() const;
+    /// @brief Returns the value portion.
     std::string_view value() const;
+    /// @brief Returns the full "key=value" as a null-terminated C string.
     const char* c_str() const;
 
   private:
@@ -80,6 +85,10 @@ class EnvironmentVariable
     std::size_t key_length_;
 };
 
+/// @brief Stores configured environment variables.
+///
+/// Provides read access via key/value iteration and a null-terminated pointer array
+/// suitable for use with the @c execve system call via @ref envp().
 class Environment
 {
   public:
@@ -94,13 +103,19 @@ class Environment
 
     ~Environment() = default;
 
+    /// @brief Pre-allocates storage for @p count environment variables.
     void reserve(std::size_t count);
+    /// @brief Adds an environment variable with the given key and value.
     void add(std::string_view key, std::string_view value);
 
+    /// @brief Returns an iterator to the first environment variable.
     const_iterator begin() const;
+    /// @brief Returns an iterator past the last environment variable.
     const_iterator end() const;
+    /// @brief Returns the number of stored environment variables.
     std::size_t size() const;
 
+    /// @brief Returns a null-terminated array of "key=value" C strings for use with @c execve.
     char* const* envp() const;
 
   private:
@@ -201,20 +216,30 @@ class Config
     Config(Config&&) = default;
     Config& operator=(Config&&) = default;
 
-    // Read access
+    /// @brief Returns the component configurations.
     const std::vector<ComponentConfig>& components() const;
+    /// @brief Returns the run target configurations.
     const std::vector<RunTargetConfig>& runTargets() const;
+    /// @brief Returns the name of the initial run target.
     std::string_view initialRunTarget() const;
+    /// @brief Returns the fallback run target configuration.
     const FallbackRunTargetConfig& fallbackRunTarget() const;
+    /// @brief Returns the global alive supervision configuration.
     const AliveSupervisionConfig& aliveSupervision() const;
+    /// @brief Returns the watchdog configuration, if present.
     const std::optional<WatchdogConfig>& watchdog() const;
 
-    // Ownership transfer — source is left in a moved-from state after the call
+    /// @brief Moves out the component configurations. Source is left in a moved-from state.
     std::vector<ComponentConfig> takeComponents();
+    /// @brief Moves out the run target configurations. Source is left in a moved-from state.
     std::vector<RunTargetConfig> takeRunTargets();
+    /// @brief Moves out the initial run target name. Source is left in a moved-from state.
     std::string takeInitialRunTarget();
+    /// @brief Moves out the fallback run target configuration. Source is left in a moved-from state.
     FallbackRunTargetConfig takeFallbackRunTarget();
+    /// @brief Moves out the alive supervision configuration. Source is left in a moved-from state.
     AliveSupervisionConfig takeAliveSupervision();
+    /// @brief Moves out the watchdog configuration. Source is left in a moved-from state.
     std::optional<WatchdogConfig> takeWatchdog();
 
   private:
@@ -235,16 +260,24 @@ class Config
     std::optional<WatchdogConfig> watchdog_;
 };
 
+/// @brief Builder for constructing a @ref Config instance.
 class ConfigBuilder
 {
   public:
+    /// @brief Sets the component configurations.
     ConfigBuilder& setComponents(std::vector<ComponentConfig> components);
+    /// @brief Sets the run target configurations.
     ConfigBuilder& setRunTargets(std::vector<RunTargetConfig> run_targets);
+    /// @brief Sets the initial run target name.
     ConfigBuilder& setInitialRunTarget(std::string initial_run_target);
+    /// @brief Sets the fallback run target configuration.
     ConfigBuilder& setFallbackRunTarget(FallbackRunTargetConfig fallback);
+    /// @brief Sets the global alive supervision configuration.
     ConfigBuilder& setAliveSupervision(AliveSupervisionConfig alive_supervision);
+    /// @brief Sets the watchdog configuration.
     ConfigBuilder& setWatchdog(WatchdogConfig watchdog);
 
+    /// @brief Builds and returns the @ref Config object.
     Config build();
 
   private:
