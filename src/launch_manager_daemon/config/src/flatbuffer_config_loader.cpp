@@ -33,7 +33,6 @@ namespace fb = score::mw::launch_manager::configuration::fb;
 namespace
 {
 
-constexpr int32_t kExpectedSchemaVersion = 1;
 constexpr double kSecondsToMilliseconds = 1000.0;
 
 score::cpp::expected<uint32_t, IConfigLoader::Error> secondsToMs(double seconds)
@@ -611,7 +610,7 @@ score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::ve
         LM_LOG_ERROR() << "LaunchManagerConfig::schema_version is required but missing";
         return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
     }
-    if (*config->schema_version() != kExpectedSchemaVersion)
+    if (*config->schema_version() != FlatbufferConfigLoader::kExpectedSchemaVersion)
     {
         return score::cpp::make_unexpected(IConfigLoader::Error::UnsupportedVersion);
     }

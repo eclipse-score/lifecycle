@@ -109,7 +109,7 @@ std::vector<uint8_t> buildConfigWithComponents(
     auto alive_sup = fb::CreateAliveSupervision(fbb, 1.0 /*evaluation_cycle*/);
     auto rts = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::RunTarget>>{});
     auto irt = fbb.CreateString("Startup");
-    auto config = fb::CreateLaunchManagerConfig(fbb, 1 /*schema_version*/, comps, rts, irt, fallback, alive_sup);
+    auto config = fb::CreateLaunchManagerConfig(fbb, FlatbufferConfigLoader::kExpectedSchemaVersion, comps, rts, irt, fallback, alive_sup);
     return finishBuffer(fbb, config);
 }
 
@@ -121,7 +121,7 @@ std::vector<uint8_t> buildConfigWithRunTargets(
     auto alive_sup = fb::CreateAliveSupervision(fbb, 1.0 /*evaluation_cycle*/);
     auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{});
     auto irt = fbb.CreateString("Startup");
-    auto config = fb::CreateLaunchManagerConfig(fbb, 1 /*schema_version*/, comps, rts, irt, fallback, alive_sup);
+    auto config = fb::CreateLaunchManagerConfig(fbb, FlatbufferConfigLoader::kExpectedSchemaVersion, comps, rts, irt, fallback, alive_sup);
     return finishBuffer(fbb, config);
 }
 
@@ -148,7 +148,7 @@ class FlatbufferConfigLoaderTest : public ::testing::Test
         MockBufferLoader::result_ = std::vector<uint8_t>{};
     }
 
-    std::vector<uint8_t> buildMinimalConfig(int32_t schema_version = 1, const char* initial_run_target = "Startup")
+    std::vector<uint8_t> buildMinimalConfig(int32_t schema_version = FlatbufferConfigLoader::kExpectedSchemaVersion, const char* initial_run_target = "Startup")
     {
         ::flatbuffers::FlatBufferBuilder fbb;
         auto irt = fbb.CreateString(initial_run_target);
@@ -179,7 +179,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadMinimalConfig)
 {
     RecordProperty("Description", "Loads a minimal config with only required fields.");
 
-    auto result = loadBuffer(buildMinimalConfig(1, "Startup"));
+    auto result = loadBuffer(buildMinimalConfig(FlatbufferConfigLoader::kExpectedSchemaVersion, "Startup"));
 
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(result->initialRunTarget(), Eq("Startup"));
@@ -293,7 +293,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadFallbackRunTarget)
     auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{});
     auto rts = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::RunTarget>>{});
     auto irt = fbb.CreateString("Startup");
-    auto config = fb::CreateLaunchManagerConfig(fbb, 1 /*schema_version*/, comps, rts, irt, fallback, alive_sup);
+    auto config = fb::CreateLaunchManagerConfig(fbb, FlatbufferConfigLoader::kExpectedSchemaVersion, comps, rts, irt, fallback, alive_sup);
 
     auto result = loadBuffer(finishBuffer(fbb, config));
 
@@ -316,7 +316,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadAliveSupervision)
     auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{});
     auto rts = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::RunTarget>>{});
     auto irt = fbb.CreateString("Startup");
-    auto config = fb::CreateLaunchManagerConfig(fbb, 1 /*schema_version*/, comps, rts, irt, fallback, alive_sup);
+    auto config = fb::CreateLaunchManagerConfig(fbb, FlatbufferConfigLoader::kExpectedSchemaVersion, comps, rts, irt, fallback, alive_sup);
 
     auto result = loadBuffer(finishBuffer(fbb, config));
 
@@ -339,7 +339,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadWatchdog)
     auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{});
     auto rts = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::RunTarget>>{});
     auto irt = fbb.CreateString("Startup");
-    auto config = fb::CreateLaunchManagerConfig(fbb, 1 /*schema_version*/, comps, rts, irt, fallback, alive_sup, watchdog);
+    auto config = fb::CreateLaunchManagerConfig(fbb, FlatbufferConfigLoader::kExpectedSchemaVersion, comps, rts, irt, fallback, alive_sup, watchdog);
 
     auto result = loadBuffer(finishBuffer(fbb, config));
 
@@ -733,7 +733,7 @@ TEST_F(FlatbufferConfigLoaderTest, WrongSchemaVersionReturnsUnsupportedVersion)
 {
     RecordProperty("Description", "A config with an unexpected schema_version returns UnsupportedVersion.");
 
-    auto result = loadBuffer(buildMinimalConfig(99, "Startup"));
+    auto result = loadBuffer(buildMinimalConfig(FlatbufferConfigLoader::kExpectedSchemaVersion + 1, "Startup"));
 
     ASSERT_THAT(result.has_value(), IsFalse());
     EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::UnsupportedVersion));
@@ -928,7 +928,7 @@ TEST_F(FlatbufferConfigLoaderTest, MissingEvaluationCycleReturnsInvalidFormat)
     auto alive_sup = fb::CreateAliveSupervision(fbb);
     auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{});
     auto rts = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::RunTarget>>{});
-    auto config = fb::CreateLaunchManagerConfig(fbb, 1, comps, rts, irt, fallback, alive_sup);
+    auto config = fb::CreateLaunchManagerConfig(fbb, FlatbufferConfigLoader::kExpectedSchemaVersion, comps, rts, irt, fallback, alive_sup);
 
     auto result = loadBuffer(finishBuffer(fbb, config));
 
@@ -946,7 +946,7 @@ TEST_F(FlatbufferConfigLoaderTest, MissingFallbackTransitionTimeoutReturnsInvali
     auto alive_sup = fb::CreateAliveSupervision(fbb, 1.0);
     auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{});
     auto rts = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::RunTarget>>{});
-    auto config = fb::CreateLaunchManagerConfig(fbb, 1, comps, rts, irt, fallback, alive_sup);
+    auto config = fb::CreateLaunchManagerConfig(fbb, FlatbufferConfigLoader::kExpectedSchemaVersion, comps, rts, irt, fallback, alive_sup);
 
     auto result = loadBuffer(finishBuffer(fbb, config));
 
@@ -1215,7 +1215,7 @@ TEST_F(FlatbufferConfigLoaderTest, MissingWatchdogMaxTimeoutReturnsInvalidFormat
     auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{});
     auto rts = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::RunTarget>>{});
     auto irt = fbb.CreateString("Startup");
-    auto config = fb::CreateLaunchManagerConfig(fbb, 1, comps, rts, irt, fallback, alive_sup, watchdog);
+    auto config = fb::CreateLaunchManagerConfig(fbb, FlatbufferConfigLoader::kExpectedSchemaVersion, comps, rts, irt, fallback, alive_sup, watchdog);
 
     auto result = loadBuffer(finishBuffer(fbb, config));
 
@@ -1236,7 +1236,7 @@ TEST_F(FlatbufferConfigLoaderTest, MissingWatchdogDeactivateOnShutdownReturnsInv
     auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{});
     auto rts = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::RunTarget>>{});
     auto irt = fbb.CreateString("Startup");
-    auto config = fb::CreateLaunchManagerConfig(fbb, 1, comps, rts, irt, fallback, alive_sup, watchdog);
+    auto config = fb::CreateLaunchManagerConfig(fbb, FlatbufferConfigLoader::kExpectedSchemaVersion, comps, rts, irt, fallback, alive_sup, watchdog);
 
     auto result = loadBuffer(finishBuffer(fbb, config));
 
@@ -1257,7 +1257,7 @@ TEST_F(FlatbufferConfigLoaderTest, MissingWatchdogRequireMagicCloseReturnsInvali
     auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{});
     auto rts = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::RunTarget>>{});
     auto irt = fbb.CreateString("Startup");
-    auto config = fb::CreateLaunchManagerConfig(fbb, 1, comps, rts, irt, fallback, alive_sup, watchdog);
+    auto config = fb::CreateLaunchManagerConfig(fbb, FlatbufferConfigLoader::kExpectedSchemaVersion, comps, rts, irt, fallback, alive_sup, watchdog);
 
     auto result = loadBuffer(finishBuffer(fbb, config));
 
