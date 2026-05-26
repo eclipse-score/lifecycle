@@ -52,6 +52,9 @@ template <typename BufferLoaderT = DefaultBufferLoader>
 class FlatbufferConfigLoaderImpl : public IConfigLoader
 {
   public:
+    /// @brief The configuration schema version supported by this loader.
+    static constexpr int32_t kExpectedSchemaVersion = 1;
+
     [[nodiscard]] score::cpp::expected<Config, Error> load(const score::filesystem::Path& path) override
     {
         auto buffer_result = BufferLoaderT::load(path);
@@ -63,7 +66,7 @@ class FlatbufferConfigLoaderImpl : public IConfigLoader
     }
 };
 
-/// @brief Production-ready alias using the default buffer loader.
+/// @brief Alias using the default buffer loader.
 using FlatbufferConfigLoader = FlatbufferConfigLoaderImpl<>;
 
 }  // namespace score::mw::launch_manager::configuration
