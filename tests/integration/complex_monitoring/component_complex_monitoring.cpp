@@ -56,7 +56,7 @@ TEST(ComplexMonitoring, ComponentComplexMonitoring)
     {
         while (std::chrono::steady_clock::now() < time_to_report_checkpoints_until)
         {
-            std::this_thread::sleep_for(50ms);
+            std::this_thread::sleep_for(75ms);
             heartbeat_monitor.heartbeat();
         }
         EXPECT_FALSE(TestRunner::exitRequested) << "Process should not be terminated yet";
