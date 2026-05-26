@@ -33,11 +33,16 @@ class IConfigLoader
     /// @brief Error codes returned when configuration loading fails.
     [[nodiscard]] enum class Error : std::uint32_t
     {
-        FileNotFound,            ///< The configuration file does not exist at the given path.
-        InsufficientPermission,  ///< The process lacks read permissions for the file.
-        InvalidFormat,           ///< The file contents could not be parsed (malformed or missing required fields).
-        UnsupportedVersion,      ///< The file uses a configuration schema version not supported by this loader.
-        GeneralError             ///< Any other failure not covered by the above codes.
+        /// @brief The configuration file does not exist at the given path.
+        FileNotFound,
+        /// @brief The process lacks read permissions for the file.
+        InsufficientPermission,
+        /// @brief The file contents could not be parsed (malformed or missing required fields).
+        InvalidFormat,
+        /// @brief The file uses a configuration schema version not supported by this loader.
+        UnsupportedVersion,
+        /// @brief Any other failure not covered by the above codes.
+        GeneralError
     };
 
     virtual ~IConfigLoader() = default;
