@@ -37,6 +37,11 @@ TEST(ProcessLaunchArgs, ProcessInitial)
     TEST_STEP("Check args")
     {
         ASSERT_GT(g_argc, 1) << "Not enough arguments";
+        const std::string_view name = "/process_initial";
+        const std::string_view arg0 = std::string_view{g_argv[0]};
+        const auto name_pos = arg0.rfind(name);
+        EXPECT_NE(name_pos, arg0.npos) << "Did not find process name in first argument";
+        EXPECT_EQ(name_pos + name.size(), arg0.size());
         EXPECT_STREQ(g_argv[1], "S-CORE rules!") << "Second argument was not as expected";
     }
 }

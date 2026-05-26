@@ -36,6 +36,7 @@ TEST(ProcessCrashMonitoring, ControlClientMock)
     }
 
     // We have to wait for the initial state transition to fully complete, otherwise unexpected failures can occur
+    // Tracked in https://github.com/eclipse-score/lifecycle/issues/198
     sleep(1);
     
     TEST_STEP("Start crashing process")
