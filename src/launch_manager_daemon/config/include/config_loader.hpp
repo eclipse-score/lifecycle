@@ -20,7 +20,7 @@
 #include <score/expected.hpp>
 #include <cstdint>
 
-namespace score::launch_manager::config
+namespace score::mw::launch_manager::configuration
 {
 
 /// @brief Abstract interface for loading Launch Manager configuration from a file.
@@ -48,6 +48,6 @@ class IConfigLoader
     [[nodiscard]] virtual score::cpp::expected<Config, Error> load(const score::filesystem::Path& path) = 0;
 };
 
-}  // namespace score::launch_manager::config
+}  // namespace score::mw::launch_manager::configuration
 
 #endif // CONFIG_LOADER_HPP

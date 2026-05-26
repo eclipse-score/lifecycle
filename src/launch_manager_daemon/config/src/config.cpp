@@ -15,7 +15,7 @@
 
 #include <utility>
 
-namespace score::launch_manager::config
+namespace score::mw::launch_manager::configuration
 {
 
 // --- EnvironmentVariable ---
@@ -228,4 +228,4 @@ std::optional<WatchdogConfig> Config::takeWatchdog()
     return std::move(watchdog_);
 }
 
-}  // namespace score::launch_manager::config
+}  // namespace score::mw::launch_manager::configuration
