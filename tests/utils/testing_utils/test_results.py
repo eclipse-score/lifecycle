@@ -11,6 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 from pathlib import Path
+from typing import Set
 
 import pytest
 from junitparser import JUnitXml
@@ -35,17 +36,15 @@ def download_xml_results(target, remote_dir: Path, local_dir: Path):
             pass
 
 
-def check_for_failures(path: Path):
-    """Check expected_count xml files for failures, raising an exception if
-    a failure is found or a different number of xml files are found.
-    """
-    failing_files = []
-    all_files = []
+def get_failing_files(path: Path):
+    """Collects all produced xml files and returns that set as well as the subset of failing files"""
+    failing_files = set()
+    all_files = set()
     for file in path.glob("*.xml"):
         xml = JUnitXml.fromfile(str(file))
         if xml.failures > 0 or xml.errors > 0:
-            failing_files.append(file.name)
-        all_files.append(file.name)
+            failing_files.add(file.name)
+        all_files.add(file.name)
 
     return all_files, failing_files
 
@@ -63,13 +62,13 @@ def assert_test_results(target, remote_test_dir, test_output_dir):
             assert_test_results(expected_count=2)
     """
 
-    def _assert(expected_xml_count: int):
+    def _assert(expected_xml_files: Set[str]):
         # Show the error as coming from the call in the test rather than here
         __tracebackhide__ = True
         download_xml_results(target, remote_test_dir, test_output_dir)
-        all_files, failing_files = check_for_failures(test_output_dir)
-        assert len(all_files) == expected_xml_count, (
-            f"Didn't find the expected number of files {all_files}"
+        all_files, failing_files = get_failing_files(test_output_dir)
+        assert all_files == expected_xml_files, (  # Set equality
+            f"Didn't find the expected files, found: {all_files}"
         )
         assert len(failing_files) == 0, f"Found failures in files {failing_files}"
 
