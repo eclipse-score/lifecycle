@@ -32,15 +32,15 @@
     "url": "https://eclipse-score.github.io/lifecycle/pr-208/"
   },
   {
+    "version": "pr-212",
+    "url": "https://eclipse-score.github.io/lifecycle/pr-212/"
+  },
+  {
     "version": "v0.1.0",
     "url": "https://eclipse-score.github.io/lifecycle/v0.1.0/"
   },
   {
     "version": "v0.2.0",
     "url": "https://eclipse-score.github.io/lifecycle/v0.2.0/"
-  },
-  {
-    "version": "pr-212",
-    "url": "https://eclipse-score.github.io/lifecycle/pr-212/"
   }
 ]
