@@ -31,7 +31,7 @@ class IConfigLoader
 {
   public:
     /// @brief Error codes returned when configuration loading fails.
-    enum class Error : std::uint32_t
+    [[nodiscard]] enum class Error : std::uint32_t
     {
         FileNotFound,            ///< The configuration file does not exist at the given path.
         InsufficientPermission,  ///< The process lacks read permissions for the file.
@@ -45,7 +45,7 @@ class IConfigLoader
     /// @brief Loads and parses the configuration file at @p path.
     /// @param path Filesystem path to the configuration file.
     /// @return A @ref Config object on success, or an @ref Error on failure.
-    virtual score::cpp::expected<Config, Error> load(const score::filesystem::Path& path) = 0;
+    [[nodiscard]] virtual score::cpp::expected<Config, Error> load(const score::filesystem::Path& path) = 0;
 };
 
 }  // namespace score::launch_manager::config

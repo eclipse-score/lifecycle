@@ -27,8 +27,8 @@ namespace score::launch_manager::config
 namespace details
 {
 
-score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::vector<uint8_t>& buffer);
-IConfigLoader::Error mapOsError(const score::os::Error& error);
+[[nodiscard]] score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::vector<uint8_t>& buffer);
+[[nodiscard]] IConfigLoader::Error mapOsError(const score::os::Error& error);
 
 }  // namespace details
 
@@ -52,7 +52,7 @@ template <typename BufferLoaderT = DefaultBufferLoader>
 class FlatbufferConfigLoaderImpl : public IConfigLoader
 {
   public:
-    score::cpp::expected<Config, Error> load(const score::filesystem::Path& path) override
+    [[nodiscard]] score::cpp::expected<Config, Error> load(const score::filesystem::Path& path) override
     {
         auto buffer_result = BufferLoaderT::load(path);
         if (!buffer_result.has_value())
