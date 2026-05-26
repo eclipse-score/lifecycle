@@ -820,6 +820,8 @@
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_swift/1.16.0/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_swift/1.18.0/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_swift/2.1.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_baselibs/0.2.8/MODULE.bazel": "167e2cdfea63ef2eb38546d83ceef833671263f9faae6e496e834f86c2427f0d",
+    "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_baselibs/0.2.8/source.json": "6a649da9895fcdcaa58b0a4de11be04770f3180bb7ff176d3dfcb9bfe72ef0f3",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_baselibs_rust/0.1.2/MODULE.bazel": "8a07e1c62986e941a6e182e39c9cd08391849eed55c2f4dbb02d72ef6f524346",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_baselibs_rust/0.1.2/source.json": "5d920b55b98cf3d87da75d5a3ab1915709867fda14991ef2843c5e7c33aa0391",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_bazel_cpp_toolchains/0.2.2/MODULE.bazel": "343a1892b1d5c616e0b4cbecfb5e548fa69328d22bb4fd5862bdd3cfa902142b",
