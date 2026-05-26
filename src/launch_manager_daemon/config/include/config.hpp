@@ -20,7 +20,7 @@
 #include <sys/types.h>
 #include <vector>
 
-namespace score::launch_manager::config
+namespace score::mw::launch_manager::configuration
 {
 
 enum class ApplicationType : uint8_t
@@ -256,6 +256,6 @@ class ConfigBuilder
     std::optional<WatchdogConfig> watchdog_;
 };
 
-}  // namespace score::launch_manager::config
+}  // namespace score::mw::launch_manager::configuration
 
 #endif // CONFIG_HPP

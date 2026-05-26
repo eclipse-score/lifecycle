@@ -25,10 +25,10 @@
 #include <sys/types.h>
 #include <vector>
 
-namespace score::launch_manager::config
+namespace score::mw::launch_manager::configuration
 {
 
-namespace fb = score::launch_manager::config::fb;
+namespace fb = score::mw::launch_manager::configuration::fb;
 
 namespace
 {
@@ -694,4 +694,4 @@ score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::ve
 }
 
 }  // namespace details
-}  // namespace score::launch_manager::config
+}  // namespace score::mw::launch_manager::configuration

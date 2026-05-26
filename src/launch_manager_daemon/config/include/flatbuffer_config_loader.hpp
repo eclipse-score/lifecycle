@@ -20,7 +20,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace score::launch_manager::config
+namespace score::mw::launch_manager::configuration
 {
 
 /// @brief Internal helpers for FlatBuffer config parsing.
@@ -66,6 +66,6 @@ class FlatbufferConfigLoaderImpl : public IConfigLoader
 /// @brief Production-ready alias using the default buffer loader.
 using FlatbufferConfigLoader = FlatbufferConfigLoaderImpl<>;
 
-}  // namespace score::launch_manager::config
+}  // namespace score::mw::launch_manager::configuration
 
 #endif  // FLATBUFFER_CONFIG_LOADER_HPP

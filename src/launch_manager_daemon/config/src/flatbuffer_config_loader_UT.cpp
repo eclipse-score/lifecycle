@@ -26,12 +26,12 @@
 #include <sys/types.h>
 #include <vector>
 
-namespace score::launch_manager::config
+namespace score::mw::launch_manager::configuration
 {
 namespace
 {
 
-namespace fb = score::launch_manager::config::fb;
+namespace fb = score::mw::launch_manager::configuration::fb;
 
 using ::testing::Eq;
 using ::testing::IsFalse;
@@ -1350,4 +1350,4 @@ TEST_F(FlatbufferConfigLoaderTest, UnsupportedSchedulingPolicyReturnsInvalidForm
 }
 
 }  // namespace
-}  // namespace score::launch_manager::config
+}  // namespace score::mw::launch_manager::configuration
