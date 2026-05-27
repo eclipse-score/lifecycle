@@ -58,5 +58,5 @@ TEST(RecoveryActionSimpleRepFailure, ControlClientMock)
 
 int main(int argc, char** argv)
 {
-    return TestRunner(__FILE__, true, true).RunTests();
+    return TestRunner(__FILE__, TerminationBehavior::kWait, TerminationNotification::kTestEnd).RunTests();
 }

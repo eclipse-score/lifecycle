@@ -13,7 +13,7 @@
 from tests.utils.testing_utils.run_until_file_deployed import run_until_file_deployed
 from tests.utils.testing_utils.setup_test import setup_test
 from tests.utils.testing_utils.test_results import (
-    check_for_failures,
+    get_failing_files,
     download_xml_results,
 )
 from attribute_plugin import add_test_properties
@@ -48,6 +48,6 @@ def test_recovery_action_complex_rep_failure(target, setup_test, test_output_dir
     )
 
     download_xml_results(target, remote_test_dir, test_output_dir)
-    all_files, failing_files = check_for_failures(test_output_dir)
+    all_files, failing_files = get_failing_files(test_output_dir)
     assert len(all_files) == 3, f"Didn't find the expected number of files {all_files}"
     assert len(failing_files) == 0, f"Found failures in files {failing_files}"
