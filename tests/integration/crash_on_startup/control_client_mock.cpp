@@ -30,10 +30,6 @@ TEST(CrashOnStartup, ControlClientMock)
         ASSERT_TRUE(result.has_value()) << "ReportExecutionState() failed: " << result.error().Message();
     }
 
-    // We have to wait for the initial state transition to fully complete, otherwise unexpected failures can occur
-    // Tracked in https://github.com/eclipse-score/lifecycle/issues/198
-    sleep(1);
-
     // Given a process that crashes on startup twice
     TEST_STEP("Launch process crashing on startup twice")
     {
