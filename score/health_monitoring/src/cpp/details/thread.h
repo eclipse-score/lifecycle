@@ -13,7 +13,7 @@
 #ifndef SCORE_HM_THREAD_H
 #define SCORE_HM_THREAD_H
 
-#include "score/mw/health/health_monitoring_lib/common.h"
+#include "score/mw/health/common.h"
 #include <cstdint>
 #include <vector>
 

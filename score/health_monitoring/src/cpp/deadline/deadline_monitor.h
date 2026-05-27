@@ -14,8 +14,8 @@
 #define SCORE_HM_DEADLINE_DEADLINE_MONITOR_H
 
 #include <score/expected.hpp>
-#include "score/mw/health/health_monitoring_lib/common.h"
-#include "score/mw/health/health_monitoring_lib/tag.h"
+#include "score/mw/health/common.h"
+#include "score/mw/health/tag.h"
 #include <functional>
 #include <optional>
 

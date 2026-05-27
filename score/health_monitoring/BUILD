@@ -13,20 +13,14 @@
 
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
-cc_library(
-    name = "health_monitoring_lib_cc",
+alias(
+    name = "health_monitoring_cc",
+    actual = "//score/health_monitoring/src/cpp:health_monitoring_cc",
     visibility = ["//visibility:public"],
-    deps = [
-        "//score/health_monitoring/src/cpp:health_monitor",
-        "//score/health_monitoring/src/rust:health_monitoring_lib_ffi",
-    ],
 )
 
-cc_library(
-    name = "health_monitoring_lib_cc_stub_supervisor",
-    visibility = ["//score/health_monitoring/src/cpp:__pkg__"],
-    deps = [
-        "//score/health_monitoring/src/cpp:health_monitor",
-        "//score/health_monitoring/src/rust:health_monitoring_lib_stub_supervisor",
-    ],
+alias(
+    name = "health_monitoring_rust",
+    actual = "//score/health_monitoring/src/rust:health_monitoring_lib",
+    visibility = ["//visibility:public"],
 )

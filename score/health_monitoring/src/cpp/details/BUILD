@@ -27,7 +27,7 @@ cc_library(
     name = "thread",
     srcs = ["thread.cpp"],
     hdrs = ["thread.h"],
-    include_prefix = "score/mw/health/health_monitoring_lib",
+    include_prefix = "score/mw/health",
     strip_include_prefix = "/score/health_monitoring/src/cpp/details",
     visibility = ["//score/health_monitoring/src/cpp:__pkg__"],
     deps = [

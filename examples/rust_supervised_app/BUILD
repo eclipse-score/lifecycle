@@ -34,8 +34,8 @@ rust_binary(
         ],
     }),
     deps = [
+        "//score/health_monitoring:health_monitoring_rust",
         "//score/launch_manager:lifecycle_rust",
-        "//score/mw/health:health_monitoring_rust",
         "@score_baselibs_rust//src/log/score_log",
         "@score_baselibs_rust//src/log/stdout_logger",
         "@score_crates//:clap",

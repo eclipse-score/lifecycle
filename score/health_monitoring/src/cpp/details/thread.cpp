@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "score/mw/health/health_monitoring_lib/thread.h"
+#include "score/mw/health/thread.h"
 #include <score/assert.hpp>
 
 namespace

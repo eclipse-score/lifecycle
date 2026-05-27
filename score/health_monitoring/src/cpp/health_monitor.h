@@ -13,12 +13,12 @@
 #ifndef SCORE_HM_HEALTH_MONITOR_H
 #define SCORE_HM_HEALTH_MONITOR_H
 
-#include "score/mw/health/health_monitoring_lib/common.h"
-#include "score/mw/health/health_monitoring_lib/deadline/deadline_monitor.h"
-#include "score/mw/health/health_monitoring_lib/heartbeat/heartbeat_monitor.h"
-#include "score/mw/health/health_monitoring_lib/logic/logic_monitor.h"
-#include "score/mw/health/health_monitoring_lib/tag.h"
-#include "score/mw/health/health_monitoring_lib/thread.h"
+#include "score/mw/health/common.h"
+#include "score/mw/health/deadline_monitor.h"
+#include "score/mw/health/heartbeat_monitor.h"
+#include "score/mw/health/logic_monitor.h"
+#include "score/mw/health/tag.h"
+#include "score/mw/health/thread.h"
 
 namespace score::mw::health
 {

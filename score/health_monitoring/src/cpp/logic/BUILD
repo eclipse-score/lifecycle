@@ -17,8 +17,8 @@ cc_library(
     name = "logic_monitor",
     srcs = ["logic_monitor.cpp"],
     hdrs = ["logic_monitor.h"],
-    include_prefix = "score/mw/health/health_monitoring_lib",
-    strip_include_prefix = "/score/health_monitoring/src/cpp",
+    include_prefix = "score/mw/health",
+    strip_include_prefix = "/score/health_monitoring/src/cpp/logic",
     visibility = ["//visibility:public"],
     deps = [
         "//score/health_monitoring/src/cpp:common",

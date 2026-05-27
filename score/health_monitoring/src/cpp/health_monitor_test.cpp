@@ -10,9 +10,9 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-#include "score/mw/health/health_monitoring_lib/health_monitor.h"
-#include "score/mw/health/health_monitoring_lib/common.h"
-#include "score/mw/health/health_monitoring_lib/tag.h"
+#include "score/mw/health/health_monitor.h"
+#include "score/mw/health/common.h"
+#include "score/mw/health/tag.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

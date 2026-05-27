@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-#include "score/mw/health/health_monitoring_lib/heartbeat/heartbeat_monitor.h"
+#include "score/mw/health/heartbeat_monitor.h"
 
 namespace {
 extern "C" {

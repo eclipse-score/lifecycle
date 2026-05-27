@@ -14,7 +14,7 @@
 #define SCORE_HM_HEARTBEAT_HEARTBEAT_MONITOR_H
 
 #include <score/expected.hpp>
-#include "score/mw/health/health_monitoring_lib/common.h"
+#include "score/mw/health/common.h"
 
 namespace score::mw::health
 {

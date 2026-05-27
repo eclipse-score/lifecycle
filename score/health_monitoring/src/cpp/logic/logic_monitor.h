@@ -13,8 +13,8 @@
 #ifndef SCORE_HM_LOGIC_LOGIC_MONITOR_H
 #define SCORE_HM_LOGIC_LOGIC_MONITOR_H
 
-#include "score/mw/health/health_monitoring_lib/common.h"
-#include "score/mw/health/health_monitoring_lib/tag.h"
+#include "score/mw/health/common.h"
+#include "score/mw/health/tag.h"
 #include <score/expected.hpp>
 #include <vector>
 

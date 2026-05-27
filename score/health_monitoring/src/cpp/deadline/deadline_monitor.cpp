@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-#include "score/mw/health/health_monitoring_lib/deadline/deadline_monitor.h"
+#include "score/mw/health/deadline_monitor.h"
 
 namespace
 {

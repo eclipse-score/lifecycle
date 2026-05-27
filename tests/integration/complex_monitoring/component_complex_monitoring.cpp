@@ -16,8 +16,8 @@
 #include "score/mw/lifecycle/lifecycle_client.h"
 #include "score/mw/log/rust/stdout_logger_init.h"
 #include "tests/utils/test_helper/test_helper.hpp"
-#include <score/mw/health/health_monitoring_lib/common.h>
-#include <score/mw/health/health_monitoring_lib/health_monitor.h>
+#include <score/mw/health/common.h>
+#include <score/mw/health/health_monitor.h>
 
 TEST(ComplexMonitoring, ComponentComplexMonitoring)
 {

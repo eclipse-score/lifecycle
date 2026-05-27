@@ -17,7 +17,7 @@ load("@score_baselibs//:bazel/unit_tests.bzl", "cc_gtest_unit_test")
 cc_library(
     name = "tag",
     hdrs = ["tag.h"],
-    include_prefix = "score/mw/health/health_monitoring_lib",
+    include_prefix = "score/mw/health",
     strip_include_prefix = "/score/health_monitoring/src/cpp",
     visibility = ["//visibility:public"],
 )
@@ -26,7 +26,7 @@ cc_library(
     name = "common",
     srcs = ["common.cpp"],
     hdrs = ["common.h"],
-    include_prefix = "score/mw/health/health_monitoring_lib",
+    include_prefix = "score/mw/health",
     strip_include_prefix = "/score/health_monitoring/src/cpp",
     visibility = ["//visibility:public"],
     deps = ["@score_baselibs//score/language/futurecpp"],
@@ -36,7 +36,7 @@ cc_library(
     name = "health_monitor",
     srcs = ["health_monitor.cpp"],
     hdrs = ["health_monitor.h"],
-    include_prefix = "score/mw/health/health_monitoring_lib",
+    include_prefix = "score/mw/health",
     strip_include_prefix = "/score/health_monitoring/src/cpp",
     visibility = ["//score:__subpackages__"],
     deps = [
@@ -46,6 +46,24 @@ cc_library(
         "//score/health_monitoring/src/cpp/details:thread",
         "//score/health_monitoring/src/cpp/heartbeat:heartbeat_monitor",
         "//score/health_monitoring/src/cpp/logic:logic_monitor",
+    ],
+)
+
+cc_library(
+    name = "health_monitoring_cc",
+    visibility = ["//score/health_monitoring:__pkg__"],
+    deps = [
+        "//score/health_monitoring/src/cpp:health_monitor",
+        "//score/health_monitoring/src/rust:health_monitoring_lib_ffi",
+    ],
+)
+
+cc_library(
+    name = "health_monitoring_cc_stub_supervisor",
+    visibility = ["//score/health_monitoring/src/cpp:__pkg__"],
+    deps = [
+        "//score/health_monitoring/src/cpp:health_monitor",
+        "//score/health_monitoring/src/rust:health_monitoring_lib_stub_supervisor",
     ],
 )
 
@@ -59,7 +77,7 @@ cc_gtest_unit_test(
         "@platforms//os:linux": [],
     }),
     deps = [
-        "//score/health_monitoring:health_monitoring_lib_cc_stub_supervisor",
+        "//score/health_monitoring/src/cpp:health_monitoring_cc_stub_supervisor",
         "//score/health_monitoring/src/cpp/details:log_init",
     ],
 )

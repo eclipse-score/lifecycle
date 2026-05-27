@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-#include "score/mw/health/health_monitoring_lib/logic/logic_monitor.h"
+#include "score/mw/health/logic_monitor.h"
 #include <score/assert.hpp>
 
 namespace

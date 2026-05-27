@@ -39,7 +39,7 @@ rust_static_library(
     crate_name = "health_monitoring_lib",
     crate_root = "lib.rs",
     proc_macro_deps = PROC_MACRO_DEPS,
-    visibility = ["//score/health_monitoring:__pkg__"],
+    visibility = ["//score/health_monitoring:__subpackages__"],
     deps = COMMON_RUST_DEPS,
 )
 
@@ -49,7 +49,7 @@ rust_static_library(
     crate_features = ["stub_supervisor_api_client"],
     crate_root = "lib.rs",
     proc_macro_deps = PROC_MACRO_DEPS,
-    visibility = ["//score/health_monitoring:__pkg__"],
+    visibility = ["//score/health_monitoring:__subpackages__"],
     deps = COMMON_RUST_DEPS,
 )
 

@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 #include <score/assert.hpp>
-#include "score/mw/health/health_monitoring_lib/common.h"
+#include "score/mw/health/common.h"
 
 namespace score::mw::health::internal
 {

@@ -17,8 +17,8 @@ cc_library(
     name = "deadline_monitor",
     srcs = ["deadline_monitor.cpp"],
     hdrs = ["deadline_monitor.h"],
-    include_prefix = "score/mw/health/health_monitoring_lib",
-    strip_include_prefix = "/score/health_monitoring/src/cpp",
+    include_prefix = "score/mw/health",
+    strip_include_prefix = "/score/health_monitoring/src/cpp/deadline",
     visibility = ["//visibility:public"],
     deps = [
         "//score/health_monitoring/src/cpp:common",
