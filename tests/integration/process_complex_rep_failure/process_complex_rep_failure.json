@@ -2,7 +2,7 @@
     "schema_version": 1,
     "defaults": {
         "deployment_config": {
-            "bin_dir": "/tmp/tests/recovery_action_simple_rep_failure",
+            "bin_dir": "/tmp/tests/process_complex_rep_failure",
             "ready_timeout": 1.0,
             "shutdown_timeout": 1.0,
             "ready_recovery_action": {
@@ -62,7 +62,7 @@
         },
         "component_does_report_krunning_in_time": {
             "component_properties": {
-                "binary_name": "recovery_action_reporting",
+                "binary_name": "process_complex_reporting",
                 "process_arguments": [
                     "500.0"
                 ]
@@ -77,7 +77,7 @@
         },
         "component_does_not_report_krunning_in_time": {
             "component_properties": {
-                "binary_name": "recovery_action_reporting",
+                "binary_name": "process_complex_reporting",
                 "process_arguments": [
                     "1500.0"
                 ]

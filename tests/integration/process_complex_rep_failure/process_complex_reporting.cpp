@@ -80,19 +80,11 @@ std::optional<Config> parseOptions(int argc, char *const *argv) noexcept
     }
     return config;
 }
-
-void set_process_name()
-{
-    const char* identifier = getenv("PROCESSIDENTIFIER");
-}
-
 class LifecycleApp final : public score::mw::lifecycle::Application
 {
 public:
     std::int32_t Initialize(const score::mw::lifecycle::ApplicationContext& appCtx) override
     {
-        set_process_name();
-
         // Build a classic argv for getopt() from ApplicationContext arguments
         const auto& args = appCtx.get_arguments();
         m_argvStorage.clear();
@@ -188,7 +180,7 @@ private:
     std::vector<char*> m_argvStorage{};
 };
 
-TEST(RecoveryActionComplexRepFailure, RecoveryActionReporting)
+TEST(ProcessComplexRepFailure, ProcessComplexReporting)
 {
     // Check arguments
     TEST_STEP("Check args")
@@ -197,7 +189,7 @@ TEST(RecoveryActionComplexRepFailure, RecoveryActionReporting)
         ASSERT_FALSE((g_argv[1][0] != '0') && (atoi(g_argv[1])) == 0) << "Argument must be a number";
     }
     // Report kRunning with the appropriate delay
-    TEST_STEP("Report kRunning from RecoveryActionReporting")
+    TEST_STEP("Report kRunning from ProcessComplexReporting")
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(atoi(g_argv[1])));
 

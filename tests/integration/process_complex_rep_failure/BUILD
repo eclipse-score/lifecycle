@@ -16,8 +16,8 @@ load("//:defs.bzl", "launch_manager_config")
 load("//tests/utils/bazel:integration.bzl", "integration_test")
 
 launch_manager_config(
-    name = "lm_recovery_action_complex_rep_failure_config",
-    config = "//tests/integration/recovery_action_complex_rep_failure:recovery_action_complex_rep_failure.json",
+    name = "lm_process_complex_rep_failure_config",
+    config = "//tests/integration/process_complex_rep_failure:process_complex_rep_failure.json",
     flatbuffer_out_dir = "etc",
 )
 
@@ -33,8 +33,8 @@ cc_binary(
 )
 
 cc_binary(
-    name = "recovery_action_reporting",
-    srcs = ["recovery_action_reporting.cpp"],
+    name = "process_complex_reporting",
+    srcs = ["process_complex_reporting.cpp"],
     deps = [
         "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
         "//src/lifecycle_client_lib",
@@ -44,34 +44,34 @@ cc_binary(
 )
 
 pkg_files(
-    name = "recovery_action_complex_rep_failure_main_files",
+    name = "process_complex_rep_failure_main_files",
     srcs = [
-        ":recovery_action_reporting",
+        ":process_complex_reporting",
         ":control_client_mock",
         "//src/launch_manager_daemon:launch_manager",
     ],
     attributes = pkg_attributes(mode = "0755"),
-    prefix = "tests/recovery_action_complex_rep_failure",
+    prefix = "tests/process_complex_rep_failure",
 )
 
 pkg_files(
-    name = "recovery_action_complex_rep_failure_etc_files",
-    srcs = [":lm_recovery_action_complex_rep_failure_config"],
-    prefix = "tests/recovery_action_complex_rep_failure",
+    name = "process_complex_rep_failure_etc_files",
+    srcs = [":lm_process_complex_rep_failure_config"],
+    prefix = "tests/process_complex_rep_failure",
 )
 
 pkg_tar(
-    name = "recovery_action_complex_rep_failure_binaries",
+    name = "process_complex_rep_failure_binaries",
     srcs = [
-        ":recovery_action_complex_rep_failure_etc_files",
-        ":recovery_action_complex_rep_failure_main_files",
+        ":process_complex_rep_failure_etc_files",
+        ":process_complex_rep_failure_main_files",
     ],
 )
 
 integration_test(
-    name = "recovery_action_complex_rep_failure",
-    srcs = ["recovery_action_complex_rep_failure.py"],
+    name = "process_complex_rep_failure",
+    srcs = ["process_complex_rep_failure.py"],
     tags = ["integration"],
-    test_binaries = ":recovery_action_complex_rep_failure_binaries",
+    test_binaries = ":process_complex_rep_failure_binaries",
     deps = ["//tests/utils/testing_utils"],
 )

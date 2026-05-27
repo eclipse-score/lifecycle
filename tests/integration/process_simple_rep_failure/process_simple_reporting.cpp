@@ -21,7 +21,7 @@
 int g_argc;
 char** g_argv;
 
-TEST(RecoveryActionSimpleRepFailure, RecoveryActionReporting)
+TEST(ProcessSimpleRepFailure, ProcessSimpleReporting)
 {
     // Check arguments
     TEST_STEP("Check args")
@@ -30,7 +30,7 @@ TEST(RecoveryActionSimpleRepFailure, RecoveryActionReporting)
         ASSERT_FALSE((g_argv[1][0] != '0') && (atoi(g_argv[1])) == 0) << "Argument must be a number";
     }
     // Report kRunning with the appropriate delay
-    TEST_STEP("Report kRunning from RecoveryActionReporting")
+    TEST_STEP("Report kRunning from ProcessSimpleReporting")
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(atoi(g_argv[1])));
 
