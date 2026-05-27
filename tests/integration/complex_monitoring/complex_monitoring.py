@@ -10,7 +10,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-import logging
 from tests.utils.testing_utils.run_until_file_deployed import run_until_file_deployed
 from tests.utils.testing_utils.setup_test import setup_test
 from tests.utils.testing_utils.test_results import assert_test_results
@@ -18,23 +17,27 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    partially_verifies=[],
-    test_type="interface-test",
-    derivation_technique="explorative-testing",
+    partially_verifies=[
+        # Health monitoring requirements not yet ready
+        "feat_req__lifecycle__ext_monitor_notify"
+    ],
+    test_type="requirements-based",
+    derivation_technique="requirements-analysis",
 )
-def test_smoke(target, setup_test, assert_test_results, remote_test_dir):
+def test_complex_monitoring(target, setup_test, assert_test_results, remote_test_dir):
     """
-    Objective: Verifies the basic end-to-end lifecycle flow of the launch manager, including process startup, run target transitions, and execution state reporting.
+    Objective: Verifies that the launch manager correctly handles recovery actions triggered by a heartbeat monitor failure.
 
-    The launch manager starts with an initial run target. The control daemon activates the "Running" run target (starting the managed process), then transitions back to "Startup", and finally activates "Off".
-    Expected Behaviour: All run target transitions complete successfully and all processes report kRunning.
+    Process registers a heartbeat monitor, sends heartbeats within the configured time range for 1 second, then stops sending heartbeats.
+    Expected Behaviour: Health monitor detects the missed heartbeats and triggers a recovery action, activating the fallback run target.
     """
+
     run_until_file_deployed(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
         file_path=remote_test_dir.parent / "test_end",
         cwd=str(remote_test_dir),
-        timeout_s=3.0,
+        timeout_s=4.0,
     )
 
-    assert_test_results({"control_daemon_mock.xml", "gtest_process.xml"})
+    assert_test_results({"component_complex_monitoring.xml", "control_client_mock.xml"})
