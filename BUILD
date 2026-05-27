@@ -81,7 +81,7 @@ rust_coverage_report(
         "x86_64-linux",
         "ferrocene-coverage",
     ],
-    query = 'kind("rust_test", //score/mw/...) except attr("tags", "loom", //score/mw/...)',
+    query = 'kind("rust_test", //score/...) except attr("tags", "loom", //score/...)',
     visibility = ["//visibility:public"],
 )
 
@@ -94,7 +94,7 @@ alias(
 # Docs
 docs(
     data = [
-        "//score/mw/launch_manager/configuration/config_schema:config_schema_files",
+        "//score/launch_manager/launch_manager_daemon/src/configuration/config_schema:config_schema_files",
         "@score_platform//:needs_json",  # This allows linking to feature requirements.
         "@score_process//:needs_json",  # This allows linking to requirements (wp__requirements_comp, etc.) from the process_description repository.
     ],

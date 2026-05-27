@@ -32,10 +32,10 @@ filegroup(
 filegroup(
     name = "lm_binaries",
     srcs = [
-        "//score/mw/launch_manager/process_state_client",
-        "//score/mw/lifecycle:control_cc",
-        "//score/mw/lifecycle:launch_manager",
-        "//score/mw/lifecycle/lifecycle_client",
+        "//score/launch_manager",
+        "//score/launch_manager:control_cc",
+        "//score/launch_manager/launch_manager_daemon/src/process_state_client",
+        "//score/launch_manager/lifecycle_client",
     ],
 )
 

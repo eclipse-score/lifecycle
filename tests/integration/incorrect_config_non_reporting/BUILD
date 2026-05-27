@@ -30,8 +30,8 @@ cc_binary(
     name = "non_reporting_process",
     srcs = ["non_reporting_process.cpp"],
     deps = [
-        "//score/mw/launch_manager/osal:ipc_comms",
-        "//score/mw/lifecycle/lifecycle_client",
+        "//score/launch_manager/launch_manager_daemon/src/osal:ipc_comms",
+        "//score/launch_manager/lifecycle_client",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
     ],
@@ -41,7 +41,7 @@ pkg_files(
     name = "non_reporting_main_files",
     srcs = [
         ":non_reporting_process",
-        "//score/mw/lifecycle:launch_manager",
+        "//score/launch_manager",
     ],
     attributes = pkg_attributes(mode = "0755"),
     prefix = "tests/incorrect_config_non_reporting",

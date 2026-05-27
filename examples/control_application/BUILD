@@ -55,7 +55,7 @@ cc_binary(
     visibility = ["//visibility:public"],
     deps = [
         "//externals/ipc_dropin",
-        "//score/mw/lifecycle:control_cc",
-        "//score/mw/lifecycle/lifecycle_client",
+        "//score/launch_manager:control_cc",
+        "//score/launch_manager/lifecycle_client",
     ],
 )

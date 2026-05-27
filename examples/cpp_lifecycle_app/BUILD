@@ -25,7 +25,7 @@ cc_binary(
     }),
     visibility = ["//visibility:public"],
     deps = [
-        "//score/mw/lifecycle:lifecycle_cc",
+        "//score/launch_manager:lifecycle_cc",
         "@score_baselibs//score/mw/log",
     ],
 )

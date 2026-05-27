@@ -36,8 +36,8 @@ cc_binary(
     srcs = ["control_daemon_mock.cpp"],
     data = [],
     deps = [
-        "//score/mw/lifecycle:control_cc",
-        "//score/mw/lifecycle/lifecycle_client",
+        "//score/launch_manager:control_cc",
+        "//score/launch_manager/lifecycle_client",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
     ],
@@ -47,8 +47,8 @@ cc_binary(
     name = "gtest_process",
     srcs = ["gtest_process.cpp"],
     deps = [
-        "//score/mw/lifecycle:control_cc",
-        "//score/mw/lifecycle/lifecycle_client",
+        "//score/launch_manager:control_cc",
+        "//score/launch_manager/lifecycle_client",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
     ],
@@ -59,7 +59,7 @@ pkg_files(
     srcs = [
         ":control_daemon_mock",
         ":gtest_process",
-        "//score/mw/lifecycle:launch_manager",
+        "//score/launch_manager",
     ],
     attributes = pkg_attributes(mode = "0755"),
     prefix = "tests/smoke",
