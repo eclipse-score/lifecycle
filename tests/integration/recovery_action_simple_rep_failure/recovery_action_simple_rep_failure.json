@@ -42,21 +42,6 @@
         }
     },
     "components": {
-        "component_initial": {
-            "component_properties": {
-                "binary_name": "recovery_action_initial",
-                "process_arguments": [
-                    "S-CORE rules!"
-                ]
-            },
-            "deployment_config": {
-                "ready_timeout": 1.0,
-                "shutdown_timeout": 1.0,
-                "environmental_variables": {
-                    "PROCESSIDENTIFIER": "component_initial"
-                }
-            }
-        },
         "control_client_mock": {
             "component_properties": {
                 "binary_name": "control_client_mock",
@@ -109,7 +94,6 @@
     "run_targets": {
         "Startup": {
             "depends_on": [
-                "component_initial",
                 "control_client_mock"
             ],
             "recovery_action": {

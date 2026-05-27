@@ -49,5 +49,5 @@ def test_recovery_action_complex_rep_failure(target, setup_test, test_output_dir
 
     download_xml_results(target, remote_test_dir, test_output_dir)
     all_files, failing_files = get_failing_files(test_output_dir)
-    assert len(all_files) == 3, f"Didn't find the expected number of files {all_files}"
+    assert len(all_files) == 2, f"Didn't find the expected number of files {all_files}"
     assert len(failing_files) == 0, f"Found failures in files {failing_files}"

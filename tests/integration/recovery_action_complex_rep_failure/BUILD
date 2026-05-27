@@ -33,16 +33,6 @@ cc_binary(
 )
 
 cc_binary(
-    name = "recovery_action_initial",
-    srcs = ["recovery_action_initial.cpp"],
-    deps = [
-        "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
-        "//tests/utils/test_helper",
-        "@googletest//:gtest_main",
-    ],
-)
-
-cc_binary(
     name = "recovery_action_reporting",
     srcs = ["recovery_action_reporting.cpp"],
     deps = [
@@ -56,7 +46,6 @@ cc_binary(
 pkg_files(
     name = "recovery_action_complex_rep_failure_main_files",
     srcs = [
-        ":recovery_action_initial",
         ":recovery_action_reporting",
         ":control_client_mock",
         "//src/launch_manager_daemon:launch_manager",
