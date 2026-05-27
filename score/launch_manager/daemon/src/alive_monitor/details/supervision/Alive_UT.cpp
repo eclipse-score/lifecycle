@@ -94,18 +94,12 @@ struct AliveFixture
     score::lcm::saf::ifexm::ProcessState processState;
     score::lcm::saf::ifappl::Checkpoint checkpoint;
 
-    std::vector<score::lcm::saf::common::ProcessGroupId> pgStateIds;
-    std::vector<score::lcm::saf::ifexm::ProcessState*> refProcesses;
-
     std::unique_ptr<score::lcm::saf::supervision::Alive> alive;
 
     explicit AliveFixture(const Builder& bld)
         : processState(makeProcessCfg()), checkpoint(kCheckpointName, 1U, &processState)
     {
-        pgStateIds = {kRunningPgId};
-        refProcesses = {&processState};
-
-        score::lcm::saf::supervision::AliveSupervisionCfg cfg{checkpoint, pgStateIds, refProcesses};
+        score::lcm::saf::supervision::AliveSupervisionCfg cfg{checkpoint};
         cfg.cfgName_p = "test_alive";
         cfg.aliveReferenceCycle = bld.referenceCycleNs;
         cfg.minAliveIndications = bld.minIndications;
@@ -121,12 +115,27 @@ struct AliveFixture
         processState.attachObserver(*alive);
     }
 
-    /// Simulate the process reporting kRunning at the given timestamp in the configured PG state.
+    /// Simulate the process reporting kRunning at the given timestamp.
     void activateProcess(score::lcm::saf::timers::NanoSecondType timestamp)
     {
         processState.setTimestamp(timestamp);
-        processState.setProcessGroupState(kRunningPgId);
         processState.setState(score::lcm::saf::ifexm::ProcessState::EProcState::running);
+        processState.pushData();
+    }
+
+    /// Simulate the process reporting sigterm at the given timestamp.
+    void sigtermProcess(score::lcm::saf::timers::NanoSecondType timestamp)
+    {
+        processState.setTimestamp(timestamp);
+        processState.setState(score::lcm::saf::ifexm::ProcessState::EProcState::sigterm);
+        processState.pushData();
+    }
+
+    /// Simulate the process crashing (off without sigterm) at the given timestamp.
+    void crashProcess(score::lcm::saf::timers::NanoSecondType timestamp)
+    {
+        processState.setTimestamp(timestamp);
+        processState.setState(score::lcm::saf::ifexm::ProcessState::EProcState::off);
         processState.pushData();
     }
 
@@ -246,4 +255,106 @@ TEST_F(AliveSupervisionTest, AliveDebouncesThroughFailedBeforeExpired)
     // Second missed cycle: tolerance exceeded -> expired
     fix.alive->evaluate(2011U);
     EXPECT_EQ(fix.alive->getStatus(), EStatus::kExpired);
+}
+
+/// Verify that a clean shutdown (sigterm) deactivates the supervision from ok.
+TEST(AliveSupervisionTest, DeactivatesOnProcessSigterm)
+{
+    AliveFixture fix = AliveFixture::Builder{}.build();
+
+    EXPECT_CALL(*fix.mockClient, sendRecoveryRequest(_)).Times(0);
+
+    fix.activateProcess(10U);
+    fix.alive->evaluate(11U);
+    EXPECT_EQ(fix.alive->getStatus(), score::lcm::saf::supervision::Alive::EStatus::ok);
+
+    fix.sigtermProcess(20U);
+    fix.alive->evaluate(21U);
+    EXPECT_EQ(fix.alive->getStatus(), score::lcm::saf::supervision::Alive::EStatus::deactivated);
+}
+
+/// Verify that a process crash (off without sigterm) also deactivates the supervision.
+TEST(AliveSupervisionTest, DeactivatesOnProcessCrash)
+{
+    AliveFixture fix = AliveFixture::Builder{}.build();
+
+    EXPECT_CALL(*fix.mockClient, sendRecoveryRequest(_)).Times(0);
+
+    fix.activateProcess(10U);
+    fix.alive->evaluate(11U);
+    EXPECT_EQ(fix.alive->getStatus(), score::lcm::saf::supervision::Alive::EStatus::ok);
+
+    fix.crashProcess(20U);
+    fix.alive->evaluate(21U);
+    EXPECT_EQ(fix.alive->getStatus(), score::lcm::saf::supervision::Alive::EStatus::deactivated);
+}
+
+/// Verify that after a crash (off) the supervision can be reactivated when the process
+/// reports running again, without any special recovery path.
+TEST(AliveSupervisionTest, ReactivatesAfterCrash)
+{
+    AliveFixture fix = AliveFixture::Builder{}.build();
+
+    EXPECT_CALL(*fix.mockClient, sendRecoveryRequest(_)).Times(0);
+
+    fix.activateProcess(10U);
+    fix.alive->evaluate(11U);
+    EXPECT_EQ(fix.alive->getStatus(), score::lcm::saf::supervision::Alive::EStatus::ok);
+
+    // Process crashes
+    fix.crashProcess(20U);
+    fix.alive->evaluate(21U);
+    EXPECT_EQ(fix.alive->getStatus(), score::lcm::saf::supervision::Alive::EStatus::deactivated);
+
+    // Process restarts
+    fix.activateProcess(30U);
+    fix.alive->evaluate(31U);
+    EXPECT_EQ(fix.alive->getStatus(), score::lcm::saf::supervision::Alive::EStatus::ok);
+}
+
+/// Verify that process states other than running/sigterm/off are ignored and do not
+/// affect the supervision state.
+TEST(AliveSupervisionTest, IgnoresIrrelevantProcessStates)
+{
+    AliveFixture fix = AliveFixture::Builder{}.build();
+
+    EXPECT_CALL(*fix.mockClient, sendRecoveryRequest(_)).Times(0);
+
+    // idle and starting before activation — supervision must stay deactivated
+    fix.processState.setTimestamp(5U);
+    fix.processState.setState(score::lcm::saf::ifexm::ProcessState::EProcState::idle);
+    fix.processState.pushData();
+
+    fix.processState.setTimestamp(6U);
+    fix.processState.setState(score::lcm::saf::ifexm::ProcessState::EProcState::starting);
+    fix.processState.pushData();
+
+    fix.alive->evaluate(7U);
+    EXPECT_EQ(fix.alive->getStatus(), score::lcm::saf::supervision::Alive::EStatus::deactivated);
+
+    // Normal activation still works after ignored events
+    fix.activateProcess(10U);
+    fix.alive->evaluate(11U);
+    EXPECT_EQ(fix.alive->getStatus(), score::lcm::saf::supervision::Alive::EStatus::ok);
+}
+
+/// Verify that exceeding the maximum allowed heartbeats per cycle leads to failure.
+TEST(AliveSupervisionTest, MaxIndicationViolationExpires)
+{
+    // max=1, tolerance=0: more than 1 heartbeat per cycle expires immediately
+    AliveFixture fix = AliveFixture::Builder{}.withMaxIndications(1U).build();
+
+    EXPECT_CALL(*fix.mockClient, sendRecoveryRequest(fix.kProcessIdentifier))
+        .Times(1)
+        .WillOnce(Return(true));
+
+    fix.activateProcess(10U);
+    fix.alive->evaluate(11U);
+    EXPECT_EQ(fix.alive->getStatus(), score::lcm::saf::supervision::Alive::EStatus::ok);
+
+    // Two heartbeats in one cycle violates max=1
+    fix.reportHeartbeat(100U);
+    fix.reportHeartbeat(200U);
+    fix.alive->evaluate(1011U);
+    EXPECT_EQ(fix.alive->getStatus(), score::lcm::saf::supervision::Alive::EStatus::expired);
 }

@@ -424,34 +424,11 @@ bool FlatCfgFactory::createAliveSupervisions(std::vector<supervision::Alive>& f_
                 uint32_t failedCyclesToleranceCfg{hmAliveSupervision_p->failedSupervisionCyclesTolerance()};
                 uint32_t refCheckPointIndexTemp{hmAliveSupervision_p->refCheckPointIndex()};
 
-                // Collect referenced ProcessGroupStates for Alive Supervision
-                std::vector<std::string> refProcessGroupStates{};
-
-                // coverity[cert_exp34_c_violation] PHM.ecucfgdsl HmAliveSupervision.refProcessGroupStates MANDATORY
-                // coverity[dereference] PHM.ecucfgdsl HmAliveSupervision.refProcessGroupStates MANDATORY
-                refProcessGroupStates.reserve(
-                    static_cast<size_t>(hmAliveSupervision_p->refProcessGroupStates()->size()));
-
-                for (auto refProcessGroupState_p : *hmAliveSupervision_p->refProcessGroupStates())
-                {
-                    // coverity[cert_exp34_c_violation] PHM.ecucfgdsl PhmRefProcessGroupStates.identifier
-                    // coverity[dereference] PHM.ecucfgdsl PhmRefProcessGroupStates.identifier MANDATORY
-                    refProcessGroupStates.push_back(refProcessGroupState_p->identifier()->c_str());
-                }
-
-                const auto result{getProcessGroupStateIds(refProcessGroupStates)};
-                std::vector<common::ProcessGroupId> refProcessGroupStateIds{std::move(*result)};
-
                 const auto processIndex{hmAliveSupervision_p->refProcessIndex()};
-                std::vector<ifexm::ProcessState*> refProcesses{};
-
-                refProcesses.push_back(&f_processStates_r.at(static_cast<size_t>(processIndex)));
 
                 // Construct Alive Supervision
                 supervision::AliveSupervisionCfg aliveSupCfg{
-                    f_checkpoints_r.at(static_cast<size_t>(refCheckPointIndexTemp)),
-                    refProcessGroupStateIds,
-                    refProcesses};
+                    f_checkpoints_r.at(static_cast<size_t>(refCheckPointIndexTemp))};
 
                 aliveSupCfg.cfgName_p = nameCfgAlive_p;
                 aliveSupCfg.aliveReferenceCycle = aliveReferenceCycleCfg;
