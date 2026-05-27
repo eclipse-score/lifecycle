@@ -10,21 +10,17 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
-cc_library(
-    name = "control_client",
-    srcs = [
-        "src/control_client.cpp",
-    ],
-    hdrs = [
-        "src/control_client.h",
-    ],
-    include_prefix = "score/mw/lifecycle",
-    strip_include_prefix = "/score/launch_manager/control_client/src",
+alias(
+    name = "health_monitoring_cc",
+    actual = "//score/health_monitor/src/cpp:health_monitoring_cc",
     visibility = ["//visibility:public"],
-    deps = [
-        "//score/launch_manager/control_client/src/details:control_client_impl",
-        "//score/launch_manager/daemon/src/common:identifier_hash",
-    ],
+)
+
+alias(
+    name = "health_monitoring_rust",
+    actual = "//score/health_monitor/src/rust:health_monitoring_lib",
+    visibility = ["//visibility:public"],
 )

@@ -21,12 +21,12 @@ alias(
 
 alias(
     name = "alive_cc",
-    actual = "//score/launch_manager/launch_manager_daemon/src/alive_monitor:am_shared_lib",
+    actual = "//score/launch_manager/daemon/src/alive_monitor:am_shared_lib",
 )
 
 alias(
     name = "alive_rust",
-    actual = "//score/launch_manager/launch_manager_daemon/src/alive_monitor/rust:monitor_rs",
+    actual = "//score/launch_manager/daemon/src/alive_monitor/rust:monitor_rs",
 )
 
 alias(
@@ -41,7 +41,7 @@ alias(
 
 alias(
     name = "launch_manager",
-    actual = "//score/launch_manager/launch_manager_daemon:launch_manager",
+    actual = "//score/launch_manager/daemon:launch_manager",
 )
 
 cc_library(
@@ -61,6 +61,6 @@ cc_library(
     strip_include_prefix = "/score/launch_manager",
     deps = [
         ":error",
-        "//score/launch_manager/launch_manager_daemon/src/common:identifier_hash",
+        "//score/launch_manager/daemon/src/common:identifier_hash",
     ],
 )

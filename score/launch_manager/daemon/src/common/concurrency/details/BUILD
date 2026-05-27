@@ -13,18 +13,9 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_library(
-    name = "control_client",
-    srcs = [
-        "src/control_client.cpp",
-    ],
-    hdrs = [
-        "src/control_client.h",
-    ],
-    include_prefix = "score/mw/lifecycle",
-    strip_include_prefix = "/score/launch_manager/control_client/src",
-    visibility = ["//visibility:public"],
-    deps = [
-        "//score/launch_manager/control_client/src/details:control_client_impl",
-        "//score/launch_manager/daemon/src/common:identifier_hash",
-    ],
+    name = "helgrind_annotations",
+    hdrs = ["helgrind_annotations.hpp"],
+    include_prefix = "score/mw/launch_manager/common/concurrency/details",
+    strip_include_prefix = "/score/launch_manager/daemon/src/common/concurrency/details",
+    visibility = ["//score:__subpackages__"],
 )

@@ -13,17 +13,20 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_library(
-    name = "lifecycle_client_impl",
-    srcs = ["lifecycle_client_impl.cpp"],
-    hdrs = ["lifecycle_client_impl.hpp"],
-    include_prefix = "score/mw/lifecycle/lifecycle_client/details",
-    strip_include_prefix = "/score/launch_manager/lifecycle_client/src/details",
-    visibility = ["//score/launch_manager/lifecycle_client:__pkg__"],
+    name = "control_client_channel",
+    srcs = [
+        "control_client_channel.cpp",
+    ],
+    hdrs = [
+        "control_client_channel.hpp",
+    ],
+    include_prefix = "score/mw/launch_manager/control",
+    strip_include_prefix = "/score/launch_manager/daemon/src/control",
+    visibility = ["//score:__subpackages__"],
     deps = [
         "//score/launch_manager/daemon/src/common:constants",
         "//score/launch_manager/daemon/src/common:log",
+        "//score/launch_manager/daemon/src/common:process_group_state_id",
         "//score/launch_manager/daemon/src/osal:ipc_comms",
-        "//score/launch_manager/lifecycle_client:lifecycle_client_interface",
-        "@score_baselibs//score/result",
     ],
 )

@@ -13,18 +13,15 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_library(
-    name = "control_client",
-    srcs = [
-        "src/control_client.cpp",
-    ],
-    hdrs = [
-        "src/control_client.h",
-    ],
-    include_prefix = "score/mw/lifecycle",
-    strip_include_prefix = "/score/launch_manager/control_client/src",
-    visibility = ["//visibility:public"],
-    deps = [
-        "//score/launch_manager/control_client/src/details:control_client_impl",
-        "//score/launch_manager/daemon/src/common:identifier_hash",
-    ],
+    name = "phm_logging",
+    srcs = ["PhmLogger.cpp"],
+    hdrs = ["PhmLogger.hpp"],
+    defines = select({
+        "//config:lm_use_cout_log": [],
+        "//conditions:default": ["LC_LOG_SCORE_MW_LOG"],
+    }),
+    include_prefix = "score/mw/launch_manager/alive_monitor/details/logging",
+    strip_include_prefix = "/score/launch_manager/daemon/src/alive_monitor/details/logging",
+    visibility = ["//score/launch_manager/daemon/src/alive_monitor:__subpackages__"],
+    deps = ["@score_baselibs//score/mw/log"],
 )

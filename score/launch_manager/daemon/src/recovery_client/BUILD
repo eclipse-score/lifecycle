@@ -10,21 +10,33 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 
 cc_library(
-    name = "control_client",
+    name = "recovery_client",
     srcs = [
-        "src/control_client.cpp",
+        "recovery_client.cpp",
     ],
     hdrs = [
-        "src/control_client.h",
+        "irecovery_client.h",
+        "recovery_client.hpp",
     ],
-    include_prefix = "score/mw/lifecycle",
-    strip_include_prefix = "/score/launch_manager/control_client/src",
-    visibility = ["//visibility:public"],
+    include_prefix = "score/mw/launch_manager/recovery_client",
+    strip_include_prefix = "/score/launch_manager/daemon/src/recovery_client",
+    visibility = [
+        "//score:__subpackages__",
+    ],
     deps = [
-        "//score/launch_manager/control_client/src/details:control_client_impl",
+        "//externals/ipc_dropin",
         "//score/launch_manager/daemon/src/common:identifier_hash",
+    ],
+)
+
+cc_test(
+    name = "recovery_client_UT",
+    srcs = ["recovery_client_UT.cpp"],
+    deps = [
+        ":recovery_client",
+        "@googletest//:gtest_main",
     ],
 )

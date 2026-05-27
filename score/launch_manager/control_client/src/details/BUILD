@@ -25,11 +25,11 @@ cc_library(
     visibility = ["//score/launch_manager/control_client:__subpackages__"],
     deps = [
         "//score/launch_manager:error_event",
-        "//score/launch_manager/launch_manager_daemon/src/common:constants",
-        "//score/launch_manager/launch_manager_daemon/src/common:identifier_hash",
-        "//score/launch_manager/launch_manager_daemon/src/common:log",
-        "//score/launch_manager/launch_manager_daemon/src/control:control_client_channel",
-        "//score/launch_manager/launch_manager_daemon/src/osal:semaphore",
+        "//score/launch_manager/daemon/src/common:constants",
+        "//score/launch_manager/daemon/src/common:identifier_hash",
+        "//score/launch_manager/daemon/src/common:log",
+        "//score/launch_manager/daemon/src/control:control_client_channel",
+        "//score/launch_manager/daemon/src/osal:semaphore",
         "@score_baselibs//score/concurrency/future",
     ],
 )

@@ -10,20 +10,28 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_library(
-    name = "lifecycle_client_impl",
-    srcs = ["lifecycle_client_impl.cpp"],
-    hdrs = ["lifecycle_client_impl.hpp"],
-    include_prefix = "score/mw/lifecycle/lifecycle_client/details",
-    strip_include_prefix = "/score/launch_manager/lifecycle_client/src/details",
-    visibility = ["//score/launch_manager/lifecycle_client:__pkg__"],
+    name = "log_init",
+    srcs = ["log_init.cpp"],
+    visibility = ["//score/health_monitor/src/cpp:__pkg__"],
     deps = [
-        "//score/launch_manager/daemon/src/common:constants",
-        "//score/launch_manager/daemon/src/common:log",
-        "//score/launch_manager/daemon/src/osal:ipc_comms",
-        "//score/launch_manager/lifecycle_client:lifecycle_client_interface",
-        "@score_baselibs//score/result",
+        "@googletest//:gtest",
+        "@score_baselibs_rust//src/log/stdout_logger_cpp_init",
+    ],
+)
+
+cc_library(
+    name = "thread",
+    srcs = ["thread.cpp"],
+    hdrs = ["thread.h"],
+    include_prefix = "score/mw/health",
+    strip_include_prefix = "/score/health_monitor/src/cpp/details",
+    visibility = ["//score/health_monitor/src/cpp:__pkg__"],
+    deps = [
+        "//score/health_monitor/src/cpp:common",
+        "@score_baselibs//score/language/futurecpp",
     ],
 )

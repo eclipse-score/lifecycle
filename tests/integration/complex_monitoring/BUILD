@@ -45,7 +45,7 @@ cc_binary(
         ],
     }),
     deps = [
-        "//score/health_monitoring:health_monitoring_cc",
+        "//score/health_monitor:health_monitoring_cc",
         "//score/launch_manager:alive_cc",
         "//score/launch_manager/lifecycle_client",
         "//tests/utils/test_helper",
