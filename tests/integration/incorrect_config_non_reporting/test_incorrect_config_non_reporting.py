@@ -38,4 +38,4 @@ def test_incorrect_config_non_reporting(
         timeout_s=2.0,
     )
 
-    assert_test_results(expected_xml_count=1)
+    assert_test_results({"non_reporting_process.xml"})

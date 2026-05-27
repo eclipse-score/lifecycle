@@ -10,11 +10,40 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+exports_files(
+    # Export these to allow us to rename the binary if desired
+    [
+        "reporting_process.cpp",
+        "verification_process.cpp",
+    ],
+    visibility = ["//tests:__subpackages__"],
+)
+
 cc_library(
     name = "test_helper",
     hdrs = ["test_helper.hpp"],
     visibility = ["//tests:__subpackages__"],
     deps = [
         "@googletest//:gtest_main",
+    ],
+)
+
+cc_binary(
+    name = "reporting_process",
+    srcs = ["reporting_process.cpp"],
+    visibility = ["//tests:__subpackages__"],
+    deps = [
+        ":test_helper",
+        "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_binary(
+    name = "verification_process",
+    srcs = ["verification_process.cpp"],
+    visibility = ["//tests:__subpackages__"],
+    deps = [
+        ":test_helper",
     ],
 )

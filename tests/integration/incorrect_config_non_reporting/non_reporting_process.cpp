@@ -23,8 +23,6 @@
 #include "tests/utils/test_helper/test_helper.hpp"
 #include <csignal>
 
-TestRunner runner = TestRunner(__FILE__, true);
-
 TEST(NonReporting, Process)
 {
     using ipc = score::lcm::internal::osal::IpcCommsSync;
@@ -50,6 +48,5 @@ TEST(NonReporting, Process)
 
 int main()
 {
-    runner.exitRequested = true;
-    return runner.RunTests();
+    return TestRunner(__FILE__, TerminationBehavior::kContinue, TerminationNotification::kTestEnd).RunTests();
 }

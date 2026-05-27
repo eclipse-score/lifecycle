@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2025 Contributors to the Eclipse Foundation
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -12,41 +12,42 @@
  ********************************************************************************/
 #include <gtest/gtest.h>
 #include <unistd.h>
-#include <csignal>
-#include <iostream>
 
 #include "tests/utils/test_helper/test_helper.hpp"
 #include <score/lcm/control_client.h>
-#include <score/lcm/identifier_hash.hpp>
 #include <score/lcm/lifecycle_client.h>
 
-TEST(Smoke, Daemon)
-{
-    score::lcm::ControlClient client {};
-    ASSERT_TRUE(check_clean({test_end_location}));
-    TEST_STEP("Control daemon report kRunning") {
-        // report kRunning
-        auto result = score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
-        ASSERT_TRUE(result.has_value()) << "client.ReportExecutionState() failed: " << result.error().Message();
-    }
 
+TEST(ComplexMonitoring, ControlClientMock)
+{
+    score::lcm::ControlClient client;
+    
+    ASSERT_TRUE(check_clean({test_end_location, fallback_file}));
+
+    TEST_STEP("Report kRunning")
+    {
+        auto result = score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
+        ASSERT_TRUE(result.has_value()) << "ReportExecutionState() failed: " << result.error().Message();
+    }
     // We have to wait for the initial state transition to fully complete, otherwise unexpected failures can occur
     // Tracked in https://github.com/eclipse-score/lifecycle/issues/198
     sleep(1);
-
-    TEST_STEP("Activate RunTarget Running")
+    
+    TEST_STEP("Launch monitored process")
     {
         score::cpp::stop_token stop_token;
-        auto result = client.ActivateRunTarget("Running").Get(stop_token);
-        EXPECT_TRUE(result.has_value()) << "Activating target Running failed: " << result.error().Message();
+        auto result = client.ActivateRunTarget("run_target_complex_monitoring").Get(stop_token);
+        EXPECT_TRUE(result.has_value()) << "Activating target run_target_complex_monitoring failed: "
+                                        << result.error().Message();
     }
-    TEST_STEP("Activate RunTarget Startup")
+    // Wait for health monitoring to fail and recovery to trigger
+    sleep(2);
+    TEST_STEP("Verify state changed to fallback run target")
     {
-        score::cpp::stop_token stop_token;
-        auto result = client.ActivateRunTarget("Startup").Get(stop_token);
-        EXPECT_TRUE(result.has_value());
+        // workaround to detect we're in fallback
+        EXPECT_TRUE(std::filesystem::exists(fallback_file)) << "Fallback run target was not activated";
     }
-    TEST_STEP("Activate RunTarget Off")
+    TEST_STEP("Activate Off run target")
     {
         client.ActivateRunTarget("Off");
     }
