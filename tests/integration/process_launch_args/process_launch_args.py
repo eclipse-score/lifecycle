@@ -10,7 +10,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-import logging
 from tests.utils.testing_utils.run_until_file_deployed import run_until_file_deployed
 from tests.utils.testing_utils.setup_test import setup_test
 from tests.utils.testing_utils.test_results import assert_test_results
@@ -18,23 +17,30 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    partially_verifies=[],
-    test_type="interface-test",
-    derivation_technique="explorative-testing",
+    fully_verifies=[
+        "feat_req__lifecycle__start_named_run_target",
+        "feat_req__lifecycle__launch_support",
+        "feat_req__lifecycle__process_state_comm",
+        "feat_req__lifecycle__process_launch_args",
+    ],
+    test_type="requirements-based",
+    derivation_technique="requirements-analysis",
 )
-def test_smoke(target, setup_test, assert_test_results, remote_test_dir):
+def test_process_launch_args(target, setup_test, assert_test_results, remote_test_dir):
     """
-    Objective: Verifies the basic end-to-end lifecycle flow of the launch manager, including process startup, run target transitions, and execution state reporting.
+    Objective: Verifies that the launch manager correctly passes configured launch arguments to processes.
 
-    The launch manager starts with an initial run target. The control daemon activates the "Running" run target (starting the managed process), then transitions back to "Startup", and finally activates "Off".
-    Expected Behaviour: All run target transitions complete successfully and all processes report kRunning.
+    A process is configured with a command line argument and launched via the initial run target.
+    Expected Behaviour: Process starts successfully, reports kRunning, and receives the configured argument value.
     """
+
     run_until_file_deployed(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
         file_path=remote_test_dir.parent / "test_end",
         cwd=str(remote_test_dir),
-        timeout_s=3.0,
+        timeout_s=2.0,
     )
 
-    assert_test_results({"control_daemon_mock.xml", "gtest_process.xml"})
+    # That the process is started and an XML file is produced verifies feat_req__lifecycle__launch_support
+    assert_test_results({"process_initial.xml"})

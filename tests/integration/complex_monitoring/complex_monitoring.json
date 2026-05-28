@@ -1,0 +1,120 @@
+{
+    "schema_version": 1,
+    "defaults": {
+        "deployment_config": {
+            "bin_dir": "/tmp/tests/complex_monitoring",
+            "ready_timeout": 2.0,
+            "shutdown_timeout": 0.2,
+            "ready_recovery_action": {
+                "restart": {
+                    "number_of_attempts": 0
+                }
+            },
+            "recovery_action": {
+                "switch_run_target": {
+                    "run_target": "fallback_run_target"
+                }
+            },
+            "environmental_variables": {
+                "LD_LIBRARY_PATH": "/opt/lib"
+            },
+            "sandbox": {
+                "uid": 0,
+                "gid": 0,
+                "scheduling_policy": "SCHED_OTHER",
+                "scheduling_priority": 0
+            }
+        },
+        "component_properties": {
+            "application_profile": {
+                "application_type": "Reporting",
+                "is_self_terminating": false
+            },
+            "ready_condition": {
+                "process_state": "Running"
+            }
+        }
+    },
+    "components": {
+        "control_client_mock": {
+            "component_properties": {
+                "binary_name": "control_client_mock",
+                "application_profile": {
+                    "application_type": "State_Manager",
+                    "alive_supervision": {
+                        "min_indications": 0
+                    }
+                }
+            },
+            "deployment_config": {
+                "environmental_variables": {
+                    "PROCESSIDENTIFIER": "control_client_mock"
+                }
+            }
+        },
+        "component_complex_monitoring": {
+            "component_properties": {
+                "binary_name": "component_complex_monitoring",
+                "application_profile": {
+                    "application_type": "Reporting_And_Supervised",
+                    "alive_supervision": {
+                        "reporting_cycle": 0.1,
+                        "min_indications": 1,
+                        "max_indications": 2,
+                        "failed_cycles_tolerance": 0
+                    }
+                }
+            },
+            "deployment_config": {
+                "environmental_variables": {
+                    "PROCESSIDENTIFIER": "component_complex_monitoring",
+                    "IDENTIFIER": "component_complex_monitoring",
+                    "CONFIG_PATH": "etc/hmproc_component_complex_monitoring.bin"
+                }
+            }
+        },
+        "verification_component": {
+            "component_properties": {
+                "binary_name": "verification_process",
+                "application_profile": {
+                    "application_type": "Native",
+                    "is_self_terminating": true
+                },
+                "ready_condition": {
+                    "process_state": "Terminated"
+                }
+            }
+        }
+    },
+    "run_targets": {
+        "Startup": {
+            "depends_on": [
+                "control_client_mock"
+            ]
+        },
+        "run_target_complex_monitoring": {
+            "depends_on": [
+                "control_client_mock",
+                "component_complex_monitoring"
+            ],
+            "recovery_action": {
+                "switch_run_target": {
+                    "run_target": "fallback_run_target"
+                }
+            }
+        },
+        "Off": {
+            "depends_on": []
+        }
+    },
+    "initial_run_target": "Startup",
+    "alive_supervision": {
+        "evaluation_cycle": 0.05
+    },
+    "fallback_run_target": {
+        "depends_on": [
+            "control_client_mock",
+            "verification_component"
+        ]
+    }
+}
