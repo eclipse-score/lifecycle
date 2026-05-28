@@ -69,6 +69,10 @@ def integration_test(
 
     pkg_tar(name = "environment", srcs = [":binaries", ":files"])
 
+    # The test container does not ship the sanitizer runtime; daemon fails to start.
+    sanitizer_tags = ["no-asan", "no-tsan"]
+    tags = kwargs.pop("tags", []) + sanitizer_tags
+
     py_itf_test(
         name = name,
         srcs = srcs,
