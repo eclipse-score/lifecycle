@@ -41,7 +41,7 @@ class AasApplicationContainer : public Application
      * @param count_expected_applications The expected number of applications.
      */
     AasApplicationContainer(const std::int32_t argc,
-                            const char* const* argv,
+                            const char* const argv[],
                             const std::size_t count_expected_applications) noexcept;
 
     AasApplicationContainer(const AasApplicationContainer&) = delete;
