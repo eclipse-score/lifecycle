@@ -26,7 +26,7 @@ TEST(ComponentB, RunAndVerify)
     TEST_STEP("Report running")
     {
         EXPECT_TRUE(touch_file(b_started)) << "failed to deploy file";
-        auto result = score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
+        auto result = score::mw::lifecycle::LifecycleClient{}.ReportExecutionState(score::mw::lifecycle::ExecutionState::kRunning);
         EXPECT_TRUE(result.has_value()) << "ReportExecutionState() failed: " << result.error().Message();
     }
     while (!TestRunner::exitRequested)

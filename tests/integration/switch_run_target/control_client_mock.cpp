@@ -35,12 +35,12 @@
 
 TEST(SwitchRunTarget, ControlClientMock)
 {
-    score::lcm::ControlClient client;
+    score::mw::lifecycle::ControlClient client;
     
     ASSERT_TRUE(check_clean({test_end_location, a_started, b_started, d_started, e_started}));
     TEST_STEP("Report kRunning")
     {
-        auto result = score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
+        auto result = score::mw::lifecycle::LifecycleClient{}.ReportExecutionState(score::mw::lifecycle::ExecutionState::kRunning);
         EXPECT_TRUE(result.has_value()) << "ReportExecutionState() failed: " << result.error().Message();
     }
     // When we switch run to run target A
