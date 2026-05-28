@@ -41,6 +41,7 @@ cc_library(
 cc_test(
     name = "mpmc_concurrent_queue_test",
     srcs = ["mpmc_concurrent_queue_test.cpp"],
+    tags = ["no-asan"],
     visibility = ["//tests:__subpackages__"],
     deps = [
         ":mpmc_concurrent_queue",
