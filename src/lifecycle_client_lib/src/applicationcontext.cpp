@@ -18,7 +18,7 @@
 
 score::mw::lifecycle::ApplicationContext::ApplicationContext(
     const std::int32_t argc,
-    const score::StringLiteral argv[])  // NOLINT(modernize-avoid-c-arrays): array tolerated for command line arguments
+    const char* const argv[])  // NOLINT(modernize-avoid-c-arrays): array tolerated for command line arguments
     : m_args(argv, argv + argc), m_app_path(argv[0])  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic): array
                                                       // tolerated for command line arguments
 {

@@ -14,9 +14,9 @@
 #ifndef SCORE_MW_LIFECYCLE_RUNAPPLICATION_H
 #define SCORE_MW_LIFECYCLE_RUNAPPLICATION_H
 
-#include "src/lifecycle_client_lib/include/lifecyclemanager.h"
 #include "score/memory/string_literal.h"
 #include "src/lifecycle_client_lib/include/applicationcontext.h"
+#include "src/lifecycle_client_lib/include/lifecyclemanager.h"
 
 #include <cstdint>
 
@@ -32,8 +32,7 @@ class Run final
 {
   public:
     Run(const std::int32_t argc,
-        const score::StringLiteral*
-            argv) /* NOLINT(modernize-avoid-c-arrays): array tolerated for command line arguments */
+        const char* const argv[]) /* NOLINT(modernize-avoid-c-arrays): array tolerated for command line arguments */
         : context_{argc, argv}
     {
     }
@@ -66,7 +65,7 @@ class Run final
 template <typename ApplicationType, typename... Args>
 
 /* NOLINTNEXTLINE(modernize-avoid-c-arrays): array tolerated for command line arguments */
-std::int32_t run_application(const std::int32_t argc, const score::StringLiteral argv[], Args&&... args)
+std::int32_t run_application(const std::int32_t argc, const char* const argv[], Args&&... args)
 {
     score::mw::lifecycle::Run<ApplicationType> runner(argc, argv);
     return runner.AsPosixProcess(std::forward<Args>(args)...);
@@ -77,4 +76,3 @@ std::int32_t run_application(const std::int32_t argc, const score::StringLiteral
 }  // namespace score
 
 #endif  // SCORE_MW_LIFECYCLE_RUNAPPLICATION_H
-
