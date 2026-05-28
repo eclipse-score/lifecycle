@@ -14,7 +14,6 @@
 #ifndef SCORE_MW_LIFECYCLE_APPLICATIONCONTEXT_H
 #define SCORE_MW_LIFECYCLE_APPLICATIONCONTEXT_H
 
-#include "score/memory/string_literal.h"
 #include <string_view>
 #include <cstdint>
 #include <string>
@@ -38,7 +37,7 @@ class ApplicationContext
 
   public:
     /* NOLINTNEXTLINE(modernize-avoid-c-arrays): array tolerated for command line arguments */
-    ApplicationContext(const std::int32_t argc, const score::StringLiteral argv[]);
+    ApplicationContext(const std::int32_t argc, const char* argv[]);
 
     /**
      * \brief Utility function.
