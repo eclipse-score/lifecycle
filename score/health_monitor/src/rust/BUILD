@@ -29,7 +29,7 @@ rust_library(
     srcs = glob(["**/*.rs"]),
     crate_root = "lib.rs",
     proc_macro_deps = PROC_MACRO_DEPS,
-    visibility = ["//visibility:public"],
+    visibility = ["//score:__subpackages__"],
     deps = COMMON_RUST_DEPS,
 )
 

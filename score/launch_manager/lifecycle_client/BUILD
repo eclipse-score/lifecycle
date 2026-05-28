@@ -13,10 +13,6 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("@score_baselibs//score/language/safecpp:toolchain_features.bzl", "COMPILER_WARNING_FEATURES")
 
-package(
-    default_visibility = ["//visibility:public"],
-)
-
 cc_library(
     name = "lifecycle_client_interface",
     hdrs = [
@@ -61,7 +57,7 @@ cc_library(
         "@platforms//os:linux": ["-lpthread"],
     }),
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
-    visibility = ["//visibility:public"],
+    visibility = ["//score:__subpackages__"],
     deps = [
         ":lifecycle_client_interface",
         "//score/launch_manager/lifecycle_client/src/details:lifecycle_client_impl",
@@ -85,6 +81,7 @@ cc_library(
     include_prefix = "score/mw/lifecycle/lifecycle_client",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     tags = ["FUSA"],
+    visibility = ["//visibility:public"],
     deps = [
         "@score_baselibs//score/memory:string_literal",
         "@score_baselibs//score/mw/log",
@@ -105,6 +102,7 @@ cc_library(
     include_prefix = "score/mw/lifecycle/lifecycle_client",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     tags = ["FUSA"],
+    visibility = ["//visibility:public"],
     deps = [
         ":applicationcontext",
         "@score_baselibs//score/language/futurecpp",
@@ -124,6 +122,7 @@ cc_library(
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle/lifecycle_client",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
+    visibility = ["//visibility:public"],
     deps = [
         ":applicationcontext",
     ],
@@ -142,6 +141,7 @@ cc_library(
     include_prefix = "score/mw/lifecycle/lifecycle_client",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     tags = ["FUSA"],
+    visibility = ["//visibility:public"],
     deps = [
         ":application",
         ":lifecycle_client",
@@ -195,6 +195,7 @@ cc_library(
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle/lifecycle_client",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
+    visibility = ["//visibility:public"],
     deps = [
         "@googletest//:gtest",
         "@score_baselibs//score/memory:string_literal",
@@ -233,6 +234,7 @@ cc_library(
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle/lifecycle_client",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
+    visibility = ["//visibility:public"],
     deps = [
         ":application_mock",
         "@googletest//:gtest",

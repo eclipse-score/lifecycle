@@ -23,7 +23,7 @@ cc_library(
     ],
     include_prefix = "score/mw/launch_manager/common",
     strip_include_prefix = "/score/launch_manager/daemon/src/common",
-    visibility = ["//visibility:public"],
+    visibility = ["//score:__subpackages__"],
 )
 
 cc_test(

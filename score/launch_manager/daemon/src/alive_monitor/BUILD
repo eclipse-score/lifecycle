@@ -72,7 +72,7 @@ cc_library(
 
 cc_library(
     name = "alive_monitor",
-    visibility = ["//visibility:public"],
+    visibility = ["//score:__subpackages__"],
     deps = [
         "//score/launch_manager/daemon/src/alive_monitor/details/daemon:health_monitor_impl",
     ],
@@ -86,7 +86,7 @@ cc_library(
     ],
     include_prefix = "score/mw/launch_manager/alive_monitor",
     strip_include_prefix = "/score/launch_manager/daemon/src/alive_monitor",
-    visibility = ["//visibility:public"],
+    visibility = ["//score:__subpackages__"],
     deps = [
         ":am-lib",
         "//score/launch_manager/daemon/src/alive_monitor/details/ipc:ipc_if",

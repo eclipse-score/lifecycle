@@ -17,7 +17,7 @@ cc_library(
     hdrs = ["posix_process.hpp"],
     include_prefix = "score/mw/launch_manager/process_state_client",
     strip_include_prefix = "/score/launch_manager/daemon/src/process_state_client",
-    visibility = ["//visibility:public"],
+    visibility = ["//score:__subpackages__"],
     deps = [
         "//score/launch_manager/daemon/src/common:identifier_hash",
     ],
@@ -28,7 +28,7 @@ cc_library(
     hdrs = ["iprocess_state_receiver.hpp"],
     include_prefix = "score/mw/launch_manager/process_state_client",
     strip_include_prefix = "/score/launch_manager/daemon/src/process_state_client",
-    visibility = ["//visibility:public"],
+    visibility = ["//score:__subpackages__"],
     deps = [
         ":posix_process",
         "//score/launch_manager:error",
@@ -41,7 +41,7 @@ cc_library(
     hdrs = ["iprocess_state_notifier.hpp"],
     include_prefix = "score/mw/launch_manager/process_state_client",
     strip_include_prefix = "/score/launch_manager/daemon/src/process_state_client",
-    visibility = ["//visibility:public"],
+    visibility = ["//score:__subpackages__"],
     deps = [
         ":iprocess_state_receiver",
         ":posix_process",
@@ -54,7 +54,7 @@ cc_library(
     hdrs = ["process_state_notifier.hpp"],
     include_prefix = "score/mw/launch_manager/process_state_client",
     strip_include_prefix = "/score/launch_manager/daemon/src/process_state_client",
-    visibility = ["//visibility:public"],
+    visibility = ["//score:__subpackages__"],
     deps = [
         ":iprocess_state_notifier",
         "//externals/ipc_dropin",
@@ -65,7 +65,7 @@ cc_library(
 
 cc_library(
     name = "process_state_client",
-    visibility = ["//visibility:public"],
+    visibility = ["//score:__subpackages__"],
     deps = [
         ":process_state_notifier",
         "//score/launch_manager/daemon/src/process_state_client/details:process_state_receiver",

@@ -19,7 +19,7 @@ cc_library(
     hdrs = ["heartbeat_monitor.h"],
     include_prefix = "score/mw/health",
     strip_include_prefix = "/score/health_monitor/src/cpp/heartbeat",
-    visibility = ["//visibility:public"],
+    visibility = ["//score:__subpackages__"],
     deps = [
         "//score/health_monitor/src/cpp:common",
         "@score_baselibs//score/result",

@@ -99,7 +99,10 @@ cc_library(
     ],
     include_prefix = "score/mw/launch_manager/osal",
     strip_include_prefix = "/score/launch_manager/daemon/src/osal",
-    visibility = ["//visibility:public"],
+    visibility = [
+        "//score:__subpackages__",
+        "//tests:__subpackages__",
+    ],
     deps = [
         ":semaphore",
         "//score/launch_manager/daemon/src/common:log",

@@ -25,7 +25,7 @@ cc_binary(
     name = "process_initial",
     srcs = ["process_initial.cpp"],
     deps = [
-        "//score/launch_manager/lifecycle_client",
+        "//score/launch_manager:lifecycle_cc",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
     ],

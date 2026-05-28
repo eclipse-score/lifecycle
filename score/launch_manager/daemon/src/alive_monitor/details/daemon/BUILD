@@ -76,7 +76,7 @@ cc_library(
     hdrs = ["IAliveMonitor.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/daemon",
     strip_include_prefix = "/score/launch_manager/daemon/src/alive_monitor/details/daemon",
-    visibility = ["//visibility:public"],
+    visibility = ["//score/launch_manager/daemon:__subpackages__"],
     deps = [":phm_daemon"],
 )
 
@@ -86,7 +86,7 @@ cc_library(
     hdrs = ["AliveMonitorImpl.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/daemon",
     strip_include_prefix = "/score/launch_manager/daemon/src/alive_monitor/details/daemon",
-    visibility = ["//visibility:public"],
+    visibility = ["//score/launch_manager/daemon:__subpackages__"],
     deps = [
         ":i_health_monitor",
         "//score/launch_manager/daemon/src/alive_monitor/details/logging:phm_logging",

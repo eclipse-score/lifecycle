@@ -34,8 +34,7 @@ filegroup(
     srcs = [
         "//score/launch_manager",
         "//score/launch_manager:control_cc",
-        "//score/launch_manager/daemon/src/process_state_client",
-        "//score/launch_manager/lifecycle_client",
+        "//score/launch_manager:lifecycle_cc",
     ],
 )
 

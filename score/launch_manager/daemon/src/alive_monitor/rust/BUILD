@@ -12,8 +12,6 @@
 # *******************************************************************************
 load("@rules_rust//rust:defs.bzl", "rust_library")
 
-package(default_visibility = ["//visibility:public"])
-
 rust_library(
     name = "monitor_rs",
     srcs = [
@@ -21,6 +19,7 @@ rust_library(
         "src/lib.rs",
         "src/monitor.rs",
     ],
+    visibility = ["//score:__subpackages__"],
     deps = [
         "//score/launch_manager:alive_cc",
         "//score/launch_manager/lifecycle_client",

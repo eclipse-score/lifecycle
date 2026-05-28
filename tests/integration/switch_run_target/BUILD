@@ -32,7 +32,7 @@ cc_binary(
     deps = [
         ":switch_run_target_common",
         "//score/launch_manager:control_cc",
-        "//score/launch_manager/lifecycle_client",
+        "//score/launch_manager:lifecycle_cc",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
     ],
@@ -44,7 +44,7 @@ cc_binary(
         srcs = [component + ".cpp"],
         deps = [
             ":switch_run_target_common",
-            "//score/launch_manager/lifecycle_client",
+            "//score/launch_manager:lifecycle_cc",
             "//tests/utils/test_helper",
             "@googletest//:gtest_main",
         ],
@@ -60,7 +60,7 @@ cc_binary(
     name = "component_e",
     srcs = ["//tests/utils/test_helper:reporting_process.cpp"],
     deps = [
-        "//score/launch_manager/lifecycle_client",
+        "//score/launch_manager:lifecycle_cc",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
     ],

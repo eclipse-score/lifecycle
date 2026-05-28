@@ -26,7 +26,7 @@ cc_binary(
     srcs = ["control_client_mock.cpp"],
     deps = [
         "//score/launch_manager:control_cc",
-        "//score/launch_manager/lifecycle_client",
+        "//score/launch_manager:lifecycle_cc",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
     ],
@@ -36,7 +36,7 @@ cc_binary(
     name = "process_crashing_on_runtime",
     srcs = ["process_crashing_on_runtime.cpp"],
     deps = [
-        "//score/launch_manager/lifecycle_client",
+        "//score/launch_manager:lifecycle_cc",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
     ],

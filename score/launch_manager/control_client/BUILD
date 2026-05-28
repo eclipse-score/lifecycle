@@ -22,7 +22,7 @@ cc_library(
     ],
     include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/control_client/src",
-    visibility = ["//visibility:public"],
+    visibility = ["//score:__subpackages__"],
     deps = [
         "//score/launch_manager/control_client/src/details:control_client_impl",
         "//score/launch_manager/daemon/src/common:identifier_hash",

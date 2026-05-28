@@ -26,7 +26,7 @@ cc_binary(
     srcs = ["control_client_mock.cpp"],
     deps = [
         "//score/launch_manager:control_cc",
-        "//score/launch_manager/lifecycle_client",
+        "//score/launch_manager:lifecycle_cc",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
     ],
@@ -47,7 +47,7 @@ cc_binary(
     deps = [
         "//score/health_monitor:health_monitoring_cc",
         "//score/launch_manager:alive_cc",
-        "//score/launch_manager/lifecycle_client",
+        "//score/launch_manager:lifecycle_cc",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
         "@score_baselibs_rust//src/log/stdout_logger_cpp_init",
