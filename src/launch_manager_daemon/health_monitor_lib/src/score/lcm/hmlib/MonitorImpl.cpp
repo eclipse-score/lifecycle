@@ -24,7 +24,7 @@
 #include <fstream>
 
 #include "flatbuffers/flatbuffers.h"
-namespace score::mw::health
+namespace score::mw::lifecycle
 {
 
 namespace
@@ -166,4 +166,4 @@ std::pair<bool, std::string> MonitorImpl::readConfig(std::string& f_returnIfPath
 
 }
 
-}  // namespace score::mw::health
+}  // namespace score::mw::lifecycle

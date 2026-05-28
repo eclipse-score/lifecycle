@@ -18,7 +18,7 @@
 #include <memory>
 #include <string_view>
 
-namespace score::mw::health
+namespace score::mw::lifecycle
 {
 
 /// @brief Represents a Checkpoint
@@ -30,9 +30,9 @@ class MonitorImpl;
 /// @brief Forward declaration of enumeration of local supervision status
 enum class LocalSupervisionStatus : std::uint32_t;
 
-/// @brief Wrapper of implementation class for score::mw::health::Monitor class
-///        This class is just a wrapper and forwards the calls from score::mw::health::Monitor class
-///        to the actual implementation class, i.e., score::mw::health::MonitorImpl
+/// @brief Wrapper of implementation class for score::mw::lifecycle::Monitor class
+///        This class is just a wrapper and forwards the calls from score::mw::lifecycle::Monitor class
+///        to the actual implementation class, i.e., score::mw::lifecycle::MonitorImpl
 class MonitorImplWrapper
 {
 public:
@@ -70,13 +70,13 @@ public:
 
     /// @brief Reports an occurrence of a Checkpoint
     /// @param [in] f_checkpointId   Checkpoint identifier.
-    void ReportCheckpoint(score::mw::health::Checkpoint f_checkpointId) const noexcept(true);
+    void ReportCheckpoint(score::mw::lifecycle::Checkpoint f_checkpointId) const noexcept(true);
 
 private:
     /// @brief Unique pointer to the implementation class of Monitor
     std::unique_ptr<MonitorImpl> monitorImplPtr;
 };
 
-}  // namespace score::mw::health
+}  // namespace score::mw::lifecycle
 
 #endif

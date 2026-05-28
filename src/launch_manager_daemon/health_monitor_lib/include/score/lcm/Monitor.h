@@ -21,7 +21,7 @@
 
 #include "score/lcm/MonitorImplWrapper.h"
 
-namespace score::mw::health
+namespace score::mw::lifecycle
 {
 
 /// @brief Enumeration of elementary supervision status
@@ -125,7 +125,7 @@ public:
     {
         if (monitorImplWrapperPtr.get() != nullptr)
         {
-            monitorImplWrapperPtr->ReportCheckpoint(static_cast<score::mw::health::Checkpoint>(checkpointId));
+            monitorImplWrapperPtr->ReportCheckpoint(static_cast<score::mw::lifecycle::Checkpoint>(checkpointId));
         }
     }
 
@@ -143,7 +143,7 @@ private:
 
     /// @brief Assert if enumeration used during the construction of Monitor class
     ///        is of the type std::uint32_t
-    static_assert(std::is_same<underlyingCheckpointIdType, score::mw::health::Checkpoint>::value,
+    static_assert(std::is_same<underlyingCheckpointIdType, score::mw::lifecycle::Checkpoint>::value,
                   "The enumeration class used during the construction of Monitor class must be of "
                   "type 'std::uint32_t'!");
 };
@@ -159,5 +159,5 @@ extern "C"
 }
 #endif
 
-}  // namespace score::mw::health
+}  // namespace score::mw::lifecycle
 #endif

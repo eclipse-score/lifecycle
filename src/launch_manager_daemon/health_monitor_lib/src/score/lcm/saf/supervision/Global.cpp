@@ -47,7 +47,7 @@ Global::Global(const GlobalSupervisionCfg& f_globalCfg_r) :
     // Should always be true as the vectors are paired
     assert(k_expiredTolerances.size() == k_refFuntionGroupStates.size());
 
-    assert((globalStatus == score::mw::health::GlobalSupervisionStatus::kDeactivated) &&
+    assert((globalStatus == score::mw::lifecycle::GlobalSupervisionStatus::kDeactivated) &&
            ("Global Supervision must start in deactivated state, see SWS_PHM_00218"));
 }
 
@@ -118,7 +118,7 @@ void Global::registerLocalSupervision(const Local& f_localSupervision_r)
 {
     // coverity[autosar_cpp14_a8_5_2_violation:FALSE] type auto shall not be initialized with {} AUTOSAR.8.5.3A
     const auto ret =
-        localStatusOverTime.insert({&f_localSupervision_r, score::mw::health::LocalSupervisionStatus::kDeactivated});
+        localStatusOverTime.insert({&f_localSupervision_r, score::mw::lifecycle::LocalSupervisionStatus::kDeactivated});
     static_cast<void>(ret);
     assert(ret.second && "Same local supervision element was registered twice!");
 }
@@ -139,7 +139,7 @@ void Global::evaluate(const timers::NanoSecondType f_syncTimestamp)
 
     // We still need to check the debounce timer in case we are in expired state.
     // Debouncing was only evaluated against timestamp from local supervision update / pg state change before.
-    if (score::mw::health::GlobalSupervisionStatus::kExpired == globalStatus)
+    if (score::mw::lifecycle::GlobalSupervisionStatus::kExpired == globalStatus)
     {
         if (isDebounced(f_syncTimestamp))
         {
@@ -182,29 +182,29 @@ void Global::evaluateLocalSupervisionUpdate(const TimeSortedLocalSupState& f_loc
 
     switch (globalStatus)
     {
-        case score::mw::health::GlobalSupervisionStatus::kDeactivated:
+        case score::mw::lifecycle::GlobalSupervisionStatus::kDeactivated:
         {
             checkTransitionsOutOfDeactivated(f_local_r);
             break;
         }
 
-        case score::mw::health::GlobalSupervisionStatus::kOK:
+        case score::mw::lifecycle::GlobalSupervisionStatus::kOK:
         {
             checkTransitionsOutOfOk(f_local_r);
             break;
         }
 
-        case score::mw::health::GlobalSupervisionStatus::kFailed:
+        case score::mw::lifecycle::GlobalSupervisionStatus::kFailed:
         {
             checkTransitionsOutOfFailed(f_local_r);
             break;
         }
-        case score::mw::health::GlobalSupervisionStatus::kExpired:
+        case score::mw::lifecycle::GlobalSupervisionStatus::kExpired:
         {
             checkTransitionsOutOfExpired(f_local_r);
             break;
         }
-        case score::mw::health::GlobalSupervisionStatus::kStopped:
+        case score::mw::lifecycle::GlobalSupervisionStatus::kStopped:
         {
             checkTransitionsOutOfStopped();
             break;
@@ -222,13 +222,13 @@ void Global::evaluateLocalSupervisionUpdate(const TimeSortedLocalSupState& f_loc
 void Global::evaluatePGStateChange(const TimeSortedPGStateChange f_pgChange) noexcept
 {
     expiredTolerance = f_pgChange.expiredTolerance;
-    if ((score::mw::health::GlobalSupervisionStatus::kExpired == globalStatus) && (isDebounced(f_pgChange.timestamp)))
+    if ((score::mw::lifecycle::GlobalSupervisionStatus::kExpired == globalStatus) && (isDebounced(f_pgChange.timestamp)))
     {
         switchToStopped(EGlobalStoppedReason::expirationTimeout);
     }
 }
 
-score::mw::health::GlobalSupervisionStatus Global::getStatus(void) const noexcept
+score::mw::lifecycle::GlobalSupervisionStatus Global::getStatus(void) const noexcept
 {
     return globalStatus;
 }
@@ -241,17 +241,17 @@ void Global::registerRecoveryNotification(score::lcm::saf::recovery::Notificatio
 
 void Global::checkTransitionsOutOfDeactivated(const TimeSortedLocalSupState& f_local_r)
 {
-    score::mw::health::LocalSupervisionStatus status{f_local_r.state};
+    score::mw::lifecycle::LocalSupervisionStatus status{f_local_r.state};
 
-    if (score::mw::health::LocalSupervisionStatus::kOK == status)
+    if (score::mw::lifecycle::LocalSupervisionStatus::kOK == status)
     {
         switchToOk();
     }
-    else if (score::mw::health::LocalSupervisionStatus::kFailed == status)
+    else if (score::mw::lifecycle::LocalSupervisionStatus::kFailed == status)
     {
         switchToFailed();
     }
-    else if (score::mw::health::LocalSupervisionStatus::kExpired == status)
+    else if (score::mw::lifecycle::LocalSupervisionStatus::kExpired == status)
     {
         expiredSupervision = f_local_r.supervisionType;
         executionError = f_local_r.executionError;
@@ -273,21 +273,21 @@ void Global::checkTransitionsOutOfDeactivated(const TimeSortedLocalSupState& f_l
 
 void Global::checkTransitionsOutOfOk(const TimeSortedLocalSupState& f_local_r)
 {
-    score::mw::health::LocalSupervisionStatus status{f_local_r.state};
+    score::mw::lifecycle::LocalSupervisionStatus status{f_local_r.state};
 
-    if (score::mw::health::LocalSupervisionStatus::kDeactivated == status)
+    if (score::mw::lifecycle::LocalSupervisionStatus::kDeactivated == status)
     {
-        const score::mw::health::LocalSupervisionStatus accState{getAccumulatedState()};
-        if (score::mw::health::LocalSupervisionStatus::kDeactivated == accState)
+        const score::mw::lifecycle::LocalSupervisionStatus accState{getAccumulatedState()};
+        if (score::mw::lifecycle::LocalSupervisionStatus::kDeactivated == accState)
         {
             switchToDeactivated();
         }
     }
-    else if (score::mw::health::LocalSupervisionStatus::kFailed == status)
+    else if (score::mw::lifecycle::LocalSupervisionStatus::kFailed == status)
     {
         switchToFailed();
     }
-    else if (score::mw::health::LocalSupervisionStatus::kExpired == status)
+    else if (score::mw::lifecycle::LocalSupervisionStatus::kExpired == status)
     {
         expiredSupervision = f_local_r.supervisionType;
         executionError = f_local_r.executionError;
@@ -309,9 +309,9 @@ void Global::checkTransitionsOutOfOk(const TimeSortedLocalSupState& f_local_r)
 
 void Global::checkTransitionsOutOfFailed(const TimeSortedLocalSupState& f_local_r)
 {
-    score::mw::health::LocalSupervisionStatus status{f_local_r.state};
+    score::mw::lifecycle::LocalSupervisionStatus status{f_local_r.state};
 
-    if (score::mw::health::LocalSupervisionStatus::kExpired == status)
+    if (score::mw::lifecycle::LocalSupervisionStatus::kExpired == status)
     {
         expiredSupervision = f_local_r.supervisionType;
         executionError = f_local_r.executionError;
@@ -325,18 +325,18 @@ void Global::checkTransitionsOutOfFailed(const TimeSortedLocalSupState& f_local_
             switchToExpired(f_local_r.timestamp);
         }
     }
-    else if (score::mw::health::LocalSupervisionStatus::kFailed == status)
+    else if (score::mw::lifecycle::LocalSupervisionStatus::kFailed == status)
     {
         // Remain in status Failed
     }
     else  // Local Supervision reported Deactivated or Ok
     {
-        const score::mw::health::LocalSupervisionStatus accState{getAccumulatedState()};
-        if (score::mw::health::LocalSupervisionStatus::kDeactivated == accState)
+        const score::mw::lifecycle::LocalSupervisionStatus accState{getAccumulatedState()};
+        if (score::mw::lifecycle::LocalSupervisionStatus::kDeactivated == accState)
         {
             switchToDeactivated();
         }
-        else if (score::mw::health::LocalSupervisionStatus::kOK == accState)
+        else if (score::mw::lifecycle::LocalSupervisionStatus::kOK == accState)
         {
             switchToOk();
         }
@@ -351,28 +351,28 @@ void Global::checkTransitionsOutOfFailed(const TimeSortedLocalSupState& f_local_
     function.", true_no_defect) */
 void Global::checkTransitionsOutOfExpired(const TimeSortedLocalSupState& f_local_r)
 {
-    score::mw::health::LocalSupervisionStatus status{f_local_r.state};
+    score::mw::lifecycle::LocalSupervisionStatus status{f_local_r.state};
 
     if (isDebounced(f_local_r.timestamp))
     {
         switchToStopped(EGlobalStoppedReason::expirationTimeout);
     }
-    else if (score::mw::health::LocalSupervisionStatus::kExpired == status)
+    else if (score::mw::lifecycle::LocalSupervisionStatus::kExpired == status)
     {
         // Remain in status Expired
     }
     else  // Local Supervision reported Deactivated, Ok or Failed
     {
-        const score::mw::health::LocalSupervisionStatus accState{getAccumulatedState()};
-        if (score::mw::health::LocalSupervisionStatus::kDeactivated == accState)
+        const score::mw::lifecycle::LocalSupervisionStatus accState{getAccumulatedState()};
+        if (score::mw::lifecycle::LocalSupervisionStatus::kDeactivated == accState)
         {
             switchToDeactivated();
         }
-        else if (score::mw::health::LocalSupervisionStatus::kOK == accState)
+        else if (score::mw::lifecycle::LocalSupervisionStatus::kOK == accState)
         {
             switchToOk();
         }
-        else if (score::mw::health::LocalSupervisionStatus::kFailed == accState)
+        else if (score::mw::lifecycle::LocalSupervisionStatus::kFailed == accState)
         {
             switchToFailed();
         }
@@ -385,16 +385,16 @@ void Global::checkTransitionsOutOfExpired(const TimeSortedLocalSupState& f_local
 
 void Global::checkTransitionsOutOfStopped()
 {
-    const score::mw::health::LocalSupervisionStatus accState{getAccumulatedState()};
-    if (score::mw::health::LocalSupervisionStatus::kDeactivated == accState)
+    const score::mw::lifecycle::LocalSupervisionStatus accState{getAccumulatedState()};
+    if (score::mw::lifecycle::LocalSupervisionStatus::kDeactivated == accState)
     {
         switchToDeactivated();
     }
-    else if (score::mw::health::LocalSupervisionStatus::kOK == accState)
+    else if (score::mw::lifecycle::LocalSupervisionStatus::kOK == accState)
     {
         switchToOk();
     }
-    else if (score::mw::health::LocalSupervisionStatus::kFailed == accState)
+    else if (score::mw::lifecycle::LocalSupervisionStatus::kFailed == accState)
     {
         switchToFailed();
     }
@@ -407,7 +407,7 @@ void Global::checkTransitionsOutOfStopped()
 void Global::switchToDeactivated() noexcept
 {
     logger_r.LogDebug() << "Global Supervision (" << getConfigName() << ") switched to DEACTIVATED.";
-    globalStatus = score::mw::health::GlobalSupervisionStatus::kDeactivated;
+    globalStatus = score::mw::lifecycle::GlobalSupervisionStatus::kDeactivated;
 
     startExpired = UINT64_MAX;
     expiredTolerance = 0U;
@@ -416,7 +416,7 @@ void Global::switchToDeactivated() noexcept
 void Global::switchToOk() noexcept
 {
     logger_r.LogInfo() << "Global Supervision (" << getConfigName() << ") switched to OK.";
-    globalStatus = score::mw::health::GlobalSupervisionStatus::kOK;
+    globalStatus = score::mw::lifecycle::GlobalSupervisionStatus::kOK;
 
     startExpired = UINT64_MAX;
 }
@@ -424,7 +424,7 @@ void Global::switchToOk() noexcept
 void Global::switchToFailed() noexcept
 {
     logger_r.LogWarn() << "Global Supervision (" << getConfigName() << ") switched to FAILED.";
-    globalStatus = score::mw::health::GlobalSupervisionStatus::kFailed;
+    globalStatus = score::mw::lifecycle::GlobalSupervisionStatus::kFailed;
 
     startExpired = UINT64_MAX;
 }
@@ -432,7 +432,7 @@ void Global::switchToFailed() noexcept
 void Global::switchToExpired(const timers::NanoSecondType f_starttime) noexcept
 {
     logger_r.LogWarn() << "Global Supervision (" << getConfigName() << ") switched to EXPIRED.";
-    globalStatus = score::mw::health::GlobalSupervisionStatus::kExpired;
+    globalStatus = score::mw::lifecycle::GlobalSupervisionStatus::kExpired;
     startExpired = f_starttime;
 }
 
@@ -454,7 +454,7 @@ void Global::switchToStopped(EGlobalStoppedReason f_reason) noexcept
             break;
     }
 
-    globalStatus = score::mw::health::GlobalSupervisionStatus::kStopped;
+    globalStatus = score::mw::lifecycle::GlobalSupervisionStatus::kStopped;
     startExpired = UINT64_MAX;
 
     for (auto notification : registeredRecoveryNotifications)
@@ -481,7 +481,7 @@ void Global::switchToStopped(EGlobalStoppedReason f_reason) noexcept
     }
 }
 
-score::mw::health::LocalSupervisionStatus Global::getAccumulatedState(void) noexcept
+score::mw::lifecycle::LocalSupervisionStatus Global::getAccumulatedState(void) noexcept
 {
     // Accumulating the state is done by calculating the maximum enum value.
     // This approach is only valid if the enum values are in the expected order:
@@ -489,13 +489,13 @@ score::mw::health::LocalSupervisionStatus Global::getAccumulatedState(void) noex
     // - Highest critical case => highest value
     // kDeactivated is an exception to this rule, which is treated differently in the
     // calculation of accumulated state below
-    static_assert(static_cast<uint32_t>(score::mw::health::LocalSupervisionStatus::kOK) == 0U,
+    static_assert(static_cast<uint32_t>(score::mw::lifecycle::LocalSupervisionStatus::kOK) == 0U,
                   "Value of score::lcm::LocalSupervision::kOK is 0 as expected.");
-    static_assert(static_cast<uint32_t>(score::mw::health::LocalSupervisionStatus::kFailed) == 1U,
+    static_assert(static_cast<uint32_t>(score::mw::lifecycle::LocalSupervisionStatus::kFailed) == 1U,
                   "Value of score::lcm::LocalSupervision::kFailed is 1 as expected.");
-    static_assert(static_cast<uint32_t>(score::mw::health::LocalSupervisionStatus::kExpired) == 2U,
+    static_assert(static_cast<uint32_t>(score::mw::lifecycle::LocalSupervisionStatus::kExpired) == 2U,
                   "Value of score::lcm::LocalSupervision::kExpired is 2 as expected.");
-    static_assert(static_cast<uint32_t>(score::mw::health::LocalSupervisionStatus::kDeactivated) == 4U,
+    static_assert(static_cast<uint32_t>(score::mw::lifecycle::LocalSupervisionStatus::kDeactivated) == 4U,
                   "Value of score::lcm::LocalSupervision::kDeactivated is 4 as expected.");
 
     // Value of -1 is treated as kDeactivated. Using the underlying integer of kDeactivated would
@@ -507,20 +507,20 @@ score::mw::health::LocalSupervisionStatus Global::getAccumulatedState(void) noex
     {
         // coverity[autosar_cpp14_a8_5_2_violation:FALSE] type auto shall not be initialized with {} AUTOSAR.8.5.3A
         const auto localStatus = local.second;
-        if (localStatus != score::mw::health::LocalSupervisionStatus::kDeactivated)
+        if (localStatus != score::mw::lifecycle::LocalSupervisionStatus::kDeactivated)
         {
             aggregateState = std::max(static_cast<std::int32_t>(localStatus), aggregateState);
-            if (score::mw::health::LocalSupervisionStatus::kExpired == localStatus)
+            if (score::mw::lifecycle::LocalSupervisionStatus::kExpired == localStatus)
             {
                 break;  // Worst state already reached
             }
         }
     }
 
-    score::mw::health::LocalSupervisionStatus accState{score::mw::health::LocalSupervisionStatus::kDeactivated};
+    score::mw::lifecycle::LocalSupervisionStatus accState{score::mw::lifecycle::LocalSupervisionStatus::kDeactivated};
     if (aggregateState != kDeactivatedPlaceholder)
     {
-        accState = static_cast<score::mw::health::LocalSupervisionStatus>(aggregateState);
+        accState = static_cast<score::mw::lifecycle::LocalSupervisionStatus>(aggregateState);
     }
 
     return accState;

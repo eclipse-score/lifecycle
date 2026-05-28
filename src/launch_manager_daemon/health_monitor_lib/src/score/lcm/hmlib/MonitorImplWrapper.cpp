@@ -16,7 +16,7 @@
 #include "score/lcm/hmlib/MonitorImpl.h"
 #include "score/lcm/Monitor.h"
 
-namespace score::mw::health
+namespace score::mw::lifecycle
 {
 
 MonitorImplWrapper::MonitorImplWrapper(
@@ -39,4 +39,4 @@ void MonitorImplWrapper::ReportCheckpoint(Checkpoint f_checkpointId) const noexc
     }
 }
 
-}  // namespace score::mw::health
+}  // namespace score::mw::lifecycle

@@ -30,7 +30,7 @@
 #include <score/hm/health_monitor.h>
 #include <thread>
 
-using score::mw::health::Monitor;
+using score::mw::lifecycle::Monitor;
 
 /// @brief CLI configuration options for the demo_application process
 struct Config

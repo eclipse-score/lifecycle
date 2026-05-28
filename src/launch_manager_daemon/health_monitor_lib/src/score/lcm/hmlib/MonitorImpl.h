@@ -24,10 +24,10 @@
 #include "score/lcm/saf/ipc/IpcClient.hpp"
 #include "score/lcm/saf/logging/PhmLogger.hpp"
 
-namespace score::mw::health
+namespace score::mw::lifecycle
 {
 
-/// @brief Implementation class for score::mw::health::Monitor class
+/// @brief Implementation class for score::mw::lifecycle::Monitor class
 ///        This class is responsible for establishing the connection between the application and PHM daemon
 ///        by invoking the calls to PHM class methods and to forward the reported checkpoints from the application
 ///        to PHM daemon for supervision evaluation
@@ -106,6 +106,6 @@ private:
     score::lcm::saf::logging::PhmLogger& logger_r;
 };
 
-}  // namespace score::mw::health
+}  // namespace score::mw::lifecycle
 
 #endif
