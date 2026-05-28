@@ -94,7 +94,7 @@ std::int32_t score::mw::lifecycle::LifeCycleManager::run(Application& app, const
     const auto run_status = m_app->Run(m_stop_source.get_token());  // LCOV_EXCL_BR_LINE
     if (run_status != 0)
     {
-        mw::log::LogError() << "Error occured during Run";
+        mw::log::LogError() << "Error occurred during Run";
     }
     mw::log::LogInfo() << "Shutting down Application";
     mw::log::LogInfo() << "Application" << application_name << "run finished with" << run_status;
