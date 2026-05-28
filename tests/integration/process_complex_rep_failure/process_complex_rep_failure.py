@@ -30,7 +30,7 @@ from attribute_plugin import add_test_properties
 )
 def test_recovery_action_complex_rep_failure(target, setup_test, test_output_dir, remote_test_dir):
     """
-    Objective: Verifies that recovery action is executed when the complex reporting of kRunning is not successful.
+    Objective: Verifies that recovery action is executed when the reporting of kRunning via LifecycleClient library (named "complex reporting" in the following) is not happening in time and vice versa.
 
     Case 1: Using complex reporting, the process does report kRunning in time (500ms below boundary)
     Expected Behaviour: Reporting kRunning is successful, recovery action is not executed.
