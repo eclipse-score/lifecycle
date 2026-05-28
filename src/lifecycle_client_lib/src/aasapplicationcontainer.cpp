@@ -13,8 +13,8 @@
 
 #include "src/lifecycle_client_lib/include/aasapplicationcontainer.h"
 
-#include <score/jthread.hpp>
 #include "src/lifecycle_client_lib/include/lifecyclemanager.h"
+#include <score/jthread.hpp>
 
 namespace score
 {
@@ -23,9 +23,8 @@ namespace mw
 namespace lifecycle
 {
 
-
 AasApplicationContainer::AasApplicationContainer(const std::int32_t argc,
-                                                 const score::StringLiteral* argv,
+                                                 const char** argv,
                                                  const std::size_t count_expected_applications) noexcept
     : Application{}, context_{argc, argv}, applications_{}, count_expected_applications_{count_expected_applications}
 {
