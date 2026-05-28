@@ -55,7 +55,7 @@ environments</panel_attributes><additional_attributes></additional_attributes></
 operation
 + initialize(const ApplicationContext&amp;): std::int32_t override
 + run(amp::stop_token stop_token): std::int32_t override
-+ AasApplicationContainer(cosnt std::int32_t argc, const char* const* argv, const std::size_t count_expected_applications): noexcept
++ AasApplicationContainer(const std::int32_t argc, const char* const* argv, const std::size_t count_expected_applications): noexcept
 + With&lt;App,...Args&gt;(Args&amp;&amp;.. args) : AasApplicationContainer&amp;
 + Launch() : std::int32_t
 --
