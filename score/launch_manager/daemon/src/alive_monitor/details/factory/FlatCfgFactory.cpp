@@ -117,36 +117,6 @@ bool FlatCfgFactory::createProcessStates(std::vector<ifexm::ProcessState>& f_pro
                 const std::size_t shortNameLen = shortName->size();
                 processCfg.processShortName = std::string_view(shortNameStr, shortNameLen);
 
-                // Get configured process group states
-                std::vector<std::string> refProcessGroupStatePaths{};
-                // coverity[cert_exp34_c_violation] PHM.ecucfgdsl Process.refProcessGroupStates MANDATORY
-                // coverity[dereference] PHM.ecucfgdsl Process.refProcessGroupStates MANDATORY
-                const auto* pgStates_p{process_p->refProcessGroupStates()};
-                /* RULECHECKER_comment(2, 3, check_csa_call_null_object_pointer, "PHM.ecucfgdsl
-                 * Process.refProcessGroupStates MANDATORY", true_no_defect) */
-                // coverity[cert_exp34_c_violation] PHM.ecucfgdsl Process.refProcessGroupStates MANDATORY
-                // coverity[dereference] PHM.ecucfgdsl Process.refProcessGroupStates MANDATORY
-                refProcessGroupStatePaths.reserve(static_cast<size_t>(pgStates_p->size()));
-                for (const auto& pgState_p : *pgStates_p)
-                {
-                    refProcessGroupStatePaths.push_back(pgState_p->identifier()->c_str());
-                }
-                auto processGroupIdResult_p{getProcessGroupStateIds(refProcessGroupStatePaths)};
-
-                processCfg.configuredProcessGroupStates = std::move(*processGroupIdResult_p);
-
-                // Get configured ProcessExecutionErrors
-                // coverity[cert_exp34_c_violation] PHM.ecucfgdsl Process.processExecutionErrors MANDATORY
-                // coverity[dereference] PHM.ecucfgdsl Process.processExecutionErrors MANDATORY
-                processCfg.processExecutionErrors.reserve(
-                    static_cast<std::size_t>(process_p->processExecutionErrors()->size()));
-                for (const auto execError_p : *(process_p->processExecutionErrors()))
-                {
-                    const auto err{execError_p->processExecutionError()};
-                    processCfg.processExecutionErrors.push_back(
-                        static_cast<ifexm::ProcessCfg::ProcessExecutionError>(err));
-                }
-
                 // Not an EXM Process
                 if (process_p->processType() != HMFlatBuffer::ProcessType::ProcessType_LM_PROCESS)
                 {
@@ -170,11 +140,7 @@ bool FlatCfgFactory::createProcessStates(std::vector<ifexm::ProcessState>& f_pro
                     // EXM processId
                     processCfg.processId = -2;
 
-                    // Ensured in DSL that there will only be one entry of process group reference for the EXM process
-                    common::ProcessGroupId mainPGStartupId{processCfg.configuredProcessGroupStates.back()};
-
                     f_processStates_r.emplace_back(processCfg);
-                    f_processStates_r.back().setProcessGroupState(mainPGStartupId);
                 }
 
                 const std::string processShortNameRead{f_processStates_r.back().getConfigName()};
@@ -478,6 +444,7 @@ bool FlatCfgFactory::createAliveSupervisions(std::vector<supervision::Alive>& f_
     return isSuccess;
 }
 
+<<<<<<< HEAD:score/launch_manager/daemon/src/alive_monitor/details/factory/FlatCfgFactory.cpp
 std::optional<std::vector<common::ProcessGroupId>> FlatCfgFactory::getProcessGroupStateIds(
     std::vector<std::string>& f_pgStatePaths_r) noexcept(false)
 {
@@ -491,6 +458,10 @@ std::optional<std::vector<common::ProcessGroupId>> FlatCfgFactory::getProcessGro
 }
 
 std::optional<common::ProcessId> FlatCfgFactory::getProcessId(const std::string& f_processPath_r) noexcept(true)
+=======
+std::optional<common::ProcessId> FlatCfgFactory::getProcessId(const std::string& f_processPath_r) noexcept(
+    true)
+>>>>>>> 541f50d7 (Remove processgroupstate from hm monitor lib):src/launch_manager_daemon/health_monitor_lib/src/score/lcm/saf/factory/FlatCfgFactory.cpp
 {
     return score::lcm::IdentifierHash{f_processPath_r}.data();
 }

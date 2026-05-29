@@ -85,8 +85,6 @@ struct AliveFixture
         }
     };
 
-    const score::lcm::saf::common::ProcessGroupId kRunningPgId = score::lcm::IdentifierHash{"MainPG/Full"}.data();
-
     const score::lcm::IdentifierHash kProcessIdentifier{"test_proc"};
 
     std::shared_ptr<MockRecoveryClient> mockClient = std::make_shared<MockRecoveryClient>();
@@ -151,8 +149,6 @@ struct AliveFixture
         score::lcm::saf::ifexm::ProcessCfg cfg{};
         cfg.processShortName = kProcessName;
         cfg.processId = kProcessId;
-        cfg.configuredProcessGroupStates = {score::lcm::IdentifierHash{"MainPG/Full"}.data()};
-        cfg.processExecutionErrors = {1U};
         return cfg;
     }
 };
@@ -258,7 +254,7 @@ TEST_F(AliveSupervisionTest, AliveDebouncesThroughFailedBeforeExpired)
 }
 
 /// Verify that a clean shutdown (sigterm) deactivates the supervision from ok.
-TEST(AliveSupervisionTest, DeactivatesOnProcessSigterm)
+TEST_F(AliveSupervisionTest, DeactivatesOnProcessSigterm)
 {
     AliveFixture fix = AliveFixture::Builder{}.build();
 
@@ -274,7 +270,7 @@ TEST(AliveSupervisionTest, DeactivatesOnProcessSigterm)
 }
 
 /// Verify that a process crash (off without sigterm) also deactivates the supervision.
-TEST(AliveSupervisionTest, DeactivatesOnProcessCrash)
+TEST_F(AliveSupervisionTest, DeactivatesOnProcessCrash)
 {
     AliveFixture fix = AliveFixture::Builder{}.build();
 
@@ -291,7 +287,7 @@ TEST(AliveSupervisionTest, DeactivatesOnProcessCrash)
 
 /// Verify that after a crash (off) the supervision can be reactivated when the process
 /// reports running again, without any special recovery path.
-TEST(AliveSupervisionTest, ReactivatesAfterCrash)
+TEST_F(AliveSupervisionTest, ReactivatesAfterCrash)
 {
     AliveFixture fix = AliveFixture::Builder{}.build();
 
@@ -314,7 +310,7 @@ TEST(AliveSupervisionTest, ReactivatesAfterCrash)
 
 /// Verify that process states other than running/sigterm/off are ignored and do not
 /// affect the supervision state.
-TEST(AliveSupervisionTest, IgnoresIrrelevantProcessStates)
+TEST_F(AliveSupervisionTest, IgnoresIrrelevantProcessStates)
 {
     AliveFixture fix = AliveFixture::Builder{}.build();
 
@@ -339,7 +335,7 @@ TEST(AliveSupervisionTest, IgnoresIrrelevantProcessStates)
 }
 
 /// Verify that exceeding the maximum allowed heartbeats per cycle leads to failure.
-TEST(AliveSupervisionTest, MaxIndicationViolationExpires)
+TEST_F(AliveSupervisionTest, MaxIndicationViolationExpires)
 {
     // max=1, tolerance=0: more than 1 heartbeat per cycle expires immediately
     AliveFixture fix = AliveFixture::Builder{}.withMaxIndications(1U).build();

@@ -25,16 +25,6 @@ table Process {
   identifier: string (id:1);
   index: uint32 (id:2);
   processType: ProcessType (id:3);
-  refProcessGroupStates: [HmRefProcessGroupStates] (id:4);
-  processExecutionErrors: [HmProcessExecutionError] (id:5);
-}
-
-table HmProcessExecutionError {
-  processExecutionError: uint32 (id:0);
-}
-
-table HmRefProcessGroupStates {
-  identifier: string (id:0);
 }
 
 table HmRefProcess {

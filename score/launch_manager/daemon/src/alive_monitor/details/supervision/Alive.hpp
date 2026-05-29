@@ -130,14 +130,10 @@ class Alive : public ISupervision,
     /// @return True if sendRecoveryRequest failed
     bool hasRecoveryEnqueueFailed(void) const noexcept;
 
-    /// @brief Returns the last process execution error
-    /// @return process execution error
-    ifexm::ProcessCfg::ProcessExecutionError getProcessExecutionError(void) const noexcept(true);
-
-    PHM_PRIVATE :
-        /// @brief The pointer is only stored for the identification of a checkpoint observer. It can be further used
-        /// for accessing const members only.
-        using CheckpointIdentifier = const score::lcm::saf::ifappl::Checkpoint*;
+PHM_PRIVATE:
+    /// @brief The pointer is only stored for the identification of a checkpoint observer. It can be further used for
+    /// accessing const members only.
+    using CheckpointIdentifier = const score::lcm::saf::ifappl::Checkpoint*;
 
     /// @brief Time sorted checkpoint snapshot
     struct CheckpointSnapshot final
@@ -357,11 +353,6 @@ class Alive : public ISupervision,
     /// @brief Time sorting buffer for update events in alive supervision
     /// @details This buffer sorts all process events and checkpoint events in the same buffer.
     score::lcm::saf::common::TimeSortingBuffer<TimeSortedUpdateEvent> timeSortingUpdateEventBuffer;
-
-
-    /// @brief The process execution error that belongs to the last process that caused a supervision failure
-    ifexm::ProcessCfg::ProcessExecutionError lastProcessExecutionError{
-        ifexm::ProcessCfg::kDefaultProcessExecutionError};
 
 
     /// @brief Tracks whether the supervised process is currently active (reported kRunning)

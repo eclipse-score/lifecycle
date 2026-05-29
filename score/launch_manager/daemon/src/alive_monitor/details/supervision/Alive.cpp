@@ -482,7 +482,6 @@ void Alive::switchToFailed(void) noexcept(true)
 void Alive::switchToExpired(Alive::EReason reason) noexcept(true)
 {
     aliveStatus = EStatus::kExpired;
-    lastProcessExecutionError = ifexm::ProcessCfg::kDefaultProcessExecutionError;
 
     switch (reason)
     {
@@ -610,12 +609,6 @@ timers::NanoSecondType Alive::getTimestampOfUpdateEvent(const TimeSortedUpdateEv
 
     return timestamp;
 }
-
-ifexm::ProcessCfg::ProcessExecutionError Alive::getProcessExecutionError(void) const noexcept(true)
-{
-    return lastProcessExecutionError;
-}
-
 
 }  // namespace supervision
 }  // namespace saf

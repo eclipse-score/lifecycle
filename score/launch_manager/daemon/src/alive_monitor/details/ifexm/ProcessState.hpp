@@ -91,14 +91,6 @@ public:
     /// @param [in] f_processStateId   Process state id
     void setState(ProcessState::EProcState f_processStateId) noexcept;
 
-    /// @brief Get Process Group State
-    /// @return     Return active Process Group State ID
-    common::ProcessGroupId getProcessGroupState() const noexcept;
-
-    /// @brief Set process group state
-    /// @param [in] f_processGroupStateId    Process group state id
-    void setProcessGroupState(common::ProcessGroupId f_processGroupStateId) noexcept;
-
     /// @brief Get Timestamp for current event
     /// @return     Timestamp of current event
     timers::NanoSecondType getTimestamp() const noexcept;
@@ -106,10 +98,6 @@ public:
     /// @brief Set timestamp of process state
     /// @param [in] f_timestamp  timestamp of process state
     void setTimestamp(timers::NanoSecondType f_timestamp) noexcept;
-
-    /// @brief Get the process execution error for the current PG state
-    /// @return     Process Execution Error
-    ProcessCfg::ProcessExecutionError getProcessExecutionError() const noexcept;
 
     /// @brief Push Data
     /// @details Push process state related information, which shall be distribute to observers.
@@ -122,18 +110,8 @@ PHM_PRIVATE:
     /// @brief Process id
     const common::ProcessId k_processId;
 
-    /// @brief Current process group state
-    common::ProcessGroupId processGroupState{0};
-
     /// @brief Current process state
     EProcState eProcState{ProcessState::EProcState::idle};
-
-    /// @brief Configured process group state Ids
-    std::vector<common::ProcessGroupId> configuredProcessGroupStates{};
-
-    /// @brief Configured process execution errors
-    /// @details Same index is used for mapping vectors of process execution errors and process group state Ids
-    std::vector<ProcessCfg::ProcessExecutionError> processExecutionErrors{};
 
     /// @brief Current timestamp of process
     timers::NanoSecondType timestamp{UINT64_MAX};

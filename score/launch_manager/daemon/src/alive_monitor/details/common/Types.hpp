@@ -24,7 +24,6 @@ namespace saf
 namespace common
 {
 
-using ProcessGroupId = std::size_t;
 using ProcessId = std::size_t;
 
 }  // namespace common
