@@ -30,15 +30,13 @@ struct Config
     bool         crashRequested{false};
     std::int32_t crashTimeInMs{1000};
     bool         failToStart{false};
-    bool         verbose{false};
 };
 
 std::string helpSstring =
         "Usage:\n\
        -r <response time in ms> Worst case response time to SIGTERM signal in milliseconds.\n\
        -c <crash time in ms> Simulate crash of the application, after specified time in milliseconds.\n\
-       -s Simulate failure during start-up of the application.\n\
-       -v Run in verbose mode.\n";
+       -s Simulate failure during start-up of the application.\n";
 
 std::optional<Config> parseOptions(int argc, char *const *argv) noexcept
 {
@@ -64,10 +62,6 @@ std::optional<Config> parseOptions(int argc, char *const *argv) noexcept
         case 'h':
             std::cout << helpSstring;
             return std::nullopt;
-
-        case 'v':
-            config.verbose = true;
-            break;
 
         case '?':
             std::cout << "Unrecognized option: -" << static_cast<char>(optopt) << std::endl;
@@ -135,8 +129,6 @@ public:
                 static_cast<long>((m_config.responseTimeInMs % 1000) * 1000000L)
         };
 
-        auto timeLastVerboseLog = std::chrono::steady_clock::now();
-
         while (!stopToken.stop_requested())
         {
             if (true == m_config.crashRequested)
@@ -158,17 +150,6 @@ public:
                     std::abort();
                 }
             }
-
-            if (m_config.verbose)
-            {
-                const auto now = std::chrono::steady_clock::now();
-                if (now - timeLastVerboseLog >= std::chrono::seconds(1))
-                {
-                    std::cout << "LifecycleApp: Running in verbose mode" << std::endl;
-                    timeLastVerboseLog = now;
-                }
-            }
-
             nanosleep(&req, nullptr);
         }
 
