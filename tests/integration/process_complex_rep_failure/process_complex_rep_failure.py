@@ -13,8 +13,7 @@
 from tests.utils.testing_utils.run_until_file_deployed import run_until_file_deployed
 from tests.utils.testing_utils.setup_test import setup_test
 from tests.utils.testing_utils.test_results import (
-    get_failing_files,
-    download_xml_results,
+    assert_test_results
 )
 from attribute_plugin import add_test_properties
 
@@ -28,7 +27,7 @@ from attribute_plugin import add_test_properties
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
 )
-def test_recovery_action_complex_rep_failure(target, setup_test, test_output_dir, remote_test_dir):
+def test_recovery_action_complex_rep_failure(target, setup_test, assert_test_results, remote_test_dir):
     """
     Objective: Verifies that recovery action is executed when the reporting of kRunning via LifecycleClient library (named "complex reporting" in the following) is not happening in time and vice versa.
 
@@ -47,7 +46,4 @@ def test_recovery_action_complex_rep_failure(target, setup_test, test_output_dir
         timeout_s=10.0,
     )
 
-    download_xml_results(target, remote_test_dir, test_output_dir)
-    all_files, failing_files = get_failing_files(test_output_dir)
-    assert len(all_files) == 2, f"Didn't find the expected number of files {all_files}"
-    assert len(failing_files) == 0, f"Found failures in files {failing_files}"
+    assert_test_results({"control_client_mock.xml", "process_complex_reporting.xml"})
