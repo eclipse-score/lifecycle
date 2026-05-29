@@ -15,6 +15,7 @@ exports_files(
     [
         "reporting_process.cpp",
         "verification_process.cpp",
+        "complex_reporting_process.cpp",
     ],
     visibility = ["//tests:__subpackages__"],
 )
@@ -35,6 +36,17 @@ cc_binary(
     deps = [
         ":test_helper",
         "//score/launch_manager:lifecycle_cc",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_binary(
+    name = "complex_reporting_process",
+    srcs = ["complex_reporting_process.cpp"],
+    visibility = ["//tests:__subpackages__"],
+    deps = [
+        ":test_helper",
+        "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
         "@googletest//:gtest_main",
     ],
 )

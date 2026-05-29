@@ -33,8 +33,9 @@ cc_binary(
 )
 
 cc_binary(
-    name = "process_complex_reporting",
-    srcs = ["process_complex_reporting.cpp"],
+    name = "complex_reporting_process",
+    srcs = ["//tests/utils/test_helper:complex_reporting_process.cpp"],
+    visibility = ["//tests:__subpackages__"],
     deps = [
         "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
         "//src/lifecycle_client_lib",
@@ -46,7 +47,7 @@ cc_binary(
 pkg_files(
     name = "process_complex_rep_failure_main_files",
     srcs = [
-        ":process_complex_reporting",
+        ":complex_reporting_process",
         ":control_client_mock",
         "//src/launch_manager_daemon:launch_manager",
     ],

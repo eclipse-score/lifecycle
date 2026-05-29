@@ -62,7 +62,7 @@
         },
         "component_does_report_krunning_in_time": {
             "component_properties": {
-                "binary_name": "process_complex_reporting",
+                "binary_name": "complex_reporting_process",
                 "process_arguments": [
                     "500.0"
                 ]
