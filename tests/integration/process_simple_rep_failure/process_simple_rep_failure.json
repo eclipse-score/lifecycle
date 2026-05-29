@@ -89,6 +89,18 @@
                     "PROCESSIDENTIFIER": "component_does_not_report_krunning_in_time"
                 }
             }
+        },
+        "verification_component": {
+            "component_properties": {
+                "binary_name": "verification_process",
+                "application_profile": {
+                    "application_type": "Native",
+                    "is_self_terminating": true
+                },
+                "ready_condition": {
+                    "process_state": "Terminated"
+                }
+            }
         }
     },
     "run_targets": {
@@ -134,7 +146,8 @@
     },
     "fallback_run_target": {
         "depends_on": [
-            "control_client_mock"
+            "control_client_mock",
+            "verification_component"
         ]
     }
 }

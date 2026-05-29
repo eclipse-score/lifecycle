@@ -48,6 +48,7 @@ pkg_files(
         ":process_simple_reporting",
         ":control_client_mock",
         "//src/launch_manager_daemon:launch_manager",
+        "//tests/utils/test_helper:verification_process",
     ],
     attributes = pkg_attributes(mode = "0755"),
     prefix = "tests/process_simple_rep_failure",
