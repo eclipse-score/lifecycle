@@ -20,9 +20,12 @@ from attribute_plugin import add_test_properties
 
 @add_test_properties(
     partially_verifies=[
-        "feat_req__lifecycle__controlif_status",
         "feat_req__lifecycle__process_failure_react",
-        "feat_req__lifecycle__configurable_wait_time",
+        "feat_req__lifecycle__recov_run_target_switch",
+        "feat_req__lifecycle__recovery_action_support"
+    ],
+    fully_verifies=[
+        "feat_req__lifecycle__failure_detect",
     ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
