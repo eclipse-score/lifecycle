@@ -22,6 +22,7 @@ oci_load(
     image = ":image",
     repo_tags = ["score_itf_examples:latest"],
     visibility = [
+        "//examples:__subpackages__",
         "//tests:__subpackages__",
     ],
 )
