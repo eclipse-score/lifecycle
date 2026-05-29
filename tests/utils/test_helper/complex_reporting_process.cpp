@@ -20,10 +20,15 @@
 #include "tests/utils/test_helper/test_helper.hpp"
 #include <score/lcm/lifecycle_client.h>
 
+/// @file  complex_reporting_process.cpp
+/// @brief Monitored test process using mw::lifecycle (score::mw::lifecycle::Application /
+///        run_application) to simulate configurable start, run, and crash
+///        behaviours for integration tests of the lifecycle manager.
+
 int g_argc;
 char **g_argv;
 
-/// @brief CLI configuration options for the not_supervised_application process
+/// @brief CLI configuration options
 struct Config {
   std::int32_t responseTimeInMs{100};
   bool crashRequested{false};
