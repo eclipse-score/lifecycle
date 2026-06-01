@@ -32,7 +32,7 @@ namespace supervision
 
 /// @brief ISupervision
 /// @details The Interface Supervision class declares/defines methods, which are common for the different
-/// supervision types which are: alive-, deadline-, logical-, local-, global-supervision
+/// supervision types which are: alive-, deadline-, logical-
 class ISupervision
 {
 public:

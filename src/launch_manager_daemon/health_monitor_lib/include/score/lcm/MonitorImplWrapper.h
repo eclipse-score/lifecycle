@@ -29,9 +29,6 @@ using Checkpoint = std::uint32_t;
 /// @brief Forward Declaration for them Implementation class for Monitor
 class MonitorImpl;
 
-/// @brief Forward declaration of enumeration of local supervision status
-enum class LocalSupervisionStatus : std::uint32_t;
-
 /// @brief Wrapper of implementation class for score::lcm::Monitor class
 ///        This class is just a wrapper and forwards the calls from score::lcm::Monitor class
 ///        to the actual implementation class, i.e., score::lcm::MonitorImpl

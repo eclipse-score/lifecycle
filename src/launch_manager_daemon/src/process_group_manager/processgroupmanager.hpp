@@ -96,6 +96,11 @@ class ProcessGroupManager final
     /// @return a pointer to the Graph, or nullptr if not found
     std::shared_ptr<Graph> getProcessGroup(IdentifierHash pg_name);
 
+    /// @brief Get the process group that owns the process with the given identifier
+    /// @param process_id the process identifier to look up
+    /// @return a pointer to the Graph, or nullptr if not found
+    std::shared_ptr<Graph> getProcessGroupByProcessId(const IdentifierHash& process_id);
+
     /// @brief Get a node corresponding to the given process group and process index
     /// @param pg_index The index of the process group in the list of groups managed by this manager
     /// @param process_index The index of the process in the list of processes in the process group

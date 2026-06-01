@@ -22,13 +22,15 @@
 #include "score/lcm/saf/ifexm/ProcessState.hpp"
 #include "score/lcm/saf/ifexm/ProcessStateReader.hpp"
 #include "score/lcm/saf/logging/PhmLogger.hpp"
-#include "score/lcm/saf/recovery/Notification.hpp"
 #include "score/lcm/saf/timers/Timers_OsClock.hpp"
 
 namespace score
 {
 namespace lcm
 {
+    
+class IRecoveryClient;
+
 namespace saf
 {
 
@@ -42,8 +44,6 @@ class Checkpoint;
 namespace supervision
 {
 class Alive;
-class Local;
-class Global;
 }  // namespace supervision
 
 // End Forward declarations
@@ -101,9 +101,9 @@ public:
     /// @param [in] f_syncTimestamp   Timestamp for cyclic synchronization
     void performCyclicTriggers(const timers::NanoSecondType f_syncTimestamp);
 
-    /// @brief Check for recovery notificaiton timeout
-    /// @return True, if any recovery notification has a timeout. Else false.
-    bool hasRecoveryNotificationTimeout() const noexcept;
+    /// @brief Check whether any alive supervision failed to enqueue a recovery request
+    /// @return True if any alive supervision recovery request has failed
+    bool hasAnyRecoveryEnqueueFailed() const noexcept;
 
 private:
     /// @brief Check interfaces for new data
@@ -115,11 +115,6 @@ private:
     /// @details Evaluate all supervisions created during construction.
     /// @param [in] f_syncTimestamp   Timestamp for cyclic synchronization
     void evaluateSupervisions(const timers::NanoSecondType f_syncTimestamp);
-
-    /// @brief Evaluate recovery notifications
-    /// @details Evaluate all recovery notifications created during construction.
-    /// @note Has to be called after evaluateGlobalSupervisions
-    void evaluateRecoveryNotifications(void);
 
     /// @brief Logger
     logging::PhmLogger& logger_r;
@@ -141,15 +136,6 @@ private:
 
     /// Vector of Alive Supervisions
     std::vector<supervision::Alive> aliveSupervisions;
-
-    /// Vector of Local Supervisions
-    std::vector<supervision::Local> localSupervisions;
-
-    /// Vector of Global Supervisions
-    std::vector<supervision::Global> globalSupervisions;
-
-    /// Vector of Recovery Notifications
-    std::vector<recovery::Notification> recoveryNotifications;
 };
 
 }  // namespace daemon

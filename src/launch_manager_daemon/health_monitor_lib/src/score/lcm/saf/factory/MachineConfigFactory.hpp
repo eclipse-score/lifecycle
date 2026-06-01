@@ -54,10 +54,6 @@ public:
     {
         /// @brief Configured buffer size for alive supervisions
         std::uint16_t bufferSizeAliveSupervision{StaticConfig::k_DefaultAliveSupCheckpointBufferElements};
-        /// @brief Configured buffer size for local supervisions
-        std::uint16_t bufferSizeLocalSupervision{StaticConfig::k_DefaultLocalSupStatusUpdateBufferElements};
-        /// @brief Configured buffer size for global supervisions
-        std::uint16_t bufferSizeGlobalSupervision{StaticConfig::k_DefaultGlobalSupStatusUpdateBufferElements};
         /// @brief Configured buffer size for Monitor entities
         std::uint16_t bufferSizeMonitor{StaticConfig::k_DefaultMonitorBufferElements};
     };

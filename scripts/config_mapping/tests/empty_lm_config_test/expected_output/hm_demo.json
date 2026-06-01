@@ -4,8 +4,5 @@
     "process": [],
     "hmMonitorInterface": [],
     "hmSupervisionCheckpoint": [],
-    "hmAliveSupervision": [],
-    "hmLocalSupervision": [],
-    "hmGlobalSupervision": [],
-    "hmRecoveryNotification": []
+    "hmAliveSupervision": []
 }
