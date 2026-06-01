@@ -444,24 +444,8 @@ bool FlatCfgFactory::createAliveSupervisions(std::vector<supervision::Alive>& f_
     return isSuccess;
 }
 
-<<<<<<< HEAD:score/launch_manager/daemon/src/alive_monitor/details/factory/FlatCfgFactory.cpp
-std::optional<std::vector<common::ProcessGroupId>> FlatCfgFactory::getProcessGroupStateIds(
-    std::vector<std::string>& f_pgStatePaths_r) noexcept(false)
-{
-    std::vector<common::ProcessGroupId> stateIds{};
-    for (const auto& pgStatePath : f_pgStatePaths_r)
-    {
-        const auto id = score::lcm::IdentifierHash{pgStatePath}.data();
-        stateIds.push_back(id);
-    }
-    return stateIds;
-}
-
-std::optional<common::ProcessId> FlatCfgFactory::getProcessId(const std::string& f_processPath_r) noexcept(true)
-=======
 std::optional<common::ProcessId> FlatCfgFactory::getProcessId(const std::string& f_processPath_r) noexcept(
     true)
->>>>>>> 541f50d7 (Remove processgroupstate from hm monitor lib):src/launch_manager_daemon/health_monitor_lib/src/score/lcm/saf/factory/FlatCfgFactory.cpp
 {
     return score::lcm::IdentifierHash{f_processPath_r}.data();
 }

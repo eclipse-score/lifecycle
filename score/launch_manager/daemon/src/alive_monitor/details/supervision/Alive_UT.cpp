@@ -253,65 +253,69 @@ TEST_F(AliveSupervisionTest, AliveDebouncesThroughFailedBeforeExpired)
     EXPECT_EQ(fix.alive->getStatus(), EStatus::kExpired);
 }
 
-/// Verify that a clean shutdown (sigterm) deactivates the supervision from ok.
 TEST_F(AliveSupervisionTest, DeactivatesOnProcessSigterm)
 {
+    RecordProperty("Description",
+                   "Verify that a clean shutdown (sigterm) deactivates the supervision from ok.");
     AliveFixture fix = AliveFixture::Builder{}.build();
 
     EXPECT_CALL(*fix.mockClient, sendRecoveryRequest(_)).Times(0);
 
     fix.activateProcess(10U);
     fix.alive->evaluate(11U);
-    EXPECT_EQ(fix.alive->getStatus(), score::lcm::saf::supervision::Alive::EStatus::ok);
+    EXPECT_EQ(fix.alive->getStatus(), EStatus::kOk);
 
     fix.sigtermProcess(20U);
     fix.alive->evaluate(21U);
-    EXPECT_EQ(fix.alive->getStatus(), score::lcm::saf::supervision::Alive::EStatus::deactivated);
+    EXPECT_EQ(fix.alive->getStatus(), EStatus::kDeactivated);
 }
 
-/// Verify that a process crash (off without sigterm) also deactivates the supervision.
 TEST_F(AliveSupervisionTest, DeactivatesOnProcessCrash)
 {
+    RecordProperty("Description",
+                   "Verify that a process crash (off without sigterm) also deactivates the supervision.");
     AliveFixture fix = AliveFixture::Builder{}.build();
 
     EXPECT_CALL(*fix.mockClient, sendRecoveryRequest(_)).Times(0);
 
     fix.activateProcess(10U);
     fix.alive->evaluate(11U);
-    EXPECT_EQ(fix.alive->getStatus(), score::lcm::saf::supervision::Alive::EStatus::ok);
+    EXPECT_EQ(fix.alive->getStatus(), EStatus::kOk);
 
     fix.crashProcess(20U);
     fix.alive->evaluate(21U);
-    EXPECT_EQ(fix.alive->getStatus(), score::lcm::saf::supervision::Alive::EStatus::deactivated);
+    EXPECT_EQ(fix.alive->getStatus(), EStatus::kDeactivated);
 }
 
-/// Verify that after a crash (off) the supervision can be reactivated when the process
-/// reports running again, without any special recovery path.
 TEST_F(AliveSupervisionTest, ReactivatesAfterCrash)
 {
+    RecordProperty("Description",
+                   "Verify that after a crash (off) the supervision can be reactivated when the process"
+                   " reports running again, without any special recovery path.");
     AliveFixture fix = AliveFixture::Builder{}.build();
 
     EXPECT_CALL(*fix.mockClient, sendRecoveryRequest(_)).Times(0);
 
     fix.activateProcess(10U);
     fix.alive->evaluate(11U);
-    EXPECT_EQ(fix.alive->getStatus(), score::lcm::saf::supervision::Alive::EStatus::ok);
+    EXPECT_EQ(fix.alive->getStatus(), EStatus::kOk);
 
     // Process crashes
     fix.crashProcess(20U);
     fix.alive->evaluate(21U);
-    EXPECT_EQ(fix.alive->getStatus(), score::lcm::saf::supervision::Alive::EStatus::deactivated);
+    EXPECT_EQ(fix.alive->getStatus(), EStatus::kDeactivated);
 
     // Process restarts
     fix.activateProcess(30U);
     fix.alive->evaluate(31U);
-    EXPECT_EQ(fix.alive->getStatus(), score::lcm::saf::supervision::Alive::EStatus::ok);
+    EXPECT_EQ(fix.alive->getStatus(), EStatus::kOk);
 }
 
-/// Verify that process states other than running/sigterm/off are ignored and do not
-/// affect the supervision state.
 TEST_F(AliveSupervisionTest, IgnoresIrrelevantProcessStates)
 {
+    RecordProperty("Description",
+                   "Verify that process states other than running/sigterm/off are ignored and do not"
+                   " affect the supervision state.");
     AliveFixture fix = AliveFixture::Builder{}.build();
 
     EXPECT_CALL(*fix.mockClient, sendRecoveryRequest(_)).Times(0);
@@ -326,17 +330,18 @@ TEST_F(AliveSupervisionTest, IgnoresIrrelevantProcessStates)
     fix.processState.pushData();
 
     fix.alive->evaluate(7U);
-    EXPECT_EQ(fix.alive->getStatus(), score::lcm::saf::supervision::Alive::EStatus::deactivated);
+    EXPECT_EQ(fix.alive->getStatus(), EStatus::kDeactivated);
 
     // Normal activation still works after ignored events
     fix.activateProcess(10U);
     fix.alive->evaluate(11U);
-    EXPECT_EQ(fix.alive->getStatus(), score::lcm::saf::supervision::Alive::EStatus::ok);
+    EXPECT_EQ(fix.alive->getStatus(), EStatus::kOk);
 }
 
-/// Verify that exceeding the maximum allowed heartbeats per cycle leads to failure.
 TEST_F(AliveSupervisionTest, MaxIndicationViolationExpires)
 {
+    RecordProperty("Description",
+                   "Verify that exceeding the maximum allowed heartbeats per cycle leads to failure.");
     // max=1, tolerance=0: more than 1 heartbeat per cycle expires immediately
     AliveFixture fix = AliveFixture::Builder{}.withMaxIndications(1U).build();
 
@@ -346,11 +351,11 @@ TEST_F(AliveSupervisionTest, MaxIndicationViolationExpires)
 
     fix.activateProcess(10U);
     fix.alive->evaluate(11U);
-    EXPECT_EQ(fix.alive->getStatus(), score::lcm::saf::supervision::Alive::EStatus::ok);
+    EXPECT_EQ(fix.alive->getStatus(), EStatus::kOk);
 
     // Two heartbeats in one cycle violates max=1
     fix.reportHeartbeat(100U);
     fix.reportHeartbeat(200U);
     fix.alive->evaluate(1011U);
-    EXPECT_EQ(fix.alive->getStatus(), score::lcm::saf::supervision::Alive::EStatus::expired);
+    EXPECT_EQ(fix.alive->getStatus(), EStatus::kExpired);
 }

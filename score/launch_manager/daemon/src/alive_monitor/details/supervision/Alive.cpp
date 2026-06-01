@@ -204,9 +204,6 @@ void Alive::handleDataLossReaction(void) noexcept(true)
         switchToExpired(EReason::kDataLoss);
     }
     timeSortingUpdateEventBuffer.clear();
-    // Mark as activated so that a subsequent sigterm/off can produce a kDeactivation event,
-    // enabling the supervision to heal after the process restarts.
-    isActivated_ = true;
     dataLossReason = EDataLossReason::kNoDataLoss;
 }
 
@@ -277,16 +274,13 @@ Alive::EUpdateEventType Alive::getAliveEventType(bool f_isEvaluationEvent,
     if (std::holds_alternative<ProcessStateSnapshot>(f_updateEvent))
     {
         const auto& snapshot = std::get<ProcessStateSnapshot>(f_updateEvent);
-        if (snapshot.eProcState == ifexm::ProcessState::EProcState::running && !isActivated_)
+        if (snapshot.eProcState == ifexm::ProcessState::EProcState::running)
         {
-            isActivated_ = true;
             return EUpdateEventType::kActivation;
         }
-        if ((snapshot.eProcState == ifexm::ProcessState::EProcState::sigterm ||
-             snapshot.eProcState == ifexm::ProcessState::EProcState::off) &&
-            isActivated_)
+        if (snapshot.eProcState == ifexm::ProcessState::EProcState::sigterm ||
+            snapshot.eProcState == ifexm::ProcessState::EProcState::off)
         {
-            isActivated_ = false;
             return EUpdateEventType::kDeactivation;
         }
         return EUpdateEventType::kNoChange;

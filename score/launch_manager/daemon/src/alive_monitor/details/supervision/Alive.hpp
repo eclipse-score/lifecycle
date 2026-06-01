@@ -353,10 +353,6 @@ PHM_PRIVATE:
     /// @brief Time sorting buffer for update events in alive supervision
     /// @details This buffer sorts all process events and checkpoint events in the same buffer.
     score::lcm::saf::common::TimeSortingBuffer<TimeSortedUpdateEvent> timeSortingUpdateEventBuffer;
-
-
-    /// @brief Tracks whether the supervised process is currently active (reported kRunning)
-    bool isActivated_{false};
 };
 
 }  // namespace supervision
