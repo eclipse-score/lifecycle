@@ -16,8 +16,8 @@
 #include <chrono>
 #include <iostream>
 
-#include <score/lcm/lifecycle_client.h>
-#include <score/lcm/control_client.h>
+#include <score/mw/lifecycle/lifecycle_client.h>
+#include <score/mw/lifecycle/control_client.h>
 #include "ipc_dropin/socket.hpp"
 #include "control.hpp"
 

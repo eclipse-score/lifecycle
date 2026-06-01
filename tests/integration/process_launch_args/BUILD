@@ -25,7 +25,7 @@ cc_binary(
     name = "process_initial",
     srcs = ["process_initial.cpp"],
     deps = [
-        "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
+        "//score/launch_manager:lifecycle_cc",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
     ],
@@ -35,7 +35,7 @@ pkg_files(
     name = "process_launch_args_main_files",
     srcs = [
         ":process_initial",
-        "//src/launch_manager_daemon:launch_manager",
+        "//score/launch_manager",
     ],
     attributes = pkg_attributes(mode = "0755"),
     prefix = "tests/process_launch_args",

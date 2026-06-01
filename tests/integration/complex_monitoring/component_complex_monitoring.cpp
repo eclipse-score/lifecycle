@@ -13,11 +13,11 @@
 #include <gtest/gtest.h>
 #include <thread>
 
-#include "score/lcm/lifecycle_client.h"
+#include "score/mw/lifecycle/lifecycle_client.h"
 #include "score/mw/log/rust/stdout_logger_init.h"
 #include "tests/utils/test_helper/test_helper.hpp"
-#include <score/hm/common.h>
-#include <score/hm/health_monitor.h>
+#include <score/mw/health/common.h>
+#include <score/mw/health/health_monitor.h>
 
 TEST(ComplexMonitoring, ComponentComplexMonitoring)
 {

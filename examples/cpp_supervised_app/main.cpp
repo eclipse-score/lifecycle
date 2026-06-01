@@ -23,14 +23,11 @@
 #include <sys/prctl.h>
 #endif
 
-#include "score/lcm/Monitor.h"
-#include "score/lcm/lifecycle_client.h"
-#include "score/mw/log/rust/stdout_logger_init.h"
-#include <score/hm/common.h>
-#include <score/hm/health_monitor.h>
+#include <score/mw/lifecycle/lifecycle_client.h>
+#include <score/mw/log/rust/stdout_logger_init.h>
+#include <score/mw/health/common.h>
+#include <score/mw/health/health_monitor.h>
 #include <thread>
-
-using score::mw::lifecycle::Monitor;
 
 /// @brief CLI configuration options for the demo_application process
 struct Config

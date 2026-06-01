@@ -10,6 +10,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+load("@rules_cc//cc:defs.bzl", "cc_binary")
 load("@rules_pkg//pkg:mappings.bzl", "pkg_attributes", "pkg_files")
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 load("@score_itf//:defs.bzl", "py_itf_test")
@@ -35,8 +36,8 @@ cc_binary(
     srcs = ["control_daemon_mock.cpp"],
     data = [],
     deps = [
-        "//score/mw/lifecycle:control_cc",
-        "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
+        "//score/launch_manager:control_cc",
+        "//score/launch_manager:lifecycle_cc",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
     ],
@@ -46,8 +47,8 @@ cc_binary(
     name = "gtest_process",
     srcs = ["gtest_process.cpp"],
     deps = [
-        "//score/mw/lifecycle:control_cc",
-        "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
+        "//score/launch_manager:control_cc",
+        "//score/launch_manager:lifecycle_cc",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
     ],
@@ -58,7 +59,7 @@ pkg_files(
     srcs = [
         ":control_daemon_mock",
         ":gtest_process",
-        "//score/mw/lifecycle:launch_manager",
+        "//score/launch_manager",
     ],
     attributes = pkg_attributes(mode = "0755"),
     prefix = "tests/smoke",

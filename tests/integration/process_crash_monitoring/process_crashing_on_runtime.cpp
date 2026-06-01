@@ -13,7 +13,7 @@
 #include <gtest/gtest.h>
 
 #include "tests/utils/test_helper/test_helper.hpp"
-#include <score/lcm/lifecycle_client.h>
+#include <score/mw/lifecycle/lifecycle_client.h>
 
 TEST(ProcessCrashMonitoring, CrashingProcess)
 {

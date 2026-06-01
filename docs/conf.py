@@ -118,10 +118,12 @@ def setup(app):
     srcdir = Path(app.srcdir)
     workspace_root = Path(os.getcwd())
     src_json_dir = (
-        workspace_root / "src" / "launch_manager_daemon" / "config" / "config_schema"
+        workspace_root
+        / "score/lifecycle/score/launch_manager/daemon/src/configuration/config_schema"
     )
     dest_json_dir = (
-        srcdir.parent / "src" / "launch_manager_daemon" / "config" / "config_schema"
+        srcdir.parent
+        / "score/lifecycle/score/launch_manager/daemon/src/configuration/config_schema"
     )
     if src_json_dir.exists() and not dest_json_dir.exists():
         dest_json_dir.parent.mkdir(parents=True, exist_ok=True)
