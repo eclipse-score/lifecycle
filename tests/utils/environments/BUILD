@@ -16,6 +16,7 @@ filegroup(
     name = "empty_target",
     srcs = [],
     visibility = [
+        "//examples:__subpackages__",
         "//tests:__subpackages__",
     ],
 )
@@ -27,6 +28,7 @@ alias(
         "//conditions:default": ":empty_target",
     }),
     visibility = [
+        "//examples:__subpackages__",
         "//tests:__subpackages__",
     ],
 )
