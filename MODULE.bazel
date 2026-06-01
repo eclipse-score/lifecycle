@@ -25,7 +25,7 @@ bazel_dep(name = "rules_oci", version = "2.3.0")
 bazel_dep(name = "aspect_rules_lint", version = "2.0.0")
 bazel_dep(name = "buildifier_prebuilt", version = "8.2.0.2")
 bazel_dep(name = "platforms", version = "1.0.0")
-bazel_dep(name = "flatbuffers", version = "25.9.23")
+bazel_dep(name = "flatbuffers", version = "25.12.19")
 bazel_dep(name = "download_utils", version = "1.2.2")
 bazel_dep(name = "googletest", version = "1.17.0.bcr.2")
 
@@ -132,7 +132,7 @@ oci.pull(
 use_repo(oci, "debian-test-runtime", "debian-test-runtime_linux_amd64")
 
 bazel_dep(name = "score_baselibs_rust", version = "0.1.2")
-bazel_dep(name = "score_baselibs", version = "0.2.6")
+bazel_dep(name = "score_baselibs", version = "0.2.8")
 
 # Hedron's Compile Commands Extractor for Bazel
 # https://github.com/hedronvision/bazel-compile-commands-extractor

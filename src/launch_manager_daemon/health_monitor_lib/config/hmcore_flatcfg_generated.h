@@ -21,8 +21,8 @@
 // Ensure the included flatbuffers.h is the same version as when this file was
 // generated, otherwise it may not be compatible.
 static_assert(FLATBUFFERS_VERSION_MAJOR == 25 &&
-              FLATBUFFERS_VERSION_MINOR == 9 &&
-              FLATBUFFERS_VERSION_REVISION == 23,
+              FLATBUFFERS_VERSION_MINOR == 12 &&
+              FLATBUFFERS_VERSION_REVISION == 19,
              "Non-compatible flatbuffers version included");
 
 namespace HMCOREFlatBuffer {
@@ -56,7 +56,8 @@ struct HMCOREEcuCfg FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const ::flatbuffers::Vector<::flatbuffers::Offset<HMCOREFlatBuffer::HmConfig>> *config() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<HMCOREFlatBuffer::HmConfig>> *>(VT_CONFIG);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int32_t>(verifier, VT_VERSIONMAJOR, 4) &&
            VerifyField<int32_t>(verifier, VT_VERSIONMINOR, 4) &&
@@ -159,7 +160,8 @@ struct Watchdog FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool hasValueRequireMagicClose() const {
     return GetField<uint8_t>(VT_HASVALUEREQUIREMAGICCLOSE, 0) != 0;
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_SHORTNAME) &&
            verifier.VerifyString(shortName()) &&
@@ -276,7 +278,8 @@ struct HmConfig FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   uint16_t bufferSizeGlobalSupervision() const {
     return GetField<uint16_t>(VT_BUFFERSIZEGLOBALSUPERVISION, 0);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_PERIODICITY, 4) &&
            VerifyField<uint16_t>(verifier, VT_BUFFERSIZEMONITOR, 2) &&
@@ -355,14 +358,16 @@ inline bool SizePrefixedHMCOREEcuCfgBufferHasIdentifier(const void *buf) {
       buf, HMCOREEcuCfgIdentifier(), true);
 }
 
+template <bool B = false>
 inline bool VerifyHMCOREEcuCfgBuffer(
-    ::flatbuffers::Verifier &verifier) {
-  return verifier.VerifyBuffer<HMCOREFlatBuffer::HMCOREEcuCfg>(HMCOREEcuCfgIdentifier());
+    ::flatbuffers::VerifierTemplate<B> &verifier) {
+  return verifier.template VerifyBuffer<HMCOREFlatBuffer::HMCOREEcuCfg>(HMCOREEcuCfgIdentifier());
 }
 
+template <bool B = false>
 inline bool VerifySizePrefixedHMCOREEcuCfgBuffer(
-    ::flatbuffers::Verifier &verifier) {
-  return verifier.VerifySizePrefixedBuffer<HMCOREFlatBuffer::HMCOREEcuCfg>(HMCOREEcuCfgIdentifier());
+    ::flatbuffers::VerifierTemplate<B> &verifier) {
+  return verifier.template VerifySizePrefixedBuffer<HMCOREFlatBuffer::HMCOREEcuCfg>(HMCOREEcuCfgIdentifier());
 }
 
 inline const char *HMCOREEcuCfgExtension() {
