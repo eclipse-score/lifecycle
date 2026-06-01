@@ -14,8 +14,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <thread>
+
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
 
 namespace score {
 
@@ -99,7 +99,7 @@ inline int32_t SafeProcessMap::removeNode(ProcessInfoData& target, ProcessInfoDa
     // found key. There are 4 situations:
     // data.pin_ == nullptr, stored pin_ != nullptr: normal findTerminated
     // data.pin_ != nullptr, stored pin_ == nullptr: normal insertIfNotTerminated
-    // both data.pin_ and stored pin_ point to a ProcessInfoNode: anomalous
+    // both data.pin_ and stored pin_ point to an ITerminationCallback: anomalous
     // both data.pin_ and stored pin_ are null: anomalous
     // In other words, exactly one of data.pin_ and stored pin_ must be nullptr
     // or there is an anomaly and we return -2
@@ -239,7 +239,7 @@ int32_t SafeProcessMap::findTerminated(osal::ProcessID key, int32_t status) {
     return search(key, {status, nullptr});
 }
 
-int32_t SafeProcessMap::insertIfNotTerminated(osal::ProcessID key, ProcessInfoNode* object) {
+int32_t SafeProcessMap::insertIfNotTerminated(osal::ProcessID key, ITerminationCallback* object) {
     return search(key, {0, object});
 }
 

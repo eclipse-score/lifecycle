@@ -19,6 +19,7 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/daemon/src/process_group_manager/details",
     visibility = ["//score/launch_manager/daemon/src/process_group_manager:__pkg__"],
     deps = [
+        ":safe_process_map",
         "//score/launch_manager/daemon/src/configuration:configuration_manager",
         "//score/launch_manager/daemon/src/control:control_client_channel",
         "//score/launch_manager/daemon/src/osal:ipc_comms",
@@ -35,6 +36,7 @@ cc_library(
     visibility = ["//score/launch_manager/daemon/src/process_group_manager:__pkg__"],
     deps = [
         ":process_info_node",
+        ":safe_process_map",
         "//score/launch_manager/daemon/src/common:identifier_hash",
         "//score/launch_manager/daemon/src/configuration:configuration_manager",
         "//score/launch_manager/daemon/src/control:control_client_channel",
@@ -51,8 +53,16 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/daemon/src/process_group_manager/details",
     visibility = ["//score/launch_manager/daemon/src/process_group_manager:__pkg__"],
     deps = [
-        ":process_info_node",
         "//score/launch_manager/daemon/src/process_group_manager:iprocess",
+    ],
+)
+
+cc_test(
+    name = "safeprocessmap_UT",
+    srcs = ["safeprocessmap_UT.cpp"],
+    deps = [
+        ":safe_process_map",
+        "@googletest//:gtest_main",
     ],
 )
 
@@ -65,10 +75,23 @@ cc_library(
     visibility = ["//score/launch_manager/daemon/src/process_group_manager:__pkg__"],
     deps = [
         ":safe_process_map",
+        "@score_baselibs//score/os:sys_wait",
         "//score/launch_manager/daemon/src/common:log",
         "//score/launch_manager/daemon/src/process_group_manager:iprocess",
     ],
 )
+
+cc_test(
+    name = "oshandler_UT",
+    srcs = ["oshandler_UT.cpp"],
+    deps = [
+        ":os_handler",
+        ":safe_process_map",
+        "@score_baselibs//score/os/mocklib:sys_wait_mock",
+        "@googletest//:gtest_main",
+    ],
+)
+
 
 cc_library(
     name = "process_launcher",
