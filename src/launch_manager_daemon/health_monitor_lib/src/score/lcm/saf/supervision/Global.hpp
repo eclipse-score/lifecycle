@@ -121,7 +121,7 @@ public:
 
     /// @brief Get global supervision status
     /// @return GlobalSupervisionStatus  Current global supervision status
-    score::lcm::GlobalSupervisionStatus getStatus(void) const noexcept;
+    score::mw::lifecycle::GlobalSupervisionStatus getStatus(void) const noexcept;
 
     /// @brief Register the given recovery notification object
     /// @param [in] f_notification_r  Recovery notification object
@@ -139,7 +139,7 @@ PHM_PRIVATE:
         // cppcheck-suppress unusedStructMember
         LocalSupervisionId localId{nullptr};
         /// @brief New status of a local supervision
-        score::lcm::LocalSupervisionStatus state{score::lcm::LocalSupervisionStatus::kDeactivated};
+        score::mw::lifecycle::LocalSupervisionStatus state{score::mw::lifecycle::LocalSupervisionStatus::kDeactivated};
         /// @brief The type of supervision that caused the local supervision state change
         ICheckpointSupervision::EType supervisionType{ICheckpointSupervision::EType::aliveSupervision};
         /// @brief Timestamp of the local supervision state change
@@ -208,7 +208,7 @@ PHM_PRIVATE:
     /// 1. Ok
     /// 2. Failed
     /// 3. Expired
-    score::lcm::LocalSupervisionStatus getAccumulatedState(void) noexcept;
+    score::mw::lifecycle::LocalSupervisionStatus getAccumulatedState(void) noexcept;
 
     /// @brief Check if escalation to Stopped is required
     /// @param [in] f_time       Current time (0 ns is treated as error value)
@@ -237,7 +237,7 @@ PHM_PRIVATE:
     const std::vector<common::ProcessGroupId> k_refFuntionGroupStates;
 
     /// @brief Current global supervision status
-    score::lcm::GlobalSupervisionStatus globalStatus{score::lcm::GlobalSupervisionStatus::kDeactivated};
+    score::mw::lifecycle::GlobalSupervisionStatus globalStatus{score::mw::lifecycle::GlobalSupervisionStatus::kDeactivated};
 
     /// @brief Start Timestamp of Expired State
     timers::NanoSecondType startExpired{UINT64_MAX};
@@ -254,7 +254,7 @@ PHM_PRIVATE:
 
     /// @brief Map of the current status of all associated supervisions
     /// Map is updated in the timestamp-based order of local supervision updates
-    std::map<LocalSupervisionId, score::lcm::LocalSupervisionStatus> localStatusOverTime{};
+    std::map<LocalSupervisionId, score::mw::lifecycle::LocalSupervisionStatus> localStatusOverTime{};
 
     /// @brief Vector of registered Recovery Notifications
     std::vector<score::lcm::saf::recovery::Notification*> registeredRecoveryNotifications{};

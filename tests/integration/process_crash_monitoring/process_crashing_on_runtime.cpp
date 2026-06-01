@@ -19,7 +19,7 @@ TEST(ProcessCrashMonitoring, CrashingProcess)
 {
     TEST_STEP("Report kRunning")
     {
-        auto result = score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
+        auto result = score::mw::lifecycle::LifecycleClient{}.ReportExecutionState(score::mw::lifecycle::ExecutionState::kRunning);
         ASSERT_TRUE(result.has_value()) << "ReportExecutionState() failed: " << result.error().Message();
     }
 }

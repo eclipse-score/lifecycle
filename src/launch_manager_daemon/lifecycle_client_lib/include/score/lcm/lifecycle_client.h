@@ -24,9 +24,7 @@
 #include "score/result/result.h"
 #include "score/lcm/exec_error_domain.h"
 
-namespace score {
-
-namespace lcm {
+namespace score::mw::lifecycle {
 
 /// @brief Defines the internal states of a Process (see 7.3.1). Scoped Enumeration of uint8_t
 enum class ExecutionState : std::uint8_t {
@@ -68,9 +66,9 @@ class LifecycleClient final {
     ///
     /// @param state Value of the Execution State
     /// @returns An instance of score::Result. The instance holds an ErrorCode containing either one of the specified errors or a void-value.
-    /// @error score::lcm::ExecErrc::kGeneralError if some unspecified error occurred
-    /// @error score::lcm::ExecErrc::kCommunicationError Communication error between Application and Launch Manager, e.g. unable to report state for Non-reporting Process.
-    /// @error score::lcm::ExecErrc::kInvalidTransition  Invalid transition request (e.g. to Running when already in Running state)
+    /// @error score::mw::lifecycle::ExecErrc::kGeneralError if some unspecified error occurred
+    /// @error score::mw::lifecycle::ExecErrc::kCommunicationError Communication error between Application and Launch Manager, e.g. unable to report state for Non-reporting Process.
+    /// @error score::mw::lifecycle::ExecErrc::kInvalidTransition  Invalid transition request (e.g. to Running when already in Running state)
     score::Result<std::monostate> ReportExecutionState(ExecutionState state) const noexcept;
 
    private:
@@ -79,9 +77,7 @@ class LifecycleClient final {
     std::unique_ptr<LifecycleClientImpl> lifecycle_client_impl_;
 };
 
-}  // namespace lcm
-
-}  // namespace score
+}  // namespace score::mw::lifecycle
 
 extern "C" {
 #else

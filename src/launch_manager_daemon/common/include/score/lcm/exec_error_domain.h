@@ -18,11 +18,8 @@
 
 #include "score/result/result.h"
 
-namespace score
+namespace score::mw::lifecycle
 {
-
-   namespace lcm
-   {
 
       enum class ExecErrc : score::result::ErrorCode
       {
@@ -88,8 +85,6 @@ namespace score
          ;
       }
 
-   } // namespace lcm
-
-} // namespace score
+}  // namespace score::mw::lifecycle
 
 #endif // SCORE_LCM_ERROR_DOMAIN_H_

@@ -142,5 +142,5 @@ TEST_F(ProcessStateClient_UT, ProcessStateClient_QueueOneProcessTooMany_Fails)
     // Ensure that no processes can be retrieved
     auto result = receiver_->getNextChangedPosixProcess();
     ASSERT_FALSE(result.has_value()) << "Expected no processes to be retrievable";
-    EXPECT_EQ(result.error(), score::lcm::ExecErrc::kCommunicationError);
+    EXPECT_EQ(result.error(), score::mw::lifecycle::ExecErrc::kCommunicationError);
 }

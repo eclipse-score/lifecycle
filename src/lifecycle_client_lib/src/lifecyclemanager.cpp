@@ -170,7 +170,7 @@ void score::mw::lifecycle::LifeCycleManager::handle_signal()
 void score::mw::lifecycle::LifeCycleManager::report_running() noexcept
 {
     mw::log::LogInfo() << "Reporting kRunning to Launch Manager";
-    const auto result = score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
+    const auto result = score::mw::lifecycle::LifecycleClient{}.ReportExecutionState(score::mw::lifecycle::ExecutionState::kRunning);
     if (!result.has_value())
     {
         mw::log::LogError() << "Failed to report kRunning to Launch Manager: " << result.error().Message();

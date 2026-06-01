@@ -16,9 +16,7 @@
 #include "score/lcm/hmlib/MonitorImpl.h"
 #include "score/lcm/Monitor.h"
 
-namespace score
-{
-namespace lcm
+namespace score::mw::lifecycle
 {
 
 MonitorImplWrapper::MonitorImplWrapper(
@@ -33,7 +31,7 @@ MonitorImplWrapper::~MonitorImplWrapper() noexcept(true)
     monitorImplPtr.reset();
 }
 
-void MonitorImplWrapper::ReportCheckpoint(score::lcm::Checkpoint f_checkpointId) const noexcept(true)
+void MonitorImplWrapper::ReportCheckpoint(Checkpoint f_checkpointId) const noexcept(true)
 {
     if (monitorImplPtr.get() != nullptr)
     {
@@ -41,5 +39,4 @@ void MonitorImplWrapper::ReportCheckpoint(score::lcm::Checkpoint f_checkpointId)
     }
 }
 
-}  // namespace lcm
-}  // namespace score
+}  // namespace score::mw::lifecycle

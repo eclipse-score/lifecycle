@@ -18,14 +18,14 @@
 #include <score/expected.hpp>
 #include <vector>
 
-namespace score::hm
+namespace score::mw::health
 {
 // Forward declaration
 class HealthMonitor;
 class HealthMonitorBuilder;
-}  // namespace score::hm
+}  // namespace score::mw::health
 
-namespace score::hm::logic
+namespace score::mw::health::logic
 {
 
 class LogicMonitorBuilder final : public internal::RustDroppable<LogicMonitorBuilder>
@@ -59,7 +59,7 @@ class LogicMonitorBuilder final : public internal::RustDroppable<LogicMonitorBui
     friend class internal::RustDroppable<LogicMonitorBuilder>;
 
     // Allow HealthMonitorBuilder to access drop_by_rust implementation
-    friend class ::score::hm::HealthMonitorBuilder;
+    friend class ::score::mw::health::HealthMonitorBuilder;
 };
 
 class LogicMonitor final
@@ -82,10 +82,10 @@ class LogicMonitor final
     explicit LogicMonitor(internal::FFIHandle monitor_handle);
 
     // Only `HealthMonitor` is allowed to create `LogicMonitor` instances.
-    friend class score::hm::HealthMonitor;
+    friend class score::mw::health::HealthMonitor;
     internal::DroppableFFIHandle monitor_handle_;
 };
 
-}  // namespace score::hm::logic
+}  // namespace score::mw::health::logic
 
 #endif  // SCORE_HM_LOGIC_LOGIC_MONITOR_H

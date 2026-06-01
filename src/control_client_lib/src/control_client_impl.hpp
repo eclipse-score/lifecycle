@@ -26,9 +26,7 @@
 #include <score/lcm/internal/controlclientchannel.hpp>
 #include "execution_error_event.h"
 
-namespace score {
-
-namespace lcm {
+namespace score::mw::lifecycle {
 
 /// @brief Data structure used to manage active, i.e. still not completed, requests from ControlClient.
 /// Most of the ControlClient methods are asynchronous. This means that when an API call returns,
@@ -94,27 +92,27 @@ class ControlClientImpl final {
     /// @param[in] pg_state representing meta-model definition of a state. Launch Manager will perform state transition from the current state to the state identified by this parameter.
     ///
     /// @returns void if requested transition is successful, otherwise it returns ExecErrorDomain error.
-    /// @error score::lcm::ExecErrc::kCancelled if transition to the requested Process Group state was cancelled by a newer request
-    /// @error score::lcm::ExecErrc::kFailed if transition to the requested Process Group state failed
-    /// @error score::lcm::ExecErrc::kFailedUnexpectedTerminationOnExit if Unexpected Termination in Process of previous Process Group State happened.
-    /// @error score::lcm::ExecErrc::kFailedUnexpectedTerminationOnEnter if Unexpected Termination in Process of target Process Group State happened.
-    /// @error score::lcm::ExecErrc::kInvalidArguments if arguments passed doesn't appear to be valid (e.g. after a software update, given processGroup doesn't exist anymore)
-    /// @error score::lcm::ExecErrc::kCommunicationError if ControlClient can't communicate with Launch Manager (e.g. IPC link is down)
-    /// @error score::lcm::ExecErrc::kAlreadyInState if the ProcessGroup is already in the requested state
-    /// @error score::lcm::ExecErrc::kInTransitionToSameState if a transition to the requested state is already ongoing
-    /// @error score::lcm::ExecErrc::kInvalidTransition if transition to the requested state is prohibited (e.g. Off state for MainPG)
-    /// @error score::lcm::ExecErrc::kGeneralError if any other error occurs.
-    score::concurrency::InterruptibleFuture<void> SetState(const IdentifierHash& pg_name, const IdentifierHash& pg_state) noexcept;
+    /// @error score::mw::lifecycle::ExecErrc::kCancelled if transition to the requested Process Group state was cancelled by a newer request
+    /// @error score::mw::lifecycle::ExecErrc::kFailed if transition to the requested Process Group state failed
+    /// @error score::mw::lifecycle::ExecErrc::kFailedUnexpectedTerminationOnExit if Unexpected Termination in Process of previous Process Group State happened.
+    /// @error score::mw::lifecycle::ExecErrc::kFailedUnexpectedTerminationOnEnter if Unexpected Termination in Process of target Process Group State happened.
+    /// @error score::mw::lifecycle::ExecErrc::kInvalidArguments if arguments passed doesn't appear to be valid (e.g. after a software update, given processGroup doesn't exist anymore)
+    /// @error score::mw::lifecycle::ExecErrc::kCommunicationError if ControlClient can't communicate with Launch Manager (e.g. IPC link is down)
+    /// @error score::mw::lifecycle::ExecErrc::kAlreadyInState if the ProcessGroup is already in the requested state
+    /// @error score::mw::lifecycle::ExecErrc::kInTransitionToSameState if a transition to the requested state is already ongoing
+    /// @error score::mw::lifecycle::ExecErrc::kInvalidTransition if transition to the requested state is prohibited (e.g. Off state for MainPG)
+    /// @error score::mw::lifecycle::ExecErrc::kGeneralError if any other error occurs.
+    score::concurrency::InterruptibleFuture<void> SetState(const score::lcm::IdentifierHash& pg_name, const score::lcm::IdentifierHash& pg_state) noexcept;
 
     /// @brief Method to retrieve result of Machine State initial transition to Startup state.
     ///
     /// Please note that this transition happens once per machine life cycle, thus result delivered by this method shall not change (unless machine is started again).
     ///
     /// @returns void if requested transition is successful, otherwise it returns ExecErrorDomain error.
-    /// @error score::lcm::ExecErrc::kCancelled if transition to the requested Process Group state was cancelled by a newer request
-    /// @error score::lcm::ExecErrc::kFailed if transition to the requested Process Group state failed
-    /// @error score::lcm::ExecErrc::kCommunicationError if ControlClient can't communicate with Launch Manager (e.g. IPC link is down)
-    /// @error score::lcm::ExecErrc::kGeneralError if any other error occurs.
+    /// @error score::mw::lifecycle::ExecErrc::kCancelled if transition to the requested Process Group state was cancelled by a newer request
+    /// @error score::mw::lifecycle::ExecErrc::kFailed if transition to the requested Process Group state failed
+    /// @error score::mw::lifecycle::ExecErrc::kCommunicationError if ControlClient can't communicate with Launch Manager (e.g. IPC link is down)
+    /// @error score::mw::lifecycle::ExecErrc::kGeneralError if any other error occurs.
     score::concurrency::InterruptibleFuture<void> GetInitialMachineStateTransitionResult() noexcept;
 
     /// @brief Returns the execution error which changed the given Process Group to an Undefined Process Group State.
@@ -125,8 +123,8 @@ class ControlClientImpl final {
     /// @param[in] processGroup   For which Process Group the error should be retrieved.
     ///
     /// @returns The execution error which changed the given Process Group to an Undefined Process Group State.
-    /// @error score::lcm::ExecErrc::kFailed    Given Process Group is not in an Undefined Process Group State.
-    /// @error score::lcm::ExecErrc::kCommunicationError if ControlClient can't communicate with Launch Manager (e.g. IPC link is down)
+    /// @error score::mw::lifecycle::ExecErrc::kFailed    Given Process Group is not in an Undefined Process Group State.
+    /// @error score::mw::lifecycle::ExecErrc::kCommunicationError if ControlClient can't communicate with Launch Manager (e.g. IPC link is down)
     score::Result<score::lcm::ExecutionErrorEvent> GetExecutionError(
         const score::lcm::IdentifierHash& processGroup) noexcept;
 
@@ -198,15 +196,13 @@ class ControlClientImpl final {
     ///
     /// @returns score::concurrency::InterruptibleFuture<void> when message is successfully sent to LCM. This future can be
     ///                                  used to retrieve LCM response at a later time.
-    /// @error score::lcm::ExecErrc::kFailed if the message could not be send to LCM
-    /// @error score::lcm::ExecErrc::kCommunicationError if we can't get access to the request_ link
+    /// @error score::mw::lifecycle::ExecErrc::kFailed if the message could not be send to LCM
+    /// @error score::mw::lifecycle::ExecErrc::kCommunicationError if we can't get access to the request_ link
     ///
     /// @threadsafety{thread-safe}
     score::concurrency::InterruptibleFuture<void> SendIpcMessage(score::lcm::internal::ControlClientMessage& msg) noexcept;
 };
 
-}  // namespace lcm
-
-}  // namespace score
+}  // namespace score::mw::lifecycle
 
 #endif  // CONTROL_CLIENT_IMPL_H_

@@ -15,9 +15,9 @@
 namespace
 {
 extern "C" {
-using namespace score::hm;
-using namespace score::hm::internal;
-using namespace score::hm::deadline;
+using namespace score::mw::health;
+using namespace score::mw::health::internal;
+using namespace score::mw::health::deadline;
 
 // Functions below must match functions defined in `crate::deadline::ffi`.
 
@@ -48,7 +48,7 @@ FFIHandle deadline_monitor_builder_create_wrapper()
 
 // C++ wrapper for Rust library - the API implementation obeys the Rust API semantics and it's invariants
 
-namespace score::hm::deadline
+namespace score::mw::health::deadline
 {
 DeadlineMonitorBuilder::DeadlineMonitorBuilder()
     : monitor_builder_handler_{deadline_monitor_builder_create_wrapper(), &deadline_monitor_builder_destroy}
@@ -68,7 +68,7 @@ DeadlineMonitorBuilder DeadlineMonitorBuilder::add_deadline(const DeadlineTag& d
 
 DeadlineMonitor::DeadlineMonitor(FFIHandle handle) : monitor_handle_(handle, &deadline_monitor_destroy) {}
 
-score::cpp::expected<Deadline, score::hm::Error> DeadlineMonitor::get_deadline(const DeadlineTag& deadline_tag)
+score::cpp::expected<Deadline, score::mw::health::Error> DeadlineMonitor::get_deadline(const DeadlineTag& deadline_tag)
 {
     auto handle = monitor_handle_.as_rust_handle();
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(handle.has_value());
@@ -80,7 +80,7 @@ score::cpp::expected<Deadline, score::hm::Error> DeadlineMonitor::get_deadline(c
         return score::cpp::unexpected(static_cast<Error>(result));
     }
 
-    return score::cpp::expected<Deadline, score::hm::Error>(Deadline{ret});
+    return score::cpp::expected<Deadline, score::mw::health::Error>(Deadline{ret});
 }
 
 Deadline::Deadline(FFIHandle handle) : deadline_handle_(handle, &deadline_destroy), has_handle_(false) {}
@@ -90,12 +90,12 @@ Deadline::~Deadline()
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(!has_handle_);
 }
 
-score::cpp::expected<DeadlineHandle, score::hm::Error> Deadline::start()
+score::cpp::expected<DeadlineHandle, score::mw::health::Error> Deadline::start()
 {
     // Cannot start a deadline that is already started
     if (has_handle_)
     {
-        return score::cpp::unexpected(::score::hm::Error::WrongState);
+        return score::cpp::unexpected(::score::mw::health::Error::WrongState);
     }
 
     auto handle = deadline_handle_.as_rust_handle();
@@ -108,7 +108,7 @@ score::cpp::expected<DeadlineHandle, score::hm::Error> Deadline::start()
     }
 
     has_handle_ = true;
-    return score::cpp::expected<DeadlineHandle, score::hm::Error>(DeadlineHandle{*this});
+    return score::cpp::expected<DeadlineHandle, score::mw::health::Error>(DeadlineHandle{*this});
 }
 
 DeadlineHandle::DeadlineHandle(Deadline& deadline) : was_stopped_(false), deadline_(deadline) {}
@@ -146,4 +146,4 @@ DeadlineHandle::~DeadlineHandle()
     deadline_.value().get().has_handle_ = false;
 }
 
-}  // namespace score::hm::deadline
+}  // namespace score::mw::health::deadline

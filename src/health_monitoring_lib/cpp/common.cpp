@@ -13,7 +13,7 @@
 #include <score/assert.hpp>
 #include <score/hm/common.h>
 
-namespace score::hm::internal
+namespace score::mw::health::internal
 {
 
 DroppableFFIHandle::DroppableFFIHandle(FFIHandle handle, DropFn drop_fn) : handle_(handle), drop_fn_(drop_fn) {}
@@ -80,4 +80,4 @@ DroppableFFIHandle::~DroppableFFIHandle()
     }
 }
 
-}  // namespace score::hm::internal
+}  // namespace score::mw::health::internal

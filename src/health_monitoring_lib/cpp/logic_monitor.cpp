@@ -16,9 +16,9 @@
 namespace
 {
 extern "C" {
-using namespace score::hm;
-using namespace score::hm::internal;
-using namespace score::hm::logic;
+using namespace score::mw::health;
+using namespace score::mw::health::internal;
+using namespace score::mw::health::logic;
 
 FFICode logic_monitor_builder_create(const StateTag* initial_state, FFIHandle* logic_monitor_builder_handle_out);
 FFICode logic_monitor_builder_destroy(FFIHandle logic_monitor_builder_handle);
@@ -40,7 +40,7 @@ FFIHandle logic_monitor_builder_create_wrapper(const StateTag& initial_state)
 }
 }  // namespace
 
-namespace score::hm::logic
+namespace score::mw::health::logic
 {
 LogicMonitorBuilder::LogicMonitorBuilder(const StateTag& initial_state)
     : monitor_builder_handle_{logic_monitor_builder_create_wrapper(initial_state), &logic_monitor_builder_destroy}
@@ -91,4 +91,4 @@ score::cpp::expected<StateTag, Error> LogicMonitor::state()
     return score::cpp::expected<StateTag, Error>(state_tag);
 }
 
-}  // namespace score::hm::logic
+}  // namespace score::mw::health::logic

@@ -16,14 +16,14 @@
 #include <score/expected.hpp>
 #include <score/hm/common.h>
 
-namespace score::hm
+namespace score::mw::health
 {
 // Forward declaration
 class HealthMonitor;
 class HealthMonitorBuilder;
-}  // namespace score::hm
+}  // namespace score::mw::health
 
-namespace score::hm::heartbeat
+namespace score::mw::health::heartbeat
 {
 // Forward declaration
 class HeartbeatMonitor;
@@ -56,7 +56,7 @@ class HeartbeatMonitorBuilder final : public internal::RustDroppable<HeartbeatMo
     friend class internal::RustDroppable<HeartbeatMonitorBuilder>;
 
     // Allow HealthMonitorBuilder to access drop_by_rust implementation
-    friend class ::score::hm::HealthMonitorBuilder;
+    friend class ::score::mw::health::HealthMonitorBuilder;
 };
 
 class HeartbeatMonitor final
@@ -75,10 +75,10 @@ class HeartbeatMonitor final
     explicit HeartbeatMonitor(internal::FFIHandle monitor_handle);
 
     // Only `HealthMonitor` is allowed to create `HeartbeatMonitor` instances.
-    friend class score::hm::HealthMonitor;
+    friend class score::mw::health::HealthMonitor;
     internal::DroppableFFIHandle monitor_handle_;
 };
 
-}  // namespace score::hm::heartbeat
+}  // namespace score::mw::health::heartbeat
 
 #endif  // SCORE_HM_HEARTBEAT_HEARTBEAT_MONITOR_H

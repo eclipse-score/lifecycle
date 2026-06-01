@@ -72,10 +72,10 @@ public:
     /// to allow for variation.
     enum class EStatus : uint32_t
     {
-        deactivated = static_cast<uint32_t>(score::lcm::LocalSupervisionStatus::kDeactivated),
-        ok = static_cast<uint32_t>(score::lcm::LocalSupervisionStatus::kOK),
-        failed = static_cast<uint32_t>(score::lcm::LocalSupervisionStatus::kFailed),
-        expired = static_cast<uint32_t>(score::lcm::LocalSupervisionStatus::kExpired)
+        deactivated = static_cast<uint32_t>(score::mw::lifecycle::LocalSupervisionStatus::kDeactivated),
+        ok = static_cast<uint32_t>(score::mw::lifecycle::LocalSupervisionStatus::kOK),
+        failed = static_cast<uint32_t>(score::mw::lifecycle::LocalSupervisionStatus::kFailed),
+        expired = static_cast<uint32_t>(score::mw::lifecycle::LocalSupervisionStatus::kExpired)
     };
 
     /// @brief Supervision Type Enumeration

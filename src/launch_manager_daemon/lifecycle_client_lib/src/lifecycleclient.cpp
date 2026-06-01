@@ -13,9 +13,7 @@
 
 #include "lifecycleclientimpl.hpp"
 
-namespace score {
-
-namespace lcm {
+namespace score::mw::lifecycle {
 
 LifecycleClient::LifecycleClient() noexcept
 {
@@ -48,13 +46,11 @@ score::Result<std::monostate> LifecycleClient::ReportExecutionState(ExecutionSta
     }
     else
     {
-        return score::Result<std::monostate>{score::MakeUnexpected(score::lcm::ExecErrc::kCommunicationError)};
+        return score::Result<std::monostate>{score::MakeUnexpected(ExecErrc::kCommunicationError)};
     }
 }
 
-}  // namespace lcm
-
-}  // namespace score
+}  // namespace score::mw::lifecycle
 
 #ifdef __cplusplus
 extern "C" {
@@ -62,8 +58,8 @@ extern "C" {
 
 int8_t score_lcm_ReportExecutionStateRunning(void) {
     // RULECHECKER_comment(1, 2, check_static_object_dynamic_initialization, "static variable is in function scope so this initlization is safe", false)
-    static score::lcm::LifecycleClient g_lm{};
-    const auto result = g_lm.ReportExecutionState(score::lcm::ExecutionState::kRunning);
+    static score::mw::lifecycle::LifecycleClient g_lm{};
+    const auto result = g_lm.ReportExecutionState(score::mw::lifecycle::ExecutionState::kRunning);
     if (!result) {
         return -1;
     }

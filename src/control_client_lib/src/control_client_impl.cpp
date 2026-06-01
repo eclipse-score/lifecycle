@@ -31,31 +31,29 @@
 // setting the mapping for both ControlClientCode and ExecErrc codes for error handling
 // This approach is used to avoid using switch-case statements
 // RULECHECKER_comment(1, 2, check_static_object_dynamic_initialization, "Map doesn't rely on any other static so this is fine", false)
-static std::map<score::lcm::internal::ControlClientCode, score::lcm::ExecErrc> scErrorMap =
+static std::map<score::lcm::internal::ControlClientCode, score::mw::lifecycle::ExecErrc> scErrorMap =
 {
     { score::lcm::internal::ControlClientCode::kSetStateInvalidArguments,
-      score::lcm::ExecErrc::kInvalidArguments },
+      score::mw::lifecycle::ExecErrc::kInvalidArguments },
     { score::lcm::internal::ControlClientCode::kSetStateCancelled,
-      score::lcm::ExecErrc::kCancelled },
+      score::mw::lifecycle::ExecErrc::kCancelled },
     { score::lcm::internal::ControlClientCode::kSetStateFailed,
-      score::lcm::ExecErrc::kFailed },
+      score::mw::lifecycle::ExecErrc::kFailed },
     { score::lcm::internal::ControlClientCode::kSetStateAlreadyInState,
-      score::lcm::ExecErrc::kAlreadyInState },
+      score::mw::lifecycle::ExecErrc::kAlreadyInState },
     { score::lcm::internal::ControlClientCode::kSetStateTransitionToSameState,
-      score::lcm::ExecErrc::kInTransitionToSameState },
+      score::mw::lifecycle::ExecErrc::kInTransitionToSameState },
     { score::lcm::internal::ControlClientCode::kFailedUnexpectedTerminationOnEnter,
-      score::lcm::ExecErrc::kFailedUnexpectedTerminationOnEnter }
+      score::mw::lifecycle::ExecErrc::kFailedUnexpectedTerminationOnEnter }
 };
 
-namespace score {
-
-namespace lcm {
+namespace score::mw::lifecycle {
 
 bool ControlClientImpl::instance_created_{false};
 std::mutex ControlClientImpl::instance_creation_mutex_{};
 
 // coverity[exn_spec_violation:FALSE] SetError cannot raise an exception in this instance
-inline score::concurrency::InterruptibleFuture<void> GetErrorFuture(score::lcm::ExecErrc errType) noexcept
+inline score::concurrency::InterruptibleFuture<void> GetErrorFuture(score::mw::lifecycle::ExecErrc errType) noexcept
 {
     score::concurrency::InterruptiblePromise<void> tmp_ {};
     tmp_.SetError( errType );
@@ -81,9 +79,9 @@ ControlClientImpl::ControlClientImpl(std::function<void(const score::lcm::Execut
         }
 
     struct stat stats;
-    const auto fstat_ret = fstat(internal::osal::IpcCommsSync::sync_fd, &stats);
+    const auto fstat_ret = fstat(score::lcm::internal::osal::IpcCommsSync::sync_fd, &stats);
     // Check size we have access of to avoid a crash if fd is not pointing to correct data
-    const auto needed_size = sizeof(internal::osal::IpcCommsSync) + sizeof(internal::ControlClientChannel);
+    const auto needed_size = sizeof(score::lcm::internal::osal::IpcCommsSync) + sizeof(score::lcm::internal::ControlClientChannel);
     if (fstat_ret == -1 || stats.st_size != static_cast<off_t>(needed_size)) {
         LM_LOG_ERROR() << "Control client channel at sync_fd is not valid!";
         instance_created_ = false;
@@ -156,7 +154,7 @@ void ControlClientImpl::run() {
                                                            initial_machine_state_transition_request_ ) )
                                                      {
                                                          control_client_requests_[i].promise_.SetError(
-                                                             score::lcm::ExecErrc::kFailed );
+                                                             score::mw::lifecycle::ExecErrc::kFailed );
                                                          control_client_requests_[i].
                                                          initial_machine_state_transition_request_ = false;
                                                          control_client_requests_[i].in_use_
@@ -301,7 +299,7 @@ score::concurrency::InterruptibleFuture<void> ControlClientImpl::SendIpcMessage(
     return retVal_;
 }
 
-score::concurrency::InterruptibleFuture<void> ControlClientImpl::SetState(const IdentifierHash& pg_name, const IdentifierHash& pg_state) noexcept {
+score::concurrency::InterruptibleFuture<void> ControlClientImpl::SetState(const score::lcm::IdentifierHash& pg_name, const score::lcm::IdentifierHash& pg_state) noexcept {
     score::concurrency::InterruptibleFuture<void> retVal_{};
 
     if (nullptr != ipc_channel_) {
@@ -344,7 +342,7 @@ score::concurrency::InterruptibleFuture<void> ControlClientImpl::GetInitialMachi
 score::Result<score::lcm::ExecutionErrorEvent> ControlClientImpl::GetExecutionError(
     const score::lcm::IdentifierHash& processGroup) noexcept {
     // default error (just in case)
-    score::Result<score::lcm::ExecutionErrorEvent> retVal_ {score::MakeUnexpected(score::lcm::ExecErrc::kCommunicationError)};
+    score::Result<score::lcm::ExecutionErrorEvent> retVal_ {score::MakeUnexpected(score::mw::lifecycle::ExecErrc::kCommunicationError)};
 
     if (nullptr != ipc_channel_) {
         if (score::lcm::internal::osal::OsalReturnType::kSuccess ==
@@ -365,7 +363,7 @@ score::Result<score::lcm::ExecutionErrorEvent> ControlClientImpl::GetExecutionEr
                 // GetExecutionError
                 case score::lcm::internal::ControlClientCode::kExecutionErrorInvalidArguments:
                 case score::lcm::internal::ControlClientCode::kExecutionErrorRequestFailed:
-                    retVal_ = score::MakeUnexpected( score::lcm::ExecErrc::kFailed );
+                    retVal_ = score::MakeUnexpected( score::mw::lifecycle::ExecErrc::kFailed );
                     break;
 
                 case score::lcm::internal::ControlClientCode::kExecutionErrorRequestSuccess: {
@@ -377,7 +375,7 @@ score::Result<score::lcm::ExecutionErrorEvent> ControlClientImpl::GetExecutionEr
                 default:
                     LM_LOG_WARN() << "ControlClient error. GetExecutionError unexpected response from Launch Manager:"
                                 << static_cast<int>( msg.request_or_response_ );
-                    retVal_ = score::MakeUnexpected(score::lcm::ExecErrc::kFailed );
+                    retVal_ = score::MakeUnexpected(score::mw::lifecycle::ExecErrc::kFailed );
                     break;
             }
 
@@ -391,6 +389,4 @@ score::Result<score::lcm::ExecutionErrorEvent> ControlClientImpl::GetExecutionEr
     return retVal_;
 }
 
-}  // namespace lcm
-
-}  // namespace score
+}  // namespace score::mw::lifecycle

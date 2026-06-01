@@ -20,7 +20,7 @@
 #include <score/hm/tag.h>
 #include <score/hm/thread.h>
 
-namespace score::hm
+namespace score::mw::health
 {
 
 class HealthMonitor;
@@ -61,7 +61,7 @@ class HealthMonitorBuilder final
     HealthMonitorBuilder with_internal_processing_cycle(std::chrono::milliseconds cycle_duration) &&;
 
     /// Sets the monitoring thread parameters.
-    HealthMonitorBuilder thread_parameters(score::hm::ThreadParameters&& thread_parameters) &&;
+    HealthMonitorBuilder thread_parameters(score::mw::health::ThreadParameters&& thread_parameters) &&;
 
     /// Build a new `HealthMonitor` instance based on provided parameters.
     score::cpp::expected<HealthMonitor, Error> build() &&;
@@ -100,6 +100,6 @@ class HealthMonitor final
     internal::FFIHandle health_monitor_;
 };
 
-}  // namespace score::hm
+}  // namespace score::mw::health
 
 #endif  // SCORE_HM_HEALTH_MONITOR_H

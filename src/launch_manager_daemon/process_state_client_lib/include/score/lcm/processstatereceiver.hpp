@@ -56,7 +56,7 @@ class ProcessStateReceiver final : public IProcessStateReceiver {
     /// @brief Returns the queued PosixProcess, which changed and PHM has not yet parsed.
     /// @returns Returns the queued PosixProcess, which PHM has not yet parsed.
     ///          "std::nullopt" is returned in case there is no new information.
-    ///          "score::lcm::ExecErrc::kGeneralError" is returned in case of any other error.
+    ///          "score::mw::lifecycle::ExecErrc::kGeneralError" is returned in case of any other error.
     score::Result<std::optional<PosixProcess>> getNextChangedPosixProcess() noexcept override;
 
    private:

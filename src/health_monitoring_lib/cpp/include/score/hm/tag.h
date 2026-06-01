@@ -17,7 +17,7 @@
 #include <cstddef>
 #include <string_view>
 
-namespace score::hm
+namespace score::mw::health
 {
 
 /// Common string-based tag.
@@ -70,6 +70,6 @@ class StateTag : public Tag<StateTag>
     using Tag::Tag;
 };
 
-}  // namespace score::hm
+}  // namespace score::mw::health
 
 #endif  // SCORE_HM_TAG_H

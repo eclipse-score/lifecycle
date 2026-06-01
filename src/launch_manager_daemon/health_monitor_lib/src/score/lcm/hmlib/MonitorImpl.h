@@ -24,12 +24,10 @@
 #include "score/lcm/saf/ipc/IpcClient.hpp"
 #include "score/lcm/saf/logging/PhmLogger.hpp"
 
-namespace score
-{
-namespace lcm
+namespace score::mw::lifecycle
 {
 
-/// @brief Implementation class for score::lcm::Monitor class
+/// @brief Implementation class for score::mw::lifecycle::Monitor class
 ///        This class is responsible for establishing the connection between the application and PHM daemon
 ///        by invoking the calls to PHM class methods and to forward the reported checkpoints from the application
 ///        to PHM daemon for supervision evaluation
@@ -73,7 +71,7 @@ public:
 
     /// @brief Reports an occurrence of a Checkpoint
     /// @param [in] f_checkpointId   Checkpoint identifier.
-    void ReportCheckpoint(score::lcm::Checkpoint f_checkpointId) const noexcept(true);
+    void ReportCheckpoint(Checkpoint f_checkpointId) const noexcept(true);
 
 private:
     /// @brief Connect the application process with PHM daemon using IPC
@@ -108,7 +106,6 @@ private:
     score::lcm::saf::logging::PhmLogger& logger_r;
 };
 
-}  // namespace lcm
-}  // namespace score
+}  // namespace score::mw::lifecycle
 
 #endif

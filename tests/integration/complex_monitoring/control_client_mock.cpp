@@ -20,13 +20,13 @@
 
 TEST(ComplexMonitoring, ControlClientMock)
 {
-    score::lcm::ControlClient client;
+    score::mw::lifecycle::ControlClient client;
     
     ASSERT_TRUE(check_clean({test_end_location, fallback_file}));
 
     TEST_STEP("Report kRunning")
     {
-        auto result = score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
+        auto result = score::mw::lifecycle::LifecycleClient{}.ReportExecutionState(score::mw::lifecycle::ExecutionState::kRunning);
         ASSERT_TRUE(result.has_value()) << "ReportExecutionState() failed: " << result.error().Message();
     }
     // We have to wait for the initial state transition to fully complete, otherwise unexpected failures can occur

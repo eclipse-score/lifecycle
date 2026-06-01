@@ -25,7 +25,7 @@ TEST(ComplexMonitoring, ComponentComplexMonitoring)
     score::mw::log::rust::StdoutLoggerBuilder builder;
     builder.Context("APP").LogLevel(score::mw::log::rust::LogLevel::Verbose).SetAsDefaultLogger();
 
-    using namespace score::hm;
+    using namespace score::mw::health;
     using namespace std::chrono_literals;
 
     auto hm_result = HealthMonitorBuilder()
@@ -46,7 +46,7 @@ TEST(ComplexMonitoring, ComponentComplexMonitoring)
 
     TEST_STEP("Report kRunning")
     {
-        auto result = score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
+        auto result = score::mw::lifecycle::LifecycleClient{}.ReportExecutionState(score::mw::lifecycle::ExecutionState::kRunning);
         ASSERT_TRUE(result.has_value()) << "ReportExecutionState() failed: " << result.error().Message();
     }
 
