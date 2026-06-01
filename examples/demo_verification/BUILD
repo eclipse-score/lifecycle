@@ -52,7 +52,6 @@ pkg_tar(
 integration_test(
     name = "examples",
     srcs = ["test_examples.py"],
-    tags = ["integration"],
     test_binaries = ":examples_binaries",
     deps = ["//tests/utils/testing_utils"],
 )

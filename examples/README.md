@@ -30,7 +30,7 @@ This mode requires the run.sh script to be executed **in an active tmux** sessio
 
 `bazel run //examples:run_examples --config=<...> -- tmux`
 
-## Integration Tests
+## Demo Verification
 
-There are integration tests that run the demo setup and verify the expected behavior.
+There are tests that run the demo setup and verify the expected behavior.
 `bazel test //examples/... --config=<...>`
