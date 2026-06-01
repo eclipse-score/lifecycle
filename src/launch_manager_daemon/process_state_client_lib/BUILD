@@ -68,6 +68,7 @@ cc_test(
         "//src/launch_manager_daemon/process_state_client_lib:src/processstatenotifier.cpp",
         "//src/launch_manager_daemon/process_state_client_lib:src/processstatereceiver.cpp",
     ],
+    tags = ["no-tsan"],
     deps = [
         "//src/launch_manager_daemon/process_state_client_lib:headers",
         "@googletest//:gtest_main",

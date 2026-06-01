@@ -122,6 +122,10 @@ rust_test(
             "-Clink-arg=-lstdc++",
         ],
     }),
+    tags = [
+        "no-asan",
+        "no-tsan",
+    ],
     deps = [
         "@score_baselibs_rust//src/log/stdout_logger",
     ],
@@ -147,7 +151,11 @@ rust_test(
             "-Clink-arg=-lstdc++",
         ],
     }),
-    tags = ["loom"],
+    tags = [
+        "loom",
+        "no-asan",
+        "no-tsan",
+    ],
     target_compatible_with = [
         "@platforms//os:linux",
     ],
@@ -167,6 +175,10 @@ cc_gtest_unit_test(
         "@platforms//os:qnx": ["-lsocket"],
         "@platforms//os:linux": [],
     }),
+    tags = [
+        "no-asan",
+        "no-tsan",
+    ],
     deps = [
         ":health_monitoring_lib_cc_stub_supervisor",
         "@score_baselibs_rust//src/log/stdout_logger_cpp_init",

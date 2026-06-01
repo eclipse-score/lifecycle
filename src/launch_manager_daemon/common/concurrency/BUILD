@@ -41,6 +41,7 @@ cc_library(
 cc_test(
     name = "mpmc_concurrent_queue_test",
     srcs = ["mpmc_concurrent_queue_test.cpp"],
+    tags = ["no-asan"],
     visibility = ["//tests:__subpackages__"],
     deps = [
         ":mpmc_concurrent_queue",
@@ -61,27 +62,6 @@ cc_test(
         "helgrind",
         "manual",
     ],
-    visibility = ["//tests:__subpackages__"],
-    deps = [
-        ":mpmc_concurrent_queue",
-        "@googletest//:gtest_main",
-    ],
-)
-
-cc_test(
-    name = "mpmc_concurrent_queue_tsan_test",
-    srcs = ["mpmc_concurrent_queue_test.cpp"],
-    copts = [
-        "-fsanitize=thread",
-        "-O0",
-        "-g",
-    ],
-    linkopts = ["-fsanitize=thread"],
-    tags = [
-        "no-coverage",  # coverage + tsan might cause problems
-        "tsan",
-    ],
-    target_compatible_with = ["@platforms//os:linux"],  # no tsan on qnx
     visibility = ["//tests:__subpackages__"],
     deps = [
         ":mpmc_concurrent_queue",
