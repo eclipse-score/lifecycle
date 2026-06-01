@@ -33,7 +33,7 @@ TEST_F(RecoveryClientTest, SendSingleRequest)
                    "RecoveryClient can send single request successfully.");
 
     RecoveryClient client;
-    const bool result = client.sendRecoveryRequest(IdentifierHash("pg_a"));
+    const bool result = client.sendRecoveryRequest(IdentifierHash("proc_a"));
     EXPECT_TRUE(result);
     EXPECT_FALSE(client.hasOverflow());
 }
@@ -44,12 +44,12 @@ TEST_F(RecoveryClientTest, GetNextRequest)
                    "RecoveryClient can send and retrieve single request successfully.");
 
     RecoveryClient client;
-    const IdentifierHash expected_pg("pg_b");
-    client.sendRecoveryRequest(expected_pg);
+    const IdentifierHash expected_proc("proc_b");
+    client.sendRecoveryRequest(expected_proc);
 
     const auto req = client.getNextRequest();
     ASSERT_TRUE(req.has_value());
-    EXPECT_EQ(req->process_group_identifier_, expected_pg);
+    EXPECT_EQ(*req, expected_proc);
 }
 
 TEST_F(RecoveryClientTest, GetNextRequestEmpty)
@@ -67,16 +67,16 @@ TEST_F(RecoveryClientTest, RingBufferFull)
                    "RecoveryClient sets overflow flag if buffer is full.");
 
     RecoveryClient client;
-    const IdentifierHash pg("pg_c");
+    const IdentifierHash proc("proc_c");
 
     // Fill the ring buffer
     for (std::size_t i = 0U; i < RecoveryClient::kBufferCapacity; ++i)
     {
-        EXPECT_TRUE(client.sendRecoveryRequest(pg));
+        EXPECT_TRUE(client.sendRecoveryRequest(proc));
     }
 
     // One more should fail and set overflow
-    EXPECT_FALSE(client.sendRecoveryRequest(pg));
+    EXPECT_FALSE(client.sendRecoveryRequest(proc));
     EXPECT_TRUE(client.hasOverflow());
 }
 
@@ -86,25 +86,25 @@ TEST_F(RecoveryClientTest, FIFOOrdering)
                    "RecoveryClient maintains the order of inserted requests");
 
     RecoveryClient client;
-    const IdentifierHash pg_first("pg_first");
-    const IdentifierHash pg_second("pg_second");
-    const IdentifierHash pg_third("pg_third");
+    const IdentifierHash proc_first("proc_first");
+    const IdentifierHash proc_second("proc_second");
+    const IdentifierHash proc_third("proc_third");
 
-    client.sendRecoveryRequest(pg_first);
-    client.sendRecoveryRequest(pg_second);
-    client.sendRecoveryRequest(pg_third);
+    client.sendRecoveryRequest(proc_first);
+    client.sendRecoveryRequest(proc_second);
+    client.sendRecoveryRequest(proc_third);
 
     const auto req1 = client.getNextRequest();
     ASSERT_TRUE(req1.has_value());
-    EXPECT_EQ(req1->process_group_identifier_, pg_first);
+    EXPECT_EQ(req1.value(), proc_first);
 
     const auto req2 = client.getNextRequest();
     ASSERT_TRUE(req2.has_value());
-    EXPECT_EQ(req2->process_group_identifier_, pg_second);
+    EXPECT_EQ(req2.value(), proc_second);
 
     const auto req3 = client.getNextRequest();
     ASSERT_TRUE(req3.has_value());
-    EXPECT_EQ(req3->process_group_identifier_, pg_third);
+    EXPECT_EQ(req3.value(), proc_third);
 
     EXPECT_FALSE(client.getNextRequest().has_value());
 }

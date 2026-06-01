@@ -29,28 +29,37 @@ namespace saf
 namespace supervision
 {
 
-Alive::Alive(const AliveSupervisionCfg& f_aliveCfg_r) :
-    ICheckpointSupervision(f_aliveCfg_r),
-    Observable<Alive>(),
-    k_aliveReferenceCycle(f_aliveCfg_r.aliveReferenceCycle),
-    k_minAliveIndications(f_aliveCfg_r.minAliveIndications),
-    k_maxAliveIndications(f_aliveCfg_r.maxAliveIndications),
-    k_isMinCheckDisabled(f_aliveCfg_r.isMinCheckDisabled),
-    k_isMaxCheckDisabled(f_aliveCfg_r.isMaxCheckDisabled),
-    k_failedSupervisionCyclesTolerance(f_aliveCfg_r.failedCyclesTolerance),
-    logger_r(logging::PhmLogger::getLogger(logging::PhmLogger::EContext::supervision)),
-    timeSortingUpdateEventBuffer(common::TimeSortingBuffer<TimeSortedUpdateEvent>(f_aliveCfg_r.checkpointBufferSize)),
-    aliveProcess(f_aliveCfg_r.refProcesses_r.front()),
-    processTracker(f_aliveCfg_r.refFuntionGroupStates_r, f_aliveCfg_r.refProcesses_r)
+Alive::Alive(const AliveSupervisionCfg& f_aliveCfg_r)
+    : ISupervision(f_aliveCfg_r.cfgName_p),
+      k_aliveReferenceCycle(f_aliveCfg_r.aliveReferenceCycle),
+      k_minAliveIndications(f_aliveCfg_r.minAliveIndications),
+      k_maxAliveIndications(f_aliveCfg_r.maxAliveIndications),
+      k_isMinCheckDisabled(f_aliveCfg_r.isMinCheckDisabled),
+      k_isMaxCheckDisabled(f_aliveCfg_r.isMaxCheckDisabled),
+      k_failedSupervisionCyclesTolerance(f_aliveCfg_r.failedCyclesTolerance),
+      logger_r(logging::PhmLogger::getLogger(logging::PhmLogger::EContext::supervision)),
+      recoveryClient_p(f_aliveCfg_r.recoveryClient),
+      processIdentifier_(f_aliveCfg_r.processIdentifier),
+      timeSortingUpdateEventBuffer(common::TimeSortingBuffer<TimeSortedUpdateEvent>(f_aliveCfg_r.checkpointBufferSize)),
+      aliveProcess(f_aliveCfg_r.refProcesses_r.front()),
+      processTracker(f_aliveCfg_r.refFuntionGroupStates_r, f_aliveCfg_r.refProcesses_r)
 {
+    // coverity[autosar_cpp14_m0_1_3_violation:FALSE] process_p is read for creating map of process and execution error
+    for (const auto* process_p : f_aliveCfg_r.refProcesses_r)
+    {
+        processExecErrs.insert({process_p, ifexm::ProcessCfg::kDefaultProcessExecutionError});
+    }
+
     f_aliveCfg_r.checkpoint_r.attachObserver(*this);
     assert((k_aliveReferenceCycle != 0U) && "k_aliveReferenceCycle=0 causes infinite loop during evaluation.");
 
     // Consider process active only after reporting kRunning
     processTracker.setMarkProcessActiveAt(ifexm::ProcessState::EProcState::running);
 
-    assert((aliveStatus == EStatus::deactivated) &&
+    assert((aliveStatus == EStatus::kDeactivated) &&
            ("Alive Supervision must start in deactivated state, see SWS_PHM_00204"));
+
+    assert((recoveryClient_p != nullptr) && "Recovery client must be provided");
 }
 
 // coverity[exn_spec_violation:FALSE] std::length_error is not thrown from push() which uses fixed-size-vector
@@ -133,32 +142,31 @@ void Alive::evaluate(const timers::NanoSecondType f_syncTimestamp)
             eventTimestamp = referenceCycleEnd;
         }
 
-        ICheckpointSupervision::EUpdateEventType currentUpdateType{
-            getAliveEventType(isEvaluationEvent, *sortedUpdateEvent_p)};
+        EUpdateEventType currentUpdateType{getAliveEventType(isEvaluationEvent, *sortedUpdateEvent_p)};
 
         switch (aliveStatus)
         {
-            case Alive::EStatus::deactivated:
+            case EStatus::kDeactivated:
             {
                 checkTransitionsOutOfDeactivated(currentUpdateType, timestampOfUpdateEvent);
                 break;
             }
 
-            case Alive::EStatus::ok:
+            case EStatus::kOk:
             {
                 checkTransitionsOutOfOk(currentUpdateType, timestampOfUpdateEvent);
                 break;
             }
 
-            case Alive::EStatus::failed:
+            case EStatus::kFailed:
             {
                 checkTransitionsOutOfFailed(currentUpdateType, timestampOfUpdateEvent);
                 break;
             }
 
-            case Alive::EStatus::expired:
+            case EStatus::kExpired:
             {
-                // Alive::EStatus::expired can only be exited with a switch to deactivated.
+                // EStatus::kExpired can only be exited with a switch to deactivated.
                 // A common switch to deactivation is handled in the end, therefore nothing additionally has to be
                 // done for this state.
                 break;
@@ -205,7 +213,7 @@ void Alive::storeSyncEvent(const timers::NanoSecondType f_syncTimestamp)
 void Alive::handleDataLossReaction(void) noexcept(true)
 {
     // In case of data loss event, state transition from deactivated to expired is accepted.
-    if (Alive::EStatus::expired != aliveStatus)
+    if (EStatus::kExpired != aliveStatus)
     {
         switchToExpired(EReason::kDataLoss);
     }
@@ -223,7 +231,7 @@ bool Alive::detectEvaluationEvent(const timers::NanoSecondType f_timestampOfUpda
     // If current state is deactivated or expired, referenceCyclEnd is reset to the highest value. This means that
     // there is no need of evaluation.
 
-    if ((aliveStatus == Alive::EStatus::deactivated) || (aliveStatus == Alive::EStatus::expired))
+    if ((aliveStatus == EStatus::kDeactivated) || (aliveStatus == EStatus::kExpired))
     {
         return false;
     }
@@ -268,14 +276,14 @@ bool Alive::detectEvaluationEvent(const timers::NanoSecondType f_timestampOfUpda
     return isEvaluationEvent;
 }
 
-ICheckpointSupervision::EUpdateEventType Alive::getAliveEventType(
-    bool f_isEvaluationEvent, const TimeSortedUpdateEvent f_updateEvent) noexcept(true)
+Alive::EUpdateEventType Alive::getAliveEventType(bool f_isEvaluationEvent,
+                                                 const TimeSortedUpdateEvent f_updateEvent) noexcept(true)
 {
-    ICheckpointSupervision::EUpdateEventType currentUpdateType{ICheckpointSupervision::EUpdateEventType::kNoChange};
+    EUpdateEventType currentUpdateType{EUpdateEventType::kNoChange};
 
     if (f_isEvaluationEvent)
     {
-        currentUpdateType = ICheckpointSupervision::EUpdateEventType::kEvaluation;
+        currentUpdateType = EUpdateEventType::kEvaluation;
     }
     else
     {
@@ -285,10 +293,10 @@ ICheckpointSupervision::EUpdateEventType Alive::getAliveEventType(
     return currentUpdateType;
 }
 
-void Alive::checkTransitionsOutOfDeactivated(const ICheckpointSupervision::EUpdateEventType f_updateEventType,
+void Alive::checkTransitionsOutOfDeactivated(const EUpdateEventType f_updateEventType,
                                              const timers::NanoSecondType f_updateEventTimestamp) noexcept(true)
 {
-    if (f_updateEventType == ICheckpointSupervision::EUpdateEventType::kActivation)
+    if (f_updateEventType == EUpdateEventType::kActivation)
     {
         if (!setReferenceCycleTimestamps(f_updateEventTimestamp))
         {
@@ -298,40 +306,39 @@ void Alive::checkTransitionsOutOfDeactivated(const ICheckpointSupervision::EUpda
     }
 }
 
-void Alive::checkTransitionsToDeactivated(const ICheckpointSupervision::EUpdateEventType f_updateEventType,
+void Alive::checkTransitionsToDeactivated(const EUpdateEventType f_updateEventType,
                                           const timers::NanoSecondType f_updateEventTimestamp) noexcept(true)
 {
-    if ((f_updateEventType == ICheckpointSupervision::EUpdateEventType::kDeactivation) &&
-        (aliveStatus != Alive::EStatus::deactivated))
+    if ((f_updateEventType == EUpdateEventType::kDeactivation) && (aliveStatus != EStatus::kDeactivated))
     {
         eventTimestamp = f_updateEventTimestamp;
         switchToDeactivated();
     }
 }
 
-bool Alive::checkForRecoveryTransition(const ICheckpointSupervision::EUpdateEventType f_updateEventType,
+bool Alive::checkForRecoveryTransition(const EUpdateEventType f_updateEventType,
                                        const timers::NanoSecondType f_updateEventTimestamp) noexcept(true)
 {
-    if (f_updateEventType == ICheckpointSupervision::EUpdateEventType::kRecoveredFromCrash)
+    if (f_updateEventType == EUpdateEventType::kRecoveredFromCrash)
     {
         logger_r.LogDebug() << "Alive Supervision (" << getConfigName() << ") about to recover from crash";
         switchToDeactivated();
-        checkTransitionsOutOfDeactivated(ICheckpointSupervision::EUpdateEventType::kActivation, f_updateEventTimestamp);
+        checkTransitionsOutOfDeactivated(EUpdateEventType::kActivation, f_updateEventTimestamp);
         return true;
     }
     return false;
 }
 
-void Alive::checkTransitionsOutOfOk(const ICheckpointSupervision::EUpdateEventType f_updateEventType,
+void Alive::checkTransitionsOutOfOk(const EUpdateEventType f_updateEventType,
                                     const timers::NanoSecondType f_updateEventTimestamp) noexcept(true)
 {
     // Accept only alive checkpoint or evaluation event.
     // Deactivation event is handled at the end of evaluate function.
-    if (f_updateEventType == ICheckpointSupervision::EUpdateEventType::kEvaluation)
+    if (f_updateEventType == EUpdateEventType::kEvaluation)
     {
         evaluateRefCycleOutOfOk();
     }
-    else if (f_updateEventType == ICheckpointSupervision::EUpdateEventType::kCheckpoint)
+    else if (f_updateEventType == EUpdateEventType::kCheckpoint)
     {
         incIndicationCount(f_updateEventTimestamp);
     }
@@ -388,16 +395,16 @@ void Alive::evaluateRefCycleOutOfOk(void) noexcept(true)
     }
 }
 
-void Alive::checkTransitionsOutOfFailed(const ICheckpointSupervision::EUpdateEventType f_updateEventType,
+void Alive::checkTransitionsOutOfFailed(const EUpdateEventType f_updateEventType,
                                         const timers::NanoSecondType f_updateEventTimestamp) noexcept(true)
 {
     // Accept only alive checkpoint or evaluation event.
     // Deactivation event is handled at the end of evaluate function.
-    if (f_updateEventType == ICheckpointSupervision::EUpdateEventType::kEvaluation)
+    if (f_updateEventType == EUpdateEventType::kEvaluation)
     {
         evaluateRefCycleOutOfFailed();
     }
-    else if (f_updateEventType == ICheckpointSupervision::EUpdateEventType::kCheckpoint)
+    else if (f_updateEventType == EUpdateEventType::kCheckpoint)
     {
         incIndicationCount(f_updateEventTimestamp);
     }
@@ -445,7 +452,7 @@ void Alive::evaluateRefCycleOutOfFailed(void) noexcept(true)
 
 void Alive::switchToDeactivated(void) noexcept(true)
 {
-    aliveStatus = Alive::EStatus::deactivated;
+    aliveStatus = EStatus::kDeactivated;
     failedSupervisionCycles = 0U;
     indicationCount = 0U;
     referenceCycleStart = 0U;
@@ -458,7 +465,7 @@ void Alive::switchToDeactivated(void) noexcept(true)
 
 void Alive::switchToOk(void) noexcept(true)
 {
-    aliveStatus = Alive::EStatus::ok;
+    aliveStatus = EStatus::kOk;
     failedSupervisionCycles = 0U;
     logger_r.LogInfo() << "Alive Supervision (" << getConfigName() << ") switched to OK.";
     pushResultToObservers();
@@ -466,7 +473,7 @@ void Alive::switchToOk(void) noexcept(true)
 
 void Alive::switchToFailed(void) noexcept(true)
 {
-    aliveStatus = Alive::EStatus::failed;
+    aliveStatus = EStatus::kFailed;
     // Method caller is responsible for preventing overflow
     // coverity[autosar_cpp14_a4_7_1_violation] value can only reach k_failedSupervisionCyclesTolerance
     failedSupervisionCycles++;
@@ -478,7 +485,7 @@ void Alive::switchToFailed(void) noexcept(true)
 
 void Alive::switchToExpired(Alive::EReason reason) noexcept(true)
 {
-    aliveStatus = Alive::EStatus::expired;
+    aliveStatus = EStatus::kExpired;
     lastProcessExecutionError = ifexm::ProcessCfg::kDefaultProcessExecutionError;
 
     switch (reason)
@@ -524,7 +531,25 @@ void Alive::switchToExpired(Alive::EReason reason) noexcept(true)
     referenceCycleEnd = UINT64_MAX;
     dataLossReason = EDataLossReason::kNoDataLoss;
 
+    const bool enqueued = recoveryClient_p->sendRecoveryRequest(processIdentifier_);
+    if (enqueued)
+    {
+        logger_r.LogDebug() << "Recovery request enqueued successfully for alive supervision " << getConfigName()
+                            << "failure";
+    }
+    else
+    {
+        logger_r.LogError() << "Failed to enqueue recovery request for alive supervision" << getConfigName()
+                            << "failure (ring buffer full)";
+        recoveryEnqueueFailed_ = true;
+    }
+
     pushResultToObservers();
+}
+
+bool Alive::hasRecoveryEnqueueFailed(void) const noexcept
+{
+    return recoveryEnqueueFailed_;
 }
 
 void Alive::setNextCycle(void) noexcept(true)
@@ -548,24 +573,109 @@ bool Alive::isMaxError(void) const noexcept(true)
 void Alive::logExpiredFailedStateDetails() const noexcept(true)
 {
     std::string_view failedState{""};
-    if (aliveStatus == Alive::EStatus::failed)
+    if (aliveStatus == EStatus::kFailed)
     {
         // failedSupervisionCycles == 1 if just switched to FAILED and > 1 if were already in FAILED before
         failedState = (failedSupervisionCycles > 1U) ? "next cycle FAILED" : "switched to FAILED";
     }
-    if (aliveStatus == Alive::EStatus::expired)
+    if (aliveStatus == EStatus::kExpired)
     {
         failedState = "switched to EXPIRED";
     }
 
     const bool minError{isMinError()};
-    /* RULECHECKER_comment(0, 4, check_conditional_as_sub_expression, "Ternary operation is very simple", true_no_defect) */
+    /* RULECHECKER_comment(0, 4, check_conditional_as_sub_expression, "Ternary operation is very simple",
+     * true_no_defect) */
     const std::uint64_t aliveIndicationMargin{minError ? k_minAliveIndications : k_maxAliveIndications};
     const std::string_view expectedComparison{minError ? ">=" : "<="};
     logger_r.LogWarn() << "Alive Supervision (" << getConfigName() << ")" << failedState << ", due to"
                        << indicationCount << "reported alive indication(s) (expected" << expectedComparison
                        << aliveIndicationMargin << "). Failed supervision cycles:" << failedSupervisionCycles << "/"
                        << k_failedSupervisionCyclesTolerance;
+}
+
+timers::NanoSecondType Alive::getTimestampOfUpdateEvent(const TimeSortedUpdateEvent f_updateEvent) noexcept(true)
+{
+    timers::NanoSecondType timestamp{0U};
+    if (std::holds_alternative<ProcessStateTracker::ProcessStateSnapshot>(f_updateEvent))
+    {
+        timestamp = std::get<ProcessStateTracker::ProcessStateSnapshot>(f_updateEvent).timestamp;
+    }
+    else if (std::holds_alternative<CheckpointSnapshot>(f_updateEvent))
+    {
+        timestamp = std::get<CheckpointSnapshot>(f_updateEvent).timestamp;
+    }
+    else
+    {
+        assert(std::holds_alternative<SyncSnapshot>(f_updateEvent));
+        // coverity[cert_exp34_c_violation] SyncSnapshot type is stored also check assert above
+        // coverity[dereference] SyncSnapshot type is stored also check assert above
+        timestamp = std::get<SyncSnapshot>(f_updateEvent);
+    }
+
+    return timestamp;
+}
+
+Alive::EUpdateEventType Alive::getEventType(ProcessStateTracker& f_processTracker_r,
+                                            const TimeSortedUpdateEvent f_updateEvent) noexcept(true)
+{
+    EUpdateEventType currentUpdateType{EUpdateEventType::kNoChange};
+
+    if (std::holds_alternative<ProcessStateTracker::ProcessStateSnapshot>(f_updateEvent))
+    {
+        const auto processStateSnapshot{std::get<ProcessStateTracker::ProcessStateSnapshot>(f_updateEvent)};
+        const auto processEvent{f_processTracker_r.generateProcessChangeEvent(processStateSnapshot)};
+
+        setProcessExecutionErrorForProcess(processStateSnapshot.identifier_p, processStateSnapshot.executionError);
+
+        if (processEvent.changeType == ProcessStateTracker::EProcessChangeType::kActivation)
+        {
+            currentUpdateType = EUpdateEventType::kActivation;
+        }
+        else if (processEvent.changeType == ProcessStateTracker::EProcessChangeType::kDeactivation)
+        {
+            currentUpdateType = EUpdateEventType::kDeactivation;
+        }
+        else if (processEvent.changeType == ProcessStateTracker::EProcessChangeType::kRecoveredFromCrash)
+        {
+            currentUpdateType = EUpdateEventType::kRecoveredFromCrash;
+        }
+        else
+        {
+            currentUpdateType = EUpdateEventType::kNoChange;
+        }
+    }
+    else if (std::holds_alternative<CheckpointSnapshot>(f_updateEvent))
+    {
+        // Address for checkpoint is not known/stored
+        currentUpdateType = EUpdateEventType::kCheckpoint;
+    }
+    else
+    {
+        assert(std::holds_alternative<SyncSnapshot>(f_updateEvent));
+        currentUpdateType = EUpdateEventType::kSync;
+    }
+
+    return currentUpdateType;
+}
+
+ifexm::ProcessCfg::ProcessExecutionError Alive::getProcessExecutionError(void) const noexcept(true)
+{
+    return lastProcessExecutionError;
+}
+
+ifexm::ProcessCfg::ProcessExecutionError Alive::getProcessExecutionErrorForProcess(
+    const ifexm::ProcessState* f_process_p) noexcept(true)
+{
+    assert(processExecErrs.find(f_process_p) != processExecErrs.end());
+    return processExecErrs[f_process_p];
+}
+
+void Alive::setProcessExecutionErrorForProcess(const ifexm::ProcessState* f_process_p,
+                                               ifexm::ProcessCfg::ProcessExecutionError f_error) noexcept(true)
+{
+    assert(processExecErrs.find(f_process_p) != processExecErrs.end());
+    processExecErrs[f_process_p] = f_error;
 }
 
 }  // namespace supervision

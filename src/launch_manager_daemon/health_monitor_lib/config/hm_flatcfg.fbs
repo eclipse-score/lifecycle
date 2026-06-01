@@ -1,6 +1,6 @@
 namespace HMFlatBuffer;
 
-// HM version 8.0
+// HM version 8.1
 
 file_identifier "BHMT";
 file_extension "bin";
@@ -18,9 +18,6 @@ table HMEcuCfg {
   hmMonitorInterface: [HmMonitorInterface] (id:3);
   hmSupervisionCheckpoint: [HmSupervisionCheckpoint] (id:4);
   hmAliveSupervision: [HmAliveSupervision] (id:5);
-  hmLocalSupervision: [HmLocalSupervision] (id:6);
-  hmGlobalSupervision: [HmGlobalSupervision] (id:7);
-  hmRecoveryNotification: [RecoveryNotification] (id:8);
 }
 
 table Process {
@@ -77,41 +74,6 @@ table HmAliveSupervision {
   failedSupervisionCyclesTolerance: uint32 (id:7);
   refProcessIndex: uint32 (id:8);
   refProcessGroupStates: [HmRefProcessGroupStates] (id:9);
-}
-
-table HmLocalSupervision {
-  ruleContextKey: string (id:0);
-  infoRefInterfacePath: string (id:1);
-  hmRefAliveSupervision: [HmRefAliveSupervision] (id:2);
-}
-
-table HmRefAliveSupervision {
-  ruleContextKey: int (id:0);
-  refAliveSupervisionIdx: uint32 (id:1);
-}
-
-table HmGlobalSupervision {
-  ruleContextKey: string (id:0);
-  isSeverityCritical: bool (id:1);
-  localSupervision: [HmGlobalSupervisionLocalRef] (id:2);
-  refProcesses: [HmRefProcess] (id:3);
-  refProcessGroupStates: [HmRefProcessGroupStatesGlobal] (id:4);
-}
-
-table HmGlobalSupervisionLocalRef {
-  refLocalSupervisionIndex: uint32 (id:0);
-}
-
-table HmRefProcessGroupStatesGlobal {
-  identifier: string (id:0);
-  expiredSupervisionTolerance: double (id:1);
-}
-
-table RecoveryNotification {
-  shortName: string (id:0, required);
-  processGroupMetaModelIdentifier: string (id:1);
-  refGlobalSupervisionIndex: uint32 (id:2);
-  shouldFireWatchdog: bool (id:3);
 }
 
 root_type HMEcuCfg;

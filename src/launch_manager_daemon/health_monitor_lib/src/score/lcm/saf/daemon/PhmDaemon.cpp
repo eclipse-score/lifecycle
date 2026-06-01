@@ -16,8 +16,6 @@
 #include "score/lcm/saf/factory/FlatCfgFactory.hpp"
 #include "score/lcm/saf/ifappl/MonitorIfDaemon.hpp"
 #include "score/lcm/saf/supervision/Alive.hpp"
-#include "score/lcm/saf/supervision/Global.hpp"
-#include "score/lcm/saf/supervision/Local.hpp"
 #include "score/lcm/saf/timers/Timers_OsClock.hpp"
 
 namespace score
@@ -59,14 +57,12 @@ void PhmDaemon::performCyclicTriggers(void)
         for (auto& phmHandler : swClusterHandlers)
         {
             phmHandler.performCyclicTriggers(syncTimestamp);
-            isCriticalFailure = isCriticalFailure || phmHandler.hasRecoveryNotificationTimeout();
+            isCriticalFailure = isCriticalFailure || phmHandler.hasAnyRecoveryEnqueueFailed();
         }
     }
 
     // watchdog is fired iff:
-    //  * A timeout occurs for any RecoveryNotification sent to SM
-    //  * Global Supervision reached status GLOBAL_STATUS_STOPPED for a supervision of SM or LM. In this case the
-    //  recovery notification goes directly to timeout state
+    //  * isCriticalFailure is set (e.g. process state distribution error, recovery ring buffer full)
     // else:
     //  * watchdog is serviced
     if (!isCriticalFailure)

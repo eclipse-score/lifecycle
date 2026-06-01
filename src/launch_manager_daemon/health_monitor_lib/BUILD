@@ -127,27 +127,6 @@ cc_library_with_common_opts(
 )
 
 cc_library_with_common_opts(
-    name = "recoverynotify",
-    srcs = ["src/score/lcm/saf/recovery/Notification.cpp"],
-    hdrs = [
-        "src/score/lcm/saf/logging/PhmLogger.hpp",
-        "src/score/lcm/saf/recovery/Notification.hpp",
-        "src/score/lcm/saf/timers/TimeConversion.hpp",
-        "src/score/lcm/saf/timers/Timers_OsClock.hpp",
-    ],
-    includes = [
-        "include",
-        "src",
-    ],
-    deps = [
-        ":config",
-        ":phm_logging",
-        "//src/launch_manager_daemon/recovery_client_lib:recovery_client",
-        "@score_baselibs//score/mw/log",
-    ],
-)
-
-cc_library_with_common_opts(
     name = "factory",
     srcs = [
         "src/score/lcm/saf/factory/FlatCfgFactory.cpp",
@@ -164,9 +143,9 @@ cc_library_with_common_opts(
     visibility = ["//src:__pkg__"],
     deps = [
         ":config",
-        ":recoverynotify",
         "//externals/ipc_dropin",
         "//src/launch_manager_daemon/process_state_client_lib:process_state_client",
+        "//src/launch_manager_daemon/recovery_client_lib:recovery_client",
         "@flatbuffers",
     ] + select(
         {
@@ -208,10 +187,7 @@ cc_library_with_common_opts(
     name = "supervision",
     srcs = [
         "src/score/lcm/saf/supervision/Alive.cpp",
-        "src/score/lcm/saf/supervision/Global.cpp",
-        "src/score/lcm/saf/supervision/ICheckpointSupervision.cpp",
         "src/score/lcm/saf/supervision/ISupervision.cpp",
-        "src/score/lcm/saf/supervision/Local.cpp",
         "src/score/lcm/saf/supervision/ProcessStateTracker.cpp",
     ],
     hdrs = glob([
@@ -220,12 +196,13 @@ cc_library_with_common_opts(
     ]),
     includes = [
         "include",
+        "src",
         "src/score/lcm/saf/supervision",
     ],
     visibility = ["//src:__pkg__"],
     deps = [
-        ":recoverynotify",
         "//src/launch_manager_daemon/process_state_client_lib:process_state_client",
+        "//src/launch_manager_daemon/recovery_client_lib:recovery_client",
     ],
 )
 
@@ -304,21 +281,10 @@ cc_library_with_common_opts(
         ":ipc_if",
         ":phm_logging",
         ":rb-watchdog-if",
-        ":recoverynotify",
         ":supervision",
         ":timers",
         "@flatbuffers//:flatc",
         "@score_baselibs//score/mw/log",
-    ],
-)
-
-cc_test(
-    name = "Notification_UT",
-    srcs = ["src/score/lcm/saf/recovery/Notification_UT.cpp"],
-    deps = [
-        ":recoverynotify",
-        "@googletest//:gtest_main",
-        "@score_baselibs//score/mw/log:backend_stub_testutil",
     ],
 )
 
@@ -336,4 +302,20 @@ cc_library_with_common_opts(
         "@flatbuffers",
     ],
     alwayslink = True,
+)
+
+cc_test(
+    name = "Alive_UT",
+    srcs = [
+        "src/score/lcm/saf/supervision/Alive_UT.cpp",
+    ],
+    deps = [
+        ":ifappl",
+        ":ifexm",
+        ":phm_logging",
+        ":supervision",
+        ":timers",
+        "//src/launch_manager_daemon/recovery_client_lib:recovery_client",
+        "@googletest//:gtest_main",
+    ],
 )

@@ -142,8 +142,6 @@ void MachineConfigFactory::loadHmSettings(const HMCOREFlatBuffer::HMCOREEcuCfg& 
     {
         const auto* config{configContainer->Get(0U)};
         updateNonDefaultValue(supBufferCfg.bufferSizeAliveSupervision, config->bufferSizeAliveSupervision());
-        updateNonDefaultValue(supBufferCfg.bufferSizeLocalSupervision, config->bufferSizeLocalSupervision());
-        updateNonDefaultValue(supBufferCfg.bufferSizeGlobalSupervision, config->bufferSizeGlobalSupervision());
         updateNonDefaultValue(supBufferCfg.bufferSizeMonitor, config->bufferSizeMonitor());
         if (config->periodicity() != 0U)
         {
@@ -184,8 +182,6 @@ void MachineConfigFactory::logConfiguration() noexcept(true)
 {
     /* RULECHECKER_comment(0, 18, check_conditional_as_sub_expression, "Ternary operation is very simple", true_no_defect) */
     logger_r.LogDebug() << kLogPrefix << "Alive Supervision buffer size:" << supBufferCfg.bufferSizeAliveSupervision;
-    logger_r.LogDebug() << kLogPrefix << "Local Supervision buffer size:" << supBufferCfg.bufferSizeLocalSupervision;
-    logger_r.LogDebug() << kLogPrefix << "Global Supervision buffer size:" << supBufferCfg.bufferSizeGlobalSupervision;
     logger_r.LogDebug() << kLogPrefix << "Monitor buffer size:" << supBufferCfg.bufferSizeMonitor;
     logger_r.LogDebug() << kLogPrefix << "Periodicity:" << getCycleTimeInNs() << "ns";
     logger_r.LogDebug() << kLogPrefix << "Configured watchdogs:" << watchdogConfigs.size();
