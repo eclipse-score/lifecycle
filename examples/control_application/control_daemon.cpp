@@ -16,8 +16,8 @@
 #include <chrono>
 #include <iostream>
 
-#include <score/lcm/lifecycle_client.h>
-#include <score/lcm/control_client.h>
+#include <score/mw/lifecycle/lifecycle_client.h>
+#include <score/mw/lifecycle/control_client.h>
 #include "ipc_dropin/socket.hpp"
 #include "control.hpp"
 
@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
     signal(SIGINT, signalHandler);
     signal(SIGTERM, signalHandler);
 
-    score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
+    score::mw::lifecycle::LifecycleClient{}.ReportExecutionState(score::mw::lifecycle::ExecutionState::kRunning);
 
     ipc_dropin::Socket<static_cast<size_t>(sizeof(RunTargetInfo)), control_socket_capacity> sm_control_socket{};
     if (sm_control_socket.create(control_socket_path, 600) != ipc_dropin::ReturnCode::kOk) {
@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    score::lcm::ControlClient client;
+    score::mw::lifecycle::ControlClient client;
 
     score::safecpp::Scope<> scope{};
     while (!exitRequested) {

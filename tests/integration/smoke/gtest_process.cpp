@@ -11,16 +11,16 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include <score/lcm/lifecycle_client.h>
 #include <gtest/gtest.h>
+#include <csignal>
 #include <unistd.h>
 
-#include <csignal>
+#include <score/mw/lifecycle/lifecycle_client.h>
 #include "tests/utils/test_helper/test_helper.hpp"
 
 TEST(Smoke, Process) {
     // report kRunning
-    auto result = score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
+    auto result = score::mw::lifecycle::LifecycleClient{}.ReportExecutionState(score::mw::lifecycle::ExecutionState::kRunning);
 
     ASSERT_TRUE(result.has_value()) << "client.ReportExecutionState() failed";
 }

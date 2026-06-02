@@ -2,7 +2,7 @@
 
 Portable and high-performance implementation of a Lifecycle feature for S-CORE project.
 
-This repository contains source code for Launch Manager and Health Monitor. Lifecycle feature is implemented in C++ language, but Rust language bindings are also provided. Additionally, to demonstrate how to use Lifecycle, a set of example applications can be found in ``demo`` folder.
+This repository contains source code for Launch Manager and Health Monitor. Lifecycle feature is implemented in C++ language, but Rust language bindings are also provided. Additionally, to demonstrate how to use Lifecycle, a set of example applications can be found in ``examples`` folder.
 
 High level functionality provided by Lifecycle:
 
@@ -112,11 +112,9 @@ bazel fetch @toolchains_qnx_sdp//... --credential_helper=*.qnx.com="$cred_helper
 ##### Build For QNX
 
 ```sh
-bazel build --config=x86_64-qnx -- //src/...
-bazel build --config=arm64-qnx -- //src/...
+bazel build --config=x86_64-qnx -- //score/...
+bazel build --config=arm64-qnx -- //score/...
 ```
-
-TODO: Currently rust binaries are not compiling for QNX.
 
 ## Running Lifecycle feature and example applications
 

@@ -13,7 +13,7 @@
 #include <gtest/gtest.h>
 
 #include "tests/utils/test_helper/test_helper.hpp"
-#include <score/lcm/lifecycle_client.h>
+#include <score/mw/lifecycle/lifecycle_client.h>
 
 int g_argc;
 char** g_argv;
@@ -31,7 +31,7 @@ TEST(ProcessLaunchArgs, ProcessInitial)
     // Then, the process is started and:
     TEST_STEP("Report kRunning")
     {
-        auto result = score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
+        auto result = score::mw::lifecycle::LifecycleClient{}.ReportExecutionState(score::mw::lifecycle::ExecutionState::kRunning);
         EXPECT_TRUE(result.has_value()) << "ReportExecutionState() failed: " << result.error().Message();
     }
     TEST_STEP("Check args")

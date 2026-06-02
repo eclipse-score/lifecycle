@@ -10,6 +10,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+
 cc_binary(
     name = "cpp_supervised_app",
     srcs = [
@@ -30,9 +32,9 @@ cc_binary(
     }),
     visibility = ["//visibility:public"],
     deps = [
-        "//score/mw/health:health_monitoring_cc",
-        "//score/mw/lifecycle:alive_cc",
-        "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
+        "//score/health_monitor:health_monitoring_cc",
+        "//score/launch_manager:alive_cc",
+        "//score/launch_manager:lifecycle_cc",
         "@score_baselibs_rust//src/log/stdout_logger_cpp_init",
     ],
 )

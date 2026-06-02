@@ -25,8 +25,8 @@ cc_binary(
     name = "control_client_mock",
     srcs = ["control_client_mock.cpp"],
     deps = [
-        "//src/control_client_lib",
-        "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
+        "//score/launch_manager:control_cc",
+        "//score/launch_manager:lifecycle_cc",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
     ],
@@ -45,9 +45,9 @@ cc_binary(
         ],
     }),
     deps = [
-        "//src/health_monitoring_lib:health_monitoring_lib_cc",
-        "//src/launch_manager_daemon/health_monitor_lib:hm_shared_lib",
-        "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
+        "//score/health_monitor:health_monitoring_cc",
+        "//score/launch_manager:alive_cc",
+        "//score/launch_manager:lifecycle_cc",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
         "@score_baselibs_rust//src/log/stdout_logger_cpp_init",
@@ -59,7 +59,7 @@ pkg_files(
     srcs = [
         ":component_complex_monitoring",
         ":control_client_mock",
-        "//src/launch_manager_daemon:launch_manager",
+        "//score/launch_manager",
         "//tests/utils/test_helper:verification_process",
     ],
     attributes = pkg_attributes(mode = "0755"),

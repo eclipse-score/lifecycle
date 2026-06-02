@@ -24,8 +24,8 @@
     #include <sys/prctl.h>
 #endif
 
-#include "src/lifecycle_client_lib/include/application.h"
-#include "src/lifecycle_client_lib/include/runapplication.h"
+#include <score/mw/lifecycle/application.h>
+#include <score/mw/lifecycle/runapplication.h>
 
 /// @brief CLI configuration options for the not_supervised_application process
 struct Config

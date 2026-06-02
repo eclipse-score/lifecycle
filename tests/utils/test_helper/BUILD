@@ -34,7 +34,7 @@ cc_binary(
     visibility = ["//tests:__subpackages__"],
     deps = [
         ":test_helper",
-        "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
+        "//score/launch_manager:lifecycle_cc",
         "@googletest//:gtest_main",
     ],
 )
