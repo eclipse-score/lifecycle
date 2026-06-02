@@ -26,7 +26,7 @@ void OsHandler::run(void) {
 
         if (result.has_value() && result.value() > 0) {
             if (-1 == safe_process_map_.findTerminated(result.value(), wait_status)) {
-                LM_LOG_ERROR() << "[os handler: out of resources]";
+                LM_LOG_ERROR() << "No more resources available to track process with PID " << result.value() << "(SafeProcessMap capacity exceeded).";
             }
         } else {
             // This process has no children to wait for at present,
