@@ -15,8 +15,6 @@
 
 #include "score/mw/launch_manager/alive_monitor/details/timers/TimeConversion.hpp"
 
-// LCOV_EXCL_START (slated for removal)
-
 namespace score
 {
 namespace lcm
@@ -162,5 +160,3 @@ constexpr ProcessState::EProcState ProcessStateReader::translateProcessState(
 }  // namespace saf
 }  // namespace lcm
 }  // namespace score
-
-// LCOV_EXCL_END
