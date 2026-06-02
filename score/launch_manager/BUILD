@@ -74,7 +74,7 @@ cc_test(
     visibility = ["//tests:__subpackages__"],
     deps = [
         ":error",
-        "@score_baselibs//score/result",
         "@googletest//:gtest_main",
+        "@score_baselibs//score/result",
     ],
 )
