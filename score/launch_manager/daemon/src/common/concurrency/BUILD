@@ -81,6 +81,7 @@ cc_test(
     ],
     linkopts = ["-fsanitize=thread"],
     tags = [
+        "no-asan",
         "no-coverage",
         "tsan",
     ],

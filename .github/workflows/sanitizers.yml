@@ -49,7 +49,7 @@ jobs:
 
       - name: Run tests with sanitizers
         run: |
-          bazel test --lockfile_mode=error --config=${{ matrix.config }} --config=x86_64-linux //src/... //tests/... --verbose_failures
+          bazel test --lockfile_mode=error --config=${{ matrix.config }} --config=x86_64-linux //score/... //tests/... --verbose_failures
 
       - name: Upload test logs on failure
         if: failure()
