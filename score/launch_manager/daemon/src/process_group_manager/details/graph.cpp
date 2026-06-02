@@ -275,7 +275,10 @@ bool Graph::startTransition(ProcessGroupStateID pg_state)
 
     if (nullptr != process_index_list)
     {
-        setState(GraphState::kInTransition);
+        {
+            std::shared_lock lock(transition_completion_mutex_);
+            setState(GraphState::kInTransition);
+        }
 
         if (GraphState::kInTransition == getState())
         {
@@ -315,7 +318,10 @@ bool Graph::startTransitionToOffState()
         requested_state_.pg_state_name_ = off_state_;
     }
     bool result = false;
-    setState(GraphState::kInTransition);
+    {
+        std::shared_lock lock(transition_completion_mutex_);
+        setState(GraphState::kInTransition);
+    }
     if (GraphState::kInTransition == getState())
     {
         std::vector<uint32_t> empty_list{};
@@ -327,6 +333,8 @@ bool Graph::startTransitionToOffState()
 
 void Graph::nodeExecuted()
 {
+    std::unique_lock lock(transition_completion_mutex_);
+
     GraphState current_state = getState();
 
     if (current_state == GraphState::kInTransition)
@@ -390,7 +398,6 @@ inline void Graph::handleNonTransitionExecution(GraphState current_state)
                            << (static_cast<double>(clock()) / (static_cast<double>(CLOCKS_PER_SEC) / 1000.0)) << "ms";
         }
         setState(GraphState::kUndefinedState);
-
         if (current_state == GraphState::kAborting)
         {
             setPendingEvent(abort_code_);
@@ -414,6 +421,7 @@ void Graph::abort(uint32_t code, ControlClientCode reason)
 
 void Graph::cancel()
 {
+    std::shared_lock lock(transition_completion_mutex_);
     setState(GraphState::kCancelled);
 
     if (getState() == GraphState::kCancelled)
