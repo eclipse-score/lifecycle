@@ -6,7 +6,7 @@ Operation
 + run(amp::stop_token stop_token): std::int32_t virtual = 0</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>171</x><y>855</y><w>486</w><h>135</h></coordinates><panel_attributes>score::mw::lifecycle::ApplicationContext
 --
 Operations
-+ ApplicationContext(const int32_t argc, const score::StringLiteral argv[])
++ ApplicationContext(const int32_t argc, const char* const argv[])
 + get_arguments(): const std::vector&lt;std::string&gt;&amp; const noexcept
 + get_argument(const amp::string_view flag): std::string const noexcept
 -- 
@@ -39,7 +39,7 @@ manages</panel_attributes><additional_attributes>10;130;10;10</additional_attrib
 Run
 --
 Operation
-+ Run(const int32_t argc, const score::StringLiteral* argv)
++ Run(const int32_t argc, const char* const argv[])
 + AsPosixProcess(Args&amp;&amp;... args): std::int32_t const
 
 --
@@ -55,7 +55,7 @@ environments</panel_attributes><additional_attributes></additional_attributes></
 operation
 + initialize(const ApplicationContext&amp;): std::int32_t override
 + run(amp::stop_token stop_token): std::int32_t override
-+ AasApplicationContainer(cosnt std::int32_t argc, const score::StringLiteral* argv, const std::size_t count_expected_applications): noexcept
++ AasApplicationContainer(const std::int32_t argc, const char* const argv[], const std::size_t count_expected_applications): noexcept
 + With&lt;App,...Args&gt;(Args&amp;&amp;.. args) : AasApplicationContainer&amp;
 + Launch() : std::int32_t
 --

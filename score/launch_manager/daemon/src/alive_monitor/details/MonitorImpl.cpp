@@ -119,15 +119,15 @@ std::string MonitorImpl::getIpcPath(void) noexcept(false)
 }
 
 std::unique_ptr<char[]> MonitorImpl::read_flatbuffer_file() const {
-    const char* configFilePath = getenv("CONFIG_PATH");
-    if(!configFilePath) {
+    const std::string_view configFilePath {getenv("CONFIG_PATH")};
+    if(!configFilePath.data()) {
         return nullptr;
     }
 
     logger_r.LogDebug() << "Attempting to read config file from " << configFilePath;
 
     std::ifstream infile;
-    infile.open(configFilePath, std::ios::binary | std::ios::in);
+    infile.open(configFilePath.data(), std::ios::binary | std::ios::in);
     if (!infile.is_open()) {
         return nullptr;
     }

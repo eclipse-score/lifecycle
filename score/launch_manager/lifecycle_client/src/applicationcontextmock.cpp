@@ -21,7 +21,7 @@ namespace
 
 auto& GetConstructorCallback() noexcept
 {
-    static std::function<void(const std::int32_t argc, const score::StringLiteral argv[])> constructor_callback{};
+    static std::function<void(const std::int32_t argc, const char* const argv[])> constructor_callback{};
     return constructor_callback;
 }
 
@@ -41,7 +41,7 @@ auto& GetGetArgumentCallback() noexcept
 
 score::mw::lifecycle::ApplicationContextMock::ApplicationContextMock()
 {
-    GetConstructorCallback() = [this](const std::int32_t argc, const score::StringLiteral argv[]) {
+    GetConstructorCallback() = [this](const std::int32_t argc, const char* const argv[]) {
         ctor(argc, argv);
     };
     GetGetArgumentsCallback() = [this]() -> decltype(auto) {
@@ -59,7 +59,7 @@ score::mw::lifecycle::ApplicationContextMock::~ApplicationContextMock()
     GetGetArgumentCallback() = nullptr;
 }
 
-score::mw::lifecycle::ApplicationContext::ApplicationContext(const std::int32_t argc, const score::StringLiteral argv[])
+score::mw::lifecycle::ApplicationContext::ApplicationContext(const std::int32_t argc, const char* const argv[])
 {
     auto& constructor_callback = GetConstructorCallback();
     constructor_callback(argc, argv);
