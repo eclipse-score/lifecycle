@@ -10,12 +10,14 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-#include "flatbuffer_config_loader.hpp"
-#include "new_lm_flatcfg_generated.h"
+
+#include "score/mw/launch_manager/configuration/flatbuffer_config_loader.hpp"
+
+#include "score/launch_manager/daemon/src/configuration/details/new_lm_flatcfg_generated.h"
 
 #include "score/os/errno.h"
 
-#include <score/lcm/internal/log.hpp>
+#include "score/mw/launch_manager/common/log.hpp"
 
 #include <cassert>
 #include <cstdint>

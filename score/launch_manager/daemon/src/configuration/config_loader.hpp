@@ -13,7 +13,7 @@
 #ifndef CONFIG_LOADER_HPP
 #define CONFIG_LOADER_HPP
 
-#include "config.hpp"
+#include "score/mw/launch_manager/configuration/config.hpp"
 
 #include "score/filesystem/path.h"
 
@@ -31,7 +31,7 @@ class IConfigLoader
 {
   public:
     /// @brief Error codes returned when configuration loading fails.
-    [[nodiscard]] enum class Error : std::uint32_t
+    enum class [[nodiscard]] Error : std::uint32_t
     {
         /// @brief The configuration file does not exist at the given path.
         FileNotFound,

@@ -10,7 +10,8 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-#include "config.hpp"
+#include "score/mw/launch_manager/configuration/config.hpp"
+
 #include <cassert>
 
 #include <utility>
