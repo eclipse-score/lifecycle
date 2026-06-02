@@ -416,7 +416,7 @@ class Graph final {
     /// @brief Mutex protecting concurrent access to requested_state_.pg_state_name_
     mutable std::mutex requested_state_mutex_{};
 
-    /// @brief Mutex protecting new transitions from interferring with concluding transitions.
+    /// @brief Mutex protecting new transitions from interfering with concluding transitions.
     /// This enforces that, when a transition has completed successfully, it cannot then be cancelled.
     std::shared_mutex transition_completion_mutex_;
 
