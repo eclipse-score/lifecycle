@@ -49,6 +49,9 @@ cc_library(
     hdrs = ["execution_error.h"],
     include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager",
+    deps = [
+        "@score_baselibs//score/result",
+    ],
 )
 
 cc_library(
