@@ -14,19 +14,19 @@
 #include <filesystem>
 
 #include "tests/utils/test_helper/test_helper.hpp"
-#include <score/lcm/control_client.h>
-#include <score/lcm/lifecycle_client.h>
+#include <score/mw/lifecycle/control_client.h>
+#include <score/mw/lifecycle/lifecycle_client.h>
 
 
 TEST(CrashOnStartup, ControlClientMock)
 {
-    score::lcm::ControlClient client;
+    score::mw::lifecycle::ControlClient client;
     
     ASSERT_TRUE(check_clean({crashed_once_file, crashed_twice_file, test_end_location, fallback_file}));
 
     TEST_STEP("Report kRunning")
     {
-        auto result = score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
+        auto result = score::mw::lifecycle::LifecycleClient{}.ReportExecutionState(score::mw::lifecycle::ExecutionState::kRunning);
         ASSERT_TRUE(result.has_value()) << "ReportExecutionState() failed: " << result.error().Message();
     }
 

@@ -1,0 +1,44 @@
+# *******************************************************************************
+# Copyright (c) 2026 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+
+alias(
+    name = "error",
+    actual = "//score/launch_manager:error",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "error_event",
+    actual = "//score/launch_manager:error_event",
+    visibility = ["//visibility:public"],
+)
+
+cc_binary(
+    name = "launch_manager",
+    srcs = ["src/main.cpp"],
+    linkopts = select({
+        "@platforms//os:qnx": ["-lsecpol"],
+        "@platforms//os:linux": ["-lpthread"],
+    }),
+    visibility = ["//visibility:public"],
+    deps = [
+        "//score/launch_manager/daemon/src/alive_monitor",
+        "//score/launch_manager/daemon/src/common:log",
+        "//score/launch_manager/daemon/src/osal:ipc_comms",
+        "//score/launch_manager/daemon/src/process_group_manager",
+        "//score/launch_manager/daemon/src/process_group_manager:alive_monitor_thread",
+        "//score/launch_manager/daemon/src/process_state_client:process_state_notifier",
+        "//score/launch_manager/daemon/src/recovery_client",
+    ],
+)

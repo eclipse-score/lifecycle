@@ -11,8 +11,8 @@ path = "src/main.rs"
 clap = { workspace = true }
 libc = { workspace = true }
 signal-hook = { workspace = true }
-lifecycle_client_rs = { path = "../../src/launch_manager_daemon/lifecycle_client_lib/rust_bindings" }
-monitor_rs = { path = "../../src/launch_manager_daemon/health_monitor_lib/rust_bindings" }
+lifecycle_client_rs = { path = "../../score/launch_manager/lifecycle_client/src/rust" }
+monitor_rs = { path = "../../score/launch_manager/daemon/src/alive_monitor/rust" }
 health_monitoring_lib.workspace = true
 score_log.workspace = true
 stdout_logger.workspace = true

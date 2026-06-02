@@ -15,11 +15,11 @@
 #include <string>
 
 #include "tests/utils/test_helper/test_helper.hpp"
-#include <score/lcm/lifecycle_client.h>
+#include <score/mw/lifecycle/lifecycle_client.h>
 
 TEST(ReportingProcess, ReportsRunning)
 {
-    auto result = score::lcm::LifecycleClient{}.ReportExecutionState(score::lcm::ExecutionState::kRunning);
+    auto result = score::mw::lifecycle::LifecycleClient{}.ReportExecutionState(score::mw::lifecycle::ExecutionState::kRunning);
     EXPECT_TRUE(result.has_value()) << "ReportExecutionState() failed: " << result.error().Message();
 }
 

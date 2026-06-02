@@ -25,8 +25,8 @@ cc_binary(
     name = "control_client_mock",
     srcs = ["control_client_mock.cpp"],
     deps = [
-        "//src/control_client_lib",
-        "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
+        "//score/launch_manager:control_cc",
+        "//score/launch_manager:lifecycle_cc",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
     ],
@@ -36,7 +36,7 @@ cc_binary(
     name = "process_crashing_on_startup_twice",
     srcs = ["process_crashing_on_startup_twice.cpp"],
     deps = [
-        "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
+        "//score/launch_manager:lifecycle_cc",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
     ],
@@ -53,7 +53,7 @@ pkg_files(
         ":control_client_mock",
         ":process_crashing_on_startup_always",
         ":process_crashing_on_startup_twice",
-        "//src/launch_manager_daemon:launch_manager",
+        "//score/launch_manager",
         "//tests/utils/test_helper:verification_process",
     ],
     attributes = pkg_attributes(mode = "0755"),

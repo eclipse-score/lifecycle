@@ -32,7 +32,7 @@ else
     BAZEL_BIN="$PWD/../bazel-bin"
 fi
 
-LM_BINARY="$BAZEL_BIN/src/launch_manager_daemon/launch_manager"
+LM_BINARY="$BAZEL_BIN/score/launch_manager/daemon/launch_manager"
 DEMO_APP_BINARY="$BAZEL_BIN/examples/cpp_supervised_app/cpp_supervised_app"
 DEMO_APP_WO_HM_BINARY="$BAZEL_BIN/examples/cpp_lifecycle_app/cpp_lifecycle_app"
 RUST_APP_BINARY="$BAZEL_BIN/examples/rust_supervised_app/rust_supervised_app"
@@ -69,11 +69,6 @@ cp $RUST_APP_BINARY tmp/supervision_demo/
 mkdir -p tmp/control_app
 cp $CONTROL_APP_BINARY tmp/control_app/
 cp $CONTROL_CLI_BINARY tmp/control_app/
-
-mkdir -p tmp/lib
-cp $BAZEL_BIN/src/launch_manager_daemon/process_state_client_lib/libprocess_state_client.so tmp/lib/
-cp $BAZEL_BIN/src/launch_manager_daemon/lifecycle_client_lib/liblifecycle_client.so tmp/lib/
-cp $BAZEL_BIN/src/control_client_lib/libcontrol_client_lib.so tmp/lib/
 
 docker build . -t demo
 
