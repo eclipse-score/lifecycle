@@ -31,10 +31,6 @@ TEST(Smoke, Daemon)
         ASSERT_TRUE(result.has_value()) << "client.ReportExecutionState() failed: " << result.error().Message();
     }
 
-    // We have to wait for the initial state transition to fully complete, otherwise unexpected failures can occur
-    // Tracked in https://github.com/eclipse-score/lifecycle/issues/198
-    sleep(1);
-
     TEST_STEP("Activate RunTarget Running")
     {
         score::cpp::stop_token stop_token;
