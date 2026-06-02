@@ -19,6 +19,7 @@
 #include <memory>
 #include <atomic>
 #include <mutex>
+#include <shared_mutex>
 #include <string_view>
 #include <vector>
 
@@ -414,6 +415,10 @@ class Graph final {
     ProcessGroupStateID requested_state_{};
     /// @brief Mutex protecting concurrent access to requested_state_.pg_state_name_
     mutable std::mutex requested_state_mutex_{};
+
+    /// @brief Mutex protecting new transitions from interfering with concluding transitions.
+    /// This enforces that, when a transition has completed successfully, it cannot then be cancelled.
+    std::shared_mutex transition_completion_mutex_;
 
     /// @brief Pointer to the ProcessGroupManager.
     ProcessGroupManager* pgm_;

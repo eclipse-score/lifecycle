@@ -23,9 +23,8 @@ namespace mw
 namespace lifecycle
 {
 
-
 AasApplicationContainer::AasApplicationContainer(const std::int32_t argc,
-                                                 const score::StringLiteral* argv,
+                                                 const char* const argv[],
                                                  const std::size_t count_expected_applications) noexcept
     : Application{}, context_{argc, argv}, applications_{}, count_expected_applications_{count_expected_applications}
 {

@@ -36,7 +36,7 @@ class ApplicationContextMock
     ~ApplicationContextMock();
 
     MOCK_METHOD(const std::vector<std::string>&, get_arguments, (), ());
-    MOCK_METHOD(void, ctor, (const std::int32_t argc, const score::StringLiteral argv[]), ());
+    MOCK_METHOD(void, ctor, (const std::int32_t argc, const char* const argv[]), ());
     MOCK_METHOD(std::string, get_argument, (const std::string_view flag), ());
 };
 
