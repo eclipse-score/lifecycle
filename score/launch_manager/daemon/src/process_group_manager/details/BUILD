@@ -75,9 +75,9 @@ cc_library(
     visibility = ["//score/launch_manager/daemon/src/process_group_manager:__pkg__"],
     deps = [
         ":safe_process_map",
-        "@score_baselibs//score/os:sys_wait",
         "//score/launch_manager/daemon/src/common:log",
         "//score/launch_manager/daemon/src/process_group_manager:iprocess",
+        "@score_baselibs//score/os:sys_wait",
     ],
 )
 
@@ -87,11 +87,10 @@ cc_test(
     deps = [
         ":os_handler",
         ":safe_process_map",
-        "@score_baselibs//score/os/mocklib:sys_wait_mock",
         "@googletest//:gtest_main",
+        "@score_baselibs//score/os/mocklib:sys_wait_mock",
     ],
 )
-
 
 cc_library(
     name = "process_launcher",
