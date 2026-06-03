@@ -24,49 +24,6 @@
 namespace score::mw::lifecycle
 {
 
-/// @brief Enumeration of elementary supervision status
-enum class ElementarySupervisionStatus : std::uint32_t
-{
-    /// @brief Supervision is active and no failure is present.
-    kOK = 0U,
-    /// @brief A failure was detected but still within tolerance/debouncing.
-    kFailed = 1U,
-    /// @brief A failure was detected and qualified.
-    kExpired = 2U,
-    /// @brief Supervision is not active.
-    kDeactivated = 4U
-};
-
-/// @brief Enumeration of local supervision status
-enum class LocalSupervisionStatus : std::uint32_t
-{
-    /// @brief Supervision is active and no failure is present.
-    kOK = 0U,
-    /// @brief A failure was detected but still within tolerance/debouncing.
-    kFailed = 1U,
-    /// @brief A failure was detected and qualified.
-    kExpired = 2U,
-    /// @brief Supervision is not active.
-    kDeactivated = 4U
-};
-
-/// @brief Enumeration of global supervision status
-enum class GlobalSupervisionStatus : std::uint32_t
-{
-    /// @brief All relevant local supervisions are in status KOK or KDeactivated.
-    kOK = 0U,
-    /// @brief At least one local supervision is in status kFailed but none in status KExpired.
-    kFailed = 1U,
-    /// @brief At least one local supervision is in status kExpired but the number of
-    ///        Supervision Cycles since reaching kExpired has not exceeded the tolerance.
-    kExpired = 2U,
-    /// @brief At least one local supervision is in status kExpired and the number of
-    ///        Supervision Cycles since reaching kExpired has exceeded the tolerance.
-    kStopped = 3U,
-    /// @brief Supervision is not active.
-    kDeactivated = 4U
-};
-
 /// @brief Monitor Class
 template <typename EnumT>
 class Monitor

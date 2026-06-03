@@ -37,10 +37,6 @@ class StaticConfig
 public:
     /// Default buffer size of Alive Supervision checkpoint buffer
     static constexpr uint16_t k_DefaultAliveSupCheckpointBufferElements{100U};
-    /// Default buffer size of Local Supervision buffer
-    static constexpr uint16_t k_DefaultLocalSupStatusUpdateBufferElements{100U};
-    /// Default buffer size of Global Supervision buffer
-    static constexpr uint16_t k_DefaultGlobalSupStatusUpdateBufferElements{100U};
     /// Default buffer size of a Monitor (shared memory)
     static constexpr uint16_t k_DefaultMonitorBufferElements{ifappl::k_maxCheckpointBufferElements};
 

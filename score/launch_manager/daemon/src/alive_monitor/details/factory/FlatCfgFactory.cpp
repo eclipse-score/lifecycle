@@ -24,10 +24,7 @@
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/MonitorIfDaemon.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ProcessState.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/logging/PhmLogger.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/recovery/Notification.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/supervision/Alive.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/supervision/Global.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/supervision/Local.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/supervision/SupervisionCfg.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/TimeConversion.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
@@ -45,14 +42,16 @@ namespace
 {
 /// @brief Prefix for all log messages
 // coverity[autosar_cpp14_a2_10_4_violation:FALSE] Empty namespace ensures uniqueness for cpp file scope
-static constexpr char const* kLogPrefix{"Factory for FlatCfg AR24-11:"};
+static constexpr const char* kLogPrefix{"Factory for FlatCfg AR24-11:"};
 
-std::unique_ptr<char[]> read_flatbuffer_file(const std::string& f_filename_r) {
+std::unique_ptr<char[]> read_flatbuffer_file(const std::string& f_filename_r)
+{
     const std::string configFilePath = std::string("etc/") + f_filename_r.c_str();
 
     std::ifstream infile;
     infile.open(configFilePath, std::ios::binary | std::ios::in);
-    if (!infile.is_open()) {
+    if (!infile.is_open())
+    {
         return nullptr;
     }
     infile.seekg(0, std::ios::end);
@@ -68,12 +67,12 @@ std::unique_ptr<char[]> read_flatbuffer_file(const std::string& f_filename_r) {
 
 /* RULECHECKER_comment(0, 7, check_incomplete_data_member_construction, "Members processDataBase is not \
 required to be initialized using member initializer list.", true_no_defect) */
-FlatCfgFactory::FlatCfgFactory(const factory::MachineConfigFactory::SupervisionBufferConfig& f_bufferConfig_r) :
-    IPhmFactory(),
-    bufferConfig_r(f_bufferConfig_r),
-    flatBuffer_p(nullptr),
-    // loadBuffer_p(nullptr),
-    logger_r(logging::PhmLogger::getLogger(logging::PhmLogger::EContext::factory))
+FlatCfgFactory::FlatCfgFactory(const factory::MachineConfigFactory::SupervisionBufferConfig& f_bufferConfig_r)
+    : IPhmFactory(),
+      bufferConfig_r(f_bufferConfig_r),
+      flatBuffer_p(nullptr),
+      // loadBuffer_p(nullptr),
+      logger_r(logging::PhmLogger::getLogger(logging::PhmLogger::EContext::factory))
 {
     static_cast<void>(flatBuffer_p);
 }
@@ -81,7 +80,8 @@ FlatCfgFactory::FlatCfgFactory(const factory::MachineConfigFactory::SupervisionB
 bool FlatCfgFactory::init(const std::string& f_filename_r)
 {
     loadBuffer_p = read_flatbuffer_file(f_filename_r);
-    if(!loadBuffer_p) {
+    if (!loadBuffer_p)
+    {
         logger_r.LogError() << kLogPrefix << "Could not open config file.";
         return false;
     }
@@ -95,7 +95,6 @@ bool FlatCfgFactory::init(const std::string& f_filename_r)
     }
     return true;
 }
-
 
 bool FlatCfgFactory::createProcessStates(std::vector<ifexm::ProcessState>& f_processStates_r,
                                          ifexm::ProcessStateReader& f_processStateReader_r)
@@ -123,7 +122,8 @@ bool FlatCfgFactory::createProcessStates(std::vector<ifexm::ProcessState>& f_pro
                 // coverity[cert_exp34_c_violation] PHM.ecucfgdsl Process.refProcessGroupStates MANDATORY
                 // coverity[dereference] PHM.ecucfgdsl Process.refProcessGroupStates MANDATORY
                 const auto* pgStates_p{process_p->refProcessGroupStates()};
-                /* RULECHECKER_comment(2, 3, check_csa_call_null_object_pointer, "PHM.ecucfgdsl Process.refProcessGroupStates MANDATORY", true_no_defect) */
+                /* RULECHECKER_comment(2, 3, check_csa_call_null_object_pointer, "PHM.ecucfgdsl
+                 * Process.refProcessGroupStates MANDATORY", true_no_defect) */
                 // coverity[cert_exp34_c_violation] PHM.ecucfgdsl Process.refProcessGroupStates MANDATORY
                 // coverity[dereference] PHM.ecucfgdsl Process.refProcessGroupStates MANDATORY
                 refProcessGroupStatePaths.reserve(static_cast<size_t>(pgStates_p->size()));
@@ -184,8 +184,8 @@ bool FlatCfgFactory::createProcessStates(std::vector<ifexm::ProcessState>& f_pro
         catch (const std::exception& f_exception_r)
         {
             isSuccess = false;
-            logger_r.LogError() << kLogPrefix
-                                << "Could not create Process States due to exception:" << std::string_view{f_exception_r.what()};
+            logger_r.LogError() << kLogPrefix << "Could not create Process States due to exception:"
+                                << std::string_view{f_exception_r.what()};
         }
     }
     else
@@ -257,13 +257,12 @@ bool FlatCfgFactory::createMonitorIfIpcs(std::vector<ifappl::CheckpointIpcServer
                 if (isSuccess)
                 {
                     logger_r.LogDebug() << kLogPrefix
-                                        << "Successfully created Monitor interface IPC with path:"
-                                        << pathInterface;
+                                        << "Successfully created Monitor interface IPC with path:" << pathInterface;
                 }
                 else
                 {
-                    logger_r.LogError() << kLogPrefix << "Could not create Monitor interface IPC with path:"
-                                        << pathInterface;
+                    logger_r.LogError() << kLogPrefix
+                                        << "Could not create Monitor interface IPC with path:" << pathInterface;
                     break;
                 }
             }
@@ -278,8 +277,7 @@ bool FlatCfgFactory::createMonitorIfIpcs(std::vector<ifappl::CheckpointIpcServer
     else
     {
         isSuccess = false;
-        logger_r.LogError() << kLogPrefix
-                            << "Could not create Monitor interface IPCs due to missing configuration";
+        logger_r.LogError() << kLogPrefix << "Could not create Monitor interface IPCs due to missing configuration";
     }
 
     if (isSuccess)
@@ -297,8 +295,8 @@ bool FlatCfgFactory::createMonitorIfIpcs(std::vector<ifappl::CheckpointIpcServer
 }
 
 bool FlatCfgFactory::createMonitorIf(std::vector<ifappl::MonitorIfDaemon>& f_interfaces_r,
-                                              std::vector<ifappl::CheckpointIpcServer>& f_interfaceIpcs_r,
-                                              std::vector<ifexm::ProcessState>& f_processStates_r)
+                                     std::vector<ifappl::CheckpointIpcServer>& f_interfaceIpcs_r,
+                                     std::vector<ifexm::ProcessState>& f_processStates_r)
 {
     bool isSuccess{true};
     try
@@ -317,8 +315,8 @@ bool FlatCfgFactory::createMonitorIf(std::vector<ifappl::MonitorIfDaemon>& f_int
 
             f_processStates_r.at(static_cast<size_t>(refProcessIndex)).attachObserver(f_interfaces_r.back());
 
-            logger_r.LogDebug() << kLogPrefix << "Successfully created MonitorInterface:"
-                                << f_interfaces_r.back().getInterfaceName();
+            logger_r.LogDebug() << kLogPrefix
+                                << "Successfully created MonitorInterface:" << f_interfaces_r.back().getInterfaceName();
             // coverity[autosar_cpp14_a4_7_1_violation] Value limited by amount of interfaces, which is smaller.
             index++;
         }
@@ -330,8 +328,7 @@ bool FlatCfgFactory::createMonitorIf(std::vector<ifappl::MonitorIfDaemon>& f_int
     {
         isSuccess = false;
         f_interfaces_r.clear();
-        logger_r.LogError() << kLogPrefix
-                            << "Could not create all necessary Monitor interfaces due to exception:"
+        logger_r.LogError() << kLogPrefix << "Could not create all necessary Monitor interfaces due to exception:"
                             << std::string_view{f_exception_r.what()};
     }
 
@@ -356,8 +353,9 @@ bool FlatCfgFactory::createSupervisionCheckpoints(std::vector<ifappl::Checkpoint
                 const char* const checkpointCfgName{hmSupervisionCheckpoint_p->shortName()->c_str()};
                 const uint32_t checkpointId{hmSupervisionCheckpoint_p->checkpointId()};
                 const uint32_t refInterfaceIndex{hmSupervisionCheckpoint_p->refInterfaceIndex()};
-                // coverity[cert_exp34_c_violation] PHM.ecucfgdsl ensures valid link btw. PhmSupervisionCheckpoint and PhmMonitorInterface
-                // coverity[dereference] PHM.ecucfgdsl ensures valid link btw. PhmSupervisionCheckpoint and PhmMonitorInterface
+                // coverity[cert_exp34_c_violation] PHM.ecucfgdsl ensures valid link btw. PhmSupervisionCheckpoint and
+                // PhmMonitorInterface coverity[dereference] PHM.ecucfgdsl ensures valid link btw.
+                // PhmSupervisionCheckpoint and PhmMonitorInterface
                 const auto refProcessIndex{
                     flatBuffer_p->hmMonitorInterface()->Get(refInterfaceIndex)->refProcessIndex()};
                 const ifexm::ProcessState* process_p{&f_processStates_r.at(static_cast<size_t>(refProcessIndex))};
@@ -399,7 +397,8 @@ bool FlatCfgFactory::createSupervisionCheckpoints(std::vector<ifappl::Checkpoint
 
 bool FlatCfgFactory::createAliveSupervisions(std::vector<supervision::Alive>& f_alive_r,
                                              std::vector<ifappl::Checkpoint>& f_checkpoints_r,
-                                             std::vector<ifexm::ProcessState>& f_processStates_r)
+                                             std::vector<ifexm::ProcessState>& f_processStates_r,
+                                             std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r)
 {
     bool isSuccess{true};
 
@@ -450,7 +449,8 @@ bool FlatCfgFactory::createAliveSupervisions(std::vector<supervision::Alive>& f_
 
                 // Construct Alive Supervision
                 supervision::AliveSupervisionCfg aliveSupCfg{
-                    f_checkpoints_r.at(static_cast<size_t>(refCheckPointIndexTemp)), refProcessGroupStateIds,
+                    f_checkpoints_r.at(static_cast<size_t>(refCheckPointIndexTemp)),
+                    refProcessGroupStateIds,
                     refProcesses};
 
                 aliveSupCfg.cfgName_p = nameCfgAlive_p;
@@ -461,6 +461,12 @@ bool FlatCfgFactory::createAliveSupervisions(std::vector<supervision::Alive>& f_
                 aliveSupCfg.isMaxCheckDisabled = isMaxCheckDisabledCfg;
                 aliveSupCfg.failedCyclesTolerance = failedCyclesToleranceCfg;
                 aliveSupCfg.checkpointBufferSize = bufferConfig_r.bufferSizeAliveSupervision;
+                aliveSupCfg.recoveryClient = f_recoveryClient_r;
+
+                // coverity[cert_exp34_c_violation] PHM.ecucfgdsl Process.identifier MANDATORY
+                // coverity[dereference] PHM.ecucfgdsl Process.identifier MANDATORY
+                aliveSupCfg.processIdentifier =
+                    score::lcm::IdentifierHash{flatBuffer_p->process()->Get(processIndex)->identifier()->str()};
 
                 f_alive_r.emplace_back(aliveSupCfg);
 
@@ -495,252 +501,6 @@ bool FlatCfgFactory::createAliveSupervisions(std::vector<supervision::Alive>& f_
     return isSuccess;
 }
 
-/* RULECHECKER_comment(0, 5, check_max_parameters, "The 4 parameters is better handled individually instead of further\
- combining under a data structure", true_no_defect) */
-bool FlatCfgFactory::createLocalSupervisions(std::vector<supervision::Local>& f_local_r,
-                                             std::vector<supervision::Alive>& f_alive_r)
-{
-    bool isSuccess{true};
-
-    // If PhmLocalSupervision is not configured in configuration files, nullptr is returned by PhmLocalSupervision().
-    // AR21-11: For each Monitor instance, a local supervision is created. If PhmLocalSupervision() returns
-    // nullptr, Monitor interface and local supervision are not configured.  This is considered as an error.
-    if (flatBuffer_p->hmLocalSupervision() != nullptr)
-    {
-        auto numberOfLocalSup{flatBuffer_p->hmLocalSupervision()->size()};
-        try
-        {
-            f_local_r.reserve(static_cast<size_t>(numberOfLocalSup));
-
-            for (auto hmLocalSupervision_p : *flatBuffer_p->hmLocalSupervision())
-            {
-                // Collect Local Supervision Config
-                supervision::LocalSupervisionCfg localSupervisionCfg{};
-                localSupervisionCfg.cfgName_p = hmLocalSupervision_p->ruleContextKey()->c_str();
-                localSupervisionCfg.checkpointEventBufferSize = bufferConfig_r.bufferSizeLocalSupervision;
-
-                // Construct Local Supervision
-                f_local_r.emplace_back(localSupervisionCfg);
-
-                // Subscribe created Local Supervision to Alive Supervisions
-                if (hmLocalSupervision_p->hmRefAliveSupervision() != nullptr)
-                {
-                    for (auto* phmRefAlive_p : *hmLocalSupervision_p->hmRefAliveSupervision())
-                    {
-                        uint32_t refAliveIndex{phmRefAlive_p->refAliveSupervisionIdx()};
-                        supervision::Alive& alive_r{f_alive_r.at(static_cast<size_t>(refAliveIndex))};
-                        alive_r.attachObserver(f_local_r.back());
-                        f_local_r.back().registerCheckpointSupervision(alive_r);
-                    }
-                }
-                logger_r.LogDebug() << kLogPrefix
-                                    << "Successfully created local supervision:" << f_local_r.back().getConfigName();
-            }
-        }
-        catch (const std::exception& f_exception_r)
-        {
-            isSuccess = false;
-            logger_r.LogError() << kLogPrefix << "Could not create local supervision worker objects, due to exception:"
-                                << std::string_view{f_exception_r.what()};
-        }
-    }
-    else
-    {
-        isSuccess = false;
-    }
-
-    if (isSuccess)
-    {
-        logger_r.LogDebug() << kLogPrefix
-                            << "Number of constructed local supervisions:" << static_cast<uint64_t>(f_local_r.size());
-    }
-    else
-    {
-        f_local_r.clear();
-        logger_r.LogError() << kLogPrefix << "Could not create all necessary local supervision worker objects";
-    }
-
-    return isSuccess;
-}
-
-bool FlatCfgFactory::createGlobalSupervisions(std::vector<supervision::Global>& f_global_r,
-                                              std::vector<supervision::Local>& f_local_r,
-                                              std::vector<ifexm::ProcessState>& f_processStates_r)
-{
-    bool isGlobalSupCfgSuccess{true};
-
-    // If PhmGlobalSupervision is not configured in configuration files, nullptr is returned by PhmGlobalSupervision().
-    // It is valid to have empty (zero) PhmGlobalSupervision in the configuration.
-    if (flatBuffer_p->hmGlobalSupervision() != nullptr)
-    {
-        auto numberOfGlobalSup{flatBuffer_p->hmGlobalSupervision()->size()};
-        try
-        {
-            f_global_r.reserve(static_cast<size_t>(numberOfGlobalSup));
-
-            for (auto hmGlobalSupervision_p : *flatBuffer_p->hmGlobalSupervision())
-            {
-                // Collect Global Supervision configuration
-                const char* name_p{hmGlobalSupervision_p->ruleContextKey()->c_str()};
-
-                // Collect referenced ProcessGroupStates and expiredTolerances for Global Supervision
-                std::vector<std::string> refProcessGroupStates{};
-
-                std::vector<timers::NanoSecondType> expiredSupervisionTolerances{};
-                // coverity[cert_exp34_c_violation] PHM.ecucfgdsl PhmGlobalSupervision.refProcessGroupStates MANDATORY
-                // coverity[dereference] PHM.ecucfgdsl PhmGlobalSupervision.refProcessGroupStates MANDATORY
-                refProcessGroupStates.reserve(
-                    static_cast<size_t>(hmGlobalSupervision_p->refProcessGroupStates()->size()));
-
-                // coverity[cert_exp34_c_violation] PHM.ecucfgdsl PhmGlobalSupervision.refProcessGroupStates MANDATORY
-                // coverity[dereference] PHM.ecucfgdsl PhmGlobalSupervision.refProcessGroupStates MANDATORY
-                expiredSupervisionTolerances.reserve(
-                    static_cast<size_t>(hmGlobalSupervision_p->refProcessGroupStates()->size()));
-
-                for (auto refProcessGroupState_p : *hmGlobalSupervision_p->refProcessGroupStates())
-                {
-                    // coverity[cert_exp34_c_violation] PHM.ecucfgdsl PhmRefProcessGroupStatesGlobal.identifier
-                    // coverity[dereference] PHM.ecucfgdsl PhmRefProcessGroupStatesGlobal.identifier MANDATORY
-                    refProcessGroupStates.push_back(refProcessGroupState_p->identifier()->c_str());
-                    double tolerance{refProcessGroupState_p->expiredSupervisionTolerance()};
-
-                    timers::NanoSecondType toleranceNs;
-                    if (std::isfinite(tolerance))
-                    {
-                        toleranceNs = timers::TimeConversion::convertMilliSecToNanoSec(tolerance);
-                    }
-                    else
-                    {
-                        toleranceNs = UINT64_MAX;
-                    }
-                    expiredSupervisionTolerances.push_back(toleranceNs);
-                }
-
-                const auto result{getProcessGroupStateIds(refProcessGroupStates)};
-                std::vector<common::ProcessGroupId> refProcessGroupStateIds{std::move(*result)};
-
-                // Construct Global Supervision
-                supervision::GlobalSupervisionCfg globalSupervisionCfg{refProcessGroupStateIds,
-                                                                       expiredSupervisionTolerances};
-                globalSupervisionCfg.cfgName_p = name_p;
-                globalSupervisionCfg.localEventBufferSize = bufferConfig_r.bufferSizeGlobalSupervision;
-
-                f_global_r.emplace_back(globalSupervisionCfg);
-
-                // Subscribe created Global Supervision to Local Supervisions
-                for (auto localSupervision_p : *hmGlobalSupervision_p->localSupervision())
-                {
-                    uint32_t refLocalSupIndex{localSupervision_p->refLocalSupervisionIndex()};
-                    f_local_r.at(static_cast<size_t>(refLocalSupIndex)).attachObserver(f_global_r.back());
-                    f_global_r.back().registerLocalSupervision(f_local_r.at(static_cast<size_t>(refLocalSupIndex)));
-                }
-
-                // Subscribe created Global Supervision to ProcessState classes
-                for (auto refProcess_p : *hmGlobalSupervision_p->refProcesses())
-                {
-                    f_processStates_r.at(static_cast<size_t>(refProcess_p->index())).attachObserver(f_global_r.back());
-                }
-
-                logger_r.LogDebug() << kLogPrefix
-                                    << "Successfully created global supervision:" << f_global_r.back().getConfigName();
-            }
-        }
-        catch (const std::exception& f_exception_r)
-        {
-            isGlobalSupCfgSuccess = false;
-            logger_r.LogError() << kLogPrefix << "Could not create all necessary global supervision due to exception:"
-                                << std::string_view{f_exception_r.what()};
-        }
-    }
-    else
-    {
-        isGlobalSupCfgSuccess = false;
-    }
-
-    if (isGlobalSupCfgSuccess)
-    {
-        logger_r.LogDebug() << kLogPrefix
-                            << "Number of constructed global supervisions:" << static_cast<uint64_t>(f_global_r.size());
-    }
-    else
-    {
-        f_global_r.clear();
-        logger_r.LogError() << kLogPrefix << "Could not create all necessary global supervision worker objects";
-    }
-
-    return isGlobalSupCfgSuccess;
-}
-
-bool FlatCfgFactory::createRecoveryNotifications(std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r,
-                                                 std::vector<recovery::Notification>& f_notification_r,
-                                                 std::vector<supervision::Global>& f_global_r)
-{
-    bool isRecoverySuccess{true};
-
-    if (flatBuffer_p->hmRecoveryNotification() != nullptr)
-    {
-        const auto numberOfNotification{flatBuffer_p->hmRecoveryNotification()->size()};
-        try
-        {
-            f_notification_r.reserve(static_cast<size_t>(numberOfNotification));
-            for (auto recoveryNotification_p : *flatBuffer_p->hmRecoveryNotification())
-            {
-                createNotification(f_recoveryClient_r, f_notification_r, *recoveryNotification_p);
-                uint32_t refGlobalSupIndex{recoveryNotification_p->refGlobalSupervisionIndex()};
-
-                f_global_r.at(static_cast<size_t>(refGlobalSupIndex))
-                    .registerRecoveryNotification(f_notification_r.back());
-                logger_r.LogVerbose() << kLogPrefix << "Successfully registered recovery notification ("
-                                      << f_notification_r.back().getConfigName() << ") at Global Supervision ("
-                                      << f_global_r.at(static_cast<size_t>(refGlobalSupIndex)).getConfigName() << ")";
-            }
-        }
-        catch (const std::exception& f_exception_r)
-        {
-            isRecoverySuccess = false;
-            f_notification_r.clear();
-            logger_r.LogError() << kLogPrefix
-                                << "Could not create all necessary recovery notifications "
-                                   "due to exception:"
-                                << std::string_view{f_exception_r.what()};
-        }
-    }
-
-    if (isRecoverySuccess)
-    {
-        logger_r.LogDebug() << kLogPrefix << "Number of constructed recovery notifications:"
-                            << static_cast<uint64_t>(f_notification_r.size());
-    }
-
-    return isRecoverySuccess;
-}
-
-void FlatCfgFactory::createNotification(std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r, std::vector<recovery::Notification>& f_notification_r,
-                                        const HMFlatBuffer::RecoveryNotification& f_recoveryNotificationData_r) const
-    noexcept(false)
-{
-    recovery::NotificationConfig notifConfig{};
-    std::string pathInstanceSpecifier{};
-
-    // Special Case: This is a dummy recovery notification that will fire the watchdog when a global supervision
-    // of Exm or SM process fails
-    if (f_recoveryNotificationData_r.shouldFireWatchdog())
-    {
-        f_notification_r.emplace_back(f_recoveryClient_r);
-        logger_r.LogDebug() << kLogPrefix << "Successfully created dummy recovery notification to fire the watchdog";
-        return;
-    }
-
-    notifConfig.configName = f_recoveryNotificationData_r.shortName()->c_str();
-    notifConfig.processGroupMetaModelIdentifier =
-        f_recoveryNotificationData_r.processGroupMetaModelIdentifier()->c_str();
-
-    f_notification_r.emplace_back(notifConfig, f_recoveryClient_r);
-
-    logger_r.LogDebug() << kLogPrefix
-                        << "Successfully created recovery notification:" << f_notification_r.back().getConfigName();
-}
-
 std::optional<std::vector<common::ProcessGroupId>> FlatCfgFactory::getProcessGroupStateIds(
     std::vector<std::string>& f_pgStatePaths_r) noexcept(false)
 {
@@ -753,11 +513,9 @@ std::optional<std::vector<common::ProcessGroupId>> FlatCfgFactory::getProcessGro
     return stateIds;
 }
 
-std::optional<common::ProcessId> FlatCfgFactory::getProcessId(const std::string& f_processPath_r) noexcept(
-    true)
+std::optional<common::ProcessId> FlatCfgFactory::getProcessId(const std::string& f_processPath_r) noexcept(true)
 {
     return score::lcm::IdentifierHash{f_processPath_r}.data();
-
 }
 
 }  // namespace factory
