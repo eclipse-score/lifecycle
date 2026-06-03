@@ -105,12 +105,6 @@ public:
       return EXIT_FAILURE;
     }
 
-    m_config = *config;
-
-    if (true == m_config.failToStart) {
-      return EXIT_FAILURE;
-    }
-
     return 0;
   }
 
@@ -119,35 +113,10 @@ public:
         std::chrono::steady_clock::now();
     std::chrono::duration<double, std::milli> runTime;
 
-    timespec req{
-        static_cast<time_t>(m_config.responseTimeInMs / 1000),
-        static_cast<long>((m_config.responseTimeInMs % 1000) * 1000000L)};
-
-    while (!stopToken.stop_requested()) {
-      if (true == m_config.crashRequested) {
-        runTime = std::chrono::steady_clock::now() - startTime;
-        int timeTillCrash =
-            static_cast<int>(m_config.crashTimeInMs - runTime.count());
-
-        if (timeTillCrash < m_config.responseTimeInMs) {
-          if (timeTillCrash > 0) {
-            timespec crash_req{
-                static_cast<time_t>(timeTillCrash / 1000),
-                static_cast<long>((timeTillCrash % 1000) * 1000000L)};
-            nanosleep(&crash_req, nullptr);
-          }
-
-          std::abort();
-        }
-      }
-      nanosleep(&req, nullptr);
-    }
-
     return EXIT_SUCCESS;
   }
 
 private:
-  Config m_config{};
   std::vector<char *> m_argvStorage{};
 };
 

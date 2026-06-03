@@ -37,6 +37,7 @@ def test_recovery_action_simple_rep_failure(target, setup_test, assert_test_resu
 
     Case 2: Using simple reporting, the process does not report kRunning in time (500ms above boundary)
     Expected Behaviour: Reporting kRunning is not successful, recovery action is executed.
+    The recovery action switches to the fallback run target, the activation of the fallback run target is verified in the test.
     """
 
     run_until_file_deployed(

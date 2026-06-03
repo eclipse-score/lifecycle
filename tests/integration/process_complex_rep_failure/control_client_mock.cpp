@@ -51,10 +51,10 @@ TEST(RecoveryActionComplexRepFailure, ControlClientMock) {
   }
   // Limitation: we cannot wait for the transition to fallback to complete
   sleep(1);
-  // Then, the LM should exhaust retries and trigger the fallback
+  // Then, the LM should continue without triggering the fallback
   TEST_STEP("Verify fallback run target has not been activated") {
     EXPECT_FALSE(std::filesystem::exists(fallback_file))
-        << "Fallback run target should has not been activated";
+        << "Fallback run target should have not been activated";
   }
   // Start the run target run_target_app_does_not_report_krunning_in_time
   TEST_STEP(
