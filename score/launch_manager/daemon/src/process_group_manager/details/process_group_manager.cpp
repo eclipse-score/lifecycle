@@ -264,7 +264,7 @@ bool ProcessGroupManager::run()
                    // debug messages.
                    << (static_cast<double>(clock()) / (static_cast<double>(CLOCKS_PER_SEC) / 1000.0)) << "ms";
 
-    OsHandler os_handler(*process_map_, process_interface_);
+    OsHandler os_handler(*process_map_);
 
     bool result = startInitialTransition();
 
