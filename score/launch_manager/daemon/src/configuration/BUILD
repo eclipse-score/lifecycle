@@ -70,6 +70,21 @@ cc_library(
 )
 
 cc_library(
+    name = "flatbuffer_type_converters",
+    srcs = [
+        "details/flatbuffer_type_converters.cpp",
+        ":new_lm_flatcfg_generated",
+    ],
+    hdrs = ["details/flatbuffer_type_converters.hpp"],
+    visibility = ["//score:__subpackages__"],
+    deps = [
+        ":config_loader",
+        "//score/launch_manager/daemon/src/common:log",
+        "@flatbuffers",
+    ],
+)
+
+cc_library(
     name = "flatbuffer_config_loader",
     srcs = [
         "details/flatbuffer_config_loader.cpp",
@@ -81,9 +96,21 @@ cc_library(
     visibility = ["//score:__subpackages__"],
     deps = [
         ":config_loader",
+        ":flatbuffer_type_converters",
         "//score/launch_manager/daemon/src/common:log",
         "@flatbuffers",
         "@score_baselibs//score/flatbuffers:flatbufferutils",
+    ],
+)
+
+cc_test(
+    name = "flatbuffer_type_converters_UT",
+    srcs = ["details/flatbuffer_type_converters_UT.cpp"],
+    visibility = ["//tests:__subpackages__"],
+    deps = [
+        ":flatbuffer_type_converters",
+        "@flatbuffers",
+        "@googletest//:gtest_main",
     ],
 )
 
