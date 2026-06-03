@@ -81,9 +81,9 @@ public:
     /// @brief Connect to ipc channel
     /// @param [in] f_ipcName_r The name of the ipc channel
     /// @return See enumeration EIpcInitResult
-    EIpcInitResult init(const std::string& f_ipcName_r) noexcept(true)
+    EIpcInitResult init(const std::string_view& f_ipcName_r) noexcept(true)
     {
-        ipc_dropin::ReturnCode result{socket->connect(f_ipcName_r.c_str())};
+        ipc_dropin::ReturnCode result{socket->connect(f_ipcName_r.data())};
         if (result == ipc_dropin::ReturnCode::kOk)
         {
             isInitialized = true;
