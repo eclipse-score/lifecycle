@@ -1,0 +1,7 @@
+{
+    "ecuId": "ECU1",
+    "appId": "LM",
+    "logLevel": "kDebug",
+    "logLevelThresholdConsole": "kDebug",
+    "logMode": "kConsole"
+}

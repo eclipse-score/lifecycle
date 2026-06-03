@@ -22,6 +22,9 @@ logger = logging.getLogger(__name__)
 def setup_test(request, target):
     """Sets up the test by uploading and extracting the test binaries tar"""
 
+    # silence logs coming from docker which uses urllib3
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+
     bin_path = Path(request.config.getoption("--score-test-binary-path"))
     remote_dir = Path(request.config.getoption("--score-test-remote-directory"))
 
