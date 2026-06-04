@@ -28,96 +28,18 @@
 int g_argc;
 char **g_argv;
 
-/// @brief CLI configuration options
-struct Config {
-  std::int32_t responseTimeInMs{100};
-  bool crashRequested{false};
-  std::int32_t crashTimeInMs{1000};
-  bool failToStart{false};
-};
-
-std::string helpSstring = "Usage:\n\
-       -r <response time in ms> Worst case response time to SIGTERM signal in milliseconds.\n\
-       -c <crash time in ms> Simulate crash of the application, after specified time in milliseconds.\n\
-       -s Simulate failure during start-up of the application.\n";
-
-std::optional<Config> parseOptions(int argc, char *const *argv) noexcept {
-  Config config{};
-  int c;
-  while ((c = getopt(argc, argv, ":r:c:svh")) != -1) {
-    switch (static_cast<char>(c)) {
-    case 'r':
-      config.responseTimeInMs = std::stoi(optarg);
-      break;
-
-    case 'c':
-      config.crashRequested = true;
-      config.crashTimeInMs = std::stoi(optarg);
-      break;
-
-    case 's':
-      config.failToStart = true;
-      break;
-
-    case 'h':
-      std::cout << helpSstring;
-      return std::nullopt;
-
-    case '?':
-      std::cout << "Unrecognized option: -" << static_cast<char>(optopt)
-                << std::endl;
-      std::cout << helpSstring;
-      return std::nullopt;
-
-    default:
-      break;
-    }
-  }
-  return config;
-}
 class LifecycleApp final : public score::mw::lifecycle::Application {
 public:
   std::int32_t
   Initialize(const score::mw::lifecycle::ApplicationContext &appCtx) override {
-    // Build a classic argv for getopt() from ApplicationContext arguments
-    const auto &args = appCtx.get_arguments();
-    m_argvStorage.clear();
-    m_argvStorage.reserve(args.size() + 2);
-
-    // Ensure argv[0] exists (getopt expects it)
-    if (args.empty()) {
-      m_argvStorage.push_back(const_cast<char *>("LifecycleApp"));
-    } else {
-      for (const auto &s : args) {
-        // NOTE: relies on the underlying storage staying alive during
-        // Initialize().
-        m_argvStorage.push_back(const_cast<char *>(s.data()));
-      }
-    }
-
-    m_argvStorage.push_back(nullptr);
-
     optind = 1;
-
-    const int argcLocal = static_cast<int>(m_argvStorage.size() - 1);
-    const auto config = parseOptions(argcLocal, m_argvStorage.data());
-    if (!config) {
-      return EXIT_FAILURE;
-    }
 
     return 0;
   }
 
   std::int32_t Run(const score::cpp::stop_token &stopToken) override {
-    std::chrono::time_point<std::chrono::steady_clock> startTime =
-        std::chrono::steady_clock::now();
-    std::chrono::duration<double, std::milli> runTime;
-
     return EXIT_SUCCESS;
   }
-
-private:
-  std::vector<char *> m_argvStorage{};
 };
 
 TEST(ComplexReportingProcess, ReportsRunning) {
