@@ -16,21 +16,34 @@
 
 using namespace score::mw::health;
 
-TEST(TimeRange, New_Succeeds)
+class TimeRangeFixture : public ::testing::Test
 {
+  protected:
+    void SetUp() override
+    {
+        RecordProperty("TestType", "interface-test");
+        RecordProperty("DerivationTechnique", "explorative-testing");
+    }
+};
+
+TEST_F(TimeRangeFixture, New_Succeeds)
+{
+    RecordProperty("Description", "Object successfully constructed.");
     using namespace std::chrono_literals;
     TimeRange range{100ms, 200ms};
 }
 
-TEST(TimeRange, New_InvalidOrder)
+TEST_F(TimeRangeFixture, New_InvalidOrder)
 {
+    RecordProperty("Description", "Object failed to construct to invalid parameters order.");
     using namespace std::chrono_literals;
     // `SIGABRT` is expected.
     ASSERT_DEATH({ TimeRange range(200ms, 100ms); }, "");
 }
 
-TEST(TimeRange, MinMax)
+TEST_F(TimeRangeFixture, MinMax)
 {
+    RecordProperty("Description", "`min` and `max` member functions are returning correct values.");
     using namespace std::chrono_literals;
     TimeRange range{123ms, 456ms};
     ASSERT_EQ(range.min_ms(), 123);

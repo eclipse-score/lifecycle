@@ -23,7 +23,7 @@ class HealthMonitorTest : public ::testing::Test
     void SetUp() override
     {
         RecordProperty("TestType", "interface-test");
-        RecordProperty("DerivationTechnique", "explorative-testing ");
+        RecordProperty("DerivationTechnique", "explorative-testing");
     }
 };
 

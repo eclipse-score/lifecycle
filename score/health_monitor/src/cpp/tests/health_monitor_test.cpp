@@ -36,14 +36,26 @@ LogicMonitorBuilder def_logic_monitor_builder()
     return LogicMonitorBuilder{state1}.add_state(state1, {state2}).add_state(state2, {state1});
 }
 
-TEST(HealthMonitorBuilder, New_Succeeds)
+class HealthMonitorBuilderFixture : public ::testing::Test
 {
+  protected:
+    void SetUp() override
+    {
+        RecordProperty("TestType", "interface-test");
+        RecordProperty("DerivationTechnique", "explorative-testing");
+    }
+};
+
+TEST_F(HealthMonitorBuilderFixture, New_Succeeds)
+{
+    RecordProperty("Description", "Object successfully constructed.");
     // Check able to construct and destruct only.
     HealthMonitorBuilder health_monitor_builder;
 }
 
-TEST(HealthMonitorBuilder, Build_Succeeds)
+TEST_F(HealthMonitorBuilderFixture, Build_Succeeds)
 {
+    RecordProperty("Description", "Successfully build monitor containing all monitor types.");
     MonitorTag deadline_monitor_tag{"deadline_monitor"};
     DeadlineMonitorBuilder deadline_monitor_builder;
     MonitorTag heartbeat_monitor_tag{"heartbeat_monitor"};
@@ -59,16 +71,20 @@ TEST(HealthMonitorBuilder, Build_Succeeds)
     ASSERT_TRUE(result.has_value());
 }
 
-TEST(HealthMonitorBuilder, Build_InvalidCycles)
+TEST_F(HealthMonitorBuilderFixture, Build_InvalidCycles)
 {
+    RecordProperty(
+        "Description",
+        "Failed to build monitor with mismatched supervisor API cycle and internal processing cycle values.");
     using namespace std::chrono_literals;
     auto result{HealthMonitorBuilder{}.with_supervisor_api_cycle(123ms).with_internal_processing_cycle(100ms).build()};
     ASSERT_FALSE(result.has_value());
     ASSERT_EQ(result.error(), Error::InvalidArgument);
 }
 
-TEST(HealthMonitorBuilder, Build_NoMonitors)
+TEST_F(HealthMonitorBuilderFixture, Build_NoMonitors)
 {
+    RecordProperty("Description", "Failed to build monitor with no monitors.");
     auto result{HealthMonitorBuilder{}.build()};
     ASSERT_FALSE(result.has_value());
     ASSERT_EQ(result.error(), Error::WrongState);
@@ -76,6 +92,7 @@ TEST(HealthMonitorBuilder, Build_NoMonitors)
 
 TEST(HealthMonitor, GetDeadlineMonitor_Available)
 {
+    RecordProperty("Description", "Successfully obtained deadline monitor.");
     MonitorTag deadline_monitor_tag{"deadline_monitor"};
     DeadlineMonitorBuilder deadline_monitor_builder;
     auto health_monitor{HealthMonitorBuilder{}
@@ -89,6 +106,7 @@ TEST(HealthMonitor, GetDeadlineMonitor_Available)
 
 TEST(HealthMonitor, GetDeadlineMonitor_Taken)
 {
+    RecordProperty("Description", "Failed to reobtain already taken deadline monitor.");
     MonitorTag deadline_monitor_tag{"deadline_monitor"};
     DeadlineMonitorBuilder deadline_monitor_builder;
     auto health_monitor{HealthMonitorBuilder{}
@@ -103,6 +121,7 @@ TEST(HealthMonitor, GetDeadlineMonitor_Taken)
 
 TEST(HealthMonitor, GetDeadlineMonitor_Unknown)
 {
+    RecordProperty("Description", "Failed to obtain deadline monitor using unknown tag.");
     MonitorTag deadline_monitor_tag{"deadline_monitor"};
     DeadlineMonitorBuilder deadline_monitor_builder;
     auto health_monitor{HealthMonitorBuilder{}
@@ -116,6 +135,7 @@ TEST(HealthMonitor, GetDeadlineMonitor_Unknown)
 
 TEST(HealthMonitor, GetHeartbeatMonitor_Available)
 {
+    RecordProperty("Description", "Successfully obtained heartbeat monitor.");
     MonitorTag heartbeat_monitor_tag{"heartbeat_monitor"};
     auto heartbeat_monitor_builder{def_heartbeat_monitor_builder()};
     auto health_monitor{HealthMonitorBuilder{}
@@ -129,6 +149,7 @@ TEST(HealthMonitor, GetHeartbeatMonitor_Available)
 
 TEST(HealthMonitor, GetHeartbeatMonitor_Taken)
 {
+    RecordProperty("Description", "Failed to reobtain already taken heartbeat monitor.");
     MonitorTag heartbeat_monitor_tag{"heartbeat_monitor"};
     HeartbeatMonitorBuilder heartbeat_monitor_builder{def_heartbeat_monitor_builder()};
     auto health_monitor{HealthMonitorBuilder{}
@@ -143,6 +164,7 @@ TEST(HealthMonitor, GetHeartbeatMonitor_Taken)
 
 TEST(HealthMonitor, GetHeartbeatMonitor_Unknown)
 {
+    RecordProperty("Description", "Failed to obtain deadline monitor using unknown tag.");
     MonitorTag heartbeat_monitor_tag{"heartbeat_monitor"};
     HeartbeatMonitorBuilder heartbeat_monitor_builder{def_heartbeat_monitor_builder()};
     auto health_monitor{HealthMonitorBuilder{}
@@ -156,6 +178,7 @@ TEST(HealthMonitor, GetHeartbeatMonitor_Unknown)
 
 TEST(HealthMonitor, GetLogicMonitor_Available)
 {
+    RecordProperty("Description", "Successfully obtained logic monitor.");
     MonitorTag logic_monitor_tag{"logic_monitor"};
     auto logic_monitor_builder{def_logic_monitor_builder()};
     auto health_monitor{
@@ -167,6 +190,7 @@ TEST(HealthMonitor, GetLogicMonitor_Available)
 
 TEST(HealthMonitor, GetLogicMonitor_Taken)
 {
+    RecordProperty("Description", "Failed to reobtain already taken logic monitor.");
     MonitorTag logic_monitor_tag{"logic_monitor"};
     LogicMonitorBuilder logic_monitor_builder{def_logic_monitor_builder()};
     auto health_monitor{
@@ -179,6 +203,7 @@ TEST(HealthMonitor, GetLogicMonitor_Taken)
 
 TEST(HealthMonitor, GetLogicMonitor_Unknown)
 {
+    RecordProperty("Description", "Failed to obtain deadline monitor using unknown tag.");
     MonitorTag logic_monitor_tag{"logic_monitor"};
     LogicMonitorBuilder logic_monitor_builder{def_logic_monitor_builder()};
     auto health_monitor{
@@ -190,6 +215,7 @@ TEST(HealthMonitor, GetLogicMonitor_Unknown)
 
 TEST(HealthMonitor, Start_Succeeds)
 {
+    RecordProperty("Description", "Successfully started monitor containing all monitor types.");
     MonitorTag deadline_monitor_tag{"deadline_monitor"};
     DeadlineMonitorBuilder deadline_monitor_builder;
     MonitorTag heartbeat_monitor_tag{"heartbeat_monitor"};
@@ -213,6 +239,7 @@ TEST(HealthMonitor, Start_Succeeds)
 
 TEST(HealthMonitor, Start_MonitorsNotTaken)
 {
+    RecordProperty("Description", "Failed to start of a health monitor with no monitors obtained.");
     MonitorTag deadline_monitor_tag{"deadline_monitor"};
     DeadlineMonitorBuilder deadline_monitor_builder;
     MonitorTag heartbeat_monitor_tag{"heartbeat_monitor"};

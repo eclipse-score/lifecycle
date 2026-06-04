@@ -18,14 +18,26 @@
 using namespace score::mw::health;
 using namespace score::mw::health::logic;
 
-TEST(LogicMonitorBuilder, New_Succeeds)
+class LogicMonitorBuilderFixture : public ::testing::Test
 {
+  protected:
+    void SetUp() override
+    {
+        RecordProperty("TestType", "interface-test");
+        RecordProperty("DerivationTechnique", "explorative-testing");
+    }
+};
+
+TEST_F(LogicMonitorBuilderFixture, New_Succeeds)
+{
+    RecordProperty("Description", "Object successfully constructed.");
     StateTag state1{"state1"};
     LogicMonitorBuilder logic_monitor_builder{state1};
 }
 
-TEST(LogicMonitorBuilder, AddState_Succeeds)
+TEST_F(LogicMonitorBuilderFixture, AddState_Succeeds)
 {
+    RecordProperty("Description", "State successfully added.");
     StateTag state1{"state1"};
     StateTag state2{"state2"};
     auto logic_monitor_builder{LogicMonitorBuilder{state1}.add_state(state1, {state2})};
@@ -40,6 +52,9 @@ class LogicMonitorFixture : public ::testing::Test
 
     void SetUp() override
     {
+        RecordProperty("TestType", "interface-test");
+        RecordProperty("DerivationTechnique", "explorative-testing");
+
         // Monitor must be obtained from HMON.
         // Initialize logic monitor builder.
         MonitorTag logic_monitor_tag{"logic_monitor"};
@@ -59,7 +74,9 @@ class LogicMonitorFixture : public ::testing::Test
 };
 
 TEST_F(LogicMonitorFixture, Transition_Succeeds)
-{  // State transition.
+{
+    RecordProperty("Description", "Monitor successfully transitioned to an allowed state.");
+    // State transition.
     auto transition_result{logic_monitor_->transition(state2_)};
     ASSERT_TRUE(transition_result.has_value());
     ASSERT_EQ(transition_result.value(), state2_);
@@ -67,6 +84,7 @@ TEST_F(LogicMonitorFixture, Transition_Succeeds)
 
 TEST_F(LogicMonitorFixture, Transition_Unknown)
 {
+    RecordProperty("Description", "Monitor failed to transition into unknown state.");
     // State transition.
     auto transition_result{logic_monitor_->transition(StateTag{"unknown"})};
     ASSERT_FALSE(transition_result.has_value());
@@ -75,6 +93,7 @@ TEST_F(LogicMonitorFixture, Transition_Unknown)
 
 TEST_F(LogicMonitorFixture, Transition_Invalid)
 {
+    RecordProperty("Description", "Monitor failed to transition from invalid state.");
     // State transition into invalid state.
     logic_monitor_->transition(StateTag{"unknown"});
 
@@ -86,6 +105,7 @@ TEST_F(LogicMonitorFixture, Transition_Invalid)
 
 TEST_F(LogicMonitorFixture, State_Succeeds)
 {
+    RecordProperty("Description", "Successfully obtained current state.");
     // State transition.
     logic_monitor_->transition(state2_);
 
@@ -97,6 +117,7 @@ TEST_F(LogicMonitorFixture, State_Succeeds)
 
 TEST_F(LogicMonitorFixture, State_Invalid)
 {
+    RecordProperty("Description", "Failed to obtain current state while being in an invalid state.");
     // State transition.
     logic_monitor_->transition(StateTag{"unknown"});
 

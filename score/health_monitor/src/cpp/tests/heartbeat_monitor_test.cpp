@@ -20,6 +20,10 @@ using namespace score::mw::health::heartbeat;
 
 TEST(HeartbeatMonitorBuilder, New_Succeeds)
 {
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "explorative-testing");
+    RecordProperty("Description", "Object successfully constructed.");
+
     using namespace std::chrono_literals;
     TimeRange range{100ms, 200ms};
     HeartbeatMonitorBuilder heartbeat_monitor_builder{range};
@@ -27,6 +31,10 @@ TEST(HeartbeatMonitorBuilder, New_Succeeds)
 
 TEST(HeartbeatMonitor, Heartbeat_Succeeds)
 {
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "explorative-testing");
+    RecordProperty("Description", "Heartbeat successfully used.");
+
     // Monitor must be obtained from HMON.
     // Initialize heartbeat monitor builder.
     using namespace std::chrono_literals;
