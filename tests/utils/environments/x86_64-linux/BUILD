@@ -11,10 +11,25 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 load("@rules_oci//oci:defs.bzl", "oci_image", "oci_load")
+load("@rules_pkg//pkg:mappings.bzl", "pkg_attributes", "pkg_files")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+
+pkg_files(
+    name = "ecu_logging_config_files",
+    srcs = ["//tests/utils/environments:ecu_logging_config.json"],
+    attributes = pkg_attributes(mode = "0644"),
+    prefix = "etc",
+)
+
+pkg_tar(
+    name = "ecu_logging_config_layer",
+    srcs = [":ecu_logging_config_files"],
+)
 
 oci_image(
     name = "image",
     base = "@debian-test-runtime",
+    tars = [":ecu_logging_config_layer"],
 )
 
 oci_load(

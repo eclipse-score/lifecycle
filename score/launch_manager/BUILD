@@ -49,6 +49,9 @@ cc_library(
     hdrs = ["execution_error.h"],
     include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager",
+    deps = [
+        "@score_baselibs//score/result",
+    ],
 )
 
 cc_library(
@@ -62,5 +65,16 @@ cc_library(
     deps = [
         ":error",
         "//score/launch_manager/daemon/src/common:identifier_hash",
+    ],
+)
+
+cc_test(
+    name = "exec_error_domain_UT",
+    srcs = ["exec_error_domain_UT.cpp"],
+    visibility = ["//tests:__subpackages__"],
+    deps = [
+        ":error",
+        "@googletest//:gtest_main",
+        "@score_baselibs//score/result",
     ],
 )

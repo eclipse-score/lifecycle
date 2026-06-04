@@ -26,8 +26,6 @@ table HmConfig {
   periodicity: uint32 (id:0);
   bufferSizeMonitor: uint16 (id:1);
   bufferSizeAliveSupervision: uint16 (id:2);
-  bufferSizeLocalSupervision: uint16 (id:3);
-  bufferSizeGlobalSupervision: uint16 (id:4);
 }
 
 root_type HMCOREEcuCfg;

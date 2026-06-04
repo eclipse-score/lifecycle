@@ -52,23 +52,6 @@ cc_library(
 )
 
 cc_library(
-    name = "i_checkpoint_supervision",
-    srcs = ["ICheckpointSupervision.cpp"],
-    hdrs = ["ICheckpointSupervision.hpp"],
-    include_prefix = "score/mw/launch_manager/alive_monitor/details/supervision",
-    strip_include_prefix = "/score/launch_manager/daemon/src/alive_monitor/details/supervision",
-    visibility = ["//score/launch_manager/daemon/src/alive_monitor:__subpackages__"],
-    deps = [
-        ":i_supervision",
-        ":process_state_tracker",
-        ":supervision_cfg",
-        "//score/launch_manager/daemon/src/alive_monitor:alive_monitor_h",
-        "//score/launch_manager/daemon/src/alive_monitor/details/common:observer",
-        "//score/launch_manager/daemon/src/alive_monitor/details/ifexm:process_state",
-    ],
-)
-
-cc_library(
     name = "alive",
     srcs = ["Alive.cpp"],
     hdrs = ["Alive.hpp"],
@@ -76,7 +59,7 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/daemon/src/alive_monitor/details/supervision",
     visibility = ["//score/launch_manager/daemon/src/alive_monitor:__subpackages__"],
     deps = [
-        ":i_checkpoint_supervision",
+        ":i_supervision",
         ":process_state_tracker",
         ":supervision_cfg",
         "//score/launch_manager/daemon/src/alive_monitor:alive_monitor_h",
@@ -85,48 +68,15 @@ cc_library(
         "//score/launch_manager/daemon/src/alive_monitor/details/ifexm:process_state",
         "//score/launch_manager/daemon/src/alive_monitor/details/logging:phm_logging",
         "//score/launch_manager/daemon/src/alive_monitor/details/timers:timers_os_clock",
+        "//score/launch_manager/daemon/src/recovery_client",
     ],
 )
 
-cc_library(
-    name = "local",
-    srcs = ["Local.cpp"],
-    hdrs = ["Local.hpp"],
-    include_prefix = "score/mw/launch_manager/alive_monitor/details/supervision",
-    strip_include_prefix = "/score/launch_manager/daemon/src/alive_monitor/details/supervision",
-    visibility = ["//score/launch_manager/daemon/src/alive_monitor:__subpackages__"],
+cc_test(
+    name = "Alive_UT",
+    srcs = ["Alive_UT.cpp"],
     deps = [
         ":alive",
-        ":i_checkpoint_supervision",
-        ":i_supervision",
-        ":supervision_cfg",
-        "//score/launch_manager/daemon/src/alive_monitor:alive_monitor_h",
-        "//score/launch_manager/daemon/src/alive_monitor/details/common:observer",
-        "//score/launch_manager/daemon/src/alive_monitor/details/common:time_sorting_buffer",
-        "//score/launch_manager/daemon/src/alive_monitor/details/logging:phm_logging",
-        "//score/launch_manager/daemon/src/alive_monitor/details/timers:timers_os_clock",
-    ],
-)
-
-cc_library(
-    name = "global",
-    srcs = ["Global.cpp"],
-    hdrs = ["Global.hpp"],
-    include_prefix = "score/mw/launch_manager/alive_monitor/details/supervision",
-    strip_include_prefix = "/score/launch_manager/daemon/src/alive_monitor/details/supervision",
-    visibility = ["//score/launch_manager/daemon/src/alive_monitor:__subpackages__"],
-    deps = [
-        ":i_checkpoint_supervision",
-        ":i_supervision",
-        ":local",
-        ":supervision_cfg",
-        "//score/launch_manager/daemon/src/alive_monitor:alive_monitor_h",
-        "//score/launch_manager/daemon/src/alive_monitor/details/common:observer",
-        "//score/launch_manager/daemon/src/alive_monitor/details/common:time_sorting_buffer",
-        "//score/launch_manager/daemon/src/alive_monitor/details/common:types",
-        "//score/launch_manager/daemon/src/alive_monitor/details/ifexm:process_state",
-        "//score/launch_manager/daemon/src/alive_monitor/details/logging:phm_logging",
-        "//score/launch_manager/daemon/src/alive_monitor/details/recovery:notification",
-        "//score/launch_manager/daemon/src/alive_monitor/details/timers:timers_os_clock",
+        "@googletest//:gtest_main",
     ],
 )

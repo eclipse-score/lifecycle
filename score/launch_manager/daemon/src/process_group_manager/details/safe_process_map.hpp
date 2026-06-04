@@ -18,7 +18,6 @@
 #include <atomic>
 #include <cstdint>
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
 
 namespace score {
 
@@ -26,10 +25,30 @@ namespace lcm {
 
 namespace internal {
 
+/// @brief Callback interface for process termination notification.
+///
+/// Decouples SafeProcessMap from concrete node types. Any object that needs to
+/// be notified when a tracked process terminates implements this interface.
+class ITerminationCallback {
+   public:
+    virtual ~ITerminationCallback() = default;
+
+    /// @brief Called when the associated process has terminated.
+    /// @param process_status The exit status reported by the operating system.
+    virtual void terminated(int32_t process_status) = 0;
+
+   protected:
+    ITerminationCallback() = default;
+    ITerminationCallback(const ITerminationCallback&) = default;
+    ITerminationCallback& operator=(const ITerminationCallback&) = default;
+    ITerminationCallback(ITerminationCallback&&) = default;
+    ITerminationCallback& operator=(ITerminationCallback&&) = default;
+};
+
 /// @brief Struct representing data in a map item
 struct ProcessInfoData {
-    int32_t status_ = -1;             ///< Exit status for process
-    ProcessInfoNode* pin_ = nullptr;  ///< Pointer to the ProcessInfoNode associated with this item.
+    int32_t status_ = -1;                  ///< Exit status for process
+    ITerminationCallback* pin_ = nullptr;  ///< Pointer to the termination callback associated with this item.
 };
 /// @brief Struct representing an item in the map.
 struct ProcessTreeNode {
@@ -39,7 +58,7 @@ struct ProcessTreeNode {
     ProcessInfoData data_;
 };
 
-/// @brief The SafeProcessMap class provides a thread-safe mapping of unique process IDs (ProcessID) to pointers of ProcessInfoNode objects.
+/// @brief The SafeProcessMap class provides a thread-safe mapping of unique process IDs (ProcessID) to ITerminationCallback pointers.
 /// It ensures safe concurrent access and modification of the mapping, using atomic operations.
 class SafeProcessMap final {
    public:
@@ -53,46 +72,46 @@ class SafeProcessMap final {
 
     /// @brief Finds a terminated process in the map.
     /// This method is called from OsHandler when a process terminates. It looks up the given process ID (key)
-    /// in the map and returns the associated ProcessInfoNode pointer if found. If the key is not found,
-    /// it is inserted in the map with the value "already_terminated" and that value is returned.
+    /// in the map and updates the process state accordingly. If the key is not found, it is inserted in the map
+    /// as already terminated.
     /// In the case of a clash due to PID re-use, this method yields until the situation is resolved.
     /// @param key The process ID to look for in the map.
-    /// @return 0 if the process was found and updated with the provided `pin_`,
-    ///         1 if the process was found and updated with the provided `object`,
+    /// @return 0 if the process ID was found and the registered callback was notified with `status`,
+    ///         1 if the process ID was not found and an already-terminated entry was inserted,
     ///         -1 if an error occurred during insertion (e.g., out of memory),
     ///         or -2 if the provided process ID (`key`) is not valid (< 0).
     int32_t findTerminated(osal::ProcessID key, int32_t status);
 
     /// @brief Inserts a process into the map if it has not already terminated.
     /// This method is called by a worker thread after starting a process. It attempts to insert the given process ID (key)
-    /// and its associated ProcessInfoNode pointer into the map, ensuring that the process is not already marked as terminated.
+    /// and its associated ITerminationCallback pointer into the map, ensuring that the process is not already marked as terminated.
     /// In the case of a clash due to PID re-use, this method yields until the situation is resolved.
     /// @param key The process ID to insert into the map.
-    /// @param object A pointer to the ProcessInfoNode associated with the process.
+    /// @param object A pointer to the ITerminationCallback associated with the process.
     /// @return 0 if the key (Process ID) was not found and a new entry was made,
     ///         1 if the key was found (indicating the process has terminated), and updated with the provided object,
     ///         -1 if an error occurred during insertion (e.g., out of memory),
     ///         or -2 if the provided process ID (`key`) is not valid ( < 0).
-    int32_t insertIfNotTerminated(osal::ProcessID key, ProcessInfoNode* object);
+    int32_t insertIfNotTerminated(osal::ProcessID key, ITerminationCallback* object);
 
    private:
     /// @brief Searches for a process with the given process ID (key) in the map.
     /// If found, updates or removes the entry based on provided conditions.
     /// If the provided process ID (key) is valid (> 0):
     ///          - If the process ID (key) is found in the map:
-    ///              - If `pin_` (ProcessInfoNode pointer) is not nullptr, uses it to set the return status in ProcessInfoNode, removes the key, and returns 0.
-    ///              - If `pin_` is nullptr, uses the provided ProcessInfoNode pointer to set the stored status, removes the key, and returns 1.
-    ///              - Behaviour under anamolous conditions (PID re-use where either both data.pin_ and stored pin_ are nullptr or both are not nullptr):
+    ///              - If `pin_` (ITerminationCallback pointer) is not nullptr, uses it to set the return status via the callback, removes the key, and returns 0.
+    ///              - If `pin_` is nullptr, uses the provided ITerminationCallback pointer to set the stored status, removes the key, and returns 1.
+    ///              - Behaviour under anomalous conditions (PID re-use where either both data.pin_ and stored pin_ are nullptr or both are not nullptr):
     ///                 yield() and then repeat the operation.
     ///          - If the process ID (key) is not found in the map:
     ///              - Adds the key (`key`), `pin_`, and `status` to the map.
     ///              - Returns -1 on failure to add (e.g., out of memory).
     /// @param key The process ID to search for or insert into the map.
     /// @param data The data to associate with the key
-    ///        data.object A pointer to the ProcessInfoNode associated with the process.
-    ///        data.status The status to set for the process if inserted.
+    ///        data.pin_ A pointer to the ITerminationCallback associated with the process.
+    ///        data.status_ The status to set for the process if inserted.
     /// @return 0 if the process was found and updated with the provided `pin_`,
-    ///         1 if the process was found and updated with the provided `object`,
+    ///         1 if the process was found and updated with the provided callback pointer in `data.pin_`,
     ///         -1 if an error occurred during insertion (e.g., out of memory),
     ///         or -2 if the provided process ID (`key`) is not valid ( < 0).
     int32_t search(osal::ProcessID key, ProcessInfoData data);
