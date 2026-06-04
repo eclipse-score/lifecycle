@@ -18,13 +18,25 @@
 using namespace score::mw::health;
 using namespace score::mw::health::deadline;
 
-TEST(DeadlineMonitorBuilder, New_Succeeds)
+class DeadlineMonitorBuilderFixture : public ::testing::Test
 {
+  protected:
+    void SetUp() override
+    {
+        RecordProperty("TestType", "interface-test");
+        RecordProperty("DerivationTechnique", "explorative-testing");
+    }
+};
+
+TEST_F(DeadlineMonitorBuilderFixture, New_Succeeds)
+{
+    RecordProperty("Description", "Object successfully constructed.");
     DeadlineMonitorBuilder deadline_monitor_builder;
 }
 
-TEST(DeadlineMonitorBuilder, AddDeadline_Succeeds)
+TEST_F(DeadlineMonitorBuilderFixture, AddDeadline_Succeeds)
 {
+    RecordProperty("Description", "Deadline successfully added.");
     using namespace std::chrono_literals;
     DeadlineTag deadline_tag{"deadline"};
     TimeRange range{50ms, 150ms};
@@ -38,6 +50,9 @@ class DeadlineMonitorFixture : public ::testing::Test
 
     void SetUp() override
     {
+        RecordProperty("TestType", "interface-test");
+        RecordProperty("DerivationTechnique", "explorative-testing");
+
         // Monitor must be obtained from HMON.
         // Initialize deadline monitor builder.
         using namespace std::chrono_literals;
@@ -62,6 +77,7 @@ class DeadlineMonitorFixture : public ::testing::Test
 
 TEST_F(DeadlineMonitorFixture, GetDeadline_Succeeds)
 {
+    RecordProperty("Description", "Deadline successfully obtained using known tag.");
     // Get deadline.
     auto get_deadline_result{deadline_monitor_->get_deadline(DeadlineTag{"deadline"})};
     ASSERT_TRUE(get_deadline_result.has_value());
@@ -69,6 +85,7 @@ TEST_F(DeadlineMonitorFixture, GetDeadline_Succeeds)
 
 TEST_F(DeadlineMonitorFixture, GetDeadline_Unknown)
 {
+    RecordProperty("Description", "Deadline failed to be obtained due to unknown tag.");
     // Get deadline.
     auto get_deadline_result{deadline_monitor_->get_deadline(DeadlineTag{"unknown"})};
     ASSERT_FALSE(get_deadline_result.has_value());
@@ -81,6 +98,7 @@ class DeadlineFixture : public DeadlineMonitorFixture
 
 TEST_F(DeadlineFixture, Start_Succeeds)
 {
+    RecordProperty("Description", "Deadline successfully started and stopped.");
     // Get deadline.
     DeadlineTag deadline_tag{"deadline"};
     auto get_deadline_result{deadline_monitor_->get_deadline(deadline_tag)};
@@ -97,6 +115,7 @@ TEST_F(DeadlineFixture, Start_Succeeds)
 
 TEST_F(DeadlineFixture, Start_AlreadyRunning)
 {
+    RecordProperty("Description", "Deadline failed to start twice.");
     // Get deadline.
     DeadlineTag deadline_tag{"deadline"};
     auto get_deadline_result{deadline_monitor_->get_deadline(deadline_tag)};
