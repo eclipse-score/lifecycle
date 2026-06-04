@@ -137,6 +137,8 @@
         "evaluation_cycle": 0.05
     },
     "fallback_run_target": {
-        "depends_on": []
+        "depends_on": [
+            "control_daemon"
+        ]
     }
 }
