@@ -29,7 +29,7 @@ pkg_files(
         "//examples/cpp_lifecycle_app",
         "//examples/cpp_supervised_app",
         "//examples/rust_supervised_app",
-        "//score/mw/lifecycle:launch_manager",
+        "//score/launch_manager:launch_manager",
     ],
     attributes = pkg_attributes(mode = "0755"),
     prefix = "tests/examples",
