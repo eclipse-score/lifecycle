@@ -774,7 +774,7 @@ test heartbeat::heartbeat_monitor::loom_tests::heartbeat_monitor_heartbeat_evalu
 test heartbeat::heartbeat_monitor::loom_tests::heartbeat_monitor_heartbeat_evaluate_in_range ... ok
 test heartbeat::heartbeat_monitor::loom_tests::heartbeat_monitor_heartbeat_evaluate_too_late ... ok
 
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.71s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.70s
 </pre></div>
 </div>
 <p class="rubric">tests-report/score/health_monitor/src/cpp/cpp_integration_tests/test.log</p>
@@ -786,14 +786,14 @@ Running main() from gmock_main.cc
 [----------] Global test environment set-up.
 [----------] 1 test from HealthMonitorTest
 [ RUN      ] HealthMonitorTest.Integrated
-[2026/06/04 18:15:34.7502534][score/health_monitor/src/rust/deadline/deadline_monitor.rs:217][5036][HMON][ERROR] Deadline DeadlineTag(deadline_1) stopped too early by 100 ms
-[2026/06/04 18:15:34.7512136][score/health_monitor/src/rust/worker.rs:121][5036][HMON][INFO] Monitoring thread started.
-[2026/06/04 18:15:34.7512316][score/health_monitor/src/rust/worker.rs:139][5036][HMON][INFO] Monitoring thread exiting.
-[       OK ] HealthMonitorTest.Integrated (2 ms)
-[----------] 1 test from HealthMonitorTest (2 ms total)
+[2026/06/05 07:45:56.5134290][score/health_monitor/src/rust/deadline/deadline_monitor.rs:217][4895][HMON][ERROR] Deadline DeadlineTag(deadline_1) stopped too early by 100 ms
+[2026/06/05 07:45:56.5136052][score/health_monitor/src/rust/worker.rs:121][4895][HMON][INFO] Monitoring thread started.
+[2026/06/05 07:45:56.5136196][score/health_monitor/src/rust/worker.rs:139][4895][HMON][INFO] Monitoring thread exiting.
+[       OK ] HealthMonitorTest.Integrated (0 ms)
+[----------] 1 test from HealthMonitorTest (0 ms total)
 
 [----------] Global test environment tear-down
-[==========] 1 test from 1 test suite ran. (2 ms total)
+[==========] 1 test from 1 test suite ran. (1 ms total)
 [  PASSED  ] 1 test.
 </pre></div>
 </div>
@@ -820,11 +820,11 @@ Running main() from gmock_main.cc
 
 [----------] 2 tests from DeadlineFixture
 [ RUN      ] DeadlineFixture.Start_Succeeds
-[2026/06/04 18:15:35.3029877][score/health_monitor/src/rust/deadline/deadline_monitor.rs:217][5064][HMON][ERROR] Deadline DeadlineTag(deadline) stopped too early by 50 ms
+[2026/06/05 07:45:56.5789192][score/health_monitor/src/rust/deadline/deadline_monitor.rs:217][4917][HMON][ERROR] Deadline DeadlineTag(deadline) stopped too early by 50 ms
 [       OK ] DeadlineFixture.Start_Succeeds (0 ms)
 [ RUN      ] DeadlineFixture.Start_AlreadyRunning
-[2026/06/04 18:15:35.3030499][score/health_monitor/src/rust/deadline/deadline_monitor.rs:217][5064][HMON][ERROR] Deadline DeadlineTag(deadline) stopped too early by 50 ms
-[2026/06/04 18:15:35.3030580][score/health_monitor/src/rust/deadline/deadline_monitor.rs:172][5064][HMON][WARN] Trying to start deadline DeadlineTag(deadline) that already failed
+[2026/06/05 07:45:56.5789866][score/health_monitor/src/rust/deadline/deadline_monitor.rs:217][4917][HMON][ERROR] Deadline DeadlineTag(deadline) stopped too early by 50 ms
+[2026/06/05 07:45:56.5789975][score/health_monitor/src/rust/deadline/deadline_monitor.rs:172][4917][HMON][WARN] Trying to start deadline DeadlineTag(deadline) that already failed
 [       OK ] DeadlineFixture.Start_AlreadyRunning (0 ms)
 [----------] 2 tests from DeadlineFixture (0 ms total)
 
@@ -834,10 +834,10 @@ Running main() from gmock_main.cc
 [ RUN      ] HealthMonitorBuilderFixture.Build_Succeeds
 [       OK ] HealthMonitorBuilderFixture.Build_Succeeds (0 ms)
 [ RUN      ] HealthMonitorBuilderFixture.Build_InvalidCycles
-[2026/06/04 18:15:35.3032259][score/health_monitor/src/rust/health_monitor.rs:134][5064][HMON][ERROR] Supervisor API cycle duration (123 ms) must be a multiple of internal processing cycle interval (100 ms).
+[2026/06/05 07:45:56.5791334][score/health_monitor/src/rust/health_monitor.rs:134][4917][HMON][ERROR] Supervisor API cycle duration (123 ms) must be a multiple of internal processing cycle interval (100 ms).
 [       OK ] HealthMonitorBuilderFixture.Build_InvalidCycles (0 ms)
 [ RUN      ] HealthMonitorBuilderFixture.Build_NoMonitors
-[2026/06/04 18:15:35.3032533][score/health_monitor/src/rust/health_monitor.rs:146][5064][HMON][ERROR] No monitors have been added. HealthMonitor cannot be created.
+[2026/06/05 07:45:56.5791596][score/health_monitor/src/rust/health_monitor.rs:146][4917][HMON][ERROR] No monitors have been added. HealthMonitor cannot be created.
 [       OK ] HealthMonitorBuilderFixture.Build_NoMonitors (0 ms)
 [----------] 4 tests from HealthMonitorBuilderFixture (0 ms total)
 
@@ -861,13 +861,13 @@ Running main() from gmock_main.cc
 [ RUN      ] HealthMonitor.GetLogicMonitor_Unknown
 [       OK ] HealthMonitor.GetLogicMonitor_Unknown (0 ms)
 [ RUN      ] HealthMonitor.Start_Succeeds
-[2026/06/04 18:15:35.3035565][score/health_monitor/src/rust/worker.rs:121][5064][HMON][INFO] Monitoring thread started.
-[2026/06/04 18:15:35.3035685][score/health_monitor/src/rust/worker.rs:139][5064][HMON][INFO] Monitoring thread exiting.
-[       OK ] HealthMonitor.Start_Succeeds (0 ms)
+[2026/06/05 07:45:56.5795065][score/health_monitor/src/rust/worker.rs:121][4917][HMON][INFO] Monitoring thread started.
+[2026/06/05 07:45:56.5795268][score/health_monitor/src/rust/worker.rs:139][4917][HMON][INFO] Monitoring thread exiting.
+[       OK ] HealthMonitor.Start_Succeeds (1 ms)
 [ RUN      ] HealthMonitor.Start_MonitorsNotTaken
-[2026/06/04 18:15:35.3042304][score/health_monitor/src/rust/health_monitor.rs:307][5069][HMON][ERROR] All monitors must be taken before starting HealthMonitor but MonitorTag(deadline_monitor) is not taken.
-[       OK ] HealthMonitor.Start_MonitorsNotTaken (819 ms)
-[----------] 11 tests from HealthMonitor (820 ms total)
+[2026/06/05 07:45:56.6175908][score/health_monitor/src/rust/health_monitor.rs:307][4924][HMON][ERROR] All monitors must be taken before starting HealthMonitor but MonitorTag(deadline_monitor) is not taken.
+[       OK ] HealthMonitor.Start_MonitorsNotTaken (500 ms)
+[----------] 11 tests from HealthMonitor (537 ms total)
 
 [----------] 1 test from HeartbeatMonitorBuilder
 [ RUN      ] HeartbeatMonitorBuilder.New_Succeeds
@@ -890,31 +890,31 @@ Running main() from gmock_main.cc
 [ RUN      ] LogicMonitorFixture.Transition_Succeeds
 [       OK ] LogicMonitorFixture.Transition_Succeeds (0 ms)
 [ RUN      ] LogicMonitorFixture.Transition_Unknown
-[2026/06/04 18:15:36.1237790][score/health_monitor/src/rust/logic/logic_monitor.rs:265][5064][HMON][WARN] Requested state transition is invalid: StateTag(state1) -&gt; StateTag(unknown)
+[2026/06/05 07:45:57.1169760][score/health_monitor/src/rust/logic/logic_monitor.rs:265][4917][HMON][WARN] Requested state transition is invalid: StateTag(state1) -&gt; StateTag(unknown)
 [       OK ] LogicMonitorFixture.Transition_Unknown (0 ms)
 [ RUN      ] LogicMonitorFixture.Transition_Invalid
-[2026/06/04 18:15:36.1238481][score/health_monitor/src/rust/logic/logic_monitor.rs:265][5064][HMON][WARN] Requested state transition is invalid: StateTag(state1) -&gt; StateTag(unknown)
-[2026/06/04 18:15:36.1238590][score/health_monitor/src/rust/logic/logic_monitor.rs:254][5064][HMON][WARN] Current logic monitor state cannot be determined
+[2026/06/05 07:45:57.1170657][score/health_monitor/src/rust/logic/logic_monitor.rs:265][4917][HMON][WARN] Requested state transition is invalid: StateTag(state1) -&gt; StateTag(unknown)
+[2026/06/05 07:45:57.1170783][score/health_monitor/src/rust/logic/logic_monitor.rs:254][4917][HMON][WARN] Current logic monitor state cannot be determined
 [       OK ] LogicMonitorFixture.Transition_Invalid (0 ms)
 [ RUN      ] LogicMonitorFixture.State_Succeeds
 [       OK ] LogicMonitorFixture.State_Succeeds (0 ms)
 [ RUN      ] LogicMonitorFixture.State_Invalid
-[2026/06/04 18:15:36.1239974][score/health_monitor/src/rust/logic/logic_monitor.rs:265][5064][HMON][WARN] Requested state transition is invalid: StateTag(state1) -&gt; StateTag(unknown)
-[2026/06/04 18:15:36.1240152][score/health_monitor/src/rust/logic/logic_monitor.rs:290][5064][HMON][WARN] Current logic monitor state cannot be determined
+[2026/06/05 07:45:57.1217592][score/health_monitor/src/rust/logic/logic_monitor.rs:265][4917][HMON][WARN] Requested state transition is invalid: StateTag(state1) -&gt; StateTag(unknown)
+[2026/06/05 07:45:57.1217919][score/health_monitor/src/rust/logic/logic_monitor.rs:290][4917][HMON][WARN] Current logic monitor state cannot be determined
 [       OK ] LogicMonitorFixture.State_Invalid (0 ms)
-[----------] 5 tests from LogicMonitorFixture (0 ms total)
+[----------] 5 tests from LogicMonitorFixture (4 ms total)
 
 [----------] 3 tests from TimeRangeFixture
 [ RUN      ] TimeRangeFixture.New_Succeeds
 [       OK ] TimeRangeFixture.New_Succeeds (0 ms)
 [ RUN      ] TimeRangeFixture.New_InvalidOrder
-[       OK ] TimeRangeFixture.New_InvalidOrder (198 ms)
+[       OK ] TimeRangeFixture.New_InvalidOrder (226 ms)
 [ RUN      ] TimeRangeFixture.MinMax
 [       OK ] TimeRangeFixture.MinMax (0 ms)
-[----------] 3 tests from TimeRangeFixture (198 ms total)
+[----------] 3 tests from TimeRangeFixture (226 ms total)
 
 [----------] Global test environment tear-down
-[==========] 33 tests from 10 test suites ran. (1020 ms total)
+[==========] 33 tests from 10 test suites ran. (770 ms total)
 [  PASSED  ] 33 tests.
 </pre></div>
 </div>
