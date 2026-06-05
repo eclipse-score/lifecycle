@@ -59,6 +59,12 @@ score::cpp::expected<TargetT, IConfigLoader::Error> validateRange(uint32_t value
     return static_cast<TargetT>(value);
 }
 
+template <typename T>
+std::optional<T> optionalScalarValue(const ::flatbuffers::Optional<T>& field)
+{
+    return field.has_value() ? std::optional<T>{*field} : std::nullopt;
+}
+
 }  // anonymous namespace
 
 namespace details
@@ -257,12 +263,8 @@ score::cpp::expected<ComponentAliveSupervision, IConfigLoader::Error> convertCom
         }
         result.reporting_cycle_ms = *reporting_cycle_ms;
         result.failed_cycles_tolerance = *failed_cycles_tolerance;
-        result.min_indications = fb_cas->min_indications().has_value()
-                                     ? std::optional<uint32_t>{*fb_cas->min_indications()}
-                                     : std::nullopt;
-        result.max_indications = fb_cas->max_indications().has_value()
-                                     ? std::optional<uint32_t>{*fb_cas->max_indications()}
-                                     : std::nullopt;
+        result.min_indications = optionalScalarValue(fb_cas->min_indications());
+        result.max_indications = optionalScalarValue(fb_cas->max_indications());
 
         if (!result.min_indications.has_value() && !result.max_indications.has_value())
         {
@@ -401,10 +403,8 @@ score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(const fb::San
                                  : std::nullopt;
     result.scheduling_policy = *scheduling_policy;
     result.scheduling_priority = *scheduling_priority;
-    result.max_memory_usage =
-        fb_sb->max_memory_usage().has_value() ? std::optional<uint64_t>{*fb_sb->max_memory_usage()} : std::nullopt;
-    result.max_cpu_usage =
-        fb_sb->max_cpu_usage().has_value() ? std::optional<uint32_t>{*fb_sb->max_cpu_usage()} : std::nullopt;
+    result.max_memory_usage = optionalScalarValue(fb_sb->max_memory_usage());
+    result.max_cpu_usage = optionalScalarValue(fb_sb->max_cpu_usage());
     return result;
 }
 
