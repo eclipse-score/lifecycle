@@ -17,7 +17,6 @@
 #include <cstdint>
 #include <variant>
 
-#include "score/mw/launch_manager/alive_monitor/Monitor.h"
 #include "score/mw/launch_manager/alive_monitor/details/common/Observer.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/common/TimeSortingBuffer.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/Checkpoint.hpp"

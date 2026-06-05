@@ -33,7 +33,7 @@ MonitorImpl::MonitorImpl(const std::string_view& f_instanceSpecifier_r,
     connectToPhmDaemon();
 }
 
-void MonitorImpl::ReportCheckpoint(Checkpoint f_checkpointId) const noexcept(true)
+void MonitorImpl::ReportCheckpoint(std::uint32_t f_checkpointId) const noexcept(true)
 {
     (void)ipcClient->sendEmplace(score::lcm::saf::timers::OsClock::getMonotonicSystemClock(), f_checkpointId);
 }

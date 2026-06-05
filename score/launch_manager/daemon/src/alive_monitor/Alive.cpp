@@ -12,6 +12,45 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/alive_monitor/Alive.h"
+#include "score/mw/launch_manager/alive_monitor/details/MonitorImplWrapper.h"
+
+#include <utility>
+
+namespace score::mw::lifecycle
+{
+
+Alive::Alive(const std::string_view& instance) noexcept(false) :
+    monitorImplWrapperPtr(std::make_unique<MonitorImplWrapper>(instance))
+{
+}
+
+Alive::Alive(Alive&& se) noexcept :
+    monitorImplWrapperPtr(std::move(se.monitorImplWrapperPtr))
+{
+}
+
+Alive& Alive::operator=(Alive&& se) noexcept
+{
+    if (this != &se)
+    {
+        monitorImplWrapperPtr.reset(nullptr);
+        monitorImplWrapperPtr = std::move(se.monitorImplWrapperPtr);
+    }
+
+    return *this;
+}
+
+Alive::~Alive() noexcept = default;
+
+void Alive::ReportCheckpoint(std::uint32_t checkpointId) const noexcept
+{
+    if (monitorImplWrapperPtr.get() != nullptr)
+    {
+        monitorImplWrapperPtr->ReportCheckpoint(checkpointId);
+    }
+}
+
+}  // namespace score::mw::lifecycle
 
 enum class Dummy : std::uint32_t {};
 
@@ -21,7 +60,7 @@ extern "C" {
 
 void* score_lcm_monitor_initialize(const char* instanceSpecifier) noexcept {
     try {
-        auto* monitorPtr = new score::mw::lifecycle::Alive<Dummy>(instanceSpecifier);
+        auto* monitorPtr = new score::mw::lifecycle::Alive(instanceSpecifier);
         return static_cast<void*>(monitorPtr);
     } catch (...) {
         return nullptr;
@@ -29,12 +68,12 @@ void* score_lcm_monitor_initialize(const char* instanceSpecifier) noexcept {
 }
 
 void score_lcm_monitor_deinitialize(void* instance) noexcept {
-    auto* monitorPtr = static_cast<score::mw::lifecycle::Alive<Dummy>*>(instance);
+    auto* monitorPtr = static_cast<score::mw::lifecycle::Alive*>(instance);
     delete monitorPtr;
 }
 
 void score_lcm_monitor_report_checkpoint(void* instance, std::uint32_t checkpointId) noexcept {
-    static_cast<score::mw::lifecycle::Alive<Dummy>*>(instance)->ReportCheckpoint(static_cast<Dummy>(checkpointId));
+    static_cast<score::mw::lifecycle::Alive*>(instance)->ReportCheckpoint(checkpointId);
 }
 
 #ifdef __cplusplus

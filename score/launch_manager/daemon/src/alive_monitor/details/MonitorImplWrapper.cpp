@@ -11,10 +11,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "score/mw/launch_manager/alive_monitor/MonitorImplWrapper.h"
+#include "score/mw/launch_manager/alive_monitor/details/MonitorImplWrapper.h"
 
 #include "score/mw/launch_manager/alive_monitor/details/MonitorImpl.h"
-#include "score/mw/launch_manager/alive_monitor/Alive.h"
 
 namespace score::mw::lifecycle
 {

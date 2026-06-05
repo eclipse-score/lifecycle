@@ -16,16 +16,15 @@
 
 #include <cstdint>
 #include <memory>
-#include <type_traits>
-#include <utility>
-
-#include "score/mw/launch_manager/alive_monitor/MonitorImplWrapper.h"
+#include <string_view>
 
 namespace score::mw::lifecycle
 {
 
+// Forward declaration
+class MonitorImplWrapper;
+
 /// @brief Alive Class
-template <typename EnumT>
 class Alive
 {
 public:
@@ -35,20 +34,14 @@ public:
     /// @throws std::bad_alloc in case of insufficient memory
     /* RULECHECKER_comment(0, 11, check_unique_ptr_construction, "monitorImplWrapperPtr uses unique pointer\
        as type-casting to void pointer from make_unique is not possible", true_no_defect) */
-    explicit Monitor(const std::string_view& instance) noexcept(false) :
-        monitorImplWrapperPtr(std::make_unique<MonitorImplWrapper>(instance))
-    {
-    }
+    explicit Alive(const std::string_view& instance) noexcept(false);
 
     /// @brief The copy constructor for Alive shall not be used.
     Alive(const Alive& se) = delete;
 
     /// @brief Move constructor for Alive
     /// @param [in,out] se  The Alive object to be moved
-    Alive(Alive&& se) noexcept :
-        monitorImplWrapperPtr(std::move(se.monitorImplWrapperPtr))
-    {
-    }
+    Alive(Alive&& se) noexcept;
 
     /// @brief The copy assignment operator for Alive shall not be used.
     Alive& operator=(const Alive& se) = delete;
@@ -56,21 +49,10 @@ public:
     /// @brief Move assignment operator for Alive
     /// @param [in,out] se  The Alive object to be moved
     /// @return The moved Alive object
-    Alive& operator=(Alive&& se) noexcept
-    {
-        if (this != &se)
-        {
-            monitorImplWrapperPtr.reset(nullptr);
-            monitorImplWrapperPtr = std::move(se.monitorImplWrapperPtr);
-        }
-
-        return *this;
-    }
+    Alive& operator=(Alive&& se) noexcept;
 
     /// @brief Destructor of an Alive
-    virtual ~Monitor() noexcept
-    {
-    }
+    virtual ~Alive() noexcept;
 
     /// @brief Reports an occurrence of a Checkpoint
     /// @param [in] checkpointId  Checkpoint identifier.
@@ -78,31 +60,11 @@ public:
     /// Report Checkpoint is NOT thread safe.
     /// In case a Monitor is shared between threads or in case two Monitor's are constructed
     /// with the same instance specifier in different threads a common lock before calling ReportCheckpoint is required.
-    void ReportCheckpoint(EnumT checkpointId) const noexcept
-    {
-        if (monitorImplWrapperPtr.get() != nullptr)
-        {
-            monitorImplWrapperPtr->ReportCheckpoint(static_cast<score::mw::lifecycle::Checkpoint>(checkpointId));
-        }
-    }
+    void ReportCheckpoint(std::uint32_t checkpointId) const noexcept;
 
 private:
     /// @brief Unique pointer to the wrapper of implementation class of Monitor
     std::unique_ptr<MonitorImplWrapper> monitorImplWrapperPtr;
-
-    /// @brief Assert if Monitor class is constructed with an enumeration type
-    static_assert(std::is_enum<EnumT>::value,
-                  "Monitor class must be constructed with template type "
-                  "which is an enumeration class!");
-
-    /// @brief Underlying data type of the used template argument
-    using underlyingCheckpointIdType = typename std::underlying_type<EnumT>::type;
-
-    /// @brief Assert if enumeration used during the construction of Monitor class
-    ///        is of the type std::uint32_t
-    static_assert(std::is_same<underlyingCheckpointIdType, score::mw::lifecycle::Checkpoint>::value,
-                  "The enumeration class used during the construction of Monitor class must be of "
-                  "type 'std::uint32_t'!");
 };
 
 #ifdef __cplusplus

@@ -20,10 +20,6 @@
 
 namespace score::mw::lifecycle
 {
-
-/// @brief Represents a Checkpoint
-using Checkpoint = std::uint32_t;
-
 /// @brief Forward Declaration for them Implementation class for Monitor
 class MonitorImpl;
 
@@ -67,7 +63,7 @@ public:
 
     /// @brief Reports an occurrence of a Checkpoint
     /// @param [in] f_checkpointId   Checkpoint identifier.
-    void ReportCheckpoint(score::mw::lifecycle::Checkpoint f_checkpointId) const noexcept(true);
+    void ReportCheckpoint(std::uint32_t f_checkpointId) const noexcept(true);
 
 private:
     /// @brief Unique pointer to the implementation class of Monitor

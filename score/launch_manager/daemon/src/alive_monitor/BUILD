@@ -41,7 +41,6 @@ cc_library(
     name = "alive_monitor_h",
     hdrs = [
         "Alive.h",
-        "MonitorImplWrapper.h",
     ],
     include_prefix = "score/mw/launch_manager/alive_monitor",
     strip_include_prefix = "/score/launch_manager/daemon/src/alive_monitor",
@@ -52,18 +51,16 @@ cc_library(
     name = "am-lib",
     srcs = [
         "Alive.cpp",
-        "MonitorImplWrapper.cpp",
     ],
     hdrs = [
         "Alive.h",
-        "MonitorImplWrapper.h",
     ],
     include_prefix = "score/mw/launch_manager/alive_monitor",
     strip_include_prefix = "/score/launch_manager/daemon/src/alive_monitor",
     visibility = ["//score:__subpackages__"],
     deps = [
         ":alive_monitor_h",
-        "//score/launch_manager/daemon/src/alive_monitor/details:monitor_impl",
+        "//score/launch_manager/daemon/src/alive_monitor/details:monitor_impl_wrapper",
     ] + select({
         "@platforms//os:qnx": [],
         "@platforms//os:linux": ["//externals/acl"],
@@ -82,7 +79,6 @@ cc_library(
     name = "am_shared_lib",
     hdrs = [
         "Alive.h",
-        "MonitorImplWrapper.h",
     ],
     include_prefix = "score/mw/launch_manager/alive_monitor",
     strip_include_prefix = "/score/launch_manager/daemon/src/alive_monitor",

@@ -18,8 +18,6 @@
 #include <utility>
 
 #include <string>
-#include "score/mw/launch_manager/alive_monitor/MonitorImplWrapper.h"
-#include "score/mw/launch_manager/alive_monitor/Alive.h"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/DataStructures.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ipc/IpcClient.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/logging/PhmLogger.hpp"
@@ -70,7 +68,7 @@ class MonitorImpl
 
     /// @brief Reports an occurrence of a Checkpoint
     /// @param [in] f_checkpointId   Checkpoint identifier.
-    void ReportCheckpoint(Checkpoint f_checkpointId) const noexcept(true);
+    void ReportCheckpoint(std::uint32_t f_checkpointId) const noexcept(true);
 
   private:
     /// @brief Connect the application process with PHM daemon using IPC
