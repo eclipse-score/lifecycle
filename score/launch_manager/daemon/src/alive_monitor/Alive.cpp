@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "score/mw/launch_manager/alive_monitor/Monitor.h"
+#include "score/mw/launch_manager/alive_monitor/Alive.h"
 
 enum class Dummy : std::uint32_t {};
 
@@ -21,7 +21,7 @@ extern "C" {
 
 void* score_lcm_monitor_initialize(const char* instanceSpecifier) noexcept {
     try {
-        auto* monitorPtr = new score::mw::lifecycle::Monitor<Dummy>(instanceSpecifier);
+        auto* monitorPtr = new score::mw::lifecycle::Alive<Dummy>(instanceSpecifier);
         return static_cast<void*>(monitorPtr);
     } catch (...) {
         return nullptr;
@@ -29,12 +29,12 @@ void* score_lcm_monitor_initialize(const char* instanceSpecifier) noexcept {
 }
 
 void score_lcm_monitor_deinitialize(void* instance) noexcept {
-    auto* monitorPtr = static_cast<score::mw::lifecycle::Monitor<Dummy>*>(instance);
+    auto* monitorPtr = static_cast<score::mw::lifecycle::Alive<Dummy>*>(instance);
     delete monitorPtr;
 }
 
 void score_lcm_monitor_report_checkpoint(void* instance, std::uint32_t checkpointId) noexcept {
-    static_cast<score::mw::lifecycle::Monitor<Dummy>*>(instance)->ReportCheckpoint(static_cast<Dummy>(checkpointId));
+    static_cast<score::mw::lifecycle::Alive<Dummy>*>(instance)->ReportCheckpoint(static_cast<Dummy>(checkpointId));
 }
 
 #ifdef __cplusplus

@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#ifndef SCORE_LCM_MONITOR_H_
-#define SCORE_LCM_MONITOR_H_
+#ifndef SCORE_LCM_ALIVE_H_
+#define SCORE_LCM_ALIVE_H_
 
 #include <cstdint>
 #include <memory>
@@ -24,13 +24,13 @@
 namespace score::mw::lifecycle
 {
 
-/// @brief Monitor Class
+/// @brief Alive Class
 template <typename EnumT>
-class Monitor
+class Alive
 {
 public:
-    /// @brief Creation of a Monitor.
-    /// @param [in] instance  Instance specifier of the Monitor
+    /// @brief Creation of an Alive.
+    /// @param [in] instance  Instance specifier of the Alive
     /// @throws std::runtime_error in case of an error loading the process-specific configuration
     /// @throws std::bad_alloc in case of insufficient memory
     /* RULECHECKER_comment(0, 11, check_unique_ptr_construction, "monitorImplWrapperPtr uses unique pointer\
@@ -40,23 +40,23 @@ public:
     {
     }
 
-    /// @brief The copy constructor for Monitor shall not be used.
-    Monitor(const Monitor& se) = delete;
+    /// @brief The copy constructor for Alive shall not be used.
+    Alive(const Alive& se) = delete;
 
-    /// @brief Move constructor for Monitor
-    /// @param [in,out] se  The Monitor object to be moved
-    Monitor(Monitor&& se) noexcept :
+    /// @brief Move constructor for Alive
+    /// @param [in,out] se  The Alive object to be moved
+    Alive(Alive&& se) noexcept :
         monitorImplWrapperPtr(std::move(se.monitorImplWrapperPtr))
     {
     }
 
-    /// @brief The copy assignment operator for Monitor shall not be used.
-    Monitor& operator=(const Monitor& se) = delete;
+    /// @brief The copy assignment operator for Alive shall not be used.
+    Alive& operator=(const Alive& se) = delete;
 
-    /// @brief Move assignment operator for Monitor
-    /// @param [in,out] se  The Monitor object to be moved
-    /// @return The moved Monitor object
-    Monitor& operator=(Monitor&& se) noexcept
+    /// @brief Move assignment operator for Alive
+    /// @param [in,out] se  The Alive object to be moved
+    /// @return The moved Alive object
+    Alive& operator=(Alive&& se) noexcept
     {
         if (this != &se)
         {
@@ -67,7 +67,7 @@ public:
         return *this;
     }
 
-    /// @brief Destructor of a Monitor
+    /// @brief Destructor of an Alive
     virtual ~Monitor() noexcept
     {
     }
@@ -117,4 +117,4 @@ extern "C"
 #endif
 
 }  // namespace score::mw::lifecycle
-#endif
+#endif  // SCORE_LCM_ALIVE_H_

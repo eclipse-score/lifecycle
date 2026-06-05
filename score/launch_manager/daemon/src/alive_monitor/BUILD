@@ -40,7 +40,7 @@ cc_library(
 cc_library(
     name = "alive_monitor_h",
     hdrs = [
-        "Monitor.h",
+        "Alive.h",
         "MonitorImplWrapper.h",
     ],
     include_prefix = "score/mw/launch_manager/alive_monitor",
@@ -51,11 +51,11 @@ cc_library(
 cc_library(
     name = "am-lib",
     srcs = [
-        "Monitor.cpp",
+        "Alive.cpp",
         "MonitorImplWrapper.cpp",
     ],
     hdrs = [
-        "Monitor.h",
+        "Alive.h",
         "MonitorImplWrapper.h",
     ],
     include_prefix = "score/mw/launch_manager/alive_monitor",
@@ -81,7 +81,7 @@ cc_library(
 cc_library(
     name = "am_shared_lib",
     hdrs = [
-        "Monitor.h",
+        "Alive.h",
         "MonitorImplWrapper.h",
     ],
     include_prefix = "score/mw/launch_manager/alive_monitor",

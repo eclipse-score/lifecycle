@@ -19,7 +19,7 @@
 
 #include <string>
 #include "score/mw/launch_manager/alive_monitor/MonitorImplWrapper.h"
-#include "score/mw/launch_manager/alive_monitor/Monitor.h"
+#include "score/mw/launch_manager/alive_monitor/Alive.h"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/DataStructures.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ipc/IpcClient.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/logging/PhmLogger.hpp"
