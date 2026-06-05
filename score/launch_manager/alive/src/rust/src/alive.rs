@@ -11,14 +11,14 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 use crate::errors;
-use libc::{c_char, c_uint, c_void};
+use libc::{c_char, c_void};
 use std::ffi::CString;
 
 #[link(name = "lifecycle_client")]
 unsafe extern "C" {
     fn score_lcm_alive_initialize(instanceSpecifier: *const c_char) -> *mut c_void;
     fn score_lcm_alive_deinitialize(instance: *mut c_void);
-    fn score_lcm_alive_report_checkpoint(instance: *mut c_void, checkpoint_id: c_uint);
+    fn score_lcm_alive_report_alive(instance: *mut c_void);
 }
 
 pub struct Alive {
@@ -47,10 +47,9 @@ impl Alive {
         Ok(tmp_inst)
     }
 
-    pub fn report_checkpoint(&self, checkpoint_id: u32) {
-        let id: u32 = checkpoint_id.into();
+    pub fn report_alive(&self) {
         unsafe {
-            score_lcm_alive_report_checkpoint(self.instance_ptr, id);
+            score_lcm_alive_report_alive(self.instance_ptr);
         }
     }
 }

@@ -16,6 +16,9 @@
 
 #include <utility>
 
+// The public API is only sending alive notification. No need to support different checkpoints.
+static constexpr std::uint32_t kDefaultCheckpointId{1U};
+
 namespace score::mw::lifecycle
 {
 
@@ -42,11 +45,11 @@ Alive& Alive::operator=(Alive&& se) noexcept
 
 Alive::~Alive() noexcept = default;
 
-void Alive::ReportCheckpoint(std::uint32_t checkpointId) const noexcept
+void Alive::ReportAlive() const noexcept
 {
     if (aliveImplPtr.get() != nullptr)
     {
-        aliveImplPtr->ReportCheckpoint(checkpointId);
+        aliveImplPtr->ReportCheckpoint(kDefaultCheckpointId);
     }
 }
 
@@ -72,8 +75,8 @@ void score_lcm_alive_deinitialize(void* instance) noexcept {
     delete alivePtr;
 }
 
-void score_lcm_alive_report_checkpoint(void* instance, std::uint32_t checkpointId) noexcept {
-    static_cast<score::mw::lifecycle::Alive*>(instance)->ReportCheckpoint(checkpointId);
+void score_lcm_alive_report_alive(void* instance) noexcept {
+    static_cast<score::mw::lifecycle::Alive*>(instance)->ReportAlive();
 }
 
 #ifdef __cplusplus

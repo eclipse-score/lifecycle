@@ -52,13 +52,10 @@ public:
     /// @brief Destructor of an Alive
     virtual ~Alive() noexcept;
 
-    /// @brief Reports an occurrence of a Checkpoint
-    /// @param [in] checkpointId  Checkpoint identifier.
+    /// @brief Reports an alive notification
     /// @remark Thread safety:
-    /// Report Checkpoint is NOT thread safe.
-    /// In case a Monitor is shared between threads or in case two Monitor's are constructed
-    /// with the same instance specifier in different threads a common lock before calling ReportCheckpoint is required.
-    void ReportCheckpoint(std::uint32_t checkpointId) const noexcept;
+    /// This method is NOT thread safe.
+    void ReportAlive() const noexcept;
 
 private:
     /// @brief Unique pointer to implementation class of Alive
@@ -71,7 +68,7 @@ extern "C"
 #endif
     void* score_lcm_alive_initialize(const char* instanceSpecifier) noexcept;
     void score_lcm_alive_deinitialize(void* instance) noexcept;
-    void score_lcm_alive_report_checkpoint(void* instance, std::uint32_t checkpointId) noexcept;
+    void score_lcm_alive_report_alive(void* instance) noexcept;
 #ifdef __cplusplus
 }
 #endif

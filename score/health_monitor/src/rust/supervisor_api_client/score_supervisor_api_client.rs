@@ -15,7 +15,6 @@
 
 use crate::log::debug;
 use crate::supervisor_api_client::SupervisorAPIClient;
-use crate::worker::Checks;
 
 pub struct ScoreSupervisorAPIClient {
     supervisor_link: alive_rs::Alive,
@@ -35,6 +34,6 @@ impl ScoreSupervisorAPIClient {
 
 impl SupervisorAPIClient for ScoreSupervisorAPIClient {
     fn notify_alive(&self) {
-        self.supervisor_link.report_checkpoint(Checks::WorkerCheckpoint as u32);
+        self.supervisor_link.report_alive();
     }
 }
