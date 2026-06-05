@@ -13,6 +13,7 @@
 
 common --registry=https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/
 common --registry=https://bcr.bazel.build
+common --module_mirrors=https://bcr.cloudflaremirrors.com
 
 build --java_language_version=17
 build --tool_java_language_version=17
