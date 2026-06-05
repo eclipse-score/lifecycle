@@ -376,7 +376,7 @@ TEST_F(ConverterTest, ConvertComponentAliveSupervisionMissingReportingCycleRetur
 {
     RecordProperty("Description", "Missing reporting_cycle returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto cas = fb::CreateComponentAliveSupervision(fbb, std::nullopt, 3);
+    auto cas = fb::CreateComponentAliveSupervision(fbb, ::flatbuffers::nullopt /*reporting_cycle*/, 3 /*failed_cycles_tolerance*/);
     fbb.Finish(cas);
     const auto* ptr = ::flatbuffers::GetRoot<fb::ComponentAliveSupervision>(fbb.GetBufferPointer());
 
@@ -389,7 +389,7 @@ TEST_F(ConverterTest, ConvertComponentAliveSupervisionMissingToleranceReturnsErr
 {
     RecordProperty("Description", "Missing failed_cycles_tolerance returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto cas = fb::CreateComponentAliveSupervision(fbb, 1.0, std::nullopt);
+    auto cas = fb::CreateComponentAliveSupervision(fbb, 1.0 /*reporting_cycle*/, ::flatbuffers::nullopt /*failed_cycles_tolerance*/);
     fbb.Finish(cas);
     const auto* ptr = ::flatbuffers::GetRoot<fb::ComponentAliveSupervision>(fbb.GetBufferPointer());
 
@@ -445,7 +445,7 @@ TEST_F(ConverterTest, ConvertApplicationProfileValid)
 {
     RecordProperty("Description", "convertApplicationProfile maps all fields correctly.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto ap = fb::CreateApplicationProfile(fbb, fb::ApplicationType::Reporting_And_Supervised, true);
+    auto ap = fb::CreateApplicationProfile(fbb, fb::ApplicationType::Reporting_And_Supervised, true /*is_self_terminating*/);
     fbb.Finish(ap);
     const auto* ptr = ::flatbuffers::GetRoot<fb::ApplicationProfile>(fbb.GetBufferPointer());
 
@@ -459,7 +459,7 @@ TEST_F(ConverterTest, ConvertApplicationProfileMissingTypeReturnsError)
 {
     RecordProperty("Description", "Missing application_type returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto ap = fb::CreateApplicationProfile(fbb, std::nullopt, false);
+    auto ap = fb::CreateApplicationProfile(fbb, ::flatbuffers::nullopt /*application_type*/, false /*is_self_terminating*/);
     fbb.Finish(ap);
     const auto* ptr = ::flatbuffers::GetRoot<fb::ApplicationProfile>(fbb.GetBufferPointer());
 
@@ -472,7 +472,7 @@ TEST_F(ConverterTest, ConvertApplicationProfileMissingSelfTerminatingReturnsErro
 {
     RecordProperty("Description", "Missing is_self_terminating returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto ap = fb::CreateApplicationProfile(fbb, fb::ApplicationType::Native, std::nullopt);
+    auto ap = fb::CreateApplicationProfile(fbb, fb::ApplicationType::Native, ::flatbuffers::nullopt /*is_self_terminating*/);
     fbb.Finish(ap);
     const auto* ptr = ::flatbuffers::GetRoot<fb::ApplicationProfile>(fbb.GetBufferPointer());
 
@@ -544,7 +544,7 @@ TEST_F(ConverterTest, ConvertSandboxMissingUidReturnsError)
 {
     RecordProperty("Description", "Sandbox without uid returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto sandbox = fb::CreateSandbox(fbb, std::nullopt, 0, 0, 0, fb::SchedulingPolicy::OTHER, 0);
+    auto sandbox = fb::CreateSandbox(fbb, ::flatbuffers::nullopt /*uid*/, 0 /*gid*/, 0 /*supplementary_group_ids*/, 0 /*security_policy*/, fb::SchedulingPolicy::OTHER, 0 /*scheduling_priority*/);
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
@@ -557,7 +557,7 @@ TEST_F(ConverterTest, ConvertSandboxMissingGidReturnsError)
 {
     RecordProperty("Description", "Sandbox without gid returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto sandbox = fb::CreateSandbox(fbb, 0, std::nullopt, 0, 0, fb::SchedulingPolicy::OTHER, 0);
+    auto sandbox = fb::CreateSandbox(fbb, 0 /*uid*/, ::flatbuffers::nullopt /*gid*/, 0 /*supplementary_group_ids*/, 0 /*security_policy*/, fb::SchedulingPolicy::OTHER, 0 /*scheduling_priority*/);
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
@@ -570,7 +570,7 @@ TEST_F(ConverterTest, ConvertSandboxMissingSchedulingPolicyReturnsError)
 {
     RecordProperty("Description", "Sandbox without scheduling_policy returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto sandbox = fb::CreateSandbox(fbb, 0, 0, 0, 0, std::nullopt, 0);
+    auto sandbox = fb::CreateSandbox(fbb, 0 /*uid*/, 0 /*gid*/, 0 /*supplementary_group_ids*/, 0 /*security_policy*/, ::flatbuffers::nullopt /*scheduling_policy*/, 0 /*scheduling_priority*/);
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
@@ -583,7 +583,7 @@ TEST_F(ConverterTest, ConvertSandboxMissingSchedulingPriorityReturnsError)
 {
     RecordProperty("Description", "Sandbox without scheduling_priority returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto sandbox = fb::CreateSandbox(fbb, 0, 0, 0, 0, fb::SchedulingPolicy::OTHER, std::nullopt);
+    auto sandbox = fb::CreateSandbox(fbb, 0 /*uid*/, 0 /*gid*/, 0 /*supplementary_group_ids*/, 0 /*security_policy*/, fb::SchedulingPolicy::OTHER, ::flatbuffers::nullopt /*scheduling_priority*/);
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
@@ -605,7 +605,7 @@ TEST_F(ConverterTest, ConvertSandboxUidOutOfRangeReturnsError)
     auto sandbox = fb::CreateSandbox(fbb,
                                      std::numeric_limits<uint32_t>::max() /*uid*/,
                                      1000 /*gid*/,
-                                     0, 0,
+                                     0 /*supplementary_group_ids*/, 0 /*security_policy*/,
                                      fb::SchedulingPolicy::OTHER,
                                      0 /*scheduling_priority*/);
     fbb.Finish(sandbox);
@@ -672,7 +672,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigMissingReadyTimeoutReturnsError)
     auto bin_dir = fbb.CreateString("/opt");
     auto work_dir = fbb.CreateString("/tmp");
     auto sandbox = buildDefaultSandbox(fbb);
-    auto deploy = fb::CreateDeploymentConfig(fbb, std::nullopt, 1.0, 0, bin_dir, work_dir, 0, 0, sandbox);
+    auto deploy = fb::CreateDeploymentConfig(fbb, ::flatbuffers::nullopt /*ready_timeout*/, 1.0 /*shutdown_timeout*/, 0 /*environmental_variables*/, bin_dir, work_dir, 0 /*ready_recovery_action*/, 0 /*recovery_action*/, sandbox);
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
@@ -688,7 +688,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigMissingShutdownTimeoutReturnsError)
     auto bin_dir = fbb.CreateString("/opt");
     auto work_dir = fbb.CreateString("/tmp");
     auto sandbox = buildDefaultSandbox(fbb);
-    auto deploy = fb::CreateDeploymentConfig(fbb, 1.0, std::nullopt, 0, bin_dir, work_dir, 0, 0, sandbox);
+    auto deploy = fb::CreateDeploymentConfig(fbb, 1.0 /*ready_timeout*/, ::flatbuffers::nullopt /*shutdown_timeout*/, 0 /*environmental_variables*/, bin_dir, work_dir, 0 /*ready_recovery_action*/, 0 /*recovery_action*/, sandbox);
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
@@ -702,15 +702,15 @@ TEST_F(ConverterTest, ConvertComponentValid)
     RecordProperty("Description", "convertComponent maps name, description, and nested structs.");
     ::flatbuffers::FlatBufferBuilder fbb;
 
-    auto app_profile = fb::CreateApplicationProfile(fbb, fb::ApplicationType::Native, false);
+    auto app_profile = fb::CreateApplicationProfile(fbb, fb::ApplicationType::Native, false /*is_self_terminating*/);
     auto bin_name = fbb.CreateString("my_binary");
     auto ready_cond = fb::CreateReadyCondition(fbb, fb::ProcessState::Running);
-    auto comp_props = fb::CreateComponentProperties(fbb, bin_name, app_profile, 0, 0, ready_cond);
+    auto comp_props = fb::CreateComponentProperties(fbb, bin_name, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
 
     auto bin_dir = fbb.CreateString("/opt");
     auto work_dir = fbb.CreateString("/tmp");
     auto sandbox = buildDefaultSandbox(fbb);
-    auto deploy = fb::CreateDeploymentConfig(fbb, 1.0, 1.0, 0, bin_dir, work_dir, 0, 0, sandbox);
+    auto deploy = fb::CreateDeploymentConfig(fbb, 1.0 /*ready_timeout*/, 1.0 /*shutdown_timeout*/, 0 /*environmental_variables*/, bin_dir, work_dir, 0 /*ready_recovery_action*/, 0 /*recovery_action*/, sandbox);
 
     auto comp_name = fbb.CreateString("TestComp");
     auto comp_desc = fbb.CreateString("A test component");
@@ -732,16 +732,16 @@ TEST_F(ConverterTest, ConvertComponentsValid)
     ::flatbuffers::FlatBufferBuilder fbb;
 
     auto build_comp = [&](const char* name) {
-        auto app_profile = fb::CreateApplicationProfile(fbb, fb::ApplicationType::Native, false);
+        auto app_profile = fb::CreateApplicationProfile(fbb, fb::ApplicationType::Native, false /*is_self_terminating*/);
         auto bin_name = fbb.CreateString(name);
         auto ready_cond = fb::CreateReadyCondition(fbb, fb::ProcessState::Running);
-        auto comp_props = fb::CreateComponentProperties(fbb, bin_name, app_profile, 0, 0, ready_cond);
+        auto comp_props = fb::CreateComponentProperties(fbb, bin_name, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
         auto bin_dir = fbb.CreateString("/opt");
         auto work_dir = fbb.CreateString("/tmp");
         auto sandbox = buildDefaultSandbox(fbb);
-        auto deploy = fb::CreateDeploymentConfig(fbb, 1.0, 1.0, 0, bin_dir, work_dir, 0, 0, sandbox);
+        auto deploy = fb::CreateDeploymentConfig(fbb, 1.0 /*ready_timeout*/, 1.0 /*shutdown_timeout*/, 0 /*environmental_variables*/, bin_dir, work_dir, 0 /*ready_recovery_action*/, 0 /*recovery_action*/, sandbox);
         auto comp_name = fbb.CreateString(name);
-        return fb::CreateComponent(fbb, comp_name, 0, comp_props, deploy);
+        return fb::CreateComponent(fbb, comp_name, 0 /*description*/, comp_props, deploy);
     };
 
     auto comp_a = build_comp("CompA");
@@ -765,16 +765,16 @@ TEST_F(ConverterTest, ConvertComponentsWithInvalidComponentReturnsError)
     RecordProperty("Description", "convertComponents returns error when a component has invalid fields.");
     ::flatbuffers::FlatBufferBuilder fbb;
 
-    auto app_profile = fb::CreateApplicationProfile(fbb, std::nullopt, false);
+    auto app_profile = fb::CreateApplicationProfile(fbb, ::flatbuffers::nullopt /*application_type*/, false /*is_self_terminating*/);
     auto bin_name = fbb.CreateString("bad_bin");
     auto ready_cond = fb::CreateReadyCondition(fbb, fb::ProcessState::Running);
-    auto comp_props = fb::CreateComponentProperties(fbb, bin_name, app_profile, 0, 0, ready_cond);
+    auto comp_props = fb::CreateComponentProperties(fbb, bin_name, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
     auto bin_dir = fbb.CreateString("/opt");
     auto work_dir = fbb.CreateString("/tmp");
     auto sandbox = buildDefaultSandbox(fbb);
-    auto deploy = fb::CreateDeploymentConfig(fbb, 1.0, 1.0, 0, bin_dir, work_dir, 0, 0, sandbox);
+    auto deploy = fb::CreateDeploymentConfig(fbb, 1.0 /*ready_timeout*/, 1.0 /*shutdown_timeout*/, 0 /*environmental_variables*/, bin_dir, work_dir, 0 /*ready_recovery_action*/, 0 /*recovery_action*/, sandbox);
     auto comp_name = fbb.CreateString("BadComp");
-    auto comp = fb::CreateComponent(fbb, comp_name, 0, comp_props, deploy);
+    auto comp = fb::CreateComponent(fbb, comp_name, 0 /*description*/, comp_props, deploy);
     auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{comp});
     fbb.Finish(comps);
     const auto* ptr =
@@ -794,7 +794,7 @@ TEST_F(ConverterTest, ConvertRunTargetsValid)
         auto switch_target = fbb.CreateString(recovery_target);
         auto switch_action = fb::CreateSwitchRunTargetAction(fbb, switch_target);
         auto rt_name = fbb.CreateString(name);
-        return fb::CreateRunTarget(fbb, rt_name, 0, 0, 1.0 /*transition_timeout*/, switch_action);
+        return fb::CreateRunTarget(fbb, rt_name, 0 /*description*/, 0 /*depends_on*/, 1.0 /*transition_timeout*/, switch_action);
     };
 
     auto rt_a = build_rt("Startup", "SafeState");
@@ -821,7 +821,7 @@ TEST_F(ConverterTest, ConvertRunTargetsWithInvalidRunTargetReturnsError)
     auto switch_target = fbb.CreateString("SafeState");
     auto switch_action = fb::CreateSwitchRunTargetAction(fbb, switch_target);
     auto rt_name = fbb.CreateString("BadRT");
-    auto rt = fb::CreateRunTarget(fbb, rt_name, 0, 0, std::nullopt /*missing transition_timeout*/, switch_action);
+    auto rt = fb::CreateRunTarget(fbb, rt_name, 0 /*description*/, 0 /*depends_on*/, ::flatbuffers::nullopt /*transition_timeout*/, switch_action);
     auto rts = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::RunTarget>>{rt});
     fbb.Finish(rts);
     const auto* ptr =
@@ -864,7 +864,7 @@ TEST_F(ConverterTest, ConvertRunTargetMissingTransitionTimeoutReturnsError)
     auto switch_target = fbb.CreateString("SafeState");
     auto switch_action = fb::CreateSwitchRunTargetAction(fbb, switch_target);
     auto rt_name = fbb.CreateString("Startup");
-    auto rt = fb::CreateRunTarget(fbb, rt_name, 0, 0, std::nullopt, switch_action);
+    auto rt = fb::CreateRunTarget(fbb, rt_name, 0 /*description*/, 0 /*depends_on*/, ::flatbuffers::nullopt /*transition_timeout*/, switch_action);
     fbb.Finish(rt);
     const auto* ptr = ::flatbuffers::GetRoot<fb::RunTarget>(fbb.GetBufferPointer());
 
@@ -970,7 +970,7 @@ TEST_F(ConverterTest, ConvertWatchdogMissingMaxTimeoutReturnsError)
     RecordProperty("Description", "Missing max_timeout returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
     auto dev_path = fbb.CreateString("/dev/watchdog0");
-    auto wd = fb::CreateWatchdog(fbb, dev_path, std::nullopt, true, false);
+    auto wd = fb::CreateWatchdog(fbb, dev_path, ::flatbuffers::nullopt /*max_timeout*/, true /*deactivate_on_shutdown*/, false /*require_magic_close*/);
     fbb.Finish(wd);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Watchdog>(fbb.GetBufferPointer());
 
@@ -984,7 +984,7 @@ TEST_F(ConverterTest, ConvertWatchdogMissingDeactivateReturnsError)
     RecordProperty("Description", "Missing deactivate_on_shutdown returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
     auto dev_path = fbb.CreateString("/dev/watchdog0");
-    auto wd = fb::CreateWatchdog(fbb, dev_path, 30.0, std::nullopt, false);
+    auto wd = fb::CreateWatchdog(fbb, dev_path, 30.0 /*max_timeout*/, ::flatbuffers::nullopt /*deactivate_on_shutdown*/, false /*require_magic_close*/);
     fbb.Finish(wd);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Watchdog>(fbb.GetBufferPointer());
 
@@ -998,7 +998,7 @@ TEST_F(ConverterTest, ConvertWatchdogMissingMagicCloseReturnsError)
     RecordProperty("Description", "Missing require_magic_close returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
     auto dev_path = fbb.CreateString("/dev/watchdog0");
-    auto wd = fb::CreateWatchdog(fbb, dev_path, 30.0, true, std::nullopt);
+    auto wd = fb::CreateWatchdog(fbb, dev_path, 30.0 /*max_timeout*/, true /*deactivate_on_shutdown*/, ::flatbuffers::nullopt /*require_magic_close*/);
     fbb.Finish(wd);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Watchdog>(fbb.GetBufferPointer());
 
