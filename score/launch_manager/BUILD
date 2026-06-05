@@ -67,3 +67,14 @@ cc_library(
         "//score/launch_manager/daemon/src/common:identifier_hash",
     ],
 )
+
+cc_test(
+    name = "exec_error_domain_UT",
+    srcs = ["exec_error_domain_UT.cpp"],
+    visibility = ["//tests:__subpackages__"],
+    deps = [
+        ":error",
+        "@googletest//:gtest_main",
+        "@score_baselibs//score/result",
+    ],
+)

@@ -16,6 +16,7 @@
 
 #include <atomic>
 #include "score/mw/launch_manager/configuration/configuration_manager.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 #include "score/mw/launch_manager/control/control_client_channel.hpp"
 
 namespace score {
@@ -41,7 +42,7 @@ using SuccessorList = std::vector<std::shared_ptr<ProcessInfoNode>>;
 /// the events kRunning received or expected process termination forming connecting edges.
 /// Unexpected termination of a process or reception of a timeout result in the failure of this graph.
 /// The ProcessInfoNode thus represents an adaptive process with specific startup configuration and dependencies
-class ProcessInfoNode final {
+class ProcessInfoNode final : public ITerminationCallback {
    public:
     /// Constructor for Process Infonode
     ProcessInfoNode()
@@ -77,7 +78,7 @@ class ProcessInfoNode final {
     /// The process status is saved in the ProcessInfoNode
     /// This method will be called by the OsHander.
     /// @param process_status - the value returned by the OS for the process termination status
-    void terminated(int32_t process_status);
+    void terminated(int32_t process_status) override;
 
     /// @brief Called by a worker thread to perform the expected action for this node
     /// The action will either be to start the process, if graph_->isStarting() returns true,

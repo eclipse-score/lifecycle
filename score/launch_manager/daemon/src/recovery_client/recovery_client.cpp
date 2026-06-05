@@ -20,9 +20,8 @@ RecoveryClient::RecoveryClient() noexcept : ringBuffer_{} {
     ringBuffer_.initialize();
 }
 
-bool RecoveryClient::sendRecoveryRequest(const score::lcm::IdentifierHash& process_group_identifier) noexcept {
-    RecoveryRequest req{process_group_identifier};
-    if (!ringBuffer_.tryEnqueue(req)) {
+bool RecoveryClient::sendRecoveryRequest(const score::lcm::IdentifierHash& process_identifier) noexcept {
+    if (!ringBuffer_.tryEnqueue(process_identifier)) {
         overflow_flag_ = true;
         return false;
     }
@@ -33,8 +32,8 @@ bool RecoveryClient::hasOverflow() const noexcept {
     return overflow_flag_.load();
 }
 
-std::optional<RecoveryRequest> RecoveryClient::getNextRequest() noexcept {
-    RecoveryRequest req;
+std::optional<score::lcm::IdentifierHash> RecoveryClient::getNextRequest() noexcept {
+    score::lcm::IdentifierHash req;
     if(ringBuffer_.tryDequeue(req)) {
         return req;
     }

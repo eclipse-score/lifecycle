@@ -29,3 +29,8 @@ There is an interactive mode that walks you through two demo scenarios.
 This mode requires the run.sh script to be executed **in an active tmux** session.
 
 `bazel run //examples:run_examples --config=<...> -- tmux`
+
+## Demo Verification
+
+There are tests that run the demo setup and verify the expected behavior.
+`bazel test //examples/... --config=<...>`

@@ -53,3 +53,14 @@ cc_library(
         "//score/launch_manager/daemon/src/alive_monitor/details/timers:timers_os_clock",
     ],
 )
+
+cc_test(
+    name = "MonitorIfDaemon_UT",
+    srcs = [
+        "MonitorIfDaemon_UT.cpp",
+    ],
+    deps = [
+        ":monitor_if_daemon",
+        "@googletest//:gtest_main",
+    ],
+)

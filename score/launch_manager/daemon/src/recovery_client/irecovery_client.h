@@ -21,13 +21,6 @@ namespace score
 namespace lcm
 {
 
-/// @brief Represents a recovery request for a failed process group.
-struct RecoveryRequest
-{
-    /// @brief The id of the process group the failed process is running in
-    score::lcm::IdentifierHash process_group_identifier_{};
-};
-
 /// @brief The RecoveryClient allows the AliveMonitor component to report supervision failures to the
 /// ProcessGroupManager thus requesting recovery for a specific process group. The requests are queued and periodically
 /// processed by the ProcessGroupManager. In case the buffer is full and request cannot be queued, the overflow flag is
@@ -42,14 +35,14 @@ class IRecoveryClient
     IRecoveryClient(IRecoveryClient&&) = delete;
     IRecoveryClient& operator=(IRecoveryClient&&) = delete;
 
-    /// @brief Send recovery request for a specific process group.
+    /// @brief Send recovery request for a specific process.
     /// @details If the internal buffer is full, the request is discarded and the overflow flag is set.
-    /// @param process_group_identifier The process group that requires recovery.
+    /// @param process_identifier The process that requires recovery.
     /// @return true if the request was queued, false if the buffer was full.
-    virtual bool sendRecoveryRequest(const score::lcm::IdentifierHash& process_group_identifier) noexcept = 0;
+    virtual bool sendRecoveryRequest(const score::lcm::IdentifierHash& process_identifier) noexcept = 0;
     /// @brief Retrieve the latest request from the queue, removing it from the queue
     /// @return The request, or std::nullopt if no request is available
-    virtual std::optional<RecoveryRequest> getNextRequest() noexcept = 0;
+    virtual std::optional<score::lcm::IdentifierHash> getNextRequest() noexcept = 0;
 
     /// @brief Checks if overflow has been set, by previously calling `sendRecoveryRequest` while the queue was already
     /// full

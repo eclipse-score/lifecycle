@@ -47,14 +47,7 @@ class Checkpoint;
 namespace supervision
 {
 class Alive;
-class Local;
-class Global;
 }  // namespace supervision
-
-namespace recovery
-{
-class Notification;
-}
 
 namespace factory
 {
@@ -116,39 +109,13 @@ public:
     /// @param [out] f_alive_r              Vector of created alive supervision worker
     /// @param [in,out] f_checkpoints_r     Vector of Supervision Checkpoints
     /// @param [in,out] f_processStates_r   Vector of Process States
+    /// @param [in] f_recoveryClient_r      Recovery interface invoked when a supervision expires
     /// @return                             Object creation successful (true), otherwise failed (false)
     virtual bool createAliveSupervisions(std::vector<supervision::Alive>& f_alive_r,
                                          std::vector<ifappl::Checkpoint>& f_checkpoints_r,
-                                         std::vector<ifexm::ProcessState>& f_processStates_r) = 0;
+                                         std::vector<ifexm::ProcessState>& f_processStates_r,
+                                         std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r) = 0;
 
-    /// @brief Create local supervision worker objects
-    /// @details Create all required local supervision worker objects from configuration
-    /// @param [out] f_local_r          Vector of created local supervision worker
-    /// @param [in,out] f_alive_r       Vector of alive supervision worker
-    /// @param [in,out] f_deadline_r    Vector of deadline supervision worker
-    /// @param [in,out] f_logical_r     Vector of logical supervision worker
-    /// @return                         Object creation successful (true), otherwise failed (false)
-    virtual bool createLocalSupervisions(std::vector<supervision::Local>& f_local_r,
-                                         std::vector<supervision::Alive>& f_alive_r) = 0;
-
-    /// @brief Create global supervision worker objects
-    /// @details Create all required global supervision worker objects from configuration
-    /// @param [out] f_global_r             Vector of created global supervision worker
-    /// @param [in,out] f_local_r           Vector of local supervision worker
-    /// @param [in,out] f_processStates_r   Vector of Process States
-    /// @return                             Object creation successful (true), otherwise failed (false)
-    virtual bool createGlobalSupervisions(std::vector<supervision::Global>& f_global_r,
-                                          std::vector<supervision::Local>& f_local_r,
-                                          std::vector<ifexm::ProcessState>& f_processStates_r) = 0;
-
-    /// @brief Create Recovery Notification
-    /// @param [in] f_recoveryClient_r  Recovery interface to the launch manager
-    /// @param [out] f_notification_r   Vector of Recovery Notifications
-    /// @param [in,out] f_global_r      Vector of Global Supervisions required for attaching the Recovery Notifications.
-    /// @return                         Object creation successful (true), otherwise failed (false)
-    virtual bool createRecoveryNotifications(std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r,
-                                             std::vector<recovery::Notification>& f_notification_r,
-                                             std::vector<supervision::Global>& f_global_r) = 0;
 };
 
 }  // namespace factory
