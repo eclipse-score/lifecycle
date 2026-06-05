@@ -14,7 +14,7 @@ use crate::errors;
 use libc::{c_char, c_void};
 use std::ffi::CString;
 
-#[link(name = "lifecycle_client")]
+#[link(name = "alive")]
 unsafe extern "C" {
     fn score_lcm_alive_initialize(instanceSpecifier: *const c_char) -> *mut c_void;
     fn score_lcm_alive_deinitialize(instance: *mut c_void);

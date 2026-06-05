@@ -22,7 +22,6 @@ rust_library(
     visibility = ["//score:__subpackages__"],
     deps = [
         "//score/launch_manager:alive_cc",
-        "//score/launch_manager/lifecycle_client",
         "@score_crates//:libc",
     ],
 )
