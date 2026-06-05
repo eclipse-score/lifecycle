@@ -30,6 +30,24 @@ namespace score::mw::launch_manager::configuration
 
 namespace fb = score::mw::launch_manager::configuration::fb;
 
+namespace
+{
+
+template <typename T>
+score::cpp::expected<T, IConfigLoader::Error> requireScalarValue(
+    const ::flatbuffers::Optional<T>& field,
+    const char* field_name)
+{
+    if (!field.has_value())
+    {
+        LM_LOG_ERROR() << field_name << " is required but missing";
+        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+    }
+    return *field;
+}
+
+}  // anonymous namespace
+
 namespace details
 {
 
@@ -167,23 +185,23 @@ score::cpp::expected<std::optional<RestartAction>, IConfigLoader::Error> convert
     {
         return std::optional<RestartAction>{std::nullopt};
     }
-    if (!ra->number_of_attempts().has_value())
+    auto number_of_attempts = requireScalarValue(ra->number_of_attempts(), "RestartAction::number_of_attempts");
+    if (!number_of_attempts.has_value())
     {
-        LM_LOG_ERROR() << "RestartAction::number_of_attempts is required but missing";
-        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+        return score::cpp::make_unexpected(number_of_attempts.error());
     }
-    if (!ra->delay_before_restart().has_value())
+    auto delay_before_restart = requireScalarValue(ra->delay_before_restart(), "RestartAction::delay_before_restart");
+    if (!delay_before_restart.has_value())
     {
-        LM_LOG_ERROR() << "RestartAction::delay_before_restart is required but missing";
-        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+        return score::cpp::make_unexpected(delay_before_restart.error());
     }
-    auto delay_ms = secondsToMs(*ra->delay_before_restart());
+    auto delay_ms = secondsToMs(*delay_before_restart);
     if (!delay_ms.has_value())
     {
         LM_LOG_ERROR() << "Invalid value for RestartAction::delay_before_restart";
         return score::cpp::make_unexpected(delay_ms.error());
     }
-    return std::optional<RestartAction>{RestartAction{*ra->number_of_attempts(), *delay_ms}};
+    return std::optional<RestartAction>{RestartAction{*number_of_attempts, *delay_ms}};
 }
 
 std::optional<SwitchRunTargetAction> convertSwitchRunTargetAction(const fb::SwitchRunTargetAction* sa)
@@ -208,24 +226,24 @@ score::cpp::expected<ComponentAliveSupervision, IConfigLoader::Error> convertCom
     ComponentAliveSupervision result{};
     if (fb_cas != nullptr)
     {
-        if (!fb_cas->reporting_cycle().has_value())
+        auto reporting_cycle = requireScalarValue(fb_cas->reporting_cycle(), "ComponentAliveSupervision::reporting_cycle");
+        if (!reporting_cycle.has_value())
         {
-            LM_LOG_ERROR() << "ComponentAliveSupervision::reporting_cycle is required but missing";
-            return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+            return score::cpp::make_unexpected(reporting_cycle.error());
         }
-        if (!fb_cas->failed_cycles_tolerance().has_value())
+        auto failed_cycles_tolerance = requireScalarValue(fb_cas->failed_cycles_tolerance(), "ComponentAliveSupervision::failed_cycles_tolerance");
+        if (!failed_cycles_tolerance.has_value())
         {
-            LM_LOG_ERROR() << "ComponentAliveSupervision::failed_cycles_tolerance is required but missing";
-            return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+            return score::cpp::make_unexpected(failed_cycles_tolerance.error());
         }
-        auto reporting_cycle_ms = secondsToMs(*fb_cas->reporting_cycle());
+        auto reporting_cycle_ms = secondsToMs(*reporting_cycle);
         if (!reporting_cycle_ms.has_value())
         {
             LM_LOG_ERROR() << "Invalid value for ComponentAliveSupervision::reporting_cycle";
             return score::cpp::make_unexpected(reporting_cycle_ms.error());
         }
         result.reporting_cycle_ms = *reporting_cycle_ms;
-        result.failed_cycles_tolerance = *fb_cas->failed_cycles_tolerance();
+        result.failed_cycles_tolerance = *failed_cycles_tolerance;
         result.min_indications = fb_cas->min_indications().has_value()
                                      ? std::optional<uint32_t>{*fb_cas->min_indications()}
                                      : std::nullopt;
@@ -248,18 +266,18 @@ score::cpp::expected<ApplicationProfile, IConfigLoader::Error> convertApplicatio
     ApplicationProfile result{};
     if (fb_ap != nullptr)
     {
-        if (!fb_ap->application_type().has_value())
+        auto application_type = requireScalarValue(fb_ap->application_type(), "ApplicationProfile::application_type");
+        if (!application_type.has_value())
         {
-            LM_LOG_ERROR() << "ApplicationProfile::application_type is required but missing";
-            return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+            return score::cpp::make_unexpected(application_type.error());
         }
-        if (!fb_ap->is_self_terminating().has_value())
+        auto is_self_terminating = requireScalarValue(fb_ap->is_self_terminating(), "ApplicationProfile::is_self_terminating");
+        if (!is_self_terminating.has_value())
         {
-            LM_LOG_ERROR() << "ApplicationProfile::is_self_terminating is required but missing";
-            return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+            return score::cpp::make_unexpected(is_self_terminating.error());
         }
-        result.application_type = convertApplicationType(*fb_ap->application_type());
-        result.is_self_terminating = *fb_ap->is_self_terminating();
+        result.application_type = convertApplicationType(*application_type);
+        result.is_self_terminating = *is_self_terminating;
         if (fb_ap->alive_supervision() != nullptr)
         {
             auto alive_sup = convertComponentAliveSupervision(fb_ap->alive_supervision());
@@ -278,12 +296,12 @@ score::cpp::expected<ReadyCondition, IConfigLoader::Error> convertReadyCondition
     ReadyCondition result{};
     if (fb_rc != nullptr)
     {
-        if (!fb_rc->process_state().has_value())
+        auto process_state = requireScalarValue(fb_rc->process_state(), "ReadyCondition::process_state");
+        if (!process_state.has_value())
         {
-            LM_LOG_ERROR() << "ReadyCondition::process_state is required but missing";
-            return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+            return score::cpp::make_unexpected(process_state.error());
         }
-        result.process_state = convertProcessState(*fb_rc->process_state());
+        result.process_state = convertProcessState(*process_state);
     }
     return result;
 }
@@ -321,46 +339,44 @@ score::cpp::expected<ComponentProperties, IConfigLoader::Error> convertComponent
 score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(const fb::Sandbox* fb_sb)
 {
     assert(fb_sb && "Sandbox must never be nullptr as it is required in the schema");
-    if (!fb_sb->uid().has_value())
+    auto fb_uid = requireScalarValue(fb_sb->uid(), "Sandbox::uid");
+    if (!fb_uid.has_value())
     {
-        LM_LOG_ERROR() << "Sandbox::uid is required but missing";
+        return score::cpp::make_unexpected(fb_uid.error());
+    }
+    auto fb_gid = requireScalarValue(fb_sb->gid(), "Sandbox::gid");
+    if (!fb_gid.has_value())
+    {
+        return score::cpp::make_unexpected(fb_gid.error());
+    }
+    if (*fb_uid < std::numeric_limits<uid_t>::min() || *fb_uid > std::numeric_limits<uid_t>::max())
+    {
+        LM_LOG_ERROR() << "Sandbox uid " << *fb_uid << " is out of valid uid_t range [" << std::numeric_limits<uid_t>::min() << "," << std::numeric_limits<uid_t>::max() << "]";
         return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
     }
-    if (!fb_sb->gid().has_value())
+    if (*fb_gid < std::numeric_limits<gid_t>::min() || *fb_gid > std::numeric_limits<gid_t>::max())
     {
-        LM_LOG_ERROR() << "Sandbox::gid is required but missing";
+        LM_LOG_ERROR() << "Sandbox gid " << *fb_gid << " is out of valid gid_t range [" << std::numeric_limits<gid_t>::min() << "," << std::numeric_limits<gid_t>::max() << "]";
         return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
     }
-    const auto fb_uid = *fb_sb->uid();
-    const auto fb_gid = *fb_sb->gid();
-    if (fb_uid < std::numeric_limits<uid_t>::min() || fb_uid > std::numeric_limits<uid_t>::max())
+    auto sched_policy = requireScalarValue(fb_sb->scheduling_policy(), "Sandbox::scheduling_policy");
+    if (!sched_policy.has_value())
     {
-        LM_LOG_ERROR() << "Sandbox uid " << fb_uid << " is out of valid uid_t range [" << std::numeric_limits<uid_t>::min() << "," << std::numeric_limits<uid_t>::max() << "]";
-        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+        return score::cpp::make_unexpected(sched_policy.error());
     }
-    if (fb_gid < std::numeric_limits<gid_t>::min() || fb_gid > std::numeric_limits<gid_t>::max())
-    {
-        LM_LOG_ERROR() << "Sandbox gid " << fb_gid << " is out of valid gid_t range [" << std::numeric_limits<gid_t>::min() << "," << std::numeric_limits<gid_t>::max() << "]";
-        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
-    }
-    if (!fb_sb->scheduling_policy().has_value())
-    {
-        LM_LOG_ERROR() << "Sandbox::scheduling_policy is required but missing";
-        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
-    }
-    auto scheduling_policy = convertSchedulingPolicy(*fb_sb->scheduling_policy());
+    auto scheduling_policy = convertSchedulingPolicy(*sched_policy);
     if (!scheduling_policy.has_value())
     {
         return score::cpp::make_unexpected(scheduling_policy.error());
     }
-    if (!fb_sb->scheduling_priority().has_value())
+    auto scheduling_priority = requireScalarValue(fb_sb->scheduling_priority(), "Sandbox::scheduling_priority");
+    if (!scheduling_priority.has_value())
     {
-        LM_LOG_ERROR() << "Sandbox::scheduling_priority is required but missing";
-        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+        return score::cpp::make_unexpected(scheduling_priority.error());
     }
     Sandbox result{};
-    result.uid = static_cast<uid_t>(fb_uid);
-    result.gid = static_cast<gid_t>(fb_gid);
+    result.uid = static_cast<uid_t>(*fb_uid);
+    result.gid = static_cast<gid_t>(*fb_gid);
     auto supplementary_gids = convertGidVector(fb_sb->supplementary_group_ids());
     if (!supplementary_gids.has_value())
     {
@@ -371,7 +387,7 @@ score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(const fb::San
                                  ? std::optional<std::string>{fb_sb->security_policy()->str()}
                                  : std::nullopt;
     result.scheduling_policy = *scheduling_policy;
-    result.scheduling_priority = *fb_sb->scheduling_priority();
+    result.scheduling_priority = *scheduling_priority;
     result.max_memory_usage =
         fb_sb->max_memory_usage().has_value() ? std::optional<uint64_t>{*fb_sb->max_memory_usage()} : std::nullopt;
     result.max_cpu_usage =
@@ -387,23 +403,23 @@ score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentCo
         assert(fb_dc->bin_dir() && "DeploymentConfig::bin_dir must never be nullptr as it is required in the schema");
         assert(fb_dc->working_dir() && "DeploymentConfig::working_dir must never be nullptr as it is required in the schema");
         assert(fb_dc->sandbox() && "DeploymentConfig::sandbox must never be nullptr as it is required in the schema");
-        if (!fb_dc->ready_timeout().has_value())
+        auto ready_timeout = requireScalarValue(fb_dc->ready_timeout(), "DeploymentConfig::ready_timeout");
+        if (!ready_timeout.has_value())
         {
-            LM_LOG_ERROR() << "DeploymentConfig::ready_timeout is required but missing";
-            return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+            return score::cpp::make_unexpected(ready_timeout.error());
         }
-        if (!fb_dc->shutdown_timeout().has_value())
+        auto shutdown_timeout = requireScalarValue(fb_dc->shutdown_timeout(), "DeploymentConfig::shutdown_timeout");
+        if (!shutdown_timeout.has_value())
         {
-            LM_LOG_ERROR() << "DeploymentConfig::shutdown_timeout is required but missing";
-            return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+            return score::cpp::make_unexpected(shutdown_timeout.error());
         }
-        auto ready_timeout_ms = secondsToMs(*fb_dc->ready_timeout());
+        auto ready_timeout_ms = secondsToMs(*ready_timeout);
         if (!ready_timeout_ms.has_value())
         {
             LM_LOG_ERROR() << "Invalid value for DeploymentConfig::ready_timeout";
             return score::cpp::make_unexpected(ready_timeout_ms.error());
         }
-        auto shutdown_timeout_ms = secondsToMs(*fb_dc->shutdown_timeout());
+        auto shutdown_timeout_ms = secondsToMs(*shutdown_timeout);
         if (!shutdown_timeout_ms.has_value())
         {
             LM_LOG_ERROR() << "Invalid value for DeploymentConfig::shutdown_timeout";
@@ -466,15 +482,15 @@ score::cpp::expected<RunTargetConfig, IConfigLoader::Error> convertRunTarget(con
     {
         assert(fb_rt->name() && "RunTarget::name must never be nullptr as it is required in the schema");
         assert(fb_rt->recovery_action() && "RunTarget::recovery_action must never be nullptr as it is required in the schema");
-        if (!fb_rt->transition_timeout().has_value())
+        auto transition_timeout = requireScalarValue(fb_rt->transition_timeout(), "RunTarget::transition_timeout");
+        if (!transition_timeout.has_value())
         {
-            LM_LOG_ERROR() << "RunTarget::transition_timeout is required but missing";
-            return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+            return score::cpp::make_unexpected(transition_timeout.error());
         }
         result.name = fb_rt->name()->str();
         result.description = safeString(fb_rt->description());
         result.depends_on = convertStringVector(fb_rt->depends_on());
-        auto transition_timeout_ms = secondsToMs(*fb_rt->transition_timeout());
+        auto transition_timeout_ms = secondsToMs(*transition_timeout);
         if (!transition_timeout_ms.has_value())
         {
             LM_LOG_ERROR() << "Invalid value for RunTarget::transition_timeout";
@@ -492,14 +508,14 @@ score::cpp::expected<FallbackRunTargetConfig, IConfigLoader::Error> convertFallb
     FallbackRunTargetConfig result{};
     if (fb_frt != nullptr)
     {
-        if (!fb_frt->transition_timeout().has_value())
+        auto transition_timeout = requireScalarValue(fb_frt->transition_timeout(), "FallbackRunTarget::transition_timeout");
+        if (!transition_timeout.has_value())
         {
-            LM_LOG_ERROR() << "FallbackRunTarget::transition_timeout is required but missing";
-            return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+            return score::cpp::make_unexpected(transition_timeout.error());
         }
         result.description = safeString(fb_frt->description());
         result.depends_on = convertStringVector(fb_frt->depends_on());
-        auto transition_timeout_ms = secondsToMs(*fb_frt->transition_timeout());
+        auto transition_timeout_ms = secondsToMs(*transition_timeout);
         if (!transition_timeout_ms.has_value())
         {
             LM_LOG_ERROR() << "Invalid value for FallbackRunTarget::transition_timeout";
@@ -517,12 +533,12 @@ score::cpp::expected<AliveSupervisionConfig, IConfigLoader::Error> convertAliveS
     {
         return AliveSupervisionConfig{};
     }
-    if (!fb_as->evaluation_cycle().has_value())
+    auto evaluation_cycle = requireScalarValue(fb_as->evaluation_cycle(), "AliveSupervision::evaluation_cycle");
+    if (!evaluation_cycle.has_value())
     {
-        LM_LOG_ERROR() << "AliveSupervision::evaluation_cycle is required but missing";
-        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+        return score::cpp::make_unexpected(evaluation_cycle.error());
     }
-    auto evaluation_cycle_ms = secondsToMs(*fb_as->evaluation_cycle());
+    auto evaluation_cycle_ms = secondsToMs(*evaluation_cycle);
     if (!evaluation_cycle_ms.has_value())
     {
         LM_LOG_ERROR() << "Invalid value for AliveSupervision::evaluation_cycle";
@@ -538,32 +554,32 @@ score::cpp::expected<std::optional<WatchdogConfig>, IConfigLoader::Error> conver
         return std::optional<WatchdogConfig>{std::nullopt};
     }
     assert(fb_wd->device_file_path() && "Watchdog::device_file_path must never be nullptr as it is required in the schema");
-    if (!fb_wd->max_timeout().has_value())
+    auto max_timeout = requireScalarValue(fb_wd->max_timeout(), "Watchdog::max_timeout");
+    if (!max_timeout.has_value())
     {
-        LM_LOG_ERROR() << "Watchdog::max_timeout is required but missing";
-        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+        return score::cpp::make_unexpected(max_timeout.error());
     }
-    if (!fb_wd->deactivate_on_shutdown().has_value())
+    auto deactivate_on_shutdown = requireScalarValue(fb_wd->deactivate_on_shutdown(), "Watchdog::deactivate_on_shutdown");
+    if (!deactivate_on_shutdown.has_value())
     {
-        LM_LOG_ERROR() << "Watchdog::deactivate_on_shutdown is required but missing";
-        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+        return score::cpp::make_unexpected(deactivate_on_shutdown.error());
     }
-    if (!fb_wd->require_magic_close().has_value())
+    auto require_magic_close = requireScalarValue(fb_wd->require_magic_close(), "Watchdog::require_magic_close");
+    if (!require_magic_close.has_value())
     {
-        LM_LOG_ERROR() << "Watchdog::require_magic_close is required but missing";
-        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+        return score::cpp::make_unexpected(require_magic_close.error());
     }
     WatchdogConfig result{};
     result.device_file_path = fb_wd->device_file_path()->str();
-    auto max_timeout_ms = secondsToMs(*fb_wd->max_timeout());
+    auto max_timeout_ms = secondsToMs(*max_timeout);
     if (!max_timeout_ms.has_value())
     {
         LM_LOG_ERROR() << "Invalid value for Watchdog::max_timeout";
         return score::cpp::make_unexpected(max_timeout_ms.error());
     }
     result.max_timeout_ms = *max_timeout_ms;
-    result.deactivate_on_shutdown = *fb_wd->deactivate_on_shutdown();
-    result.require_magic_close = *fb_wd->require_magic_close();
+    result.deactivate_on_shutdown = *deactivate_on_shutdown;
+    result.require_magic_close = *require_magic_close;
     return std::optional<WatchdogConfig>{std::move(result)};
 }
 
