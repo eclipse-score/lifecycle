@@ -232,6 +232,12 @@ score::cpp::expected<ComponentAliveSupervision, IConfigLoader::Error> convertCom
         result.max_indications = fb_cas->max_indications().has_value()
                                      ? std::optional<uint32_t>{*fb_cas->max_indications()}
                                      : std::nullopt;
+
+        if (!result.min_indications.has_value() && !result.max_indications.has_value())
+        {
+            LM_LOG_ERROR() << "ComponentAliveSupervision requires at least one of min_indications or max_indications to be set";
+            return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+        }
     }
     return result;
 }

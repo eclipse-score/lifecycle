@@ -398,18 +398,47 @@ TEST_F(ConverterTest, ConvertComponentAliveSupervisionMissingToleranceReturnsErr
     EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
 }
 
-TEST_F(ConverterTest, ConvertComponentAliveSupervisionOptionalIndicationsAbsent)
+TEST_F(ConverterTest, ConvertComponentAliveSupervisionBothIndicationsAbsentReturnsError)
 {
-    RecordProperty("Description", "Optional min/max_indications are nullopt when absent.");
+    RecordProperty("Description", "Both min/max_indications absent returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
     auto cas = fb::CreateComponentAliveSupervision(fbb, 1.0 /*reporting_cycle*/, 3 /*failed_cycles_tolerance*/);
     fbb.Finish(cas);
     const auto* ptr = ::flatbuffers::GetRoot<fb::ComponentAliveSupervision>(fbb.GetBufferPointer());
 
     auto result = details::convertComponentAliveSupervision(ptr);
+    ASSERT_THAT(result.has_value(), IsFalse());
+    EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
+}
+
+TEST_F(ConverterTest, ConvertComponentAliveSupervisionOnlyMinIndicationsPresent)
+{
+    RecordProperty("Description", "Only min_indications set is accepted, max_indications remains nullopt.");
+    ::flatbuffers::FlatBufferBuilder fbb;
+    auto cas = fb::CreateComponentAliveSupervision(fbb, 1.0 /*reporting_cycle*/, 3 /*failed_cycles_tolerance*/, 2 /*min_indications*/);
+    fbb.Finish(cas);
+    const auto* ptr = ::flatbuffers::GetRoot<fb::ComponentAliveSupervision>(fbb.GetBufferPointer());
+
+    auto result = details::convertComponentAliveSupervision(ptr);
+    ASSERT_THAT(result.has_value(), IsTrue());
+    ASSERT_THAT(result->min_indications.has_value(), IsTrue());
+    EXPECT_THAT(*result->min_indications, Eq(2U));
+    EXPECT_THAT(result->max_indications.has_value(), IsFalse());
+}
+
+TEST_F(ConverterTest, ConvertComponentAliveSupervisionOnlyMaxIndicationsPresent)
+{
+    RecordProperty("Description", "Only max_indications set is accepted, min_indications remains nullopt.");
+    ::flatbuffers::FlatBufferBuilder fbb;
+    auto cas = fb::CreateComponentAliveSupervision(fbb, 1.0 /*reporting_cycle*/, 3 /*failed_cycles_tolerance*/, ::flatbuffers::nullopt /*min_indications*/, 5 /*max_indications*/);
+    fbb.Finish(cas);
+    const auto* ptr = ::flatbuffers::GetRoot<fb::ComponentAliveSupervision>(fbb.GetBufferPointer());
+
+    auto result = details::convertComponentAliveSupervision(ptr);
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(result->min_indications.has_value(), IsFalse());
-    EXPECT_THAT(result->max_indications.has_value(), IsFalse());
+    ASSERT_THAT(result->max_indications.has_value(), IsTrue());
+    EXPECT_THAT(*result->max_indications, Eq(5U));
 }
 
 TEST_F(ConverterTest, ConvertApplicationProfileValid)
