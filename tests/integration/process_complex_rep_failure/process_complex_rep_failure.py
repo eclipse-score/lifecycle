@@ -12,15 +12,12 @@
 # *******************************************************************************
 from tests.utils.testing_utils.run_until_file_deployed import run_until_file_deployed
 from tests.utils.testing_utils.setup_test import setup_test
-from tests.utils.testing_utils.test_results import (
-    assert_test_results
-)
+from tests.utils.testing_utils.test_results import assert_test_results
 from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
     partially_verifies=[
-        "feat_req__lifecycle__process_failure_react",
         "feat_req__lifecycle__recov_run_target_switch",
         "feat_req__lifecycle__recovery_action_support"
     ],

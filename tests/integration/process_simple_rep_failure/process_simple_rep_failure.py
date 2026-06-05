@@ -18,7 +18,6 @@ from attribute_plugin import add_test_properties
 
 @add_test_properties(
     partially_verifies=[
-        "feat_req__lifecycle__process_failure_react",
         "feat_req__lifecycle__recov_run_target_switch",
         "feat_req__lifecycle__recovery_action_support"
     ],
