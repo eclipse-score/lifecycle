@@ -777,30 +777,145 @@ test heartbeat::heartbeat_monitor::loom_tests::heartbeat_monitor_heartbeat_evalu
 test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.70s
 </pre></div>
 </div>
-<p class="rubric">tests-report/score/health_monitor/src/cpp/cpp_tests/test.log</p>
+<p class="rubric">tests-report/score/health_monitor/src/cpp/cpp_integration_tests/test.log</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
-Executing tests from //score/health_monitor/src/cpp:cpp_tests
+Executing tests from //score/health_monitor/src/cpp:cpp_integration_tests
 -----------------------------------------------------------------------------
 Running main() from gmock_main.cc
 [==========] Running 1 test from 1 test suite.
 [----------] Global test environment set-up.
 [----------] 1 test from HealthMonitorTest
-[ RUN      ] HealthMonitorTest.TestName
-[2026/06/01 13:07:10.0989262][score/health_monitor/src/rust/worker.rs:121][8244][HMON][INFO] Monitoring thread started.
-[2026/06/01 13:07:10.0990149][score/health_monitor/src/rust/deadline/deadline_monitor.rs:217][8244][HMON][ERROR] Deadline DeadlineTag(deadline_1) stopped too early by 100 ms
-[2026/06/01 13:07:10.1497675][score/health_monitor/src/rust/deadline/deadline_monitor.rs:267][8244][HMON][WARN] Deadline (DeadlineTag(deadline_1)) finished too early!
-[2026/06/01 13:07:10.1497986][score/health_monitor/src/rust/worker.rs:58][8244][HMON][WARN] Deadline monitor with tag MonitorTag(deadline_monitor) reported error: TooEarly.
-[2026/06/01 13:07:10.1498095][score/health_monitor/src/rust/heartbeat/heartbeat_monitor.rs:253][8244][HMON][WARN] Heartbeat occurred too early, offset to range: 100
-[2026/06/01 13:07:10.1498145][score/health_monitor/src/rust/worker.rs:64][8244][HMON][WARN] Heartbeat monitor with tag MonitorTag(heartbeat_monitor) reported error: TooEarly.
-[2026/06/01 13:07:10.1498203][score/health_monitor/src/rust/worker.rs:85][8244][HMON][WARN] One or more monitors reported errors, skipping AliveAPI notification.
-[2026/06/01 13:07:10.1498247][score/health_monitor/src/rust/worker.rs:132][8244][HMON][INFO] Monitoring logic failed, stopping thread.
-[2026/06/01 13:07:10.1498288][score/health_monitor/src/rust/worker.rs:139][8244][HMON][INFO] Monitoring thread exiting.
-[       OK ] HealthMonitorTest.TestName (51 ms)
-[----------] 1 test from HealthMonitorTest (51 ms total)
+[ RUN      ] HealthMonitorTest.Integrated
+[2026/06/05 09:54:42.0717292][score/health_monitor/src/rust/deadline/deadline_monitor.rs:217][4986][HMON][ERROR] Deadline DeadlineTag(deadline_1) stopped too early by 100 ms
+[2026/06/05 09:54:42.0717485][score/health_monitor/src/rust/worker.rs:121][4986][HMON][INFO] Monitoring thread started.
+[2026/06/05 09:54:42.0717714][score/health_monitor/src/rust/worker.rs:139][4986][HMON][INFO] Monitoring thread exiting.
+[       OK ] HealthMonitorTest.Integrated (3 ms)
+[----------] 1 test from HealthMonitorTest (3 ms total)
 
 [----------] Global test environment tear-down
-[==========] 1 test from 1 test suite ran. (51 ms total)
+[==========] 1 test from 1 test suite ran. (3 ms total)
 [  PASSED  ] 1 test.
+</pre></div>
+</div>
+<p class="rubric">tests-report/score/health_monitor/src/cpp/cpp_unit_tests/test.log</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>exec ${PAGER:-/usr/bin/less} &quot;$0&quot; || exit 1
+Executing tests from //score/health_monitor/src/cpp:cpp_unit_tests
+-----------------------------------------------------------------------------
+Running main() from gmock_main.cc
+[==========] Running 33 tests from 10 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from DeadlineMonitorBuilderFixture
+[ RUN      ] DeadlineMonitorBuilderFixture.New_Succeeds
+[       OK ] DeadlineMonitorBuilderFixture.New_Succeeds (0 ms)
+[ RUN      ] DeadlineMonitorBuilderFixture.AddDeadline_Succeeds
+[       OK ] DeadlineMonitorBuilderFixture.AddDeadline_Succeeds (0 ms)
+[----------] 2 tests from DeadlineMonitorBuilderFixture (0 ms total)
+
+[----------] 2 tests from DeadlineMonitorFixture
+[ RUN      ] DeadlineMonitorFixture.GetDeadline_Succeeds
+[       OK ] DeadlineMonitorFixture.GetDeadline_Succeeds (0 ms)
+[ RUN      ] DeadlineMonitorFixture.GetDeadline_Unknown
+[       OK ] DeadlineMonitorFixture.GetDeadline_Unknown (0 ms)
+[----------] 2 tests from DeadlineMonitorFixture (0 ms total)
+
+[----------] 2 tests from DeadlineFixture
+[ RUN      ] DeadlineFixture.Start_Succeeds
+[2026/06/05 09:54:43.4389358][score/health_monitor/src/rust/deadline/deadline_monitor.rs:217][5018][HMON][ERROR] Deadline DeadlineTag(deadline) stopped too early by 50 ms
+[       OK ] DeadlineFixture.Start_Succeeds (0 ms)
+[ RUN      ] DeadlineFixture.Start_AlreadyRunning
+[2026/06/05 09:54:43.4389870][score/health_monitor/src/rust/deadline/deadline_monitor.rs:217][5018][HMON][ERROR] Deadline DeadlineTag(deadline) stopped too early by 50 ms
+[2026/06/05 09:54:43.4389935][score/health_monitor/src/rust/deadline/deadline_monitor.rs:172][5018][HMON][WARN] Trying to start deadline DeadlineTag(deadline) that already failed
+[       OK ] DeadlineFixture.Start_AlreadyRunning (0 ms)
+[----------] 2 tests from DeadlineFixture (0 ms total)
+
+[----------] 4 tests from HealthMonitorBuilderFixture
+[ RUN      ] HealthMonitorBuilderFixture.New_Succeeds
+[       OK ] HealthMonitorBuilderFixture.New_Succeeds (0 ms)
+[ RUN      ] HealthMonitorBuilderFixture.Build_Succeeds
+[       OK ] HealthMonitorBuilderFixture.Build_Succeeds (0 ms)
+[ RUN      ] HealthMonitorBuilderFixture.Build_InvalidCycles
+[2026/06/05 09:54:43.4390903][score/health_monitor/src/rust/health_monitor.rs:134][5018][HMON][ERROR] Supervisor API cycle duration (123 ms) must be a multiple of internal processing cycle interval (100 ms).
+[       OK ] HealthMonitorBuilderFixture.Build_InvalidCycles (0 ms)
+[ RUN      ] HealthMonitorBuilderFixture.Build_NoMonitors
+[2026/06/05 09:54:43.4391104][score/health_monitor/src/rust/health_monitor.rs:146][5018][HMON][ERROR] No monitors have been added. HealthMonitor cannot be created.
+[       OK ] HealthMonitorBuilderFixture.Build_NoMonitors (0 ms)
+[----------] 4 tests from HealthMonitorBuilderFixture (0 ms total)
+
+[----------] 11 tests from HealthMonitor
+[ RUN      ] HealthMonitor.GetDeadlineMonitor_Available
+[       OK ] HealthMonitor.GetDeadlineMonitor_Available (0 ms)
+[ RUN      ] HealthMonitor.GetDeadlineMonitor_Taken
+[       OK ] HealthMonitor.GetDeadlineMonitor_Taken (0 ms)
+[ RUN      ] HealthMonitor.GetDeadlineMonitor_Unknown
+[       OK ] HealthMonitor.GetDeadlineMonitor_Unknown (0 ms)
+[ RUN      ] HealthMonitor.GetHeartbeatMonitor_Available
+[       OK ] HealthMonitor.GetHeartbeatMonitor_Available (0 ms)
+[ RUN      ] HealthMonitor.GetHeartbeatMonitor_Taken
+[       OK ] HealthMonitor.GetHeartbeatMonitor_Taken (0 ms)
+[ RUN      ] HealthMonitor.GetHeartbeatMonitor_Unknown
+[       OK ] HealthMonitor.GetHeartbeatMonitor_Unknown (0 ms)
+[ RUN      ] HealthMonitor.GetLogicMonitor_Available
+[       OK ] HealthMonitor.GetLogicMonitor_Available (0 ms)
+[ RUN      ] HealthMonitor.GetLogicMonitor_Taken
+[       OK ] HealthMonitor.GetLogicMonitor_Taken (0 ms)
+[ RUN      ] HealthMonitor.GetLogicMonitor_Unknown
+[       OK ] HealthMonitor.GetLogicMonitor_Unknown (0 ms)
+[ RUN      ] HealthMonitor.Start_Succeeds
+[2026/06/05 09:54:43.4393663][score/health_monitor/src/rust/worker.rs:121][5018][HMON][INFO] Monitoring thread started.
+[2026/06/05 09:54:43.4393754][score/health_monitor/src/rust/worker.rs:139][5018][HMON][INFO] Monitoring thread exiting.
+[       OK ] HealthMonitor.Start_Succeeds (0 ms)
+[ RUN      ] HealthMonitor.Start_MonitorsNotTaken
+[2026/06/05 09:54:43.4400290][score/health_monitor/src/rust/health_monitor.rs:307][5023][HMON][ERROR] All monitors must be taken before starting HealthMonitor but MonitorTag(deadline_monitor) is not taken.
+[       OK ] HealthMonitor.Start_MonitorsNotTaken (158 ms)
+[----------] 11 tests from HealthMonitor (158 ms total)
+
+[----------] 1 test from HeartbeatMonitorBuilder
+[ RUN      ] HeartbeatMonitorBuilder.New_Succeeds
+[       OK ] HeartbeatMonitorBuilder.New_Succeeds (0 ms)
+[----------] 1 test from HeartbeatMonitorBuilder (0 ms total)
+
+[----------] 1 test from HeartbeatMonitor
+[ RUN      ] HeartbeatMonitor.Heartbeat_Succeeds
+[       OK ] HeartbeatMonitor.Heartbeat_Succeeds (0 ms)
+[----------] 1 test from HeartbeatMonitor (0 ms total)
+
+[----------] 2 tests from LogicMonitorBuilderFixture
+[ RUN      ] LogicMonitorBuilderFixture.New_Succeeds
+[       OK ] LogicMonitorBuilderFixture.New_Succeeds (0 ms)
+[ RUN      ] LogicMonitorBuilderFixture.AddState_Succeeds
+[       OK ] LogicMonitorBuilderFixture.AddState_Succeeds (0 ms)
+[----------] 2 tests from LogicMonitorBuilderFixture (0 ms total)
+
+[----------] 5 tests from LogicMonitorFixture
+[ RUN      ] LogicMonitorFixture.Transition_Succeeds
+[       OK ] LogicMonitorFixture.Transition_Succeeds (0 ms)
+[ RUN      ] LogicMonitorFixture.Transition_Unknown
+[2026/06/05 09:54:43.5978984][score/health_monitor/src/rust/logic/logic_monitor.rs:265][5018][HMON][WARN] Requested state transition is invalid: StateTag(state1) -&gt; StateTag(unknown)
+[       OK ] LogicMonitorFixture.Transition_Unknown (0 ms)
+[ RUN      ] LogicMonitorFixture.Transition_Invalid
+[2026/06/05 09:54:43.5979562][score/health_monitor/src/rust/logic/logic_monitor.rs:265][5018][HMON][WARN] Requested state transition is invalid: StateTag(state1) -&gt; StateTag(unknown)
+[2026/06/05 09:54:43.5979644][score/health_monitor/src/rust/logic/logic_monitor.rs:254][5018][HMON][WARN] Current logic monitor state cannot be determined
+[       OK ] LogicMonitorFixture.Transition_Invalid (0 ms)
+[ RUN      ] LogicMonitorFixture.State_Succeeds
+[       OK ] LogicMonitorFixture.State_Succeeds (0 ms)
+[ RUN      ] LogicMonitorFixture.State_Invalid
+[2026/06/05 09:54:43.5980688][score/health_monitor/src/rust/logic/logic_monitor.rs:265][5018][HMON][WARN] Requested state transition is invalid: StateTag(state1) -&gt; StateTag(unknown)
+[2026/06/05 09:54:43.5980816][score/health_monitor/src/rust/logic/logic_monitor.rs:290][5018][HMON][WARN] Current logic monitor state cannot be determined
+[       OK ] LogicMonitorFixture.State_Invalid (0 ms)
+[----------] 5 tests from LogicMonitorFixture (0 ms total)
+
+[----------] 3 tests from TimeRangeFixture
+[ RUN      ] TimeRangeFixture.New_Succeeds
+[       OK ] TimeRangeFixture.New_Succeeds (0 ms)
+[ RUN      ] TimeRangeFixture.New_InvalidOrder
+[       OK ] TimeRangeFixture.New_InvalidOrder (149 ms)
+[ RUN      ] TimeRangeFixture.MinMax
+[       OK ] TimeRangeFixture.MinMax (0 ms)
+[----------] 3 tests from TimeRangeFixture (149 ms total)
+
+[----------] Global test environment tear-down
+[==========] 33 tests from 10 test suites ran. (309 ms total)
+[  PASSED  ] 33 tests.
 </pre></div>
 </div>
 <p class="rubric">tests-report/score/launch_manager/exec_error_domain_UT/test.log</p>
