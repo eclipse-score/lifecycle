@@ -440,7 +440,7 @@ Sample configuration of Health Monitor daemon:
 }
 ```
 
-Full configuration for example applications can be found in ``examples/config`` folder.
+Full configuration for example applications can be found in ``examples/demo_verification/lifecycle_demo_test.json``.
 
 # Architecture
 
