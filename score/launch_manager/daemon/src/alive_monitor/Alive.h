@@ -22,7 +22,7 @@ namespace score::mw::lifecycle
 {
 
 // Forward declaration
-class MonitorImpl;
+class AliveImpl;
 
 /// @brief Alive Class
 class Alive
@@ -61,8 +61,8 @@ public:
     void ReportCheckpoint(std::uint32_t checkpointId) const noexcept;
 
 private:
-    /// @brief Unique pointer to implementation class of Monitor
-    std::unique_ptr<MonitorImpl> monitorImplPtr;
+    /// @brief Unique pointer to implementation class of Alive
+    std::unique_ptr<AliveImpl> aliveImplPtr;
 };
 
 #ifdef __cplusplus

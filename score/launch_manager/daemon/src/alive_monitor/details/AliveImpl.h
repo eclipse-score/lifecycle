@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#ifndef SCORE_LCM_MonitorImpl_H_
-#define SCORE_LCM_MonitorImpl_H_
+#ifndef SCORE_LCM_AliveImpl_H_
+#define SCORE_LCM_AliveImpl_H_
 
 #include <memory>
 #include <utility>
@@ -29,7 +29,7 @@ namespace score::mw::lifecycle
 ///        This class is responsible for establishing the connection between the application and PHM daemon
 ///        by invoking the calls to PHM class methods and to forward the reported checkpoints from the application
 ///        to PHM daemon for supervision evaluation
-class MonitorImpl
+class AliveImpl
 {
   public:
     /// @brief The element that is sent via IPC
@@ -39,32 +39,32 @@ class MonitorImpl
                                                                 score::lcm::saf::ifappl::k_maxCheckpointBufferElements>;
 
     /// @brief Non-parametric constructor is not supported
-    MonitorImpl() = delete;
+    AliveImpl() = delete;
 
-    /// @brief Constructor of MonitorImpl class
+    /// @brief Constructor of AliveImpl class
     /// @param [in] f_instanceSpecifier_r  Instance specifier object with the metamodel path of
     ///                                    the Monitor
     /// @param [in] f_ipcClient            Ipc Connection to PHM daemon
     /// @throws std::runtime_error in case ipc path could not be read from configuration
     /// @throws std::bad_alloc in case of insufficient memory
-    explicit MonitorImpl(
+    explicit AliveImpl(
         const std::string_view& f_instanceSpecifier_r,
         std::unique_ptr<CheckpointIpcClient> f_ipcClient = std::make_unique<CheckpointIpcClient>()) noexcept(false);
 
-    /// @brief The copy constructor for MonitorImpl is not supported.
-    MonitorImpl(const MonitorImpl&) = delete;
+    /// @brief The copy constructor for AliveImpl is not supported.
+    AliveImpl(const AliveImpl&) = delete;
 
-    /// @brief The move constructor for MonitorImpl is not supported.
-    MonitorImpl(MonitorImpl&&) = delete;
+    /// @brief The move constructor for AliveImpl is not supported.
+    AliveImpl(AliveImpl&&) = delete;
 
-    /// @brief The copy assignment operator for MonitorImpl is not supported.
-    MonitorImpl& operator=(const MonitorImpl&) & = delete;
+    /// @brief The copy assignment operator for AliveImpl is not supported.
+    AliveImpl& operator=(const AliveImpl&) & = delete;
 
-    /// @brief The move assignment operator for MonitorImpl is not supported.
-    MonitorImpl& operator=(MonitorImpl&&) & noexcept = delete;
+    /// @brief The move assignment operator for AliveImpl is not supported.
+    AliveImpl& operator=(AliveImpl&&) & noexcept = delete;
 
     /// @brief Destructor of the class
-    virtual ~MonitorImpl() = default;
+    virtual ~AliveImpl() = default;
 
     /// @brief Reports an occurrence of a Checkpoint
     /// @param [in] f_checkpointId   Checkpoint identifier.

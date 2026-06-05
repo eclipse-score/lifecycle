@@ -76,7 +76,7 @@ cc_library(
 )
 
 cc_library(
-    name = "health_monitor_impl",
+    name = "alive_monitor_impl",
     srcs = ["AliveMonitorImpl.cpp"],
     hdrs = ["AliveMonitorImpl.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/daemon",
