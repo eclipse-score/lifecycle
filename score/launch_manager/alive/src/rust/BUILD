@@ -15,9 +15,9 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 rust_library(
     name = "alive_rs",
     srcs = [
+        "src/alive.rs",
         "src/errors.rs",
         "src/lib.rs",
-        "src/alive.rs",
     ],
     visibility = ["//score:__subpackages__"],
     deps = [
