@@ -19,8 +19,8 @@
 namespace score::mw::lifecycle
 {
 
-Alive::Alive(const std::string_view& instance) noexcept(false) :
-    monitorImplWrapperPtr(std::make_unique<MonitorImplWrapper>(instance))
+Alive::Alive() noexcept(false) :
+    monitorImplWrapperPtr(std::make_unique<MonitorImplWrapper>("default_instance"))
 {
 }
 
@@ -58,9 +58,9 @@ enum class Dummy : std::uint32_t {};
 extern "C" {
 #endif
 
-void* score_lcm_monitor_initialize(const char* instanceSpecifier) noexcept {
+void* score_lcm_monitor_initialize() noexcept {
     try {
-        auto* monitorPtr = new score::mw::lifecycle::Alive(instanceSpecifier);
+        auto* monitorPtr = new score::mw::lifecycle::Alive();
         return static_cast<void*>(monitorPtr);
     } catch (...) {
         return nullptr;

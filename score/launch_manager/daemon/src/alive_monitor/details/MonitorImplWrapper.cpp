@@ -30,7 +30,7 @@ MonitorImplWrapper::~MonitorImplWrapper() noexcept(true)
     monitorImplPtr.reset();
 }
 
-void MonitorImplWrapper::ReportCheckpoint(Checkpoint f_checkpointId) const noexcept(true)
+void MonitorImplWrapper::ReportCheckpoint(std::uint32_t f_checkpointId) const noexcept(true)
 {
     if (monitorImplPtr.get() != nullptr)
     {
