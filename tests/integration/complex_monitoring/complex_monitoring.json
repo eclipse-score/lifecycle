@@ -68,8 +68,7 @@
             "deployment_config": {
                 "environmental_variables": {
                     "PROCESSIDENTIFIER": "component_complex_monitoring",
-                    "IDENTIFIER": "component_complex_monitoring",
-                    "CONFIG_PATH": "etc/hmproc_component_complex_monitoring.bin"
+                    "IDENTIFIER": "component_complex_monitoring"
                 }
             }
         },

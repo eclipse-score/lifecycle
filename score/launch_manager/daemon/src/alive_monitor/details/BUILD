@@ -10,7 +10,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+
+cc_test(
+    name = "MonitorImpl_UT",
+    srcs = ["MonitorImpl_UT.cpp"],
+    deps = [
+        ":monitor_impl",
+        "@googletest//:gtest_main",
+    ],
+)
 
 cc_library(
     name = "monitor_impl",

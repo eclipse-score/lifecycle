@@ -73,7 +73,6 @@
             "deployment_config": {
                 "environmental_variables": {
                     "PROCESSIDENTIFIER": "cpp_supervised_app",
-                    "CONFIG_PATH": "/tmp/tests/examples/etc/hmproc_cpp_supervised_app.bin",
                     "IDENTIFIER": "cpp_supervised_app"
                 }
             }
@@ -91,7 +90,6 @@
             "deployment_config": {
                 "environmental_variables": {
                     "PROCESSIDENTIFIER": "rust_supervised_app",
-                    "CONFIG_PATH": "/tmp/tests/examples/etc/hmproc_rust_supervised_app.bin",
                     "IDENTIFIER": "rust_supervised_app"
                 }
             }
