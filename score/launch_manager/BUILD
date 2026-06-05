@@ -26,7 +26,7 @@ alias(
 
 alias(
     name = "alive_rust",
-    actual = "//score/launch_manager/daemon/src/alive_monitor/rust:monitor_rs",
+    actual = "//score/launch_manager/daemon/src/alive_monitor/rust:alive_rs",
 )
 
 alias(

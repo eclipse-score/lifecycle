@@ -13,11 +13,11 @@
 load("@rules_rust//rust:defs.bzl", "rust_library")
 
 rust_library(
-    name = "monitor_rs",
+    name = "alive_rs",
     srcs = [
         "src/errors.rs",
         "src/lib.rs",
-        "src/monitor.rs",
+        "src/alive.rs",
     ],
     visibility = ["//score:__subpackages__"],
     deps = [

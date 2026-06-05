@@ -19,8 +19,8 @@
 namespace score::mw::lifecycle
 {
 
-Alive::Alive() noexcept(false) :
-    monitorImplPtr(std::make_unique<MonitorImpl>("default_instance"))
+Alive::Alive(const std::string_view& instance) noexcept(false) :
+    monitorImplPtr(std::make_unique<MonitorImpl>("instance"))
 {
 }
 
@@ -58,21 +58,21 @@ enum class Dummy : std::uint32_t {};
 extern "C" {
 #endif
 
-void* score_lcm_monitor_initialize() noexcept {
+void* score_lcm_alive_initialize(const char* instanceSpecifier) noexcept {
     try {
-        auto* monitorPtr = new score::mw::lifecycle::Alive();
-        return static_cast<void*>(monitorPtr);
+        auto* alivePtr = new score::mw::lifecycle::Alive(instanceSpecifier);
+        return static_cast<void*>(alivePtr);
     } catch (...) {
         return nullptr;
     }
 }
 
-void score_lcm_monitor_deinitialize(void* instance) noexcept {
-    auto* monitorPtr = static_cast<score::mw::lifecycle::Alive*>(instance);
-    delete monitorPtr;
+void score_lcm_alive_deinitialize(void* instance) noexcept {
+    auto* alivePtr = static_cast<score::mw::lifecycle::Alive*>(instance);
+    delete alivePtr;
 }
 
-void score_lcm_monitor_report_checkpoint(void* instance, std::uint32_t checkpointId) noexcept {
+void score_lcm_alive_report_checkpoint(void* instance, std::uint32_t checkpointId) noexcept {
     static_cast<score::mw::lifecycle::Alive*>(instance)->ReportCheckpoint(checkpointId);
 }
 

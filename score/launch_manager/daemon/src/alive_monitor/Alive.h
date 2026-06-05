@@ -29,9 +29,10 @@ class Alive
 {
 public:
     /// @brief Creation of an Alive.
+    /// @param [in] instance  Instance specifier of the Monitor
     /// @throws std::runtime_error in case of an error loading the process-specific configuration
     /// @throws std::bad_alloc in case of insufficient memory
-    Alive() noexcept(false);
+    explicit Alive(const std::string_view& instance) noexcept(false);
 
     /// @brief The copy constructor for Alive shall not be used.
     Alive(const Alive& se) = delete;
@@ -68,9 +69,9 @@ private:
 extern "C"
 {
 #endif
-    void* score_lcm_monitor_initialize() noexcept;
-    void score_lcm_monitor_deinitialize(void* instance) noexcept;
-    void score_lcm_monitor_report_checkpoint(void* instance, std::uint32_t checkpointId) noexcept;
+    void* score_lcm_alive_initialize(const char* instanceSpecifier) noexcept;
+    void score_lcm_alive_deinitialize(void* instance) noexcept;
+    void score_lcm_alive_report_checkpoint(void* instance, std::uint32_t checkpointId) noexcept;
 #ifdef __cplusplus
 }
 #endif
