@@ -49,6 +49,10 @@ def _lmcontrol(target, lmcontrol_path, run_target):
     assert exit_code == 0, f"lmcontrol {run_target} failed"
 
 
+def _step(description):
+    print(f"\n--- Step: {description} ---")
+
+
 @add_test_properties(
     partially_verifies=[],
     test_type="interface-test",
@@ -66,22 +70,26 @@ def test_examples(target, setup_test, remote_test_dir):
     lm_path = str(remote_test_dir / "launch_manager")
     lmcontrol_path = str(remote_test_dir / "lmcontrol")
 
+    _step("Starting launch manager (Startup)")
     lm_proc = target.execute_async(lm_path, cwd=str(remote_test_dir))
 
     time.sleep(1.0)
     assert lm_proc.is_running(), "Launch manager exited unexpectedly during Startup"
 
+    _step("Transitioning to RunTarget Running")
     _lmcontrol(target, lmcontrol_path, "Running")
     time.sleep(2.0)
     assert lm_proc.is_running(), "Launch manager exited unexpectedly during Running"
     _assert_running(target, *_DEMO_APPS)
 
+    _step("Transitioning back to RunTarget Startup")
     _lmcontrol(target, lmcontrol_path, "Startup")
     time.sleep(1.0)
     assert lm_proc.is_running(), (
         "Launch manager exited unexpectedly after returning to Startup"
     )
 
+    _step("Transitioning to RunTarget Running again")
     _lmcontrol(target, lmcontrol_path, "Running")
     time.sleep(2.0)
     assert lm_proc.is_running(), (
@@ -89,6 +97,7 @@ def test_examples(target, setup_test, remote_test_dir):
     )
     _assert_running(target, *_DEMO_APPS)
 
+    _step("Killing cpp_supervised_app (SIGKILL) — expecting recovery to fallback_run_target")
     _send_signal(target, "cpp_supervised_app", "9")
     time.sleep(2.0)
     assert lm_proc.is_running(), (
@@ -96,6 +105,7 @@ def test_examples(target, setup_test, remote_test_dir):
     )
     _assert_not_running(target, "cpp_supervised_app")
 
+    _step("Transitioning to RunTarget Running after crash recovery")
     _lmcontrol(target, lmcontrol_path, "Running")
     time.sleep(2.0)
     assert lm_proc.is_running(), (
@@ -103,6 +113,7 @@ def test_examples(target, setup_test, remote_test_dir):
     )
     _assert_running(target, *_DEMO_APPS)
 
+    _step("Triggering supervision failure on cpp_supervised_app (SIGUSR1) — expecting recovery to fallback_run_target")
     _send_signal(target, "cpp_supervised_app", "USR1")
     time.sleep(2.0)
     assert lm_proc.is_running(), (
@@ -110,6 +121,7 @@ def test_examples(target, setup_test, remote_test_dir):
     )
     _assert_not_running(target, "cpp_supervised_app")
 
+    _step("Stopping launch manager (SIGTERM)")
     res, _ = target.execute(f"kill -15 -{lm_proc.pid()}")
     assert res == 0, "Failed to send SIGTERM to launch manager process group"
     time.sleep(0.5)
