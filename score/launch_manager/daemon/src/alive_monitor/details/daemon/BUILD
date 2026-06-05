@@ -67,7 +67,7 @@ cc_library(
 )
 
 cc_library(
-    name = "i_health_monitor",
+    name = "i_alive_monitor",
     hdrs = ["IAliveMonitor.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/daemon",
     strip_include_prefix = "/score/launch_manager/daemon/src/alive_monitor/details/daemon",
@@ -83,7 +83,7 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/daemon/src/alive_monitor/details/daemon",
     visibility = ["//score/launch_manager/daemon:__subpackages__"],
     deps = [
-        ":i_health_monitor",
+        ":i_alive_monitor",
         "//score/launch_manager/daemon/src/alive_monitor/details/logging:phm_logging",
         "//score/launch_manager/daemon/src/alive_monitor/details/watchdog:watchdog_impl",
     ],

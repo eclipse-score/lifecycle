@@ -33,7 +33,6 @@ cc_binary(
     visibility = ["//visibility:public"],
     deps = [
         "//score/health_monitor:health_monitoring_cc",
-        "//score/launch_manager:alive_cc",
         "//score/launch_manager:lifecycle_cc",
         "@score_baselibs_rust//src/log/stdout_logger_cpp_init",
     ],

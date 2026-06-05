@@ -21,12 +21,12 @@ alias(
 
 alias(
     name = "alive_cc",
-    actual = "//score/launch_manager/daemon/src/alive_monitor:am_shared_lib",
+    actual = "//score/launch_manager/alive:alive",
 )
 
 alias(
     name = "alive_rust",
-    actual = "//score/launch_manager/daemon/src/alive_monitor/rust:alive_rs",
+    actual = "//score/launch_manager/alive/src/rust:alive_rs",
 )
 
 alias(

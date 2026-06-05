@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "score/mw/launch_manager/alive_monitor/Alive.h"
+#include "score/mw/lifecycle/alive.h"
 #include "score/mw/launch_manager/alive_monitor/details/AliveImpl.h"
 
 #include <utility>

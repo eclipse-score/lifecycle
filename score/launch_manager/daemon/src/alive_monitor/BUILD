@@ -38,56 +38,9 @@ cc_library(
 )
 
 cc_library(
-    name = "alive_monitor_h",
-    hdrs = [
-        "Alive.h",
-    ],
-    include_prefix = "score/mw/launch_manager/alive_monitor",
-    strip_include_prefix = "/score/launch_manager/daemon/src/alive_monitor",
-    visibility = ["//score/launch_manager/daemon/src/alive_monitor:__subpackages__"],
-)
-
-cc_library(
-    name = "am-lib",
-    srcs = [
-        "Alive.cpp",
-    ],
-    hdrs = [
-        "Alive.h",
-    ],
-    include_prefix = "score/mw/launch_manager/alive_monitor",
-    strip_include_prefix = "/score/launch_manager/daemon/src/alive_monitor",
-    visibility = ["//score:__subpackages__"],
-    deps = [
-        ":alive_monitor_h",
-        "//score/launch_manager/daemon/src/alive_monitor/details:alive_impl",
-    ] + select({
-        "@platforms//os:qnx": [],
-        "@platforms//os:linux": ["//externals/acl"],
-    }),
-)
-
-cc_library(
     name = "alive_monitor",
     visibility = ["//score:__subpackages__"],
     deps = [
         "//score/launch_manager/daemon/src/alive_monitor/details/daemon:alive_monitor_impl",
     ],
-)
-
-cc_library(
-    name = "am_shared_lib",
-    hdrs = [
-        "Alive.h",
-    ],
-    include_prefix = "score/mw/launch_manager/alive_monitor",
-    strip_include_prefix = "/score/launch_manager/daemon/src/alive_monitor",
-    visibility = ["//score:__subpackages__"],
-    deps = [
-        ":am-lib",
-        "//score/launch_manager/daemon/src/alive_monitor/details/ipc:ipc_if",
-        "//score/launch_manager/daemon/src/alive_monitor/details/logging:phm_logging",
-        "//score/launch_manager/daemon/src/alive_monitor/details/timers:timers_os_clock",
-    ],
-    alwayslink = True,
 )

@@ -22,6 +22,9 @@ cc_library(
     }),
     include_prefix = "score/mw/launch_manager/alive_monitor/details/logging",
     strip_include_prefix = "/score/launch_manager/daemon/src/alive_monitor/details/logging",
-    visibility = ["//score/launch_manager/daemon/src/alive_monitor:__subpackages__"],
+    visibility = [
+        "//score/launch_manager/alive:__subpackages__",
+        "//score/launch_manager/daemon/src/alive_monitor:__subpackages__",
+    ],
     deps = ["@score_baselibs//score/mw/log"],
 )

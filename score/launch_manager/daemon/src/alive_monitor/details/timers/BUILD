@@ -32,7 +32,10 @@ cc_library(
     ],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/timers",
     strip_include_prefix = "/score/launch_manager/daemon/src/alive_monitor/details/timers",
-    visibility = ["//score/launch_manager/daemon/src/alive_monitor:__subpackages__"],
+    visibility = [
+        "//score/launch_manager/alive:__subpackages__",
+        "//score/launch_manager/daemon/src/alive_monitor:__subpackages__",
+    ],
 )
 
 alias(

@@ -47,7 +47,6 @@ cc_library(
     deps = [
         ":i_supervision",
         ":supervision_cfg",
-        "//score/launch_manager/daemon/src/alive_monitor:alive_monitor_h",
         "//score/launch_manager/daemon/src/alive_monitor/details/common:time_sorting_buffer",
         "//score/launch_manager/daemon/src/alive_monitor/details/ifappl:checkpoint",
         "//score/launch_manager/daemon/src/alive_monitor/details/ifexm:process_state",
