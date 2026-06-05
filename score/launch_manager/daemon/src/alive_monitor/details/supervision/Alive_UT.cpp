@@ -28,6 +28,7 @@
 using namespace testing;
 
 using EStatus = score::lcm::saf::supervision::Alive::EStatus;
+using EProcState = score::lcm::saf::ifexm::ProcessState::EProcState;
 
 namespace
 {
@@ -117,7 +118,7 @@ struct AliveFixture
     void activateProcess(score::lcm::saf::timers::NanoSecondType timestamp)
     {
         processState.setTimestamp(timestamp);
-        processState.setState(score::lcm::saf::ifexm::ProcessState::EProcState::running);
+        processState.setState(EProcState::running);
         processState.pushData();
     }
 
@@ -125,7 +126,7 @@ struct AliveFixture
     void sigtermProcess(score::lcm::saf::timers::NanoSecondType timestamp)
     {
         processState.setTimestamp(timestamp);
-        processState.setState(score::lcm::saf::ifexm::ProcessState::EProcState::sigterm);
+        processState.setState(EProcState::sigterm);
         processState.pushData();
     }
 
@@ -133,7 +134,7 @@ struct AliveFixture
     void crashProcess(score::lcm::saf::timers::NanoSecondType timestamp)
     {
         processState.setTimestamp(timestamp);
-        processState.setState(score::lcm::saf::ifexm::ProcessState::EProcState::off);
+        processState.setState(EProcState::off);
         processState.pushData();
     }
 
@@ -322,11 +323,11 @@ TEST_F(AliveSupervisionTest, IgnoresIrrelevantProcessStates)
 
     // idle and starting before activation — supervision must stay deactivated
     fix.processState.setTimestamp(5U);
-    fix.processState.setState(score::lcm::saf::ifexm::ProcessState::EProcState::idle);
+    fix.processState.setState(EProcState::idle);
     fix.processState.pushData();
 
     fix.processState.setTimestamp(6U);
-    fix.processState.setState(score::lcm::saf::ifexm::ProcessState::EProcState::starting);
+    fix.processState.setState(EProcState::starting);
     fix.processState.pushData();
 
     fix.alive->evaluate(7U);

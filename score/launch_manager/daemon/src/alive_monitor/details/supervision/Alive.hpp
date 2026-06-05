@@ -14,10 +14,6 @@
 #ifndef ALIVE_HPP_INCLUDED
 #define ALIVE_HPP_INCLUDED
 
-#ifndef PHM_PRIVATE
-#define PHM_PRIVATE private
-#endif
-
 #include <cstdint>
 #include <variant>
 
@@ -130,7 +126,7 @@ class Alive : public ISupervision,
     /// @return True if sendRecoveryRequest failed
     bool hasRecoveryEnqueueFailed(void) const noexcept;
 
-PHM_PRIVATE:
+private:
     /// @brief The pointer is only stored for the identification of a checkpoint observer. It can be further used for
     /// accessing const members only.
     using CheckpointIdentifier = const score::lcm::saf::ifappl::Checkpoint*;
@@ -170,19 +166,13 @@ PHM_PRIVATE:
         kDeactivation = 2U,  ///< update event for deactivation of supervision
         kCheckpoint = 3U,    ///< update event for reported checkpoint
         kEvaluation = 4U,    ///< artificial update event for evaluation of supervision (relevant for Alive only)
-        kSync = 5U           ///< artificial update event for synchronization (relevant for Alive and Deadline only)
+        kSync = 5U           ///< artificial update event for synchronization (relevant for Alive only)
     };
 
     /// @brief Get timestamp of current update event
     /// @param [in] f_updateEvent    Sorted update event (e.g, Activation, Deactivation, Checkpoint, ...) from Buffer
     /// @return                      Timestamp of update event
     static timers::NanoSecondType getTimestampOfUpdateEvent(const TimeSortedUpdateEvent f_updateEvent) noexcept(true);
-
-    /// @brief Get the type of update event
-    /// @param [in] f_updateEvent        Sorted update event (e.g, Activation, Deactivation, Checkpoint, ...) from
-    /// Buffer
-    /// @return                          Type of update event
-    EUpdateEventType getEventType(const TimeSortedUpdateEvent f_updateEvent) noexcept(true);
 
     /// @brief Check and trigger transition out of state Deactivated
     /// @param [in] f_updateEventType       Type of update event (e.g, Activation, Deactivation, Checkpoint, ...)

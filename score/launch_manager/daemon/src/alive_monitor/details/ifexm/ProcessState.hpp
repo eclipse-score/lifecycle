@@ -14,10 +14,6 @@
 #ifndef PROCESSSTATE_HPP_INCLUDED
 #define PROCESSSTATE_HPP_INCLUDED
 
-#ifndef PHM_PRIVATE
-#    define PHM_PRIVATE private
-#endif
-
 #include <string>
 #include "score/mw/launch_manager/alive_monitor/details/common/Observer.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/common/Types.hpp"
@@ -103,7 +99,7 @@ public:
     /// @details Push process state related information, which shall be distribute to observers.
     void pushData(void) noexcept;
 
-PHM_PRIVATE:
+private:
     /// @brief Process short name
     const std::string k_processShortName;
 

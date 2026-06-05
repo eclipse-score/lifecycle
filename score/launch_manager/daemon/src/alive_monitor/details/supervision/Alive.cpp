@@ -264,8 +264,6 @@ bool Alive::detectEvaluationEvent(const timers::NanoSecondType f_timestampOfUpda
 Alive::EUpdateEventType Alive::getAliveEventType(bool f_isEvaluationEvent,
                                                  const TimeSortedUpdateEvent f_updateEvent) noexcept(true)
 {
-    EUpdateEventType currentUpdateType{EUpdateEventType::kNoChange};
-
     if (f_isEvaluationEvent)
     {
         return EUpdateEventType::kEvaluation;
