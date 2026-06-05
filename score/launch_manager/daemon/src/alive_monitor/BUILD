@@ -60,7 +60,7 @@ cc_library(
     visibility = ["//score:__subpackages__"],
     deps = [
         ":alive_monitor_h",
-        "//score/launch_manager/daemon/src/alive_monitor/details:monitor_impl_wrapper",
+        "//score/launch_manager/daemon/src/alive_monitor/details:monitor_impl",
     ] + select({
         "@platforms//os:qnx": [],
         "@platforms//os:linux": ["//externals/acl"],

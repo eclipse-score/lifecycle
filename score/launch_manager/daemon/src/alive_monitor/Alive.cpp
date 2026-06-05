@@ -12,7 +12,7 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/alive_monitor/Alive.h"
-#include "score/mw/launch_manager/alive_monitor/details/MonitorImplWrapper.h"
+#include "score/mw/launch_manager/alive_monitor/details/MonitorImpl.h"
 
 #include <utility>
 
@@ -20,12 +20,12 @@ namespace score::mw::lifecycle
 {
 
 Alive::Alive() noexcept(false) :
-    monitorImplWrapperPtr(std::make_unique<MonitorImplWrapper>("default_instance"))
+    monitorImplPtr(std::make_unique<MonitorImpl>("default_instance"))
 {
 }
 
 Alive::Alive(Alive&& se) noexcept :
-    monitorImplWrapperPtr(std::move(se.monitorImplWrapperPtr))
+    monitorImplPtr(std::move(se.monitorImplPtr))
 {
 }
 
@@ -33,8 +33,8 @@ Alive& Alive::operator=(Alive&& se) noexcept
 {
     if (this != &se)
     {
-        monitorImplWrapperPtr.reset(nullptr);
-        monitorImplWrapperPtr = std::move(se.monitorImplWrapperPtr);
+        monitorImplPtr.reset(nullptr);
+        monitorImplPtr = std::move(se.monitorImplPtr);
     }
 
     return *this;
@@ -44,9 +44,9 @@ Alive::~Alive() noexcept = default;
 
 void Alive::ReportCheckpoint(std::uint32_t checkpointId) const noexcept
 {
-    if (monitorImplWrapperPtr.get() != nullptr)
+    if (monitorImplPtr.get() != nullptr)
     {
-        monitorImplWrapperPtr->ReportCheckpoint(checkpointId);
+        monitorImplPtr->ReportCheckpoint(checkpointId);
     }
 }
 

@@ -22,19 +22,6 @@ cc_test(
 )
 
 cc_library(
-    name = "monitor_impl_wrapper",
-    srcs = ["MonitorImplWrapper.cpp"],
-    hdrs = ["MonitorImplWrapper.h"],
-    include_prefix = "score/mw/launch_manager/alive_monitor/details",
-    strip_include_prefix = "/score/launch_manager/daemon/src/alive_monitor/details",
-    visibility = ["//score/launch_manager/daemon/src/alive_monitor:__subpackages__"],
-    deps = [
-        ":monitor_impl"
-    ],
-)
-
-
-cc_library(
     name = "monitor_impl",
     srcs = ["MonitorImpl.cpp"],
     hdrs = ["MonitorImpl.h"],
