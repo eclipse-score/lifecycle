@@ -46,6 +46,19 @@ score::cpp::expected<T, IConfigLoader::Error> requireScalarValue(
     return *field;
 }
 
+template <typename TargetT>
+score::cpp::expected<TargetT, IConfigLoader::Error> validateRange(uint32_t value, const char* field_name)
+{
+    if (value < static_cast<uint32_t>(std::numeric_limits<TargetT>::min()) ||
+        value > static_cast<uint32_t>(std::numeric_limits<TargetT>::max()))
+    {
+        LM_LOG_ERROR() << field_name << " " << value << " is out of valid range ["
+                       << std::numeric_limits<TargetT>::min() << "," << std::numeric_limits<TargetT>::max() << "]";
+        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+    }
+    return static_cast<TargetT>(value);
+}
+
 }  // anonymous namespace
 
 namespace details
@@ -147,12 +160,12 @@ score::cpp::expected<std::vector<gid_t>, IConfigLoader::Error> convertGidVector(
         result.reserve(vec->size());
         for (const auto val : *vec)
         {
-            if (val < std::numeric_limits<gid_t>::min() || val > std::numeric_limits<gid_t>::max())
+            auto gid = validateRange<gid_t>(val, "Sandbox supplementary group id");
+            if (!gid.has_value())
             {
-                LM_LOG_ERROR() << "Sandbox supplementary group id " << val << " is out of valid gid_t range [" << std::numeric_limits<gid_t>::min() << "," << std::numeric_limits<gid_t>::max() << "]";
-                return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+                return score::cpp::make_unexpected(gid.error());
             }
-            result.emplace_back(static_cast<gid_t>(val));
+            result.emplace_back(*gid);
         }
     }
     return result;
@@ -349,15 +362,15 @@ score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(const fb::San
     {
         return score::cpp::make_unexpected(fb_gid.error());
     }
-    if (*fb_uid < std::numeric_limits<uid_t>::min() || *fb_uid > std::numeric_limits<uid_t>::max())
+    auto uid = validateRange<uid_t>(*fb_uid, "Sandbox uid");
+    if (!uid.has_value())
     {
-        LM_LOG_ERROR() << "Sandbox uid " << *fb_uid << " is out of valid uid_t range [" << std::numeric_limits<uid_t>::min() << "," << std::numeric_limits<uid_t>::max() << "]";
-        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+        return score::cpp::make_unexpected(uid.error());
     }
-    if (*fb_gid < std::numeric_limits<gid_t>::min() || *fb_gid > std::numeric_limits<gid_t>::max())
+    auto gid = validateRange<gid_t>(*fb_gid, "Sandbox gid");
+    if (!gid.has_value())
     {
-        LM_LOG_ERROR() << "Sandbox gid " << *fb_gid << " is out of valid gid_t range [" << std::numeric_limits<gid_t>::min() << "," << std::numeric_limits<gid_t>::max() << "]";
-        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+        return score::cpp::make_unexpected(gid.error());
     }
     auto sched_policy = requireScalarValue(fb_sb->scheduling_policy(), "Sandbox::scheduling_policy");
     if (!sched_policy.has_value())
@@ -375,8 +388,8 @@ score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(const fb::San
         return score::cpp::make_unexpected(scheduling_priority.error());
     }
     Sandbox result{};
-    result.uid = static_cast<uid_t>(*fb_uid);
-    result.gid = static_cast<gid_t>(*fb_gid);
+    result.uid = *uid;
+    result.gid = *gid;
     auto supplementary_gids = convertGidVector(fb_sb->supplementary_group_ids());
     if (!supplementary_gids.has_value())
     {
