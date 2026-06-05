@@ -55,7 +55,6 @@ void Alive::ReportAlive() const noexcept
 
 }  // namespace score::mw::lifecycle
 
-enum class Dummy : std::uint32_t {};
 
 #ifdef __cplusplus
 extern "C" {

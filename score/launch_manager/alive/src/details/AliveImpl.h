@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#ifndef SCORE_LCM_AliveImpl_H_
-#define SCORE_LCM_AliveImpl_H_
+#ifndef SCORE_LCM_ALIVEIMPL_H_
+#define SCORE_LCM_ALIVEIMPL_H_
 
 #include <memory>
 #include <utility>

@@ -29,8 +29,8 @@ class Alive
 {
 public:
     /// @brief Creation of an Alive.
-    /// @param [in] instance  Instance specifier of the Monitor
-    /// @throws std::runtime_error in case of an error loading the process-specific configuration
+    /// @param [in] instance  Instance specifier (currently unused)
+    /// @throws std::runtime_error if the configured IPC channel to connect to launch manager is not existing
     /// @throws std::bad_alloc in case of insufficient memory
     explicit Alive(const std::string_view& instance) noexcept(false);
 
