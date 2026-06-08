@@ -41,10 +41,21 @@ pkg_files(
     prefix = "tests/examples",
 )
 
+pkg_files(
+    name = "examples_logging_files",
+    srcs = [
+        "ecu_logging_config.json",
+        "hm_logging.json",
+        "logging.json",
+    ],
+    prefix = "tests/examples/etc",
+)
+
 pkg_tar(
     name = "examples_binaries",
     srcs = [
         ":examples_etc_files",
+        ":examples_logging_files",
         ":examples_main_files",
     ],
 )

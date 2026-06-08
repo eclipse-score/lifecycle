@@ -116,7 +116,7 @@ bazel build --config=arm64-qnx -- //score/...
 
 ## Running Lifecycle feature and example applications
 
-The ``examples`` folder contains a demo setup running in a docker container, consisting of a set of example applications and corresponding configuration. As per configuration, Launch Manager will start Health Monitor and a set of configured applications. For more information see [examples/README.md](examples/README.md) file.
+The ``examples`` folder contains the automated demo verification for the example applications, together with the configuration and packaged binaries it needs. Launch Manager starts Health Monitor and the configured applications as part of the test. For more information see [examples/README.md](examples/README.md).
 
 ## Configuration
 
@@ -438,7 +438,7 @@ Sample configuration of Health Monitor daemon:
 }
 ```
 
-Full configuration for example applications can be found in ``examples/config`` folder.
+Full configuration for example applications can be found in ``examples/demo_verification/lifecycle_demo_test.json``.
 
 # Architecture
 
