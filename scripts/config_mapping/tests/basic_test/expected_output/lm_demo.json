@@ -180,6 +180,10 @@
                         {
                             "key": "EMPTY_GLOBAL_ENV_VAR",
                             "value": ""
+                        },
+                        {
+                            "key": "LCM_ALIVE_INTERFACE_PATH",
+                            "value": "lifecycle_health_someip-daemon"
                         }
                     ],
                     "processArgument": [
@@ -243,6 +247,10 @@
                         {
                             "key": "EMPTY_GLOBAL_ENV_VAR",
                             "value": ""
+                        },
+                        {
+                            "key": "LCM_ALIVE_INTERFACE_PATH",
+                            "value": "lifecycle_health_test_app1"
                         }
                     ],
                     "processArgument": [
@@ -320,6 +328,10 @@
                         {
                             "key": "EMPTY_GLOBAL_ENV_VAR",
                             "value": ""
+                        },
+                        {
+                            "key": "LCM_ALIVE_INTERFACE_PATH",
+                            "value": "lifecycle_health_state_manager"
                         }
                     ],
                     "processArgument": [

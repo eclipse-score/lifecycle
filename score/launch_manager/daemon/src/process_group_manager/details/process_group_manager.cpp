@@ -264,7 +264,7 @@ bool ProcessGroupManager::run()
                    // debug messages.
                    << (static_cast<double>(clock()) / (static_cast<double>(CLOCKS_PER_SEC) / 1000.0)) << "ms";
 
-    OsHandler os_handler(*process_map_, process_interface_);
+    OsHandler os_handler(*process_map_);
 
     bool result = startInitialTransition();
 
@@ -524,12 +524,12 @@ inline void ProcessGroupManager::recoveryActionHandler()
     for (auto recovery_request = recovery_client_->getNextRequest(); recovery_request.has_value();
          recovery_request = recovery_client_->getNextRequest())
     {
-        auto pg = getProcessGroup(recovery_request->process_group_identifier_);
+        auto pg = getProcessGroupByProcessId(*recovery_request);
 
         if (nullptr == pg)
         {
-            LM_LOG_ERROR() << "recoveryActionHandler: Unknown process group "
-                           << recovery_request->process_group_identifier_;
+            LM_LOG_ERROR() << "recoveryActionHandler: Unknown process "
+                           << *recovery_request;
             continue;
         }
 
@@ -538,7 +538,7 @@ inline void ProcessGroupManager::recoveryActionHandler()
         const GraphState graph_state = pg->getState();
 
         LM_LOG_DEBUG() << "recoveryActionHandler: Processing recovery request for PG "
-                       << recovery_request->process_group_identifier_ << " to state " << recovery_state;
+                       << *recovery_request << " to state " << recovery_state;
 
         if (GraphState::kInTransition == graph_state)
         {
@@ -742,6 +742,24 @@ std::shared_ptr<ProcessInfoNode> ProcessGroupManager::getProcessInfoNode(uint32_
     }
 
     return result;
+}
+
+std::shared_ptr<Graph> ProcessGroupManager::getProcessGroupByProcessId(const IdentifierHash& process_id)
+{
+    for (auto& pg : process_groups_)
+    {
+        const IdentifierHash pg_name = pg->getProcessGroupName();
+        const uint32_t count = configuration_manager_.getNumberOfOsProcesses(pg_name).value_or(0U);
+        for (uint32_t idx = 0U; idx < count; ++idx)
+        {
+            const auto* proc = configuration_manager_.getOsProcessConfiguration(pg_name, idx).value_or(nullptr);
+            if (proc != nullptr && proc->process_id_ == process_id)
+            {
+                return pg;
+            }
+        }
+    }
+    return nullptr;
 }
 
 std::shared_ptr<Graph> ProcessGroupManager::getProcessGroup(IdentifierHash pg_name)

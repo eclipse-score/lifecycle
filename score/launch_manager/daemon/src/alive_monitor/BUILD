@@ -92,7 +92,6 @@ cc_library(
         "//score/launch_manager/daemon/src/alive_monitor/details/ipc:ipc_if",
         "//score/launch_manager/daemon/src/alive_monitor/details/logging:phm_logging",
         "//score/launch_manager/daemon/src/alive_monitor/details/timers:timers_os_clock",
-        "@flatbuffers",
     ],
     alwayslink = True,
 )

@@ -16,8 +16,6 @@
 #include "score/mw/launch_manager/alive_monitor/details/factory/FlatCfgFactory.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/MonitorIfDaemon.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/supervision/Alive.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/supervision/Global.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/supervision/Local.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
 
 namespace score
@@ -33,9 +31,16 @@ namespace daemon
    true_no_defect) */
 /* RULECHECKER_comment(0, 4, check_incomplete_data_member_construction, "Default constructor is used for\
  processStateReader.", true_no_defect) */
-PhmDaemon::PhmDaemon(score::lcm::saf::timers::OsClockInterface& f_osClock, logging::PhmLogger& f_logger_r,
-                     std::unique_ptr<watchdog::IWatchdogIf> f_watchdog, std::unique_ptr<score::lcm::IProcessStateReceiver> f_process_state_receiver) :
-    osClock{f_osClock}, cycleTimer{&osClock}, logger_r{f_logger_r}, swClusterHandlers{}, processStateReader{std::move(f_process_state_receiver)}, watchdog(std::move(f_watchdog))
+PhmDaemon::PhmDaemon(score::lcm::saf::timers::OsClockInterface& f_osClock,
+                     logging::PhmLogger& f_logger_r,
+                     std::unique_ptr<watchdog::IWatchdogIf> f_watchdog,
+                     std::unique_ptr<score::lcm::IProcessStateReceiver> f_process_state_receiver)
+    : osClock{f_osClock},
+      cycleTimer{&osClock},
+      logger_r{f_logger_r},
+      swClusterHandlers{},
+      processStateReader{std::move(f_process_state_receiver)},
+      watchdog(std::move(f_watchdog))
 {
     static_cast<void>(f_osClock);
 }
@@ -59,14 +64,12 @@ void PhmDaemon::performCyclicTriggers(void)
         for (auto& phmHandler : swClusterHandlers)
         {
             phmHandler.performCyclicTriggers(syncTimestamp);
-            isCriticalFailure = isCriticalFailure || phmHandler.hasRecoveryNotificationTimeout();
+            isCriticalFailure = isCriticalFailure || phmHandler.hasAnyRecoveryEnqueueFailed();
         }
     }
 
     // watchdog is fired iff:
-    //  * A timeout occurs for any RecoveryNotification sent to SM
-    //  * Global Supervision reached status GLOBAL_STATUS_STOPPED for a supervision of SM or LM. In this case the
-    //  recovery notification goes directly to timeout state
+    //  * isCriticalFailure is set (e.g. process state distribution error, recovery ring buffer full)
     // else:
     //  * watchdog is serviced
     if (!isCriticalFailure)
@@ -105,8 +108,7 @@ bool PhmDaemon::construct(const factory::MachineConfigFactory::SupervisionBuffer
         for (auto strSwClusterName : listSwClustersPhm.value())
         {
             swClusterHandlers.emplace_back(strSwClusterName);
-            isSuccess =
-                swClusterHandlers.back().constructWorkers(recoveryClient, processStateReader, f_bufferConfig_r);
+            isSuccess = swClusterHandlers.back().constructWorkers(recoveryClient, processStateReader, f_bufferConfig_r);
             if (!isSuccess)
             {
                 logger_r.LogError() << "Phm Daemon: failed to create worker objects for swclusterhandler:"

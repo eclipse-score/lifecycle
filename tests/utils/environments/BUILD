@@ -11,11 +11,17 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
+exports_files(
+    ["ecu_logging_config.json"],
+    visibility = ["//tests/utils/environments:__subpackages__"],
+)
+
 # Empty target for native builds
 filegroup(
     name = "empty_target",
     srcs = [],
     visibility = [
+        "//examples:__subpackages__",
         "//tests:__subpackages__",
     ],
 )
@@ -27,6 +33,7 @@ alias(
         "//conditions:default": ":empty_target",
     }),
     visibility = [
+        "//examples:__subpackages__",
         "//tests:__subpackages__",
     ],
 )

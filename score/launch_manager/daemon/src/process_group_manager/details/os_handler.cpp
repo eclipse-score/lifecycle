@@ -21,12 +21,12 @@ namespace internal {
 
 void OsHandler::run(void) {
     while (is_running_) {
-        int32_t status = 0;
-        osal::ProcessID targetProcessId = 0;
+        int32_t wait_status = 0;
+        auto result = sys_wait_.wait(&wait_status);
 
-        if (osal::OsalReturnType::kSuccess == process_interface_.waitForTermination(targetProcessId, status)) {
-            if (-1 == safe_process_map_.findTerminated(targetProcessId, status)) {
-                LM_LOG_ERROR() << "[os handler: out of resources]";
+        if (result.has_value() && result.value() > 0) {
+            if (-1 == safe_process_map_.findTerminated(result.value(), wait_status)) {
+                LM_LOG_ERROR() << "No more resources available to track process with PID " << result.value() << "(SafeProcessMap capacity exceeded).";
             }
         } else {
             // This process has no children to wait for at present,
