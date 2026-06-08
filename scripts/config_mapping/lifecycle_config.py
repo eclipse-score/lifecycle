@@ -205,12 +205,6 @@ def gen_health_monitor_config(output_dir, config):
         else:
             return "REGULAR_PROCESS"
 
-    def is_supervised(application_type):
-        return (
-            application_type == "State_Manager"
-            or application_type == "Reporting_And_Supervised"
-        )
-
     HM_SCHEMA_VERSION_MAJOR = 8
     HM_SCHEMA_VERSION_MINOR = 1
     hm_config = {}
