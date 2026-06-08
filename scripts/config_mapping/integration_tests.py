@@ -14,9 +14,11 @@ from scripts.config_mapping.lifecycle_config import (
 script_dir = Path(__file__).parent
 schema_path = (
     script_dir.parent.parent
-    / "src"
+    / "score"
     / "launch_manager"
-    / "config"
+    / "daemon"
+    / "src"
+    / "configuration"
     / "config_schema"
     / "launch_manager.schema.json"
 )
