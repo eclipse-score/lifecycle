@@ -24,7 +24,13 @@ namespace score::mw::lifecycle
 // Forward declaration
 class AliveImpl;
 
-/// @brief Alive Class
+/// @brief Alive API for reporting alive notifications to the launch manager.
+/// An alive notification indicates that the component is still active and functioning correctly.
+/// The launch manager is configured with an expected alive notification interval, 
+/// and if it does not receive an alive notification within that interval, 
+/// it executes the configured recovery action.
+///
+/// Each process may only use a single Alive instance.
 class Alive
 {
 public:
@@ -53,8 +59,7 @@ public:
     virtual ~Alive() noexcept;
 
     /// @brief Reports an alive notification
-    /// @remark Thread safety:
-    /// This method is NOT thread safe.
+    /// @remark Thread safety: This method is NOT thread safe.
     void ReportAlive() const noexcept;
 
 private:
