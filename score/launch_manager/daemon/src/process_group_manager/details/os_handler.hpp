@@ -18,7 +18,7 @@
 #include <chrono>
 #include <thread>
 
-#include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
+#include "score/os/sys_wait.h"
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 
 namespace score {
@@ -39,15 +39,13 @@ constexpr std::chrono::milliseconds OS_HANDLER_LOOP_DELAY{100};  // TODO - Defin
 /// There will only be one instance of OsHandler during the Launch Manager's lifetime.
 class OsHandler final {
    public:
-    /// @brief Constructs an OsHandler with safe process map and OS abstraction layer process interfaces
+    /// @brief Constructs an OsHandler with safe process map and SysWait interface.
     /// This constructor initializes the OsHandler, starts its execution thread, and prepares it to handle process terminations.
     /// @param map A reference to a SafeProcessMap that stores the mapping of processes to be managed.
-    /// @param process_interface A reference to an implementation of osal::IProcess, which provides the necessary
-    /// methods for process management, including waiting for process termination.
-    /// @note The lifetime of the object passed as `process_interface` must extend at least as long as
-    /// the lifetime of this OsHandler instance to avoid accessing dangling references.
-    OsHandler(SafeProcessMap& map, osal::IProcess& process_interface)
-        : safe_process_map_(map), process_interface_(process_interface) {
+    /// @param sys_wait A reference to a score::os::SysWait instance used to wait for child process termination.
+    ///        Defaults to the production singleton. A mock can be injected for testing.
+    OsHandler(SafeProcessMap& map, score::os::SysWait& sys_wait = score::os::SysWait::instance())
+        : safe_process_map_(map), sys_wait_(sys_wait) {
     }
 
     /// @brief Stops and and destroy the execution of the OsHandler's thread by setting the is_running_ flag to false,
@@ -84,8 +82,8 @@ class OsHandler final {
     /// @brief Indicates whether the os handler's thread is currently running.
     std::atomic_bool is_running_{true};
 
-    /// @brief Interface to the process functionality provided by the OSAL.
-    osal::IProcess& process_interface_;
+    /// @brief Interface to wait for child process termination.
+    score::os::SysWait& sys_wait_;
 
     /// @brief Thread object to manage execution of the run method.
     std::thread os_handler_{&score::lcm::internal::OsHandler::run, this};

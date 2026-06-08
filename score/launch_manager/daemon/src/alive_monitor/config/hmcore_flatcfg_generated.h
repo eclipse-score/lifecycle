@@ -257,9 +257,7 @@ struct HmConfig FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_PERIODICITY = 4,
     VT_BUFFERSIZEMONITOR = 6,
-    VT_BUFFERSIZEALIVESUPERVISION = 8,
-    VT_BUFFERSIZELOCALSUPERVISION = 10,
-    VT_BUFFERSIZEGLOBALSUPERVISION = 12
+    VT_BUFFERSIZEALIVESUPERVISION = 8
   };
   uint32_t periodicity() const {
     return GetField<uint32_t>(VT_PERIODICITY, 0);
@@ -270,19 +268,11 @@ struct HmConfig FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   uint16_t bufferSizeAliveSupervision() const {
     return GetField<uint16_t>(VT_BUFFERSIZEALIVESUPERVISION, 0);
   }
-  uint16_t bufferSizeLocalSupervision() const {
-    return GetField<uint16_t>(VT_BUFFERSIZELOCALSUPERVISION, 0);
-  }
-  uint16_t bufferSizeGlobalSupervision() const {
-    return GetField<uint16_t>(VT_BUFFERSIZEGLOBALSUPERVISION, 0);
-  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_PERIODICITY, 4) &&
            VerifyField<uint16_t>(verifier, VT_BUFFERSIZEMONITOR, 2) &&
            VerifyField<uint16_t>(verifier, VT_BUFFERSIZEALIVESUPERVISION, 2) &&
-           VerifyField<uint16_t>(verifier, VT_BUFFERSIZELOCALSUPERVISION, 2) &&
-           VerifyField<uint16_t>(verifier, VT_BUFFERSIZEGLOBALSUPERVISION, 2) &&
            verifier.EndTable();
   }
 };
@@ -300,12 +290,6 @@ struct HmConfigBuilder {
   void add_bufferSizeAliveSupervision(uint16_t bufferSizeAliveSupervision) {
     fbb_.AddElement<uint16_t>(HmConfig::VT_BUFFERSIZEALIVESUPERVISION, bufferSizeAliveSupervision, 0);
   }
-  void add_bufferSizeLocalSupervision(uint16_t bufferSizeLocalSupervision) {
-    fbb_.AddElement<uint16_t>(HmConfig::VT_BUFFERSIZELOCALSUPERVISION, bufferSizeLocalSupervision, 0);
-  }
-  void add_bufferSizeGlobalSupervision(uint16_t bufferSizeGlobalSupervision) {
-    fbb_.AddElement<uint16_t>(HmConfig::VT_BUFFERSIZEGLOBALSUPERVISION, bufferSizeGlobalSupervision, 0);
-  }
   explicit HmConfigBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -321,13 +305,9 @@ inline ::flatbuffers::Offset<HmConfig> CreateHmConfig(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t periodicity = 0,
     uint16_t bufferSizeMonitor = 0,
-    uint16_t bufferSizeAliveSupervision = 0,
-    uint16_t bufferSizeLocalSupervision = 0,
-    uint16_t bufferSizeGlobalSupervision = 0) {
+    uint16_t bufferSizeAliveSupervision = 0) {
   HmConfigBuilder builder_(_fbb);
   builder_.add_periodicity(periodicity);
-  builder_.add_bufferSizeGlobalSupervision(bufferSizeGlobalSupervision);
-  builder_.add_bufferSizeLocalSupervision(bufferSizeLocalSupervision);
   builder_.add_bufferSizeAliveSupervision(bufferSizeAliveSupervision);
   builder_.add_bufferSizeMonitor(bufferSizeMonitor);
   return builder_.Finish();

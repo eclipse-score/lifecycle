@@ -33,13 +33,12 @@ namespace score::mw::lifecycle
 ///        to PHM daemon for supervision evaluation
 class MonitorImpl
 {
-public:
+  public:
     /// @brief The element that is sent via IPC
     using CheckpointBufferElement = score::lcm::saf::ifappl::CheckpointBufferElement;
     /// @brief The IPC Connection type
-    using CheckpointIpcClient =
-        score::lcm::saf::ipc::IpcClient<CheckpointBufferElement,
-                                         score::lcm::saf::ifappl::k_maxCheckpointBufferElements>;
+    using CheckpointIpcClient = score::lcm::saf::ipc::IpcClient<CheckpointBufferElement,
+                                                                score::lcm::saf::ifappl::k_maxCheckpointBufferElements>;
 
     /// @brief Non-parametric constructor is not supported
     MonitorImpl() = delete;
@@ -73,28 +72,15 @@ public:
     /// @param [in] f_checkpointId   Checkpoint identifier.
     void ReportCheckpoint(Checkpoint f_checkpointId) const noexcept(true);
 
-private:
+  private:
     /// @brief Connect the application process with PHM daemon using IPC
     /// @throws std::runtime_error in case ipc path could not be read from configuration
     void connectToPhmDaemon(void) noexcept(false);
 
-    /// @brief Get the path to the IPC for the Monitor instance identified by the passed
-    /// instance specifier.
-    /// @return A String object, containing either empty string or containing the IPC path of the connected
-    /// Monitor instance (Empty string : If there are some errors in determining
-    /// the IPC path, valid IPC path otherwise)
-    /// @throws std::runtime_error in case ipc path could not be read from configuration
-    std::string getIpcPath(void) noexcept(false);
-
-    /// @brief Read the Monitor Interface related configurations from FlatCfg
-    /// @param [out] f_returnIfPath_r  Configured Monitor interface path if the configuration is valid.
-    ///                                If configuration is invalid the value has undefined content.
-    /// @return Pair (success/failure, error message). The boolean indicates if the Monitor configuration is
-    /// valid and could be successfully retrieved form the configuration file. If false, the second element in the pair
-    /// contains a detailed error message). (true: reading was successful and read data are valid, false: otherwise)
-    std::pair<bool, std::string> readConfig(std::string& f_returnIfPath_r) const noexcept(false);
-
-    std::unique_ptr<char[]> read_flatbuffer_file() const;
+    /// @brief Read the Monitor Interface Path from an environment variable. 
+    /// This is then used to initialise the IPC client
+    /// @return Value of environment variable or nullopt if getenv fails
+    static std::optional<std::string_view> readInterfacePath() noexcept;
 
     /// @brief Instance specifier path of the Monitor instance
     const std::string k_instanceSpecifierPath;

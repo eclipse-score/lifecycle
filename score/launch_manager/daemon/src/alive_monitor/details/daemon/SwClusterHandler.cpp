@@ -17,8 +17,6 @@
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/Checkpoint.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/MonitorIfDaemon.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/supervision/Alive.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/supervision/Global.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/supervision/Local.hpp"
 
 namespace score
 {
@@ -29,17 +27,14 @@ namespace saf
 namespace daemon
 {
 
-SwClusterHandler::SwClusterHandler(const std::string& f_swClusterName_r) :
-    logger_r(logging::PhmLogger::getLogger(logging::PhmLogger::EContext::factory)),
-    f_swClusterName(f_swClusterName_r),
-    processStates{},
-    monitorIfIpcs{},
-    monitorInterfaces{},
-    checkpoints{},
-    aliveSupervisions{},
-    localSupervisions{},
-    globalSupervisions{},
-    recoveryNotifications{}
+SwClusterHandler::SwClusterHandler(const std::string& f_swClusterName_r)
+    : logger_r(logging::PhmLogger::getLogger(logging::PhmLogger::EContext::factory)),
+      f_swClusterName(f_swClusterName_r),
+      processStates{},
+      monitorIfIpcs{},
+      monitorInterfaces{},
+      checkpoints{},
+      aliveSupervisions{}
 {
     if (f_swClusterName_r.empty())
     {
@@ -51,7 +46,9 @@ SwClusterHandler::~SwClusterHandler() = default;
 
 /* RULECHECKER_comment(0, 3, check_max_cyclomatic_complexity, "Max cyclomatic complexity violation\
    is tolerated for this function. ", true_no_defect) */
-bool SwClusterHandler::constructWorkers(std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r, ifexm::ProcessStateReader& f_processStateReader_r,
+bool SwClusterHandler::constructWorkers(
+    std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r,
+    ifexm::ProcessStateReader& f_processStateReader_r,
     const factory::MachineConfigFactory::SupervisionBufferConfig& f_bufferConfig_r) noexcept(false)
 {
     bool isSuccess{false};
@@ -70,8 +67,7 @@ bool SwClusterHandler::constructWorkers(std::shared_ptr<score::lcm::IRecoveryCli
     }
     if (isSuccess)
     {
-        isSuccess =
-            flatCfgFactory.createMonitorIf(monitorInterfaces, monitorIfIpcs, processStates);
+        isSuccess = flatCfgFactory.createMonitorIf(monitorInterfaces, monitorIfIpcs, processStates);
     }
     if (isSuccess)
     {
@@ -79,31 +75,8 @@ bool SwClusterHandler::constructWorkers(std::shared_ptr<score::lcm::IRecoveryCli
     }
     if (isSuccess)
     {
-        isSuccess = flatCfgFactory.createAliveSupervisions(aliveSupervisions, checkpoints, processStates);
-    }
-    if (isSuccess)
-    {
-        isSuccess = flatCfgFactory.createLocalSupervisions(localSupervisions, aliveSupervisions);
-    }
-    if (isSuccess)
-    {
-        isSuccess = flatCfgFactory.createGlobalSupervisions(globalSupervisions, localSupervisions, processStates);
-    }
-    if (isSuccess)
-    {
-        isSuccess = flatCfgFactory.createRecoveryNotifications(f_recoveryClient_r, recoveryNotifications, globalSupervisions);
-    }
-    if (isSuccess)
-    {
-        // Start searching for RecoveryAction proxy instance
-        for (auto& notification : recoveryNotifications)
-        {
-            if (!notification.initProxy())
-            {
-                isSuccess = false;
-                break;
-            }
-        }
+        isSuccess =
+            flatCfgFactory.createAliveSupervisions(aliveSupervisions, checkpoints, processStates, f_recoveryClient_r);
     }
     if (isSuccess == false)
     {
@@ -126,47 +99,24 @@ void SwClusterHandler::evaluateSupervisions(const timers::NanoSecondType f_syncT
     {
         alive.evaluate(f_syncTimestamp);
     }
-
-    for (auto& local : localSupervisions)
-    {
-        local.evaluate(f_syncTimestamp);
-    }
-
-    for (auto& global : globalSupervisions)
-    {
-        global.evaluate(f_syncTimestamp);
-    }
 }
 
-void SwClusterHandler::evaluateRecoveryNotifications(void)
+bool SwClusterHandler::hasAnyRecoveryEnqueueFailed() const noexcept
 {
-    for (auto& notification : recoveryNotifications)
+    for (const auto& alive : aliveSupervisions)
     {
-        notification.cyclicTrigger();
-    }
-}
-
-/* RULECHECKER_comment(1:0,1:0, check_member_function_missing_static, "Method uses non-static members and cannot be\
-made static", false) */
-bool SwClusterHandler::hasRecoveryNotificationTimeout() const noexcept
-{
-    bool hasTimeout{false};
-    for (const auto& notification : recoveryNotifications)
-    {
-        if (notification.isFinalTimeoutStateReached())
+        if (alive.hasRecoveryEnqueueFailed())
         {
-            hasTimeout = true;
-            break;
+            return true;
         }
     }
-    return hasTimeout;
+    return false;
 }
 
 void SwClusterHandler::performCyclicTriggers(const timers::NanoSecondType f_syncTimestamp)
 {
     checkInterfaceForNewData(f_syncTimestamp);
     evaluateSupervisions(f_syncTimestamp);
-    evaluateRecoveryNotifications();
 }
 
 }  // namespace daemon

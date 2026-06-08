@@ -98,33 +98,10 @@ public:
     /// Refer to the description of the base class (IPhmFactory)
     bool createAliveSupervisions(std::vector<supervision::Alive>& f_alive_r,
                                  std::vector<ifappl::Checkpoint>& f_checkpoints_r,
-                                 std::vector<ifexm::ProcessState>& f_processStates_r) override;
-
-    /// Refer to the description of the base class (IPhmFactory)
-    bool createLocalSupervisions(std::vector<supervision::Local>& f_local_r,
-                                 std::vector<supervision::Alive>& f_alive_r) override;
-
-    /// Refer to the description of the base class (IPhmFactory)
-    bool createGlobalSupervisions(std::vector<supervision::Global>& f_global_r,
-                                  std::vector<supervision::Local>& f_local_r,
-                                  std::vector<ifexm::ProcessState>& f_processStates_r) override;
-
-    /// Refer to the description of the base class (IPhmFactory)
-    bool createRecoveryNotifications(std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r,
-                                     std::vector<recovery::Notification>& f_notification_r,
-                                     std::vector<supervision::Global>& f_global_r) override;
+                                 std::vector<ifexm::ProcessState>& f_processStates_r,
+                                 std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r) override;
 
 private:
-    /// @brief Read the configuration of recovery notification and create notification worker
-    /// @details Read the configuration of recovery notification and create notification worker and place it in
-    /// notification vector
-    /// @param [in] f_recoveryClient_r           Recovery interface to the launch manager
-    /// @param [inout] f_notification_r           Vector for notification worker
-    /// @param [in] f_recoveryNotificationData_r  FlatBuffer data for recovery notification
-    void createNotification(std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r,
-                            std::vector<recovery::Notification>& f_notification_r,
-                            const HMFlatBuffer::RecoveryNotification& f_recoveryNotificationData_r) const
-        noexcept(false);
 
     /// @brief Get the process group state ids based on the process group state asr paths
     /// @param[in] f_pgStatePaths_r The pg state paths from the configuration

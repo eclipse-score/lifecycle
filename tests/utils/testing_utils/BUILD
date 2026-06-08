@@ -20,7 +20,10 @@ py_library(
         "setup_test.py",
         "test_results.py",
     ],
-    visibility = ["//tests:__subpackages__"],
+    visibility = [
+        "//examples:__subpackages__",
+        "//tests:__subpackages__",
+    ],
     deps = [
         requirement("junitparser"),
         "@score_itf//score/itf/core/process",
