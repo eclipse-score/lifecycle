@@ -71,7 +71,6 @@ rust_test(
     }),
     tags = [
         "no-asan",
-        "no-tsan",
     ],
     deps = ["@score_baselibs_rust//src/log/stdout_logger"],
 )
@@ -97,7 +96,6 @@ rust_test(
     tags = [
         "loom",
         "no-asan",
-        "no-tsan",
     ],
     target_compatible_with = ["@platforms//os:linux"],
     deps = [

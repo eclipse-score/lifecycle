@@ -78,7 +78,6 @@ cc_gtest_unit_test(
     }),
     tags = [
         "no-asan",
-        "no-tsan",
     ],
     deps = [
         "//score/health_monitor/src/cpp:health_monitoring_cc_stub_supervisor",

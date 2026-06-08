@@ -50,13 +50,6 @@ ASan + UBSan + LSan (recommended):
 bazel test --config=asan_ubsan_lsan --config=x86_64-linux //score/... //tests/...
 ```
 
-TSan (requires ASLR to be in conservative mode):
-
-```sh
-sudo sysctl -w kernel.randomize_va_space=0
-bazel test --config=tsan --config=x86_64-linux //score/... //tests/...
-```
-
 To build all components with ``score::mw::log`` enabled, use this command:
 
 ```sh

@@ -28,7 +28,7 @@ def integration_test(name, srcs, test_binaries, args = [], deps = [], data = [],
     })
 
     # The test container does not ship the sanitizer runtime; daemon fails to start.
-    sanitizer_tags = ["no-asan", "no-tsan"]
+    sanitizer_tags = ["no-asan"]
     tags = kwargs.pop("tags", []) + sanitizer_tags
 
     py_itf_test(
