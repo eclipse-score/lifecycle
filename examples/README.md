@@ -2,7 +2,9 @@
 
 ## Running the Demo Verification
 
-Execute `bazel test //examples/... --config=<...>` to build all dependencies and run the automated demo verification.
+Execute `bazel test //examples/... --config=<...> --test_output=all --test_arg=-s` to build all dependencies and run the automated demo verification.
+
+The extra flags make the `_step()` markers from `test_examples.py` visible in the Bazel output instead of leaving them under pytest capture.
 
 The test verifies the following scenarios end-to-end:
 

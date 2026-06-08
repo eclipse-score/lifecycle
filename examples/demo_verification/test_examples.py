@@ -97,7 +97,9 @@ def test_examples(target, setup_test, remote_test_dir):
     )
     _assert_running(target, *_DEMO_APPS)
 
-    _step("Killing cpp_supervised_app (SIGKILL) — expecting recovery to fallback_run_target")
+    _step(
+        "Killing cpp_supervised_app (SIGKILL) — expecting recovery to fallback_run_target"
+    )
     _send_signal(target, "cpp_supervised_app", "9")
     time.sleep(2.0)
     assert lm_proc.is_running(), (
@@ -113,7 +115,9 @@ def test_examples(target, setup_test, remote_test_dir):
     )
     _assert_running(target, *_DEMO_APPS)
 
-    _step("Triggering supervision failure on cpp_supervised_app (SIGUSR1) — expecting recovery to fallback_run_target")
+    _step(
+        "Triggering supervision failure on cpp_supervised_app (SIGUSR1) — expecting recovery to fallback_run_target"
+    )
     _send_signal(target, "cpp_supervised_app", "USR1")
     time.sleep(2.0)
     assert lm_proc.is_running(), (
