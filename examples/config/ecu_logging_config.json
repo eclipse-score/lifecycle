@@ -1,6 +1,0 @@
-{
-    "ecuId": "DEMO",
-    "logMode": "kConsole|kFile",
-    "logLevelThresholdConsole": "kDebug",   
-    "logFilePath": "/opt"
-}
