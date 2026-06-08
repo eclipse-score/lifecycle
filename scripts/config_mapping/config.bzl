@@ -49,8 +49,6 @@ def _launch_manager_config_impl(ctx):
                         schema={hmcore_schema}
                     elif [[ "$filename" == "hm_"* ]]; then
                         schema={hm_schema}
-                    elif [[ "$filename" == "hmproc_"* ]]; then
-                        schema={hm_schema}
                     else
                         echo "Unknown file type for $filename, skipping."
                         continue

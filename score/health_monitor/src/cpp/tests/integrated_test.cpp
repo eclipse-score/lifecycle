@@ -10,10 +10,9 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-#include "score/mw/health/health_monitor.h"
 #include "score/mw/health/common.h"
+#include "score/mw/health/health_monitor.h"
 #include "score/mw/health/tag.h"
-#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 using namespace score::mw::health;
@@ -24,17 +23,24 @@ class HealthMonitorTest : public ::testing::Test
     void SetUp() override
     {
         RecordProperty("TestType", "interface-test");
-        RecordProperty("DerivationTechnique", "explorative-testing ");
+        RecordProperty("DerivationTechnique", "explorative-testing");
     }
 };
 
 // For first review round, only single test case to show up API
-TEST_F(HealthMonitorTest, TestName)
+TEST_F(HealthMonitorTest, Integrated)
 {
     RecordProperty(
         "Description",
         "This test demonstrates the usage of HealthMonitor and DeadlineMonitor APIs. It creates a HealthMonitor with a "
         "DeadlineMonitor, retrieves the DeadlineMonitor, and tests starting a deadline.");
+
+    // Setup thread parameters.
+    // - Affinity set to first core.
+    // - Stack size set to common default stack size.
+    // - Scheduler not set - avoid additional caps required.
+    auto thread_parameters{ThreadParameters{}.affinity({0}).stack_size(8 * 1024 * 1024)};
+
     // Setup deadline monitor construction.
     const MonitorTag deadline_monitor_tag{"deadline_monitor"};
     auto deadline_monitor_builder =
@@ -55,9 +61,6 @@ TEST_F(HealthMonitorTest, TestName)
     StateTag to_state{"to_state"};
     auto logic_monitor_builder =
         logic::LogicMonitorBuilder{from_state}.add_state(from_state, std::vector{to_state}).add_state(to_state, {});
-
-    // Thread parameters.
-    auto thread_parameters{ThreadParameters().affinity(std::vector<size_t>{0})};
 
     auto hmon_result{HealthMonitorBuilder()
                          .add_deadline_monitor(deadline_monitor_tag, std::move(deadline_monitor_builder))
@@ -117,11 +120,17 @@ TEST_F(HealthMonitorTest, TestName)
     EXPECT_EQ(current_state_res.value(), to_state);
 
     auto deadline_res = deadline_mon.get_deadline(DeadlineTag("deadline_1"));
+    ASSERT_TRUE(deadline_res.has_value());
+    auto& deadline{deadline_res.value()};
 
     {
-        auto deadline_guard = deadline_res.value().start().value();
+        auto first_start_res{deadline.start()};
+        EXPECT_TRUE(first_start_res.has_value());
+        auto deadline_guard{std::move(first_start_res.value())};
 
-        EXPECT_EQ(deadline_res.value().start().error(), ::score::mw::health::Error::WrongState);
+        auto second_start_res{deadline_res.value().start()};
+        EXPECT_FALSE(second_start_res.has_value());
+        EXPECT_EQ(second_start_res.error(), ::score::mw::health::Error::WrongState);
         deadline_guard.stop();
     }
 }

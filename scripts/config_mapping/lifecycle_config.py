@@ -179,6 +179,13 @@ def preprocess_defaults(global_defaults, config):
     return new_config
 
 
+def is_supervised(application_type):
+    return (
+        application_type == "State_Manager"
+        or application_type == "Reporting_And_Supervised"
+    )
+
+
 def gen_health_monitor_config(output_dir, config):
     """
     This function generates the health monitor configuration file based on the input configuration.
@@ -197,12 +204,6 @@ def gen_health_monitor_config(output_dir, config):
             return "STM_PROCESS"
         else:
             return "REGULAR_PROCESS"
-
-    def is_supervised(application_type):
-        return (
-            application_type == "State_Manager"
-            or application_type == "Reporting_And_Supervised"
-        )
 
     def get_all_process_group_states(run_targets):
         process_group_states = []
@@ -296,17 +297,6 @@ def gen_health_monitor_config(output_dir, config):
                 config["run_targets"]
             )
             hm_config["hmAliveSupervision"].append(alive_supervision)
-
-            with open(
-                f"{output_dir}/hmproc_{component_name}.json", "w"
-            ) as process_file:
-                process_config = {}
-                process_config["versionMajor"] = HM_SCHEMA_VERSION_MAJOR
-                process_config["versionMinor"] = HM_SCHEMA_VERSION_MINOR
-                process_config["process"] = []
-                process_config["hmMonitorInterface"] = []
-                process_config["hmMonitorInterface"].append(hmMonitorIf)
-                json.dump(process_config, process_file, indent=4)
 
             index += 1
 
@@ -542,6 +532,16 @@ def gen_launch_manager_config(output_dir, config):
         ):
             process["startupConfig"][0]["environmentVariable"].append(
                 {"key": env_var, "value": value}
+            )
+        application_type = component_config["component_properties"][
+            "application_profile"
+        ]["application_type"]
+        if is_supervised(application_type):
+            process["startupConfig"][0]["environmentVariable"].append(
+                {
+                    "key": "LCM_ALIVE_INTERFACE_PATH",
+                    "value": "lifecycle_health_" + component_name,
+                }
             )
 
         if arguments := component_config["component_properties"].get(

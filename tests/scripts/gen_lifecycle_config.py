@@ -110,7 +110,6 @@ def gen_lifecycle_config(
             "deployment_config": {
                 "environmental_variables": {
                     "PROCESSIDENTIFIER": comp_name,
-                    "CONFIG_PATH": f"/opt/supervision_demo/etc/{comp_name}.bin",
                     "IDENTIFIER": comp_name,
                 },
             },
