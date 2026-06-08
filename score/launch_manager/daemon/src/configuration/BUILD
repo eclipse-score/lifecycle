@@ -55,7 +55,6 @@ cc_test(
     ],
 )
 
-
 cc_library(
     name = "config_loader",
     hdrs = ["config_loader.hpp"],
