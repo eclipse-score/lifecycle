@@ -182,6 +182,22 @@ cc_library(
     ]
 ]
 
+
+cc_library(
+    name = "report_running",
+    srcs = ["src/report_running.cpp"],
+    hdrs = ["src/report_running.h"],
+    features = COMPILER_WARNING_FEATURES,
+    include_prefix = "score/mw/lifecycle/lifecycle_client",
+    strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
+    visibility = ["//visibility:public"],
+    tags = ["FUSA"],
+    deps = [
+        ":lifecycle_client",
+        "@score_baselibs//score/mw/log",
+    ],
+)
+
 cc_library(
     name = "applicationcontext_mock",
     testonly = True,
@@ -240,6 +256,23 @@ cc_library(
         "@googletest//:gtest",
         "@score_baselibs//score/os/utils:signal",
         "@score_baselibs//score/os/utils/mocklib:signal_mock",
+    ],
+)
+
+cc_library(
+    name = "report_running_mock",
+    testonly = True,
+    srcs = ["src/report_running_mock.cpp"],
+    hdrs = [
+        "src/report_running.h",
+        "src/report_running_mock.h",
+    ],
+    features = COMPILER_WARNING_FEATURES,
+    include_prefix = "score/mw/lifecycle/lifecycle_client",
+    strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@googletest//:gtest",
     ],
 )
 
