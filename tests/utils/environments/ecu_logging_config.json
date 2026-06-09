@@ -3,5 +3,15 @@
     "appId": "LM",
     "logLevel": "kDebug",
     "logLevelThresholdConsole": "kDebug",
-    "logMode": "kConsole"
+    "logMode": "kConsole",
+    "contextConfigs":[
+        {
+            "name": "LM",
+            "logLevel": "kDebug"
+        },
+        {
+            "name": "Sprv",
+            "logLevel": "kDebug"
+        }
+    ]
 }
