@@ -37,7 +37,6 @@ cc_library(
         "src/application.cpp",
         "src/applicationcontext.cpp",
         "src/lifecycleclient.cpp",
-        "src/lifecyclemanager.cpp",
         "src/runapplication.cpp",
     ],
     hdrs = [
@@ -144,7 +143,7 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":application",
-        ":lifecycle_client",
+        ":report_running",
         "@score_baselibs//score/mw/log",
         "@score_baselibs//score/os:stdlib",
         "@score_baselibs//score/os/utils:signal",

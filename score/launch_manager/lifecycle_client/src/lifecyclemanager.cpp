@@ -15,7 +15,7 @@
 
 #include "score/os/errno.h"
 #include <cstdlib>
-#include "score/mw/lifecycle/lifecycle_client.h"
+#include "score/mw/lifecycle/lifecycle_client/report_running.h"
 #include "score/mw/log/logging.h"
 #include "score/os/stdlib_impl.h"
 
@@ -170,9 +170,5 @@ void score::mw::lifecycle::LifeCycleManager::handle_signal()
 void score::mw::lifecycle::LifeCycleManager::report_running() noexcept
 {
     mw::log::LogInfo() << "Reporting kRunning to Launch Manager";
-    const auto result = score::mw::lifecycle::LifecycleClient{}.ReportExecutionState(score::mw::lifecycle::ExecutionState::kRunning);
-    if (!result.has_value())
-    {
-        mw::log::LogError() << "Failed to report kRunning to Launch Manager: " << result.error().Message();
-    }
+    score::mw::lifecycle::report_running();
 }
