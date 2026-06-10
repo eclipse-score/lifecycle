@@ -69,6 +69,9 @@ rust_test(
             "-Clink-arg=-lstdc++",
         ],
     }),
+    tags = [
+        "no-asan",
+    ],
     deps = ["@score_baselibs_rust//src/log/stdout_logger"],
 )
 
@@ -90,7 +93,10 @@ rust_test(
             "-Clink-arg=-lstdc++",
         ],
     }),
-    tags = ["loom"],
+    tags = [
+        "loom",
+        "no-asan",
+    ],
     target_compatible_with = ["@platforms//os:linux"],
     deps = [
         "@score_baselibs_rust//src/log/stdout_logger",

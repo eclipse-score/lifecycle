@@ -15,10 +15,10 @@
 
 #include <score/span.hpp>
 
-#include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
-#include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
+#include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
 
 namespace score
 {
@@ -275,10 +275,7 @@ bool Graph::startTransition(ProcessGroupStateID pg_state)
 
     if (nullptr != process_index_list)
     {
-        {
-            std::shared_lock lock(transition_completion_mutex_);
-            setState(GraphState::kInTransition);
-        }
+        setState(GraphState::kInTransition);
 
         if (GraphState::kInTransition == getState())
         {
@@ -532,6 +529,8 @@ void Graph::setLastExecutionError(uint32_t code)
 
 IdentifierHash Graph::setPendingState(IdentifierHash new_state)
 {
+    std::shared_lock lock(transition_completion_mutex_);
+
     IdentifierHash result_state = pending_state_;
 
     pending_state_ = new_state;

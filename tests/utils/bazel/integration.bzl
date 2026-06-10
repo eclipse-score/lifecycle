@@ -27,9 +27,14 @@ def integration_test(name, srcs, test_binaries, args = [], deps = [], data = [],
         "//conditions:default": ["//tests/utils/environments:test_environment"],
     })
 
+    # The test container does not ship the sanitizer runtime; daemon fails to start.
+    sanitizer_tags = ["no-asan"]
+    tags = kwargs.pop("tags", []) + sanitizer_tags
+
     py_itf_test(
         name = name,
         srcs = srcs,
+        tags = tags,
         deps = deps + all_requirements + ["@score_tooling//python_basics/score_pytest:attribute_plugin"],
         data = merged_data,
         args = args + [
