@@ -11,10 +11,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "score/mw/lifecycle/lifecycle_client/report_running.h"
+#include "score/mw/lifecycle/report_running.h"
 
-#include "score/mw/log/logging.h"
-#include <score/mw/lifecycle/lifecycle_client.h>
+#include "score/mw/lifecycle/lifecycle_client.h"
 
 void score::mw::lifecycle::report_running() noexcept {
   static_cast<void>(

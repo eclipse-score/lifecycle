@@ -187,13 +187,12 @@ cc_library(
     srcs = ["src/report_running.cpp"],
     hdrs = ["src/report_running.h"],
     features = COMPILER_WARNING_FEATURES,
-    include_prefix = "score/mw/lifecycle/lifecycle_client",
+    include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
-    visibility = ["//visibility:public"],
+    visibility = ["//score:__subpackages__"],
     tags = ["FUSA"],
     deps = [
         ":lifecycle_client",
-        "@score_baselibs//score/mw/log",
     ],
 )
 

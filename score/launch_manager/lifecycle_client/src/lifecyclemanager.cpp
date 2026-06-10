@@ -15,7 +15,7 @@
 
 #include "score/os/errno.h"
 #include <cstdlib>
-#include "score/mw/lifecycle/lifecycle_client/report_running.h"
+#include "score/mw/lifecycle/report_running.h"
 #include "score/mw/log/logging.h"
 #include "score/os/stdlib_impl.h"
 
