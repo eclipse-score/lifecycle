@@ -18,6 +18,11 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+using ::testing::_;
+using ::testing::AnyNumber;
+using ::testing::Eq;
+using ::testing::Return;
+
 namespace
 {
 
@@ -47,6 +52,13 @@ class RunTest : public ::testing::Test
 
     static constexpr int kArgc = 1;
     const char* kArgv[1] = {"test_app"};
+
+    void SetUp() override
+    {
+        EXPECT_CALL(context_mock_, ctor(_, _)).Times(::testing::AnyNumber());
+        EXPECT_CALL(lifecycle_mock_, ctor()).Times(::testing::AnyNumber());
+        EXPECT_CALL(lifecycle_mock_, dtor()).Times(::testing::AnyNumber());
+    }
 };
 
 }  // namespace
