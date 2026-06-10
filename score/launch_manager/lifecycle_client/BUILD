@@ -263,6 +263,7 @@ cc_library(
     hdrs = [
         "src/lifecyclemanager.h",
         "src/lifecyclemanagermock.h",
+        "src/runapplication.h",
     ],
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle/lifecycle_client",
@@ -299,4 +300,13 @@ filegroup(
         "src/*.cpp",
         "src/*.h",
     ]),
+)
+
+cc_test(
+    name = "runapplication_UT",
+    srcs = ["src/runapplication_UT.cpp"],
+    deps = [
+        ":lifecycle_mock",
+        "@googletest//:gtest_main",
+    ],
 )
