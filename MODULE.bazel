@@ -134,6 +134,11 @@ use_repo(oci, "debian-test-runtime", "debian-test-runtime_linux_amd64")
 
 bazel_dep(name = "score_baselibs_rust", version = "0.1.2")
 bazel_dep(name = "score_baselibs", version = "0.2.8")
+git_override(
+    module_name = "score_baselibs",
+    commit = "d0145e0645d4fe9661a36c348f0e62e13cf73f98",
+    remote = "https://github.com/eclipse-score/baselibs.git",
+)
 
 # Hedron's Compile Commands Extractor for Bazel
 # https://github.com/hedronvision/bazel-compile-commands-extractor
