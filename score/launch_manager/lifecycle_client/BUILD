@@ -36,7 +36,7 @@ cc_library(
         "src/aasapplicationcontainer.cpp",
         "src/application.cpp",
         "src/applicationcontext.cpp",
-        "src/lifecycleclient.cpp",
+        "src/lifecyclemanager.cpp",
         "src/runapplication.cpp",
     ],
     hdrs = [
@@ -58,6 +58,7 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     visibility = ["//score:__subpackages__"],
     deps = [
+        ":report_running",
         ":lifecycle_client_interface",
         "//score/launch_manager/lifecycle_client/src/details:lifecycle_client_impl",
         "@score_baselibs//score/language/futurecpp",
@@ -192,7 +193,25 @@ cc_library(
     visibility = ["//score:__subpackages__"],
     tags = ["FUSA"],
     deps = [
-        ":lifecycle_client",
+        ":lifecycleclient_internal",
+    ],
+)
+
+cc_library(
+    name = "lifecycleclient_internal",
+    srcs = [
+        "src/lifecycle_client.cpp",
+    ],
+    hdrs = [
+        "src/lifecycle_client.h",
+    ],
+    features = COMPILER_WARNING_FEATURES,
+    include_prefix = "score/mw/lifecycle/lifecycle_client",
+    strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
+    tags = ["FUSA"],
+    visibility = ["//score:__subpackages__"],
+    deps = [
+        "//score/launch_manager/lifecycle_client/src/details:lifecycle_client_impl",
     ],
 )
 
