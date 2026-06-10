@@ -18,11 +18,15 @@
 
 #include "score/launch_manager/daemon/src/configuration/details/new_lm_flatcfg_generated.h"
 
+#include "score/mw/launch_manager/common/log.hpp"
+
 #include <score/expected.hpp>
 
 #include <cstdint>
+#include <limits>
 #include <optional>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 namespace score::mw::launch_manager::configuration
@@ -30,6 +34,32 @@ namespace score::mw::launch_manager::configuration
 
 namespace details
 {
+
+// --- Range validation ---
+
+template <typename TargetT>
+score::cpp::expected<TargetT, IConfigLoader::Error> validateRange(int64_t value, const char* field_name)
+{
+    // Asserts ensure that std::numeric_limits<TargetT>::min() and std::numeric_limits<TargetT>::max() can be 
+    // safely cast to int64_t for the range check:
+    // Case 1: TargetT is unsigned and smaller than int64_t, so max fits in int64_t and min is 0
+    // Case 2: TargetT is signed and smaller than int64_t, so both min and max fit in int64_t
+    // Case 3: TargetT is signed and exactly int64_t, so min and max are the full int64_t range
+
+    static_assert(std::numeric_limits<TargetT>::is_integer, "TargetT must be an integer type");
+    static_assert(sizeof(TargetT) < sizeof(int64_t) ||
+                      (sizeof(TargetT) == sizeof(int64_t) && std::is_signed_v<TargetT>),
+                  "TargetT max must be representable as int64_t");
+
+    if (value < static_cast<int64_t>(std::numeric_limits<TargetT>::min()) ||
+        value > static_cast<int64_t>(std::numeric_limits<TargetT>::max()))
+    {
+        LM_LOG_ERROR() << field_name << " " << value << " is out of valid range ["
+                       << std::numeric_limits<TargetT>::min() << "," << std::numeric_limits<TargetT>::max() << "]";
+        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+    }
+    return static_cast<TargetT>(value);
+}
 
 // --- Scalar and enum helpers ---
 
@@ -50,9 +80,9 @@ namespace details
 /// @brief Converts a FlatBuffer string vector to a std::vector of std::string.
 [[nodiscard]] std::vector<std::string> convertStringVector(
     const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>* vec);
-/// @brief Converts a FlatBuffer uint32 vector to a std::vector of gid_t with range validation.
+/// @brief Converts a FlatBuffer int64_t vector to a std::vector of gid_t with range validation.
 [[nodiscard]] score::cpp::expected<std::vector<gid_t>, IConfigLoader::Error> convertGidVector(
-    const ::flatbuffers::Vector<uint32_t>* vec);
+    const ::flatbuffers::Vector<int64_t>* vec);
 /// @brief Converts a FlatBuffer environmental variable list to an Environment object.
 [[nodiscard]] Environment convertEnvironmentalVariables(
     const ::flatbuffers::Vector<::flatbuffers::Offset<fb::EnvironmentalVariable>>* vec);

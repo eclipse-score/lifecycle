@@ -93,11 +93,11 @@ table EnvironmentalVariable {
 // Defines sandbox configuration parameters that isolate and constrain component execution.
 table Sandbox {
   // POSIX user ID (UID) under which the component executes.
-  uid:uint32 = null; // required
+  uid:int64 = null; // required
   // Primary POSIX group ID (GID) under which the component executes.
-  gid:uint32 = null; // required
+  gid:int64 = null; // required
   // Supplementary POSIX group IDs assigned to the component.
-  supplementary_group_ids:[uint32]; // optional
+  supplementary_group_ids:[int64]; // optional
   // Security policy or confinement profile name (e.g., SELinux or AppArmor profile).
   security_policy:string; // optional
   // Scheduling policy for the component's initial thread.

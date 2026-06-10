@@ -280,6 +280,86 @@ TEST_F(StringHelperTest, ConvertGidVectorReturnsEmptyWhenNull)
 }
 
 // ============================================================================
+// validateRange typed tests
+// ============================================================================
+
+template <typename T>
+class ValidateRangeTest : public TypeConverterTestBase
+{
+};
+
+using ValidateRangeTypes = ::testing::Types<uint16_t, int16_t, uint32_t, int32_t, int64_t>;
+TYPED_TEST_SUITE(ValidateRangeTest, ValidateRangeTypes);
+
+TYPED_TEST(ValidateRangeTest, AcceptsMinBoundary)
+{
+    this->RecordProperty("Description", "The minimum value of the target type is accepted.");
+
+    auto result = details::validateRange<TypeParam>(
+        static_cast<int64_t>(std::numeric_limits<TypeParam>::min()), "test_field");
+
+    ASSERT_THAT(result.has_value(), IsTrue());
+    EXPECT_THAT(*result, Eq(std::numeric_limits<TypeParam>::min()));
+}
+
+TYPED_TEST(ValidateRangeTest, AcceptsMaxBoundary)
+{
+    this->RecordProperty("Description", "The maximum value of the target type is accepted.");
+
+    auto result = details::validateRange<TypeParam>(
+        static_cast<int64_t>(std::numeric_limits<TypeParam>::max()), "test_field");
+
+    ASSERT_THAT(result.has_value(), IsTrue());
+    EXPECT_THAT(*result, Eq(std::numeric_limits<TypeParam>::max()));
+}
+
+TYPED_TEST(ValidateRangeTest, AcceptsZero)
+{
+    this->RecordProperty("Description", "Zero is accepted for all target types.");
+
+    auto result = details::validateRange<TypeParam>(0, "test_field");
+
+    ASSERT_THAT(result.has_value(), IsTrue());
+    EXPECT_THAT(*result, Eq(static_cast<TypeParam>(0)));
+}
+
+TYPED_TEST(ValidateRangeTest, RejectsValueAboveMax)
+{
+    this->RecordProperty("Description", "A value above the target type maximum is rejected.");
+
+    if constexpr (sizeof(TypeParam) == sizeof(int64_t))
+    {
+        GTEST_SKIP() << "No int64_t value exceeds int64_t max";
+    }
+    else
+    {
+        auto result = details::validateRange<TypeParam>(
+            static_cast<int64_t>(std::numeric_limits<TypeParam>::max()) + 1, "test_field");
+
+        ASSERT_THAT(result.has_value(), IsFalse());
+        EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
+    }
+}
+
+TYPED_TEST(ValidateRangeTest, RejectsValueBelowMin)
+{
+    this->RecordProperty("Description", "A value below the target type minimum is rejected.");
+
+    if constexpr (sizeof(TypeParam) == sizeof(int64_t) && std::is_signed_v<TypeParam>)
+    {
+        GTEST_SKIP() << "No int64_t value is below int64_t min";
+    }
+    else
+    {
+        auto result = details::validateRange<TypeParam>(
+            static_cast<int64_t>(std::numeric_limits<TypeParam>::min()) - 1, "test_field");
+
+        ASSERT_THAT(result.has_value(), IsFalse());
+        EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
+    }
+}
+
+// ============================================================================
 // Struct converter tests
 // ============================================================================
 
@@ -512,7 +592,7 @@ TEST_F(ConverterTest, ConvertSandboxValid)
     RecordProperty("Description", "convertSandbox maps all fields including optional ones.");
     ::flatbuffers::FlatBufferBuilder fbb;
     auto sec_policy = fbb.CreateString("strict");
-    auto supp_gids = fbb.CreateVector(std::vector<uint32_t>{100, 200});
+    auto supp_gids = fbb.CreateVector(std::vector<int64_t>{100, 200});
     auto sandbox = fb::CreateSandbox(fbb,
                                      1000 /*uid*/,
                                      1000 /*gid*/,
@@ -596,14 +676,9 @@ TEST_F(ConverterTest, ConvertSandboxUidOutOfRangeReturnsError)
 {
     RecordProperty("Description", "Sandbox uid exceeding uid_t range returns InvalidFormat.");
 
-    if constexpr (std::numeric_limits<uid_t>::max() >= std::numeric_limits<uint32_t>::max())
-    {
-        GTEST_SKIP() << "uid_t range covers all uint32_t values on this platform";
-    }
-
     ::flatbuffers::FlatBufferBuilder fbb;
     auto sandbox = fb::CreateSandbox(fbb,
-                                     std::numeric_limits<uint32_t>::max() /*uid*/,
+                                     std::numeric_limits<int64_t>::max() /*uid*/,
                                      1000 /*gid*/,
                                      0 /*supplementary_group_ids*/, 0 /*security_policy*/,
                                      fb::SchedulingPolicy::OTHER,
@@ -620,13 +695,8 @@ TEST_F(ConverterTest, ConvertSandboxSupplementaryGidOutOfRangeReturnsError)
 {
     RecordProperty("Description", "Supplementary gid exceeding gid_t range returns InvalidFormat.");
 
-    if constexpr (std::numeric_limits<gid_t>::max() >= std::numeric_limits<uint32_t>::max())
-    {
-        GTEST_SKIP() << "gid_t range covers all uint32_t values on this platform";
-    }
-
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto supp_gids = fbb.CreateVector(std::vector<uint32_t>{100, std::numeric_limits<uint32_t>::max()});
+    auto supp_gids = fbb.CreateVector(std::vector<int64_t>{100, std::numeric_limits<int64_t>::max()});
     auto sandbox = fb::CreateSandbox(fbb,
                                      1000 /*uid*/,
                                      1000 /*gid*/,

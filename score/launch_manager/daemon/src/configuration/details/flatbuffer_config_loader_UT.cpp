@@ -410,7 +410,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
     ::flatbuffers::FlatBufferBuilder fbb;
 
     auto sec_policy = fbb.CreateString("strict");
-    auto supp_gids = fbb.CreateVector(std::vector<uint32_t>{100, 200});
+    auto supp_gids = fbb.CreateVector(std::vector<int64_t>{100, 200});
     auto sandbox = fb::CreateSandbox(fbb,
                                      1000 /*uid*/,
                                      1000 /*gid*/,

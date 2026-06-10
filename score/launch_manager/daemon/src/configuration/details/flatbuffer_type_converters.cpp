@@ -46,19 +46,6 @@ score::cpp::expected<T, IConfigLoader::Error> requireScalarValue(
     return *field;
 }
 
-template <typename TargetT>
-score::cpp::expected<TargetT, IConfigLoader::Error> validateRange(uint32_t value, const char* field_name)
-{
-    if (value < static_cast<uint32_t>(std::numeric_limits<TargetT>::min()) ||
-        value > static_cast<uint32_t>(std::numeric_limits<TargetT>::max()))
-    {
-        LM_LOG_ERROR() << field_name << " " << value << " is out of valid range ["
-                       << std::numeric_limits<TargetT>::min() << "," << std::numeric_limits<TargetT>::max() << "]";
-        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
-    }
-    return static_cast<TargetT>(value);
-}
-
 template <typename T>
 std::optional<T> optionalScalarValue(const ::flatbuffers::Optional<T>& field)
 {
@@ -158,7 +145,7 @@ std::vector<std::string> convertStringVector(
 }
 
 score::cpp::expected<std::vector<gid_t>, IConfigLoader::Error> convertGidVector(
-    const ::flatbuffers::Vector<uint32_t>* vec)
+    const ::flatbuffers::Vector<int64_t>* vec)
 {
     std::vector<gid_t> result;
     if (vec != nullptr)
