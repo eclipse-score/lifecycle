@@ -1,0 +1,201 @@
+// FlatBuffers schema for S-CORE Launch Manager configuration.
+// Equivalent to launch_manager.schema.json
+
+// All fields are commented as either required or optional
+// For non-scalar values:
+// - required values are defined with "(required)" keyword in the schema and it is verified by flatbuffer that the value has been configured
+// - optional values may be nullptr and are populated in the code as std::optional
+// For scalar values:
+// - required values are defined with "= null" and it is verified when loading that they have been configured.
+//   Note: Without "= null", flatbuffer will return a default value and there is no way to know if it has been configured or not
+// - optional values are defined with "= null" and they are populated as std::optional in the code
+
+namespace score.mw.launch_manager.configuration.fb;
+
+// Specifies the level of integration between the component and the Launch Manager.
+enum ApplicationType : byte {
+  Native = 0,
+  Reporting = 1,
+  Reporting_And_Supervised = 2,
+  State_Manager = 3
+}
+
+// Specifies the required state of the component's POSIX process.
+enum ProcessState : byte {
+  Running = 0,
+  Terminated = 1
+}
+
+// Scheduling policy for a component's initial thread.
+enum SchedulingPolicy : byte {
+  OTHER = 0,
+  FIFO = 1,
+  RR = 2
+}
+
+// Defines the configuration parameters used for alive monitoring of a component.
+table ComponentAliveSupervision {
+  // Duration in seconds of the time interval used to verify alive notifications.
+  reporting_cycle:double = null; // required
+  // Maximum number of consecutive reporting cycle failures before recovery is triggered.
+  failed_cycles_tolerance:uint32 = null; // required
+  // Minimum number of checkpoints that must be reported within each reporting_cycle.
+  min_indications:uint32 = null; // optional
+  // Maximum number of checkpoints that may be reported within each reporting_cycle.
+  max_indications:uint32 = null; // optional
+}
+
+// Defines the application profile that specifies the runtime behavior and capabilities of a component.
+table ApplicationProfile {
+  application_type:ApplicationType = null; // required
+  // Whether the component terminates automatically once its tasks are completed.
+  is_self_terminating:bool = null; // required
+  alive_supervision:ComponentAliveSupervision; // optional
+}
+
+// Defines the conditions that determine when the component enters the ready state.
+table ReadyCondition {
+  process_state:ProcessState = null; // required
+}
+
+// Defines essential characteristics of a software component.
+table ComponentProperties {
+  // Relative path of the executable inside bin_dir.
+  binary_name:string (required); // required
+  application_profile:ApplicationProfile (required); // required
+  // Names of components that must reach ready state before this component starts.
+  depends_on:[string]; // optional
+  // Ordered list of command-line arguments passed to the component at startup.
+  process_arguments:[string]; // optional
+  ready_condition:ReadyCondition; // optional
+}
+
+// Recovery action that restarts the POSIX process associated with a component.
+table RestartAction {
+  // Maximum number of restart attempts before recovery is considered failed.
+  number_of_attempts:uint32 = null; // required
+  // Delay in seconds before initiating a restart attempt.
+  delay_before_restart:double = null; // required
+}
+
+// Recovery action that switches to a specified Run Target.
+table SwitchRunTargetAction {
+  // Name of the Run Target to switch to.
+  run_target:string (required);
+}
+
+// A key-value pair representing an environment variable.
+table EnvironmentalVariable {
+  key:string (required);
+  value:string (required);
+}
+
+// Defines sandbox configuration parameters that isolate and constrain component execution.
+table Sandbox {
+  // POSIX user ID (UID) under which the component executes.
+  uid:int64 = null; // required
+  // Primary POSIX group ID (GID) under which the component executes.
+  gid:int64 = null; // required
+  // Supplementary POSIX group IDs assigned to the component.
+  supplementary_group_ids:[int64]; // optional
+  // Security policy or confinement profile name (e.g., SELinux or AppArmor profile).
+  security_policy:string; // optional
+  // Scheduling policy for the component's initial thread.
+  scheduling_policy:SchedulingPolicy = null; // required
+  // Scheduling priority for the component's initial thread.
+  scheduling_priority:int32 = null; // required
+  // Maximum memory in bytes the component is permitted to use.
+  max_memory_usage:uint64 = null; // optional
+  // Maximum CPU usage as a percentage of total CPU capacity.
+  max_cpu_usage:uint32 = null; // optional
+}
+
+// Deployment configuration for a component.
+table DeploymentConfig {
+  // Maximum time in seconds for the component to reach its ready state.
+  ready_timeout:double = null; // required
+  // Maximum time in seconds for the component to terminate after SIGTERM.
+  shutdown_timeout:double = null; // required
+  // Environment variables passed to the component at startup.
+  environmental_variables:[EnvironmentalVariable]; // optional
+  // Absolute path to the directory where the component is installed.
+  bin_dir:string (required); // required
+  // Working directory for the component during execution.
+  working_dir:string (required); // required
+  // Recovery action when the component fails to reach ready state.
+  // Can only be a RestartAction per the JSON schema constraint.
+  ready_recovery_action:RestartAction; // optional
+  // Recovery action when the component malfunctions after reaching ready state.
+  recovery_action:SwitchRunTargetAction; // optional
+  sandbox:Sandbox (required); // required
+}
+
+// Configuration for a Run Target representing an operational mode of the system.
+table RunTarget {
+  // Unique Run Target identifier.
+  name:string (required);
+  // Human-readable description of the Run Target.
+  description:string; // optional
+  // Names of components and Run Targets that must be activated with this Run Target.
+  depends_on:[string]; // optional
+  // Time limit in seconds for the Run Target transition.
+  transition_timeout:double = null; // required
+  // Recovery action when a component in this Run Target fails.
+  recovery_action:SwitchRunTargetAction (required);
+}
+
+// An individual component entry with its identifier.
+table Component {
+  // Unique component identifier.
+  name:string (required); // required
+  // Human-readable description of the component's purpose.
+  description:string; // optional
+  component_properties:ComponentProperties (required); // required
+  deployment_config:DeploymentConfig (required); // required
+}
+
+// Global alive supervision configuration.
+table AliveSupervision {
+  // Length in seconds of the time window used to assess alive supervision reports.
+  evaluation_cycle:double = null; // required
+}
+
+// External watchdog device configuration.
+table Watchdog {
+  // Path to the external watchdog device file (e.g., /dev/watchdog).
+  device_file_path:string (required); // required
+  // Maximum timeout in seconds configured on the external watchdog.
+  max_timeout:double = null; // required
+  // Whether the watchdog is deactivated during shutdown.
+  deactivate_on_shutdown:bool = null; // required
+  // Whether the magic close sequence is performed on intentional shutdown.
+  require_magic_close:bool = null; // required
+}
+
+// Fallback Run Target activated when all recovery attempts are exhausted.
+// Does not include a recovery_action.
+table FallbackRunTarget {
+  // Human-readable description of the fallback Run Target.
+  description:string; // optional
+  // Names of components and Run Targets that must be activated.
+  depends_on:[string]; // optional
+  // Time limit in seconds for the Run Target transition.
+  transition_timeout:double = null; // required
+}
+
+// Root configuration table for the S-CORE Launch Manager.
+table LaunchManagerConfig {
+  // Schema version number.
+  schema_version:int32 = null; // required
+  // Software components managed by the Launch Manager.
+  components:[Component] (required); // required
+  // Run Targets representing different operational modes.
+  run_targets:[RunTarget] (required); // required
+  // Name of the initial Run Target activated during startup.
+  initial_run_target:string (required); // required
+  fallback_run_target:FallbackRunTarget (required); // required
+  alive_supervision:AliveSupervision (required); // required
+  watchdog:Watchdog; // optional
+}
+
+root_type LaunchManagerConfig;

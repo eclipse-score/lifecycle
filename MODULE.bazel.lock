@@ -173,8 +173,9 @@
     "https://bcr.bazel.build/modules/download_utils/1.2.2/source.json": "c88be2bc48c98371d35665b805f307a647c98c83327345c918d9088822d77928",
     "https://bcr.bazel.build/modules/envoy_api/0.0.0-20241214-918efc9/MODULE.bazel": "24e05f6f52f37be63a795192848555a2c8c855e7814dbc1ed419fb04a7005464",
     "https://bcr.bazel.build/modules/envoy_api/0.0.0-20241214-918efc9/source.json": "212043ab69d87f7a04aa4f627f725b540cff5e145a3a31a9403d8b6ec2e920c9",
+    "https://bcr.bazel.build/modules/flatbuffers/25.12.19/MODULE.bazel": "fe3a7f7811f43264f68136ad99e64384d70b2a25245e09ab800c4bb83171da25",
+    "https://bcr.bazel.build/modules/flatbuffers/25.12.19/source.json": "ea0204be7a79de9141cee5fa436e58a14e88b39b5b59227b21efa0394474ebea",
     "https://bcr.bazel.build/modules/flatbuffers/25.9.23/MODULE.bazel": "32753ba60bf3bacfe7737c0f3e8e3e55624b19af5d398c485580d57492d145d8",
-    "https://bcr.bazel.build/modules/flatbuffers/25.9.23/source.json": "a2116f0017f6896353fd3abf65ef2b89b0a257e8a87f395c5000f53934829f31",
     "https://bcr.bazel.build/modules/gawk/5.3.2.bcr.1/MODULE.bazel": "cdf8cbe5ee750db04b78878c9633cc76e80dcf4416cbe982ac3a9222f80713c8",
     "https://bcr.bazel.build/modules/gawk/5.3.2.bcr.1/source.json": "fa7b512dfcb5eafd90ce3959cf42a2a6fe96144ebbb4b3b3928054895f2afac2",
     "https://bcr.bazel.build/modules/gazelle/0.27.0/MODULE.bazel": "3446abd608295de6d90b4a8a118ed64a9ce11dcb3dda2dc3290a22056bd20996",
@@ -227,6 +228,8 @@
     "https://bcr.bazel.build/modules/opencensus-cpp/0.0.0-20230502-50eb5de/source.json": "f50efc07822f5425bd1d3e40e977484f9c0142463052717d40ec85cd6744243e",
     "https://bcr.bazel.build/modules/opencensus-proto/0.4.1/MODULE.bazel": "4a2e8b4d0b544002502474d611a5a183aa282251e14f6a01afe841c0c1b10372",
     "https://bcr.bazel.build/modules/opencensus-proto/0.4.1/source.json": "a7d956700a85b833c43fc61455c0e111ab75bab40768ed17a206ee18a2bbe38f",
+    "https://bcr.bazel.build/modules/openssl/3.5.5.bcr.4/MODULE.bazel": "b3f35b53c6c73bd3a7c8efbf9b7e79e92566d189e64d313aede69f608ac6dd77",
+    "https://bcr.bazel.build/modules/openssl/3.5.5.bcr.4/source.json": "662d68be9227e60ef65fed83c6820564bda4af0efe6a40dc62dd9aee288fe9cf",
     "https://bcr.bazel.build/modules/opentelemetry-cpp/1.14.2/MODULE.bazel": "089a5613c2a159c7dfde098dabfc61e966889c7d6a81a98422a84c51535ed17d",
     "https://bcr.bazel.build/modules/opentelemetry-cpp/1.16.0/MODULE.bazel": "b7379a140f538cea3f749179a2d481ed81942cc6f7b05a6113723eb34ac3b3e7",
     "https://bcr.bazel.build/modules/opentelemetry-cpp/1.16.0/source.json": "da0cf667713b1e48d7f8912b100b4e0a8284c8a95717af5eb8c830d699e61cf5",
@@ -309,7 +312,6 @@
     "https://bcr.bazel.build/modules/rules_cc/0.1.4/MODULE.bazel": "bb03a452a7527ac25a7518fb86a946ef63df860b9657d8323a0c50f8504fb0b9",
     "https://bcr.bazel.build/modules/rules_cc/0.1.5/MODULE.bazel": "88dfc9361e8b5ae1008ac38f7cdfd45ad738e4fa676a3ad67d19204f045a1fd8",
     "https://bcr.bazel.build/modules/rules_cc/0.2.14/MODULE.bazel": "353c99ed148887ee89c54a17d4100ae7e7e436593d104b668476019023b58df8",
-    "https://bcr.bazel.build/modules/rules_cc/0.2.16/MODULE.bazel": "9242fa89f950c6ef7702801ab53922e99c69b02310c39fb6e62b2bd30df2a1d4",
     "https://bcr.bazel.build/modules/rules_cc/0.2.17/MODULE.bazel": "1849602c86cb60da8613d2de887f9566a6d354a6df6d7009f9d04a14402f9a84",
     "https://bcr.bazel.build/modules/rules_cc/0.2.17/source.json": "3832f45d145354049137c0090df04629d9c2b5493dc5c2bf46f1834040133a07",
     "https://bcr.bazel.build/modules/rules_cc/0.2.4/MODULE.bazel": "1ff1223dfd24f3ecf8f028446d4a27608aa43c3f41e346d22838a4223980b8cc",
@@ -384,6 +386,8 @@
     "https://bcr.bazel.build/modules/rules_nodejs/6.5.2/source.json": "6a6ca0940914d55c550d1417cad13a56c9900e23f651a762d8ccc5a64adcf661",
     "https://bcr.bazel.build/modules/rules_oci/2.3.0/MODULE.bazel": "49075197960c924c0a4d759b7c765c3d00a41d2fdd4a943b42823c1d016ab4ec",
     "https://bcr.bazel.build/modules/rules_oci/2.3.0/source.json": "47710c28446211b5e61a24015a4669c50c6862d5f91e6bdbc710de8d750cf613",
+    "https://bcr.bazel.build/modules/rules_perl/1.1.0/MODULE.bazel": "22138e75bb8f1ee6c21f609b90d2c24b0c9b796ccf55cc04c1c9190b699f7e9d",
+    "https://bcr.bazel.build/modules/rules_perl/1.1.0/source.json": "896fe7707a38c5b229c6f5fa77134209874c4d57fecda5f756c1f23e4d25aae2",
     "https://bcr.bazel.build/modules/rules_pkg/0.7.0/MODULE.bazel": "df99f03fc7934a4737122518bb87e667e62d780b610910f0447665a7e2be62dc",
     "https://bcr.bazel.build/modules/rules_pkg/1.0.1/MODULE.bazel": "5b1df97dbc29623bccdf2b0dcd0f5cb08e2f2c9050aab1092fd39a41e82686ff",
     "https://bcr.bazel.build/modules/rules_pkg/1.1.0/MODULE.bazel": "9db8031e71b6ef32d1846106e10dd0ee2deac042bd9a2de22b4761b0c3036453",
@@ -599,6 +603,7 @@
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/download_utils/1.0.1/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/download_utils/1.2.2/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/envoy_api/0.0.0-20241214-918efc9/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/flatbuffers/25.12.19/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/flatbuffers/25.9.23/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/gawk/5.3.2.bcr.1/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/gazelle/0.27.0/MODULE.bazel": "not found",
@@ -637,6 +642,7 @@
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/nlohmann_json/3.6.1/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/opencensus-cpp/0.0.0-20230502-50eb5de/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/opencensus-proto/0.4.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/openssl/3.5.5.bcr.4/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/opentelemetry-cpp/1.14.2/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/opentelemetry-cpp/1.16.0/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/opentelemetry-proto/1.1.0/MODULE.bazel": "not found",
@@ -705,7 +711,6 @@
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_cc/0.1.4/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_cc/0.1.5/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_cc/0.2.14/MODULE.bazel": "not found",
-    "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_cc/0.2.16/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_cc/0.2.17/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_cc/0.2.4/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_cc/0.2.8/MODULE.bazel": "not found",
@@ -768,6 +773,7 @@
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_nodejs/6.3.3/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_nodejs/6.5.2/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_oci/2.3.0/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_perl/1.1.0/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_pkg/0.7.0/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_pkg/1.0.1/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_pkg/1.1.0/MODULE.bazel": "not found",
@@ -814,8 +820,8 @@
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_swift/1.16.0/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_swift/1.18.0/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_swift/2.1.1/MODULE.bazel": "not found",
-    "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_baselibs/0.2.6/MODULE.bazel": "36db2ffb07d1b4cc91f44ffbdb17cab834baef0fb3173c5e9b6885868fdc420c",
-    "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_baselibs/0.2.6/source.json": "a8bb7e82abe9d4de6301e4a28252e51323d4a758fe0b8e74ac9fd8c3ea625c3f",
+    "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_baselibs/0.2.8/MODULE.bazel": "167e2cdfea63ef2eb38546d83ceef833671263f9faae6e496e834f86c2427f0d",
+    "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_baselibs/0.2.8/source.json": "6a649da9895fcdcaa58b0a4de11be04770f3180bb7ff176d3dfcb9bfe72ef0f3",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_baselibs_rust/0.1.2/MODULE.bazel": "8a07e1c62986e941a6e182e39c9cd08391849eed55c2f4dbb02d72ef6f524346",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_baselibs_rust/0.1.2/source.json": "5d920b55b98cf3d87da75d5a3ab1915709867fda14991ef2843c5e7c33aa0391",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_bazel_cpp_toolchains/0.2.2/MODULE.bazel": "343a1892b1d5c616e0b4cbecfb5e548fa69328d22bb4fd5862bdd3cfa902142b",
@@ -1339,40 +1345,6 @@
           ],
           [
             "aspect_rules_py+",
-            "bazel_tools",
-            "bazel_tools"
-          ]
-        ]
-      }
-    },
-    "@@aspect_rules_ts+//ts:extensions.bzl%ext": {
-      "general": {
-        "bzlTransitiveDigest": "MTYrHsOSgiQcK2kWLEJXgQN+rPXhhAOe+aJ7E65JPKE=",
-        "usagesDigest": "caXVbnxEUN71ZxydJbg6pZ8NaFPVDbNp12wS9TMC824=",
-        "recordedFileInputs": {},
-        "recordedDirentsInputs": {},
-        "envVariables": {},
-        "generatedRepoSpecs": {
-          "npm_typescript": {
-            "repoRuleId": "@@aspect_rules_ts+//ts/private:npm_repositories.bzl%http_archive_version",
-            "attributes": {
-              "bzlmod": true,
-              "version": "5.8.3",
-              "integrity": "",
-              "build_file": "@@aspect_rules_ts+//ts:BUILD.typescript",
-              "build_file_substitutions": {
-                "bazel_worker_version": "5.4.2",
-                "google_protobuf_version": "3.20.1"
-              },
-              "urls": [
-                "https://registry.npmjs.org/typescript/-/typescript-{}.tgz"
-              ]
-            }
-          }
-        },
-        "recordedRepoMappingEntries": [
-          [
-            "aspect_rules_ts+",
             "bazel_tools",
             "bazel_tools"
           ]
@@ -2291,7 +2263,7 @@
     "@@rules_nodejs+//nodejs:extensions.bzl%node": {
       "general": {
         "bzlTransitiveDigest": "FmfMiNXAxRoLWw3NloQbssosE1egrSvzirbQnso7j7E=",
-        "usagesDigest": "xQt2gTXxeHPqo+xDPEb0l8bxaCWaMbfvKRJcHvysWMI=",
+        "usagesDigest": "RmjWGl+udnOtLbA4SVIYVixOYhc+YyN36MKAPAhLDWw=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},

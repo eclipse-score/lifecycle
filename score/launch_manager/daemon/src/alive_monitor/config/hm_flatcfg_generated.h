@@ -21,8 +21,8 @@
 // Ensure the included flatbuffers.h is the same version as when this file was
 // generated, otherwise it may not be compatible.
 static_assert(FLATBUFFERS_VERSION_MAJOR == 25 &&
-              FLATBUFFERS_VERSION_MINOR == 9 &&
-              FLATBUFFERS_VERSION_REVISION == 23,
+              FLATBUFFERS_VERSION_MINOR == 12 &&
+              FLATBUFFERS_VERSION_REVISION == 19,
              "Non-compatible flatbuffers version included");
 
 namespace HMFlatBuffer {
@@ -109,7 +109,8 @@ struct HMEcuCfg FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmAliveSupervision>> *hmAliveSupervision() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmAliveSupervision>> *>(VT_HMALIVESUPERVISION);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int32_t>(verifier, VT_VERSIONMAJOR, 4) &&
            VerifyField<int32_t>(verifier, VT_VERSIONMINOR, 4) &&
@@ -222,7 +223,8 @@ struct Process FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   HMFlatBuffer::ProcessType processType() const {
     return static_cast<HMFlatBuffer::ProcessType>(GetField<int8_t>(VT_PROCESSTYPE, 0));
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_SHORTNAME) &&
            verifier.VerifyString(shortName()) &&
@@ -299,7 +301,8 @@ struct HmRefProcess FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   uint32_t index() const {
     return GetField<uint32_t>(VT_INDEX, 0);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_INDEX, 4) &&
            verifier.EndTable();
@@ -360,7 +363,8 @@ struct HmMonitorInterface FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table
   int32_t permittedUid() const {
     return GetField<int32_t>(VT_PERMITTEDUID, 0);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_INSTANCESPECIFIER) &&
            verifier.VerifyString(instanceSpecifier()) &&
@@ -465,7 +469,8 @@ struct HmSupervisionCheckpoint FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::
   uint32_t refInterfaceIndex() const {
     return GetField<uint32_t>(VT_REFINTERFACEINDEX, 0);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_SHORTNAME) &&
            verifier.VerifyString(shortName()) &&
@@ -544,7 +549,8 @@ struct HmCheckpointTransition FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::T
   const HMFlatBuffer::HmSupervisionCheckpoint *infoTarget() const {
     return GetPointer<const HMFlatBuffer::HmSupervisionCheckpoint *>(VT_INFOTARGET);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_REFSOURCECPINDEX, 4) &&
            VerifyField<uint32_t>(verifier, VT_REFTARGETCPINDEX, 4) &&
@@ -637,7 +643,8 @@ struct HmAliveSupervision FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table
   uint32_t refProcessIndex() const {
     return GetField<uint32_t>(VT_REFPROCESSINDEX, 0);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_RULECONTEXTKEY) &&
            verifier.VerifyString(ruleContextKey()) &&
@@ -766,14 +773,16 @@ inline bool SizePrefixedHMEcuCfgBufferHasIdentifier(const void *buf) {
       buf, HMEcuCfgIdentifier(), true);
 }
 
+template <bool B = false>
 inline bool VerifyHMEcuCfgBuffer(
-    ::flatbuffers::Verifier &verifier) {
-  return verifier.VerifyBuffer<HMFlatBuffer::HMEcuCfg>(HMEcuCfgIdentifier());
+    ::flatbuffers::VerifierTemplate<B> &verifier) {
+  return verifier.template VerifyBuffer<HMFlatBuffer::HMEcuCfg>(HMEcuCfgIdentifier());
 }
 
+template <bool B = false>
 inline bool VerifySizePrefixedHMEcuCfgBuffer(
-    ::flatbuffers::Verifier &verifier) {
-  return verifier.VerifySizePrefixedBuffer<HMFlatBuffer::HMEcuCfg>(HMEcuCfgIdentifier());
+    ::flatbuffers::VerifierTemplate<B> &verifier) {
+  return verifier.template VerifySizePrefixedBuffer<HMFlatBuffer::HMEcuCfg>(HMEcuCfgIdentifier());
 }
 
 inline const char *HMEcuCfgExtension() {
