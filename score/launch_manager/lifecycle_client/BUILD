@@ -32,20 +32,6 @@ cc_library(
 
 cc_library(
     name = "lifecycle_client",
-    srcs = [
-        "src/aasapplicationcontainer.cpp",
-        "src/application.cpp",
-        "src/applicationcontext.cpp",
-        "src/lifecyclemanager.cpp",
-        "src/runapplication.cpp",
-    ],
-    hdrs = [
-        "src/aasapplicationcontainer.h",
-        "src/application.h",
-        "src/applicationcontext.h",
-        "src/lifecyclemanager.h",
-        "src/runapplication.h",
-    ],
     copts = select({
         "@platforms//os:qnx": [],
         "@platforms//os:linux": ["-pthread"],
@@ -58,9 +44,12 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     visibility = ["//score:__subpackages__"],
     deps = [
+        ":aasapplicationcontainer",
+        ":application",
+        ":lifecyclemanager",
+        ":runapplication",
         ":report_running",
         ":lifecycle_client_interface",
-        "//score/launch_manager/lifecycle_client/src/details:lifecycle_client_impl",
         "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/memory:string_literal",
         "@score_baselibs//score/mw/log",
@@ -69,6 +58,7 @@ cc_library(
     ],
 )
 
+# TODO: Narrow scope of visibility to //score::launch_manager
 cc_library(
     name = "applicationcontext",
     srcs = [
@@ -81,7 +71,7 @@ cc_library(
     include_prefix = "score/mw/lifecycle/lifecycle_client",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     tags = ["FUSA"],
-    visibility = ["//visibility:public"],
+    visibility = ["//score:__subpackages__"],
     deps = [
         "@score_baselibs//score/memory:string_literal",
         "@score_baselibs//score/mw/log",
@@ -102,7 +92,7 @@ cc_library(
     include_prefix = "score/mw/lifecycle/lifecycle_client",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     tags = ["FUSA"],
-    visibility = ["//visibility:public"],
+    visibility = ["//score:__subpackages__"],
     deps = [
         ":applicationcontext",
         "@score_baselibs//score/language/futurecpp",
@@ -122,7 +112,7 @@ cc_library(
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle/lifecycle_client",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
-    visibility = ["//visibility:public"],
+    visibility = ["//score:__subpackages__"],
     deps = [
         ":applicationcontext",
     ],
@@ -141,7 +131,7 @@ cc_library(
     include_prefix = "score/mw/lifecycle/lifecycle_client",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     tags = ["FUSA"],
-    visibility = ["//visibility:public"],
+    visibility = ["//score:__subpackages__"],
     deps = [
         ":application",
         ":report_running",
@@ -151,37 +141,60 @@ cc_library(
     ],
 )
 
-[
-    cc_library(
-        name = name,
-        srcs = [
-            "src/runapplication.cpp",
-        ],
-        hdrs = [
-            "src/application.h",
-            "src/lifecyclemanager.h",
-            "src/runapplication.h",
-        ],
-        features = COMPILER_WARNING_FEATURES,
-        include_prefix = "score/mw/lifecycle/lifecycle_client",
-        strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
-        tags = ["FUSA"],
-        deps = [
-            ":applicationcontext",
-        ] + dependencies,
-    )
-    for name, dependencies in [
-        (
-            "lifecycle",
-            [],
-        ),
-        (
-            "lifecycle_non_adaptive",
-            [],
-        ),
-    ]
-]
+# [
+#     cc_library(
+#         name = name,
+#         srcs = [
+#             "src/runapplication.cpp",
+#         ],
+#         hdrs = [
+#             "src/application.h",
+#             "src/lifecyclemanager.h",
+#             "src/runapplication.h",
+#         ],
+#         features = COMPILER_WARNING_FEATURES,
+#         include_prefix = "score/mw/lifecycle/lifecycle_client",
+#         strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
+#         tags = ["FUSA"],
+#         deps = [
+#             ":applicationcontext",
+#         ] + dependencies,
+#     )
+#     for name, dependencies in [
+#         (
+#             "lifecycle",
+#             [],
+#         ),
+#         (
+#             "lifecycle_non_adaptive",
+#             [],
+#         ),
+#     ]
+# ]
 
+cc_library(
+    name = "runapplication",
+    srcs = [
+        "src/runapplication.cpp",
+    ],
+    hdrs = [
+        "src/runapplication.h",
+        "src/lifecyclemanager.h",
+        "src/applicationcontext.h",
+    ],
+    features = COMPILER_WARNING_FEATURES,
+    include_prefix = "score/mw/lifecycle/lifecycle_client",
+    strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
+    tags = ["FUSA"],
+    visibility = ["//score:__subpackages__"],
+    deps = [
+        ":application",
+        ":report_running",
+        "@score_baselibs//score/mw/log",
+        "@score_baselibs//score/os:stdlib",
+        "@score_baselibs//score/os/utils:signal",
+    ],
+)
 
 cc_library(
     name = "report_running",
