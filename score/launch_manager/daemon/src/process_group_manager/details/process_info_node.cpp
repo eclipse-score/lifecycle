@@ -407,11 +407,11 @@ void ProcessInfoNode::handleProcessStarted(uint32_t execution_error_code)
 {
     switch (graph_->getProcessGroupManager()->getProcessMap()->insertIfNotTerminated(pid_, this))
     {
-        case score::lcm::internal::SafeProcessMapReturnTypes::kOk:  // Normal case, entry was put in
-                                                                    // the map, process still running
+        case score::lcm::internal::SafeProcessMap::SafeProcessMapReturnType::kOk:  // Normal case, entry was put in
+                                                                                   // the map, process still running
             handleProcessStillStarting(execution_error_code);
             break;
-        case score::lcm::internal::SafeProcessMapReturnTypes::kYield:  // Process has already exited
+        case score::lcm::internal::SafeProcessMap::SafeProcessMapReturnType::kYield:  // Process has already exited
             handleProcessAlreadyTerminated(execution_error_code);
             break;
         default:  // Error case when pn == -1

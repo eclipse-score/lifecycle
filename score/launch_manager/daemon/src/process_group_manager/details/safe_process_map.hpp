@@ -63,30 +63,30 @@ struct ProcessTreeNode
     ProcessInfoData data_;
 };
 
-enum class SafeProcessMapReturnTypes : std::int32_t
-{
-    /// @brief Method successfully executed.
-    kOk = 0,
-
-    /// @brief Clash due to PID re-use, method yields until the situation is resolved.
-    kYield = 1,
-
-    /// @brief An error occurred during insertion (e.g., out of memory).
-    kInsertionError = -1,
-
-    /// @brief The provided process ID (`key`) is not valid ( < 0).
-    kInvalidIdError = -2,
-
-    /// @brief The state is not defined.
-    kUndefined = 2,
-};
-
 /// @brief The SafeProcessMap class provides a thread-safe mapping of unique process IDs (ProcessID) to
 /// ITerminationCallback pointers. It ensures safe concurrent access and modification of the mapping, using atomic
 /// operations.
 class SafeProcessMap final
 {
   public:
+    /// @brief Enum type used for public methods retrun value.
+    enum class SafeProcessMapReturnType : std::int32_t
+    {
+        /// @brief Method successfully executed.
+        kOk = 0,
+
+        /// @brief Clash due to PID re-use, method yields until the situation is resolved.
+        kYield = 1,
+
+        /// @brief An error occurred during insertion (e.g., out of memory).
+        kInsertionError = -1,
+
+        /// @brief The provided process ID (`key`) is not valid ( < 0).
+        kInvalidIdError = -2,
+
+        /// @brief The state is not defined.
+        kUndefined = 2,
+    };
     /// @brief Constructs a SafeProcessMap with a specified capacity.
     /// This constructor initializes the SafeProcessMap with the given capacity.
     /// @param capacity The maximum number of entries that the SafeProcessMap can hold.
@@ -105,7 +105,7 @@ class SafeProcessMap final
     ///         1 if the process ID was not found and an already-terminated entry was inserted,
     ///         -1 if an error occurred during insertion (e.g., out of memory),
     ///         or -2 if the provided process ID (`key`) is not valid (< 0).
-    SafeProcessMapReturnTypes findTerminated(osal::ProcessID key, int32_t status);
+    SafeProcessMapReturnType findTerminated(osal::ProcessID key, int32_t status);
 
     /// @brief Inserts a process into the map if it has not already terminated.
     /// This method is called by a worker thread after starting a process. It attempts to insert the given process ID
@@ -118,7 +118,7 @@ class SafeProcessMap final
     ///         1 if the key was found (indicating the process has terminated), and updated with the provided object,
     ///         -1 if an error occurred during insertion (e.g., out of memory),
     ///         or -2 if the provided process ID (`key`) is not valid ( < 0).
-    SafeProcessMapReturnTypes insertIfNotTerminated(osal::ProcessID key, ITerminationCallback* object);
+    SafeProcessMapReturnType insertIfNotTerminated(osal::ProcessID key, ITerminationCallback* object);
 
   private:
     /// @brief Searches for a process with the given process ID (key) in the map.

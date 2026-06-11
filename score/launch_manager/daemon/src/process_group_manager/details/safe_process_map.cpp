@@ -302,14 +302,15 @@ int32_t SafeProcessMap::search(osal::ProcessID key, ProcessInfoData data)
     return ret_value;
 }
 
-SafeProcessMapReturnTypes SafeProcessMap::findTerminated(osal::ProcessID key, int32_t status)
+SafeProcessMap::SafeProcessMapReturnType SafeProcessMap::findTerminated(osal::ProcessID key, int32_t status)
 {
-    return static_cast<SafeProcessMapReturnTypes>(search(key, {status, nullptr}));
+    return static_cast<SafeProcessMapReturnType>(search(key, {status, nullptr}));
 }
 
-SafeProcessMapReturnTypes SafeProcessMap::insertIfNotTerminated(osal::ProcessID key, ITerminationCallback* object)
+SafeProcessMap::SafeProcessMapReturnType SafeProcessMap::insertIfNotTerminated(osal::ProcessID key,
+                                                                               ITerminationCallback* object)
 {
-    return static_cast<SafeProcessMapReturnTypes>(search(key, {0, object}));
+    return static_cast<SafeProcessMapReturnType>(search(key, {0, object}));
 }
 
 }  // namespace internal

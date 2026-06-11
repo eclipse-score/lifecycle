@@ -155,7 +155,7 @@ TEST_F(OsHandlerTest, WaitReturnsProcessIdBeforeRegistration_LaterRegistrationRe
     StrictMock<MockTerminationCallback> callback;
     EXPECT_CALL(callback, terminated(99)).Times(1);
     EXPECT_EQ(process_map_.insertIfNotTerminated(4000, &callback),
-              score::lcm::internal::SafeProcessMapReturnTypes::kYield);
+              score::lcm::internal::SafeProcessMap::SafeProcessMapReturnType::kYield);
 
     sut_.reset();
 }
@@ -171,7 +171,7 @@ TEST_F(OsHandlerTest, WaitReturnsUnknownPidWhenMapIsFull_OutOfResourcesPathDoesN
     for (uint32_t i = 0; i < kCapacity; ++i)
     {
         ASSERT_EQ(process_map_.insertIfNotTerminated(static_cast<int32_t>(i + 1U), &callbacks[i]),
-                  score::lcm::internal::SafeProcessMapReturnTypes::kOk);
+                  score::lcm::internal::SafeProcessMap::SafeProcessMapReturnType::kOk);
     }
 
     EXPECT_CALL(*sys_wait_mock_, wait(_))
