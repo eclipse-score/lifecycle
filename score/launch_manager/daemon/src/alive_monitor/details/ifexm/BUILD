@@ -14,7 +14,7 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_library(
     name = "process_cfg",
-    srcs = ["ProcessCfg.cpp"],
+    srcs = [],
     hdrs = ["ProcessCfg.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/ifexm",
     strip_include_prefix = "/score/launch_manager/daemon/src/alive_monitor/details/ifexm",

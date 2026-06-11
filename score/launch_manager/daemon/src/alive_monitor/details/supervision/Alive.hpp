@@ -14,12 +14,7 @@
 #ifndef ALIVE_HPP_INCLUDED
 #define ALIVE_HPP_INCLUDED
 
-#ifndef PHM_PRIVATE
-#define PHM_PRIVATE private
-#endif
-
 #include <cstdint>
-#include <map>
 #include <variant>
 
 #include "score/mw/launch_manager/alive_monitor/Monitor.h"
@@ -29,7 +24,6 @@
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ProcessState.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/logging/PhmLogger.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/supervision/ISupervision.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/supervision/ProcessStateTracker.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/supervision/SupervisionCfg.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
 
@@ -132,14 +126,10 @@ class Alive : public ISupervision,
     /// @return True if sendRecoveryRequest failed
     bool hasRecoveryEnqueueFailed(void) const noexcept;
 
-    /// @brief Returns the last process execution error
-    /// @return process execution error
-    ifexm::ProcessCfg::ProcessExecutionError getProcessExecutionError(void) const noexcept(true);
-
-    PHM_PRIVATE :
-        /// @brief The pointer is only stored for the identification of a checkpoint observer. It can be further used
-        /// for accessing const members only.
-        using CheckpointIdentifier = const score::lcm::saf::ifappl::Checkpoint*;
+private:
+    /// @brief The pointer is only stored for the identification of a checkpoint observer. It can be further used for
+    /// accessing const members only.
+    using CheckpointIdentifier = const score::lcm::saf::ifappl::Checkpoint*;
 
     /// @brief Time sorted checkpoint snapshot
     struct CheckpointSnapshot final
@@ -151,12 +141,22 @@ class Alive : public ISupervision,
         timers::NanoSecondType timestamp{UINT64_MAX};
     };
 
+    /// @brief Time sorted process state snapshot (activation / deactivation event)
+    struct ProcessStateSnapshot final
+    {
+        /// @brief Timestamp of the process state change
+        timers::NanoSecondType timestamp{UINT64_MAX};
+        /// @brief Process state that triggered this snapshot
+        // cppcheck-suppress unusedStructMember
+        ifexm::ProcessState::EProcState eProcState{ifexm::ProcessState::EProcState::idle};
+    };
+
     /// @brief Sync snapshot stores sync timestamp in the time sorting buffer
     using SyncSnapshot = timers::NanoSecondType;
 
     /// @brief Defines one element of time sorted update event
     using TimeSortedUpdateEvent =
-        std::variant<ProcessStateTracker::ProcessStateSnapshot, CheckpointSnapshot, SyncSnapshot>;
+        std::variant<ProcessStateSnapshot, CheckpointSnapshot, SyncSnapshot>;
 
     /// @brief Enumeration of supervision update events
     enum class EUpdateEventType : std::uint8_t
@@ -166,36 +166,13 @@ class Alive : public ISupervision,
         kDeactivation = 2U,  ///< update event for deactivation of supervision
         kCheckpoint = 3U,    ///< update event for reported checkpoint
         kEvaluation = 4U,    ///< artificial update event for evaluation of supervision (relevant for Alive only)
-        kSync = 5U,          ///< artificial update event for synchronization (relevant for Alive and Deadline only)
-        kRecoveredFromCrash = 6U  ///< update event for a crashed process which has been successfully restarted
+        kSync = 5U           ///< artificial update event for synchronization (relevant for Alive only)
     };
 
     /// @brief Get timestamp of current update event
     /// @param [in] f_updateEvent    Sorted update event (e.g, Activation, Deactivation, Checkpoint, ...) from Buffer
     /// @return                      Timestamp of update event
     static timers::NanoSecondType getTimestampOfUpdateEvent(const TimeSortedUpdateEvent f_updateEvent) noexcept(true);
-
-    /// @brief Get the type of update event
-    /// @details Get the type of update event. If it is process event, internal buffer of process tracker is updated
-    /// with this process event.
-    /// @param [in] f_processTracker_r   Process tracker object
-    /// @param [in] f_updateEvent        Sorted update event (e.g, Activation, Deactivation, Checkpoint, ...) from
-    /// Buffer
-    /// @return                          Type of update event
-    EUpdateEventType getEventType(ProcessStateTracker& f_processTracker_r,
-                                  const TimeSortedUpdateEvent f_updateEvent) noexcept(true);
-
-    /// @brief Get the processExecutionError for a specific process
-    /// @param[in] f_process_p The process state
-    /// @return The stored ProcessExecutionError for that process
-    ifexm::ProcessCfg::ProcessExecutionError getProcessExecutionErrorForProcess(
-        const ifexm::ProcessState* f_process_p) noexcept(true);
-
-    /// @brief Stores the processExecutionError for a specific process
-    /// @param[in] f_process_p The process state
-    /// @param[in] f_error The ProcessExecutionError for the given process state
-    void setProcessExecutionErrorForProcess(const ifexm::ProcessState* f_process_p,
-                                            ifexm::ProcessCfg::ProcessExecutionError f_error) noexcept(true);
 
     /// @brief Check and trigger transition out of state Deactivated
     /// @param [in] f_updateEventType       Type of update event (e.g, Activation, Deactivation, Checkpoint, ...)
@@ -208,16 +185,6 @@ class Alive : public ISupervision,
     /// @param [in] f_updateEventTimestamp  Timestamp of update event
     void checkTransitionsToDeactivated(const EUpdateEventType f_updateEventType,
                                        const timers::NanoSecondType f_updateEventTimestamp) noexcept(true);
-
-    /// @brief Check and trigger recovery transition
-    /// @details The recovery transition is triggered if a crashed process has been restarted (kRecoveredFromCrash)
-    ///          If the recovery transition is triggered, the supervision is switched to deactivated and afterwards to
-    ///          ok.
-    /// @param [in] f_updateEventType       Type of update event (e.g, Activation, Deactivation, Checkpoint, ...)
-    /// @param [in] f_updateEventTimestamp  Timestamp of update event
-    /// @return True: if recovery transition was triggered, False: otherwise
-    bool checkForRecoveryTransition(const EUpdateEventType f_updateEventType,
-                                    const timers::NanoSecondType f_updateEventTimestamp) noexcept(true);
 
     /// @brief Check and trigger transition out of state Ok
     /// @param [in] f_updateEventType       Type of update event (e.g, Activation, Deactivation, Checkpoint, ...)
@@ -376,20 +343,6 @@ class Alive : public ISupervision,
     /// @brief Time sorting buffer for update events in alive supervision
     /// @details This buffer sorts all process events and checkpoint events in the same buffer.
     score::lcm::saf::common::TimeSortingBuffer<TimeSortedUpdateEvent> timeSortingUpdateEventBuffer;
-
-    /// @brief The process reporting alive indications
-    const ifexm::ProcessState* aliveProcess;
-
-    /// @brief Keeps track of all relevant processes
-    ProcessStateTracker processTracker;
-
-    /// @brief The process execution error that belongs to the last process that caused a supervision failure
-    ifexm::ProcessCfg::ProcessExecutionError lastProcessExecutionError{
-        ifexm::ProcessCfg::kDefaultProcessExecutionError};
-
-    /// @brief Keep track of the process execution error of the involved processes over time
-    /// @details Map is updated while processing the history buffer
-    std::map<const ifexm::ProcessState*, ifexm::ProcessCfg::ProcessExecutionError> processExecErrs{};
 };
 
 }  // namespace supervision

@@ -33,12 +33,6 @@ struct HMEcuCfgBuilder;
 struct Process;
 struct ProcessBuilder;
 
-struct HmProcessExecutionError;
-struct HmProcessExecutionErrorBuilder;
-
-struct HmRefProcessGroupStates;
-struct HmRefProcessGroupStatesBuilder;
-
 struct HmRefProcess;
 struct HmRefProcessBuilder;
 
@@ -215,9 +209,7 @@ struct Process FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_SHORTNAME = 4,
     VT_IDENTIFIER = 6,
     VT_INDEX = 8,
-    VT_PROCESSTYPE = 10,
-    VT_REFPROCESSGROUPSTATES = 12,
-    VT_PROCESSEXECUTIONERRORS = 14
+    VT_PROCESSTYPE = 10
   };
   const ::flatbuffers::String *shortName() const {
     return GetPointer<const ::flatbuffers::String *>(VT_SHORTNAME);
@@ -231,12 +223,6 @@ struct Process FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   HMFlatBuffer::ProcessType processType() const {
     return static_cast<HMFlatBuffer::ProcessType>(GetField<int8_t>(VT_PROCESSTYPE, 0));
   }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefProcessGroupStates>> *refProcessGroupStates() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefProcessGroupStates>> *>(VT_REFPROCESSGROUPSTATES);
-  }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmProcessExecutionError>> *processExecutionErrors() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmProcessExecutionError>> *>(VT_PROCESSEXECUTIONERRORS);
-  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -246,12 +232,6 @@ struct Process FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            verifier.VerifyString(identifier()) &&
            VerifyField<uint32_t>(verifier, VT_INDEX, 4) &&
            VerifyField<int8_t>(verifier, VT_PROCESSTYPE, 1) &&
-           VerifyOffset(verifier, VT_REFPROCESSGROUPSTATES) &&
-           verifier.VerifyVector(refProcessGroupStates()) &&
-           verifier.VerifyVectorOfTables(refProcessGroupStates()) &&
-           VerifyOffset(verifier, VT_PROCESSEXECUTIONERRORS) &&
-           verifier.VerifyVector(processExecutionErrors()) &&
-           verifier.VerifyVectorOfTables(processExecutionErrors()) &&
            verifier.EndTable();
   }
 };
@@ -272,12 +252,6 @@ struct ProcessBuilder {
   void add_processType(HMFlatBuffer::ProcessType processType) {
     fbb_.AddElement<int8_t>(Process::VT_PROCESSTYPE, static_cast<int8_t>(processType), 0);
   }
-  void add_refProcessGroupStates(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefProcessGroupStates>>> refProcessGroupStates) {
-    fbb_.AddOffset(Process::VT_REFPROCESSGROUPSTATES, refProcessGroupStates);
-  }
-  void add_processExecutionErrors(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmProcessExecutionError>>> processExecutionErrors) {
-    fbb_.AddOffset(Process::VT_PROCESSEXECUTIONERRORS, processExecutionErrors);
-  }
   explicit ProcessBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -294,12 +268,8 @@ inline ::flatbuffers::Offset<Process> CreateProcess(
     ::flatbuffers::Offset<::flatbuffers::String> shortName = 0,
     ::flatbuffers::Offset<::flatbuffers::String> identifier = 0,
     uint32_t index = 0,
-    HMFlatBuffer::ProcessType processType = HMFlatBuffer::ProcessType_REGULAR_PROCESS,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefProcessGroupStates>>> refProcessGroupStates = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmProcessExecutionError>>> processExecutionErrors = 0) {
+    HMFlatBuffer::ProcessType processType = HMFlatBuffer::ProcessType_REGULAR_PROCESS) {
   ProcessBuilder builder_(_fbb);
-  builder_.add_processExecutionErrors(processExecutionErrors);
-  builder_.add_refProcessGroupStates(refProcessGroupStates);
   builder_.add_index(index);
   builder_.add_identifier(identifier);
   builder_.add_shortName(shortName);
@@ -312,115 +282,15 @@ inline ::flatbuffers::Offset<Process> CreateProcessDirect(
     const char *shortName = nullptr,
     const char *identifier = nullptr,
     uint32_t index = 0,
-    HMFlatBuffer::ProcessType processType = HMFlatBuffer::ProcessType_REGULAR_PROCESS,
-    const std::vector<::flatbuffers::Offset<HMFlatBuffer::HmRefProcessGroupStates>> *refProcessGroupStates = nullptr,
-    const std::vector<::flatbuffers::Offset<HMFlatBuffer::HmProcessExecutionError>> *processExecutionErrors = nullptr) {
+    HMFlatBuffer::ProcessType processType = HMFlatBuffer::ProcessType_REGULAR_PROCESS) {
   auto shortName__ = shortName ? _fbb.CreateString(shortName) : 0;
   auto identifier__ = identifier ? _fbb.CreateString(identifier) : 0;
-  auto refProcessGroupStates__ = refProcessGroupStates ? _fbb.CreateVector<::flatbuffers::Offset<HMFlatBuffer::HmRefProcessGroupStates>>(*refProcessGroupStates) : 0;
-  auto processExecutionErrors__ = processExecutionErrors ? _fbb.CreateVector<::flatbuffers::Offset<HMFlatBuffer::HmProcessExecutionError>>(*processExecutionErrors) : 0;
   return HMFlatBuffer::CreateProcess(
       _fbb,
       shortName__,
       identifier__,
       index,
-      processType,
-      refProcessGroupStates__,
-      processExecutionErrors__);
-}
-
-struct HmProcessExecutionError FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef HmProcessExecutionErrorBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_PROCESSEXECUTIONERROR = 4
-  };
-  uint32_t processExecutionError() const {
-    return GetField<uint32_t>(VT_PROCESSEXECUTIONERROR, 0);
-  }
-  template <bool B = false>
-  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyField<uint32_t>(verifier, VT_PROCESSEXECUTIONERROR, 4) &&
-           verifier.EndTable();
-  }
-};
-
-struct HmProcessExecutionErrorBuilder {
-  typedef HmProcessExecutionError Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_processExecutionError(uint32_t processExecutionError) {
-    fbb_.AddElement<uint32_t>(HmProcessExecutionError::VT_PROCESSEXECUTIONERROR, processExecutionError, 0);
-  }
-  explicit HmProcessExecutionErrorBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<HmProcessExecutionError> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<HmProcessExecutionError>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<HmProcessExecutionError> CreateHmProcessExecutionError(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint32_t processExecutionError = 0) {
-  HmProcessExecutionErrorBuilder builder_(_fbb);
-  builder_.add_processExecutionError(processExecutionError);
-  return builder_.Finish();
-}
-
-struct HmRefProcessGroupStates FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef HmRefProcessGroupStatesBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_IDENTIFIER = 4
-  };
-  const ::flatbuffers::String *identifier() const {
-    return GetPointer<const ::flatbuffers::String *>(VT_IDENTIFIER);
-  }
-  template <bool B = false>
-  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_IDENTIFIER) &&
-           verifier.VerifyString(identifier()) &&
-           verifier.EndTable();
-  }
-};
-
-struct HmRefProcessGroupStatesBuilder {
-  typedef HmRefProcessGroupStates Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_identifier(::flatbuffers::Offset<::flatbuffers::String> identifier) {
-    fbb_.AddOffset(HmRefProcessGroupStates::VT_IDENTIFIER, identifier);
-  }
-  explicit HmRefProcessGroupStatesBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<HmRefProcessGroupStates> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<HmRefProcessGroupStates>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<HmRefProcessGroupStates> CreateHmRefProcessGroupStates(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<::flatbuffers::String> identifier = 0) {
-  HmRefProcessGroupStatesBuilder builder_(_fbb);
-  builder_.add_identifier(identifier);
-  return builder_.Finish();
-}
-
-inline ::flatbuffers::Offset<HmRefProcessGroupStates> CreateHmRefProcessGroupStatesDirect(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    const char *identifier = nullptr) {
-  auto identifier__ = identifier ? _fbb.CreateString(identifier) : 0;
-  return HMFlatBuffer::CreateHmRefProcessGroupStates(
-      _fbb,
-      identifier__);
+      processType);
 }
 
 struct HmRefProcess FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -744,8 +614,7 @@ struct HmAliveSupervision FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table
     VT_ISMINCHECKDISABLED = 14,
     VT_ISMAXCHECKDISABLED = 16,
     VT_FAILEDSUPERVISIONCYCLESTOLERANCE = 18,
-    VT_REFPROCESSINDEX = 20,
-    VT_REFPROCESSGROUPSTATES = 22
+    VT_REFPROCESSINDEX = 20
   };
   const ::flatbuffers::String *ruleContextKey() const {
     return GetPointer<const ::flatbuffers::String *>(VT_RULECONTEXTKEY);
@@ -774,9 +643,6 @@ struct HmAliveSupervision FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table
   uint32_t refProcessIndex() const {
     return GetField<uint32_t>(VT_REFPROCESSINDEX, 0);
   }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefProcessGroupStates>> *refProcessGroupStates() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefProcessGroupStates>> *>(VT_REFPROCESSGROUPSTATES);
-  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -790,9 +656,6 @@ struct HmAliveSupervision FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table
            VerifyField<uint8_t>(verifier, VT_ISMAXCHECKDISABLED, 1) &&
            VerifyField<uint32_t>(verifier, VT_FAILEDSUPERVISIONCYCLESTOLERANCE, 4) &&
            VerifyField<uint32_t>(verifier, VT_REFPROCESSINDEX, 4) &&
-           VerifyOffset(verifier, VT_REFPROCESSGROUPSTATES) &&
-           verifier.VerifyVector(refProcessGroupStates()) &&
-           verifier.VerifyVectorOfTables(refProcessGroupStates()) &&
            verifier.EndTable();
   }
 };
@@ -828,9 +691,6 @@ struct HmAliveSupervisionBuilder {
   void add_refProcessIndex(uint32_t refProcessIndex) {
     fbb_.AddElement<uint32_t>(HmAliveSupervision::VT_REFPROCESSINDEX, refProcessIndex, 0);
   }
-  void add_refProcessGroupStates(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefProcessGroupStates>>> refProcessGroupStates) {
-    fbb_.AddOffset(HmAliveSupervision::VT_REFPROCESSGROUPSTATES, refProcessGroupStates);
-  }
   explicit HmAliveSupervisionBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -852,11 +712,9 @@ inline ::flatbuffers::Offset<HmAliveSupervision> CreateHmAliveSupervision(
     bool isMinCheckDisabled = false,
     bool isMaxCheckDisabled = false,
     uint32_t failedSupervisionCyclesTolerance = 0,
-    uint32_t refProcessIndex = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<HMFlatBuffer::HmRefProcessGroupStates>>> refProcessGroupStates = 0) {
+    uint32_t refProcessIndex = 0) {
   HmAliveSupervisionBuilder builder_(_fbb);
   builder_.add_aliveReferenceCycle(aliveReferenceCycle);
-  builder_.add_refProcessGroupStates(refProcessGroupStates);
   builder_.add_refProcessIndex(refProcessIndex);
   builder_.add_failedSupervisionCyclesTolerance(failedSupervisionCyclesTolerance);
   builder_.add_maxAliveIndications(maxAliveIndications);
@@ -878,10 +736,8 @@ inline ::flatbuffers::Offset<HmAliveSupervision> CreateHmAliveSupervisionDirect(
     bool isMinCheckDisabled = false,
     bool isMaxCheckDisabled = false,
     uint32_t failedSupervisionCyclesTolerance = 0,
-    uint32_t refProcessIndex = 0,
-    const std::vector<::flatbuffers::Offset<HMFlatBuffer::HmRefProcessGroupStates>> *refProcessGroupStates = nullptr) {
+    uint32_t refProcessIndex = 0) {
   auto ruleContextKey__ = ruleContextKey ? _fbb.CreateString(ruleContextKey) : 0;
-  auto refProcessGroupStates__ = refProcessGroupStates ? _fbb.CreateVector<::flatbuffers::Offset<HMFlatBuffer::HmRefProcessGroupStates>>(*refProcessGroupStates) : 0;
   return HMFlatBuffer::CreateHmAliveSupervision(
       _fbb,
       ruleContextKey__,
@@ -892,8 +748,7 @@ inline ::flatbuffers::Offset<HmAliveSupervision> CreateHmAliveSupervisionDirect(
       isMinCheckDisabled,
       isMaxCheckDisabled,
       failedSupervisionCyclesTolerance,
-      refProcessIndex,
-      refProcessGroupStates__);
+      refProcessIndex);
 }
 
 inline const HMFlatBuffer::HMEcuCfg *GetHMEcuCfg(const void *buf) {

@@ -40,21 +40,10 @@ Alive::Alive(const AliveSupervisionCfg& f_aliveCfg_r)
       logger_r(logging::PhmLogger::getLogger(logging::PhmLogger::EContext::supervision)),
       recoveryClient_p(f_aliveCfg_r.recoveryClient),
       processIdentifier_(f_aliveCfg_r.processIdentifier),
-      timeSortingUpdateEventBuffer(common::TimeSortingBuffer<TimeSortedUpdateEvent>(f_aliveCfg_r.checkpointBufferSize)),
-      aliveProcess(f_aliveCfg_r.refProcesses_r.front()),
-      processTracker(f_aliveCfg_r.refFuntionGroupStates_r, f_aliveCfg_r.refProcesses_r)
+      timeSortingUpdateEventBuffer(common::TimeSortingBuffer<TimeSortedUpdateEvent>(f_aliveCfg_r.checkpointBufferSize))
 {
-    // coverity[autosar_cpp14_m0_1_3_violation:FALSE] process_p is read for creating map of process and execution error
-    for (const auto* process_p : f_aliveCfg_r.refProcesses_r)
-    {
-        processExecErrs.insert({process_p, ifexm::ProcessCfg::kDefaultProcessExecutionError});
-    }
-
     f_aliveCfg_r.checkpoint_r.attachObserver(*this);
     assert((k_aliveReferenceCycle != 0U) && "k_aliveReferenceCycle=0 causes infinite loop during evaluation.");
-
-    // Consider process active only after reporting kRunning
-    processTracker.setMarkProcessActiveAt(ifexm::ProcessState::EProcState::running);
 
     assert((aliveStatus == EStatus::kDeactivated) &&
            ("Alive Supervision must start in deactivated state, see SWS_PHM_00204"));
@@ -89,14 +78,16 @@ void Alive::updateData(const ifexm::ProcessState& f_observable_r) noexcept(true)
 {
     const ifexm::ProcessState::EProcState state{f_observable_r.getState()};
 
-    if (processTracker.isProcessStateRelevant(state))
-    {
-        const common::ProcessGroupId pgStateId{f_observable_r.getProcessGroupState()};
-        const timers::NanoSecondType timestamp{f_observable_r.getTimestamp()};
-        const ifexm::ProcessCfg::ProcessExecutionError executionError{f_observable_r.getProcessExecutionError()};
+    const bool isRelevant =
+        (state == ifexm::ProcessState::EProcState::running) ||
+        (state == ifexm::ProcessState::EProcState::sigterm) ||
+        (state == ifexm::ProcessState::EProcState::off);
 
-        ProcessStateTracker::ProcessStateSnapshot process{&f_observable_r, state, pgStateId, timestamp, executionError};
-        if (!(timeSortingUpdateEventBuffer.push(process, timestamp)))
+    if (isRelevant)
+    {
+        const timers::NanoSecondType timestamp{f_observable_r.getTimestamp()};
+        ProcessStateSnapshot snapshot{timestamp, state};
+        if (!timeSortingUpdateEventBuffer.push(snapshot, timestamp))
         {
             dataLossReason = EDataLossReason::kBufferFull;
             eventTimestamp = lastSyncTimestamp;
@@ -180,12 +171,7 @@ void Alive::evaluate(const timers::NanoSecondType f_syncTimestamp)
             }
         }
 
-        // Check if recovery transition is triggered in this iteration, if not check for deactivation transition.
-        // Both can not appear in same iteration.
-        if (!checkForRecoveryTransition(currentUpdateType, timestampOfUpdateEvent))
-        {
-            checkTransitionsToDeactivated(currentUpdateType, timestampOfUpdateEvent);
-        }
+        checkTransitionsToDeactivated(currentUpdateType, timestampOfUpdateEvent);
 
         // If evaluation event is triggered in this iteration, original event is passed to next iteration.
         if (!(isEvaluationEvent))
@@ -218,7 +204,6 @@ void Alive::handleDataLossReaction(void) noexcept(true)
         switchToExpired(EReason::kDataLoss);
     }
     timeSortingUpdateEventBuffer.clear();
-    processTracker.setAllProcessesActive();
     dataLossReason = EDataLossReason::kNoDataLoss;
 }
 
@@ -279,18 +264,34 @@ bool Alive::detectEvaluationEvent(const timers::NanoSecondType f_timestampOfUpda
 Alive::EUpdateEventType Alive::getAliveEventType(bool f_isEvaluationEvent,
                                                  const TimeSortedUpdateEvent f_updateEvent) noexcept(true)
 {
-    EUpdateEventType currentUpdateType{EUpdateEventType::kNoChange};
-
     if (f_isEvaluationEvent)
     {
-        currentUpdateType = EUpdateEventType::kEvaluation;
-    }
-    else
-    {
-        currentUpdateType = getEventType(processTracker, f_updateEvent);
+        return EUpdateEventType::kEvaluation;
     }
 
-    return currentUpdateType;
+    if (std::holds_alternative<ProcessStateSnapshot>(f_updateEvent))
+    {
+        const auto& snapshot = std::get<ProcessStateSnapshot>(f_updateEvent);
+        if (snapshot.eProcState == ifexm::ProcessState::EProcState::running)
+        {
+            return EUpdateEventType::kActivation;
+        }
+        if (snapshot.eProcState == ifexm::ProcessState::EProcState::sigterm ||
+            snapshot.eProcState == ifexm::ProcessState::EProcState::off)
+        {
+            return EUpdateEventType::kDeactivation;
+        }
+        return EUpdateEventType::kNoChange;
+    }
+
+    if (std::holds_alternative<CheckpointSnapshot>(f_updateEvent))
+    {
+        return EUpdateEventType::kCheckpoint;
+    }
+
+    // SyncSnapshot
+    assert(std::holds_alternative<SyncSnapshot>(f_updateEvent));
+    return EUpdateEventType::kSync;
 }
 
 void Alive::checkTransitionsOutOfDeactivated(const EUpdateEventType f_updateEventType,
@@ -314,19 +315,6 @@ void Alive::checkTransitionsToDeactivated(const EUpdateEventType f_updateEventTy
         eventTimestamp = f_updateEventTimestamp;
         switchToDeactivated();
     }
-}
-
-bool Alive::checkForRecoveryTransition(const EUpdateEventType f_updateEventType,
-                                       const timers::NanoSecondType f_updateEventTimestamp) noexcept(true)
-{
-    if (f_updateEventType == EUpdateEventType::kRecoveredFromCrash)
-    {
-        logger_r.LogDebug() << "Alive Supervision (" << getConfigName() << ") about to recover from crash";
-        switchToDeactivated();
-        checkTransitionsOutOfDeactivated(EUpdateEventType::kActivation, f_updateEventTimestamp);
-        return true;
-    }
-    return false;
 }
 
 void Alive::checkTransitionsOutOfOk(const EUpdateEventType f_updateEventType,
@@ -486,7 +474,6 @@ void Alive::switchToFailed(void) noexcept(true)
 void Alive::switchToExpired(Alive::EReason reason) noexcept(true)
 {
     aliveStatus = EStatus::kExpired;
-    lastProcessExecutionError = ifexm::ProcessCfg::kDefaultProcessExecutionError;
 
     switch (reason)
     {
@@ -511,7 +498,6 @@ void Alive::switchToExpired(Alive::EReason reason) noexcept(true)
         case EReason::kFailedToleranceExceeded:
         {
             logExpiredFailedStateDetails();
-            lastProcessExecutionError = getProcessExecutionErrorForProcess(aliveProcess);
             break;
         }
         case EReason::kOverflow:
@@ -597,9 +583,9 @@ void Alive::logExpiredFailedStateDetails() const noexcept(true)
 timers::NanoSecondType Alive::getTimestampOfUpdateEvent(const TimeSortedUpdateEvent f_updateEvent) noexcept(true)
 {
     timers::NanoSecondType timestamp{0U};
-    if (std::holds_alternative<ProcessStateTracker::ProcessStateSnapshot>(f_updateEvent))
+    if (std::holds_alternative<ProcessStateSnapshot>(f_updateEvent))
     {
-        timestamp = std::get<ProcessStateTracker::ProcessStateSnapshot>(f_updateEvent).timestamp;
+        timestamp = std::get<ProcessStateSnapshot>(f_updateEvent).timestamp;
     }
     else if (std::holds_alternative<CheckpointSnapshot>(f_updateEvent))
     {
@@ -614,68 +600,6 @@ timers::NanoSecondType Alive::getTimestampOfUpdateEvent(const TimeSortedUpdateEv
     }
 
     return timestamp;
-}
-
-Alive::EUpdateEventType Alive::getEventType(ProcessStateTracker& f_processTracker_r,
-                                            const TimeSortedUpdateEvent f_updateEvent) noexcept(true)
-{
-    EUpdateEventType currentUpdateType{EUpdateEventType::kNoChange};
-
-    if (std::holds_alternative<ProcessStateTracker::ProcessStateSnapshot>(f_updateEvent))
-    {
-        const auto processStateSnapshot{std::get<ProcessStateTracker::ProcessStateSnapshot>(f_updateEvent)};
-        const auto processEvent{f_processTracker_r.generateProcessChangeEvent(processStateSnapshot)};
-
-        setProcessExecutionErrorForProcess(processStateSnapshot.identifier_p, processStateSnapshot.executionError);
-
-        if (processEvent.changeType == ProcessStateTracker::EProcessChangeType::kActivation)
-        {
-            currentUpdateType = EUpdateEventType::kActivation;
-        }
-        else if (processEvent.changeType == ProcessStateTracker::EProcessChangeType::kDeactivation)
-        {
-            currentUpdateType = EUpdateEventType::kDeactivation;
-        }
-        else if (processEvent.changeType == ProcessStateTracker::EProcessChangeType::kRecoveredFromCrash)
-        {
-            currentUpdateType = EUpdateEventType::kRecoveredFromCrash;
-        }
-        else
-        {
-            currentUpdateType = EUpdateEventType::kNoChange;
-        }
-    }
-    else if (std::holds_alternative<CheckpointSnapshot>(f_updateEvent))
-    {
-        // Address for checkpoint is not known/stored
-        currentUpdateType = EUpdateEventType::kCheckpoint;
-    }
-    else
-    {
-        assert(std::holds_alternative<SyncSnapshot>(f_updateEvent));
-        currentUpdateType = EUpdateEventType::kSync;
-    }
-
-    return currentUpdateType;
-}
-
-ifexm::ProcessCfg::ProcessExecutionError Alive::getProcessExecutionError(void) const noexcept(true)
-{
-    return lastProcessExecutionError;
-}
-
-ifexm::ProcessCfg::ProcessExecutionError Alive::getProcessExecutionErrorForProcess(
-    const ifexm::ProcessState* f_process_p) noexcept(true)
-{
-    assert(processExecErrs.find(f_process_p) != processExecErrs.end());
-    return processExecErrs[f_process_p];
-}
-
-void Alive::setProcessExecutionErrorForProcess(const ifexm::ProcessState* f_process_p,
-                                               ifexm::ProcessCfg::ProcessExecutionError f_error) noexcept(true)
-{
-    assert(processExecErrs.find(f_process_p) != processExecErrs.end());
-    processExecErrs[f_process_p] = f_error;
 }
 
 }  // namespace supervision
