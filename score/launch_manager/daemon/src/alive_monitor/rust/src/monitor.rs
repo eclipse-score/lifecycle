@@ -15,7 +15,6 @@ use libc::{c_char, c_uint, c_void};
 use std::ffi::CString;
 use std::marker::PhantomData;
 
-#[link(name = "lifecycle_client")]
 unsafe extern "C" {
     fn score_lcm_monitor_initialize(instanceSpecifier: *const c_char) -> *mut c_void;
     fn score_lcm_monitor_deinitialize(instance: *mut c_void);
