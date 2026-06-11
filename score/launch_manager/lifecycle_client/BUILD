@@ -228,7 +228,7 @@ cc_library(
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle/lifecycle_client",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
-    visibility = ["//visibility:public"],
+    visibility = ["//score:__subpackages__"],
     deps = [
         "@googletest//:gtest",
         "@score_baselibs//score/memory:string_literal",
@@ -248,6 +248,7 @@ cc_library(
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle/lifecycle_client",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
+    visibility = ["//score:__subpackages__"],
     deps = [
         ":applicationcontext_mock",
         "@score_baselibs//score/os/utils:signal",
@@ -268,7 +269,7 @@ cc_library(
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle/lifecycle_client",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
-    visibility = ["//visibility:public"],
+    visibility = ["//score:__subpackages__"],
     deps = [
         ":application_mock",
         "@googletest//:gtest",
@@ -288,7 +289,7 @@ cc_library(
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle/lifecycle_client",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
-    visibility = ["//visibility:public"],
+    visibility = ["//score:__subpackages__"],
     deps = [
         "@googletest//:gtest",
     ],
