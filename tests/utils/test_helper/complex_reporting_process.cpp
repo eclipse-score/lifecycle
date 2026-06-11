@@ -15,10 +15,10 @@
 
 #include <gtest/gtest.h>
 
-#include "src/lifecycle_client_lib/include/application.h"
-#include "src/lifecycle_client_lib/include/runapplication.h"
 #include "tests/utils/test_helper/test_helper.hpp"
-#include <score/lcm/lifecycle_client.h>
+#include "score/mw/lifecycle/application.h"
+#include "score/mw/lifecycle/runapplication.h"
+#include <score/mw/lifecycle/lifecycle_client.h>
 
 /// @file  complex_reporting_process.cpp
 /// @brief Monitored test process using mw::lifecycle (score::mw::lifecycle::Application /

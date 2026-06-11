@@ -36,7 +36,7 @@ cc_binary(
     name = "process_simple_reporting",
     srcs = ["process_simple_reporting.cpp"],
     deps = [
-        "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
+        "//score/launch_manager:lifecycle_cc",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
     ],

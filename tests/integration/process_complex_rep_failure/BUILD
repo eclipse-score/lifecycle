@@ -37,8 +37,7 @@ cc_binary(
     srcs = ["//tests/utils/test_helper:complex_reporting_process.cpp"],
     visibility = ["//tests:__subpackages__"],
     deps = [
-        "//src/launch_manager_daemon/lifecycle_client_lib:lifecycle_client",
-        "//src/lifecycle_client_lib",
+        "//score/launch_manager:lifecycle_cc",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
     ],

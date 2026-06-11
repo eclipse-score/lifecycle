@@ -13,8 +13,8 @@
 #include <gtest/gtest.h>
 
 #include "tests/utils/test_helper/test_helper.hpp"
-#include <score/lcm/control_client.h>
-#include <score/lcm/lifecycle_client.h>
+#include <score/mw/lifecycle/control_client.h>
+#include <score/mw/lifecycle/lifecycle_client.h>
 
 // Given a correct configuration with:
 //   - An initial Run Target named "Startup" containing component named
@@ -27,14 +27,14 @@
 //   "component_does_not_report_krunning_in_time"
 
 TEST(RecoveryActionComplexRepFailure, ControlClientMock) {
-  score::lcm::ControlClient client;
+  score::mw::lifecycle::ControlClient client;
 
   ASSERT_TRUE(check_clean({test_end_location, fallback_file}));
 
   // Establish communication with launch manager
   TEST_STEP("Report kRunning from ControlClientMock") {
-    auto result = score::lcm::LifecycleClient{}.ReportExecutionState(
-        score::lcm::ExecutionState::kRunning);
+    auto result = score::mw::lifecycle::LifecycleClient{}.ReportExecutionState(
+        score::mw::lifecycle::ExecutionState::kRunning);
     ASSERT_TRUE(result.has_value())
         << "ReportExecutionState() failed: " << result.error().Message();
   }
