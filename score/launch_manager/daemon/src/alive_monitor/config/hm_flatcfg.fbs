@@ -25,16 +25,6 @@ table Process {
   identifier: string (id:1);
   index: uint32 (id:2);
   processType: ProcessType (id:3);
-  refProcessGroupStates: [HmRefProcessGroupStates] (id:4);
-  processExecutionErrors: [HmProcessExecutionError] (id:5);
-}
-
-table HmProcessExecutionError {
-  processExecutionError: uint32 (id:0);
-}
-
-table HmRefProcessGroupStates {
-  identifier: string (id:0);
 }
 
 table HmRefProcess {
@@ -73,7 +63,6 @@ table HmAliveSupervision {
   isMaxCheckDisabled: bool (id:6);
   failedSupervisionCyclesTolerance: uint32 (id:7);
   refProcessIndex: uint32 (id:8);
-  refProcessGroupStates: [HmRefProcessGroupStates] (id:9);
 }
 
 root_type HMEcuCfg;

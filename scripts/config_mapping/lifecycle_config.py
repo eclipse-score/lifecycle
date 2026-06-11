@@ -205,20 +205,6 @@ def gen_health_monitor_config(output_dir, config):
         else:
             return "REGULAR_PROCESS"
 
-    def get_all_process_group_states(run_targets):
-        process_group_states = []
-        for run_target, _ in run_targets.items():
-            process_group_states.append("MainPG/" + run_target)
-        process_group_states.append("MainPG/fallback_run_target")
-        return process_group_states
-
-    def get_all_refProcessGroupStates(run_targets):
-        states = get_all_process_group_states(run_targets)
-        refProcessGroupStates = []
-        for state in states:
-            refProcessGroupStates.append({"identifier": state})
-        return refProcessGroupStates
-
     HM_SCHEMA_VERSION_MAJOR = 8
     HM_SCHEMA_VERSION_MINOR = 1
     hm_config = {}
@@ -244,12 +230,6 @@ def gen_health_monitor_config(output_dir, config):
                     "application_type"
                 ]
             )
-            process["refProcessGroupStates"] = get_all_refProcessGroupStates(
-                config["run_targets"]
-            )
-            process["processExecutionErrors"] = [
-                {"processExecutionError": 1} for _ in process["refProcessGroupStates"]
-            ]
             hm_config["process"].append(process)
 
             hmMonitorIf = {}
@@ -293,9 +273,6 @@ def gen_health_monitor_config(output_dir, config):
                 "component_properties"
             ]["application_profile"]["alive_supervision"]["failed_cycles_tolerance"]
             alive_supervision["refProcessIndex"] = index
-            alive_supervision["refProcessGroupStates"] = get_all_refProcessGroupStates(
-                config["run_targets"]
-            )
             hm_config["hmAliveSupervision"].append(alive_supervision)
 
             index += 1

@@ -25,9 +25,7 @@ namespace ifexm
 ProcessState::ProcessState(const ProcessCfg& f_processCfg_r) noexcept(false) :
     Observable<ProcessState>(),
     k_processShortName(f_processCfg_r.processShortName),
-    k_processId(f_processCfg_r.processId),
-    configuredProcessGroupStates(f_processCfg_r.configuredProcessGroupStates),
-    processExecutionErrors(f_processCfg_r.processExecutionErrors)
+    k_processId(f_processCfg_r.processId)
 {
     static_cast<void>(0);
 }
@@ -52,16 +50,6 @@ void ProcessState::setState(ProcessState::EProcState f_processStateId) noexcept
     eProcState = f_processStateId;
 }
 
-common::ProcessGroupId ProcessState::getProcessGroupState() const noexcept
-{
-    return processGroupState;
-}
-
-void ProcessState::setProcessGroupState(common::ProcessGroupId f_processGroupStateId) noexcept
-{
-    processGroupState = f_processGroupStateId;
-}
-
 timers::NanoSecondType ProcessState::getTimestamp() const noexcept
 {
     return timestamp;
@@ -70,23 +58,6 @@ timers::NanoSecondType ProcessState::getTimestamp() const noexcept
 void ProcessState::setTimestamp(timers::NanoSecondType f_timestamp) noexcept
 {
     timestamp = f_timestamp;
-}
-
-ProcessCfg::ProcessExecutionError ProcessState::getProcessExecutionError() const noexcept
-{
-    const auto it{
-        std::find(configuredProcessGroupStates.begin(), configuredProcessGroupStates.end(), processGroupState)};
-
-    if (it != configuredProcessGroupStates.end())
-    {
-        // process was configured to run in the current process group state
-        const std::size_t index{static_cast<std::size_t>(std::distance(configuredProcessGroupStates.begin(), it))};
-        const auto processError{processExecutionErrors.at(index)};
-        return processError;
-    }
-
-    // Process was not configured to run in the current process group state
-    return ProcessCfg::kDefaultProcessExecutionError;
 }
 
 void ProcessState::pushData(void) noexcept

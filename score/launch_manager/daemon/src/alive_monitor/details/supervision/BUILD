@@ -38,20 +38,6 @@ cc_library(
 )
 
 cc_library(
-    name = "process_state_tracker",
-    srcs = ["ProcessStateTracker.cpp"],
-    hdrs = ["ProcessStateTracker.hpp"],
-    include_prefix = "score/mw/launch_manager/alive_monitor/details/supervision",
-    strip_include_prefix = "/score/launch_manager/daemon/src/alive_monitor/details/supervision",
-    visibility = ["//score/launch_manager/daemon/src/alive_monitor:__subpackages__"],
-    deps = [
-        "//score/launch_manager/daemon/src/alive_monitor/details/common:types",
-        "//score/launch_manager/daemon/src/alive_monitor/details/ifexm:process_state",
-        "//score/launch_manager/daemon/src/alive_monitor/details/logging:phm_logging",
-    ],
-)
-
-cc_library(
     name = "alive",
     srcs = ["Alive.cpp"],
     hdrs = ["Alive.hpp"],
@@ -60,7 +46,6 @@ cc_library(
     visibility = ["//score/launch_manager/daemon/src/alive_monitor:__subpackages__"],
     deps = [
         ":i_supervision",
-        ":process_state_tracker",
         ":supervision_cfg",
         "//score/launch_manager/daemon/src/alive_monitor:alive_monitor_h",
         "//score/launch_manager/daemon/src/alive_monitor/details/common:time_sorting_buffer",
