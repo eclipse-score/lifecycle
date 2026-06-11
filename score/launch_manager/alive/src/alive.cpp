@@ -53,6 +53,11 @@ void Alive::ReportAlive() const noexcept
     }
 }
 
+void Alive::ReportFailure() const noexcept
+{
+    // Not implemented
+}
+
 }  // namespace score::mw::lifecycle
 
 
@@ -77,6 +82,11 @@ void score_lcm_alive_deinitialize(void* instance) noexcept {
 void score_lcm_alive_report_alive(void* instance) noexcept {
     static_cast<score::mw::lifecycle::Alive*>(instance)->ReportAlive();
 }
+
+void score_lcm_alive_report_failure(void* instance) noexcept {
+    static_cast<score::mw::lifecycle::Alive*>(instance)->ReportFailure();
+}
+
 
 #ifdef __cplusplus
 }

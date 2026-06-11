@@ -19,6 +19,7 @@ unsafe extern "C" {
     fn score_lcm_alive_initialize(instanceSpecifier: *const c_char) -> *mut c_void;
     fn score_lcm_alive_deinitialize(instance: *mut c_void);
     fn score_lcm_alive_report_alive(instance: *mut c_void);
+    unsafe fn score_lcm_alive_report_failure(instance: *mut c_void);
 }
 
 pub struct Alive {
@@ -50,6 +51,12 @@ impl Alive {
     pub fn report_alive(&self) {
         unsafe {
             score_lcm_alive_report_alive(self.instance_ptr);
+        }
+    }
+
+    pub fn report_failure(&self) {
+        unsafe {
+            score_lcm_alive_report_failure(self.instance_ptr);
         }
     }
 }

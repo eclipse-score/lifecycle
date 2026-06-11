@@ -62,6 +62,12 @@ public:
     /// @remark Thread safety: This method is NOT thread safe.
     void ReportAlive() const noexcept;
 
+    /// @brief Report a direct failure
+    /// @remark Thread safety: This method is NOT thread safe.
+    /// @note Not Implemented. This method currently does nothing.
+    [[deprecated("ReportFailure() is not yet implemented")]]
+    void ReportFailure() const noexcept;
+
 private:
     /// @brief Unique pointer to implementation class of Alive
     std::unique_ptr<AliveImpl> aliveImplPtr;
@@ -74,6 +80,7 @@ extern "C"
     void* score_lcm_alive_initialize(const char* instanceSpecifier) noexcept;
     void score_lcm_alive_deinitialize(void* instance) noexcept;
     void score_lcm_alive_report_alive(void* instance) noexcept;
+    void score_lcm_alive_report_failure(void* instance) noexcept;
 #ifdef __cplusplus
 }
 #endif
