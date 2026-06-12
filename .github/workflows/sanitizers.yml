@@ -43,10 +43,6 @@ jobs:
           repository-cache: true
           cache-save: ${{ github.event_name == 'push' }}
 
-      - name: Configure kernel for TSan (ASLR breaks TSan shadow memory layout)
-        if: matrix.config == 'tsan'
-        run: sudo sysctl -w kernel.randomize_va_space=0
-
       - name: Run tests with sanitizers
         run: |
           bazel test --lockfile_mode=error --config=${{ matrix.config }} --config=x86_64-linux //score/... //tests/... --verbose_failures

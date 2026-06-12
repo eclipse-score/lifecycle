@@ -50,10 +50,9 @@ ASan + UBSan + LSan (recommended):
 bazel test --config=asan_ubsan_lsan --config=x86_64-linux //score/... //tests/...
 ```
 
-TSan (requires ASLR to be in conservative mode):
+TSan:
 
 ```sh
-sudo sysctl -w kernel.randomize_va_space=0
 bazel test --config=tsan --config=x86_64-linux //score/... //tests/...
 ```
 
