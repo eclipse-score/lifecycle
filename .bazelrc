@@ -158,6 +158,6 @@ build:tsan --linkopt=-fsanitize=thread
 build:tsan --cxxopt=-Wno-tsan
 build:tsan --platform_suffix=tsan
 build:tsan --@score_cpp_policies//sanitizers/flags:sanitizer=tsan
-test:tsan --run_under=@score_cpp_policies//sanitizers:wrapper
+test:tsan --run_under=//tools/sanitizers:tsan_setarch_wrapper
 test:tsan --test_tag_filters=-no-tsan
 test:tsan --build_tests_only
