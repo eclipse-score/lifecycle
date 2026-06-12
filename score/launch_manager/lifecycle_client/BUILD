@@ -13,6 +13,7 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("@score_baselibs//score/language/safecpp:toolchain_features.bzl", "COMPILER_WARNING_FEATURES")
 
+#TODO: Review if we need both targets lifecycle_client_interface <--> lifecycle_client
 cc_library(
     name = "lifecycle_client_interface",
     hdrs = [
@@ -30,6 +31,7 @@ cc_library(
     ],
 )
 
+# TODO: Proposal from Nicolas, get rid of interface target and adjust include prefix to score/mw/lifecycle and adjust include path
 cc_library(
     name = "lifecycle_client",
     copts = select({
@@ -236,6 +238,7 @@ cc_library(
     ],
 )
 
+# TODO: Introduce public alias
 cc_library(
     name = "lifecycle_mock",
     testonly = True,
@@ -243,9 +246,9 @@ cc_library(
         "src/lifecyclemanagermock.cpp",
     ],
     hdrs = [
-        "src/lifecyclemanager.h",
+       # "src/lifecyclemanager.h",
         "src/lifecyclemanagermock.h",
-        "src/runapplication.h",
+       # "src/runapplication.h",
     ],
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle/lifecycle_client",
@@ -259,6 +262,7 @@ cc_library(
     ],
 )
 
+# TODO: Introduce public alias
 cc_library(
     name = "report_running_mock",
     testonly = True,
@@ -276,6 +280,7 @@ cc_library(
     ],
 )
 
+# TODO: Link against runapplication header
 cc_test(
     name = "runapplication_UT",
     srcs = ["src/runapplication_UT.cpp"],

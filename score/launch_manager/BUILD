@@ -71,6 +71,7 @@ cc_library(
 cc_test(
     name = "exec_error_domain_UT",
     srcs = ["exec_error_domain_UT.cpp"],
+    # TODO: Visibility private
     visibility = ["//tests:__subpackages__"],
     deps = [
         ":error",
@@ -78,3 +79,5 @@ cc_test(
         "@score_baselibs//score/result",
     ],
 )
+
+# TODO: Add aliases for mock and make them public
