@@ -11,4 +11,4 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "score/mw/lifecycle/lifecycle_client/runapplication.h"
+#include "score/mw/lifecycle/runapplication.h"

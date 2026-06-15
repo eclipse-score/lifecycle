@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "score/mw/lifecycle/lifecycle_client/lifecyclemanagermock.h"
-#include "score/mw/lifecycle/lifecycle_client/lifecyclemanager.h"
+#include "score/mw/lifecycle/lifecyclemanagermock.h"
+#include "score/mw/lifecycle/lifecyclemanager.h"
 
 #include <functional>
 

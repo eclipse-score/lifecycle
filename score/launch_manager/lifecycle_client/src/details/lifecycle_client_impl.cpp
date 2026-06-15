@@ -22,31 +22,25 @@
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
 #include "score/mw/launch_manager/common/constants.hpp"
+#include "score/mw/lifecycle/execution_error.h"
 #include "score/mw/lifecycle/lifecycle_client/details/lifecycle_client_impl.hpp"
 
 using namespace score::lcm::internal::osal;
 
 namespace score::mw::lifecycle {
-        std::atomic_bool LifecycleClient::LifecycleClientImpl::reported{false};
+        std::atomic_bool LifecycleClientImpl::reported{false};
 
-        LifecycleClient::LifecycleClientImpl::LifecycleClientImpl() noexcept = default;
+        LifecycleClientImpl::LifecycleClientImpl() noexcept = default;
 
-        LifecycleClient::LifecycleClientImpl::~LifecycleClientImpl() noexcept = default;
+        LifecycleClientImpl::~LifecycleClientImpl() noexcept = default;
 
-        score::Result<std::monostate> LifecycleClient::LifecycleClientImpl::ReportExecutionState(ExecutionState state) const noexcept
+        score::Result<std::monostate> LifecycleClientImpl::ReportRunningState() const noexcept
         {
-
             score::Result<std::monostate> retVal{score::MakeUnexpected(ExecErrc::kCommunicationError)};
 
-            // Check if the state is valid
-            if (ExecutionState::kRunning != state)
+            if (reported)
             {
-                LM_LOG_ERROR() << "[Lifecycle Client] Invalid execution state!";
-                retVal = score::Result<std::monostate>{score::MakeUnexpected(ExecErrc::kInvalidTransition)};
-            }
-            else if (reported)
-            {
-                LM_LOG_INFO() << "[Lifecycle Client] Reported kRunning already!";
+                LM_LOG_INFO() << "[Lifecycle Client] Reported Running state already!";
                 retVal = score::Result<std::monostate>{score::MakeUnexpected(ExecErrc::kInvalidTransition)};
             }
             else
@@ -57,7 +51,7 @@ namespace score::mw::lifecycle {
             return retVal;
         }
 
-        score::Result<std::monostate> LifecycleClient::LifecycleClientImpl::reportKRunningtoDaemon() const noexcept
+        score::Result<std::monostate> LifecycleClientImpl::reportKRunningtoDaemon() const noexcept
         {
             score::Result<std::monostate> comms_error {score::MakeUnexpected(ExecErrc::kCommunicationError)};
 

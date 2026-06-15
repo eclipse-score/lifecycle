@@ -13,45 +13,27 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("@score_baselibs//score/language/safecpp:toolchain_features.bzl", "COMPILER_WARNING_FEATURES")
 
-#TODO: Review if we need both targets lifecycle_client_interface <--> lifecycle_client
-cc_library(
-    name = "lifecycle_client_interface",
-    hdrs = [
-        "src/application.h",
-        "src/lifecycle_client.h",
-        "src/runapplication.h",
-    ],
-    include_prefix = "score/mw/lifecycle",
-    strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
-    visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
-    deps = [
-        "//score/launch_manager:error",
-        "@score_baselibs//score/language/futurecpp",
-        "@score_baselibs//score/result",
-    ],
-)
-
-# TODO: Proposal from Nicolas, get rid of interface target and adjust include prefix to score/mw/lifecycle and adjust include path
 cc_library(
     name = "lifecycle_client",
     copts = select({
         "@platforms//os:qnx": [],
         "@platforms//os:linux": ["-pthread"],
     }),
-    include_prefix = "score/mw/lifecycle/lifecycle_client",
+    include_prefix = "score/mw/lifecycle",
+    #TODO: Review if pthread is needed here, move to applicationcontainer
     linkopts = select({
         "@platforms//os:qnx": [],
         "@platforms//os:linux": ["-lpthread"],
     }),
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
-    visibility = ["//visibility:public"],
+    visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
         ":aasapplicationcontainer",
         ":application",
         ":lifecyclemanager",
+        ":lifecycleclient_internal",
         ":runapplication",
         ":report_running",
-        ":lifecycle_client_interface",
         "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/memory:string_literal",
         "@score_baselibs//score/mw/log",
@@ -69,7 +51,7 @@ cc_library(
         "src/applicationcontext.h",
     ],
     features = COMPILER_WARNING_FEATURES,
-    include_prefix = "score/mw/lifecycle/lifecycle_client",
+    include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     tags = ["FUSA"],
     visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
@@ -90,7 +72,7 @@ cc_library(
         "src/application.h",
     ],
     features = COMPILER_WARNING_FEATURES,
-    include_prefix = "score/mw/lifecycle/lifecycle_client",
+    include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     tags = ["FUSA"],
     visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
@@ -111,7 +93,7 @@ cc_library(
         "src/lifecyclemanager.h",
     ],
     features = COMPILER_WARNING_FEATURES,
-    include_prefix = "score/mw/lifecycle/lifecycle_client",
+    include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
     deps = [
@@ -129,7 +111,7 @@ cc_library(
         "src/lifecyclemanager.h",
     ],
     features = COMPILER_WARNING_FEATURES,
-    include_prefix = "score/mw/lifecycle/lifecycle_client",
+    include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     tags = ["FUSA"],
     visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
@@ -153,7 +135,7 @@ cc_library(
         "src/applicationcontext.h",
     ],
     features = COMPILER_WARNING_FEATURES,
-    include_prefix = "score/mw/lifecycle/lifecycle_client",
+    include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     tags = ["FUSA"],
     visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
@@ -189,12 +171,13 @@ cc_library(
         "src/lifecycle_client.h",
     ],
     features = COMPILER_WARNING_FEATURES,
-    include_prefix = "score/mw/lifecycle/lifecycle_client",
+    include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     tags = ["FUSA"],
     visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
     deps = [
         "//score/launch_manager/lifecycle_client/src/details:lifecycle_client_impl",
+        "//score/launch_manager:error_event",
     ],
 )
 
@@ -209,7 +192,7 @@ cc_library(
         "src/applicationcontextmock.h",
     ],
     features = COMPILER_WARNING_FEATURES,
-    include_prefix = "score/mw/lifecycle/lifecycle_client",
+    include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
     deps = [
@@ -229,7 +212,7 @@ cc_library(
         "src/application.h",
     ],
     features = COMPILER_WARNING_FEATURES,
-    include_prefix = "score/mw/lifecycle/lifecycle_client",
+    include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
     deps = [
@@ -246,16 +229,16 @@ cc_library(
         "src/lifecyclemanagermock.cpp",
     ],
     hdrs = [
-       # "src/lifecyclemanager.h",
         "src/lifecyclemanagermock.h",
-       # "src/runapplication.h",
+        "src/lifecyclemanager.h",
+        "src/application.h",
     ],
     features = COMPILER_WARNING_FEATURES,
-    include_prefix = "score/mw/lifecycle/lifecycle_client",
+    include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
     deps = [
-        ":application_mock",
+        ":applicationcontext_mock",
         "@googletest//:gtest",
         "@score_baselibs//score/os/utils:signal",
         "@score_baselibs//score/os/utils/mocklib:signal_mock",
@@ -272,7 +255,7 @@ cc_library(
         "src/report_running_mock.h",
     ],
     features = COMPILER_WARNING_FEATURES,
-    include_prefix = "score/mw/lifecycle/lifecycle_client",
+    include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
     deps = [
@@ -280,11 +263,11 @@ cc_library(
     ],
 )
 
-# TODO: Link against runapplication header
 cc_test(
     name = "runapplication_UT",
     srcs = ["src/runapplication_UT.cpp"],
     deps = [
+        ":runapplication",
         ":lifecycle_mock",
         "@googletest//:gtest_main",
     ],

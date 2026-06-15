@@ -23,7 +23,7 @@ cc_library(
         "//score/launch_manager/daemon/src/common:constants",
         "//score/launch_manager/daemon/src/common:log",
         "//score/launch_manager/daemon/src/osal:ipc_comms",
-        "//score/launch_manager/lifecycle_client:lifecycle_client_interface",
+        "//score/launch_manager:error_event",
         "@score_baselibs//score/result",
     ],
 )
