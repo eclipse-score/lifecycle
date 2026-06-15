@@ -47,6 +47,7 @@ alias(
 cc_library(
     name = "error",
     hdrs = ["execution_error.h"],
+    visibility = ["//score/launch_manager:__subpackages__"],
     include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager",
     deps = [
@@ -60,6 +61,7 @@ cc_library(
         "execution_error.h",
         "execution_error_event.h",
     ],
+    visibility = ["//score/launch_manager:__subpackages__"],
     include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager",
     deps = [
@@ -71,8 +73,7 @@ cc_library(
 cc_test(
     name = "exec_error_domain_UT",
     srcs = ["exec_error_domain_UT.cpp"],
-    # TODO: Visibility private
-    visibility = ["//tests:__subpackages__"],
+    visibility = ["//visibility:private"],
     deps = [
         ":error",
         "@googletest//:gtest_main",
@@ -80,4 +81,22 @@ cc_test(
     ],
 )
 
-# TODO: Add aliases for mock and make them public
+alias(
+    name = "applicationcontext_mock_cc",
+    actual = "//score/launch_manager/lifecycle_client:applicationcontext_mock",
+)
+
+alias(
+    name = "application_mock_cc",
+    actual = "//score/launch_manager/lifecycle_client:application_mock",
+)
+
+alias(
+    name = "lifecycle_mock_cc",
+    actual = "//score/launch_manager/lifecycle_client:lifecycle_mock",
+)
+
+alias(
+    name = "report_running_mock_cc",
+    actual = "//score/launch_manager/lifecycle_client:report_running_mock",
+)

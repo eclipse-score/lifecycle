@@ -20,11 +20,6 @@ cc_library(
         "@platforms//os:linux": ["-pthread"],
     }),
     include_prefix = "score/mw/lifecycle",
-    #TODO: Review if pthread is needed here, move to applicationcontainer
-    linkopts = select({
-        "@platforms//os:qnx": [],
-        "@platforms//os:linux": ["-lpthread"],
-    }),
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
@@ -94,6 +89,10 @@ cc_library(
     ],
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle",
+        linkopts = select({
+        "@platforms//os:qnx": [],
+        "@platforms//os:linux": ["-lpthread"],
+    }),
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
     deps = [
@@ -194,7 +193,7 @@ cc_library(
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
-    visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
+    visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
         "@googletest//:gtest",
         "@score_baselibs//score/memory:string_literal",
@@ -214,14 +213,13 @@ cc_library(
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
-    visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
+    visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
         ":applicationcontext_mock",
         "@score_baselibs//score/os/utils:signal",
     ],
 )
 
-# TODO: Introduce public alias
 cc_library(
     name = "lifecycle_mock",
     testonly = True,
@@ -236,7 +234,7 @@ cc_library(
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
-    visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
+    visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
         ":applicationcontext_mock",
         "@googletest//:gtest",
@@ -245,7 +243,6 @@ cc_library(
     ],
 )
 
-# TODO: Introduce public alias
 cc_library(
     name = "report_running_mock",
     testonly = True,
@@ -257,7 +254,7 @@ cc_library(
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
-    visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
+    visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
         "@googletest//:gtest",
     ],
