@@ -40,6 +40,6 @@ cc_library(
         ":hm_config",
         ":hmcore_config",
     ],
-    strip_include_prefix = ".",
+    include_prefix = "score/mw/launch_manager/alive_monitor/config",
     visibility = ["//visibility:public"],
 )

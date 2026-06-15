@@ -67,7 +67,7 @@ pkg_files(
 pkg_files(
     name = "smoke_etc_files",
     srcs = [":lm_smoketest_config"],
-    prefix = "tests/smoke",
+    prefix = "tests/smoke/etc",
 )
 
 pkg_tar(

@@ -25,7 +25,6 @@ bazel_dep(name = "rules_oci", version = "2.3.0")
 bazel_dep(name = "aspect_rules_lint", version = "2.3.0")
 bazel_dep(name = "buildifier_prebuilt", version = "8.5.1")
 bazel_dep(name = "platforms", version = "1.0.0")
-bazel_dep(name = "flatbuffers", version = "25.12.19")
 bazel_dep(name = "download_utils", version = "1.2.2")
 bazel_dep(name = "googletest", version = "1.17.0.bcr.2")
 

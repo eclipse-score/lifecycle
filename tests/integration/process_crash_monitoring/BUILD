@@ -57,7 +57,7 @@ pkg_files(
 pkg_files(
     name = "process_crash_monitoring_etc_files",
     srcs = [":lm_process_crash_monitoring_config"],
-    prefix = "tests/process_crash_monitoring",
+    prefix = "tests/process_crash_monitoring/etc",
 )
 
 pkg_tar(

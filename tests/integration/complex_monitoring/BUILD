@@ -69,7 +69,7 @@ pkg_files(
 pkg_files(
     name = "complex_monitoring_etc_files",
     srcs = [":lm_complex_monitoring_config"],
-    prefix = "tests/complex_monitoring",
+    prefix = "tests/complex_monitoring/etc",
 )
 
 pkg_tar(

@@ -44,7 +44,7 @@ pkg_files(
 pkg_files(
     name = "process_launch_args_etc_files",
     srcs = [":lm_process_launch_args_config"],
-    prefix = "tests/process_launch_args",
+    prefix = "tests/process_launch_args/etc",
 )
 
 pkg_tar(

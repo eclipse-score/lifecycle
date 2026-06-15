@@ -10,10 +10,21 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+load("@rules_cc//cc:defs.bzl", "cc_library")
 load("@score_baselibs//score/flatbuffers/bazel:codegen.bzl", "generate_cpp")
 
-exports_files([
-    "lm_flatcfg.fbs",
+exports_files(
+    [
+        "lm_flatcfg.fbs",
+        "launch_manager.schema.json",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "config_schema_files",
+    srcs = [
+        "launch_manager.schema.json",
     ],
     visibility = ["//visibility:public"],
 )
@@ -28,6 +39,7 @@ generate_cpp(
 cc_library(
     name = "config_lib",
     hdrs = [":config"],
-    strip_include_prefix = ".",
+    include_prefix = "score/mw/launch_manager/configuration",
     visibility = ["//visibility:public"],
+    deps = ["@score_baselibs//score/flatbuffers:flatbufferscpp"],
 )
