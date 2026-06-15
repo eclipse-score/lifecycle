@@ -78,7 +78,7 @@ class DisplayTestLogs(Directive):
 
     def run(self):
         env = self.state.document.settings.env
-        ws_root = Path(env.app.srcdir).parent
+        ws_root = Path(env.app.srcdir)
 
         result_nodes = []
         for log_file in chain(
