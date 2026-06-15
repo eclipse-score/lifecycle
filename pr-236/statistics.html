@@ -3691,7 +3691,7 @@ Running main() from gmock_main.cc
 [ RUN      ] SafeProcessMapTest.InsertMatchesExistingFindTerminatedEntry
 [       OK ] SafeProcessMapTest.InsertMatchesExistingFindTerminatedEntry (0 ms)
 [ RUN      ] SafeProcessMapTest.InsertMultipleNodesThenFindTerminatedRemovesAll
-[       OK ] SafeProcessMapTest.InsertMultipleNodesThenFindTerminatedRemovesAll (7 ms)
+[       OK ] SafeProcessMapTest.InsertMultipleNodesThenFindTerminatedRemovesAll (5 ms)
 [ RUN      ] SafeProcessMapTest.InsertBeyondCapacityReturnsOutOfMemory
 [       OK ] SafeProcessMapTest.InsertBeyondCapacityReturnsOutOfMemory (2 ms)
 [ RUN      ] SafeProcessMapTest.InsertSamePidTwiceYieldsUntilFindTerminatedResolves
@@ -3701,13 +3701,13 @@ Running main() from gmock_main.cc
 [ RUN      ] SafeProcessMapTest.FindTerminatedWorksAtMaxTreeDepth
 [       OK ] SafeProcessMapTest.FindTerminatedWorksAtMaxTreeDepth (0 ms)
 [ RUN      ] SafeProcessMapTest.ConcurrentInsertAndFindFromMultipleThreads
-[       OK ] SafeProcessMapTest.ConcurrentInsertAndFindFromMultipleThreads (2920 ms)
+[       OK ] SafeProcessMapTest.ConcurrentInsertAndFindFromMultipleThreads (2548 ms)
 [ RUN      ] SafeProcessMapTest.ConcurrentFindAndInsertFromMultipleThreads
-[       OK ] SafeProcessMapTest.ConcurrentFindAndInsertFromMultipleThreads (2990 ms)
-[----------] 13 tests from SafeProcessMapTest (5945 ms total)
+[       OK ] SafeProcessMapTest.ConcurrentFindAndInsertFromMultipleThreads (2105 ms)
+[----------] 13 tests from SafeProcessMapTest (4684 ms total)
 
 [----------] Global test environment tear-down
-[==========] 13 tests from 1 test suite ran. (5945 ms total)
+[==========] 13 tests from 1 test suite ran. (4684 ms total)
 [  PASSED  ] 13 tests.
 </pre></div>
 </div>
@@ -3720,23 +3720,23 @@ Running main() from gmock_main.cc
 [----------] Global test environment set-up.
 [----------] 6 tests from OsHandlerTest
 [ RUN      ] OsHandlerTest.WaitReturnsProcessId_FindTerminatedIsCalled
-[       OK ] OsHandlerTest.WaitReturnsProcessId_FindTerminatedIsCalled (101 ms)
+[       OK ] OsHandlerTest.WaitReturnsProcessId_FindTerminatedIsCalled (102 ms)
 [ RUN      ] OsHandlerTest.WaitReturnsError_OsHandlerSleepsAndDoesNotCallFindTerminated
 [       OK ] OsHandlerTest.WaitReturnsError_OsHandlerSleepsAndDoesNotCallFindTerminated (100 ms)
 [ RUN      ] OsHandlerTest.WaitReturnsZeroPid_OsHandlerSleepsAndDoesNotCallFindTerminated
-[       OK ] OsHandlerTest.WaitReturnsZeroPid_OsHandlerSleepsAndDoesNotCallFindTerminated (100 ms)
+[       OK ] OsHandlerTest.WaitReturnsZeroPid_OsHandlerSleepsAndDoesNotCallFindTerminated (101 ms)
 [ RUN      ] OsHandlerTest.WaitReturnsProcessIdBeforeRegistration_LaterRegistrationReceivesStoredTermination
 [       OK ] OsHandlerTest.WaitReturnsProcessIdBeforeRegistration_LaterRegistrationReceivesStoredTermination (100 ms)
 [ RUN      ] OsHandlerTest.WaitReturnsUnknownPidWhenMapIsFull_OutOfResourcesPathDoesNotNotifyCallbacks
 mw::log initialization error: Error No logging configuration files could be found. occurred with context information: Failed to load configuration files. Fallback to console logging.
-2026/06/11 07:19:36.2376454 4319421 000 ECU1 NONE LM log error verbose 3 No more resources available to track process with PID  9999 (SafeProcessMap capacity exceeded). 
+2026/06/15 07:52:20.9940728 1290541 000 ECU1 NONE LM log error verbose 3 No more resources available to track process with PID  9999 (SafeProcessMap capacity exceeded). 
 [       OK ] OsHandlerTest.WaitReturnsUnknownPidWhenMapIsFull_OutOfResourcesPathDoesNotNotifyCallbacks (103 ms)
 [ RUN      ] OsHandlerTest.WaitReturnsErrorThenProcessId_HandlerRecoversAndInvokesCallback
-[       OK ] OsHandlerTest.WaitReturnsErrorThenProcessId_HandlerRecoversAndInvokesCallback (200 ms)
-[----------] 6 tests from OsHandlerTest (708 ms total)
+[       OK ] OsHandlerTest.WaitReturnsErrorThenProcessId_HandlerRecoversAndInvokesCallback (201 ms)
+[----------] 6 tests from OsHandlerTest (710 ms total)
 
 [----------] Global test environment tear-down
-[==========] 6 tests from 1 test suite ran. (708 ms total)
+[==========] 6 tests from 1 test suite ran. (710 ms total)
 [  PASSED  ] 6 tests.
 </pre></div>
 </div>
