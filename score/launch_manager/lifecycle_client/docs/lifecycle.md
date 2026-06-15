@@ -13,7 +13,7 @@ Component consists of three main parts:
 * Runner class `score::mw::lifecycle::Run` which instantiates the user provided application and decides which LifeCycleManager to use.
 
 Overview on how lifecycle application is related to execution manager.
-![Lifecycle Manager Application Overview](model/lifecycle_system_view.uxf)
+![Lifecycle Manager Application Overview](model/lifecycle_system_view.svg)
 
 ### AAS Interfaces
 N/A
@@ -70,7 +70,7 @@ N/A
 SIGTERM see [lifecyclemanager.md](lifecyclemanager.md)
 
 ## Static architecture
-![Structural View](model/structural_view.uxf)
+![Structural View](model/structural_view.svg)
 
 ## Dynamic architecture
 
@@ -78,13 +78,13 @@ SIGTERM see [lifecyclemanager.md](lifecyclemanager.md)
 The following sequence diagram shows the interaction between OS and instances of `Application` class, which were
 decorated with a `LifecycleManager`:
 
-![Sequence View](model/sequence_view.uxf)
+![Sequence View](model/sequence_view.svg)
 
 ### Stateful behavior
 
 The following state machine depicts the states/transitions of an application:
 
-![Application Lifecycle](model/app_lifecycle.uxf)
+![Application Lifecycle](model/app_lifecycle.svg)
 
 #### State `Terminated` respectively `Not Started`
 

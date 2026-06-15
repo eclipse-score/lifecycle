@@ -1,6 +1,6 @@
 ..
    # *******************************************************************************
-   # Copyright (c) 2025 Contributors to the Eclipse Foundation
+   # Copyright (c) 2026 Contributors to the Eclipse Foundation
    #
    # See the NOTICE file(s) distributed with this work for additional
    # information regarding copyright ownership.
@@ -12,45 +12,10 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-Lifecycle
-===================
+Lifecycle API
+#############
 
 .. toctree::
-   :maxdepth: 1
-   :glob:
-   :titlesonly:
 
-   module/*/index
-   statistics.rst
-
-Overview
---------
-
-Project Layout
---------------
-
-Quick Start
------------
-
-To build the module for host platform:
-
-.. code-block:: bash
-
-   bazel build //src/...
-
-To run tests:
-
-.. code-block:: bash
-
-   bazel test //tests/...
-
-
-Release Notes
--------------
-
-Release notes collection.
-
-.. toctree::
-   :maxdepth: 1
-
-   release_notes/index
+   lifecycle.md
+   lifecyclemanager.md

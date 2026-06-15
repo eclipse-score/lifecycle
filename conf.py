@@ -46,6 +46,16 @@ extensions = [
     "score_draw_uml_funcs",
     "score_source_code_linker",
     "score_layout",
+    "myst_parser",
+]
+
+include_patterns = [
+    "index.rst",
+    "docs/**",
+    "examples/docs/**",
+    "score/launch_manager/docs/**",
+    "score/launch_manager/lifecycle_client/docs/**",
+    "score/health_monitor/docs/**",
 ]
 
 exclude_patterns = [

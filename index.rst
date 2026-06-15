@@ -1,6 +1,6 @@
 ..
    # *******************************************************************************
-   # Copyright (c) 2026 Contributors to the Eclipse Foundation
+   # Copyright (c) 2025 Contributors to the Eclipse Foundation
    #
    # See the NOTICE file(s) distributed with this work for additional
    # information regarding copyright ownership.
@@ -12,18 +12,46 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-Launch Manager
-##############
+Lifecycle
+===================
 
 .. toctree::
+   :maxdepth: 1
+   :glob:
    :titlesonly:
 
-   user_guide/index.rst
-   product_documentation/known_limitations.rst
+   score/launch_manager/docs/index.rst
+   score/health_monitor/docs/index.rst
+   statistics.rst
 
-Subcomponents
-=============
+Overview
+--------
+
+Project Layout
+--------------
+
+Quick Start
+-----------
+
+To build the module for host platform:
+
+.. code-block:: bash
+
+   bazel build //src/...
+
+To run tests:
+
+.. code-block:: bash
+
+   bazel test //tests/...
+
+
+Release Notes
+-------------
+
+Release notes collection.
+
 .. toctree::
-   :titlesonly:
+   :maxdepth: 1
 
-   ../lifecycle_client/docs/index.rst
+   release_notes/index

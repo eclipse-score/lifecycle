@@ -12,18 +12,13 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-Launch Manager
-##############
+User Guide
+##########
 
 .. toctree::
-   :titlesonly:
 
-   user_guide/index.rst
-   product_documentation/known_limitations.rst
-
-Subcomponents
-=============
-.. toctree::
-   :titlesonly:
-
-   ../lifecycle_client/docs/index.rst
+   concepts.rst
+   ready_state.rst
+   configuration.rst
+   examples.rst
+   implementation.rst
