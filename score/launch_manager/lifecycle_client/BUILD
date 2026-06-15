@@ -132,6 +132,7 @@ cc_library(
         "src/runapplication.h",
         "src/lifecyclemanager.h",
         "src/applicationcontext.h",
+        "src/application.h",
     ],
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle",
@@ -139,7 +140,6 @@ cc_library(
     tags = ["FUSA"],
     visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
     deps = [
-        ":application",
         ":report_running",
         "@score_baselibs//score/mw/log",
         "@score_baselibs//score/os:stdlib",

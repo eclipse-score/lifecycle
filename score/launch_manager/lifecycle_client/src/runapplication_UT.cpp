@@ -26,17 +26,17 @@ using ::testing::Return;
 namespace
 {
 
-class StubApplication : public score::mw::lifecycle::Application
+class DummyApplication : public score::mw::lifecycle::Application
 {
   public:
     std::int32_t Initialize(const score::mw::lifecycle::ApplicationContext&) override { return 0; }
     std::int32_t Run(const score::cpp::stop_token&) override { return 0; }
 };
 
-class StubApplicationWithIntArg : public score::mw::lifecycle::Application
+class DummyApplicationWithIntArg : public score::mw::lifecycle::Application
 {
   public:
-    explicit StubApplicationWithIntArg(int value) : value_{value} {}
+    explicit DummyApplicationWithIntArg(int value) : value_{value} {}
     std::int32_t Initialize(const score::mw::lifecycle::ApplicationContext&) override { return 0; }
     std::int32_t Run(const score::cpp::stop_token&) override { return 0; }
     int value_;
@@ -73,7 +73,7 @@ TEST_F(RunTest, AsPosixProcessReturnsZeroExitCode)
 
     EXPECT_CALL(lifecycle_mock_, run(_, _)).WillOnce(Return(0));
 
-    score::mw::lifecycle::Run<StubApplication> runner(kArgc, kArgv);
+    score::mw::lifecycle::Run<DummyApplication> runner(kArgc, kArgv);
     EXPECT_EQ(runner.AsPosixProcess(), 0);
 }
 
@@ -83,7 +83,7 @@ TEST_F(RunTest, AsPosixProcessForwardsNonZeroExitCode)
 
     EXPECT_CALL(lifecycle_mock_, run(_, _)).WillOnce(Return(42));
 
-    score::mw::lifecycle::Run<StubApplication> runner(kArgc, kArgv);
+    score::mw::lifecycle::Run<DummyApplication> runner(kArgc, kArgv);
     EXPECT_EQ(runner.AsPosixProcess(), 42);
 }
 
@@ -96,7 +96,7 @@ TEST_F(RunTest, AsPosixProcessCreatesAndDestroysLifeCycleManager)
     EXPECT_CALL(lifecycle_mock_, dtor()).Times(1);
     EXPECT_CALL(lifecycle_mock_, run(_, _)).WillOnce(Return(0));
 
-    score::mw::lifecycle::Run<StubApplication> runner(kArgc, kArgv);
+    score::mw::lifecycle::Run<DummyApplication> runner(kArgc, kArgv);
     runner.AsPosixProcess();
 }
 
@@ -108,11 +108,11 @@ TEST_F(RunTest, AsPosixProcessPassesCorrectApplicationTypeToRun)
 
     EXPECT_CALL(lifecycle_mock_, run(_, _))
         .WillOnce([](score::mw::lifecycle::Application& app, const score::mw::lifecycle::ApplicationContext&) {
-            EXPECT_NE(dynamic_cast<StubApplication*>(&app), nullptr);
+            EXPECT_NE(dynamic_cast<DummyApplication*>(&app), nullptr);
             return 0;
         });
 
-    score::mw::lifecycle::Run<StubApplication> runner(kArgc, kArgv);
+    score::mw::lifecycle::Run<DummyApplication> runner(kArgc, kArgv);
     runner.AsPosixProcess();
 }
 
@@ -123,7 +123,7 @@ TEST_F(RunTest, AsPosixProcessForwardsConstructorArgsToApplication)
 
     EXPECT_CALL(lifecycle_mock_, run(_, _))
         .WillOnce([](score::mw::lifecycle::Application& app, const score::mw::lifecycle::ApplicationContext&) {
-            auto* typed_app = dynamic_cast<StubApplicationWithIntArg*>(&app);
+            auto* typed_app = dynamic_cast<DummyApplicationWithIntArg*>(&app);
             EXPECT_NE(typed_app, nullptr);
             if (typed_app != nullptr)
             {
@@ -132,7 +132,7 @@ TEST_F(RunTest, AsPosixProcessForwardsConstructorArgsToApplication)
             return 0;
         });
 
-    score::mw::lifecycle::Run<StubApplicationWithIntArg> runner(kArgc, kArgv);
+    score::mw::lifecycle::Run<DummyApplicationWithIntArg> runner(kArgc, kArgv);
     runner.AsPosixProcess(99);
 }
 
@@ -144,7 +144,7 @@ TEST_F(RunTest, RunApplicationFreeFunctionDelegatesToAsPosixProcess)
 
     EXPECT_CALL(lifecycle_mock_, run(_, _)).WillOnce(Return(7));
 
-    const auto result = score::mw::lifecycle::run_application<StubApplication>(kArgc, kArgv);
+    const auto result = score::mw::lifecycle::run_application<DummyApplication>(kArgc, kArgv);
     EXPECT_EQ(result, 7);
 }
 
@@ -156,6 +156,6 @@ TEST_F(RunTest, RunConstructorPassesArgcArgvToApplicationContext)
     EXPECT_CALL(context_mock_, ctor(Eq(kArgc), Eq(static_cast<const char* const*>(kArgv)))).Times(1);
     EXPECT_CALL(lifecycle_mock_, run(_, _)).WillOnce(Return(0));
 
-    score::mw::lifecycle::Run<StubApplication> runner(kArgc, kArgv);
+    score::mw::lifecycle::Run<DummyApplication> runner(kArgc, kArgv);
     runner.AsPosixProcess();
 }
