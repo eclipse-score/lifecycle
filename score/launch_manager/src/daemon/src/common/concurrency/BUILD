@@ -10,7 +10,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
 
 cc_library(
     name = "workerthread",
@@ -46,6 +46,15 @@ cc_library(
         "//score/launch_manager/src/daemon/src/osal:semaphore",
         "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/mw/log",
+    ],
+)
+
+cc_binary(
+    name = "mpmc_concurrent_queue_bench",
+    srcs = ["mpmc_concurrent_queue_bench.cpp"],
+    deps = [
+        ":mpmc_concurrent_queue",
+        "@google_benchmark//:benchmark_main",
     ],
 )
 
