@@ -273,36 +273,22 @@ class MPMCConcurrentQueue
         return score::cpp::blank{};
     }
 
-    /// @brief Helper type to align members to the cache lines.
-    /// @details Using padding rather than alignas(CacheLineSize) so that 
-    ///          ASan's fake stack doesn't cause UBSan misalignment.
-    template <class Atomic>
-    struct CacheLinePaddedAtomic : public std::atomic<Atomic>
-    {
-        static_assert(sizeof(std::atomic<Atomic>) < CacheLineSize,
-                      "atomic<Atomic> is too large to pad to one cache line");
-        using std::atomic<Atomic>::atomic;
-
-      private:
-        char _pad[CacheLineSize - sizeof(std::atomic<Atomic>)]{};
-    };
-
     /// @brief Underlying storage.
     std::array<Slot, Capacity> m_slots;
 
     /// @brief The front of the queue; claimed by consumers via fetch_add in pop.
     /// @details Aligned so that m_head and m_tail do not share a cache line.
-    CacheLinePaddedAtomic<std::size_t> m_head{0};
+    std::atomic<std::size_t> m_head{0};
 
     /// @brief The back of the queue; claimed by producers via fetch_add in push_impl.
     /// @details Aligned so that m_head and m_tail do not share a cache line.
-    CacheLinePaddedAtomic<std::size_t> m_tail{0};
+    std::atomic<std::size_t> m_tail{0};
 
     /// @brief Set to true by stop(); causes push() to return false and pop() to
     ///        return std::nullopt instead of blocking.
     /// @details Aligned on its own cache line so that the single stop() write
     ///          does not cause false sharing with m_tail updates in push_impl().
-    CacheLinePaddedAtomic<bool> m_stopped{false};
+    std::atomic<bool> m_stopped{false};
 
     /// @brief Counts items currently in the queue; consumers block on this when
     ///        the queue is empty.
