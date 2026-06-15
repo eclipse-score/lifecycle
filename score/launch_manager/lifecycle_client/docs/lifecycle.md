@@ -21,12 +21,12 @@ N/A
 ### External C++ interfaces 
 `score:mw::Application` methods which have to be implemented by the application:
 #### Initialize
-This method shall do basic initialization of application (what was not done in application [State `Initializing`](#state-initializing)). 
+This method shall do basic initialization of application (what was not done in application State Initializing). 
 Method returns a `Result`, which either contains `void` on success or an error. In case of an error lifecycle manager will join all running threads and will return with non zero value.  
 Input parameter to this method is an instance of `ApplicationContext`, which is a  wrapper around the arguments, which have been given to `main`.
 
 #### Run
-This method implements the `Run` state of the app (see [State `Run`](#state-run)). This could be a long running
+This method implements the `Run` state of the app (see State `Run`). This could be a long running
 functionality. In case `Run()` returns, this implicitly means, that the app has ended. If
 app implementations do spawn some worker threads in the context of `Run()`, those threads
 are joined again before` Run()` returns.
@@ -129,4 +129,4 @@ do so, it shall not report `Run` at all.
 * N/A
 
 ### Deployment
-* There is example app available that can help with deploying this library see [example application](test/example/README.md) subdirectory
+* There is example app available that can help with deploying this library see example application (`examples/cpp_lifecycle_app`) subdirectory
