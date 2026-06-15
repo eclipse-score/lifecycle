@@ -20,8 +20,8 @@
 
 #include "score/mw/launch_manager/process_group_manager/details/os_handler.hpp"
 
-#include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 #include "score/mw/launch_manager/common/constants.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 #include "score/os/mocklib/sys_wait_mock.h"
 
 using namespace testing;
@@ -32,13 +32,13 @@ namespace
 
 class MockTerminationCallback : public ITerminationCallback
 {
-   public:
+  public:
     MOCK_METHOD(void, terminated, (int32_t process_status), (override));
 };
 
 class OsHandlerTest : public ::testing::Test
 {
-   protected:
+  protected:
     void SetUp() override
     {
         RecordProperty("TestType", "interface-test");
@@ -81,8 +81,7 @@ TEST_F(OsHandlerTest, WaitReturnsProcessId_FindTerminatedIsCalled)
 
 TEST_F(OsHandlerTest, WaitReturnsError_OsHandlerSleepsAndDoesNotCallFindTerminated)
 {
-    RecordProperty("Description",
-                   "When sys_wait returns an error, OsHandler sleeps and does not call findTerminated.");
+    RecordProperty("Description", "When sys_wait returns an error, OsHandler sleeps and does not call findTerminated.");
 
     // given — insert a callback that should NOT be invoked
     StrictMock<MockTerminationCallback> callback;
@@ -101,8 +100,7 @@ TEST_F(OsHandlerTest, WaitReturnsError_OsHandlerSleepsAndDoesNotCallFindTerminat
 
 TEST_F(OsHandlerTest, WaitReturnsZeroPid_OsHandlerSleepsAndDoesNotCallFindTerminated)
 {
-    RecordProperty("Description",
-                   "When sys_wait returns pid 0, OsHandler sleeps and does not call findTerminated.");
+    RecordProperty("Description", "When sys_wait returns pid 0, OsHandler sleeps and does not call findTerminated.");
 
     // given
     StrictMock<MockTerminationCallback> callback;
@@ -156,7 +154,8 @@ TEST_F(OsHandlerTest, WaitReturnsProcessIdBeforeRegistration_LaterRegistrationRe
     // callback immediately with the saved exit status instead of creating a new live entry.
     StrictMock<MockTerminationCallback> callback;
     EXPECT_CALL(callback, terminated(99)).Times(1);
-    EXPECT_EQ(process_map_.insertIfNotTerminated(4000, &callback), 1);
+    EXPECT_EQ(process_map_.insertIfNotTerminated(4000, &callback),
+              score::lcm::internal::SafeProcessMap::SafeProcessMapReturnType::kYield);
 
     sut_.reset();
 }
@@ -171,7 +170,8 @@ TEST_F(OsHandlerTest, WaitReturnsUnknownPidWhenMapIsFull_OutOfResourcesPathDoesN
     StrictMock<MockTerminationCallback> callbacks[kCapacity];
     for (uint32_t i = 0; i < kCapacity; ++i)
     {
-        ASSERT_EQ(process_map_.insertIfNotTerminated(static_cast<int32_t>(i + 1U), &callbacks[i]), 0);
+        ASSERT_EQ(process_map_.insertIfNotTerminated(static_cast<int32_t>(i + 1U), &callbacks[i]),
+                  score::lcm::internal::SafeProcessMap::SafeProcessMapReturnType::kOk);
     }
 
     EXPECT_CALL(*sys_wait_mock_, wait(_))

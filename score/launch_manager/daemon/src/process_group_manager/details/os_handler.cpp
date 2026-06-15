@@ -13,22 +13,33 @@
 
 #include "score/mw/launch_manager/process_group_manager/details/os_handler.hpp"
 
-namespace score {
+namespace score
+{
 
-namespace lcm {
+namespace lcm
+{
 
-namespace internal {
+namespace internal
+{
 
-void OsHandler::run(void) {
-    while (is_running_) {
+void OsHandler::run(void)
+{
+    while (is_running_)
+    {
         int32_t wait_status = 0;
         auto result = sys_wait_.wait(&wait_status);
 
-        if (result.has_value() && result.value() > 0) {
-            if (-1 == safe_process_map_.findTerminated(result.value(), wait_status)) {
-                LM_LOG_ERROR() << "No more resources available to track process with PID " << result.value() << "(SafeProcessMap capacity exceeded).";
+        if (result.has_value() && result.value() > 0)
+        {
+            if (score::lcm::internal::SafeProcessMap::SafeProcessMapReturnType::kInsertionError ==
+                safe_process_map_.findTerminated(result.value(), wait_status))
+            {
+                LM_LOG_ERROR() << "No more resources available to track process with PID " << result.value()
+                               << "(SafeProcessMap capacity exceeded).";
             }
-        } else {
+        }
+        else
+        {
             // This process has no children to wait for at present,
             // or the wait was interrupted by a signal.
             // Wait a while to stop this thread from hogging cpu time
@@ -37,8 +48,8 @@ void OsHandler::run(void) {
     }
 }
 
-}  // namespace lcm
-
 }  // namespace internal
+
+}  // namespace lcm
 
 }  // namespace score
