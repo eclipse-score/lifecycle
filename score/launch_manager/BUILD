@@ -87,11 +87,6 @@ alias(
 )
 
 alias(
-    name = "application_mock_cc",
-    actual = "//score/launch_manager/lifecycle_client:application_mock",
-)
-
-alias(
     name = "lifecycle_mock_cc",
     actual = "//score/launch_manager/lifecycle_client:lifecycle_mock",
 )
