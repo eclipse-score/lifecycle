@@ -19,7 +19,7 @@ from attribute_plugin import add_test_properties
 @add_test_properties(
     partially_verifies=[
         "feat_req__lifecycle__recov_run_target_switch",
-        "feat_req__lifecycle__recovery_action_support"
+        "feat_req__lifecycle__recovery_action_support",
     ],
     fully_verifies=[
         "feat_req__lifecycle__failure_detect",
@@ -27,7 +27,9 @@ from attribute_plugin import add_test_properties
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
 )
-def test_recovery_action_simple_rep_failure(target, setup_test, assert_test_results, remote_test_dir):
+def test_recovery_action_simple_rep_failure(
+    target, setup_test, assert_test_results, remote_test_dir
+):
     """
     Objective: Verifies that recovery action is executed when the reporting of kRunning via LifecycleClient API (named "simple reporting" in the following) is not happening in time and vice versa.
 
@@ -47,6 +49,4 @@ def test_recovery_action_simple_rep_failure(target, setup_test, assert_test_resu
         timeout_s=10.0,
     )
 
-    assert_test_results(
-        {"control_client_mock.xml", "process_simple_reporting.xml"}
-    )
+    assert_test_results({"control_client_mock.xml", "process_simple_reporting.xml"})

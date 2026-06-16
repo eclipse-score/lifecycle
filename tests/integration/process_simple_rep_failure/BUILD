@@ -45,8 +45,8 @@ cc_binary(
 pkg_files(
     name = "process_simple_rep_failure_main_files",
     srcs = [
-        ":process_simple_reporting",
         ":control_client_mock",
+        ":process_simple_reporting",
         "//score/launch_manager",
         "//tests/utils/test_helper:verification_process",
     ],
