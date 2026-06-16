@@ -112,6 +112,7 @@ cc_library(
     deps = [
         ":application",
         ":report_running",
+        "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/mw/log",
         "@score_baselibs//score/os:stdlib",
         "@score_baselibs//score/os/utils:signal",
