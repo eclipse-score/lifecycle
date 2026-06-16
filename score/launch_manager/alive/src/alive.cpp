@@ -15,6 +15,7 @@
 #include "score/mw/launch_manager/alive_monitor/details/AliveImpl.h"
 
 #include <utility>
+#include <cassert>
 
 // The public API is only sending alive notification. No need to support different checkpoints.
 static constexpr std::uint32_t kDefaultCheckpointId{1U};
@@ -55,7 +56,7 @@ void Alive::ReportAlive() const noexcept
 
 void Alive::ReportFailure() const noexcept
 {
-    // Not implemented
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_PRD_MESSAGE(false, "Alive::ReportFailure() is not yet implemented");
 }
 
 }  // namespace score::mw::lifecycle
@@ -66,6 +67,10 @@ extern "C" {
 #endif
 
 void* score_lcm_alive_initialize(const char* instanceSpecifier) noexcept {
+    if(instanceSpecifier == nullptr) {
+        return nullptr;
+    }
+
     try {
         auto* alivePtr = new score::mw::lifecycle::Alive(instanceSpecifier);
         return static_cast<void*>(alivePtr);
@@ -75,15 +80,18 @@ void* score_lcm_alive_initialize(const char* instanceSpecifier) noexcept {
 }
 
 void score_lcm_alive_deinitialize(void* instance) noexcept {
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION(instance != nullptr);
     auto* alivePtr = static_cast<score::mw::lifecycle::Alive*>(instance);
     delete alivePtr;
 }
 
 void score_lcm_alive_report_alive(void* instance) noexcept {
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION(instance != nullptr);
     static_cast<score::mw::lifecycle::Alive*>(instance)->ReportAlive();
 }
 
 void score_lcm_alive_report_failure(void* instance) noexcept {
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION(instance != nullptr);
     static_cast<score::mw::lifecycle::Alive*>(instance)->ReportFailure();
 }
 

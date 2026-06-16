@@ -25,5 +25,6 @@ cc_library(
     visibility = ["//score:__subpackages__"],
     deps = [
         "//score/launch_manager/alive/src/details:alive_impl",
+        "@score_baselibs//score/language/futurecpp",
     ],
 )
