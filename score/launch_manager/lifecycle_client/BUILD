@@ -21,10 +21,10 @@ cc_library(
     deps = [
         ":aasapplicationcontainer",
         ":application",
-        ":lifecyclemanager",
         ":lifecycleclient_internal",
-        ":runapplication",
+        ":lifecyclemanager",
         ":report_running",
+        ":runapplication",
     ],
 )
 
@@ -125,10 +125,10 @@ cc_library(
         "src/runapplication.cpp",
     ],
     hdrs = [
-        "src/runapplication.h",
-        "src/lifecyclemanager.h",
-        "src/applicationcontext.h",
         "src/application.h",
+        "src/applicationcontext.h",
+        "src/lifecyclemanager.h",
+        "src/runapplication.h",
     ],
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle",
@@ -150,8 +150,8 @@ cc_library(
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
-    visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
     tags = ["FUSA"],
+    visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
     deps = [
         ":lifecycleclient_internal",
     ],
@@ -171,8 +171,8 @@ cc_library(
     tags = ["FUSA"],
     visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
     deps = [
-        "//score/launch_manager/lifecycle_client/src/details:lifecycle_client_impl",
         "//score/launch_manager:error_event",
+        "//score/launch_manager/lifecycle_client/src/details:lifecycle_client_impl",
     ],
 )
 
@@ -204,9 +204,9 @@ cc_library(
         "src/lifecyclemanagermock.cpp",
     ],
     hdrs = [
-        "src/lifecyclemanagermock.h",
-        "src/lifecyclemanager.h",
         "src/application.h",
+        "src/lifecyclemanager.h",
+        "src/lifecyclemanagermock.h",
     ],
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle",
@@ -241,8 +241,8 @@ cc_test(
     name = "runapplication_UT",
     srcs = ["src/runapplication_UT.cpp"],
     deps = [
-        ":runapplication",
         ":lifecycle_mock",
+        ":runapplication",
         "@googletest//:gtest_main",
     ],
 )

@@ -47,9 +47,9 @@ alias(
 cc_library(
     name = "error",
     hdrs = ["execution_error.h"],
-    visibility = ["//score/launch_manager:__subpackages__"],
     include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager",
+    visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
         "@score_baselibs//score/result",
     ],
@@ -61,9 +61,9 @@ cc_library(
         "execution_error.h",
         "execution_error_event.h",
     ],
-    visibility = ["//score/launch_manager:__subpackages__"],
     include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager",
+    visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
         ":error",
         "//score/launch_manager/daemon/src/common:identifier_hash",
