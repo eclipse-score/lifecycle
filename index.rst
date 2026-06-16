@@ -12,45 +12,24 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-Lifecycle
-===================
+Lifecycle Documentation
+=======================
 
-.. toctree::
-   :maxdepth: 1
-   :glob:
-   :titlesonly:
-
-   module/*/index
-   statistics.rst
-
-Overview
---------
-
-Project Layout
---------------
-
-Quick Start
------------
-
-To build the module for host platform:
-
-.. code-block:: bash
-
-   bazel build //src/...
-
-To run tests:
-
-.. code-block:: bash
-
-   bazel test //tests/...
-
-
-Release Notes
--------------
-
-Release notes collection.
+Module / Feature Documentation
+------------------------------
 
 .. toctree::
    :maxdepth: 1
 
-   release_notes/index
+   docs/release/index
+   docs/verification_report/statistics
+
+Component documentation
+------------------------
+
+.. toctree::
+   :maxdepth: 1
+
+   score/launch_manager/docs/index
+   score/health_monitor/docs/index
+

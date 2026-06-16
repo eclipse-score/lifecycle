@@ -6,113 +6,25 @@
             "index": 0,
             "shortName": "test_app2",
             "identifier": "test_app2",
-            "processType": "REGULAR_PROCESS",
-            "refProcessGroupStates": [
-                {
-                    "identifier": "MainPG/Startup"
-                },
-                {
-                    "identifier": "MainPG/Full"
-                },
-                {
-                    "identifier": "MainPG/fallback_run_target"
-                }
-            ],
-            "processExecutionErrors": [
-                {
-                    "processExecutionError": 1
-                },
-                {
-                    "processExecutionError": 1
-                },
-                {
-                    "processExecutionError": 1
-                }
-            ]
+            "processType": "REGULAR_PROCESS"
         },
         {
             "index": 1,
             "shortName": "someip-daemon",
             "identifier": "someip-daemon",
-            "processType": "REGULAR_PROCESS",
-            "refProcessGroupStates": [
-                {
-                    "identifier": "MainPG/Startup"
-                },
-                {
-                    "identifier": "MainPG/Full"
-                },
-                {
-                    "identifier": "MainPG/fallback_run_target"
-                }
-            ],
-            "processExecutionErrors": [
-                {
-                    "processExecutionError": 1
-                },
-                {
-                    "processExecutionError": 1
-                },
-                {
-                    "processExecutionError": 1
-                }
-            ]
+            "processType": "REGULAR_PROCESS"
         },
         {
             "index": 2,
             "shortName": "test_app1",
             "identifier": "test_app1",
-            "processType": "REGULAR_PROCESS",
-            "refProcessGroupStates": [
-                {
-                    "identifier": "MainPG/Startup"
-                },
-                {
-                    "identifier": "MainPG/Full"
-                },
-                {
-                    "identifier": "MainPG/fallback_run_target"
-                }
-            ],
-            "processExecutionErrors": [
-                {
-                    "processExecutionError": 1
-                },
-                {
-                    "processExecutionError": 1
-                },
-                {
-                    "processExecutionError": 1
-                }
-            ]
+            "processType": "REGULAR_PROCESS"
         },
         {
             "index": 3,
             "shortName": "state_manager",
             "identifier": "state_manager",
-            "processType": "STM_PROCESS",
-            "refProcessGroupStates": [
-                {
-                    "identifier": "MainPG/Startup"
-                },
-                {
-                    "identifier": "MainPG/Full"
-                },
-                {
-                    "identifier": "MainPG/fallback_run_target"
-                }
-            ],
-            "processExecutionErrors": [
-                {
-                    "processExecutionError": 1
-                },
-                {
-                    "processExecutionError": 1
-                },
-                {
-                    "processExecutionError": 1
-                }
-            ]
+            "processType": "STM_PROCESS"
         }
     ],
     "hmMonitorInterface": [
@@ -181,18 +93,7 @@
             "isMinCheckDisabled": false,
             "isMaxCheckDisabled": false,
             "failedSupervisionCyclesTolerance": 2,
-            "refProcessIndex": 0,
-            "refProcessGroupStates": [
-                {
-                    "identifier": "MainPG/Startup"
-                },
-                {
-                    "identifier": "MainPG/Full"
-                },
-                {
-                    "identifier": "MainPG/fallback_run_target"
-                }
-            ]
+            "refProcessIndex": 0
         },
         {
             "ruleContextKey": "someip-daemon_alive_supervision",
@@ -203,18 +104,7 @@
             "isMinCheckDisabled": false,
             "isMaxCheckDisabled": false,
             "failedSupervisionCyclesTolerance": 2,
-            "refProcessIndex": 1,
-            "refProcessGroupStates": [
-                {
-                    "identifier": "MainPG/Startup"
-                },
-                {
-                    "identifier": "MainPG/Full"
-                },
-                {
-                    "identifier": "MainPG/fallback_run_target"
-                }
-            ]
+            "refProcessIndex": 1
         },
         {
             "ruleContextKey": "test_app1_alive_supervision",
@@ -225,18 +115,7 @@
             "isMinCheckDisabled": false,
             "isMaxCheckDisabled": false,
             "failedSupervisionCyclesTolerance": 2,
-            "refProcessIndex": 2,
-            "refProcessGroupStates": [
-                {
-                    "identifier": "MainPG/Startup"
-                },
-                {
-                    "identifier": "MainPG/Full"
-                },
-                {
-                    "identifier": "MainPG/fallback_run_target"
-                }
-            ]
+            "refProcessIndex": 2
         },
         {
             "ruleContextKey": "state_manager_alive_supervision",
@@ -247,18 +126,7 @@
             "isMinCheckDisabled": false,
             "isMaxCheckDisabled": false,
             "failedSupervisionCyclesTolerance": 2,
-            "refProcessIndex": 3,
-            "refProcessGroupStates": [
-                {
-                    "identifier": "MainPG/Startup"
-                },
-                {
-                    "identifier": "MainPG/Full"
-                },
-                {
-                    "identifier": "MainPG/fallback_run_target"
-                }
-            ]
+            "refProcessIndex": 3
         }
     ]
 }

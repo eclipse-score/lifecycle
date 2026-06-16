@@ -14,8 +14,8 @@
 
 .. _lm_user_guide:
 
-User Guide
-**********
+Overview
+********
 
 .. _lm_introduction:
 
