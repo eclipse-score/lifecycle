@@ -21,25 +21,17 @@ exports_files(
     visibility = ["//visibility:public"],
 )
 
-filegroup(
-    name = "config_schema_files",
-    srcs = [
-        "launch_manager.schema.json",
-    ],
-    visibility = ["//visibility:public"],
-)
-
 generate_cpp(
-    name = "config",
+    name = "fbs_config",
     output = "lm_flatcfg_generated.h",
     schema = "lm_flatcfg.fbs",
-    visibility = ["//visibility:public"],
+    visibility = ["//visibility:private"],
 )
 
 cc_library(
-    name = "config_lib",
-    hdrs = [":config"],
+    name = "config_schema",
+    hdrs = [":fbs_config"],
     include_prefix = "score/mw/launch_manager/configuration",
-    visibility = ["//visibility:public"],
+    visibility = ["//score/launch_manager/daemon/src/configuration:__subpackages__"],
     deps = ["@score_baselibs//score/flatbuffers:flatbufferscpp"],
 )

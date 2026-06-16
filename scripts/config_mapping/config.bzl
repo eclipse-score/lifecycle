@@ -21,7 +21,6 @@ def _lm_config_splitter_impl(ctx):
         ],
     )
 
-
 lm_config_splitter = rule(
     implementation = _lm_config_splitter_impl,
     attrs = {
@@ -48,7 +47,6 @@ lm_config_splitter = rule(
         "hmcore_json": "%{name}/hmcore.json",
     },
 )
-
 
 def launch_manager_config(
         name,

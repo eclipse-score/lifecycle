@@ -38,10 +38,10 @@ pkg_files(
 pkg_files(
     name = "examples_etc_files",
     srcs = [
-        ":examples_test_config",
         "ecu_logging_config.json",
         "hm_logging.json",
         "logging.json",
+        ":examples_test_config",
     ],
     prefix = "tests/examples/etc",
 )

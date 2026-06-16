@@ -12,10 +12,10 @@
 # *******************************************************************************
 load("@score_baselibs//score/flatbuffers/bazel:codegen.bzl", "generate_cpp")
 
-
-exports_files([
-    "hm_flatcfg.fbs",
-    "hmcore_flatcfg.fbs",
+exports_files(
+    [
+        "hm_flatcfg.fbs",
+        "hmcore_flatcfg.fbs",
     ],
     visibility = ["//visibility:public"],
 )
@@ -41,5 +41,8 @@ cc_library(
         ":hmcore_config",
     ],
     include_prefix = "score/mw/launch_manager/alive_monitor/config",
-    visibility = ["//visibility:public"],
+    visibility = ["//score/launch_manager/daemon/src/alive_monitor:__subpackages__"],
+    deps = [
+        "@score_baselibs//score/flatbuffers:flatbufferscpp",
+    ],
 )
