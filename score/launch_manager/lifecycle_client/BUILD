@@ -96,16 +96,8 @@ cc_library(
         "src/application.h",
         "src/lifecyclemanager.h",
     ],
-    copts = select({
-        "@platforms//os:qnx": [],
-        "@platforms//os:linux": ["-pthread"],
-    }),
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle",
-    linkopts = select({
-        "@platforms//os:qnx": [],
-        "@platforms//os:linux": ["-lpthread"],
-    }),
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     tags = ["FUSA"],
     visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
