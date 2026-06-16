@@ -21,7 +21,6 @@ Module / Feature Documentation
 .. toctree::
    :maxdepth: 1
 
-   docs/feature/index
    docs/release/index
    docs/verification_report/statistics
 
