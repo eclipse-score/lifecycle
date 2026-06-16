@@ -15,10 +15,6 @@ load("@score_baselibs//score/language/safecpp:toolchain_features.bzl", "COMPILER
 
 cc_library(
     name = "lifecycle_client",
-    copts = select({
-        "@platforms//os:qnx": [],
-        "@platforms//os:linux": ["-pthread"],
-    }),
     include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     visibility = ["//score/launch_manager:__subpackages__"],
@@ -29,11 +25,6 @@ cc_library(
         ":lifecycleclient_internal",
         ":runapplication",
         ":report_running",
-        "@score_baselibs//score/language/futurecpp",
-        "@score_baselibs//score/memory:string_literal",
-        "@score_baselibs//score/mw/log",
-        "@score_baselibs//score/os:stdlib",
-        "@score_baselibs//score/os/utils:signal",
     ],
 )
 
@@ -73,7 +64,6 @@ cc_library(
     visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
     deps = [
         ":applicationcontext",
-        "@score_baselibs//score/language/futurecpp",
     ],
 )
 
@@ -89,14 +79,11 @@ cc_library(
     ],
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle",
-        linkopts = select({
-        "@platforms//os:qnx": [],
-        "@platforms//os:linux": ["-lpthread"],
-    }),
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
     deps = [
         ":applicationcontext",
+        "@score_baselibs//score/language/futurecpp",
     ],
 )
 
@@ -109,8 +96,16 @@ cc_library(
         "src/application.h",
         "src/lifecyclemanager.h",
     ],
+    copts = select({
+        "@platforms//os:qnx": [],
+        "@platforms//os:linux": ["-pthread"],
+    }),
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle",
+    linkopts = select({
+        "@platforms//os:qnx": [],
+        "@platforms//os:linux": ["-lpthread"],
+    }),
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     tags = ["FUSA"],
     visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
@@ -197,25 +192,6 @@ cc_library(
     deps = [
         "@googletest//:gtest",
         "@score_baselibs//score/memory:string_literal",
-        "@score_baselibs//score/os/utils:signal",
-    ],
-)
-
-cc_library(
-    name = "application_mock",
-    testonly = True,
-    srcs = [
-        "src/application.cpp",
-    ],
-    hdrs = [
-        "src/application.h",
-    ],
-    features = COMPILER_WARNING_FEATURES,
-    include_prefix = "score/mw/lifecycle",
-    strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
-    visibility = ["//score/launch_manager:__subpackages__"],
-    deps = [
-        ":applicationcontext_mock",
         "@score_baselibs//score/os/utils:signal",
     ],
 )
