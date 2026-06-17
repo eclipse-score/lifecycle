@@ -12,7 +12,6 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/configuration/configuration_adapter.hpp"
-#include "score/mw/launch_manager/configuration/flatbuffer_config_loader.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/osal/num_cores.hpp"
 
@@ -46,7 +45,7 @@ score::lcm::internal::osal::CommsType ConfigurationAdapter::mapApplicationType(
     }
 }
 
-bool ConfigurationAdapter::initialize() {
+bool ConfigurationAdapter::initialize(const Config& config) {
     LM_LOG_DEBUG() << "Loading LCM Configurations...";
 
     const char* env_val = getenv("ECUCFG_ENV_VAR_ROOTFOLDER");
@@ -55,14 +54,7 @@ bool ConfigurationAdapter::initialize() {
     }
     LM_LOG_DEBUG() << "ECUCFG_ENV_VAR_ROOTFOLDER set successfully";
 
-    FlatbufferConfigLoader loader;
-    auto result = loader.load("etc/launch_manager_config.bin");
-    if (!result.has_value()) {
-        LM_LOG_ERROR() << "Failed to load launch_manager_config.bin";
-        return false;
-    }
-
-    return buildFromConfig(std::move(*result));
+    return buildFromConfig(config);
 }
 
 void ConfigurationAdapter::deinitialize() {
@@ -82,7 +74,7 @@ void ConfigurationAdapter::deinitialize() {
     }
 }
 
-bool ConfigurationAdapter::buildFromConfig(Config config) {
+bool ConfigurationAdapter::buildFromConfig(const Config& config) {
     const std::string initial_run_target_name = std::string(config.initialRunTarget());
 
     ProcessGroup pg;

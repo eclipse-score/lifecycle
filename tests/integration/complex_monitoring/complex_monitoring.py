@@ -35,6 +35,7 @@ def test_complex_monitoring(target, setup_test, assert_test_results, remote_test
     run_until_file_deployed(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
+        args=["-c", str(remote_test_dir / "etc" / "launch_manager_config.bin")],
         file_path=remote_test_dir.parent / "test_end",
         cwd=str(remote_test_dir),
         timeout_s=4.0,

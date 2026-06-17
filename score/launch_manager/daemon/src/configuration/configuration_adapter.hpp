@@ -19,7 +19,6 @@
 #include <string>
 #include <vector>
 #include "score/mw/launch_manager/configuration/config.hpp"
-#include "score/mw/launch_manager/configuration/config_loader.hpp"
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/common/constants.hpp"
 #include "score/mw/launch_manager/common/process_group_state_id.hpp"
@@ -68,9 +67,15 @@ struct ProcessGroup final {
     std::vector<OsProcess> processes_;
 };
 
+/// @brief Temporary bridge that translates the new Config model (RunTargets, Components) into the
+/// legacy API (ProcessGroups, ProcessGroupStates, OsProcess) consumed by ProcessGroupManager, Graph,
+/// and related code. It exists only to decouple the config-format migration from the broader code
+/// migration and should be removed once ProcessGroupManager and its dependents are adapted to work
+/// directly with RunTarget/Component concepts.
 class ConfigurationAdapter final {
   public:
-    bool initialize();
+    /// @brief Initialize from a pre-loaded Config object (preferred — avoids a second file read).
+    bool initialize(const Config& config);
     void deinitialize();
 
     std::optional<const std::vector<IdentifierHash>*> getListOfProcessGroups() const;
@@ -93,7 +98,7 @@ class ConfigurationAdapter final {
     static const int32_t kDefaultNormalSchedulingPriority;
 
   private:
-    bool buildFromConfig(Config config);
+    bool buildFromConfig(const Config& config);
 
     score::lcm::internal::osal::CommsType mapApplicationType(ApplicationType app_type) const;
 

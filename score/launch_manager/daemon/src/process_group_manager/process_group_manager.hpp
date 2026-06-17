@@ -20,6 +20,7 @@
 
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/control/control_client_channel.hpp"
+#include "score/mw/launch_manager/configuration/config.hpp"
 #include "score/mw/launch_manager/configuration/configuration_adapter.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
@@ -69,14 +70,14 @@ class ProcessGroupManager final
                         std::unique_ptr<score::lcm::IProcessStateNotifier> process_state_notifier);
 
     /// @brief Initializes the process group manager.
-    /// Loads the flat configuration through ConfigurationAdapter.
     /// Sets up a signal handler for SIGINT and SIGTERM so that the main loop of
-    /// the run() method will be exited in the event of those signals
+    /// the run() method will be exited in the event of those signals.
     /// Creates the process map, worker threads and worker job queues.
     /// Creates and initialises the shared memory for the nudge semaphore, always using FD #4,
     /// and stores a pointer to it.
+    /// @param config The fully-loaded configuration to build process groups from.
     /// @return Returns true if initialization was successful, false otherwise.
-    bool initialize();
+    bool initialize(const score::mw::launch_manager::configuration::Config& config);
 
     /// @brief De-initialises the process group manager
     /// deletes worker threads, worker jobs and the process map and then de-initialises the configuration manager
@@ -260,7 +261,7 @@ class ProcessGroupManager final
 
     /// @brief Initializes the process groups.
     /// @return Returns true if initialization was successful, false otherwise.
-    inline bool initializeProcessGroups();
+    inline bool initializeProcessGroups(const score::mw::launch_manager::configuration::Config& config);
 
     /// @brief Creates process component objects, including the job queue and worker threads.
     inline void createProcessComponentsObjects();

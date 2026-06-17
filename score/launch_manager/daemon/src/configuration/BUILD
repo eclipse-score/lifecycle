@@ -13,17 +13,6 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("@score_baselibs//score/flatbuffers/bazel:codegen.bzl", "generate_cpp")
 
-exports_files([
-    "lm_flatcfg.fbs",
-    "lm_flatcfg_generated.h",
-])
-
-filegroup(
-    name = "lm_flatcfg_fbs",
-    srcs = ["lm_flatcfg.fbs"],
-    visibility = ["//visibility:public"],
-)
-
 filegroup(
     name = "new_lm_flatcfg_fbs",
     srcs = ["details/new_lm_flatcfg.fbs"],
@@ -122,15 +111,6 @@ cc_test(
         "@flatbuffers",
         "@googletest//:gtest_main",
     ],
-)
-
-cc_library(
-    name = "lm_flatcfg",
-    hdrs = ["lm_flatcfg_generated.h"],
-    include_prefix = "score/mw/launch_manager/configuration",
-    strip_include_prefix = "/score/launch_manager/daemon/src/configuration",
-    visibility = ["//score:__subpackages__"],
-    deps = ["@flatbuffers"],
 )
 
 cc_library(

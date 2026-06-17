@@ -34,6 +34,7 @@ def test_process_crash_monitoring(
     run_until_file_deployed(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
+        args=["-c", str(remote_test_dir / "etc" / "launch_manager_config.bin")],
         file_path=remote_test_dir.parent / "test_end",
         cwd=str(remote_test_dir),
         timeout_s=10.0,

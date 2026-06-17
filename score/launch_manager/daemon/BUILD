@@ -35,6 +35,7 @@ cc_binary(
     deps = [
         "//score/launch_manager/daemon/src/alive_monitor",
         "//score/launch_manager/daemon/src/common:log",
+        "//score/launch_manager/daemon/src/configuration:flatbuffer_config_loader",
         "//score/launch_manager/daemon/src/osal:ipc_comms",
         "//score/launch_manager/daemon/src/process_group_manager",
         "//score/launch_manager/daemon/src/process_group_manager:alive_monitor_thread",

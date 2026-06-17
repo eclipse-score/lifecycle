@@ -18,30 +18,29 @@
 #include "score/mw/launch_manager/alive_monitor/details/daemon/AliveMonitorImpl.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/logging/PhmLogger.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/watchdog/WatchdogImpl.hpp"
-#include "score/mw/launch_manager/configuration/flatbuffer_config_loader.hpp"
 
 namespace score {
 namespace lcm {
 namespace saf {
 namespace daemon {
 
-AliveMonitorImpl::AliveMonitorImpl(std::shared_ptr<score::lcm::IRecoveryClient> recovery_client, std::unique_ptr<watchdog::IWatchdogIf> watchdog, std::unique_ptr<score::lcm::IProcessStateReceiver> process_state_receiver)
-    : m_recovery_client(recovery_client), m_watchdog(std::move(watchdog)), m_logger{score::lcm::saf::logging::PhmLogger::getLogger(score::lcm::saf::logging::PhmLogger::EContext::factory)}, m_process_state_receiver{std::move(process_state_receiver)} {}
+AliveMonitorImpl::AliveMonitorImpl(std::shared_ptr<score::lcm::IRecoveryClient> recovery_client,
+                                   std::unique_ptr<watchdog::IWatchdogIf> watchdog,
+                                   std::unique_ptr<score::lcm::IProcessStateReceiver> process_state_receiver,
+                                   const score::mw::launch_manager::configuration::Config& config)
+    : m_recovery_client(recovery_client),
+      m_watchdog(std::move(watchdog)),
+      m_logger{score::lcm::saf::logging::PhmLogger::getLogger(score::lcm::saf::logging::PhmLogger::EContext::factory)},
+      m_process_state_receiver{std::move(process_state_receiver)},
+      m_config{config} {}
 
 EInitCode AliveMonitorImpl::init() noexcept {
     score::lcm::saf::daemon::EInitCode initResult{score::lcm::saf::daemon::EInitCode::kGeneralError};
     try {
         m_osClock.startMeasurement();
 
-        score::mw::launch_manager::configuration::FlatbufferConfigLoader loader;
-        auto config_result = loader.load("etc/launch_manager_config.bin");
-        if (!config_result.has_value()) {
-            m_logger.LogError() << "HealthMonitor: Failed to load launch_manager_config.bin";
-            return EInitCode::kGeneralError;
-        }
-
         m_daemon = std::make_unique<score::lcm::saf::daemon::PhmDaemon>(m_osClock, m_logger, std::move(m_watchdog), std::move(m_process_state_receiver));
-        initResult = m_daemon->init(m_recovery_client, *config_result);
+        initResult = m_daemon->init(m_recovery_client, m_config);
 
         if (initResult == score::lcm::saf::daemon::EInitCode::kNoError) {
             const long ms{m_osClock.endMeasurement()};

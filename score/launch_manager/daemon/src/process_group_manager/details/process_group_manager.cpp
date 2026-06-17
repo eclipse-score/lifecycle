@@ -69,7 +69,7 @@ void ProcessGroupManager::setLaunchManagerConfiguration(const OsProcess* launch_
     }
 }
 
-bool ProcessGroupManager::initialize()
+bool ProcessGroupManager::initialize(const score::mw::launch_manager::configuration::Config& config)
 {
     // setup signal handler
     em_cancelled.store(false);
@@ -90,7 +90,7 @@ bool ProcessGroupManager::initialize()
     sigaction(SIGUSR2, &action, NULL);
     sigaction(SIGVTALRM, &action, NULL);
 
-    if (!initializeControlClientHandler() || !initializeProcessGroups())
+    if (!initializeControlClientHandler() || !initializeProcessGroups(config))
     {
         return false;
     }
@@ -172,11 +172,11 @@ inline bool ProcessGroupManager::initializeControlClientHandler()
     return result;
 }
 
-inline bool ProcessGroupManager::initializeProcessGroups()
+inline bool ProcessGroupManager::initializeProcessGroups(const score::mw::launch_manager::configuration::Config& config)
 {
     bool success = false;
 
-    if (configuration_adapter_.initialize())
+    if (configuration_adapter_.initialize(config))
     {
         auto pg_list = configuration_adapter_.getListOfProcessGroups().value_or(nullptr);
 

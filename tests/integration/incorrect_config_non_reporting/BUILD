@@ -13,11 +13,7 @@
 load("@rules_cc//cc:defs.bzl", "cc_binary")
 load("@rules_pkg//pkg:mappings.bzl", "pkg_attributes", "pkg_files")
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
-load("@score_itf//:defs.bzl", "py_itf_test")
-load("@score_lifecycle_pip//:requirements.bzl", "all_requirements")
-load("@score_tooling//:defs.bzl", "score_py_pytest")
 load("//:defs.bzl", "launch_manager_config")
-load("//config:flatbuffers_rules.bzl", "flatbuffer_json_to_bin")
 load("//tests/utils/bazel:integration.bzl", "integration_test")
 
 launch_manager_config(
