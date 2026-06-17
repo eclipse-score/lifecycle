@@ -96,6 +96,12 @@ alias(
     actual = "//score/launch_manager/lifecycle_client:report_running_mock",
 )
 
+# BEGIN: Fine granular targets only needed for testing purposes
+alias(
+    name = "aasapplicationcontainer_cc",
+    actual = "//score/launch_manager/lifecycle_client:aasapplicationcontainer",
+)
+
 alias(
     name = "application_cc",
     actual = "//score/launch_manager/lifecycle_client:application",
@@ -107,6 +113,17 @@ alias(
 )
 
 alias(
-    name = "applicationcontainer_cc",
-    actual = "//score/launch_manager/lifecycle_client:applicationcontainer",
+    name = "lifecyclemanager_cc",
+    actual = "//score/launch_manager/lifecycle_client:lifecyclemanager",
 )
+
+alias(
+    name = "report_running_cc",
+    actual = "//score/launch_manager/lifecycle_client:report_running",
+)
+
+alias(
+    name = "runapplication_cc",
+    actual = "//score/launch_manager/lifecycle_client:runapplication",
+)
+# END: Fine granular targets only needed for testing purposes
