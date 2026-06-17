@@ -29,6 +29,7 @@
 #include "score/mw/launch_manager/alive_monitor/details/timers/CycleTimeValidator.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/CycleTimer.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/watchdog/IWatchdogIf.hpp"
+#include "score/mw/launch_manager/configuration/config.hpp"
 namespace score
 {
 namespace lcm
@@ -90,17 +91,18 @@ public:
     /// (Constructing the workers, adjusting the cycle time, initialization of fixed step timer)
     /// @param[in] recovery_client Shared pointer to recovery client
     /// @return See EInitCode definition
-    EInitCode init(std::shared_ptr<score::lcm::IRecoveryClient> recovery_client) noexcept(false)
+    EInitCode init(std::shared_ptr<score::lcm::IRecoveryClient> recovery_client,
+                   const score::mw::launch_manager::configuration::Config& config) noexcept(false)
     {
         recoveryClient = recovery_client;
 
         factory::MachineConfigFactory machineConfig{};
-        if (!machineConfig.init())
+        if (!machineConfig.init(config))
         {
             return EInitCode::kMachineConfigInitFailed;
         }
 
-        if (!construct(machineConfig.getSupervisionBufferConfig()))
+        if (!construct(config, machineConfig.getSupervisionBufferConfig()))
         {
             return EInitCode::kConstructFlatCfgFactoryFailed;
         }
@@ -218,7 +220,8 @@ private:
     /// @details Create the SwclusterHandler objects and the workers for the SwclusterHandler
     /// @param[in] f_bufferConfig_r The buffer configuration used for worker construction
     /// @return bool true if workers creation succeeded, false otherwise
-    bool construct(const factory::MachineConfigFactory::SupervisionBufferConfig& f_bufferConfig_r) noexcept(false);
+    bool construct(const score::mw::launch_manager::configuration::Config& config,
+                   const factory::MachineConfigFactory::SupervisionBufferConfig& f_bufferConfig_r) noexcept(false);
 
     /// @brief Perform cyclic execution of Phm daemon
     /// @details Perform cyclic execution of Phm daemon functionalities, for e.g., evaluation of supervisions.

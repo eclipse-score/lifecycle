@@ -38,6 +38,7 @@ cc_library(
         "//score/launch_manager/daemon/src/alive_monitor/details/logging:phm_logging",
         "//score/launch_manager/daemon/src/alive_monitor/details/supervision:alive",
         "//score/launch_manager/daemon/src/alive_monitor/details/timers:timers_os_clock",
+        "//score/launch_manager/daemon/src/configuration:config",
     ],
 )
 
@@ -62,6 +63,7 @@ cc_library(
         "//score/launch_manager/daemon/src/alive_monitor/details/timers:cycle_timer",
         "//score/launch_manager/daemon/src/alive_monitor/details/timers:timers_os_clock",
         "//score/launch_manager/daemon/src/alive_monitor/details/watchdog:i_watchdog_if",
+        "//score/launch_manager/daemon/src/configuration:config",
         "//score/launch_manager/lifecycle_client",
     ],
 )
@@ -86,5 +88,6 @@ cc_library(
         ":i_health_monitor",
         "//score/launch_manager/daemon/src/alive_monitor/details/logging:phm_logging",
         "//score/launch_manager/daemon/src/alive_monitor/details/watchdog:watchdog_impl",
+        "//score/launch_manager/daemon/src/configuration:flatbuffer_config_loader",
     ],
 )

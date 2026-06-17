@@ -134,15 +134,16 @@ cc_library(
 )
 
 cc_library(
-    name = "configuration_manager",
-    srcs = ["configuration_manager.cpp"],
-    hdrs = ["configuration_manager.hpp"],
+    name = "configuration_adapter",
+    srcs = ["configuration_adapter.cpp"],
+    hdrs = ["configuration_adapter.hpp"],
     include_prefix = "score/mw/launch_manager/configuration",
     strip_include_prefix = "/score/launch_manager/daemon/src/configuration",
     visibility = ["//score:__subpackages__"],
     deps = [
-        ":lm_flatcfg",
-        "//score/launch_manager:error",
+        ":config",
+        ":config_loader",
+        ":flatbuffer_config_loader",
         "//score/launch_manager/daemon/src/common:constants",
         "//score/launch_manager/daemon/src/common:identifier_hash",
         "//score/launch_manager/daemon/src/common:log",
@@ -150,6 +151,5 @@ cc_library(
         "//score/launch_manager/daemon/src/osal:num_cores",
         "//score/launch_manager/daemon/src/process_group_manager:iprocess",
         "//score/launch_manager/daemon/src/process_state_client:posix_process",
-        "@flatbuffers",
     ],
 )

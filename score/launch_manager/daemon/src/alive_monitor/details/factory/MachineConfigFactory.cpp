@@ -12,12 +12,10 @@
  ********************************************************************************/
 #include "score/mw/launch_manager/alive_monitor/details/factory/MachineConfigFactory.hpp"
 
+#include <cassert>
 #include <limits>
 #include <string_view>
-#include <fstream>
 #include "score/mw/launch_manager/alive_monitor/details/timers/TimeConversion.hpp"
-#include "score/mw/launch_manager/alive_monitor/config/hmcore_flatcfg_generated.h"
-#include "flatbuffers/flatbuffers.h"
 
 
 namespace score
@@ -31,134 +29,37 @@ namespace factory
 
 namespace
 {
-/// @brief Prefix for all log messages
-// coverity[autosar_cpp14_a2_10_4_violation:FALSE] Empty namespace ensures uniqueness for cpp file scope
 static constexpr char const* kLogPrefix{"Factory for FlatCfg MachineConfig:"};
-
-/// @brief Update a field in case the provided value is not the flatbuffer default value
-/// @note In case of optional integer values in flatbuffer files, the flatbuffer API will just return 0 if the value was
-/// not set. For all optional integers of the machine config, 0 would be invalid so we can safely use this to recognize
-/// the default value.
-/// @param [in,out] f_field_r   The field to update
-/// @param [in] f_value         The value provided by flatbuffer
-void updateNonDefaultValue(std::uint16_t& f_field_r, const std::uint16_t f_value) noexcept(true)
-{
-    constexpr static std::uint16_t defaultValue{0U};
-    if (f_value != defaultValue)
-    {
-        f_field_r = f_value;
-    }
-}
-
-std::unique_ptr<char[]> read_flatbuffer_file(const std::string& f_filename_r) {
-    const std::string configFilePath = std::string("etc/") + f_filename_r.c_str();
-
-    std::ifstream infile;
-    infile.open(configFilePath, std::ios::binary | std::ios::in);
-    if (!infile.is_open()) {
-        return nullptr;
-    }
-    infile.seekg(0, std::ios::end);
-    const auto length = static_cast<size_t>(infile.tellg());
-    infile.seekg(0, std::ios::beg);
-    auto data = std::make_unique<char[]>(length);
-    infile.read(data.get(), length);
-    infile.close();
-    return data;
-}
 }  // namespace
 
 MachineConfigFactory::MachineConfigFactory() noexcept(true) : watchdog::IDeviceConfigFactory()
 {
 }
 
-bool MachineConfigFactory::init() noexcept(false)
+bool MachineConfigFactory::init(const score::mw::launch_manager::configuration::Config& config) noexcept(false)
 {
-    std::unique_ptr<char[]> loadBuffer_p = read_flatbuffer_file("hmcore.bin");
-    if(!loadBuffer_p) {
-        logger_r.LogInfo() << kLogPrefix << "No HM Machine Configuration found. Using default configuration.";
-        logConfiguration();
-        return true;
-    }
-
-    // parse flatbuffer file
-    flatBuffer_p = HMCOREFlatBuffer::GetHMCOREEcuCfg(loadBuffer_p.get());
-    if (flatBuffer_p == nullptr)
+    const auto& alive_sup = config.aliveSupervision();
+    if (alive_sup.evaluation_cycle_ms != 0U)
     {
-        logger_r.LogError() << kLogPrefix << "Reading HM configuration from FlatCfg failed.";
-        return false;
+        cycleTimeNs = timers::TimeConversion::convertMilliSecToNanoSec(static_cast<double>(alive_sup.evaluation_cycle_ms));
     }
 
-    // No error and found a machine config
-    return loadHmCoreConfig(flatBuffer_p);
-}
+    const auto& wd_opt = config.watchdog();
+    if (wd_opt.has_value())
+    {
+        const auto& wd = *wd_opt;
+        watchdog::DeviceConfig wdConfig{};
+        wdConfig.fileName = wd.device_file_path;
+        assert(wd.max_timeout_ms <= std::numeric_limits<std::uint16_t>::max());
+        wdConfig.timeoutMax = static_cast<std::uint16_t>(wd.max_timeout_ms);
+        wdConfig.canBeDeactivated = wd.deactivate_on_shutdown;
+        wdConfig.needsMagicClose = wd.require_magic_close;
+        watchdogConfigs.push_back(std::move(wdConfig));
+    }
 
-bool MachineConfigFactory::loadHmCoreConfig(const HMCOREFlatBuffer::HMCOREEcuCfg* f_cfg_r) noexcept(false)
-{
-    loadHmSettings(*f_cfg_r);
-    loadWatchdogDevices(*f_cfg_r);
     logger_r.LogInfo() << kLogPrefix << "Loading of HM Machine Configuration succeeded.";
     logConfiguration();
     return true;
-}
-
-void MachineConfigFactory::loadWatchdogDevices(const HMCOREFlatBuffer::HMCOREEcuCfg& f_flatBuffer_r) noexcept(false)
-{
-    const auto* watchdogs{f_flatBuffer_r.watchdogs()};
-    if ((watchdogs == nullptr) || (watchdogs->size() == 0U))
-    {
-        // no watchdog devices configured
-        return;
-    }
-
-    watchdogConfigs.reserve(static_cast<std::size_t>(watchdogs->size()));
-    for (const auto& wdg : *watchdogs)
-    {
-        watchdog::DeviceConfig config{};
-
-        assert(wdg->maxTimeout() <= std::numeric_limits<std::uint16_t>::max());
-        // coverity[autosar_cpp14_a4_7_1_violation] SDG definitions guarantee uint16 boundaries
-        config.timeoutMax = static_cast<std::uint16_t>(wdg->maxTimeout());
-
-        // coverity[cert_exp34_c_violation] HMCORE.ecucfgdsl Watchdog.deviceFilePath MANDATORY
-        // coverity[dereference] HMCORE.ecucfgdsl Watchdog.deviceFilePath MANDATORY
-        config.fileName = wdg->deviceFilePath()->str();
-        if (wdg->hasValueDeactivateOnShutdown())
-        {
-            config.canBeDeactivated = wdg->deactivateOnShutdown();
-        }
-        if (wdg->hasValueRequireMagicClose())
-        {
-            config.needsMagicClose = wdg->requireMagicClose();
-        }
-        watchdogConfigs.push_back(std::move(config));
-    }
-}
-
-void MachineConfigFactory::loadHmSettings(const HMCOREFlatBuffer::HMCOREEcuCfg& f_flatBuffer_r) noexcept(true)
-{
-    const auto* configContainer{f_flatBuffer_r.config()};
-    if ((configContainer != nullptr) && (configContainer->size() == 1U))
-    {
-        const auto* config{configContainer->Get(0U)};
-        updateNonDefaultValue(supBufferCfg.bufferSizeAliveSupervision, config->bufferSizeAliveSupervision());
-        updateNonDefaultValue(supBufferCfg.bufferSizeMonitor, config->bufferSizeMonitor());
-        if (config->periodicity() != 0U)
-        {
-            cycleTimeNs = timers::TimeConversion::convertMilliSecToNanoSec(static_cast<double>(config->periodicity()));
-        }
-
-        // Because the hm-lib will also need to know of a changed shared memory size (which it currently does not).
-        // The support for configuring shared memory size is delayed until pipc migration.
-        if (supBufferCfg.bufferSizeMonitor != StaticConfig::k_DefaultMonitorBufferElements)
-        {
-            supBufferCfg.bufferSizeMonitor = StaticConfig::k_DefaultMonitorBufferElements;
-            logger_r.LogWarn() << kLogPrefix
-                               << "Configuring Supervised Entity buffer size from machine config is currently not "
-                                  "supported. Using default buffer size of"
-                               << StaticConfig::k_DefaultMonitorBufferElements << "checkpoints";
-        }
-    }
 }
 
 std::optional<watchdog::IDeviceConfigFactory::DeviceConfigurations>
@@ -180,7 +81,6 @@ const MachineConfigFactory::SupervisionBufferConfig& MachineConfigFactory::getSu
 
 void MachineConfigFactory::logConfiguration() noexcept(true)
 {
-    /* RULECHECKER_comment(0, 18, check_conditional_as_sub_expression, "Ternary operation is very simple", true_no_defect) */
     logger_r.LogDebug() << kLogPrefix << "Alive Supervision buffer size:" << supBufferCfg.bufferSizeAliveSupervision;
     logger_r.LogDebug() << kLogPrefix << "Monitor buffer size:" << supBufferCfg.bufferSizeMonitor;
     logger_r.LogDebug() << kLogPrefix << "Periodicity:" << getCycleTimeInNs() << "ns";
@@ -195,7 +95,6 @@ void MachineConfigFactory::logConfiguration() noexcept(true)
         logger_r.LogDebug() << kLogPrefix << "Watchdog" << wdgCount << "- needs magic close:" << wdgMagicCloseBool;
         logger_r.LogDebug() << kLogPrefix << "Watchdog" << wdgCount
                             << "- deactivate on hm shutdown:" << wdgDeactivatedBool;
-        // coverity[autosar_cpp14_a4_7_1_violation] Value limited by amount of watchdog configurations, which is smaller.
         ++wdgCount;
     }
 

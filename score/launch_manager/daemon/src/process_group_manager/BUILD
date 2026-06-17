@@ -59,7 +59,7 @@ cc_library(
         "//score/launch_manager/daemon/src/common:identifier_hash",
         "//score/launch_manager/daemon/src/common/concurrency:mpmc_concurrent_queue",
         "//score/launch_manager/daemon/src/common/concurrency:workerthread",
-        "//score/launch_manager/daemon/src/configuration:configuration_manager",
+        "//score/launch_manager/daemon/src/configuration:configuration_adapter",
         "//score/launch_manager/daemon/src/control:control_client_channel",
         "//score/launch_manager/daemon/src/osal:ipc_comms",
         "//score/launch_manager/daemon/src/process_group_manager/details:graph",

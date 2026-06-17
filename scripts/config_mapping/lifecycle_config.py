@@ -74,9 +74,10 @@ def report_error(message):
     print(f"Error: {message}", file=sys.stderr)
 
 
-# There are various dictionaries in the config where only a single entry is allowed.
-# We do not want to merge the defaults with the user specified values for these dictionaries.
-not_merging_dicts = ["ready_recovery_action", "recovery_action"]
+# These dictionaries select a single action type (e.g. "restart" vs "switch_run_target").
+# When merging, we preserve the user's chosen action type rather than merging across types,
+# but we still deep-merge fields within the chosen action type to fill in missing defaults.
+_action_selection_dicts = ["ready_recovery_action", "recovery_action"]
 
 
 def load_json_file(file_path: str) -> Dict[str, Any]:
@@ -85,19 +86,10 @@ def load_json_file(file_path: str) -> Dict[str, Any]:
         return json.load(file)
 
 
-def get_recovery_process_group_state(config):
-    # Existence has already been validated in the custom_validations function
-    return "MainPG/fallback_run_target"
-
-
-def sec_to_ms(sec: float) -> int:
-    return int(sec * 1000)
-
-
 def preprocess_defaults(global_defaults, config):
     """
-    This function takes the input configuration and fills in any missing fields with default values.
-    The resulting file with have no "defaults" entry anymore, but looks like if the user had specified all the fields explicitly.
+    Takes the input configuration and fills in any missing fields with default values.
+    The resulting config has no "defaults" entry; all fields are explicit.
     """
 
     def dict_merge(dict_a, dict_b):
@@ -108,9 +100,22 @@ def preprocess_defaults(global_defaults, config):
                     and isinstance(dict_a[key], dict)
                     and isinstance(value, dict)
                 ):
-                    # For certain dictionaries, we do not want to merge the defaults with the user specified values
-                    if key in not_merging_dicts:
-                        dict_a[key] = value
+                    if key in _action_selection_dicts:
+                        # Replace the action-type selection (don't merge across types),
+                        # but still deep-merge fields within the chosen action type.
+                        new_val = {}
+                        for action_key, action_val in value.items():
+                            if (
+                                action_key in dict_a[key]
+                                and isinstance(dict_a[key][action_key], dict)
+                                and isinstance(action_val, dict)
+                            ):
+                                new_val[action_key] = dict_merge(
+                                    dict_a[key][action_key], action_val
+                                )
+                            else:
+                                new_val[action_key] = action_val
+                        dict_a[key] = new_val
                     else:
                         dict_a[key] = dict_merge(dict_a[key], value)
                 elif key not in dict_a:
@@ -135,8 +140,7 @@ def preprocess_defaults(global_defaults, config):
 
     new_config = {}
     new_config["components"] = {}
-    components = config.get("components", {})
-    for component_name, component_config in components.items():
+    for component_name, component_config in config.get("components", {}).items():
         # print("Processing component:", component_name)
         new_config["components"][component_name] = {}
         new_config["components"][component_name]["description"] = component_config.get(
@@ -145,17 +149,12 @@ def preprocess_defaults(global_defaults, config):
         # Here we start with the merged defaults, then apply the component config on top, so that any fields specified in the component config will override the defaults.
         new_config["components"][component_name]["component_properties"] = dict_merge(
             merged_defaults["component_properties"],
-            component_config.get("component_properties"),
+            component_config.get("component_properties", {}),
         )
         new_config["components"][component_name]["deployment_config"] = dict_merge(
             merged_defaults["deployment_config"],
             component_config.get("deployment_config", {}),
         )
-
-        # Special case:
-        # If the defaults specify alive_supervision for component, but the component config sets the type to anything other than "SUPERVISED", then we should not apply the
-        # alive_supervision defaults to that component, since it doesn't make sense to have alive_supervision from the defaults.
-        # TODO
 
     new_config["run_targets"] = {}
     for run_target, run_target_config in config.get("run_targets", {}).items():
@@ -170,387 +169,15 @@ def preprocess_defaults(global_defaults, config):
         merged_defaults["watchdog"], config.get("watchdog", {})
     )
 
-    for key in ("initial_run_target", "fallback_run_target"):
-        if key in config:
-            new_config[key] = config[key]
+    if "initial_run_target" in config:
+        new_config["initial_run_target"] = config["initial_run_target"]
 
-    # print(json.dumps(new_config, indent=4))
+    if "fallback_run_target" in config:
+        new_config["fallback_run_target"] = dict_merge(
+            merged_defaults["run_target"], config["fallback_run_target"]
+        )
 
     return new_config
-
-
-def is_supervised(application_type):
-    return (
-        application_type == "State_Manager"
-        or application_type == "Reporting_And_Supervised"
-    )
-
-
-def gen_health_monitor_config(output_dir, config):
-    """
-    This function generates the health monitor configuration file based on the input configuration.
-    Input:
-        output_dir: The directory where the generated files should be saved
-        config: The preprocessed configuration in the new format, with all defaults applied
-
-    Output:
-    - A file named "hm_demo.json" containing the health monitor daemon configuration
-    - A optional file named "hmcore.json" containing the watchdog configuration
-    - For each supervised process, a file named "<process>_<process_group>.json"
-    """
-
-    def get_process_type(application_type):
-        if application_type == "State_Manager":
-            return "STM_PROCESS"
-        else:
-            return "REGULAR_PROCESS"
-
-    HM_SCHEMA_VERSION_MAJOR = 8
-    HM_SCHEMA_VERSION_MINOR = 1
-    hm_config = {}
-    hm_config["versionMajor"] = HM_SCHEMA_VERSION_MAJOR
-    hm_config["versionMinor"] = HM_SCHEMA_VERSION_MINOR
-    hm_config["process"] = []
-    hm_config["hmMonitorInterface"] = []
-    hm_config["hmSupervisionCheckpoint"] = []
-    hm_config["hmAliveSupervision"] = []
-    index = 0
-    for component_name, component_config in config["components"].items():
-        if is_supervised(
-            component_config["component_properties"]["application_profile"][
-                "application_type"
-            ]
-        ):
-            process = {}
-            process["index"] = index
-            process["shortName"] = component_name
-            process["identifier"] = component_name
-            process["processType"] = get_process_type(
-                component_config["component_properties"]["application_profile"][
-                    "application_type"
-                ]
-            )
-            hm_config["process"].append(process)
-
-            hmMonitorIf = {}
-            hmMonitorIf["instanceSpecifier"] = component_name
-            hmMonitorIf["processShortName"] = component_name
-            hmMonitorIf["portPrototype"] = "DefaultPort"
-            hmMonitorIf["interfacePath"] = "lifecycle_health_" + component_name
-            hmMonitorIf["refProcessIndex"] = index
-            hmMonitorIf["permittedUid"] = component_config["deployment_config"][
-                "sandbox"
-            ]["uid"]
-            hm_config["hmMonitorInterface"].append(hmMonitorIf)
-
-            checkpoint = {}
-            checkpoint["shortName"] = component_name + "_checkpoint"
-            checkpoint["checkpointId"] = 1
-            checkpoint["refInterfaceIndex"] = index
-            hm_config["hmSupervisionCheckpoint"].append(checkpoint)
-
-            alive_supervision = {}
-            alive_supervision["ruleContextKey"] = component_name + "_alive_supervision"
-            alive_supervision["refCheckPointIndex"] = index
-            alive_supervision["aliveReferenceCycle"] = sec_to_ms(
-                component_config["component_properties"]["application_profile"][
-                    "alive_supervision"
-                ]["reporting_cycle"]
-            )
-            alive_supervision["minAliveIndications"] = component_config[
-                "component_properties"
-            ]["application_profile"]["alive_supervision"]["min_indications"]
-            alive_supervision["maxAliveIndications"] = component_config[
-                "component_properties"
-            ]["application_profile"]["alive_supervision"]["max_indications"]
-            alive_supervision["isMinCheckDisabled"] = (
-                alive_supervision["minAliveIndications"] == 0
-            )
-            alive_supervision["isMaxCheckDisabled"] = (
-                alive_supervision["maxAliveIndications"] == 0
-            )
-            alive_supervision["failedSupervisionCyclesTolerance"] = component_config[
-                "component_properties"
-            ]["application_profile"]["alive_supervision"]["failed_cycles_tolerance"]
-            alive_supervision["refProcessIndex"] = index
-            hm_config["hmAliveSupervision"].append(alive_supervision)
-
-            index += 1
-
-    with open(f"{output_dir}/hm_demo.json", "w") as hm_file:
-        json.dump(hm_config, hm_file, indent=4)
-
-    HM_CORE_SCHEMA_VERSION_MAJOR = 3
-    HM_CORE_SCHEMA_VERSION_MINOR = 0
-    hmcore_config = {}
-    hmcore_config["versionMajor"] = HM_CORE_SCHEMA_VERSION_MAJOR
-    hmcore_config["versionMinor"] = HM_CORE_SCHEMA_VERSION_MINOR
-    hmcore_config["watchdogs"] = []
-    hmcore_config["config"] = [
-        {
-            "periodicity": sec_to_ms(
-                config.get("alive_supervision", {}).get("evaluation_cycle", 0.01)
-            )
-        }
-    ]
-
-    if watchdog_config := config.get("watchdog", {}):
-        watchdog = {}
-        watchdog["shortName"] = "watchdog"
-        watchdog["deviceFilePath"] = watchdog_config["device_file_path"]
-        watchdog["maxTimeout"] = sec_to_ms(watchdog_config["max_timeout"])
-        watchdog["deactivateOnShutdown"] = watchdog_config["deactivate_on_shutdown"]
-        watchdog["hasValueDeactivateOnShutdown"] = True
-        watchdog["requireMagicClose"] = watchdog_config["require_magic_close"]
-        watchdog["hasValueRequireMagicClose"] = True
-        hmcore_config["watchdogs"].append(watchdog)
-
-    with open(f"{output_dir}/hmcore.json", "w") as hm_file:
-        json.dump(hmcore_config, hm_file, indent=4)
-
-
-def gen_launch_manager_config(output_dir, config):
-    """
-    This function generates the launch manager configuration file based on the input configuration.
-    Input:
-        output_dir: The directory where the generated files should be saved
-        config: The preprocessed configuration in the new format, with all defaults applied
-
-    Output:
-    - A file named "lm_demo.json" containing the launch manager configuration
-    """
-
-    """
-    Recursively get all components on which the run target depends
-    """
-
-    def format_dependency_path(path, cycle_target):
-        """Format a dependency resolution path for display, highlighting the cycle."""
-        return " -> ".join(path + [cycle_target])
-
-    def get_process_dependencies(
-        run_target, ancestors_run_targets=None, ancestors_components=None
-    ):
-        """
-        Resolve all component dependencies for the given run target.
-
-        ancestors_run_targets and ancestors_components track the current
-        recursion path to detect cyclic dependencies without rejecting
-        legitimate diamond-shaped dependency trees.
-        """
-        if ancestors_run_targets is None:
-            ancestors_run_targets = []
-        if ancestors_components is None:
-            ancestors_components = []
-
-        out = []
-        if "depends_on" not in run_target:
-            return out
-
-        for dependency_name in run_target["depends_on"]:
-            if dependency_name in config["components"]:
-                if dependency_name in ancestors_components:
-                    path = format_dependency_path(ancestors_components, dependency_name)
-                    raise ValueError(
-                        f"Cyclic dependency detected: component '{dependency_name}' "
-                        f"has already been visited.\n  Path: {path}"
-                    )
-                ancestors_components.append(dependency_name)
-                out.append(dependency_name)
-
-                component_props = config["components"][dependency_name][
-                    "component_properties"
-                ]
-                if "depends_on" in component_props:
-                    # All dependencies must be components, since components can't depend on run targets
-                    for dep in component_props["depends_on"]:
-                        if dep not in config["components"]:
-                            raise ValueError(
-                                f"Component '{dependency_name}' depends on unknown component '{dep}'."
-                            )
-                        if dep in ancestors_components:
-                            path = format_dependency_path(ancestors_components, dep)
-                            raise ValueError(
-                                f"Cyclic dependency detected: component '{dependency_name}' "
-                                f"depends on already visited component '{dep}'.\n  Path: {path}"
-                            )
-                        ancestors_components.append(dep)
-                        out.append(dep)
-                        out += get_process_dependencies(
-                            config["components"][dep]["component_properties"],
-                            ancestors_run_targets=ancestors_run_targets,
-                            ancestors_components=ancestors_components,
-                        )
-                        ancestors_components.pop()
-
-                ancestors_components.pop()
-            else:
-                # If the dependency is not a component, it must be a run target
-                if dependency_name not in config["run_targets"]:
-                    raise ValueError(
-                        f"Run target depends on unknown run target or component '{dependency_name}'."
-                    )
-                if dependency_name in ancestors_run_targets:
-                    path = format_dependency_path(
-                        ancestors_run_targets, dependency_name
-                    )
-                    raise ValueError(
-                        f"Cyclic dependency detected: run target '{dependency_name}' "
-                        f"has already been visited.\n  Path: {path}"
-                    )
-                ancestors_run_targets.append(dependency_name)
-                out += get_process_dependencies(
-                    config["run_targets"][dependency_name],
-                    ancestors_run_targets=ancestors_run_targets,
-                    ancestors_components=ancestors_components,
-                )
-                ancestors_run_targets.pop()
-        return list(set(out))  # Remove duplicates
-
-    def get_terminating_behavior(component_config):
-        if component_config["component_properties"]["application_profile"][
-            "is_self_terminating"
-        ]:
-            return "ProcessIsSelfTerminating"
-        else:
-            return "ProcessIsNotSelfTerminating"
-
-    lm_config = {}
-    lm_config["versionMajor"] = 7
-    lm_config["versionMinor"] = 0
-    lm_config["Process"] = []
-    lm_config["ModeGroup"] = [
-        {
-            "identifier": "MainPG",
-            "initialMode_name": "not-used",
-            "recoveryMode_name": get_recovery_process_group_state(config),
-            "modeDeclaration": [],
-        }
-    ]
-
-    process_group_states = {}
-
-    # For each component, store which run targets depends on it
-    for pgstate, values in config["run_targets"].items():
-        state_name = "MainPG/" + pgstate
-        lm_config["ModeGroup"][0]["modeDeclaration"].append({"identifier": state_name})
-        components = get_process_dependencies(values)
-        for component in components:
-            if component not in process_group_states:
-                process_group_states[component] = []
-            process_group_states[component].append(state_name)
-
-    if fallback := config.get("fallback_run_target", {}):
-        lm_config["ModeGroup"][0]["modeDeclaration"].append(
-            {"identifier": "MainPG/fallback_run_target"}
-        )
-        fallback_components = get_process_dependencies(fallback)
-        for component in fallback_components:
-            if component not in process_group_states:
-                process_group_states[component] = []
-            process_group_states[component].append("MainPG/fallback_run_target")
-
-    for component_name, component_config in config["components"].items():
-        process = {}
-        process["identifier"] = component_name
-        process["path"] = (
-            f"{component_config['deployment_config']['bin_dir']}/{component_config['component_properties']['binary_name']}"
-        )
-        process["uid"] = component_config["deployment_config"]["sandbox"]["uid"]
-        process["gid"] = component_config["deployment_config"]["sandbox"]["gid"]
-        process["sgids"] = [
-            {"sgid": sgid}
-            for sgid in component_config["deployment_config"]["sandbox"][
-                "supplementary_group_ids"
-            ]
-        ]
-        process["securityPolicyDetails"] = component_config["deployment_config"][
-            "sandbox"
-        ]["security_policy"]
-        process["numberOfRestartAttempts"] = component_config["deployment_config"][
-            "ready_recovery_action"
-        ]["restart"]["number_of_attempts"]
-
-        match component_config["component_properties"]["application_profile"][
-            "application_type"
-        ]:
-            case "Native":
-                process["executable_reportingBehavior"] = "DoesNotReportExecutionState"
-            case "State_Manager":
-                process["executable_reportingBehavior"] = "ReportsExecutionState"
-                process["functionClusterAffiliation"] = "STATE_MANAGEMENT"
-            case "Reporting" | "Reporting_And_Supervised":
-                process["executable_reportingBehavior"] = "ReportsExecutionState"
-
-        process["startupConfig"] = [{}]
-        process["startupConfig"][0]["executionError"] = "1"
-        process["startupConfig"][0]["identifier"] = f"{component_name}_startup_config"
-        process["startupConfig"][0]["enterTimeoutValue"] = sec_to_ms(
-            component_config["deployment_config"]["ready_timeout"]
-        )
-        process["startupConfig"][0]["exitTimeoutValue"] = sec_to_ms(
-            component_config["deployment_config"]["shutdown_timeout"]
-        )
-        process["startupConfig"][0]["schedulingPolicy"] = component_config[
-            "deployment_config"
-        ]["sandbox"]["scheduling_policy"]
-        process["startupConfig"][0]["schedulingPriority"] = str(
-            component_config["deployment_config"]["sandbox"]["scheduling_priority"]
-        )
-        process["startupConfig"][0]["terminationBehavior"] = get_terminating_behavior(
-            component_config
-        )
-        process["startupConfig"][0]["processGroupStateDependency"] = []
-        process["startupConfig"][0]["environmentVariable"] = []
-        for env_var, value in (
-            component_config["deployment_config"]
-            .get("environmental_variables", {})
-            .items()
-        ):
-            process["startupConfig"][0]["environmentVariable"].append(
-                {"key": env_var, "value": value}
-            )
-        application_type = component_config["component_properties"][
-            "application_profile"
-        ]["application_type"]
-        if is_supervised(application_type):
-            process["startupConfig"][0]["environmentVariable"].append(
-                {
-                    "key": "LCM_ALIVE_INTERFACE_PATH",
-                    "value": "lifecycle_health_" + component_name,
-                }
-            )
-
-        if arguments := component_config["component_properties"].get(
-            "process_arguments", []
-        ):
-            arguments = [{"argument": arg} for arg in arguments]
-        process["startupConfig"][0]["processArgument"] = arguments
-
-        if component_name in process_group_states:
-            for pgstate in process_group_states[component_name]:
-                process["startupConfig"][0]["processGroupStateDependency"].append(
-                    {"stateMachine_name": "MainPG", "stateName": pgstate}
-                )
-
-        lm_config["Process"].append(process)
-
-    # Execution dependencies. Assumption: Components can never depend on run targets
-    for process in lm_config["Process"]:
-        process["startupConfig"][0]["executionDependency"] = []
-        for dependency in config["components"][process["identifier"]][
-            "component_properties"
-        ].get("depends_on", []):
-            dep_entry = config["components"][dependency]
-            ready_condition = dep_entry["component_properties"]["ready_condition"][
-                "process_state"
-            ]
-            process["startupConfig"][0]["executionDependency"].append(
-                {"stateName": ready_condition, "targetProcess_identifier": dependency}
-            )
-
-    with open(f"{output_dir}/lm_demo.json", "w") as lm_file:
-        json.dump(lm_config, lm_file, indent=4)
 
 
 def custom_validations(config):
@@ -574,14 +201,18 @@ def custom_validations(config):
         )
         success = False
 
-    # Check that for any switch_run_target recovery action, the run_target is set to "fallback_run_target"
-    for _, run_target in config["run_targets"].items():
-        recovery_target_name = (
-            run_target.get("recovery_action", {})
-            .get("switch_run_target", {})
-            .get("run_target", "fallback_run_target")
-        )
-        if recovery_target_name != "fallback_run_target":
+    for run_target_name, run_target in config["run_targets"].items():
+        recovery_action = run_target.get("recovery_action", {})
+        if "switch_run_target" not in recovery_action:
+            report_error(
+                f'RunTarget "{run_target_name}" has an unsupported recovery_action type. '
+                "Only switch_run_target is supported for run targets."
+            )
+            success = False
+        elif (
+            recovery_action["switch_run_target"].get("run_target")
+            != "fallback_run_target"
+        ):
             report_error(
                 'For any switch_run_target recovery action, the recovery RunTarget must be set to "fallback_run_target".'
             )
@@ -592,6 +223,13 @@ def custom_validations(config):
             "fallback_run_target is a mandatory configuration but was not found in the config."
         )
         success = False
+
+    watchdog = config.get("watchdog")
+    if watchdog:
+        missing = [f for f in _WATCHDOG_REQUIRED if f not in watchdog]
+        if missing:
+            report_error(f"watchdog config is missing required fields: {missing}")
+            success = False
 
     return success
 
@@ -632,6 +270,183 @@ SCHEMA_VALIDATION_DEPENDENCY_ERROR = 1
 SCHEMA_VALIDATION_FAILURE = 2
 CUSTOM_VALIDATION_FAILURE = 3
 
+OUTPUT_FILENAME = "launch_manager_config.json"
+
+_WATCHDOG_REQUIRED = (
+    "device_file_path",
+    "max_timeout",
+    "deactivate_on_shutdown",
+    "require_magic_close",
+)
+
+SCHED_POLICY_MAP = {
+    "SCHED_OTHER": "OTHER",
+    "SCHED_FIFO": "FIFO",
+    "SCHED_RR": "RR",
+}
+
+
+def is_supervised(application_type):
+    return application_type in ("State_Manager", "Reporting_And_Supervised")
+
+
+def _map_sandbox(sandbox):
+    result = {
+        "uid": sandbox["uid"],
+        "gid": sandbox["gid"],
+        "supplementary_group_ids": sandbox.get("supplementary_group_ids", []),
+        "security_policy": sandbox.get("security_policy", ""),
+        "scheduling_policy": SCHED_POLICY_MAP.get(
+            sandbox["scheduling_policy"], sandbox["scheduling_policy"]
+        ),
+        "scheduling_priority": sandbox["scheduling_priority"],
+    }
+    if "max_memory_usage" in sandbox:
+        result["max_memory_usage"] = sandbox["max_memory_usage"]
+    if "max_cpu_usage" in sandbox:
+        result["max_cpu_usage"] = sandbox["max_cpu_usage"]
+    return result
+
+
+def _map_deployment_config(deployment):
+    result = {
+        "ready_timeout": deployment["ready_timeout"],
+        "shutdown_timeout": deployment["shutdown_timeout"],
+        "bin_dir": deployment["bin_dir"],
+        "working_dir": deployment["working_dir"],
+        "sandbox": _map_sandbox(deployment["sandbox"]),
+    }
+
+    env_vars = deployment.get("environmental_variables", {})
+    if env_vars:
+        result["environmental_variables"] = [
+            {"key": k, "value": v} for k, v in env_vars.items()
+        ]
+
+    ready_recovery = deployment.get("ready_recovery_action", {})
+    if restart := ready_recovery.get("restart"):
+        result["ready_recovery_action"] = {
+            "number_of_attempts": restart["number_of_attempts"],
+            "delay_before_restart": restart["delay_before_restart"],
+        }
+
+    recovery = deployment.get("recovery_action", {})
+    if switch := recovery.get("switch_run_target"):
+        result["recovery_action"] = {"run_target": switch["run_target"]}
+
+    return result
+
+
+def _map_application_profile(profile):
+    result = {
+        "application_type": profile["application_type"],
+        "is_self_terminating": profile["is_self_terminating"],
+    }
+    if is_supervised(profile["application_type"]):
+        if alive := profile.get("alive_supervision"):
+            result["alive_supervision"] = {
+                "reporting_cycle": alive["reporting_cycle"],
+                "failed_cycles_tolerance": alive["failed_cycles_tolerance"],
+                "min_indications": alive["min_indications"],
+                "max_indications": alive["max_indications"],
+            }
+    return result
+
+
+def _map_component_properties(props):
+    result = {
+        "binary_name": props["binary_name"],
+        "application_profile": _map_application_profile(props["application_profile"]),
+    }
+    if (depends_on := props.get("depends_on")) is not None:
+        result["depends_on"] = depends_on
+    if (process_arguments := props.get("process_arguments")) is not None:
+        result["process_arguments"] = process_arguments
+    if ready_condition := props.get("ready_condition"):
+        result["ready_condition"] = {"process_state": ready_condition["process_state"]}
+    return result
+
+
+def _copy_run_target_optional_fields(source, dest):
+    if description := source.get("description", ""):
+        dest["description"] = description
+    if depends_on := source.get("depends_on", []):
+        dest["depends_on"] = depends_on
+
+
+def _map_run_target(name, run_target):
+    switch = run_target.get("recovery_action", {}).get("switch_run_target")
+    if switch is None:
+        raise ValueError(
+            f'RunTarget "{name}" recovery_action must use switch_run_target.'
+        )
+    result = {
+        "name": name,
+        "transition_timeout": run_target["transition_timeout"],
+        "recovery_action": {"run_target": switch["run_target"]},
+    }
+    _copy_run_target_optional_fields(run_target, result)
+    return result
+
+
+def _map_fallback_run_target(fallback):
+    result = {
+        "transition_timeout": fallback["transition_timeout"],
+    }
+    _copy_run_target_optional_fields(fallback, result)
+    return result
+
+
+def gen_config(output_dir, config):
+    """
+    Generate a single launch_manager_config.json matching new_lm_flatcfg.fbs.
+
+    Input:
+        output_dir: Directory where the file is written
+        config: Preprocessed configuration with all defaults applied
+    Output:
+        A file named "launch_manager_config.json"
+    """
+    output = {}
+
+    if "schema_version" in config:
+        output["schema_version"] = config["schema_version"]
+
+    output["components"] = [
+        {
+            "name": name,
+            "description": component.get("description", ""),
+            "component_properties": _map_component_properties(
+                component["component_properties"]
+            ),
+            "deployment_config": _map_deployment_config(component["deployment_config"]),
+        }
+        for name, component in config["components"].items()
+    ]
+
+    output["run_targets"] = [
+        _map_run_target(name, rt) for name, rt in config["run_targets"].items()
+    ]
+
+    output["initial_run_target"] = config["initial_run_target"]
+
+    output["fallback_run_target"] = _map_fallback_run_target(
+        config["fallback_run_target"]
+    )
+
+    output["alive_supervision"] = {
+        "evaluation_cycle": config["alive_supervision"]["evaluation_cycle"]
+    }
+
+    if watchdog := config.get("watchdog"):
+        missing = [f for f in _WATCHDOG_REQUIRED if f not in watchdog]
+        if missing:
+            raise ValueError(f"watchdog config is missing required fields: {missing}")
+        output["watchdog"] = {f: watchdog[f] for f in _WATCHDOG_REQUIRED}
+
+    with open(f"{output_dir}/{OUTPUT_FILENAME}", "w") as f:
+        json.dump(output, f, indent=4)
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -658,7 +473,8 @@ def main():
         # User asked not explicitly for validation, but the dependency is not installed, we should print a warning and continue without validation
         if not check_validation_dependency():
             print(
-                'lifecycle_config.py:jsonschema library is not installed. Please install it with "pip install jsonschema" to enable schema validation.'
+                "lifecycle_config.py: jsonschema library is not installed. "
+                'Please install it with "pip install jsonschema" to enable schema validation.'
             )
             print("Schema validation will be skipped.")
         else:
@@ -680,12 +496,13 @@ def main():
         )
 
     preprocessed_config = preprocess_defaults(score_defaults, input_config)
+    if "schema_version" in input_config:
+        preprocessed_config["schema_version"] = input_config["schema_version"]
     if not custom_validations(preprocessed_config):
         exit(CUSTOM_VALIDATION_FAILURE)
 
     try:
-        gen_health_monitor_config(args.output_dir, preprocessed_config)
-        gen_launch_manager_config(args.output_dir, preprocessed_config)
+        gen_config(args.output_dir, preprocessed_config)
     except ValueError as e:
         print(f"Error during configuration generation: {e}", file=sys.stderr)
         exit(CUSTOM_VALIDATION_FAILURE)

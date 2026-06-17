@@ -18,6 +18,7 @@
 #include "score/mw/launch_manager/alive_monitor/details/daemon/AliveMonitorImpl.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/logging/PhmLogger.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/watchdog/WatchdogImpl.hpp"
+#include "score/mw/launch_manager/configuration/flatbuffer_config_loader.hpp"
 
 namespace score {
 namespace lcm {
@@ -32,8 +33,15 @@ EInitCode AliveMonitorImpl::init() noexcept {
     try {
         m_osClock.startMeasurement();
 
+        score::mw::launch_manager::configuration::FlatbufferConfigLoader loader;
+        auto config_result = loader.load("etc/launch_manager_config.bin");
+        if (!config_result.has_value()) {
+            m_logger.LogError() << "HealthMonitor: Failed to load launch_manager_config.bin";
+            return EInitCode::kGeneralError;
+        }
+
         m_daemon = std::make_unique<score::lcm::saf::daemon::PhmDaemon>(m_osClock, m_logger, std::move(m_watchdog), std::move(m_process_state_receiver));
-        initResult = m_daemon->init(m_recovery_client);
+        initResult = m_daemon->init(m_recovery_client, *config_result);
 
         if (initResult == score::lcm::saf::daemon::EInitCode::kNoError) {
             const long ms{m_osClock.endMeasurement()};

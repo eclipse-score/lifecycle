@@ -44,9 +44,8 @@ SwClusterHandler::SwClusterHandler(const std::string& f_swClusterName_r)
 
 SwClusterHandler::~SwClusterHandler() = default;
 
-/* RULECHECKER_comment(0, 3, check_max_cyclomatic_complexity, "Max cyclomatic complexity violation\
-   is tolerated for this function. ", true_no_defect) */
 bool SwClusterHandler::constructWorkers(
+    const score::mw::launch_manager::configuration::Config& config,
     std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r,
     ifexm::ProcessStateReader& f_processStateReader_r,
     const factory::MachineConfigFactory::SupervisionBufferConfig& f_bufferConfig_r) noexcept(false)
@@ -54,8 +53,7 @@ bool SwClusterHandler::constructWorkers(
     bool isSuccess{false};
     factory::FlatCfgFactory flatCfgFactory{f_bufferConfig_r};
 
-    const std::string filename = "hm_demo.bin";
-    isSuccess = flatCfgFactory.init(filename);
+    isSuccess = flatCfgFactory.init(config);
     if (isSuccess)
     {
         logger_r.LogDebug() << "Software Cluster Handler starts constructing workers:" << f_swClusterName;

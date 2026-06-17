@@ -40,7 +40,7 @@ void ProcessGroupManager::cancel()
 ProcessGroupManager::ProcessGroupManager(std::unique_ptr<IAliveMonitorThread> alive_monitor_thread,
                                          std::shared_ptr<IRecoveryClient> recovery_client,
                                          std::unique_ptr<score::lcm::IProcessStateNotifier> process_state_notifier)
-    : configuration_manager_(),
+    : configuration_adapter_(),
       process_interface_(),
       process_map_(nullptr),
       worker_threads_(nullptr),
@@ -117,7 +117,7 @@ void ProcessGroupManager::deinitialize()
 {
     // ucm_polling_thread_.stopPolling();
     alive_monitor_thread_->stop();
-    configuration_manager_.deinitialize();
+    configuration_adapter_.deinitialize();
     process_groups_.clear();
 
     worker_threads_.reset();
@@ -176,9 +176,9 @@ inline bool ProcessGroupManager::initializeProcessGroups()
 {
     bool success = false;
 
-    if (configuration_manager_.initialize())
+    if (configuration_adapter_.initialize())
     {
-        auto pg_list = configuration_manager_.getListOfProcessGroups().value_or(nullptr);
+        auto pg_list = configuration_adapter_.getListOfProcessGroups().value_or(nullptr);
 
         if (pg_list && !pg_list->empty())
         {
@@ -189,7 +189,7 @@ inline bool ProcessGroupManager::initializeProcessGroups()
 
             for (const auto& pg_name : *pg_list)
             {
-                uint32_t num_processes = configuration_manager_.getNumberOfOsProcesses(pg_name).value_or(0);
+                uint32_t num_processes = configuration_adapter_.getNumberOfOsProcesses(pg_name).value_or(0);
 
                 if (static_cast<uint64_t>(total_processes_) + num_processes <=
                     static_cast<uint64_t>(score::lcm::internal::ProcessLimits::kMaxProcesses))
@@ -242,13 +242,13 @@ inline void ProcessGroupManager::createProcessComponentsObjects()
 
 inline void ProcessGroupManager::initializeGraphNodes()
 {
-    auto pg_list = configuration_manager_.getListOfProcessGroups().value_or(nullptr);
+    auto pg_list = configuration_adapter_.getListOfProcessGroups().value_or(nullptr);
 
     for (size_t idx = 0U; idx < process_groups_.size(); ++idx)
     {
         process_groups_[idx]->initProcessGroupNodes(
             pg_list->at(idx),
-            configuration_manager_.getNumberOfOsProcesses(pg_list->at(idx)).value_or(0U),
+            configuration_adapter_.getNumberOfOsProcesses(pg_list->at(idx)).value_or(0U),
             static_cast<uint32_t>(idx & 0xFFFFFFFFUL));
     }
 
@@ -292,7 +292,7 @@ inline bool ProcessGroupManager::startInitialTransition()
     LM_LOG_DEBUG() << "=============STARTING MAINPG STARTUP STATE============";
 
     // Initial transition of machine process group
-    const ProcessGroupStateID* pg_startup_id = configuration_manager_.getMainPGStartupState().value_or(nullptr);
+    const ProcessGroupStateID* pg_startup_id = configuration_adapter_.getMainPGStartupState().value_or(nullptr);
 
     if (pg_startup_id)
     {
@@ -534,7 +534,7 @@ inline void ProcessGroupManager::recoveryActionHandler()
         }
 
         const IdentifierHash old_state = pg->getProcessGroupState();
-        const IdentifierHash recovery_state = configuration_manager_.getNameOfRecoveryState(pg->getProcessGroupName());
+        const IdentifierHash recovery_state = configuration_adapter_.getNameOfRecoveryState(pg->getProcessGroupName());
         const GraphState graph_state = pg->getState();
 
         LM_LOG_DEBUG() << "recoveryActionHandler: Processing recovery request for PG "
@@ -664,7 +664,7 @@ inline void ProcessGroupManager::processGetInitialMachineStateTransitionResult(C
 
 inline void ProcessGroupManager::processValidateFunctionStateID(ControlClientChannelP scc)
 {
-    if (configuration_manager_.getProcessIndexesList(scc->request().process_group_state_))
+    if (configuration_adapter_.getProcessIndexesList(scc->request().process_group_state_))
     {
         scc->request().request_or_response_ = ControlClientCode::kValidateProcessGroupStateSuccess;
     }
@@ -713,7 +713,7 @@ inline void ProcessGroupManager::processGroupHandler(Graph& pg)
 
             ProcessGroupStateID recovery_state;
             recovery_state.pg_name_ = pg.getProcessGroupName();
-            recovery_state.pg_state_name_ = configuration_manager_.getNameOfRecoveryState(recovery_state.pg_name_);
+            recovery_state.pg_state_name_ = configuration_adapter_.getNameOfRecoveryState(recovery_state.pg_name_);
 
             LM_LOG_WARN() << "Problem discovered in PG" << recovery_state.pg_name_ << "Activating Recovery state.";
 
@@ -749,10 +749,10 @@ std::shared_ptr<Graph> ProcessGroupManager::getProcessGroupByProcessId(const Ide
     for (auto& pg : process_groups_)
     {
         const IdentifierHash pg_name = pg->getProcessGroupName();
-        const uint32_t count = configuration_manager_.getNumberOfOsProcesses(pg_name).value_or(0U);
+        const uint32_t count = configuration_adapter_.getNumberOfOsProcesses(pg_name).value_or(0U);
         for (uint32_t idx = 0U; idx < count; ++idx)
         {
-            const auto* proc = configuration_manager_.getOsProcessConfiguration(pg_name, idx).value_or(nullptr);
+            const auto* proc = configuration_adapter_.getOsProcessConfiguration(pg_name, idx).value_or(nullptr);
             if (proc != nullptr && proc->process_id_ == process_id)
             {
                 return pg;
@@ -787,9 +787,9 @@ osal::IProcess* ProcessGroupManager::getProcessInterface()
     return &process_interface_;
 }
 
-ConfigurationManager* ProcessGroupManager::getConfigurationManager()
+ConfigurationAdapter* ProcessGroupManager::getConfigurationAdapter()
 {
-    return &configuration_manager_;
+    return &configuration_adapter_;
 }
 
 std::shared_ptr<SafeProcessMap> ProcessGroupManager::getProcessMap()

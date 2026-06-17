@@ -28,7 +28,7 @@
 #include "score/mw/launch_manager/control/control_client_channel.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
-#include "score/mw/launch_manager/configuration/configuration_manager.hpp"
+#include "score/mw/launch_manager/configuration/configuration_adapter.hpp"
 namespace score {
 
 namespace lcm {

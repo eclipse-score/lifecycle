@@ -4,8 +4,6 @@ def _launch_manager_config_impl(ctx):
     script = ctx.executable.script
     json_out_dir = ctx.attr.json_out_dir
 
-    # Run the mapping script to generate the json files in the old configuration format
-    # We need to declare an output directory, because we do not know upfront the name of the generated files nor the number of files.
     gen_dir_json = ctx.actions.declare_directory(json_out_dir)
     ctx.actions.run(
         inputs = [config, schema],
@@ -26,49 +24,22 @@ def _launch_manager_config_impl(ctx):
     flatbuffer_out_dir = ctx.attr.flatbuffer_out_dir
     flatc = ctx.executable.flatc
     lm_schema = ctx.file.lm_schema
-    hm_schema = ctx.file.hm_schema
-    hmcore_schema = ctx.file.hmcore_schema
 
-    # We compile each of them via flatbuffer.
-    # Based on the name of each generated file, we select the corresponding schema.
     gen_dir_flatbuffer = ctx.actions.declare_directory(flatbuffer_out_dir)
-    ctx.actions.run_shell(
-        inputs = [gen_dir_json, lm_schema, hm_schema, hmcore_schema],
+    ctx.actions.run(
+        inputs = [gen_dir_json, lm_schema],
         outputs = [gen_dir_flatbuffer],
         tools = [flatc],
-        command = """
-            mkdir -p {gen_dir_flatbuffer}
-            # Process each file from generated directory
-            for file in {gen_dir_json}/*; do
-                if [ -f "$file" ]; then
-                    filename=$(basename "$file")
-
-                    if [[ "$filename" == "lm_"* ]]; then
-                        schema={lm_schema}
-                    elif [[ "$filename" == "hmcore"* ]]; then
-                        schema={hmcore_schema}
-                    elif [[ "$filename" == "hm_"* ]]; then
-                        schema={hm_schema}
-                    else
-                        echo "Unknown file type for $filename, skipping."
-                        continue
-                    fi
-
-                    # Process with flatc
-                    {flatc} -b -o {gen_dir_flatbuffer} "$schema" "$file"
-                fi
-            done
-        """.format(
-            gen_dir_flatbuffer = gen_dir_flatbuffer.path,
-            gen_dir_json = gen_dir_json.path,
-            lm_schema = lm_schema.path,
-            hmcore_schema = hmcore_schema.path,
-            hm_schema = hm_schema.path,
-            flatc = flatc.path,
-        ),
-        arguments = [],
+        executable = flatc,
         mnemonic = "LaunchManagerFlatbufferConfigGeneration",
-        progress_message = "compiling generated Launch Manager configs in {} to flatbuffer files in {}".format(gen_dir_json.short_path, gen_dir_flatbuffer.short_path),
+        progress_message = "compiling Launch Manager config in {} to flatbuffer in {}".format(gen_dir_json.short_path, gen_dir_flatbuffer.short_path),
+        arguments = [
+            "-b",
+            "-o",
+            gen_dir_flatbuffer.path,
+            lm_schema.path,
+            gen_dir_json.path + "/launch_manager_config.json",
+        ],
     )
 
     rf = ctx.runfiles(
@@ -115,18 +86,8 @@ launch_manager_config = rule(
         ),
         "lm_schema": attr.label(
             allow_single_file = [".fbs"],
-            default = Label("//score/launch_manager/daemon/src/configuration:lm_flatcfg_fbs"),
+            default = Label("//score/launch_manager/daemon/src/configuration:new_lm_flatcfg_fbs"),
             doc = "Launch Manager fbs file to use",
-        ),
-        "hm_schema": attr.label(
-            allow_single_file = [".fbs"],
-            default = Label("//score/launch_manager/daemon/src/alive_monitor:am_flatcfg_fbs"),
-            doc = "HealthMonitor fbs file to use",
-        ),
-        "hmcore_schema": attr.label(
-            allow_single_file = [".fbs"],
-            default = Label("//score/launch_manager/daemon/src/alive_monitor:am_core_flatcfg_fbs"),
-            doc = "HealthMonitor core fbs file to use",
         ),
     },
 )
