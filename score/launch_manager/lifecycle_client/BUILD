@@ -40,7 +40,7 @@ cc_library(
     include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     tags = ["FUSA"],
-    visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
+    visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
         "@score_baselibs//score/memory:string_literal",
         "@score_baselibs//score/mw/log",
@@ -61,7 +61,7 @@ cc_library(
     include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
     tags = ["FUSA"],
-    visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
+    visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
         ":applicationcontext",
     ],

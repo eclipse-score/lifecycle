@@ -95,3 +95,13 @@ alias(
     name = "report_running_mock_cc",
     actual = "//score/launch_manager/lifecycle_client:report_running_mock",
 )
+
+alias(
+    name = "application_cc",
+    actual = "//score/launch_manager/lifecycle_client:application",
+)
+
+alias(
+    name = "applicationcontext_cc",
+    actual = "//score/launch_manager/lifecycle_client:applicationcontext",
+)
