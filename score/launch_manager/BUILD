@@ -105,3 +105,8 @@ alias(
     name = "applicationcontext_cc",
     actual = "//score/launch_manager/lifecycle_client:applicationcontext",
 )
+
+alias(
+    name = "applicationcontainer_cc",
+    actual = "//score/launch_manager/lifecycle_client:applicationcontainer",
+)

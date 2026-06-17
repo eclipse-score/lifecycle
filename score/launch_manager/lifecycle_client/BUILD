@@ -80,7 +80,7 @@ cc_library(
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
-    visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
+    visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
         ":applicationcontext",
         "@score_baselibs//score/language/futurecpp",
