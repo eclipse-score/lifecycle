@@ -26,4 +26,4 @@ Subcomponents
 .. toctree::
    :titlesonly:
 
-   ../lifecycle_client/docs/index.rst
+   ../src/lifecycle_client/docs/index.rst
