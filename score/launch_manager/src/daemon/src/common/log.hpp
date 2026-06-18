@@ -17,7 +17,7 @@
 #include <cstring>
 
 // Compile time switch to use different logging subsystems.
-// Parts of LM code will be compiled into different binaries, think IPC between LifecycleClient and LM daemon.
+// Parts of LM code will be compiled into different binaries, think IPC between Lifecycle client library and LM daemon.
 // In this situation, this code will need to inherit logging mechanism of the binary file.
 
 #ifdef LC_LOG_SCORE_MW_LOG

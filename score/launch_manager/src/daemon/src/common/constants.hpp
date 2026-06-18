@@ -42,12 +42,10 @@ constexpr std::chrono::milliseconds kMaxSigKillDelay{500};  ///< The maximum tim
 
 constexpr std::chrono::milliseconds kControlClientPollingDelay{1};  ///< Time Control Client will wait during polling for acknowledgement
 
-constexpr std::chrono::milliseconds kMaxKRunningDelay{1000};  ///< Time Lifecycle Client will wait for Launch Manager to respond
+constexpr std::chrono::milliseconds kMaxRunningDelay{1000};  ///< report_running() API will wait for Launch Manager to respond
 
 constexpr std::chrono::milliseconds kControlClientMaxIpcDelay{500};  ///< The maximum time to wait, when trying to communicate with LCM. When this time is exceeded kCommunicationError will be returned
 constexpr std::chrono::milliseconds kControlClientBgThreadSleepTime{100};
-
-constexpr std::chrono::milliseconds kLifecycleClientBgThreadSleepTime{10};  ///< The time for which Lifecycle Client background thread sleeps after polling the SIGTERM flag
 
 enum class ControlClientLimits : uint16_t {
     kControlClientMaxInstances =

@@ -97,7 +97,7 @@ namespace score::mw::lifecycle {
                 return comms_error;
             }
 
-            if (sync->reply_sync_.timedWait(score::lcm::internal::kMaxKRunningDelay) == OsalReturnType::kFail)
+            if (sync->reply_sync_.timedWait(score::lcm::internal::kMaxRunningDelay) == OsalReturnType::kFail)
             {
                 LM_LOG_ERROR() << "[Lifecycle Client] Launch Manager failed to acknowledge kRunning report.";
 
