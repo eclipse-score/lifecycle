@@ -54,7 +54,7 @@ include_patterns = [
     "docs/**",
     "examples/docs/**",
     "score/launch_manager/docs/**",
-    "score/launch_manager/lifecycle_client/docs/**",
+    "score/launch_manager/src/lifecycle_client/docs/**",
     "score/health_monitor/docs/**",
 ]
 
@@ -129,11 +129,11 @@ def setup(app):
     workspace_root = Path(os.getcwd())
     src_json_dir = (
         workspace_root
-        / "score/lifecycle/score/launch_manager/daemon/src/configuration/config_schema"
+        / "score/lifecycle/score/launch_manager/src/daemon/src/configuration/config_schema"
     )
     dest_json_dir = (
         srcdir.parent
-        / "score/lifecycle/score/launch_manager/daemon/src/configuration/config_schema"
+        / "score/lifecycle/score/launch_manager/src/daemon/src/configuration/config_schema"
     )
     if src_json_dir.exists() and not dest_json_dir.exists():
         dest_json_dir.parent.mkdir(parents=True, exist_ok=True)
