@@ -11,7 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
-load("@rules_rust//rust:defs.bzl", "rust_library", "rust_static_library", "rust_test")
+load("@rules_rust//rust:defs.bzl", "miri_test", "rust_library", "rust_static_library", "rust_test")
 
 COMMON_RUST_DEPS = [
     "@score_baselibs_rust//src/containers:containers",
@@ -102,4 +102,19 @@ rust_test(
         "@score_baselibs_rust//src/log/stdout_logger",
         "@score_crates//:loom",
     ],
+)
+
+miri_test(
+    name = "miri_tests",
+    crate = ":tests",
+    miri_flags = [
+        "-Zmiri-ignore-leaks",
+        "-Zmiri-disable-isolation",
+        '--cfg=feature="stub_supervisor_api_client"',
+    ],
+    tags = [
+        "miri",
+        "no-asan",
+    ],
+    target_compatible_with = ["@platforms//os:linux"],
 )
