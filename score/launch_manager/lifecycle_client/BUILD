@@ -21,7 +21,6 @@ cc_library(
     deps = [
         ":aasapplicationcontainer",
         ":application",
-        ":lifecycleclient_internal",
         ":lifecyclemanager",
         ":report_running",
         ":runapplication",
