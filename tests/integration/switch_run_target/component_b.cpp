@@ -14,7 +14,7 @@
 
 #include "common.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
-#include <score/mw/lifecycle/lifecycle_client.h>
+#include <score/mw/lifecycle/report_running.h>
 
 TEST(ComponentB, RunAndVerify)
 {
@@ -26,8 +26,7 @@ TEST(ComponentB, RunAndVerify)
     TEST_STEP("Report running")
     {
         EXPECT_TRUE(touch_file(b_started)) << "failed to deploy file";
-        auto result = score::mw::lifecycle::LifecycleClient{}.ReportExecutionState(score::mw::lifecycle::ExecutionState::kRunning);
-        EXPECT_TRUE(result.has_value()) << "ReportExecutionState() failed: " << result.error().Message();
+        score::mw::lifecycle::report_running();
     }
     while (!TestRunner::exitRequested)
     {

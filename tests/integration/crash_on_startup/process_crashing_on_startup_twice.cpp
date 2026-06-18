@@ -15,14 +15,13 @@
 #include <iostream>
 
 #include "tests/utils/test_helper/test_helper.hpp"
-#include <score/mw/lifecycle/lifecycle_client.h>
+#include <score/mw/lifecycle/report_running.h>
 
 TEST(CrashOnStartup, ProcessCrashingOnStartupTwice)
 {
-    TEST_STEP("Report kRunning")
+    TEST_STEP("Report running")
     {
-        auto result = score::mw::lifecycle::LifecycleClient{}.ReportExecutionState(score::mw::lifecycle::ExecutionState::kRunning);
-        ASSERT_TRUE(result.has_value()) << "ReportExecutionState() failed: " << result.error().Message();
+        score::mw::lifecycle::report_running();
     }
 }
 

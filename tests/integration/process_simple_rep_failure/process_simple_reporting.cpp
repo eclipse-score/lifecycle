@@ -16,7 +16,7 @@
 #include <gtest/gtest.h>
 
 #include "tests/utils/test_helper/test_helper.hpp"
-#include <score/mw/lifecycle/lifecycle_client.h>
+#include <score/mw/lifecycle/report_running.h>
 
 int g_argc;
 char** g_argv;
@@ -29,13 +29,12 @@ TEST(ProcessSimpleRepFailure, ProcessSimpleReporting)
         ASSERT_GT(g_argc, 1) << "Wrong number of arguments";
         ASSERT_FALSE((g_argv[1][0] != '0') && (atoi(g_argv[1])) == 0) << "Argument must be a number";
     }
-    // Report kRunning with the appropriate delay
-    TEST_STEP("Report kRunning from ProcessSimpleReporting")
+    // Report running with the appropriate delay
+    TEST_STEP("Report running from ProcessSimpleReporting")
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(atoi(g_argv[1])));
 
-        auto result = score::mw::lifecycle::LifecycleClient{}.ReportExecutionState(score::mw::lifecycle::ExecutionState::kRunning);
-        EXPECT_TRUE(result.has_value()) << "ReportExecutionState() failed: " << result.error().Message();
+        score::mw::lifecycle::report_running();
     }
 }
 
