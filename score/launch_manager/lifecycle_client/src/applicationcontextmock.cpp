@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "score/mw/lifecycle/lifecycle_client/applicationcontextmock.h"
-#include "score/mw/lifecycle/lifecycle_client/applicationcontext.h"
+#include "score/mw/lifecycle/applicationcontextmock.h"
+#include "score/mw/lifecycle/applicationcontext.h"
 
 #include <functional>
 

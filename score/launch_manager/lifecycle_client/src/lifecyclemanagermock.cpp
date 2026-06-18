@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "score/mw/lifecycle/lifecycle_client/lifecyclemanagermock.h"
-#include "score/mw/lifecycle/lifecycle_client/lifecyclemanager.h"
+#include "score/mw/lifecycle/lifecyclemanagermock.h"
+#include "score/mw/lifecycle/lifecyclemanager.h"
 
 #include <functional>
 
@@ -94,3 +94,5 @@ std::int32_t score::mw::lifecycle::LifeCycleManager::run(score::mw::lifecycle::A
     report_shutdown();
     return result;
 }
+
+void score::mw::lifecycle::LifeCycleManager::report_running() noexcept {}

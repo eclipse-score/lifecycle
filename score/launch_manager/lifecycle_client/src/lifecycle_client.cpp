@@ -11,7 +11,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
+#include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/lifecycle/execution_error.h"
+#include "score/mw/lifecycle/lifecycle_client.h"
 #include "score/mw/lifecycle/lifecycle_client/details/lifecycle_client_impl.hpp"
+
 
 namespace score::mw::lifecycle {
 
@@ -39,10 +43,18 @@ LifecycleClient& LifecycleClient::operator=(LifecycleClient&& rval) noexcept {
 }
 
 score::Result<std::monostate> LifecycleClient::ReportExecutionState(ExecutionState state) const noexcept {
+    
+    // Check if the state is valid
+    if (ExecutionState::kRunning != state)
+    {
+        LM_LOG_ERROR() << "[Lifecycle Client] Invalid execution state!";
+        return score::Result<std::monostate>{score::MakeUnexpected(ExecErrc::kInvalidTransition)};
+    }
+    
     // Check if the lifecycle_client_impl is valid
     if( lifecycle_client_impl_ )
     {
-        return lifecycle_client_impl_->ReportExecutionState( state );
+        return lifecycle_client_impl_->ReportRunningState();
     }
     else
     {

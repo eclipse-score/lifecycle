@@ -14,8 +14,8 @@
 #ifndef SCORE_MW_LIFECYCLE_RUNAPPLICATION_H
 #define SCORE_MW_LIFECYCLE_RUNAPPLICATION_H
 
-#include "score/mw/lifecycle/lifecycle_client/lifecyclemanager.h"
-#include "score/mw/lifecycle/lifecycle_client/applicationcontext.h"
+#include "score/mw/lifecycle/lifecyclemanager.h"
+#include "score/mw/lifecycle/applicationcontext.h"
 
 #include <cstdint>
 

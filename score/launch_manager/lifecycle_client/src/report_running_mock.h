@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2025 Contributors to the Eclipse Foundation
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -11,4 +11,25 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "score/mw/lifecycle/runapplication.h"
+#ifndef SCORE_MW_LIFECYCLE_MOCKS_REPORTRUNNINGMOCK_H_
+#define SCORE_MW_LIFECYCLE_MOCKS_REPORTRUNNINGMOCK_H_
+
+#include <gmock/gmock.h>
+
+namespace score {
+namespace mw {
+namespace lifecycle {
+
+class ReportRunningMock {
+public:
+  ReportRunningMock();
+  ~ReportRunningMock();
+
+  MOCK_METHOD(void, report_running, (), (noexcept));
+};
+
+} // namespace lifecycle
+} // namespace mw
+} // namespace score
+
+#endif // SCORE_MW_LIFECYCLE_MOCKS_REPORTRUNNINGMOCK_H_

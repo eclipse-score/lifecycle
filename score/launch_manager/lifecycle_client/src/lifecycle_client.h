@@ -20,7 +20,6 @@
 #include <memory>
 
 #include "score/result/result.h"
-#include "score/mw/lifecycle/execution_error.h"
 
 namespace score::mw::lifecycle {
 
@@ -29,6 +28,8 @@ enum class ExecutionState : std::uint8_t {
     /// @brief After a Process has been started by Launch Manager, it reports ExecutionState kRunning
     kRunning = 0
 };
+
+class LifecycleClientImpl;
 
 /// @brief Class to implement operations on Lifecycle Client
 class LifecycleClient final {
@@ -71,7 +72,6 @@ class LifecycleClient final {
 
    private:
     /// @brief Pointer to implementation (Pimpl), we use this pattern to provide ABI compatibility.
-    class LifecycleClientImpl;
     std::unique_ptr<LifecycleClientImpl> lifecycle_client_impl_;
 };
 

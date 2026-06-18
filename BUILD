@@ -98,5 +98,5 @@ docs(
         "@score_platform//:needs_json",  # This allows linking to feature requirements.
         "@score_process//:needs_json",  # This allows linking to requirements (wp__requirements_comp, etc.) from the process_description repository.
     ],
-    source_dir = "docs",
+    source_dir = ".",
 )

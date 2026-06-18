@@ -1,7 +1,7 @@
 .. _life_statistics:
 
-Component Requirements Statistics
-=================================
+Verification Statistics
+=======================
 
 Overview
 --------

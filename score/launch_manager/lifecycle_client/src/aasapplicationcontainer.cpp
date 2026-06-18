@@ -11,10 +11,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "score/mw/lifecycle/lifecycle_client/aasapplicationcontainer.h"
+#include "score/mw/lifecycle/aasapplicationcontainer.h"
 
 #include <score/jthread.hpp>
-#include "score/mw/lifecycle/lifecycle_client/lifecyclemanager.h"
+#include "score/mw/lifecycle/lifecyclemanager.h"
 
 namespace score
 {
