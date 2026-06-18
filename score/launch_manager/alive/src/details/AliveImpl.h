@@ -25,7 +25,7 @@
 namespace score::mw::lifecycle
 {
 
-/// @brief Implementation class for score::mw::lifecycle::Monitor class
+/// @brief Implementation class for score::mw::lifecycle::Alive class
 ///        This class is responsible for establishing the connection between the application and PHM daemon
 ///        by invoking the calls to PHM class methods and to forward the reported checkpoints from the application
 ///        to PHM daemon for supervision evaluation
@@ -43,8 +43,8 @@ class AliveImpl
 
     /// @brief Constructor of AliveImpl class
     /// @param [in] f_instanceSpecifier_r  Instance specifier object with the metamodel path of
-    ///                                    the Monitor
-    /// @param [in] f_ipcClient            Ipc Connection to PHM daemon
+    ///                                    the Alive instance
+    /// @param [in] f_ipcClient            Ipc Connection to Launch Manager
     /// @throws std::runtime_error in case ipc path could not be read from configuration
     /// @throws std::bad_alloc in case of insufficient memory
     explicit AliveImpl(
@@ -75,12 +75,12 @@ class AliveImpl
     /// @throws std::runtime_error in case ipc path could not be read from configuration
     void connectToPhmDaemon(void) noexcept(false);
 
-    /// @brief Read the Monitor Interface Path from an environment variable. 
+    /// @brief Read the Alive Interface Path from an environment variable. 
     /// This is then used to initialise the IPC client
     /// @return Value of environment variable or nullopt if getenv fails
     static std::optional<std::string_view> readInterfacePath() noexcept;
 
-    /// @brief Instance specifier path of the Monitor instance
+    /// @brief Instance specifier path of the Alive instance
     const std::string k_instanceSpecifierPath;
 
     /// @brief IPC Connection to PHM Daemon

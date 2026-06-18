@@ -43,7 +43,7 @@ void AliveImpl::connectToPhmDaemon(void) noexcept(false)
     const auto ipc_path_res = readInterfacePath();
     if (ipc_path_res == std::nullopt)
     {
-        logger_r.LogError() << "Failed to load interface path for Monitor (" << k_instanceSpecifierPath << ")";
+        logger_r.LogError() << "Failed to load interface path for Alive instance (" << k_instanceSpecifierPath << ")";
         throw std::runtime_error("Failed to get interface path");
     }
     CheckpointIpcClient::EIpcInitResult initResult{ipcClient->init(ipc_path_res.value())};
@@ -55,10 +55,10 @@ void AliveImpl::connectToPhmDaemon(void) noexcept(false)
     {
         const uid_t uid{geteuid()};
         logger_r.LogError() << "Connection to PHM daemon failed (permission denied for effective uid" << uid
-                            << "), for the Monitor (" << k_instanceSpecifierPath << ")";
+                            << "), for the Alive instance (" << k_instanceSpecifierPath << ")";
         return;
     }
-    logger_r.LogError() << "Connection to PHM daemon failed, for the Monitor (" << k_instanceSpecifierPath << ")";
+    logger_r.LogError() << "Connection to PHM daemon failed, for the Alive instance (" << k_instanceSpecifierPath << ")";
 }
 
 std::optional<std::string_view> AliveImpl::readInterfacePath() noexcept

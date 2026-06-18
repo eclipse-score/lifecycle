@@ -40,7 +40,7 @@ class Global;
 namespace ifappl
 {
 
-/// @brief Monitor Interface for PHM Deamon
+/// @brief Alive Interface for PHM Deamon
 /// @details The MonitorIfDaemon class provides methods to write/read information to the
 /// data exchange between PHM daemon and Application, which are only required on PHM Daemon side.
 class MonitorIfDaemon : public common::Observer<ifexm::ProcessState>
@@ -84,7 +84,7 @@ public:
     const std::string& getInterfaceName(void) const noexcept(true);
 
     /// @brief Attach checkpoint
-    /// @details Attaches a checkpoint observer to the Monitor interface
+    /// @details Attaches a checkpoint observer to the Alive interface
     /// Note: Attached observers will receive updates in case there is new information
     /// @param [in] f_checkpoint_r      Checkpoint which is added to the observer array
     /// @throws std::bad_alloc in case of insufficient memory for vector allocation
@@ -95,7 +95,7 @@ public:
     void updateData(const ifexm::ProcessState& f_observable_r) noexcept(true) override;
 
     /// @brief Check for new data
-    /// @details Check Monitor interface for new data from application side
+    /// @details Check Alive interface for new data from application side
     /// @param [in]  f_syncTimestamp    Timestamp till data shall be read, newer data will not be considered
     void checkForNewData(const score::lcm::saf::timers::NanoSecondType f_syncTimestamp) noexcept(true);
 
@@ -110,7 +110,7 @@ private:
 
     /// @brief Push overflow event information to all checkpoint observer
     /// @details Every attached checkpoint observer will be informed that a data loss event in the
-    /// Monitor has occurred
+    /// Alive interface has occurred
     void pushOverflowInfoToCheckpointObservers(void) const;
 
     /// @brief Move to kInactiveOverflow state and push overflow event to observers
@@ -149,7 +149,7 @@ private:
     /// Interface name
     const std::string k_interfaceName;
 
-    /// Array of checkpoint observers attached to the Monitor interface
+    /// Array of checkpoint observers attached to the Alive interface
     std::vector<Checkpoint*> checkpointObservers{};
 
     /// @brief IPC connection to application
