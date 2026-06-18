@@ -117,36 +117,6 @@ bool FlatCfgFactory::createProcessStates(std::vector<ifexm::ProcessState>& f_pro
                 const std::size_t shortNameLen = shortName->size();
                 processCfg.processShortName = std::string_view(shortNameStr, shortNameLen);
 
-                // Get configured process group states
-                std::vector<std::string> refProcessGroupStatePaths{};
-                // coverity[cert_exp34_c_violation] PHM.ecucfgdsl Process.refProcessGroupStates MANDATORY
-                // coverity[dereference] PHM.ecucfgdsl Process.refProcessGroupStates MANDATORY
-                const auto* pgStates_p{process_p->refProcessGroupStates()};
-                /* RULECHECKER_comment(2, 3, check_csa_call_null_object_pointer, "PHM.ecucfgdsl
-                 * Process.refProcessGroupStates MANDATORY", true_no_defect) */
-                // coverity[cert_exp34_c_violation] PHM.ecucfgdsl Process.refProcessGroupStates MANDATORY
-                // coverity[dereference] PHM.ecucfgdsl Process.refProcessGroupStates MANDATORY
-                refProcessGroupStatePaths.reserve(static_cast<size_t>(pgStates_p->size()));
-                for (const auto& pgState_p : *pgStates_p)
-                {
-                    refProcessGroupStatePaths.push_back(pgState_p->identifier()->c_str());
-                }
-                auto processGroupIdResult_p{getProcessGroupStateIds(refProcessGroupStatePaths)};
-
-                processCfg.configuredProcessGroupStates = std::move(*processGroupIdResult_p);
-
-                // Get configured ProcessExecutionErrors
-                // coverity[cert_exp34_c_violation] PHM.ecucfgdsl Process.processExecutionErrors MANDATORY
-                // coverity[dereference] PHM.ecucfgdsl Process.processExecutionErrors MANDATORY
-                processCfg.processExecutionErrors.reserve(
-                    static_cast<std::size_t>(process_p->processExecutionErrors()->size()));
-                for (const auto execError_p : *(process_p->processExecutionErrors()))
-                {
-                    const auto err{execError_p->processExecutionError()};
-                    processCfg.processExecutionErrors.push_back(
-                        static_cast<ifexm::ProcessCfg::ProcessExecutionError>(err));
-                }
-
                 // Not an EXM Process
                 if (process_p->processType() != HMFlatBuffer::ProcessType::ProcessType_LM_PROCESS)
                 {
@@ -170,11 +140,7 @@ bool FlatCfgFactory::createProcessStates(std::vector<ifexm::ProcessState>& f_pro
                     // EXM processId
                     processCfg.processId = -2;
 
-                    // Ensured in DSL that there will only be one entry of process group reference for the EXM process
-                    common::ProcessGroupId mainPGStartupId{processCfg.configuredProcessGroupStates.back()};
-
                     f_processStates_r.emplace_back(processCfg);
-                    f_processStates_r.back().setProcessGroupState(mainPGStartupId);
                 }
 
                 const std::string processShortNameRead{f_processStates_r.back().getConfigName()};
@@ -424,34 +390,11 @@ bool FlatCfgFactory::createAliveSupervisions(std::vector<supervision::Alive>& f_
                 uint32_t failedCyclesToleranceCfg{hmAliveSupervision_p->failedSupervisionCyclesTolerance()};
                 uint32_t refCheckPointIndexTemp{hmAliveSupervision_p->refCheckPointIndex()};
 
-                // Collect referenced ProcessGroupStates for Alive Supervision
-                std::vector<std::string> refProcessGroupStates{};
-
-                // coverity[cert_exp34_c_violation] PHM.ecucfgdsl HmAliveSupervision.refProcessGroupStates MANDATORY
-                // coverity[dereference] PHM.ecucfgdsl HmAliveSupervision.refProcessGroupStates MANDATORY
-                refProcessGroupStates.reserve(
-                    static_cast<size_t>(hmAliveSupervision_p->refProcessGroupStates()->size()));
-
-                for (auto refProcessGroupState_p : *hmAliveSupervision_p->refProcessGroupStates())
-                {
-                    // coverity[cert_exp34_c_violation] PHM.ecucfgdsl PhmRefProcessGroupStates.identifier
-                    // coverity[dereference] PHM.ecucfgdsl PhmRefProcessGroupStates.identifier MANDATORY
-                    refProcessGroupStates.push_back(refProcessGroupState_p->identifier()->c_str());
-                }
-
-                const auto result{getProcessGroupStateIds(refProcessGroupStates)};
-                std::vector<common::ProcessGroupId> refProcessGroupStateIds{std::move(*result)};
-
                 const auto processIndex{hmAliveSupervision_p->refProcessIndex()};
-                std::vector<ifexm::ProcessState*> refProcesses{};
-
-                refProcesses.push_back(&f_processStates_r.at(static_cast<size_t>(processIndex)));
 
                 // Construct Alive Supervision
                 supervision::AliveSupervisionCfg aliveSupCfg{
-                    f_checkpoints_r.at(static_cast<size_t>(refCheckPointIndexTemp)),
-                    refProcessGroupStateIds,
-                    refProcesses};
+                    f_checkpoints_r.at(static_cast<size_t>(refCheckPointIndexTemp))};
 
                 aliveSupCfg.cfgName_p = nameCfgAlive_p;
                 aliveSupCfg.aliveReferenceCycle = aliveReferenceCycleCfg;
@@ -501,19 +444,8 @@ bool FlatCfgFactory::createAliveSupervisions(std::vector<supervision::Alive>& f_
     return isSuccess;
 }
 
-std::optional<std::vector<common::ProcessGroupId>> FlatCfgFactory::getProcessGroupStateIds(
-    std::vector<std::string>& f_pgStatePaths_r) noexcept(false)
-{
-    std::vector<common::ProcessGroupId> stateIds{};
-    for (const auto& pgStatePath : f_pgStatePaths_r)
-    {
-        const auto id = score::lcm::IdentifierHash{pgStatePath}.data();
-        stateIds.push_back(id);
-    }
-    return stateIds;
-}
-
-std::optional<common::ProcessId> FlatCfgFactory::getProcessId(const std::string& f_processPath_r) noexcept(true)
+std::optional<common::ProcessId> FlatCfgFactory::getProcessId(const std::string& f_processPath_r) noexcept(
+    true)
 {
     return score::lcm::IdentifierHash{f_processPath_r}.data();
 }

@@ -111,10 +111,7 @@ bool ProcessStateReader::pushUpdateTill(const ProcessStateReader::LcmPosixProces
     std::map<common::ProcessId, ProcessState*>::iterator processMapIterator{processStateMap.find(processId)};
     if (processMapIterator != processStateMap.end())
     {
-        const common::ProcessGroupId pgStateId{f_changedPosixProcess_r.processGroupStateId.data()};
-
         processMapIterator->second->setState(translateProcessState(f_changedPosixProcess_r.processStateId));
-        processMapIterator->second->setProcessGroupState(pgStateId);
         timers::NanoSecondType changedProcessTimestamp{
             timers::TimeConversion::convertToNanoSec(f_changedPosixProcess_r.systemClockTimestamp)};
         processMapIterator->second->setTimestamp(changedProcessTimestamp);

@@ -103,12 +103,6 @@ public:
 
 private:
 
-    /// @brief Get the process group state ids based on the process group state asr paths
-    /// @param[in] f_pgStatePaths_r The pg state paths from the configuration
-    /// @return process group state ids or nullopt in case of an error
-    std::optional<std::vector<common::ProcessGroupId>> getProcessGroupStateIds(
-        std::vector<std::string>& f_pgStatePaths_r) noexcept(false);
-
     /// @brief Get process id based on ASR path of process
     /// @param[in] f_processPath_r  ASR path of process
     /// @return                     process id or nullopt in case of an error

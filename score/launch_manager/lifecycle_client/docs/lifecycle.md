@@ -13,7 +13,7 @@ Component consists of three main parts:
 * Runner class `score::mw::lifecycle::Run` which instantiates the user provided application and decides which LifeCycleManager to use.
 
 Overview on how lifecycle application is related to execution manager.
-![Lifecycle Manager Application Overview](model/lifecycle_system_view.uxf)
+![Lifecycle Manager Application Overview](model/lifecycle_system_view.svg)
 
 ### AAS Interfaces
 N/A
@@ -21,12 +21,12 @@ N/A
 ### External C++ interfaces 
 `score:mw::Application` methods which have to be implemented by the application:
 #### Initialize
-This method shall do basic initialization of application (what was not done in application [State `Initializing`](#state-initializing)). 
+This method shall do basic initialization of application (what was not done in application State Initializing). 
 Method returns a `Result`, which either contains `void` on success or an error. In case of an error lifecycle manager will join all running threads and will return with non zero value.  
 Input parameter to this method is an instance of `ApplicationContext`, which is a  wrapper around the arguments, which have been given to `main`.
 
 #### Run
-This method implements the `Run` state of the app (see [State `Run`](#state-run)). This could be a long running
+This method implements the `Run` state of the app (see State `Run`). This could be a long running
 functionality. In case `Run()` returns, this implicitly means, that the app has ended. If
 app implementations do spawn some worker threads in the context of `Run()`, those threads
 are joined again before` Run()` returns.
@@ -70,7 +70,7 @@ N/A
 SIGTERM see [lifecyclemanager.md](lifecyclemanager.md)
 
 ## Static architecture
-![Structural View](model/structural_view.uxf)
+![Structural View](model/structural_view.svg)
 
 ## Dynamic architecture
 
@@ -78,13 +78,13 @@ SIGTERM see [lifecyclemanager.md](lifecyclemanager.md)
 The following sequence diagram shows the interaction between OS and instances of `Application` class, which were
 decorated with a `LifecycleManager`:
 
-![Sequence View](model/sequence_view.uxf)
+![Sequence View](model/sequence_view.svg)
 
 ### Stateful behavior
 
 The following state machine depicts the states/transitions of an application:
 
-![Application Lifecycle](model/app_lifecycle.uxf)
+![Application Lifecycle](model/app_lifecycle.svg)
 
 #### State `Terminated` respectively `Not Started`
 
@@ -129,4 +129,4 @@ do so, it shall not report `Run` at all.
 * N/A
 
 ### Deployment
-* There is example app available that can help with deploying this library see [example application](test/example/README.md) subdirectory
+* There is example app available that can help with deploying this library see example application (`examples/cpp_lifecycle_app`) subdirectory

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2025 Contributors to the Eclipse Foundation
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -21,8 +21,8 @@
 // Ensure the included flatbuffers.h is the same version as when this file was
 // generated, otherwise it may not be compatible.
 static_assert(FLATBUFFERS_VERSION_MAJOR == 25 &&
-              FLATBUFFERS_VERSION_MINOR == 9 &&
-              FLATBUFFERS_VERSION_REVISION == 23,
+              FLATBUFFERS_VERSION_MINOR == 12 &&
+              FLATBUFFERS_VERSION_REVISION == 19,
              "Non-compatible flatbuffers version included");
 
 namespace LMFlatBuffer {
@@ -137,7 +137,8 @@ struct LMEcuCfg FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const ::flatbuffers::Vector<::flatbuffers::Offset<LMFlatBuffer::Process>> *Process() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<LMFlatBuffer::Process>> *>(VT_PROCESS);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int32_t>(verifier, VT_VERSIONMAJOR, 4) &&
            VerifyField<int32_t>(verifier, VT_VERSIONMINOR, 4) &&
@@ -232,7 +233,8 @@ struct ModeGroup FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const ::flatbuffers::Vector<::flatbuffers::Offset<LMFlatBuffer::ModeDeclaration>> *modeDeclaration() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<LMFlatBuffer::ModeDeclaration>> *>(VT_MODEDECLARATION);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_IDENTIFIER) &&
            verifier.VerifyString(identifier()) &&
@@ -324,7 +326,8 @@ struct ModeDeclaration FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const ::flatbuffers::String *identifier() const {
     return GetPointer<const ::flatbuffers::String *>(VT_IDENTIFIER);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_IDENTIFIER) &&
            verifier.VerifyString(identifier()) &&
@@ -415,7 +418,8 @@ struct Process FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const ::flatbuffers::Vector<::flatbuffers::Offset<LMFlatBuffer::ProcessSgid>> *sgids() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<LMFlatBuffer::ProcessSgid>> *>(VT_SGIDS);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_IDENTIFIER) &&
            verifier.VerifyString(identifier()) &&
@@ -604,7 +608,8 @@ struct ProcessStartupConfig FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
   uint64_t memoryUsage() const {
     return GetField<uint64_t>(VT_MEMORYUSAGE, 0);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_IDENTIFIER) &&
            verifier.VerifyString(identifier()) &&
@@ -765,7 +770,8 @@ struct ProcessGroupStateDependency FLATBUFFERS_FINAL_CLASS : private ::flatbuffe
   const ::flatbuffers::String *stateName() const {
     return GetPointer<const ::flatbuffers::String *>(VT_STATENAME);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_STATEMACHINE_NAME) &&
            verifier.VerifyString(stateMachine_name()) &&
@@ -830,7 +836,8 @@ struct ProcessExecutionDependency FLATBUFFERS_FINAL_CLASS : private ::flatbuffer
   const ::flatbuffers::String *targetProcess_identifier() const {
     return GetPointer<const ::flatbuffers::String *>(VT_TARGETPROCESS_IDENTIFIER);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_STATENAME) &&
            verifier.VerifyString(stateName()) &&
@@ -895,7 +902,8 @@ struct EnvironmentVariable FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   const ::flatbuffers::String *value() const {
     return GetPointer<const ::flatbuffers::String *>(VT_VALUE);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_KEY) &&
            verifier.VerifyString(key()) &&
@@ -956,7 +964,8 @@ struct ProcessArgument FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const ::flatbuffers::String *argument() const {
     return GetPointer<const ::flatbuffers::String *>(VT_ARGUMENT);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_ARGUMENT) &&
            verifier.VerifyString(argument()) &&
@@ -1007,7 +1016,8 @@ struct ProcessSgid FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   uint32_t sgid() const {
     return GetField<uint32_t>(VT_SGID, 0);
   }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_SGID, 4) &&
            verifier.EndTable();
@@ -1062,14 +1072,16 @@ inline bool SizePrefixedLMEcuCfgBufferHasIdentifier(const void *buf) {
       buf, LMEcuCfgIdentifier(), true);
 }
 
+template <bool B = false>
 inline bool VerifyLMEcuCfgBuffer(
-    ::flatbuffers::Verifier &verifier) {
-  return verifier.VerifyBuffer<LMFlatBuffer::LMEcuCfg>(LMEcuCfgIdentifier());
+    ::flatbuffers::VerifierTemplate<B> &verifier) {
+  return verifier.template VerifyBuffer<LMFlatBuffer::LMEcuCfg>(LMEcuCfgIdentifier());
 }
 
+template <bool B = false>
 inline bool VerifySizePrefixedLMEcuCfgBuffer(
-    ::flatbuffers::Verifier &verifier) {
-  return verifier.VerifySizePrefixedBuffer<LMFlatBuffer::LMEcuCfg>(LMEcuCfgIdentifier());
+    ::flatbuffers::VerifierTemplate<B> &verifier) {
+  return verifier.template VerifySizePrefixedBuffer<LMFlatBuffer::LMEcuCfg>(LMEcuCfgIdentifier());
 }
 
 inline const char *LMEcuCfgExtension() {

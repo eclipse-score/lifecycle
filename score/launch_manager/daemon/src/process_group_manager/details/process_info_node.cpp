@@ -13,9 +13,9 @@
 
 #include "process_info_node.hpp"
 #include "graph.hpp"
-#include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
+#include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
 
 namespace score
 {
@@ -407,10 +407,11 @@ void ProcessInfoNode::handleProcessStarted(uint32_t execution_error_code)
 {
     switch (graph_->getProcessGroupManager()->getProcessMap()->insertIfNotTerminated(pid_, this))
     {
-        case 0:  // Normal case, entry was put in the map, process still running
+        case score::lcm::internal::SafeProcessMap::SafeProcessMapReturnType::kOk:  // Normal case, entry was put in
+                                                                                   // the map, process still running
             handleProcessStillStarting(execution_error_code);
             break;
-        case 1:  // Process has already exited
+        case score::lcm::internal::SafeProcessMap::SafeProcessMapReturnType::kYield:  // Process has already exited
             handleProcessAlreadyTerminated(execution_error_code);
             break;
         default:  // Error case when pn == -1
