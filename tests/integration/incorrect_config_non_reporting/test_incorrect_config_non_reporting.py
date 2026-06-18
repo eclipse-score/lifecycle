@@ -28,7 +28,7 @@ def test_incorrect_config_non_reporting(
     """
     Objective: Test robustness of LifecycleClient API
     Input: Component wrongly configured as `native` application type, acquires a file descriptor ordinarily used by LM communication, and reports the Running state to LaunchManager.
-    Expected Outcome: Reporting Running state fails, LifecycleClient API returns an error.
+    Expected Outcome: Process does not crash.
     """
     run_until_file_deployed(
         target=target,

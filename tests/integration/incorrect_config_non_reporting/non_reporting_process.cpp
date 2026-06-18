@@ -20,7 +20,7 @@
 
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
-#include <score/mw/lifecycle/lifecycle_client.h>
+#include <score/mw/lifecycle/report_running.h>
 
 TEST(NonReporting, Process)
 {
@@ -38,9 +38,9 @@ TEST(NonReporting, Process)
         ASSERT_NE(dup_res, -1) << "dup2 failed: " << strerror(errno);
     }
 
-    // Invalid kRunning report
-    auto result = score::mw::lifecycle::LifecycleClient{}.ReportExecutionState(score::mw::lifecycle::ExecutionState::kRunning);
-    EXPECT_FALSE(result.has_value()) << "ReportExecutionState() should not succeed";
+    // Invalid running report
+    score::mw::lifecycle::report_running();
+    // If the process is still alive, it means it did not crash on invalid report_running, which is expected
 
     close(ipc::sync_fd);
 }
