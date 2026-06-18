@@ -46,9 +46,9 @@ alias(
 
 cc_library(
     name = "error",
-    hdrs = ["execution_error.h"],
+    hdrs = ["src/execution_error.h"],
     include_prefix = "score/mw/lifecycle",
-    strip_include_prefix = "/score/launch_manager",
+    strip_include_prefix = "/score/launch_manager/src",
     visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
         "@score_baselibs//score/result",
@@ -58,11 +58,11 @@ cc_library(
 cc_library(
     name = "error_event",
     hdrs = [
-        "execution_error.h",
-        "execution_error_event.h",
+        "src/execution_error.h",
+        "src/execution_error_event.h",
     ],
     include_prefix = "score/mw/lifecycle",
-    strip_include_prefix = "/score/launch_manager",
+    strip_include_prefix = "/score/launch_manager/src",
     visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
         ":error",
@@ -72,7 +72,7 @@ cc_library(
 
 cc_test(
     name = "exec_error_domain_UT",
-    srcs = ["exec_error_domain_UT.cpp"],
+    srcs = ["src/exec_error_domain_UT.cpp"],
     visibility = ["//visibility:private"],
     deps = [
         ":error",
