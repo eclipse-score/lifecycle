@@ -16,7 +16,7 @@ score_py_pytest(
     ],
     data = [
         ":integration_test_files",
-        "//score/launch_manager/daemon/src/configuration/config_schema:launch_manager.schema.json",
+        "//score/launch_manager/src/daemon/src/configuration/config_schema:launch_manager.schema.json",
         "//scripts/config_mapping:lifecycle_config.py",
     ],
     tags = ["manual"],
