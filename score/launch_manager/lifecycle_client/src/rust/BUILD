@@ -20,7 +20,7 @@ rust_library(
     ],
     visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
-        "//score/launch_manager/lifecycle_client:lifecycleclient_internal",
+        "//score/launch_manager/lifecycle_client:report_running",
         "@score_crates//:libc",
     ],
 )

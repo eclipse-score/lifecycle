@@ -12,8 +12,8 @@
  ********************************************************************************/
 
 
-#ifndef _INCLUDED_LIFECYCLECLIENTIMPL_
-#define _INCLUDED_LIFECYCLECLIENTIMPL_
+#ifndef _INCLUDED_REPORTRUNNINGIMPL_
+#define _INCLUDED_REPORTRUNNINGIMPL_
 
 #include <atomic>
 
@@ -22,22 +22,21 @@
 
 namespace score::mw::lifecycle {
 
-/// @brief  Class implementing Pimpl (pointer to implementation) design pattern for LifecycleClient (an AUTOSAR data type).
-/// The lifecycle_client_lib strive to provide ABI compatibility as much as we can, so for this reason Pimpl pattern is deployed.
-/// Design of this class fulfil the needs of the pattern mentioned.
-/// More info can be found here: https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Ri-pimpl
-class LifecycleClientImpl final {
+/// @brief Implementation class for report_running(), handling the actual IPC
+/// communication with the Launch Manager to signal that this process has
+/// entered its Running state.
+class ReportRunningImpl final {
    public:
-    /// @brief Constructor that creates LifecycleClientImpl (implementation of Lifecycle Client)
-    LifecycleClientImpl() noexcept;
+    /// @brief Constructor
+    ReportRunningImpl() noexcept;
 
-    /// @brief Destructor of the LifecycleClientImpl (implementation of Lifecycle Client)
-    ~LifecycleClientImpl() noexcept;
+    /// @brief Destructor
+    ~ReportRunningImpl() noexcept;
 
     // This class is trivially copyable / movable
     // For this reason we are applying the rule of zero
 
-    /// @brief Implementation of a interface for a Process to report its running state to Launch Manager.
+    /// @brief Reports the Running state to the Launch Manager.
     ///
     /// @returns An instance of score::Result. The instance holds an ErrorCode containing either one of the specified errors or a void-value.
     /// @error score::mw::lifecycle::ExecErrc::kCommunicationError Communication error between Application and Launch Manager, e.g. unable to report state for Non-reporting Process.
@@ -46,10 +45,10 @@ class LifecycleClientImpl final {
 
    private:
     /// @brief Variable to remember if kRunning was already reported for the process using lifecycle_client_lib.
-    /// Please note that LifecycleClient::ReportRunningState() method, the original method, is declared as a const method.
+    /// Please note that ReportRunningState() method is declared as a const method.
     /// Thanks to this, user can choose to declare instance of this class as a constant variable and reporting kRunning will still work.
     /// However, this prevent us from implementing certain optimizations, after initial kRunning was reported.
-    /// To mitigate this, we can store this information outside of LifecycleClientImpl class or have a mutable variable.
+    /// To mitigate this, we can store this information outside of ReportRunningImpl class or have a mutable variable.
     /// After short discussion, mutable variable was chosen.
     ///        True if kRunning was already reported by the process using this library.
     ///        False if kRunning was not yet reported by the process using this library.
@@ -62,4 +61,4 @@ class LifecycleClientImpl final {
 
 }  // namespace score::mw::lifecycle
 
-#endif  // _INCLUDED_LIFECYCLECLIENTIMPL_
+#endif  // _INCLUDED_REPORTRUNNINGIMPL_
