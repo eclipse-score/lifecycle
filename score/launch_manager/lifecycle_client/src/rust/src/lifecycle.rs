@@ -12,11 +12,11 @@
 // *******************************************************************************
 use libc::c_int;
 
-#[link(name = "lifecycleclient_internal")]
+#[link(name = "report_running")]
 unsafe extern "C" {
-    fn score_lcm_ReportExecutionStateRunning() -> c_int;
+    fn score_lcm_ReportRunning() -> c_int;
 }
 
 pub fn report_execution_state_running() -> bool {
-    unsafe { score_lcm_ReportExecutionStateRunning() == 0 }
+    unsafe { score_lcm_ReportRunning() == 0 }
 }

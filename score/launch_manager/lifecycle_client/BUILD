@@ -21,7 +21,6 @@ cc_library(
     deps = [
         ":aasapplicationcontainer",
         ":application",
-        ":lifecycleclient_internal",
         ":lifecyclemanager",
         ":report_running",
         ":runapplication",
@@ -145,26 +144,7 @@ cc_library(
     tags = ["FUSA"],
     visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
-        ":lifecycleclient_internal",
-    ],
-)
-
-cc_library(
-    name = "lifecycleclient_internal",
-    srcs = [
-        "src/lifecycle_client.cpp",
-    ],
-    hdrs = [
-        "src/lifecycle_client.h",
-    ],
-    features = COMPILER_WARNING_FEATURES,
-    include_prefix = "score/mw/lifecycle",
-    strip_include_prefix = "/score/launch_manager/lifecycle_client/src",
-    tags = ["FUSA"],
-    visibility = ["//score/launch_manager/lifecycle_client:__subpackages__"],
-    deps = [
-        "//score/launch_manager:error_event",
-        "//score/launch_manager/lifecycle_client/src/details:lifecycle_client_impl",
+        "//score/launch_manager/lifecycle_client/src/details:report_running_impl",
     ],
 )
 

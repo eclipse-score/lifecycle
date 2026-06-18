@@ -27,7 +27,7 @@ def test_process_crash_monitoring(
     """
     Objective: Verifies that the launch manager correctly detects an abnormal process termination at runtime and executes a recovery action.
 
-    A process reports kRunning successfully and then crashes after run target activation completes.
+    A process reports running successfully and then crashes after run target activation completes.
     Expected Behaviour: Launch manager detects the crash and activates the fallback run target.
     """
 

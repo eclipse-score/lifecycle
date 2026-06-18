@@ -15,14 +15,12 @@
 #include <csignal>
 #include <unistd.h>
 
-#include <score/mw/lifecycle/lifecycle_client.h>
+#include <score/mw/lifecycle/report_running.h>
 #include "tests/utils/test_helper/test_helper.hpp"
 
 TEST(Smoke, Process) {
-    // report kRunning
-    auto result = score::mw::lifecycle::LifecycleClient{}.ReportExecutionState(score::mw::lifecycle::ExecutionState::kRunning);
-
-    ASSERT_TRUE(result.has_value()) << "client.ReportExecutionState() failed";
+    // report running
+    score::mw::lifecycle::report_running();
 }
 
 int main() {
