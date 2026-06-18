@@ -133,3 +133,13 @@ cc_library(
         "//score/launch_manager/daemon/src/process_state_client:posix_process",
     ],
 )
+
+cc_test(
+    name = "configuration_adapter_UT",
+    srcs = ["details/configuration_adapter_UT.cpp"],
+    visibility = ["//tests:__subpackages__"],
+    deps = [
+        ":configuration_adapter",
+        "@googletest//:gtest_main",
+    ],
+)
