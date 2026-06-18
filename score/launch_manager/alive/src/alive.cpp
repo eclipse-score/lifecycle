@@ -28,21 +28,9 @@ Alive::Alive(const std::string_view& instance) noexcept(false) :
 {
 }
 
-Alive::Alive(Alive&& se) noexcept :
-    aliveImplPtr(std::move(se.aliveImplPtr))
-{
-}
+Alive::Alive(Alive&& se) noexcept = default;
 
-Alive& Alive::operator=(Alive&& se) noexcept
-{
-    if (this != &se)
-    {
-        aliveImplPtr.reset(nullptr);
-        aliveImplPtr = std::move(se.aliveImplPtr);
-    }
-
-    return *this;
-}
+Alive& Alive::operator=(Alive&& se) noexcept = default;
 
 Alive::~Alive() noexcept = default;
 
