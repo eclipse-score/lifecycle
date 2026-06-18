@@ -14,8 +14,8 @@
 #ifndef SCORE_MW_MW_LIFECYCLE_AASAPPLICATIONCONTAINER_H
 #define SCORE_MW_MW_LIFECYCLE_AASAPPLICATIONCONTAINER_H
 
-#include "score/mw/lifecycle/lifecycle_client/application.h"
-#include "score/mw/lifecycle/lifecycle_client/lifecyclemanager.h"
+#include "score/mw/lifecycle/application.h"
+#include "score/mw/lifecycle/lifecyclemanager.h"
 
 #include <memory>
 #include <vector>

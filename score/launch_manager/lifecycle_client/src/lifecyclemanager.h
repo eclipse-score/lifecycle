@@ -14,8 +14,8 @@
 #ifndef SCORE_MW_LIFECYCLE_LIFECYCLEMANAGER_H_
 #define SCORE_MW_LIFECYCLE_LIFECYCLEMANAGER_H_
 
-#include "score/mw/lifecycle/lifecycle_client/application.h"
-#include "score/mw/lifecycle/lifecycle_client/applicationcontext.h"
+#include "score/mw/lifecycle/application.h"
+#include "score/mw/lifecycle/applicationcontext.h"
 
 #include "score/os/utils/signal_impl.h"
 

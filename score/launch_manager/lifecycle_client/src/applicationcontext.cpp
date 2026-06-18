@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "score/mw/lifecycle/lifecycle_client/applicationcontext.h"
+#include "score/mw/lifecycle/applicationcontext.h"
 #include <algorithm>
 #include <iterator>
 #include <string_view>

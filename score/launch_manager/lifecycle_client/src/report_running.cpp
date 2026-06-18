@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2025 Contributors to the Eclipse Foundation
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -11,4 +11,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "score/mw/lifecycle/runapplication.h"
+#include "score/mw/lifecycle/report_running.h"
+
+#include "score/mw/lifecycle/lifecycle_client.h"
+
+void score::mw::lifecycle::report_running() noexcept {
+  static_cast<void>(
+      score::mw::lifecycle::LifecycleClient{}.ReportExecutionState(
+          score::mw::lifecycle::ExecutionState::kRunning));
+}

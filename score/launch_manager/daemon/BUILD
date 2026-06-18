@@ -12,18 +12,6 @@
 # *******************************************************************************
 load("@rules_cc//cc:defs.bzl", "cc_binary")
 
-alias(
-    name = "error",
-    actual = "//score/launch_manager:error",
-    visibility = ["//visibility:public"],
-)
-
-alias(
-    name = "error_event",
-    actual = "//score/launch_manager:error_event",
-    visibility = ["//visibility:public"],
-)
-
 cc_binary(
     name = "launch_manager",
     srcs = ["src/main.cpp"],
@@ -31,7 +19,7 @@ cc_binary(
         "@platforms//os:qnx": ["-lsecpol"],
         "@platforms//os:linux": ["-lpthread"],
     }),
-    visibility = ["//visibility:public"],
+    visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
         "//score/launch_manager/daemon/src/alive_monitor",
         "//score/launch_manager/daemon/src/common:log",

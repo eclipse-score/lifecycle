@@ -20,10 +20,10 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src/details",
     visibility = ["//score/launch_manager/lifecycle_client:__pkg__"],
     deps = [
+        "//score/launch_manager:error_event",
         "//score/launch_manager/daemon/src/common:constants",
         "//score/launch_manager/daemon/src/common:log",
         "//score/launch_manager/daemon/src/osal:ipc_comms",
-        "//score/launch_manager/lifecycle_client:lifecycle_client_interface",
         "@score_baselibs//score/result",
     ],
 )
