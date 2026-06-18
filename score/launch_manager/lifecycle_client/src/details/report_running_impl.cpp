@@ -23,18 +23,18 @@
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
 #include "score/mw/launch_manager/common/constants.hpp"
 #include "score/mw/lifecycle/execution_error.h"
-#include "score/mw/lifecycle/lifecycle_client/details/lifecycle_client_impl.hpp"
+#include "score/mw/lifecycle/lifecycle_client/details/report_running_impl.hpp"
 
 using namespace score::lcm::internal::osal;
 
 namespace score::mw::lifecycle {
-        std::atomic_bool LifecycleClientImpl::reported{false};
+        std::atomic_bool ReportRunningImpl::reported{false};
 
-        LifecycleClientImpl::LifecycleClientImpl() noexcept = default;
+        ReportRunningImpl::ReportRunningImpl() noexcept = default;
 
-        LifecycleClientImpl::~LifecycleClientImpl() noexcept = default;
+        ReportRunningImpl::~ReportRunningImpl() noexcept = default;
 
-        score::Result<std::monostate> LifecycleClientImpl::ReportRunningState() const noexcept
+        score::Result<std::monostate> ReportRunningImpl::ReportRunningState() const noexcept
         {
             score::Result<std::monostate> retVal{score::MakeUnexpected(ExecErrc::kCommunicationError)};
 
@@ -51,7 +51,7 @@ namespace score::mw::lifecycle {
             return retVal;
         }
 
-        score::Result<std::monostate> LifecycleClientImpl::reportKRunningtoDaemon() const noexcept
+        score::Result<std::monostate> ReportRunningImpl::reportKRunningtoDaemon() const noexcept
         {
             score::Result<std::monostate> comms_error {score::MakeUnexpected(ExecErrc::kCommunicationError)};
 
@@ -103,7 +103,7 @@ namespace score::mw::lifecycle {
 
                 return comms_error;
             }
-            
+
             // Final post to semaphore, so LM know that communication channel can be closed now
             sync->send_sync_.post();
             // Mark as reported if successful

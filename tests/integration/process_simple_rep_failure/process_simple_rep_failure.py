@@ -31,13 +31,13 @@ def test_recovery_action_simple_rep_failure(
     target, setup_test, assert_test_results, remote_test_dir
 ):
     """
-    Objective: Verifies that recovery action is executed when the reporting of kRunning via LifecycleClient API (named "simple reporting" in the following) is not happening in time and vice versa.
+    Objective: Verifies that recovery action is executed when the reporting of running via LifecycleClient API (named "simple reporting" in the following) is not happening in time and vice versa.
 
-    Case 1: Using simple reporting, the process does report kRunning in time (500ms below boundary)
-    Expected Behaviour: Reporting kRunning is successful, recovery action is not executed.
+    Case 1: Using simple reporting, the process does report running in time (500ms below boundary)
+    Expected Behaviour: Reporting running is successful, recovery action is not executed.
 
-    Case 2: Using simple reporting, the process does not report kRunning in time (500ms above boundary)
-    Expected Behaviour: Reporting kRunning is not successful, recovery action is executed.
+    Case 2: Using simple reporting, the process does not report running in time (500ms above boundary)
+    Expected Behaviour: Reporting running is not successful, recovery action is executed.
     The recovery action switches to the fallback run target, the activation of the fallback run target is verified in the test.
     """
 

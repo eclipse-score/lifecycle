@@ -13,9 +13,9 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_library(
-    name = "lifecycle_client_impl",
-    srcs = ["lifecycle_client_impl.cpp"],
-    hdrs = ["lifecycle_client_impl.hpp"],
+    name = "report_running_impl",
+    srcs = ["report_running_impl.cpp"],
+    hdrs = ["report_running_impl.hpp"],
     include_prefix = "score/mw/lifecycle/lifecycle_client/details",
     strip_include_prefix = "/score/launch_manager/lifecycle_client/src/details",
     visibility = ["//score/launch_manager/lifecycle_client:__pkg__"],

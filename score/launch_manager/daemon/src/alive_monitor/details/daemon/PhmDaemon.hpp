@@ -19,7 +19,6 @@
 #include <memory>
 
 #include <vector>
-#include "score/mw/lifecycle/lifecycle_client.h"
 #include "score/mw/lifecycle/control_client.h"
 #include "score/mw/launch_manager/alive_monitor/details/daemon/PhmDaemonConfig.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/daemon/SwClusterHandler.hpp"

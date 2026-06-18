@@ -12,11 +12,26 @@
  ********************************************************************************/
 
 #include "score/mw/lifecycle/report_running.h"
-
-#include "score/mw/lifecycle/lifecycle_client.h"
+#include "score/mw/lifecycle/lifecycle_client/details/report_running_impl.hpp"
 
 void score::mw::lifecycle::report_running() noexcept {
-  static_cast<void>(
-      score::mw::lifecycle::LifecycleClient{}.ReportExecutionState(
-          score::mw::lifecycle::ExecutionState::kRunning));
+    static_cast<void>(score::mw::lifecycle::ReportRunningImpl{}.ReportRunningState());
 }
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int8_t score_lcm_ReportRunning(void) {
+    // RULECHECKER_comment(1, 2, check_static_object_dynamic_initialization, "static variable is in function scope so this initialization is safe", false)
+    static score::mw::lifecycle::ReportRunningImpl g_impl{};
+    const auto result = g_impl.ReportRunningState();
+    if (!result) {
+        return -1;
+    }
+    return 0;
+}
+
+#ifdef __cplusplus
+}
+#endif
