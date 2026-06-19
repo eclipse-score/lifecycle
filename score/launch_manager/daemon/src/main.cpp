@@ -88,11 +88,24 @@ void reserveFD(int fd)
 // coverity[autosar_cpp14_a15_3_3_violation:FALSE] Only logging occurs outside the try-catch enclosing main().
 int main(int argc, const char* argv[])
 {
-    const char* config_path = "etc/launch_manager_config.bin";
+    const char* config_path = "etc/launch_manager_config_gen.bin";
     int opt;
-    while ((opt = getopt(argc, const_cast<char**>(argv), "c:")) != -1) {
-        if (opt == 'c') {
-            config_path = optarg;
+    while ((opt = getopt(argc, const_cast<char**>(argv), "c:h")) != -1) {
+        switch (opt) {
+            case 'c':
+                config_path = optarg;
+                break;
+            case 'h':
+                std::cout << "Usage: launch_manager [-c <config>] [-h]\n"
+                          << "\n"
+                          << "Options:\n"
+                          << "  -c <config>  Path to the flatbuffer config binary.\n"
+                          << "               Default: etc/launch_manager_config_gen.bin\n"
+                          << "  -h           Print this help and exit.\n";
+                return EXIT_SUCCESS;
+            default:
+                std::cerr << "Usage: launch_manager [-c <config>] [-h]\n";
+                return EXIT_FAILURE;
         }
     }
     // reserve files descriptor osal::IpcCommsSync::sync_fd (fd3) and
@@ -140,15 +153,10 @@ int main(int argc, const char* argv[])
 
         if (process_group_manager->initialize(*config_result))
         {
-            LM_LOG_INFO() << "LCM started successfully";
             if (runLCMDaemon(*process_group_manager))
             {
                 exit_code = EXIT_SUCCESS;
             }
-        }
-        else
-        {
-            LM_LOG_FATAL() << "LCM startup failed";
         }
 
         if (process_group_manager)

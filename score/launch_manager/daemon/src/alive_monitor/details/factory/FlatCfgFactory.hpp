@@ -111,11 +111,16 @@ private:
     /// @brief The buffer configuration for constructing supervision objects
     const factory::MachineConfigFactory::SupervisionBufferConfig& bufferConfig_r;
 
-    /// Pointer to the unified configuration (not owned)
+    /// Non-owning pointer to the unified configuration. Must outlive this factory —
+    /// typically the Config lives in main() and the factory is destroyed before it.
     const score::mw::launch_manager::configuration::Config* config_;
 
     /// Filtered list of supervised components (pointers into config_->components())
     std::vector<const score::mw::launch_manager::configuration::ComponentConfig*> supervised_components_;
+
+    /// Stable storage for alive supervision config names, so that raw const char* pointers
+    /// passed via AliveSupervisionCfg::cfgName_p remain valid for the factory's lifetime.
+    std::vector<std::string> alive_cfg_names_;
 
     /// Logger object for logging messages
     logging::PhmLogger& logger_r;

@@ -76,6 +76,7 @@ cc_library(
         "//score/launch_manager/daemon/src/alive_monitor/details/supervision:supervision_cfg",
         "//score/launch_manager/daemon/src/alive_monitor/details/timers:time_conversion",
         "//score/launch_manager/daemon/src/alive_monitor/details/timers:timers_os_clock",
+        "//score/launch_manager/daemon/src/common:alive_interface_path",
         "//score/launch_manager/daemon/src/common:identifier_hash",
         "//score/launch_manager/daemon/src/configuration:config",
     ] + select({

@@ -5,7 +5,6 @@
             "name": "setup_filesystem_sh",
             "description": "Script to mount partitions at the right directories",
             "component_properties": {
-                "binary_name": "bin/setup_filesystem.sh",
                 "application_profile": {
                     "application_type": "Native",
                     "is_self_terminating": true
@@ -22,7 +21,7 @@
             "deployment_config": {
                 "ready_timeout": 0.5,
                 "shutdown_timeout": 0.5,
-                "bin_dir": "/opt/scripts",
+                "executable_path": "/opt/scripts/bin/setup_filesystem.sh",
                 "working_dir": "/tmp",
                 "sandbox": {
                     "uid": 1000,
@@ -65,7 +64,6 @@
             "name": "dlt-daemon",
             "description": "Logging application",
             "component_properties": {
-                "binary_name": "dltd",
                 "application_profile": {
                     "application_type": "Native",
                     "is_self_terminating": false
@@ -85,7 +83,7 @@
             "deployment_config": {
                 "ready_timeout": 0.5,
                 "shutdown_timeout": 0.5,
-                "bin_dir": "/opt/apps/dlt-daemon",
+                "executable_path": "/opt/apps/dlt-daemon/dltd",
                 "working_dir": "/tmp",
                 "sandbox": {
                     "uid": 1000,
@@ -128,7 +126,6 @@
             "name": "someip-daemon",
             "description": "SOME/IP application",
             "component_properties": {
-                "binary_name": "someipd",
                 "application_profile": {
                     "application_type": "Reporting_And_Supervised",
                     "is_self_terminating": false,
@@ -152,7 +149,7 @@
             "deployment_config": {
                 "ready_timeout": 0.5,
                 "shutdown_timeout": 0.5,
-                "bin_dir": "/opt/apps/someip",
+                "executable_path": "/opt/apps/someip/someipd",
                 "working_dir": "/tmp",
                 "sandbox": {
                     "uid": 1000,
@@ -195,7 +192,6 @@
             "name": "test_app1",
             "description": "Simple test application",
             "component_properties": {
-                "binary_name": "test_app1",
                 "application_profile": {
                     "application_type": "Reporting_And_Supervised",
                     "is_self_terminating": false,
@@ -222,7 +218,7 @@
             "deployment_config": {
                 "ready_timeout": 0.5,
                 "shutdown_timeout": 0.5,
-                "bin_dir": "/opt/apps/test_app1",
+                "executable_path": "/opt/apps/test_app1/test_app1",
                 "working_dir": "/tmp",
                 "sandbox": {
                     "uid": 1000,
@@ -265,7 +261,6 @@
             "name": "state_manager",
             "description": "Application that manages life cycle of the ECU",
             "component_properties": {
-                "binary_name": "sm",
                 "application_profile": {
                     "application_type": "State_Manager",
                     "is_self_terminating": false,
@@ -291,7 +286,7 @@
             "deployment_config": {
                 "ready_timeout": 0.5,
                 "shutdown_timeout": 0.5,
-                "bin_dir": "/opt/apps/state_manager",
+                "executable_path": "/opt/apps/state_manager/sm",
                 "working_dir": "/tmp",
                 "sandbox": {
                     "uid": 1000,

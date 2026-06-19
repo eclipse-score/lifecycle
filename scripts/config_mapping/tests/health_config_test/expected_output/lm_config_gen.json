@@ -5,7 +5,6 @@
             "name": "non_supervised_comp",
             "description": "Non-supervised component",
             "component_properties": {
-                "binary_name": "bin/comp",
                 "application_profile": {
                     "application_type": "Native",
                     "is_self_terminating": true
@@ -19,7 +18,7 @@
             "deployment_config": {
                 "ready_timeout": 0.5,
                 "shutdown_timeout": 0.5,
-                "bin_dir": "/opt/scripts",
+                "executable_path": "/opt/scripts/bin/comp",
                 "working_dir": "/tmp",
                 "sandbox": {
                     "uid": 3,
@@ -42,7 +41,6 @@
             "name": "state_manager",
             "description": "StateManager with min_indications set to 0",
             "component_properties": {
-                "binary_name": "sm",
                 "application_profile": {
                     "application_type": "State_Manager",
                     "is_self_terminating": false,
@@ -62,7 +60,7 @@
             "deployment_config": {
                 "ready_timeout": 0.5,
                 "shutdown_timeout": 0.5,
-                "bin_dir": "/opt/apps/state_manager",
+                "executable_path": "/opt/apps/state_manager/sm",
                 "working_dir": "/tmp",
                 "sandbox": {
                     "uid": 4,
@@ -85,7 +83,6 @@
             "name": "reporting_supervised_component",
             "description": "Component reporting Running state and supervised",
             "component_properties": {
-                "binary_name": "bin/comp",
                 "application_profile": {
                     "application_type": "Reporting_And_Supervised",
                     "is_self_terminating": true,
@@ -108,7 +105,7 @@
             "deployment_config": {
                 "ready_timeout": 0.5,
                 "shutdown_timeout": 0.5,
-                "bin_dir": "/opt/scripts",
+                "executable_path": "/opt/scripts/bin/comp",
                 "working_dir": "/tmp",
                 "sandbox": {
                     "uid": 5,
@@ -131,7 +128,6 @@
             "name": "reporting_supervised_component_with_no_max_indications",
             "description": "Component reporting Running state and supervised with max_indications=0",
             "component_properties": {
-                "binary_name": "bin/comp",
                 "application_profile": {
                     "application_type": "Reporting_And_Supervised",
                     "is_self_terminating": true,
@@ -154,7 +150,7 @@
             "deployment_config": {
                 "ready_timeout": 0.5,
                 "shutdown_timeout": 0.5,
-                "bin_dir": "/opt/scripts",
+                "executable_path": "/opt/scripts/bin/comp",
                 "working_dir": "/tmp",
                 "sandbox": {
                     "uid": 5,

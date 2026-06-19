@@ -33,7 +33,7 @@ def test_incorrect_config_non_reporting(
     run_until_file_deployed(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
-        args=["-c", str(remote_test_dir / "etc" / "launch_manager_config.bin")],
+        args=["-c", str(remote_test_dir / "etc" / "non_reporting_config_gen.bin")],
         file_path=remote_test_dir.parent / "test_end",
         cwd=str(remote_test_dir),
         timeout_s=2.0,

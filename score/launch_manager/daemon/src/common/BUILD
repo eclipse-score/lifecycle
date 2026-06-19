@@ -52,6 +52,14 @@ cc_library(
 )
 
 cc_library(
+    name = "alive_interface_path",
+    hdrs = ["alive_interface_path.hpp"],
+    include_prefix = "score/mw/launch_manager/common",
+    strip_include_prefix = "/score/launch_manager/daemon/src/common",
+    visibility = ["//score:__subpackages__"],
+)
+
+cc_library(
     name = "constants",
     hdrs = ["constants.hpp"],
     include_prefix = "score/mw/launch_manager/common",

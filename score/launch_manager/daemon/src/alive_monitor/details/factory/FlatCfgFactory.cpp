@@ -16,6 +16,7 @@
 #include <cmath>
 #include <cstring>
 
+#include "score/mw/launch_manager/common/alive_interface_path.hpp"
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/factory/IPhmFactory.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/factory/StaticConfig.hpp"
@@ -39,7 +40,6 @@ namespace factory
 
 namespace
 {
-static constexpr const char* kLogPrefix{"Factory for FlatCfg AR24-11:"};
 
 bool isSupervisedType(score::mw::launch_manager::configuration::ApplicationType app_type)
 {
@@ -96,19 +96,19 @@ bool FlatCfgFactory::createProcessStates(std::vector<ifexm::ProcessState>& f_pro
                 break;
             }
 
-            logger_r.LogDebug() << kLogPrefix << "Successfully created Process States:" << comp->name;
+            logger_r.LogDebug() << "Successfully created Process States:" << comp->name;
         }
     }
     catch (const std::exception& f_exception_r)
     {
         isSuccess = false;
-        logger_r.LogError() << kLogPrefix << "Could not create Process States due to exception:"
+        logger_r.LogError() << "Could not create Process States due to exception:"
                             << std::string_view{f_exception_r.what()};
     }
 
     if (isSuccess)
     {
-        logger_r.LogDebug() << kLogPrefix << "Number of constructed Process States:"
+        logger_r.LogDebug() << "Number of constructed Process States:"
                             << static_cast<uint64_t>(f_processStates_r.size());
     }
     else
@@ -118,7 +118,7 @@ bool FlatCfgFactory::createProcessStates(std::vector<ifexm::ProcessState>& f_pro
             f_processStateReader_r.deregisterProcessState(processState_r.getProcessId());
         }
         f_processStates_r.clear();
-        logger_r.LogError() << kLogPrefix << "Could not create all necessary Process States.";
+        logger_r.LogError() << "Could not create all necessary Process States.";
     }
 
     return isSuccess;
@@ -137,7 +137,7 @@ bool FlatCfgFactory::initIpcServerWithUidBasedAccess(ifappl::CheckpointIpcServer
     const uid_t uid = static_cast<uid_t>(f_uid);
     if (!f_ipcServer_r.setAccessRights(uid))
     {
-        logger_r.LogError() << kLogPrefix << "Could not set ACL permissions (r/w for uid" << uid
+        logger_r.LogError() << "Could not set ACL permissions (r/w for uid" << uid
                             << ") for Monitor interface IPC with path:" << f_ipcPath_r;
         return false;
     }
@@ -153,20 +153,18 @@ bool FlatCfgFactory::createMonitorIfIpcs(std::vector<ifappl::CheckpointIpcServer
 
         for (const auto* comp : supervised_components_)
         {
-            const std::string pathInterface = "lifecycle_health_" + comp->name;
+            const std::string pathInterface = score::lcm::internal::aliveInterfacePath(comp->name);
             f_interfaceIpcs_r.emplace_back();
             const std::int32_t configuredUid = static_cast<std::int32_t>(comp->deployment_config.sandbox.uid);
             isSuccess = initIpcServerWithUidBasedAccess(f_interfaceIpcs_r.back(), pathInterface, configuredUid);
 
             if (isSuccess)
             {
-                logger_r.LogDebug() << kLogPrefix
-                                    << "Successfully created Monitor interface IPC with path:" << pathInterface;
+                logger_r.LogDebug() << "Successfully created Monitor interface IPC with path:" << pathInterface;
             }
             else
             {
-                logger_r.LogError() << kLogPrefix
-                                    << "Could not create Monitor interface IPC with path:" << pathInterface;
+                logger_r.LogError() << "Could not create Monitor interface IPC with path:" << pathInterface;
                 break;
             }
         }
@@ -174,19 +172,19 @@ bool FlatCfgFactory::createMonitorIfIpcs(std::vector<ifappl::CheckpointIpcServer
     catch (const std::exception& f_exception_r)
     {
         isSuccess = false;
-        logger_r.LogError() << kLogPrefix << "Could not create Monitor interface IPC due to exception:"
+        logger_r.LogError() << "Could not create Monitor interface IPC due to exception:"
                             << std::string_view{f_exception_r.what()};
     }
 
     if (isSuccess)
     {
-        logger_r.LogDebug() << kLogPrefix << "Number of constructed Monitor interface IPCs:"
+        logger_r.LogDebug() << "Number of constructed Monitor interface IPCs:"
                             << static_cast<uint64_t>(f_interfaceIpcs_r.size());
     }
     else
     {
         f_interfaceIpcs_r.clear();
-        logger_r.LogError() << kLogPrefix << "Could not create all necessary Monitor interface IPCs.";
+        logger_r.LogError() << "Could not create all necessary Monitor interface IPCs.";
     }
 
     return isSuccess;
@@ -206,19 +204,18 @@ bool FlatCfgFactory::createMonitorIf(std::vector<ifappl::MonitorIfDaemon>& f_int
             f_interfaces_r.emplace_back(interfaceIpc, interfaceIpc.getPath().data());
             f_processStates_r.at(static_cast<size_t>(index)).attachObserver(f_interfaces_r.back());
 
-            logger_r.LogDebug() << kLogPrefix
-                                << "Successfully created MonitorInterface:" << f_interfaces_r.back().getInterfaceName();
+            logger_r.LogDebug() << "Successfully created MonitorInterface:" << f_interfaces_r.back().getInterfaceName();
             index++;
         }
 
-        logger_r.LogDebug() << kLogPrefix << "Number of constructed Monitor interfaces:"
+        logger_r.LogDebug() << "Number of constructed Monitor interfaces:"
                             << static_cast<uint64_t>(f_interfaces_r.size());
     }
     catch (const std::exception& f_exception_r)
     {
         isSuccess = false;
         f_interfaces_r.clear();
-        logger_r.LogError() << kLogPrefix << "Could not create all necessary Monitor interfaces due to exception:"
+        logger_r.LogError() << "Could not create all necessary Monitor interfaces due to exception:"
                             << std::string_view{f_exception_r.what()};
     }
 
@@ -245,26 +242,26 @@ bool FlatCfgFactory::createSupervisionCheckpoints(std::vector<ifappl::Checkpoint
             f_checkpoints_r.emplace_back(checkpointCfgName.c_str(), checkpointId, process_p);
             f_interfaces_r.at(idx).attachCheckpoint(f_checkpoints_r.back());
 
-            logger_r.LogDebug() << kLogPrefix << "Successfully created supervision checkpoint:"
+            logger_r.LogDebug() << "Successfully created supervision checkpoint:"
                                 << f_checkpoints_r.back().getConfigName();
         }
     }
     catch (const std::exception& f_exception_r)
     {
         isSuccess = false;
-        logger_r.LogError() << kLogPrefix << "Could not create supervision worker objects, due to exception:"
+        logger_r.LogError() << "Could not create supervision worker objects, due to exception:"
                             << std::string_view{f_exception_r.what()};
     }
 
     if (isSuccess)
     {
-        logger_r.LogDebug() << kLogPrefix << "Number of constructed supervision checkpoints:"
+        logger_r.LogDebug() << "Number of constructed supervision checkpoints:"
                             << static_cast<uint64_t>(f_checkpoints_r.size());
     }
     else
     {
         f_checkpoints_r.clear();
-        logger_r.LogError() << kLogPrefix << "Could not create all necessary supervision checkpoints.";
+        logger_r.LogError() << "Could not create all necessary supervision checkpoints.";
     }
 
     return isSuccess;
@@ -280,6 +277,8 @@ bool FlatCfgFactory::createAliveSupervisions(std::vector<supervision::Alive>& f_
     try
     {
         f_alive_r.reserve(supervised_components_.size());
+        alive_cfg_names_.clear();
+        alive_cfg_names_.reserve(supervised_components_.size());
 
         for (size_t idx = 0; idx < supervised_components_.size(); ++idx)
         {
@@ -290,7 +289,7 @@ bool FlatCfgFactory::createAliveSupervisions(std::vector<supervision::Alive>& f_
                 continue;
             }
 
-            const std::string nameCfgAlive = comp->name + "_alive_supervision";
+            alive_cfg_names_.emplace_back(comp->name + "_alive_supervision");
             saf::timers::NanoSecondType aliveReferenceCycleCfg{
                 timers::TimeConversion::convertMilliSecToNanoSec(static_cast<double>(alive_sup->reporting_cycle_ms))};
             uint32_t minAliveIndicationsCfg = alive_sup->min_indications.value_or(0U);
@@ -302,7 +301,7 @@ bool FlatCfgFactory::createAliveSupervisions(std::vector<supervision::Alive>& f_
             supervision::AliveSupervisionCfg aliveSupCfg{
                 f_checkpoints_r.at(idx)};
 
-            aliveSupCfg.cfgName_p = nameCfgAlive.c_str();
+            aliveSupCfg.cfgName_p = alive_cfg_names_.back().c_str();
             aliveSupCfg.aliveReferenceCycle = aliveReferenceCycleCfg;
             aliveSupCfg.minAliveIndications = minAliveIndicationsCfg;
             aliveSupCfg.maxAliveIndications = maxAliveIndicationsCfg;
@@ -318,28 +317,26 @@ bool FlatCfgFactory::createAliveSupervisions(std::vector<supervision::Alive>& f_
 
             f_processStates_r.at(idx).attachObserver(f_alive_r.back());
 
-            logger_r.LogDebug() << kLogPrefix << "Successfully created alive supervision worker object:"
+            logger_r.LogDebug() << "Successfully created alive supervision worker object:"
                                 << f_alive_r.back().getConfigName();
         }
     }
     catch (const std::exception& f_exception_r)
     {
         isSuccess = false;
-        logger_r.LogError() << kLogPrefix
-                            << "Could not create all necessary alive supervision "
+        logger_r.LogError() << "Could not create all necessary alive supervision "
                                "worker objects, due to exception:"
                             << std::string_view{f_exception_r.what()};
     }
 
     if (isSuccess)
     {
-        logger_r.LogDebug() << kLogPrefix
-                            << "Number of constructed alive supervisions:" << static_cast<uint64_t>(f_alive_r.size());
+        logger_r.LogDebug() << "Number of constructed alive supervisions:" << static_cast<uint64_t>(f_alive_r.size());
     }
     else
     {
         f_alive_r.clear();
-        logger_r.LogError() << kLogPrefix << "Could not create all necessary alive supervision worker objects";
+        logger_r.LogError() << "Could not create all necessary alive supervision worker objects";
     }
 
     return isSuccess;

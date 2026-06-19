@@ -124,6 +124,7 @@ cc_library(
         ":config",
         ":config_loader",
         ":flatbuffer_config_loader",
+        "//score/launch_manager/daemon/src/common:alive_interface_path",
         "//score/launch_manager/daemon/src/common:constants",
         "//score/launch_manager/daemon/src/common:identifier_hash",
         "//score/launch_manager/daemon/src/common:log",
@@ -136,7 +137,7 @@ cc_library(
 
 cc_test(
     name = "configuration_adapter_UT",
-    srcs = ["details/configuration_adapter_UT.cpp"],
+    srcs = ["configuration_adapter_UT.cpp"],
     visibility = ["//tests:__subpackages__"],
     deps = [
         ":configuration_adapter",

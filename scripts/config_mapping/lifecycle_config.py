@@ -3,6 +3,7 @@
 import argparse
 from copy import deepcopy
 import json
+import os
 import sys
 from typing import Dict, Any
 
@@ -270,7 +271,10 @@ SCHEMA_VALIDATION_DEPENDENCY_ERROR = 1
 SCHEMA_VALIDATION_FAILURE = 2
 CUSTOM_VALIDATION_FAILURE = 3
 
-OUTPUT_FILENAME = "launch_manager_config.json"
+def output_filename(input_path: str) -> str:
+    """Derive the output filename from the input filename: <stem>_gen.json."""
+    stem = os.path.splitext(os.path.basename(input_path))[0]
+    return f"{stem}_gen.json"
 
 _WATCHDOG_REQUIRED = (
     "device_file_path",
@@ -308,11 +312,13 @@ def _map_sandbox(sandbox):
     return result
 
 
-def _map_deployment_config(deployment):
+def _map_deployment_config(deployment, binary_name=""):
+    bin_dir = deployment["bin_dir"].rstrip("/")
+    executable_path = f"{bin_dir}/{binary_name}" if binary_name else bin_dir
     result = {
         "ready_timeout": deployment["ready_timeout"],
         "shutdown_timeout": deployment["shutdown_timeout"],
-        "bin_dir": deployment["bin_dir"],
+        "executable_path": executable_path,
         "working_dir": deployment["working_dir"],
         "sandbox": _map_sandbox(deployment["sandbox"]),
     }
@@ -355,7 +361,6 @@ def _map_application_profile(profile):
 
 def _map_component_properties(props):
     result = {
-        "binary_name": props["binary_name"],
         "application_profile": _map_application_profile(props["application_profile"]),
     }
     if (depends_on := props.get("depends_on")) is not None:
@@ -397,15 +402,14 @@ def _map_fallback_run_target(fallback):
     return result
 
 
-def gen_config(output_dir, config):
+def gen_config(output_dir, config, out_filename="launch_manager_config.json"):
     """
-    Generate a single launch_manager_config.json matching new_lm_flatcfg.fbs.
+    Generate a single JSON file matching new_lm_flatcfg.fbs.
 
     Input:
         output_dir: Directory where the file is written
         config: Preprocessed configuration with all defaults applied
-    Output:
-        A file named "launch_manager_config.json"
+        out_filename: Name of the output file (default kept for unit tests)
     """
     output = {}
 
@@ -419,7 +423,10 @@ def gen_config(output_dir, config):
             "component_properties": _map_component_properties(
                 component["component_properties"]
             ),
-            "deployment_config": _map_deployment_config(component["deployment_config"]),
+            "deployment_config": _map_deployment_config(
+                component["deployment_config"],
+                component["component_properties"].get("binary_name", ""),
+            ),
         }
         for name, component in config["components"].items()
     ]
@@ -444,7 +451,7 @@ def gen_config(output_dir, config):
             raise ValueError(f"watchdog config is missing required fields: {missing}")
         output["watchdog"] = {f: watchdog[f] for f in _WATCHDOG_REQUIRED}
 
-    with open(f"{output_dir}/{OUTPUT_FILENAME}", "w") as f:
+    with open(f"{output_dir}/{out_filename}", "w") as f:
         json.dump(output, f, indent=4)
 
 
@@ -502,7 +509,7 @@ def main():
         exit(CUSTOM_VALIDATION_FAILURE)
 
     try:
-        gen_config(args.output_dir, preprocessed_config)
+        gen_config(args.output_dir, preprocessed_config, output_filename(args.filename))
     except ValueError as e:
         print(f"Error during configuration generation: {e}", file=sys.stderr)
         exit(CUSTOM_VALIDATION_FAILURE)

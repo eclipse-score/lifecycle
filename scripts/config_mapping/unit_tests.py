@@ -283,7 +283,6 @@ def test_gen_config_component_fields():
     comp = next(c for c in output["components"] if c["name"] == "app_a")
 
     assert comp["description"] == "First app"
-    assert comp["component_properties"]["binary_name"] == "app_a_bin"
     assert comp["component_properties"]["application_profile"]["application_type"] == "Reporting_And_Supervised"
     assert comp["component_properties"]["application_profile"]["is_self_terminating"] is False
     assert comp["component_properties"]["application_profile"]["alive_supervision"]["reporting_cycle"] == 0.5
@@ -292,7 +291,7 @@ def test_gen_config_component_fields():
 
     assert comp["deployment_config"]["ready_timeout"] == 0.5
     assert comp["deployment_config"]["shutdown_timeout"] == 0.5
-    assert comp["deployment_config"]["bin_dir"] == "/opt/apps"
+    assert comp["deployment_config"]["executable_path"] == "/opt/apps/app_a_bin"
     assert "sandbox" in comp["deployment_config"]
     assert comp["deployment_config"]["sandbox"]["uid"] == 1000
     assert comp["deployment_config"]["sandbox"]["scheduling_policy"] == "OTHER"

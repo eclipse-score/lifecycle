@@ -32,7 +32,7 @@ def test_smoke(target, setup_test, assert_test_results, remote_test_dir):
     run_until_file_deployed(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
-        args=["-c", str(remote_test_dir / "etc" / "launch_manager_config.bin")],
+        args=["-c", str(remote_test_dir / "etc" / "lifecycle_smoketest_gen.bin")],
         file_path=remote_test_dir.parent / "test_end",
         cwd=str(remote_test_dir),
         timeout_s=3.0,

@@ -158,7 +158,7 @@ def test_launch_config_mapping():
     test_name = "lm_config_test"
     input_file = tests_dir / test_name / "input" / "lm_config.json"
 
-    run(input_file, test_name, compare_files_only=["launch_manager_config.json"])
+    run(input_file, test_name, compare_files_only=["lm_config_gen.json"])
 
 
 def test_empty_launch_config_mapping():
@@ -168,7 +168,7 @@ def test_empty_launch_config_mapping():
     test_name = "empty_lm_config_test"
     input_file = tests_dir / test_name / "input" / "lm_config.json"
 
-    run(input_file, test_name, compare_files_only=["launch_manager_config.json"])
+    run(input_file, test_name, compare_files_only=["lm_config_gen.json"])
 
 
 def test_custom_validation_failures():

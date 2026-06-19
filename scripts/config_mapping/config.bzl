@@ -38,7 +38,7 @@ def _launch_manager_config_impl(ctx):
             "-o",
             gen_dir_flatbuffer.path,
             lm_schema.path,
-            gen_dir_json.path + "/launch_manager_config.json",
+            gen_dir_json.path + "/" + config.basename.replace(".json", "_gen.json"),
         ],
     )
 

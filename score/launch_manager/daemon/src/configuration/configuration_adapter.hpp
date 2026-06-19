@@ -15,6 +15,7 @@
 #define CONFIGURATIONADAPTER_HPP_INCLUDED
 
 #include <chrono>
+#include <map>
 #include <optional>
 #include <string>
 #include <vector>
@@ -99,6 +100,11 @@ class ConfigurationAdapter final {
 
   private:
     bool buildFromConfig(const Config& config);
+    OsProcess buildOsProcess(const ComponentConfig& comp, uint32_t process_index) const;
+    std::vector<ProcessGroupState> buildProcessGroupStates(
+        const Config& config,
+        const std::map<std::string, uint32_t>& component_to_process_index) const;
+    static void resolveDependencyIndexes(std::vector<OsProcess>& processes);
 
     score::lcm::internal::osal::CommsType mapApplicationType(ApplicationType app_type) const;
 
