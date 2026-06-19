@@ -271,10 +271,12 @@ SCHEMA_VALIDATION_DEPENDENCY_ERROR = 1
 SCHEMA_VALIDATION_FAILURE = 2
 CUSTOM_VALIDATION_FAILURE = 3
 
+
 def output_filename(input_path: str) -> str:
     """Derive the output filename from the input filename: <stem>_gen.json."""
     stem = os.path.splitext(os.path.basename(input_path))[0]
     return f"{stem}_gen.json"
+
 
 _WATCHDOG_REQUIRED = (
     "device_file_path",

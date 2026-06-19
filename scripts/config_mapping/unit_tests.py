@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-from scripts.config_mapping.lifecycle_config import preprocess_defaults, gen_config, score_defaults
+from scripts.config_mapping.lifecycle_config import (
+    preprocess_defaults,
+    gen_config,
+    score_defaults,
+)
 import json
 import os
 import tempfile
@@ -219,9 +223,9 @@ def _make_preprocessed_config():
     config = preprocess_defaults(score_defaults, input_config)
     config["schema_version"] = input_config["schema_version"]
     config["initial_run_target"] = input_config["initial_run_target"]
-    config["fallback_run_target"] = preprocess_defaults(
-        score_defaults, input_config
-    )["fallback_run_target"]
+    config["fallback_run_target"] = preprocess_defaults(score_defaults, input_config)[
+        "fallback_run_target"
+    ]
     return config
 
 
@@ -283,9 +287,20 @@ def test_gen_config_component_fields():
     comp = next(c for c in output["components"] if c["name"] == "app_a")
 
     assert comp["description"] == "First app"
-    assert comp["component_properties"]["application_profile"]["application_type"] == "Reporting_And_Supervised"
-    assert comp["component_properties"]["application_profile"]["is_self_terminating"] is False
-    assert comp["component_properties"]["application_profile"]["alive_supervision"]["reporting_cycle"] == 0.5
+    assert (
+        comp["component_properties"]["application_profile"]["application_type"]
+        == "Reporting_And_Supervised"
+    )
+    assert (
+        comp["component_properties"]["application_profile"]["is_self_terminating"]
+        is False
+    )
+    assert (
+        comp["component_properties"]["application_profile"]["alive_supervision"][
+            "reporting_cycle"
+        ]
+        == 0.5
+    )
     assert comp["component_properties"]["process_arguments"] == ["--flag"]
     assert comp["component_properties"]["ready_condition"]["process_state"] == "Running"
 
@@ -370,7 +385,10 @@ def test_gen_config_native_app_no_alive_supervision():
     output = _run_gen_config(config)
 
     native_comp = next(c for c in output["components"] if c["name"] == "app_b")
-    assert "alive_supervision" not in native_comp["component_properties"]["application_profile"]
+    assert (
+        "alive_supervision"
+        not in native_comp["component_properties"]["application_profile"]
+    )
 
 
 def test_gen_config_depends_on_preserved():

@@ -17,6 +17,7 @@ User Guide
 
 .. toctree::
 
+   getting_started.rst
    concepts.rst
    ready_state.rst
    configuration.rst

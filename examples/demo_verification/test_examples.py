@@ -71,7 +71,11 @@ def test_examples(target, setup_test, remote_test_dir):
     lmcontrol_path = str(remote_test_dir / "lmcontrol")
 
     _step("Starting launch manager (Startup)")
-    lm_proc = target.execute_async(lm_path, args=["-c", "etc/lifecycle_demo_test_gen.bin"], cwd=str(remote_test_dir))
+    lm_proc = target.execute_async(
+        lm_path,
+        args=["-c", "etc/lifecycle_demo_test_gen.bin"],
+        cwd=str(remote_test_dir),
+    )
 
     time.sleep(1.0)
     assert lm_proc.is_running(), "Launch manager exited unexpectedly during Startup"
