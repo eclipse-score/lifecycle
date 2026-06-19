@@ -1,6 +1,6 @@
 ..
    # *******************************************************************************
-   # Copyright (c) 2025 Contributors to the Eclipse Foundation
+   # Copyright (c) 2026 Contributors to the Eclipse Foundation
    #
    # See the NOTICE file(s) distributed with this work for additional
    # information regarding copyright ownership.
@@ -12,24 +12,18 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-Lifecycle Documentation
-=======================
-
-Module / Feature Documentation
-------------------------------
+Launch Manager
+##############
 
 .. toctree::
-   :maxdepth: 1
+   :titlesonly:
 
-   docs/release/index
-   docs/verification_report/statistics
+   user_guide/index.rst
+   product_documentation/known_limitations.rst
 
-Component documentation
-------------------------
-
+Subcomponents
+=============
 .. toctree::
-   :maxdepth: 1
+   :titlesonly:
 
-   score/launch_manager/docs/index
-   score/health_monitor/docs/index
-
+   ../src/lifecycle_client/docs/index.rst
