@@ -17,13 +17,17 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    fully_verifies=["feat_req__lifecycle__failure_detect"],
+    fully_verifies=[
+        "feat_req__lifecycle__failure_detect",
+        "feat_req__lifecycle__recov_run_target_switch",
+    ],
+    partially_verifies=["feat_req__lifecycle__recovery_action_support"],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
 )
 def test_crash_on_startup(target, setup_test, assert_test_results, remote_test_dir):
     """
-    Objective: Verifies that the launch manager correctly handles processes that crash before reporting kRunning.
+    Objective: Verifies that the launch manager correctly handles processes that crash before reporting running.
 
     Case 1: Process crashes before Running state but eventually starts up successfully before the configured number of restart attempts is exceeded.
     Expected Behaviour: Process startup successful, RunTarget activation successful

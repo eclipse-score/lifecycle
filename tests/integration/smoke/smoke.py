@@ -27,7 +27,7 @@ def test_smoke(target, setup_test, assert_test_results, remote_test_dir):
     Objective: Verifies the basic end-to-end lifecycle flow of the launch manager, including process startup, run target transitions, and execution state reporting.
 
     The launch manager starts with an initial run target. The control daemon activates the "Running" run target (starting the managed process), then transitions back to "Startup", and finally activates "Off".
-    Expected Behaviour: All run target transitions complete successfully and all processes report kRunning.
+    Expected Behaviour: All run target transitions complete successfully and all processes report running.
     """
     run_until_file_deployed(
         target=target,
