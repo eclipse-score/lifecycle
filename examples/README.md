@@ -28,4 +28,4 @@ The test verifies the following scenarios end-to-end:
 
 ## Launch Manager Configuration
 
-See the [Launch Manager Configuration](examples/demo_verification/lifecycle_demo_test.json) for the demo scenario.
+See the [Launch Manager Configuration](demo_verification/lifecycle_demo_test.json) for the demo scenario.

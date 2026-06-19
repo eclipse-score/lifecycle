@@ -4,13 +4,13 @@
 
 [![Lifecycle Feature](https://img.shields.io/badge/Eclipse-Score-orange.svg)](https://eclipse-score.github.io/score/main/features/lifecycle/index.html)
 
-Portable and high-performance implementation of a Lifecycle feature for S-CORE project.
+Portable and high-performance implementation of the Lifecycle feature for the S-CORE project.
 
 High level functionality provided by Lifecycle:
 
 * **Launch Manager**
     * **Portability**: LaunchManager works with multiple operating systems including Linux, QNX7, and QNX8.
-    * **Component Lifecycle Control**: Spawning and terminating OS processes according to their configured parameters (executable path, user/group identity, environment, scheduling policy).
+    * **Component Lifecycle Control**: Spawning and terminating OS processes according to their configured parameters (executable path, user/group identity, environment, scheduling policy, etc.).
     * **Run Target Management**: Determining which components are active at any given time by activating and deactivating named Run Targets in response to requests from a StateManager.
     * **Dependency Resolution**: Ensuring components start and stop in the correct order based on declared startup and shutdown dependencies.
     * **Failure Recovery**: Detecting unexpected process termination and executing configured recovery actions such as restarting a component or switching to a recovery Run Target.
@@ -25,7 +25,7 @@ High level functionality provided by Lifecycle:
 
 **Health Monitoring API**
 
-```sh
+```
 //score/health_monitor:health_monitoring_cc
 //score/health_monitor:health_monitoring_rust
 ```
@@ -37,34 +37,34 @@ The Health Monitoring library provides APIs for the following supervisions:
 
 These supervision results are translated to alive notifications that are sent to the Launch Manager via its *Alive API*.
 
-See the [C++ Supervised Example Application](examples/rust_supervised_app) and [Rust Supervised Example Application](examples/rust_supervised_app).
+See the [C++ Supervised Example Application](examples/cpp_supervised_app) and [Rust Supervised Example Application](examples/rust_supervised_app).
 
 **Alive API**
 
-```sh
+```
 //score/launch_manager:alive_cc
 //score/launch_manager:alive_rust
 ```
 
-The *Alive API* allows to report alive notifications to the Launch Manager.
+The *Alive API* allows applications to report alive notifications to the Launch Manager.
 Applications may either use the higher-level *Health Monitoring APIs* or directly report alive notifications to the Launch Manager via the *Alive API*.
 
 **Lifecycle API**
 
-```sh
+```
 //score/launch_manager:lifecycle_cc
 //score/launch_manager:lifecycle_rust
 ```
 
 Applications can report the *Running state* to the Launch Manager to signal that initialization is finished and dependent applications can now be started.
 
-Application may either use the higher-level [``score::mw::lifecycle::Application``](score/launch_manager/src/lifecycle_client/src/application.h) API or the lower level [``score::mw::lifecycle::report_running``](score/launch_manager/src/lifecycle_client/src/report_running.h) function.
+Applications may either use the higher-level [``score::mw::lifecycle::Application``](score/launch_manager/src/lifecycle_client/src/application.h) API or the lower level [``score::mw::lifecycle::report_running``](score/launch_manager/src/lifecycle_client/src/report_running.h) function.
 
 See examples [Application Example](examples/cpp_lifecycle_app) and [report_running example](examples/cpp_supervised_app).
 
 **Control API**
 
-```sh
+```
 //score/launch_manager:control_cc
 ```
 
@@ -74,15 +74,15 @@ See the [Example StateManager](examples/control_application).
 
 **Launch Manager**
 
-```sh
+```
 //score/launch_manager:launch_manager
 ```
 
 The *launch_manager* target contains the daemon executable.
 
-The Launch Manager is configured with a json file that is compiled to a binary format using the bazel macro:
+The Launch Manager is configured with a JSON file that is compiled to a binary format using the bazel macro:
 
-```python 
+```starlark
 load("//:defs.bzl", "launch_manager_config")
 
 launch_manager_config(
@@ -96,7 +96,7 @@ See the [demo scenario](examples/demo_verification) for an example.
 
 **Mocks**
 
-```sh
+```
 //score/launch_manager:applicationcontext_mock_cc
 //score/launch_manager:lifecycle_mock_cc
 //score/launch_manager:report_running_mock_cc
@@ -111,7 +111,7 @@ See the [demo scenario](examples/demo_verification) for an example.
 
 ### Building
 
-It is recommended to use the devcontainer for building the project, see [eclipse-score/devcontainer/README.md#inside-the-container](https://github.com/eclipse-score/devcontainer/blob/main/README.md#inside-the-container)
+It is recommended to use the devcontainer for building the project. See [eclipse-score/devcontainer/README.md#inside-the-container](https://github.com/eclipse-score/devcontainer/blob/main/README.md) for setup instructions.
 
 Build all components for different platforms:
 
@@ -135,7 +135,7 @@ bazel build --config=arm64-linux //...
 bazel test --config=x86_64-linux //score/... //tests/...
 ```
 
-Run Tests with Sanitizer: ASan + UBSan + LSan (recommended):
+Run tests with sanitizers: ASan + UBSan + LSan (recommended):
 
 ```sh
 bazel test --config=asan_ubsan_lsan --config=x86_64-linux //score/... //tests/...
