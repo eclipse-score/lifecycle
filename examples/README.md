@@ -25,3 +25,7 @@ The test verifies the following scenarios end-to-end:
 | `rust_supervised_app` | Rust app with alive supervision and crash recovery |
 | `cpp_lifecycle_app` | C++ app demonstrating basic lifecycle management |
 | `control_daemon` | State Manager app for requesting RunTarget transitions |
+
+## Launch Manager Configuration
+
+See the [Launch Manager Configuration](examples/demo_verification/lifecycle_demo_test.json) for the demo scenario.
