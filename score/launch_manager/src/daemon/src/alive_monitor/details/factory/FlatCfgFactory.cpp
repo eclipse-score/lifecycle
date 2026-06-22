@@ -196,13 +196,13 @@ bool FlatCfgFactory::initIpcServerWithUidBasedAccess(ifappl::CheckpointIpcServer
     if (!f_ipcServer_r.setAccessRights(uid))
     {
         logger_r.LogError() << kLogPrefix << "Could not set ACL permissions (r/w for uid" << uid
-                            << ") for Monitor interface IPC with path:" << f_ipcPath_r;
+                            << ") for Alive interface IPC with path:" << f_ipcPath_r;
         return false;
     }
     return true;
 }
 
-bool FlatCfgFactory::createMonitorIfIpcs(std::vector<ifappl::CheckpointIpcServer>& f_interfaceIpcs_r)
+bool FlatCfgFactory::createAliveIfIpcs(std::vector<ifappl::CheckpointIpcServer>& f_interfaceIpcs_r)
 {
     bool isSuccess{true};
     if (flatBuffer_p->hmMonitorInterface() != nullptr)
@@ -223,12 +223,12 @@ bool FlatCfgFactory::createMonitorIfIpcs(std::vector<ifappl::CheckpointIpcServer
                 if (isSuccess)
                 {
                     logger_r.LogDebug() << kLogPrefix
-                                        << "Successfully created Monitor interface IPC with path:" << pathInterface;
+                                        << "Successfully created Alive interface IPC with path:" << pathInterface;
                 }
                 else
                 {
                     logger_r.LogError() << kLogPrefix
-                                        << "Could not create Monitor interface IPC with path:" << pathInterface;
+                                        << "Could not create Alive interface IPC with path:" << pathInterface;
                     break;
                 }
             }
@@ -236,31 +236,31 @@ bool FlatCfgFactory::createMonitorIfIpcs(std::vector<ifappl::CheckpointIpcServer
         catch (const std::exception& f_exception_r)
         {
             isSuccess = false;
-            logger_r.LogError() << kLogPrefix << "Could not create Monitor interface IPC due to exception:"
+            logger_r.LogError() << kLogPrefix << "Could not create Alive interface IPC due to exception:"
                                 << std::string_view{f_exception_r.what()};
         }
     }
     else
     {
         isSuccess = false;
-        logger_r.LogError() << kLogPrefix << "Could not create Monitor interface IPCs due to missing configuration";
+        logger_r.LogError() << kLogPrefix << "Could not create Alive interface IPCs due to missing configuration";
     }
 
     if (isSuccess)
     {
-        logger_r.LogDebug() << kLogPrefix << "Number of constructed Monitor interface IPCs:"
+        logger_r.LogDebug() << kLogPrefix << "Number of constructed Alive interface IPCs:"
                             << static_cast<uint64_t>(f_interfaceIpcs_r.size());
     }
     else
     {
         f_interfaceIpcs_r.clear();
-        logger_r.LogError() << kLogPrefix << "Could not create all necessary Monitor interface IPCs.";
+        logger_r.LogError() << kLogPrefix << "Could not create all necessary Alive interface IPCs.";
     }
 
     return isSuccess;
 }
 
-bool FlatCfgFactory::createMonitorIf(std::vector<ifappl::MonitorIfDaemon>& f_interfaces_r,
+bool FlatCfgFactory::createAliveIf(std::vector<ifappl::MonitorIfDaemon>& f_interfaces_r,
                                      std::vector<ifappl::CheckpointIpcServer>& f_interfaceIpcs_r,
                                      std::vector<ifexm::ProcessState>& f_processStates_r)
 {
@@ -282,19 +282,19 @@ bool FlatCfgFactory::createMonitorIf(std::vector<ifappl::MonitorIfDaemon>& f_int
             f_processStates_r.at(static_cast<size_t>(refProcessIndex)).attachObserver(f_interfaces_r.back());
 
             logger_r.LogDebug() << kLogPrefix
-                                << "Successfully created MonitorInterface:" << f_interfaces_r.back().getInterfaceName();
+                                << "Successfully created Alive Interface:" << f_interfaces_r.back().getInterfaceName();
             // coverity[autosar_cpp14_a4_7_1_violation] Value limited by amount of interfaces, which is smaller.
             index++;
         }
 
-        logger_r.LogDebug() << kLogPrefix << "Number of constructed Monitor interfaces:"
+        logger_r.LogDebug() << kLogPrefix << "Number of constructed Alive interfaces:"
                             << static_cast<uint64_t>(f_interfaces_r.size());
     }
     catch (const std::exception& f_exception_r)
     {
         isSuccess = false;
         f_interfaces_r.clear();
-        logger_r.LogError() << kLogPrefix << "Could not create all necessary Monitor interfaces due to exception:"
+        logger_r.LogError() << kLogPrefix << "Could not create all necessary Alive interfaces due to exception:"
                             << std::string_view{f_exception_r.what()};
     }
 

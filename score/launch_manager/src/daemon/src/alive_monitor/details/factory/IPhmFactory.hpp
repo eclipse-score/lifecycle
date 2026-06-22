@@ -81,23 +81,23 @@ public:
     virtual bool createProcessStates(std::vector<ifexm::ProcessState>& f_processStates_r,
                                      ifexm::ProcessStateReader& f_processStateReader_r) = 0;
 
-    /// @brief Create IPCs for Monitor Interfaces
-    /// @param [out] f_interfaceIpcs_r  Vector of created Monitor Interface IPCs
+    /// @brief Create IPCs for Alive Interfaces
+    /// @param [out] f_interfaceIpcs_r  Vector of created Alive Interface IPCs
     /// @return                         Object creation successful (true), otherwise failed (false)
-    virtual bool createMonitorIfIpcs(std::vector<ifappl::CheckpointIpcServer>& f_interfaceIpcs_r) = 0;
+    virtual bool createAliveIfIpcs(std::vector<ifappl::CheckpointIpcServer>& f_interfaceIpcs_r) = 0;
 
-    /// @brief Create Monitor Interfaces
-    /// @param [out] f_interfaces_r         Vector of created Monitor Interfaces
-    /// @param [in] f_interfaceIpcs_r       Vector of Monitor Interface IPCs required for interface creation.
+    /// @brief Create Alive Interfaces
+    /// @param [out] f_interfaces_r         Vector of created Alive Interfaces
+    /// @param [in] f_interfaceIpcs_r       Vector of Alive Interface IPCs required for interface creation.
     /// @param [in,out] f_processStates_r   Vector of Process States
     /// @return                             Object creation successful (true), otherwise failed (false)
-    virtual bool createMonitorIf(std::vector<ifappl::MonitorIfDaemon>& f_interfaces_r,
+    virtual bool createAliveIf(std::vector<ifappl::MonitorIfDaemon>& f_interfaces_r,
                                           std::vector<ifappl::CheckpointIpcServer>& f_interfaceIpcs_r,
                                           std::vector<ifexm::ProcessState>& f_processStates_r) = 0;
 
     /// @brief Create Supervision Checkpoints
     /// @param [out] f_checkpoints_r    Vector of created Supervision Checkpoints
-    /// @param [in,out] f_interfaces_r  Vector of Monitor Interfaces required for attaching the checkpoints.
+    /// @param [in,out] f_interfaces_r  Vector of Alive Interfaces required for attaching the checkpoints.
     /// @param [in] f_processStates_r   Vector of ProcessStates required for constructing the Checkpoint
     /// instances.
     /// @return                         Object creation successful (true), otherwise failed (false)

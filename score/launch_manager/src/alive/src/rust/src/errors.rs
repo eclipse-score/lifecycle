@@ -17,7 +17,7 @@ pub struct ConstructorError;
 
 impl fmt::Display for ConstructorError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "failed to construct Monitor instance")
+        write!(f, "failed to construct Alive instance")
     }
 }
 

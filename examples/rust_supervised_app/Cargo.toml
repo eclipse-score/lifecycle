@@ -12,7 +12,7 @@ clap = { workspace = true }
 libc = { workspace = true }
 signal-hook = { workspace = true }
 lifecycle_client_rs = { path = "../../score/launch_manager/src/lifecycle_client/src/rust" }
-monitor_rs = { path = "../../score/launch_manager/src/daemon/src/alive_monitor/rust" }
+alive_rs = { path = "../../score/launch_manager/src/alive/src/rust" }
 health_monitoring_lib.workspace = true
 score_log.workspace = true
 stdout_logger.workspace = true

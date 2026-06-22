@@ -37,15 +37,15 @@ EInitCode AliveMonitorImpl::init() noexcept {
 
         if (initResult == score::lcm::saf::daemon::EInitCode::kNoError) {
             const long ms{m_osClock.endMeasurement()};
-            m_logger.LogDebug() << "HealthMonitor: Initialization took " << ms << " ms";
+            m_logger.LogDebug() << "AliveMonitor: Initialization took " << ms << " ms";
         } else {
-            m_logger.LogError() << "HealthMonitor: Initialization failed with error code:" << static_cast<int>(initResult);
+            m_logger.LogError() << "AliveMonitor: Initialization failed with error code:" << static_cast<int>(initResult);
         }
     } catch (const std::exception& e) {
-        std::cerr << "HealthMonitor: Initialization failed due to standard exception: " << e.what() << ".\n";
+        std::cerr << "AliveMonitor: Initialization failed due to standard exception: " << e.what() << ".\n";
         initResult = EInitCode::kGeneralError;
     } catch (...) {
-        std::cerr << "HealthMonitor: Initialization failed due to exception!\n";
+        std::cerr << "AliveMonitor: Initialization failed due to exception!\n";
         initResult = EInitCode::kGeneralError;
     }
 

@@ -10,8 +10,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
+pub mod alive;
 pub mod errors;
-pub mod monitor;
 
+pub use alive::Alive;
 pub use errors::ConstructorError;
-pub use monitor::Monitor;

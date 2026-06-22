@@ -30,8 +30,8 @@ namespace ifappl
 
 /// Maximum number of Checkpoints to be stored in IPC channel
 /// @todo Implement logic to determine the number of checkpoint entries
-/// that a Monitor instance can report between two cycles
-/// of PHM daemon.
+/// that an Alive instance can report between two cycles
+/// of AliveMonitor.
 // coverity[autosar_cpp14_a0_1_1_violation] value is referenced in multiple files, but depending on build package.
 constexpr uint16_t k_maxCheckpointBufferElements{512U};
 

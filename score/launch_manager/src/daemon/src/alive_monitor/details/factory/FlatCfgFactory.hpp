@@ -83,10 +83,10 @@ public:
                              ifexm::ProcessStateReader& f_processStateReader_r) override;
 
     /// Refer to the description of the base class (IPhmFactory)
-    bool createMonitorIfIpcs(std::vector<ifappl::CheckpointIpcServer>& f_interfaceIpcs_r) override;
+    bool createAliveIfIpcs(std::vector<ifappl::CheckpointIpcServer>& f_interfaceIpcs_r) override;
 
     /// Refer to the description of the base class (IPhmFactory)
-    bool createMonitorIf(std::vector<ifappl::MonitorIfDaemon>& f_interfaces_r,
+    bool createAliveIf(std::vector<ifappl::MonitorIfDaemon>& f_interfaces_r,
                                   std::vector<ifappl::CheckpointIpcServer>& f_interfaceIpcs_r,
                                   std::vector<ifexm::ProcessState>& f_processStates_r) override;
 

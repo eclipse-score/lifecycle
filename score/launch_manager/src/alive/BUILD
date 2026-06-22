@@ -1,5 +1,5 @@
 # *******************************************************************************
-# Copyright (c) 2025 Contributors to the Eclipse Foundation
+# Copyright (c) 2026 Contributors to the Eclipse Foundation
 #
 # See the NOTICE file(s) distributed with this work for additional
 # information regarding copyright ownership.
@@ -10,23 +10,21 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-load("@rules_rust//rust:defs.bzl", "rust_library")
+load("@rules_cc//cc:defs.bzl", "cc_library")
 
-rust_library(
-    name = "monitor_rs",
+cc_library(
+    name = "alive",
     srcs = [
-        "src/errors.rs",
-        "src/lib.rs",
-        "src/monitor.rs",
+        "src/alive.cpp",
     ],
+    hdrs = [
+        "src/alive.h",
+    ],
+    include_prefix = "score/mw/lifecycle",
+    strip_include_prefix = "/score/launch_manager/src/alive/src",
     visibility = ["//score:__subpackages__"],
     deps = [
-        "//score/launch_manager:alive_cc",
-        "@score_crates//:libc",
+        "//score/launch_manager/src/alive/src/details:alive_impl",
+        "@score_baselibs//score/language/futurecpp",
     ],
-)
-
-rust_test(
-    name = "tests",
-    crate = ":health_monitoring_lib",
 )
