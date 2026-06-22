@@ -15,7 +15,7 @@
 
 #include "tests/utils/test_helper/test_helper.hpp"
 #include <score/mw/lifecycle/control_client.h>
-#include <score/mw/lifecycle/lifecycle_client.h>
+#include <score/mw/lifecycle/report_running.h>
 
 
 TEST(ComplexMonitoring, ControlClientMock)
@@ -24,10 +24,9 @@ TEST(ComplexMonitoring, ControlClientMock)
     
     ASSERT_TRUE(check_clean({test_end_location, fallback_file}));
 
-    TEST_STEP("Report kRunning")
+    TEST_STEP("Report running")
     {
-        auto result = score::mw::lifecycle::LifecycleClient{}.ReportExecutionState(score::mw::lifecycle::ExecutionState::kRunning);
-        ASSERT_TRUE(result.has_value()) << "ReportExecutionState() failed: " << result.error().Message();
+        score::mw::lifecycle::report_running();
     }
     
     TEST_STEP("Launch monitored process")

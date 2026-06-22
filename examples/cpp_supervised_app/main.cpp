@@ -23,7 +23,7 @@
 #include <sys/prctl.h>
 #endif
 
-#include <score/mw/lifecycle/lifecycle_client.h>
+#include <score/mw/lifecycle/report_running.h>
 #include <score/mw/log/rust/stdout_logger_init.h>
 #include <score/mw/health/common.h>
 #include <score/mw/health/health_monitor.h>
@@ -146,7 +146,7 @@ int main(int argc, char** argv)
 
         hm.start();
 
-        score::mw::lifecycle::LifecycleClient{}.ReportExecutionState(score::mw::lifecycle::ExecutionState::kRunning);
+        score::mw::lifecycle::report_running();
 
         auto deadline_mon = std::move(*deadline_monitor_res);
 

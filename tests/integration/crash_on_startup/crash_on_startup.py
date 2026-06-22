@@ -27,7 +27,7 @@ from attribute_plugin import add_test_properties
 )
 def test_crash_on_startup(target, setup_test, assert_test_results, remote_test_dir):
     """
-    Objective: Verifies that the launch manager correctly handles processes that crash before reporting kRunning.
+    Objective: Verifies that the launch manager correctly handles processes that crash before reporting running.
 
     Case 1: Process crashes before Running state but eventually starts up successfully before the configured number of restart attempts is exceeded.
     Expected Behaviour: Process startup successful, RunTarget activation successful

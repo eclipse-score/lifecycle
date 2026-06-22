@@ -31,7 +31,7 @@ cc_binary(
     srcs = ["non_reporting_process.cpp"],
     deps = [
         "//score/launch_manager:lifecycle_cc",
-        "//score/launch_manager/daemon/src/osal:ipc_comms",
+        "//score/launch_manager/src/daemon/src/osal:ipc_comms",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
     ],

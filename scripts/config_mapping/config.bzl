@@ -89,7 +89,7 @@ launch_manager_config = rule(
             doc = "Json file to convert. Note that the binary file will have the same name as the json (minus the suffix)",
         ),
         "schema": attr.label(
-            default = Label("//score/launch_manager/daemon/src/configuration/config_schema:launch_manager.schema.json"),
+            default = Label("//score/launch_manager/src/daemon/src/configuration/config_schema:launch_manager.schema.json"),
             allow_single_file = [".json"],
             doc = "Json schema file to validate the input json against",
         ),
@@ -115,17 +115,17 @@ launch_manager_config = rule(
         ),
         "lm_schema": attr.label(
             allow_single_file = [".fbs"],
-            default = Label("//score/launch_manager/daemon/src/configuration:lm_flatcfg_fbs"),
+            default = Label("//score/launch_manager/src/daemon/src/configuration:lm_flatcfg_fbs"),
             doc = "Launch Manager fbs file to use",
         ),
         "hm_schema": attr.label(
             allow_single_file = [".fbs"],
-            default = Label("//score/launch_manager/daemon/src/alive_monitor:am_flatcfg_fbs"),
+            default = Label("//score/launch_manager/src/daemon/src/alive_monitor:am_flatcfg_fbs"),
             doc = "HealthMonitor fbs file to use",
         ),
         "hmcore_schema": attr.label(
             allow_single_file = [".fbs"],
-            default = Label("//score/launch_manager/daemon/src/alive_monitor:am_core_flatcfg_fbs"),
+            default = Label("//score/launch_manager/src/daemon/src/alive_monitor:am_core_flatcfg_fbs"),
             doc = "HealthMonitor core fbs file to use",
         ),
     },
