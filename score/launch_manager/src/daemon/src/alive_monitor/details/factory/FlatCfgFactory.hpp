@@ -98,10 +98,11 @@ public:
 
 private:
 
-    /// @brief Get process id based on ASR path of process
-    /// @param[in] f_processPath_r  ASR path of process
-    /// @return                     process id or nullopt in case of an error
-    std::optional<common::ProcessId> getProcessId(const std::string& f_processPath_r) noexcept(true);
+    /// @brief Get process id from a component configuration
+    /// @param[in] comp  Pointer to the component configuration
+    /// @return          process id or nullopt in case of an error
+    std::optional<common::ProcessId> getProcessId(
+        const score::mw::launch_manager::configuration::ComponentConfig* comp) noexcept(true);
 
     /// @brief Create IPC Channel with uid-based access permission
     bool initIpcServerWithUidBasedAccess(ifappl::CheckpointIpcServer& f_ipcServer_r,

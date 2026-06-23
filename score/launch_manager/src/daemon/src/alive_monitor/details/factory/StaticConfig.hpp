@@ -40,6 +40,9 @@ public:
     /// Default buffer size of a Monitor (shared memory)
     static constexpr uint16_t k_DefaultMonitorBufferElements{ifappl::k_maxCheckpointBufferElements};
 
+    /// @brief Default checkpoint ID used for alive supervision
+    static constexpr uint32_t k_DefaultCheckpointId{1U};
+
     /// @brief By default hm daemon shutdown is disabled
     static constexpr bool k_hmDaemonDefaultShutdownEnabled{false};
     /// @brief By default, 10ms cycle time is used

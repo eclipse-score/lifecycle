@@ -38,10 +38,12 @@ namespace factory
 {
 
 /// @brief Factory for loading the HM Machine Configuration from the unified launch_manager_config.bin
+/// @details Provides methods to retrieve the settings from the HM Machine configuration if a configuration is
+/// provided. If no configuration is provided, the default values are returned.
 class MachineConfigFactory : public watchdog::IDeviceConfigFactory
 {
 public:
-    /// @brief Holds different buffer sizes that may be configured in the HM Machine Config
+    /// @brief Holds buffer sizes for supervision objects (currently using compile-time defaults)
     struct SupervisionBufferConfig
     {
         /// @brief Configured buffer size for alive supervisions
@@ -72,9 +74,11 @@ public:
     std::optional<watchdog::IDeviceConfigFactory::DeviceConfigurations> getDeviceConfigurations() const override;
 
     /// @brief Returns the configured hm daemon cycle time in nanoseconds
+    /// @return Configured cycle time or default cycle time if not configured
     timers::NanoSecondType getCycleTimeInNs() const noexcept(true);
 
     /// @brief Returns the configured buffer sizes for supervisions
+    /// @return Configured buffer sizes or default values if not configured
     const SupervisionBufferConfig& getSupervisionBufferConfig() const noexcept(true);
 
 private:
@@ -82,6 +86,7 @@ private:
     void logConfiguration() noexcept(true);
 
     /// @brief Configured watchdog devices
+    /// By default, no watchdog device is configured
     watchdog::IDeviceConfigFactory::DeviceConfigurations watchdogConfigs{};
 
     /// @brief Configured HM Daemon cycle time

@@ -53,6 +53,8 @@ namespace daemon
 
 /// @brief Software Cluster Handler wraps the full PHM Supervision and Recovery Notification functionality for one
 ///        Software Cluster.
+/// @details This class requests construction of all required objects to do the Supervisions and Recovery Notifications
+///          for a given Software Cluster. It also provides an abstracted interface to trigger the cyclic evaluation.
 class SwClusterHandler
 {
   public:
@@ -79,20 +81,32 @@ class SwClusterHandler
     SwClusterHandler& operator=(SwClusterHandler&&) = delete;
 
     /// @brief Construct required worker objects from the unified Config
+    /// @param [in] config                   The parsed launch manager configuration
+    /// @param [in] f_recoveryClient_r       Interface to the launch manager for recovery
+    /// @param [in] f_processStateReader_r   Process state reader object for PHM daemon
+    /// @param [in] f_bufferConfig_r         Configuration settings for constructing workers
+    /// @return                              true on success, false on failure
     bool constructWorkers(
         const score::mw::launch_manager::configuration::Config& config,
         std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r,
         ifexm::ProcessStateReader& f_processStateReader_r,
         const factory::MachineConfigFactory::SupervisionBufferConfig& f_bufferConfig_r) noexcept(false);
 
-    /// @brief Perform cyclic execution
+    /// @brief Perform cyclic execution required for supervision of the Software Cluster
+    /// @param [in] f_syncTimestamp   Timestamp for cyclic synchronization
     void performCyclicTriggers(const timers::NanoSecondType f_syncTimestamp);
 
     /// @brief Check whether any alive supervision failed to enqueue a recovery request
+    /// @return True if any alive supervision recovery request has failed
     bool hasAnyRecoveryEnqueueFailed() const noexcept;
 
   private:
+    /// @brief Check all interfaces for new data
+    /// @param [in] f_syncTimestamp   Timestamp for cyclic synchronization
     void checkInterfaceForNewData(const timers::NanoSecondType f_syncTimestamp);
+
+    /// @brief Evaluate all supervisions
+    /// @param [in] f_syncTimestamp   Timestamp for cyclic synchronization
     void evaluateSupervisions(const timers::NanoSecondType f_syncTimestamp);
 
     /// @brief Logger

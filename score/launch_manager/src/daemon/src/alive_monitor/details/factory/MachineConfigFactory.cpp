@@ -39,10 +39,8 @@ MachineConfigFactory::MachineConfigFactory() noexcept(true) : watchdog::IDeviceC
 bool MachineConfigFactory::init(const score::mw::launch_manager::configuration::Config& config) noexcept(false)
 {
     const auto& alive_sup = config.aliveSupervision();
-    if (alive_sup.evaluation_cycle_ms != 0U)
-    {
-        cycleTimeNs = timers::TimeConversion::convertMilliSecToNanoSec(static_cast<double>(alive_sup.evaluation_cycle_ms));
-    }
+    assert(alive_sup.evaluation_cycle_ms != 0U && "evaluation_cycle_ms must not be zero");
+    cycleTimeNs = timers::TimeConversion::convertMilliSecToNanoSec(static_cast<double>(alive_sup.evaluation_cycle_ms));
 
     const auto& wd_opt = config.watchdog();
     if (wd_opt.has_value())

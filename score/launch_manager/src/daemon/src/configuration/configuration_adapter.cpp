@@ -67,7 +67,10 @@ void ConfigurationAdapter::deinitialize() {
     }
 }
 
-OsProcess ConfigurationAdapter::buildOsProcess(const ComponentConfig& comp, uint32_t process_index) const {
+OsProcess ConfigurationAdapter::buildOsProcess(
+    const ComponentConfig& comp,
+    uint32_t process_index,
+    const std::map<std::string, const ComponentConfig*>& component_by_name) const {
     OsProcess os_process{};
     os_process.process_id_ = IdentifierHash{comp.name};
     os_process.process_number_ = process_index;
@@ -139,12 +142,15 @@ OsProcess ConfigurationAdapter::buildOsProcess(const ComponentConfig& comp, uint
 
     for (const auto& dep_name : props.depends_on) {
         Dependency dep{};
-        if (props.ready_condition.has_value()) {
-            dep.process_state_ = (props.ready_condition->process_state == ProcessState::Running)
-                ? score::lcm::ProcessState::kRunning
-                : score::lcm::ProcessState::kTerminated;
-        } else {
-            dep.process_state_ = score::lcm::ProcessState::kRunning;
+        dep.process_state_ = score::lcm::ProcessState::kRunning;
+        auto dep_it = component_by_name.find(dep_name);
+        if (dep_it != component_by_name.end()) {
+            const auto& dep_props = dep_it->second->component_properties;
+            if (dep_props.ready_condition.has_value()) {
+                dep.process_state_ = (dep_props.ready_condition->process_state == ProcessState::Running)
+                    ? score::lcm::ProcessState::kRunning
+                    : score::lcm::ProcessState::kTerminated;
+            }
         }
         dep.target_process_id_ = IdentifierHash{dep_name};
         os_process.dependencies_.push_back(dep);
@@ -217,11 +223,9 @@ std::vector<ProcessGroupState> ConfigurationAdapter::buildProcessGroupStates(
         const auto& fallback = config.fallbackRunTarget();
         ProcessGroupState fallback_state;
         fallback_state.name_ = IdentifierHash{"MainPG/fallback_run_target"};
-        for (const auto& comp_name : fallback.depends_on) {
-            auto it = component_to_process_index.find(comp_name);
-            if (it != component_to_process_index.end()) {
-                fallback_state.process_indexes_.push_back(it->second);
-            }
+        std::set<std::string> visited;
+        for (const auto& dep_name : fallback.depends_on) {
+            resolve_depends(dep_name, fallback_state.process_indexes_, visited);
         }
         states.push_back(std::move(fallback_state));
     }
@@ -260,11 +264,16 @@ bool ConfigurationAdapter::buildFromConfig(const Config& config) {
     }
     pg.recovery_state_ = recovery_state;
 
+    std::map<std::string, const ComponentConfig*> component_by_name;
+    for (const auto& comp : config.components()) {
+        component_by_name[comp.name] = &comp;
+    }
+
     std::map<std::string, uint32_t> component_to_process_index;
     uint32_t process_index = 0;
     for (const auto& comp : config.components()) {
         component_to_process_index[comp.name] = process_index;
-        pg.processes_.push_back(buildOsProcess(comp, process_index));
+        pg.processes_.push_back(buildOsProcess(comp, process_index, component_by_name));
         ++process_index;
     }
 

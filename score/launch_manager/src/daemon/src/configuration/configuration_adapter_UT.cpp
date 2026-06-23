@@ -334,5 +334,226 @@ TEST_F(ConfigurationAdapterTest, OffStateReturnsProcessIndexesListEmpty)
     EXPECT_TRUE((**result).empty());
 }
 
+TEST(ConfigurationAdapterReadyConditionTest, DependencyUsesTargetComponentReadyCondition)
+{
+    RecordProperty("Description",
+        "The dependency process_state is derived from the target component's ready_condition, not the source's.");
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "explorative-testing");
+
+    ComponentConfig comp_a;
+    comp_a.name = "comp_a";
+    comp_a.component_properties.application_profile.application_type = ApplicationType::Native;
+    comp_a.component_properties.application_profile.is_self_terminating = true;
+    comp_a.component_properties.ready_condition = ReadyCondition{ProcessState::Terminated};
+    comp_a.deployment_config.executable_path = "/opt/comp_a";
+    comp_a.deployment_config.working_dir = "/tmp";
+    comp_a.deployment_config.sandbox.uid = 0;
+    comp_a.deployment_config.sandbox.gid = 0;
+    comp_a.deployment_config.sandbox.scheduling_policy = SCHED_OTHER;
+    comp_a.deployment_config.sandbox.scheduling_priority = 0;
+
+    ComponentConfig comp_b;
+    comp_b.name = "comp_b";
+    comp_b.component_properties.application_profile.application_type = ApplicationType::Native;
+    comp_b.component_properties.application_profile.is_self_terminating = false;
+    comp_b.component_properties.ready_condition = ReadyCondition{ProcessState::Running};
+    comp_b.component_properties.depends_on = {"comp_a"};
+    comp_b.deployment_config.executable_path = "/opt/comp_b";
+    comp_b.deployment_config.working_dir = "/tmp";
+    comp_b.deployment_config.sandbox.uid = 0;
+    comp_b.deployment_config.sandbox.gid = 0;
+    comp_b.deployment_config.sandbox.scheduling_policy = SCHED_OTHER;
+    comp_b.deployment_config.sandbox.scheduling_priority = 0;
+
+    std::vector<ComponentConfig> components;
+    components.push_back(std::move(comp_a));
+    components.push_back(std::move(comp_b));
+
+    RunTargetConfig startup;
+    startup.name = "Startup";
+    startup.depends_on = {"comp_b"};
+    startup.transition_timeout_ms = 5000;
+    startup.recovery_action.run_target = "fallback_run_target";
+
+    std::vector<RunTargetConfig> run_targets;
+    run_targets.push_back(std::move(startup));
+
+    FallbackRunTargetConfig fallback;
+    fallback.transition_timeout_ms = 1500;
+    AliveSupervisionConfig alive;
+    alive.evaluation_cycle_ms = 500;
+
+    auto config = ConfigBuilder{}
+        .setComponents(std::move(components))
+        .setRunTargets(std::move(run_targets))
+        .setInitialRunTarget("Startup")
+        .setFallbackRunTarget(std::move(fallback))
+        .setAliveSupervision(alive)
+        .build();
+
+    ConfigurationAdapter adapter;
+    adapter.initialize(config);
+
+    IdentifierHash pg_name{"MainPG"};
+    auto result = adapter.getOsProcessDependencies(pg_name, 1U);
+    ASSERT_TRUE(result.has_value());
+    const auto* deps = *result;
+    ASSERT_THAT(deps->size(), Eq(1U));
+    EXPECT_THAT((*deps)[0].target_process_id_, Eq(IdentifierHash{"comp_a"}));
+    EXPECT_THAT((*deps)[0].process_state_, Eq(score::lcm::ProcessState::kTerminated))
+        << "Dependency should use comp_a's ready_condition (Terminated), not comp_b's (Running)";
+
+    adapter.deinitialize();
+}
+
+TEST(ConfigurationAdapterReadyConditionTest, DependencyDefaultsToRunningWhenTargetHasNoReadyCondition)
+{
+    RecordProperty("Description",
+        "When the dependency target has no ready_condition, the dependency defaults to Running.");
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "explorative-testing");
+
+    ComponentConfig comp_a;
+    comp_a.name = "comp_a";
+    comp_a.component_properties.application_profile.application_type = ApplicationType::Native;
+    comp_a.component_properties.application_profile.is_self_terminating = false;
+    comp_a.deployment_config.executable_path = "/opt/comp_a";
+    comp_a.deployment_config.working_dir = "/tmp";
+    comp_a.deployment_config.sandbox.uid = 0;
+    comp_a.deployment_config.sandbox.gid = 0;
+    comp_a.deployment_config.sandbox.scheduling_policy = SCHED_OTHER;
+    comp_a.deployment_config.sandbox.scheduling_priority = 0;
+
+    ComponentConfig comp_b;
+    comp_b.name = "comp_b";
+    comp_b.component_properties.application_profile.application_type = ApplicationType::Native;
+    comp_b.component_properties.application_profile.is_self_terminating = false;
+    comp_b.component_properties.ready_condition = ReadyCondition{ProcessState::Terminated};
+    comp_b.component_properties.depends_on = {"comp_a"};
+    comp_b.deployment_config.executable_path = "/opt/comp_b";
+    comp_b.deployment_config.working_dir = "/tmp";
+    comp_b.deployment_config.sandbox.uid = 0;
+    comp_b.deployment_config.sandbox.gid = 0;
+    comp_b.deployment_config.sandbox.scheduling_policy = SCHED_OTHER;
+    comp_b.deployment_config.sandbox.scheduling_priority = 0;
+
+    std::vector<ComponentConfig> components;
+    components.push_back(std::move(comp_a));
+    components.push_back(std::move(comp_b));
+
+    RunTargetConfig startup;
+    startup.name = "Startup";
+    startup.depends_on = {"comp_b"};
+    startup.transition_timeout_ms = 5000;
+    startup.recovery_action.run_target = "fallback_run_target";
+
+    std::vector<RunTargetConfig> run_targets;
+    run_targets.push_back(std::move(startup));
+
+    FallbackRunTargetConfig fallback;
+    fallback.transition_timeout_ms = 1500;
+    AliveSupervisionConfig alive;
+    alive.evaluation_cycle_ms = 500;
+
+    auto config = ConfigBuilder{}
+        .setComponents(std::move(components))
+        .setRunTargets(std::move(run_targets))
+        .setInitialRunTarget("Startup")
+        .setFallbackRunTarget(std::move(fallback))
+        .setAliveSupervision(alive)
+        .build();
+
+    ConfigurationAdapter adapter;
+    adapter.initialize(config);
+
+    IdentifierHash pg_name{"MainPG"};
+    auto result = adapter.getOsProcessDependencies(pg_name, 1U);
+    ASSERT_TRUE(result.has_value());
+    const auto* deps = *result;
+    ASSERT_THAT(deps->size(), Eq(1U));
+    EXPECT_THAT((*deps)[0].process_state_, Eq(score::lcm::ProcessState::kRunning))
+        << "comp_a has no ready_condition, so dependency should default to Running";
+
+    adapter.deinitialize();
+}
+
+TEST(ConfigurationAdapterFallbackTest, FallbackRunTargetResolvesDependenciesRecursively)
+{
+    RecordProperty("Description",
+        "Fallback run target resolves transitive component dependencies.");
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "explorative-testing");
+
+    ComponentConfig comp_a;
+    comp_a.name = "comp_a";
+    comp_a.component_properties.application_profile.application_type = ApplicationType::Native;
+    comp_a.component_properties.application_profile.is_self_terminating = false;
+    comp_a.deployment_config.executable_path = "/opt/comp_a";
+    comp_a.deployment_config.working_dir = "/tmp";
+    comp_a.deployment_config.sandbox.uid = 0;
+    comp_a.deployment_config.sandbox.gid = 0;
+    comp_a.deployment_config.sandbox.scheduling_policy = SCHED_OTHER;
+    comp_a.deployment_config.sandbox.scheduling_priority = 0;
+
+    ComponentConfig comp_b;
+    comp_b.name = "comp_b";
+    comp_b.component_properties.application_profile.application_type = ApplicationType::Native;
+    comp_b.component_properties.application_profile.is_self_terminating = false;
+    comp_b.component_properties.depends_on = {"comp_a"};
+    comp_b.deployment_config.executable_path = "/opt/comp_b";
+    comp_b.deployment_config.working_dir = "/tmp";
+    comp_b.deployment_config.sandbox.uid = 0;
+    comp_b.deployment_config.sandbox.gid = 0;
+    comp_b.deployment_config.sandbox.scheduling_policy = SCHED_OTHER;
+    comp_b.deployment_config.sandbox.scheduling_priority = 0;
+
+    std::vector<ComponentConfig> components;
+    components.push_back(std::move(comp_a));
+    components.push_back(std::move(comp_b));
+
+    RunTargetConfig startup;
+    startup.name = "Startup";
+    startup.depends_on = {"comp_b"};
+    startup.transition_timeout_ms = 5000;
+    startup.recovery_action.run_target = "fallback_run_target";
+
+    std::vector<RunTargetConfig> run_targets;
+    run_targets.push_back(std::move(startup));
+
+    FallbackRunTargetConfig fallback;
+    fallback.depends_on = {"comp_b"};
+    fallback.transition_timeout_ms = 1500;
+    AliveSupervisionConfig alive;
+    alive.evaluation_cycle_ms = 500;
+
+    auto config = ConfigBuilder{}
+        .setComponents(std::move(components))
+        .setRunTargets(std::move(run_targets))
+        .setInitialRunTarget("Startup")
+        .setFallbackRunTarget(std::move(fallback))
+        .setAliveSupervision(alive)
+        .build();
+
+    ConfigurationAdapter adapter;
+    adapter.initialize(config);
+
+    score::lcm::internal::ProcessGroupStateID fallback_id{
+        IdentifierHash{"MainPG"}, IdentifierHash{"MainPG/fallback_run_target"}};
+
+    auto result = adapter.getProcessIndexesList(fallback_id);
+    ASSERT_TRUE(result.has_value());
+    const auto& indexes = **result;
+
+    EXPECT_THAT(indexes.size(), Eq(2U))
+        << "fallback depends on comp_b which depends on comp_a; both should be resolved";
+    bool has_comp_a = std::find(indexes.begin(), indexes.end(), 0U) != indexes.end();
+    bool has_comp_b = std::find(indexes.begin(), indexes.end(), 1U) != indexes.end();
+    EXPECT_TRUE(has_comp_a) << "comp_a (transitive dep of comp_b) should be in fallback indexes";
+    EXPECT_TRUE(has_comp_b) << "comp_b (direct dep of fallback) should be in fallback indexes";
+
+    adapter.deinitialize();
+}
+
 }  // namespace
 }  // namespace score::mw::launch_manager::configuration

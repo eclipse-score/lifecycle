@@ -542,6 +542,11 @@ score::cpp::expected<AliveSupervisionConfig, IConfigLoader::Error> convertAliveS
         LM_LOG_ERROR() << "Invalid value for AliveSupervision::evaluation_cycle";
         return score::cpp::make_unexpected(evaluation_cycle_ms.error());
     }
+    if (*evaluation_cycle_ms == 0U)
+    {
+        LM_LOG_ERROR() << "AliveSupervision::evaluation_cycle must not be zero";
+        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+    }
     return AliveSupervisionConfig{*evaluation_cycle_ms};
 }
 
