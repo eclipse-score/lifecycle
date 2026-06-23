@@ -118,11 +118,11 @@ class SwClusterHandler
     /// Vector of Process states
     std::vector<ifexm::ProcessState> processStates;
 
-    /// Vector of Monitor Interface IPCs
-    std::vector<ifappl::CheckpointIpcServer> monitorIfIpcs;
+    /// Vector of Alive Interface IPCs
+    std::vector<ifappl::CheckpointIpcServer> aliveIfIpcs;
 
-    /// Vector of Monitor Interfaces
-    std::vector<ifappl::MonitorIfDaemon> monitorInterfaces;
+    /// Vector of Alive Interfaces
+    std::vector<ifappl::MonitorIfDaemon> aliveInterfaces;
 
     /// Vector of Supervision checkpoints
     std::vector<ifappl::Checkpoint> checkpoints;

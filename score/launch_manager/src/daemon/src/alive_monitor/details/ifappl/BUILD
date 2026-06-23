@@ -17,7 +17,10 @@ cc_library(
     hdrs = ["DataStructures.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/ifappl",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/ifappl",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
+    visibility = [
+        "//score/launch_manager/src/alive:__subpackages__",
+        "//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__",
+    ],
     deps = [
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ipc:ipc_if",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",

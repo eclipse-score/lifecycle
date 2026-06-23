@@ -80,10 +80,6 @@ cc_gtest_unit_test(
         "@platforms//os:qnx": ["-lsocket"],
         "@platforms//os:linux": [],
     }),
-    # TODO(eclipse-score/baselibs#253): stack-use-after-scope in score_baselibs_rust
-    # StdoutLoggerBuilder::SetAsDefaultLogger - context_ptr dangles after the
-    # if-block destroys its std::string before the Rust FFI call reads it.
-    tags = ["no-asan"],
     deps = [
         "//score/health_monitor/src/cpp:health_monitoring_cc_stub_supervisor",
         "//score/health_monitor/src/cpp/details:log_init",
@@ -99,9 +95,6 @@ cc_gtest_unit_test(
         "@platforms//os:qnx": ["-lsocket"],
         "@platforms//os:linux": [],
     }),
-    tags = [
-        "no-asan",
-    ],
     deps = [
         "//score/health_monitor/src/cpp:health_monitoring_cc_stub_supervisor",
         "//score/health_monitor/src/cpp/details:log_init",

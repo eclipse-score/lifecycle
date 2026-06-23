@@ -31,8 +31,8 @@ SwClusterHandler::SwClusterHandler(const std::string& f_swClusterName_r)
     : logger_r(logging::PhmLogger::getLogger(logging::PhmLogger::EContext::factory)),
       f_swClusterName(f_swClusterName_r),
       processStates{},
-      monitorIfIpcs{},
-      monitorInterfaces{},
+      aliveIfIpcs{},
+      aliveInterfaces{},
       checkpoints{},
       aliveSupervisions{}
 {
@@ -61,15 +61,15 @@ bool SwClusterHandler::constructWorkers(
     }
     if (isSuccess)
     {
-        isSuccess = flatCfgFactory.createMonitorIfIpcs(monitorIfIpcs);
+        isSuccess = flatCfgFactory.createAliveIfIpcs(aliveIfIpcs);
     }
     if (isSuccess)
     {
-        isSuccess = flatCfgFactory.createMonitorIf(monitorInterfaces, monitorIfIpcs, processStates);
+        isSuccess = flatCfgFactory.createAliveIf(aliveInterfaces, aliveIfIpcs, processStates);
     }
     if (isSuccess)
     {
-        isSuccess = flatCfgFactory.createSupervisionCheckpoints(checkpoints, monitorInterfaces, processStates);
+        isSuccess = flatCfgFactory.createSupervisionCheckpoints(checkpoints, aliveInterfaces, processStates);
     }
     if (isSuccess)
     {
@@ -85,9 +85,9 @@ bool SwClusterHandler::constructWorkers(
 
 void SwClusterHandler::checkInterfaceForNewData(const timers::NanoSecondType f_syncTimestamp)
 {
-    for (auto& monitorInterface : monitorInterfaces)
+    for (auto& aliveInterface : aliveInterfaces)
     {
-        monitorInterface.checkForNewData(f_syncTimestamp);
+        aliveInterface.checkForNewData(f_syncTimestamp);
     }
 }
 

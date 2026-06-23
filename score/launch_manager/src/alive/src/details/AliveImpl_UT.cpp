@@ -14,12 +14,12 @@
 
 #include <cstdlib>
 
-#include "score/mw/launch_manager/alive_monitor/details/MonitorImpl.h"
+#include "score/mw/launch_manager/alive_monitor/details/AliveImpl.h"
 
 namespace score::mw::lifecycle
 {
 
-class MonitorImplTest : public ::testing::Test
+class AliveImplTest : public ::testing::Test
 {
   protected:
     void SetUp() override
@@ -30,29 +30,29 @@ class MonitorImplTest : public ::testing::Test
     }
 };
 
-TEST_F(MonitorImplTest, ThrowsWhenInterfacePathEnvVarIsNotSet)
+TEST_F(AliveImplTest, ThrowsWhenInterfacePathEnvVarIsNotSet)
 {
-    RecordProperty("Description", "MonitorImpl throws when LCM_ALIVE_INTERFACE_PATH is not set.");
+    RecordProperty("Description", "AliveImpl throws when LCM_ALIVE_INTERFACE_PATH is not set.");
 
-    EXPECT_THROW(MonitorImpl("test/instance"), std::runtime_error);
+    EXPECT_THROW(AliveImpl("test/instance"), std::runtime_error);
 }
 
-TEST_F(MonitorImplTest, DoesNotThrowWhenInterfacePathEnvVarIsSet)
+TEST_F(AliveImplTest, DoesNotThrowWhenInterfacePathEnvVarIsSet)
 {
     RecordProperty("Description",
-                   "MonitorImpl construction succeeds when LCM_ALIVE_INTERFACE_PATH is set, "
+                   "AliveImpl construction succeeds when LCM_ALIVE_INTERFACE_PATH is set, "
                    "even if the IPC path does not exist.");
 
     setenv("LCM_ALIVE_INTERFACE_PATH", "nonexistent_ipc_path", 1);
-    EXPECT_NO_THROW({ MonitorImpl impl("test/instance"); });
+    EXPECT_NO_THROW({ AliveImpl impl("test/instance"); });
 }
 
-TEST_F(MonitorImplTest, ReportCheckpointSafeWhenNotConnected)
+TEST_F(AliveImplTest, ReportCheckpointSafeWhenNotConnected)
 {
     RecordProperty("Description", "ReportCheckpoint does not crash when the IPC connection was not established.");
 
     setenv("LCM_ALIVE_INTERFACE_PATH", "nonexistent_ipc_path", 1);
-    MonitorImpl impl("test/instance");
+    AliveImpl impl("test/instance");
     EXPECT_NO_THROW(impl.ReportCheckpoint(42U));
 }
 
