@@ -40,7 +40,8 @@ Add a ``launch_manager_config`` target to your ``BUILD`` file:
        flatbuffer_out_dir = "etc",
    )
 
-=====================
+Write a Configuration File
+==========================
 
 Create a JSON configuration file that describes the components to launch, the run targets,
 and the alive supervision settings.

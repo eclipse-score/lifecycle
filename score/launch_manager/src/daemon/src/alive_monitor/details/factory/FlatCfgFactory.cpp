@@ -184,16 +184,15 @@ bool FlatCfgFactory::createAliveIf(
     std::vector<ifexm::ProcessState> &f_processStates_r) {
   bool isSuccess{true};
   try {
-    uint32_t index{0U};
-    f_interfaces_r.reserve(f_interfaceIpcs_r.size());
-    for (auto &interfaceIpc : f_interfaceIpcs_r) {
+    f_interfaces_r.reserve(supervised_components_.size());
+    for (std::size_t compIndex = 0; compIndex < supervised_components_.size();
+         ++compIndex) {
+      auto &interfaceIpc = f_interfaceIpcs_r.at(compIndex);
       f_interfaces_r.emplace_back(interfaceIpc, interfaceIpc.getPath().data());
-      f_processStates_r.at(static_cast<size_t>(index))
-          .attachObserver(f_interfaces_r.back());
+      f_processStates_r.at(compIndex).attachObserver(f_interfaces_r.back());
 
       logger_r.LogDebug() << "Successfully created MonitorInterface:"
                           << f_interfaces_r.back().getInterfaceName();
-      index++;
     }
 
     logger_r.LogDebug() << "Number of constructed Monitor interfaces:"
