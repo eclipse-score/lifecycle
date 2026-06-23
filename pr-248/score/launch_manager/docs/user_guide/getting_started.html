@@ -471,47 +471,156 @@
 <h1>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">#</a></h1>
 <p>This guide walks through creating a minimal Launch Manager configuration and running the
 daemon for the first time.</p>
-<section id="prerequisites">
-<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h2>
-<ul class="simple">
-<li><p>The <code class="docutils literal notranslate"><span class="pre">launch_manager</span></code> binary built and available on your target.</p></li>
-<li><p>Python 3 with the <code class="docutils literal notranslate"><span class="pre">jsonschema</span></code> package installed (required for config validation).</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">flatc</span></code> FlatBuffers compiler available on your host or target.</p></li>
-</ul>
-</section>
 <section id="configuration">
 <h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">#</a></h2>
-<p>The Launch Manager reads its configuration from a FlatBuffers binary file. The usual
-workflow is:</p>
-<ol class="arabic simple">
-<li><p>Write a human-readable JSON config file.</p></li>
-<li><p>Convert it to a FlatBuffers-compatible JSON using <code class="docutils literal notranslate"><span class="pre">lifecycle_config.py</span></code>.</p></li>
-<li><p>Compile the FlatBuffers JSON to a binary with <code class="docutils literal notranslate"><span class="pre">flatc</span></code>.</p></li>
-</ol>
-<section id="step-1-write-the-json-config">
-<h3>Step 1 — Write the JSON config<a class="headerlink" href="#step-1-write-the-json-config" title="Link to this heading">#</a></h3>
-<p>Create a file <code class="docutils literal notranslate"><span class="pre">my_config.json</span></code>:</p>
+<p>The Launch Manager reads its configuration from a FlatBuffers binary file. When building
+with Bazel, the <code class="docutils literal notranslate"><span class="pre">launch_manager_config</span></code> rule handles the conversion from a human-readable
+JSON file to the binary format automatically.</p>
+<section id="bazel-build-rule">
+<h3>Bazel Build Rule<a class="headerlink" href="#bazel-build-rule" title="Link to this heading">#</a></h3>
+<p>Add a <code class="docutils literal notranslate"><span class="pre">launch_manager_config</span></code> target to your <code class="docutils literal notranslate"><span class="pre">BUILD</span></code> file:</p>
+<div class="highlight-starlark notranslate"><div class="highlight"><pre><span></span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;//:defs.bzl&quot;</span><span class="p">,</span> <span class="s2">&quot;launch_manager_config&quot;</span><span class="p">)</span>
+
+<span class="n">launch_manager_config</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;my_config&quot;</span><span class="p">,</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="s2">&quot;:my_config.json&quot;</span><span class="p">,</span>
+    <span class="n">flatbuffer_out_dir</span> <span class="o">=</span> <span class="s2">&quot;etc&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="write-a-configuration-file">
+<h3>Write a Configuration File<a class="headerlink" href="#write-a-configuration-file" title="Link to this heading">#</a></h3>
+<p>Create a JSON configuration file that describes the components to launch, the run targets,
+and the alive supervision settings.</p>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">Example configuration (lifecycle_demo_test.json)</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;schema_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;defaults&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;deployment_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;bin_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/tmp/tests/examples&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;ready_timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2.0</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;shutdown_timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2.0</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;ready_recovery_action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;restart&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;number_of_attempts&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;recovery_action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;switch_run_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;run_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fallback_run_target&quot;</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;environmental_variables&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;LD_LIBRARY_PATH&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/tmp/tests/examples/lib&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;sandbox&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;uid&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;gid&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;scheduling_policy&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SCHED_OTHER&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;scheduling_priority&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;component_properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;application_profile&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;application_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Reporting&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;is_self_terminating&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;alive_supervision&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;reporting_cycle&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;min_indications&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;max_indications&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;failed_cycles_tolerance&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;ready_condition&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;process_state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Running&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="nt">&quot;components&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;my_app&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;My application&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;control_daemon&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="nt">&quot;component_properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">&quot;binary_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;my_app&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;binary_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;control_daemon&quot;</span><span class="p">,</span>
 <span class="w">                </span><span class="nt">&quot;application_profile&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                    </span><span class="nt">&quot;application_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Native&quot;</span><span class="p">,</span>
-<span class="w">                    </span><span class="nt">&quot;is_self_terminating&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">                    </span><span class="nt">&quot;application_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;State_Manager&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;alive_supervision&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                        </span><span class="nt">&quot;min_indications&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">                    </span><span class="p">}</span>
 <span class="w">                </span><span class="p">}</span>
 <span class="w">            </span><span class="p">},</span>
 <span class="w">            </span><span class="nt">&quot;deployment_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">&quot;bin_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/opt/apps/my_app&quot;</span>
+<span class="w">                </span><span class="nt">&quot;ready_timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;shutdown_timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;environmental_variables&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;PROCESSIDENTIFIER&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;control_daemon&quot;</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;cpp_supervised_app&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;component_properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;binary_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cpp_supervised_app&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;application_profile&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;application_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Reporting_And_Supervised&quot;</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="nt">&quot;process_arguments&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                    </span><span class="s2">&quot;-d50&quot;</span>
+<span class="w">                </span><span class="p">]</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;deployment_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;environmental_variables&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;PROCESSIDENTIFIER&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cpp_supervised_app&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;IDENTIFIER&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cpp_supervised_app&quot;</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;rust_supervised_app&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;component_properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;binary_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rust_supervised_app&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;application_profile&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;application_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Reporting_And_Supervised&quot;</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="nt">&quot;process_arguments&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                    </span><span class="s2">&quot;-d50&quot;</span>
+<span class="w">                </span><span class="p">]</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;deployment_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;environmental_variables&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;PROCESSIDENTIFIER&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rust_supervised_app&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;IDENTIFIER&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rust_supervised_app&quot;</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;lifecycle_app&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;component_properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;binary_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cpp_lifecycle_app&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;deployment_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;environmental_variables&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;PROCESSIDENTIFIER&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;lifecycle_app&quot;</span>
+<span class="w">                </span><span class="p">}</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="nt">&quot;run_targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nt">&quot;Startup&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;System started&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;depends_on&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;my_app&quot;</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;depends_on&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s2">&quot;control_daemon&quot;</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;recovery_action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;switch_run_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;run_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fallback_run_target&quot;</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;Running&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;depends_on&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s2">&quot;control_daemon&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;cpp_supervised_app&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;rust_supervised_app&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;lifecycle_app&quot;</span>
+<span class="w">            </span><span class="p">],</span>
 <span class="w">            </span><span class="nt">&quot;recovery_action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                </span><span class="nt">&quot;switch_run_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                    </span><span class="nt">&quot;run_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fallback_run_target&quot;</span>
@@ -520,54 +629,29 @@ workflow is:</p>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="nt">&quot;initial_run_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Startup&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;fallback_run_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Safe shutdown&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;transition_timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.5</span>
-<span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="nt">&quot;alive_supervision&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;evaluation_cycle&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">        </span><span class="nt">&quot;evaluation_cycle&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.05</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;fallback_run_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;depends_on&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="s2">&quot;control_daemon&quot;</span>
+<span class="w">        </span><span class="p">]</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-</section>
-<section id="step-2-generate-the-flatbuffers-json">
-<h3>Step 2 — Generate the FlatBuffers JSON<a class="headerlink" href="#step-2-generate-the-flatbuffers-json" title="Link to this heading">#</a></h3>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>When building with Bazel, steps 2 and 3 are handled automatically by the
-<code class="docutils literal notranslate"><span class="pre">launch_manager_config</span></code> rule (see <a class="reference internal" href="#bazel-integration">Bazel Integration</a>). It invokes the correct
-versions of <code class="docutils literal notranslate"><span class="pre">lifecycle_config.py</span></code> and <code class="docutils literal notranslate"><span class="pre">flatc</span></code> as declared in the build graph,
-so manual invocation is only needed outside of Bazel.</p>
 </div>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>scripts/config_mapping/lifecycle_config.py<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>my_config.json<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--schema<span class="w"> </span>score/launch_manager/daemon/src/configuration/config_schema/launch_manager.schema.json<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-o<span class="w"> </span>out/
+</details><p>For a full description of all available fields see <a class="reference internal" href="configuration.html"><span class="doc">Configuration</span></a>.</p>
+</section>
+</section>
+<section id="running-the-launch-manager">
+<h2>Running the Launch Manager<a class="headerlink" href="#running-the-launch-manager" title="Link to this heading">#</a></h2>
+<p>Start the daemon by pointing it at the generated FlatBuffers binary with the <code class="docutils literal notranslate"><span class="pre">-c</span></code> option:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>launch_manager<span class="w"> </span>-c<span class="w"> </span>etc/my_config_gen.bin
 </pre></div>
 </div>
-<p>This produces <code class="docutils literal notranslate"><span class="pre">out/my_config_gen.json</span></code>.</p>
-</section>
-<section id="step-3-compile-to-a-flatbuffers-binary">
-<h3>Step 3 — Compile to a FlatBuffers binary<a class="headerlink" href="#step-3-compile-to-a-flatbuffers-binary" title="Link to this heading">#</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>flatc<span class="w"> </span>-b<span class="w"> </span>-o<span class="w"> </span>out/<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>score/launch_manager/daemon/src/configuration/new_lm_flatcfg.fbs<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>out/my_config_gen.json
-</pre></div>
-</div>
-<p>This produces <code class="docutils literal notranslate"><span class="pre">out/my_config_gen.bin</span></code>.</p>
-</section>
-<section id="step-4-run-the-launch-manager">
-<h3>Step 4 — Run the Launch Manager<a class="headerlink" href="#step-4-run-the-launch-manager" title="Link to this heading">#</a></h3>
-<p>By default the daemon looks for the config at <code class="docutils literal notranslate"><span class="pre">etc/launch_manager_config_gen.bin</span></code>
-relative to its working directory. Use <code class="docutils literal notranslate"><span class="pre">-c</span></code> to point it at a different path:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>launch_manager<span class="w"> </span>-c<span class="w"> </span>out/my_config_gen.bin
-</pre></div>
-</div>
-</section>
-</section>
 <section id="command-line-options">
-<h2>Command-line Options<a class="headerlink" href="#command-line-options" title="Link to this heading">#</a></h2>
+<h3>Command-line Options<a class="headerlink" href="#command-line-options" title="Link to this heading">#</a></h3>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Usage: launch_manager [-c &lt;config&gt;] [-h]
 
 Options:
@@ -578,22 +662,6 @@ Options:
 </div>
 <p>Passing an unknown option prints the usage line and exits with a non-zero exit code.</p>
 </section>
-<section id="bazel-integration">
-<h2>Bazel Integration<a class="headerlink" href="#bazel-integration" title="Link to this heading">#</a></h2>
-<p>When building with Bazel the <code class="docutils literal notranslate"><span class="pre">launch_manager_config</span></code> rule handles steps 2–3
-automatically. It pins the versions of <code class="docutils literal notranslate"><span class="pre">lifecycle_config.py</span></code> and <code class="docutils literal notranslate"><span class="pre">flatc</span></code> that are
-declared in the build graph, ensuring that the schema, the mapping script, and the
-compiler are always consistent with each other. The rule writes
-<code class="docutils literal notranslate"><span class="pre">launch_manager_config.bin</span></code> into the declared output directory:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;//:defs.bzl&quot;</span><span class="p">,</span> <span class="s2">&quot;launch_manager_config&quot;</span><span class="p">)</span>
-
-<span class="n">launch_manager_config</span><span class="p">(</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;my_config&quot;</span><span class="p">,</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="s2">&quot;:my_config.json&quot;</span><span class="p">,</span>
-    <span class="n">flatbuffer_out_dir</span> <span class="o">=</span> <span class="s2">&quot;etc&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-</pre></div>
-</div>
 </section>
 </section>
 
@@ -644,16 +712,15 @@ compiler are always consistent with each other. The rule writes
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration">Configuration</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-write-the-json-config">Step 1 — Write the JSON config</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-generate-the-flatbuffers-json">Step 2 — Generate the FlatBuffers JSON</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-compile-to-a-flatbuffers-binary">Step 3 — Compile to a FlatBuffers binary</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-run-the-launch-manager">Step 4 — Run the Launch Manager</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bazel-build-rule">Bazel Build Rule</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#write-a-configuration-file">Write a Configuration File</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#command-line-options">Command-line Options</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bazel-integration">Bazel Integration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-the-launch-manager">Running the Launch Manager</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#command-line-options">Command-line Options</a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
