@@ -28,10 +28,6 @@
     "url": "https://eclipse-score.github.io/lifecycle/pr-248/"
   },
   {
-    "version": "pr-254",
-    "url": "https://eclipse-score.github.io/lifecycle/pr-254/"
-  },
-  {
     "version": "pr-258",
     "url": "https://eclipse-score.github.io/lifecycle/pr-258/"
   },
@@ -42,9 +38,5 @@
   {
     "version": "v0.2.0",
     "url": "https://eclipse-score.github.io/lifecycle/v0.2.0/"
-  },
-  {
-    "version": "pr-259",
-    "url": "https://eclipse-score.github.io/lifecycle/pr-259/"
   }
 ]
