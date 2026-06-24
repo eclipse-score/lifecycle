@@ -178,7 +178,7 @@ bool Graph::queueHeadNodes(bool start)
         queueHeadNodesForExecution();
     }
 
-    return (nodes_in_flight_ > 0);
+    return (executing_nodes > 0);
 }
 
 inline uint32_t Graph::countExecutableNodes(bool start)
@@ -223,7 +223,15 @@ inline void Graph::tryQueueNode(const std::shared_ptr<ProcessInfoNode>& node)
         }
         else
         {
-            LM_LOG_WARN() << "Failed to queue node for execution " << push_res.error();
+            // This means the job will never be queued so we'll never get the nodeExecuted() call, we need to call it
+            // here
+            LM_LOG_ERROR() << "Failed to queue node for execution " << push_res.error();
+
+            abort(getLastExecutionError(), ControlClientCode::kSetStateFailed);
+            markNodeInFlight();  // This will be decremented below, avoid it going negative
+            // Also, we need to be careful not to recurse or deadlock here. The below function does not lock any mutex
+            // nor call this function
+            handleNonTransitionExecution(GraphState::kAborting);
             break;
         }
     }
