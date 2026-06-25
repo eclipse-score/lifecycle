@@ -19,7 +19,7 @@ cc_library(
     visibility = ["//score/health_monitor/src/cpp:__pkg__"],
     deps = [
         "@googletest//:gtest",
-        "@score_baselibs_rust//src/log/stdout_logger_cpp_init",
+        "@score_baselibs//src/log/stdout_logger_cpp_init",
     ],
 )
 

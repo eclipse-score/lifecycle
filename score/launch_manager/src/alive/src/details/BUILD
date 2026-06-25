@@ -10,27 +10,25 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_test(
-    name = "MonitorImpl_UT",
-    srcs = ["MonitorImpl_UT.cpp"],
+    name = "AliveImpl_UT",
+    srcs = ["AliveImpl_UT.cpp"],
     deps = [
-        ":monitor_impl",
+        ":alive_impl",
         "@googletest//:gtest_main",
     ],
 )
 
 cc_library(
-    name = "monitor_impl",
-    srcs = ["MonitorImpl.cpp"],
-    hdrs = ["MonitorImpl.h"],
+    name = "alive_impl",
+    srcs = ["AliveImpl.cpp"],
+    hdrs = ["AliveImpl.h"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
+    strip_include_prefix = "/score/launch_manager/src/alive/src/details",
+    visibility = ["//score/launch_manager/src/alive:__pkg__"],
     deps = [
-        "//score/launch_manager/src/daemon/src/alive_monitor:alive_monitor_h",
-        "//score/launch_manager/src/daemon/src/alive_monitor:config",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:data_structures",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ipc:ipc_if",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/logging:phm_logging",

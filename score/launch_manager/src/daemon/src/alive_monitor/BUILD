@@ -38,60 +38,9 @@ cc_library(
 )
 
 cc_library(
-    name = "alive_monitor_h",
-    hdrs = [
-        "Monitor.h",
-        "MonitorImplWrapper.h",
-    ],
-    include_prefix = "score/mw/launch_manager/alive_monitor",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
-)
-
-cc_library(
-    name = "am-lib",
-    srcs = [
-        "Monitor.cpp",
-        "MonitorImplWrapper.cpp",
-    ],
-    hdrs = [
-        "Monitor.h",
-        "MonitorImplWrapper.h",
-    ],
-    include_prefix = "score/mw/launch_manager/alive_monitor",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor",
-    visibility = ["//score:__subpackages__"],
-    deps = [
-        ":alive_monitor_h",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details:monitor_impl",
-    ] + select({
-        "@platforms//os:qnx": [],
-        "@platforms//os:linux": ["//externals/acl"],
-    }),
-)
-
-cc_library(
     name = "alive_monitor",
     visibility = ["//score:__subpackages__"],
     deps = [
         "//score/launch_manager/src/daemon/src/alive_monitor/details/daemon:health_monitor_impl",
     ],
-)
-
-cc_library(
-    name = "am_shared_lib",
-    hdrs = [
-        "Monitor.h",
-        "MonitorImplWrapper.h",
-    ],
-    include_prefix = "score/mw/launch_manager/alive_monitor",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor",
-    visibility = ["//score:__subpackages__"],
-    deps = [
-        ":am-lib",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/ipc:ipc_if",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/logging:phm_logging",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
-    ],
-    alwayslink = True,
 )

@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "score/mw/launch_manager/alive_monitor/details/MonitorImpl.h"
+#include "score/mw/launch_manager/alive_monitor/details/AliveImpl.h"
 
 #include <unistd.h>
 
@@ -22,7 +22,7 @@
 namespace score::mw::lifecycle
 {
 
-MonitorImpl::MonitorImpl(const std::string_view& f_instanceSpecifier_r,
+AliveImpl::AliveImpl(const std::string_view& f_instanceSpecifier_r,
                          std::unique_ptr<CheckpointIpcClient> f_ipcClient) noexcept(false)
     : k_instanceSpecifierPath(f_instanceSpecifier_r),
       ipcClient(std::move(f_ipcClient)),
@@ -33,17 +33,17 @@ MonitorImpl::MonitorImpl(const std::string_view& f_instanceSpecifier_r,
     connectToPhmDaemon();
 }
 
-void MonitorImpl::ReportCheckpoint(Checkpoint f_checkpointId) const noexcept(true)
+void AliveImpl::ReportCheckpoint(std::uint32_t f_checkpointId) const noexcept(true)
 {
     (void)ipcClient->sendEmplace(score::lcm::saf::timers::OsClock::getMonotonicSystemClock(), f_checkpointId);
 }
 
-void MonitorImpl::connectToPhmDaemon(void) noexcept(false)
+void AliveImpl::connectToPhmDaemon(void) noexcept(false)
 {
     const auto ipc_path_res = readInterfacePath();
     if (ipc_path_res == std::nullopt)
     {
-        logger_r.LogError() << "Failed to load interface path for Monitor (" << k_instanceSpecifierPath << ")";
+        logger_r.LogError() << "Failed to load interface path for Alive instance (" << k_instanceSpecifierPath << ")";
         throw std::runtime_error("Failed to get interface path");
     }
     CheckpointIpcClient::EIpcInitResult initResult{ipcClient->init(ipc_path_res.value())};
@@ -55,13 +55,13 @@ void MonitorImpl::connectToPhmDaemon(void) noexcept(false)
     {
         const uid_t uid{geteuid()};
         logger_r.LogError() << "Connection to PHM daemon failed (permission denied for effective uid" << uid
-                            << "), for the Monitor (" << k_instanceSpecifierPath << ")";
+                            << "), for the Alive instance (" << k_instanceSpecifierPath << ")";
         return;
     }
-    logger_r.LogError() << "Connection to PHM daemon failed, for the Monitor (" << k_instanceSpecifierPath << ")";
+    logger_r.LogError() << "Connection to PHM daemon failed, for the Alive instance (" << k_instanceSpecifierPath << ")";
 }
 
-std::optional<std::string_view> MonitorImpl::readInterfacePath() noexcept
+std::optional<std::string_view> AliveImpl::readInterfacePath() noexcept
 {
     const char* if_path{getenv("LCM_ALIVE_INTERFACE_PATH")};
     if (if_path == nullptr || if_path[0] == '\0')

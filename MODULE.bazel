@@ -19,7 +19,7 @@ module(
 bazel_dep(name = "bazel_skylib", version = "1.9.0")
 bazel_dep(name = "rules_pkg", version = "1.1.0")
 bazel_dep(name = "rules_python", version = "1.8.5")
-bazel_dep(name = "rules_rust", version = "0.68.1-score")
+bazel_dep(name = "rules_rust", version = "0.68.2-score")
 bazel_dep(name = "rules_cc", version = "0.2.17")
 bazel_dep(name = "rules_oci", version = "2.3.0")
 bazel_dep(name = "aspect_rules_lint", version = "2.0.0")
@@ -82,7 +82,7 @@ use_repo(
 )
 
 ## Rust Toolchain
-bazel_dep(name = "score_toolchains_rust", version = "0.8.0", dev_dependency = True)
+bazel_dep(name = "score_toolchains_rust", version = "0.9.1", dev_dependency = True)
 
 # S-CORE crates
 bazel_dep(name = "score_crates", version = "0.0.9")
@@ -134,6 +134,11 @@ use_repo(oci, "debian-test-runtime", "debian-test-runtime_linux_amd64")
 
 bazel_dep(name = "score_baselibs_rust", version = "0.1.2")
 bazel_dep(name = "score_baselibs", version = "0.2.8")
+git_override(
+    module_name = "score_baselibs",
+    commit = "d0145e0645d4fe9661a36c348f0e62e13cf73f98",
+    remote = "https://github.com/eclipse-score/baselibs.git",
+)
 
 # Hedron's Compile Commands Extractor for Bazel
 # https://github.com/hedronvision/bazel-compile-commands-extractor

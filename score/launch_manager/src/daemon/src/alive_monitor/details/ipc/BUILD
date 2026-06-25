@@ -21,7 +21,10 @@ cc_library(
     ],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/ipc",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/ipc",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
+    visibility = [
+        "//score/launch_manager/src/alive:__subpackages__",
+        "//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__",
+    ],
     deps = ["//externals/ipc_dropin"] + select({
         "@platforms//os:qnx": [],
         "@platforms//os:linux": ["//externals/acl"],

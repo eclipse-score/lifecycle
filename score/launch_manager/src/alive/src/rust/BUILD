@@ -10,30 +10,18 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-load("@rules_cc//cc:defs.bzl", "cc_binary")
+load("@rules_rust//rust:defs.bzl", "rust_library")
 
-cc_binary(
-    name = "cpp_supervised_app",
+rust_library(
+    name = "alive_rs",
     srcs = [
-        "main.cpp",
+        "src/alive.rs",
+        "src/errors.rs",
+        "src/lib.rs",
     ],
-    copts = select({
-        "@platforms//os:qnx": [],
-        "@platforms//os:linux": [],
-    }),
-    linkopts = select({
-        "@platforms//os:qnx": [
-            "-lsocket",
-        ],
-        "@platforms//os:linux": [
-            "-lpthread",
-            "-lrt",
-        ],
-    }),
-    visibility = ["//visibility:public"],
+    visibility = ["//score:__subpackages__"],
     deps = [
-        "//score/health_monitor:health_monitoring_cc",
-        "//score/launch_manager:lifecycle_cc",
-        "@score_baselibs_rust//src/log/stdout_logger_cpp_init",
+        "//score/launch_manager:alive_cc",
+        "@score_crates//:libc",
     ],
 )
