@@ -9,7 +9,7 @@ Portable and high-performance implementation of the Lifecycle feature for the S-
 High level functionality provided by Lifecycle:
 
 * **Launch Manager**
-    * **Portability**: LaunchManager works with multiple operating systems including Linux, QNX7, and QNX8.
+    * **Portability**: LaunchManager works with multiple operating systems including Linux and QNX8.
     * **Component Lifecycle Control**: Spawning and terminating OS processes according to their configured parameters (executable path, user/group identity, environment, scheduling policy, etc.).
     * **Run Target Management**: Determining which components are active at any given time by activating and deactivating named Run Targets in response to requests from a StateManager.
     * **Dependency Resolution**: Ensuring components start and stop in the correct order based on declared startup and shutdown dependencies.
