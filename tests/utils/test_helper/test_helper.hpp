@@ -60,9 +60,8 @@ constexpr std::string_view test_end_location = "../test_end";
 /// by the test framework.
 /// @param[in] files Files to check
 /// @param[in] strict If true, return a failure if any files exist. Otherwise attempt to remove them.
-[[nodiscard]]
-inline testing::AssertionResult check_clean(const std::initializer_list<std::string_view> files,
-                                            const bool strict = true)
+[[nodiscard]] inline testing::AssertionResult check_clean(const std::initializer_list<std::string_view> files,
+                                                          const bool strict = true)
 {
     std::stringstream failures{};
     for (const auto file : files)
@@ -94,14 +93,14 @@ inline testing::AssertionResult check_clean(const std::initializer_list<std::str
 
 enum class TerminationBehavior : std::uint8_t
 {
-    kWait = 0, // Wait for a signal before terminating
-    kContinue, // Terminate immediately
+    kWait = 0,  // Wait for a signal before terminating
+    kContinue,  // Terminate immediately
 };
 
 enum class TerminationNotification : std::uint8_t
 {
-    kNone = 0, // Terminate without any notification
-    kTestEnd,  // Signal that the test has completed
+    kNone = 0,  // Terminate without any notification
+    kTestEnd,   // Signal that the test has completed
 };
 
 /// @brief Helper class to setup, run, and clean up GTEST tests

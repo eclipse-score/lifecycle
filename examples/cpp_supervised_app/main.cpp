@@ -23,10 +23,10 @@
 #include <sys/prctl.h>
 #endif
 
-#include <score/mw/lifecycle/report_running.h>
-#include <score/mw/log/rust/stdout_logger_init.h>
 #include <score/mw/health/common.h>
 #include <score/mw/health/health_monitor.h>
+#include <score/mw/lifecycle/report_running.h>
+#include <score/mw/log/rust/stdout_logger_init.h>
 #include <thread>
 
 /// @brief CLI configuration options for the demo_application process

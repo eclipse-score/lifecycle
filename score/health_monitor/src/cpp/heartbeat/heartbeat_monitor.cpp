@@ -12,13 +12,16 @@
  ********************************************************************************/
 #include "score/mw/health/heartbeat_monitor.h"
 
-namespace {
+namespace
+{
 extern "C" {
 using namespace score::mw::health;
 using namespace score::mw::health::internal;
 using namespace score::mw::health::heartbeat;
 
-FFICode heartbeat_monitor_builder_create(uint32_t range_min_ms, uint32_t range_max_ms, FFIHandle* heartbeat_monitor_builder_handle_out);
+FFICode heartbeat_monitor_builder_create(uint32_t range_min_ms,
+                                         uint32_t range_max_ms,
+                                         FFIHandle* heartbeat_monitor_builder_handle_out);
 FFICode heartbeat_monitor_builder_destroy(FFIHandle heartbeat_monitor_builder_handle);
 FFICode heartbeat_monitor_destroy(FFIHandle heartbeat_monitor_builder_handle);
 FFICode heartbeat_monitor_heartbeat(FFIHandle heartbeat_monitor_builder_handle);
@@ -32,7 +35,7 @@ FFIHandle heartbeat_monitor_builder_create_wrapper(uint32_t range_min_ms, uint32
     return handle;
 }
 
-}
+}  // namespace
 
 namespace score::mw::health::heartbeat
 {
