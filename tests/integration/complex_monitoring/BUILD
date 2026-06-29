@@ -50,7 +50,7 @@ cc_binary(
         "//score/launch_manager:lifecycle_cc",
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
-        "@score_baselibs_rust//src/log/stdout_logger_cpp_init",
+        "@score_baselibs//src/log/stdout_logger_cpp_init",
     ],
 )
 

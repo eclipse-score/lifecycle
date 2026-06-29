@@ -14,14 +14,14 @@
 load("@rules_rust//rust:defs.bzl", "miri_test", "rust_library", "rust_static_library", "rust_test")
 
 COMMON_RUST_DEPS = [
-    "@score_baselibs_rust//src/containers:containers",
-    "@score_baselibs_rust//src/thread:thread",
-    "@score_baselibs_rust//src/log/score_log:score_log",
+    "@score_baselibs//src/containers:containers",
+    "@score_baselibs//src/thread:thread",
+    "@score_baselibs//src/log/score_log:score_log",
     "//score/launch_manager:alive_rust",
 ]
 
 PROC_MACRO_DEPS = [
-    "@score_baselibs_rust//src/testing_macros:score_testing_macros",
+    "@score_baselibs//src/testing_macros:score_testing_macros",
 ]
 
 rust_library(
@@ -72,7 +72,7 @@ rust_test(
     tags = [
         "no-asan",
     ],
-    deps = ["@score_baselibs_rust//src/log/stdout_logger"],
+    deps = ["@score_baselibs//src/log/stdout_logger"],
 )
 
 rust_test(
@@ -99,7 +99,7 @@ rust_test(
     ],
     target_compatible_with = ["@platforms//os:linux"],
     deps = [
-        "@score_baselibs_rust//src/log/stdout_logger",
+        "@score_baselibs//src/log/stdout_logger",
         "@score_crates//:loom",
     ],
 )
