@@ -32,9 +32,12 @@ cc_library(
         "mpmc_concurrent_queue.hpp",
     ],
     include_prefix = "score/mw/launch_manager/common/concurrency",
-    linkopts = [
-        "-l:libatomic.a",
-    ],
+    linkopts = select({
+        "@platforms//os:qnx": [
+            "-l:libatomic.a",
+        ],
+        "//conditions:default": [],
+    }),
     strip_include_prefix = "/score/launch_manager/src/daemon/src/common/concurrency",
     visibility = ["//score:__subpackages__"],
     deps = [

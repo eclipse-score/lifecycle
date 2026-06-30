@@ -16,8 +16,8 @@ load("//:defs.bzl", "launch_manager_config")
 load("//tests/utils/bazel:integration.bzl", "integration_test")
 
 launch_manager_config(
-    name = "lm_complex_monitoring_config",
-    config = "//tests/integration/complex_monitoring:complex_monitoring.json",
+    name = "lm_process_wrong_binary_failure_config",
+    config = "//tests/integration/process_wrong_binary_failure:process_wrong_binary_failure.json",
     flatbuffer_out_dir = "etc",
 )
 
@@ -32,58 +32,35 @@ cc_binary(
     ],
 )
 
-cc_binary(
-    name = "component_complex_monitoring",
-    srcs = ["component_complex_monitoring.cpp"],
-    linkopts = select({
-        "@platforms//os:qnx": [
-            "-lsocket",
-        ],
-        "@platforms//os:linux": [
-            "-lpthread",
-            "-lrt",
-        ],
-    }),
-    deps = [
-        "//score/health_monitor:health_monitoring_cc",
-        "//score/launch_manager:alive_cc",
-        "//score/launch_manager:lifecycle_cc",
-        "//tests/utils/test_helper",
-        "@googletest//:gtest_main",
-        "@score_baselibs//src/log/stdout_logger_cpp_init",
-    ],
-)
-
 pkg_files(
-    name = "complex_monitoring_main_files",
+    name = "process_wrong_binary_failure_main_files",
     srcs = [
-        ":component_complex_monitoring",
         ":control_client_mock",
         "//score/launch_manager",
         "//tests/utils/test_helper:verification_process",
     ],
     attributes = pkg_attributes(mode = "0755"),
-    prefix = "tests/complex_monitoring",
+    prefix = "tests/process_wrong_binary_failure",
 )
 
 pkg_files(
-    name = "complex_monitoring_etc_files",
-    srcs = [":lm_complex_monitoring_config"],
-    prefix = "tests/complex_monitoring",
+    name = "process_wrong_binary_failure_etc_files",
+    srcs = [":lm_process_wrong_binary_failure_config"],
+    prefix = "tests/process_wrong_binary_failure",
 )
 
 pkg_tar(
-    name = "complex_monitoring_binaries",
+    name = "process_wrong_binary_failure_binaries",
     srcs = [
-        ":complex_monitoring_etc_files",
-        ":complex_monitoring_main_files",
+        ":process_wrong_binary_failure_etc_files",
+        ":process_wrong_binary_failure_main_files",
     ],
 )
 
 integration_test(
-    name = "complex_monitoring",
-    srcs = ["complex_monitoring.py"],
+    name = "process_wrong_binary_failure",
+    srcs = ["process_wrong_binary_failure.py"],
     tags = ["integration"],
-    test_binaries = ":complex_monitoring_binaries",
+    test_binaries = ":process_wrong_binary_failure_binaries",
     deps = ["//tests/utils/testing_utils"],
 )

@@ -320,7 +320,7 @@ class Graph final {
 
     /// @brief Queue head nodes to start a graph. Return false if there were no head nodes
     /// @param start true if this run of the graph is to start processes, false it it is to stop them
-    /// @return true if one or more head nodes were queued
+    /// @return true if one or more head nodes were found
     bool queueHeadNodes(bool start);
 
     /// @brief Queue the jobs to kick-off a stop process graph
