@@ -71,6 +71,7 @@ rust_test(
     }),
     tags = [
         "no-asan",
+        "skip_local",  # see https://github.com/eclipse-score/lifecycle/issues/272
     ],
     deps = ["@score_baselibs//src/log/stdout_logger"],
 )
