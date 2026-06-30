@@ -31,7 +31,7 @@ jobs:
           - bazel-config: x86_64-qnx
             bazel-test-target: >-
               //score/...
-          - bazel-config: aarch64-qnx
+          - bazel-config: arm64-qnx
             bazel-test-target: >-
               //score/...
             extra-bazel-test-flags: "--test_timeout=120,600,1800,7200" # Increase test timeout due to QEMU emulation

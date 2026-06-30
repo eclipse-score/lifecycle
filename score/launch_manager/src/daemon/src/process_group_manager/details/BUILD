@@ -60,6 +60,7 @@ cc_library(
 cc_test(
     name = "safeprocessmap_UT",
     srcs = ["safeprocessmap_UT.cpp"],
+    timeout = "long",
     deps = [
         ":safe_process_map",
         "@googletest//:gtest_main",
