@@ -14,6 +14,7 @@
 #ifndef SCORE_LCM_ALIVE_H_
 #define SCORE_LCM_ALIVE_H_
 
+#ifdef __cplusplus
 #include <cstdint>
 #include <memory>
 #include <string_view>
@@ -26,14 +27,14 @@ class AliveImpl;
 
 /// @brief Alive API for reporting alive notifications to the launch manager.
 /// An alive notification indicates that the component is still active and functioning correctly.
-/// The launch manager is configured with an expected alive notification interval, 
-/// and if it does not receive an alive notification within that interval, 
+/// The launch manager is configured with an expected alive notification interval,
+/// and if it does not receive an alive notification within that interval,
 /// it executes the configured recovery action.
 ///
 /// Each process may only use a single Alive instance.
 class Alive
 {
-public:
+  public:
     /// @brief Creation of an Alive.
     /// @param [in] instance  Instance specifier (currently unused)
     /// @throws std::runtime_error if the configured IPC channel to connect to launch manager is not existing
@@ -67,10 +68,38 @@ public:
     /// @note Not Implemented. This method currently does nothing.
     void ReportFailure() const noexcept;
 
-private:
+  private:
     /// @brief Unique pointer to implementation class of Alive
     std::unique_ptr<AliveImpl> aliveImplPtr;
 };
 
 }  // namespace score::mw::lifecycle
+
+extern "C" {
+#endif /* __cplusplus */
+
+// These prototypes are required to support applications written in C, which cannot use the C++ namespaces and classes.
+
+/// @brief Initialize an Alive instance.
+/// @param [in] instanceSpecifier  Instance specifier string (must not be NULL)
+/// @return Opaque pointer to the Alive instance, or NULL on failure
+void* score_lcm_alive_initialize(const char* instanceSpecifier);
+
+/// @brief Deinitialize (destroy) an Alive instance.
+/// @param [in] instance  Opaque pointer previously returned by score_lcm_alive_initialize (must not be NULL)
+void score_lcm_alive_deinitialize(void* instance);
+
+/// @brief Report an alive notification.
+/// @param [in] instance  Opaque pointer previously returned by score_lcm_alive_initialize (must not be NULL)
+void score_lcm_alive_report_alive(void* instance);
+
+/// @brief Report a direct failure.
+/// @param [in] instance  Opaque pointer previously returned by score_lcm_alive_initialize (must not be NULL)
+/// @note Not Implemented. This method currently does nothing.
+void score_lcm_alive_report_failure(void* instance);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif  // SCORE_LCM_ALIVE_H_

@@ -14,8 +14,8 @@
 #include "score/mw/lifecycle/alive.h"
 #include "score/mw/launch_manager/alive_monitor/details/AliveImpl.h"
 
-#include <utility>
 #include <cassert>
+#include <utility>
 
 // The public API is only sending alive notification. No need to support different checkpoints.
 static constexpr std::uint32_t kDefaultCheckpointId{1U};
@@ -23,10 +23,7 @@ static constexpr std::uint32_t kDefaultCheckpointId{1U};
 namespace score::mw::lifecycle
 {
 
-Alive::Alive(const std::string_view& instance) noexcept(false) :
-    aliveImplPtr(std::make_unique<AliveImpl>(instance))
-{
-}
+Alive::Alive(const std::string_view& instance) noexcept(false) : aliveImplPtr(std::make_unique<AliveImpl>(instance)) {}
 
 Alive::Alive(Alive&& se) noexcept = default;
 
@@ -49,40 +46,46 @@ void Alive::ReportFailure() const noexcept
 
 }  // namespace score::mw::lifecycle
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void* score_lcm_alive_initialize(const char* instanceSpecifier) noexcept {
-    if(instanceSpecifier == nullptr) {
+void* score_lcm_alive_initialize(const char* instanceSpecifier)
+{
+    if (instanceSpecifier == nullptr)
+    {
         return nullptr;
     }
 
-    try {
+    try
+    {
         auto* alivePtr = new score::mw::lifecycle::Alive(instanceSpecifier);
         return static_cast<void*>(alivePtr);
-    } catch (...) {
+    }
+    catch (...)
+    {
         return nullptr;
     }
 }
 
-void score_lcm_alive_deinitialize(void* instance) noexcept {
+void score_lcm_alive_deinitialize(void* instance)
+{
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(instance != nullptr);
     auto* alivePtr = static_cast<score::mw::lifecycle::Alive*>(instance);
     delete alivePtr;
 }
 
-void score_lcm_alive_report_alive(void* instance) noexcept {
+void score_lcm_alive_report_alive(void* instance)
+{
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(instance != nullptr);
     static_cast<score::mw::lifecycle::Alive*>(instance)->ReportAlive();
 }
 
-void score_lcm_alive_report_failure(void* instance) noexcept {
+void score_lcm_alive_report_failure(void* instance)
+{
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(instance != nullptr);
     static_cast<score::mw::lifecycle::Alive*>(instance)->ReportFailure();
 }
-
 
 #ifdef __cplusplus
 }
