@@ -32,7 +32,7 @@ namespace osal {
 /// to the underlying OS call.
 /// @param __groups pointer to the list of groups, may be NULL
 /// @returns 0 on success, -1 on failure.
-std::int32_t setgroups(size_t __n, const gid_t *__groups) noexcept(true);
+[[nodiscard]] std::int32_t setgroups(size_t __n, const gid_t *__groups) noexcept(true);
 }  // namespace osal
 }  // namespace lcm
 }  // namespace internal

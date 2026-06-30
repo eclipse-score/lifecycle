@@ -74,7 +74,7 @@ struct MonitorIfDaemonFixture
     /// Initialize the IPC server so that peek/pop/hasOverflow use real shared memory.
     void initIpc()
     {
-        ipcServer.init(makeUniqueIpcName());
+        static_cast<void>(ipcServer.init(makeUniqueIpcName()));
     }
 
     /// Drive the process to the 'running' state and notify observers.
