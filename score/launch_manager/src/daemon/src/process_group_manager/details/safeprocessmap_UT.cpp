@@ -28,6 +28,17 @@ using namespace score::lcm::internal;
 namespace
 {
 
+#ifdef __QNX__
+// stress tests on qemu qnx take to long otherwise
+constexpr int kNumThreads = 2;
+constexpr int kIterations = 512;
+constexpr int kPidsPerThread = 128;
+#else
+constexpr int kNumThreads = 4;
+constexpr int kIterations = 1000;
+constexpr int kPidsPerThread = 256;
+#endif
+
 constexpr uint32_t kCapacity = static_cast<uint32_t>(ProcessLimits::kMaxProcesses);
 
 class MockTerminationCallback : public ITerminationCallback
@@ -357,10 +368,6 @@ TEST_F(SafeProcessMapTest, ConcurrentInsertAndFindFromMultipleThreads)
     RecordProperty("Description",
                    "Multiple threads concurrently inserting and finding terminated processes completes without error.");
 
-    // given
-    constexpr int kNumThreads = 4;
-    constexpr int kIterations = 1000;
-    constexpr int kPidsPerThread = 256;
     NiceMock<MockTerminationCallback> stubs[kNumThreads];
     score::lcm::internal::SafeProcessMap::SafeProcessMapReturnType results[kNumThreads] = {};
 
@@ -402,10 +409,6 @@ TEST_F(SafeProcessMapTest, ConcurrentFindAndInsertFromMultipleThreads)
     RecordProperty("Description",
                    "Multiple threads concurrently finding and inserting processes completes without error.");
 
-    // given
-    constexpr int kNumThreads = 4;
-    constexpr int kIterations = 1000;
-    constexpr int kPidsPerThread = 256;
     NiceMock<MockTerminationCallback> stubs[kNumThreads];
     score::lcm::internal::SafeProcessMap::SafeProcessMapReturnType results[kNumThreads] = {};
 
