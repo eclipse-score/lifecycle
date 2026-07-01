@@ -13,7 +13,7 @@
 #ifndef SCORE_HM_COMMON_H
 #define SCORE_HM_COMMON_H
 
-#include <cassert>
+#include <score/assert.hpp>
 #include <chrono>
 #include <optional>
 
@@ -95,7 +95,7 @@ class TimeRange
   public:
     TimeRange(std::chrono::milliseconds min_ms, std::chrono::milliseconds max_ms) : min_ms_(min_ms), max_ms_(max_ms)
     {
-        assert(min_ms_ <= max_ms_);
+        SCORE_LANGUAGE_FUTURECPP_PRECONDITION(min_ms_ <= max_ms_);
     }
 
     const uint32_t min_ms() const

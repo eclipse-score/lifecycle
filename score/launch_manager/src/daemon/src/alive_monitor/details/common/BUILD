@@ -26,6 +26,7 @@ cc_library(
     include_prefix = "score/mw/launch_manager/alive_monitor/details/common",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/common",
     visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
+    deps = ["@score_baselibs//score/language/futurecpp"],
 )
 
 cc_library(

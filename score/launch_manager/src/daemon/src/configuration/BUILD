@@ -32,6 +32,7 @@ cc_library(
     include_prefix = "score/mw/launch_manager/configuration",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/configuration",
     visibility = ["//score:__subpackages__"],
+    deps = ["@score_baselibs//score/language/futurecpp"],
 )
 
 cc_test(
@@ -69,6 +70,7 @@ cc_library(
         ":config_loader",
         "//score/launch_manager/src/daemon/src/common:log",
         "@score_baselibs//score/flatbuffers:flatbufferscpp",
+        "@score_baselibs//score/language/futurecpp",
     ],
 )
 
@@ -88,6 +90,7 @@ cc_library(
         "//score/launch_manager/src/daemon/src/common:log",
         "@score_baselibs//score/flatbuffers:flatbufferscpp",
         "@score_baselibs//score/flatbuffers:flatbufferutils",
+        "@score_baselibs//score/language/futurecpp",
     ],
 )
 

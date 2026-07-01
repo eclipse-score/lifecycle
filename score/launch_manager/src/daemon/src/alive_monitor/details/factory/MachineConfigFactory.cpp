@@ -12,13 +12,14 @@
  ********************************************************************************/
 #include "score/mw/launch_manager/alive_monitor/details/factory/MachineConfigFactory.hpp"
 
+#include <fstream>
 #include <limits>
 #include <string_view>
-#include <fstream>
-#include "score/mw/launch_manager/alive_monitor/details/timers/TimeConversion.hpp"
-#include "score/mw/launch_manager/alive_monitor/config/hmcore_flatcfg_generated.h"
-#include "flatbuffers/flatbuffers.h"
 
+#include "flatbuffers/flatbuffers.h"
+#include "score/mw/launch_manager/alive_monitor/config/hmcore_flatcfg_generated.h"
+#include "score/mw/launch_manager/alive_monitor/details/timers/TimeConversion.hpp"
+#include <score/assert.hpp>
 
 namespace score
 {
@@ -33,7 +34,7 @@ namespace
 {
 /// @brief Prefix for all log messages
 // coverity[autosar_cpp14_a2_10_4_violation:FALSE] Empty namespace ensures uniqueness for cpp file scope
-static constexpr char const* kLogPrefix{"Factory for FlatCfg MachineConfig:"};
+static constexpr const char* kLogPrefix{"Factory for FlatCfg MachineConfig:"};
 
 /// @brief Update a field in case the provided value is not the flatbuffer default value
 /// @note In case of optional integer values in flatbuffer files, the flatbuffer API will just return 0 if the value was
@@ -50,12 +51,14 @@ void updateNonDefaultValue(std::uint16_t& f_field_r, const std::uint16_t f_value
     }
 }
 
-std::unique_ptr<char[]> read_flatbuffer_file(const std::string& f_filename_r) {
+std::unique_ptr<char[]> read_flatbuffer_file(const std::string& f_filename_r)
+{
     const std::string configFilePath = std::string("etc/") + f_filename_r.c_str();
 
     std::ifstream infile;
     infile.open(configFilePath, std::ios::binary | std::ios::in);
-    if (!infile.is_open()) {
+    if (!infile.is_open())
+    {
         return nullptr;
     }
     infile.seekg(0, std::ios::end);
@@ -68,14 +71,13 @@ std::unique_ptr<char[]> read_flatbuffer_file(const std::string& f_filename_r) {
 }
 }  // namespace
 
-MachineConfigFactory::MachineConfigFactory() noexcept(true) : watchdog::IDeviceConfigFactory()
-{
-}
+MachineConfigFactory::MachineConfigFactory() noexcept(true) : watchdog::IDeviceConfigFactory() {}
 
 bool MachineConfigFactory::init() noexcept(false)
 {
     std::unique_ptr<char[]> loadBuffer_p = read_flatbuffer_file("hmcore.bin");
-    if(!loadBuffer_p) {
+    if (!loadBuffer_p)
+    {
         logger_r.LogInfo() << kLogPrefix << "No HM Machine Configuration found. Using default configuration.";
         logConfiguration();
         return true;
@@ -116,7 +118,7 @@ void MachineConfigFactory::loadWatchdogDevices(const HMCOREFlatBuffer::HMCOREEcu
     {
         watchdog::DeviceConfig config{};
 
-        assert(wdg->maxTimeout() <= std::numeric_limits<std::uint16_t>::max());
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD(wdg->maxTimeout() <= std::numeric_limits<std::uint16_t>::max());
         // coverity[autosar_cpp14_a4_7_1_violation] SDG definitions guarantee uint16 boundaries
         config.timeoutMax = static_cast<std::uint16_t>(wdg->maxTimeout());
 
@@ -161,8 +163,8 @@ void MachineConfigFactory::loadHmSettings(const HMCOREFlatBuffer::HMCOREEcuCfg& 
     }
 }
 
-std::optional<watchdog::IDeviceConfigFactory::DeviceConfigurations>
-MachineConfigFactory::getDeviceConfigurations() const
+std::optional<watchdog::IDeviceConfigFactory::DeviceConfigurations> MachineConfigFactory::getDeviceConfigurations()
+    const
 {
     return watchdogConfigs;
 }
@@ -180,7 +182,8 @@ const MachineConfigFactory::SupervisionBufferConfig& MachineConfigFactory::getSu
 
 void MachineConfigFactory::logConfiguration() noexcept(true)
 {
-    /* RULECHECKER_comment(0, 18, check_conditional_as_sub_expression, "Ternary operation is very simple", true_no_defect) */
+    /* RULECHECKER_comment(0, 18, check_conditional_as_sub_expression, "Ternary operation is very simple",
+     * true_no_defect) */
     logger_r.LogDebug() << kLogPrefix << "Alive Supervision buffer size:" << supBufferCfg.bufferSizeAliveSupervision;
     logger_r.LogDebug() << kLogPrefix << "Monitor buffer size:" << supBufferCfg.bufferSizeMonitor;
     logger_r.LogDebug() << kLogPrefix << "Periodicity:" << getCycleTimeInNs() << "ns";
@@ -195,7 +198,8 @@ void MachineConfigFactory::logConfiguration() noexcept(true)
         logger_r.LogDebug() << kLogPrefix << "Watchdog" << wdgCount << "- needs magic close:" << wdgMagicCloseBool;
         logger_r.LogDebug() << kLogPrefix << "Watchdog" << wdgCount
                             << "- deactivate on hm shutdown:" << wdgDeactivatedBool;
-        // coverity[autosar_cpp14_a4_7_1_violation] Value limited by amount of watchdog configurations, which is smaller.
+        // coverity[autosar_cpp14_a4_7_1_violation] Value limited by amount of watchdog configurations, which is
+        // smaller.
         ++wdgCount;
     }
 
