@@ -12,6 +12,7 @@
  ********************************************************************************/
 
 #include <cstdint>
+#include <cassert>
 #include <map>
 #include <sys/stat.h>
 #include <thread>
@@ -94,7 +95,9 @@ ControlClientImpl::ControlClientImpl(std::function<void(const score::lcm::Execut
 
     ipc_channel_ = score::lcm::internal::ControlClientChannel::initializeControlClientChannel();
 
-    static_cast<void>(ipc_request_semaphore_.init(1U, false));
+    const auto init_result = ipc_request_semaphore_.init(1U, false);
+    assert((score::lcm::internal::osal::OsalReturnType::kSuccess == init_result) &&
+           "ControlClient semaphore initialization failed");
     ipc_response_thread_ = std::make_unique<std::thread>(&ControlClientImpl::run, this);
 }
 
