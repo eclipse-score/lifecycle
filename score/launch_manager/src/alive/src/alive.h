@@ -32,7 +32,7 @@ class AliveImpl;
 /// it executes the configured recovery action.
 ///
 /// Each process may only use a single Alive instance.
-class Alive
+class Alive final
 {
   public:
     /// @brief Creation of an Alive.
@@ -57,7 +57,7 @@ class Alive
     Alive& operator=(Alive&& se) noexcept;
 
     /// @brief Destructor of an Alive
-    virtual ~Alive() noexcept;
+    ~Alive() noexcept;
 
     /// @brief Reports an alive notification
     /// @remark Thread safety: This method is NOT thread safe.

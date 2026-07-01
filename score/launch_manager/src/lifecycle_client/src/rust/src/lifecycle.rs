@@ -14,9 +14,9 @@ use libc::c_int;
 
 #[link(name = "report_running")]
 unsafe extern "C" {
-    fn score_lcm_ReportRunning() -> c_int;
+    fn score_lcm_report_running() -> c_int;
 }
 
 pub fn report_execution_state_running() -> bool {
-    unsafe { score_lcm_ReportRunning() == 0 }
+    unsafe { score_lcm_report_running() == 0 }
 }
