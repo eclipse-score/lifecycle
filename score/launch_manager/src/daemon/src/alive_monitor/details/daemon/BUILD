@@ -86,5 +86,6 @@ cc_library(
         ":i_health_monitor",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/logging:phm_logging",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/watchdog:watchdog_impl",
+        "@score_baselibs//score/language/futurecpp",
     ],
 )
