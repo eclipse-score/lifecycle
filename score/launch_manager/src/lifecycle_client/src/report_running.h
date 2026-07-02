@@ -14,9 +14,16 @@
 #ifndef SCORE_MW_LIFECYCLE_REPORT_RUNNING_H_
 #define SCORE_MW_LIFECYCLE_REPORT_RUNNING_H_
 
-namespace score {
-namespace mw {
-namespace lifecycle {
+#include <stdint.h>
+
+#ifdef __cplusplus
+
+namespace score
+{
+namespace mw
+{
+namespace lifecycle
+{
 
 /// @brief Signals to the Launch Manager that this process has finished
 /// initialization and is now entering its Running state.
@@ -36,8 +43,21 @@ namespace lifecycle {
 /// shutdown accordingly.
 void report_running() noexcept;
 
-} // namespace lifecycle
-} // namespace mw
-} // namespace score
+}  // namespace lifecycle
+}  // namespace mw
+}  // namespace score
 
+extern "C" {
+#endif /* __cplusplus */
+
+// This prototype is required to support applications written in C, which cannot use the C++ namespaces and classes.
+
+/// @brief Signals to the Launch Manager that this process has finished initialization and is now running.
+/// @return 0 on success, -1 on failure
+int8_t score_lcm_report_running(void);
+
+#ifdef __cplusplus
+}
 #endif
+
+#endif /* SCORE_MW_LIFECYCLE_REPORT_RUNNING_H_ */
