@@ -107,6 +107,9 @@ build:ferrocene-coverage --remote_download_all
 # to be removed
 build:build_qnx8 --config=arm64-qnx
 
+# Benchmark configuration — optimized build with no debug symbols
+build:bench -c opt
+
 ## default is a stdout logger which looks like dlt logs
 ## uncomment below to use score::mw::log instead of the stdout logger
 # build --cxxopt=-DLC_LOG_SCORE_MW_LOG

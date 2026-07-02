@@ -10,7 +10,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
 
 cc_library(
     name = "workerthread",
@@ -49,14 +49,18 @@ cc_library(
     ],
 )
 
+cc_binary(
+    name = "mpmc_concurrent_queue_bench",
+    srcs = ["mpmc_concurrent_queue_bench.cpp"],
+    deps = [
+        ":mpmc_concurrent_queue",
+        "@google_benchmark//:benchmark_main",
+    ],
+)
+
 cc_test(
     name = "mpmc_concurrent_queue_test",
     srcs = ["mpmc_concurrent_queue_test.cpp"],
-    # TODO(eclipse-score/lifecycle#241): UBSan reports a misaligned reference while this
-    # test fixture is constructed on ASan's fake stack; the queue itself uses
-    # 64-byte-aligned members, so the report is a fake-stack alignment false
-    # positive rather than a queue bug.
-    tags = ["no-asan"],
     visibility = ["//tests:__subpackages__"],
     deps = [
         ":mpmc_concurrent_queue",
