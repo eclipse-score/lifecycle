@@ -38,25 +38,19 @@ pkg_files(
 
 pkg_files(
     name = "examples_etc_files",
-    srcs = [":examples_test_config"],
-    prefix = "tests/examples",
-)
-
-pkg_files(
-    name = "examples_logging_files",
     srcs = [
         "ecu_logging_config.json",
         "hm_logging.json",
         "logging.json",
+        ":examples_test_config",
     ],
-    prefix = "tests/examples/etc",
+    prefix = "tests/examples",
 )
 
 pkg_tar(
     name = "examples_binaries",
     srcs = [
         ":examples_etc_files",
-        ":examples_logging_files",
         ":examples_main_files",
     ],
 )

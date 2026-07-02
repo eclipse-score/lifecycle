@@ -13,17 +13,6 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("@score_baselibs//score/flatbuffers/bazel:codegen.bzl", "generate_cpp")
 
-exports_files([
-    "lm_flatcfg.fbs",
-    "lm_flatcfg_generated.h",
-])
-
-filegroup(
-    name = "lm_flatcfg_fbs",
-    srcs = ["lm_flatcfg.fbs"],
-    visibility = ["//visibility:public"],
-)
-
 filegroup(
     name = "new_lm_flatcfg_fbs",
     srcs = ["details/new_lm_flatcfg.fbs"],
@@ -79,7 +68,7 @@ cc_library(
     deps = [
         ":config_loader",
         "//score/launch_manager/src/daemon/src/common:log",
-        "@flatbuffers",
+        "@score_baselibs//score/flatbuffers:flatbufferscpp",
     ],
 )
 
@@ -97,7 +86,7 @@ cc_library(
         ":config_loader",
         ":flatbuffer_type_converters",
         "//score/launch_manager/src/daemon/src/common:log",
-        "@flatbuffers",
+        "@score_baselibs//score/flatbuffers:flatbufferscpp",
         "@score_baselibs//score/flatbuffers:flatbufferutils",
     ],
 )
@@ -108,8 +97,8 @@ cc_test(
     visibility = ["//tests:__subpackages__"],
     deps = [
         ":flatbuffer_type_converters",
-        "@flatbuffers",
         "@googletest//:gtest_main",
+        "@score_baselibs//score/flatbuffers:flatbufferscpp",
     ],
 )
 
@@ -119,18 +108,9 @@ cc_test(
     visibility = ["//tests:__subpackages__"],
     deps = [
         ":flatbuffer_config_loader",
-        "@flatbuffers",
         "@googletest//:gtest_main",
+        "@score_baselibs//score/flatbuffers:flatbufferscpp",
     ],
-)
-
-cc_library(
-    name = "lm_flatcfg",
-    hdrs = ["lm_flatcfg_generated.h"],
-    include_prefix = "score/mw/launch_manager/configuration",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/configuration",
-    visibility = ["//score:__subpackages__"],
-    deps = ["@flatbuffers"],
 )
 
 cc_library(
@@ -141,15 +121,15 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/daemon/src/configuration",
     visibility = ["//score:__subpackages__"],
     deps = [
-        ":lm_flatcfg",
         "//score/launch_manager:error",
         "//score/launch_manager/src/daemon/src/common:constants",
         "//score/launch_manager/src/daemon/src/common:identifier_hash",
         "//score/launch_manager/src/daemon/src/common:log",
         "//score/launch_manager/src/daemon/src/common:process_group_state_id",
+        "//score/launch_manager/src/daemon/src/configuration/config_schema",
         "//score/launch_manager/src/daemon/src/osal:num_cores",
         "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
         "//score/launch_manager/src/daemon/src/process_state_client:posix_process",
-        "@flatbuffers",
+        "@score_baselibs//score/flatbuffers:flatbufferscpp",
     ],
 )
