@@ -50,7 +50,7 @@ pkg_files(
 pkg_files(
     name = "non_reporting_etc_files",
     srcs = [":lm_non_reporting_config"],
-    prefix = "tests/incorrect_config_non_reporting/etc",
+    prefix = "tests/incorrect_config_non_reporting",
 )
 
 pkg_tar(

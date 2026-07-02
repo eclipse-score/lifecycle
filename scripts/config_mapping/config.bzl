@@ -2,6 +2,9 @@ load("@rules_pkg//pkg:mappings.bzl", "pkg_files")
 load("@score_baselibs//score/flatbuffers/bazel:tools.bzl", "serialize_buffer")
 
 def _lm_config_splitter_impl(ctx):
+    """Run a script to convert from the new config structure to the old, this 
+    creates 3 seperate configs.
+    """
     script = ctx.executable.script
     config = ctx.file.config
     schema = ctx.file.schema
@@ -24,6 +27,7 @@ def _lm_config_splitter_impl(ctx):
 
 lm_config_splitter = rule(
     implementation = _lm_config_splitter_impl,
+    doc = "Splits the new configuration format int othe old 3 formats.",
     attrs = {
         "config": attr.label(
             allow_single_file = [".json"],
@@ -49,6 +53,53 @@ lm_config_splitter = rule(
     },
 )
 
+def _lm_config_combiner_impl(ctx):
+    """Declare a single directory that all three serialized buffers get copied
+    into. Consumers receive this one directory instead of three individual
+    files.
+    """
+    etc_dir = ctx.actions.declare_directory(ctx.attr.dir_name)
+
+    srcs = [ctx.file.lm_config, ctx.file.hm_config, ctx.file.hm_core_config]
+
+    args = ctx.actions.args()
+    args.add(etc_dir.path)
+    args.add_all([f.path for f in srcs])
+
+    ctx.actions.run_shell(
+        inputs = srcs,
+        outputs = [etc_dir],
+        arguments = [args],
+        command = 'dest="$1"; shift; mkdir -p "$dest"; for f in "$@"; do cp "$f" "$dest/"; done',
+        mnemonic = "LmConfigCombine",
+        progress_message = "Combining launch manager configs into {}".format(etc_dir.short_path),
+    )
+
+    return [DefaultInfo(files = depset([etc_dir]))]
+
+lm_config_combiner = rule(
+    implementation = _lm_config_combiner_impl,
+    doc="Combines the generated .bin files into a single etc directory.",
+    attrs = {
+        "lm_config": attr.label(
+            allow_single_file = [".bin"],
+            mandatory = True,
+        ),
+        "hm_config": attr.label(
+            allow_single_file = [".bin"],
+            mandatory = True,
+        ),
+        "hm_core_config": attr.label(
+            allow_single_file = [".bin"],
+            mandatory = True,
+        ),
+        "dir_name": attr.string(
+            default = "etc",
+            doc = "Name of the directory to place the combined config files into.",
+        ),
+    },
+)
+
 def launch_manager_config(
         name,
         config,
@@ -61,6 +112,8 @@ def launch_manager_config(
         **kwargs):
     split_name = name + "_split"
 
+    # note that the splitting and combining is a workaround as we have to return
+    # the etc directory where all the .bin files are for backwards compatibility.
     lm_config_splitter(
         name = split_name,
         config = config,
@@ -81,25 +134,15 @@ def launch_manager_config(
             name = name + suffix,
             data = json_prefix + stem + ".json",
             schema = schema_file,
-            output = flatbuffer_out_dir + "/" + stem + ".bin",
+            output = name + "_serialized/" + stem + ".bin",
             **kwargs
         )
 
-    # native.filegroup(
-    #     name = name,
-    #     srcs = [
-    #         ":" + name + "_lm_bin",
-    #         ":" + name + "_hm_bin",
-    #         ":" + name + "_hmcore_bin",
-    #     ],
-
-    pkg_files(
+    lm_config_combiner(
         name = name,
-        srcs = [
-            ":" + name + "_lm_bin",
-            ":" + name + "_hm_bin",
-            ":" + name + "_hmcore_bin",
-        ],
-        prefix = "/etc",
+        lm_config = ":" + name + "_lm_bin",
+        hm_config = ":" + name + "_hm_bin",
+        hm_core_config = ":" + name + "_hmcore_bin",
+        dir_name = flatbuffer_out_dir,
+        **kwargs
     )
-    # **kwargs

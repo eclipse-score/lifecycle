@@ -63,7 +63,7 @@ pkg_files(
 pkg_files(
     name = "crash_on_startup_etc_files",
     srcs = [":lm_crash_on_startup_config"],
-    prefix = "tests/crash_on_startup/etc",
+    prefix = "tests/crash_on_startup",
 )
 
 pkg_tar(

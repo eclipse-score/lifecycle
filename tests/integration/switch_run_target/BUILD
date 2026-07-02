@@ -83,7 +83,7 @@ pkg_files(
 pkg_files(
     name = "switch_run_target_etc_files",
     srcs = [":lm_switch_run_target_config"],
-    prefix = "tests/switch_run_target/etc",
+    prefix = "tests/switch_run_target",
 )
 
 pkg_tar(

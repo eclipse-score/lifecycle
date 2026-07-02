@@ -21,8 +21,6 @@ launch_manager_config(
     flatbuffer_out_dir = "etc",
 )
 
-print(":lm_process_launch_args_config")
-
 cc_binary(
     name = "process_initial",
     srcs = ["process_initial.cpp"],

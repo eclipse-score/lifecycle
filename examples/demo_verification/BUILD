@@ -43,7 +43,7 @@ pkg_files(
         "logging.json",
         ":examples_test_config",
     ],
-    prefix = "tests/examples/etc",
+    prefix = "tests/examples",
 )
 
 pkg_tar(
