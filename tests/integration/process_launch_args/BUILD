@@ -21,6 +21,8 @@ launch_manager_config(
     flatbuffer_out_dir = "etc",
 )
 
+print(":lm_process_launch_args_config")
+
 cc_binary(
     name = "process_initial",
     srcs = ["process_initial.cpp"],
@@ -44,7 +46,7 @@ pkg_files(
 pkg_files(
     name = "process_launch_args_etc_files",
     srcs = [":lm_process_launch_args_config"],
-    prefix = "tests/process_launch_args/etc",
+    prefix = "tests/process_launch_args",
 )
 
 pkg_tar(

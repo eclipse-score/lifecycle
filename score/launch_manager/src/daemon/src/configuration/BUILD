@@ -67,7 +67,7 @@ cc_library(
     visibility = ["//score:__subpackages__"],
     deps = [
         ":config_loader",
-        "//score/launch_manager/daemon/src/common:log",
+        "//score/launch_manager/src/daemon/src/common:log",
         "@score_baselibs//score/flatbuffers:flatbufferscpp",
     ],
 )
@@ -85,7 +85,7 @@ cc_library(
     deps = [
         ":config_loader",
         ":flatbuffer_type_converters",
-        "//score/launch_manager/daemon/src/common:log",
+        "//score/launch_manager/src/daemon/src/common:log",
         "@score_baselibs//score/flatbuffers:flatbufferscpp",
         "@score_baselibs//score/flatbuffers:flatbufferutils",
     ],
@@ -122,14 +122,14 @@ cc_library(
     visibility = ["//score:__subpackages__"],
     deps = [
         "//score/launch_manager:error",
-        "//score/launch_manager/daemon/src/common:constants",
-        "//score/launch_manager/daemon/src/common:identifier_hash",
-        "//score/launch_manager/daemon/src/common:log",
-        "//score/launch_manager/daemon/src/common:process_group_state_id",
-        "//score/launch_manager/daemon/src/configuration/config_schema",
-        "//score/launch_manager/daemon/src/osal:num_cores",
-        "//score/launch_manager/daemon/src/process_group_manager:iprocess",
-        "//score/launch_manager/daemon/src/process_state_client:posix_process",
+        "//score/launch_manager/src/daemon/src/common:constants",
+        "//score/launch_manager/src/daemon/src/common:identifier_hash",
+        "//score/launch_manager/src/daemon/src/common:log",
+        "//score/launch_manager/src/daemon/src/common:process_group_state_id",
+        "//score/launch_manager/src/daemon/src/configuration/config_schema",
+        "//score/launch_manager/src/daemon/src/osal:num_cores",
+        "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
+        "//score/launch_manager/src/daemon/src/process_state_client:posix_process",
         "@score_baselibs//score/flatbuffers:flatbufferscpp",
     ],
 )

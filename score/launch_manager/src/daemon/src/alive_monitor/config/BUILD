@@ -41,7 +41,10 @@ cc_library(
         ":hmcore_config",
     ],
     include_prefix = "score/mw/launch_manager/alive_monitor/config",
-    visibility = ["//score/launch_manager/daemon/src/alive_monitor:__subpackages__"],
+    visibility = [
+        "//score/launch_manager/src/alive:__subpackages__",
+        "//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__",
+    ],
     deps = [
         "@score_baselibs//score/flatbuffers:flatbufferscpp",
     ],

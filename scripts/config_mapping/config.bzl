@@ -1,3 +1,4 @@
+load("@rules_pkg//pkg:mappings.bzl", "pkg_files")
 load("@score_baselibs//score/flatbuffers/bazel:tools.bzl", "serialize_buffer")
 
 def _lm_config_splitter_impl(ctx):
@@ -51,12 +52,12 @@ lm_config_splitter = rule(
 def launch_manager_config(
         name,
         config,
-        schema = Label("//score/launch_manager/daemon/src/configuration/config_schema:launch_manager.schema.json"),
+        schema = Label("//score/launch_manager/src/daemon/src/configuration/config_schema:launch_manager.schema.json"),
         script = Label("//scripts/config_mapping:lifecycle_config"),
         flatbuffer_out_dir = "flatbuffer_out",
-        lm_schema = Label("//score/launch_manager/daemon/src/configuration/config_schema:lm_flatcfg.fbs"),
-        hm_schema = Label("//score/launch_manager/daemon/src/alive_monitor/config:hm_flatcfg.fbs"),
-        hmcore_schema = Label("//score/launch_manager/daemon/src/alive_monitor/config:hmcore_flatcfg.fbs"),
+        lm_schema = Label("//score/launch_manager/src/daemon/src/configuration/config_schema:lm_flatcfg.fbs"),
+        hm_schema = Label("//score/launch_manager/src/daemon/src/alive_monitor/config:hm_flatcfg.fbs"),
+        hmcore_schema = Label("//score/launch_manager/src/daemon/src/alive_monitor/config:hmcore_flatcfg.fbs"),
         **kwargs):
     split_name = name + "_split"
 
@@ -84,12 +85,21 @@ def launch_manager_config(
             **kwargs
         )
 
-    native.filegroup(
+    # native.filegroup(
+    #     name = name,
+    #     srcs = [
+    #         ":" + name + "_lm_bin",
+    #         ":" + name + "_hm_bin",
+    #         ":" + name + "_hmcore_bin",
+    #     ],
+
+    pkg_files(
         name = name,
         srcs = [
             ":" + name + "_lm_bin",
             ":" + name + "_hm_bin",
             ":" + name + "_hmcore_bin",
         ],
-        **kwargs
+        prefix = "/etc",
     )
+    # **kwargs

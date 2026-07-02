@@ -29,12 +29,11 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/alive/src/details",
     visibility = ["//score/launch_manager/src/alive:__pkg__"],
     deps = [
-        "//score/launch_manager/src/daemon/src/alive_monitor:alive_monitor_h",
-        "//score/launch_manager/src/daemon/src/alive_monitor:config",
+        "//score/launch_manager/src/daemon/src/alive_monitor/config",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:data_structures",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ipc:ipc_if",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/logging:phm_logging",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
-        "@flatbuffers",
+        "@score_baselibs//score/flatbuffers:flatbufferscpp",
     ],
 )

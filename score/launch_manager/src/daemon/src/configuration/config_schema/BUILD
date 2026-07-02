@@ -32,6 +32,6 @@ cc_library(
     name = "config_schema",
     hdrs = [":fbs_config"],
     include_prefix = "score/mw/launch_manager/configuration",
-    visibility = ["//score/launch_manager/daemon/src/configuration:__subpackages__"],
+    visibility = ["//score/launch_manager/src/daemon/src/configuration:__subpackages__"],
     deps = ["@score_baselibs//score/flatbuffers:flatbufferscpp"],
 )
