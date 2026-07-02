@@ -94,6 +94,20 @@
                 }
             }
         },
+        "c_supervised_app": {
+            "component_properties": {
+                "binary_name": "c_supervised_app",
+                "application_profile": {
+                    "application_type": "Reporting_And_Supervised"
+                }
+            },
+            "deployment_config": {
+                "environmental_variables": {
+                    "PROCESSIDENTIFIER": "c_supervised_app",
+                    "IDENTIFIER": "c_supervised_app"
+                }
+            }
+        },
         "lifecycle_app": {
             "component_properties": {
                 "binary_name": "cpp_lifecycle_app"
@@ -121,6 +135,7 @@
                 "control_daemon",
                 "cpp_supervised_app",
                 "rust_supervised_app",
+                "c_supervised_app",
                 "lifecycle_app"
             ],
             "recovery_action": {
