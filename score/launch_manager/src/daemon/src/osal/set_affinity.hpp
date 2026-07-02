@@ -36,7 +36,7 @@ namespace osal {
 ///        currently physically on the system and permitted to the
 ///        thread according to any restrictions that may be imposed
 ///        elsewhere.
-int32_t setaffinity(uint32_t cpumask) noexcept(true);
+[[nodiscard]] int32_t setaffinity(uint32_t cpumask) noexcept(true);
 }  // namespace osal
 }  // namespace lcm
 }  // namespace internal
