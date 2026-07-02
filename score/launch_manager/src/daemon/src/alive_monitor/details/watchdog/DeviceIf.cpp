@@ -18,7 +18,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <cassert>
+#include <score/assert.hpp>
 
 namespace score
 {
@@ -42,11 +42,11 @@ std::int64_t DeviceIf::write(std::int32_t f_fd, const char* const f_buf_p, size_
 std::int32_t DeviceIf::open(const char* f_pathname_p, std::int32_t f_flags) noexcept
 {
     // O_CREAT and O_TMPFILE flags are not supported (additional mode argument required).
-    assert((f_flags & O_CREAT) == 0);
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_PRD((f_flags & O_CREAT) == 0);
 
     // qnx has no O_TMPFILE flag
 #if defined(__linux__)
-    assert((f_flags & O_TMPFILE) == 0);
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_PRD((f_flags & O_TMPFILE) == 0);
 #endif
 
     return ::open(f_pathname_p, f_flags);

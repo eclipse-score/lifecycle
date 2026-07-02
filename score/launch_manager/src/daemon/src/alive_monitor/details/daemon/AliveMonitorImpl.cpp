@@ -15,36 +15,60 @@
 #include <cstdint>
 #include <iostream>
 
+#include <score/assert.hpp>
+
 #include "score/mw/launch_manager/alive_monitor/details/daemon/AliveMonitorImpl.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/logging/PhmLogger.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/watchdog/WatchdogImpl.hpp"
 
-namespace score {
-namespace lcm {
-namespace saf {
-namespace daemon {
+namespace score
+{
+namespace lcm
+{
+namespace saf
+{
+namespace daemon
+{
 
-AliveMonitorImpl::AliveMonitorImpl(std::shared_ptr<score::lcm::IRecoveryClient> recovery_client, std::unique_ptr<watchdog::IWatchdogIf> watchdog, std::unique_ptr<score::lcm::IProcessStateReceiver> process_state_receiver)
-    : m_recovery_client(recovery_client), m_watchdog(std::move(watchdog)), m_logger{score::lcm::saf::logging::PhmLogger::getLogger(score::lcm::saf::logging::PhmLogger::EContext::factory)}, m_process_state_receiver{std::move(process_state_receiver)} {}
+AliveMonitorImpl::AliveMonitorImpl(std::shared_ptr<score::lcm::IRecoveryClient> recovery_client,
+                                   std::unique_ptr<watchdog::IWatchdogIf> watchdog,
+                                   std::unique_ptr<score::lcm::IProcessStateReceiver> process_state_receiver)
+    : m_recovery_client(recovery_client),
+      m_watchdog(std::move(watchdog)),
+      m_logger{score::lcm::saf::logging::PhmLogger::getLogger(score::lcm::saf::logging::PhmLogger::EContext::factory)},
+      m_process_state_receiver{std::move(process_state_receiver)}
+{
+}
 
-EInitCode AliveMonitorImpl::init() noexcept {
+EInitCode AliveMonitorImpl::init() noexcept
+{
     score::lcm::saf::daemon::EInitCode initResult{score::lcm::saf::daemon::EInitCode::kGeneralError};
-    try {
+    try
+    {
         m_osClock.startMeasurement();
 
-        m_daemon = std::make_unique<score::lcm::saf::daemon::PhmDaemon>(m_osClock, m_logger, std::move(m_watchdog), std::move(m_process_state_receiver));
+        m_daemon = std::make_unique<score::lcm::saf::daemon::PhmDaemon>(
+            m_osClock, m_logger, std::move(m_watchdog), std::move(m_process_state_receiver));
         initResult = m_daemon->init(m_recovery_client);
 
-        if (initResult == score::lcm::saf::daemon::EInitCode::kNoError) {
+        if (initResult == score::lcm::saf::daemon::EInitCode::kNoError)
+        {
             const long ms{m_osClock.endMeasurement()};
             m_logger.LogDebug() << "AliveMonitor: Initialization took " << ms << " ms";
-        } else {
-            m_logger.LogError() << "AliveMonitor: Initialization failed with error code:" << static_cast<int>(initResult);
         }
-    } catch (const std::exception& e) {
+        else
+        {
+            m_logger.LogError() << "AliveMonitor: Initialization failed with error code:"
+                                << static_cast<int>(initResult);
+        }
+    }
+    catch (const std::exception& e)
+    {
         std::cerr << "AliveMonitor: Initialization failed due to standard exception: " << e.what() << ".\n";
         initResult = EInitCode::kGeneralError;
-    } catch (...) {
+    }
+    catch (...)
+    {
         std::cerr << "AliveMonitor: Initialization failed due to exception!\n";
         initResult = EInitCode::kGeneralError;
     }
@@ -52,8 +76,10 @@ EInitCode AliveMonitorImpl::init() noexcept {
     return initResult;
 }
 
-bool AliveMonitorImpl::run(std::atomic_bool& cancel_thread) noexcept {
-    assert(m_daemon != nullptr && "HealthMonitor: Instance is not initialized!");
+bool AliveMonitorImpl::run(std::atomic_bool& cancel_thread) noexcept
+{
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_PRD_MESSAGE(m_daemon != nullptr,
+                                                      "HealthMonitor: Instance is not initialized!");
     return m_daemon->startCyclicExec(cancel_thread);
 }
 

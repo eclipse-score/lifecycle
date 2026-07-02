@@ -11,18 +11,16 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-
 #ifndef WATCHDOGIMPL_HPP_INCLUDED
 #define WATCHDOGIMPL_HPP_INCLUDED
 
 #include <cstdint>
 #include <memory>
-#include <cassert>
 
-#include <vector>
 #include "score/mw/launch_manager/alive_monitor/details/logging/PhmLogger.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/watchdog/IDeviceConfigFactory.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/watchdog/IWatchdogIf.hpp"
+#include <vector>
 
 namespace score
 {
@@ -35,13 +33,13 @@ namespace watchdog
 {
 
 // coverity[autosar_cpp14_m3_4_1_violation] block scope definition is intentionally avoided for maintainability
-constexpr char const* kMagicCloseChar{"V"};
+constexpr const char* kMagicCloseChar{"V"};
 
 /// @brief Simple Watchdog implementation
 /// @note As of now only supports simple watchdogs and no window watchdogs.
 class WatchdogImpl : public IWatchdogIf
 {
-public:
+  public:
     /// @brief Default Constructor
     explicit WatchdogImpl() noexcept;
 
@@ -77,15 +75,17 @@ public:
     /// @todo Decide if we want to use one of the predefined errors to trigger watchdog: E.g. WDIOF_OVERHEAT
     void fireWatchdogReaction() noexcept override;
 
-protected:
+  protected:
     /// @brief Waits forever
     /// This is the intended behavior after firing the watchdog.
     /// @note This function is intentionally virtual so we can overwrite it in tests
     virtual void waitForever() const noexcept;
 
-private:
-    /* RULECHECKER_comment(1:0,15:0, check_non_pod_struct, "We want to treat it as POD as alternative implementation would increase complexity", true_no_defect) */
-    /* RULECHECKER_comment(1:0,15:0, check_non_private_non_pod_field, "We want to treat it as POD as alternative implementation would increase complexity", true_no_defect) */
+  private:
+    /* RULECHECKER_comment(1:0,15:0, check_non_pod_struct, "We want to treat it as POD as alternative implementation
+     * would increase complexity", true_no_defect) */
+    /* RULECHECKER_comment(1:0,15:0, check_non_private_non_pod_field, "We want to treat it as POD as alternative
+     * implementation would increase complexity", true_no_defect) */
 
     /// @brief The watchdog device state.
     struct WatchdogDevice

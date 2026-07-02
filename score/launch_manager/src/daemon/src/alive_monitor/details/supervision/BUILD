@@ -53,6 +53,7 @@ cc_library(
         "//score/launch_manager/src/daemon/src/alive_monitor/details/logging:phm_logging",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
         "//score/launch_manager/src/daemon/src/recovery_client",
+        "@score_baselibs//score/language/futurecpp",
     ],
 )
 
