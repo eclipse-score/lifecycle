@@ -94,13 +94,7 @@ alias(
 # Docs
 docs(
     data = [
-        "//score/launch_manager/src/daemon/src/configuration/config_schema:default_values/alive_supervision_defaults.json",
-        "//score/launch_manager/src/daemon/src/configuration/config_schema:default_values/component_properties_defaults.json",
-        "//score/launch_manager/src/daemon/src/configuration/config_schema:default_values/deployment_config_defaults.json",
-        "//score/launch_manager/src/daemon/src/configuration/config_schema:default_values/run_target_defaults.json",
-        "//score/launch_manager/src/daemon/src/configuration/config_schema:default_values/watchdog_defaults.json",
-        "//score/launch_manager/src/daemon/src/configuration/config_schema:examples/example_conf.json",
-        "//score/launch_manager/src/daemon/src/configuration/config_schema:launch_manager.schema.json",
+        "//score/launch_manager/src/daemon/src/configuration/config_schema:config_schema_files",
         "@score_platform//:needs_json",  # This allows linking to feature requirements.
         "@score_process//:needs_json",  # This allows linking to requirements (wp__requirements_comp, etc.) from the process_description repository.
     ],

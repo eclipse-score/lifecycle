@@ -21,13 +21,10 @@ exports_files(
     visibility = ["//visibility:public"],
 )
 
-exports_files(
-    [
-        "examples/example_conf.json",
-    ] + glob([
-        "default_values/**/*.json",
-    ]),
-    visibility = ["//:__subpackages__"],
+filegroup(
+    name = "config_schema_files",
+    srcs = glob(["**/*.json"]),
+    visibility = ["//:__pkg__"],
 )
 
 generate_cpp(
