@@ -82,7 +82,8 @@ void PhmDaemon::performCyclicTriggers(void)
     }
 }
 
-bool PhmDaemon::construct(const factory::MachineConfigFactory::SupervisionBufferConfig& f_bufferConfig_r) noexcept(
+bool PhmDaemon::construct(const score::mw::launch_manager::configuration::Config& config,
+                         const factory::MachineConfigFactory::SupervisionBufferConfig& f_bufferConfig_r) noexcept(
     false)
 {
     bool isSuccess{true};
@@ -108,7 +109,7 @@ bool PhmDaemon::construct(const factory::MachineConfigFactory::SupervisionBuffer
         for (auto strSwClusterName : listSwClustersPhm.value())
         {
             swClusterHandlers.emplace_back(strSwClusterName);
-            isSuccess = swClusterHandlers.back().constructWorkers(recoveryClient, processStateReader, f_bufferConfig_r);
+            isSuccess = swClusterHandlers.back().constructWorkers(config, recoveryClient, processStateReader, f_bufferConfig_r);
             if (!isSuccess)
             {
                 logger_r.LogError() << "Phm Daemon: failed to create worker objects for swclusterhandler:"

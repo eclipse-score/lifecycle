@@ -20,6 +20,7 @@
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ProcessStateReader.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/logging/PhmLogger.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
+#include "score/mw/launch_manager/configuration/config.hpp"
 #include <string>
 #include <vector>
 
@@ -74,30 +75,24 @@ class SwClusterHandler
     SwClusterHandler& operator=(const SwClusterHandler&) = delete;
 
     /// @brief Move Constructor
-    /* RULECHECKER_comment(0, 7, check_min_instructions, "Default constructor is not provided\
-       a function body", true_no_defect) */
-    /* RULECHECKER_comment(0, 5, check_incomplete_data_member_construction, "Default constructor is not provided\
-       the member initializer", false) */
-    /* RULECHECKER_comment(0, 46, check_copy_in_move_constructor, "The default move constructor invokes parameterised\
-       constructor internally. This invokes std::string copy construction", true_no_defect) */
     SwClusterHandler(SwClusterHandler&&) = default;
 
     /// @brief No Move Assignment
     SwClusterHandler& operator=(SwClusterHandler&&) = delete;
 
-    /// @brief Construct required worker objects for the Software Cluster
-    /// @details Construct the interfaces, checkpoints, supervisions and recovery notifications
+    /// @brief Construct required worker objects from the unified Config
+    /// @param [in] config                   The parsed launch manager configuration
     /// @param [in] f_recoveryClient_r       Interface to the launch manager for recovery
     /// @param [in] f_processStateReader_r   Process state reader object for PHM daemon
-    /// @param [in] f_bufferConfig_r           Configuration settings for constructing workers
-    /// @return                              Construction is successful (true), otherwise failure (false)
+    /// @param [in] f_bufferConfig_r         Configuration settings for constructing workers
+    /// @return                              true on success, false on failure
     bool constructWorkers(
+        const score::mw::launch_manager::configuration::Config& config,
         std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r,
         ifexm::ProcessStateReader& f_processStateReader_r,
         const factory::MachineConfigFactory::SupervisionBufferConfig& f_bufferConfig_r) noexcept(false);
 
-    /// @brief Perform cyclic execution
-    /// @details Perform cyclic execution required for supervision of the Software Cluster
+    /// @brief Perform cyclic execution required for supervision of the Software Cluster
     /// @param [in] f_syncTimestamp   Timestamp for cyclic synchronization
     void performCyclicTriggers(const timers::NanoSecondType f_syncTimestamp);
 
@@ -106,13 +101,11 @@ class SwClusterHandler
     bool hasAnyRecoveryEnqueueFailed() const noexcept;
 
   private:
-    /// @brief Check interfaces for new data
-    /// @details All interfaces created during construction will be checked for new data.
+    /// @brief Check all interfaces for new data
     /// @param [in] f_syncTimestamp   Timestamp for cyclic synchronization
     void checkInterfaceForNewData(const timers::NanoSecondType f_syncTimestamp);
 
-    /// @brief Evaluate supervisions
-    /// @details Evaluate all supervisions created during construction.
+    /// @brief Evaluate all supervisions
     /// @param [in] f_syncTimestamp   Timestamp for cyclic synchronization
     void evaluateSupervisions(const timers::NanoSecondType f_syncTimestamp);
 

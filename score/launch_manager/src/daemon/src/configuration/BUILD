@@ -13,17 +13,6 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("@score_baselibs//score/flatbuffers/bazel:codegen.bzl", "generate_cpp")
 
-exports_files([
-    "lm_flatcfg.fbs",
-    "lm_flatcfg_generated.h",
-])
-
-filegroup(
-    name = "lm_flatcfg_fbs",
-    srcs = ["lm_flatcfg.fbs"],
-    visibility = ["//visibility:public"],
-)
-
 filegroup(
     name = "new_lm_flatcfg_fbs",
     srcs = ["details/new_lm_flatcfg.fbs"],
@@ -125,24 +114,17 @@ cc_test(
 )
 
 cc_library(
-    name = "lm_flatcfg",
-    hdrs = ["lm_flatcfg_generated.h"],
-    include_prefix = "score/mw/launch_manager/configuration",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/configuration",
-    visibility = ["//score:__subpackages__"],
-    deps = ["@flatbuffers"],
-)
-
-cc_library(
-    name = "configuration_manager",
-    srcs = ["configuration_manager.cpp"],
-    hdrs = ["configuration_manager.hpp"],
+    name = "configuration_adapter",
+    srcs = ["configuration_adapter.cpp"],
+    hdrs = ["configuration_adapter.hpp"],
     include_prefix = "score/mw/launch_manager/configuration",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/configuration",
     visibility = ["//score:__subpackages__"],
     deps = [
-        ":lm_flatcfg",
-        "//score/launch_manager:error",
+        ":config",
+        ":config_loader",
+        ":flatbuffer_config_loader",
+        "//score/launch_manager/src/daemon/src/common:alive_interface_path",
         "//score/launch_manager/src/daemon/src/common:constants",
         "//score/launch_manager/src/daemon/src/common:identifier_hash",
         "//score/launch_manager/src/daemon/src/common:log",
@@ -150,6 +132,15 @@ cc_library(
         "//score/launch_manager/src/daemon/src/osal:num_cores",
         "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
         "//score/launch_manager/src/daemon/src/process_state_client:posix_process",
-        "@flatbuffers",
+    ],
+)
+
+cc_test(
+    name = "configuration_adapter_UT",
+    srcs = ["configuration_adapter_UT.cpp"],
+    visibility = ["//tests:__subpackages__"],
+    deps = [
+        ":configuration_adapter",
+        "@googletest//:gtest_main",
     ],
 )

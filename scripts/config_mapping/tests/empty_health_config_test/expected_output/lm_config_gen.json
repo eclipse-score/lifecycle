@@ -1,0 +1,73 @@
+{
+    "schema_version": 1,
+    "components": [
+        {
+            "name": "non_supervised_comp",
+            "description": "Non-supervised component",
+            "component_properties": {
+                "application_profile": {
+                    "application_type": "Native",
+                    "is_self_terminating": true
+                },
+                "depends_on": [],
+                "process_arguments": [],
+                "ready_condition": {
+                    "process_state": "Terminated"
+                }
+            },
+            "deployment_config": {
+                "ready_timeout": 0.5,
+                "shutdown_timeout": 0.5,
+                "executable_path": "/opt/scripts/bin/comp",
+                "working_dir": "/tmp",
+                "sandbox": {
+                    "uid": 3,
+                    "gid": 1000,
+                    "supplementary_group_ids": [],
+                    "security_policy": "",
+                    "scheduling_policy": "OTHER",
+                    "scheduling_priority": 0
+                },
+                "ready_recovery_action": {
+                    "number_of_attempts": 0,
+                    "delay_before_restart": 0
+                },
+                "recovery_action": {
+                    "run_target": "fallback_run_target"
+                }
+            }
+        }
+    ],
+    "run_targets": [
+        {
+            "name": "Startup",
+            "transition_timeout": 3,
+            "recovery_action": {
+                "run_target": "fallback_run_target"
+            },
+            "description": "Minimal functionality of the system",
+            "depends_on": [
+                "non_supervised_comp"
+            ]
+        },
+        {
+            "name": "Full",
+            "transition_timeout": 5,
+            "recovery_action": {
+                "run_target": "fallback_run_target"
+            },
+            "description": "Everything running",
+            "depends_on": [
+                "non_supervised_comp"
+            ]
+        }
+    ],
+    "initial_run_target": "Startup",
+    "fallback_run_target": {
+        "transition_timeout": 1.5,
+        "description": "Switching off everything"
+    },
+    "alive_supervision": {
+        "evaluation_cycle": 0.123
+    }
+}

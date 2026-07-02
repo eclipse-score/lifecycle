@@ -20,7 +20,8 @@
 
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/control/control_client_channel.hpp"
-#include "score/mw/launch_manager/configuration/configuration_manager.hpp"
+#include "score/mw/launch_manager/configuration/config.hpp"
+#include "score/mw/launch_manager/configuration/configuration_adapter.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
 #include "score/mw/launch_manager/common/concurrency/mpmc_concurrent_queue.hpp"
@@ -42,10 +43,10 @@ namespace score::lcm::internal
 /// coherent way. Through a Process Group, Launch Manager will control the life cycle of Operating System (OS)
 /// processes. They will be started and stopped when State Management (SM) request so and they will be started and
 /// stopped in a way, that is described by integrator through configuration. When SM request PG change,
-/// ProcessGroupManager will use ConfigurationManager to figure out what processes shall be started, or stopped, as well
+/// ProcessGroupManager will use ConfigurationAdapter to figure out what processes shall be started, or stopped, as well
 /// as their startup configuration. Then ProcessGroupManager will use Operating System Abstraction Layer (OSAL) to
 /// start, or stop, processes as per configuration. Some of the responsibilities of ProcessGroupManager include:
-///     Interaction with ConfigurationManager to ensure that, the list of processes that are running on Machine, is as
+///     Interaction with ConfigurationAdapter to ensure that, the list of processes that are running on Machine, is as
 ///     configured by integrator. Interaction with OSAL to start and stop processes. Interaction with OSAL to discover
 ///     when processes terminated in an unexpected way. Fulfilling PG State transitions requests from SM, as well as
 ///     informing SM about unexpected problems (for example process crashes).
@@ -69,14 +70,14 @@ class ProcessGroupManager final
                         std::unique_ptr<score::lcm::IProcessStateNotifier> process_state_notifier);
 
     /// @brief Initializes the process group manager.
-    /// Loads the flat configuration through ConfigurationManager.
     /// Sets up a signal handler for SIGINT and SIGTERM so that the main loop of
-    /// the run() method will be exited in the event of those signals
+    /// the run() method will be exited in the event of those signals.
     /// Creates the process map, worker threads and worker job queues.
     /// Creates and initialises the shared memory for the nudge semaphore, always using FD #4,
     /// and stores a pointer to it.
+    /// @param config The fully-loaded configuration to build process groups from.
     /// @return Returns true if initialization was successful, false otherwise.
-    bool initialize();
+    bool initialize(const score::mw::launch_manager::configuration::Config& config);
 
     /// @brief De-initialises the process group manager
     /// deletes worker threads, worker jobs and the process map and then de-initialises the configuration manager
@@ -122,8 +123,8 @@ class ProcessGroupManager final
     osal::IProcess* getProcessInterface();
 
     /// @brief Gets the configuration manager.
-    /// @return Pointer to the ConfigurationManager object.
-    ConfigurationManager* getConfigurationManager();
+    /// @return Pointer to the ConfigurationAdapter object.
+    ConfigurationAdapter* getConfigurationAdapter();
 
     /// @brief Gets the process map.
     /// @return Shared pointer to the SafeProcessMap object.
@@ -260,7 +261,7 @@ class ProcessGroupManager final
 
     /// @brief Initializes the process groups.
     /// @return Returns true if initialization was successful, false otherwise.
-    inline bool initializeProcessGroups();
+    inline bool initializeProcessGroups(const score::mw::launch_manager::configuration::Config& config);
 
     /// @brief Creates process component objects, including the job queue and worker threads.
     inline void createProcessComponentsObjects();
@@ -271,8 +272,8 @@ class ProcessGroupManager final
     /// @brief Initializes the Control Client handler.
     inline bool initializeControlClientHandler();
 
-    /// @brief The ConfigurationManager object associated with the ProcessGroupManager.
-    ConfigurationManager configuration_manager_;
+    /// @brief The ConfigurationAdapter object associated with the ProcessGroupManager.
+    ConfigurationAdapter configuration_adapter_;
 
     /// @brief The process interface object associated with the ProcessGroupManager.
     osal::IProcess process_interface_;

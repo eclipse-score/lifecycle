@@ -15,7 +15,7 @@
 #define _INCLUDED_PROCESSINFONODE_
 
 #include <atomic>
-#include "score/mw/launch_manager/configuration/configuration_manager.hpp"
+#include "score/mw/launch_manager/configuration/configuration_adapter.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 #include "score/mw/launch_manager/control/control_client_channel.hpp"
 

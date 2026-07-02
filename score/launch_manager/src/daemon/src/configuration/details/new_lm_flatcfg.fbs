@@ -60,8 +60,6 @@ table ReadyCondition {
 
 // Defines essential characteristics of a software component.
 table ComponentProperties {
-  // Relative path of the executable inside bin_dir.
-  binary_name:string (required); // required
   application_profile:ApplicationProfile (required); // required
   // Names of components that must reach ready state before this component starts.
   depends_on:[string]; // optional
@@ -118,8 +116,8 @@ table DeploymentConfig {
   shutdown_timeout:double = null; // required
   // Environment variables passed to the component at startup.
   environmental_variables:[EnvironmentalVariable]; // optional
-  // Absolute path to the directory where the component is installed.
-  bin_dir:string (required); // required
+  // Absolute path to the executable.
+  executable_path:string (required); // required
   // Working directory for the component during execution.
   working_dir:string (required); // required
   // Recovery action when the component fails to reach ready state.

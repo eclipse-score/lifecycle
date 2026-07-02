@@ -20,12 +20,7 @@
 #include "score/mw/launch_manager/alive_monitor/details/logging/PhmLogger.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/watchdog/IDeviceConfigFactory.hpp"
-
-namespace HMCOREFlatBuffer
-{
-/* RULECHECKER_comment(1:0,1:0, check_non_pod_struct, "External data type form generated flatbuffer code", true_no_defect) */
-struct HMCOREEcuCfg;
-}  // namespace PHMCOREFlatBuffer
+#include "score/mw/launch_manager/configuration/config.hpp"
 
 namespace score
 {
@@ -42,14 +37,13 @@ class PhmLogger;
 namespace factory
 {
 
-/// @brief Factory for loading the HM Machine Configuration
+/// @brief Factory for loading the HM Machine Configuration from the unified launch_manager_config.bin
 /// @details Provides methods to retrieve the settings from the HM Machine configuration if a configuration is
 /// provided. If no configuration is provided, the default values are returned.
 class MachineConfigFactory : public watchdog::IDeviceConfigFactory
 {
 public:
-    /// @brief Holds different buffer sizes that may be configured in the HM Machine Config
-    /// @details All buffer sizes are initialized with their default value
+    /// @brief Holds buffer sizes for supervision objects (currently using compile-time defaults)
     struct SupervisionBufferConfig
     {
         /// @brief Configured buffer size for alive supervisions
@@ -73,12 +67,8 @@ public:
     /// @brief No Move Assignment
     MachineConfigFactory& operator=(MachineConfigFactory&&) = delete;
 
-    /// @brief Load and parse machine configuration
-    /// @return True, if either no machine configuration is provided or a valid configuration was successfully loaded.
-    ///         False, if an invalid machine configuration was provided.
-    /// @note FlatCfg constructor does not define any exception guarantee and may throw a non specified exception
-    /// @throws std::bad_alloc in case of insufficient memory
-    bool init() noexcept(false);
+    /// @brief Load machine configuration from the unified Config object
+    bool init(const score::mw::launch_manager::configuration::Config& config) noexcept(false);
 
     /// @copydoc IDeviceConfigFactory::getDeviceConfigurations()
     std::optional<watchdog::IDeviceConfigFactory::DeviceConfigurations> getDeviceConfigurations() const override;
@@ -92,20 +82,6 @@ public:
     const SupervisionBufferConfig& getSupervisionBufferConfig() const noexcept(true);
 
 private:
-    /// @brief Loads the hm machine config
-    /// @param [in] f_cfg_r The flatcfg api
-    /// @throws std::bad_alloc for string allocation in case of insufficient memory
-    /// @return true if no error occurred, else false
-    bool loadHmCoreConfig(const HMCOREFlatBuffer::HMCOREEcuCfg* f_cfg_r) noexcept(false);
-
-    /// @brief Loads the watchdog device configuration from machine config
-    /// @param [in] f_flatBuffer_r The loaded machine config
-    void loadWatchdogDevices(const HMCOREFlatBuffer::HMCOREEcuCfg& f_flatBuffer_r) noexcept(false);
-
-    /// @brief Load HM settings from the machine config. I.e. buffer sizes, periodicity, etc.
-    /// @param [in] f_flatBuffer_r The flatcfg buffer
-    void loadHmSettings(const HMCOREFlatBuffer::HMCOREEcuCfg& f_flatBuffer_r) noexcept(true);
-
     /// @brief Log all configuration settings
     void logConfiguration() noexcept(true);
 
@@ -118,10 +94,6 @@ private:
 
     /// @brief Configured supervision buffer sizes
     SupervisionBufferConfig supBufferCfg{};
-
-    /// Pointer to HM Flat Buffer for given Software Cluster
-    /// Raw pointer is used here because the memory is deallocated by FlatBuffer.
-    const HMCOREFlatBuffer::HMCOREEcuCfg* flatBuffer_p;
 
     /// Logger object for logging messages
     logging::PhmLogger& logger_r{logging::PhmLogger::getLogger(logging::PhmLogger::EContext::factory)};

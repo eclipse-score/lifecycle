@@ -59,7 +59,6 @@ struct ReadyCondition
 
 struct ComponentProperties
 {
-    std::string binary_name;
     ApplicationProfile application_profile;
     std::vector<std::string> depends_on;
     std::vector<std::string> process_arguments;
@@ -152,7 +151,7 @@ struct DeploymentConfig
     uint32_t ready_timeout_ms{};
     uint32_t shutdown_timeout_ms{};
     Environment environmental_variables;
-    std::string bin_dir;
+    std::string executable_path;
     std::string working_dir;
     std::optional<RestartAction> ready_recovery_action;
     // Currently only SwitchRunTargetAction is supported here, RestartAction to be added in the future

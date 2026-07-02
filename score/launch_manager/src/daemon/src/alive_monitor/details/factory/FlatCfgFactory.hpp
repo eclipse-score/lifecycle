@@ -23,8 +23,7 @@
 #include "score/mw/launch_manager/alive_monitor/details/factory/IPhmFactory.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/factory/MachineConfigFactory.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ProcessStateReader.hpp"
-#include "score/mw/launch_manager/alive_monitor/config/hm_flatcfg_generated.h"
-#include "flatbuffers/flatbuffers.h"
+#include "score/mw/launch_manager/configuration/config.hpp"
 
 namespace score {
     namespace lcm {
@@ -47,8 +46,8 @@ class PhmLogger;
 namespace factory
 {
 
-/// @brief PHM Factory for FlatCfg AR21-11 format
-/// @details Provides methods to create worker objects depending on a AR21-11 based PHM FlatCfg file
+/// @brief PHM Factory that reads configuration from the unified launch_manager_config.bin
+/// @details Provides methods to create worker objects from the new Config type
 ///          and establishes required links between the worker objects automatically.
 class FlatCfgFactory : public IPhmFactory
 {
@@ -58,8 +57,6 @@ public:
     explicit FlatCfgFactory(const factory::MachineConfigFactory::SupervisionBufferConfig& f_bufferConfig_r);
 
     /// @brief Destructor
-    /* RULECHECKER_comment(0, 5, check_min_instructions, "Default destructor is not provided\
-       a function body", true_no_defect) */
     ~FlatCfgFactory() override = default;
 
     /// @brief No Copy Constructor
@@ -71,12 +68,10 @@ public:
     /// @brief No Move Assignment
     FlatCfgFactory& operator=(FlatCfgFactory&&) = delete;
 
-    /// @brief Initialize SW cluster
-    /// @param [inout] f_flatCfgPhm_r   FlatCfg configuration for PHM
-    /// @param [in] f_nameSwCluster_r   Software Cluster name which for which workers shall be constructed
-    /// @return                         Initialization is successful (true), otherwise failure (false)
-    // bool init(flatcfg::FlatCfg& f_flatCfgPhm_r, const std::string& f_nameSwCluster_r);
-    bool init(const std::string& f_filename_r);
+    /// @brief Initialize from the unified Config object
+    /// @param [in] config  The parsed launch manager configuration
+    /// @return             true on success
+    bool init(const score::mw::launch_manager::configuration::Config& config);
 
     /// @brief Refer to the description of the base class (IPhmFactory)
     bool createProcessStates(std::vector<ifexm::ProcessState>& f_processStates_r,
@@ -103,17 +98,13 @@ public:
 
 private:
 
-    /// @brief Get process id based on ASR path of process
-    /// @param[in] f_processPath_r  ASR path of process
-    /// @return                     process id or nullopt in case of an error
-    std::optional<common::ProcessId> getProcessId(const std::string& f_processPath_r) noexcept(true);
+    /// @brief Get process id from a component configuration
+    /// @param[in] comp  Pointer to the component configuration
+    /// @return          process id or nullopt in case of an error
+    std::optional<common::ProcessId> getProcessId(
+        const score::mw::launch_manager::configuration::ComponentConfig* comp) noexcept(true);
 
     /// @brief Create IPC Channel with uid-based access permission
-    /// @details Only the given uid will ge granted r/w access, no group will be granted access
-    /// @param[in,out] f_ipcServer_r The IPC server object
-    /// @param[in] f_ipcPath_r The name of the IPC channel
-    /// @param[in] f_uid The uid that will be assigned r/w permissions for ipc communication
-    /// @return True if creation was successful, else false
     bool initIpcServerWithUidBasedAccess(ifappl::CheckpointIpcServer& f_ipcServer_r,
                                          const std::string& f_ipcPath_r,
                                          const std::int32_t f_uid) noexcept(false);
@@ -121,12 +112,16 @@ private:
     /// @brief The buffer configuration for constructing supervision objects
     const factory::MachineConfigFactory::SupervisionBufferConfig& bufferConfig_r;
 
-    /// Pointer to PHM Flat Buffer for given Software Cluster
-    /// Raw pointer is used here because the memory is deallocated by FlatBuffer.
-    const HMFlatBuffer::HMEcuCfg* flatBuffer_p;
+    /// Non-owning pointer to the unified configuration. Must outlive this factory —
+    /// typically the Config lives in main() and the factory is destroyed before it.
+    const score::mw::launch_manager::configuration::Config* config_;
 
-    /// Pointer for loaded Software Cluster
-    std::unique_ptr<char[]> loadBuffer_p;
+    /// Filtered list of supervised components (pointers into config_->components())
+    std::vector<const score::mw::launch_manager::configuration::ComponentConfig*> supervised_components_;
+
+    /// Stable storage for alive supervision config names, so that raw const char* pointers
+    /// passed via AliveSupervisionCfg::cfgName_p remain valid for the factory's lifetime.
+    std::vector<std::string> alive_cfg_names_;
 
     /// Logger object for logging messages
     logging::PhmLogger& logger_r;

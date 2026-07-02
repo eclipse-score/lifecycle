@@ -314,9 +314,7 @@ score::cpp::expected<ComponentProperties, IConfigLoader::Error> convertComponent
     ComponentProperties result{};
     if (fb_cp != nullptr)
     {
-        assert(fb_cp->binary_name() && "ComponentProperties::binary_name must never be nullptr as it is required in the schema");
         assert(fb_cp->application_profile() && "ComponentProperties::application_profile must never be nullptr as it is required in the schema");
-        result.binary_name = fb_cp->binary_name()->str();
         auto app_profile = convertApplicationProfile(fb_cp->application_profile());
         if (!app_profile.has_value())
         {
@@ -400,7 +398,7 @@ score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentCo
     DeploymentConfig result{};
     if (fb_dc != nullptr)
     {
-        assert(fb_dc->bin_dir() && "DeploymentConfig::bin_dir must never be nullptr as it is required in the schema");
+        assert(fb_dc->executable_path() && "DeploymentConfig::executable_path must never be nullptr as it is required in the schema");
         assert(fb_dc->working_dir() && "DeploymentConfig::working_dir must never be nullptr as it is required in the schema");
         assert(fb_dc->sandbox() && "DeploymentConfig::sandbox must never be nullptr as it is required in the schema");
         auto ready_timeout = requireScalarValue(fb_dc->ready_timeout(), "DeploymentConfig::ready_timeout");
@@ -428,7 +426,7 @@ score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentCo
         result.ready_timeout_ms = *ready_timeout_ms;
         result.shutdown_timeout_ms = *shutdown_timeout_ms;
         result.environmental_variables = convertEnvironmentalVariables(fb_dc->environmental_variables());
-        result.bin_dir = fb_dc->bin_dir()->str();
+        result.executable_path = fb_dc->executable_path()->str();
         result.working_dir = fb_dc->working_dir()->str();
         auto ready_recovery = convertRestartAction(fb_dc->ready_recovery_action());
         if (!ready_recovery.has_value())
@@ -543,6 +541,11 @@ score::cpp::expected<AliveSupervisionConfig, IConfigLoader::Error> convertAliveS
     {
         LM_LOG_ERROR() << "Invalid value for AliveSupervision::evaluation_cycle";
         return score::cpp::make_unexpected(evaluation_cycle_ms.error());
+    }
+    if (*evaluation_cycle_ms == 0U)
+    {
+        LM_LOG_ERROR() << "AliveSupervision::evaluation_cycle must not be zero";
+        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
     }
     return AliveSupervisionConfig{*evaluation_cycle_ms};
 }

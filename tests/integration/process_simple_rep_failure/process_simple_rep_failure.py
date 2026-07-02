@@ -44,6 +44,10 @@ def test_recovery_action_simple_rep_failure(
     run_until_file_deployed(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
+        args=[
+            "-c",
+            str(remote_test_dir / "etc" / "process_simple_rep_failure_gen.bin"),
+        ],
         file_path=remote_test_dir.parent / "test_end",
         cwd=str(remote_test_dir),
         timeout_s=10.0,

@@ -716,12 +716,12 @@ TEST_F(ConverterTest, ConvertDeploymentConfigValid)
 {
     RecordProperty("Description", "convertDeploymentConfig maps all fields correctly.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto bin_dir = fbb.CreateString("/opt/bin");
+    auto exec_path = fbb.CreateString("/opt/bin/my_app");
     auto work_dir = fbb.CreateString("/tmp");
     auto sandbox = buildDefaultSandbox(fbb);
     auto deploy = fb::CreateDeploymentConfig(
         fbb, 1.5 /*ready_timeout*/, 2.5 /*shutdown_timeout*/, 0 /*environmental_variables*/,
-        bin_dir, work_dir, 0 /*ready_recovery_action*/, 0 /*recovery_action*/, sandbox);
+        exec_path, work_dir, 0 /*ready_recovery_action*/, 0 /*recovery_action*/, sandbox);
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
@@ -729,7 +729,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigValid)
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(result->ready_timeout_ms, Eq(1500U));
     EXPECT_THAT(result->shutdown_timeout_ms, Eq(2500U));
-    EXPECT_THAT(result->bin_dir, Eq("/opt/bin"));
+    EXPECT_THAT(result->executable_path, Eq("/opt/bin/my_app"));
     EXPECT_THAT(result->working_dir, Eq("/tmp"));
     EXPECT_THAT(result->ready_recovery_action.has_value(), IsFalse());
     EXPECT_THAT(result->recovery_action.has_value(), IsFalse());
@@ -739,10 +739,10 @@ TEST_F(ConverterTest, ConvertDeploymentConfigMissingReadyTimeoutReturnsError)
 {
     RecordProperty("Description", "Missing ready_timeout returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto bin_dir = fbb.CreateString("/opt");
+    auto exec_path = fbb.CreateString("/opt/bin");
     auto work_dir = fbb.CreateString("/tmp");
     auto sandbox = buildDefaultSandbox(fbb);
-    auto deploy = fb::CreateDeploymentConfig(fbb, ::flatbuffers::nullopt /*ready_timeout*/, 1.0 /*shutdown_timeout*/, 0 /*environmental_variables*/, bin_dir, work_dir, 0 /*ready_recovery_action*/, 0 /*recovery_action*/, sandbox);
+    auto deploy = fb::CreateDeploymentConfig(fbb, ::flatbuffers::nullopt /*ready_timeout*/, 1.0 /*shutdown_timeout*/, 0 /*environmental_variables*/, exec_path, work_dir, 0 /*ready_recovery_action*/, 0 /*recovery_action*/, sandbox);
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
@@ -755,10 +755,10 @@ TEST_F(ConverterTest, ConvertDeploymentConfigMissingShutdownTimeoutReturnsError)
 {
     RecordProperty("Description", "Missing shutdown_timeout returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto bin_dir = fbb.CreateString("/opt");
+    auto exec_path = fbb.CreateString("/opt/bin");
     auto work_dir = fbb.CreateString("/tmp");
     auto sandbox = buildDefaultSandbox(fbb);
-    auto deploy = fb::CreateDeploymentConfig(fbb, 1.0 /*ready_timeout*/, ::flatbuffers::nullopt /*shutdown_timeout*/, 0 /*environmental_variables*/, bin_dir, work_dir, 0 /*ready_recovery_action*/, 0 /*recovery_action*/, sandbox);
+    auto deploy = fb::CreateDeploymentConfig(fbb, 1.0 /*ready_timeout*/, ::flatbuffers::nullopt /*shutdown_timeout*/, 0 /*environmental_variables*/, exec_path, work_dir, 0 /*ready_recovery_action*/, 0 /*recovery_action*/, sandbox);
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
@@ -773,14 +773,13 @@ TEST_F(ConverterTest, ConvertComponentValid)
     ::flatbuffers::FlatBufferBuilder fbb;
 
     auto app_profile = fb::CreateApplicationProfile(fbb, fb::ApplicationType::Native, false /*is_self_terminating*/);
-    auto bin_name = fbb.CreateString("my_binary");
     auto ready_cond = fb::CreateReadyCondition(fbb, fb::ProcessState::Running);
-    auto comp_props = fb::CreateComponentProperties(fbb, bin_name, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
+    auto comp_props = fb::CreateComponentProperties(fbb, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
 
-    auto bin_dir = fbb.CreateString("/opt");
+    auto exec_path = fbb.CreateString("/opt/my_binary");
     auto work_dir = fbb.CreateString("/tmp");
     auto sandbox = buildDefaultSandbox(fbb);
-    auto deploy = fb::CreateDeploymentConfig(fbb, 1.0 /*ready_timeout*/, 1.0 /*shutdown_timeout*/, 0 /*environmental_variables*/, bin_dir, work_dir, 0 /*ready_recovery_action*/, 0 /*recovery_action*/, sandbox);
+    auto deploy = fb::CreateDeploymentConfig(fbb, 1.0 /*ready_timeout*/, 1.0 /*shutdown_timeout*/, 0 /*environmental_variables*/, exec_path, work_dir, 0 /*ready_recovery_action*/, 0 /*recovery_action*/, sandbox);
 
     auto comp_name = fbb.CreateString("TestComp");
     auto comp_desc = fbb.CreateString("A test component");
@@ -792,7 +791,6 @@ TEST_F(ConverterTest, ConvertComponentValid)
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(result->name, Eq("TestComp"));
     EXPECT_THAT(result->description, Eq("A test component"));
-    EXPECT_THAT(result->component_properties.binary_name, Eq("my_binary"));
     EXPECT_THAT(result->deployment_config.ready_timeout_ms, Eq(1000U));
 }
 
@@ -803,13 +801,12 @@ TEST_F(ConverterTest, ConvertComponentsValid)
 
     auto build_comp = [&](const char* name) {
         auto app_profile = fb::CreateApplicationProfile(fbb, fb::ApplicationType::Native, false /*is_self_terminating*/);
-        auto bin_name = fbb.CreateString(name);
         auto ready_cond = fb::CreateReadyCondition(fbb, fb::ProcessState::Running);
-        auto comp_props = fb::CreateComponentProperties(fbb, bin_name, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
-        auto bin_dir = fbb.CreateString("/opt");
+        auto comp_props = fb::CreateComponentProperties(fbb, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
+        auto exec_path = fbb.CreateString(std::string("/opt/") + name);
         auto work_dir = fbb.CreateString("/tmp");
         auto sandbox = buildDefaultSandbox(fbb);
-        auto deploy = fb::CreateDeploymentConfig(fbb, 1.0 /*ready_timeout*/, 1.0 /*shutdown_timeout*/, 0 /*environmental_variables*/, bin_dir, work_dir, 0 /*ready_recovery_action*/, 0 /*recovery_action*/, sandbox);
+        auto deploy = fb::CreateDeploymentConfig(fbb, 1.0 /*ready_timeout*/, 1.0 /*shutdown_timeout*/, 0 /*environmental_variables*/, exec_path, work_dir, 0 /*ready_recovery_action*/, 0 /*recovery_action*/, sandbox);
         auto comp_name = fbb.CreateString(name);
         return fb::CreateComponent(fbb, comp_name, 0 /*description*/, comp_props, deploy);
     };
@@ -836,13 +833,12 @@ TEST_F(ConverterTest, ConvertComponentsWithInvalidComponentReturnsError)
     ::flatbuffers::FlatBufferBuilder fbb;
 
     auto app_profile = fb::CreateApplicationProfile(fbb, ::flatbuffers::nullopt /*application_type*/, false /*is_self_terminating*/);
-    auto bin_name = fbb.CreateString("bad_bin");
     auto ready_cond = fb::CreateReadyCondition(fbb, fb::ProcessState::Running);
-    auto comp_props = fb::CreateComponentProperties(fbb, bin_name, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
-    auto bin_dir = fbb.CreateString("/opt");
+    auto comp_props = fb::CreateComponentProperties(fbb, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
+    auto exec_path = fbb.CreateString("/opt/bad_bin");
     auto work_dir = fbb.CreateString("/tmp");
     auto sandbox = buildDefaultSandbox(fbb);
-    auto deploy = fb::CreateDeploymentConfig(fbb, 1.0 /*ready_timeout*/, 1.0 /*shutdown_timeout*/, 0 /*environmental_variables*/, bin_dir, work_dir, 0 /*ready_recovery_action*/, 0 /*recovery_action*/, sandbox);
+    auto deploy = fb::CreateDeploymentConfig(fbb, 1.0 /*ready_timeout*/, 1.0 /*shutdown_timeout*/, 0 /*environmental_variables*/, exec_path, work_dir, 0 /*ready_recovery_action*/, 0 /*recovery_action*/, sandbox);
     auto comp_name = fbb.CreateString("BadComp");
     auto comp = fb::CreateComponent(fbb, comp_name, 0 /*description*/, comp_props, deploy);
     auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{comp});
