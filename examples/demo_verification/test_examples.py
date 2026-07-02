@@ -15,7 +15,12 @@ import time
 from tests.utils.testing_utils.setup_test import setup_test
 from attribute_plugin import add_test_properties
 
-_DEMO_APPS = ("cpp_supervised_app", "rust_supervised_app", "cpp_lifecycle_app")
+_DEMO_APPS = (
+    "cpp_supervised_app",
+    "rust_supervised_app",
+    "cpp_lifecycle_app",
+    "c_supervised_app",
+)
 
 
 def _assert_running(target, *binaries):

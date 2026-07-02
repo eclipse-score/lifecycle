@@ -22,7 +22,7 @@ void score::mw::lifecycle::report_running() noexcept {
 extern "C" {
 #endif
 
-int8_t score_lcm_ReportRunning(void) {
+int8_t score_lcm_report_running(void) {
     // RULECHECKER_comment(1, 2, check_static_object_dynamic_initialization, "static variable is in function scope so this initialization is safe", false)
     static score::mw::lifecycle::ReportRunningImpl g_impl{};
     const auto result = g_impl.ReportRunningState();

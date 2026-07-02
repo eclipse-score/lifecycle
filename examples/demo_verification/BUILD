@@ -24,6 +24,7 @@ launch_manager_config(
 pkg_files(
     name = "examples_main_files",
     srcs = [
+        "//examples/c_supervised_app",
         "//examples/control_application:control_daemon",
         "//examples/control_application:lmcontrol",
         "//examples/cpp_lifecycle_app",
