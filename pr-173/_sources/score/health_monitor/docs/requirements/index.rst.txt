@@ -52,7 +52,7 @@ Requirements
    :reqtype: Non-Functional
    :safety: ASIL_B
    :security: YES
-   :satisfies: stkh_req__requirements__dummy
+   :derived_from: stkh_req__requirements__dummy
    :status: invalid
 
     Dummy
@@ -62,7 +62,7 @@ Requirements
    :reqtype: Process
    :security: YES
    :safety: ASIL_B
-   :satisfies: feat_req__requirements__template
+   :derived_from: feat_req__requirements__template
    :belongs_to: comp__health_monitor
    :status: invalid
 
