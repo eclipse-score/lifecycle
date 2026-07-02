@@ -79,7 +79,7 @@ def _lm_config_combiner_impl(ctx):
 
 lm_config_combiner = rule(
     implementation = _lm_config_combiner_impl,
-    doc="Combines the generated .bin files into a single etc directory.",
+    doc = "Combines the generated .bin files into a single etc directory.",
     attrs = {
         "lm_config": attr.label(
             allow_single_file = [".bin"],

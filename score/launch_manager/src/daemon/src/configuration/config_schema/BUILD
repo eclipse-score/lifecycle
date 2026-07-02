@@ -17,6 +17,12 @@ exports_files(
     [
         "lm_flatcfg.fbs",
         "launch_manager.schema.json",
+        "default_values/alive_supervision_defaults.json",
+        "default_values/component_properties_defaults.json",
+        "default_values/deployment_config_defaults.json",
+        "default_values/run_target_defaults.json",
+        "default_values/watchdog_defaults.json",
+        "examples/example_conf.json",
     ],
     visibility = ["//visibility:public"],
 )
