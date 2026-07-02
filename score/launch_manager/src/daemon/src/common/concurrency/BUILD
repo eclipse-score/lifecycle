@@ -50,8 +50,8 @@ cc_library(
 )
 
 cc_binary(
-    name = "mpmc_concurrent_queue_bench",
-    srcs = ["mpmc_concurrent_queue_bench.cpp"],
+    name = "mpmc_concurrent_queue_benchmark",
+    srcs = ["mpmc_concurrent_queue_benchmark.cpp"],
     deps = [
         ":mpmc_concurrent_queue",
         "@google_benchmark//:benchmark_main",
