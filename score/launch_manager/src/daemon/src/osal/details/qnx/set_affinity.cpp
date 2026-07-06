@@ -13,18 +13,23 @@
 #include <sys/neutrino.h>
 
 #include "score/mw/launch_manager/osal/set_affinity.hpp"
-namespace score {
+namespace score
+{
 
-namespace lcm {
+namespace lcm
+{
 
-namespace internal {
+namespace internal
+{
 
-namespace osal {
+namespace osal
+{
 
-int32_t setaffinity(uint32_t cpumask) noexcept(true) {
-    return 0 == ThreadCtl(_NTO_TCTL_RUNMASK_GET_AND_SET, &cpumask) ? 0 : -1;
+int32_t setaffinity(uint64_t cpumask) noexcept(true)
+{
+    return 0 == ThreadCtl(_NTO_TCTL_RUNMASK64_GET_AND_SET, &cpumask) ? 0 : -1;
 }
 }  // namespace osal
-}  // namespace lcm
 }  // namespace internal
+}  // namespace lcm
 }  // namespace score
