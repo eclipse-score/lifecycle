@@ -12,8 +12,8 @@
  ********************************************************************************/
 #include "score/mw/launch_manager/alive_monitor/details/watchdog/WatchdogImpl.hpp"
 
-#include <cassert>
 #include <fcntl.h>
+#include <score/assert.hpp>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -44,20 +44,21 @@ template <typename T>
 // coverity[autosar_cpp14_a2_10_4_violation] There is no static definition within the same namespace or no namespace.
 T secToMs(const T f_timeout)
 {
-    assert(f_timeout < std::numeric_limits<T>::max() / 1000);
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_PRD(f_timeout < std::numeric_limits<T>::max() / 1000);
     // coverity[autosar_cpp14_a4_7_1_violation] Watchdog device implementations have a limit in second range.
     return f_timeout * 1000 /*ms per seconds*/;
 }
 #endif
 }  // namespace
 
-/* RULECHECKER_comment(0:0,3:0, check_expensive_to_copy_in_parameter, "Move only types cannot be passed by const ref",true_no_defect) */
+/* RULECHECKER_comment(0:0,3:0, check_expensive_to_copy_in_parameter, "Move only types cannot be passed by const
+ * ref",true_no_defect) */
 /* RULECHECKER_comment(0:0,9:0, check_min_instructions, "Constructor with empty body is valid", true_no_defect) */
-WatchdogImpl::WatchdogImpl() noexcept :
-    IWatchdogIf(),
-    watchdogDevices(),
-    state(ELibState::idle),
-    logger_r(logging::PhmLogger::getLogger(logging::PhmLogger::EContext::watchdog))
+WatchdogImpl::WatchdogImpl() noexcept
+    : IWatchdogIf(),
+      watchdogDevices(),
+      state(ELibState::idle),
+      logger_r(logging::PhmLogger::getLogger(logging::PhmLogger::EContext::watchdog))
 {
 }
 
@@ -165,12 +166,16 @@ void WatchdogImpl::serviceWatchdog() noexcept
         if (watchdogDevice.fileDescriptor >= 0)
         {
             // save to ignore return value here. If keepalive does not work, watchdog will eventually fire
-            /* RULECHECKER_comment(1:0,5:0, check_bitop_recast, "Linux-only constant from external interface", true_no_defect) */
-            /* RULECHECKER_comment(1:0,4:0, check_bitop_type, "Linux-only constant from external interface", true_no_defect) */
-            /* RULECHECKER_comment(1:0,3:0, check_plain_char_operator, "Linux-only constant from external interface", true_no_defect) */
-            /* RULECHECKER_comment(1:0,2:0, check_underlying_signedness_conversion, "Linux-only constant from external interface", true_no_defect) */
-            (void)DeviceIf::ioctl(watchdogDevice.fileDescriptor,
-                                  static_cast<DeviceIf::IoctlRequestType>(WDIOC_KEEPALIVE), nullptr);
+            /* RULECHECKER_comment(1:0,5:0, check_bitop_recast, "Linux-only constant from external interface",
+             * true_no_defect) */
+            /* RULECHECKER_comment(1:0,4:0, check_bitop_type, "Linux-only constant from external interface",
+             * true_no_defect) */
+            /* RULECHECKER_comment(1:0,3:0, check_plain_char_operator, "Linux-only constant from external interface",
+             * true_no_defect) */
+            /* RULECHECKER_comment(1:0,2:0, check_underlying_signedness_conversion, "Linux-only constant from external
+             * interface", true_no_defect) */
+            (void)DeviceIf::ioctl(
+                watchdogDevice.fileDescriptor, static_cast<DeviceIf::IoctlRequestType>(WDIOC_KEEPALIVE), nullptr);
         }
     }
 }
@@ -202,10 +207,13 @@ void WatchdogImpl::fireWatchdogReaction() noexcept
 bool WatchdogImpl::setEnableCardOption(std::int32_t f_fd) noexcept
 {
     std::int32_t options{WDIOS_ENABLECARD};
-    /* RULECHECKER_comment(1:0,4:0, check_bitop_recast, "Linux-only constant from external interface", true_no_defect) */
+    /* RULECHECKER_comment(1:0,4:0, check_bitop_recast, "Linux-only constant from external interface", true_no_defect)
+     */
     /* RULECHECKER_comment(1:0,3:0, check_bitop_type, "Linux-only constant from external interface", true_no_defect) */
-    /* RULECHECKER_comment(1:0,2:0, check_plain_char_operator, "Linux-only constant from external interface", true_no_defect) */
-    /* RULECHECKER_comment(1:0,1:0, check_underlying_signedness_conversion, "Linux-only constant from external interface", true_no_defect) */
+    /* RULECHECKER_comment(1:0,2:0, check_plain_char_operator, "Linux-only constant from external interface",
+     * true_no_defect) */
+    /* RULECHECKER_comment(1:0,1:0, check_underlying_signedness_conversion, "Linux-only constant from external
+     * interface", true_no_defect) */
     std::int32_t result{DeviceIf::ioctl(f_fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETOPTIONS), &options)};
     return (result >= 0);
 }
@@ -214,10 +222,13 @@ std::int32_t WatchdogImpl::getConfiguredTimeout(std::int32_t& f_configuredTimeou
 {
     f_configuredTimeout_r = -1;
 
-    /* RULECHECKER_comment(1:0,5:0, check_bitop_recast, "Linux-only constant from external interface", true_no_defect) */
+    /* RULECHECKER_comment(1:0,5:0, check_bitop_recast, "Linux-only constant from external interface", true_no_defect)
+     */
     /* RULECHECKER_comment(1:0,4:0, check_bitop_type, "Linux-only constant from external interface", true_no_defect) */
-    /* RULECHECKER_comment(1:0,3:0, check_plain_char_operator, "Linux-only constant from external interface", true_no_defect) */
-    /* RULECHECKER_comment(1:0,2:0, check_underlying_signedness_conversion, "Linux-only constant from external interface", true_no_defect) */
+    /* RULECHECKER_comment(1:0,3:0, check_plain_char_operator, "Linux-only constant from external interface",
+     * true_no_defect) */
+    /* RULECHECKER_comment(1:0,2:0, check_underlying_signedness_conversion, "Linux-only constant from external
+     * interface", true_no_defect) */
     std::int32_t result{
         DeviceIf::ioctl(f_fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_GETTIMEOUT), &f_configuredTimeout_r)};
     if (result < 0)
@@ -235,10 +246,13 @@ std::int32_t WatchdogImpl::getConfiguredTimeout(std::int32_t& f_configuredTimeou
 std::int32_t WatchdogImpl::getRemainingTime(std::int32_t& f_remainingTime_r, std::int32_t f_fd) noexcept
 {
     f_remainingTime_r = -1;
-    /* RULECHECKER_comment(1:0,5:0, check_bitop_recast, "Linux-only constant from external interface", true_no_defect) */
+    /* RULECHECKER_comment(1:0,5:0, check_bitop_recast, "Linux-only constant from external interface", true_no_defect)
+     */
     /* RULECHECKER_comment(1:0,4:0, check_bitop_type, "Linux-only constant from external interface", true_no_defect) */
-    /* RULECHECKER_comment(1:0,3:0, check_plain_char_operator, "Linux-only constant from external interface", true_no_defect) */
-    /* RULECHECKER_comment(1:0,2:0, check_underlying_signedness_conversion, "Linux-only constant from external interface", true_no_defect) */
+    /* RULECHECKER_comment(1:0,3:0, check_plain_char_operator, "Linux-only constant from external interface",
+     * true_no_defect) */
+    /* RULECHECKER_comment(1:0,2:0, check_underlying_signedness_conversion, "Linux-only constant from external
+     * interface", true_no_defect) */
     std::int32_t result{
         DeviceIf::ioctl(f_fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_GETTIMELEFT), &f_remainingTime_r)};
     if (result < 0)
@@ -257,10 +271,13 @@ bool WatchdogImpl::setTimeout(std::int32_t f_fd, std::uint16_t f_timeoutInMs) co
 #ifndef __QNXNTO__
     std::int32_t timeout{static_cast<std::int32_t>(msToSec(f_timeoutInMs))};
     std::int32_t timeoutBefore{timeout};
-    /* RULECHECKER_comment(1:0,4:0, check_bitop_recast, "Linux-only constant from external interface", true_no_defect) */
+    /* RULECHECKER_comment(1:0,4:0, check_bitop_recast, "Linux-only constant from external interface", true_no_defect)
+     */
     /* RULECHECKER_comment(1:0,3:0, check_bitop_type, "Linux-only constant from external interface", true_no_defect) */
-    /* RULECHECKER_comment(1:0,2:0, check_plain_char_operator, "Linux-only constant from external interface", true_no_defect) */
-    /* RULECHECKER_comment(1:0,1:0, check_underlying_signedness_conversion, "Linux-only constant from external interface", true_no_defect) */
+    /* RULECHECKER_comment(1:0,2:0, check_plain_char_operator, "Linux-only constant from external interface",
+     * true_no_defect) */
+    /* RULECHECKER_comment(1:0,1:0, check_underlying_signedness_conversion, "Linux-only constant from external
+     * interface", true_no_defect) */
     std::int32_t result{DeviceIf::ioctl(f_fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETTIMEOUT), &timeout)};
     timeout = secToMs(timeout);
     timeoutBefore = secToMs(timeoutBefore);
@@ -283,7 +300,7 @@ bool WatchdogImpl::setTimeout(std::int32_t f_fd, std::uint16_t f_timeoutInMs) co
 
 bool WatchdogImpl::enableDevice(WatchdogDevice& f_state_r) const noexcept
 {
-    assert(f_state_r.fileDescriptor == -1);  // this should always be true
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD(f_state_r.fileDescriptor == -1);  // this should always be true
     f_state_r.fileDescriptor = DeviceIf::open(f_state_r.config.fileName.c_str(), O_WRONLY);
     bool isSuccess{true};
 
@@ -383,12 +400,15 @@ bool WatchdogImpl::disableDevice(WatchdogDevice& f_watchdogDevice_r) noexcept
         (void)DeviceIf::write(f_watchdogDevice_r.fileDescriptor, kMagicCloseChar, static_cast<size_t>(2));
     }
     std::int32_t option{WDIOS_DISABLECARD};
-    /* RULECHECKER_comment(1:0,5:0, check_bitop_recast, "Linux-only constant from external interface", true_no_defect) */
+    /* RULECHECKER_comment(1:0,5:0, check_bitop_recast, "Linux-only constant from external interface", true_no_defect)
+     */
     /* RULECHECKER_comment(1:0,4:0, check_bitop_type, "Linux-only constant from external interface", true_no_defect) */
-    /* RULECHECKER_comment(1:0,3:0, check_plain_char_operator, "Linux-only constant from external interface", true_no_defect) */
-    /* RULECHECKER_comment(1:0,2:0, check_underlying_signedness_conversion, "Linux-only constant from external interface", true_no_defect) */
-    (void)DeviceIf::ioctl(f_watchdogDevice_r.fileDescriptor, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETOPTIONS),
-                          &option);
+    /* RULECHECKER_comment(1:0,3:0, check_plain_char_operator, "Linux-only constant from external interface",
+     * true_no_defect) */
+    /* RULECHECKER_comment(1:0,2:0, check_underlying_signedness_conversion, "Linux-only constant from external
+     * interface", true_no_defect) */
+    (void)DeviceIf::ioctl(
+        f_watchdogDevice_r.fileDescriptor, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETOPTIONS), &option);
     (void)DeviceIf::close(f_watchdogDevice_r.fileDescriptor);
     f_watchdogDevice_r.fileDescriptor = -1;
     return true;
@@ -447,10 +467,11 @@ bool WatchdogImpl::validateTimeoutWithCycleTime(std::int64_t f_cycleTimeInNs, co
 
 #if defined(__CTC__) && defined(__CODE_COVERAGE_ANNOTATION__)
 /* RULECHECKER_comment(1:0,2:0, check_pragma_usage, "External tooling requires pragma", true_no_defect) */
-#    pragma CTC ANNOTATION This function cannot be covered in tests as it implements an infinite loop.
-#    pragma CTC SKIP
+#pragma CTC ANNOTATION This function cannot be covered in tests as it implements an infinite loop.
+#pragma CTC SKIP
 #endif
-/* RULECHECKER_comment(1:0,1:0, check_member_function_missing_static, "Intentionally not static for testing", true_no_defect) */
+/* RULECHECKER_comment(1:0,1:0, check_member_function_missing_static, "Intentionally not static for testing",
+ * true_no_defect) */
 void WatchdogImpl::waitForever() const noexcept
 {
     // This code cannot be covered in tests, as it blocks execution forever
@@ -465,7 +486,7 @@ void WatchdogImpl::waitForever() const noexcept
 }
 #if defined(__CTC__) && defined(__CODE_COVERAGE_ANNOTATION__)
 /* RULECHECKER_comment(1:0,1:0, check_pragma_usage, "External tooling requires pragma", true_no_defect) */
-#    pragma CTC ENDSKIP
+#pragma CTC ENDSKIP
 #endif
 }  // namespace watchdog
 }  // namespace saf

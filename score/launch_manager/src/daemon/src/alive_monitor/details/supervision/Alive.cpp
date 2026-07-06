@@ -13,7 +13,7 @@
 
 #include "score/mw/launch_manager/alive_monitor/details/supervision/Alive.hpp"
 
-#include <cassert>
+#include <score/assert.hpp>
 #include <string_view>
 
 #include "score/mw/launch_manager/alive_monitor/details/common/Types.hpp"
@@ -43,12 +43,14 @@ Alive::Alive(const AliveSupervisionCfg& f_aliveCfg_r)
       timeSortingUpdateEventBuffer(common::TimeSortingBuffer<TimeSortedUpdateEvent>(f_aliveCfg_r.checkpointBufferSize))
 {
     f_aliveCfg_r.checkpoint_r.attachObserver(*this);
-    assert((k_aliveReferenceCycle != 0U) && "k_aliveReferenceCycle=0 causes infinite loop during evaluation.");
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_PRD_MESSAGE(
+        (k_aliveReferenceCycle != 0U), "k_aliveReferenceCycle=0 causes infinite loop during evaluation.");
 
-    assert((aliveStatus == EStatus::kDeactivated) &&
-           ("Alive Supervision must start in deactivated state, see SWS_PHM_00204"));
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_PRD_MESSAGE(
+        (aliveStatus == EStatus::kDeactivated), "Alive Supervision must start in deactivated state, see SWS_PHM_00204");
 
-    assert((recoveryClient_p != nullptr) && "Recovery client must be provided");
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_PRD_MESSAGE((recoveryClient_p != nullptr),
+                                                      "Recovery client must be provided");
 }
 
 // coverity[exn_spec_violation:FALSE] std::length_error is not thrown from push() which uses fixed-size-vector
@@ -78,10 +80,9 @@ void Alive::updateData(const ifexm::ProcessState& f_observable_r) noexcept(true)
 {
     const ifexm::ProcessState::EProcState state{f_observable_r.getState()};
 
-    const bool isRelevant =
-        (state == ifexm::ProcessState::EProcState::running) ||
-        (state == ifexm::ProcessState::EProcState::sigterm) ||
-        (state == ifexm::ProcessState::EProcState::off);
+    const bool isRelevant = (state == ifexm::ProcessState::EProcState::running) ||
+                            (state == ifexm::ProcessState::EProcState::sigterm) ||
+                            (state == ifexm::ProcessState::EProcState::off);
 
     if (isRelevant)
     {
@@ -122,8 +123,9 @@ void Alive::evaluate(const timers::NanoSecondType f_syncTimestamp)
     while (sortedUpdateEvent_p != nullptr)
     {
         timers::NanoSecondType timestampOfUpdateEvent{getTimestampOfUpdateEvent(*sortedUpdateEvent_p)};
-        assert((timestampOfUpdateEvent <= f_syncTimestamp) &&
-               "Alive supervision: Checkpoint events are reported beyond syncTimestamp.");
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+            (timestampOfUpdateEvent <= f_syncTimestamp),
+            "Alive supervision: Checkpoint events are reported beyond syncTimestamp.");
 
         // Check if evaluation is to be triggered before processing current sorted update event
         const bool isEvaluationEvent{detectEvaluationEvent(timestampOfUpdateEvent, *sortedUpdateEvent_p)};
@@ -290,7 +292,7 @@ Alive::EUpdateEventType Alive::getAliveEventType(bool f_isEvaluationEvent,
     }
 
     // SyncSnapshot
-    assert(std::holds_alternative<SyncSnapshot>(f_updateEvent));
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD(std::holds_alternative<SyncSnapshot>(f_updateEvent));
     return EUpdateEventType::kSync;
 }
 
@@ -489,7 +491,7 @@ void Alive::switchToExpired(Alive::EReason reason) noexcept(true)
                                         << ") switched to EXPIRED, due to buffer overflow.";
                     break;
                 default:
-                    assert(dataLossReason != EDataLossReason::kNoDataLoss);
+                    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD(dataLossReason != EDataLossReason::kNoDataLoss);
                     logger_r.LogError() << "Alive Supervision (" << getConfigName()
                                         << ") switched to EXPIRED, due to unknown data loss case.";
                     break;
@@ -593,7 +595,7 @@ timers::NanoSecondType Alive::getTimestampOfUpdateEvent(const TimeSortedUpdateEv
     }
     else
     {
-        assert(std::holds_alternative<SyncSnapshot>(f_updateEvent));
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD(std::holds_alternative<SyncSnapshot>(f_updateEvent));
         // coverity[cert_exp34_c_violation] SyncSnapshot type is stored also check assert above
         // coverity[dereference] SyncSnapshot type is stored also check assert above
         timestamp = std::get<SyncSnapshot>(f_updateEvent);

@@ -45,12 +45,13 @@ cc_library(
     visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
     deps = [
         ":static_config",
-        "//score/launch_manager/src/daemon/src/alive_monitor:config",
+        "//score/launch_manager/src/daemon/src/alive_monitor/config",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/logging:phm_logging",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:time_conversion",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/watchdog:i_device_config_factory",
-        "@flatbuffers",
+        "@score_baselibs//score/flatbuffers:flatbufferscpp",
+        "@score_baselibs//score/language/futurecpp",
     ] + select({
         "@platforms//os:qnx": [],
         "@platforms//os:linux": ["//externals/acl"],
@@ -67,7 +68,7 @@ cc_library(
     deps = [
         ":i_phm_factory",
         ":machine_config_factory",
-        "//score/launch_manager/src/daemon/src/alive_monitor:config",
+        "//score/launch_manager/src/daemon/src/alive_monitor/config",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/common:types",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:checkpoint",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:monitor_if_daemon",
@@ -79,7 +80,7 @@ cc_library(
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:time_conversion",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
         "//score/launch_manager/src/daemon/src/common:identifier_hash",
-        "@flatbuffers",
+        "@score_baselibs//score/flatbuffers:flatbufferscpp",
     ] + select({
         "@platforms//os:qnx": [],
         "@platforms//os:linux": ["//externals/acl"],

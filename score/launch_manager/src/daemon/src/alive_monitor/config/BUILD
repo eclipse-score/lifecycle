@@ -10,34 +10,42 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-load("@rules_cc//cc:defs.bzl", "cc_library")
 load("@score_baselibs//score/flatbuffers/bazel:codegen.bzl", "generate_cpp")
 
 exports_files(
     [
-        "lm_flatcfg.fbs",
-        "launch_manager.schema.json",
+        "hm_flatcfg.fbs",
+        "hmcore_flatcfg.fbs",
     ],
     visibility = ["//visibility:public"],
 )
 
-filegroup(
-    name = "config_schema_files",
-    srcs = glob(["**/*.json"]),
-    visibility = ["//:__pkg__"],
+generate_cpp(
+    name = "hm_config",
+    output = "hm_flatcfg_generated.h",
+    schema = "hm_flatcfg.fbs",
+    visibility = ["//visibility:private"],
 )
 
 generate_cpp(
-    name = "fbs_config",
-    output = "lm_flatcfg_generated.h",
-    schema = "lm_flatcfg.fbs",
+    name = "hmcore_config",
+    output = "hmcore_flatcfg_generated.h",
+    schema = "hmcore_flatcfg.fbs",
     visibility = ["//visibility:private"],
 )
 
 cc_library(
-    name = "config_schema",
-    hdrs = [":fbs_config"],
-    include_prefix = "score/mw/launch_manager/configuration",
-    visibility = ["//score/launch_manager/src/daemon/src/configuration:__subpackages__"],
-    deps = ["@score_baselibs//score/flatbuffers:flatbufferscpp"],
+    name = "config",
+    hdrs = [
+        ":hm_config",
+        ":hmcore_config",
+    ],
+    include_prefix = "score/mw/launch_manager/alive_monitor/config",
+    visibility = [
+        "//score/launch_manager/src/alive:__subpackages__",
+        "//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__",
+    ],
+    deps = [
+        "@score_baselibs//score/flatbuffers:flatbufferscpp",
+    ],
 )

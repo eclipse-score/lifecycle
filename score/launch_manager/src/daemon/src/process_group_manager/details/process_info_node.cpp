@@ -242,6 +242,16 @@ void ProcessInfoNode::unexpectedTermination()
             static_cast<void>(sync->send_sync_.post());
         }
     }
+    else if (score::lcm::ProcessState::kTerminating == getState())
+    {
+        // prevents a spurious graph_->abort() by recognizing that terminateProcess() 
+        // already owns the retry decision when the state is kTerminating.
+        // explanation:
+        // terminateProcess() is already active (kRunning timeout path). The do-while retry loop
+        // in startProcess() owns the restart/abort decision. Calling graph_->abort() here would
+        // race with that loop and trigger a spurious abort before retries are exhausted.
+        // terminated() will post on terminator_, unblocking terminateProcess() — nothing else needed.
+    }
     else if (GraphState::kInTransition == graph_state)
     {
         // process has started, but graph is still in transition

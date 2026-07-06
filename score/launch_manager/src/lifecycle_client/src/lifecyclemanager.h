@@ -21,6 +21,7 @@
 
 #include <score/stop_token.hpp>
 
+#include <atomic>
 #include <cstdint>
 #include <thread>
 
@@ -48,7 +49,7 @@ class LifeCycleManager
     /**
      * \brief Runnable application
      */
-    Application* m_app;
+    std::atomic<Application*> m_app;
 
     /**
      * \brief signal handling mask.

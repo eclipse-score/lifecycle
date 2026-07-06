@@ -49,6 +49,9 @@ styles/
 # direnv - folder-specific bash configuration
 .envrc
 
+# Personal devcontainer (user-specific extensions, env vars, etc.)
+.devcontainer/local/devcontainer.json
+
 # Python
 .venv
 __pycache__/

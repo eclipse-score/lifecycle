@@ -20,7 +20,7 @@
 
 #include "score/mw/launch_manager/common/log.hpp"
 
-#include <cassert>
+#include <score/assert.hpp>
 #include <cstdint>
 #include <vector>
 
@@ -55,8 +55,7 @@ std::optional<IConfigLoader::Error> validateSchemaVersion(const fb::LaunchManage
     if (*config->schema_version() != FlatbufferConfigLoader::kExpectedSchemaVersion)
     {
         LM_LOG_ERROR() << "LaunchManagerConfig::schema_version " << *config->schema_version()
-                       << " does not match the supported version "
-                       << FlatbufferConfigLoader::kExpectedSchemaVersion;
+                       << " does not match the supported version " << FlatbufferConfigLoader::kExpectedSchemaVersion;
         return IConfigLoader::Error::UnsupportedVersion;
     }
     return std::nullopt;
@@ -83,9 +82,14 @@ score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::ve
 
     ConfigBuilder builder;
 
-    assert(config->initial_run_target() && "LaunchManagerConfig::initial_run_target must never be nullptr as it is required in the schema");
-    assert(config->components() && "LaunchManagerConfig::components must never be nullptr as it is required in the schema");
-    assert(config->run_targets() && "LaunchManagerConfig::run_targets must never be nullptr as it is required in the schema");
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+        config->initial_run_target(),
+        "LaunchManagerConfig::initial_run_target must never be nullptr as it is required in the schema");
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+        config->components(), "LaunchManagerConfig::components must never be nullptr as it is required in the schema");
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+        config->run_targets(),
+        "LaunchManagerConfig::run_targets must never be nullptr as it is required in the schema");
     builder.setInitialRunTarget(config->initial_run_target()->str());
 
     // Convert components
@@ -105,7 +109,9 @@ score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::ve
     builder.setRunTargets(std::move(*run_targets));
 
     // Convert fallback run target
-    assert(config->fallback_run_target() && "LaunchManagerConfig::fallback_run_target must never be nullptr as it is required in the schema");
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+        config->fallback_run_target(),
+        "LaunchManagerConfig::fallback_run_target must never be nullptr as it is required in the schema");
     auto fallback = convertFallbackRunTarget(config->fallback_run_target());
     if (!fallback.has_value())
     {
@@ -115,7 +121,9 @@ score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::ve
     builder.setFallbackRunTarget(std::move(*fallback));
 
     // Convert alive supervision
-    assert(config->alive_supervision() && "LaunchManagerConfig::alive_supervision must never be nullptr as it is required in the schema");
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+        config->alive_supervision(),
+        "LaunchManagerConfig::alive_supervision must never be nullptr as it is required in the schema");
     auto alive_sup = convertAliveSupervision(config->alive_supervision());
     if (!alive_sup.has_value())
     {

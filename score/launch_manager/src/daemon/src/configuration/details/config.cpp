@@ -12,7 +12,7 @@
  ********************************************************************************/
 #include "score/mw/launch_manager/configuration/config.hpp"
 
-#include <cassert>
+#include <score/assert.hpp>
 
 #include <utility>
 
@@ -24,7 +24,7 @@ namespace score::mw::launch_manager::configuration
 EnvironmentVariable::EnvironmentVariable(std::string_view key, std::string_view value)
     : entry_{std::string{key} + "=" + std::string{value}}, key_length_{key.size()}
 {
-    assert(!key.empty() && "Environment variable key must not be empty");
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_PRD_MESSAGE(!key.empty(), "Environment variable key must not be empty");
 }
 
 std::string_view EnvironmentVariable::key() const
@@ -44,8 +44,7 @@ const char* EnvironmentVariable::c_str() const
 
 // --- Environment ---
 
-Environment::Environment(Environment&& other) noexcept
-    : entries_{std::move(other.entries_)}
+Environment::Environment(Environment&& other) noexcept : entries_{std::move(other.entries_)}
 {
     rebuildPointers();
 }

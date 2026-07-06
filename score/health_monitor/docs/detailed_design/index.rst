@@ -81,15 +81,8 @@ Rationale Behind Decomposition into Units
 
 Static Diagrams for Unit Interactions
 -------------------------------------
-.. dd_sta:: Class Diagram
-  :id: dd_sta__health_monitor__class_diagram
-  :security: NO
-  :safety: ASIL_B
-  :status: valid
-  :implements: comp_req__health_monitor__dummy
-  :satisfies: comp_arc_sta__deadline_monitor__static_view, comp_arc_sta__logic_monitor__static_view, comp_arc_sta__health_monitor__static_view
 
-    .. uml::  assets/static_diagram.puml
+.. uml::  assets/static_diagram.puml
 
 Dynamic Diagrams for Unit Interactions
 --------------------------------------
