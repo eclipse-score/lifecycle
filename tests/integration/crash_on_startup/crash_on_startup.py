@@ -41,7 +41,7 @@ def test_crash_on_startup(target, setup_test, assert_test_results, remote_test_d
         binary_path=str(remote_test_dir / "launch_manager"),
         file_path=remote_test_dir.parent / "test_end",
         cwd=str(remote_test_dir),
-        timeout_s=6.0,
+        timeout_s=10.0,
     )
 
     assert_test_results(

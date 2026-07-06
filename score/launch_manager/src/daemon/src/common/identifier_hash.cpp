@@ -13,6 +13,7 @@
 
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include <functional>
+#include <mutex>
 #include <unordered_map>
 
 namespace score
@@ -61,12 +62,14 @@ namespace lcm
 IdentifierHash::IdentifierHash(const std::string& id)
 {
     hash_id_ = std::hash<std::string>{}(id);
+    const std::lock_guard<std::mutex> lock(get_registry_mutex());
     get_registry()[hash_id_] = id;
 }
 
 IdentifierHash::IdentifierHash(std::string_view id)
 {
     hash_id_ = std::hash<std::string_view>{}(id);
+    const std::lock_guard<std::mutex> lock(get_registry_mutex());
     get_registry()[hash_id_] = id;
 }
 
@@ -74,6 +77,7 @@ IdentifierHash::IdentifierHash(const char* id)
 {
     const std::string_view sv = (id != nullptr) ? std::string_view(id) : std::string_view("");
     hash_id_ = std::hash<std::string_view>{}(sv);
+    const std::lock_guard<std::mutex> lock(get_registry_mutex());
     get_registry()[hash_id_] = sv;
 }
 
@@ -105,6 +109,7 @@ bool IdentifierHash::operator<(const IdentifierHash& other) const
 IdentifierHash::IdentifierHash()
 {
     hash_id_ = std::hash<std::string_view>{}(std::string_view(""));
+    const std::lock_guard<std::mutex> lock(get_registry_mutex());
     get_registry()[hash_id_] = "";
 }
 
@@ -118,6 +123,14 @@ std::unordered_map<std::size_t, std::string>& IdentifierHash::get_registry()
     /// Static registry, which gets initialized per process.
     static std::unordered_map<std::size_t, std::string> registry;
     return registry;
+}
+
+std::mutex& IdentifierHash::get_registry_mutex()
+{
+    /// Static mutex protecting the registry from concurrent access, since IdentifierHash
+    /// instances are constructed and their string representation is read from multiple threads.
+    static std::mutex registry_mutex;
+    return registry_mutex;
 }
 
 }  // namespace lcm
