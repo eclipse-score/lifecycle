@@ -2970,7 +2970,7 @@
   {
     "name": "IdentifierHashTest__IdentifierHash_with_string_view_created",
     "file": "score/launch_manager/src/daemon/src/common/identifier_hash_UT.cpp",
-    "line": "34",
+    "line": "35",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2984,7 +2984,7 @@
   {
     "name": "IdentifierHashTest__IdentifierHash_with_string_created",
     "file": "score/launch_manager/src/daemon/src/common/identifier_hash_UT.cpp",
-    "line": "46",
+    "line": "47",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2998,7 +2998,7 @@
   {
     "name": "IdentifierHashTest__IdentifierHash_default_created",
     "file": "score/launch_manager/src/daemon/src/common/identifier_hash_UT.cpp",
-    "line": "58",
+    "line": "59",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3012,7 +3012,7 @@
   {
     "name": "IdentifierHashTest__IdentifierHash_invalid_hash_no_string_representation",
     "file": "score/launch_manager/src/daemon/src/common/identifier_hash_UT.cpp",
-    "line": "69",
+    "line": "70",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3026,7 +3026,7 @@
   {
     "name": "IdentifierHashTest__IdentifierHash_no_dangling_pointer_after_source_string_dies",
     "file": "score/launch_manager/src/daemon/src/common/identifier_hash_UT.cpp",
-    "line": "86",
+    "line": "90",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3040,7 +3040,7 @@
   {
     "name": "IdentifierHashTest__IdentifierHash_EqualityOperators",
     "file": "score/launch_manager/src/daemon/src/common/identifier_hash_UT.cpp",
-    "line": "107",
+    "line": "111",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3054,7 +3054,7 @@
   {
     "name": "IdentifierHashTest__IdentifierHash_LessThanOperator",
     "file": "score/launch_manager/src/daemon/src/common/identifier_hash_UT.cpp",
-    "line": "129",
+    "line": "133",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
