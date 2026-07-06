@@ -12,6 +12,7 @@
  ********************************************************************************/
 #include <gtest/gtest.h>
 #include <memory>
+#include <mutex>
 #include <sstream>
 
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
@@ -75,7 +76,10 @@ TEST_F(IdentifierHashTest, IdentifierHash_invalid_hash_no_string_representation)
     IdentifierHash identifierHash(idStr);
 
     // Clear registry to simulate missing entry
-    IdentifierHash::get_registry().clear();
+    {
+        const std::lock_guard<std::mutex> lock(IdentifierHash::get_registry_mutex());
+        IdentifierHash::get_registry().clear();
+    }
 
     stringstream strStream;
     strStream << identifierHash;
