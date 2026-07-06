@@ -139,7 +139,7 @@ inline bool ProcessGroupManager::initializeControlClientHandler()
     static_cast<void>(snprintf(shm_name,
                                static_cast<uint32_t>(score::lcm::internal::ProcessLimits::maxLocalBuffSize),
                                "/_nudge~._.~me_"));  // random name
-    int fd = shm_open(shm_name, O_CREAT | O_EXCL | O_RDWR, 0U);
+    int fd = shm_open(shm_name, O_CREAT | O_EXCL | O_RDWR, O_CLOEXEC);
 
     if (fd >= 0)
     {
@@ -148,7 +148,8 @@ inline bool ProcessGroupManager::initializeControlClientHandler()
         if (0 == ftruncate(fd, static_cast<off_t>(sizeof(osal::Semaphore))))
         {
             int fd2 =
-                dup2(fd, osal::IpcCommsSync::control_client_handler_nudge_fd);  // always make sure we are using fd=4
+                dup3(fd, osal::IpcCommsSync::control_client_handler_nudge_fd, O_CLOEXEC);  // always make sure we are using fd=4
+            
             close(fd);
 
             if (osal::IpcCommsSync::control_client_handler_nudge_fd == fd2)
