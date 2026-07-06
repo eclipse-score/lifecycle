@@ -15,6 +15,7 @@
 #define IDENTIFIER_HASH_H_
 
 #include <cstddef>
+#include <mutex>
 #include <ostream>
 #include <sstream>
 #include <string>
@@ -121,8 +122,17 @@ class IdentifierHash final
     ///
     /// Static registry, which gets initialized per process.
     ///
+    /// @note The registry is mutated by every IdentifierHash constructor and may be read
+    /// concurrently (e.g. via operator<<) from multiple threads. Callers accessing the
+    /// registry directly (e.g. tests) must hold get_registry_mutex() for the duration of
+    /// the access.
+    ///
     /// @return A reference to the static unordered_map that serves as the registry.
     static std::unordered_map<std::size_t, std::string>& get_registry();
+
+    /// @brief Returns the mutex protecting the static registry from concurrent access.
+    /// @return A reference to the static mutex guarding get_registry().
+    static std::mutex& get_registry_mutex();
 
   private:
     /// internal representation of the ID, that was passed in constructor

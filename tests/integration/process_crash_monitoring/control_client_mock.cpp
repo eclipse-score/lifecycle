@@ -16,6 +16,8 @@
 #include <fcntl.h>
 #include <score/mw/lifecycle/control_client.h>
 #include <score/mw/lifecycle/report_running.h>
+#include <chrono>
+#include <thread>
 
 
 // Given a correct configuration with:
@@ -41,8 +43,15 @@ TEST(ProcessCrashMonitoring, ControlClientMock)
         EXPECT_TRUE(result.has_value()) << "Activating target run_target_crashing_app_on_runtime failed: "
                                         << result.error().Message();
     }
-    // When the process crashes
-    sleep(2);
+    // When the process crashes, wait for the fallback to be activated.
+    // Use polling instead of a fixed sleep so the test is robust under slow builds (e.g. TSan).
+    {
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
+        while (!std::filesystem::exists(fallback_file) && std::chrono::steady_clock::now() < deadline)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        }
+    }
     // Then
     TEST_STEP("Verify state changed to fallback run target")
     {
