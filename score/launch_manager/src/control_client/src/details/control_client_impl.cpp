@@ -12,6 +12,7 @@
  ********************************************************************************/
 
 #include <cstdint>
+#include <cerrno>
 #include <map>
 #include <sys/stat.h>
 #include <thread>
@@ -289,7 +290,20 @@ score::concurrency::InterruptibleFuture<void> ControlClientImpl::SendIpcMessage(
         }
 
         // we definitely shouldn't forget to release semaphore
-        static_cast<void>(ipc_request_semaphore_.post());
+        const auto post_result = ipc_request_semaphore_.post();
+        if (score::lcm::internal::osal::OsalReturnType::kSuccess != post_result) {
+            // Invalid semaphore usage is a logic error and should be asserted.
+            SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+                EINVAL != errno,
+                "ControlClient semaphore post() failed: invalid semaphore (EINVAL)");
+
+            if (EOVERFLOW == errno) {
+                LM_LOG_ERROR()
+                    << "ControlClient semaphore post() failed with EOVERFLOW; possible stuck consumer in Launch Manager";
+            } else {
+                LM_LOG_ERROR() << "ControlClient semaphore post() failed with errno=" << errno;
+            }
+        }
     }
     else
     {
@@ -380,7 +394,20 @@ score::Result<score::lcm::ExecutionErrorEvent> ControlClientImpl::GetExecutionEr
             }
 
             // we definitely shouldn't forget to release semaphore
-            static_cast<void>(ipc_request_semaphore_.post());
+            const auto post_result = ipc_request_semaphore_.post();
+            if (score::lcm::internal::osal::OsalReturnType::kSuccess != post_result) {
+                // Invalid semaphore usage is a logic error and should be asserted.
+                SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+                    EINVAL != errno,
+                    "ControlClient semaphore post() failed: invalid semaphore (EINVAL)");
+
+                if (EOVERFLOW == errno) {
+                    LM_LOG_ERROR()
+                        << "ControlClient semaphore post() failed with EOVERFLOW; possible stuck consumer in Launch Manager";
+                } else {
+                    LM_LOG_ERROR() << "ControlClient semaphore post() failed with errno=" << errno;
+                }
+            }
         }
         // else not needed as kCommunicationError is the default return value
     }
