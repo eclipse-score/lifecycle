@@ -54,5 +54,9 @@
   {
     "version": "pr-290",
     "url": "https://eclipse-score.github.io/lifecycle/pr-290/"
+  },
+  {
+    "version": "pr-291",
+    "url": "https://eclipse-score.github.io/lifecycle/pr-291/"
   }
 ]
