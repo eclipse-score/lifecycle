@@ -32,34 +32,40 @@ void ControlClientChannel::initialize()
 {
     request_.empty_.store(true);
     response_.empty_.store(true);
-    nudge_LM_Handler_.init(0U, true);
+
+    const auto result = nudge_LM_Handler_.init(0U, true);
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(result == osal::OsalReturnType::kSuccess,
+                                            "ControlClientChannel semaphore init failed");
+
     initial_result_count_ = 0U;
+
     LM_LOG_DEBUG() << "ControlClientChannel initialized";
 }
 
 void ControlClientChannel::deinitialize()
 {
-    nudge_LM_Handler_.deinit();
+    const auto result = nudge_LM_Handler_.deinit();
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(result == osal::OsalReturnType::kSuccess,
+                                            "ControlClientChannel semaphore deinit failed");
 }
 
 bool ControlClientChannel::sendResponse(ControlClientMessage& msg)
 {
-    bool result = false;
-
-    if (response_.empty_)
-    {
-        response_.msg_ = msg;
-        response_.empty_ = false;
-        nudge_LM_Handler_.post();
-        result = true;
-        LM_LOG_DEBUG() << "Response sent.";
-    }
-    else
+    if (!response_.empty_)
     {
         LM_LOG_DEBUG() << "Failed to send response: response is not empty.";
+        return false;
     }
 
-    return result;
+    response_.msg_ = msg;
+    response_.empty_ = false;
+
+    const auto result = nudge_LM_Handler_.post();
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(result == osal::OsalReturnType::kSuccess,
+                                            "ControlClientChannel semaphore post failed");
+
+    LM_LOG_DEBUG() << "Response sent.";
+    return true;
 }
 
 bool ControlClientChannel::getResponse(ControlClientMessage& msg)
@@ -92,13 +98,18 @@ void ControlClientChannel::sendRequest(ControlClientMessage& msg)
     {
         LM_LOG_DEBUG() << "Request sent. Waiting for acknowledgment...";
         auto* semaphore = static_cast<osal::Semaphore*>(nudgeLM);
+
         // coverity[cert_mem52_cpp_violation:FALSE] The allocated memory is checked by the containing if statement.
-        semaphore->post();  // Post the semaphore
+        const auto result = semaphore->post();
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(result == osal::OsalReturnType::kSuccess,
+                                                "ControlClientChannel semaphore post failed");
 
         munmap(nudgeLM, sizeof(osal::Semaphore));  // Unmap the semaphore
     }
 
-    nudge_LM_Handler_.wait();
+    const auto result = nudge_LM_Handler_.wait();
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(result == osal::OsalReturnType::kSuccess,
+                                            "ControlClientChannel semaphore wait failed");
 
     // Wait for acknowledgment
     while (!request_.empty_)
@@ -122,8 +133,12 @@ ControlClientMessage& ControlClientChannel::request()
 
 void ControlClientChannel::acknowledgeRequest()
 {
-    nudge_LM_Handler_.post();
+    const auto result = nudge_LM_Handler_.post();
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(result == osal::OsalReturnType::kSuccess,
+                                            "ControlClientChannel semaphore post failed");
+
     request_.empty_ = true;
+
     LM_LOG_DEBUG() << "Request acknowledged.";
 }
 
@@ -223,14 +238,19 @@ void ControlClientChannel::nudgeControlClientHandler()
 {
     if (nudgeControlClientHandler_)
     {
-        nudgeControlClientHandler_->post();
+        const auto result = nudgeControlClientHandler_->post();
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(result == osal::OsalReturnType::kSuccess,
+                                                "ControlClientChannel semaphore post failed");
+
         LM_LOG_DEBUG() << "Control Client handler nudged";
     }
 }
 
 void ControlClientChannel::nudgeLMHandler()
 {
-    nudge_LM_Handler_.post();
+    const auto result = nudge_LM_Handler_.post();
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(result == osal::OsalReturnType::kSuccess,
+                                            "ControlClientChannel semaphore post failed");
 }
 
 void ControlClientChannel::releaseParentMapping()
