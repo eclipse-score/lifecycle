@@ -96,28 +96,15 @@ impl HeartbeatMonitor {
 }
 
 impl Monitor for HeartbeatMonitor {
-    fn get_eval_handle(&self) -> crate::common::MonitorEvalHandle {
-        // TODO: rethink design - currently two `Arc`s are needed.
-        MonitorEvalHandle::new(Arc::new(HeartbeatMonitorHandle {
-            inner: Arc::clone(&self.inner),
-            start_timestamp: AtomicU64::new(0),
-        }))
+    fn get_eval_handle(&self) -> MonitorEvalHandle {
+        MonitorEvalHandle::new(Arc::clone(&self.inner))
     }
 }
 
-struct HeartbeatMonitorHandle {
-    inner: Arc<HeartbeatMonitorInner>,
-    /// Current cycle start timestamp.
-    ///
-    /// `AtomicU64` is used to allow mutability inside `Arc`.
-    /// Variable is only accessed by worker thread.
-    start_timestamp: AtomicU64,
-}
-
-impl MonitorEvaluator for HeartbeatMonitorHandle {
+impl MonitorEvaluator for HeartbeatMonitorInner {
     fn evaluate(&self, hmon_starting_point: Instant, on_error: &mut dyn FnMut(&MonitorTag, MonitorEvaluationError)) {
         let start_timestamp = self.start_timestamp.load(Ordering::Acquire);
-        let evaluate_result = self.inner.evaluate(start_timestamp, hmon_starting_point, on_error);
+        let evaluate_result = self.evaluate_cycle(start_timestamp, hmon_starting_point, on_error);
         if let Some(new_start_timestamp) = evaluate_result {
             self.start_timestamp.store(new_start_timestamp, Ordering::Release);
         }
@@ -173,6 +160,12 @@ pub(crate) struct HeartbeatMonitorInner {
     /// Current heartbeat state.
     /// Contains data in relation to [`Self::monitor_starting_point`].
     heartbeat_state: HeartbeatState,
+
+    /// Current cycle start timestamp.
+    ///
+    /// `AtomicU64` is used to allow mutability inside `Arc`.
+    /// Variable is only accessed by worker thread.
+    start_timestamp: AtomicU64,
 }
 
 impl HeartbeatMonitorInner {
@@ -184,6 +177,7 @@ impl HeartbeatMonitorInner {
             range: InternalRange::from(range),
             monitor_starting_point,
             heartbeat_state,
+            start_timestamp: AtomicU64::new(0),
         }
     }
 
@@ -200,7 +194,7 @@ impl HeartbeatMonitorInner {
         });
     }
 
-    pub fn evaluate(
+    fn evaluate_cycle(
         &self,
         start_timestamp: u64,
         hmon_starting_point: Instant,
