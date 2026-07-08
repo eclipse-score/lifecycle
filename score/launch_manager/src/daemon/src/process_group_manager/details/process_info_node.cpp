@@ -292,7 +292,7 @@ void ProcessInfoNode::terminated(int32_t process_status)
     // handle the situation where a worker thread is waiting for a process to terminate
     if (has_semaphore_.exchange(false))
     {
-        terminator_.post();
+        static_cast<void>(terminator_.post());
     }
 }
 
@@ -529,7 +529,7 @@ inline void ProcessInfoNode::handleTerminationProcess()
 {
     auto pg_mgr = graph_->getProcessGroupManager();
 
-    terminator_.init(0U, false);
+    static_cast<void>(terminator_.init(0U, false));
     has_semaphore_.store(true);
     LM_LOG_DEBUG() << "Requesting termination of process" << process_index_ << "of" << graph_->getProcessGroupName()
                    << "pid" << pid_ << "(" << config_->startup_config_.short_name_ << ")";
@@ -548,7 +548,7 @@ inline void ProcessInfoNode::handleTerminationProcess()
     }
 
     has_semaphore_.store(false);
-    terminator_.deinit();
+    static_cast<void>(terminator_.deinit());
 }
 
 inline void ProcessInfoNode::handleForcedTermination()

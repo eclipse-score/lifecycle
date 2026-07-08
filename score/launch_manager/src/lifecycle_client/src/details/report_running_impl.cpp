@@ -105,7 +105,12 @@ namespace score::mw::lifecycle {
             }
 
             // Final post to semaphore, so LM know that communication channel can be closed now
-            sync->send_sync_.post();
+            if (sync->send_sync_.post() == OsalReturnType::kFail)
+            {
+                LM_LOG_ERROR() << "[Lifecycle Client] Final synchronization post failed.";
+
+                return comms_error;
+            }
             // Mark as reported if successful
             reported = true;
             // Set return value to success

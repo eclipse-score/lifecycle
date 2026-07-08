@@ -19,7 +19,7 @@ namespace internal {
 
 namespace osal {
 
-int setSecurityPolicy(const char* policy);
+[[nodiscard]] int setSecurityPolicy(const char* policy);
 
 }
 
