@@ -52,24 +52,29 @@ OsalReturnType Semaphore::timedWait(std::chrono::milliseconds delay) {
     // by another thread. To minimise busy time and reduce accumulated
     // timing error on long delays, the resolution of the timer is set
     // at two milliseconds
-    OsalReturnType result = OsalReturnType::kFail;
     std::chrono::milliseconds resolution = std::chrono::milliseconds(2U);
-    bool wait = true;
-    while (wait) {
-        errno = 0;
-        if (sem_trywait(&sem_) != 0) {
-            if ((EAGAIN == errno) && (delay >= resolution)) {
+
+    while (true)
+    {
+        if (sem_trywait(&sem_) == 0)
+            return OsalReturnType::kSuccess;
+
+        switch (errno) {
+            case (EINTR):
+                continue;
+
+            case (EAGAIN):
+                if (delay < resolution)
+                    return OsalReturnType::kTimeout;
+
                 std::this_thread::sleep_for(resolution);
                 delay = delay - resolution;
-            } else {
-                wait = false;
-            }
-        } else {
-            wait = false;
-            result = OsalReturnType::kSuccess;
+                continue;
+
+            default:
+                return osal::OsalReturnType::kFail;
         }
     };
-    return result;
 }
 
 OsalReturnType Semaphore::post() {
