@@ -49,10 +49,14 @@ OsalReturnType Semaphore::deinit() {
 OsalReturnType Semaphore::timedWait(std::chrono::milliseconds delay) {
     // Cannot use sem_timedwait because it relies on the absolute time of
     // the system clock, which is not monotonic and could be changed
-    // by another thread. To minimise busy time and reduce accumulated
-    // timing error on long delays, the resolution of the timer is set
-    // at two milliseconds
-    std::chrono::milliseconds resolution = std::chrono::milliseconds(2U);
+    // by another thread.
+
+    // To minimise busy time, the resolution of the timer is set at 2 ms.
+    const auto resolution = std::chrono::milliseconds(2U);
+
+    // Calculate when the timeout will be reached. This avoids accumulating
+    // errors because `sleep_for` may block for longer than requested.
+    const auto deadline = std::chrono::steady_clock::now() + delay;
 
     while (true)
     {
@@ -64,11 +68,10 @@ OsalReturnType Semaphore::timedWait(std::chrono::milliseconds delay) {
                 continue;
 
             case (EAGAIN):
-                if (delay < resolution)
+                if (std::chrono::steady_clock::now() >= deadline)
                     return OsalReturnType::kTimeout;
 
                 std::this_thread::sleep_for(resolution);
-                delay = delay - resolution;
                 continue;
 
             default:
