@@ -30,7 +30,7 @@ static constexpr auto kFailedAddSigterm = "Failed to add SIGTERM to set.";
 }  // namespace
 
 score::mw::lifecycle::LifeCycleManager::LifeCycleManager(std::unique_ptr<score::os::Signal> signal_interface) noexcept
-    : m_stop_source{}, m_app{nullptr}, m_signal_set{}, m_signal_handler_thread{}, signal_(std::move(signal_interface))
+    : m_stop_source{}, m_app{nullptr}, m_signal_set{}, m_signal_handler_thread{}, signal_(std::move(signal_interface))  // NOLINT(cppcoreguidelines-prefer-member-initializer)
 {
     mw::log::LogInfo() << "Initializing LifeCycleManager";
     if (!initialize_internal())
@@ -68,10 +68,10 @@ void score::mw::lifecycle::LifeCycleManager::at_exit() noexcept
 
 std::int32_t score::mw::lifecycle::LifeCycleManager::run(Application& app, const ApplicationContext& context)
 {
-    m_app = &app;
+    m_app.store(&app, std::memory_order_release);
     mw::log::LogInfo() << "LifeCycleManager started";
     /* Branching in below line is due to hidden exception handling */
-    const auto init_status = m_app->Initialize(context);  // LCOV_EXCL_BR_LINE
+    const auto init_status = m_app.load(std::memory_order_relaxed)->Initialize(context);  // LCOV_EXCL_BR_LINE
 
     std::string application_name{"None"};
     const auto& args = context.get_arguments();
@@ -91,7 +91,7 @@ std::int32_t score::mw::lifecycle::LifeCycleManager::run(Application& app, const
     mw::log::LogInfo() << "Running Application";
     report_running();
     /* Branching in below line is due to hidden exception handling */
-    const auto run_status = m_app->Run(m_stop_source.get_token());  // LCOV_EXCL_BR_LINE
+    const auto run_status = m_app.load(std::memory_order_relaxed)->Run(m_stop_source.get_token());  // LCOV_EXCL_BR_LINE
     if (run_status != 0)
     {
         mw::log::LogError() << "Error occurred during Run";
@@ -138,7 +138,7 @@ void score::mw::lifecycle::LifeCycleManager::handle_signal()
     std::int32_t sig(0);
     mw::log::LogInfo() << "Signal handler started";
     const auto sigwait_status = signal_->SigWait(m_signal_set, sig);  // LCOV_EXCL_BR_LINE
-    if ((m_app != nullptr) && (sigwait_status.has_value() == true))
+    if ((m_app.load(std::memory_order_acquire) != nullptr) && (sigwait_status.has_value() == true))
     {
         mw::log::LogInfo() << "Signal SIGTERM received, requesting to stop the app";
         score::cpp::ignore = m_stop_source.request_stop();

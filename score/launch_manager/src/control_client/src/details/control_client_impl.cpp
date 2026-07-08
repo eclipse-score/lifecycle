@@ -12,9 +12,12 @@
  ********************************************************************************/
 
 #include <cstdint>
+#include <cerrno>
 #include <map>
 #include <sys/stat.h>
 #include <thread>
+
+#include <score/assert.hpp>
 
 #include "score/concurrency/future/interruptible_future.h"
 #include "score/concurrency/future/interruptible_promise.h"
@@ -94,7 +97,10 @@ ControlClientImpl::ControlClientImpl(std::function<void(const score::lcm::Execut
 
     ipc_channel_ = score::lcm::internal::ControlClientChannel::initializeControlClientChannel();
 
-    ipc_request_semaphore_.init(1U, false);
+    const auto init_result = ipc_request_semaphore_.init(1U, false);
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+        score::lcm::internal::osal::OsalReturnType::kSuccess == init_result,
+        "ControlClient semaphore initialization failed");
     ipc_response_thread_ = std::make_unique<std::thread>(&ControlClientImpl::run, this);
 }
 
@@ -107,7 +113,7 @@ ControlClientImpl::~ControlClientImpl() noexcept {
         ipc_response_thread_->join();
     }
 
-    ipc_request_semaphore_.deinit();
+    static_cast<void>(ipc_request_semaphore_.deinit());
 }
 
 void ControlClientImpl::run() {
@@ -284,7 +290,20 @@ score::concurrency::InterruptibleFuture<void> ControlClientImpl::SendIpcMessage(
         }
 
         // we definitely shouldn't forget to release semaphore
-        ipc_request_semaphore_.post();
+        const auto post_result = ipc_request_semaphore_.post();
+        if (score::lcm::internal::osal::OsalReturnType::kSuccess != post_result) {
+            // Invalid semaphore usage is a logic error and should be asserted.
+            SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+                EINVAL != errno,
+                "ControlClient semaphore post() failed: invalid semaphore (EINVAL)");
+
+            if (EOVERFLOW == errno) {
+                LM_LOG_ERROR()
+                    << "ControlClient semaphore post() failed with EOVERFLOW; possible stuck consumer in Launch Manager";
+            } else {
+                LM_LOG_ERROR() << "ControlClient semaphore post() failed with errno=" << errno;
+            }
+        }
     }
     else
     {
@@ -375,7 +394,20 @@ score::Result<score::lcm::ExecutionErrorEvent> ControlClientImpl::GetExecutionEr
             }
 
             // we definitely shouldn't forget to release semaphore
-            ipc_request_semaphore_.post();
+            const auto post_result = ipc_request_semaphore_.post();
+            if (score::lcm::internal::osal::OsalReturnType::kSuccess != post_result) {
+                // Invalid semaphore usage is a logic error and should be asserted.
+                SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+                    EINVAL != errno,
+                    "ControlClient semaphore post() failed: invalid semaphore (EINVAL)");
+
+                if (EOVERFLOW == errno) {
+                    LM_LOG_ERROR()
+                        << "ControlClient semaphore post() failed with EOVERFLOW; possible stuck consumer in Launch Manager";
+                } else {
+                    LM_LOG_ERROR() << "ControlClient semaphore post() failed with errno=" << errno;
+                }
+            }
         }
         // else not needed as kCommunicationError is the default return value
     }

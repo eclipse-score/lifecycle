@@ -13,8 +13,8 @@
 #ifndef OBSERVER_HPP_INCLUDED
 #define OBSERVER_HPP_INCLUDED
 
+#include <score/assert.hpp>
 #include <algorithm>
-#include <cassert>
 #include <cstdint>
 
 #include <vector>
@@ -38,7 +38,7 @@ namespace common
 template <typename Type_Observable>
 class Observer
 {
-public:
+  public:
     /// @brief Constructor
     Observer() = default;
 
@@ -57,7 +57,7 @@ public:
     /// @param [in]  f_observable_r     Observable as reference.
     virtual void updateData(const Type_Observable& f_observable_r) noexcept(true) = 0;
 
-protected:
+  protected:
     /// @brief Move Constructor
     Observer(Observer&&) = default;
 };
@@ -72,7 +72,7 @@ protected:
 template <typename Type_Observable>
 class Observable
 {
-public:
+  public:
     /// @brief Default Constructor
     Observable(void) = default;
 
@@ -107,7 +107,7 @@ public:
         observers.erase(eraseFirstItConst, observers.cend());
     }
 
-protected:
+  protected:
     /// @brief Move Constructor
     /// Cannot be noexcept, since the std::vector move constructor is not noexcept
     Observable(Observable&&) = default;
@@ -120,12 +120,12 @@ protected:
         {
             // We can be sure that *this is of type Type_Observable, anything else would be a programming error.
             // The runtime checks performed by dynamic_cast are not necessary.
-            assert((dynamic_cast<Type_Observable*>(this)) != NULL);
+            SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD((dynamic_cast<Type_Observable*>(this)) != NULL);
             observer->updateData(static_cast<Type_Observable&>(*this));
         }
     }
 
-private:
+  private:
     /// Observers attached to the observable object
     std::vector<Observer<Type_Observable>*> observers{};
 };

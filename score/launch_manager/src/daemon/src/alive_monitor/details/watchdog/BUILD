@@ -44,6 +44,7 @@ cc_library(
     include_prefix = "score/mw/launch_manager/alive_monitor/details/watchdog",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/watchdog",
     visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
+    deps = ["@score_baselibs//score/language/futurecpp"],
 )
 
 cc_library(
@@ -60,5 +61,6 @@ cc_library(
         ":watchdog",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/logging:phm_logging",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:os_clock_interface",
+        "@score_baselibs//score/language/futurecpp",
     ],
 )

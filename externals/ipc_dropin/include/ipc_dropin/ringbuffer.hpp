@@ -50,7 +50,7 @@ public:
         static_assert(std::is_trivially_destructible<T>::value, "T must be trivially destructible");
         static_assert(sizeof(T) <= ElementSize, "RingBuffer payload size mismatch: sizeof(T) must be <= ElementSize template parameter");
         lock_guard lock(&mutex_);
-        if (full()) {
+        if (fullImpl()) {
             overflow_flag_.store(true, std::memory_order_relaxed);
             return false;
         }
@@ -69,7 +69,7 @@ public:
         static_assert(std::is_trivially_destructible<T>::value, "T must be trivially destructible");
         static_assert(sizeof(T) <= ElementSize, "RingBuffer payload size mismatch: sizeof(T) must be <= ElementSize template parameter");
         lock_guard lock(&mutex_);
-        if (full()) {
+        if (fullImpl()) {
             overflow_flag_.store(true, std::memory_order_relaxed);
             return false;
         }
@@ -85,12 +85,12 @@ public:
         static_assert(std::is_trivially_copyable<T>::value, "RingBuffer only supports trivially copyable types");
         static_assert(sizeof(T) <= ElementSize, "RingBuffer payload size mismatch: sizeof(T) must be <= ElementSize template parameter");
         lock_guard lock(&mutex_);
-        if (empty()) {
+        if (emptyImpl()) {
             return false;
         }
         Node& n = nodes_[read_head_];
         if (n.size_ != sizeof(T)) {
-            return false; 
+            return false;
         }
         std::memcpy(&out, n.storage, n.size_);
         advanceReadHead();
@@ -99,7 +99,7 @@ public:
 
     bool tryPop() {
         lock_guard lock(&mutex_);
-        if (empty()) {
+        if (emptyImpl()) {
             return false;
         }
         advanceReadHead();
@@ -111,12 +111,12 @@ public:
         static_assert(std::is_trivially_copyable<T>::value, "RingBuffer only supports trivially copyable types");
         static_assert(sizeof(T) <= ElementSize, "RingBuffer payload size mismatch: sizeof(T) must be <= ElementSize template parameter");
         lock_guard lock(&mutex_);
-        if (empty()) {
+        if (emptyImpl()) {
             return false;
         }
         Node& n = nodes_[read_head_];
         if (n.size_ != sizeof(T)) {
-            return false; 
+            return false;
         }
         out = reinterpret_cast<T*>(n.storage);
         return true;
@@ -130,9 +130,19 @@ public:
         return b;
     }
 
-    bool empty() const noexcept { return size_ == 0; }
-    bool full() const noexcept { return size_ == Capacity; }
+    bool empty() {
+        lock_guard lock(&mutex_);
+        return emptyImpl();
+    }
+
+    bool full() {
+        lock_guard lock(&mutex_);
+        return fullImpl();
+    }
+
 private:
+    bool emptyImpl() const noexcept { return size_ == 0; }
+    bool fullImpl() const noexcept { return size_ == Capacity; }
     void advanceWriteHead() noexcept { write_head_ = (write_head_ + 1) % Capacity; ++size_; }
     void advanceReadHead() noexcept { read_head_ = (read_head_ + 1) % Capacity; --size_; }
 

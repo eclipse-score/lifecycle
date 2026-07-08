@@ -17,12 +17,12 @@
 
 #include "score/mw/launch_manager/common/log.hpp"
 
-#include <cassert>
+#include <sched.h>
+#include <score/assert.hpp>
+#include <sys/types.h>
 #include <cstdint>
 #include <limits>
-#include <sched.h>
 #include <string>
-#include <sys/types.h>
 #include <vector>
 
 namespace score::mw::launch_manager::configuration
@@ -34,9 +34,8 @@ namespace
 {
 
 template <typename T>
-score::cpp::expected<T, IConfigLoader::Error> requireScalarValue(
-    const ::flatbuffers::Optional<T>& field,
-    const char* field_name)
+score::cpp::expected<T, IConfigLoader::Error> requireScalarValue(const ::flatbuffers::Optional<T>& field,
+                                                                 const char* field_name)
 {
     if (!field.has_value())
     {
@@ -175,8 +174,10 @@ Environment convertEnvironmentalVariables(
         {
             if (ev != nullptr)
             {
-                assert(ev->key() && "EnvironmentalVariable::key must never be nullptr as it is required in the schema");
-                assert(ev->value() && "EnvironmentalVariable::value must never be nullptr as it is required in the schema");
+                SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+                    ev->key(), "EnvironmentalVariable::key must never be nullptr as it is required in the schema");
+                SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+                    ev->value(), "EnvironmentalVariable::value must never be nullptr as it is required in the schema");
                 result.add(ev->key()->str(), ev->value()->str());
             }
         }
@@ -216,13 +217,15 @@ std::optional<SwitchRunTargetAction> convertSwitchRunTargetAction(const fb::Swit
     {
         return std::nullopt;
     }
-    assert(sa->run_target() && "SwitchRunTargetAction::run_target must never be nullptr as it is required in the schema");
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+        sa->run_target(), "SwitchRunTargetAction::run_target must never be nullptr as it is required in the schema");
     return SwitchRunTargetAction{sa->run_target()->str()};
 }
 
 SwitchRunTargetAction convertRequiredSwitchRunTargetAction(const fb::SwitchRunTargetAction* sa)
 {
-    assert(sa && "SwitchRunTargetAction must never be nullptr as it is required in the schema");
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+        sa, "SwitchRunTargetAction must never be nullptr as it is required in the schema");
     return convertSwitchRunTargetAction(sa).value();
 }
 
@@ -232,12 +235,14 @@ score::cpp::expected<ComponentAliveSupervision, IConfigLoader::Error> convertCom
     ComponentAliveSupervision result{};
     if (fb_cas != nullptr)
     {
-        auto reporting_cycle = requireScalarValue(fb_cas->reporting_cycle(), "ComponentAliveSupervision::reporting_cycle");
+        auto reporting_cycle =
+            requireScalarValue(fb_cas->reporting_cycle(), "ComponentAliveSupervision::reporting_cycle");
         if (!reporting_cycle.has_value())
         {
             return score::cpp::make_unexpected(reporting_cycle.error());
         }
-        auto failed_cycles_tolerance = requireScalarValue(fb_cas->failed_cycles_tolerance(), "ComponentAliveSupervision::failed_cycles_tolerance");
+        auto failed_cycles_tolerance =
+            requireScalarValue(fb_cas->failed_cycles_tolerance(), "ComponentAliveSupervision::failed_cycles_tolerance");
         if (!failed_cycles_tolerance.has_value())
         {
             return score::cpp::make_unexpected(failed_cycles_tolerance.error());
@@ -255,7 +260,8 @@ score::cpp::expected<ComponentAliveSupervision, IConfigLoader::Error> convertCom
 
         if (!result.min_indications.has_value() && !result.max_indications.has_value())
         {
-            LM_LOG_ERROR() << "ComponentAliveSupervision requires at least one of min_indications or max_indications to be set";
+            LM_LOG_ERROR()
+                << "ComponentAliveSupervision requires at least one of min_indications or max_indications to be set";
             return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
         }
     }
@@ -273,7 +279,8 @@ score::cpp::expected<ApplicationProfile, IConfigLoader::Error> convertApplicatio
         {
             return score::cpp::make_unexpected(application_type.error());
         }
-        auto is_self_terminating = requireScalarValue(fb_ap->is_self_terminating(), "ApplicationProfile::is_self_terminating");
+        auto is_self_terminating =
+            requireScalarValue(fb_ap->is_self_terminating(), "ApplicationProfile::is_self_terminating");
         if (!is_self_terminating.has_value())
         {
             return score::cpp::make_unexpected(is_self_terminating.error());
@@ -314,8 +321,12 @@ score::cpp::expected<ComponentProperties, IConfigLoader::Error> convertComponent
     ComponentProperties result{};
     if (fb_cp != nullptr)
     {
-        assert(fb_cp->binary_name() && "ComponentProperties::binary_name must never be nullptr as it is required in the schema");
-        assert(fb_cp->application_profile() && "ComponentProperties::application_profile must never be nullptr as it is required in the schema");
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+            fb_cp->binary_name(),
+            "ComponentProperties::binary_name must never be nullptr as it is required in the schema");
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+            fb_cp->application_profile(),
+            "ComponentProperties::application_profile must never be nullptr as it is required in the schema");
         result.binary_name = fb_cp->binary_name()->str();
         auto app_profile = convertApplicationProfile(fb_cp->application_profile());
         if (!app_profile.has_value())
@@ -340,7 +351,7 @@ score::cpp::expected<ComponentProperties, IConfigLoader::Error> convertComponent
 
 score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(const fb::Sandbox* fb_sb)
 {
-    assert(fb_sb && "Sandbox must never be nullptr as it is required in the schema");
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(fb_sb, "Sandbox must never be nullptr as it is required in the schema");
     auto fb_uid = requireScalarValue(fb_sb->uid(), "Sandbox::uid");
     if (!fb_uid.has_value())
     {
@@ -400,9 +411,13 @@ score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentCo
     DeploymentConfig result{};
     if (fb_dc != nullptr)
     {
-        assert(fb_dc->bin_dir() && "DeploymentConfig::bin_dir must never be nullptr as it is required in the schema");
-        assert(fb_dc->working_dir() && "DeploymentConfig::working_dir must never be nullptr as it is required in the schema");
-        assert(fb_dc->sandbox() && "DeploymentConfig::sandbox must never be nullptr as it is required in the schema");
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+            fb_dc->bin_dir(), "DeploymentConfig::bin_dir must never be nullptr as it is required in the schema");
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+            fb_dc->working_dir(),
+            "DeploymentConfig::working_dir must never be nullptr as it is required in the schema");
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+            fb_dc->sandbox(), "DeploymentConfig::sandbox must never be nullptr as it is required in the schema");
         auto ready_timeout = requireScalarValue(fb_dc->ready_timeout(), "DeploymentConfig::ready_timeout");
         if (!ready_timeout.has_value())
         {
@@ -452,9 +467,14 @@ score::cpp::expected<ComponentConfig, IConfigLoader::Error> convertComponent(con
     ComponentConfig result{};
     if (fb_comp != nullptr)
     {
-        assert(fb_comp->name() && "Component::name must never be nullptr as it is required in the schema");
-        assert(fb_comp->component_properties() && "Component::component_properties must never be nullptr as it is required in the schema");
-        assert(fb_comp->deployment_config() && "Component::deployment_config must never be nullptr as it is required in the schema");
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+            fb_comp->name(), "Component::name must never be nullptr as it is required in the schema");
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+            fb_comp->component_properties(),
+            "Component::component_properties must never be nullptr as it is required in the schema");
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+            fb_comp->deployment_config(),
+            "Component::deployment_config must never be nullptr as it is required in the schema");
         result.name = fb_comp->name()->str();
         result.description = safeString(fb_comp->description());
         auto component_properties = convertComponentProperties(fb_comp->component_properties());
@@ -480,8 +500,11 @@ score::cpp::expected<RunTargetConfig, IConfigLoader::Error> convertRunTarget(con
     RunTargetConfig result{};
     if (fb_rt != nullptr)
     {
-        assert(fb_rt->name() && "RunTarget::name must never be nullptr as it is required in the schema");
-        assert(fb_rt->recovery_action() && "RunTarget::recovery_action must never be nullptr as it is required in the schema");
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+            fb_rt->name(), "RunTarget::name must never be nullptr as it is required in the schema");
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+            fb_rt->recovery_action(),
+            "RunTarget::recovery_action must never be nullptr as it is required in the schema");
         auto transition_timeout = requireScalarValue(fb_rt->transition_timeout(), "RunTarget::transition_timeout");
         if (!transition_timeout.has_value())
         {
@@ -508,7 +531,8 @@ score::cpp::expected<FallbackRunTargetConfig, IConfigLoader::Error> convertFallb
     FallbackRunTargetConfig result{};
     if (fb_frt != nullptr)
     {
-        auto transition_timeout = requireScalarValue(fb_frt->transition_timeout(), "FallbackRunTarget::transition_timeout");
+        auto transition_timeout =
+            requireScalarValue(fb_frt->transition_timeout(), "FallbackRunTarget::transition_timeout");
         if (!transition_timeout.has_value())
         {
             return score::cpp::make_unexpected(transition_timeout.error());
@@ -553,13 +577,15 @@ score::cpp::expected<std::optional<WatchdogConfig>, IConfigLoader::Error> conver
     {
         return std::optional<WatchdogConfig>{std::nullopt};
     }
-    assert(fb_wd->device_file_path() && "Watchdog::device_file_path must never be nullptr as it is required in the schema");
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+        fb_wd->device_file_path(), "Watchdog::device_file_path must never be nullptr as it is required in the schema");
     auto max_timeout = requireScalarValue(fb_wd->max_timeout(), "Watchdog::max_timeout");
     if (!max_timeout.has_value())
     {
         return score::cpp::make_unexpected(max_timeout.error());
     }
-    auto deactivate_on_shutdown = requireScalarValue(fb_wd->deactivate_on_shutdown(), "Watchdog::deactivate_on_shutdown");
+    auto deactivate_on_shutdown =
+        requireScalarValue(fb_wd->deactivate_on_shutdown(), "Watchdog::deactivate_on_shutdown");
     if (!deactivate_on_shutdown.has_value())
     {
         return score::cpp::make_unexpected(deactivate_on_shutdown.error());

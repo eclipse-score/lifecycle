@@ -74,7 +74,8 @@ struct MonitorIfDaemonFixture
     /// Initialize the IPC server so that peek/pop/hasOverflow use real shared memory.
     void initIpc()
     {
-        ipcServer.init(makeUniqueIpcName());
+        ASSERT_TRUE(ipcServer.init(makeUniqueIpcName()) == ifappl::CheckpointIpcServer::EIpcInitResult::kOk)
+            << "CheckpointIpcServer init failed";
     }
 
     /// Drive the process to the 'running' state and notify observers.
