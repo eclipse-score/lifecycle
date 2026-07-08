@@ -32,14 +32,14 @@ void ControlClientChannel::initialize()
 {
     request_.empty_.store(true);
     response_.empty_.store(true);
-    nudge_LM_Handler_.init(0U, true);
+    static_cast<void>(nudge_LM_Handler_.init(0U, true));
     initial_result_count_ = 0U;
     LM_LOG_DEBUG() << "ControlClientChannel initialized";
 }
 
 void ControlClientChannel::deinitialize()
 {
-    nudge_LM_Handler_.deinit();
+    static_cast<void>(nudge_LM_Handler_.deinit());
 }
 
 bool ControlClientChannel::sendResponse(ControlClientMessage& msg)
@@ -50,7 +50,7 @@ bool ControlClientChannel::sendResponse(ControlClientMessage& msg)
     {
         response_.msg_ = msg;
         response_.empty_ = false;
-        nudge_LM_Handler_.post();
+        static_cast<void>(nudge_LM_Handler_.post());
         result = true;
         LM_LOG_DEBUG() << "Response sent.";
     }
@@ -93,12 +93,12 @@ void ControlClientChannel::sendRequest(ControlClientMessage& msg)
         LM_LOG_DEBUG() << "Request sent. Waiting for acknowledgment...";
         auto* semaphore = static_cast<osal::Semaphore*>(nudgeLM);
         // coverity[cert_mem52_cpp_violation:FALSE] The allocated memory is checked by the containing if statement.
-        semaphore->post();  // Post the semaphore
+        static_cast<void>(semaphore->post());  // Post the semaphore
 
         munmap(nudgeLM, sizeof(osal::Semaphore));  // Unmap the semaphore
     }
 
-    nudge_LM_Handler_.wait();
+    static_cast<void>(nudge_LM_Handler_.wait());
 
     // Wait for acknowledgment
     while (!request_.empty_)
@@ -122,7 +122,7 @@ ControlClientMessage& ControlClientChannel::request()
 
 void ControlClientChannel::acknowledgeRequest()
 {
-    nudge_LM_Handler_.post();
+    static_cast<void>(nudge_LM_Handler_.post());
     request_.empty_ = true;
     LM_LOG_DEBUG() << "Request acknowledged.";
 }
@@ -223,14 +223,14 @@ void ControlClientChannel::nudgeControlClientHandler()
 {
     if (nudgeControlClientHandler_)
     {
-        nudgeControlClientHandler_->post();
+        static_cast<void>(nudgeControlClientHandler_->post());
         LM_LOG_DEBUG() << "Control Client handler nudged";
     }
 }
 
 void ControlClientChannel::nudgeLMHandler()
 {
-    nudge_LM_Handler_.post();
+    static_cast<void>(nudge_LM_Handler_.post());
 }
 
 void ControlClientChannel::releaseParentMapping()

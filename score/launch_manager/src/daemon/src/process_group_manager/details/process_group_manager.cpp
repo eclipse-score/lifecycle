@@ -162,7 +162,7 @@ inline bool ProcessGroupManager::initializeControlClientHandler()
                     ControlClientChannel::nudgeControlClientHandler_ = static_cast<osal::Semaphore*>(buf);
                     // coverity[cert_mem52_cpp_violation:FALSE] The allocated memory is checked by the containing if
                     // statement.
-                    ControlClientChannel::nudgeControlClientHandler_->init(0U, true);
+                    static_cast<void>(ControlClientChannel::nudgeControlClientHandler_->init(0U, true));
                     result = true;
                 }
             }
@@ -366,7 +366,7 @@ inline void ProcessGroupManager::allProcessGroupsOff()
                 osal::ProcessID pid = node->getPid();
                 if (pid > 0)
                 {
-                    process_interface_.forceTermination(pid);
+                    static_cast<void>(process_interface_.forceTermination(pid));
                 }
             }
         }
