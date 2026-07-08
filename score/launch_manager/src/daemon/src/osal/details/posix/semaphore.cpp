@@ -49,27 +49,35 @@ OsalReturnType Semaphore::deinit() {
 OsalReturnType Semaphore::timedWait(std::chrono::milliseconds delay) {
     // Cannot use sem_timedwait because it relies on the absolute time of
     // the system clock, which is not monotonic and could be changed
-    // by another thread. To minimise busy time and reduce accumulated
-    // timing error on long delays, the resolution of the timer is set
-    // at two milliseconds
-    OsalReturnType result = OsalReturnType::kFail;
-    std::chrono::milliseconds resolution = std::chrono::milliseconds(2U);
-    bool wait = true;
-    while (wait) {
-        errno = 0;
-        if (sem_trywait(&sem_) != 0) {
-            if ((EAGAIN == errno) && (delay >= resolution)) {
+    // by another thread.
+
+    // To minimise busy time, the resolution of the timer is set at 2 ms.
+    const auto resolution = std::chrono::milliseconds(2U);
+
+    // Calculate when the timeout will be reached. This avoids accumulating
+    // errors because `sleep_for` may block for longer than requested.
+    const auto deadline = std::chrono::steady_clock::now() + delay;
+
+    while (true)
+    {
+        if (sem_trywait(&sem_) == 0)
+            return OsalReturnType::kSuccess;
+
+        switch (errno) {
+            case (EINTR):
+                continue;
+
+            case (EAGAIN):
+                if (std::chrono::steady_clock::now() >= deadline)
+                    return OsalReturnType::kTimeout;
+
                 std::this_thread::sleep_for(resolution);
-                delay = delay - resolution;
-            } else {
-                wait = false;
-            }
-        } else {
-            wait = false;
-            result = OsalReturnType::kSuccess;
+                continue;
+
+            default:
+                return osal::OsalReturnType::kFail;
         }
     };
-    return result;
 }
 
 OsalReturnType Semaphore::post() {
