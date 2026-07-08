@@ -2620,7 +2620,7 @@
   {
     "name": "MonitorIfDaemonTest__GetInterfaceName_ReturnsNameGivenAtConstruction",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/MonitorIfDaemon_UT.cpp",
-    "line": "175",
+    "line": "176",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2634,7 +2634,7 @@
   {
     "name": "MonitorIfDaemonTest__InitiallyInactive_CheckForNewData_DoesNotNotifyCheckpoint",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/MonitorIfDaemon_UT.cpp",
-    "line": "183",
+    "line": "184",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2648,7 +2648,7 @@
   {
     "name": "MonitorIfDaemonTest__ProcessOffBeforeActivation_RemainsInactive",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/MonitorIfDaemon_UT.cpp",
-    "line": "194",
+    "line": "195",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2662,7 +2662,7 @@
   {
     "name": "MonitorIfDaemonTest__ProcessRunning_ActivatesMonitorOnNextCheckForNewData",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/MonitorIfDaemon_UT.cpp",
-    "line": "210",
+    "line": "211",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2676,7 +2676,7 @@
   {
     "name": "MonitorIfDaemonTest__ProcessStarting_AlsoActivatesMonitor",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/MonitorIfDaemon_UT.cpp",
-    "line": "227",
+    "line": "228",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2690,7 +2690,7 @@
   {
     "name": "MonitorIfDaemonTest__ProcessOff_DeactivatesMonitor_NoFurtherDataForwarded",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/MonitorIfDaemon_UT.cpp",
-    "line": "244",
+    "line": "245",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2704,7 +2704,7 @@
   {
     "name": "MonitorIfDaemonTest__Active_CheckpointDataForwarded",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/MonitorIfDaemon_UT.cpp",
-    "line": "265",
+    "line": "266",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2718,7 +2718,7 @@
   {
     "name": "MonitorIfDaemonTest__Active_FutureTimestamp_NotForwardedInCurrentCycle",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/MonitorIfDaemon_UT.cpp",
-    "line": "282",
+    "line": "283",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2732,7 +2732,7 @@
   {
     "name": "MonitorIfDaemonTest__Active_FutureTimestampCheckpoint_ConsumedInLaterCycle",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/MonitorIfDaemon_UT.cpp",
-    "line": "295",
+    "line": "296",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2746,7 +2746,7 @@
   {
     "name": "MonitorIfDaemonTest__Active_NonMatchingCheckpointId_NotForwarded",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/MonitorIfDaemon_UT.cpp",
-    "line": "313",
+    "line": "314",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2760,7 +2760,7 @@
   {
     "name": "MonitorIfDaemonTest__Active_MultipleCheckpointsInOneCycle_AllForwarded",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/MonitorIfDaemon_UT.cpp",
-    "line": "329",
+    "line": "330",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2774,7 +2774,7 @@
   {
     "name": "MonitorIfDaemonTest__Active_TwoAttachedCheckpoints_RoutedByCheckpointId",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/MonitorIfDaemon_UT.cpp",
-    "line": "345",
+    "line": "346",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2788,7 +2788,7 @@
   {
     "name": "MonitorIfDaemonTest__Active_OverflowDetected_TransitionsToInactiveOverflow",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/MonitorIfDaemon_UT.cpp",
-    "line": "370",
+    "line": "371",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2802,7 +2802,7 @@
   {
     "name": "MonitorIfDaemonTest__InactiveOverflow_NoProcessRestart_DoesNotRepeatNotification",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/MonitorIfDaemon_UT.cpp",
-    "line": "389",
+    "line": "390",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2816,7 +2816,7 @@
   {
     "name": "MonitorIfDaemonTest__InactiveOverflow_ProcessRestarts_PushesOverflowNotificationAgain",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/MonitorIfDaemon_UT.cpp",
-    "line": "406",
+    "line": "407",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2830,7 +2830,7 @@
   {
     "name": "MonitorIfDaemonTest__InactiveOverflow_ProcessRestartFlag_ClearedAfterNotification",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/MonitorIfDaemon_UT.cpp",
-    "line": "427",
+    "line": "428",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2970,7 +2970,7 @@
   {
     "name": "IdentifierHashTest__IdentifierHash_with_string_view_created",
     "file": "score/launch_manager/src/daemon/src/common/identifier_hash_UT.cpp",
-    "line": "34",
+    "line": "35",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2984,7 +2984,7 @@
   {
     "name": "IdentifierHashTest__IdentifierHash_with_string_created",
     "file": "score/launch_manager/src/daemon/src/common/identifier_hash_UT.cpp",
-    "line": "46",
+    "line": "47",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2998,7 +2998,7 @@
   {
     "name": "IdentifierHashTest__IdentifierHash_default_created",
     "file": "score/launch_manager/src/daemon/src/common/identifier_hash_UT.cpp",
-    "line": "58",
+    "line": "59",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3012,7 +3012,7 @@
   {
     "name": "IdentifierHashTest__IdentifierHash_invalid_hash_no_string_representation",
     "file": "score/launch_manager/src/daemon/src/common/identifier_hash_UT.cpp",
-    "line": "69",
+    "line": "70",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3026,7 +3026,7 @@
   {
     "name": "IdentifierHashTest__IdentifierHash_no_dangling_pointer_after_source_string_dies",
     "file": "score/launch_manager/src/daemon/src/common/identifier_hash_UT.cpp",
-    "line": "86",
+    "line": "90",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3040,7 +3040,7 @@
   {
     "name": "IdentifierHashTest__IdentifierHash_EqualityOperators",
     "file": "score/launch_manager/src/daemon/src/common/identifier_hash_UT.cpp",
-    "line": "107",
+    "line": "111",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3054,7 +3054,7 @@
   {
     "name": "IdentifierHashTest__IdentifierHash_LessThanOperator",
     "file": "score/launch_manager/src/daemon/src/common/identifier_hash_UT.cpp",
-    "line": "129",
+    "line": "133",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
