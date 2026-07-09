@@ -15,47 +15,50 @@
 
 
 
+Release Note v0.3.0
+===================
+
 Overview
-========
+--------
 
 This document provides an overview of the changes, improvements, and bug fixes included in the software module release version vx.x.z
 as compared to the module's origin release (which is usually the previous release).
 
 Disclaimer
-==========
+----------
 
 This release note does not "release for production", as it does not come with a safety argumentation and a performed safety assessment.
 The work products compiled in the safety package are created with care according to a process satisfying standards, but the as the project,
 being a non-profit and open source organization, can not take over any liability for its content.
 
 Changes to the Module
-=====================
+---------------------
 
 New Features
-------------
+~~~~~~~~~~~~
 
 - **New report running API** Introduce low-level ``void report_running()`` funciton so applications can report a Running state without requiring usage of the full mw::Lifecycle API.
 
 Improvements
-------------
+~~~~~~~~~~~~
 
 - **Quality improvements:** testing and documentation updates.
 - **README improvements:** Updated README.md and removed outdated contents.
 
 Bug Fixes
----------
+~~~~~~~~~
 
 - Bug fix: `Spurious recovery action trigger on first run target activation <https://github.com/eclipse-score/lifecycle/issues/198>`_
 - Bug fix: `Launching a component with a missing binary <https://github.com/eclipse-score/lifecycle/issues/261>`_
 - Bug fix: `Spurious abort for process launch before retries are exhausted. <https://github.com/eclipse-score/lifecycle/issues/284>`_
 
 Other Changes by Label
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 - Reorganize repo folder structure `more info <https://github.com/eclipse-score/lifecycle/issues/210>`_
 
 Compatibility
--------------
+~~~~~~~~~~~~~
 
 - The following platforms are supported using the `bazel_cpp_toolchains <https://github.com/eclipse-score/bazel_cpp_toolchains>`_:
 
@@ -65,23 +68,23 @@ Compatibility
   - `aarch64-unknown-nto-qnx800`
 
 Performed Verification
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 - Build on all supported platforms
 - Unit test execution on all supported platforms
 
 Known Issues
-------------
+~~~~~~~~~~~~
 
 - None
 
 Known Vulnerabilities
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 - None
 
 Upgrade Instructions
---------------------
+~~~~~~~~~~~~~~~~~~~~
 
 - Align public API namespaces to score::mw::lifecycle and score::mw::health
    - More information in `Pull request <https://github.com/eclipse-score/lifecycle/pull/212>`_
