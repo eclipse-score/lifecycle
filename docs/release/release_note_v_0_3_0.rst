@@ -45,19 +45,19 @@ Improvements
 Bug Fixes
 ---------
 
-- Bug fix: [Spurious recovery action trigger on first run target activation](https://github.com/eclipse-score/lifecycle/issues/198)
-- Bug fix: [Launching a component with a missing binary](https://github.com/eclipse-score/lifecycle/issues/261)
-- Bug fix: [Spurious abort for process launch before retries are exhausted.](https://github.com/eclipse-score/lifecycle/issues/284)
+- Bug fix: `Spurious recovery action trigger on first run target activation <https://github.com/eclipse-score/lifecycle/issues/198>`_
+- Bug fix: `Launching a component with a missing binary <https://github.com/eclipse-score/lifecycle/issues/261>`_
+- Bug fix: `Spurious abort for process launch before retries are exhausted. <https://github.com/eclipse-score/lifecycle/issues/284>`_
 
 Other Changes by Label
 ----------------------
 
-- Reorganize repo folder structure [more info](https://github.com/eclipse-score/lifecycle/issues/210)
+- Reorganize repo folder structure `more info <https://github.com/eclipse-score/lifecycle/issues/210>`_
 
 Compatibility
 -------------
 
-- The following platforms are supported using the [bazel_cpp_toolchains](https://github.com/eclipse-score/bazel_cpp_toolchains):
+- The following platforms are supported using the `bazel_cpp_toolchains <https://github.com/eclipse-score/bazel_cpp_toolchains>`_:
 
   - `x86_64-unknown-linux-gnu`
   - `aarch64-unknown-linux-gnu`
@@ -73,23 +73,23 @@ Performed Verification
 Known Issues
 ------------
 
-- 
+- None
 
 Known Vulnerabilities
 ---------------------
 
-- 
+- None
 
 Upgrade Instructions
 --------------------
 
 - Align public API namespaces to score::mw::lifecycle and score::mw::health
-  - More information in [Pull request](https://github.com/eclipse-score/lifecycle/pull/212)
+   - More information in `Pull request <https://github.com/eclipse-score/lifecycle/pull/212>`_
 
 - Rename current "Monitor" API in LaunchManager to "Alive"
-  - All public bazel targets are renamed. new targets are listed in Readme.md  
-  - More information in [Pull request](https://github.com/eclipse-score/lifecycle/pull/229)
+   - All public bazel targets are renamed. new targets are listed in Readme.md
+   - More information in `Pull request <https://github.com/eclipse-score/lifecycle/pull/229>`_
 
 - Backward compatibility with the previous release is not guaranteed.
 
-*For any questions or support, please contact the [Project Team](https://github.com/orgs/eclipse-score/projects/33) or raise an issue/discussion.*
+*For any questions or support, please contact the* `Project Team <https://github.com/orgs/eclipse-score/projects/33>`_ *or raise an issue/discussion.*
