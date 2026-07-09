@@ -12,8 +12,9 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-.. document:: lifecycle Release Note v0.3.0
-   :id: doc__lifecycle_release_note_v0_3_0
+
+.. document:: lifecycle Release Note
+   :id: doc__lifecycle_release_note
    :status: valid
    :safety: ASIL_B
    :security: NO
@@ -21,53 +22,51 @@
    :tags: 
 
 
-Release Note v0.3.0
-===================
-
 Overview
---------
+========
 
-This document provides an overview of the changes, improvements, and bug fixes included in the software module release version named above 
+This document provides an overview of the changes, improvements, and bug fixes included in the software module release version vx.x.z
 as compared to the module's origin release (which is usually the previous release).
 
 Disclaimer
-----------
+==========
 
 This release note does not "release for production", as it does not come with a safety argumentation and a performed safety assessment.
 The work products compiled in the safety package are created with care according to a process satisfying standards, but the as the project,
 being a non-profit and open source organization, can not take over any liability for its content.
 
 Changes to the Module
----------------------
+=====================
 
 New Features
-~~~~~~~~~~~~
+------------
 
 - **New report running API** Introduce low-level ``void report_running()`` funciton so applications can report a Running state without requiring usage of the full mw::Lifecycle API.
+- **Support C Applications** Support Reporting Running State and Alive Notifications for applications written in C
+- **Logic monitor API:** Health monitoring library provides logic monitor API.
 
 Improvements
-~~~~~~~~~~~~
+------------
 
 - **Quality improvements:** testing and documentation updates.
 - **README improvements:** Updated README.md and removed outdated contents.
 
 Bug Fixes
-~~~~~~~~~
+---------
 
-- Bug fix: `Spurious recovery action trigger on first run target activation <https://github.com/eclipse-score/lifecycle/issues/198>`_
-- Bug fix: `Launching a component with a missing binary <https://github.com/eclipse-score/lifecycle/issues/261>`_
-- Bug fix: `Spurious abort for process launch before retries are exhausted. <https://github.com/eclipse-score/lifecycle/issues/284>`_
-- Bug fix: `Possible crashes when using HealthMonitor due to stack-use-after-scope in baselibs rust logging. <https://github.com/eclipse-score/baselibs/issues/253>`_
+- Bug fix: [Spurious recovery action trigger on first run target activation](https://github.com/eclipse-score/lifecycle/issues/198)
+- Bug fix: [Launching a component with a missing binary](https://github.com/eclipse-score/lifecycle/issues/261)
+- Bug fix: [Spurious abort for process launch before retries are exhausted.](https://github.com/eclipse-score/lifecycle/issues/284)
 
 Other Changes by Label
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
-- Reorganize repo folder structure `more info <https://github.com/eclipse-score/lifecycle/issues/210>`_
+- Reorganize repo folder structure [more info](https://github.com/eclipse-score/lifecycle/issues/210)
 
 Compatibility
-~~~~~~~~~~~~~
+-------------
 
-- The following platforms are supported using the `bazel_cpp_toolchains <https://github.com/eclipse-score/bazel_cpp_toolchains>`_:
+- The following platforms are supported using the [bazel_cpp_toolchains](https://github.com/eclipse-score/bazel_cpp_toolchains):
 
   - `x86_64-unknown-linux-gnu`
   - `aarch64-unknown-linux-gnu`
@@ -75,31 +74,34 @@ Compatibility
   - `aarch64-unknown-nto-qnx800`
 
 Performed Verification
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 - Build on all supported platforms
 - Unit test execution on all supported platforms
 
 Known Issues
-~~~~~~~~~~~~
+------------
 
-- None
+- 
 
 Known Vulnerabilities
-~~~~~~~~~~~~~~~~~~~~~
+---------------------
 
-- None
+- 
 
 Upgrade Instructions
-~~~~~~~~~~~~~~~~~~~~
+--------------------
+
+- Renamed HealthMonitor component to AliveMonitor
+  - More information in [Pull request](https://github.com/eclipse-score/lifecycle/pull/206)
 
 - Align public API namespaces to score::mw::lifecycle and score::mw::health
-   - More information in `Pull request 212 <https://github.com/eclipse-score/lifecycle/pull/212>`_
+  - More information in [Pull request](https://github.com/eclipse-score/lifecycle/pull/212)
 
-- Rename current "Monitor" API in LaunchManager to "Alive"
-   - All public bazel targets are renamed. new targets are listed in Readme.md
-   - More information in `Pull request 229 <https://github.com/eclipse-score/lifecycle/pull/229>`_
+- Rename current "HealthMonitor" API in LaunchManager to "Alive"
+  - new public bazel targets: "//score/launch_manager:alive_cc", "//score/launch_manager:alive_rust"
+  - More information in [Pull request](https://github.com/eclipse-score/lifecycle/pull/229)
 
 - Backward compatibility with the previous release is not guaranteed.
 
-*For any questions or support, please contact the* `Project Team <https://github.com/orgs/eclipse-score/projects/33>`_ *or raise an issue/discussion.*
+*For any questions or support, please contact the [Project Team](https://github.com/orgs/eclipse-score/projects/33) or raise an issue/discussion.*
