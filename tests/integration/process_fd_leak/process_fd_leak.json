@@ -36,16 +36,35 @@
         }
     },
     "components": {
-        "component_native": {
+        "native": {
             "component_properties": {
                 "binary_name": "native"
+            }
+        },
+        "control_client": {
+            "component_properties": {
+                "binary_name": "control_client",
+                "application_profile": {
+                    "application_type": "State_Manager",
+                    "is_self_terminating": false
+                }
+            }
+        },
+        "reporting": {
+            "component_properties": {
+                "binary_name": "reporting",
+                "application_profile": {
+                    "application_type": "Reporting"
+                }
             }
         }
     },
     "run_targets": {
         "Startup": {
             "depends_on": [
-                "component_native"
+                "native",
+                "control_client",
+                "reporting"
             ]
         }
     },

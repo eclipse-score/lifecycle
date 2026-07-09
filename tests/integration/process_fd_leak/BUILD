@@ -65,7 +65,9 @@ cc_binary(
 pkg_files(
     name = "main_files",
     srcs = [
+        ":control_client",
         ":native",
+        ":reporting",
         "//score/launch_manager",
     ],
     attributes = pkg_attributes(mode = "0777"),

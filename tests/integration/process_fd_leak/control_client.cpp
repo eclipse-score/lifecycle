@@ -22,17 +22,42 @@
 int g_argc;
 char** g_argv;
 
-TEST(ProcessFDs, ProcessInitial)
+TEST(ControlClientFDs, FindOpenFDs)
 {
+
+    TEST_STEP("Before Running")
+    {
+        auto open_fds = get_fds();
+        EXPECT_TRUE(filter_fd(open_fds, std::regex("/dev/shm/ipc_shared_mem[0-9]+")));
+        EXPECT_TRUE(filter_fd(open_fds, std::regex("/dev/shm/_nudge~._.~me_")));
+        std::ostringstream oss;
+        oss << open_fds;
+        EXPECT_TRUE(open_fds.empty()) << "Found open files!\n" << oss.str();
+    }
 
     score::mw::lifecycle::report_running();
 
+    TEST_STEP("After Running")
+    {
+        auto open_fds = get_fds();
+        EXPECT_TRUE(filter_fd(open_fds, std::regex("/dev/shm/ipc_shared_mem[0-9]+")));
+        EXPECT_TRUE(filter_fd(open_fds, std::regex("/dev/shm/_nudge~._.~me_")));
+        std::ostringstream oss;
+        oss << open_fds;
+        EXPECT_TRUE(open_fds.empty()) << "Found open files!\n" << oss.str();
+    }
+
     score::mw::lifecycle::ControlClient client{};
 
-    auto open_fds = get_fds();
-    std::ostringstream oss;
-    oss << open_fds;
-    EXPECT_TRUE(open_fds.size() == 0) << "Found open files!\n" << oss.str();
+    TEST_STEP("After Control Client")
+    {
+        auto open_fds = get_fds();
+        EXPECT_TRUE(filter_fd(open_fds, std::regex("/dev/shm/ipc_shared_mem[0-9]+")));
+        EXPECT_TRUE(filter_fd(open_fds, std::regex("/dev/shm/_nudge~._.~me_")));
+        std::ostringstream oss;
+        oss << open_fds;
+        EXPECT_TRUE(open_fds.empty()) << "Found open files!\n" << oss.str();
+    }
 }
 
 int main(int argc, char** argv)

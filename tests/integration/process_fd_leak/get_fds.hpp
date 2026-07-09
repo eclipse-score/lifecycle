@@ -10,6 +10,8 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
+#include <gtest/gtest.h>
+
 #include <charconv>
 #include <dirent.h>
 #include <fcntl.h>
@@ -18,6 +20,8 @@
 #include <cstring>
 #include <iostream>
 #include <ostream>
+#include <sstream>
+#include <regex>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -28,11 +32,44 @@ inline std::ostream& operator<<(std::ostream& outstream, const std::vector<std::
 {
     for (auto& [fd, path] : data)
     {
-        outstream << "(FD: " << fd << ") " << path << std::endl;
+        outstream << "(FD: " << fd << ") " << path << "\n";
     }
     return outstream;
 }
 
+
+/// @brief Given the list of FDs and their paths, removes entries whose path
+///        matches the regex.
+/// @return AssertionSuccess if at least one entry matched and was removed,
+///         AssertionFailure (with the full FD list) if nothing matched.
+inline testing::AssertionResult filter_fd(std::vector<std::pair<std::uint32_t, std::string>>& data,
+                                          std::regex&& path_regex)
+{
+    std::smatch m;
+    bool found{false};
+
+    auto it = data.begin();
+    while (it != data.end())
+    {
+        if (std::regex_search(it->second, m, path_regex))
+        {
+            found = true;
+            it = data.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+    if (!found)
+    {
+        std::ostringstream oss;
+        oss << data;
+        return testing::AssertionFailure() << "Regex did not match any open FD path. Open FDs:\n" << oss.str();
+    }
+    return testing::AssertionSuccess();
+}
 
 /// @brief Returns a list of all open FDs, ignoring stdin, stdout & stderr.
 /// @note This opens another FD for the /proc/self/fd directory however this is
