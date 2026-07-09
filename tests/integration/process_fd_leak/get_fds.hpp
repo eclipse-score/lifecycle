@@ -24,19 +24,74 @@
 
 constexpr std::string_view fd_dir_path{"/proc/self/fd"};
 
-inline std::ostream& operator<<(std::ostream& outstream, const std::vector<std::pair<std::uint32_t, std::string>>& data){
-    for(auto &[fd, path]: data){
-        outstream << "(FD: "<< fd << ") " << path << std::endl;
+inline std::ostream& operator<<(std::ostream& outstream, const std::vector<std::pair<std::uint32_t, std::string>>& data)
+{
+    for (auto& [fd, path] : data)
+    {
+        outstream << "(FD: " << fd << ") " << path << std::endl;
     }
     return outstream;
 }
 
-    /// @brief Returns a list of all open FDs, ignoring stdin, stdout & stderr.
-    /// @note This opens another FD for the /proc/self/fd directory however this is
-    ///       not returned in the list.
-    inline std::vector<std::pair<std::uint32_t, std::string>>
-    get_fds()
+
+/// @brief Returns a list of all open FDs, ignoring stdin, stdout & stderr.
+/// @note This opens another FD for the /proc/self/fd directory however this is
+///       not returned in the list.
+inline std::vector<std::pair<std::uint32_t, std::string>> get_fds()
 {
+#ifdef __QNXNTO__
+    std::vector<std::pair<std::uint32_t, std::string>> out_vector{};
+
+    char proc_as_path[] = "/proc/self/as";
+    int proc_fd = ::open(proc_as_path, O_RDONLY | O_NONBLOCK);
+    if (proc_fd == -1)
+    {
+        return out_vector;
+    }
+
+    procfs_info proc_info{};
+    if (::devctl(proc_fd, DCMD_PROC_INFO, &proc_info, sizeof(proc_info), nullptr) != EOK)
+    {
+        ::close(proc_fd);
+        return out_vector;
+    }
+
+    constexpr std::size_t path_buf_size = sizeof(procfs_fdinfo) + PATH_MAX;
+    alignas(procfs_fdinfo) char buf[path_buf_size];
+
+    for (int fd_number = 0; fd_number < proc_info.num_fds; ++fd_number)
+    {
+        // skip irrelevant FDs
+        if (fd_number == STDIN_FILENO || fd_number == STDOUT_FILENO || fd_number == STDERR_FILENO ||
+            fd_number == proc_fd)
+        {
+            continue;
+        }
+
+        std::memset(buf, 0, path_buf_size);
+        procfs_fdinfo* info = reinterpret_cast<procfs_fdinfo*>(buf);
+        info->fd = fd_number;
+
+        if (::devctl(proc_fd, DCMD_PROC_FDINFO, info, path_buf_size, nullptr) != EOK)
+        {
+            continue;
+        }
+
+        auto& emplace_it = out_vector.emplace_back(static_cast<std::uint32_t>(fd_number), std::string{});
+
+        if (info->path[0] != '\0')
+        {
+            emplace_it.second = info->path;
+        }
+        else
+        {
+            emplace_it.second = "Could not get real path";
+        }
+    }
+
+    ::close(proc_fd);
+    return out_vector;
+#else
     std::vector<std::pair<std::uint32_t, std::string>> out_vector{};
 
     DIR* fd_dir = ::opendir(fd_dir_path.begin());
@@ -80,4 +135,5 @@ inline std::ostream& operator<<(std::ostream& outstream, const std::vector<std::
 
     ::closedir(fd_dir);
     return out_vector;
+#endif
 }

@@ -30,6 +30,35 @@ cc_binary(
     deps = [
         "//tests/utils/test_helper",
         "@googletest//:gtest_main",
+        "@score_baselibs//score/mw/log",
+    ],
+)
+
+cc_binary(
+    name = "reporting",
+    srcs = [
+        "get_fds.hpp",
+        "reporting.cpp",
+    ],
+    deps = [
+        "//score/launch_manager:lifecycle_cc",
+        "//tests/utils/test_helper",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_binary(
+    name = "control_client",
+    srcs = [
+        "control_client.cpp",
+        "get_fds.hpp",
+    ],
+    deps = [
+        "//score/launch_manager:control_cc",
+        "//score/launch_manager:lifecycle_cc",
+        "//tests/utils/test_helper",
+        "@googletest//:gtest_main",
+        "@score_baselibs//score/mw/log",
     ],
 )
 
