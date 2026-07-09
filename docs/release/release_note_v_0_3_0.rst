@@ -42,7 +42,6 @@ New Features
 ------------
 
 - **New report running API** Introduce low-level ``void report_running()`` funciton so applications can report a Running state without requiring usage of the full mw::Lifecycle API.
-- **Logic monitor API:** Health monitoring library provides logic monitor API.
 
 Improvements
 ------------
