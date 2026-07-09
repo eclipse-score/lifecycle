@@ -12,7 +12,13 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-.. _lifecycle_release_notes:
+.. document:: lifecycle Release Note
+   :id: doc__lifecycle_release_note
+   :status: valid
+   :safety: ASIL_B
+   :security: NO
+   :realizes: wp__module_sw_release_note
+   :tags: 
 
 Release notes
 =============
