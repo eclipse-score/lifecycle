@@ -26,8 +26,7 @@ Release notes
 Overview
 --------
 
-This document provides an overview of the changes, improvements, and bug fixes included in the software module release version v0.2.0
-as compared to the module's origin release (which is usually the previous release).
+This document provides an overview of the changes, improvements, and bug fixes included in the software module releases.
 
 Disclaimer
 ----------
@@ -40,5 +39,5 @@ being a non-profit and open source organization, can not take over any liability
    :maxdepth: 1
    :caption: Content
 
-   ./release_note_v_0_3_0.rst
-   ./release_note_v_0_2_0.rst
+   release_note_v_0_3_0
+   release_note_v_0_2_0
