@@ -15,6 +15,8 @@
 #include <cstring>
 #include <thread>
 
+#include <score/assert.hpp>
+
 #include "control_client_channel.hpp"
 #include "score/mw/launch_manager/common/constants.hpp"
 #include "score/mw/launch_manager/common/log.hpp"

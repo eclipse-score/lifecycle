@@ -28,5 +28,6 @@ cc_library(
         "//score/launch_manager/src/daemon/src/common:log",
         "//score/launch_manager/src/daemon/src/common:process_group_state_id",
         "//score/launch_manager/src/daemon/src/osal:ipc_comms",
+        "@score_baselibs//score/language/futurecpp",
     ],
 )

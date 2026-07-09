@@ -15,7 +15,7 @@
 #define SCORE_LCM_ALIVEIMPL_H_
 
 #include <memory>
-#include <utility>
+#include <optional>
 
 #include <string>
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/DataStructures.hpp"

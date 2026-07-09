@@ -11,11 +11,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
+#include <utility>
+
+#include <score/assert.hpp>
+
 #include "score/mw/lifecycle/alive.h"
 #include "score/mw/launch_manager/alive_monitor/details/AliveImpl.h"
 
-#include <cassert>
-#include <utility>
 
 // The public API is only sending alive notification. No need to support different checkpoints.
 static constexpr std::uint32_t kDefaultCheckpointId{1U};
