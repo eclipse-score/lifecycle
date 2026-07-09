@@ -42,7 +42,6 @@ New Features
 ------------
 
 - **New report running API** Introduce low-level ``void report_running()`` funciton so applications can report a Running state without requiring usage of the full mw::Lifecycle API.
-- **Support C Applications** Support Reporting Running State and Alive Notifications for applications written in C
 - **Logic monitor API:** Health monitoring library provides logic monitor API.
 
 Improvements
@@ -92,14 +91,11 @@ Known Vulnerabilities
 Upgrade Instructions
 --------------------
 
-- Renamed HealthMonitor component to AliveMonitor
-  - More information in [Pull request](https://github.com/eclipse-score/lifecycle/pull/206)
-
 - Align public API namespaces to score::mw::lifecycle and score::mw::health
   - More information in [Pull request](https://github.com/eclipse-score/lifecycle/pull/212)
 
-- Rename current "HealthMonitor" API in LaunchManager to "Alive"
-  - new public bazel targets: "//score/launch_manager:alive_cc", "//score/launch_manager:alive_rust"
+- Rename current "Monitor" API in LaunchManager to "Alive"
+  - All public bazel targets are renamed. new targets are listed in Readme.md  
   - More information in [Pull request](https://github.com/eclipse-score/lifecycle/pull/229)
 
 - Backward compatibility with the previous release is not guaranteed.
