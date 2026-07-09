@@ -21,7 +21,7 @@ Release Note v0.3.0
 Overview
 --------
 
-This document provides an overview of the changes, improvements, and bug fixes included in the software module release version vx.x.z
+This document provides an overview of the changes, improvements, and bug fixes included in the software module release version named above 
 as compared to the module's origin release (which is usually the previous release).
 
 Disclaimer
