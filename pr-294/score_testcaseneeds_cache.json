@@ -2592,7 +2592,7 @@
   {
     "name": "ProcessStateClient_UT__ProcessStateClient_QueueMaxNumberOfProcesses_Succeeds",
     "file": "score/launch_manager/src/daemon/src/process_state_client/process_state_client_ut.cpp",
-    "line": "81",
+    "line": "82",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2606,7 +2606,7 @@
   {
     "name": "ProcessStateClient_UT__ProcessStateClient_QueueOneProcessTooMany_Fails",
     "file": "score/launch_manager/src/daemon/src/process_state_client/process_state_client_ut.cpp",
-    "line": "114",
+    "line": "116",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
