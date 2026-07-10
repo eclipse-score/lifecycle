@@ -51,6 +51,7 @@ Bug Fixes
 - Bug fix: `Spurious recovery action trigger on first run target activation <https://github.com/eclipse-score/lifecycle/issues/198>`_
 - Bug fix: `Launching a component with a missing binary <https://github.com/eclipse-score/lifecycle/issues/261>`_
 - Bug fix: `Spurious abort for process launch before retries are exhausted. <https://github.com/eclipse-score/lifecycle/issues/284>`_
+- Bug fix: `Possible crashes when using HealthMonitor due to stack-use-after-scope in baselibs rust logging. <https://github.com/eclipse-score/baselibs/issues/253>`_
 
 Other Changes by Label
 ~~~~~~~~~~~~~~~~~~~~~~
