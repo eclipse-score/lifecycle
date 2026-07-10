@@ -13,6 +13,7 @@
 name: Bazel Build
 
 on:
+  workflow_call:
   pull_request:
     types: [opened, reopened, synchronize]
   merge_group:
