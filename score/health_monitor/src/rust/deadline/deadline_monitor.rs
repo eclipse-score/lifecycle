@@ -45,10 +45,11 @@ pub enum DeadlineMonitorError {
 /// Errors that can occur when working with Deadline instances
 #[derive(Debug, PartialEq, ScoreDebug, Eq, Clone, Copy, Hash)]
 pub enum DeadlineError {
+    /// Deadline already failed.
     DeadlineAlreadyFailed,
 }
 
-/// Builder for DeadlineMonitor
+/// Builder for [`DeadlineMonitor`].
 #[derive(Debug, Default)]
 pub struct DeadlineMonitorBuilder {
     deadlines: HashMap<DeadlineTag, TimeRange>,
@@ -81,6 +82,7 @@ impl DeadlineMonitorBuilder {
     }
 }
 
+/// Deadline monitor.
 pub struct DeadlineMonitor {
     inner: Arc<DeadlineMonitorInner>,
 }

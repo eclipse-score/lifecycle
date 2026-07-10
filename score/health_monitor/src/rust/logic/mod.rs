@@ -11,6 +11,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
+//! Implementation of a logic monitor and its builder.
+
 mod logic_monitor;
 mod logic_state;
 

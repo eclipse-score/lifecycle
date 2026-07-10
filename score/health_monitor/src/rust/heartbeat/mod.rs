@@ -11,6 +11,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
+//! Implementation of a heartbeat monitor and its builder.
+
 mod heartbeat_monitor;
 mod heartbeat_state;
 
