@@ -26,7 +26,6 @@
 #include <string_view>
 #include <vector>
 
-constexpr std::string_view fd_dir_path{"/proc/self/fd"};
 
 inline std::ostream& operator<<(std::ostream& outstream, const std::vector<std::pair<std::uint32_t, std::string>>& data)
 {
@@ -129,6 +128,7 @@ inline std::vector<std::pair<std::uint32_t, std::string>> get_fds()
     ::close(proc_fd);
     return out_vector;
 #else
+    constexpr std::string_view fd_dir_path{"/proc/self/fd"};
     std::vector<std::pair<std::uint32_t, std::string>> out_vector{};
 
     DIR* fd_dir = ::opendir(fd_dir_path.begin());
