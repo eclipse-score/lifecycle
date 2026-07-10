@@ -616,6 +616,42 @@ mod tests {
     }
 
     #[test]
+    #[cfg_attr(miri, ignore)]
+    fn heartbeat_monitor_multiple_eval_handles() {
+        let cycle = Duration::from_millis(20);
+        let monitor = create_monitor_multiple_cycles(cycle);
+        let hmon_starting_point = Instant::now();
+
+        // Run heartbeat thread.
+        let monitor_clone = monitor.clone();
+        let heartbeat_finished = Arc::new(AtomicBool::new(false));
+        let heartbeat_finished_clone = heartbeat_finished.clone();
+        let heartbeat_thread = spawn(move || {
+            const NUM_BEATS: u32 = 3;
+            const BEAT_INTERVAL: Duration = Duration::from_millis(100);
+            for i in 1..=NUM_BEATS {
+                sleep_until(i * BEAT_INTERVAL, hmon_starting_point);
+                monitor_clone.heartbeat();
+            }
+            heartbeat_finished_clone.store(true, Ordering::Release);
+        });
+
+        // Run evaluation thread.
+        while !heartbeat_finished.load(Ordering::Acquire) {
+            sleep(cycle);
+            // NOTE: this is not an expected use of `get_eval_handle`.
+            // It is normally used once before evaluation cycle starts.
+            monitor
+                .get_eval_handle()
+                .evaluate(hmon_starting_point, &mut |monitor_tag, error| {
+                    panic!("error happened, tag: {monitor_tag:?}, error: {error:?}")
+                });
+        }
+
+        heartbeat_thread.join().unwrap();
+    }
+
+    #[test]
     fn heartbeat_monitor_timestamp_offset() {
         let range = range_from_ms(80, 120);
         let monitor = create_monitor_single_cycle(range);
