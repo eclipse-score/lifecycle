@@ -34,7 +34,7 @@ jobs:
     uses: ./.github/workflows/build.yml
 
   build-qnx:
-    uses: ./.github/workflows/build_qnx8.yml
+    uses: ./.github/workflows/qnx8.yml
     permissions:
       contents: read
       pull-requests: read
@@ -75,7 +75,7 @@ jobs:
       - name: Find Latest Release Note
         run: |
           LATEST_RELEASE_NOTE=$(
-            for f in docs/release_notes/release_note_v_*.rst; do
+            for f in docs/release/release_note_v_*.rst; do
               [ -e "$f" ] || continue
               ver=$(basename "$f" .rst | sed 's/release_note_v_//' | tr '_' '.')
               echo "$ver $f"
