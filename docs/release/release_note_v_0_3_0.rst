@@ -12,7 +12,13 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-
+.. document:: lifecycle Release Note v0.3.0
+   :id: doc__lifecycle_release_note_v0_3_0
+   :status: valid
+   :safety: ASIL_B
+   :security: NO
+   :realizes: wp__module_sw_release_note
+   :tags: 
 
 
 Release Note v0.3.0
@@ -88,11 +94,11 @@ Upgrade Instructions
 ~~~~~~~~~~~~~~~~~~~~
 
 - Align public API namespaces to score::mw::lifecycle and score::mw::health
-   - More information in `Pull request <https://github.com/eclipse-score/lifecycle/pull/212>`_
+   - More information in `Pull request 212 <https://github.com/eclipse-score/lifecycle/pull/212>`_
 
 - Rename current "Monitor" API in LaunchManager to "Alive"
    - All public bazel targets are renamed. new targets are listed in Readme.md
-   - More information in `Pull request <https://github.com/eclipse-score/lifecycle/pull/229>`_
+   - More information in `Pull request 229 <https://github.com/eclipse-score/lifecycle/pull/229>`_
 
 - Backward compatibility with the previous release is not guaranteed.
 
