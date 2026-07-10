@@ -20,6 +20,8 @@
 #
 # Trigger:
 #   Manual workflow dispatch with required release tag input (e.g., v1.0.0)
+#   Input tag shall create the tag for the repo even if release is not published yet.
+#   In case Input tag already exist only the relevant github release page will be updated.
 #
 # Process:
 #   1. Run parallel build jobs:
