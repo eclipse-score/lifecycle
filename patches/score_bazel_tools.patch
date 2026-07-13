@@ -1,0 +1,6 @@
+--- MODULE.bazel
++++ MODULE.bazel
+@@ -66,1 +66,0 @@
+-    "3.8",
+@@ -109,1 +108,0 @@
+-    score_bazel_tools_cc_python_3_8 = "python_3_8",

@@ -1,5 +1,5 @@
 # *******************************************************************************
-# Copyright (c) 2025 Contributors to the Eclipse Foundation
+# Copyright (c) 2026 Contributors to the Eclipse Foundation
 #
 # See the NOTICE file(s) distributed with this work for additional
 # information regarding copyright ownership.
@@ -12,16 +12,14 @@
 # *******************************************************************************
 
 name: Formatting checks
-
+permissions:
+  contents: read
+  actions: write
 on:
   pull_request:
     types: [opened, reopened, synchronize]
   merge_group:
     types: [checks_requested]
-env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 jobs:
   formatting-check:
-    uses: eclipse-score/cicd-workflows/.github/workflows/format.yml@c1c90b1a82a1fab0fc202979dde6686b2162d5a8 # v0.0.0
-    with:
-      bazel-target: "test --lockfile_mode=error //:format.check" # optional, this is the default
+    uses: eclipse-score/cicd-workflows/.github/workflows/format.yml@f57b605a284ca117bcfd9f83ea427096faaac7d1
