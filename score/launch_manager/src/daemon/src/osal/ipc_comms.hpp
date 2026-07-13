@@ -69,8 +69,8 @@ struct IpcCommsSync final
 
     /// @brief Constant for the synchronization file descriptor.
     /// The `sync_fd` is a constant representing the file descriptor used for synchronization
-    /// during communication. It is set to a value of 3 by default.
-    static const int sync_fd = 3;
+    /// during communication. It is set to a value of 111 by default.
+    static const int sync_fd = 111;
 
     /// @brief Constant for the file descriptor used to signal state transitions
     /// The semaphore used to signal state transitions is stored in an unlinked shared memory area. This requires

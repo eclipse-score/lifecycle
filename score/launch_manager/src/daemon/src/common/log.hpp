@@ -180,7 +180,7 @@ class Logger
             localtime_r(&t, &now);
             stream << check_it_ << text_color_ << &now << appId_ << ctxId_ << "FATAL:   [";
         }
-        return std::move(stream);
+        return stream;
     }
 
     Stream LogError() noexcept
@@ -195,7 +195,7 @@ class Logger
             stream << check_it_ << text_color_ << &now << appId_ << ctxId_ << "ERROR:   [";
         }
 
-        return std::move(stream);
+        return stream;
     }
 
     Stream LogWarn() noexcept
@@ -209,7 +209,7 @@ class Logger
             localtime_r(&t, &now);
             stream << check_it_ << text_color_ << &now << appId_ << ctxId_ << "WARNING: [";
         }
-        return std::move(stream);
+        return stream;
     }
 
     Stream LogInfo() noexcept
@@ -223,7 +223,7 @@ class Logger
             localtime_r(&t, &now);
             stream << text_color_ << &now << appId_ << ctxId_ << "INFO:    [";
         }
-        return std::move(stream);
+        return stream;
     }
 
     Stream LogDebug() noexcept
@@ -237,7 +237,7 @@ class Logger
             localtime_r(&t, &now);
             stream << text_color_ << &now << appId_ << ctxId_ << "DEBUG:  [";
         }
-        return std::move(stream);
+        return stream;
     }
 
     Stream LogVerbose() noexcept
@@ -251,7 +251,7 @@ class Logger
             localtime_r(&t, &now);
             stream << text_color_ << &now << appId_ << ctxId_ << "VERBOSE: [";
         }
-        return std::move(stream);
+        return stream;
     }
 
   private:

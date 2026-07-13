@@ -23,10 +23,12 @@ use core::time::Duration;
 use std::sync::Arc;
 use std::time::Instant;
 
-/// Range of accepted time.
+/// Range of accepted time: `<min; max>`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct TimeRange {
+    /// Lower bound.
     pub min: Duration,
+    /// Upper bound.
     pub max: Duration,
 }
 

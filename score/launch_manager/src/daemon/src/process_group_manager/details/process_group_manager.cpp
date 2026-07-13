@@ -16,9 +16,9 @@
 #include <unistd.h>
 #include <csignal>
 
+#include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/process_group_manager/ialive_monitor_thread.hpp"
 #include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
-#include "score/mw/launch_manager/common/log.hpp"
 
 namespace score::lcm::internal
 {
@@ -151,6 +151,14 @@ inline bool ProcessGroupManager::initializeControlClientHandler()
                 dup2(fd, osal::IpcCommsSync::control_client_handler_nudge_fd);  // always make sure we are using fd=4
             close(fd);
 
+            // dup2 clears the O_CLOEXEC flag so this needs to be set again
+            if (fcntl(fd2, F_SETFD, FD_CLOEXEC) != 0)
+            {
+                ::close(fd2);
+                return false;
+            }
+
+
             if (osal::IpcCommsSync::control_client_handler_nudge_fd == fd2)
             {
                 void* buf = mmap(NULL, sizeof(osal::Semaphore), PROT_WRITE, MAP_SHARED, fd2, 0);
@@ -162,7 +170,10 @@ inline bool ProcessGroupManager::initializeControlClientHandler()
                     ControlClientChannel::nudgeControlClientHandler_ = static_cast<osal::Semaphore*>(buf);
                     // coverity[cert_mem52_cpp_violation:FALSE] The allocated memory is checked by the containing if
                     // statement.
-                    ControlClientChannel::nudgeControlClientHandler_->init(0U, true);
+                    const auto osal_result = ControlClientChannel::nudgeControlClientHandler_->init(0U, true);
+                    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(osal_result == OsalReturnType::kSuccess,
+                                                            "ControlClientChannel semaphore init failed");
+
                     result = true;
                 }
             }
@@ -272,7 +283,13 @@ bool ProcessGroupManager::run()
         while (!em_cancelled.load())
         {
             // Wait for something to happen...
-            ControlClientChannel::nudgeControlClientHandler_->timedWait(std::chrono::milliseconds(100));
+            const auto osal_result =
+                ControlClientChannel::nudgeControlClientHandler_->timedWait(std::chrono::milliseconds(100));
+
+            SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+                osal_result == OsalReturnType::kSuccess || osal_result == OsalReturnType::kTimeout,
+                "ControlClientChannel semaphore wait failed");
+
             for (auto pg : process_groups_)
             {
                 controlClientHandler(*pg);
@@ -366,7 +383,8 @@ inline void ProcessGroupManager::allProcessGroupsOff()
                 osal::ProcessID pid = node->getPid();
                 if (pid > 0)
                 {
-                    process_interface_.forceTermination(pid);
+                    // forceTermination already handles errors appropriately, so we can ignore its result.
+                    static_cast<void>(process_interface_.forceTermination(pid));
                 }
             }
         }
@@ -528,8 +546,7 @@ inline void ProcessGroupManager::recoveryActionHandler()
 
         if (nullptr == pg)
         {
-            LM_LOG_ERROR() << "recoveryActionHandler: Unknown process "
-                           << *recovery_request;
+            LM_LOG_ERROR() << "recoveryActionHandler: Unknown process " << *recovery_request;
             continue;
         }
 
@@ -537,8 +554,8 @@ inline void ProcessGroupManager::recoveryActionHandler()
         const IdentifierHash recovery_state = configuration_manager_.getNameOfRecoveryState(pg->getProcessGroupName());
         const GraphState graph_state = pg->getState();
 
-        LM_LOG_DEBUG() << "recoveryActionHandler: Processing recovery request for PG "
-                       << *recovery_request << " to state " << recovery_state;
+        LM_LOG_DEBUG() << "recoveryActionHandler: Processing recovery request for PG " << *recovery_request
+                       << " to state " << recovery_state;
 
         if (GraphState::kInTransition == graph_state)
         {

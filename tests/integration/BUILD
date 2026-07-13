@@ -1,5 +1,3 @@
-load("@rules_python//python:pip.bzl", "compile_pip_requirements")
-
 # *******************************************************************************
 # Copyright (c) 2026 Contributors to the Eclipse Foundation
 #

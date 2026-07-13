@@ -17,12 +17,12 @@
 
 #include "score/mw/launch_manager/common/log.hpp"
 
+#include "score/mw/launch_manager/alive_monitor/details/daemon/AliveMonitorImpl.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/watchdog/WatchdogImpl.hpp"
 #include "score/mw/launch_manager/process_group_manager/alive_monitor_thread.hpp"
 #include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
 #include "score/mw/launch_manager/process_state_client/process_state_notifier.hpp"
 #include "score/mw/launch_manager/recovery_client/recovery_client.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/daemon/AliveMonitorImpl.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/watchdog/WatchdogImpl.hpp"
 
 using namespace std;
 using namespace score::lcm::internal;
@@ -67,35 +67,57 @@ bool runLCMDaemon(ProcessGroupManager& process_group_manager)
     }
 }
 
-/// @brief Reserves a file descriptor
-/// @param fd  file descriptor to reserve
+/// @brief Reserves a file descriptor.
+/// @param fd file descriptor to reserve.
+/// @warning This function can abort if system calls fail.
 void reserveFD(int fd)
 {
-    if (fcntl(fd, F_GETFD) != -1 || errno != EBADF)
-    {
+    errno = 0;
+    const int open_fd_flags = ::fcntl(fd, F_GETFD);
+    const bool fd_already_opened = open_fd_flags == 0 && errno == EBADFD;
 
-        std::cerr << "file descriptor already in use\n";
+    if (fd_already_opened)
+    {
+        std::cerr << "Failed to reserve required file descriptor (" << fd
+            << "), file descriptor already in use. " << std::strerror(errno);
         std::abort();
     }
 
     int tmp_fd = open("/dev/null", O_RDWR | O_CLOEXEC);
     if (tmp_fd < 0)
     {
-        std::cerr << "unable to get an unused file descriptor\n";
+        std::cerr << "Failed to reserve required file descriptor (" << fd
+            << "), failed to open temporary file. " << std::strerror(errno);
         std::abort();
     }
 
     if (fd != tmp_fd)
     {
-        if (dup2(tmp_fd, fd) == -1)
+        if (::dup2(tmp_fd, fd) == -1)
         {
-            close(tmp_fd);
-            std::cerr << std::strerror(errno);
+            ::close(tmp_fd);
+
+            std::cerr << "Failed to reserve required file descriptor (" << fd
+                      << "), couldn't duplicate fd with required number. "
+                      << std::strerror(errno);
             std::abort();
         }
-        close(tmp_fd);
+
+        if (::fcntl(fd, F_SETFD, FD_CLOEXEC) == -1)
+        {
+            ::close(tmp_fd);
+            ::close(fd);
+
+            std::cerr << "Failed to reserve required file descriptor (" << fd
+                      << ") , couldn't set flags on reserved file decriptor. "
+                      << std::strerror(errno);
+            std::abort();
+        }
+
+        ::close(tmp_fd);
     }
 }
+
 /// @brief Main function to start the LCM daemon.
 /// This function initializes and runs the LCM daemon by creating a ProcessGroupManager,
 /// initializing it, and then running it. It returns the appropriate exit code based on

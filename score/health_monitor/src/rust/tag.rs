@@ -96,6 +96,7 @@ impl From<&str> for Tag {
 pub struct MonitorTag(Tag);
 
 impl MonitorTag {
+    /// Create a new monitor tag using provided string.
     pub const fn new(value: &str) -> Self {
         MonitorTag(Tag::new(value))
     }
@@ -137,6 +138,7 @@ impl From<&str> for MonitorTag {
 pub struct DeadlineTag(Tag);
 
 impl DeadlineTag {
+    /// Create a new deadline tag using provided string.
     pub const fn new(value: &str) -> Self {
         DeadlineTag(Tag::new(value))
     }
@@ -178,6 +180,7 @@ impl From<&str> for DeadlineTag {
 pub struct StateTag(Tag);
 
 impl StateTag {
+    /// Create a new state tag using provided string.
     pub const fn new(value: &str) -> Self {
         StateTag(Tag::new(value))
     }
