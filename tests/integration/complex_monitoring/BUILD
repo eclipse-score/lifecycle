@@ -10,16 +10,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-load("@rules_pkg//pkg:mappings.bzl", "pkg_attributes", "pkg_files")
-load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
-load("//:defs.bzl", "launch_manager_config")
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
 load("//tests/utils/bazel:integration.bzl", "integration_test")
-
-launch_manager_config(
-    name = "lm_complex_monitoring_config",
-    config = "//tests/integration/complex_monitoring:complex_monitoring.json",
-    flatbuffer_out_dir = "etc",
-)
 
 cc_binary(
     name = "control_client_mock",
@@ -54,36 +46,14 @@ cc_binary(
     ],
 )
 
-pkg_files(
-    name = "complex_monitoring_main_files",
-    srcs = [
+integration_test(
+    name = "complex_monitoring",
+    srcs = ["complex_monitoring.py"],
+    binaries = [
         ":component_complex_monitoring",
         ":control_client_mock",
         "//score/launch_manager",
         "//tests/utils/test_helper:verification_process",
     ],
-    attributes = pkg_attributes(mode = "0755"),
-    prefix = "tests/complex_monitoring",
-)
-
-pkg_files(
-    name = "complex_monitoring_etc_files",
-    srcs = [":lm_complex_monitoring_config"],
-    prefix = "tests/complex_monitoring",
-)
-
-pkg_tar(
-    name = "complex_monitoring_binaries",
-    srcs = [
-        ":complex_monitoring_etc_files",
-        ":complex_monitoring_main_files",
-    ],
-)
-
-integration_test(
-    name = "complex_monitoring",
-    srcs = ["complex_monitoring.py"],
-    tags = ["integration"],
-    test_binaries = ":complex_monitoring_binaries",
-    deps = ["//tests/utils/testing_utils"],
+    config = ":complex_monitoring.json",
 )

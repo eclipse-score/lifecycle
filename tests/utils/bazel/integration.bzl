@@ -10,35 +10,82 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+load("@rules_pkg//pkg:mappings.bzl", "pkg_attributes", "pkg_files")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 load("@score_itf//:defs.bzl", "py_itf_test")
 load("@score_lifecycle_pip//:requirements.bzl", "all_requirements")
+load("//:defs.bzl", "launch_manager_config")
 load("//tests/utils/bazel:constants.bzl", "SCORE_TEST_INSTALL_PREFIX")
 
-def integration_test(name, srcs, test_binaries, args = [], deps = [], data = [], install_prefix = SCORE_TEST_INSTALL_PREFIX, **kwargs):
-    """Creates an integration test with test binaries available, also adds all
-    the required dependencies.
+def integration_test(
+        name,
+        srcs,
+        binaries,
+        files = [],
+        config = None,
+        install_prefix = SCORE_TEST_INSTALL_PREFIX,
+        **kwargs):
+    """Creates an integration test.
+
+    Test binaries and all required dependencies are made available.
+
+    This macro will create a few build targets which you may find useful:
+        :environment: A tarball of all the files in the test environment
+        :config: The launch manager configuration
+        :(name): Runs the test script
 
     Args:
-        test_binaries: Label of the `package_test_binaries` target
+        name: Name of the test
+        srcs: The test script
+        binaries: The binaries under test
+        files: Additional files
+        config: Launch manager configuration file
+        install_prefix: Installation prefix for the test environment
+        **kwargs: Miscellaneous arguments passed through to `py_itf_test`
     """
 
-    merged_data = data + [test_binaries] + select({
-        "//config:host": [],
-        "//conditions:default": ["//tests/utils/environments:test_environment"],
-    })
+    pkg_files(
+        name = "binaries",
+        srcs = binaries,
+        attributes = pkg_attributes(mode = "0755"),
+        prefix = "tests/{}".format(name),
+    )
 
-    # The test container does not ship the sanitizer runtime; daemon fails to start.
-    sanitizer_tags = ["no-asan"]
-    tags = kwargs.pop("tags", []) + sanitizer_tags
+    if config:
+        launch_manager_config(
+            name = "config",
+            config = config,
+            flatbuffer_out_dir = "etc",
+        )
+        all_files = files + [":config"]
+    else:
+        all_files = files
+
+    pkg_files(
+        name = "files",
+        srcs = all_files,
+        prefix = "tests/{}".format(name),
+    )
+
+    pkg_tar(name = "environment", srcs = [":binaries", ":files"])
 
     py_itf_test(
         name = name,
         srcs = srcs,
-        tags = tags,
-        deps = deps + all_requirements + ["@score_tooling//python_basics/score_pytest:attribute_plugin"],
-        data = merged_data,
-        args = args + [
-            "--score-test-binary-path=$(locations {})".format(test_binaries),
+        tags = kwargs.pop("tags", []) + [
+            "integration",
+            "no-asan",  # The test container does not ship the sanitizer runtime; daemon fails to start.
+        ],
+        deps = kwargs.pop("deps", []) + all_requirements + [
+            "@score_tooling//python_basics/score_pytest:attribute_plugin",
+            "//tests/utils/testing_utils",
+        ],
+        data = kwargs.pop("data", []) + [":environment"] + select({
+            "//config:host": [],
+            "//conditions:default": ["//tests/utils/environments:test_environment"],
+        }),
+        args = kwargs.pop("args", []) + [
+            "--score-test-binary-path=$(locations :environment)",
             "--score-test-remote-directory={}/tests/{}".format(install_prefix, name),
         ] + select({
             "//config:x86_64-linux": [

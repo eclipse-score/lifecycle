@@ -10,16 +10,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-load("@rules_pkg//pkg:mappings.bzl", "pkg_attributes", "pkg_files")
-load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
-load("//:defs.bzl", "launch_manager_config")
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
 load("//tests/utils/bazel:integration.bzl", "integration_test")
-
-launch_manager_config(
-    name = "lm_switch_run_target_config",
-    config = "//tests/integration/switch_run_target:switch_run_target.json",
-    flatbuffer_out_dir = "etc",
-)
 
 cc_library(
     name = "switch_run_target_common",
@@ -66,9 +59,10 @@ cc_binary(
     ],
 )
 
-pkg_files(
-    name = "switch_run_target_main_files",
-    srcs = [
+integration_test(
+    name = "switch_run_target",
+    srcs = ["switch_run_target.py"],
+    binaries = [
         ":component_a",
         ":component_b",
         ":component_d",
@@ -76,28 +70,5 @@ pkg_files(
         ":control_client_mock",
         "//score/launch_manager",
     ],
-    attributes = pkg_attributes(mode = "0755"),
-    prefix = "tests/switch_run_target",
-)
-
-pkg_files(
-    name = "switch_run_target_etc_files",
-    srcs = [":lm_switch_run_target_config"],
-    prefix = "tests/switch_run_target",
-)
-
-pkg_tar(
-    name = "switch_run_target_binaries",
-    srcs = [
-        ":switch_run_target_etc_files",
-        ":switch_run_target_main_files",
-    ],
-)
-
-integration_test(
-    name = "switch_run_target",
-    srcs = ["switch_run_target.py"],
-    tags = ["integration"],
-    test_binaries = ":switch_run_target_binaries",
-    deps = ["//tests/utils/testing_utils"],
+    config = ":switch_run_target.json",
 )
