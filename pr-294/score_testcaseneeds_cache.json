@@ -70,6 +70,20 @@
     "FullyVerifies": null
   },
   {
+    "name": "test_process_fd_leak",
+    "file": "../_main/tests/integration/process_fd_leak/process_fd_leak.py",
+    "line": "18",
+    "result": "passed",
+    "repo_name": null,
+    "hash": null,
+    "url": null,
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
     "name": "test_process_crash_monitoring",
     "file": "../_main/tests/integration/process_crash_monitoring/process_crash_monitoring.py",
     "line": "18",
