@@ -12,31 +12,23 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-Launch Manager
-##############
+[Your Feature Name]
+###################
 
-.. toctree::
-   :titlesonly:
+Abstract
+========
 
-   user_guide/index.rst
-   product_documentation/known_limitations.rst
+[A short (~200 word) description of the feature.]
+
+For the main feature description and requirements, see the belonging `Feature <https://eclipse-score.github.io/score/main/features/index.html#features>`_ in the project repository.
 
 .. toctree::
    :hidden:
 
-   requirements/index.rst
-   requirements/chklst_req_inspection
    architecture/index.rst
-   architecture/chklst_arc_inspection
-   detailed_design/index.rst
-   detailed_design/chklst_impl_inspection
+   architecture/chklst_arc_inspection.rst
    safety_analysis/fmea.rst
    safety_analysis/dfa.rst
    safety_analysis/aou_requirements.rst
-
-Subcomponents
-=============
-.. toctree::
-   :titlesonly:
-
-   ../src/lifecycle_client/docs/index.rst
+   safety_planning/index.rst
+   security_planning/index.rst
