@@ -18,6 +18,7 @@
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
+
 #include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
 
 namespace score
@@ -63,7 +64,7 @@ Graph::~Graph()
 void Graph::initProcessGroupNodes(IdentifierHash pg_name, uint32_t num_processes, uint32_t index)
 {
     pg_index_ = index;
-    off_state_ = pgm_->getConfigurationManager()->getNameOfOffState(pg_name);
+    off_state_ = pgm_->getConfiguration()->getNameOfOffState(pg_name);
     requested_state_.pg_state_name_ = off_state_;
     requested_state_.pg_name_ = pg_name;
 
@@ -101,7 +102,7 @@ inline void Graph::createSuccessorLists(IdentifierHash pg_name)
         // If the other process has a dependency on this one, put it on the correct list
         auto node_index = node->getNodeIndex();
         const DependencyList* dep_list =
-            pgm_->getConfigurationManager()->getOsProcessDependencies(pg_name, node_index).value_or(nullptr);
+            pgm_->getConfiguration()->getOsProcessDependencies(pg_name, node_index).value_or(nullptr);
 
         if (dep_list)
         {
@@ -279,7 +280,7 @@ bool Graph::startTransition(ProcessGroupStateID pg_state)
         requested_state_.pg_state_name_ = pg_state.pg_state_name_;
     }
     const std::vector<uint32_t>* process_index_list =
-        pgm_->getConfigurationManager()->getProcessIndexesList(requested_state_).value_or(nullptr);
+        pgm_->getConfiguration()->getProcessIndexesList(requested_state_).value_or(nullptr);
 
     if (nullptr != process_index_list)
     {

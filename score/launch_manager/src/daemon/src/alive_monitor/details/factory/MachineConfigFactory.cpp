@@ -30,6 +30,10 @@ namespace saf
 namespace factory
 {
 
+using HMCoreEcuCfg = HMCOREFlatBuffer::HMCOREEcuCfg;
+using DeviceConfigurations = watchdog::IDeviceConfigFactory::DeviceConfigurations;
+using NanoSecondType = timers::NanoSecondType;
+
 namespace
 {
 /// @brief Prefix for all log messages
@@ -95,7 +99,7 @@ bool MachineConfigFactory::init() noexcept(false)
     return loadHmCoreConfig(flatBuffer_p);
 }
 
-bool MachineConfigFactory::loadHmCoreConfig(const HMCOREFlatBuffer::HMCOREEcuCfg* f_cfg_r) noexcept(false)
+bool MachineConfigFactory::loadHmCoreConfig(const HMCoreEcuCfg* f_cfg_r) noexcept(false)
 {
     loadHmSettings(*f_cfg_r);
     loadWatchdogDevices(*f_cfg_r);
@@ -104,7 +108,7 @@ bool MachineConfigFactory::loadHmCoreConfig(const HMCOREFlatBuffer::HMCOREEcuCfg
     return true;
 }
 
-void MachineConfigFactory::loadWatchdogDevices(const HMCOREFlatBuffer::HMCOREEcuCfg& f_flatBuffer_r) noexcept(false)
+void MachineConfigFactory::loadWatchdogDevices(const HMCoreEcuCfg& f_flatBuffer_r) noexcept(false)
 {
     const auto* watchdogs{f_flatBuffer_r.watchdogs()};
     if ((watchdogs == nullptr) || (watchdogs->size() == 0U))
@@ -137,7 +141,7 @@ void MachineConfigFactory::loadWatchdogDevices(const HMCOREFlatBuffer::HMCOREEcu
     }
 }
 
-void MachineConfigFactory::loadHmSettings(const HMCOREFlatBuffer::HMCOREEcuCfg& f_flatBuffer_r) noexcept(true)
+void MachineConfigFactory::loadHmSettings(const HMCoreEcuCfg& f_flatBuffer_r) noexcept(true)
 {
     const auto* configContainer{f_flatBuffer_r.config()};
     if ((configContainer != nullptr) && (configContainer->size() == 1U))
@@ -163,13 +167,12 @@ void MachineConfigFactory::loadHmSettings(const HMCOREFlatBuffer::HMCOREEcuCfg& 
     }
 }
 
-std::optional<watchdog::IDeviceConfigFactory::DeviceConfigurations> MachineConfigFactory::getDeviceConfigurations()
-    const
+std::optional<DeviceConfigurations> MachineConfigFactory::getDeviceConfigurations() const
 {
     return watchdogConfigs;
 }
 
-timers::NanoSecondType MachineConfigFactory::getCycleTimeInNs() const noexcept(true)
+NanoSecondType MachineConfigFactory::getCycleTimeInNs() const noexcept(true)
 {
     return cycleTimeNs;
 }

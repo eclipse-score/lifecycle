@@ -63,6 +63,14 @@ cc_library(
 )
 
 cc_library(
+    name = "alive_interface_path",
+    hdrs = ["alive_interface_path.hpp"],
+    include_prefix = "score/mw/launch_manager/common",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/common",
+    visibility = ["//score:__subpackages__"],
+)
+
+cc_library(
     name = "process_group_state_id",
     hdrs = [
         "process_group_state_id.hpp",

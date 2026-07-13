@@ -278,17 +278,17 @@ class MPMCConcurrentQueue
 
     /// @brief The front of the queue; claimed by consumers via fetch_add in pop.
     /// @details Aligned so that m_head and m_tail do not share a cache line.
-    alignas(CacheLineSize) std::atomic<std::size_t> m_head{0};
+    std::atomic<std::size_t> m_head{0};
 
     /// @brief The back of the queue; claimed by producers via fetch_add in push_impl.
     /// @details Aligned so that m_head and m_tail do not share a cache line.
-    alignas(CacheLineSize) std::atomic<std::size_t> m_tail{0};
+    std::atomic<std::size_t> m_tail{0};
 
     /// @brief Set to true by stop(); causes push() to return false and pop() to
     ///        return std::nullopt instead of blocking.
     /// @details Aligned on its own cache line so that the single stop() write
     ///          does not cause false sharing with m_tail updates in push_impl().
-    alignas(CacheLineSize) std::atomic<bool> m_stopped{false};
+    std::atomic<bool> m_stopped{false};
 
     /// @brief Counts items currently in the queue; consumers block on this when
     ///        the queue is empty.

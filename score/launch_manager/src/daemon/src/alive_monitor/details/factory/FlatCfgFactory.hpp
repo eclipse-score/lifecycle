@@ -23,8 +23,12 @@
 #include "score/mw/launch_manager/alive_monitor/details/factory/IPhmFactory.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/factory/MachineConfigFactory.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ProcessStateReader.hpp"
+#ifdef USE_NEW_CONFIGURATION
+#include "score/mw/launch_manager/configuration/config.hpp"
+#else
 #include "score/mw/launch_manager/alive_monitor/config/hm_flatcfg_generated.h"
 #include "flatbuffers/flatbuffers.h"
+#endif
 
 namespace score {
     namespace lcm {
@@ -75,8 +79,11 @@ public:
     /// @param [inout] f_flatCfgPhm_r   FlatCfg configuration for PHM
     /// @param [in] f_nameSwCluster_r   Software Cluster name which for which workers shall be constructed
     /// @return                         Initialization is successful (true), otherwise failure (false)
-    // bool init(flatcfg::FlatCfg& f_flatCfgPhm_r, const std::string& f_nameSwCluster_r);
+#ifdef USE_NEW_CONFIGURATION
+    bool init(const score::mw::launch_manager::configuration::Config& config);
+#else
     bool init(const std::string& f_filename_r);
+#endif
 
     /// @brief Refer to the description of the base class (IPhmFactory)
     bool createProcessStates(std::vector<ifexm::ProcessState>& f_processStates_r,
@@ -104,9 +111,16 @@ public:
 private:
 
     /// @brief Get process id based on ASR path of process
+#ifdef USE_NEW_CONFIGURATION
+    /// @param[in] comp  Pointer to component configuration
+    /// @return          process id
+    static score::lcm::IdentifierHash getProcessId(
+        const score::mw::launch_manager::configuration::ComponentConfig* comp) noexcept(true);
+#else
     /// @param[in] f_processPath_r  ASR path of process
     /// @return                     process id or nullopt in case of an error
     std::optional<common::ProcessId> getProcessId(const std::string& f_processPath_r) noexcept(true);
+#endif
 
     /// @brief Create IPC Channel with uid-based access permission
     /// @details Only the given uid will ge granted r/w access, no group will be granted access
@@ -121,12 +135,17 @@ private:
     /// @brief The buffer configuration for constructing supervision objects
     const factory::MachineConfigFactory::SupervisionBufferConfig& bufferConfig_r;
 
+#ifdef USE_NEW_CONFIGURATION
+    const score::mw::launch_manager::configuration::Config* config_;
+    std::vector<const score::mw::launch_manager::configuration::ComponentConfig*> supervised_components_;
+    std::vector<std::string> alive_cfg_names_;
+#else
     /// Pointer to PHM Flat Buffer for given Software Cluster
     /// Raw pointer is used here because the memory is deallocated by FlatBuffer.
     const HMFlatBuffer::HMEcuCfg* flatBuffer_p;
-
     /// Pointer for loaded Software Cluster
     std::unique_ptr<char[]> loadBuffer_p;
+#endif
 
     /// Logger object for logging messages
     logging::PhmLogger& logger_r;
