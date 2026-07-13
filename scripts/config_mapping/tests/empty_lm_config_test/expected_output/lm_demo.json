@@ -1,13 +1,13 @@
 {
-    "versionMajor": 7,
-    "versionMinor": 0,
-    "Process": [],
-    "ModeGroup": [
+    "version_major": 7,
+    "version_minor": 0,
+    "process": [],
+    "mode_group": [
         {
             "identifier": "MainPG",
-            "initialMode_name": "not-used",
-            "recoveryMode_name": "MainPG/fallback_run_target",
-            "modeDeclaration": [
+            "initial_mode_name": "not-used",
+            "recovery_mode_name": "MainPG/fallback_run_target",
+            "mode_declaration": [
                 {
                     "identifier": "MainPG/Startup"
                 },

@@ -416,15 +416,15 @@ def gen_launch_manager_config(output_dir, config):
             return "ProcessIsNotSelfTerminating"
 
     lm_config = {}
-    lm_config["versionMajor"] = 7
-    lm_config["versionMinor"] = 0
-    lm_config["Process"] = []
-    lm_config["ModeGroup"] = [
+    lm_config["version_major"] = 7
+    lm_config["version_minor"] = 0
+    lm_config["process"] = []
+    lm_config["mode_group"] = [
         {
             "identifier": "MainPG",
-            "initialMode_name": "not-used",
-            "recoveryMode_name": get_recovery_process_group_state(config),
-            "modeDeclaration": [],
+            "initial_mode_name": "not-used",
+            "recovery_mode_name": get_recovery_process_group_state(config),
+            "mode_declaration": [],
         }
     ]
 
@@ -433,7 +433,9 @@ def gen_launch_manager_config(output_dir, config):
     # For each component, store which run targets depends on it
     for pgstate, values in config["run_targets"].items():
         state_name = "MainPG/" + pgstate
-        lm_config["ModeGroup"][0]["modeDeclaration"].append({"identifier": state_name})
+        lm_config["mode_group"][0]["mode_declaration"].append(
+            {"identifier": state_name}
+        )
         components = get_process_dependencies(values)
         for component in components:
             if component not in process_group_states:
@@ -441,7 +443,7 @@ def gen_launch_manager_config(output_dir, config):
             process_group_states[component].append(state_name)
 
     if fallback := config.get("fallback_run_target", {}):
-        lm_config["ModeGroup"][0]["modeDeclaration"].append(
+        lm_config["mode_group"][0]["mode_declaration"].append(
             {"identifier": "MainPG/fallback_run_target"}
         )
         fallback_components = get_process_dependencies(fallback)
@@ -464,10 +466,10 @@ def gen_launch_manager_config(output_dir, config):
                 "supplementary_group_ids"
             ]
         ]
-        process["securityPolicyDetails"] = component_config["deployment_config"][
+        process["security_policy_details"] = component_config["deployment_config"][
             "sandbox"
         ]["security_policy"]
-        process["numberOfRestartAttempts"] = component_config["deployment_config"][
+        process["number_of_restart_attempts"] = component_config["deployment_config"][
             "ready_recovery_action"
         ]["restart"]["number_of_attempts"]
 
@@ -475,46 +477,46 @@ def gen_launch_manager_config(output_dir, config):
             "application_type"
         ]:
             case "Native":
-                process["executable_reportingBehavior"] = "DoesNotReportExecutionState"
+                process["executable_reporting_behavior"] = "DoesNotReportExecutionState"
             case "State_Manager":
-                process["executable_reportingBehavior"] = "ReportsExecutionState"
-                process["functionClusterAffiliation"] = "STATE_MANAGEMENT"
+                process["executable_reporting_behavior"] = "ReportsExecutionState"
+                process["function_cluster_affiliation"] = "STATE_MANAGEMENT"
             case "Reporting" | "Reporting_And_Supervised":
-                process["executable_reportingBehavior"] = "ReportsExecutionState"
+                process["executable_reporting_behavior"] = "ReportsExecutionState"
 
-        process["startupConfig"] = [{}]
-        process["startupConfig"][0]["executionError"] = "1"
-        process["startupConfig"][0]["identifier"] = f"{component_name}_startup_config"
-        process["startupConfig"][0]["enterTimeoutValue"] = sec_to_ms(
+        process["startup_config"] = [{}]
+        process["startup_config"][0]["execution_error"] = "1"
+        process["startup_config"][0]["identifier"] = f"{component_name}_startup_config"
+        process["startup_config"][0]["enter_timeout_value"] = sec_to_ms(
             component_config["deployment_config"]["ready_timeout"]
         )
-        process["startupConfig"][0]["exitTimeoutValue"] = sec_to_ms(
+        process["startup_config"][0]["exit_timeout_value"] = sec_to_ms(
             component_config["deployment_config"]["shutdown_timeout"]
         )
-        process["startupConfig"][0]["schedulingPolicy"] = component_config[
+        process["startup_config"][0]["scheduling_policy"] = component_config[
             "deployment_config"
         ]["sandbox"]["scheduling_policy"]
-        process["startupConfig"][0]["schedulingPriority"] = str(
+        process["startup_config"][0]["scheduling_priority"] = str(
             component_config["deployment_config"]["sandbox"]["scheduling_priority"]
         )
-        process["startupConfig"][0]["terminationBehavior"] = get_terminating_behavior(
+        process["startup_config"][0]["termination_behavior"] = get_terminating_behavior(
             component_config
         )
-        process["startupConfig"][0]["processGroupStateDependency"] = []
-        process["startupConfig"][0]["environmentVariable"] = []
+        process["startup_config"][0]["process_group_state_dependency"] = []
+        process["startup_config"][0]["environment_variable"] = []
         for env_var, value in (
             component_config["deployment_config"]
             .get("environmental_variables", {})
             .items()
         ):
-            process["startupConfig"][0]["environmentVariable"].append(
+            process["startup_config"][0]["environment_variable"].append(
                 {"key": env_var, "value": value}
             )
         application_type = component_config["component_properties"][
             "application_profile"
         ]["application_type"]
         if is_supervised(application_type):
-            process["startupConfig"][0]["environmentVariable"].append(
+            process["startup_config"][0]["environment_variable"].append(
                 {
                     "key": "LCM_ALIVE_INTERFACE_PATH",
                     "value": "lifecycle_health_" + component_name,
@@ -525,19 +527,19 @@ def gen_launch_manager_config(output_dir, config):
             "process_arguments", []
         ):
             arguments = [{"argument": arg} for arg in arguments]
-        process["startupConfig"][0]["processArgument"] = arguments
+        process["startup_config"][0]["process_argument"] = arguments
 
         if component_name in process_group_states:
             for pgstate in process_group_states[component_name]:
-                process["startupConfig"][0]["processGroupStateDependency"].append(
-                    {"stateMachine_name": "MainPG", "stateName": pgstate}
+                process["startup_config"][0]["process_group_state_dependency"].append(
+                    {"state_machine_name": "MainPG", "state_name": pgstate}
                 )
 
-        lm_config["Process"].append(process)
+        lm_config["process"].append(process)
 
     # Execution dependencies. Assumption: Components can never depend on run targets
-    for process in lm_config["Process"]:
-        process["startupConfig"][0]["executionDependency"] = []
+    for process in lm_config["process"]:
+        process["startup_config"][0]["execution_dependency"] = []
         for dependency in config["components"][process["identifier"]][
             "component_properties"
         ].get("depends_on", []):
@@ -545,8 +547,8 @@ def gen_launch_manager_config(output_dir, config):
             ready_condition = dep_entry["component_properties"]["ready_condition"][
                 "process_state"
             ]
-            process["startupConfig"][0]["executionDependency"].append(
-                {"stateName": ready_condition, "targetProcess_identifier": dependency}
+            process["startup_config"][0]["execution_dependency"].append(
+                {"state_name": ready_condition, "target_process_identifier": dependency}
             )
 
     with open(f"{output_dir}/lm_demo.json", "w") as lm_file:
