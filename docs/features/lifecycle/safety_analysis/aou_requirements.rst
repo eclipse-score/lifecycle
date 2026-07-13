@@ -12,31 +12,26 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-Launch Manager
-##############
+AoU Feature Requirements
+========================
 
-.. toctree::
-   :titlesonly:
+.. document:: Lifecycle Feature AoU
+   :id: doc__lifecycle_feat_aou
+   :status: draft
+   :safety: ASIL_B
+   :security: NO
+   :realizes: wp__requirements_feat_aou
 
-   user_guide/index.rst
-   product_documentation/known_limitations.rst
+Feature AoU
+-----------
 
-.. toctree::
-   :hidden:
+.. code-block:: rst
 
-   requirements/index.rst
-   requirements/chklst_req_inspection
-   architecture/index.rst
-   architecture/chklst_arc_inspection
-   detailed_design/index.rst
-   detailed_design/chklst_impl_inspection
-   safety_analysis/fmea.rst
-   safety_analysis/dfa.rst
-   safety_analysis/aou_requirements.rst
+   .. aou_req:: Some Other Title
+      :id: aou_req__feature_name__some_other_title
+      :reqtype: Process
+      :security: NO
+      :safety: ASIL_B
+      :status: invalid
 
-Subcomponents
-=============
-.. toctree::
-   :titlesonly:
-
-   ../src/lifecycle_client/docs/index.rst
+      The Feature User shall do xyz to use the feature safely.

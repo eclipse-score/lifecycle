@@ -66,7 +66,7 @@ Requirements
    :belongs_to: comp__health_monitor
    :status: invalid
 
-   The Feature shall do xyz to the user to bring him to this condition at this time
+   The Component shall do xyz to the user to bring him to this condition at this time
 
    Note: (optional, not to be verified)
 
@@ -77,7 +77,7 @@ Requirements
    :safety: ASIL_B
    :status: invalid
 
-   The Feature User shall do xyz to use the feature safely
+   The Component User shall do xyz to use the component safely
 
 .. attention::
     The above directives must be updated according to your feature requirements.
@@ -86,5 +86,5 @@ Requirements
     - Set the status to valid and start the review/merge process
     - Add other needed requirements for your feature
 
-.. needextend:: docname is not None and "health_monitor" in id
-   :+tags: health_monitor
+.. needextend:: is_external == False and "__health_monitor__" in id
+   :+tags: lifecycle, health_monitor
