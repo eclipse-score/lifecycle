@@ -175,8 +175,10 @@ Footnotes
    :hidden:
 
    requirements/index.rst
+   requirements/chklst_req_inspection
    architecture/index.rst
+   architecture/chklst_arc_inspection
    detailed_design/index.rst
+   detailed_design/chklst_impl_inspection
    safety_analysis/fmea.rst
    safety_analysis/dfa.rst
-   component_classification.rst
