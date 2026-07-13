@@ -38,6 +38,11 @@ namespace saf
 namespace factory
 {
 
+using BufferConfig = MachineConfigFactory::SupervisionBufferConfig;
+using RecoveryClient = score::lcm::IRecoveryClient;
+using NanoSecondType = saf::timers::NanoSecondType;
+using IdentifierHash = score::lcm::IdentifierHash;
+
 namespace
 {
 /// @brief Prefix for all log messages
@@ -67,7 +72,7 @@ std::unique_ptr<char[]> read_flatbuffer_file(const std::string& f_filename_r)
 
 /* RULECHECKER_comment(0, 7, check_incomplete_data_member_construction, "Members processDataBase is not \
 required to be initialized using member initializer list.", true_no_defect) */
-FlatCfgFactory::FlatCfgFactory(const factory::MachineConfigFactory::SupervisionBufferConfig& f_bufferConfig_r)
+FlatCfgFactory::FlatCfgFactory(const BufferConfig& f_bufferConfig_r)
     : IPhmFactory(),
       bufferConfig_r(f_bufferConfig_r),
       flatBuffer_p(nullptr),
@@ -364,7 +369,7 @@ bool FlatCfgFactory::createSupervisionCheckpoints(std::vector<ifappl::Checkpoint
 bool FlatCfgFactory::createAliveSupervisions(std::vector<supervision::Alive>& f_alive_r,
                                              std::vector<ifappl::Checkpoint>& f_checkpoints_r,
                                              std::vector<ifexm::ProcessState>& f_processStates_r,
-                                             std::shared_ptr<score::lcm::IRecoveryClient> f_recoveryClient_r)
+                                             std::shared_ptr<RecoveryClient> f_recoveryClient_r)
 {
     bool isSuccess{true};
 
@@ -381,7 +386,7 @@ bool FlatCfgFactory::createAliveSupervisions(std::vector<supervision::Alive>& f_
             {
                 // Collect Alive Supervision configuration
                 const char* nameCfgAlive_p{hmAliveSupervision_p->ruleContextKey()->c_str()};
-                saf::timers::NanoSecondType aliveReferenceCycleCfg{
+                NanoSecondType aliveReferenceCycleCfg{
                     timers::TimeConversion::convertMilliSecToNanoSec(hmAliveSupervision_p->aliveReferenceCycle())};
                 uint32_t minAliveIndicationsCfg{hmAliveSupervision_p->minAliveIndications()};
                 uint32_t maxAliveIndicationsCfg{hmAliveSupervision_p->maxAliveIndications()};
@@ -409,7 +414,7 @@ bool FlatCfgFactory::createAliveSupervisions(std::vector<supervision::Alive>& f_
                 // coverity[cert_exp34_c_violation] PHM.ecucfgdsl Process.identifier MANDATORY
                 // coverity[dereference] PHM.ecucfgdsl Process.identifier MANDATORY
                 aliveSupCfg.processIdentifier =
-                    score::lcm::IdentifierHash{flatBuffer_p->process()->Get(processIndex)->identifier()->str()};
+                    IdentifierHash{flatBuffer_p->process()->Get(processIndex)->identifier()->str()};
 
                 f_alive_r.emplace_back(aliveSupCfg);
 

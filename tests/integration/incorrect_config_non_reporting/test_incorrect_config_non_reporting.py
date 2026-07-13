@@ -30,11 +30,18 @@ def test_incorrect_config_non_reporting(
     Input: Component wrongly configured as `native` application type, acquires a file descriptor ordinarily used by LM communication, and reports the Running state to LaunchManager.
     Expected Outcome: Process does not crash.
     """
+
+    # launch manager will simply ignore the arguments if run with --//config:use_new_configuration=False.
+    # the old configuration will be used, which is the default behavior.
+    # The new configuration will be used if run with --//config:use_new_configuration=True
+    new_config_path = str(remote_test_dir / "etc/non_reporting_config.bin")
+
     run_until_file_deployed(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
         file_path=remote_test_dir.parent / "test_end",
         cwd=str(remote_test_dir),
+        args=["-c", new_config_path],
         timeout_s=2.0,
     )
 

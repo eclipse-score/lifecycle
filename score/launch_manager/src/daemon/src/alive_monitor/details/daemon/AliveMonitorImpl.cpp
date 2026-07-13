@@ -30,28 +30,46 @@ namespace saf
 namespace daemon
 {
 
-AliveMonitorImpl::AliveMonitorImpl(std::shared_ptr<score::lcm::IRecoveryClient> recovery_client,
-                                   std::unique_ptr<watchdog::IWatchdogIf> watchdog,
-                                   std::unique_ptr<score::lcm::IProcessStateReceiver> process_state_receiver)
+#ifdef USE_NEW_CONFIGURATION
+AliveMonitorImpl::AliveMonitorImpl(SptrIRecoveryClient recovery_client,
+                                   UptrIWatchdogIf watchdog,
+                                   UptrIProcessStateReceiver process_state_receiver,
+                                   const Config& config)
+    : m_recovery_client(recovery_client),
+      m_watchdog(std::move(watchdog)),
+      m_logger{score::lcm::saf::logging::PhmLogger::getLogger(score::lcm::saf::logging::PhmLogger::EContext::factory)},
+      m_process_state_receiver{std::move(process_state_receiver)},
+      m_config(config)
+{
+}
+#else
+AliveMonitorImpl::AliveMonitorImpl(SptrIRecoveryClient recovery_client,
+                                   UptrIWatchdogIf watchdog,
+                                   UptrIProcessStateReceiver process_state_receiver)
     : m_recovery_client(recovery_client),
       m_watchdog(std::move(watchdog)),
       m_logger{score::lcm::saf::logging::PhmLogger::getLogger(score::lcm::saf::logging::PhmLogger::EContext::factory)},
       m_process_state_receiver{std::move(process_state_receiver)}
 {
 }
+#endif
 
 EInitCode AliveMonitorImpl::init() noexcept
 {
-    score::lcm::saf::daemon::EInitCode initResult{score::lcm::saf::daemon::EInitCode::kGeneralError};
+    EInitCode initResult{EInitCode::kGeneralError};
     try
     {
         m_osClock.startMeasurement();
 
-        m_daemon = std::make_unique<score::lcm::saf::daemon::PhmDaemon>(
-            m_osClock, m_logger, std::move(m_watchdog), std::move(m_process_state_receiver));
+        m_daemon = std::make_unique<PhmDaemon>(m_osClock, m_logger, std::move(m_watchdog),
+                                               std::move(m_process_state_receiver));
+    #ifdef USE_NEW_CONFIGURATION
+        initResult = m_daemon->init(m_recovery_client, m_config);
+    #else
         initResult = m_daemon->init(m_recovery_client);
+    #endif
 
-        if (initResult == score::lcm::saf::daemon::EInitCode::kNoError)
+        if (initResult == EInitCode::kNoError)
         {
             const long ms{m_osClock.endMeasurement()};
             m_logger.LogDebug() << "AliveMonitor: Initialization took " << ms << " ms";
