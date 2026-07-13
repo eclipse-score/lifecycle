@@ -43,6 +43,7 @@ int32_t setaffinity(uint64_t cpumask) noexcept(true)
         if (cpumask & (1ULL << i))
         {
             RMSK_SET(static_cast<int>(i), tm.runmask);
+            RMSK_SET(static_cast<int>(i), tm.inherit_mask);
         }
     }
 
