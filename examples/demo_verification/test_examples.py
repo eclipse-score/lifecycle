@@ -74,9 +74,16 @@ def test_examples(target, setup_test, remote_test_dir):
     """
     lm_path = str(remote_test_dir / "launch_manager")
     lmcontrol_path = str(remote_test_dir / "lmcontrol")
+    new_config_path = str(remote_test_dir / "etc/lifecycle_demo_test.bin")
 
     _step("Starting launch manager (Startup)")
-    lm_proc = target.execute_async(lm_path, cwd=str(remote_test_dir))
+
+    # launch manger will simply ignore the arguments if run with --//config:use_new_configuration=False.
+    # the old configuration will be used, which is the default behavior.
+    # The new configuration will be used if run with --//config:use_new_configuration=True
+    lm_proc = target.execute_async(
+        lm_path, cwd=str(remote_test_dir), args=["-c", new_config_path]
+    )
 
     time.sleep(1.0)
     assert lm_proc.is_running(), "Launch manager exited unexpectedly during Startup"

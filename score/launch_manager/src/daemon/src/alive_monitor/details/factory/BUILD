@@ -38,8 +38,15 @@ cc_library(
 
 cc_library(
     name = "machine_config_factory",
-    srcs = ["MachineConfigFactory.cpp"],
+    srcs = select({
+        "//config:lm_use_new_configuration": ["MachineConfigFactory_new.cpp"],
+        "//conditions:default": ["MachineConfigFactory.cpp"],
+    }),
     hdrs = ["MachineConfigFactory.hpp"],
+    defines = select({
+        "//config:lm_use_new_configuration": ["USE_NEW_CONFIGURATION"],
+        "//conditions:default": [],
+    }),
     include_prefix = "score/mw/launch_manager/alive_monitor/details/factory",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/factory",
     visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
@@ -53,6 +60,11 @@ cc_library(
         "@score_baselibs//score/flatbuffers:flatbufferscpp",
         "@score_baselibs//score/language/futurecpp",
     ] + select({
+        "//config:lm_use_new_configuration": [
+            "//score/launch_manager/src/daemon/src/configuration:config",
+        ],
+        "//conditions:default": [],
+    }) + select({
         "@platforms//os:qnx": [],
         "@platforms//os:linux": ["//externals/acl"],
     }),
@@ -60,8 +72,15 @@ cc_library(
 
 cc_library(
     name = "flat_cfg_factory",
-    srcs = ["FlatCfgFactory.cpp"],
+    srcs = select({
+        "//config:lm_use_new_configuration": ["FlatCfgFactory_new.cpp"],
+        "//conditions:default": ["FlatCfgFactory.cpp"],
+    }),
     hdrs = ["FlatCfgFactory.hpp"],
+    defines = select({
+        "//config:lm_use_new_configuration": ["USE_NEW_CONFIGURATION"],
+        "//conditions:default": [],
+    }),
     include_prefix = "score/mw/launch_manager/alive_monitor/details/factory",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/factory",
     visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
@@ -82,6 +101,12 @@ cc_library(
         "//score/launch_manager/src/daemon/src/common:identifier_hash",
         "@score_baselibs//score/flatbuffers:flatbufferscpp",
     ] + select({
+        "//config:lm_use_new_configuration": [
+            "//score/launch_manager/src/daemon/src/common:alive_interface_path",
+            "//score/launch_manager/src/daemon/src/configuration:config",
+        ],
+        "//conditions:default": [],
+    }) + select({
         "@platforms//os:qnx": [],
         "@platforms//os:linux": ["//externals/acl"],
     }),

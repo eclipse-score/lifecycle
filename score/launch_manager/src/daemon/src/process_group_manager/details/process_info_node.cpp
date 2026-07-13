@@ -11,6 +11,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
+#include <unistd.h>
+
 #include "process_info_node.hpp"
 #include "graph.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
@@ -41,7 +43,7 @@ void ProcessInfoNode::initNode(Graph* graph, uint32_t index)
         dependent_on_running_.clear();
         dependent_on_terminating_.clear();
         start_dependencies_ = 0U;
-        auto cfg_mgr = graph_->getProcessGroupManager()->getConfigurationManager();
+        auto cfg_mgr = graph_->getProcessGroupManager()->getConfiguration();
         config_ = cfg_mgr->getOsProcessConfiguration(pg, index).value_or(nullptr);
         if (config_)
         {

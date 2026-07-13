@@ -28,6 +28,9 @@
 #include "score/mw/launch_manager/alive_monitor/details/timers/CycleTimeValidator.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/CycleTimer.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/watchdog/IWatchdogIf.hpp"
+#ifdef USE_NEW_CONFIGURATION
+#include "score/mw/launch_manager/configuration/config.hpp"
+#endif
 namespace score
 {
 namespace lcm
@@ -58,6 +61,20 @@ enum class EInitCode : std::int8_t
 class PhmDaemon
 {
 public:
+    using OsClock = score::lcm::saf::timers::OsClockInterface;
+    using Logger = logging::PhmLogger;
+    using Watchdog = watchdog::IWatchdogIf;
+    using ProcessStateReceiver = score::lcm::IProcessStateReceiver;
+    using RecoveryClient = score::lcm::IRecoveryClient;
+    using MachineConfigFactory = factory::MachineConfigFactory;
+    using SupervisionBufferConfig = MachineConfigFactory::SupervisionBufferConfig;
+    using CycleTimer = score::lcm::saf::timers::CycleTimer;
+    using CycleTimeValidator = score::lcm::saf::timers::CycleTimeValidator;
+    using NanoSecondType = score::lcm::saf::timers::NanoSecondType;
+    using ProcessStateReader = score::lcm::saf::ifexm::ProcessStateReader;
+#ifdef USE_NEW_CONFIGURATION
+    using Config = score::mw::launch_manager::configuration::Config;
+#endif
 
     /* RULECHECKER_comment(0, 4, check_expensive_to_copy_in_parameter, "f_supervisionErrorInfo name is passed by value\
      as same as generated function", true_no_defect) */
@@ -68,8 +85,8 @@ public:
     /// @param[in] f_process_state_receiver process state receiver implementation (dependency injection possible in tests)
     /* RULECHECKER_comment(3,1, check_expensive_to_copy_in_parameter, "Move only types cannot be passed by const ref",
        true_no_defect) */
-    PhmDaemon(score::lcm::saf::timers::OsClockInterface& f_osClock, logging::PhmLogger& f_logger_r,
-              std::unique_ptr<watchdog::IWatchdogIf> f_watchdog, std::unique_ptr<score::lcm::IProcessStateReceiver> f_process_state_receiver);
+     PhmDaemon(OsClock& f_osClock, Logger& f_logger_r, std::unique_ptr<Watchdog> f_watchdog,
+                  std::unique_ptr<ProcessStateReceiver> f_process_state_receiver);
 
     /* RULECHECKER_comment(0, 4, check_min_instructions, "Default destructor is not provided\
        a function body", true_no_defect) */
@@ -89,24 +106,38 @@ public:
     /// (Constructing the workers, adjusting the cycle time, initialization of fixed step timer)
     /// @param[in] recovery_client Shared pointer to recovery client
     /// @return See EInitCode definition
-    EInitCode init(std::shared_ptr<score::lcm::IRecoveryClient> recovery_client) noexcept(false)
+#ifdef USE_NEW_CONFIGURATION
+    EInitCode init(std::shared_ptr<RecoveryClient> recovery_client, const Config& config) noexcept(false)
     {
         recoveryClient = recovery_client;
 
-        factory::MachineConfigFactory machineConfig{};
+        MachineConfigFactory machineConfig{};
+        if (!machineConfig.init(config))
+        {
+            return EInitCode::kMachineConfigInitFailed;
+        }
+
+        if (!construct(config, machineConfig.getSupervisionBufferConfig()))
+#else
+    EInitCode init(std::shared_ptr<RecoveryClient> recovery_client) noexcept(false)
+    {
+        recoveryClient = recovery_client;
+
+        MachineConfigFactory machineConfig{};
         if (!machineConfig.init())
         {
             return EInitCode::kMachineConfigInitFailed;
         }
 
         if (!construct(machineConfig.getSupervisionBufferConfig()))
+#endif
         {
             return EInitCode::kConstructFlatCfgFactoryFailed;
         }
 
         int64_t cycleTimeModified{static_cast<std::int64_t>(machineConfig.getCycleTimeInNs())};
         cycleTimeModified =
-            score::lcm::saf::timers::CycleTimeValidator::adjustCycleTimeOnClockAccuracy(cycleTimeModified, osClock);
+            CycleTimeValidator::adjustCycleTimeOnClockAccuracy(cycleTimeModified, osClock);
 
         const int64_t timerInit{cycleTimer.init(cycleTimeModified)};
         if (timerInit > 0)
@@ -114,9 +145,7 @@ public:
             logger_r.LogInfo() << "Phm Daemon: The (configured) periodicity in [ns] is set to:"
                                << static_cast<uint64_t>(cycleTimeModified);
             logger_r.LogDebug() << "Phm Daemon: The accuracy of the monotonic system clock in [ns] is:"
-                                << static_cast<uint64_t>(
-                                       score::lcm::saf::timers::CycleTimeValidator::getMonotonicClockAccuracy(
-                                           osClock));
+                                << static_cast<uint64_t>(CycleTimeValidator::getMonotonicClockAccuracy(osClock));
         }
         else
         {
@@ -162,7 +191,7 @@ public:
     template <typename TerminationSignalPredType>
     bool startCyclicExec(const TerminationSignalPredType& f_terminateCond) noexcept
     {
-        timers::NanoSecondType startTimestamp{cycleTimer.start()};
+        NanoSecondType startTimestamp{cycleTimer.start()};
         if (startTimestamp == 0U)
         {
             logger_r.LogError() << "Phm Daemon: Failed to get initial timestamp";
@@ -190,7 +219,7 @@ public:
                 logger_r.LogInfo() << "Phm Daemon: Sleep was interrupted by termination signal";
                 break;
             }
-            else if (sleepResult == timers::CycleTimer::kDeadlineAlreadyOver)
+            else if (sleepResult == CycleTimer::kDeadlineAlreadyOver)
             {
                 logger_r.LogDebug() << "Phm Daemon: Phm cycle took"
                                     << (static_cast<double>(nsOverDeadline) / 1000000.0 /*ns per ms*/)
@@ -217,32 +246,36 @@ private:
     /// @details Create the SwclusterHandler objects and the workers for the SwclusterHandler
     /// @param[in] f_bufferConfig_r The buffer configuration used for worker construction
     /// @return bool true if workers creation succeeded, false otherwise
-    bool construct(const factory::MachineConfigFactory::SupervisionBufferConfig& f_bufferConfig_r) noexcept(false);
+#ifdef USE_NEW_CONFIGURATION
+    bool construct(const Config& config, const SupervisionBufferConfig& f_bufferConfig_r) noexcept(false);
+#else
+    bool construct(const SupervisionBufferConfig& f_bufferConfig_r) noexcept(false);
+#endif
 
     /// @brief Perform cyclic execution of Phm daemon
     /// @details Perform cyclic execution of Phm daemon functionalities, for e.g., evaluation of supervisions.
     void performCyclicTriggers(void);
 
     /// @brief System clock interface to access the monotonic clock for sleep
-    score::lcm::saf::timers::OsClockInterface& osClock;
+    OsClock& osClock;
 
     /// @brief For fixed time-step execution during the cyclic execution
-    score::lcm::saf::timers::CycleTimer cycleTimer;
+    CycleTimer cycleTimer;
 
     /// @brief Logging entity for warnings, errors used in init() phase and the cyclic() phase
-    logging::PhmLogger& logger_r;
+    Logger& logger_r;
 
     /// @brief Recovery interface to Launch Manager
-    std::shared_ptr<score::lcm::IRecoveryClient> recoveryClient;
+    std::shared_ptr<RecoveryClient> recoveryClient;
 
     /// @brief Vector of SwCluster handler
     std::vector<SwClusterHandler> swClusterHandlers;
 
     /// @brief Process State Reader for PHM daemon
-    score::lcm::saf::ifexm::ProcessStateReader processStateReader;
+    ProcessStateReader processStateReader;
 
     /// @brief Connection to watchdog devices
-    std::unique_ptr<watchdog::IWatchdogIf> watchdog;
+    std::unique_ptr<Watchdog> watchdog;
 };
 
 }  // namespace daemon

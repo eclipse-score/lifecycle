@@ -15,6 +15,10 @@ load("@rules_cc//cc:defs.bzl", "cc_binary")
 cc_binary(
     name = "launch_manager",
     srcs = ["src/main.cpp"],
+    defines = select({
+        "//config:lm_use_new_configuration": ["USE_NEW_CONFIGURATION"],
+        "//conditions:default": [],
+    }),
     linkopts = select({
         "@platforms//os:qnx": ["-lsecpol"],
         "@platforms//os:linux": ["-lpthread"],
@@ -28,5 +32,10 @@ cc_binary(
         "//score/launch_manager/src/daemon/src/process_group_manager:alive_monitor_thread",
         "//score/launch_manager/src/daemon/src/process_state_client:process_state_notifier",
         "//score/launch_manager/src/daemon/src/recovery_client",
-    ],
+    ] + select({
+        "//config:lm_use_new_configuration": [
+            "//score/launch_manager/src/daemon/src/configuration:flatbuffer_config_loader",
+        ],
+        "//conditions:default": [],
+    }),
 )

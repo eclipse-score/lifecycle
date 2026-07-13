@@ -31,10 +31,10 @@ namespace daemon
    true_no_defect) */
 /* RULECHECKER_comment(0, 4, check_incomplete_data_member_construction, "Default constructor is used for\
  processStateReader.", true_no_defect) */
-PhmDaemon::PhmDaemon(score::lcm::saf::timers::OsClockInterface& f_osClock,
-                     logging::PhmLogger& f_logger_r,
-                     std::unique_ptr<watchdog::IWatchdogIf> f_watchdog,
-                     std::unique_ptr<score::lcm::IProcessStateReceiver> f_process_state_receiver)
+PhmDaemon::PhmDaemon(OsClock& f_osClock,
+                     Logger& f_logger_r,
+                     std::unique_ptr<Watchdog> f_watchdog,
+                     std::unique_ptr<ProcessStateReceiver> f_process_state_receiver)
     : osClock{f_osClock},
       cycleTimer{&osClock},
       logger_r{f_logger_r},
@@ -49,7 +49,7 @@ void PhmDaemon::performCyclicTriggers(void)
 {
     bool isCriticalFailure{false};
 
-    timers::NanoSecondType syncTimestamp{timers::OsClock::getMonotonicSystemClock()};
+    NanoSecondType syncTimestamp{timers::OsClock::getMonotonicSystemClock()};
     if (syncTimestamp == 0U)
     {
         // No valid time value, use max value for synchronization
@@ -82,8 +82,11 @@ void PhmDaemon::performCyclicTriggers(void)
     }
 }
 
-bool PhmDaemon::construct(const factory::MachineConfigFactory::SupervisionBufferConfig& f_bufferConfig_r) noexcept(
-    false)
+#ifdef USE_NEW_CONFIGURATION
+bool PhmDaemon::construct(const Config& config, const SupervisionBufferConfig& f_bufferConfig_r) noexcept(false)
+#else
+bool PhmDaemon::construct(const SupervisionBufferConfig& f_bufferConfig_r) noexcept(false)
+#endif
 {
     bool isSuccess{true};
 
@@ -108,7 +111,11 @@ bool PhmDaemon::construct(const factory::MachineConfigFactory::SupervisionBuffer
         for (auto strSwClusterName : listSwClustersPhm.value())
         {
             swClusterHandlers.emplace_back(strSwClusterName);
+#ifdef USE_NEW_CONFIGURATION
+            isSuccess = swClusterHandlers.back().constructWorkers(config, recoveryClient, processStateReader, f_bufferConfig_r);
+#else
             isSuccess = swClusterHandlers.back().constructWorkers(recoveryClient, processStateReader, f_bufferConfig_r);
+#endif
             if (!isSuccess)
             {
                 logger_r.LogError() << "Phm Daemon: failed to create worker objects for swclusterhandler:"
