@@ -38,8 +38,8 @@ bool setResourceLimits(const LMFlatBuffer::ProcessStartupConfig& startup_config_
     // we don't need to check the upper limit as this is done in the tooling
 
     // 0 means not configured
-    if (startup_config_node.memoryUsage() > 0U)
-        instance.startup_config_.resource_limits_.as_ = startup_config_node.memoryUsage();
+    if (startup_config_node.memory_usage() > 0U)
+        instance.startup_config_.resource_limits_.as_ = startup_config_node.memory_usage();
 
     return true;
 
@@ -275,7 +275,7 @@ bool ConfigurationManager::loadSWClusterConfiguration(uint8_t sw_cluster_index) 
 bool ConfigurationManager::loadMachineConfigs(const LMFlatBuffer::LMEcuCfg* root_node, const IdentifierHash& cluster) {
     bool result = false;
 
-    const auto* mode_group = root_node ? root_node->ModeGroup() : nullptr;
+    const auto* mode_group = root_node ? root_node->mode_group() : nullptr;
 
     if (mode_group != nullptr) {
         result = true;  // Assume success if we reach this point
@@ -318,11 +318,11 @@ bool ConfigurationManager::parseMachineConfigurations(const ModeGroup* node, con
 bool ConfigurationManager::parseModeGroups(const ModeGroup* node, ProcessGroup& process_group_data) {
     bool result = false;
 
-    const auto* mode_declaration_list = node ? node->modeDeclaration() : nullptr;
+    const auto* mode_declaration_list = node ? node->mode_declaration() : nullptr;
     if (mode_declaration_list && (mode_declaration_list->size())) {
         process_group_data.off_state_ = IdentifierHash("Off");  // default value if no other path is defined
 
-        const flatbuffers::String* recovery_state_name = node->recoveryMode_name();
+        const flatbuffers::String* recovery_state_name = node->recovery_mode_name();
         if (recovery_state_name) {
             process_group_data.recovery_state_ = getStringViewFromFlatBuffer(recovery_state_name);
         } else {
@@ -359,7 +359,7 @@ bool ConfigurationManager::parseModeGroups(const ModeGroup* node, ProcessGroup& 
 bool ConfigurationManager::loadProcessConfigs(const LMFlatBuffer::LMEcuCfg* root_node) {
     bool result = false;
 
-    const auto* process = root_node ? root_node->Process() : nullptr;
+    const auto* process = root_node ? root_node->process() : nullptr;
 
     if (process != nullptr) {
         result = true;  // Assume success if we reach this point
@@ -382,7 +382,7 @@ static void setSchedulingParameters(const Process& node, const ProcessStartupCon
     instance.startup_config_.cpu_mask_ = ConfigurationManager::kDefaultProcessorAffinityMask();
     instance.startup_config_.scheduling_policy_ = ConfigurationManager::kDefaultSchedulingPolicy;
     instance.startup_config_.scheduling_priority_ = ConfigurationManager::kDefaultNormalSchedulingPriority;
-    auto attribute = config.schedulingPolicy();
+    auto attribute = config.scheduling_policy();
     if (attribute != nullptr) {
         if (strcasecmp("SCHED_FIFO", attribute->c_str()) == 0) {
             instance.startup_config_.scheduling_policy_ = SCHED_FIFO;
@@ -396,7 +396,7 @@ static void setSchedulingParameters(const Process& node, const ProcessStartupCon
             LM_LOG_WARN() << "scheduling policy" << std::string_view{attribute->c_str(), attribute->size()} << "is not supported, using default";
         }
     }
-    attribute = config.schedulingPriority();
+    attribute = config.scheduling_priority();
     if (attribute != nullptr) {
         instance.startup_config_.scheduling_priority_ = std::stoi(attribute->c_str());
     }
@@ -409,7 +409,7 @@ static void setSchedulingParameters(const Process& node, const ProcessStartupCon
 bool ConfigurationManager::parseProcessConfigurations(const Process* node) {
     bool result = false;
 
-    const auto* startup_config_list = node ? node->startupConfig() : nullptr;
+    const auto* startup_config_list = node ? node->startup_config() : nullptr;
 
     if (startup_config_list && (startup_config_list->size())) {
         result = true;
@@ -432,7 +432,7 @@ bool ConfigurationManager::parseProcessConfigurations(const Process* node) {
             instance.startup_config_.gid_ = node->gid() & 0x7FFFFFFFU;
 
             instance.startup_config_.security_policy_ =
-                getStringFromFlatBuffer(node->securityPolicyDetails());  // Set security policy if available
+                getStringFromFlatBuffer(node->security_policy_details());  // Set security policy if available
 
             // extracting supplementary group IDs from Process configuration
             // and assigning them to this particular startup config (aka OsProcess)
@@ -453,13 +453,13 @@ bool ConfigurationManager::parseProcessConfigurations(const Process* node) {
             // startup configs
             result = setResourceLimits(*startup_config_node, instance);
             instance.pgm_config_.is_self_terminating_ = isSelfTerminatingProcess(
-                startup_config_node->terminationBehavior(), instance.startup_config_.short_name_);
+                startup_config_node->termination_behavior(), instance.startup_config_.short_name_);
             instance.pgm_config_.startup_timeout_ms_ =
-                std::chrono::milliseconds(startup_config_node->enterTimeoutValue());
+                std::chrono::milliseconds(startup_config_node->enter_timeout_value());
             instance.pgm_config_.termination_timeout_ms_ =
-                std::chrono::milliseconds(startup_config_node->exitTimeoutValue());
+                std::chrono::milliseconds(startup_config_node->exit_timeout_value());
 
-            auto execution_error_string = startup_config_node->executionError();
+            auto execution_error_string = startup_config_node->execution_error();
             if (execution_error_string) {
                 instance.pgm_config_.execution_error_code_ =
                     static_cast<uint32_t>(std::stoi(execution_error_string->c_str()));
@@ -467,20 +467,20 @@ bool ConfigurationManager::parseProcessConfigurations(const Process* node) {
                 // default value
                 instance.pgm_config_.execution_error_code_ = kDefaultProcessExecutionError;
             }
-            instance.pgm_config_.number_of_restart_attempts = node->numberOfRestartAttempts();
+            instance.pgm_config_.number_of_restart_attempts = node->number_of_restart_attempts();
 
             // Set process_id from node's identifier
             instance.process_id_ = getStringViewFromFlatBuffer(node->identifier());
 
             // Parse process arguments and environment variables
-            parseProcessArguments(startup_config_node->processArgument(), instance);
-            parseProcessEnvironmentVars(startup_config_node->environmentVariable(), instance);
+            parseProcessArguments(startup_config_node->process_argument(), instance);
+            parseProcessEnvironmentVars(startup_config_node->environment_variable(), instance);
 
             // Parse Execution dependency
-            parseExecutionDependency(startup_config_node->executionDependency(), instance);
+            parseExecutionDependency(startup_config_node->execution_dependency(), instance);
 
             // Parse ProcessGroup dependency
-            parseProcessGroup(startup_config_node->processGroupStateDependency(), instance);
+            parseProcessGroup(startup_config_node->process_group_state_dependency(), instance);
         }
     } else {
         LM_LOG_DEBUG() << "parseProcessConfigurations: Startup configs are not available or list is null";
@@ -589,8 +589,8 @@ void ConfigurationManager::parseProcessGroup(
             if (process_pg_node) {
                 // Extract information from ProcessGroupStateDependency of flatconfig binary
                 ProcessGroupStateID pg_info;
-                pg_info.pg_name_ = getStringViewFromFlatBuffer(process_pg_node->stateMachine_name());
-                pg_info.pg_state_name_ = getStringViewFromFlatBuffer(process_pg_node->stateName());
+                pg_info.pg_name_ = getStringViewFromFlatBuffer(process_pg_node->state_machine_name());
+                pg_info.pg_state_name_ = getStringViewFromFlatBuffer(process_pg_node->state_name());
                 LM_LOG_DEBUG() << "ParseProcessProcessGroup: id:::pg_name_:" << pg_info.pg_name_
                                << ", pg_state_name_:" << pg_info.pg_state_name_;
 
@@ -611,11 +611,11 @@ void ConfigurationManager::parseExecutionDependency(
         for (const auto& process_dependency_node : *process_dependency_list) {
             if (process_dependency_node) {
                 Dependency dep{};
-                auto state_name = getStringViewFromFlatBuffer(process_dependency_node->stateName());
+                auto state_name = getStringViewFromFlatBuffer(process_dependency_node->state_name());
                 dep.process_state_ = getProcessState(state_name);
-                dep.target_process_id_ = getStringViewFromFlatBuffer(process_dependency_node->targetProcess_identifier());
+                dep.target_process_id_ = getStringViewFromFlatBuffer(process_dependency_node->target_process_identifier());
                 LM_LOG_DEBUG() << "ParseProcessExecutionDependency: target process path:"
-                                << std::string_view{getStringFromFlatBuffer(process_dependency_node->targetProcess_identifier())}
+                                << std::string_view{getStringFromFlatBuffer(process_dependency_node->target_process_identifier())}
                                 << "ID:" << dep.target_process_id_;
                 process_instance.dependencies_.push_back(dep);
 
@@ -810,11 +810,11 @@ osal::CommsType ConfigurationManager::getCommsType(const Process* node, const ch
 
     if (node != nullptr) {
         // Check reporting behavior
-        comms_type = isReportingProcess(node->executable_reportingBehavior(), short_name);
+        comms_type = isReportingProcess(node->executable_reporting_behavior(), short_name);
 
         // Check function cluster affiliation
         comms_type =
-            getfunctionClusterAffiliation(comms_type, getStringFromFlatBuffer(node->functionClusterAffiliation()));
+            getfunctionClusterAffiliation(comms_type, getStringFromFlatBuffer(node->function_cluster_affiliation()));
     }
     return comms_type;
 }

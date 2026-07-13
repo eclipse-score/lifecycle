@@ -1,7 +1,7 @@
 {
-    "versionMajor": 7,
-    "versionMinor": 0,
-    "Process": [
+    "version_major": 7,
+    "version_minor": 0,
+    "process": [
         {
             "identifier": "setup_filesystem_sh",
             "path": "/opt/scripts/bin/setup_filesystem.sh",
@@ -18,29 +18,29 @@
                     "sgid": 700
                 }
             ],
-            "securityPolicyDetails": "policy_name",
-            "numberOfRestartAttempts": 1,
-            "executable_reportingBehavior": "DoesNotReportExecutionState",
-            "startupConfig": [
+            "security_policy_details": "policy_name",
+            "number_of_restart_attempts": 1,
+            "executable_reporting_behavior": "DoesNotReportExecutionState",
+            "startup_config": [
                 {
-                    "executionError": "1",
+                    "execution_error": "1",
                     "identifier": "setup_filesystem_sh_startup_config",
-                    "enterTimeoutValue": 500,
-                    "exitTimeoutValue": 500,
-                    "schedulingPolicy": "SCHED_OTHER",
-                    "schedulingPriority": "0",
-                    "terminationBehavior": "ProcessIsSelfTerminating",
-                    "processGroupStateDependency": [
+                    "enter_timeout_value": 500,
+                    "exit_timeout_value": 500,
+                    "scheduling_policy": "SCHED_OTHER",
+                    "scheduling_priority": "0",
+                    "termination_behavior": "ProcessIsSelfTerminating",
+                    "process_group_state_dependency": [
                         {
-                            "stateMachine_name": "MainPG",
-                            "stateName": "MainPG/Startup"
+                            "state_machine_name": "MainPG",
+                            "state_name": "MainPG/Startup"
                         },
                         {
-                            "stateMachine_name": "MainPG",
-                            "stateName": "MainPG/Full"
+                            "state_machine_name": "MainPG",
+                            "state_name": "MainPG/Full"
                         }
                     ],
-                    "environmentVariable": [
+                    "environment_variable": [
                         {
                             "key": "LD_LIBRARY_PATH",
                             "value": "/opt/lib"
@@ -54,7 +54,7 @@
                             "value": ""
                         }
                     ],
-                    "processArgument": [
+                    "process_argument": [
                         {
                             "argument": "-a"
                         },
@@ -62,7 +62,7 @@
                             "argument": "-b"
                         }
                     ],
-                    "executionDependency": []
+                    "execution_dependency": []
                 }
             ]
         },
@@ -82,25 +82,25 @@
                     "sgid": 700
                 }
             ],
-            "securityPolicyDetails": "policy_name",
-            "numberOfRestartAttempts": 1,
-            "executable_reportingBehavior": "DoesNotReportExecutionState",
-            "startupConfig": [
+            "security_policy_details": "policy_name",
+            "number_of_restart_attempts": 1,
+            "executable_reporting_behavior": "DoesNotReportExecutionState",
+            "startup_config": [
                 {
-                    "executionError": "1",
+                    "execution_error": "1",
                     "identifier": "dlt-daemon_startup_config",
-                    "enterTimeoutValue": 500,
-                    "exitTimeoutValue": 500,
-                    "schedulingPolicy": "SCHED_OTHER",
-                    "schedulingPriority": "0",
-                    "terminationBehavior": "ProcessIsNotSelfTerminating",
-                    "processGroupStateDependency": [
+                    "enter_timeout_value": 500,
+                    "exit_timeout_value": 500,
+                    "scheduling_policy": "SCHED_OTHER",
+                    "scheduling_priority": "0",
+                    "termination_behavior": "ProcessIsNotSelfTerminating",
+                    "process_group_state_dependency": [
                         {
-                            "stateMachine_name": "MainPG",
-                            "stateName": "MainPG/Full"
+                            "state_machine_name": "MainPG",
+                            "state_name": "MainPG/Full"
                         }
                     ],
-                    "environmentVariable": [
+                    "environment_variable": [
                         {
                             "key": "LD_LIBRARY_PATH",
                             "value": "/opt/lib"
@@ -114,7 +114,7 @@
                             "value": ""
                         }
                     ],
-                    "processArgument": [
+                    "process_argument": [
                         {
                             "argument": "-a"
                         },
@@ -125,10 +125,10 @@
                             "argument": "--xyz"
                         }
                     ],
-                    "executionDependency": [
+                    "execution_dependency": [
                         {
-                            "stateName": "Terminated",
-                            "targetProcess_identifier": "setup_filesystem_sh"
+                            "state_name": "Terminated",
+                            "target_process_identifier": "setup_filesystem_sh"
                         }
                     ]
                 }
@@ -150,25 +150,25 @@
                     "sgid": 700
                 }
             ],
-            "securityPolicyDetails": "policy_name",
-            "numberOfRestartAttempts": 1,
-            "executable_reportingBehavior": "ReportsExecutionState",
-            "startupConfig": [
+            "security_policy_details": "policy_name",
+            "number_of_restart_attempts": 1,
+            "executable_reporting_behavior": "ReportsExecutionState",
+            "startup_config": [
                 {
-                    "executionError": "1",
+                    "execution_error": "1",
                     "identifier": "someip-daemon_startup_config",
-                    "enterTimeoutValue": 500,
-                    "exitTimeoutValue": 500,
-                    "schedulingPolicy": "SCHED_OTHER",
-                    "schedulingPriority": "0",
-                    "terminationBehavior": "ProcessIsNotSelfTerminating",
-                    "processGroupStateDependency": [
+                    "enter_timeout_value": 500,
+                    "exit_timeout_value": 500,
+                    "scheduling_policy": "SCHED_OTHER",
+                    "scheduling_priority": "0",
+                    "termination_behavior": "ProcessIsNotSelfTerminating",
+                    "process_group_state_dependency": [
                         {
-                            "stateMachine_name": "MainPG",
-                            "stateName": "MainPG/Full"
+                            "state_machine_name": "MainPG",
+                            "state_name": "MainPG/Full"
                         }
                     ],
-                    "environmentVariable": [
+                    "environment_variable": [
                         {
                             "key": "LD_LIBRARY_PATH",
                             "value": "/opt/lib"
@@ -186,7 +186,7 @@
                             "value": "lifecycle_health_someip-daemon"
                         }
                     ],
-                    "processArgument": [
+                    "process_argument": [
                         {
                             "argument": "-a"
                         },
@@ -197,7 +197,7 @@
                             "argument": "--xyz"
                         }
                     ],
-                    "executionDependency": []
+                    "execution_dependency": []
                 }
             ]
         },
@@ -217,25 +217,25 @@
                     "sgid": 700
                 }
             ],
-            "securityPolicyDetails": "policy_name",
-            "numberOfRestartAttempts": 1,
-            "executable_reportingBehavior": "ReportsExecutionState",
-            "startupConfig": [
+            "security_policy_details": "policy_name",
+            "number_of_restart_attempts": 1,
+            "executable_reporting_behavior": "ReportsExecutionState",
+            "startup_config": [
                 {
-                    "executionError": "1",
+                    "execution_error": "1",
                     "identifier": "test_app1_startup_config",
-                    "enterTimeoutValue": 500,
-                    "exitTimeoutValue": 500,
-                    "schedulingPolicy": "SCHED_OTHER",
-                    "schedulingPriority": "0",
-                    "terminationBehavior": "ProcessIsNotSelfTerminating",
-                    "processGroupStateDependency": [
+                    "enter_timeout_value": 500,
+                    "exit_timeout_value": 500,
+                    "scheduling_policy": "SCHED_OTHER",
+                    "scheduling_priority": "0",
+                    "termination_behavior": "ProcessIsNotSelfTerminating",
+                    "process_group_state_dependency": [
                         {
-                            "stateMachine_name": "MainPG",
-                            "stateName": "MainPG/Full"
+                            "state_machine_name": "MainPG",
+                            "state_name": "MainPG/Full"
                         }
                     ],
-                    "environmentVariable": [
+                    "environment_variable": [
                         {
                             "key": "LD_LIBRARY_PATH",
                             "value": "/opt/lib"
@@ -253,7 +253,7 @@
                             "value": "lifecycle_health_test_app1"
                         }
                     ],
-                    "processArgument": [
+                    "process_argument": [
                         {
                             "argument": "-a"
                         },
@@ -264,14 +264,14 @@
                             "argument": "--xyz"
                         }
                     ],
-                    "executionDependency": [
+                    "execution_dependency": [
                         {
-                            "stateName": "Running",
-                            "targetProcess_identifier": "dlt-daemon"
+                            "state_name": "Running",
+                            "target_process_identifier": "dlt-daemon"
                         },
                         {
-                            "stateName": "Running",
-                            "targetProcess_identifier": "someip-daemon"
+                            "state_name": "Running",
+                            "target_process_identifier": "someip-daemon"
                         }
                     ]
                 }
@@ -293,30 +293,30 @@
                     "sgid": 700
                 }
             ],
-            "securityPolicyDetails": "policy_name",
-            "numberOfRestartAttempts": 1,
-            "executable_reportingBehavior": "ReportsExecutionState",
-            "functionClusterAffiliation": "STATE_MANAGEMENT",
-            "startupConfig": [
+            "security_policy_details": "policy_name",
+            "number_of_restart_attempts": 1,
+            "executable_reporting_behavior": "ReportsExecutionState",
+            "function_cluster_affiliation": "STATE_MANAGEMENT",
+            "startup_config": [
                 {
-                    "executionError": "1",
+                    "execution_error": "1",
                     "identifier": "state_manager_startup_config",
-                    "enterTimeoutValue": 500,
-                    "exitTimeoutValue": 500,
-                    "schedulingPolicy": "SCHED_OTHER",
-                    "schedulingPriority": "0",
-                    "terminationBehavior": "ProcessIsNotSelfTerminating",
-                    "processGroupStateDependency": [
+                    "enter_timeout_value": 500,
+                    "exit_timeout_value": 500,
+                    "scheduling_policy": "SCHED_OTHER",
+                    "scheduling_priority": "0",
+                    "termination_behavior": "ProcessIsNotSelfTerminating",
+                    "process_group_state_dependency": [
                         {
-                            "stateMachine_name": "MainPG",
-                            "stateName": "MainPG/Startup"
+                            "state_machine_name": "MainPG",
+                            "state_name": "MainPG/Startup"
                         },
                         {
-                            "stateMachine_name": "MainPG",
-                            "stateName": "MainPG/Full"
+                            "state_machine_name": "MainPG",
+                            "state_name": "MainPG/Full"
                         }
                     ],
-                    "environmentVariable": [
+                    "environment_variable": [
                         {
                             "key": "LD_LIBRARY_PATH",
                             "value": "/opt/lib"
@@ -334,7 +334,7 @@
                             "value": "lifecycle_health_state_manager"
                         }
                     ],
-                    "processArgument": [
+                    "process_argument": [
                         {
                             "argument": "-a"
                         },
@@ -345,22 +345,22 @@
                             "argument": "--xyz"
                         }
                     ],
-                    "executionDependency": [
+                    "execution_dependency": [
                         {
-                            "stateName": "Terminated",
-                            "targetProcess_identifier": "setup_filesystem_sh"
+                            "state_name": "Terminated",
+                            "target_process_identifier": "setup_filesystem_sh"
                         }
                     ]
                 }
             ]
         }
     ],
-    "ModeGroup": [
+    "mode_group": [
         {
             "identifier": "MainPG",
-            "initialMode_name": "not-used",
-            "recoveryMode_name": "MainPG/fallback_run_target",
-            "modeDeclaration": [
+            "initial_mode_name": "not-used",
+            "recovery_mode_name": "MainPG/fallback_run_target",
+            "mode_declaration": [
                 {
                     "identifier": "MainPG/Startup"
                 },
