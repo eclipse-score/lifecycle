@@ -26,7 +26,7 @@ TEST(NonReporting, Process)
 {
     using ipc = score::lcm::internal::osal::IpcCommsSync;
 
-    // Map the sync_fd to some shared memory of size 0. With sync_fd=3, this is likely to happen by default
+    // Map the sync_fd to some shared memory of size 0. With sync_fd=111, this is likely to happen by default
     // As there is no comms channel, using sync_fd in this process should not cause a crash.
     auto fd = shm_open("some_shared_memory", O_CREAT | O_RDWR, 0);
     ASSERT_NE(fd, -1) << "Failed to open shared memory: " << strerror(errno);
@@ -34,7 +34,7 @@ TEST(NonReporting, Process)
     struct stat res;
     if (fstat(ipc::sync_fd, &res) != 0)
     {  // sync_fd is closed
-        auto dup_res = dup2(ipc::sync_fd, fd);
+        auto dup_res = dup2(fd, ipc::sync_fd);
         ASSERT_NE(dup_res, -1) << "dup2 failed: " << strerror(errno);
     }
 

@@ -48,7 +48,7 @@ enum class CommsType : std::uint_least8_t {
 ///@brief This enum class likely represents the return status or outcome of an operating system abstraction layer (OSAL)
 /// function or operation and also it provides a clear way to convey success or failure status for OSAL-related operations in a codebase.
 
-enum class OsalReturnType {
+ enum class [[nodiscard]] OsalReturnType {
     ///@brief Represents a successful operation. The value 0 is commonly associated with success.
 
     kSuccess = 0,

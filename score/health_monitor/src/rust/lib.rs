@@ -11,6 +11,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
+//! Health monitoring library.
+
 mod common;
 mod ffi;
 mod health_monitor;

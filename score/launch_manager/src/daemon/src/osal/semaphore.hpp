@@ -63,7 +63,7 @@ class Semaphore final {
     /// @return An OsalReturnType indicating the result of the operation.
     ///         - `OsalReturnType::KSuccess`: The semaphore was successfully initialized.
     ///         - `OsalReturnType::KFail`: An error occurred during the initialization.
-    [[nodiscard]] OsalReturnType init(uint32_t value, bool shared);
+    OsalReturnType init(uint32_t value, bool shared);
 
     /// @brief Destroys the semaphore and releases any resources associated with it.
     /// This method uses `sem_destroy` to destroy the semaphore:
@@ -72,7 +72,7 @@ class Semaphore final {
     /// @return An OsalReturnType indicating the result of the deinitialization.
     ///         - `OsalReturnType::KSuccess`: The semaphore was successfully deinitialized.
     ///         - `OsalReturnType::KFail`: An error occurred during the deinitialization.
-    [[nodiscard]] OsalReturnType deinit();
+    OsalReturnType deinit();
 
     /// @brief Decrement the semaphore, blocking until the semaphore can be decremented or the timeout expires.
     /// This method does not use `sem_timedwait` to attempt to decrement the semaphore because that does not use a monotonic clock.
@@ -85,7 +85,7 @@ class Semaphore final {
     ///        - `OsalReturnType::KSuccess`: The semaphore was successfully decremented within the specified time.
     ///        - `OsalReturnType::KTimeout`: The semaphore was not decremented because the wait timed out.
     ///        - `OsalReturnType::KFail`: An error occurred during the wait operation (e.g., if the system clock could not be read).
-    [[nodiscard]] OsalReturnType timedWait(std::chrono::milliseconds delay);
+    OsalReturnType timedWait(std::chrono::milliseconds delay);
 
     /// @brief Increments (posts) the semaphore.
     /// This method uses `sem_post` to increment the semaphore:
@@ -96,7 +96,7 @@ class Semaphore final {
     /// @return An OsalReturnType indicating the result of the operation.
     ///        - `OsalReturnType::KSuccess`: The semaphore was successfully incremented (posted).
     ///        - `OsalReturnType::KFail`: An error occurred during the increment (post) operation.
-    [[nodiscard]] OsalReturnType post();
+    OsalReturnType post();
 
     /// @brief Decrements (waits) the semaphore.
     /// This method uses `sem_wait` to decrement the semaphore:
@@ -107,7 +107,7 @@ class Semaphore final {
     /// @return An OsalReturnType indicating the result of the operation.
     ///        - `OsalReturnType::KSuccess`: The semaphore was successfully decremented (waited).
     ///        - `OsalReturnType::KFail`: An error occurred during the decrement (wait) operation.
-    [[nodiscard]] OsalReturnType wait();
+    OsalReturnType wait();
 
    private:
     /// @brief POSIX semaphore object

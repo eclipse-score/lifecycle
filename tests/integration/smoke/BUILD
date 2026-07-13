@@ -11,23 +11,11 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 load("@rules_cc//cc:defs.bzl", "cc_binary")
-load("@rules_pkg//pkg:mappings.bzl", "pkg_attributes", "pkg_files")
-load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
-load("@score_itf//:defs.bzl", "py_itf_test")
-load("@score_lifecycle_pip//:requirements.bzl", "all_requirements")
-load("@score_tooling//:defs.bzl", "score_py_pytest")
-load("//:defs.bzl", "launch_manager_config")
 load("//tests/utils/bazel:integration.bzl", "integration_test")
 
 exports_files(
     ["lm_demo.json"],
     visibility = ["//examples:__subpackages__"],
-)
-
-launch_manager_config(
-    name = "lm_smoketest_config",
-    config = "//tests/integration/smoke:lifecycle_smoketest.json",
-    flatbuffer_out_dir = "etc",
 )
 
 cc_binary(
@@ -53,35 +41,13 @@ cc_binary(
     ],
 )
 
-pkg_files(
-    name = "smoke_main_files",
-    srcs = [
+integration_test(
+    name = "smoke",
+    srcs = ["smoke.py"],
+    binaries = [
         ":control_daemon_mock",
         ":gtest_process",
         "//score/launch_manager",
     ],
-    attributes = pkg_attributes(mode = "0755"),
-    prefix = "tests/smoke",
-)
-
-pkg_files(
-    name = "smoke_etc_files",
-    srcs = [":lm_smoketest_config"],
-    prefix = "tests/smoke",
-)
-
-pkg_tar(
-    name = "smoke_binaries",
-    srcs = [
-        ":smoke_etc_files",
-        ":smoke_main_files",
-    ],
-)
-
-integration_test(
-    name = "smoke",
-    srcs = ["smoke.py"],
-    tags = ["integration"],
-    test_binaries = ":smoke_binaries",
-    deps = ["//tests/utils/testing_utils"],
+    config = ":lifecycle_smoketest.json",
 )

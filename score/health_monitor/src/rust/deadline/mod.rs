@@ -11,6 +11,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
+//! Implementation of a deadline monitor and its builder.
+
 mod common;
 mod deadline_monitor;
 mod deadline_state;
