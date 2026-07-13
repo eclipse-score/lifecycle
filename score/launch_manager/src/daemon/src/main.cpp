@@ -72,34 +72,49 @@ bool runLCMDaemon(ProcessGroupManager& process_group_manager)
 /// @warning This function can abort if system calls fail.
 void reserveFD(int fd)
 {
-    int open_fd = fcntl(fd, F_GETFD);
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
-        open_fd != -1, "Failed to reserver required file descriptor, file descriptor already in use.");
+    errno = 0;
+    const int open_fd_flags = ::fcntl(fd, F_GETFD);
+    const bool fd_already_opened = open_fd_flags == 0 && errno == EBADFD;
+
+    if (fd_already_opened)
+    {
+        std::cerr << "Failed to reserve required file descriptor (" << fd
+            << "), file descriptor already in use. " << std::strerror(errno);
+        std::abort();
+    }
 
     int tmp_fd = open("/dev/null", O_RDWR | O_CLOEXEC);
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
-        tmp_fd < 0, "Failed to reserver required file descriptor, failed to open temporary file.");
+    if (tmp_fd < 0)
+    {
+        std::cerr << "Failed to reserve required file descriptor (" << fd
+            << "), failed to open temporary file. " << std::strerror(errno);
+        std::abort();
+    }
 
     if (fd != tmp_fd)
     {
-        if (dup2(tmp_fd, fd) == -1)
+        if (::dup2(tmp_fd, fd) == -1)
         {
-            close(tmp_fd);
-            std::cerr << "Failed to reserver required file descriptor, couldn't duplicate fd with required number"
+            ::close(tmp_fd);
+
+            std::cerr << "Failed to reserve required file descriptor (" << fd
+                      << "), couldn't duplicate fd with required number. "
                       << std::strerror(errno);
             std::abort();
         }
 
-        if (fcntl(fd, F_SETFD, FD_CLOEXEC) == -1)
+        if (::fcntl(fd, F_SETFD, FD_CLOEXEC) == -1)
         {
-            close(tmp_fd);
-            close(fd);
-            std::cerr << "Failed to reserver required file descriptor, couldn't set flags on reserved file decriptor"
+            ::close(tmp_fd);
+            ::close(fd);
+
+            std::cerr << "Failed to reserve required file descriptor (" << fd
+                      << ") , couldn't set flags on reserved file decriptor. "
                       << std::strerror(errno);
             std::abort();
         }
 
-        close(tmp_fd);
+        ::close(tmp_fd);
     }
 }
 

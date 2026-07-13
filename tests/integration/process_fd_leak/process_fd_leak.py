@@ -22,7 +22,8 @@ from attribute_plugin import add_test_properties
     derivation_technique="explorative-testing",
 )
 def test_process_fd_leak(target, setup_test, assert_test_results, remote_test_dir):
-    """Test to check if a native process has any file descriptors open."""
+    """Tests the inherited file descriptors from LCM for Native, Reporting and
+    State_Manager application types."""
 
     run_until_file_deployed(
         target=target,
