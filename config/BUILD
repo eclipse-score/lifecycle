@@ -72,7 +72,7 @@ config_setting(
 bool_flag(
     name = "use_new_configuration",
     build_setting_default = False,
-    visibility = ["//:__subpackages__"],
+    visibility = ["//visibility:public"],
 )
 
 config_setting(
@@ -80,5 +80,5 @@ config_setting(
     flag_values = {
         ":use_new_configuration": "True",
     },
-    visibility = ["//:__subpackages__"],
+    visibility = ["//visibility:public"],
 )
