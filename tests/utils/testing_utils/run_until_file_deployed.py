@@ -66,6 +66,9 @@ def run_until_file_deployed(
             res, _ = target.execute(kill_cmd)
             time.sleep(0.5)
             assert proc.is_running() == False, "LCM still running"
+            assert proc.get_exit_code() == 0, (
+                f"LCM did not exit cleanly, it died with code {proc.get_exit_code()}"
+            )
             assert res == 0, "Couldn't kill lcm"
             return proc
         logger.debug(f"Waiting for {file_path}")
