@@ -15,12 +15,11 @@ use crate::common::{Monitor, MonitorEvalHandle, MonitorEvaluationError, MonitorE
 use crate::health_monitor::HealthMonitorError;
 use crate::log::{error, warn, ScoreDebug};
 use crate::logic::logic_state::LogicState;
-use crate::protected_memory::ProtectedMemoryAllocator;
+use crate::protected_memory::{ProtectedArcIn, ProtectedMemoryAllocator};
 use crate::tag::{MonitorTag, StateTag};
 use core::hash::Hash;
 use core::marker::PhantomData;
 use std::collections::HashMap;
-use std::sync::Arc;
 use std::time::Instant;
 
 /// Internal OK state representation.
@@ -98,11 +97,11 @@ impl LogicMonitorBuilder {
     /// Build the [`LogicMonitor`].
     ///
     /// - `monitor_tag` - tag of this monitor.
-    /// - `_allocator` - protected memory allocator.
+    /// - `allocator` - protected memory allocator.
     pub(crate) fn build(
         self,
         monitor_tag: MonitorTag,
-        _allocator: &ProtectedMemoryAllocator,
+        allocator: ProtectedMemoryAllocator,
     ) -> Result<LogicMonitor, HealthMonitorError> {
         // Check number of states.
         if self.state_graph.is_empty() {
@@ -148,11 +147,10 @@ impl LogicMonitorBuilder {
             },
         };
 
-        let inner = Arc::new(LogicMonitorInner::new(
-            monitor_tag,
-            initial_state_index,
-            state_graph_vec,
-        ));
+        let inner = ProtectedArcIn::new_in(
+            LogicMonitorInner::new(monitor_tag, initial_state_index, state_graph_vec),
+            allocator,
+        );
         Ok(LogicMonitor::new(inner))
     }
 
@@ -165,13 +163,13 @@ impl LogicMonitorBuilder {
 
 /// Logic monitor.
 pub struct LogicMonitor {
-    inner: Arc<LogicMonitorInner>,
+    inner: ProtectedArcIn<LogicMonitorInner>,
     _unsync: PhantomUnsync,
 }
 
 impl LogicMonitor {
     /// Create a new [`LogicMonitor`] instance.
-    fn new(inner: Arc<LogicMonitorInner>) -> Self {
+    fn new(inner: ProtectedArcIn<LogicMonitorInner>) -> Self {
         Self {
             inner,
             _unsync: PhantomData,
@@ -192,7 +190,7 @@ impl LogicMonitor {
 
 impl Monitor for LogicMonitor {
     fn get_eval_handle(&self) -> MonitorEvalHandle {
-        MonitorEvalHandle::new(Arc::clone(&self.inner))
+        MonitorEvalHandle::new(ProtectedArcIn::clone(&self.inner))
     }
 }
 
@@ -317,41 +315,41 @@ mod tests {
 
     #[test]
     fn logic_monitor_builder_build_succeeds() {
-        let allocator = ProtectedMemoryAllocator {};
+        let allocator = ProtectedMemoryAllocator::default();
         let monitor_tag = MonitorTag::from("logic_monitor");
         let from_state = StateTag::from("from");
         let to_state = StateTag::from("to");
         let result = LogicMonitorBuilder::new(from_state)
             .add_state(from_state, &[to_state])
             .add_state(to_state, &[])
-            .build(monitor_tag, &allocator);
+            .build(monitor_tag, allocator);
         assert!(result.is_ok());
     }
 
     #[test]
     fn logic_monitor_builder_build_no_states() {
-        let allocator = ProtectedMemoryAllocator {};
+        let allocator = ProtectedMemoryAllocator::default();
         let monitor_tag = MonitorTag::from("logic_monitor");
         let initial_state = StateTag::from("initial");
-        let result = LogicMonitorBuilder::new(initial_state).build(monitor_tag, &allocator);
+        let result = LogicMonitorBuilder::new(initial_state).build(monitor_tag, allocator);
         assert!(result.is_err_and(|e| e == HealthMonitorError::WrongState));
     }
 
     #[test]
     fn logic_monitor_builder_build_undefined_target() {
-        let allocator = ProtectedMemoryAllocator {};
+        let allocator = ProtectedMemoryAllocator::default();
         let monitor_tag = MonitorTag::from("logic_monitor");
         let from_state = StateTag::from("from");
         let to_state = StateTag::from("to");
         let result = LogicMonitorBuilder::new(from_state)
             .add_state(from_state, &[to_state])
-            .build(monitor_tag, &allocator);
+            .build(monitor_tag, allocator);
         assert!(result.is_err_and(|e| e == HealthMonitorError::InvalidArgument));
     }
 
     #[test]
     fn logic_monitor_builder_build_undefined_initial_state() {
-        let allocator = ProtectedMemoryAllocator {};
+        let allocator = ProtectedMemoryAllocator::default();
         let monitor_tag = MonitorTag::from("logic_monitor");
         let initial_state = StateTag::from("initial");
         let from_state = StateTag::from("from");
@@ -359,20 +357,20 @@ mod tests {
         let result = LogicMonitorBuilder::new(initial_state)
             .add_state(from_state, &[to_state])
             .add_state(to_state, &[])
-            .build(monitor_tag, &allocator);
+            .build(monitor_tag, allocator);
         assert!(result.is_err_and(|e| e == HealthMonitorError::InvalidArgument));
     }
 
     #[test]
     fn logic_monitor_transition_succeeds() {
-        let allocator = ProtectedMemoryAllocator {};
+        let allocator = ProtectedMemoryAllocator::default();
         let monitor_tag = MonitorTag::from("logic_monitor");
         let from_state = StateTag::from("from");
         let to_state = StateTag::from("to");
         let monitor = LogicMonitorBuilder::new(from_state)
             .add_state(from_state, &[to_state])
             .add_state(to_state, &[])
-            .build(monitor_tag, &allocator)
+            .build(monitor_tag, allocator)
             .unwrap();
 
         let result = monitor.transition(to_state);
@@ -381,14 +379,14 @@ mod tests {
 
     #[test]
     fn logic_monitor_transition_unknown_node() {
-        let allocator = ProtectedMemoryAllocator {};
+        let allocator = ProtectedMemoryAllocator::default();
         let monitor_tag = MonitorTag::from("logic_monitor");
         let from_state = StateTag::from("from");
         let to_state = StateTag::from("to");
         let monitor = LogicMonitorBuilder::new(from_state)
             .add_state(from_state, &[to_state])
             .add_state(to_state, &[])
-            .build(monitor_tag, &allocator)
+            .build(monitor_tag, allocator)
             .unwrap();
 
         let result = monitor.transition(StateTag::from("unknown"));
@@ -397,14 +395,14 @@ mod tests {
 
     #[test]
     fn logic_monitor_transition_indeterminate_current_state() {
-        let allocator = ProtectedMemoryAllocator {};
+        let allocator = ProtectedMemoryAllocator::default();
         let monitor_tag = MonitorTag::from("logic_monitor");
         let from_state = StateTag::from("from");
         let to_state = StateTag::from("to");
         let monitor = LogicMonitorBuilder::new(from_state)
             .add_state(from_state, &[to_state])
             .add_state(to_state, &[])
-            .build(monitor_tag, &allocator)
+            .build(monitor_tag, allocator)
             .unwrap();
 
         // Trying to transition into unknown state causes monitor to move into indeterminate state.
@@ -417,7 +415,7 @@ mod tests {
 
     #[test]
     fn logic_monitor_transition_invalid_transition() {
-        let allocator = ProtectedMemoryAllocator {};
+        let allocator = ProtectedMemoryAllocator::default();
         let monitor_tag = MonitorTag::from("logic_monitor");
         let state1 = StateTag::from("state1");
         let state2: StateTag = StateTag::from("state2");
@@ -426,7 +424,7 @@ mod tests {
             .add_state(state1, &[state2])
             .add_state(state2, &[state3])
             .add_state(state3, &[])
-            .build(monitor_tag, &allocator)
+            .build(monitor_tag, allocator)
             .unwrap();
 
         let result = monitor.transition(state3);
@@ -435,7 +433,7 @@ mod tests {
 
     #[test]
     fn logic_monitor_state_succeeds() {
-        let allocator = ProtectedMemoryAllocator {};
+        let allocator = ProtectedMemoryAllocator::default();
         let monitor_tag = MonitorTag::from("logic_monitor");
         let state1 = StateTag::from("state1");
         let state2: StateTag = StateTag::from("state2");
@@ -444,7 +442,7 @@ mod tests {
             .add_state(state1, &[state2])
             .add_state(state2, &[state3])
             .add_state(state3, &[])
-            .build(monitor_tag, &allocator)
+            .build(monitor_tag, allocator)
             .unwrap();
 
         // Check state, perform transition to the next one.
@@ -462,14 +460,14 @@ mod tests {
 
     #[test]
     fn logic_monitor_state_indeterminate_current_state() {
-        let allocator = ProtectedMemoryAllocator {};
+        let allocator = ProtectedMemoryAllocator::default();
         let monitor_tag = MonitorTag::from("logic_monitor");
         let from_state = StateTag::from("from");
         let to_state = StateTag::from("to");
         let monitor = LogicMonitorBuilder::new(from_state)
             .add_state(from_state, &[to_state])
             .add_state(to_state, &[])
-            .build(monitor_tag, &allocator)
+            .build(monitor_tag, allocator)
             .unwrap();
 
         // Trying to transition into unknown state causes monitor to move into indeterminate state.
@@ -482,14 +480,14 @@ mod tests {
 
     #[test]
     fn logic_monitor_evaluate_succeeds() {
-        let allocator = ProtectedMemoryAllocator {};
+        let allocator = ProtectedMemoryAllocator::default();
         let monitor_tag = MonitorTag::from("logic_monitor");
         let from_state = StateTag::from("from");
         let to_state = StateTag::from("to");
         let monitor = LogicMonitorBuilder::new(from_state)
             .add_state(from_state, &[to_state])
             .add_state(to_state, &[])
-            .build(monitor_tag, &allocator)
+            .build(monitor_tag, allocator)
             .unwrap();
         let hmon_starting_point = Instant::now();
 
@@ -506,14 +504,14 @@ mod tests {
 
     #[test]
     fn logic_monitor_evaluate_invalid_state() {
-        let allocator = ProtectedMemoryAllocator {};
+        let allocator = ProtectedMemoryAllocator::default();
         let monitor_tag = MonitorTag::from("logic_monitor");
         let from_state = StateTag::from("from");
         let to_state = StateTag::from("to");
         let monitor = LogicMonitorBuilder::new(from_state)
             .add_state(from_state, &[to_state])
             .add_state(to_state, &[])
-            .build(monitor_tag, &allocator)
+            .build(monitor_tag, allocator)
             .unwrap();
         let hmon_starting_point = Instant::now();
 
@@ -536,7 +534,7 @@ mod tests {
 
     #[test]
     fn logic_monitor_evaluate_invalid_transition() {
-        let allocator = ProtectedMemoryAllocator {};
+        let allocator = ProtectedMemoryAllocator::default();
         let monitor_tag = MonitorTag::from("logic_monitor");
         let state1 = StateTag::from("state1");
         let state2: StateTag = StateTag::from("state2");
@@ -545,7 +543,7 @@ mod tests {
             .add_state(state1, &[state2])
             .add_state(state2, &[state3])
             .add_state(state3, &[])
-            .build(monitor_tag, &allocator)
+            .build(monitor_tag, allocator)
             .unwrap();
         let hmon_starting_point = Instant::now();
 

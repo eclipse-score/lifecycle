@@ -15,13 +15,15 @@ use crate::deadline::DeadlineEvaluationError;
 use crate::heartbeat::HeartbeatEvaluationError;
 use crate::log::ScoreDebug;
 use crate::logic::LogicEvaluationError;
+use crate::protected_memory::ProtectedArcIn;
 use crate::tag::MonitorTag;
 use core::cell::Cell;
 use core::hash::Hash;
 use core::marker::PhantomData;
+use core::ptr::NonNull;
 use core::time::Duration;
-use std::sync::Arc;
 use std::time::Instant;
+use sync::ArcInner;
 
 /// Range of accepted time: `<min; max>`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -119,11 +121,17 @@ pub(crate) trait MonitorEvaluator {
 
 /// Handle to a monitor evaluator, allowing for dynamic dispatch.
 pub(crate) struct MonitorEvalHandle {
-    inner: Arc<dyn MonitorEvaluator + Send + Sync>,
+    inner: ProtectedArcIn<dyn MonitorEvaluator + Send + Sync>,
 }
 
 impl MonitorEvalHandle {
-    pub(crate) fn new<T: MonitorEvaluator + Send + Sync + 'static>(inner: Arc<T>) -> Self {
+    pub(crate) fn new<T: MonitorEvaluator + Send + Sync + 'static>(inner: ProtectedArcIn<T>) -> Self {
+        // SAFETY:
+        // `ptr` and `alloc` come from a single `into_raw_parts` call, and are reassembled into unsized `ArcIn` using `from_raw_parts`.
+        // Unsizing is done with unsized coercion on raw pointer (`T` -> `dyn MonitorEvaluator`).
+        let (ptr, alloc) = ProtectedArcIn::into_raw_parts(inner);
+        let ptr: NonNull<ArcInner<dyn MonitorEvaluator + Send + Sync>> = ptr;
+        let inner = unsafe { ProtectedArcIn::from_raw_parts(ptr, alloc) };
         Self { inner }
     }
 }
