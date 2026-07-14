@@ -14,6 +14,9 @@
 #include <unistd.h>
 #include <cstring>
 #include <iostream>
+#include <sstream>
+
+#include <score/assert.hpp>
 
 #include "score/mw/launch_manager/common/log.hpp"
 
@@ -158,6 +161,20 @@ int main(int argc, const char* argv[])
 int main([[maybe_unused]] int argc, [[maybe_unused]] const char* argv[])
 {
 #endif
+    score::cpp::set_assertion_handler([](const score::cpp::handler_parameters& params) {
+        std::ostringstream msg;
+        msg << "Assertion failed: " << (params.condition != nullptr ? params.condition : "")
+            << "\n  Location: " << (params.file != nullptr ? params.file : "?") << ":" << params.line
+            << " (" << (params.function != nullptr ? params.function : "?") << ")";
+        if (params.message != nullptr)
+        {
+            msg << "\n  Message:  " << params.message;
+        }
+        msg << "\n";
+        std::cerr << msg.str();
+    });
+
+
     // reserve files descriptor osal::IpcCommsSync::sync_fd (fd3) and
     // osal::IpcCommsSync::control_client_handler_nudge_fd (fd4) for communication tpyes: kNoComms !fd3 & !fd4
     // kReporting  fd3 & !fd4
