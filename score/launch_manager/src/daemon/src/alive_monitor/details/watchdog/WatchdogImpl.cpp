@@ -11,6 +11,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 #include "score/mw/launch_manager/alive_monitor/details/watchdog/WatchdogImpl.hpp"
+#include "score/launch_manager/src/daemon/src/common/log.hpp"
 
 #include <fcntl.h>
 #include <score/assert.hpp>
@@ -54,13 +55,7 @@ T secToMs(const T f_timeout)
 /* RULECHECKER_comment(0:0,3:0, check_expensive_to_copy_in_parameter, "Move only types cannot be passed by const
  * ref",true_no_defect) */
 /* RULECHECKER_comment(0:0,9:0, check_min_instructions, "Constructor with empty body is valid", true_no_defect) */
-WatchdogImpl::WatchdogImpl() noexcept
-    : IWatchdogIf(),
-      watchdogDevices(),
-      state(ELibState::idle),
-      logger_r(logging::PhmLogger::getLogger(logging::PhmLogger::EContext::watchdog))
-{
-}
+WatchdogImpl::WatchdogImpl() noexcept : IWatchdogIf(), watchdogDevices(), state(ELibState::idle) {}
 
 bool WatchdogImpl::init(std::int64_t f_cycleTimeInNs, const IDeviceConfigFactory& f_configFactory) noexcept
 {
@@ -70,7 +65,7 @@ bool WatchdogImpl::init(std::int64_t f_cycleTimeInNs, const IDeviceConfigFactory
         const auto configurations{f_configFactory.getDeviceConfigurations()};
         if (!configurations)
         {
-            logger_r.LogError() << "Watchdog: Invalid watchdog device configuration. Watchdog initialization failed.";
+            LM_LOG_ERROR() << "Watchdog: Invalid watchdog device configuration. Watchdog initialization failed.";
             isSuccess = false;
         }
 
@@ -82,8 +77,8 @@ bool WatchdogImpl::init(std::int64_t f_cycleTimeInNs, const IDeviceConfigFactory
             {
                 if (!configureDevice(config, f_cycleTimeInNs))
                 {
-                    logger_r.LogError() << "Watchdog: Error when configuring watchdog device" << config.fileName
-                                        << "- Watchdog initialization failed.";
+                    LM_LOG_ERROR() << "Watchdog: Error when configuring watchdog device" << config.fileName
+                                   << "- Watchdog initialization failed.";
                     isSuccess = false;
                 }
             }
@@ -93,7 +88,7 @@ bool WatchdogImpl::init(std::int64_t f_cycleTimeInNs, const IDeviceConfigFactory
     {
         isSuccess = false;
         watchdogDevices.clear();
-        logger_r.LogError() << "Watchdog: Watchdog initialization failed:" << e.what();
+        LM_LOG_ERROR() << "Watchdog: Watchdog initialization failed:" << e.what();
     }
     return isSuccess;
 }
@@ -193,7 +188,7 @@ void WatchdogImpl::fireWatchdogReaction() noexcept
         if (watchdogDevice.fileDescriptor >= 0)
         {
             // This log message is introduced as a result of FMEA
-            logger_r.LogFatal() << "Watchdog: Trigger RESET for watchdog" << watchdogDevice.config.fileName;
+            LM_LOG_FATAL() << "Watchdog: Trigger RESET for watchdog" << watchdogDevice.config.fileName;
 
             std::uint16_t timeout{0U};
             // Save to ignore return value here. If setting timeout does not work, watchdog will eventually fire
@@ -292,8 +287,8 @@ bool WatchdogImpl::setTimeout(std::int32_t f_fd, std::uint16_t f_timeoutInMs) co
     const bool isSuccessful{(result >= 0) && (timeoutBefore == timeout)};
     if (!isSuccessful)
     {
-        logger_r.LogDebug() << "Watchdog: Setting watchdog timeout value failed. Wanted timeout:" << timeoutBefore
-                            << "ms, returned timeout:" << timeout << "ms, ioctl result:" << result;
+        LM_LOG_DEBUG() << "Watchdog: Setting watchdog timeout value failed. Wanted timeout:" << timeoutBefore
+                       << "ms, returned timeout:" << timeout << "ms, ioctl result:" << result;
     }
     return isSuccessful;
 }
@@ -312,12 +307,12 @@ bool WatchdogImpl::enableDevice(WatchdogDevice& f_state_r) const noexcept
 
         if (result >= 0)
         {
-            logger_r.LogInfo() << "Watchdog: Current watchdog (" << f_state_r.config.fileName << ") timeout is"
-                               << configuredTimeout << "ms";
+            LM_LOG_INFO() << "Watchdog: Current watchdog (" << f_state_r.config.fileName << ") timeout is"
+                          << configuredTimeout << "ms";
         }
         else
         {
-            logger_r.LogError() << "Watchdog: Getting watchdog (" << f_state_r.config.fileName << ") timeout failed.";
+            LM_LOG_ERROR() << "Watchdog: Getting watchdog (" << f_state_r.config.fileName << ") timeout failed.";
             isSuccess = false;
         }
 
@@ -330,8 +325,8 @@ bool WatchdogImpl::enableDevice(WatchdogDevice& f_state_r) const noexcept
         {
             if (!setEnableCardOption(f_state_r.fileDescriptor))
             {
-                logger_r.LogError() << "Watchdog: Enabling watchdog (" << f_state_r.config.fileName
-                                    << ") with option WDIOS_ENABLECARD failed.";
+                LM_LOG_ERROR() << "Watchdog: Enabling watchdog (" << f_state_r.config.fileName
+                               << ") with option WDIOS_ENABLECARD failed.";
                 isSuccess = false;
             }
         }
@@ -355,20 +350,20 @@ bool WatchdogImpl::updateTimeout(WatchdogDevice& f_state_r, std::int32_t f_confi
         result = getRemainingTime(remainingTime, f_state_r.fileDescriptor);
         if (result >= 0)
         {
-            logger_r.LogInfo() << "Watchdog: Remaining time for watchdog (" << f_state_r.config.fileName << ") is"
-                               << remainingTime << "ms";
+            LM_LOG_INFO() << "Watchdog: Remaining time for watchdog (" << f_state_r.config.fileName << ") is"
+                          << remainingTime << "ms";
         }
         else
         {
-            logger_r.LogError() << "Watchdog: Getting remaining time for watchdog (" << f_state_r.config.fileName
-                                << ") failed.";
+            LM_LOG_ERROR() << "Watchdog: Getting remaining time for watchdog (" << f_state_r.config.fileName
+                           << ") failed.";
             isSuccess = false;
         }
     }
     else
     {
-        logger_r.LogInfo() << "Watchdog: Provided and current watchdog (" << f_state_r.config.fileName
-                           << ") timeouts are same.";
+        LM_LOG_INFO() << "Watchdog: Provided and current watchdog (" << f_state_r.config.fileName
+                      << ") timeouts are same.";
         isSetTimeout = false;
     }
 
@@ -376,12 +371,12 @@ bool WatchdogImpl::updateTimeout(WatchdogDevice& f_state_r, std::int32_t f_confi
     {
         if (setTimeout(f_state_r.fileDescriptor, f_state_r.config.timeoutMax))
         {
-            logger_r.LogInfo() << "Watchdog: Watchdog (" << f_state_r.config.fileName
-                               << ") is configured with timeout =" << f_state_r.config.timeoutMax << "ms";
+            LM_LOG_INFO() << "Watchdog: Watchdog (" << f_state_r.config.fileName
+                          << ") is configured with timeout =" << f_state_r.config.timeoutMax << "ms";
         }
         else
         {
-            logger_r.LogError() << "Watchdog: Setting watchdog (" << f_state_r.config.fileName << ") timeout failed.";
+            LM_LOG_ERROR() << "Watchdog: Setting watchdog (" << f_state_r.config.fileName << ") timeout failed.";
             isSuccess = false;
         }
     }
@@ -444,16 +439,16 @@ bool WatchdogImpl::isValidDeviceConfig(const DeviceConfig& f_config_r, std::int6
 
     if (!hasValidTimeout(f_config_r))
     {
-        logger_r.LogError() << "Watchdog: Invalid timeout configuration of [" << f_config_r.timeoutMin << ","
-                            << f_config_r.timeoutMax << "]. Valid interval range is [" << kTimeoutMinMillis << ","
-                            << kTimeoutMaxMillis << "]";
+        LM_LOG_ERROR() << "Watchdog: Invalid timeout configuration of [" << f_config_r.timeoutMin << ","
+                       << f_config_r.timeoutMax << "]. Valid interval range is [" << kTimeoutMinMillis << ","
+                       << kTimeoutMaxMillis << "]";
         return false;
     }
 
     if (!validateTimeoutWithCycleTime(f_cycleTimeInNs, f_config_r))
     {
-        logger_r.LogError() << "Watchdog: The watchdog device" << f_config_r.fileName
-                            << "cannot be triggered in time with a configured cycle time of" << f_cycleTimeInNs << "ns";
+        LM_LOG_ERROR() << "Watchdog: The watchdog device" << f_config_r.fileName
+                       << "cannot be triggered in time with a configured cycle time of" << f_cycleTimeInNs << "ns";
         return false;
     }
 

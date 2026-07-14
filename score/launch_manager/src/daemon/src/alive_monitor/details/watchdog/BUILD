@@ -59,8 +59,8 @@ cc_library(
         ":i_device_config_factory",
         ":i_watchdog_if",
         ":watchdog",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/logging:phm_logging",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:os_clock_interface",
+        "//score/launch_manager/src/daemon/src/common:log",
         "@score_baselibs//score/language/futurecpp",
     ],
 )

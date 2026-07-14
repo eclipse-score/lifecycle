@@ -37,7 +37,6 @@ namespace daemon {
 using SptrIRecoveryClient = std::shared_ptr<score::lcm::IRecoveryClient>;
 using UptrIWatchdogIf = std::unique_ptr<watchdog::IWatchdogIf>;
 using UptrIProcessStateReceiver = std::unique_ptr<score::lcm::IProcessStateReceiver>;
-using Logger = score::lcm::saf::logging::PhmLogger;
 using UptrPhmDaemon = std::unique_ptr<score::lcm::saf::daemon::PhmDaemon>;
 using OsClock = score::lcm::saf::timers::OsClockInterface;
 #ifdef USE_NEW_CONFIGURATION
@@ -64,7 +63,6 @@ class AliveMonitorImpl : public IAliveMonitor {
    private:
     SptrIRecoveryClient m_recovery_client{nullptr};
     UptrIWatchdogIf m_watchdog{nullptr};
-    Logger& m_logger;
     UptrPhmDaemon m_daemon{nullptr};
     OsClock m_osClock{};
     UptrIProcessStateReceiver m_process_state_receiver;

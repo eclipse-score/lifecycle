@@ -52,7 +52,6 @@ cc_library(
         ":checkpoint",
         ":data_structures",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:process_state",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/logging:phm_logging",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
     ],
 )

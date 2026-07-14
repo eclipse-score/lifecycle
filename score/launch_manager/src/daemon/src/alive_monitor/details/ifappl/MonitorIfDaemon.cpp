@@ -15,6 +15,7 @@
 
 #include <cstring>
 
+#include "score/launch_manager/src/daemon/src/common/log.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ProcessState.hpp"
 
 namespace score
@@ -26,11 +27,8 @@ namespace saf
 namespace ifappl
 {
 
-MonitorIfDaemon::MonitorIfDaemon(CheckpointIpcServer& f_ipcServer_r, const char* f_interfaceName_p) :
-    Observer<ifexm::ProcessState>(),
-    k_interfaceName(f_interfaceName_p),
-    ipcserver_r(f_ipcServer_r),
-    logger_r(logging::PhmLogger::getLogger(logging::PhmLogger::EContext::supervision))
+MonitorIfDaemon::MonitorIfDaemon(CheckpointIpcServer& f_ipcServer_r, const char* f_interfaceName_p)
+    : Observer<ifexm::ProcessState>(), k_interfaceName(f_interfaceName_p), ipcserver_r(f_ipcServer_r)
 {
 }
 
@@ -126,8 +124,8 @@ void MonitorIfDaemon::checkForNewData(const timers::NanoSecondType f_syncTimesta
 
 void MonitorIfDaemon::handleOverflow()
 {
-    logger_r.LogWarn() << "MonitorInterface: Potential data loss of checkpoint ring buffer occurred."
-                       << "Instance:" << k_interfaceName;
+    LM_LOG_WARN() << "MonitorInterface: Potential data loss of checkpoint ring buffer occurred."
+                  << "Instance:" << k_interfaceName;
     pushOverflowInfoToCheckpointObservers();
     status = EInternalState::kInactiveOverflow;
 }
@@ -193,8 +191,8 @@ bool MonitorIfDaemon::pushNewDataToCheckpointObservers(const timers::NanoSecondT
 
     if (amountOfReceivedCheckpoints > 0U)
     {
-        //logger_r.LogDebug() << "MonitorInterface: Amount of checkpoints in buffer:"
-        //                    << amountOfReceivedCheckpoints << "Instance" << k_interfaceName;
+        // LM_LOG_DEBUG() << "MonitorInterface: Amount of checkpoints in buffer:"
+        //                << amountOfReceivedCheckpoints << "Instance" << k_interfaceName;
     }
 
     return success;

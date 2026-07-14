@@ -18,13 +18,11 @@
 #include <cerrno>
 #include <memory>
 
-#include <vector>
-#include "score/mw/lifecycle/control_client.h"
+#include "score/launch_manager/src/daemon/src/common/log.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/daemon/PhmDaemonConfig.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/daemon/SwClusterHandler.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/factory/MachineConfigFactory.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ProcessStateReader.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/logging/PhmLogger.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/CycleTimeValidator.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/CycleTimer.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/watchdog/IWatchdogIf.hpp"
@@ -62,7 +60,6 @@ class PhmDaemon
 {
 public:
     using OsClock = score::lcm::saf::timers::OsClockInterface;
-    using Logger = logging::PhmLogger;
     using Watchdog = watchdog::IWatchdogIf;
     using ProcessStateReceiver = score::lcm::IProcessStateReceiver;
     using RecoveryClient = score::lcm::IRecoveryClient;
@@ -78,15 +75,15 @@ public:
 
     /* RULECHECKER_comment(0, 4, check_expensive_to_copy_in_parameter, "f_supervisionErrorInfo name is passed by value\
      as same as generated function", true_no_defect) */
-    /// @brief Set the OS clock interface and the logger
+    /// @brief Set the OS clock interface
     /// @param[in] f_osClock Access to the system clock (dependency injection possible in tests)
-    /// @param[in] f_logger_r Reference to the logger (dependency injection possible in tests)
     /// @param[in] f_watchdog watchdog implementation (dependency injection possible in tests)
     /// @param[in] f_process_state_receiver process state receiver implementation (dependency injection possible in tests)
     /* RULECHECKER_comment(3,1, check_expensive_to_copy_in_parameter, "Move only types cannot be passed by const ref",
        true_no_defect) */
-     PhmDaemon(OsClock& f_osClock, Logger& f_logger_r, std::unique_ptr<Watchdog> f_watchdog,
-                  std::unique_ptr<ProcessStateReceiver> f_process_state_receiver);
+    PhmDaemon(OsClock& f_osClock,
+              std::unique_ptr<Watchdog> f_watchdog,
+              std::unique_ptr<ProcessStateReceiver> f_process_state_receiver);
 
     /* RULECHECKER_comment(0, 4, check_min_instructions, "Default destructor is not provided\
        a function body", true_no_defect) */
@@ -142,26 +139,26 @@ public:
         const int64_t timerInit{cycleTimer.init(cycleTimeModified)};
         if (timerInit > 0)
         {
-            logger_r.LogInfo() << "Phm Daemon: The (configured) periodicity in [ns] is set to:"
-                               << static_cast<uint64_t>(cycleTimeModified);
-            logger_r.LogDebug() << "Phm Daemon: The accuracy of the monotonic system clock in [ns] is:"
-                                << static_cast<uint64_t>(CycleTimeValidator::getMonotonicClockAccuracy(osClock));
+            LM_LOG_INFO() << "Phm Daemon: The (configured) periodicity in [ns] is set to:"
+                          << static_cast<uint64_t>(cycleTimeModified);
+            LM_LOG_DEBUG() << "Phm Daemon: The accuracy of the monotonic system clock in [ns] is:"
+                           << static_cast<uint64_t>(CycleTimeValidator::getMonotonicClockAccuracy(osClock));
         }
         else
         {
-            logger_r.LogError() << "Phm Daemon: Initialization of CycleTimer instance failed!";
+            LM_LOG_ERROR() << "Phm Daemon: Initialization of CycleTimer instance failed!";
             return EInitCode::kCycleTimeInitFailed;
         }
 
         if (!watchdog->init(cycleTimeModified, machineConfig))
         {
-            logger_r.LogError() << "Phm Daemon: Initialization of watchdog failed!";
+            LM_LOG_ERROR() << "Phm Daemon: Initialization of watchdog failed!";
             return EInitCode::kWatchdogInitFailed;
         }
 
         if (!watchdog->enable())
         {
-            logger_r.LogError() << "Phm Daemon: Enabling of watchdog failed!";
+            LM_LOG_ERROR() << "Phm Daemon: Enabling of watchdog failed!";
             return EInitCode::kWatchdogEnableFailed;
         }
 
@@ -194,7 +191,7 @@ public:
         NanoSecondType startTimestamp{cycleTimer.start()};
         if (startTimestamp == 0U)
         {
-            logger_r.LogError() << "Phm Daemon: Failed to get initial timestamp";
+            LM_LOG_ERROR() << "Phm Daemon: Failed to get initial timestamp";
             return false;
         }
 
@@ -216,26 +213,26 @@ public:
             const int sleepResult{cycleTimer.sleep(f_terminateCond, nsOverDeadline)};
             if (sleepResult == EINTR)
             {
-                logger_r.LogInfo() << "Phm Daemon: Sleep was interrupted by termination signal";
+                LM_LOG_INFO() << "Phm Daemon: Sleep was interrupted by termination signal";
                 break;
             }
             else if (sleepResult == CycleTimer::kDeadlineAlreadyOver)
             {
-                logger_r.LogDebug() << "Phm Daemon: Phm cycle took"
-                                    << (static_cast<double>(nsOverDeadline) / 1000000.0 /*ns per ms*/)
-                                    << "ms longer than the configured cycle time";
+                LM_LOG_DEBUG() << "Phm Daemon: Phm cycle took"
+                               << (static_cast<double>(nsOverDeadline) / 1000000.0 /*ns per ms*/)
+                               << "ms longer than the configured cycle time";
             }
             else if (sleepResult != 0)
             {
-                logger_r.LogError() << "Phm Daemon: Error during sleep system call, Code:"
-                                    << static_cast<uint64_t>(sleepResult);
+                LM_LOG_ERROR() << "Phm Daemon: Error during sleep system call, Code:"
+                               << static_cast<uint64_t>(sleepResult);
             }
             else
             {
                 /* sleeping successfully */
             }
         }
-        logger_r.LogInfo() << "Phm Daemon: Received termination request - shutting down";
+        LM_LOG_INFO() << "Phm Daemon: Received termination request - shutting down";
 
         watchdog->disable();
         return true;
@@ -261,9 +258,6 @@ private:
 
     /// @brief For fixed time-step execution during the cyclic execution
     CycleTimer cycleTimer;
-
-    /// @brief Logging entity for warnings, errors used in init() phase and the cyclic() phase
-    Logger& logger_r;
 
     /// @brief Recovery interface to Launch Manager
     std::shared_ptr<RecoveryClient> recoveryClient;

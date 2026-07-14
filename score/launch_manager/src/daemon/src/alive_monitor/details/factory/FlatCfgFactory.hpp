@@ -43,11 +43,6 @@ namespace lcm
 namespace saf
 {
 
-namespace logging
-{
-class PhmLogger;
-}
-
 namespace factory
 {
 
@@ -146,9 +141,6 @@ private:
     /// Pointer for loaded Software Cluster
     std::unique_ptr<char[]> loadBuffer_p;
 #endif
-
-    /// Logger object for logging messages
-    logging::PhmLogger& logger_r;
 };
 
 }  // namespace factory

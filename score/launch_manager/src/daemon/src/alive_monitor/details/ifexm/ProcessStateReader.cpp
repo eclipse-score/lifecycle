@@ -12,7 +12,7 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ProcessStateReader.hpp"
-
+#include "score/launch_manager/src/daemon/src/common/log.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/TimeConversion.hpp"
 
 namespace score
@@ -24,9 +24,8 @@ namespace saf
 namespace ifexm
 {
 
-ProcessStateReader::ProcessStateReader(std::unique_ptr<LcmProcessStateReceiver> f_process_state_receiver) :
-    processStateReceiverHM(std::move(f_process_state_receiver)),
-    logger_r(logging::PhmLogger::getLogger(logging::PhmLogger::EContext::supervision))
+ProcessStateReader::ProcessStateReader(std::unique_ptr<LcmProcessStateReceiver> f_process_state_receiver)
+    : processStateReceiverHM(std::move(f_process_state_receiver))
 {
 }
 
@@ -41,7 +40,7 @@ bool ProcessStateReader::registerProcessState(ProcessState& f_processState_r,
 
     if (!flagSuccess)
     {
-        logger_r.LogError() << "Process State Reader did not register" << f_processState_r.getConfigName();
+        LM_LOG_ERROR() << "Process State Reader did not register" << f_processState_r.getConfigName();
     }
 
     return flagSuccess;
@@ -79,9 +78,9 @@ bool ProcessStateReader::distributeChanges(const timers::NanoSecondType f_syncTi
             const auto changedPosixProcess{resultChangedProcess.value()};
             if (changedPosixProcess)
             {
-                logger_r.LogDebug() << "Process with Id" << changedPosixProcess->id << "changed state PG"
-                                    << changedPosixProcess->processGroupStateId << "PS"
-                                    << static_cast<int>(changedPosixProcess->processStateId);
+                LM_LOG_DEBUG() << "Process with Id" << changedPosixProcess->id << "changed state PG"
+                               << changedPosixProcess->processGroupStateId << "PS"
+                               << static_cast<int>(changedPosixProcess->processStateId);
                 isPushPending = pushUpdateTill(*changedPosixProcess, f_syncTimestamp);
                 flagContinue = (!isPushPending);
             }
@@ -93,7 +92,7 @@ bool ProcessStateReader::distributeChanges(const timers::NanoSecondType f_syncTi
         }
         else
         {
-            logger_r.LogError() << "Process State Reader failed with error:" << resultChangedProcess.error().Message();
+            LM_LOG_ERROR() << "Process State Reader failed with error:" << resultChangedProcess.error().Message();
             flagContinue = false;
             flagSuccess = false;
         }

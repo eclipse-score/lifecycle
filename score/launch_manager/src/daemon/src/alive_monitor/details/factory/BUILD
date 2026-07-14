@@ -53,10 +53,10 @@ cc_library(
     deps = [
         ":static_config",
         "//score/launch_manager/src/daemon/src/alive_monitor/config",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/logging:phm_logging",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:time_conversion",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/watchdog:i_device_config_factory",
+        "//score/launch_manager/src/daemon/src/common:log",
         "@score_baselibs//score/flatbuffers:flatbufferscpp",
         "@score_baselibs//score/language/futurecpp",
     ] + select({
@@ -93,12 +93,12 @@ cc_library(
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:monitor_if_daemon",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:process_state",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:process_state_reader",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/logging:phm_logging",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/supervision:alive",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/supervision:supervision_cfg",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:time_conversion",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
         "//score/launch_manager/src/daemon/src/common:identifier_hash",
+        "//score/launch_manager/src/daemon/src/common:log",
         "@score_baselibs//score/flatbuffers:flatbufferscpp",
     ] + select({
         "//config:lm_use_new_configuration": [

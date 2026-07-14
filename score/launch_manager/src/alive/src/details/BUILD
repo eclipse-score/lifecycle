@@ -32,8 +32,8 @@ cc_library(
         "//score/launch_manager/src/daemon/src/alive_monitor/config",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:data_structures",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ipc:ipc_if",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/logging:phm_logging",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
+        "//score/launch_manager/src/daemon/src/common:log",
         "@score_baselibs//score/flatbuffers:flatbufferscpp",
     ],
 )

@@ -10,6 +10,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
+#include "score/launch_manager/src/daemon/src/common/log.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/factory/MachineConfigFactory.hpp"
 
 #include <cassert>
@@ -57,7 +58,7 @@ bool MachineConfigFactory::init(const Config& config) noexcept(false)
         watchdogConfigs.push_back(std::move(wdConfig));
     }
 
-    logger_r.LogInfo() << kLogPrefix << "Loading of HM Machine Configuration succeeded.";
+    LM_LOG_INFO() << kLogPrefix << "Loading of HM Machine Configuration succeeded.";
     logConfiguration();
     return true;
 }
@@ -80,26 +81,25 @@ const MachineConfigFactory::SupervisionBufferConfig& MachineConfigFactory::getSu
 
 void MachineConfigFactory::logConfiguration() noexcept(true)
 {
-    logger_r.LogDebug() << kLogPrefix << "Alive Supervision buffer size:" << supBufferCfg.bufferSizeAliveSupervision;
-    logger_r.LogDebug() << kLogPrefix << "Monitor buffer size:" << supBufferCfg.bufferSizeMonitor;
-    logger_r.LogDebug() << kLogPrefix << "Periodicity:" << getCycleTimeInNs() << "ns";
-    logger_r.LogDebug() << kLogPrefix << "Configured watchdogs:" << watchdogConfigs.size();
+    LM_LOG_DEBUG() << kLogPrefix << "Alive Supervision buffer size:" << supBufferCfg.bufferSizeAliveSupervision;
+    LM_LOG_DEBUG() << kLogPrefix << "Monitor buffer size:" << supBufferCfg.bufferSizeMonitor;
+    LM_LOG_DEBUG() << kLogPrefix << "Periodicity:" << getCycleTimeInNs() << "ns";
+    LM_LOG_DEBUG() << kLogPrefix << "Configured watchdogs:" << watchdogConfigs.size();
     std::uint32_t wdgCount{1U};
     for (const auto& wdgConfig : watchdogConfigs)
     {
         const std::string_view wdgMagicCloseBool{wdgConfig.needsMagicClose ? "true" : "false"};
         const std::string_view wdgDeactivatedBool{wdgConfig.canBeDeactivated ? "true" : "false"};
-        logger_r.LogDebug() << kLogPrefix << "Watchdog" << wdgCount << "- device file:" << wdgConfig.fileName;
-        logger_r.LogDebug() << kLogPrefix << "Watchdog" << wdgCount << "- max timeout:" << wdgConfig.timeoutMax << "ms";
-        logger_r.LogDebug() << kLogPrefix << "Watchdog" << wdgCount << "- needs magic close:" << wdgMagicCloseBool;
-        logger_r.LogDebug() << kLogPrefix << "Watchdog" << wdgCount
-                            << "- deactivate on hm shutdown:" << wdgDeactivatedBool;
+        LM_LOG_DEBUG() << kLogPrefix << "Watchdog" << wdgCount << "- device file:" << wdgConfig.fileName;
+        LM_LOG_DEBUG() << kLogPrefix << "Watchdog" << wdgCount << "- max timeout:" << wdgConfig.timeoutMax << "ms";
+        LM_LOG_DEBUG() << kLogPrefix << "Watchdog" << wdgCount << "- needs magic close:" << wdgMagicCloseBool;
+        LM_LOG_DEBUG() << kLogPrefix << "Watchdog" << wdgCount << "- deactivate on hm shutdown:" << wdgDeactivatedBool;
         ++wdgCount;
     }
 
     if (watchdogConfigs.empty())
     {
-        logger_r.LogWarn() << kLogPrefix << "No watchdog configured";
+        LM_LOG_WARN() << kLogPrefix << "No watchdog configured";
     }
 }
 

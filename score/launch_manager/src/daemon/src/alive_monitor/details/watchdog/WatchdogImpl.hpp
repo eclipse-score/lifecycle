@@ -17,7 +17,6 @@
 #include <cstdint>
 #include <memory>
 
-#include "score/mw/launch_manager/alive_monitor/details/logging/PhmLogger.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/watchdog/IDeviceConfigFactory.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/watchdog/IWatchdogIf.hpp"
 #include <vector>
@@ -192,8 +191,6 @@ class WatchdogImpl : public IWatchdogIf
     std::vector<WatchdogDevice> watchdogDevices;
     /// @brief The internal state of this class
     ELibState state;
-    /// @brief Logging
-    logging::PhmLogger& logger_r;
 };
 
 }  // namespace watchdog
