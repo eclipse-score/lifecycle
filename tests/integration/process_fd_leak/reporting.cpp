@@ -15,6 +15,7 @@
 #include <sstream>
 
 #include "get_fds.hpp"
+#include "common.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
 #include <score/mw/lifecycle/report_running.h>
 
@@ -41,6 +42,8 @@ TEST(ReportingProcessFDs, FindOpenFDs)
         oss << open_fds;
         EXPECT_TRUE(open_fds.empty()) << "Found open files!\n" << oss.str();
     }
+
+    ASSERT_TRUE(touch_file(reporting_terminating));
 }
 
 int main(int argc, char** argv)

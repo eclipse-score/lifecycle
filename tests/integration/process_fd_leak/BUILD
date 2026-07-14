@@ -16,6 +16,7 @@ load("//tests/utils/bazel:integration.bzl", "integration_test")
 cc_binary(
     name = "native",
     srcs = [
+        "common.hpp",
         "get_fds.hpp",
         "native.cpp",
     ],
@@ -29,6 +30,7 @@ cc_binary(
 cc_binary(
     name = "reporting",
     srcs = [
+        "common.hpp",
         "get_fds.hpp",
         "reporting.cpp",
     ],
@@ -42,6 +44,7 @@ cc_binary(
 cc_binary(
     name = "control_client",
     srcs = [
+        "common.hpp",
         "control_client.cpp",
         "get_fds.hpp",
     ],

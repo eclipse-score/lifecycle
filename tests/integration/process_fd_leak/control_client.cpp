@@ -12,8 +12,12 @@
  ********************************************************************************/
 #include <gtest/gtest.h>
 
+#include <chrono>
+#include <ios>
 #include <sstream>
+#include <thread>
 
+#include "common.hpp"
 #include "get_fds.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
 #include <score/mw/lifecycle/control_client.h>
@@ -58,6 +62,16 @@ TEST(ControlClientFDs, FindOpenFDs)
         oss << open_fds;
         EXPECT_TRUE(open_fds.empty()) << "Found open files!\n" << oss.str();
     }
+
+    TEST_STEP("Wait for other procs to finish")
+    {
+        while (!std::filesystem::exists(reporting_terminating) || !std::filesystem::exists(native_terminating))
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+
+        ASSERT_TRUE(touch_file(test_end_location));
+    }
 }
 
 int main(int argc, char** argv)
@@ -65,7 +79,11 @@ int main(int argc, char** argv)
     g_argc = argc;
     g_argv = argv;
 
-    TestRunner runner{__FILE__, TerminationBehavior::kContinue, TerminationNotification::kTestEnd};
+    // test end file is made in the test so that we block to wait for other
+    // procs to finish
+    TestRunner runner{__FILE__, TerminationBehavior::kWait, TerminationNotification::kNone};
 
-    return runner.RunTests();
+    auto result = runner.RunTests();
+
+    return result;
 }

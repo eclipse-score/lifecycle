@@ -20,12 +20,14 @@
 #include <cstring>
 #include <iostream>
 #include <ostream>
-#include <sstream>
 #include <regex>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <vector>
 
+#ifndef GET_FDS_HPP_
+#define GET_FDS_HPP_
 
 inline std::ostream& operator<<(std::ostream& outstream, const std::vector<std::pair<std::uint32_t, std::string>>& data)
 {
@@ -35,7 +37,6 @@ inline std::ostream& operator<<(std::ostream& outstream, const std::vector<std::
     }
     return outstream;
 }
-
 
 /// @brief Given the list of FDs and their paths, removes entries whose path
 ///        matches the regex.
@@ -172,5 +173,7 @@ inline std::vector<std::pair<std::uint32_t, std::string>> get_fds()
 
     ::closedir(fd_dir);
     return out_vector;
-#endif
+#endif  //__QNXNTO__
 }
+
+#endif  // GET_FDS_HPP_
