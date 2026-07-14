@@ -18,11 +18,7 @@
 
 import os
 import shutil
-from itertools import chain
 from pathlib import Path
-
-from docutils import nodes
-from docutils.parsers.rst import Directive
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -73,45 +69,7 @@ templates_path = ["templates"]
 numfig = True
 
 
-class DisplayTestLogs(Directive):
-    """Find and display the raw content of all test.log files."""
-
-    def run(self):
-        env = self.state.document.settings.env
-        ws_root = Path(env.app.srcdir)
-
-        result_nodes = []
-        for log_file in chain(
-            (ws_root / "bazel-testlogs").rglob("test.log"),
-            (ws_root / "tests-report").rglob("test.log"),
-        ):
-            rel_path = log_file.relative_to(ws_root)
-
-            title = nodes.rubric(text=str(rel_path))
-            result_nodes.append(title)
-
-            try:
-                content = log_file.read_text(encoding="utf-8")
-            except Exception as e:
-                content = f"Error reading file: {e}"
-
-            code = nodes.literal_block(content, content)
-            code["language"] = "text"
-            code["source"] = str(rel_path)
-            result_nodes.append(code)
-
-        if not result_nodes:
-            para = nodes.paragraph(
-                text="No test.log files found in bazel-testlogs or tests-report."
-            )
-            result_nodes.append(para)
-
-        return result_nodes
-
-
 def setup(app):
-    app.add_directive("display-test-logs", DisplayTestLogs)
-
     # When Sphinx runs inside a Bazel action (bazel build //:needs_json), the
     # CWD is the execroot / sandbox root and the JSON schema files are linked
     # there at their workspace-relative paths (src/...) because they are
