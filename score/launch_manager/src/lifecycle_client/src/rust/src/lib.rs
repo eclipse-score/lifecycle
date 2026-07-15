@@ -12,4 +12,4 @@
 // *******************************************************************************
 pub mod lifecycle;
 
-pub use lifecycle::report_execution_state_running;
+pub use lifecycle::report_running;

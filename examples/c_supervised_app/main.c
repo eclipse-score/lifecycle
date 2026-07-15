@@ -41,7 +41,7 @@ int main(void)
         return EXIT_FAILURE;
     }
 
-    if (score_lcm_report_running() != 0)
+    if (score_mw_lifecycle_report_running() != 0)
     {
         fprintf(stderr, "Failed to report running state\n");
         score_lcm_alive_deinitialize(alive);

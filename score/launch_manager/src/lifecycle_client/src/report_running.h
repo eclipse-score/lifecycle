@@ -54,7 +54,7 @@ extern "C" {
 
 /// @brief Signals to the Launch Manager that this process has finished initialization and is now running.
 /// @return 0 on success, -1 on failure
-int8_t score_lcm_report_running(void);
+int8_t score_mw_lifecycle_report_running(void);
 
 #ifdef __cplusplus
 }
