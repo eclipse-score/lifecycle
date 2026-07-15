@@ -28,7 +28,10 @@
         "component_properties": {
             "application_profile": {
                 "application_type": "Native",
-                "is_self_terminating": true
+                "is_self_terminating": true,
+                "alive_supervision": {
+                    "min_indications": 0
+                    }
             },
             "ready_condition": {
                 "process_state": "Running"

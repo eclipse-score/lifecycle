@@ -15,6 +15,7 @@
 #include <sstream>
 
 #include "get_fds.hpp"
+#include "common.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
 
 int g_argc;
@@ -26,6 +27,8 @@ TEST(NativeFDs, FindOpenFDs)
     std::ostringstream oss;
     oss << open_fds;
     EXPECT_TRUE(open_fds.empty()) << "Found open files!\n" << oss.str();
+
+    ASSERT_TRUE(touch_file(native_terminating));
 }
 
 int main(int argc, char** argv)
