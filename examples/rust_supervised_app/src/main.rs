@@ -77,7 +77,7 @@ fn main_logic(args: &Args, stop: Arc<AtomicBool>) -> Result<(), Box<dyn std::err
 
     hm.start();
 
-    if !lifecycle_client_rs::report_execution_state_running() {
+    if !lifecycle_client_rs::report_running() {
         error!("Rust app FAILED to report execution state!");
         return Err("Failed to report execution state".into());
     }

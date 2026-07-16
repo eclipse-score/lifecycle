@@ -32,12 +32,10 @@ namespace daemon
 /* RULECHECKER_comment(0, 4, check_incomplete_data_member_construction, "Default constructor is used for\
  processStateReader.", true_no_defect) */
 PhmDaemon::PhmDaemon(OsClock& f_osClock,
-                     Logger& f_logger_r,
                      std::unique_ptr<Watchdog> f_watchdog,
                      std::unique_ptr<ProcessStateReceiver> f_process_state_receiver)
     : osClock{f_osClock},
       cycleTimer{&osClock},
-      logger_r{f_logger_r},
       swClusterHandlers{},
       processStateReader{std::move(f_process_state_receiver)},
       watchdog(std::move(f_watchdog))
@@ -93,16 +91,15 @@ bool PhmDaemon::construct(const SupervisionBufferConfig& f_bufferConfig_r) noexc
     score::Result<std::vector<std::string>> listSwClustersPhm{{"MainCluster"}};
     if (!listSwClustersPhm.has_value())
     {
-        logger_r.LogError()
-            << "Phm Daemon: retrieving the list of PHM software cluster configurations failed with error:"
-            << listSwClustersPhm.error().Message();
+        LM_LOG_ERROR() << "Phm Daemon: retrieving the list of PHM software cluster configurations failed with error:"
+                       << listSwClustersPhm.error().Message();
         isSuccess = false;
     }
     else
     {
         if (listSwClustersPhm.value().size() == 0U)
         {
-            logger_r.LogWarn() << "Phm Daemon: is starting without any software cluster configurations!";
+            LM_LOG_WARN() << "Phm Daemon: is starting without any software cluster configurations!";
         }
 
         // Reserve the vector swClusterHandlers obtained from flatcfg before constructing the SwClusters
@@ -118,8 +115,8 @@ bool PhmDaemon::construct(const SupervisionBufferConfig& f_bufferConfig_r) noexc
 #endif
             if (!isSuccess)
             {
-                logger_r.LogError() << "Phm Daemon: failed to create worker objects for swclusterhandler:"
-                                    << strSwClusterName;
+                LM_LOG_ERROR() << "Phm Daemon: failed to create worker objects for swclusterhandler:"
+                               << strSwClusterName;
                 break;
             }
         }

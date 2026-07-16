@@ -12,6 +12,7 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/alive_monitor/details/AliveImpl.h"
+#include "score/launch_manager/src/daemon/src/common/log.hpp"
 
 #include <unistd.h>
 
@@ -23,11 +24,8 @@ namespace score::mw::lifecycle
 {
 
 AliveImpl::AliveImpl(const std::string_view& f_instanceSpecifier_r,
-                         std::unique_ptr<CheckpointIpcClient> f_ipcClient) noexcept(false)
-    : k_instanceSpecifierPath(f_instanceSpecifier_r),
-      ipcClient(std::move(f_ipcClient)),
-      logger_r(
-          score::lcm::saf::logging::PhmLogger::getLogger(score::lcm::saf::logging::PhmLogger::EContext::supervision))
+                     std::unique_ptr<CheckpointIpcClient> f_ipcClient) noexcept(false)
+    : k_instanceSpecifierPath(f_instanceSpecifier_r), ipcClient(std::move(f_ipcClient))
 {
     // coverity[autosar_cpp14_a15_5_2_violation] This warning comes from pipc-sa(external library)
     connectToPhmDaemon();
@@ -43,7 +41,7 @@ void AliveImpl::connectToPhmDaemon(void) noexcept(false)
     const auto ipc_path_res = readInterfacePath();
     if (ipc_path_res == std::nullopt)
     {
-        logger_r.LogError() << "Failed to load interface path for Alive instance (" << k_instanceSpecifierPath << ")";
+        LM_LOG_ERROR() << "Failed to load interface path for Alive instance (" << k_instanceSpecifierPath << ")";
         throw std::runtime_error("Failed to get interface path");
     }
     CheckpointIpcClient::EIpcInitResult initResult{ipcClient->init(ipc_path_res.value())};
@@ -54,11 +52,11 @@ void AliveImpl::connectToPhmDaemon(void) noexcept(false)
     else if (initResult == CheckpointIpcClient::EIpcInitResult::kPermissionDenied)
     {
         const uid_t uid{geteuid()};
-        logger_r.LogError() << "Connection to PHM daemon failed (permission denied for effective uid" << uid
-                            << "), for the Alive instance (" << k_instanceSpecifierPath << ")";
+        LM_LOG_ERROR() << "Connection to PHM daemon failed (permission denied for effective uid" << uid
+                       << "), for the Alive instance (" << k_instanceSpecifierPath << ")";
         return;
     }
-    logger_r.LogError() << "Connection to PHM daemon failed, for the Alive instance (" << k_instanceSpecifierPath << ")";
+    LM_LOG_ERROR() << "Connection to PHM daemon failed, for the Alive instance (" << k_instanceSpecifierPath << ")";
 }
 
 std::optional<std::string_view> AliveImpl::readInterfacePath() noexcept

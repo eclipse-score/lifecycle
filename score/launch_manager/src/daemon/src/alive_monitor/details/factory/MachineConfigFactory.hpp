@@ -17,7 +17,6 @@
 
 #include <optional>
 #include "score/mw/launch_manager/alive_monitor/details/factory/StaticConfig.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/logging/PhmLogger.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/watchdog/IDeviceConfigFactory.hpp"
 #ifdef USE_NEW_CONFIGURATION
@@ -36,11 +35,6 @@ namespace lcm
 {
 namespace saf
 {
-
-namespace logging
-{
-class PhmLogger;
-}
 
 namespace factory
 {
@@ -133,9 +127,6 @@ private:
     /// Raw pointer is used here because the memory is deallocated by FlatBuffer.
     const HMCOREFlatBuffer::HMCOREEcuCfg* flatBuffer_p;
 #endif
-
-    /// Logger object for logging messages
-    logging::PhmLogger& logger_r{logging::PhmLogger::getLogger(logging::PhmLogger::EContext::factory)};
 };
 
 }  // namespace factory

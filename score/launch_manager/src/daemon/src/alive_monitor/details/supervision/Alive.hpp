@@ -21,7 +21,6 @@
 #include "score/mw/launch_manager/alive_monitor/details/common/TimeSortingBuffer.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/Checkpoint.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ProcessState.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/logging/PhmLogger.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/supervision/ISupervision.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/supervision/SupervisionCfg.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
@@ -300,9 +299,6 @@ private:
 
     /// @brief Failed supervision cycle tolerance (debouncing of alive failure)
     const uint32_t k_failedSupervisionCyclesTolerance;
-
-    /// @brief Logger
-    logging::PhmLogger& logger_r;
 
     /// @brief Recovery client invoked when supervision expires (null means recovery is disabled)
     std::shared_ptr<score::lcm::IRecoveryClient> recoveryClient_p;

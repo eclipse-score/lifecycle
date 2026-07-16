@@ -18,7 +18,6 @@
 
 #include "score/mw/launch_manager/alive_monitor/details/common/Types.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ProcessState.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/logging/PhmLogger.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
 #include "score/mw/launch_manager/process_state_client/posix_process.hpp"
 #include "score/mw/launch_manager/process_state_client/iprocess_state_receiver.hpp"
@@ -88,9 +87,6 @@ private:
 
     /// @brief Process state receiver for HM thread
     std::unique_ptr<ProcessStateReader::LcmProcessStateReceiver> processStateReceiverHM;
-
-    /// @brief Logger
-    logging::PhmLogger& logger_r;
 
     /// @brief Map for process id and process state object
     std::map<common::ProcessId, ProcessState*> processStateMap{};

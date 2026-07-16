@@ -18,7 +18,6 @@
 #include <vector>
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/Checkpoint.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/DataStructures.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/logging/PhmLogger.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
 
 namespace score
@@ -154,9 +153,6 @@ private:
 
     /// @brief IPC connection to application
     CheckpointIpcServer& ipcserver_r;
-
-    /// Logger
-    logging::PhmLogger& logger_r;
 };
 
 }  // namespace ifappl

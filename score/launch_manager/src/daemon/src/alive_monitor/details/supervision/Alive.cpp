@@ -16,6 +16,7 @@
 #include <score/assert.hpp>
 #include <string_view>
 
+#include "score/launch_manager/src/daemon/src/common/log.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/common/Types.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ProcessState.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
@@ -37,7 +38,6 @@ Alive::Alive(const AliveSupervisionCfg& f_aliveCfg_r)
       k_isMinCheckDisabled(f_aliveCfg_r.isMinCheckDisabled),
       k_isMaxCheckDisabled(f_aliveCfg_r.isMaxCheckDisabled),
       k_failedSupervisionCyclesTolerance(f_aliveCfg_r.failedCyclesTolerance),
-      logger_r(logging::PhmLogger::getLogger(logging::PhmLogger::EContext::supervision)),
       recoveryClient_p(f_aliveCfg_r.recoveryClient),
       processIdentifier_(f_aliveCfg_r.processIdentifier),
       timeSortingUpdateEventBuffer(common::TimeSortingBuffer<TimeSortedUpdateEvent>(f_aliveCfg_r.checkpointBufferSize))
@@ -342,8 +342,8 @@ bool Alive::setReferenceCycleTimestamps(timers::NanoSecondType f_baseValue) noex
 {
     if (f_baseValue > UINT64_MAX - k_aliveReferenceCycle)
     {
-        logger_r.LogError() << "Alive Supervision (" << getConfigName()
-                            << ") overflow appeared during increase of reference cycle timestamps";
+        LM_LOG_ERROR() << "Alive Supervision (" << getConfigName()
+                       << ") overflow appeared during increase of reference cycle timestamps";
         eventTimestamp = std::max(referenceCycleEnd + 1U, UINT64_MAX);
         switchToExpired(EReason::kOverflow);
         return true;
@@ -357,8 +357,8 @@ void Alive::incIndicationCount(const timers::NanoSecondType f_updateEventTimesta
 {
     if (indicationCount == UINT32_MAX)
     {
-        logger_r.LogError() << "Alive Supervision (" << getConfigName()
-                            << ") overflow appeared during incrementation of indication count";
+        LM_LOG_ERROR() << "Alive Supervision (" << getConfigName()
+                       << ") overflow appeared during incrementation of indication count";
         eventTimestamp = f_updateEventTimestamp;
         return switchToExpired(EReason::kOverflow);
     }
@@ -410,8 +410,8 @@ void Alive::evaluateRefCycleOutOfFailed(void) noexcept(true)
     {
         if (failedSupervisionCycles == UINT32_MAX)
         {
-            logger_r.LogError() << "Alive Supervision (" << getConfigName()
-                                << ") overflow appeared during incrementation of failed supervision cycles";
+            LM_LOG_ERROR() << "Alive Supervision (" << getConfigName()
+                           << ") overflow appeared during incrementation of failed supervision cycles";
             switchToExpired(EReason::kOverflow);
             return;
         }
@@ -448,7 +448,7 @@ void Alive::switchToDeactivated(void) noexcept(true)
     referenceCycleStart = 0U;
     referenceCycleEnd = UINT64_MAX;
 
-    logger_r.LogDebug() << "Alive Supervision (" << getConfigName() << ") switched to DEACTIVATED.";
+    LM_LOG_DEBUG() << "Alive Supervision (" << getConfigName() << ") switched to DEACTIVATED.";
 
     pushResultToObservers();
 }
@@ -457,7 +457,7 @@ void Alive::switchToOk(void) noexcept(true)
 {
     aliveStatus = EStatus::kOk;
     failedSupervisionCycles = 0U;
-    logger_r.LogInfo() << "Alive Supervision (" << getConfigName() << ") switched to OK.";
+    LM_LOG_INFO() << "Alive Supervision (" << getConfigName() << ") switched to OK.";
     pushResultToObservers();
 }
 
@@ -483,17 +483,17 @@ void Alive::switchToExpired(Alive::EReason reason) noexcept(true)
             switch (dataLossReason)
             {
                 case EDataLossReason::kSharedMemory:
-                    logger_r.LogError() << "Alive Supervision (" << getConfigName()
-                                        << ") switched to EXPIRED, due to shared memory overflow.";
+                    LM_LOG_ERROR() << "Alive Supervision (" << getConfigName()
+                                   << ") switched to EXPIRED, due to shared memory overflow.";
                     break;
                 case EDataLossReason::kBufferFull:
-                    logger_r.LogError() << "Alive Supervision (" << getConfigName()
-                                        << ") switched to EXPIRED, due to buffer overflow.";
+                    LM_LOG_ERROR() << "Alive Supervision (" << getConfigName()
+                                   << ") switched to EXPIRED, due to buffer overflow.";
                     break;
                 default:
                     SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD(dataLossReason != EDataLossReason::kNoDataLoss);
-                    logger_r.LogError() << "Alive Supervision (" << getConfigName()
-                                        << ") switched to EXPIRED, due to unknown data loss case.";
+                    LM_LOG_ERROR() << "Alive Supervision (" << getConfigName()
+                                   << ") switched to EXPIRED, due to unknown data loss case.";
                     break;
             }
             break;
@@ -504,12 +504,11 @@ void Alive::switchToExpired(Alive::EReason reason) noexcept(true)
         }
         case EReason::kOverflow:
         {
-            logger_r.LogError() << "Alive Supervision (" << getConfigName()
-                                << ") switched to EXPIRED, due to overflow.";
+            LM_LOG_ERROR() << "Alive Supervision (" << getConfigName() << ") switched to EXPIRED, due to overflow.";
             break;
         }
         default:
-            logger_r.LogWarn() << "Alive Supervision (" << getConfigName() << ") switched to EXPIRED";
+            LM_LOG_WARN() << "Alive Supervision (" << getConfigName() << ") switched to EXPIRED";
             break;
     }
 
@@ -522,13 +521,13 @@ void Alive::switchToExpired(Alive::EReason reason) noexcept(true)
     const bool enqueued = recoveryClient_p->sendRecoveryRequest(processIdentifier_);
     if (enqueued)
     {
-        logger_r.LogDebug() << "Recovery request enqueued successfully for alive supervision " << getConfigName()
-                            << "failure";
+        LM_LOG_DEBUG() << "Recovery request enqueued successfully for alive supervision " << getConfigName()
+                       << "failure";
     }
     else
     {
-        logger_r.LogError() << "Failed to enqueue recovery request for alive supervision" << getConfigName()
-                            << "failure (ring buffer full)";
+        LM_LOG_ERROR() << "Failed to enqueue recovery request for alive supervision" << getConfigName()
+                       << "failure (ring buffer full)";
         recoveryEnqueueFailed_ = true;
     }
 
@@ -576,10 +575,10 @@ void Alive::logExpiredFailedStateDetails() const noexcept(true)
      * true_no_defect) */
     const std::uint64_t aliveIndicationMargin{minError ? k_minAliveIndications : k_maxAliveIndications};
     const std::string_view expectedComparison{minError ? ">=" : "<="};
-    logger_r.LogWarn() << "Alive Supervision (" << getConfigName() << ")" << failedState << ", due to"
-                       << indicationCount << "reported alive indication(s) (expected" << expectedComparison
-                       << aliveIndicationMargin << "). Failed supervision cycles:" << failedSupervisionCycles << "/"
-                       << k_failedSupervisionCyclesTolerance;
+    LM_LOG_WARN() << "Alive Supervision (" << getConfigName() << ")" << failedState << ", due to" << indicationCount
+                  << "reported alive indication(s) (expected" << expectedComparison << aliveIndicationMargin
+                  << "). Failed supervision cycles:" << failedSupervisionCycles << "/"
+                  << k_failedSupervisionCyclesTolerance;
 }
 
 timers::NanoSecondType Alive::getTimestampOfUpdateEvent(const TimeSortedUpdateEvent f_updateEvent) noexcept(true)

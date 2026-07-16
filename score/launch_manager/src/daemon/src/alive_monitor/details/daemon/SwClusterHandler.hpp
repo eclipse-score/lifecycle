@@ -18,7 +18,6 @@
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/DataStructures.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ProcessState.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ProcessStateReader.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/logging/PhmLogger.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
 #ifdef USE_NEW_CONFIGURATION
 #include "score/mw/launch_manager/configuration/config.hpp"
@@ -121,9 +120,6 @@ class SwClusterHandler
     /// @details Evaluate all supervisions created during construction.
     /// @param [in] f_syncTimestamp   Timestamp for cyclic synchronization
     void evaluateSupervisions(const timers::NanoSecondType f_syncTimestamp);
-
-    /// @brief Logger
-    logging::PhmLogger& logger_r;
 
     /// SwCluster Name for this SwCLusterHandler Object
     const std::string f_swClusterName;

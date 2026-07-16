@@ -12,7 +12,7 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/alive_monitor/details/daemon/SwClusterHandler.hpp"
-
+#include "score/launch_manager/src/daemon/src/common/log.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/factory/FlatCfgFactory.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/Checkpoint.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/MonitorIfDaemon.hpp"
@@ -28,8 +28,7 @@ namespace daemon
 {
 
 SwClusterHandler::SwClusterHandler(const std::string& f_swClusterName_r)
-    : logger_r(logging::PhmLogger::getLogger(logging::PhmLogger::EContext::factory)),
-      f_swClusterName(f_swClusterName_r),
+    : f_swClusterName(f_swClusterName_r),
       processStates{},
       aliveIfIpcs{},
       aliveInterfaces{},
@@ -38,7 +37,7 @@ SwClusterHandler::SwClusterHandler(const std::string& f_swClusterName_r)
 {
     if (f_swClusterName_r.empty())
     {
-        logger_r.LogError() << "Software Cluster Handler: Software cluster name is empty!";
+        LM_LOG_ERROR() << "Software Cluster Handler: Software cluster name is empty!";
     }
 }
 
@@ -65,7 +64,7 @@ bool SwClusterHandler::constructWorkers(
 #endif
     if (isSuccess)
     {
-        logger_r.LogDebug() << "Software Cluster Handler starts constructing workers:" << f_swClusterName;
+        LM_LOG_DEBUG() << "Software Cluster Handler starts constructing workers:" << f_swClusterName;
         isSuccess = flatCfgFactory.createProcessStates(processStates, f_processStateReader_r);
     }
     if (isSuccess)
@@ -87,7 +86,7 @@ bool SwClusterHandler::constructWorkers(
     }
     if (isSuccess == false)
     {
-        logger_r.LogError() << "Software Cluster Handler is unable to construct the required worker objects.";
+        LM_LOG_ERROR() << "Software Cluster Handler is unable to construct the required worker objects.";
     }
     return isSuccess;
 }

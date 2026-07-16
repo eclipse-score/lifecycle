@@ -18,7 +18,6 @@
 #include <score/assert.hpp>
 
 #include "score/mw/launch_manager/alive_monitor/details/daemon/AliveMonitorImpl.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/logging/PhmLogger.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/watchdog/WatchdogImpl.hpp"
 
 namespace score
@@ -37,7 +36,6 @@ AliveMonitorImpl::AliveMonitorImpl(SptrIRecoveryClient recovery_client,
                                    const Config& config)
     : m_recovery_client(recovery_client),
       m_watchdog(std::move(watchdog)),
-      m_logger{score::lcm::saf::logging::PhmLogger::getLogger(score::lcm::saf::logging::PhmLogger::EContext::factory)},
       m_process_state_receiver{std::move(process_state_receiver)},
       m_config(config)
 {
@@ -48,7 +46,6 @@ AliveMonitorImpl::AliveMonitorImpl(SptrIRecoveryClient recovery_client,
                                    UptrIProcessStateReceiver process_state_receiver)
     : m_recovery_client(recovery_client),
       m_watchdog(std::move(watchdog)),
-      m_logger{score::lcm::saf::logging::PhmLogger::getLogger(score::lcm::saf::logging::PhmLogger::EContext::factory)},
       m_process_state_receiver{std::move(process_state_receiver)}
 {
 }
@@ -61,7 +58,7 @@ EInitCode AliveMonitorImpl::init() noexcept
     {
         m_osClock.startMeasurement();
 
-        m_daemon = std::make_unique<PhmDaemon>(m_osClock, m_logger, std::move(m_watchdog),
+        m_daemon = std::make_unique<PhmDaemon>(m_osClock, std::move(m_watchdog),
                                                std::move(m_process_state_receiver));
     #ifdef USE_NEW_CONFIGURATION
         initResult = m_daemon->init(m_recovery_client, m_config);
@@ -72,12 +69,11 @@ EInitCode AliveMonitorImpl::init() noexcept
         if (initResult == EInitCode::kNoError)
         {
             const long ms{m_osClock.endMeasurement()};
-            m_logger.LogDebug() << "AliveMonitor: Initialization took " << ms << " ms";
+            LM_LOG_DEBUG() << "AliveMonitor: Initialization took " << ms << " ms";
         }
         else
         {
-            m_logger.LogError() << "AliveMonitor: Initialization failed with error code:"
-                                << static_cast<int>(initResult);
+            LM_LOG_ERROR() << "AliveMonitor: Initialization failed with error code:" << static_cast<int>(initResult);
         }
     }
     catch (const std::exception& e)

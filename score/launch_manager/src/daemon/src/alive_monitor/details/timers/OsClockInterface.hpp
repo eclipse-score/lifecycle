@@ -81,7 +81,6 @@ public:
     /// @brief Stop the measurement of the initialization process
     /// Prints out the time it took for initialization
     /// @param[in] f_osClock_r Clock abstraction
-    /// @param[in] f_logger_r The logger for logging the measured time
     long endMeasurement()
     {
         // In case getting the timestamp fails, the resulting measurement will be 0
@@ -92,7 +91,7 @@ public:
         const long nsDiff{initFinishedTime.tv_nsec - startTime.tv_nsec};
         // coverity[autosar_cpp14_a4_7_1_violation] max long 2,147,483,647 ms which ~ 24.8 days which nobody will wait for
         const long ms{(secDiff * 1000 /*ms per sec*/) + (nsDiff / 1000000 /*ns per ms*/)};
-        // f_logger_r.LogDebug() << "Phm Daemon: Initialization took " << ms << " ms";
+        // LM_LOG_DEBUG() << "Phm Daemon: Initialization took " << ms << " ms";
         return ms;
     }
 

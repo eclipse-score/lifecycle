@@ -20,7 +20,6 @@
 #include <string>
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/DataStructures.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ipc/IpcClient.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/logging/PhmLogger.hpp"
 
 namespace score::mw::lifecycle
 {
@@ -86,8 +85,6 @@ class AliveImpl
     /// @brief IPC Connection to PHM Daemon
     /// Class needs to be mutable to use in "const" reportCheckpoint method
     mutable std::unique_ptr<CheckpointIpcClient> ipcClient;
-    /// Logger object
-    score::lcm::saf::logging::PhmLogger& logger_r;
 };
 
 }  // namespace score::mw::lifecycle

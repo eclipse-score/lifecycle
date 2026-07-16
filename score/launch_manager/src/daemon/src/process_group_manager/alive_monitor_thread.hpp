@@ -15,6 +15,7 @@
 
 #include "score/mw/launch_manager/alive_monitor/details/daemon/IAliveMonitor.hpp"
 #include <atomic>
+#include <condition_variable>
 #include <thread>
 
 #include "score/mw/launch_manager/process_group_manager/ialive_monitor_thread.hpp"

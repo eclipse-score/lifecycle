@@ -17,6 +17,7 @@
 #include <string_view>
 
 #include "flatbuffers/flatbuffers.h"
+#include "score/launch_manager/src/daemon/src/common/log.hpp"
 #include "score/mw/launch_manager/alive_monitor/config/hmcore_flatcfg_generated.h"
 #include "score/mw/launch_manager/alive_monitor/details/timers/TimeConversion.hpp"
 #include <score/assert.hpp>
@@ -82,7 +83,7 @@ bool MachineConfigFactory::init() noexcept(false)
     std::unique_ptr<char[]> loadBuffer_p = read_flatbuffer_file("hmcore.bin");
     if (!loadBuffer_p)
     {
-        logger_r.LogInfo() << kLogPrefix << "No HM Machine Configuration found. Using default configuration.";
+        LM_LOG_INFO() << kLogPrefix << "No HM Machine Configuration found. Using default configuration.";
         logConfiguration();
         return true;
     }
@@ -91,7 +92,7 @@ bool MachineConfigFactory::init() noexcept(false)
     flatBuffer_p = HMCOREFlatBuffer::GetHMCOREEcuCfg(loadBuffer_p.get());
     if (flatBuffer_p == nullptr)
     {
-        logger_r.LogError() << kLogPrefix << "Reading HM configuration from FlatCfg failed.";
+        LM_LOG_ERROR() << kLogPrefix << "Reading HM configuration from FlatCfg failed.";
         return false;
     }
 
@@ -103,7 +104,7 @@ bool MachineConfigFactory::loadHmCoreConfig(const HMCoreEcuCfg* f_cfg_r) noexcep
 {
     loadHmSettings(*f_cfg_r);
     loadWatchdogDevices(*f_cfg_r);
-    logger_r.LogInfo() << kLogPrefix << "Loading of HM Machine Configuration succeeded.";
+    LM_LOG_INFO() << kLogPrefix << "Loading of HM Machine Configuration succeeded.";
     logConfiguration();
     return true;
 }
@@ -159,10 +160,10 @@ void MachineConfigFactory::loadHmSettings(const HMCoreEcuCfg& f_flatBuffer_r) no
         if (supBufferCfg.bufferSizeMonitor != StaticConfig::k_DefaultMonitorBufferElements)
         {
             supBufferCfg.bufferSizeMonitor = StaticConfig::k_DefaultMonitorBufferElements;
-            logger_r.LogWarn() << kLogPrefix
-                               << "Configuring Supervised Entity buffer size from machine config is currently not "
-                                  "supported. Using default buffer size of"
-                               << StaticConfig::k_DefaultMonitorBufferElements << "checkpoints";
+            LM_LOG_WARN() << kLogPrefix
+                          << "Configuring Supervised Entity buffer size from machine config is currently not "
+                             "supported. Using default buffer size of"
+                          << StaticConfig::k_DefaultMonitorBufferElements << "checkpoints";
         }
     }
 }
@@ -187,20 +188,19 @@ void MachineConfigFactory::logConfiguration() noexcept(true)
 {
     /* RULECHECKER_comment(0, 18, check_conditional_as_sub_expression, "Ternary operation is very simple",
      * true_no_defect) */
-    logger_r.LogDebug() << kLogPrefix << "Alive Supervision buffer size:" << supBufferCfg.bufferSizeAliveSupervision;
-    logger_r.LogDebug() << kLogPrefix << "Monitor buffer size:" << supBufferCfg.bufferSizeMonitor;
-    logger_r.LogDebug() << kLogPrefix << "Periodicity:" << getCycleTimeInNs() << "ns";
-    logger_r.LogDebug() << kLogPrefix << "Configured watchdogs:" << watchdogConfigs.size();
+    LM_LOG_DEBUG() << kLogPrefix << "Alive Supervision buffer size:" << supBufferCfg.bufferSizeAliveSupervision;
+    LM_LOG_DEBUG() << kLogPrefix << "Monitor buffer size:" << supBufferCfg.bufferSizeMonitor;
+    LM_LOG_DEBUG() << kLogPrefix << "Periodicity:" << getCycleTimeInNs() << "ns";
+    LM_LOG_DEBUG() << kLogPrefix << "Configured watchdogs:" << watchdogConfigs.size();
     std::uint32_t wdgCount{1U};
     for (const auto& wdgConfig : watchdogConfigs)
     {
         const std::string_view wdgMagicCloseBool{wdgConfig.needsMagicClose ? "true" : "false"};
         const std::string_view wdgDeactivatedBool{wdgConfig.canBeDeactivated ? "true" : "false"};
-        logger_r.LogDebug() << kLogPrefix << "Watchdog" << wdgCount << "- device file:" << wdgConfig.fileName;
-        logger_r.LogDebug() << kLogPrefix << "Watchdog" << wdgCount << "- max timeout:" << wdgConfig.timeoutMax << "ms";
-        logger_r.LogDebug() << kLogPrefix << "Watchdog" << wdgCount << "- needs magic close:" << wdgMagicCloseBool;
-        logger_r.LogDebug() << kLogPrefix << "Watchdog" << wdgCount
-                            << "- deactivate on hm shutdown:" << wdgDeactivatedBool;
+        LM_LOG_DEBUG() << kLogPrefix << "Watchdog" << wdgCount << "- device file:" << wdgConfig.fileName;
+        LM_LOG_DEBUG() << kLogPrefix << "Watchdog" << wdgCount << "- max timeout:" << wdgConfig.timeoutMax << "ms";
+        LM_LOG_DEBUG() << kLogPrefix << "Watchdog" << wdgCount << "- needs magic close:" << wdgMagicCloseBool;
+        LM_LOG_DEBUG() << kLogPrefix << "Watchdog" << wdgCount << "- deactivate on hm shutdown:" << wdgDeactivatedBool;
         // coverity[autosar_cpp14_a4_7_1_violation] Value limited by amount of watchdog configurations, which is
         // smaller.
         ++wdgCount;
@@ -208,7 +208,7 @@ void MachineConfigFactory::logConfiguration() noexcept(true)
 
     if (watchdogConfigs.empty())
     {
-        logger_r.LogWarn() << kLogPrefix << "No watchdog configured";
+        LM_LOG_WARN() << kLogPrefix << "No watchdog configured";
     }
 }
 

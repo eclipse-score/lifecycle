@@ -50,9 +50,9 @@ cc_library(
     deps = [
         ":process_state",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/common:types",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/logging:phm_logging",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:time_conversion",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
+        "//score/launch_manager/src/daemon/src/common:log",
         "//score/launch_manager/src/daemon/src/process_state_client",
     ],
 )
