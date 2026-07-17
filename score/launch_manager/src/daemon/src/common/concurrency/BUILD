@@ -58,6 +58,20 @@ cc_binary(
     ],
 )
 
+cc_library(
+    name = "mpsc_bounded_queue",
+    hdrs = [
+        "concurrency_error_domain.hpp",
+        "mpsc_bounded_queue.hpp",
+    ],
+    include_prefix = "score/mw/launch_manager/common/concurrency",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/common/concurrency",
+    visibility = ["//score:__subpackages__"],
+    deps = [
+        "@score_baselibs//score/language/futurecpp",
+    ],
+)
+
 cc_test(
     name = "mpmc_concurrent_queue_test",
     srcs = ["mpmc_concurrent_queue_test.cpp"],
