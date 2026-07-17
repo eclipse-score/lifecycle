@@ -96,12 +96,6 @@ void handleComms(score::lcm::internal::osal::ChildProcessConfig& param)
 // https://github.com/eclipse-score/lifecycle/issues/304
 bool validateConfig(const OsalConfig* config)
 {
-    if (access(config->executable_path_.c_str(), X_OK) != 0)
-    {
-        LM_LOG_ERROR() << "File does not exist or is not executable:" << config->executable_path_;
-        return false;
-    }
-
     if (config->scheduling_priority_ < sched_get_priority_min(config->scheduling_policy_))
     {
         LM_LOG_WARN() << "Scheduling priority" << config->scheduling_priority_ << "is below minimum for policy"
