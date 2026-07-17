@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "score/mw/launch_manager/alive_monitor/details/watchdog/DeviceIf.hpp"
+#include "score/mw/launch_manager/watchdog/details/DeviceIf.hpp"
 
 #include <fcntl.h>
 #include <sys/ioctl.h>

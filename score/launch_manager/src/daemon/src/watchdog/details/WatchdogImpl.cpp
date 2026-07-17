@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-#include "score/mw/launch_manager/alive_monitor/details/watchdog/WatchdogImpl.hpp"
+#include "score/mw/launch_manager/watchdog/details/WatchdogImpl.hpp"
 #include "score/launch_manager/src/daemon/src/common/log.hpp"
 
 #include <fcntl.h>
@@ -20,8 +20,8 @@
 #include <unistd.h>
 
 #include "score/mw/launch_manager/alive_monitor/details/timers/OsClockInterface.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/watchdog/DeviceIf.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/watchdog/Watchdog.hpp"
+#include "score/mw/launch_manager/watchdog/details/DeviceIf.hpp"
+#include "score/mw/launch_manager/watchdog/details/Watchdog.hpp"
 
 namespace score
 {

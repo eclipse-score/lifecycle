@@ -18,7 +18,7 @@
 
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/DataStructures.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/watchdog/IDeviceConfigFactory.hpp"
+#include "score/mw/launch_manager/watchdog/IDeviceConfigFactory.hpp"
 
 namespace score
 {

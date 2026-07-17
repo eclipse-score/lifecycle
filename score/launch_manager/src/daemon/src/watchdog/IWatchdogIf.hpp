@@ -17,7 +17,7 @@
 
 #include <cstdint>
 
-#include "score/mw/launch_manager/alive_monitor/details/watchdog/IDeviceConfigFactory.hpp"
+#include "score/mw/launch_manager/watchdog/IDeviceConfigFactory.hpp"
 
 namespace score
 {

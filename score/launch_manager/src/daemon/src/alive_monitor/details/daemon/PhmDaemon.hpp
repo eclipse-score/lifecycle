@@ -25,7 +25,7 @@
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ProcessStateReader.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/CycleTimeValidator.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/CycleTimer.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/watchdog/IWatchdogIf.hpp"
+#include "score/mw/launch_manager/watchdog/IWatchdogIf.hpp"
 #ifdef USE_NEW_CONFIGURATION
 #include "score/mw/launch_manager/configuration/config.hpp"
 #endif

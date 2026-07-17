@@ -15,7 +15,7 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 cc_library(
     name = "watchdog",
     hdrs = ["Watchdog.hpp"],
-    include_prefix = "score/mw/launch_manager/alive_monitor/details/watchdog",
+    include_prefix = "score/mw/launch_manager/watchdog/details",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/watchdog/details",
     visibility = ["//score:__subpackages__"],
 )
@@ -24,7 +24,7 @@ cc_library(
     name = "device_if",
     srcs = ["DeviceIf.cpp"],
     hdrs = ["DeviceIf.hpp"],
-    include_prefix = "score/mw/launch_manager/alive_monitor/details/watchdog",
+    include_prefix = "score/mw/launch_manager/watchdog/details",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/watchdog/details",
     visibility = ["//score:__subpackages__"],
     deps = ["@score_baselibs//score/language/futurecpp"],
@@ -34,7 +34,7 @@ cc_library(
     name = "watchdog_impl",
     srcs = ["WatchdogImpl.cpp"],
     hdrs = ["WatchdogImpl.hpp"],
-    include_prefix = "score/mw/launch_manager/alive_monitor/details/watchdog",
+    include_prefix = "score/mw/launch_manager/watchdog/details",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/watchdog/details",
     visibility = ["//score:__subpackages__"],
     deps = [

@@ -17,8 +17,8 @@
 #include <cstdint>
 #include <memory>
 
-#include "score/mw/launch_manager/alive_monitor/details/watchdog/IDeviceConfigFactory.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/watchdog/IWatchdogIf.hpp"
+#include "score/mw/launch_manager/watchdog/IDeviceConfigFactory.hpp"
+#include "score/mw/launch_manager/watchdog/IWatchdogIf.hpp"
 #include <vector>
 
 namespace score
