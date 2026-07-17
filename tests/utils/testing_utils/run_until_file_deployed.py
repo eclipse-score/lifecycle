@@ -18,7 +18,6 @@ from score.itf.core.target.target import Target
 
 logger = logging.getLogger(__name__)
 
-
 def run_until_file_deployed(
     target: Target,
     binary_path: str,
@@ -64,7 +63,7 @@ def run_until_file_deployed(
             # run their cleanup code before exiting.
             kill_cmd = f"kill -15 -{proc.pid()}"
             res, _ = target.execute(kill_cmd)
-            time.sleep(0.5)
+            proc.wait(2)
             assert proc.is_running() == False, "LCM still running"
             assert proc.get_exit_code() == 0, (
                 f"LCM did not exit cleanly, it died with code {proc.get_exit_code()}"

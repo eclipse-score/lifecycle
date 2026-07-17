@@ -13,7 +13,9 @@
 import pytest
 from pathlib import Path
 import logging
+import subprocess
 from score.itf.core.target import Target
+from os import environ
 
 
 logger = logging.getLogger(__name__)
@@ -31,6 +33,10 @@ def setup(request: pytest.FixtureRequest, target: Target):
 
     res, _ = target.execute(f"mkdir -p {extract_dir}")
     assert res != 1, f"Couldn't create directory {extract_dir}"
+
+    if environ["CI"]:
+        with Path("/proc/sys/kernal/core_pattern").open('w') as f:
+            f.write("/tmp/tests/core.%p")
 
     target.upload(
         bin_path.resolve(), remote_tar
@@ -60,7 +66,8 @@ def download_core_dumps(target: Target, remote_test_dir: Path, test_output_dir: 
     logger.info("Trying to download core dumps")
 
     # get core dumps
-    res, stdout = target.execute(f"find {remote_test_dir} -name 'core*' -type f")
+    res, stdout = target.execute(f"find /tmp/tests -name 'core*' -type f")
+
     if res != 0:
         logger.error("Find command errored")
         return
