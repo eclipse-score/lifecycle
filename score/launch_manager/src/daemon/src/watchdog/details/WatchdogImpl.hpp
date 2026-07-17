@@ -25,8 +25,6 @@ namespace score
 {
 namespace lcm
 {
-namespace saf
-{
 
 namespace watchdog
 {
@@ -194,7 +192,6 @@ class WatchdogImpl : public IWatchdogIf
 };
 
 }  // namespace watchdog
-}  // namespace saf
 }  // namespace lcm
 }  // namespace score
 

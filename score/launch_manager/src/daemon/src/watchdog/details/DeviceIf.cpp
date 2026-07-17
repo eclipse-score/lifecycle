@@ -24,8 +24,6 @@ namespace score
 {
 namespace lcm
 {
-namespace saf
-{
 namespace watchdog
 {
 
@@ -58,6 +56,5 @@ std::int32_t DeviceIf::close(std::int32_t f_fd) noexcept
 }
 
 }  // namespace watchdog
-}  // namespace saf
 }  // namespace lcm
 }  // namespace score

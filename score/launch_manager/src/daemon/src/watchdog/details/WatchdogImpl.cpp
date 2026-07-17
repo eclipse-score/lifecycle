@@ -27,8 +27,6 @@ namespace score
 {
 namespace lcm
 {
-namespace saf
-{
 namespace watchdog
 {
 
@@ -470,7 +468,7 @@ bool WatchdogImpl::validateTimeoutWithCycleTime(std::int64_t f_cycleTimeInNs, co
 void WatchdogImpl::waitForever() const noexcept
 {
     // This code cannot be covered in tests, as it blocks execution forever
-    const timers::OsClockInterface clock{};
+    const score::lcm::saf::timers::OsClockInterface clock{};
     struct timespec sleeptime = {};
     sleeptime.tv_sec = 1;
     sleeptime.tv_nsec = 0;
@@ -484,6 +482,5 @@ void WatchdogImpl::waitForever() const noexcept
 #pragma CTC ENDSKIP
 #endif
 }  // namespace watchdog
-}  // namespace saf
 }  // namespace lcm
 }  // namespace score
