@@ -17,7 +17,10 @@ cc_library(
     hdrs = ["OsClockInterface.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/timers",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/timers",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
+    visibility = [
+        "//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__",
+        "//score/launch_manager/src/daemon/src/watchdog:__subpackages__",
+    ],
 )
 
 cc_library(

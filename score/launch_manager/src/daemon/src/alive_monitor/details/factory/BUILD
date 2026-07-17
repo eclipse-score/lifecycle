@@ -32,7 +32,7 @@ cc_library(
     deps = [
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:data_structures",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/watchdog:i_device_config_factory",
+        "//score/launch_manager/src/daemon/src/watchdog:i_device_config_factory",
     ],
 )
 
@@ -55,7 +55,7 @@ cc_library(
         "//score/launch_manager/src/daemon/src/alive_monitor/config",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:time_conversion",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/watchdog:i_device_config_factory",
+        "//score/launch_manager/src/daemon/src/watchdog:i_device_config_factory",
         "//score/launch_manager/src/daemon/src/common:log",
         "@score_baselibs//score/flatbuffers:flatbufferscpp",
         "@score_baselibs//score/language/futurecpp",
