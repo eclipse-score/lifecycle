@@ -13,28 +13,11 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_library(
-    name = "i_device_config_factory",
-    hdrs = ["IDeviceConfigFactory.hpp"],
-    include_prefix = "score/mw/launch_manager/alive_monitor/details/watchdog",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/watchdog",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
-)
-
-cc_library(
-    name = "i_watchdog_if",
-    hdrs = ["IWatchdogIf.hpp"],
-    include_prefix = "score/mw/launch_manager/alive_monitor/details/watchdog",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/watchdog",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
-    deps = [":i_device_config_factory"],
-)
-
-cc_library(
     name = "watchdog",
     hdrs = ["Watchdog.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/watchdog",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/watchdog",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/watchdog/details",
+    visibility = ["//score:__subpackages__"],
 )
 
 cc_library(
@@ -42,8 +25,8 @@ cc_library(
     srcs = ["DeviceIf.cpp"],
     hdrs = ["DeviceIf.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/watchdog",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/watchdog",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/watchdog/details",
+    visibility = ["//score:__subpackages__"],
     deps = ["@score_baselibs//score/language/futurecpp"],
 )
 
@@ -52,15 +35,15 @@ cc_library(
     srcs = ["WatchdogImpl.cpp"],
     hdrs = ["WatchdogImpl.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/watchdog",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/watchdog",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/watchdog/details",
+    visibility = ["//score:__subpackages__"],
     deps = [
         ":device_if",
-        ":i_device_config_factory",
-        ":i_watchdog_if",
         ":watchdog",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:os_clock_interface",
         "//score/launch_manager/src/daemon/src/common:log",
+        "//score/launch_manager/src/daemon/src/watchdog:i_device_config_factory",
+        "//score/launch_manager/src/daemon/src/watchdog:i_watchdog_if",
         "@score_baselibs//score/language/futurecpp",
     ],
 )
