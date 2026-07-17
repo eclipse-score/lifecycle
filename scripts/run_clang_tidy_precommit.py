@@ -12,18 +12,40 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
-from __future__ import annotations
-
 import json
-import shutil
+import os
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
 
 
-def run(cmd: list[str], cwd: Path) -> None:
-    subprocess.run(cmd, cwd=cwd, check=True)
+def run(cmd: list[str], cwd: Path, quiet: bool = False) -> str:
+    """Run a command and return its output."""
+    result = subprocess.run(cmd, cwd=cwd, check=True, capture_output=True, text=True)
+    if not quiet:
+        if result.stdout:
+            sys.stdout.write(result.stdout)
+        if result.stderr:
+            sys.stderr.write(result.stderr)
+    return result.stdout
+
+
+def resolve_tool_path(repo_root: Path) -> Path | None:
+    output = run(
+        ["bazel", "cquery", "@llvm_toolchain//:clang-tidy", "--output", "files"],
+        cwd=repo_root,
+        quiet=True,
+    )
+    for line in output.splitlines():
+        line = line.strip()
+        if "/clang-tidy" in line:
+            path = Path(line)
+            if not path.is_absolute():
+                path = repo_root / path
+            if path.is_file() and os.access(path, os.X_OK):
+                return path
+    return None
 
 
 def sanitize_compile_commands(input_path: Path, output_path: Path) -> None:
@@ -72,15 +94,19 @@ def main() -> int:
             quiet=True,
         )
 
-    tool = (
-        repo_root
-        / "bazel-bin"
-        / "external"
-        / "toolchains_llvm++llvm+llvm_toolchain"
-        / "clang-tidy"
-    )
-    if not (tool.exists() and os_access_executable(tool)):
-        run(["bazel", "build", "@llvm_toolchain//:clang-tidy"])
+    tool = resolve_tool_path(repo_root)
+    if tool is None:
+        run(
+            ["bazel", "build", "@llvm_toolchain//:clang-tidy"],
+            cwd=repo_root,
+            quiet=True,
+        )
+        tool = resolve_tool_path(repo_root)
+    if tool is None:
+        raise RuntimeError(
+            "Could not resolve clang-tidy path from bazel cquery output "
+            "after building @llvm_toolchain//:clang-tidy"
+        )
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_compile_db = Path(tmp_dir) / "compile_commands.json"
@@ -89,10 +115,6 @@ def main() -> int:
         cmd = [str(tool), f"-p={tmp_dir}", *sys.argv[1:]]
         completed = subprocess.run(cmd, cwd=repo_root)
         return completed.returncode
-
-
-def os_access_executable(path: Path) -> bool:
-    return path.exists() and bool(path.stat().st_mode & 0o111)
 
 
 if __name__ == "__main__":

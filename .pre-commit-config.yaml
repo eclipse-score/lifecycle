@@ -30,16 +30,13 @@ repos:
     hooks:
       - id: clang-format
         name: clang-format
-        # Run the tool binary directly so pre-commit's staged relative paths work.
-        # If clang-format cannot be found, the toolchain folder name likely changed.
-        entry: bazel-bin/external/toolchains_llvm++llvm+llvm_toolchain/clang-format -i
+        entry: ./scripts/run_clang_format_precommit.sh
         language: system
         files: '\.(c|cc|cpp|h|hpp)$'
         # all relevant files are currently excluded the format is not 
         # clarified yet, so we don't want to run clang-format on any files
         exclude: |
           (?x)^(
-            externals/|
             examples/|
             tests/|
             score/
@@ -48,14 +45,13 @@ repos:
         name: clang-tidy
         # Run through a wrapper that sanitizes unsupported linker flags in
         # compile_commands.json before invoking clang-tidy.
-        entry: ./scripts/run_clang_tidy_precommit.py
+        entry: python3 ./scripts/run_clang_tidy_precommit.py
         language: system
         files: '\.(c|cc|cpp|h|hpp)$'
         # all relevant files are currently excluded the checks are
         # not clarified yet, so we don't want to run clang-tidy on any files
         exclude: |
           (?x)^(
-            externals/|
             examples/|
             tests/|
             score/
