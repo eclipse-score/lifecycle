@@ -86,7 +86,7 @@ bool WatchdogImpl::init(std::int64_t f_cycleTimeInNs, const IDeviceConfigFactory
     {
         isSuccess = false;
         watchdogDevices.clear();
-        LM_LOG_ERROR() << "Watchdog: Watchdog initialization failed:" << e.what();
+        LM_LOG_ERROR() << "Watchdog: Watchdog initialization failed:" << std::string(e.what());
     }
     return isSuccess;
 }

@@ -58,6 +58,7 @@ TEST_F(ProcessStateClient_UT, ProcessStateClient_QueueOneProcess_Succeeds)
         .id = score::lcm::IdentifierHash("Process1"),
         .processStateId = score::lcm::ProcessState::kRunning,
         .processGroupStateId = score::lcm::IdentifierHash("PGState1"),
+        .systemClockTimestamp = {},
     };
 
     // Queue one process
@@ -91,6 +92,7 @@ TEST_F(ProcessStateClient_UT, ProcessStateClient_QueueMaxNumberOfProcesses_Succe
             .id = score::lcm::IdentifierHash("Process" + std::to_string(i)),
             .processStateId = score::lcm::ProcessState::kRunning,
             .processGroupStateId = score::lcm::IdentifierHash("PGState" + std::to_string(i)),
+            .systemClockTimestamp = {},
         };
         bool queued = notifier_->queuePosixProcess(process);
         ASSERT_TRUE(queued) << "Failed to queue process at index " << i;
@@ -121,6 +123,7 @@ TEST_F(ProcessStateClient_UT, ProcessStateClient_QueueOneProcessTooMany_Fails)
         .id = score::lcm::IdentifierHash("Process1"),
         .processStateId = score::lcm::ProcessState::kRunning,
         .processGroupStateId = score::lcm::IdentifierHash("PGState1"),
+        .systemClockTimestamp = {},
     };
 
     // Fill the buffer to capacity
@@ -130,6 +133,7 @@ TEST_F(ProcessStateClient_UT, ProcessStateClient_QueueOneProcessTooMany_Fails)
             .id = score::lcm::IdentifierHash("Process" + std::to_string(i)),
             .processStateId = score::lcm::ProcessState::kRunning,
             .processGroupStateId = score::lcm::IdentifierHash("PGState" + std::to_string(i)),
+            .systemClockTimestamp = {},
         };
         bool queued = notifier_->queuePosixProcess(proc);
         ASSERT_TRUE(queued) << "Failed to queue process at index " << i;
