@@ -5,7 +5,7 @@
 
     "name": "eclipse-s-core-etas",
     // Use the same image as the project's devcontainer
-    "image": "ghcr.io/eclipse-score/devcontainer:1.0.0",
+    "image": "ghcr.io/eclipse-score/devcontainer:latest",
 
     "features": {
         "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}

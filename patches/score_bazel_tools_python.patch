@@ -1,6 +1,0 @@
---- MODULE.bazel
-+++ MODULE.bazel
-@@ -53,1 +53,0 @@
--    "3.8",
-@@ -90,1 +89,0 @@
--    bazel_tools_python_python_3_8 = "python_3_8",

@@ -13,7 +13,6 @@
 
 load("@hedron_compile_commands//:refresh_compile_commands.bzl", "refresh_compile_commands")
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
-load("@score_bazel_tools_cc//quality:defs.bzl", "clang_format_config", "quality_clang_tidy_config")
 load("@score_docs_as_code//:docs.bzl", "docs")
 load("@score_tooling//:defs.bzl", "copyright_checker", "dash_license_checker", "rust_coverage_report", "setup_starpls", "use_format_targets")
 load("//:project_config.bzl", "PROJECT_CONFIG")
@@ -27,37 +26,6 @@ refresh_compile_commands(
     targets = {
         "//...": "",
     },
-)
-
-quality_clang_tidy_config(
-    name = "clang_tidy_config",
-    additional_flags = [],
-    clang_tidy_binary = "@llvm_toolchain//:clang-tidy",
-    default_feature = "strict",
-    dependency_attributes = [
-        "deps",
-        "srcs",
-    ],
-    excludes = ["external/"],
-    feature_mapping = {
-        "//:.clang-tidy": "strict",
-    },
-    target_types = [
-        "cc_library",
-    ],
-    unsupported_flags = [],
-    visibility = ["//visibility:public"],
-)
-
-clang_format_config(
-    name = "clang_format_config",
-    config_file = "//:.clang_format",
-    excludes = ["external/"],
-    target_types = [
-        "cc_binary",
-        "cc_library",
-    ],
-    visibility = ["//visibility:public"],
 )
 
 # In order to update the requirements, change the `requirements.in` file and run:
