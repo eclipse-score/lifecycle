@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "score/mw/launch_manager/alive_monitor/details/watchdog/DeviceIf.hpp"
+#include "score/mw/launch_manager/watchdog/details/DeviceIf.hpp"
 
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -23,8 +23,6 @@
 namespace score
 {
 namespace lcm
-{
-namespace saf
 {
 namespace watchdog
 {
@@ -58,6 +56,5 @@ std::int32_t DeviceIf::close(std::int32_t f_fd) noexcept
 }
 
 }  // namespace watchdog
-}  // namespace saf
 }  // namespace lcm
 }  // namespace score
