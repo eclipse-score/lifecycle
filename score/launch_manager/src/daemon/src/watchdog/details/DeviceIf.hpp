@@ -22,8 +22,6 @@ namespace score
 {
 namespace lcm
 {
-namespace saf
-{
 namespace watchdog
 {
 
@@ -70,7 +68,6 @@ public:
 };
 
 }  // namespace watchdog
-}  // namespace saf
 }  // namespace lcm
 }  // namespace score
 
