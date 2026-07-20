@@ -1,4 +1,68 @@
 BasedOnStyle: Google
+AccessModifierOffset: -2
+AllowAllParametersOfDeclarationOnNextLine: false
+
+# MISRA BRACKET RULES (Overrides Google one-liners)
+# Complies with MISRA C Rule 15.6 & MISRA C++ Rule 6-4-1 (Brackets for all control structures)
+AllowShortBlocksOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AllowShortLambdasOnASingleLine: false
+
+# READABILITY & PARAMETER LAYOUT
+# Prevents bin-packing after line breaks (Google allows this by default)
+# Supports MISRA's requirement for maximum readability of interfaces
+BinPackArguments: false
+BinPackParameters: false
+BraceWrapping:
+  AfterCaseLabel: true
+  AfterClass: true
+  AfterControlStatement: Always
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterObjCDeclaration: true
+  AfterStruct: true
+  AfterUnion: true
+  BeforeCatch: true
+  BeforeElse: true
+  IndentBraces: false
+BreakBeforeBraces: Custom
+AlignAfterOpenBracket: AlwaysBreak
+AlignConsecutiveMacros: true
+
+# LINE LENGTH & INDENTATION
 ColumnLimit: 120
-IndentWidth: 4
----
+IndentWidth: 4 # MISRA projects typically use 4 spaces instead of Google's 2 spaces
+TabWidth: 4
+UseTab: Never # MISRA forbids tabs (only spaces allowed)
+KeepEmptyLinesAtTheStartOfBlocks: true
+
+# POINTERS & REFERENCES
+# Google aligns pointers to the right by default (uint8_t *ptr).
+# MISRA requires only consistency – in embedded systems, left alignment is often preferred.
+# To keep Google's right alignment, change this to 'Right'.
+DerivePointerAlignment: false
+PointerAlignment: Left
+QualifierAlignment: Left
+
+# INCLUDE ORGANIZATION
+IncludeBlocks: Preserve
+IncludeCategories:
+  - Regex: '^(<|")(assert|complex|ctype|errno|fenv|float|inttypes|iso646|limits|locale|math|setjmp|signal|stdalign|stdargh|stdatomic|stdbool|stddef|stdint|stdio|stdlib|stdnoreturn|string|tgmath|threads|time|uchar|wchar|wctype)\.h(>|")$'
+    Priority: 2
+  - Regex: '^(<|")(cstdlib|csignal|csetjmp|cstdarg|typeinfo|typeindex|type_traits|bitset|functional|utility|ctime|chrono|cstddef|initializer_list|tuple|any|optional|variant|new|memory|scoped_allocator|memory_resource|climits|cfloat|cstdint|cinttypes|limits|exception|stdexcept|cassert|system_error|cerrno|cctype|cwctype|cstring|cwchar|cuchar|string|string_view|array|vector|deque|list|forward_list|set|map|unordered_set|unordered_map|stack|queue|algorithm|execution|teratorslibrary|iterator|cmath|complex|valarray|random|numeric|ratio|cfenv|iosfwd|ios|istream|ostream|iostream|fstream|sstream|strstream|iomanip|streambuf|cstdio|locale|clocale|codecvt|regex|atomic|thread|mutex|shared_mutex|future|condition_variable|filesystem|ciso646|ccomplex|ctgmath|cstdalign|cstdbool)(>|")$'
+    Priority: 3
+  - Regex: '^(<|").*(>|")$'
+    Priority: 1
+
+# CLEANUP & STRUCTURE
+FixNamespaceComments: true
+ReflowComments: true # Automatically wraps long comments to ColumnLimit
+CommentPragmas: '^.*A2Lfactory:'
+
+Language: Cpp
+Standard: c++17
