@@ -28,8 +28,8 @@ namespace {
 constexpr const char* kAliveInterfaceEnvName = "LCM_ALIVE_INTERFACE_PATH";
 constexpr uint32_t kDefaultProcessExecutionError = 1U;
 
-uint32_t defaultProcessorAffinityMask() {
-    return static_cast<uint32_t>((1ULL << score::lcm::internal::osal::getNumCores()) - 1ULL);
+uint64_t defaultProcessorAffinityMask() {
+    return (1ULL << score::lcm::internal::osal::getNumCores()) - 1ULL;
 }
 }  // namespace
 
