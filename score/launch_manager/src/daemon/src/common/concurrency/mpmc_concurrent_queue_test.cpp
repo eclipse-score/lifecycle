@@ -95,7 +95,7 @@ TEST_F(MPMCConcurrentQueueTest_Basic, PopReturnsNulloptOnSemaphoreWaitFailure)
     sa.sa_flags = 0;
     sigaction(SIGUSR1, &sa, nullptr);
 
-    score::cpp::expected<int, ConcurrencyErrc> result = score::cpp::make_unexpected(ConcurrencyErrc::kOsError);
+    score::Result<int> result = score::MakeUnexpected(ConcurrencyErrc::kOsError);
     std::atomic<bool> tid_ready{false};
 
     std::thread consumer([&] {
@@ -192,7 +192,7 @@ class MPMCConcurrentQueueTest_Blocking : public ::testing::Test
 TEST_F(MPMCConcurrentQueueTest_Blocking, PopBlocksUntilItemAvailable)
 {
     RecordProperty("Description", "Verify that pop blocks on an empty queue until a producer pushes an item.");
-    score::cpp::expected<int, ConcurrencyErrc> result = score::cpp::make_unexpected(ConcurrencyErrc::kOsError);
+    score::Result<int> result = score::MakeUnexpected(ConcurrencyErrc::kOsError);
 
     std::thread consumer([&] {
         result = queue8_.pop();
@@ -216,7 +216,7 @@ TEST_F(MPMCConcurrentQueueTest_Blocking, PushBlocksWhenFull)
     }
 
     std::atomic<bool> push_completed{false};
-    score::cpp::expected_blank<ConcurrencyErrc> pushed = score::cpp::make_unexpected(ConcurrencyErrc::kOsError);
+    score::Result<void> pushed = score::MakeUnexpected(ConcurrencyErrc::kOsError);
     std::thread producer([&] {
         pushed = queue4_.push(99);
         push_completed.store(true, std::memory_order_release);
@@ -233,7 +233,7 @@ TEST_F(MPMCConcurrentQueueTest_Blocking, PushBlocksWhenFull)
 TEST_F(MPMCConcurrentQueueTest_Blocking, StopUnblocksBlockedConsumer)
 {
     RecordProperty("Description", "Verify that stop() unblocks a consumer thread waiting on an empty queue.");
-    score::cpp::expected<int, ConcurrencyErrc> result = score::cpp::make_unexpected(ConcurrencyErrc::kOsError);
+    score::Result<int> result = score::MakeUnexpected(ConcurrencyErrc::kOsError);
 
     std::thread consumer([&] {
         result = queue8_.pop();
@@ -254,7 +254,7 @@ TEST_F(MPMCConcurrentQueueTest_Blocking, StopUnblocksBlockedProducer)
         ASSERT_TRUE(queue4_.push(i));
     }
 
-    score::cpp::expected_blank<ConcurrencyErrc> pushed = score::cpp::make_unexpected(ConcurrencyErrc::kOsError);
+    score::Result<void> pushed = score::MakeUnexpected(ConcurrencyErrc::kOsError);
     std::thread producer([&] {
         pushed = queue4_.push(99);
     });

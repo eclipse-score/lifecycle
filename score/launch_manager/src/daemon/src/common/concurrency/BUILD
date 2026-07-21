@@ -44,8 +44,8 @@ cc_library(
         "//score/launch_manager/src/daemon/src/common/concurrency/details:helgrind_annotations",
         "//score/launch_manager/src/daemon/src/osal:return_types",
         "//score/launch_manager/src/daemon/src/osal:semaphore",
-        "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/mw/log",
+        "@score_baselibs//score/result",
     ],
 )
 
@@ -69,6 +69,7 @@ cc_library(
     visibility = ["//score:__subpackages__"],
     deps = [
         "@score_baselibs//score/language/futurecpp",
+        "@score_baselibs//score/result",
     ],
 )
 
