@@ -23,10 +23,15 @@ build --java_runtime_version=remotejdk_17
 build --tool_java_runtime_version=remotejdk_17
 build --credential_helper=*.qnx.com=%workspace%/scripts/internal/qnx_creds.py
 
+# Treat warnings as errors, except in external code
+build --copt=-Wall
+build --copt=-Wextra
+build --copt=-Werror
+build --per_file_copt=external/.*@-Wno-error
+
 # Common test flags for all platforms
 test --test_output=errors
 test --@score_baselibs//score/json:base_library=nlohmann
-test --cxxopt=-Wno-deprecated-declarations
 
 # Coverage configuration for C++
 coverage --features=coverage

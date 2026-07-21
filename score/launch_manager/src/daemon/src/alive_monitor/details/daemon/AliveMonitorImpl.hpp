@@ -26,11 +26,11 @@ namespace lcm {
 
 class IRecoveryClient;
 
-namespace saf {
-
 namespace watchdog {
 class IWatchdogIf;
 }
+
+namespace saf {
 
 namespace daemon {
 

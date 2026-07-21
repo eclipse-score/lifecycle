@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # *******************************************************************************
 # Copyright (c) 2026 Contributors to the Eclipse Foundation
 #
@@ -10,16 +11,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+set -e
 
-name: Formatting checks
-permissions:
-  contents: read
-  actions: write
-on:
-  pull_request:
-    types: [opened, reopened, synchronize]
-  merge_group:
-    types: [checks_requested]
-jobs:
-  formatting-check:
-    uses: eclipse-score/cicd-workflows/.github/workflows/format.yml@f57b605a284ca117bcfd9f83ea427096faaac7d1
+clang_format_bin=$(bazel cquery @llvm_toolchain//:clang-format --output files 2>/dev/null)
+if [ -f "$clang_format_bin" ]; then
+    "$clang_format_bin" -i "$@"
+else
+    bazel build @llvm_toolchain//:clang-format
+    "$clang_format_bin" -i "$@"
+fi

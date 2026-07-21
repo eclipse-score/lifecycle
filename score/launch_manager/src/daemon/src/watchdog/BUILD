@@ -10,12 +10,21 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+load("@rules_cc//cc:defs.bzl", "cc_library")
 
-alias(
-    name = "acl",
-    actual = select({
-        "@platforms//cpu:aarch64": "@acl-deb-aarch64//:acl",
-        "//conditions:default": "@acl-deb//:acl",
-    }),
+cc_library(
+    name = "i_device_config_factory",
+    hdrs = ["IDeviceConfigFactory.hpp"],
+    include_prefix = "score/mw/launch_manager/watchdog",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/watchdog",
     visibility = ["//score:__subpackages__"],
+)
+
+cc_library(
+    name = "i_watchdog_if",
+    hdrs = ["IWatchdogIf.hpp"],
+    include_prefix = "score/mw/launch_manager/watchdog",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/watchdog",
+    visibility = ["//score:__subpackages__"],
+    deps = [":i_device_config_factory"],
 )

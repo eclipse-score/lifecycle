@@ -5,7 +5,7 @@
             "label": "Refresh compile_commands.json",
             "type": "shell",
             "isBackground": true,
-            "command": "bazel run @hedron_compile_commands//:refresh_all",
+            "command": "bazel run //:generate_compile_commands -- --config=x86_64-linux",
             "problemMatcher": [],
             "group": {
                 "kind": "build",

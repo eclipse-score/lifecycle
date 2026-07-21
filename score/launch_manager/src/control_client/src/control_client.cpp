@@ -30,7 +30,9 @@ inline score::concurrency::InterruptibleFuture<void> GetErrorFuture(ExecErrc err
 }
 
 ControlClient::ControlClient() noexcept {
-    static std::function<void(const score::lcm::ExecutionErrorEvent&)> undefinedStateCallback = [](const score::lcm::ExecutionErrorEvent& event) {};
+    static std::function<void(const score::lcm::ExecutionErrorEvent&)> undefinedStateCallback =
+        []([[maybe_unused]] const score::lcm::ExecutionErrorEvent& event) {};
+
     try {
         control_client_impl_ = std::make_unique<ControlClientImpl>(undefinedStateCallback);
     } catch (...) {

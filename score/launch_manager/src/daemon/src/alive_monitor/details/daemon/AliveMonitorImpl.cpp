@@ -18,7 +18,7 @@
 #include <score/assert.hpp>
 
 #include "score/mw/launch_manager/alive_monitor/details/daemon/AliveMonitorImpl.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/watchdog/WatchdogImpl.hpp"
+#include "score/mw/launch_manager/watchdog/details/WatchdogImpl.hpp"
 
 namespace score
 {

@@ -11,34 +11,36 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-
 #ifndef SETAFFINITY_HPP_INCLUDED
 #define SETAFFINITY_HPP_INCLUDED
 
 #include <cstdint>
 
-namespace score {
+namespace score
+{
 
-namespace lcm {
+namespace lcm
+{
 
-namespace internal {
+namespace internal
+{
 
-namespace osal {
+namespace osal
+{
 
 /// @brief Set the processor affinity for the current thread
 /// @param cpumask a mask defining which of the available
-/// processors to use. N.B. This function is restricted to systems
-/// with no more than 64 cores available. Note that if more cores are
-/// selected than exist, no error may be returned as long as at least
-/// one core that does exist is selected.
+/// processors to use. Supports systems with up to 64 cores.
+/// Note that if more cores are selected than exist, no error may be
+/// returned as long as at least one core that does exist is selected.
 /// @returns 0 on success, -1 on error with errno set appropriately:
 /// EINVAL The affinity bit mask mask contains no processors that are
 ///        currently physically on the system and permitted to the
 ///        thread according to any restrictions that may be imposed
 ///        elsewhere.
-[[nodiscard]] int32_t setaffinity(uint32_t cpumask) noexcept(true);
+[[nodiscard]] int32_t setaffinity(uint64_t cpumask) noexcept(true);
 }  // namespace osal
-}  // namespace lcm
 }  // namespace internal
+}  // namespace lcm
 }  // namespace score
 #endif

@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-#include "score/mw/launch_manager/alive_monitor/details/watchdog/WatchdogImpl.hpp"
+#include "score/mw/launch_manager/watchdog/details/WatchdogImpl.hpp"
 #include "score/launch_manager/src/daemon/src/common/log.hpp"
 
 #include <fcntl.h>
@@ -20,14 +20,12 @@
 #include <unistd.h>
 
 #include "score/mw/launch_manager/alive_monitor/details/timers/OsClockInterface.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/watchdog/DeviceIf.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/watchdog/Watchdog.hpp"
+#include "score/mw/launch_manager/watchdog/details/DeviceIf.hpp"
+#include "score/mw/launch_manager/watchdog/details/Watchdog.hpp"
 
 namespace score
 {
 namespace lcm
-{
-namespace saf
 {
 namespace watchdog
 {
@@ -88,7 +86,7 @@ bool WatchdogImpl::init(std::int64_t f_cycleTimeInNs, const IDeviceConfigFactory
     {
         isSuccess = false;
         watchdogDevices.clear();
-        LM_LOG_ERROR() << "Watchdog: Watchdog initialization failed:" << e.what();
+        LM_LOG_ERROR() << "Watchdog: Watchdog initialization failed:" << std::string(e.what());
     }
     return isSuccess;
 }
@@ -470,7 +468,7 @@ bool WatchdogImpl::validateTimeoutWithCycleTime(std::int64_t f_cycleTimeInNs, co
 void WatchdogImpl::waitForever() const noexcept
 {
     // This code cannot be covered in tests, as it blocks execution forever
-    const timers::OsClockInterface clock{};
+    const score::lcm::saf::timers::OsClockInterface clock{};
     struct timespec sleeptime = {};
     sleeptime.tv_sec = 1;
     sleeptime.tv_nsec = 0;
@@ -484,6 +482,5 @@ void WatchdogImpl::waitForever() const noexcept
 #pragma CTC ENDSKIP
 #endif
 }  // namespace watchdog
-}  // namespace saf
 }  // namespace lcm
 }  // namespace score

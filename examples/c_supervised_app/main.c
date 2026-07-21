@@ -14,7 +14,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include <time.h>
 
 #include <score/mw/lifecycle/alive.h>
 #include <score/mw/lifecycle/report_running.h>
@@ -28,6 +28,11 @@ static void signal_handler(int signal)
         exit_requested = 1;
     }
 }
+
+const struct timespec interval = {
+    .tv_sec = 0,
+    .tv_nsec = 50000000,
+};
 
 int main(void)
 {
@@ -51,7 +56,7 @@ int main(void)
     while (!exit_requested)
     {
         score_lcm_alive_report_alive(alive);
-        usleep(50000);
+        nanosleep(&interval, NULL);
     }
 
     score_lcm_alive_deinitialize(alive);

@@ -10,6 +10,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+
+load("@rules_python//python:pip.bzl", "compile_pip_requirements")
 load("@score_lifecycle_pip//:requirements.bzl", "requirement")
 load("@score_tooling//python_basics:defs.bzl", "score_virtualenv")
 

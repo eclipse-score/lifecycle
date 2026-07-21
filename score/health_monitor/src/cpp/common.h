@@ -98,12 +98,12 @@ class TimeRange
         SCORE_LANGUAGE_FUTURECPP_PRECONDITION(min_ms_ <= max_ms_);
     }
 
-    const uint32_t min_ms() const
+    uint32_t min_ms() const
     {
         return min_ms_.count();
     }
 
-    const uint32_t max_ms() const
+    uint32_t max_ms() const
     {
         return max_ms_.count();
     }

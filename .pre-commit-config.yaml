@@ -1,0 +1,60 @@
+# *******************************************************************************
+# Copyright (c) 2026 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+
+repos:
+  - repo: local
+    hooks:
+      - id: copyright-fix
+        name: //:copyright-fix
+        entry: bazel run //:copyright-fix
+        language: system
+        pass_filenames: false
+      - id: format-fix
+        name: //:format.fix
+        entry: bazel run //:format.fix
+        language: system
+        files: (BUILD|BUILD\.bazel|WORKSPACE|\.bazelrc|[^/]+\.(py|bzl|bazel|yaml|yml|rs))$
+        pass_filenames: false
+  - repo: https://github.com/pocc/pre-commit-hooks
+    rev: v1.3.5
+    hooks:
+      - id: clang-format
+        name: clang-format
+        entry: ./scripts/run_clang_format_precommit.sh
+        language: system
+        files: '\.(c|cc|cpp|h|hpp)$'
+        # all relevant files are currently excluded the format is not 
+        # clarified yet, so we don't want to run clang-format on any files
+        exclude: |
+          (?x)^(
+            externals/|
+            examples/|
+            tests/|
+            score/
+          )
+      - id: clang-tidy
+        name: clang-tidy
+        # Run through a wrapper that sanitizes unsupported linker flags in
+        # compile_commands.json before invoking clang-tidy.
+        entry: python3 ./scripts/run_clang_tidy_precommit.py
+        language: system
+        files: '\.(c|cc|cpp|h|hpp)$'
+        # all relevant files are currently excluded the checks are
+        # not clarified yet, so we don't want to run clang-tidy on any files
+        exclude: |
+          (?x)^(
+            externals/|
+            examples/|
+            tests/|
+            score/
+          )
