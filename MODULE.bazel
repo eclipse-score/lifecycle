@@ -85,8 +85,8 @@ use_repo(
     "score_qcc_x86_64_toolchain_pkg",
 )
 
-# LLVM toolchain.
-bazel_dep(name = "toolchains_llvm", version = "1.4.0")
+# LLVM toolchain (used for clang-format and clang-tidy)
+bazel_dep(name = "toolchains_llvm", version = "1.4.0", dev_dependency = True)
 
 llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm")
 llvm.toolchain(
@@ -94,8 +94,6 @@ llvm.toolchain(
     stdlib = {"linux-x86_64": "stdc++"},
 )
 use_repo(llvm, "llvm_toolchain")
-
-register_toolchains("@llvm_toolchain//:all")
 
 # UTs on QNX
 bazel_dep(name = "score_qnx_unit_tests", version = "0.2.0", dev_dependency = True)
