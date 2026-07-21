@@ -58,6 +58,51 @@ cc_binary(
     ],
 )
 
+cc_library(
+    name = "mpsc_bounded_queue",
+    hdrs = [
+        "concurrency_error_domain.hpp",
+        "mpsc_bounded_queue.hpp",
+    ],
+    include_prefix = "score/mw/launch_manager/common/concurrency",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/common/concurrency",
+    visibility = ["//score:__subpackages__"],
+    deps = [
+        "@score_baselibs//score/language/futurecpp",
+    ],
+)
+
+cc_test(
+    name = "mpsc_bounded_queue_test",
+    srcs = ["mpsc_bounded_queue_test.cpp"],
+    visibility = ["//tests:__subpackages__"],
+    deps = [
+        ":mpsc_bounded_queue",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "mpsc_bounded_queue_tsan_test",
+    srcs = ["mpsc_bounded_queue_test.cpp"],
+    copts = [
+        "-fsanitize=thread",
+        "-O0",
+        "-g",
+    ],
+    linkopts = ["-fsanitize=thread"],
+    tags = [
+        "no-asan",
+        "no-coverage",
+        "tsan",
+    ],
+    target_compatible_with = ["@platforms//os:linux"],
+    deps = [
+        ":mpsc_bounded_queue",
+        "@googletest//:gtest_main",
+    ],
+)
+
 cc_test(
     name = "mpmc_concurrent_queue_test",
     srcs = ["mpmc_concurrent_queue_test.cpp"],
