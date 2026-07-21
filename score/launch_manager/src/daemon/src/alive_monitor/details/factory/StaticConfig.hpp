@@ -34,12 +34,12 @@ namespace factory
 /// and default parameters values for optional configurations.
 class StaticConfig
 {
-public:
+  public:
     /// Default buffer size of Alive Supervision checkpoint buffer
     static constexpr uint16_t k_DefaultAliveSupCheckpointBufferElements{100U};
     /// Default buffer size of a Monitor (shared memory)
     static constexpr uint16_t k_DefaultMonitorBufferElements{ifappl::k_maxCheckpointBufferElements};
-    
+
     /// Default checkpoint ID used when creating supervision checkpoints
     static constexpr uint32_t k_DefaultCheckpointId{1U};
 

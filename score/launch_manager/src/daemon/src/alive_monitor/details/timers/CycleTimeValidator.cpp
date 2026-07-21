@@ -22,7 +22,7 @@ namespace timers
 {
 
 int64_t CycleTimeValidator::getMonotonicClockAccuracy(
-    score::lcm::saf::timers::OsClockInterface const& f_clock_sys) noexcept(true)
+    const score::lcm::saf::timers::OsClockInterface& f_clock_sys) noexcept(true)
 {
     struct timespec clockResolution
     {
@@ -39,7 +39,8 @@ int64_t CycleTimeValidator::getMonotonicClockAccuracy(
 }
 
 int64_t CycleTimeValidator::adjustCycleTimeOnClockAccuracy(
-    const int64_t f_requested_interval_ns, const score::lcm::saf::timers::OsClockInterface& f_clock_sys) noexcept(true)
+    const int64_t f_requested_interval_ns,
+    const score::lcm::saf::timers::OsClockInterface& f_clock_sys) noexcept(true)
 {
     int64_t intervalNs{-1};  // start with an invalid value
 

@@ -13,8 +13,8 @@
 
 #include <unistd.h>
 
-#include "process_info_node.hpp"
 #include "graph.hpp"
+#include "process_info_node.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
 #include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
@@ -118,8 +118,9 @@ bool ProcessInfoNode::constructGraphNode(bool starting)
     return included;
 }
 
-void ProcessInfoNode::addSuccessorNode(std::shared_ptr<ProcessInfoNode>& successor_node,
-                                       score::lcm::ProcessState dependency)
+void ProcessInfoNode::addSuccessorNode(
+    std::shared_ptr<ProcessInfoNode>& successor_node,
+    score::lcm::ProcessState dependency)
 {
     if (dependency == score::lcm::ProcessState::kTerminated)
     {
@@ -246,7 +247,7 @@ void ProcessInfoNode::unexpectedTermination()
     }
     else if (score::lcm::ProcessState::kTerminating == getState())
     {
-        // prevents a spurious graph_->abort() by recognizing that terminateProcess() 
+        // prevents a spurious graph_->abort() by recognizing that terminateProcess()
         // already owns the retry decision when the state is kTerminating.
         // explanation:
         // terminateProcess() is already active (kRunning timeout path). The do-while retry loop

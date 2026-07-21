@@ -30,10 +30,11 @@ namespace daemon
 {
 
 #ifdef USE_NEW_CONFIGURATION
-AliveMonitorImpl::AliveMonitorImpl(SptrIRecoveryClient recovery_client,
-                                   UptrIWatchdogIf watchdog,
-                                   UptrIProcessStateReceiver process_state_receiver,
-                                   const Config& config)
+AliveMonitorImpl::AliveMonitorImpl(
+    SptrIRecoveryClient recovery_client,
+    UptrIWatchdogIf watchdog,
+    UptrIProcessStateReceiver process_state_receiver,
+    const Config& config)
     : m_recovery_client(recovery_client),
       m_watchdog(std::move(watchdog)),
       m_process_state_receiver{std::move(process_state_receiver)},
@@ -41,9 +42,10 @@ AliveMonitorImpl::AliveMonitorImpl(SptrIRecoveryClient recovery_client,
 {
 }
 #else
-AliveMonitorImpl::AliveMonitorImpl(SptrIRecoveryClient recovery_client,
-                                   UptrIWatchdogIf watchdog,
-                                   UptrIProcessStateReceiver process_state_receiver)
+AliveMonitorImpl::AliveMonitorImpl(
+    SptrIRecoveryClient recovery_client,
+    UptrIWatchdogIf watchdog,
+    UptrIProcessStateReceiver process_state_receiver)
     : m_recovery_client(recovery_client),
       m_watchdog(std::move(watchdog)),
       m_process_state_receiver{std::move(process_state_receiver)}
@@ -58,13 +60,12 @@ EInitCode AliveMonitorImpl::init() noexcept
     {
         m_osClock.startMeasurement();
 
-        m_daemon = std::make_unique<PhmDaemon>(m_osClock, std::move(m_watchdog),
-                                               std::move(m_process_state_receiver));
-    #ifdef USE_NEW_CONFIGURATION
+        m_daemon = std::make_unique<PhmDaemon>(m_osClock, std::move(m_watchdog), std::move(m_process_state_receiver));
+#ifdef USE_NEW_CONFIGURATION
         initResult = m_daemon->init(m_recovery_client, m_config);
-    #else
+#else
         initResult = m_daemon->init(m_recovery_client);
-    #endif
+#endif
 
         if (initResult == EInitCode::kNoError)
         {
@@ -92,8 +93,8 @@ EInitCode AliveMonitorImpl::init() noexcept
 
 bool AliveMonitorImpl::run(std::atomic_bool& cancel_thread) noexcept
 {
-    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_PRD_MESSAGE(m_daemon != nullptr,
-                                                      "HealthMonitor: Instance is not initialized!");
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_PRD_MESSAGE(
+        m_daemon != nullptr, "HealthMonitor: Instance is not initialized!");
     return m_daemon->startCyclicExec(cancel_thread);
 }
 

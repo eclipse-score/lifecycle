@@ -19,11 +19,14 @@
 #include "ipc_dropin/ringbuffer.hpp"
 #include "score/mw/launch_manager/recovery_client/irecovery_client.h"
 
-namespace score {
-namespace lcm {
+namespace score
+{
+namespace lcm
+{
 
-class RecoveryClient final : public IRecoveryClient {
-public:
+class RecoveryClient final : public IRecoveryClient
+{
+  public:
     /// @brief Number of requests that can be stored before overflow occurs
     static constexpr std::size_t kBufferCapacity = 128;
 
@@ -38,12 +41,13 @@ public:
     std::optional<score::lcm::IdentifierHash> getNextRequest() noexcept override;
     bool hasOverflow() const noexcept override;
 
-private:
+  private:
     static const std::size_t element_size_ = sizeof(score::lcm::IdentifierHash);
-    ipc_dropin::RingBuffer<RecoveryClient::kBufferCapacity, RecoveryClient::element_size_> ringBuffer_;  ///< Ring buffer to store recovery requests
+    ipc_dropin::RingBuffer<RecoveryClient::kBufferCapacity, RecoveryClient::element_size_>
+        ringBuffer_;  ///< Ring buffer to store recovery requests
     std::atomic_bool overflow_flag_{false};
 };
-} // namespace lcm
-} // namespace score
+}  // namespace lcm
+}  // namespace score
 
 #endif

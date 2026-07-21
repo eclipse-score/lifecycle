@@ -13,11 +13,11 @@
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 
+#include <sys/types.h>
 #include <cstdint>
 #include <optional>
 #include <string>
 #include <string_view>
-#include <sys/types.h>
 #include <vector>
 
 namespace score::mw::launch_manager::configuration
@@ -245,12 +245,13 @@ class Config
   private:
     friend class ConfigBuilder;
 
-    Config(std::vector<ComponentConfig> components,
-           std::vector<RunTargetConfig> run_targets,
-           std::string initial_run_target,
-           FallbackRunTargetConfig fallback_run_target,
-           AliveSupervisionConfig alive_supervision,
-           std::optional<WatchdogConfig> watchdog);
+    Config(
+        std::vector<ComponentConfig> components,
+        std::vector<RunTargetConfig> run_targets,
+        std::string initial_run_target,
+        FallbackRunTargetConfig fallback_run_target,
+        AliveSupervisionConfig alive_supervision,
+        std::optional<WatchdogConfig> watchdog);
 
     std::vector<ComponentConfig> components_;
     std::vector<RunTargetConfig> run_targets_;
@@ -291,4 +292,4 @@ class ConfigBuilder
 
 }  // namespace score::mw::launch_manager::configuration
 
-#endif // CONFIG_HPP
+#endif  // CONFIG_HPP

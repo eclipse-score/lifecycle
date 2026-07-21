@@ -13,26 +13,31 @@
 #ifndef SAF_DAEMON_ALIVE_MONITOR_IMPL_HPP_INCLUDED
 #define SAF_DAEMON_ALIVE_MONITOR_IMPL_HPP_INCLUDED
 
-#include <memory>
 #include <atomic>
+#include <memory>
 
 #include "score/mw/launch_manager/alive_monitor/details/daemon/IAliveMonitor.hpp"
 #ifdef USE_NEW_CONFIGURATION
 #include "score/mw/launch_manager/configuration/config.hpp"
 #endif
 
-namespace score {
-namespace lcm {
+namespace score
+{
+namespace lcm
+{
 
 class IRecoveryClient;
 
-namespace watchdog {
+namespace watchdog
+{
 class IWatchdogIf;
 }
 
-namespace saf {
+namespace saf
+{
 
-namespace daemon {
+namespace daemon
+{
 
 using SptrIRecoveryClient = std::shared_ptr<score::lcm::IRecoveryClient>;
 using UptrIWatchdogIf = std::unique_ptr<watchdog::IWatchdogIf>;
@@ -43,24 +48,27 @@ using OsClock = score::lcm::saf::timers::OsClockInterface;
 using Config = score::mw::launch_manager::configuration::Config;
 #endif
 
-class AliveMonitorImpl : public IAliveMonitor {
-   public:
+class AliveMonitorImpl : public IAliveMonitor
+{
+  public:
 #ifdef USE_NEW_CONFIGURATION
-    AliveMonitorImpl(SptrIRecoveryClient recovery_client,
-                     UptrIWatchdogIf watchdog,
-                     UptrIProcessStateReceiver process_state_receiver,
-                     const Config& config);
+    AliveMonitorImpl(
+        SptrIRecoveryClient recovery_client,
+        UptrIWatchdogIf watchdog,
+        UptrIProcessStateReceiver process_state_receiver,
+        const Config& config);
 #else
-    AliveMonitorImpl(SptrIRecoveryClient recovery_client, 
-                     UptrIWatchdogIf watchdog, 
-                     UptrIProcessStateReceiver process_state_receiver);
+    AliveMonitorImpl(
+        SptrIRecoveryClient recovery_client,
+        UptrIWatchdogIf watchdog,
+        UptrIProcessStateReceiver process_state_receiver);
 #endif
 
     EInitCode init() noexcept override;
 
     bool run(std::atomic_bool& cancel_thread) noexcept override;
 
-   private:
+  private:
     SptrIRecoveryClient m_recovery_client{nullptr};
     UptrIWatchdogIf m_watchdog{nullptr};
     UptrPhmDaemon m_daemon{nullptr};

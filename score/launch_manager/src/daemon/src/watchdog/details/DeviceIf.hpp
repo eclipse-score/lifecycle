@@ -11,7 +11,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-
 #ifndef DEVICEIF_HPP_INCLUDED
 #define DEVICEIF_HPP_INCLUDED
 
@@ -28,7 +27,7 @@ namespace watchdog
 /// @brief Wrapper for syscalls used to access a POSIX device
 class DeviceIf
 {
-public:
+  public:
 #ifdef __QNXNTO__
     /// @brief Request type for ioctl command
     using IoctlRequestType = std::int32_t;

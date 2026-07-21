@@ -175,8 +175,8 @@ inline std::ostream& operator<<(std::ostream& stream, const IdentifierHash& id_h
 namespace score::lcm
 {
 
-inline score::mw::log::LogStream& operator<<(score::mw::log::LogStream& stream,
-                                             const IdentifierHash& id_hash) noexcept(false)
+inline score::mw::log::LogStream& operator<<(score::mw::log::LogStream& stream, const IdentifierHash& id_hash) noexcept(
+    false)
 {
     const auto& reg = IdentifierHash::get_registry();
     const auto it = reg.find(id_hash.data());
