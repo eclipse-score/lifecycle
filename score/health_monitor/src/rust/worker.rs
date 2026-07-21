@@ -211,7 +211,7 @@ mod tests {
     }
 
     fn create_monitor_with_deadlines() -> DeadlineMonitor {
-        let allocator = ProtectedMemoryAllocator {};
+        let allocator = ProtectedMemoryAllocator::default();
         let monitor_tag = MonitorTag::from("deadline_monitor");
         DeadlineMonitorBuilder::new()
             .add_deadline(
@@ -222,7 +222,7 @@ mod tests {
                 DeadlineTag::from("deadline_fast"),
                 TimeRange::new(Duration::from_millis(0), Duration::from_millis(50)),
             )
-            .build(monitor_tag, &allocator)
+            .build(monitor_tag, allocator)
     }
 
     #[test]

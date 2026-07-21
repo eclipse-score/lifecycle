@@ -52,6 +52,9 @@ class HealthMonitorBuilder final
     /// Adds a logic monitor for a specific identifier tag.
     HealthMonitorBuilder add_logic_monitor(const MonitorTag& monitor_tag, logic::LogicMonitorBuilder&& monitor) &&;
 
+    /// Set protected memory allocator capacity.
+    HealthMonitorBuilder allocator_capacity(size_t allocator_capacity) &&;
+
     /// Sets the cycle duration for supervisor API notifications.
     /// This duration determines how often the health monitor notifies the supervisor that the system is alive.
     HealthMonitorBuilder with_supervisor_api_cycle(std::chrono::milliseconds cycle_duration) &&;
@@ -69,6 +72,7 @@ class HealthMonitorBuilder final
   private:
     internal::DroppableFFIHandle health_monitor_builder_handle_;
 
+    std::optional<size_t> allocator_capacity_;
     std::optional<uint64_t> supervisor_api_cycle_ms_;
     std::optional<uint64_t> internal_processing_cycle_ms_;
     std::optional<ThreadParameters> thread_parameters_;

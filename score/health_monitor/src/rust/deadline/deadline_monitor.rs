@@ -14,11 +14,11 @@ use crate::common::{duration_to_int, Monitor, MonitorEvalHandle, MonitorEvaluati
 use crate::deadline::common::{DeadlineTemplate, StateIndex};
 use crate::deadline::deadline_state::{DeadlineState, DeadlineStateSnapshot};
 use crate::log::{error, warn, ScoreDebug};
-use crate::protected_memory::ProtectedMemoryAllocator;
+use crate::protected_memory::{ProtectedArcIn, ProtectedMemoryAllocator};
 use crate::tag::{DeadlineTag, MonitorTag};
+use containers::fixed_capacity::FixedCapacityVecIn;
 use core::hash::Hash;
 use std::collections::HashMap;
-use std::sync::Arc;
 use std::time::Instant;
 
 /// Deadline evaluation errors.
@@ -70,8 +70,11 @@ impl DeadlineMonitorBuilder {
     }
 
     /// Builds the DeadlineMonitor with the configured deadlines.
-    pub(crate) fn build(self, monitor_tag: MonitorTag, _allocator: &ProtectedMemoryAllocator) -> DeadlineMonitor {
-        let inner = Arc::new(DeadlineMonitorInner::new(monitor_tag, self.deadlines));
+    pub(crate) fn build(self, monitor_tag: MonitorTag, allocator: ProtectedMemoryAllocator) -> DeadlineMonitor {
+        let inner = ProtectedArcIn::new_in(
+            DeadlineMonitorInner::new(monitor_tag, self.deadlines, allocator.clone()),
+            allocator,
+        );
         DeadlineMonitor::new(inner)
     }
 
@@ -84,12 +87,12 @@ impl DeadlineMonitorBuilder {
 
 /// Deadline monitor.
 pub struct DeadlineMonitor {
-    inner: Arc<DeadlineMonitorInner>,
+    inner: ProtectedArcIn<DeadlineMonitorInner>,
 }
 
 impl DeadlineMonitor {
     /// Create a new [`DeadlineMonitor`] instance.
-    fn new(inner: Arc<DeadlineMonitorInner>) -> Self {
+    fn new(inner: ProtectedArcIn<DeadlineMonitorInner>) -> Self {
         Self { inner }
     }
 
@@ -99,13 +102,13 @@ impl DeadlineMonitor {
     ///  - Err(DeadlineMonitorError::DeadlineInUse) - if the deadline is already in use
     ///  - Err(DeadlineMonitorError::DeadlineNotFound) - if the deadline tag is not registered
     pub fn get_deadline(&self, deadline_tag: DeadlineTag) -> Result<Deadline, DeadlineMonitorError> {
-        self.inner.get_deadline(deadline_tag)
+        get_deadline_inner(&self.inner, deadline_tag)
     }
 }
 
 impl Monitor for DeadlineMonitor {
     fn get_eval_handle(&self) -> MonitorEvalHandle {
-        MonitorEvalHandle::new(Arc::clone(&self.inner))
+        MonitorEvalHandle::new(ProtectedArcIn::clone(&self.inner))
     }
 }
 
@@ -114,7 +117,7 @@ pub struct Deadline {
     range: TimeRange,
     deadline_tag: DeadlineTag,
     state_index: StateIndex,
-    monitor: Arc<DeadlineMonitorInner>,
+    monitor: ProtectedArcIn<DeadlineMonitorInner>,
 }
 
 /// A handle representing a started deadline. When dropped, it stops the deadline.
@@ -257,7 +260,7 @@ struct DeadlineMonitorInner {
     // This is shared state. Each deadline template has assigned index into this array.
     // Each deadline instance updates its state (under given index) and the deadline pointing to a state is Single-Producer
     // On the other side there is background thread evaluating all deadlines states - this is Single-Consumer for each given state.
-    active_deadlines: Arc<[(DeadlineTag, DeadlineState)]>,
+    active_deadlines: FixedCapacityVecIn<(DeadlineTag, DeadlineState), ProtectedMemoryAllocator>,
 }
 
 impl MonitorEvaluator for DeadlineMonitorInner {
@@ -294,14 +297,20 @@ impl MonitorEvaluator for DeadlineMonitorInner {
 }
 
 impl DeadlineMonitorInner {
-    fn new(monitor_tag: MonitorTag, deadlines: HashMap<DeadlineTag, TimeRange>) -> Self {
-        let mut active_deadlines = vec![];
+    fn new(
+        monitor_tag: MonitorTag,
+        deadlines: HashMap<DeadlineTag, TimeRange>,
+        allocator: ProtectedMemoryAllocator,
+    ) -> Self {
+        let mut active_deadlines = FixedCapacityVecIn::new(deadlines.len(), allocator);
 
         let deadlines = deadlines
             .into_iter()
             .enumerate()
             .map(|(index, (deadline_tag, range))| {
-                active_deadlines.push((deadline_tag, DeadlineState::new()));
+                active_deadlines
+                    .push((deadline_tag, DeadlineState::new()))
+                    .expect("failed to push active deadline");
                 (deadline_tag, DeadlineTemplate::new(range, StateIndex::new(index)))
             })
             .collect();
@@ -309,7 +318,7 @@ impl DeadlineMonitorInner {
         Self {
             monitor_tag,
             deadlines,
-            active_deadlines: active_deadlines.into(),
+            active_deadlines,
             monitor_starting_point: Instant::now(),
         }
     }
@@ -321,31 +330,41 @@ impl DeadlineMonitorInner {
             unreachable!("Releasing unknown deadline tag: {:?}", deadline_tag);
         }
     }
+}
 
-    pub(crate) fn get_deadline(self: &Arc<Self>, deadline_tag: DeadlineTag) -> Result<Deadline, DeadlineMonitorError> {
-        if let Some(template) = self.deadlines.get(&deadline_tag) {
-            match template.acquire_deadline() {
-                Some(range) => Ok(Deadline {
-                    range,
-                    deadline_tag,
-                    monitor: self.clone(),
-                    state_index: template.assigned_state_index,
-                }),
-                None => Err(DeadlineMonitorError::DeadlineInUse),
-            }
-        } else {
-            Err(DeadlineMonitorError::DeadlineNotFound)
+// TODO: make part of `DeadlineMonitorInner` once `sync::ArcIn` can implement `Receiver` trait.
+fn get_deadline_inner(
+    this: &ProtectedArcIn<DeadlineMonitorInner>,
+    deadline_tag: DeadlineTag,
+) -> Result<Deadline, DeadlineMonitorError> {
+    if let Some(template) = this.deadlines.get(&deadline_tag) {
+        match template.acquire_deadline() {
+            Some(range) => Ok(Deadline {
+                range,
+                deadline_tag,
+                monitor: this.clone(),
+                state_index: template.assigned_state_index,
+            }),
+            None => Err(DeadlineMonitorError::DeadlineInUse),
         }
+    } else {
+        Err(DeadlineMonitorError::DeadlineNotFound)
     }
 }
 
 #[score_testing_macros::test_mod_with_log]
 #[cfg(all(test, not(loom)))]
 mod tests {
-    use super::*;
+    use crate::common::{MonitorEvaluator, TimeRange};
+    use crate::deadline::{
+        DeadlineError, DeadlineEvaluationError, DeadlineMonitor, DeadlineMonitorBuilder, DeadlineMonitorError,
+    };
+    use crate::protected_memory::ProtectedMemoryAllocator;
+    use crate::tag::{DeadlineTag, MonitorTag};
+    use std::time::Instant;
 
     fn create_monitor_with_deadlines() -> DeadlineMonitor {
-        let allocator = ProtectedMemoryAllocator {};
+        let allocator = ProtectedMemoryAllocator::default();
         let monitor_tag = MonitorTag::from("deadline_monitor");
         DeadlineMonitorBuilder::new()
             .add_deadline(
@@ -359,11 +378,11 @@ mod tests {
                     core::time::Duration::from_millis(50),
                 ),
             )
-            .build(monitor_tag, &allocator)
+            .build(monitor_tag, allocator)
     }
 
     fn create_monitor_with_multiple_running_deadlines() -> DeadlineMonitor {
-        let allocator = ProtectedMemoryAllocator {};
+        let allocator = ProtectedMemoryAllocator::default();
         let monitor_tag = MonitorTag::from("deadline_monitor");
         DeadlineMonitorBuilder::new()
             .add_deadline(
@@ -391,7 +410,7 @@ mod tests {
                     core::time::Duration::from_millis(10),
                 ),
             )
-            .build(monitor_tag, &allocator)
+            .build(monitor_tag, allocator)
     }
 
     #[test]

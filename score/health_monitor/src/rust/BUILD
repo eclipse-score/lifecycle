@@ -14,14 +14,16 @@
 load("@rules_rust//rust:defs.bzl", "miri_test", "rust_library", "rust_static_library", "rust_test")
 
 COMMON_RUST_DEPS = [
-    "@score_baselibs//src/containers:containers",
-    "@score_baselibs//src/thread:thread",
-    "@score_baselibs//src/log/score_log:score_log",
+    "@score_baselibs//score/containers_rust:containers",
+    "@score_baselibs//score/thread",
+    "@score_baselibs//score/log_rust/score_log",
+    "@score_baselibs//score/allocator",
+    "@score_baselibs//score/sync",
     "//score/launch_manager:alive_rust",
 ]
 
 PROC_MACRO_DEPS = [
-    "@score_baselibs//src/testing_macros:score_testing_macros",
+    "@score_baselibs//score/testing_macros:score_testing_macros",
 ]
 
 rust_library(
@@ -73,7 +75,7 @@ rust_test(
         "no-asan",
         "skip_local",  # see https://github.com/eclipse-score/lifecycle/issues/272
     ],
-    deps = ["@score_baselibs//src/log/stdout_logger"],
+    deps = ["@score_baselibs//score/log_rust/stdout_logger"],
 )
 
 rust_test(
@@ -100,7 +102,7 @@ rust_test(
     ],
     target_compatible_with = ["@platforms//os:linux"],
     deps = [
-        "@score_baselibs//src/log/stdout_logger",
+        "@score_baselibs//score/log_rust/stdout_logger",
         "@score_crates//:loom",
     ],
 )

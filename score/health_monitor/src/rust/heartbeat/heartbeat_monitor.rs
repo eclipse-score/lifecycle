@@ -17,12 +17,11 @@ use crate::common::{
 use crate::health_monitor::HealthMonitorError;
 use crate::heartbeat::heartbeat_state::HeartbeatState;
 use crate::log::{error, warn};
-use crate::protected_memory::ProtectedMemoryAllocator;
+use crate::protected_memory::{ProtectedArcIn, ProtectedMemoryAllocator};
 use crate::tag::MonitorTag;
 use core::sync::atomic::{AtomicU64, Ordering};
 use core::time::Duration;
 use score_log::ScoreDebug;
-use std::sync::Arc;
 use std::time::Instant;
 
 /// Heartbeat evaluation errors.
@@ -55,12 +54,12 @@ impl HeartbeatMonitorBuilder {
     ///
     /// - `monitor_tag` - tag of this monitor.
     /// - `internal_processing_cycle` - health monitor processing cycle.
-    /// - `_allocator` - protected memory allocator.
+    /// - `allocator` - protected memory allocator.
     pub(crate) fn build(
         self,
         monitor_tag: MonitorTag,
         internal_processing_cycle: Duration,
-        _allocator: &ProtectedMemoryAllocator,
+        allocator: ProtectedMemoryAllocator,
     ) -> Result<HeartbeatMonitor, HealthMonitorError> {
         // Check range is valid.
         let range_min_ms = self.range.min.as_millis() as u64;
@@ -73,19 +72,19 @@ impl HeartbeatMonitorBuilder {
             return Err(HealthMonitorError::InvalidArgument);
         }
 
-        let inner = Arc::new(HeartbeatMonitorInner::new(monitor_tag, self.range));
+        let inner = ProtectedArcIn::new_in(HeartbeatMonitorInner::new(monitor_tag, self.range), allocator);
         Ok(HeartbeatMonitor::new(inner))
     }
 }
 
 /// Heartbeat monitor.
 pub struct HeartbeatMonitor {
-    inner: Arc<HeartbeatMonitorInner>,
+    inner: ProtectedArcIn<HeartbeatMonitorInner>,
 }
 
 impl HeartbeatMonitor {
     /// Create a new [`HeartbeatMonitor`] instance.
-    fn new(inner: Arc<HeartbeatMonitorInner>) -> Self {
+    fn new(inner: ProtectedArcIn<HeartbeatMonitorInner>) -> Self {
         Self { inner }
     }
 
@@ -97,7 +96,7 @@ impl HeartbeatMonitor {
 
 impl Monitor for HeartbeatMonitor {
     fn get_eval_handle(&self) -> MonitorEvalHandle {
-        MonitorEvalHandle::new(Arc::clone(&self.inner))
+        MonitorEvalHandle::new(ProtectedArcIn::clone(&self.inner))
     }
 }
 
@@ -291,8 +290,8 @@ mod tests {
         let range = TimeRange::new(Duration::from_millis(500), Duration::from_millis(1000));
         let monitor_tag = MonitorTag::from("heartbeat_monitor");
         let internal_processing_cycle = Duration::from_millis(100);
-        let allocator = ProtectedMemoryAllocator {};
-        let result = HeartbeatMonitorBuilder::new(range).build(monitor_tag, internal_processing_cycle, &allocator);
+        let allocator = ProtectedMemoryAllocator::default();
+        let result = HeartbeatMonitorBuilder::new(range).build(monitor_tag, internal_processing_cycle, allocator);
         assert!(result.is_ok());
     }
 
@@ -301,17 +300,17 @@ mod tests {
         let range = TimeRange::new(Duration::from_millis(500), Duration::from_millis(1000));
         let monitor_tag = MonitorTag::from("heartbeat_monitor");
         let internal_processing_cycle = Duration::from_millis(1000);
-        let allocator = ProtectedMemoryAllocator {};
-        let result = HeartbeatMonitorBuilder::new(range).build(monitor_tag, internal_processing_cycle, &allocator);
+        let allocator = ProtectedMemoryAllocator::default();
+        let result = HeartbeatMonitorBuilder::new(range).build(monitor_tag, internal_processing_cycle, allocator);
         assert!(result.is_err_and(|e| e == HealthMonitorError::InvalidArgument));
     }
 
     fn create_monitor_single_cycle(range: TimeRange) -> HeartbeatMonitor {
         let monitor_tag = MonitorTag::from(TAG);
         let internal_processing_cycle = Duration::from_millis(1);
-        let allocator = ProtectedMemoryAllocator {};
+        let allocator = ProtectedMemoryAllocator::default();
         HeartbeatMonitorBuilder::new(range)
-            .build(monitor_tag, internal_processing_cycle, &allocator)
+            .build(monitor_tag, internal_processing_cycle, allocator)
             .unwrap()
     }
 
@@ -488,9 +487,9 @@ mod tests {
     fn create_monitor_multiple_cycles(cycle: Duration) -> Arc<HeartbeatMonitor> {
         let range = range_from_ms(80, 120);
         let monitor_tag = MonitorTag::from(TAG);
-        let allocator = ProtectedMemoryAllocator {};
+        let allocator = ProtectedMemoryAllocator::default();
         let monitor = HeartbeatMonitorBuilder::new(range)
-            .build(monitor_tag, cycle, &allocator)
+            .build(monitor_tag, cycle, allocator)
             .unwrap();
         Arc::new(monitor)
     }
@@ -689,9 +688,9 @@ mod loom_tests {
     fn create_monitor_single_cycle(range: TimeRange) -> Arc<HeartbeatMonitor> {
         let monitor_tag = MonitorTag::from(TAG);
         let internal_processing_cycle = Duration::from_millis(1);
-        let allocator = ProtectedMemoryAllocator {};
+        let allocator = ProtectedMemoryAllocator::default();
         let monitor = HeartbeatMonitorBuilder::new(range)
-            .build(monitor_tag, internal_processing_cycle, &allocator)
+            .build(monitor_tag, internal_processing_cycle, allocator)
             .unwrap();
         Arc::new(monitor)
     }

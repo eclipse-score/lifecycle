@@ -26,6 +26,7 @@ using namespace score::mw::health::logic;
 FFICode health_monitor_builder_create(FFIHandle* health_monitor_builder_handle_out);
 FFICode health_monitor_builder_destroy(FFIHandle health_monitor_builder_handle);
 FFICode health_monitor_builder_build(FFIHandle health_monitor_builder_handle,
+                                     const size_t* allocator_capacity,
                                      const uint64_t* supervisor_cycle_ms,
                                      const uint64_t* internal_cycle_ms,
                                      FFIHandle thread_parameters_handle,
@@ -114,6 +115,12 @@ HealthMonitorBuilder HealthMonitorBuilder::add_logic_monitor(const MonitorTag& m
     return std::move(*this);
 }
 
+HealthMonitorBuilder HealthMonitorBuilder::allocator_capacity(size_t allocator_capacity) &&
+{
+    allocator_capacity_ = allocator_capacity;
+    return std::move(*this);
+}
+
 HealthMonitorBuilder HealthMonitorBuilder::with_internal_processing_cycle(std::chrono::milliseconds cycle_duration) &&
 {
     auto count{cycle_duration.count()};
@@ -142,8 +149,13 @@ score::cpp::expected<HealthMonitor, Error> HealthMonitorBuilder::build() &&
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(health_monitor_builder_handle.has_value());
 
     // Handle optional parameters.
+    const size_t* allocator_capacity{nullptr};
     const uint64_t* supervisor_api_cycle_ms{nullptr};
     const uint64_t* internal_processing_cycle_ms{nullptr};
+    if (allocator_capacity_.has_value())
+    {
+        allocator_capacity = &allocator_capacity_.value();
+    }
     if (supervisor_api_cycle_ms_.has_value())
     {
         supervisor_api_cycle_ms = &supervisor_api_cycle_ms_.value();
@@ -164,6 +176,7 @@ score::cpp::expected<HealthMonitor, Error> HealthMonitorBuilder::build() &&
 
     FFIHandle health_monitor_handle{nullptr};
     auto result{health_monitor_builder_build(health_monitor_builder_handle.value(),
+                                             allocator_capacity,
                                              supervisor_api_cycle_ms,
                                              internal_processing_cycle_ms,
                                              thread_parameters_handle,

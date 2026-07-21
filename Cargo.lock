@@ -19,6 +19,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "allocator"
+version = "0.0.1"
+dependencies = [
+ "loom",
+ "pal",
+ "score_log",
+]
+
+[[package]]
 name = "anstream"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -132,17 +141,11 @@ checksum = "1d07550c9036bf2ae0c684c4297d503f838287c83c53686d05370d0e139ae570"
 
 [[package]]
 name = "containers"
-version = "0.1.0"
-source = "git+https://github.com/eclipse-score/baselibs.git?rev=f4f9df39275760a60e54e5e3c5112210e35ae2a3#f4f9df39275760a60e54e5e3c5112210e35ae2a3"
+version = "0.0.1"
 dependencies = [
- "elementary",
+ "allocator",
  "score_log",
 ]
-
-[[package]]
-name = "elementary"
-version = "0.0.1"
-source = "git+https://github.com/eclipse-score/baselibs.git?rev=f4f9df39275760a60e54e5e3c5112210e35ae2a3#f4f9df39275760a60e54e5e3c5112210e35ae2a3"
 
 [[package]]
 name = "errno"
@@ -180,11 +183,13 @@ name = "health_monitoring_lib"
 version = "0.0.1"
 dependencies = [
  "alive_rs",
+ "allocator",
  "containers",
  "loom",
  "score_log",
  "score_testing_macros",
  "stdout_logger",
+ "sync",
  "thread",
 ]
 
@@ -285,9 +290,7 @@ checksum = "384b8ab6d37215f3c5301a95a4accb5d64aa607f1fcb26a11b5303878451b4fe"
 [[package]]
 name = "pal"
 version = "0.0.1"
-source = "git+https://github.com/eclipse-score/baselibs.git?rev=f4f9df39275760a60e54e5e3c5112210e35ae2a3#f4f9df39275760a60e54e5e3c5112210e35ae2a3"
 dependencies = [
- "containers",
  "score_log",
 ]
 
@@ -361,7 +364,6 @@ checksum = "e1cf6437eb19a8f4a6cc0f7dca544973b0b78843adbfeb3683d1a94a0024a294"
 [[package]]
 name = "score_log"
 version = "0.0.1"
-source = "git+https://github.com/eclipse-score/baselibs.git?rev=f4f9df39275760a60e54e5e3c5112210e35ae2a3#f4f9df39275760a60e54e5e3c5112210e35ae2a3"
 dependencies = [
  "score_log_fmt",
  "score_log_fmt_macro",
@@ -370,12 +372,10 @@ dependencies = [
 [[package]]
 name = "score_log_fmt"
 version = "0.0.1"
-source = "git+https://github.com/eclipse-score/baselibs.git?rev=f4f9df39275760a60e54e5e3c5112210e35ae2a3#f4f9df39275760a60e54e5e3c5112210e35ae2a3"
 
 [[package]]
 name = "score_log_fmt_macro"
 version = "0.0.1"
-source = "git+https://github.com/eclipse-score/baselibs.git?rev=f4f9df39275760a60e54e5e3c5112210e35ae2a3#f4f9df39275760a60e54e5e3c5112210e35ae2a3"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -386,7 +386,6 @@ dependencies = [
 [[package]]
 name = "score_testing_macros"
 version = "0.0.1"
-source = "git+https://github.com/eclipse-score/baselibs.git?rev=f4f9df39275760a60e54e5e3c5112210e35ae2a3#f4f9df39275760a60e54e5e3c5112210e35ae2a3"
 dependencies = [
  "quote",
  "stdout_logger",
@@ -480,7 +479,6 @@ checksum = "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03"
 [[package]]
 name = "stdout_logger"
 version = "0.0.1"
-source = "git+https://github.com/eclipse-score/baselibs.git?rev=f4f9df39275760a60e54e5e3c5112210e35ae2a3#f4f9df39275760a60e54e5e3c5112210e35ae2a3"
 dependencies = [
  "score_log",
 ]
@@ -503,9 +501,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "sync"
+version = "0.0.1"
+dependencies = [
+ "allocator",
+ "score_log",
+]
+
+[[package]]
 name = "thread"
 version = "0.0.1"
-source = "git+https://github.com/eclipse-score/baselibs.git?rev=f4f9df39275760a60e54e5e3c5112210e35ae2a3#f4f9df39275760a60e54e5e3c5112210e35ae2a3"
 dependencies = [
  "pal",
  "score_log",

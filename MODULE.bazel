@@ -170,6 +170,10 @@ oci.pull(
 use_repo(oci, "debian-test-runtime", "debian-test-runtime_linux_amd64")
 
 bazel_dep(name = "score_baselibs", version = "0.2.9")
+local_path_override(
+    module_name = "score_baselibs",
+    path = "../baselibs"
+)
 
 # Hedron's Compile Commands Extractor for Bazel
 # https://github.com/hedronvision/bazel-compile-commands-extractor

@@ -42,6 +42,7 @@ pub struct HealthMonitorBuilder {
     deadline_monitor_builders: HashMap<MonitorTag, DeadlineMonitorBuilder>,
     heartbeat_monitor_builders: HashMap<MonitorTag, HeartbeatMonitorBuilder>,
     logic_monitor_builders: HashMap<MonitorTag, LogicMonitorBuilder>,
+    allocator_capacity: usize,
     supervisor_api_cycle: Duration,
     internal_processing_cycle: Duration,
     thread_parameters: ThreadParameters,
@@ -54,6 +55,7 @@ impl HealthMonitorBuilder {
             deadline_monitor_builders: HashMap::new(),
             heartbeat_monitor_builders: HashMap::new(),
             logic_monitor_builders: HashMap::new(),
+            allocator_capacity: 1024 * 1024,
             supervisor_api_cycle: Duration::from_millis(500),
             internal_processing_cycle: Duration::from_millis(100),
             thread_parameters: ThreadParameters::default(),
@@ -96,6 +98,14 @@ impl HealthMonitorBuilder {
     /// If a logic monitor with the same tag already exists, it will be overwritten.
     pub fn add_logic_monitor(mut self, monitor_tag: MonitorTag, monitor_builder: LogicMonitorBuilder) -> Self {
         self.add_logic_monitor_internal(monitor_tag, monitor_builder);
+        self
+    }
+
+    /// Set protected memory allocator capacity.
+    ///
+    /// - `allocator_capacity` - allocator capacity, rounded up to a page size.
+    pub fn allocator_capacity(mut self, allocator_capacity: usize) -> Self {
+        self.allocator_capacity_internal(allocator_capacity);
         self
     }
 
@@ -148,26 +158,32 @@ impl HealthMonitorBuilder {
         }
 
         // Create allocator.
-        let allocator = ProtectedMemoryAllocator {};
+        let allocator = match ProtectedMemoryAllocator::new(self.allocator_capacity) {
+            Ok(allocator) => allocator,
+            Err(e) => {
+                error!("Failed to create allocator: {:?}", e);
+                return Err(HealthMonitorError::InvalidArgument);
+            },
+        };
 
         // Create deadline monitors.
         let mut deadline_monitors = HashMap::new();
         for (tag, builder) in self.deadline_monitor_builders {
-            let monitor = builder.build(tag, &allocator);
+            let monitor = builder.build(tag, allocator.clone());
             deadline_monitors.insert(tag, Some(MonitorState::Available(monitor)));
         }
 
         // Create heartbeat monitors.
         let mut heartbeat_monitors = HashMap::new();
         for (tag, builder) in self.heartbeat_monitor_builders {
-            let monitor = builder.build(tag, self.internal_processing_cycle, &allocator)?;
+            let monitor = builder.build(tag, self.internal_processing_cycle, allocator.clone())?;
             heartbeat_monitors.insert(tag, Some(MonitorState::Available(monitor)));
         }
 
         // Create logic monitors.
         let mut logic_monitors = HashMap::new();
         for (tag, builder) in self.logic_monitor_builders {
-            let monitor = builder.build(tag, &allocator)?;
+            let monitor = builder.build(tag, allocator.clone())?;
             logic_monitors.insert(tag, Some(MonitorState::Available(monitor)));
         }
 
@@ -200,6 +216,10 @@ impl HealthMonitorBuilder {
 
     pub(crate) fn add_logic_monitor_internal(&mut self, monitor_tag: MonitorTag, monitor_builder: LogicMonitorBuilder) {
         self.logic_monitor_builders.insert(monitor_tag, monitor_builder);
+    }
+
+    pub(crate) fn allocator_capacity_internal(&mut self, allocator_capacity: usize) {
+        self.allocator_capacity = allocator_capacity;
     }
 
     pub(crate) fn with_supervisor_api_cycle_internal(&mut self, cycle_duration: Duration) {
@@ -395,6 +415,7 @@ mod tests {
         assert!(health_monitor_builder.deadline_monitor_builders.is_empty());
         assert!(health_monitor_builder.heartbeat_monitor_builders.is_empty());
         assert!(health_monitor_builder.logic_monitor_builders.is_empty());
+        assert_eq!(health_monitor_builder.allocator_capacity, 1024 * 1024);
         assert_eq!(health_monitor_builder.supervisor_api_cycle, Duration::from_millis(500));
         assert_eq!(
             health_monitor_builder.internal_processing_cycle,
@@ -432,6 +453,40 @@ mod tests {
     fn health_monitor_builder_build_no_monitors() {
         let result = HealthMonitorBuilder::new().build();
         assert!(result.is_err_and(|e| e == HealthMonitorError::WrongState));
+    }
+
+    #[test]
+    fn health_monitor_builder_allocator_capacity_sets() {
+        let deadline_monitor_tag = MonitorTag::from("deadline_monitor");
+        let deadline_monitor_builder = DeadlineMonitorBuilder::new();
+        let capacity = 4 * 1024 * 1024;
+
+        // Check set internally.
+        let builder = HealthMonitorBuilder::new()
+            .add_deadline_monitor(deadline_monitor_tag, deadline_monitor_builder)
+            .allocator_capacity(capacity);
+        assert_eq!(builder.allocator_capacity, capacity);
+
+        // Check builds.
+        let result = builder.build();
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn health_monitor_builder_allocator_capacity_invalid() {
+        let deadline_monitor_tag = MonitorTag::from("deadline_monitor");
+        let deadline_monitor_builder = DeadlineMonitorBuilder::new();
+        let capacity = 0;
+
+        // Check set internally.
+        let builder = HealthMonitorBuilder::new()
+            .add_deadline_monitor(deadline_monitor_tag, deadline_monitor_builder)
+            .allocator_capacity(capacity);
+        assert_eq!(builder.allocator_capacity, capacity);
+
+        // Check error propagates.
+        let result = builder.build();
+        assert!(result.is_err_and(|e| e == HealthMonitorError::InvalidArgument));
     }
 
     #[test]

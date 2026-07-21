@@ -21,11 +21,13 @@ signal-hook = "0.3.18"
 
 alive_rs = { path = "score/launch_manager/src/alive/src/rust" } # Temporary API
 health_monitoring_lib = { path = "score/health_monitor/src" }
-score_log = { git = "https://github.com/eclipse-score/baselibs.git", rev = "f4f9df39275760a60e54e5e3c5112210e35ae2a3" }
-score_testing_macros = { git = "https://github.com/eclipse-score/baselibs.git", rev = "f4f9df39275760a60e54e5e3c5112210e35ae2a3" }
-stdout_logger = { git = "https://github.com/eclipse-score/baselibs.git", rev = "f4f9df39275760a60e54e5e3c5112210e35ae2a3" }
-containers = { git = "https://github.com/eclipse-score/baselibs.git", rev = "f4f9df39275760a60e54e5e3c5112210e35ae2a3" }
-thread = { git = "https://github.com/eclipse-score/baselibs.git", rev = "f4f9df39275760a60e54e5e3c5112210e35ae2a3" }
+score_log = { path = "../baselibs/score/log_rust/score_log" }
+score_testing_macros = { path = "../baselibs/score/testing_macros" }
+stdout_logger = { path = "../baselibs/score/log_rust/stdout_logger" }
+containers = { path = "../baselibs/score/containers_rust" }
+thread = { path = "../baselibs/score/thread" }
+allocator = { path = "../baselibs/score/allocator" }
+sync = { path = "../baselibs/score/sync" }
 
 [workspace.lints.clippy]
 std_instead_of_core = "warn"
