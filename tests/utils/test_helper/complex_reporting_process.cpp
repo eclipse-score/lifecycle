@@ -30,13 +30,13 @@ char **g_argv;
 class LifecycleApp final : public score::mw::lifecycle::Application {
 public:
   std::int32_t
-  Initialize(const score::mw::lifecycle::ApplicationContext &appCtx) override {
+  Initialize([[maybe_unused]] const score::mw::lifecycle::ApplicationContext &appCtx) override {
     optind = 1;
 
     return 0;
   }
 
-  std::int32_t Run(const score::cpp::stop_token &stopToken) override {
+  std::int32_t Run([[maybe_unused]] const score::cpp::stop_token &stopToken) override {
     return EXIT_SUCCESS;
   }
 };

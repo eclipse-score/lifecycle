@@ -39,7 +39,7 @@ namespace
 {
 /// @brief Prefix for all log messages
 // coverity[autosar_cpp14_a2_10_4_violation:FALSE] Empty namespace ensures uniqueness for cpp file scope
-static constexpr const char* kLogPrefix{"Factory for FlatCfg MachineConfig:"};
+static constexpr const std::string_view kLogPrefix{"Factory for FlatCfg MachineConfig:"};
 
 /// @brief Update a field in case the provided value is not the flatbuffer default value
 /// @note In case of optional integer values in flatbuffer files, the flatbuffer API will just return 0 if the value was

@@ -17,13 +17,11 @@
 
 #include <cstdint>
 
-#include "score/mw/launch_manager/alive_monitor/details/watchdog/IDeviceConfigFactory.hpp"
+#include "score/mw/launch_manager/watchdog/IDeviceConfigFactory.hpp"
 
 namespace score
 {
 namespace lcm
-{
-namespace saf
 {
 namespace watchdog
 {
@@ -126,7 +124,6 @@ protected:
 };
 
 }  // namespace watchdog
-}  // namespace saf
 }  // namespace lcm
 }  // namespace score
 

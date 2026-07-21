@@ -65,7 +65,7 @@ TEST(CrashOnStartup, ControlClientMock)
     }
 }
 
-int main(int argc, char** argv)
+int main()
 {
     return TestRunner(__FILE__, TerminationBehavior::kWait, TerminationNotification::kTestEnd).RunTests();
 }

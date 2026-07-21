@@ -11,33 +11,37 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-
 #ifndef PROCESS_HPP_INCLUDED
 #define PROCESS_HPP_INCLUDED
 
 #include <sys/resource.h>
 #include <sys/types.h>
 
-#include <atomic>
 #include "score/mw/launch_manager/common/constants.hpp"
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
+#include <atomic>
 #include <cstdint>
 
 #include <array>
 #include <string>
 #include <vector>
 
-namespace score {
+namespace score
+{
 
-namespace lcm {
+namespace lcm
+{
 
-namespace internal {
+namespace internal
+{
 
-namespace osal {
+namespace osal
+{
 
 /// @brief Represents process limits to be applied by setrlimit()
 
-struct OsalLimits {
+struct OsalLimits
+{
     rlim_t data_;  ///< Maximum memory usage in bytes (heapUsage)
     rlim_t as_;    ///< Maximum address space usage in bytes (systemMemoryUsage)
     // Note usage of the following may change when resource groups are implemented
@@ -46,28 +50,32 @@ struct OsalLimits {
 };
 
 /// @brief Represents process startup and other configurations consumed by OSAL.
-// RULECHECKER_comment(1, 1, check_incomplete_data_member_construction, "wi 45913 - This struct is POD, which doesn't have user-declared constructor. The rule doesn’t apply.", false)
-struct OsalConfig {
-    std::string executable_path_{};                                     ///< Path to the executable.
-    std::string short_name_;                                            ///< Short name of the process
-    std::array<const char*, score::lcm::internal::kArgvArraySize> argv_{};  ///< Command-line arguments.
-    char* envp_[static_cast<std::size_t>(score::lcm::internal::kEnvArraySize)];   ///< Environment variables.
+// RULECHECKER_comment(1, 1, check_incomplete_data_member_construction, "wi 45913 - This struct is POD, which doesn't
+// have user-declared constructor. The rule doesn’t apply.", false)
+struct OsalConfig
+{
+    std::string executable_path_{};                                              ///< Path to the executable.
+    std::string short_name_;                                                     ///< Short name of the process
+    std::array<const char*, score::lcm::internal::kArgvArraySize> argv_{};       ///< Command-line arguments.
+    char* envp_[static_cast<std::size_t>(score::lcm::internal::kEnvArraySize)];  ///< Environment variables.
     std::string security_policy_{};          ///< Security policy to apply to this process
-    uid_t uid_;                                    ///< User ID.
-    gid_t gid_;                                    ///< Group ID.
+    uid_t uid_;                              ///< User ID.
+    gid_t gid_;                              ///< Group ID.
     std::vector<gid_t> supplementary_gids_;  ///< Supplementary group IDs.
-    CommsType comms_type_;                         ///< The type of communications required by this process
-    uint32_t cpu_mask_;                            ///< Mask for setting processor core affinity
-    int32_t scheduling_policy_;                    ///< Scheduling policy defined for this process
-    int32_t scheduling_priority_;                  ///< Scheduling priority for this process
-    OsalLimits resource_limits_;                   ///< Resource limits for this process
+    CommsType comms_type_;                   ///< The type of communications required by this process
+    uint64_t cpu_mask_;                      ///< Mask for setting processor core affinity
+    int32_t scheduling_policy_;              ///< Scheduling policy defined for this process
+    int32_t scheduling_priority_;            ///< Scheduling priority for this process
+    OsalLimits resource_limits_;             ///< Resource limits for this process
 };
 
 /// @brief Struct to hold configuration parameters for the child process.
-// RULECHECKER_comment(1, 1, check_incomplete_data_member_construction, "wi 45913 - This struct is POD, which doesn't have user-declared constructor. The rule doesn’t apply.", false)
-struct ChildProcessConfig {
+// RULECHECKER_comment(1, 1, check_incomplete_data_member_construction, "wi 45913 - This struct is POD, which doesn't
+// have user-declared constructor. The rule doesn’t apply.", false)
+struct ChildProcessConfig
+{
     const OsalConfig* config;  ///< child process startup configurations
-    int fd;                    ///<fd File descriptor of the shared memory segment.
+    int fd;                    ///< fd File descriptor of the shared memory segment.
     IpcCommsP shared_block;    ///< sync Pointer to the shared memory block.
 };
 
@@ -75,50 +83,63 @@ struct ChildProcessConfig {
 /// The `IProcess` class provides functionality for child process management, which is required by Launch Manager.
 /// As a part of OSAL it also provides porting interface for LCM.
 
-class IProcess {
-   public:
+class IProcess
+{
+  public:
     /// @brief  The startProcess function initiates the execution of a new process,
-    /// providing the necessary parameters such as the executable path, command-line arguments, and environment variables.
-    /// The process ID of the newly started process is stored in the ProcessID object pointed to by pid.
-    /// path, argv, envp should follow posix rule - https://pubs.opengroup.org/onlinepubs/007904975/functions/posix_spawn.html
-    /// The startProcess function will only return information that the child process was created or not. Please note that
-    /// there is potential to perform some extra error check upfront, for example access right to executable or existance of the executable,
-    /// but we dont consider this to be useful during production. If errors of the types above occured during production it usually means
-    /// a serious problem with a machine, for example broken update session or compromised machine. Those error are unrecoverable in nature
-    /// and we think it is better shorten feedback loop and let state management to handle recovery action.
-    ///@param[out] pid Pointer to ProcessID. This parameter has to be valid pointer (not NULL) and it is likely used to store the process ID of
+    /// providing the necessary parameters such as the executable path, command-line arguments, and environment
+    /// variables. The process ID of the newly started process is stored in the ProcessID object pointed to by pid.
+    /// path, argv, envp should follow posix rule -
+    /// https://pubs.opengroup.org/onlinepubs/007904975/functions/posix_spawn.html The startProcess function will only
+    /// return information that the child process was created or not. Please note that there is potential to perform
+    /// some extra error check upfront, for example access right to executable or existance of the executable, but we
+    /// dont consider this to be useful during production. If errors of the types above occured during production it
+    /// usually means a serious problem with a machine, for example broken update session or compromised machine. Those
+    /// error are unrecoverable in nature and we think it is better shorten feedback loop and let state management to
+    /// handle recovery action.
+    ///@param[out] pid Pointer to ProcessID. This parameter has to be valid pointer (not NULL) and it is likely used to
+    /// store the process ID of
     /// the newly started process.
-    ///@param[in] sync A pointer to a location to store a pointer to a structure containing information about the communication channel. If NULL
-    ///                is passed in this parameter, no communication channel will be set up (the case for non-reporting processes)
-    ///@param[in] config Pointer to the process start-up configuration. This has to be a valid pointer to a structure of this type.
-    ///@return Upon successfull child processes creation, startProcess function will return the process ID of the child process in
-    /// the out parameter pointed by a valid pointer pid, and shall return KSuccess as the function return value. If the child process
-    /// creation is failed, the value stored into the variable pointed to pid is unspecified, and an error number shall be returned as
-    /// the function return value KFail to indicate the error. If the pid or config argument is NULL then simply KFail returned as the function return.
+    ///@param[in] sync A pointer to a location to store a pointer to a structure containing information about the
+    /// communication channel. If NULL
+    ///                is passed in this parameter, no communication channel will be set up (the case for non-reporting
+    ///                processes)
+    ///@param[in] config Pointer to the process start-up configuration. This has to be a valid pointer to a structure of
+    /// this type.
+    ///@return Upon successfull child processes creation, startProcess function will return the process ID of the child
+    /// process in
+    /// the out parameter pointed by a valid pointer pid, and shall return KSuccess as the function return value. If the
+    /// child process creation is failed, the value stored into the variable pointed to pid is unspecified, and an error
+    /// number shall be returned as the function return value KFail to indicate the error. If the pid or config argument
+    /// is NULL then simply KFail returned as the function return.
 
     OsalReturnType startProcess(ProcessID* pid, IpcCommsP* sync, const osal::OsalConfig* config);
 
     ///@brief This function request graceful termination by sending SIGTERM signal to a specified process.
     /// Requesting the group of processes for graceful termination is not supported.
     ///@param[in] pid Valid child process identifier that should receive the request.
-    ///@return Upon successful child process termination request, KSuccess shall be returned. Otherwise, KFail shall be returned.
+    ///@return Upon successful child process termination request, KSuccess shall be returned. Otherwise, KFail shall be
+    /// returned.
 
     OsalReturnType requestTermination(ProcessID pid);
 
-    ///@brief This function forcibly terminates a specified process. On Posix based system this can be implemented by sending SIGKILL.
+    ///@brief This function forcibly terminates a specified process. On Posix based system this can be implemented by
+    /// sending SIGKILL.
     /// Forcibly terminating group of processes is not supported.
     ///@param[in] pid Child process identifier that should be terminated.
     ///@return When SIGKILL was successfully sent, KSuccess shall be returned. Otherwise, KFail shall be returned.
 
     OsalReturnType forceTermination(ProcessID pid);
 
-    ///@brief This method waits until one of child processes of the caller terminates and retrieve its exit status (aka exit code).
-    /// This method blocks until a child process of the caller terminates, then returns the process ID and termination status.
-    /// It can be used by the OsHandler to monitor termination of child processes.
+    ///@brief This method waits until one of child processes of the caller terminates and retrieve its exit status (aka
+    /// exit code).
+    /// This method blocks until a child process of the caller terminates, then returns the process ID and termination
+    /// status. It can be used by the OsHandler to monitor termination of child processes.
     ///@param[out] pid A pointer to a ProcessID where the ID of the terminated process will be stored.
     ///@param[out] status A pointer to an int32_t where the termination status of the process will be stored.
     ///@return An OSAL return type indicating the success or failure of the wait operation.
-    ///         - `OsalReturnType::KSuccess` if the operation is successful and a process ID, together with exit status is available.
+    ///         - `OsalReturnType::KSuccess` if the operation is successful and a process ID, together with exit status
+    ///         is available.
     ///         - `OsalReturnType::KFail` otherwise, the value stored in pid and status is undefined.
 
     OsalReturnType waitForTermination(ProcessID& pid, int32_t& status);
@@ -130,12 +151,13 @@ class IProcess {
 
     OsalReturnType waitForkRunning(IpcCommsP sync, std::chrono::milliseconds timeout);
 
-    /// @brief This method will set up all the scheduling and security parameters described in the config, for the current process
+    /// @brief This method will set up all the scheduling and security parameters described in the config, for the
+    /// current process
     /// @param config the configuration to use
     /// @return kFail if any operation fails, kSuccess otherwise
     static OsalReturnType setSchedulingAndSecurity(const osal::OsalConfig& config);
 
-   private:
+  private:
     /// @brief Creates shared memory for communication between processes.
     /// @param[in,out] sync Pointer to a location to store a pointer to a structure containing
     ///                     information about the communication channel.
@@ -168,9 +190,9 @@ class IProcess {
 
 }  // namespace osal
 
-}  // namespace lcm
-
 }  // namespace internal
+
+}  // namespace lcm
 
 }  // namespace score
 

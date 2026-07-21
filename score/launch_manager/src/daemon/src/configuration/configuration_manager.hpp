@@ -11,59 +11,70 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-
 #ifndef CONFIGURATIONMANAGER_HPP_INCLUDED
 #define CONFIGURATIONMANAGER_HPP_INCLUDED
 
+#include "score/mw/launch_manager/common/constants.hpp"
+#include "score/mw/launch_manager/common/identifier_hash.hpp"
+#include "score/mw/launch_manager/common/process_group_state_id.hpp"
+#include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
+#include "score/mw/launch_manager/process_state_client/posix_process.hpp"
 #include <array>
 #include <map>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
-#include "score/mw/launch_manager/common/identifier_hash.hpp"
-#include "score/mw/launch_manager/common/constants.hpp"
-#include "score/mw/launch_manager/common/process_group_state_id.hpp"
-#include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
-#include "score/mw/launch_manager/process_state_client/posix_process.hpp"
 
 #include "score/mw/launch_manager/configuration/lm_flatcfg_generated.h"
 
-namespace score {
+namespace score
+{
 
-namespace lcm {
+namespace lcm
+{
 
-namespace internal {
+namespace internal
+{
 
-using IdentifierHash = score::lcm::
-    IdentifierHash;  ///< Defines a type alias 'IdentifierHash' for the type 'score::lcm::IdentifierHash'. Type that represents an identity or identifier. Usually this is a path to a short name.
+using IdentifierHash = score::lcm::IdentifierHash;  ///< Defines a type alias 'IdentifierHash' for the type
+                                                    ///< 'score::lcm::IdentifierHash'. Type that represents an identity
+                                                    ///< or identifier. Usually this is a path to a short name.
 
 /// @brief Represents the configuration settings for a process group manager.
-// RULECHECKER_comment(1, 1, check_incomplete_data_member_construction, "wi 45913 - This struct is POD, which doesn't have user-declared constructor. The rule doesn’t apply.", false)
-struct PgManagerConfig final {
+// RULECHECKER_comment(1, 1, check_incomplete_data_member_construction, "wi 45913 - This struct is POD, which doesn't
+// have user-declared constructor. The rule doesn’t apply.", false)
+struct PgManagerConfig final
+{
     bool is_self_terminating_;  ///< true if the adaptive application may terminate without being first asked
     std::chrono::milliseconds
         startup_timeout_ms_;  ///< Number of milliseconds to wait for kRunning before flagging an error
-    std::chrono::milliseconds
-        termination_timeout_ms_;  ///< Number of milliseconds to wait for process to terminate after requesting termination
+    std::chrono::milliseconds termination_timeout_ms_;  ///< Number of milliseconds to wait for process to terminate
+                                                        ///< after requesting termination
     uint32_t number_of_restart_attempts;  ///< Number of times to attempt restart if the initial attempt fails
     uint32_t execution_error_code_;       ///< Code to report if this process fails
 };
 
 /// @brief Represents process dependency in a particular process group associated process.
-// RULECHECKER_comment(1, 1, check_incomplete_data_member_construction, "wi 45913 - This struct is POD, which doesn't have user-declared constructor. The rule doesn’t apply.", false)
-struct Dependency final {
-    score::lcm::ProcessState process_state_;  ///< The state of the other process upon which starting of this process depends.
+// RULECHECKER_comment(1, 1, check_incomplete_data_member_construction, "wi 45913 - This struct is POD, which doesn't
+// have user-declared constructor. The rule doesn’t apply.", false)
+struct Dependency final
+{
+    score::lcm::ProcessState
+        process_state_;                 ///< The state of the other process upon which starting of this process depends.
     IdentifierHash target_process_id_;  ///< The ID of the target process this dependency is associated with.
-    uint32_t os_process_index_;           ///< The index of the OS process in the target process list.
+    uint32_t os_process_index_;         ///< The index of the OS process in the target process list.
 };
 
 using DependencyList = std::vector<Dependency>;
 
-/// @brief Represent configuration needed to start operating system process, plus identifier of a process for which this startup configuration was defined / configured.
-// RULECHECKER_comment(1, 1, check_incomplete_data_member_construction, "wi 45913 - This struct is POD, which doesn't have user-declared constructor. The rule doesn’t apply.", false)
-struct OsProcess final {
-    IdentifierHash process_id_;        ///< id of a Process.
+/// @brief Represent configuration needed to start operating system process, plus identifier of a process for which this
+/// startup configuration was defined / configured.
+// RULECHECKER_comment(1, 1, check_incomplete_data_member_construction, "wi 45913 - This struct is POD, which doesn't
+// have user-declared constructor. The rule doesn’t apply.", false)
+struct OsProcess final
+{
+    IdentifierHash process_id_;          ///< id of a Process.
     uint32_t process_number_;            ///< unique number for this process & startup configuration combination
     osal::OsalConfig startup_config_{};  ///< Startup configuration.
     PgManagerConfig pgm_config_;         ///< Process group manager operations configuration.
@@ -71,42 +82,50 @@ struct OsProcess final {
 };
 
 /// @brief Represents configuration of a process group state.
-// RULECHECKER_comment(1, 1, check_incomplete_data_member_construction, "wi 45913 - This struct is POD, which doesn't have user-declared constructor. The rule doesn’t apply.", false)
-struct ProcessGroupState final {
+// RULECHECKER_comment(1, 1, check_incomplete_data_member_construction, "wi 45913 - This struct is POD, which doesn't
+// have user-declared constructor. The rule doesn’t apply.", false)
+struct ProcessGroupState final
+{
     IdentifierHash name_;  ///< Name of a process group state.
     std::vector<uint32_t>
-        process_indexes_;  ///< Processes that should be started / run in this process group state. It is an array of indexes (aka pointers) to the processes managed by a process group.
+        process_indexes_;  ///< Processes that should be started / run in this process group state. It is an array of
+                           ///< indexes (aka pointers) to the processes managed by a process group.
 };
 
 /// @brief Represents a process group configuration.
-// RULECHECKER_comment(1, 1, check_incomplete_data_member_construction, "wi 45913 - This struct is POD, which doesn't have user-declared constructor. The rule doesn’t apply.", false)
-struct ProcessGroup final {
-    IdentifierHash name_;                                 ///< Name of a process group.
-    IdentifierHash sw_cluster_;                           ///< Software cluster to which this process group belongs
-    IdentifierHash off_state_;                            ///< ID of the "Off" state for this process group
-    IdentifierHash recovery_state_;                       ///< ID of the recovery state for this process group
+// RULECHECKER_comment(1, 1, check_incomplete_data_member_construction, "wi 45913 - This struct is POD, which doesn't
+// have user-declared constructor. The rule doesn’t apply.", false)
+struct ProcessGroup final
+{
+    IdentifierHash name_;                    ///< Name of a process group.
+    IdentifierHash sw_cluster_;              ///< Software cluster to which this process group belongs
+    IdentifierHash off_state_;               ///< ID of the "Off" state for this process group
+    IdentifierHash recovery_state_;          ///< ID of the recovery state for this process group
     std::vector<ProcessGroupState> states_;  ///< States configured for this process group.
-    std::vector<OsProcess>
-        processes_;  ///< Processes that are managed (started / stopped) by this process group.
+    std::vector<OsProcess> processes_;       ///< Processes that are managed (started / stopped) by this process group.
 };
 
 ///
 /// @brief Manages the configuration of the machine.
 ///
 /// ConfigurationManager is responsible for the entire lifecycle of configuration.
-/// It loads configuration from persistent storage, verify that configuration was not tampered with and then makes that data available (read only) to the rest of Launch Manager.
-/// It is also responsible for rereading (updating) configuration during software update.
-// RULECHECKER_comment(1, 1, check_incomplete_data_member_construction, "wi 45913 - This struct is POD, which doesn't have user-declared constructor. The rule doesn’t apply.", false)
-class ConfigurationManager final {
+/// It loads configuration from persistent storage, verify that configuration was not tampered with and then makes that
+/// data available (read only) to the rest of Launch Manager. It is also responsible for rereading (updating)
+/// configuration during software update.
+// RULECHECKER_comment(1, 1, check_incomplete_data_member_construction, "wi 45913 - This struct is POD, which doesn't
+// have user-declared constructor. The rule doesn’t apply.", false)
+class ConfigurationManager final
+{
     //    using namespace ::score::internal::ucm::ipc;
-   public:
+  public:
     /// @brief Initializes the configuration manager.
     ///
     /// This function is responsible for loading the configurations.
     /// It performs the following main tasks:
     /// - Checks or sets the FlatBuffer configuration environment variable.
     /// - Obtain the list of software clusters. If this is successful, load the first software cluster from the list.
-    /// - Gets every element in the configuration. keeps a local reference to every configuration element for easy access.
+    /// - Gets every element in the configuration. keeps a local reference to every configuration element for easy
+    /// access.
     /// TODO: Add more details about the memory allocation.
     ///
     /// @return Returns true if the configurations were loaded successfully, false otherwise.
@@ -159,7 +178,8 @@ class ConfigurationManager final {
     std::optional<const ProcessGroupStateID*> getMainPGStartupState() const;
 
     /// @brief Get a list of processes configured to run in this process group state.
-    /// @param[in] process_group_state_id The ID of the process group state for which to retrieve the list of process IDs.
+    /// @param[in] process_group_state_id The ID of the process group state for which to retrieve the list of process
+    /// IDs.
     /// @return Returns a pointer to a vector of process indexes.
     /// Process group state 'Off' will have vector of size 0.
     /// If Process group does not exist then there will be no return value.
@@ -172,7 +192,7 @@ class ConfigurationManager final {
     /// @return Returns a pointer to an OSProcess.
     /// If index/process group does not exist there will be no return value.
     std::optional<const OsProcess*> getOsProcessConfiguration(const IdentifierHash& pg_name_,
-                                                                    const uint32_t index) const;
+                                                              const uint32_t index) const;
 
     /// @brief Get dependencies of an OS process within a specific process group.
     ///
@@ -185,13 +205,13 @@ class ConfigurationManager final {
     /// @return An optional vector of Dependency objects representing process dependencies,
     ///         or an empty optional if the process group or process index does not exist.
     std::optional<const DependencyList*> getOsProcessDependencies(const IdentifierHash& process_group_name,
-                                                                        const uint32_t index) const;
+                                                                  const uint32_t index) const;
 
     /// @brief default value for the process execution error, in case it is not defined in the configuration
     static const uint32_t kDefaultProcessExecutionError;
 
     /// @brief default value for processor affinity mask in case it is not defined in the configuration
-    static uint32_t kDefaultProcessorAffinityMask();
+    static uint64_t kDefaultProcessorAffinityMask();
 
     /// @brief default value for scheduling policy in case it is not defined in the configuration
     static const int32_t kDefaultSchedulingPolicy;
@@ -204,7 +224,7 @@ class ConfigurationManager final {
     ///        if the process is running in normal scheduling mode.
     static const int32_t kDefaultNormalSchedulingPriority;
 
-   private:
+  private:
     /// @brief Initializes the LCM configurations for the software clusters.
     /// This function loads the list of software clusters and then loads the LCM configurations
     /// for the specified software cluster index. It sets the success flag to true if all steps
@@ -280,23 +300,25 @@ class ConfigurationManager final {
         const flatbuffers::Vector<flatbuffers::Offset<LMFlatBuffer::EnvironmentVariable>>* env_var_list,
         OsProcess& process_instance);
 
-    /// @brief Parse process group dependencies of processes from a list of FlatBuffer process process group state dependency nodes.
-    /// This function parses process group dependencies from the provided list of FlatBuffer process process group state dependency nodes
-    /// and associates the specified OsProcess instance with the relevant process groups.
+    /// @brief Parse process group dependencies of processes from a list of FlatBuffer process process group state
+    /// dependency nodes. This function parses process group dependencies from the provided list of FlatBuffer process
+    /// process group state dependency nodes and associates the specified OsProcess instance with the relevant process
+    /// groups.
     /// @param[in] process_pg_list Pointer to a vector of FlatBuffer process process group state dependency nodes.
     /// @param[out] process_instance Reference to the OsProcess instance where parsed environment will be stored.
     /// @return `true` if process group dependencies were successfully parsed and associated, `false` otherwise.
     void parseProcessGroup(
-        const flatbuffers::Vector<flatbuffers::Offset<LMFlatBuffer::ProcessGroupStateDependency>>*
-            process_pg_list,
+        const flatbuffers::Vector<flatbuffers::Offset<LMFlatBuffer::ProcessGroupStateDependency>>* process_pg_list,
         const OsProcess& process_instance);
 
     /// @brief Parses execution dependencies from a FlatBuffer list and updates the provided OsProcess instance.
     /// This function processes a list of `ProcessExecutionDependency` objects from the FlatBuffer and updates
     /// the specified `OsProcess` instance to reflect these dependencies. Dependencies are used to manage
     /// relationships between different processes.
-    /// @param[in] process_dependency_list Pointer to a vector of `ProcessExecutionDependency` objects from the FlatBuffer.
-    /// @param[out] process_instance Reference to the `OsProcess` instance that will be updated with the parsed dependencies.
+    /// @param[in] process_dependency_list Pointer to a vector of `ProcessExecutionDependency` objects from the
+    /// FlatBuffer.
+    /// @param[out] process_instance Reference to the `OsProcess` instance that will be updated with the parsed
+    /// dependencies.
     void parseExecutionDependency(
         const flatbuffers::Vector<flatbuffers::Offset<LMFlatBuffer::ProcessExecutionDependency>>*
             process_dependency_list,
@@ -317,7 +339,8 @@ class ConfigurationManager final {
     ProcessGroup* getProcessGroupByID(const IdentifierHash& pg_name) const;
 
     /// @brief Get a pointer to a ProcessGroupState within a specified ProcessGroup by its ID.
-    /// This function retrieves a pointer to a ProcessGroupState identified by the state name ID within the given ProcessGroup pointer.
+    /// This function retrieves a pointer to a ProcessGroupState identified by the state name ID within the given
+    /// ProcessGroup pointer.
     /// @param[in] pg The ProcessGroup in which to search for the ProcessGroupState.
     /// @param[in] state_name The ID of the ProcessGroupState to retrieve.
     /// @return A pointer to the ProcessGroupState if found within the ProcessGroup, or nullptr if not found.
@@ -339,7 +362,7 @@ class ConfigurationManager final {
     /// @return A pointer to the `ProcessGroup` if it exists, or `nullptr` if no matching process group is found
     ///         with the given name and index.
     std::optional<const ProcessGroup*> getProcessGroupByNameAndIndex(const IdentifierHash& pg_name,
-                                                                             const uint32_t index) const;
+                                                                     const uint32_t index) const;
 
     /// @brief Assign an OsProcess instance to a ProcessGroupState identified by ID.
     /// This function assigns the OsProcess instance to a ProcessGroup and process index to ProcessGroupState.
@@ -357,13 +380,15 @@ class ConfigurationManager final {
     bool checkOrSetFlatConfigEnvVar(const std::string& name, const std::string& value);
 
     /// @brief Get the value of an environment variable by name.
-    /// This function is wrapper for getenv() system call and it retrieves the value of the environment variable identified by the specified name.
+    /// This function is wrapper for getenv() system call and it retrieves the value of the environment variable
+    /// identified by the specified name.
     /// @param[in] name The name of the environment variable to check or set
     /// @return The value of the environment variable as a String, or an empty string if not found.
     std::string getEnvVar(const std::string& name) const;
 
     /// @brief Set or update an environment variable with the specified name and value.
-    /// This function is wrapper for setenv() system call and it sets or updates an environment variable with the provided name and value.
+    /// This function is wrapper for setenv() system call and it sets or updates an environment variable with the
+    /// provided name and value.
     /// @param[in] name The name of the environment variable to set.
     /// @param[in] value The value to assign to the environment variable.
     /// @param[in] overwrite Flag indicating whether to overwrite an existing variable.
@@ -386,7 +411,8 @@ class ConfigurationManager final {
     /// @brief Determines if the process reports its execution state.
     /// This function checks the reporting behavior of a process and logs an appropriate message.
     /// It returns `true` if the process reports its execution state and `false` otherwise.
-    /// @param[in] reporting_behaviour The reporting behavior of the process, represented as an enumerator of type LMFlatBuffer::ExecutionStateReportingBehaviorEnum.
+    /// @param[in] reporting_behaviour The reporting behavior of the process, represented as an enumerator of type
+    /// LMFlatBuffer::ExecutionStateReportingBehaviorEnum.
     /// @param[in] process_name The name of the process as a FlatBuffer string.
     /// @return `kReporting` if the process reports its execution state, `kNoComms` otherwise.
     osal::CommsType isReportingProcess(const LMFlatBuffer::ExecutionStateReportingBehaviorEnum reporting_behaviour,
@@ -403,9 +429,10 @@ class ConfigurationManager final {
     osal::CommsType getCommsType(const LMFlatBuffer::Process* node, const char* short_name);
 
     /// @brief Determine the function cluster affiliation and update the communication type accordingly.
-    /// This function examines the given function cluster attribute and adjusts the current communication type if the process
-    /// belongs to a specific function cluster, such as "STATE_MANAGEMENT" or "PLATFORM_HEALTH_MANAGEMENT".
-    /// @param[in] current_comms The current communication type, which will be updated based on the function cluster affiliation.
+    /// This function examines the given function cluster attribute and adjusts the current communication type if the
+    /// process belongs to a specific function cluster, such as "STATE_MANAGEMENT" or "PLATFORM_HEALTH_MANAGEMENT".
+    /// @param[in] current_comms The current communication type, which will be updated based on the function cluster
+    /// affiliation.
     /// @param[in] attribute A C-style string representing the function cluster affiliation of the process.
     /// @return The updated communication type based on the function cluster affiliation.
     osal::CommsType getfunctionClusterAffiliation(osal::CommsType current_comms, const char* attribute);
@@ -413,7 +440,8 @@ class ConfigurationManager final {
     /// @brief Determines if the process is self-terminating.
     /// This function checks the termination behavior of a process and logs an appropriate message.
     /// It returns `true` if the process is self-terminating and `false` otherwise.
-    /// @param[in] termination_behavior The termination behavior of the process, represented as an enumerator of type LMFlatBuffer::TerminationBehaviorEnum.
+    /// @param[in] termination_behavior The termination behavior of the process, represented as an enumerator of type
+    /// LMFlatBuffer::TerminationBehaviorEnum.
     /// @param[in] process_name The name of the process as a FlatBuffer string.
     /// @return `true` if the process is self-terminating, `false` otherwise.
     bool isSelfTerminatingProcess(const LMFlatBuffer::TerminationBehaviorEnum termination_behavior,
@@ -451,10 +479,11 @@ class ConfigurationManager final {
     std::vector<IdentifierHash> process_group_names_{};
 
     /// @brief Default startup state identifier for a machine process group.
-    /// This member variable represents a predefined `ProcessGroupStateID` instance that identifies the startup state of a machine process group.
-    /// It is initialized with the names "MainPG" (process group name) and "Startup" (state name).
+    /// This member variable represents a predefined `ProcessGroupStateID` instance that identifies the startup state of
+    /// a machine process group. It is initialized with the names "MainPG" (process group name) and "Startup" (state
+    /// name).
     ProcessGroupStateID main_pg_startup_state_{static_cast<IdentifierHash>("MainPG"),
-                                                   static_cast<IdentifierHash>("MainPG/Startup")};
+                                               static_cast<IdentifierHash>("MainPG/Startup")};
 
     /// @brief Unique Process index for OS process instance for specific startup configs
     /// This member variable represents the index of the OS process instance with unique startup config.
@@ -476,9 +505,9 @@ class ConfigurationManager final {
     static const char* PROCESS_TERMINATED_STATE;
 };
 
-}  // namespace lcm
-
 }  // namespace internal
+
+}  // namespace lcm
 
 }  // namespace score
 

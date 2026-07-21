@@ -21,7 +21,7 @@
 #include "score/mw/launch_manager/common/log.hpp"
 
 #include "score/mw/launch_manager/alive_monitor/details/daemon/AliveMonitorImpl.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/watchdog/WatchdogImpl.hpp"
+#include "score/mw/launch_manager/watchdog/details/WatchdogImpl.hpp"
 #include "score/mw/launch_manager/process_group_manager/alive_monitor_thread.hpp"
 #include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
 #include "score/mw/launch_manager/process_state_client/process_state_notifier.hpp"
@@ -205,8 +205,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char* argv[])
 #endif
         LM_LOG_DEBUG() << "Launch Manager Started !!!!";
         std::shared_ptr<score::lcm::IRecoveryClient> recoveryClient{std::make_shared<score::lcm::RecoveryClient>()};
-        std::unique_ptr<score::lcm::saf::watchdog::IWatchdogIf> watchdog{
-            std::make_unique<score::lcm::saf::watchdog::WatchdogImpl>()};
+        std::unique_ptr<score::lcm::watchdog::IWatchdogIf> watchdog{
+            std::make_unique<score::lcm::watchdog::WatchdogImpl>()};
         auto process_state_notifier = std::make_unique<score::lcm::internal::ProcessStateNotifier>();
         std::unique_ptr<score::lcm::saf::daemon::IAliveMonitor> healthMonitor{
             std::make_unique<score::lcm::saf::daemon::AliveMonitorImpl>(
