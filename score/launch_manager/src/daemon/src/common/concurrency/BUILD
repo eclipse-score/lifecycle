@@ -73,6 +73,37 @@ cc_library(
 )
 
 cc_test(
+    name = "mpsc_bounded_queue_test",
+    srcs = ["mpsc_bounded_queue_test.cpp"],
+    visibility = ["//tests:__subpackages__"],
+    deps = [
+        ":mpsc_bounded_queue",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "mpsc_bounded_queue_tsan_test",
+    srcs = ["mpsc_bounded_queue_test.cpp"],
+    copts = [
+        "-fsanitize=thread",
+        "-O0",
+        "-g",
+    ],
+    linkopts = ["-fsanitize=thread"],
+    tags = [
+        "no-asan",
+        "no-coverage",
+        "tsan",
+    ],
+    target_compatible_with = ["@platforms//os:linux"],
+    deps = [
+        ":mpsc_bounded_queue",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_test(
     name = "mpmc_concurrent_queue_test",
     srcs = ["mpmc_concurrent_queue_test.cpp"],
     visibility = ["//tests:__subpackages__"],

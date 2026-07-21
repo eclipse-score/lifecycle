@@ -20,9 +20,12 @@
 #include <cstddef>
 #include <mutex>
 #include <optional>
+#include <thread>
 #include <utility>
 
 #include "concurrency_error_domain.hpp"
+
+#include <score/assert.hpp>
 #include <score/expected.hpp>
 
 namespace score::lcm::internal
@@ -41,7 +44,10 @@ class MpscBoundedQueue
 
   public:
     MpscBoundedQueue() = default;
-    ~MpscBoundedQueue() = default;
+    ~MpscBoundedQueue() {
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(is_stopped(), "Call stop() and join/shut down all threads" 
+            "that might still call wait()/tryPop()/push() only then let the queue be destroyed.");
+    };
 
     MpscBoundedQueue(const MpscBoundedQueue&) = delete;
     MpscBoundedQueue& operator=(const MpscBoundedQueue&) = delete;
@@ -69,6 +75,8 @@ class MpscBoundedQueue
     [[nodiscard]] score::cpp::expected_blank<ConcurrencyErrc> wait(std::chrono::milliseconds timeout)
     {
         std::unique_lock lock(mutex_);
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(ensure_single_consumer(), "Only a single consumer thread is allowed.");
+
         const bool has_item = not_empty_cv_.wait_for(lock, timeout, [this] {
             return count_ > 0U || stopped_;
         });
@@ -90,6 +98,7 @@ class MpscBoundedQueue
     std::optional<T> tryPop()
     {
         std::unique_lock lock(mutex_);
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(ensure_single_consumer(), "Only a single consumer thread is allowed.");
 
         if (count_ == 0U)
         {
@@ -118,6 +127,22 @@ class MpscBoundedQueue
     }
 
   private:
+
+    /// @brief Checks whether the queue is stopped
+    [[nodiscard]] bool is_stopped() {
+        std::lock_guard lock(mutex_);
+        return stopped_;
+    }
+
+    /// @brief Checks whether the consumer thread id is unchanged   
+    [[nodiscard]] bool ensure_single_consumer()
+    {
+        if(consumer_thread_id_ == std::thread::id{}) {
+            consumer_thread_id_ = std::this_thread::get_id();
+        }
+        return consumer_thread_id_== std::this_thread::get_id();
+    }
+
     template <typename U>
     [[nodiscard]] score::cpp::expected_blank<ConcurrencyErrc> push_impl(U&& item)
     {
@@ -154,6 +179,8 @@ class MpscBoundedQueue
     std::size_t count_{0};
     /// @brief Guarded by mutex_.
     bool stopped_{false};
+    /// @brief Consumer thread id
+    std::thread::id consumer_thread_id_;
 };
 
 }  // namespace score::lcm::internal
