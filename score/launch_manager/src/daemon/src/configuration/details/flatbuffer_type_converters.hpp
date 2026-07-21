@@ -38,7 +38,7 @@ namespace details
 // --- Range validation ---
 
 template <typename TargetT>
-score::cpp::expected<TargetT, IConfigLoader::Error> validateRange(int64_t value, const char* field_name)
+score::cpp::expected<TargetT, IConfigLoader::Error> validateRange(int64_t value, const std::string_view field_name)
 {
     // Asserts ensure that std::numeric_limits<TargetT>::min() and std::numeric_limits<TargetT>::max() can be 
     // safely cast to int64_t for the range check:

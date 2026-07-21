@@ -47,7 +47,7 @@ namespace
 {
 /// @brief Prefix for all log messages
 // coverity[autosar_cpp14_a2_10_4_violation:FALSE] Empty namespace ensures uniqueness for cpp file scope
-static constexpr const char* kLogPrefix{"Factory for FlatCfg AR24-11:"};
+static constexpr const std::string_view kLogPrefix{"Factory for FlatCfg AR24-11:"};
 
 std::unique_ptr<char[]> read_flatbuffer_file(const std::string& f_filename_r)
 {

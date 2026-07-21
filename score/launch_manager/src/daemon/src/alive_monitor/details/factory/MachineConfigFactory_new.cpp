@@ -33,7 +33,7 @@ using NanoSecondType = timers::NanoSecondType;
 
 namespace
 {
-static constexpr char const* kLogPrefix{"Factory for FlatCfg MachineConfig:"};
+static constexpr const std::string_view kLogPrefix{"Factory for FlatCfg MachineConfig:"};
 }  // namespace
 
 MachineConfigFactory::MachineConfigFactory() noexcept(true) : watchdog::IDeviceConfigFactory()

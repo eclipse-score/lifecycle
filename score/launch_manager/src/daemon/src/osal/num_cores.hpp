@@ -11,26 +11,29 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-
 #ifndef OSAL_NUM_CORES_HPP_INCLUDED
 #define OSAL_NUM_CORES_HPP_INCLUDED
 
 #include <cstdint>
 
-namespace score {
-namespace lcm {
-namespace internal {
-namespace osal {
+namespace score
+{
+namespace lcm
+{
+namespace internal
+{
+namespace osal
+{
 // coverity[autosar_cpp14_m3_4_1_violation:INTENTIONAL] The value is used in a global context.
-constexpr uint32_t kDefaultNumCores = 32U;  // Default value if unable to determine number of cores
+constexpr uint32_t kDefaultNumCores = 64U;  // Default value if unable to determine number of cores
 
 /// @brief Get the number of CPU cores available on the system.
 /// @return Returns the number of CPU cores available.
 uint32_t getNumCores();
 
 }  // namespace osal
-}  // namespace lcm
 }  // namespace internal
+}  // namespace lcm
 }  // namespace score
 
 #endif

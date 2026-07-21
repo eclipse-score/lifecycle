@@ -76,7 +76,7 @@ TEST(RecoveryActionSimpleRepFailure, ControlClientMock) {
   TEST_STEP("Activate RunTarget Off") { client.ActivateRunTarget("Off"); }
 }
 
-int main(int argc, char **argv) {
+int main() {
   return TestRunner(__FILE__, TerminationBehavior::kContinue,
                     TerminationNotification::kTestEnd)
       .RunTests();

@@ -26,7 +26,7 @@ void signalHandler(int) {
     exitRequested = true;
 }
 
-int main(int argc, char** argv) {
+int main() {
     signal(SIGINT, signalHandler);
     signal(SIGTERM, signalHandler);
 

@@ -14,9 +14,8 @@ load("@rules_cc//cc:defs.bzl", "cc_binary")
 
 cc_binary(
     name = "c_supervised_app",
-    srcs = [
-        "main.c",
-    ],
+    srcs = ["main.c"],
+    copts = ["-std=gnu11"],
     linkopts = select({
         "@platforms//os:qnx": [
             "-lsocket",

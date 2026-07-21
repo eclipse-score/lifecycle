@@ -16,27 +16,35 @@
 #include "score/mw/launch_manager/osal/set_affinity.hpp"
 #include <cstdint>
 
-namespace score {
+namespace score
+{
 
-namespace lcm {
+namespace lcm
+{
 
-namespace internal {
+namespace internal
+{
 
-namespace osal {
+namespace osal
+{
 
-std::int32_t setaffinity(std::uint32_t cpumask) noexcept(true) {
+std::int32_t setaffinity(std::uint64_t cpumask) noexcept(true)
+{
     cpu_set_t mask;
     CPU_ZERO(&mask);
-    for (uint32_t i = 0U; i < sizeof(cpumask) * 8U; ++i) {
-        if (cpumask & (1U << i)) {
-            // RULECHECKER_comment(1, 2, check_underlying_signedness_conversion, "This is the definition provided by the OS and does a signedness conversion.", true)
-            // RULECHECKER_comment(1, 1, check_c_style_cast, "This is the definition provided by the OS and does a C-style cast.", true)
+    for (uint64_t i = 0U; i < sizeof(cpumask) * 8U; ++i)
+    {
+        if (cpumask & (1ULL << i))
+        {
+            // RULECHECKER_comment(1, 2, check_underlying_signedness_conversion, "This is the definition provided by the
+            // OS and does a signedness conversion.", true) RULECHECKER_comment(1, 1, check_c_style_cast, "This is the
+            // definition provided by the OS and does a C-style cast.", true)
             CPU_SET(i, &mask);
         }
     }
     return 0 == sched_setaffinity(0, sizeof(mask), &mask) ? 0 : -1;
 }
 }  // namespace osal
-}  // namespace lcm
 }  // namespace internal
+}  // namespace lcm
 }  // namespace score
