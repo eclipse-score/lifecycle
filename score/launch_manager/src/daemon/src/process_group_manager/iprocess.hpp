@@ -151,13 +151,7 @@ class IProcess
 
     OsalReturnType waitForkRunning(IpcCommsP sync, std::chrono::milliseconds timeout);
 
-    /// @brief This method will set up all the scheduling and security parameters described in the config, for the
-    /// current process
-    /// @param config the configuration to use
-    /// @return kFail if any operation fails, kSuccess otherwise
-    static OsalReturnType setSchedulingAndSecurity(const osal::OsalConfig& config);
-
-  private:
+   private:
     /// @brief Creates shared memory for communication between processes.
     /// @param[in,out] sync Pointer to a location to store a pointer to a structure containing
     ///                     information about the communication channel.

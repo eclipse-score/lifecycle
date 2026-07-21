@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <csignal>
 
+#include "score/launch_manager/src/daemon/src/process_group_manager/details/configure_process.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/process_group_manager/ialive_monitor_thread.hpp"
 #include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
@@ -112,10 +113,10 @@ bool ProcessGroupManager::initialize()
         return false;
     }
 
-    if (launch_manager_config_ &&
-        OsalReturnType::kFail == IProcess::setSchedulingAndSecurity(launch_manager_config_->startup_config_))
+    // Apply the launch manager's own policies
+    if (launch_manager_config_)
     {
-        return false;
+        setSchedulingAndSecurity(launch_manager_config_->startup_config_);
     }
 
     return true;
@@ -165,7 +166,6 @@ inline bool ProcessGroupManager::initializeControlClientHandler()
                 ::close(fd2);
                 return false;
             }
-
 
             if (osal::IpcCommsSync::control_client_handler_nudge_fd == fd2)
             {

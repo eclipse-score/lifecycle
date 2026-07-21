@@ -11,8 +11,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include <string_view>
-
 #include <fcntl.h>
 #include <grp.h>
 #include <libgen.h>
@@ -22,14 +20,12 @@
 #include <limits.h>
 #include <signal.h>
 
-#include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
-#include "score/mw/launch_manager/control/control_client_channel.hpp"
+#include "score/launch_manager/src/daemon/src/process_group_manager/details/configure_process.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/control/control_client_channel.hpp"
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
 #include "score/mw/launch_manager/osal/security_policy.hpp"
-#include "score/mw/launch_manager/osal/set_affinity.hpp"
-#include "score/mw/launch_manager/osal/set_groups.hpp"
-#include "score/mw/launch_manager/osal/sys_exit.hpp"
+#include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include <cerrno>
 #include <csignal>
 #include <cstdio>
@@ -42,39 +38,13 @@ constexpr int kPosixSuccess = 0;
 namespace
 {
 
+using score::lcm::internal::safe_log_and_exit;
+using score::lcm::internal::safe_log_errno_and_exit;
 using score::lcm::internal::osal::CommsType;
 using score::lcm::internal::osal::IpcCommsSync;
-using score::lcm::internal::osal::sysexit;
+using score::lcm::internal::osal::OsalConfig;
 
-/// @brief Applies the given limit.
-/// @warning This will sysexit if the set is not succesful.
-void applyLimitOrDie(const int resource, const rlimit& limit, const std::string_view rlimit_name) noexcept(false)
-{
-    if (::setrlimit(resource, &limit) == -1)
-    {
-        LM_LOG_FATAL() << "[New process] Failed to set rlimit " << rlimit_name << " "
-                       << score::lcm::internal::errno_message(errno);
-        sysexit(EXIT_FAILURE);
-    }
-}
-
-/// @brief Sets the limit if given a non-zero value, otherwise skips.
-/// @warning This will sysexit if the set is not succesful.
-void setLimit(const int resource, const std::size_t amount, const std::string_view rlimit_name) noexcept
-{
-    if (amount == 0U)
-    {
-        return;
-    }
-
-    const struct rlimit limit{
-        .rlim_cur = amount,
-        .rlim_max = amount,
-    };
-
-    applyLimitOrDie(resource, limit, rlimit_name);
-}
-
+/// @warning This will exit with failure if not successful.
 void handleComms(score::lcm::internal::osal::ChildProcessConfig& param)
 {
     // kNoComms !fd3 & !fd4
@@ -99,86 +69,51 @@ void handleComms(score::lcm::internal::osal::ChildProcessConfig& param)
             // in the current implementation this case means param.shared_block == nullptr and is handled above
             break;
         case CommsType::kReporting:
-            if (-1 == fcntl(IpcCommsSync::sync_fd, F_SETFD, 0))
-            {
-                LM_LOG_ERROR() << "[New process] fcntl() at line" << __LINE__
-                               << "failed:" << score::lcm::internal::errno_message(errno);
-                sysexit(EXIT_FAILURE);
-            }
+            if (fcntl(IpcCommsSync::sync_fd, F_SETFD, 0) == -1)
+                safe_log_and_exit({"Failed to set sync_fd flags"});
+
             close(IpcCommsSync::control_client_handler_nudge_fd);
+
             break;
         case CommsType::kControlClient:
-            if (-1 == fcntl(IpcCommsSync::sync_fd, F_SETFD, 0))
-            {
-                LM_LOG_ERROR() << "[New process] fcntl() at line" << __LINE__
-                               << "failed:" << score::lcm::internal::errno_message(errno);
-                sysexit(EXIT_FAILURE);
-            }
-            if (-1 == fcntl(IpcCommsSync::control_client_handler_nudge_fd, F_SETFD, 0))
-            {
-                LM_LOG_ERROR() << "[New process] fcntl() at line" << __LINE__
-                               << "failed:" << score::lcm::internal::errno_message(errno);
-                sysexit(EXIT_FAILURE);
-            }
+            if (fcntl(IpcCommsSync::sync_fd, F_SETFD, 0) == -1)
+                safe_log_and_exit({"Failed to set sync_fd flags"});
+
+            if (fcntl(IpcCommsSync::control_client_handler_nudge_fd, F_SETFD, 0) == -1)
+                safe_log_errno_and_exit({"Failed to set control_client_handler_nudge_fd flags"});
+
             break;
         case CommsType::kLaunchManager:
             // nothing to do here
             break;
         default:
-            LM_LOG_ERROR() << "[New process] at line" << __LINE__ << "unknown CommsType"
-                           << static_cast<std::int32_t>(param.shared_block->comms_type_);
-            sysexit(EXIT_FAILURE);
+            safe_log_and_exit({"Unknown CommsType"});
             break;
     }
 }
 
-void changeCurrentWorkingDirectory(const score::lcm::internal::osal::OsalConfig& config)
+// TODO: Move this into the config loader
+// https://github.com/eclipse-score/lifecycle/issues/304
+bool validateConfig(const OsalConfig* config)
 {
-    // Change current working directory to the same as the executable
-    constexpr size_t string_size = static_cast<size_t>(PATH_MAX);
-    // Notice that this next static variable is duplicated by the fork() and so does not need
-    // any protection by a mutex although at first sight you may think it could need one.
-    static char path_copy[string_size + 1U] = {0};
-
-    if (config.executable_path_.size() >= string_size)
+    if (access(config->executable_path_.c_str(), X_OK) != 0)
     {
-        LM_LOG_ERROR() << "[New process] executable path longer than" << string_size
-                       << "chars:" << config.executable_path_;
-        sysexit(EXIT_FAILURE);
+        LM_LOG_ERROR() << "File does not exist or is not executable:" << config->executable_path_;
+        return false;
     }
 
-    if (-1 == chdir(dirname(strncpy(path_copy, config.executable_path_.c_str(), string_size))))
+    if (config->scheduling_priority_ < sched_get_priority_min(config->scheduling_policy_))
     {
-        LM_LOG_ERROR() << "[New process] chdir(" << config.executable_path_
-                       << ") failed:" << score::lcm::internal::errno_message(errno);
-        sysexit(EXIT_FAILURE);
+        LM_LOG_WARN() << "Scheduling priority" << config->scheduling_priority_ << "is below minimum for policy"
+                      << config->scheduling_policy_;
     }
-}
-
-void implementMemoryResourceLimits(const score::lcm::internal::osal::OsalConfig& config)
-{
-    setLimit(RLIMIT_DATA, config.resource_limits_.data_, "RLIMIT_DATA");
-    setLimit(RLIMIT_AS, config.resource_limits_.as_, "RLIMIT_AS");
-    setLimit(RLIMIT_STACK, config.resource_limits_.stack_, "RLIMIT_STACK");
-
-    // Note about cpu limit:
-    // Using setrlimit, this imposes a maximum time that a process will run for, which might not be
-    // what you intend? Probably you'll want a maximum time in a time-slice, but you don't get that
-    // with limits set by setrlimit...
-    setLimit(RLIMIT_CPU, config.resource_limits_.cpu_, "RLIMIT_CPU");
-}
-
-void changeSecurityPolicy(const score::lcm::internal::osal::OsalConfig& config)
-{
-    if (config.security_policy_ != "")
+    else if (config->scheduling_priority_ > sched_get_priority_max(config->scheduling_policy_))
     {
-        if (score::lcm::internal::osal::setSecurityPolicy(config.security_policy_.c_str()) != 0)
-        {
-            LM_LOG_ERROR() << "[New process] changeSecurityPolicy(" << config.security_policy_
-                           << ") failed:" << score::lcm::internal::errno_message(errno);
-            sysexit(EXIT_FAILURE);
-        }
+        LM_LOG_WARN() << "Scheduling priority" << config->scheduling_priority_ << "is above maximum for policy"
+                      << config->scheduling_policy_;
     }
+
+    return true;
 }
 
 }  // namespace
@@ -201,11 +136,8 @@ OsalReturnType IProcess::startProcess(ProcessID* pid, IpcCommsP* block, const Os
 
     if ((pid && block && config && config->executable_path_ != "" && config->argv_[0U]))
     {
-        if (access(config->executable_path_.c_str(), X_OK) != 0)
-        {
-            LM_LOG_ERROR() << "File does not exist or is not executable:" << config->executable_path_;
+        if (!validateConfig(config))
             return result;
-        }
 
         int fd = -1;
         *pid = -1;
@@ -226,6 +158,15 @@ OsalReturnType IProcess::startProcess(ProcessID* pid, IpcCommsP* block, const Os
 
             if (*pid == kPosixSuccess)
             {
+                /*
+                 * From this point on only async signal safe functions can be
+                 * used.
+                 *
+                 * This is necessary because `fork` only copies the current
+                 * thread, so any locks which were held at that time will never
+                 * be released. See `man 2 fork`.
+                 */
+
                 ChildProcessConfig param = {config, fd, *block};
                 handleChildProcess(param);
                 result = OsalReturnType::kSuccess;
@@ -273,9 +214,9 @@ inline bool IProcess::setupComms(IpcCommsP& block, int& fd, const OsalConfig& co
     }
 
     static_cast<void>(snprintf(shm_name,
-                               static_cast<uint32_t>(score::lcm::internal::ProcessLimits::maxLocalBuffSize),
-                               "/ipc_shared_mem%u",
-                               shm_name_counter++));
+        static_cast<uint32_t>(score::lcm::internal::ProcessLimits::maxLocalBuffSize),
+        "/ipc_shared_mem%u",
+        shm_name_counter++));
 
     fd = shm_open(shm_name, O_CREAT | O_EXCL | O_RDWR, 0U);
 
@@ -354,100 +295,19 @@ inline bool IProcess::initializeSemaphores(IpcCommsP shared_block)
     return result;
 }
 
-OsalReturnType IProcess::setSchedulingAndSecurity(const OsalConfig& config)
-{
-    OsalReturnType retval = OsalReturnType::kSuccess;
-
-    // Set process group id to be equal to the pid
-    // setpgid will fail if called by a session lader (which LCMd is), so skip
-    if (config.comms_type_ != osal::CommsType::kLaunchManager && 0 != setpgid(0, getpid()))
-    {
-        LM_LOG_ERROR() << "setpgid() failed:" << score::lcm::internal::errno_message(errno);
-        retval = OsalReturnType::kFail;
-    }
-    // Set scheduling policy with sched_setscheduler
-    /* RULECHECKER_comment(1, 1, check_union_object, "Union type defined in external library is used.", true) */
-    sched_param sch_param{};
-
-    sch_param.sched_priority = config.scheduling_priority_;
-
-    if (sch_param.sched_priority < sched_get_priority_min(config.scheduling_policy_))
-    {
-        LM_LOG_WARN() << "Scheduling priority" << sch_param.sched_priority << "is below minimum for policy"
-                      << config.scheduling_policy_ << ", setting to minimum";
-        sch_param.sched_priority = sched_get_priority_min(config.scheduling_policy_);
-    }
-    else if (sch_param.sched_priority > sched_get_priority_max(config.scheduling_policy_))
-    {
-        LM_LOG_WARN() << "Scheduling priority" << sch_param.sched_priority << "is above maximum for policy"
-                      << config.scheduling_policy_ << ", setting to maximum";
-        sch_param.sched_priority = sched_get_priority_max(config.scheduling_policy_);
-    }
-
-    if (-1 == sched_setscheduler(0, config.scheduling_policy_, &sch_param))
-    {
-        LM_LOG_ERROR() << "sched_setscheduler() failed:" << score::lcm::internal::errno_message(errno);
-        retval = OsalReturnType::kFail;
-    }
-
-    // Set core affinity using OS specific functionality in osal
-    if (-1 == osal::setaffinity(config.cpu_mask_))
-    {
-        LM_LOG_ERROR() << "setaffinity(" << config.cpu_mask_
-                       << ") failed:" << score::lcm::internal::errno_message(errno);
-        retval = OsalReturnType::kFail;
-    }
-
-    // Set group ID
-    if (-1 == setgid(config.gid_))
-    {
-        LM_LOG_ERROR() << "setgid(" << config.gid_ << ") failed:" << score::lcm::internal::errno_message(errno);
-        retval = OsalReturnType::kFail;
-    }
-    // Set supplementary group ids
-    size_t supplementary_gids_number = config.supplementary_gids_.size();
-
-    // Note: the type of the first parameter of setgroups() differs in Linux and QNX, so we use osal
-    if (supplementary_gids_number > 0 &&
-        -1 == osal::setgroups(supplementary_gids_number, config.supplementary_gids_.data()))
-    {
-        LM_LOG_ERROR() << "setgroups() failed:" << score::lcm::internal::errno_message(errno);
-        retval = OsalReturnType::kFail;
-    }
-
-    // Set user ID
-    if (-1 == setuid(config.uid_))
-    {
-        LM_LOG_ERROR() << "setuid(" << config.uid_ << ") failed:" << score::lcm::internal::errno_message(errno);
-        retval = OsalReturnType::kFail;
-    }
-
-    return retval;
-}
-
+/// @warning This will exit with failure if not successful.
 inline void IProcess::handleChildProcess(ChildProcessConfig& param)
 {
     handleComms(param);
 
-    if (OsalReturnType::kSuccess != setSchedulingAndSecurity(*param.config))
-    {
-        sysexit(EXIT_FAILURE);
-    }
-
+    setSchedulingAndSecurity(*param.config);
     changeCurrentWorkingDirectory(*param.config);
     implementMemoryResourceLimits(*param.config);
     changeSecurityPolicy(*param.config);
 
     // Finally, execute the process, passing all the arguments and environment variables
-
-    // RULECHECKER_comment(1, 1, check_pointer_qualifier_cast_const, "Remove const for standard library with char type
-    // arguments.", true);
-    if (-1 == execve(param.config->argv_[0], const_cast<char* const*>(param.config->argv_.data()), param.config->envp_))
-    {
-        LM_LOG_ERROR() << "[New process] execve failed: Unable to execute the" << param.config->executable_path_
-                       << "app. Error:" << score::lcm::internal::errno_message(errno);
-        sysexit(EXIT_FAILURE);
-    }
+    if (execve(param.config->argv_[0], const_cast<char* const*>(param.config->argv_.data()), param.config->envp_) == -1)
+        safe_log_errno_and_exit({"Failed to execute process"});
 }
 
 OsalReturnType IProcess::requestTermination(ProcessID pid)

@@ -13,6 +13,23 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_library(
+    name = "configure_process",
+    srcs = ["configure_process.cpp"],
+    hdrs = ["configure_process.hpp"],
+    include_prefix = "score/mw/launch_manager/process_group_manager/details",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
+    deps = [
+        "//score/launch_manager/src/daemon/src/osal:return_types",
+        "//score/launch_manager/src/daemon/src/osal:security_policy",
+        "//score/launch_manager/src/daemon/src/osal:set_affinity",
+        "//score/launch_manager/src/daemon/src/osal:set_groups",
+        "//score/launch_manager/src/daemon/src/osal:sys_exit",
+        "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
+    ],
+)
+
+cc_library(
     name = "process_info_node",
     hdrs = ["process_info_node.hpp"],
     defines = select({
@@ -108,13 +125,10 @@ cc_library(
     srcs = ["process_launcher.cpp"],
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
     deps = [
+        ":configure_process",
         "//score/launch_manager/src/daemon/src/common:log",
         "//score/launch_manager/src/daemon/src/control:control_client_channel",
         "//score/launch_manager/src/daemon/src/osal:ipc_comms",
-        "//score/launch_manager/src/daemon/src/osal:security_policy",
-        "//score/launch_manager/src/daemon/src/osal:set_affinity",
-        "//score/launch_manager/src/daemon/src/osal:set_groups",
-        "//score/launch_manager/src/daemon/src/osal:sys_exit",
         "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
     ],
 )
@@ -135,6 +149,7 @@ cc_library(
     }),
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
     deps = [
+        ":configure_process",
         ":graph",
         ":os_handler",
         ":process_info_node",
