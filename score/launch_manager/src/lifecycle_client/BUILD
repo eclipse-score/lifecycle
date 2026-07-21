@@ -186,6 +186,7 @@ cc_library(
     visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
         ":applicationcontext_mock",
+        ":lifecyclemanager",
         "@googletest//:gtest",
         "@score_baselibs//score/os/utils:signal",
         "@score_baselibs//score/os/utils/mocklib:signal_mock",
