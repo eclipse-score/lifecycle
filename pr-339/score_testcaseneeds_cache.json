@@ -2648,7 +2648,7 @@
   {
     "name": "MPMCConcurrentQueueTest_Timeout__PushWithTimeoutSucceedsWhenSlotAvailable",
     "file": "score/launch_manager/src/daemon/src/common/concurrency/mpmc_concurrent_queue_test.cpp",
-    "line": "134",
+    "line": "132",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2662,7 +2662,7 @@
   {
     "name": "MPMCConcurrentQueueTest_Timeout__PushWithTimeoutReturnsFalseWhenFull",
     "file": "score/launch_manager/src/daemon/src/common/concurrency/mpmc_concurrent_queue_test.cpp",
-    "line": "143",
+    "line": "141",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2676,7 +2676,7 @@
   {
     "name": "MPMCConcurrentQueueTest_Stop__PushReturnsFalseAfterStop",
     "file": "score/launch_manager/src/daemon/src/common/concurrency/mpmc_concurrent_queue_test.cpp",
-    "line": "161",
+    "line": "159",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2690,7 +2690,7 @@
   {
     "name": "MPMCConcurrentQueueTest_Stop__PopReturnsNulloptWhenStoppedAndEmpty",
     "file": "score/launch_manager/src/daemon/src/common/concurrency/mpmc_concurrent_queue_test.cpp",
-    "line": "169",
+    "line": "167",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2704,7 +2704,7 @@
   {
     "name": "MPMCConcurrentQueueTest_Stop__ItemsAreDroppedAfterStop",
     "file": "score/launch_manager/src/daemon/src/common/concurrency/mpmc_concurrent_queue_test.cpp",
-    "line": "177",
+    "line": "175",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2718,7 +2718,7 @@
   {
     "name": "MPMCConcurrentQueueTest_Blocking__PopBlocksUntilItemAvailable",
     "file": "score/launch_manager/src/daemon/src/common/concurrency/mpmc_concurrent_queue_test.cpp",
-    "line": "196",
+    "line": "194",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2732,7 +2732,7 @@
   {
     "name": "MPMCConcurrentQueueTest_Blocking__PushBlocksWhenFull",
     "file": "score/launch_manager/src/daemon/src/common/concurrency/mpmc_concurrent_queue_test.cpp",
-    "line": "214",
+    "line": "212",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2746,7 +2746,7 @@
   {
     "name": "MPMCConcurrentQueueTest_Blocking__StopUnblocksBlockedConsumer",
     "file": "score/launch_manager/src/daemon/src/common/concurrency/mpmc_concurrent_queue_test.cpp",
-    "line": "237",
+    "line": "235",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2760,7 +2760,7 @@
   {
     "name": "MPMCConcurrentQueueTest_Blocking__StopUnblocksBlockedProducer",
     "file": "score/launch_manager/src/daemon/src/common/concurrency/mpmc_concurrent_queue_test.cpp",
-    "line": "253",
+    "line": "251",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2774,7 +2774,7 @@
   {
     "name": "MPMCConcurrentQueueTest_MPMC__AllItemsDelivered",
     "file": "score/launch_manager/src/daemon/src/common/concurrency/mpmc_concurrent_queue_test.cpp",
-    "line": "285",
+    "line": "283",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3390,7 +3390,7 @@
   {
     "name": "MPMCConcurrentQueueTest_Timeout__PushWithTimeoutSucceedsWhenSlotAvailable",
     "file": "score/launch_manager/src/daemon/src/common/concurrency/mpmc_concurrent_queue_test.cpp",
-    "line": "134",
+    "line": "132",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3404,7 +3404,7 @@
   {
     "name": "MPMCConcurrentQueueTest_Timeout__PushWithTimeoutReturnsFalseWhenFull",
     "file": "score/launch_manager/src/daemon/src/common/concurrency/mpmc_concurrent_queue_test.cpp",
-    "line": "143",
+    "line": "141",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3418,7 +3418,7 @@
   {
     "name": "MPMCConcurrentQueueTest_Stop__PushReturnsFalseAfterStop",
     "file": "score/launch_manager/src/daemon/src/common/concurrency/mpmc_concurrent_queue_test.cpp",
-    "line": "161",
+    "line": "159",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3432,7 +3432,7 @@
   {
     "name": "MPMCConcurrentQueueTest_Stop__PopReturnsNulloptWhenStoppedAndEmpty",
     "file": "score/launch_manager/src/daemon/src/common/concurrency/mpmc_concurrent_queue_test.cpp",
-    "line": "169",
+    "line": "167",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3446,7 +3446,7 @@
   {
     "name": "MPMCConcurrentQueueTest_Stop__ItemsAreDroppedAfterStop",
     "file": "score/launch_manager/src/daemon/src/common/concurrency/mpmc_concurrent_queue_test.cpp",
-    "line": "177",
+    "line": "175",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3460,7 +3460,7 @@
   {
     "name": "MPMCConcurrentQueueTest_Blocking__PopBlocksUntilItemAvailable",
     "file": "score/launch_manager/src/daemon/src/common/concurrency/mpmc_concurrent_queue_test.cpp",
-    "line": "196",
+    "line": "194",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3474,7 +3474,7 @@
   {
     "name": "MPMCConcurrentQueueTest_Blocking__PushBlocksWhenFull",
     "file": "score/launch_manager/src/daemon/src/common/concurrency/mpmc_concurrent_queue_test.cpp",
-    "line": "214",
+    "line": "212",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3488,7 +3488,7 @@
   {
     "name": "MPMCConcurrentQueueTest_Blocking__StopUnblocksBlockedConsumer",
     "file": "score/launch_manager/src/daemon/src/common/concurrency/mpmc_concurrent_queue_test.cpp",
-    "line": "237",
+    "line": "235",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3502,7 +3502,7 @@
   {
     "name": "MPMCConcurrentQueueTest_Blocking__StopUnblocksBlockedProducer",
     "file": "score/launch_manager/src/daemon/src/common/concurrency/mpmc_concurrent_queue_test.cpp",
-    "line": "253",
+    "line": "251",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3516,7 +3516,7 @@
   {
     "name": "MPMCConcurrentQueueTest_MPMC__AllItemsDelivered",
     "file": "score/launch_manager/src/daemon/src/common/concurrency/mpmc_concurrent_queue_test.cpp",
-    "line": "285",
+    "line": "283",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
