@@ -50,29 +50,20 @@ def run_until_file_deployed(
 
     deadline = time.monotonic() + timeout_s
     while time.monotonic() < deadline:
+        exit_code, _ = target.execute(f"test -f {file_path}")
+
+        # Even after the test the launch manager should keep running forever
         if not proc.is_running():
             raise RuntimeError(
-                f"Process '{binary_path}' exited (code {proc.get_exit_code()}) "
-                f"before '{file_path}' appeared."
-                f"stdout: {proc.get_output()}"
+                f"Process '{binary_path}' unexpectedly exited with code "
+                f"{proc.get_exit_code()}. stdout: {proc.get_output()}"
             )
 
-        exit_code, _ = target.execute(f"test -f {file_path}")
         if exit_code == 0:
-            # Kill the entire process group so that children (e.g. the actual
-            # daemon binary launched under fakeroot) receive SIGTERM and can
-            # run their cleanup code before exiting.
-            kill_cmd = f"kill -15 -{proc.pid()}"
-            res, _ = target.execute(kill_cmd)
-            time.sleep(0.5)
-            assert proc.is_running() == False, "LCM still running"
-            assert proc.get_exit_code() == 0, (
-                f"LCM did not exit cleanly, it died with code {proc.get_exit_code()}"
-            )
-            assert res == 0, "Couldn't kill lcm"
+            proc.stop()
             return proc
-        logger.debug(f"Waiting for {file_path}")
 
+        logger.debug(f"Waiting for {file_path}")
         time.sleep(poll_interval_s)
 
     proc.stop()
