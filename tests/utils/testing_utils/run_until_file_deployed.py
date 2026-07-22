@@ -25,6 +25,7 @@ def run_until_file_deployed(
     file_path: str,
     timeout_s: float = 30.0,
     poll_interval_s: float = 0.5,
+    stop_timeout_s: float = 2.0,
     args=None,
     cwd: str = "/",
 ) -> AsyncProcess:
@@ -35,6 +36,8 @@ def run_until_file_deployed(
     :param file_path: path of the file to wait for on the target.
     :param timeout_s: maximum seconds to wait for the file (default: 30).
     :param poll_interval_s: seconds between file-existence checks (default: 0.5).
+    :param stop_timeout_s: maximum seconds to wait for the process to terminate
+        after SIGTERM (default: 2).
     :param args: optional list of arguments to pass to the binary.
     :param cwd: working directory on the target (default: "/").
     :return: the stopped :class:`AsyncProcess` handle.
@@ -64,12 +67,21 @@ def run_until_file_deployed(
             # run their cleanup code before exiting.
             kill_cmd = f"kill -15 -{proc.pid()}"
             res, _ = target.execute(kill_cmd)
-            time.sleep(0.5)
-            assert proc.is_running() == False, "LCM still running"
+            assert res == 0, "Couldn't kill lcm"
+
+            # Poll for the process to actually terminate instead of assuming a
+            # single fixed grace period is enough. Termination timing varies
+            # with system load, so a fixed sleep is flaky.
+            stop_deadline = time.monotonic() + stop_timeout_s
+            while proc.is_running() and time.monotonic() < stop_deadline:
+                time.sleep(poll_interval_s)
+
+            assert not proc.is_running(), (
+                f"LCM still running {stop_timeout_s}s after SIGTERM"
+            )
             assert proc.get_exit_code() == 0, (
                 f"LCM did not exit cleanly, it died with code {proc.get_exit_code()}"
             )
-            assert res == 0, "Couldn't kill lcm"
             return proc
         logger.debug(f"Waiting for {file_path}")
 
