@@ -61,7 +61,7 @@ cc_library(
     hdrs = ["safe_process_map.hpp"],
     include_prefix = "score/mw/launch_manager/process_group_manager/details",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
+    visibility = ["//score:__subpackages__"],
     deps = [
         "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
     ],
