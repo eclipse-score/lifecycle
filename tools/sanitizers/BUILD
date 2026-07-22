@@ -28,5 +28,5 @@ sh_binary(
         "@score_cpp_policies//sanitizers:wrapper",
     ],
     target_compatible_with = ["@platforms//os:linux"],
-    visibility = ["//visibility:public"],
+    visibility = ["//score:__subpackages__"],
 )
