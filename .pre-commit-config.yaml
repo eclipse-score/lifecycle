@@ -30,7 +30,7 @@ repos:
     hooks:
       - id: clang-format
         name: clang-format
-        entry: ./scripts/run_clang_format_precommit.sh
+        entry: bazel run //:format.fix_C++_with_clang-format
         language: system
         files: '\.(c|cc|cpp|h|hpp)$'
       - id: clang-tidy

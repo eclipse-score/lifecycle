@@ -90,9 +90,7 @@ TEST_F(MPMCConcurrentQueueTest_Basic, PopReturnsNulloptOnSemaphoreWaitFailure)
 
     // Install a no-op handler without SA_RESTART so sem_wait is NOT restarted
     // after signal delivery and returns -1 with EINTR instead.
-    struct sigaction sa
-    {
-    };
+    struct sigaction sa{};
     sa.sa_handler = [](int) {
     };
     sigemptyset(&sa.sa_mask);

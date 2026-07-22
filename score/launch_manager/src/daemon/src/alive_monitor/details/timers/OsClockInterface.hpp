@@ -97,17 +97,11 @@ class OsClockInterface
 
   private:
     /// @brief Timestamp when main method starts
-    struct timespec startTime
-    {
-        0, 0
-    };
+    struct timespec startTime{0, 0};
 
     /// @brief Timestamp when initialization finishes (just before kRunning is reported)
     // coverity[autosar_cpp14_m3_4_1_violation] block scope definition is intentionally avoided for maintainability
-    struct timespec initFinishedTime
-    {
-        0, 0
-    };
+    struct timespec initFinishedTime{0, 0};
 };
 
 }  // namespace timers

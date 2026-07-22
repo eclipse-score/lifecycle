@@ -71,7 +71,7 @@ class ProcessInfoNode final : public ITerminationCallback
           is_included_(false),
           is_head_node_(false),
           config_(nullptr),
-          dependency_list_(nullptr){};
+          dependency_list_(nullptr) {};
     /// @brief Initialise this node.
     /// The member variables are initialised. The configuration manager is called to retrieve the configuration details
     /// and dependencies for the process given by pg, idx. The successor lists (dependent_on_running_,

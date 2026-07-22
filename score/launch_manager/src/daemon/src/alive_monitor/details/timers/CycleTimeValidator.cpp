@@ -24,9 +24,7 @@ namespace timers
 int64_t CycleTimeValidator::getMonotonicClockAccuracy(
     const score::lcm::saf::timers::OsClockInterface& f_clock_sys) noexcept(true)
 {
-    struct timespec clockResolution
-    {
-    };
+    struct timespec clockResolution{};
     int64_t accuracyNs{-1};
     const int getResResult{f_clock_sys.clockGetRes(&clockResolution)};
 
