@@ -153,6 +153,10 @@ build:tsan --config=with_debug_symbols
 build:tsan --copt=-fsanitize=thread
 build:tsan --copt=-O1
 build:tsan --linkopt=-fsanitize=thread
+# rustc always passes -nodefaultlibs to the linker it drives, which suppresses gcc's
+# automatic linking of the sanitizer runtime pulled in by -fsanitize=thread, so it
+# must be added explicitly for Rust binaries/tests.
+build:tsan --@rules_rust//rust/settings:extra_rustc_flag=-Clink-arg=-ltsan
 # GCC TSan doesn't instrument atomic_thread_fence; suppress the resulting -Wtsan
 # warning so it doesn't become a build error in external deps that use -Werror.
 build:tsan --cxxopt=-Wno-tsan
@@ -161,3 +165,5 @@ build:tsan --@score_cpp_policies//sanitizers/flags:sanitizer=tsan
 test:tsan --run_under=//tools/sanitizers:tsan_setarch_wrapper
 test:tsan --test_tag_filters=-no-tsan
 test:tsan --build_tests_only
+test:tsan --cxxopt=-Wno-maybe-uninitialized
+test:tsan --cxxopt=-Wno-redundant-move

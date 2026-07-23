@@ -69,16 +69,13 @@ def integration_test(
 
     pkg_tar(name = "environment", srcs = [":binaries", ":files"])
 
-    # The test container does not ship the sanitizer runtime; daemon fails to start.
-    sanitizer_tags = ["no-asan", "no-tsan"]
-    tags = kwargs.pop("tags", []) + sanitizer_tags
-
     py_itf_test(
         name = name,
         srcs = srcs,
         tags = kwargs.pop("tags", []) + [
             "integration",
             "no-asan",  # The test container does not ship the sanitizer runtime; daemon fails to start.
+            "no-tsan"
         ],
         deps = kwargs.pop("deps", []) + all_requirements + [
             "@score_tooling//python_basics/score_pytest:attribute_plugin",
