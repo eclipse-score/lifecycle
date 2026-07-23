@@ -75,7 +75,6 @@ def integration_test(
         tags = kwargs.pop("tags", []) + [
             "integration",
             "no-asan",  # The test container does not ship the sanitizer runtime; daemon fails to start.
-            "no-tsan",
         ],
         deps = kwargs.pop("deps", []) + all_requirements + [
             "@score_tooling//python_basics/score_pytest:attribute_plugin",
