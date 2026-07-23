@@ -161,7 +161,7 @@ cc_library(
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/src/lifecycle_client/src",
-    visibility = ["//visibility:public"],
+    visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
         "@googletest//:gtest",
         "@score_baselibs//score/memory:string_literal",
@@ -183,7 +183,7 @@ cc_library(
     features = COMPILER_WARNING_FEATURES,
     include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/src/lifecycle_client/src",
-    visibility = ["//visibility:public"],
+    visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
         ":applicationcontext_mock",
         ":lifecyclemanager",
@@ -207,6 +207,19 @@ cc_library(
     visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
         "@googletest//:gtest",
+    ],
+)
+
+# Single public entry point for external packages that need lifecycle mocks in their tests.
+# Prefer depending on this target rather than on individual mock targets.
+cc_library(
+    name = "lifecycle_test_mocks",
+    testonly = True,
+    visibility = ["//visibility:public"],
+    deps = [
+        ":applicationcontext_mock",
+        ":lifecycle_mock",
+        ":report_running_mock",
     ],
 )
 
