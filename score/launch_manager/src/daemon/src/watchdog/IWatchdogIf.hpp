@@ -11,7 +11,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-
 #ifndef IWATCHDOGIF_HPP_INCLUDED
 #define IWATCHDOGIF_HPP_INCLUDED
 
@@ -32,8 +31,9 @@ namespace watchdog
 /// there may be multiple implementations in the future depending on what types of watchdogs should be supported.
 class IWatchdogIf
 {
-public:
-    /* RULECHECKER_comment(0, 14, check_single_use_pod_variable, "Constants are required for testing", true_no_defect) */
+  public:
+    /* RULECHECKER_comment(0, 14, check_single_use_pod_variable, "Constants are required for testing", true_no_defect)
+     */
 #ifdef __QNXNTO__
     /// @brief Minimum supported timeout value in ms for QNX target
     static constexpr std::uint16_t kTimeoutMinMillis{100U};
@@ -97,7 +97,7 @@ public:
     /// @note Method is not reentrant safe.
     virtual void fireWatchdogReaction(void) noexcept = 0;
 
-protected:
+  protected:
     /// @brief Default constructor.
     /* RULECHECKER_comment(0, 2, check_min_instructions, "Default destructor has no body", true_no_defect) */
     IWatchdogIf() = default;

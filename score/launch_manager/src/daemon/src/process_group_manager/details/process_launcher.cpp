@@ -22,14 +22,14 @@
 #include <limits.h>
 #include <signal.h>
 
-#include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
-#include "score/mw/launch_manager/control/control_client_channel.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/control/control_client_channel.hpp"
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
 #include "score/mw/launch_manager/osal/security_policy.hpp"
 #include "score/mw/launch_manager/osal/set_affinity.hpp"
 #include "score/mw/launch_manager/osal/set_groups.hpp"
 #include "score/mw/launch_manager/osal/sys_exit.hpp"
+#include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include <cerrno>
 #include <csignal>
 #include <cstdio>
@@ -271,10 +271,11 @@ inline bool IProcess::setupComms(IpcCommsP& block, int& fd, const OsalConfig& co
         length += sizeof(ControlClientChannel);
     }
 
-    static_cast<void>(snprintf(shm_name,
-                               static_cast<uint32_t>(score::lcm::internal::ProcessLimits::maxLocalBuffSize),
-                               "/ipc_shared_mem%u",
-                               shm_name_counter++));
+    static_cast<void>(snprintf(
+        shm_name,
+        static_cast<uint32_t>(score::lcm::internal::ProcessLimits::maxLocalBuffSize),
+        "/ipc_shared_mem%u",
+        shm_name_counter++));
 
     fd = shm_open(shm_name, O_CREAT | O_EXCL | O_RDWR, 0U);
 

@@ -14,8 +14,10 @@
 
 #include "score/mw/launch_manager/recovery_client/recovery_client.hpp"
 
-namespace score {
-namespace lcm {
+namespace score
+{
+namespace lcm
+{
 
 class RecoveryClientTest : public ::testing::Test
 {
@@ -29,8 +31,7 @@ class RecoveryClientTest : public ::testing::Test
 
 TEST_F(RecoveryClientTest, SendSingleRequest)
 {
-    RecordProperty("Description",
-                   "RecoveryClient can send single request successfully.");
+    RecordProperty("Description", "RecoveryClient can send single request successfully.");
 
     RecoveryClient client;
     const bool result = client.sendRecoveryRequest(IdentifierHash("proc_a"));
@@ -40,8 +41,7 @@ TEST_F(RecoveryClientTest, SendSingleRequest)
 
 TEST_F(RecoveryClientTest, GetNextRequest)
 {
-    RecordProperty("Description",
-                   "RecoveryClient can send and retrieve single request successfully.");
+    RecordProperty("Description", "RecoveryClient can send and retrieve single request successfully.");
 
     RecoveryClient client;
     const IdentifierHash expected_proc("proc_b");
@@ -54,8 +54,7 @@ TEST_F(RecoveryClientTest, GetNextRequest)
 
 TEST_F(RecoveryClientTest, GetNextRequestEmpty)
 {
-    RecordProperty("Description",
-                   "RecoveryClient returns no request when buffer is empty.");
+    RecordProperty("Description", "RecoveryClient returns no request when buffer is empty.");
 
     RecoveryClient client;
     EXPECT_FALSE(client.getNextRequest().has_value());
@@ -63,8 +62,7 @@ TEST_F(RecoveryClientTest, GetNextRequestEmpty)
 
 TEST_F(RecoveryClientTest, RingBufferFull)
 {
-    RecordProperty("Description",
-                   "RecoveryClient sets overflow flag if buffer is full.");
+    RecordProperty("Description", "RecoveryClient sets overflow flag if buffer is full.");
 
     RecoveryClient client;
     const IdentifierHash proc("proc_c");
@@ -82,8 +80,7 @@ TEST_F(RecoveryClientTest, RingBufferFull)
 
 TEST_F(RecoveryClientTest, FIFOOrdering)
 {
-    RecordProperty("Description",
-                   "RecoveryClient maintains the order of inserted requests");
+    RecordProperty("Description", "RecoveryClient maintains the order of inserted requests");
 
     RecoveryClient client;
     const IdentifierHash proc_first("proc_first");
@@ -109,5 +106,5 @@ TEST_F(RecoveryClientTest, FIFOOrdering)
     EXPECT_FALSE(client.getNextRequest().has_value());
 }
 
-} // namespace lcm
-} // namespace score
+}  // namespace lcm
+}  // namespace score

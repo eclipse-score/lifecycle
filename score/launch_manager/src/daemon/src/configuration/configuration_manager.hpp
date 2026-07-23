@@ -191,8 +191,8 @@ class ConfigurationManager final
     /// @param[in] index The index of the OS process.
     /// @return Returns a pointer to an OSProcess.
     /// If index/process group does not exist there will be no return value.
-    std::optional<const OsProcess*> getOsProcessConfiguration(const IdentifierHash& pg_name_,
-                                                              const uint32_t index) const;
+    std::optional<const OsProcess*> getOsProcessConfiguration(const IdentifierHash& pg_name_, const uint32_t index)
+        const;
 
     /// @brief Get dependencies of an OS process within a specific process group.
     ///
@@ -204,8 +204,9 @@ class ConfigurationManager final
     /// @param[in] index The index of the OS process within the process group.
     /// @return An optional vector of Dependency objects representing process dependencies,
     ///         or an empty optional if the process group or process index does not exist.
-    std::optional<const DependencyList*> getOsProcessDependencies(const IdentifierHash& process_group_name,
-                                                                  const uint32_t index) const;
+    std::optional<const DependencyList*> getOsProcessDependencies(
+        const IdentifierHash& process_group_name,
+        const uint32_t index) const;
 
     /// @brief default value for the process execution error, in case it is not defined in the configuration
     static const uint32_t kDefaultProcessExecutionError;
@@ -361,8 +362,9 @@ class ConfigurationManager final
     /// @param[in] index The index of the process group within the list of process groups.
     /// @return A pointer to the `ProcessGroup` if it exists, or `nullptr` if no matching process group is found
     ///         with the given name and index.
-    std::optional<const ProcessGroup*> getProcessGroupByNameAndIndex(const IdentifierHash& pg_name,
-                                                                     const uint32_t index) const;
+    std::optional<const ProcessGroup*> getProcessGroupByNameAndIndex(
+        const IdentifierHash& pg_name,
+        const uint32_t index) const;
 
     /// @brief Assign an OsProcess instance to a ProcessGroupState identified by ID.
     /// This function assigns the OsProcess instance to a ProcessGroup and process index to ProcessGroupState.
@@ -415,8 +417,9 @@ class ConfigurationManager final
     /// LMFlatBuffer::ExecutionStateReportingBehaviorEnum.
     /// @param[in] process_name The name of the process as a FlatBuffer string.
     /// @return `kReporting` if the process reports its execution state, `kNoComms` otherwise.
-    osal::CommsType isReportingProcess(const LMFlatBuffer::ExecutionStateReportingBehaviorEnum reporting_behaviour,
-                                       const std::string_view process_name);
+    osal::CommsType isReportingProcess(
+        const LMFlatBuffer::ExecutionStateReportingBehaviorEnum reporting_behaviour,
+        const std::string_view process_name);
 
     /// @brief Determines the communication type for the process.
     /// This function evaluates the process configuration to determine the appropriate communication type.
@@ -444,8 +447,9 @@ class ConfigurationManager final
     /// LMFlatBuffer::TerminationBehaviorEnum.
     /// @param[in] process_name The name of the process as a FlatBuffer string.
     /// @return `true` if the process is self-terminating, `false` otherwise.
-    bool isSelfTerminatingProcess(const LMFlatBuffer::TerminationBehaviorEnum termination_behavior,
-                                  const std::string_view process_name);
+    bool isSelfTerminatingProcess(
+        const LMFlatBuffer::TerminationBehaviorEnum termination_behavior,
+        const std::string_view process_name);
 
     /// @brief Assigns OS process indexes in the dependency list
     /// This function assigns process indexes to each OS process in the dependency list
@@ -482,8 +486,9 @@ class ConfigurationManager final
     /// This member variable represents a predefined `ProcessGroupStateID` instance that identifies the startup state of
     /// a machine process group. It is initialized with the names "MainPG" (process group name) and "Startup" (state
     /// name).
-    ProcessGroupStateID main_pg_startup_state_{static_cast<IdentifierHash>("MainPG"),
-                                               static_cast<IdentifierHash>("MainPG/Startup")};
+    ProcessGroupStateID main_pg_startup_state_{
+        static_cast<IdentifierHash>("MainPG"),
+        static_cast<IdentifierHash>("MainPG/Startup")};
 
     /// @brief Unique Process index for OS process instance for specific startup configs
     /// This member variable represents the index of the OS process instance with unique startup config.

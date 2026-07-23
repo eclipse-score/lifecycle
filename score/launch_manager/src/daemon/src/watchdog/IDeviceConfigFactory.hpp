@@ -11,7 +11,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-
 #ifndef IDEVICECONFIGFACTORY_HPP_INCLUDED
 #define IDEVICECONFIGFACTORY_HPP_INCLUDED
 
@@ -29,8 +28,10 @@ namespace watchdog
 {
 
 /// @brief The watchdog device configuration.
-/* RULECHECKER_comment(1:0,2:0, check_non_pod_struct, "Intentionally using a struct with non-pod members as alternatives would more complex", true_no_defect) */
-/* RULECHECKER_comment(1:0,18:0, check_non_private_non_pod_field, "Intentionally using a struct with non-pod members as alternatives would more complex", true_no_defect) */
+/* RULECHECKER_comment(1:0,2:0, check_non_pod_struct, "Intentionally using a struct with non-pod members as alternatives
+ * would more complex", true_no_defect) */
+/* RULECHECKER_comment(1:0,18:0, check_non_private_non_pod_field, "Intentionally using a struct with non-pod members as
+ * alternatives would more complex", true_no_defect) */
 struct DeviceConfig final
 {
     /// @brief Absolute file path of watchdog device file typically stored under /dev folder.
@@ -55,7 +56,7 @@ struct DeviceConfig final
 /// Possible implementations include reading the device configuration from flatcfg, environment variables, etc.
 class IDeviceConfigFactory
 {
-public:
+  public:
     /// @brief List of device configs
     using DeviceConfigurations = std::vector<DeviceConfig>;
     /// @brief Destructor
@@ -66,7 +67,7 @@ public:
     /// It returns an error code in case at least one watchdog config could not be read.
     virtual std::optional<DeviceConfigurations> getDeviceConfigurations() const = 0;
 
-protected:
+  protected:
     /// @brief Default constructor.
     /* RULECHECKER_comment(0, 2, check_min_instructions, "Default destructor has no body", true_no_defect) */
     IDeviceConfigFactory() = default;

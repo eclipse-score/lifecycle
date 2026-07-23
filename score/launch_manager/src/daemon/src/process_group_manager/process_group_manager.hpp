@@ -26,17 +26,17 @@
 #else
 #include "score/mw/launch_manager/configuration/configuration_manager.hpp"
 #endif
-#include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
 #include "score/mw/launch_manager/common/concurrency/mpmc_concurrent_queue.hpp"
+#include "score/mw/launch_manager/common/concurrency/workerthread.hpp"
+#include "score/mw/launch_manager/common/constants.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/os_handler.hpp"
-#include "score/mw/launch_manager/process_state_client/iprocess_state_notifier.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
-#include "score/mw/launch_manager/common/concurrency/workerthread.hpp"
 #include "score/mw/launch_manager/process_group_manager/ialive_monitor_thread.hpp"
+#include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
+#include "score/mw/launch_manager/process_state_client/iprocess_state_notifier.hpp"
 #include "score/mw/launch_manager/recovery_client/recovery_client.hpp"
-#include "score/mw/launch_manager/common/constants.hpp"
 
 namespace score::lcm::internal
 {
@@ -76,9 +76,10 @@ class ProcessGroupManager final
     /// @param recovery_client A shared pointer to an IRecoveryClient instance for handling recovery operations.
     /// @param process_state_notifier A unique pointer to an IProcessStateNotifier instance for notifying the Alive
     /// Monitor thread of process state changes.
-    ProcessGroupManager(std::unique_ptr<IAliveMonitorThread> alive_monitor_thread,
-                        std::shared_ptr<IRecoveryClient> recovery_client,
-                        std::unique_ptr<score::lcm::IProcessStateNotifier> process_state_notifier);
+    ProcessGroupManager(
+        std::unique_ptr<IAliveMonitorThread> alive_monitor_thread,
+        std::shared_ptr<IRecoveryClient> recovery_client,
+        std::unique_ptr<score::lcm::IProcessStateNotifier> process_state_notifier);
 
     /// @brief Initializes the process group manager.
     /// Loads the flat configuration through ConfigurationManager.
@@ -281,7 +282,6 @@ class ProcessGroupManager final
 #else
     inline bool initializeProcessGroups();
 #endif
-
 
     /// @brief Creates process component objects, including the job queue and worker threads.
     inline void createProcessComponentsObjects();

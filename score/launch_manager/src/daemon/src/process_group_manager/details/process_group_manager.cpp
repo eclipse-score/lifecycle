@@ -37,9 +37,10 @@ void ProcessGroupManager::cancel()
     my_signal_handler(SIGTERM);
 }
 
-ProcessGroupManager::ProcessGroupManager(std::unique_ptr<IAliveMonitorThread> alive_monitor_thread,
-                                         std::shared_ptr<IRecoveryClient> recovery_client,
-                                         std::unique_ptr<score::lcm::IProcessStateNotifier> process_state_notifier)
+ProcessGroupManager::ProcessGroupManager(
+    std::unique_ptr<IAliveMonitorThread> alive_monitor_thread,
+    std::shared_ptr<IRecoveryClient> recovery_client,
+    std::unique_ptr<score::lcm::IProcessStateNotifier> process_state_notifier)
     : configuration_(),
       process_interface_(),
       process_map_(nullptr),
@@ -144,9 +145,10 @@ inline bool ProcessGroupManager::initializeControlClientHandler()
     ControlClientChannel::nudgeControlClientHandler_ = nullptr;
     char shm_name[static_cast<uint32_t>(score::lcm::internal::ProcessLimits::maxLocalBuffSize)];
 
-    static_cast<void>(snprintf(shm_name,
-                               static_cast<uint32_t>(score::lcm::internal::ProcessLimits::maxLocalBuffSize),
-                               "/_nudge~._.~me_"));  // random name
+    static_cast<void>(snprintf(
+        shm_name,
+        static_cast<uint32_t>(score::lcm::internal::ProcessLimits::maxLocalBuffSize),
+        "/_nudge~._.~me_"));  // random name
     int fd = shm_open(shm_name, O_CREAT | O_EXCL | O_RDWR, 0U);
 
     if (fd >= 0)
@@ -166,7 +168,6 @@ inline bool ProcessGroupManager::initializeControlClientHandler()
                 return false;
             }
 
-
             if (osal::IpcCommsSync::control_client_handler_nudge_fd == fd2)
             {
                 void* buf = mmap(NULL, sizeof(osal::Semaphore), PROT_WRITE, MAP_SHARED, fd2, 0);
@@ -179,8 +180,8 @@ inline bool ProcessGroupManager::initializeControlClientHandler()
                     // coverity[cert_mem52_cpp_violation:FALSE] The allocated memory is checked by the containing if
                     // statement.
                     const auto osal_result = ControlClientChannel::nudgeControlClientHandler_->init(0U, true);
-                    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(osal_result == OsalReturnType::kSuccess,
-                                                            "ControlClientChannel semaphore init failed");
+                    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+                        osal_result == OsalReturnType::kSuccess, "ControlClientChannel semaphore init failed");
 
                     result = true;
                 }
@@ -449,8 +450,8 @@ inline void ProcessGroupManager::controlClientResponses(Graph& pg)
 
 bool ProcessGroupManager::sendResponse(ControlClientMessage msg)
 {
-    auto pin = getProcessInfoNode(msg.originating_control_client_.process_group_index_,
-                                  msg.originating_control_client_.process_index_);
+    auto pin = getProcessInfoNode(
+        msg.originating_control_client_.process_group_index_, msg.originating_control_client_.process_index_);
     bool ret = true;
 
     if (pin)

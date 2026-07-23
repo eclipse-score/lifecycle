@@ -41,8 +41,8 @@ namespace daemon
 /// @brief Return codes for PhmDaemon Initialization
 enum class EInitCode : std::int8_t
 {
-    kNoError,                           ///< Init Successful (no error occurred)
-    kNotInitialized,                    ///< Init was not performed
+    kNoError,                          ///< Init Successful (no error occurred)
+    kNotInitialized,                   ///< Init was not performed
     kCycleTimeInitFailed,              ///< Cyclic Timer initialization failed
     kConstructFlatCfgFactoryFailed,    ///< FlatCfgFactory failed loading SWCL configurations
     kWatchdogInitFailed,               ///< Watchdog Initialization failed
@@ -52,13 +52,12 @@ enum class EInitCode : std::int8_t
     kGeneralError                      ///< General error
 };
 
-
 /// @brief PHM daemon main class wraps the functionality for initialization and cyclic execution.
 /// @details This is the main class responsible to execute the main functionalities of PHM daemon,
 ///          by using the necessary classes from this software component.
 class PhmDaemon
 {
-public:
+  public:
     using OsClock = score::lcm::saf::timers::OsClockInterface;
     using Watchdog = watchdog::IWatchdogIf;
     using ProcessStateReceiver = score::lcm::IProcessStateReceiver;
@@ -78,12 +77,14 @@ public:
     /// @brief Set the OS clock interface
     /// @param[in] f_osClock Access to the system clock (dependency injection possible in tests)
     /// @param[in] f_watchdog watchdog implementation (dependency injection possible in tests)
-    /// @param[in] f_process_state_receiver process state receiver implementation (dependency injection possible in tests)
+    /// @param[in] f_process_state_receiver process state receiver implementation (dependency injection possible in
+    /// tests)
     /* RULECHECKER_comment(3,1, check_expensive_to_copy_in_parameter, "Move only types cannot be passed by const ref",
        true_no_defect) */
-    PhmDaemon(OsClock& f_osClock,
-              std::unique_ptr<Watchdog> f_watchdog,
-              std::unique_ptr<ProcessStateReceiver> f_process_state_receiver);
+    PhmDaemon(
+        OsClock& f_osClock,
+        std::unique_ptr<Watchdog> f_watchdog,
+        std::unique_ptr<ProcessStateReceiver> f_process_state_receiver);
 
     /* RULECHECKER_comment(0, 4, check_min_instructions, "Default destructor is not provided\
        a function body", true_no_defect) */
@@ -133,8 +134,7 @@ public:
         }
 
         int64_t cycleTimeModified{static_cast<std::int64_t>(machineConfig.getCycleTimeInNs())};
-        cycleTimeModified =
-            CycleTimeValidator::adjustCycleTimeOnClockAccuracy(cycleTimeModified, osClock);
+        cycleTimeModified = CycleTimeValidator::adjustCycleTimeOnClockAccuracy(cycleTimeModified, osClock);
 
         const int64_t timerInit{cycleTimer.init(cycleTimeModified)};
         if (timerInit > 0)
@@ -238,7 +238,7 @@ public:
         return true;
     }
 
-private:
+  private:
     /// @brief Create SwCluster objects & Invoke construction of worker objects
     /// @details Create the SwclusterHandler objects and the workers for the SwclusterHandler
     /// @param[in] f_bufferConfig_r The buffer configuration used for worker construction

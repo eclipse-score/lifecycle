@@ -11,22 +11,22 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-
 #ifndef MACHINE_CONFIG_FACTORY_HPP_INCLUDED
 #define MACHINE_CONFIG_FACTORY_HPP_INCLUDED
 
-#include <optional>
 #include "score/mw/launch_manager/alive_monitor/details/factory/StaticConfig.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
 #include "score/mw/launch_manager/watchdog/IDeviceConfigFactory.hpp"
+#include <optional>
 #ifdef USE_NEW_CONFIGURATION
 #include "score/mw/launch_manager/configuration/config.hpp"
 #else
 namespace HMCOREFlatBuffer
 {
-/* RULECHECKER_comment(1:0,1:0, check_non_pod_struct, "External data type form generated flatbuffer code", true_no_defect) */
+/* RULECHECKER_comment(1:0,1:0, check_non_pod_struct, "External data type form generated flatbuffer code",
+ * true_no_defect) */
 struct HMCOREEcuCfg;
-}  // namespace PHMCOREFlatBuffer
+}  // namespace HMCOREFlatBuffer
 #endif
 
 namespace score
@@ -44,7 +44,7 @@ namespace factory
 /// provided. If no configuration is provided, the default values are returned.
 class MachineConfigFactory : public watchdog::IDeviceConfigFactory
 {
-public:
+  public:
     /// @brief Holds different buffer sizes that may be configured in the HM Machine Config
     /// @details All buffer sizes are initialized with their default value
     struct SupervisionBufferConfig
@@ -92,7 +92,7 @@ public:
     /// @return Configured buffer sizes or default values if not configured
     const SupervisionBufferConfig& getSupervisionBufferConfig() const noexcept(true);
 
-private:
+  private:
 #ifndef USE_NEW_CONFIGURATION
     /// @brief Loads the hm machine config
     /// @param [in] f_cfg_r The flatcfg api

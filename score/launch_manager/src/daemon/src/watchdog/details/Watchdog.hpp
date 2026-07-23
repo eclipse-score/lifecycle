@@ -11,12 +11,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-
 #ifndef WATCHDOG_HPP_INCLUDED
 #define WATCHDOG_HPP_INCLUDED
 
 #ifndef __QNXNTO__
-#    include <linux/watchdog.h>
+#include <linux/watchdog.h>
 #else
 // Options for watchdog device interaction with ioctl.
 // For QNX, these constants are not defined in a dedicated header file so we need to define them manually.
@@ -30,8 +29,7 @@ constexpr std::int32_t WDIOS_DISABLECARD{0x0001};
 
 /* RULECHECKER_comment(0,4, check_underlying_narrowing_conversion, "No narrowing conversion", false) */
 /* RULECHECKER_comment(0,3, check_c_style_cast, "Use of POSIX header functionality", false) */
-constexpr score::lcm::watchdog::DeviceIf::IoctlRequestType WDIOC_SETOPTIONS{
-    _IOW(WATCHDOG_IOCTL_BASE, 4, int32_t)};
+constexpr score::lcm::watchdog::DeviceIf::IoctlRequestType WDIOC_SETOPTIONS{_IOW(WATCHDOG_IOCTL_BASE, 4, int32_t)};
 
 /* RULECHECKER_comment(0,4, check_underlying_narrowing_conversion, "No narrowing conversion", false) */
 /* RULECHECKER_comment(0,3, check_c_style_cast, "Use of POSIX header functionality", false) */
@@ -41,20 +39,17 @@ constexpr score::lcm::watchdog::DeviceIf::IoctlRequestType WDIOC_KEEPALIVE{_IOR(
 /* RULECHECKER_comment(0,5, check_underlying_narrowing_conversion, "No narrowing conversion", false) */
 /* RULECHECKER_comment(0,4, check_c_style_cast, "Use of POSIX header functionality", false) */
 // coverity[autosar_cpp14_m3_4_1_violation] definition in header is intended to replicate the linux/watchdog.h
-constexpr score::lcm::watchdog::DeviceIf::IoctlRequestType WDIOC_SETTIMEOUT{
-    _IOWR(WATCHDOG_IOCTL_BASE, 6, int32_t)};
+constexpr score::lcm::watchdog::DeviceIf::IoctlRequestType WDIOC_SETTIMEOUT{_IOWR(WATCHDOG_IOCTL_BASE, 6, int32_t)};
 
 /* RULECHECKER_comment(0,5, check_underlying_narrowing_conversion, "No narrowing conversion", false) */
 /* RULECHECKER_comment(0,4, check_c_style_cast, "Use of POSIX header functionality", false) */
 // coverity[autosar_cpp14_m3_4_1_violation] definition in header is intended to replicate the linux/watchdog.h
-constexpr score::lcm::watchdog::DeviceIf::IoctlRequestType WDIOC_GETTIMEOUT{
-    _IOR(WATCHDOG_IOCTL_BASE, 7, int32_t)};
+constexpr score::lcm::watchdog::DeviceIf::IoctlRequestType WDIOC_GETTIMEOUT{_IOR(WATCHDOG_IOCTL_BASE, 7, int32_t)};
 
 /* RULECHECKER_comment(0,5, check_underlying_narrowing_conversion, "No narrowing conversion", false) */
 /* RULECHECKER_comment(0,4, check_c_style_cast, "Use of POSIX header functionality", false) */
 // coverity[autosar_cpp14_m3_4_1_violation] definition in header is intended to replicate the linux/watchdog.h
-constexpr score::lcm::watchdog::DeviceIf::IoctlRequestType WDIOC_GETTIMELEFT{
-    _IOR(WATCHDOG_IOCTL_BASE, 10, int32_t)};
+constexpr score::lcm::watchdog::DeviceIf::IoctlRequestType WDIOC_GETTIMELEFT{_IOR(WATCHDOG_IOCTL_BASE, 10, int32_t)};
 #endif
 
 #endif
