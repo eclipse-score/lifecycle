@@ -117,6 +117,20 @@
                     "PROCESSIDENTIFIER": "lifecycle_app"
                 }
             }
+        },
+        "cpp_supervised_app_simple": {
+            "component_properties": {
+                "binary_name": "cpp_supervised_app_simple",
+                "process_arguments": [
+                    "-s50"
+                ]
+            },
+            "deployment_config": {
+                "environmental_variables": {
+                    "PROCESSIDENTIFIER": "cpp_supervised_app_simple",
+                    "IDENTIFIER": "cpp_supervised_app_simple"
+                }
+            }
         }
     },
     "run_targets": {
@@ -136,7 +150,8 @@
                 "cpp_supervised_app",
                 "rust_supervised_app",
                 "c_supervised_app",
-                "lifecycle_app"
+                "lifecycle_app",
+                "cpp_supervised_app_simple"
             ],
             "recovery_action": {
                 "switch_run_target": {

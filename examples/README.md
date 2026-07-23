@@ -24,6 +24,7 @@ The test verifies the following scenarios end-to-end:
 | `cpp_supervised_app` | C++ app with alive supervision and crash recovery |
 | `rust_supervised_app` | Rust app with alive supervision and crash recovery |
 | `cpp_lifecycle_app` | C++ app demonstrating basic lifecycle management |
+| `cpp_supervised_app_simple` | C++ app demonstrating the plain `Alive` API (report Running, then periodic `ReportAlive()` heartbeats) without deadline/checkpoint supervision |
 | `control_daemon` | State Manager app for requesting RunTarget transitions |
 
 ## Launch Manager Configuration
