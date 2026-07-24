@@ -39,7 +39,8 @@ void ProcessGroupManager::cancel()
 
 ProcessGroupManager::ProcessGroupManager(std::unique_ptr<IAliveMonitorThread> alive_monitor_thread,
                                          std::shared_ptr<IRecoveryClient> recovery_client,
-                                         std::unique_ptr<score::lcm::IProcessStateNotifier> process_state_notifier)
+                                         std::unique_ptr<score::lcm::IProcessStateNotifier> process_state_notifier,
+                                         std::unique_ptr<score::lcm::watchdog::IWatchdogIf> watchdog)
     : configuration_(),
       process_interface_(),
       process_map_(nullptr),
@@ -50,10 +51,8 @@ ProcessGroupManager::ProcessGroupManager(std::unique_ptr<IAliveMonitorThread> al
       process_groups_(),
       process_state_notifier_(std::move(process_state_notifier)),
       alive_monitor_thread_(std::move(alive_monitor_thread)),
-      recovery_client_(recovery_client)  //,
-                                         // ucm_polling_thread_(
-//  [this](const Message::Action act, const Message::UpdateContext updateCtx, const lib::fun::string& swc) -> bool
-//                      { return reloadConfiguration(act, updateCtx, IdentifierHash(swc.c_str())); })
+      recovery_client_(recovery_client),
+      watchdog_(std::move(watchdog))
 {
 }
 
@@ -118,12 +117,35 @@ bool ProcessGroupManager::initialize()
         return false;
     }
 
+#ifdef USE_NEW_CONFIGURATION
+    const auto watchdog_config = config.watchdog();
+
+    // Watchdog config may not be available if no watchdog is configured
+    if (watchdog_config.has_value())
+    {
+        if (!watchdog_->init(watchdog_config.value(), score::lcm::internal::kMainLoopCycleTimeNs))
+        {
+            LM_LOG_ERROR() << "Watchdog initialization failed";
+            return false;
+        }
+        if (!watchdog_->enable())
+        {
+            LM_LOG_ERROR() << "Watchdog enable failed";
+            return false;
+        }
+    }
+
+#endif
+
     return true;
 }
 
 void ProcessGroupManager::deinitialize()
 {
     // ucm_polling_thread_.stopPolling();
+#ifdef USE_NEW_CONFIGURATION
+    watchdog_->disable();
+#endif
     alive_monitor_thread_->stop();
     configuration_.deinitialize();
     process_groups_.clear();
@@ -165,7 +187,6 @@ inline bool ProcessGroupManager::initializeControlClientHandler()
                 ::close(fd2);
                 return false;
             }
-
 
             if (osal::IpcCommsSync::control_client_handler_nudge_fd == fd2)
             {
@@ -299,8 +320,10 @@ bool ProcessGroupManager::run()
         while (!em_cancelled.load())
         {
             // Wait for something to happen...
-            const auto osal_result =
-                ControlClientChannel::nudgeControlClientHandler_->timedWait(std::chrono::milliseconds(100));
+            // The wait is kept below the minimum watchdog timeout so that the wait plus per-iteration
+            // processing stays within budget for servicing the watchdog each cycle.
+            const auto osal_result = ControlClientChannel::nudgeControlClientHandler_->timedWait(
+                std::chrono::milliseconds(score::lcm::internal::kMainLoopCycleTimeMs));
 
             SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
                 osal_result == OsalReturnType::kSuccess || osal_result == OsalReturnType::kTimeout,
@@ -312,6 +335,16 @@ bool ProcessGroupManager::run()
                 processGroupHandler(*pg);
             }
             recoveryActionHandler();
+
+#ifdef USE_NEW_CONFIGURATION
+            if (recovery_client_ && recovery_client_->hasOverflow())
+            {
+                LM_LOG_ERROR() << "Recovery client overflow detected, firing watchdog";
+                watchdog_->fireWatchdogReaction();
+            }
+
+            watchdog_->serviceWatchdog();
+#endif
         }
 
     allProcessGroupsOff();
