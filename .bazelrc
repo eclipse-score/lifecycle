@@ -147,3 +147,17 @@ test:asan_ubsan_lsan --build_tests_only
 build:asan  --config=asan_ubsan_lsan
 build:ubsan --config=asan_ubsan_lsan
 build:lsan  --config=asan_ubsan_lsan
+
+# ThreadSanitizer (cannot be combined with ASan/LSan)
+build:tsan --config=with_debug_symbols
+build:tsan --copt=-fsanitize=thread
+build:tsan --copt=-O1
+build:tsan --linkopt=-fsanitize=thread
+build:tsan --linkopt=-static-libtsan
+build:tsan --platform_suffix=tsan
+build:tsan --@score_cpp_policies//sanitizers/flags:sanitizer=tsan
+test:tsan --run_under=@score_cpp_policies//sanitizers:wrapper
+test:tsan --test_tag_filters=-no-tsan
+test:tsan --build_tests_only
+test:tsan --cxxopt=-Wno-maybe-uninitialized
+test:tsan --cxxopt=-Wno-redundant-move
