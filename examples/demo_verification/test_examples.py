@@ -20,30 +20,53 @@ _DEMO_APPS = (
     "rust_supervised_app",
     "cpp_lifecycle_app",
     "c_supervised_app",
+    "cpp_supervised_app_simple",
 )
+
+
+def _cmdline_pattern(binary):
+    """Anchored ERE matching an exact argv token equal to `binary`, either
+    bare or with a path prefix (e.g. "/tmp/tests/examples/cpp_supervised_app").
+
+    Anchoring matters once `cpp_supervised_app_simple` is in the mix: a plain
+    substring search for "cpp_supervised_app" also matches inside
+    "cpp_supervised_app_simple"'s cmdline, which would silently break both
+    _assert_running (false positive) and _assert_not_running (false negative
+    after killing the base app) for the shorter name.
+    """
+    return f"^({binary}|.*/{binary})$"
+
+
+def _proc_has_binary(target, binary):
+    """True if any process's argv (NUL-separated in /proc/*/cmdline, turned
+    into one-token-per-line here) has an exact token matching `binary`."""
+    pattern = _cmdline_pattern(binary)
+    rc, _ = target.execute(
+        f"cat /proc/*/cmdline 2>/dev/null | tr '\\0' '\\n' | grep -qE '{pattern}'"
+    )
+    return rc == 0
 
 
 def _assert_running(target, *binaries):
     """Assert each binary has a live entry in /proc/*/cmdline."""
     for binary in binaries:
-        pattern = f"[{binary[0]}]{binary[1:]}"
-        rc, _ = target.execute(f"grep -qa '{pattern}' /proc/*/cmdline 2>/dev/null")
-        assert rc == 0, f"{binary} is not running"
+        assert _proc_has_binary(target, binary), f"{binary} is not running"
 
 
 def _assert_not_running(target, binary):
     """Assert no live /proc/*/cmdline entry exists for binary."""
-    pattern = f"[{binary[0]}]{binary[1:]}"
-    rc, _ = target.execute(f"grep -qa '{pattern}' /proc/*/cmdline 2>/dev/null")
-    assert rc != 0, f"{binary} is still running; expected it to be stopped"
+    assert not _proc_has_binary(target, binary), (
+        f"{binary} is still running; expected it to be stopped"
+    )
 
 
 def _send_signal(target, binary, signal):
     """Find binary via /proc/*/cmdline and send signal in a single shell invocation."""
-    pattern = f"[{binary[0]}]{binary[1:]}"
+    pattern = _cmdline_pattern(binary)
     _, pid_output = target.execute(
         f"p=; for c in /proc/[0-9]*/cmdline; do "
-        f"grep -qa '{pattern}' $c 2>/dev/null && p=$(echo $c | cut -d/ -f3) && break; "
+        f"tr '\\0' '\\n' < \"$c\" 2>/dev/null | grep -qE '{pattern}' "
+        f"&& p=$(echo $c | cut -d/ -f3) && break; "
         f"done; kill -{signal} $p 2>/dev/null; echo $p"
     )
     assert pid_output.strip(), f"Failed to find {binary} to send signal {signal}"
