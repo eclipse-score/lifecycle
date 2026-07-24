@@ -1,0 +1,180 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "health_monitor_config.schema.json",
+  "title": "HealthMonitorConfig",
+  "description": "Configuration schema for HealthMonitor (compatible with health_monitor_config.fbs)",
+  "type": "object",
+  "required": ["supervisor_api_cycle_ms", "internal_processing_cycle_ms"],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 1,
+      "description": "Schema version"
+    },
+    "supervisor_api_cycle_ms": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Cycle duration in ms for supervisor API notifications"
+    },
+    "internal_processing_cycle_ms": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Cycle duration in ms for internal deadline checks"
+    },
+    "thread_parameters": {
+      "$ref": "#/definitions/ThreadParameters"
+    },
+    "deadline_monitors": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/DeadlineMonitor" },
+      "description": "List of deadline monitors"
+    },
+    "heartbeat_monitors": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/HeartbeatMonitor" },
+      "description": "List of heartbeat monitors"
+    },
+    "logic_monitors": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/LogicMonitor" },
+      "description": "List of logic monitors"
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "SchedulerPolicy": {
+      "type": "string",
+      "enum": ["Other", "Fifo", "RoundRobin"],
+      "description": "Scheduler policy for the monitoring thread"
+    },
+    "SchedulerParameters": {
+      "type": "object",
+      "properties": {
+        "policy": { "$ref": "#/definitions/SchedulerPolicy" },
+        "priority": {
+          "type": "integer",
+          "description": "Thread priority"
+        }
+      },
+      "required": ["policy", "priority"],
+      "additionalProperties": false
+    },
+    "ThreadParameters": {
+      "type": "object",
+      "properties": {
+        "scheduler_parameters": { "$ref": "#/definitions/SchedulerParameters" },
+        "affinity": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0 },
+          "description": "CPU core IDs the thread can run on"
+        },
+        "stack_size": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Stack size in bytes"
+        }
+      },
+      "additionalProperties": false
+    },
+    "TimeRange": {
+      "type": "object",
+      "required": ["min_ms", "max_ms"],
+      "properties": {
+        "min_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Minimum duration in milliseconds"
+        },
+        "max_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Maximum duration in milliseconds"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DeadlineEntry": {
+      "type": "object",
+      "required": ["deadline_tag", "range"],
+      "properties": {
+        "deadline_tag": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique identifier for the deadline"
+        },
+        "range": { "$ref": "#/definitions/TimeRange" }
+      },
+      "additionalProperties": false
+    },
+    "DeadlineMonitor": {
+      "type": "object",
+      "required": ["monitor_tag", "deadlines"],
+      "properties": {
+        "monitor_tag": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique identifier for the deadline monitor"
+        },
+        "deadlines": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/DeadlineEntry" },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "HeartbeatMonitor": {
+      "type": "object",
+      "required": ["monitor_tag", "range"],
+      "properties": {
+        "monitor_tag": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique identifier for the heartbeat monitor"
+        },
+        "range": { "$ref": "#/definitions/TimeRange" }
+      },
+      "additionalProperties": false
+    },
+    "StateNode": {
+      "type": "object",
+      "required": ["state", "allowed_transitions"],
+      "properties": {
+        "state": {
+          "type": "string",
+          "minLength": 1,
+          "description": "State identifier"
+        },
+        "allowed_transitions": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "List of states reachable from this state"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LogicMonitor": {
+      "type": "object",
+      "required": ["monitor_tag", "initial_state", "states"],
+      "properties": {
+        "monitor_tag": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique identifier for the logic monitor"
+        },
+        "initial_state": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Starting state of the logic monitor"
+        },
+        "states": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/StateNode" },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
