@@ -14,7 +14,6 @@
 #ifndef MPSC_BOUNDED_QUEUE_HPP_INCLUDED
 #define MPSC_BOUNDED_QUEUE_HPP_INCLUDED
 
-#include <array>
 #include <chrono>
 #include <condition_variable>
 #include <cstddef>
@@ -22,6 +21,7 @@
 #include <optional>
 #include <thread>
 #include <utility>
+#include <vector>
 
 #include "concurrency_error_domain.hpp"
 
@@ -31,19 +31,104 @@
 namespace score::lcm::internal
 {
 
+/// @brief Fixed-size FIFO queue
+/// @details Uses std::optional to eliminate default construction of type T elements at construction
+/// @tparam T The type of elements stored in the queue. Supports move-only and copy-only types.
+template <typename T>
+class FixedSizeQueue
+{
+  public:
+    /// @brief Constructs a FixedSizeQueue with a fixed runtime capacity.
+    /// @details If the provided size is 0, the capacity automatically falls back to 1.
+    /// @param size The desired maximum number of elements.
+    FixedSizeQueue(size_t size) : capacity_((size == 0U) ? 1U : size) {
+        slots_.resize(capacity_); 
+    }
+
+    /// @brief Inserts a new element directly at the tail of the queue.
+    /// @tparam Args Variadic template arguments forwarded to the constructor of T.
+    /// @param args The arguments used to construct the object of type T.
+    /// @return true if the element was successfully inserted; false if the FIFO is full (overflow protection).
+    template <typename... Args>
+    bool push(Args&&... args) {
+        if(full()) {
+            return false;
+        }
+
+        slots_[tail_].emplace(std::forward<Args>(args)...);
+        tail_ = (tail_ + 1U) % capacity_;
+        count_++;
+        
+        return true;
+    }
+
+    
+    /// @brief Attempts to extract and remove the oldest element from the queue.
+    /// @details The popped element is immediately destroyed in the internal buffer to free resources.
+    /// @return A std::optional containing the element, or std::nullopt if the queue was empty (underflow protection).
+    std::optional<T> tryPop() {
+        if (empty())
+        {
+            return std::nullopt;
+        }
+
+        std::optional<T> item = std::move(slots_[head_]);
+        slots_[head_] = std::nullopt; 
+        head_ = (head_ + 1U) % capacity_;
+        count_--;
+
+        return item;
+    }
+
+    /// @brief Checks if the queue contains no elements.
+    /// @return true if empty, otherwise false.
+    bool empty() const { return (count_ == 0U); }
+
+    /// @brief Checks if the queue has reached its maximum capacity.
+    /// @return true if full, otherwise false.
+    bool full() const { return (count_ >= capacity_); }
+
+    /// @brief Retrieves the current number of active elements in the queue.
+    /// @return The count of stored elements.
+    size_t size() const { return count_;}; 
+
+    /// @brief Retrieves the capacity of the queue.
+    /// @return The capacity of the queue
+    size_t capacity() const { return capacity_;}; 
+
+
+  private:
+    /// @brief Internal buffer holding the optional elements.
+    std::vector<std::optional<T>> slots_;
+    /// @brief Index of the oldest element in the buffer (read index).
+    size_t head_ = 0U;
+    /// @brief Index where the next element will be inserted (write index).
+    size_t tail_ = 0U;
+    /// @brief Current number of active elements in the queue.
+    size_t count_ = 0U;
+    /// @brief Maximum capacity of the queue.
+    size_t capacity_;
+};
+
 /// @brief Fixed-capacity queue for the multi-producer / single-consumer case,
 ///        built on a plain std::mutex + std::condition_variable rather than a lock-free scheme.
 /// @details Unlike MPMCConcurrentQueue, T does not need to be default-constructible: slots are
 ///          std::optional<T>, emplaced/reset under the lock rather than pre-constructed in place.
 /// @warning Only one thread shall call wait()/tryPop(). Multiple threads can call push() concurrently.
 /// @warning push() never blocks: if the queue is full, it returns ConcurrencyErrc::kOverflow.
-template <typename T, std::size_t Capacity>
+template <typename T>
 class MpscBoundedQueue
 {
-    static_assert(Capacity > 0U, "Capacity must be at least 1");
 
   public:
-    MpscBoundedQueue() = default;
+    MpscBoundedQueue() = delete;
+
+    /// @brief Constructs a MpscBoundedQueue with a fixed runtime capacity.
+    /// @details If the provided size is 0, the capacity automatically falls back to 1.
+    /// @param size The desired maximum number of elements.
+    MpscBoundedQueue(size_t size) : queue_((size == 0U) ? 1U : size) {
+    }
+
     ~MpscBoundedQueue() {
         SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(is_stopped(), "Call stop() and join/shut down all threads" 
             "that might still call wait()/tryPop()/push() only then let the queue be destroyed.");
@@ -78,7 +163,7 @@ class MpscBoundedQueue
         SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(ensure_single_consumer(), "Only a single consumer thread is allowed.");
 
         const bool has_item = not_empty_cv_.wait_for(lock, timeout, [this] {
-            return count_ > 0U || stopped_;
+            return queue_.size() > 0U || stopped_;
         });
 
         if (stopped_)
@@ -100,17 +185,7 @@ class MpscBoundedQueue
         std::unique_lock lock(mutex_);
         SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(ensure_single_consumer(), "Only a single consumer thread is allowed.");
 
-        if (count_ == 0U)
-        {
-            return std::nullopt;
-        }
-
-        std::optional<T> item = std::move(slots_[head_]);
-        slots_[head_].reset();
-        head_ = (head_ + 1U) % Capacity;
-        --count_;
-
-        return item;
+        return queue_.tryPop();
     }
 
     /// @brief Permanently marks the queue stopped and wakes every thread currently blocked in
@@ -153,34 +228,25 @@ class MpscBoundedQueue
             return score::cpp::make_unexpected(ConcurrencyErrc::kStopped);
         }
 
-        if (count_ >= Capacity)
+        if (!queue_.push(std::move(item)))
         {
             return score::cpp::make_unexpected(ConcurrencyErrc::kOverflow);
         }
-
-        slots_[tail_].emplace(std::forward<U>(item));
-        tail_ = (tail_ + 1U) % Capacity;
-        ++count_;
 
         lock.unlock();
         not_empty_cv_.notify_one();
         return {};
     }
 
-    mutable std::mutex mutex_;
+    mutable std::mutex mutex_{};
     /// @brief Signaled by push()/stop(); waited on by wait().
-    std::condition_variable not_empty_cv_;
-    std::array<std::optional<T>, Capacity> slots_{};
-    /// @brief Index of the oldest item, valid only when count_ > 0.
-    std::size_t head_{0};
-    /// @brief Index where the next push lands.
-    std::size_t tail_{0};
-    /// @brief Number of occupied slots, guarded by mutex_.
-    std::size_t count_{0};
-    /// @brief Guarded by mutex_.
+    std::condition_variable not_empty_cv_{};
+    /// @brief Queue holding the elements.
+    FixedSizeQueue<T> queue_;
+    /// @brief S
     bool stopped_{false};
-    /// @brief Consumer thread id
-    std::thread::id consumer_thread_id_;
+    /// @brief Consumer thread id.
+    std::thread::id consumer_thread_id_{};
 };
 
 }  // namespace score::lcm::internal
