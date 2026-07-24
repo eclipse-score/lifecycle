@@ -11,6 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
+load("@rules_pkg//pkg:mappings.bzl", "pkg_files")
 load("@score_rules_imagefs//rules/qnx:ifs.bzl", "qnx_ifs")
 
 exports_files(
@@ -21,9 +22,15 @@ exports_files(
     ],
 )
 
+pkg_files(
+    name = "logging_config.json",
+    srcs = ["//tests/utils/environments:ecu_logging_config.json"],
+    prefix = "/etc",
+)
+
 qnx_ifs(
     name = "qemu_image",
-    srcs = [],
+    srcs = [":logging_config.json"],
     build_file = ":init.build",
     target_compatible_with = ["@platforms//os:qnx"],
     visibility = [
