@@ -27,7 +27,6 @@ score_defaults = json.loads("""
         "shutdown_timeout": 0.5,
         "environmental_variables": {},
         "bin_dir": "/opt",
-        "working_dir": "/tmp",
         "ready_recovery_action": {
             "restart": {
                 "number_of_attempts": 0,
@@ -185,9 +184,13 @@ def preprocess_defaults(global_defaults, config):
         merged_defaults["watchdog"], config.get("watchdog", {})
     )
 
-    new_config["initial_run_target"] = config.get(
-        "initial_run_target", merged_defaults["initial_run_target"]
-    )
+    # Only emit initial_run_target when it can be derived from the input config
+    # or the defaults. This keeps preprocess_defaults usable with minimal
+    # defaults that don't define run-target keys.
+    if "initial_run_target" in config or "initial_run_target" in merged_defaults:
+        new_config["initial_run_target"] = config.get(
+            "initial_run_target", merged_defaults.get("initial_run_target")
+        )
 
     if "fallback_run_target" in config:
         fallback_defaults = {
@@ -289,7 +292,9 @@ def gen_config(output_dir, config, input_filename, schema_version=None):
             "ready_timeout": depl_cfg["ready_timeout"],
             "shutdown_timeout": depl_cfg["shutdown_timeout"],
             "bin_dir": depl_cfg["bin_dir"],
-            "working_dir": depl_cfg["working_dir"],
+            # Default the working directory to bin_dir (the directory the
+            # executable lives in) when not set explicitly.
+            "working_dir": depl_cfg.get("working_dir", depl_cfg["bin_dir"]),
             "sandbox": sandbox_out,
         }
 
@@ -668,6 +673,9 @@ def gen_launch_manager_config(output_dir, config):
         process["number_of_restart_attempts"] = component_config["deployment_config"][
             "ready_recovery_action"
         ]["restart"]["number_of_attempts"]
+        process["working_dir"] = component_config["deployment_config"].get(
+            "working_dir", component_config["deployment_config"]["bin_dir"]
+        )
 
         match component_config["component_properties"]["application_profile"][
             "application_type"

@@ -22,14 +22,14 @@
 #include <limits.h>
 #include <signal.h>
 
-#include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
-#include "score/mw/launch_manager/control/control_client_channel.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/control/control_client_channel.hpp"
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
 #include "score/mw/launch_manager/osal/security_policy.hpp"
 #include "score/mw/launch_manager/osal/set_affinity.hpp"
 #include "score/mw/launch_manager/osal/set_groups.hpp"
 #include "score/mw/launch_manager/osal/sys_exit.hpp"
+#include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include <cerrno>
 #include <csignal>
 #include <cstdio>
@@ -133,22 +133,11 @@ void handleComms(score::lcm::internal::osal::ChildProcessConfig& param)
 
 void changeCurrentWorkingDirectory(const score::lcm::internal::osal::OsalConfig& config)
 {
-    // Change current working directory to the same as the executable
-    constexpr size_t string_size = static_cast<size_t>(PATH_MAX);
-    // Notice that this next static variable is duplicated by the fork() and so does not need
-    // any protection by a mutex although at first sight you may think it could need one.
-    static char path_copy[string_size + 1U] = {0};
-
-    if (config.executable_path_.size() >= string_size)
+    // working_dir_ is set by python configuration generator in lifecycle_config.py, so it should always be valid.
+    // If not, chdir will fail anyway and we will log an error and exit.
+    if (-1 == chdir(config.working_dir_.c_str()))
     {
-        LM_LOG_ERROR() << "[New process] executable path longer than" << string_size
-                       << "chars:" << config.executable_path_;
-        sysexit(EXIT_FAILURE);
-    }
-
-    if (-1 == chdir(dirname(strncpy(path_copy, config.executable_path_.c_str(), string_size))))
-    {
-        LM_LOG_ERROR() << "[New process] chdir(" << config.executable_path_
+        LM_LOG_ERROR() << "[New process] chdir(" << config.working_dir_
                        << ") failed:" << score::lcm::internal::errno_message(errno);
         sysexit(EXIT_FAILURE);
     }
