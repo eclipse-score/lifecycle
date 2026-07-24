@@ -25,8 +25,9 @@
 
 #include "concurrency_error_domain.hpp"
 
+#include "score/result/result.h"
+
 #include <score/assert.hpp>
-#include <score/expected.hpp>
 
 namespace score::lcm::internal
 {
@@ -57,12 +58,12 @@ class MpscBoundedQueue
     /// @brief Enqueues an item.
     /// @return blank on success; ConcurrencyErrc::kOverflow if the queue is full, or
     ///         ConcurrencyErrc::kStopped if the queue has been stopped.
-    [[nodiscard]] score::cpp::expected_blank<ConcurrencyErrc> push(T&& item)
+    [[nodiscard]] score::Result<void> push(T&& item)
     {
         return push_impl(std::move(item));
     }
 
-    [[nodiscard]] score::cpp::expected_blank<ConcurrencyErrc> push(const T& item)
+    [[nodiscard]] score::Result<void> push(const T& item)
     {
         return push_impl(item);
     }
@@ -72,7 +73,7 @@ class MpscBoundedQueue
     /// @return blank if an item is available (caller should drain via tryPop());
     ///         ConcurrencyErrc::kTimeout if the timeout elapsed with none available, or
     ///         ConcurrencyErrc::kStopped if the queue has been stopped.
-    [[nodiscard]] score::cpp::expected_blank<ConcurrencyErrc> wait(std::chrono::milliseconds timeout)
+    [[nodiscard]] score::Result<void> wait(std::chrono::milliseconds timeout)
     {
         std::unique_lock lock(mutex_);
         SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(ensure_single_consumer(), "Only a single consumer thread is allowed.");
@@ -83,11 +84,11 @@ class MpscBoundedQueue
 
         if (stopped_)
         {
-            return score::cpp::make_unexpected(ConcurrencyErrc::kStopped);
+            return score::MakeUnexpected(ConcurrencyErrc::kStopped);
         }
         if (!has_item)
         {
-            return score::cpp::make_unexpected(ConcurrencyErrc::kTimeout);
+            return score::MakeUnexpected(ConcurrencyErrc::kTimeout);
         }
         return {};
     }
@@ -144,18 +145,18 @@ class MpscBoundedQueue
     }
 
     template <typename U>
-    [[nodiscard]] score::cpp::expected_blank<ConcurrencyErrc> push_impl(U&& item)
+    [[nodiscard]] score::Result<void> push_impl(U&& item)
     {
         std::unique_lock lock(mutex_);
 
         if (stopped_)
         {
-            return score::cpp::make_unexpected(ConcurrencyErrc::kStopped);
+            return score::MakeUnexpected(ConcurrencyErrc::kStopped);
         }
 
         if (count_ >= Capacity)
         {
-            return score::cpp::make_unexpected(ConcurrencyErrc::kOverflow);
+            return score::MakeUnexpected(ConcurrencyErrc::kOverflow);
         }
 
         slots_[tail_].emplace(std::forward<U>(item));

@@ -14,13 +14,18 @@
 #ifndef CONCURRENCY_ERROR_DOMAIN_HPP_INCLUDED
 #define CONCURRENCY_ERROR_DOMAIN_HPP_INCLUDED
 
+#include "score/result/result.h"
+
 #include <cstdint>
 #include <ostream>
+#include <string_view>
 
 namespace score::lcm::internal
 {
 
-enum class ConcurrencyErrc : std::uint8_t
+/// @brief Error codes must use score::result::ErrorCode as their underlying type so that they can be
+///        wrapped into a score::result::Error (see MakeError() below and ConcurrencyErrorDomain::MessageFor()).
+enum class ConcurrencyErrc : score::result::ErrorCode
 {
     /// @brief An OS call returned an error.
     kOsError = 1,
@@ -43,8 +48,40 @@ inline std::ostream& operator<<(std::ostream& os, ConcurrencyErrc errc) noexcept
         case ConcurrencyErrc::kOverflow: return os << "kOverflow";
         case ConcurrencyErrc::kStopped:  return os << "kStopped";
         case ConcurrencyErrc::kTimeout:  return os << "kTimeout";
-        default:                         return os << static_cast<std::uint8_t>(errc);
+        default:                         return os << static_cast<score::result::ErrorCode>(errc);
     }
+}
+
+/// @brief Error domain translating ConcurrencyErrc values into human readable messages, as required by
+///        score::Result / score::result::Error.
+class ConcurrencyErrorDomain final : public score::result::ErrorDomain
+{
+  public:
+    [[nodiscard]] std::string_view MessageFor(const score::result::ErrorCode& code) const noexcept override
+    {
+        switch (static_cast<ConcurrencyErrc>(code))
+        {
+            case ConcurrencyErrc::kOsError:
+                return "An OS call returned an error";
+            case ConcurrencyErrc::kOverflow:
+                return "The container has overflowed";
+            case ConcurrencyErrc::kStopped:
+                return "The container has stopped";
+            case ConcurrencyErrc::kTimeout:
+                return "A timeout was triggered";
+            default:
+                return "Unknown error";
+        }
+    }
+};
+
+constexpr ConcurrencyErrorDomain g_ConcurrencyErrorDomain{};
+
+/// @brief Constructs a score::result::Error from a ConcurrencyErrc. Found via ADL from score::result::Error's
+///        constructor and from score::MakeUnexpected().
+constexpr score::result::Error MakeError(ConcurrencyErrc code, const std::string_view user_message = "") noexcept
+{
+    return score::result::Error{static_cast<score::result::ErrorCode>(code), g_ConcurrencyErrorDomain, user_message};
 }
 
 }  // namespace score::lcm::internal
