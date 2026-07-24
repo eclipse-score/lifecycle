@@ -24,5 +24,7 @@ TEST(Smoke, Process) {
 }
 
 int main() {
+
+    std::abort();
     return TestRunner(__FILE__).RunTests();
 }

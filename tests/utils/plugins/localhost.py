@@ -19,6 +19,7 @@ import threading
 import time
 from pathlib import Path
 from typing import List
+import resource
 
 import pytest
 
@@ -127,6 +128,12 @@ class LocalTarget(Target):
     def execute_async(
         self, binary_path: str, args=None, cwd: str = "/", **kwargs
     ) -> LocalAsyncProcess:
+        def _set_core_unlimited():
+            """Function to set core dump limit in the subshell."""
+            resource.setrlimit(
+                resource.RLIMIT_CORE, (resource.RLIM_INFINITY, resource.RLIM_INFINITY)
+            )
+
         cmd = ["fakeroot", "--", binary_path] + (args or [])
         cmd_logger = logging.getLogger(Path(binary_path).name)
         output_lines: List[str] = []
@@ -135,6 +142,7 @@ class LocalTarget(Target):
             cmd,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
+            preexec_fn=_set_core_unlimited,
             cwd=cwd,
             start_new_session=True,  # Start under a new process group
         )
