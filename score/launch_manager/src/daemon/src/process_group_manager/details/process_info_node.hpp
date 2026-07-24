@@ -14,21 +14,24 @@
 #ifndef _INCLUDED_PROCESSINFONODE_
 #define _INCLUDED_PROCESSINFONODE_
 
-#include <atomic>
 #include "score/mw/launch_manager/process_state_client/posix_process.hpp"
+#include <atomic>
 #ifdef USE_NEW_CONFIGURATION
 #include "score/mw/launch_manager/configuration/configuration_adapter.hpp"
 #else
 #include "score/mw/launch_manager/configuration/configuration_manager.hpp"
 #endif
-#include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 #include "score/mw/launch_manager/control/control_client_channel.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 
-namespace score {
+namespace score
+{
 
-namespace lcm {
+namespace lcm
+{
 
-namespace internal {
+namespace internal
+{
 
 /// @brief Forward declaration of the ProcessInfoNode class.
 class ProcessInfoNode;
@@ -40,15 +43,16 @@ class Graph;
 /// Used to maintain a list of successor nodes in a directed graph of process dependencies.
 using SuccessorList = std::vector<std::shared_ptr<ProcessInfoNode>>;
 
-/// @brief  ProcessInfoNode holds the current state of the process and is responsible for performing the actions required to start and stop processes
-/// During initialisation it calculates the reverse dependencies of a process
-/// At the start of a state transition it evaluates if a process should be included in the operation, and how
-/// During state transition it queues new jobs in response to events so that each node participates in a directed graph with
-/// the events kRunning received or expected process termination forming connecting edges.
-/// Unexpected termination of a process or reception of a timeout result in the failure of this graph.
-/// The ProcessInfoNode thus represents an adaptive process with specific startup configuration and dependencies
-class ProcessInfoNode final : public ITerminationCallback {
-   public:
+/// @brief  ProcessInfoNode holds the current state of the process and is responsible for performing the actions
+/// required to start and stop processes During initialisation it calculates the reverse dependencies of a process At
+/// the start of a state transition it evaluates if a process should be included in the operation, and how During state
+/// transition it queues new jobs in response to events so that each node participates in a directed graph with the
+/// events kRunning received or expected process termination forming connecting edges. Unexpected termination of a
+/// process or reception of a timeout result in the failure of this graph. The ProcessInfoNode thus represents an
+/// adaptive process with specific startup configuration and dependencies
+class ProcessInfoNode final : public ITerminationCallback
+{
+  public:
     /// Constructor for Process Infonode
     ProcessInfoNode()
         : terminator_(),
@@ -67,11 +71,11 @@ class ProcessInfoNode final : public ITerminationCallback {
           is_included_(false),
           is_head_node_(false),
           config_(nullptr),
-          dependency_list_(nullptr){};
+          dependency_list_(nullptr) {};
     /// @brief Initialise this node.
-    /// The member variables are initialised. The configuration manager is called to retrieve the configuration details and
-    /// dependencies for the process given by pg, idx.
-    /// The successor lists (dependent_on_running_, dependent_on_termination_) are initialised ready for the graph object to add items.
+    /// The member variables are initialised. The configuration manager is called to retrieve the configuration details
+    /// and dependencies for the process given by pg, idx. The successor lists (dependent_on_running_,
+    /// dependent_on_termination_) are initialised ready for the graph object to add items.
     /// @param graph Pointer to the graph of which this node is part
     /// @param index The process index in the process group
     void initNode(Graph* graph, uint32_t index);
@@ -100,17 +104,17 @@ class ProcessInfoNode final : public ITerminationCallback {
     score::lcm::ProcessState getState() const;
 
     /// @brief Participate in graph initialisation
-    /// If starting== false, the graph is in the first (stopping) stage, and the number of dependencies for the starting phase
-    /// are counted in preparation. The number of termination dependencies is constant and was calculated during initialisation.
-    /// In this phase, a node should be included in the graph if the process state is not kIdle, and the process is not in the
-    /// requested state.
-    /// If starting == true, the graph is in the second (process starting) phase, and the a node should be included if the process is in
-    /// the requested state and it's not running.
+    /// If starting== false, the graph is in the first (stopping) stage, and the number of dependencies for the starting
+    /// phase are counted in preparation. The number of termination dependencies is constant and was calculated during
+    /// initialisation. In this phase, a node should be included in the graph if the process state is not kIdle, and the
+    /// process is not in the requested state. If starting == true, the graph is in the second (process starting) phase,
+    /// and the a node should be included if the process is in the requested state and it's not running.
     ///
     /// Initialise dependencies_ appropriately (start_dependencies in start phase, stop_dependencies_ in stop phase).
-    /// Record whether or not this node will be a head node for the current graph. A head node is one that is included in the graph, and has no
-    /// dependencies.
-    /// @param starting False is the graph is in the first phase (process stopping). True if the graph is in the second phase (process starting)
+    /// Record whether or not this node will be a head node for the current graph. A head node is one that is included
+    /// in the graph, and has no dependencies.
+    /// @param starting False is the graph is in the first phase (process stopping). True if the graph is in the second
+    /// phase (process starting)
     /// @return True if the node should be included in the graph, false otherwise.
     bool constructGraphNode(bool starting);
 
@@ -145,7 +149,7 @@ class ProcessInfoNode final : public ITerminationCallback {
     /// @return Pointer to the node that's next in the list as a state manager, or nullptr if there isn't one
     std::shared_ptr<ProcessInfoNode> getNextStateManager();
 
-   private:
+  private:
     /// @brief Indivisibly set the state of the process and report. Only valid transitions are allowed
     /// @details If a valid process state transition was made the process state change is also reported
     ///         to the platform health manager using the process state notifier mechanism, but only if the
@@ -159,26 +163,25 @@ class ProcessInfoNode final : public ITerminationCallback {
     /// @brief Request process termination
     /// Set the process state to terminating, and if this was successful, start the timeout and request termination of
     /// the process.
-    /// If the state could not be set, then the process must have terminated, so process the termination by notifying the
-    /// graph that a node executed and queuing any successor nodes
+    /// If the state could not be set, then the process must have terminated, so process the termination by notifying
+    /// the graph that a node executed and queuing any successor nodes
     void terminateProcess();
 
     /// @brief handle the case of unexpected termination
     void unexpectedTermination();
 
     /// @brief Start the process
-    /// Set the process state to kStarting and attempt to start the process using the startProcess method of the process interface.
-    /// If this was successful, if the process is a state manager add it to the list of state managers then wait for kRunning using
-    /// the kRunningReceived() method, and then for a self-terminating process that has successors in this process group state, wait
-    /// for up to kMaxTerminationDelay for the process to end.
-    /// If waiting for kRunning failed, call the timeoutReceived() method.
-    /// If starting the process failed, call graph_->abort(error_code, kSetStateFailed) where error_code if the configured error code
-    /// for this process.
+    /// Set the process state to kStarting and attempt to start the process using the startProcess method of the process
+    /// interface. If this was successful, if the process is a state manager add it to the list of state managers then
+    /// wait for kRunning using the kRunningReceived() method, and then for a self-terminating process that has
+    /// successors in this process group state, wait for up to kMaxTerminationDelay for the process to end. If waiting
+    /// for kRunning failed, call the timeoutReceived() method. If starting the process failed, call
+    /// graph_->abort(error_code, kSetStateFailed) where error_code if the configured error code for this process.
     void startProcess();
 
     /// @brief Handle actions when the process has started successfully.
-    /// This method is called when the process has started successfully. It performs necessary actions such as synchronization
-    /// with external components.
+    /// This method is called when the process has started successfully. It performs necessary actions such as
+    /// synchronization with external components.
     inline void handleProcessStarted(uint32_t execution_error_code);
 
     /// @brief Handle actions when process is still starting
@@ -194,25 +197,26 @@ class ProcessInfoNode final : public ITerminationCallback {
     inline void handleProcessRunning(uint32_t execution_error_code);
 
     /// @brief Handle actions when the process terminates.
-    /// This method is called when the process has terminated. It performs cleanup tasks or initiates further actions based on
-    /// the termination status.
+    /// This method is called when the process has terminated. It performs cleanup tasks or initiates further actions
+    /// based on the termination status.
     inline void handleTerminationProcess();
 
     /// @brief Handle actions when the process needs to be forcibly terminated.
-    /// This method is called when there is a need to forcibly terminate the process. It ensures that the process is forcefully
-    /// stopped and any associated resources are properly released.
+    /// This method is called when there is a need to forcibly terminate the process. It ensures that the process is
+    /// forcefully stopped and any associated resources are properly released.
     inline void handleForcedTermination();
 
     /// @brief Queue the nodes that follow this one.
-    /// For a starting graph, for all the nodes in dependent_on_terminating_ that are included in the graph and have a positive dependency
-    /// count, decrement that count and if zero add the node to the job queue.
-    /// For a stop graph, perform a similar operation for all the process upon which we have a termination dependency.
+    /// For a starting graph, for all the nodes in dependent_on_terminating_ that are included in the graph and have a
+    /// positive dependency count, decrement that count and if zero add the node to the job queue. For a stop graph,
+    /// perform a similar operation for all the process upon which we have a termination dependency.
     inline void queueTerminationSuccessorJobs();
 
     /// @brief Initialize and configure the Control Client communication channel.
     /// This method sets up the communication channel used by the Control Client to synchronize with other processes.
-    /// It maps the shared memory region for the Control Client communication and ensures proper initialization of semaphores
-    /// used for synchronization between processes. If any part of the setup fails, appropriate fallback actions are taken.
+    /// It maps the shared memory region for the Control Client communication and ensures proper initialization of
+    /// semaphores used for synchronization between processes. If any part of the setup fails, appropriate fallback
+    /// actions are taken.
     inline void setupControlClientChannel();
 
     /// @brief Process the Sucessor nodes
@@ -289,9 +293,9 @@ class ProcessInfoNode final : public ITerminationCallback {
     uint32_t restart_counter_ = 0;
 };
 
-}  // namespace lcm
-
 }  // namespace internal
+
+}  // namespace lcm
 
 }  // namespace score
 

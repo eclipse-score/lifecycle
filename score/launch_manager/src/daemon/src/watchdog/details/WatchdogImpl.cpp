@@ -53,7 +53,9 @@ T secToMs(const T f_timeout)
 /* RULECHECKER_comment(0:0,3:0, check_expensive_to_copy_in_parameter, "Move only types cannot be passed by const
  * ref",true_no_defect) */
 /* RULECHECKER_comment(0:0,9:0, check_min_instructions, "Constructor with empty body is valid", true_no_defect) */
-WatchdogImpl::WatchdogImpl() noexcept : IWatchdogIf(), watchdogDevices(), state(ELibState::idle) {}
+WatchdogImpl::WatchdogImpl() noexcept : IWatchdogIf(), watchdogDevices(), state(ELibState::idle)
+{
+}
 
 bool WatchdogImpl::init(std::int64_t f_cycleTimeInNs, const IDeviceConfigFactory& f_configFactory) noexcept
 {

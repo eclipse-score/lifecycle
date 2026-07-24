@@ -98,8 +98,9 @@ bool FlatCfgFactory::init(const std::string& f_filename_r)
     return true;
 }
 
-bool FlatCfgFactory::createProcessStates(std::vector<ifexm::ProcessState>& f_processStates_r,
-                                         ifexm::ProcessStateReader& f_processStateReader_r)
+bool FlatCfgFactory::createProcessStates(
+    std::vector<ifexm::ProcessState>& f_processStates_r,
+    ifexm::ProcessStateReader& f_processStateReader_r)
 {
     bool isSuccess{true};
 
@@ -180,9 +181,10 @@ bool FlatCfgFactory::createProcessStates(std::vector<ifexm::ProcessState>& f_pro
     return isSuccess;
 }
 
-bool FlatCfgFactory::initIpcServerWithUidBasedAccess(ifappl::CheckpointIpcServer& f_ipcServer_r,
-                                                     const std::string& f_ipcPath_r,
-                                                     const std::int32_t f_uid) noexcept(false)
+bool FlatCfgFactory::initIpcServerWithUidBasedAccess(
+    ifappl::CheckpointIpcServer& f_ipcServer_r,
+    const std::string& f_ipcPath_r,
+    const std::int32_t f_uid) noexcept(false)
 {
     // PHM Daemon needs to read from IPC and set ACL permissions (owner: r/w access)
     // Application needs to open the IPC channel and write to it (r/w access set via ACL for specific uid, group: no
@@ -261,9 +263,10 @@ bool FlatCfgFactory::createAliveIfIpcs(std::vector<ifappl::CheckpointIpcServer>&
     return isSuccess;
 }
 
-bool FlatCfgFactory::createAliveIf(std::vector<ifappl::MonitorIfDaemon>& f_interfaces_r,
-                                   std::vector<ifappl::CheckpointIpcServer>& f_interfaceIpcs_r,
-                                   std::vector<ifexm::ProcessState>& f_processStates_r)
+bool FlatCfgFactory::createAliveIf(
+    std::vector<ifappl::MonitorIfDaemon>& f_interfaces_r,
+    std::vector<ifappl::CheckpointIpcServer>& f_interfaceIpcs_r,
+    std::vector<ifexm::ProcessState>& f_processStates_r)
 {
     bool isSuccess{true};
     try
@@ -302,9 +305,10 @@ bool FlatCfgFactory::createAliveIf(std::vector<ifappl::MonitorIfDaemon>& f_inter
     return isSuccess;
 }
 
-bool FlatCfgFactory::createSupervisionCheckpoints(std::vector<ifappl::Checkpoint>& f_checkpoints_r,
-                                                  std::vector<ifappl::MonitorIfDaemon>& f_interfaces_r,
-                                                  std::vector<ifexm::ProcessState>& f_processStates_r)
+bool FlatCfgFactory::createSupervisionCheckpoints(
+    std::vector<ifappl::Checkpoint>& f_checkpoints_r,
+    std::vector<ifappl::MonitorIfDaemon>& f_interfaces_r,
+    std::vector<ifexm::ProcessState>& f_processStates_r)
 {
     bool isSuccess{true};
 
@@ -362,10 +366,11 @@ bool FlatCfgFactory::createSupervisionCheckpoints(std::vector<ifappl::Checkpoint
     return isSuccess;
 }
 
-bool FlatCfgFactory::createAliveSupervisions(std::vector<supervision::Alive>& f_alive_r,
-                                             std::vector<ifappl::Checkpoint>& f_checkpoints_r,
-                                             std::vector<ifexm::ProcessState>& f_processStates_r,
-                                             std::shared_ptr<RecoveryClient> f_recoveryClient_r)
+bool FlatCfgFactory::createAliveSupervisions(
+    std::vector<supervision::Alive>& f_alive_r,
+    std::vector<ifappl::Checkpoint>& f_checkpoints_r,
+    std::vector<ifexm::ProcessState>& f_processStates_r,
+    std::shared_ptr<RecoveryClient> f_recoveryClient_r)
 {
     bool isSuccess{true};
 

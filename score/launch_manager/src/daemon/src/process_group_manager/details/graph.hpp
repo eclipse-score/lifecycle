@@ -11,28 +11,30 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-
 #ifndef GRAPH_HPP_INCLUDED
 #define GRAPH_HPP_INCLUDED
 
+#include <atomic>
 #include <chrono>
 #include <memory>
-#include <atomic>
 #include <mutex>
 #include <shared_mutex>
 #include <string_view>
 #include <vector>
 
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
-#include "score/mw/launch_manager/osal/semaphore.hpp"
 #include "score/mw/launch_manager/control/control_client_channel.hpp"
+#include "score/mw/launch_manager/osal/semaphore.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
-namespace score {
+namespace score
+{
 
-namespace lcm {
+namespace lcm
+{
 
-namespace internal {
+namespace internal
+{
 
 class ProcessGroupManager;
 
@@ -73,7 +75,8 @@ using NodeList = std::vector<std::shared_ptr<ProcessInfoNode>>;
 /// kUndefinedState | kAborting         | kUndefinedState
 /// kUndefinedState | kCancelled        | kUndefinedState
 /// @endverbatim
-enum class GraphState : std::uint_least8_t {
+enum class GraphState : std::uint_least8_t
+{
     ///@brief Graph is not running and process group state is known
     kSuccess = 0U,
 
@@ -91,9 +94,12 @@ enum class GraphState : std::uint_least8_t {
 };
 
 /// @brief StateTransition - state transitions
-/// @deprecated Please see current POC for a faster and more obvious method of calculating the state result based upon a 25-byte table.
-// RULECHECKER_comment(1, 1, check_incomplete_data_member_construction, "wi 45913 - This struct is POD, which doesn't have user-declared constructor. The rule doesn’t apply.", false)
-struct StateTransition {
+/// @deprecated Please see current POC for a faster and more obvious method of calculating the state result based upon a
+/// 25-byte table.
+// RULECHECKER_comment(1, 1, check_incomplete_data_member_construction, "wi 45913 - This struct is POD, which doesn't
+// have user-declared constructor. The rule doesn’t apply.", false)
+struct StateTransition
+{
     GraphState old_state;
     GraphState new_state;
     GraphState target_state;
@@ -119,16 +125,32 @@ struct StateTransition {
 /// kUndefinedState -> kAborting        kUndefinedState
 // coverity[autosar_cpp14_m3_4_1_violation:INTENTIONAL] The value is used in a global context.
 static constexpr GraphState state_results[][static_cast<uint>(GraphState::kUndefinedState) + 1U] = {
-    //from kSuccess                     kInTransition               kAborting                 kCancelled                      kUndefinedState              to new_state
-    {GraphState::kSuccess, GraphState::kSuccess, GraphState::kUndefinedState, GraphState::kUndefinedState,
+    // from kSuccess                     kInTransition               kAborting                 kCancelled
+    // kUndefinedState              to new_state
+    {GraphState::kSuccess,
+     GraphState::kSuccess,
+     GraphState::kUndefinedState,
+     GraphState::kUndefinedState,
      GraphState::kUndefinedState},  // kSuccess
-    {GraphState::kInTransition, GraphState::kInTransition, GraphState::kAborting, GraphState::kCancelled,
+    {GraphState::kInTransition,
+     GraphState::kInTransition,
+     GraphState::kAborting,
+     GraphState::kCancelled,
      GraphState::kInTransition},  // kInTransition
-    {GraphState::kUndefinedState, GraphState::kAborting, GraphState::kAborting, GraphState::kCancelled,
+    {GraphState::kUndefinedState,
+     GraphState::kAborting,
+     GraphState::kAborting,
+     GraphState::kCancelled,
      GraphState::kUndefinedState},  // kAborting
-    {GraphState::kUndefinedState, GraphState::kCancelled, GraphState::kCancelled, GraphState::kCancelled,
+    {GraphState::kUndefinedState,
+     GraphState::kCancelled,
+     GraphState::kCancelled,
+     GraphState::kCancelled,
      GraphState::kUndefinedState},  // kCancelled
-    {GraphState::kUndefinedState, GraphState::kAborting, GraphState::kUndefinedState, GraphState::kUndefinedState,
+    {GraphState::kUndefinedState,
+     GraphState::kAborting,
+     GraphState::kUndefinedState,
+     GraphState::kUndefinedState,
      GraphState::kUndefinedState}  // kUndefinedState
 };
 
@@ -145,8 +167,9 @@ static constexpr GraphState state_results[][static_cast<uint>(GraphState::kUndef
 /// If the transition completes successfully, the graph enters a new process group state;
 /// otherwise, it remains in an undefined state.
 ///
-class Graph final {
-   public:
+class Graph final
+{
+  public:
     /// @brief Constructor to initialize a Graph object.
     /// @param max_num_nodes Maximum number of nodes this graph can hold.
     /// @param pgm Pointer to the ProcessGroupManager managing this graph.
@@ -245,7 +268,8 @@ class Graph final {
     IdentifierHash getProcessGroupName();
 
     /// @brief return the current target state of the process group represented by the graph object
-    /// @return IdentifierHash the last set value of the process group state; it is valid only if getState() returns GraphState::kSuccess
+    /// @return IdentifierHash the last set value of the process group state; it is valid only if getState() returns
+    /// GraphState::kSuccess
     IdentifierHash getProcessGroupState();
 
     /// @brief get the index of this graph in the vector of graphs held by the process group manager
@@ -312,7 +336,7 @@ class Graph final {
     /// @return Timestamp based on the system clock when starting a state transition request
     std::chrono::time_point<std::chrono::steady_clock> getRequestStartTime();
 
-   private:
+  private:
     /// @brief Sets the current state of the graph.
     /// @param new_state The new state to set for the graph.
     void setState(GraphState new_state);
@@ -450,9 +474,9 @@ class Graph final {
     std::chrono::time_point<std::chrono::steady_clock> request_start_time_;
 };
 
-}  // namespace lcm
-
 }  // namespace internal
+
+}  // namespace lcm
 
 }  // namespace score
 

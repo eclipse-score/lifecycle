@@ -29,8 +29,9 @@ namespace
 
 /// @brief Retrieves the resource limits configuration from the given config
 ///        node.
-bool setResourceLimits(const LMFlatBuffer::ProcessStartupConfig& startup_config_node,
-                       score::lcm::internal::OsProcess& instance)
+bool setResourceLimits(
+    const LMFlatBuffer::ProcessStartupConfig& startup_config_node,
+    score::lcm::internal::OsProcess& instance)
 {
     // not supported currently
     instance.startup_config_.resource_limits_.stack_ = 0U;  // don't set the stack limit
@@ -186,8 +187,9 @@ std::optional<const std::vector<uint32_t>*> ConfigurationManager::getProcessInde
     return result;
 }
 
-std::optional<const OsProcess*> ConfigurationManager::getOsProcessConfiguration(const IdentifierHash& pg_name,
-                                                                                const uint32_t index) const
+std::optional<const OsProcess*> ConfigurationManager::getOsProcessConfiguration(
+    const IdentifierHash& pg_name,
+    const uint32_t index) const
 {
     std::optional<const OsProcess*> result = std::nullopt;
 
@@ -204,8 +206,9 @@ std::optional<const OsProcess*> ConfigurationManager::getOsProcessConfiguration(
     return result;
 }
 
-std::optional<const DependencyList*> ConfigurationManager::getOsProcessDependencies(const IdentifierHash& pg_name,
-                                                                                    const uint32_t index) const
+std::optional<const DependencyList*> ConfigurationManager::getOsProcessDependencies(
+    const IdentifierHash& pg_name,
+    const uint32_t index) const
 {
     std::optional<const DependencyList*> result = std::nullopt;
 
@@ -390,11 +393,13 @@ bool ConfigurationManager::parseModeGroups(const ModeGroup* node, ProcessGroup& 
     bool result = false;
 
     const auto* mode_declaration_list = node ? node->mode_declaration() : nullptr;
-    if (mode_declaration_list && (mode_declaration_list->size())) {
+    if (mode_declaration_list && (mode_declaration_list->size()))
+    {
         process_group_data.off_state_ = IdentifierHash("Off");  // default value if no other path is defined
 
         const flatbuffers::String* recovery_state_name = node->recovery_mode_name();
-        if (recovery_state_name) {
+        if (recovery_state_name)
+        {
             process_group_data.recovery_state_ = getStringViewFromFlatBuffer(recovery_state_name);
         }
         else
@@ -468,8 +473,10 @@ static void setSchedulingParameters(const Process& node, const ProcessStartupCon
     instance.startup_config_.scheduling_policy_ = ConfigurationManager::kDefaultSchedulingPolicy;
     instance.startup_config_.scheduling_priority_ = ConfigurationManager::kDefaultNormalSchedulingPriority;
     auto attribute = config.scheduling_policy();
-    if (attribute != nullptr) {
-        if (strcasecmp("SCHED_FIFO", attribute->c_str()) == 0) {
+    if (attribute != nullptr)
+    {
+        if (strcasecmp("SCHED_FIFO", attribute->c_str()) == 0)
+        {
             instance.startup_config_.scheduling_policy_ = SCHED_FIFO;
             instance.startup_config_.scheduling_priority_ = ConfigurationManager::kDefaultRealtimeSchedulingPriority;
         }
@@ -489,7 +496,8 @@ static void setSchedulingParameters(const Process& node, const ProcessStartupCon
         }
     }
     attribute = config.scheduling_priority();
-    if (attribute != nullptr) {
+    if (attribute != nullptr)
+    {
         instance.startup_config_.scheduling_priority_ = std::stoi(attribute->c_str());
     }
     attribute = node.coremask();
@@ -560,7 +568,8 @@ bool ConfigurationManager::parseProcessConfigurations(const Process* node)
                 std::chrono::milliseconds(startup_config_node->exit_timeout_value());
 
             auto execution_error_string = startup_config_node->execution_error();
-            if (execution_error_string) {
+            if (execution_error_string)
+            {
                 instance.pgm_config_.execution_error_code_ =
                     static_cast<uint32_t>(std::stoi(execution_error_string->c_str()));
             }
@@ -739,10 +748,12 @@ void ConfigurationManager::parseExecutionDependency(
                 Dependency dep{};
                 auto state_name = getStringViewFromFlatBuffer(process_dependency_node->state_name());
                 dep.process_state_ = getProcessState(state_name);
-                dep.target_process_id_ = getStringViewFromFlatBuffer(process_dependency_node->target_process_identifier());
+                dep.target_process_id_ =
+                    getStringViewFromFlatBuffer(process_dependency_node->target_process_identifier());
                 LM_LOG_DEBUG() << "ParseProcessExecutionDependency: target process path:"
-                                << std::string_view{getStringFromFlatBuffer(process_dependency_node->target_process_identifier())}
-                                << "ID:" << dep.target_process_id_;
+                               << std::string_view{getStringFromFlatBuffer(
+                                      process_dependency_node->target_process_identifier())}
+                               << "ID:" << dep.target_process_id_;
                 process_instance.dependencies_.push_back(dep);
             }
         }
@@ -811,8 +822,8 @@ ProcessGroupState* ConfigurationManager::getProcessGroupStateByID(const ProcessG
     return result;
 }
 
-ProcessGroupState* ConfigurationManager::getProcessGroupStateByID(ProcessGroup& pg,
-                                                                  const IdentifierHash& state_name) const
+ProcessGroupState* ConfigurationManager::getProcessGroupStateByID(ProcessGroup& pg, const IdentifierHash& state_name)
+    const
 {
     ProcessGroupState* foundState = nullptr;
 
@@ -828,8 +839,9 @@ ProcessGroupState* ConfigurationManager::getProcessGroupStateByID(ProcessGroup& 
     return foundState;
 }
 
-void ConfigurationManager::AssignOsProcessInstanceToProcessGroup(const ProcessGroupStateID& process_pg,
-                                                                 const OsProcess& process_instance)
+void ConfigurationManager::AssignOsProcessInstanceToProcessGroup(
+    const ProcessGroupStateID& process_pg,
+    const OsProcess& process_instance)
 {
     // Find the process group by name
     auto pg = getProcessGroupByID(process_pg.pg_name_);
@@ -930,7 +942,9 @@ bool ConfigurationManager::checkOrSetFlatConfigEnvVar(const std::string& name, c
         if (setenv(name.c_str(), path.c_str(), overwrite_) == 0)
         {
             result = true;
-        } else {
+        }
+        else
+        {
             LM_LOG_DEBUG() << name << "not set, so default flat config binary path loaded";
         }
     }
@@ -950,8 +964,9 @@ bool ConfigurationManager::loadListOfSWClusters()
     return result;
 }
 
-osal::CommsType ConfigurationManager::getfunctionClusterAffiliation(osal::CommsType current_comms,
-                                                                    const char* attribute)
+osal::CommsType ConfigurationManager::getfunctionClusterAffiliation(
+    osal::CommsType current_comms,
+    const char* attribute)
 {
     osal::CommsType comms_type = current_comms;
 
@@ -996,8 +1011,9 @@ osal::CommsType ConfigurationManager::getCommsType(const Process* node, const ch
     return comms_type;
 }
 
-osal::CommsType ConfigurationManager::isReportingProcess(const ExecutionStateReportingBehaviorEnum reporting_behaviour,
-                                                         const std::string_view process_name)
+osal::CommsType ConfigurationManager::isReportingProcess(
+    const ExecutionStateReportingBehaviorEnum reporting_behaviour,
+    const std::string_view process_name)
 {
     osal::CommsType reporting_status = osal::CommsType::kNoComms;
 
@@ -1015,8 +1031,9 @@ osal::CommsType ConfigurationManager::isReportingProcess(const ExecutionStateRep
     return reporting_status;
 }
 
-bool ConfigurationManager::isSelfTerminatingProcess(const TerminationBehaviorEnum termination_behavior,
-                                                    const std::string_view process_name)
+bool ConfigurationManager::isSelfTerminatingProcess(
+    const TerminationBehaviorEnum termination_behavior,
+    const std::string_view process_name)
 {
     bool termination_status = false;
 
@@ -1034,8 +1051,9 @@ bool ConfigurationManager::isSelfTerminatingProcess(const TerminationBehaviorEnu
     return termination_status;
 }
 
-std::optional<const ProcessGroup*> ConfigurationManager::getProcessGroupByNameAndIndex(const IdentifierHash& pg_name,
-                                                                                       const uint32_t index) const
+std::optional<const ProcessGroup*> ConfigurationManager::getProcessGroupByNameAndIndex(
+    const IdentifierHash& pg_name,
+    const uint32_t index) const
 {
     std::optional<const ProcessGroup*> result = std::nullopt;
 

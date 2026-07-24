@@ -76,7 +76,9 @@ std::unique_ptr<char[]> read_flatbuffer_file(const std::string& f_filename_r)
 }
 }  // namespace
 
-MachineConfigFactory::MachineConfigFactory() noexcept(true) : watchdog::IDeviceConfigFactory() {}
+MachineConfigFactory::MachineConfigFactory() noexcept(true) : watchdog::IDeviceConfigFactory()
+{
+}
 
 bool MachineConfigFactory::init() noexcept(false)
 {

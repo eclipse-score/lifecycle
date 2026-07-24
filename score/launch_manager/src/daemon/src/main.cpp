@@ -21,11 +21,11 @@
 #include "score/mw/launch_manager/common/log.hpp"
 
 #include "score/mw/launch_manager/alive_monitor/details/daemon/AliveMonitorImpl.hpp"
-#include "score/mw/launch_manager/watchdog/details/WatchdogImpl.hpp"
 #include "score/mw/launch_manager/process_group_manager/alive_monitor_thread.hpp"
 #include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
 #include "score/mw/launch_manager/process_state_client/process_state_notifier.hpp"
 #include "score/mw/launch_manager/recovery_client/recovery_client.hpp"
+#include "score/mw/launch_manager/watchdog/details/WatchdogImpl.hpp"
 #ifdef USE_NEW_CONFIGURATION
 #include "score/mw/launch_manager/configuration/flatbuffer_config_loader.hpp"
 #endif
@@ -86,16 +86,16 @@ void reserveFD(int fd)
 
     if (fd_already_opened)
     {
-        std::cerr << "Failed to reserve required file descriptor (" << fd
-            << "), file descriptor already in use. " << std::strerror(errno);
+        std::cerr << "Failed to reserve required file descriptor (" << fd << "), file descriptor already in use. "
+                  << std::strerror(errno);
         std::abort();
     }
 
     int tmp_fd = open("/dev/null", O_RDWR | O_CLOEXEC);
     if (tmp_fd < 0)
     {
-        std::cerr << "Failed to reserve required file descriptor (" << fd
-            << "), failed to open temporary file. " << std::strerror(errno);
+        std::cerr << "Failed to reserve required file descriptor (" << fd << "), failed to open temporary file. "
+                  << std::strerror(errno);
         std::abort();
     }
 
@@ -106,8 +106,7 @@ void reserveFD(int fd)
             ::close(tmp_fd);
 
             std::cerr << "Failed to reserve required file descriptor (" << fd
-                      << "), couldn't duplicate fd with required number. "
-                      << std::strerror(errno);
+                      << "), couldn't duplicate fd with required number. " << std::strerror(errno);
             std::abort();
         }
 
@@ -117,8 +116,7 @@ void reserveFD(int fd)
             ::close(fd);
 
             std::cerr << "Failed to reserve required file descriptor (" << fd
-                      << ") , couldn't set flags on reserved file decriptor. "
-                      << std::strerror(errno);
+                      << ") , couldn't set flags on reserved file decriptor. " << std::strerror(errno);
             std::abort();
         }
 
@@ -139,8 +137,10 @@ int main(int argc, const char* argv[])
 {
     const char* config_path = "etc/launch_manager_config.bin";
     int opt;
-    while ((opt = getopt(argc, const_cast<char**>(argv), "c:h")) != -1) {
-        switch (opt) {
+    while ((opt = getopt(argc, const_cast<char**>(argv), "c:h")) != -1)
+    {
+        switch (opt)
+        {
             case 'c':
                 config_path = optarg;
                 break;
@@ -164,8 +164,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char* argv[])
     score::cpp::set_assertion_handler([](const score::cpp::handler_parameters& params) {
         std::ostringstream msg;
         msg << "Assertion failed: " << (params.condition != nullptr ? params.condition : "")
-            << "\n  Location: " << (params.file != nullptr ? params.file : "?") << ":" << params.line
-            << " (" << (params.function != nullptr ? params.function : "?") << ")";
+            << "\n  Location: " << (params.file != nullptr ? params.file : "?") << ":" << params.line << " ("
+            << (params.function != nullptr ? params.function : "?") << ")";
         if (params.message != nullptr)
         {
             msg << "\n  Message:  " << params.message;
@@ -173,7 +173,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char* argv[])
         msg << "\n";
         std::cerr << msg.str();
     });
-
 
     // reserve files descriptor osal::IpcCommsSync::sync_fd (fd3) and
     // osal::IpcCommsSync::control_client_handler_nudge_fd (fd4) for communication tpyes: kNoComms !fd3 & !fd4
@@ -198,7 +197,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char* argv[])
 #ifdef USE_NEW_CONFIGURATION
         score::mw::launch_manager::configuration::FlatbufferConfigLoader config_loader;
         auto config_result = config_loader.load(config_path);
-        if (!config_result.has_value()) {
+        if (!config_result.has_value())
+        {
             LM_LOG_FATAL() << "Failed to load config from: " << config_path;
             return EXIT_FAILURE;
         }
@@ -210,9 +210,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char* argv[])
         auto process_state_notifier = std::make_unique<score::lcm::internal::ProcessStateNotifier>();
         std::unique_ptr<score::lcm::saf::daemon::IAliveMonitor> healthMonitor{
             std::make_unique<score::lcm::saf::daemon::AliveMonitorImpl>(
-                recoveryClient, std::move(watchdog), process_state_notifier->constructReceiver()
+                recoveryClient,
+                std::move(watchdog),
+                process_state_notifier->constructReceiver()
 #ifdef USE_NEW_CONFIGURATION
-                , *config_result
+                    ,
+                *config_result
 #endif
                 )};
         std::unique_ptr<score::lcm::internal::IAliveMonitorThread> aliveMonitorThread{

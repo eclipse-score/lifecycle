@@ -44,8 +44,11 @@ class MpscBoundedQueue
 
   public:
     MpscBoundedQueue() = default;
-    ~MpscBoundedQueue() {
-        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(is_stopped(), "Call stop() and join/shut down all threads" 
+    ~MpscBoundedQueue()
+    {
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+            is_stopped(),
+            "Call stop() and join/shut down all threads"
             "that might still call wait()/tryPop()/push() only then let the queue be destroyed.");
     };
 
@@ -127,20 +130,21 @@ class MpscBoundedQueue
     }
 
   private:
-
     /// @brief Checks whether the queue is stopped
-    [[nodiscard]] bool is_stopped() {
+    [[nodiscard]] bool is_stopped()
+    {
         std::lock_guard lock(mutex_);
         return stopped_;
     }
 
-    /// @brief Checks whether the consumer thread id is unchanged   
+    /// @brief Checks whether the consumer thread id is unchanged
     [[nodiscard]] bool ensure_single_consumer()
     {
-        if(consumer_thread_id_ == std::thread::id{}) {
+        if (consumer_thread_id_ == std::thread::id{})
+        {
             consumer_thread_id_ = std::this_thread::get_id();
         }
-        return consumer_thread_id_== std::this_thread::get_id();
+        return consumer_thread_id_ == std::this_thread::get_id();
     }
 
     template <typename U>
