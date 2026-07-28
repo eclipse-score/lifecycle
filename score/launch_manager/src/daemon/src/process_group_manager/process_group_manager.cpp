@@ -153,10 +153,17 @@ void ProcessGroupManager::deinitialize()
     process_monitor_.reset();
     alive_monitor_thread_->stop();
     configuration_.deinitialize();
-    process_groups_.clear();
 
+    // Stop and join the worker threads BEFORE destroying the process groups.
+    // Worker threads run ProcessInfoNode::doWork(), which dereferences its Graph
+    // (nodeExecuted(), getState(), ...) via a raw back-pointer. If a transition is
+    // still completing on a worker thread (e.g. an in-progress switch to Off that
+    // is allowed to continue during shutdown), destroying the graphs first would be
+    // a use-after-free.
     thread_pool_.reset();
     worker_jobs_.reset();
+
+    process_groups_.clear();
     process_map_.reset();
 }
 
@@ -237,14 +244,15 @@ bool ProcessGroupManager::initializeProcessGroups()
             const auto* states = configuration_.getListOfProcessGroupStates(pg_name).value_or(nullptr);
             const uint32_t num_run_targets = states ? static_cast<uint32_t>(states->size()) : 0U;
 
-            process_groups_.push_back(std::make_shared<Graph>(
-                num_processes + num_run_targets,
-                &configuration_,
-                worker_jobs_,
-                &process_interface_,
-                process_map_,
-                *supervision_control_notifier_.get(),
-                this));
+            process_groups_.push_back(
+                std::make_shared<Graph>(
+                    num_processes + num_run_targets,
+                    &configuration_,
+                    worker_jobs_,
+                    &process_interface_,
+                    process_map_,
+                    *supervision_control_notifier_.get(),
+                    this));
         }
     }
     else
@@ -321,6 +329,7 @@ bool ProcessGroupManager::run()
     bool overflow_logged = false;
 
     if (result)
+    {
         while (!em_cancelled.load())
         {
             // Wait for something to happen...
@@ -350,6 +359,8 @@ bool ProcessGroupManager::run()
 
             watchdog_->serviceWatchdog();
         }
+        LM_LOG_WARN() << "ProcessGroupManager::run() - received SIGTERM, exiting";
+    }
 
     allProcessGroupsOff();
 
