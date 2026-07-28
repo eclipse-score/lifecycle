@@ -16,10 +16,10 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include <cstdint>
-#include <limits>
 #include <sched.h>
 #include <sys/types.h>
+#include <cstdint>
+#include <limits>
 #include <vector>
 
 namespace score::mw::launch_manager::configuration
@@ -39,13 +39,14 @@ using ::testing::IsTrue;
 
 ::flatbuffers::Offset<fb::Sandbox> buildDefaultSandbox(::flatbuffers::FlatBufferBuilder& fbb)
 {
-    return fb::CreateSandbox(fbb,
-                             0 /*uid*/,
-                             0 /*gid*/,
-                             0 /*supplementary_group_ids*/,
-                             0 /*security_policy*/,
-                             fb::SchedulingPolicy::OTHER,
-                             0 /*scheduling_priority*/);
+    return fb::CreateSandbox(
+        fbb,
+        0 /*uid*/,
+        0 /*gid*/,
+        0 /*supplementary_group_ids*/,
+        0 /*security_policy*/,
+        fb::SchedulingPolicy::OTHER,
+        0 /*scheduling_priority*/);
 }
 
 // ============================================================================
@@ -63,64 +64,6 @@ class TypeConverterTestBase : public ::testing::Test
 };
 
 // ============================================================================
-// secondsToMs tests
-// ============================================================================
-
-class SecondsToMsTest : public TypeConverterTestBase
-{
-};
-
-TEST_F(SecondsToMsTest, ConvertsPositiveValue)
-{
-    RecordProperty("Description", "A positive seconds value converts to milliseconds.");
-
-    auto result = details::secondsToMs(1.5);
-
-    ASSERT_THAT(result.has_value(), IsTrue());
-    EXPECT_THAT(*result, Eq(1500U));
-}
-
-TEST_F(SecondsToMsTest, ConvertsZero)
-{
-    RecordProperty("Description", "Zero seconds converts to zero milliseconds.");
-
-    auto result = details::secondsToMs(0.0);
-
-    ASSERT_THAT(result.has_value(), IsTrue());
-    EXPECT_THAT(*result, Eq(0U));
-}
-
-TEST_F(SecondsToMsTest, RejectsNegativeValue)
-{
-    RecordProperty("Description", "A negative seconds value returns InvalidFormat.");
-
-    auto result = details::secondsToMs(-1.0);
-
-    ASSERT_THAT(result.has_value(), IsFalse());
-    EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
-}
-
-TEST_F(SecondsToMsTest, RejectsOverflow)
-{
-    RecordProperty("Description", "A value exceeding uint32_t max milliseconds returns InvalidFormat.");
-
-    auto result = details::secondsToMs(5000000.0);
-
-    ASSERT_THAT(result.has_value(), IsFalse());
-    EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
-}
-
-TEST_F(SecondsToMsTest, RejectsSubMillisecond)
-{
-    RecordProperty("Description", "A positive value that rounds to 0ms returns InvalidFormat.");
-
-    auto result = details::secondsToMs(0.0001);
-
-    ASSERT_THAT(result.has_value(), IsFalse());
-    EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
-}
-
-// ============================================================================
 // Enum conversion tests
 // ============================================================================
 
@@ -135,8 +78,7 @@ struct ApplicationTypeTestParam
     const char* name;
 };
 
-class ApplicationTypeTest : public TypeConverterTestBase,
-                           public ::testing::WithParamInterface<ApplicationTypeTestParam>
+class ApplicationTypeTest : public TypeConverterTestBase, public ::testing::WithParamInterface<ApplicationTypeTestParam>
 {
 };
 
@@ -147,23 +89,20 @@ TEST_P(ApplicationTypeTest, ConvertsToExpectedValue)
     EXPECT_THAT(details::convertApplicationType(GetParam().fb_type), Eq(GetParam().expected));
 }
 
-INSTANTIATE_TEST_SUITE_P(ApplicationTypes,
-                         ApplicationTypeTest,
-                         ::testing::Values(ApplicationTypeTestParam{fb::ApplicationType::Native,
-                                                                    ApplicationType::Native,
-                                                                    "Native"},
-                                           ApplicationTypeTestParam{fb::ApplicationType::Reporting,
-                                                                    ApplicationType::Reporting,
-                                                                    "Reporting"},
-                                           ApplicationTypeTestParam{fb::ApplicationType::Reporting_And_Supervised,
-                                                                    ApplicationType::ReportingAndSupervised,
-                                                                    "ReportingAndSupervised"},
-                                           ApplicationTypeTestParam{fb::ApplicationType::State_Manager,
-                                                                    ApplicationType::StateManager,
-                                                                    "StateManager"}),
-                         [](const ::testing::TestParamInfo<ApplicationTypeTestParam>& info) {
-                             return info.param.name;
-                         });
+INSTANTIATE_TEST_SUITE_P(
+    ApplicationTypes,
+    ApplicationTypeTest,
+    ::testing::Values(
+        ApplicationTypeTestParam{fb::ApplicationType::Native, ApplicationType::Native, "Native"},
+        ApplicationTypeTestParam{fb::ApplicationType::Reporting, ApplicationType::Reporting, "Reporting"},
+        ApplicationTypeTestParam{
+            fb::ApplicationType::Reporting_And_Supervised,
+            ApplicationType::ReportingAndSupervised,
+            "ReportingAndSupervised"},
+        ApplicationTypeTestParam{fb::ApplicationType::State_Manager, ApplicationType::StateManager, "StateManager"}),
+    [](const ::testing::TestParamInfo<ApplicationTypeTestParam>& info) {
+        return info.param.name;
+    });
 
 struct ProcessStateTestParam
 {
@@ -172,8 +111,7 @@ struct ProcessStateTestParam
     const char* name;
 };
 
-class ProcessStateTest : public TypeConverterTestBase,
-                         public ::testing::WithParamInterface<ProcessStateTestParam>
+class ProcessStateTest : public TypeConverterTestBase, public ::testing::WithParamInterface<ProcessStateTestParam>
 {
 };
 
@@ -184,17 +122,15 @@ TEST_P(ProcessStateTest, ConvertsToExpectedValue)
     EXPECT_THAT(details::convertProcessState(GetParam().fb_state), Eq(GetParam().expected));
 }
 
-INSTANTIATE_TEST_SUITE_P(ProcessStates,
-                         ProcessStateTest,
-                         ::testing::Values(ProcessStateTestParam{fb::ProcessState::Running,
-                                                                 ProcessState::Running,
-                                                                 "Running"},
-                                           ProcessStateTestParam{fb::ProcessState::Terminated,
-                                                                 ProcessState::Terminated,
-                                                                 "Terminated"}),
-                         [](const ::testing::TestParamInfo<ProcessStateTestParam>& info) {
-                             return info.param.name;
-                         });
+INSTANTIATE_TEST_SUITE_P(
+    ProcessStates,
+    ProcessStateTest,
+    ::testing::Values(
+        ProcessStateTestParam{fb::ProcessState::Running, ProcessState::Running, "Running"},
+        ProcessStateTestParam{fb::ProcessState::Terminated, ProcessState::Terminated, "Terminated"}),
+    [](const ::testing::TestParamInfo<ProcessStateTestParam>& info) {
+        return info.param.name;
+    });
 
 struct SchedulingPolicyTestParam
 {
@@ -217,20 +153,16 @@ TEST_P(SchedulingPolicyTest, ConvertsToExpectedPosixValue)
     EXPECT_THAT(*result, Eq(GetParam().expected_posix_value));
 }
 
-INSTANTIATE_TEST_SUITE_P(SchedulingPolicies,
-                         SchedulingPolicyTest,
-                         ::testing::Values(SchedulingPolicyTestParam{fb::SchedulingPolicy::OTHER,
-                                                                     SCHED_OTHER,
-                                                                     "SCHED_OTHER"},
-                                           SchedulingPolicyTestParam{fb::SchedulingPolicy::FIFO,
-                                                                     SCHED_FIFO,
-                                                                     "SCHED_FIFO"},
-                                           SchedulingPolicyTestParam{fb::SchedulingPolicy::RR,
-                                                                     SCHED_RR,
-                                                                     "SCHED_RR"}),
-                         [](const ::testing::TestParamInfo<SchedulingPolicyTestParam>& info) {
-                             return info.param.name;
-                         });
+INSTANTIATE_TEST_SUITE_P(
+    SchedulingPolicies,
+    SchedulingPolicyTest,
+    ::testing::Values(
+        SchedulingPolicyTestParam{fb::SchedulingPolicy::OTHER, SCHED_OTHER, "SCHED_OTHER"},
+        SchedulingPolicyTestParam{fb::SchedulingPolicy::FIFO, SCHED_FIFO, "SCHED_FIFO"},
+        SchedulingPolicyTestParam{fb::SchedulingPolicy::RR, SCHED_RR, "SCHED_RR"}),
+    [](const ::testing::TestParamInfo<SchedulingPolicyTestParam>& info) {
+        return info.param.name;
+    });
 
 TEST_F(EnumConversionTest, ConvertSchedulingPolicyUnsupported)
 {
@@ -295,8 +227,8 @@ TYPED_TEST(ValidateRangeTest, AcceptsMinBoundary)
 {
     this->RecordProperty("Description", "The minimum value of the target type is accepted.");
 
-    auto result = details::validateRange<TypeParam>(
-        static_cast<int64_t>(std::numeric_limits<TypeParam>::min()), "test_field");
+    auto result =
+        details::validateRange<TypeParam>(static_cast<int64_t>(std::numeric_limits<TypeParam>::min()), "test_field");
 
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(*result, Eq(std::numeric_limits<TypeParam>::min()));
@@ -306,8 +238,8 @@ TYPED_TEST(ValidateRangeTest, AcceptsMaxBoundary)
 {
     this->RecordProperty("Description", "The maximum value of the target type is accepted.");
 
-    auto result = details::validateRange<TypeParam>(
-        static_cast<int64_t>(std::numeric_limits<TypeParam>::max()), "test_field");
+    auto result =
+        details::validateRange<TypeParam>(static_cast<int64_t>(std::numeric_limits<TypeParam>::max()), "test_field");
 
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(*result, Eq(std::numeric_limits<TypeParam>::max()));
@@ -379,7 +311,7 @@ TEST_F(ConverterTest, ConvertRestartActionValid)
 {
     RecordProperty("Description", "convertRestartAction with valid fields returns correct values.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto ra = fb::CreateRestartAction(fbb, 3 /*number_of_attempts*/, 1.5 /*delay_before_restart*/);
+    auto ra = fb::CreateRestartAction(fbb, 3 /*number_of_attempts*/, 1500 /*delay_before_restart_ms*/);
     fbb.Finish(ra);
     const auto* ptr = ::flatbuffers::GetRoot<fb::RestartAction>(fbb.GetBufferPointer());
 
@@ -438,7 +370,7 @@ TEST_F(ConverterTest, ConvertComponentAliveSupervisionValid)
     RecordProperty("Description", "convertComponentAliveSupervision maps all fields correctly.");
     ::flatbuffers::FlatBufferBuilder fbb;
     auto cas = fb::CreateComponentAliveSupervision(
-        fbb, 0.5 /*reporting_cycle*/, 2 /*failed_cycles_tolerance*/, 1 /*min_indications*/, 3 /*max_indications*/);
+        fbb, 500 /*reporting_cycle_ms*/, 2 /*failed_cycles_tolerance*/, 1 /*min_indications*/, 3 /*max_indications*/);
     fbb.Finish(cas);
     const auto* ptr = ::flatbuffers::GetRoot<fb::ComponentAliveSupervision>(fbb.GetBufferPointer());
 
@@ -456,7 +388,8 @@ TEST_F(ConverterTest, ConvertComponentAliveSupervisionMissingReportingCycleRetur
 {
     RecordProperty("Description", "Missing reporting_cycle returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto cas = fb::CreateComponentAliveSupervision(fbb, ::flatbuffers::nullopt /*reporting_cycle*/, 3 /*failed_cycles_tolerance*/);
+    auto cas = fb::CreateComponentAliveSupervision(
+        fbb, ::flatbuffers::nullopt /*reporting_cycle_ms*/, 3 /*failed_cycles_tolerance*/);
     fbb.Finish(cas);
     const auto* ptr = ::flatbuffers::GetRoot<fb::ComponentAliveSupervision>(fbb.GetBufferPointer());
 
@@ -469,7 +402,8 @@ TEST_F(ConverterTest, ConvertComponentAliveSupervisionMissingToleranceReturnsErr
 {
     RecordProperty("Description", "Missing failed_cycles_tolerance returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto cas = fb::CreateComponentAliveSupervision(fbb, 1.0 /*reporting_cycle*/, ::flatbuffers::nullopt /*failed_cycles_tolerance*/);
+    auto cas = fb::CreateComponentAliveSupervision(
+        fbb, 1000 /*reporting_cycle_ms*/, ::flatbuffers::nullopt /*failed_cycles_tolerance*/);
     fbb.Finish(cas);
     const auto* ptr = ::flatbuffers::GetRoot<fb::ComponentAliveSupervision>(fbb.GetBufferPointer());
 
@@ -482,7 +416,7 @@ TEST_F(ConverterTest, ConvertComponentAliveSupervisionBothIndicationsAbsentRetur
 {
     RecordProperty("Description", "Both min/max_indications absent returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto cas = fb::CreateComponentAliveSupervision(fbb, 1.0 /*reporting_cycle*/, 3 /*failed_cycles_tolerance*/);
+    auto cas = fb::CreateComponentAliveSupervision(fbb, 1000 /*reporting_cycle_ms*/, 3 /*failed_cycles_tolerance*/);
     fbb.Finish(cas);
     const auto* ptr = ::flatbuffers::GetRoot<fb::ComponentAliveSupervision>(fbb.GetBufferPointer());
 
@@ -495,7 +429,8 @@ TEST_F(ConverterTest, ConvertComponentAliveSupervisionOnlyMinIndicationsPresent)
 {
     RecordProperty("Description", "Only min_indications set is accepted, max_indications remains nullopt.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto cas = fb::CreateComponentAliveSupervision(fbb, 1.0 /*reporting_cycle*/, 3 /*failed_cycles_tolerance*/, 2 /*min_indications*/);
+    auto cas = fb::CreateComponentAliveSupervision(
+        fbb, 1000 /*reporting_cycle_ms*/, 3 /*failed_cycles_tolerance*/, 2 /*min_indications*/);
     fbb.Finish(cas);
     const auto* ptr = ::flatbuffers::GetRoot<fb::ComponentAliveSupervision>(fbb.GetBufferPointer());
 
@@ -510,7 +445,12 @@ TEST_F(ConverterTest, ConvertComponentAliveSupervisionOnlyMaxIndicationsPresent)
 {
     RecordProperty("Description", "Only max_indications set is accepted, min_indications remains nullopt.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto cas = fb::CreateComponentAliveSupervision(fbb, 1.0 /*reporting_cycle*/, 3 /*failed_cycles_tolerance*/, ::flatbuffers::nullopt /*min_indications*/, 5 /*max_indications*/);
+    auto cas = fb::CreateComponentAliveSupervision(
+        fbb,
+        1000 /*reporting_cycle_ms*/,
+        3 /*failed_cycles_tolerance*/,
+        ::flatbuffers::nullopt /*min_indications*/,
+        5 /*max_indications*/);
     fbb.Finish(cas);
     const auto* ptr = ::flatbuffers::GetRoot<fb::ComponentAliveSupervision>(fbb.GetBufferPointer());
 
@@ -525,7 +465,8 @@ TEST_F(ConverterTest, ConvertApplicationProfileValid)
 {
     RecordProperty("Description", "convertApplicationProfile maps all fields correctly.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto ap = fb::CreateApplicationProfile(fbb, fb::ApplicationType::Reporting_And_Supervised, true /*is_self_terminating*/);
+    auto ap =
+        fb::CreateApplicationProfile(fbb, fb::ApplicationType::Reporting_And_Supervised, true /*is_self_terminating*/);
     fbb.Finish(ap);
     const auto* ptr = ::flatbuffers::GetRoot<fb::ApplicationProfile>(fbb.GetBufferPointer());
 
@@ -539,7 +480,8 @@ TEST_F(ConverterTest, ConvertApplicationProfileMissingTypeReturnsError)
 {
     RecordProperty("Description", "Missing application_type returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto ap = fb::CreateApplicationProfile(fbb, ::flatbuffers::nullopt /*application_type*/, false /*is_self_terminating*/);
+    auto ap =
+        fb::CreateApplicationProfile(fbb, ::flatbuffers::nullopt /*application_type*/, false /*is_self_terminating*/);
     fbb.Finish(ap);
     const auto* ptr = ::flatbuffers::GetRoot<fb::ApplicationProfile>(fbb.GetBufferPointer());
 
@@ -552,7 +494,8 @@ TEST_F(ConverterTest, ConvertApplicationProfileMissingSelfTerminatingReturnsErro
 {
     RecordProperty("Description", "Missing is_self_terminating returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto ap = fb::CreateApplicationProfile(fbb, fb::ApplicationType::Native, ::flatbuffers::nullopt /*is_self_terminating*/);
+    auto ap =
+        fb::CreateApplicationProfile(fbb, fb::ApplicationType::Native, ::flatbuffers::nullopt /*is_self_terminating*/);
     fbb.Finish(ap);
     const auto* ptr = ::flatbuffers::GetRoot<fb::ApplicationProfile>(fbb.GetBufferPointer());
 
@@ -593,15 +536,16 @@ TEST_F(ConverterTest, ConvertSandboxValid)
     ::flatbuffers::FlatBufferBuilder fbb;
     auto sec_policy = fbb.CreateString("strict");
     auto supp_gids = fbb.CreateVector(std::vector<int64_t>{100, 200});
-    auto sandbox = fb::CreateSandbox(fbb,
-                                     1000 /*uid*/,
-                                     1000 /*gid*/,
-                                     supp_gids,
-                                     sec_policy,
-                                     fb::SchedulingPolicy::FIFO,
-                                     50 /*scheduling_priority*/,
-                                     4096 /*max_memory_usage*/,
-                                     80 /*max_cpu_usage*/);
+    auto sandbox = fb::CreateSandbox(
+        fbb,
+        1000 /*uid*/,
+        1000 /*gid*/,
+        supp_gids,
+        sec_policy,
+        fb::SchedulingPolicy::FIFO,
+        50 /*scheduling_priority*/,
+        4096 /*max_memory_usage*/,
+        80 /*max_cpu_usage*/);
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
@@ -624,7 +568,14 @@ TEST_F(ConverterTest, ConvertSandboxMissingUidReturnsError)
 {
     RecordProperty("Description", "Sandbox without uid returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto sandbox = fb::CreateSandbox(fbb, ::flatbuffers::nullopt /*uid*/, 0 /*gid*/, 0 /*supplementary_group_ids*/, 0 /*security_policy*/, fb::SchedulingPolicy::OTHER, 0 /*scheduling_priority*/);
+    auto sandbox = fb::CreateSandbox(
+        fbb,
+        ::flatbuffers::nullopt /*uid*/,
+        0 /*gid*/,
+        0 /*supplementary_group_ids*/,
+        0 /*security_policy*/,
+        fb::SchedulingPolicy::OTHER,
+        0 /*scheduling_priority*/);
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
@@ -637,7 +588,14 @@ TEST_F(ConverterTest, ConvertSandboxMissingGidReturnsError)
 {
     RecordProperty("Description", "Sandbox without gid returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto sandbox = fb::CreateSandbox(fbb, 0 /*uid*/, ::flatbuffers::nullopt /*gid*/, 0 /*supplementary_group_ids*/, 0 /*security_policy*/, fb::SchedulingPolicy::OTHER, 0 /*scheduling_priority*/);
+    auto sandbox = fb::CreateSandbox(
+        fbb,
+        0 /*uid*/,
+        ::flatbuffers::nullopt /*gid*/,
+        0 /*supplementary_group_ids*/,
+        0 /*security_policy*/,
+        fb::SchedulingPolicy::OTHER,
+        0 /*scheduling_priority*/);
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
@@ -650,7 +608,14 @@ TEST_F(ConverterTest, ConvertSandboxMissingSchedulingPolicyReturnsError)
 {
     RecordProperty("Description", "Sandbox without scheduling_policy returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto sandbox = fb::CreateSandbox(fbb, 0 /*uid*/, 0 /*gid*/, 0 /*supplementary_group_ids*/, 0 /*security_policy*/, ::flatbuffers::nullopt /*scheduling_policy*/, 0 /*scheduling_priority*/);
+    auto sandbox = fb::CreateSandbox(
+        fbb,
+        0 /*uid*/,
+        0 /*gid*/,
+        0 /*supplementary_group_ids*/,
+        0 /*security_policy*/,
+        ::flatbuffers::nullopt /*scheduling_policy*/,
+        0 /*scheduling_priority*/);
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
@@ -663,7 +628,14 @@ TEST_F(ConverterTest, ConvertSandboxMissingSchedulingPriorityReturnsError)
 {
     RecordProperty("Description", "Sandbox without scheduling_priority returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto sandbox = fb::CreateSandbox(fbb, 0 /*uid*/, 0 /*gid*/, 0 /*supplementary_group_ids*/, 0 /*security_policy*/, fb::SchedulingPolicy::OTHER, ::flatbuffers::nullopt /*scheduling_priority*/);
+    auto sandbox = fb::CreateSandbox(
+        fbb,
+        0 /*uid*/,
+        0 /*gid*/,
+        0 /*supplementary_group_ids*/,
+        0 /*security_policy*/,
+        fb::SchedulingPolicy::OTHER,
+        ::flatbuffers::nullopt /*scheduling_priority*/);
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
@@ -677,12 +649,14 @@ TEST_F(ConverterTest, ConvertSandboxUidOutOfRangeReturnsError)
     RecordProperty("Description", "Sandbox uid exceeding uid_t range returns InvalidFormat.");
 
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto sandbox = fb::CreateSandbox(fbb,
-                                     std::numeric_limits<int64_t>::max() /*uid*/,
-                                     1000 /*gid*/,
-                                     0 /*supplementary_group_ids*/, 0 /*security_policy*/,
-                                     fb::SchedulingPolicy::OTHER,
-                                     0 /*scheduling_priority*/);
+    auto sandbox = fb::CreateSandbox(
+        fbb,
+        std::numeric_limits<int64_t>::max() /*uid*/,
+        1000 /*gid*/,
+        0 /*supplementary_group_ids*/,
+        0 /*security_policy*/,
+        fb::SchedulingPolicy::OTHER,
+        0 /*scheduling_priority*/);
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
@@ -697,13 +671,14 @@ TEST_F(ConverterTest, ConvertSandboxSupplementaryGidOutOfRangeReturnsError)
 
     ::flatbuffers::FlatBufferBuilder fbb;
     auto supp_gids = fbb.CreateVector(std::vector<int64_t>{100, std::numeric_limits<int64_t>::max()});
-    auto sandbox = fb::CreateSandbox(fbb,
-                                     1000 /*uid*/,
-                                     1000 /*gid*/,
-                                     supp_gids,
-                                     0 /*security_policy*/,
-                                     fb::SchedulingPolicy::OTHER,
-                                     0 /*scheduling_priority*/);
+    auto sandbox = fb::CreateSandbox(
+        fbb,
+        1000 /*uid*/,
+        1000 /*gid*/,
+        supp_gids,
+        0 /*security_policy*/,
+        fb::SchedulingPolicy::OTHER,
+        0 /*scheduling_priority*/);
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
@@ -720,8 +695,15 @@ TEST_F(ConverterTest, ConvertDeploymentConfigValid)
     auto work_dir = fbb.CreateString("/tmp");
     auto sandbox = buildDefaultSandbox(fbb);
     auto deploy = fb::CreateDeploymentConfig(
-        fbb, 1.5 /*ready_timeout*/, 2.5 /*shutdown_timeout*/, 0 /*environmental_variables*/,
-        bin_dir, work_dir, 0 /*ready_recovery_action*/, 0 /*recovery_action*/, sandbox);
+        fbb,
+        1500 /*ready_timeout_ms*/,
+        2500 /*shutdown_timeout_ms*/,
+        0 /*environmental_variables*/,
+        bin_dir,
+        work_dir,
+        0 /*ready_recovery_action*/,
+        0 /*recovery_action*/,
+        sandbox);
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
@@ -742,7 +724,16 @@ TEST_F(ConverterTest, ConvertDeploymentConfigMissingReadyTimeoutReturnsError)
     auto bin_dir = fbb.CreateString("/opt");
     auto work_dir = fbb.CreateString("/tmp");
     auto sandbox = buildDefaultSandbox(fbb);
-    auto deploy = fb::CreateDeploymentConfig(fbb, ::flatbuffers::nullopt /*ready_timeout*/, 1.0 /*shutdown_timeout*/, 0 /*environmental_variables*/, bin_dir, work_dir, 0 /*ready_recovery_action*/, 0 /*recovery_action*/, sandbox);
+    auto deploy = fb::CreateDeploymentConfig(
+        fbb,
+        ::flatbuffers::nullopt /*ready_timeout_ms*/,
+        1000 /*shutdown_timeout_ms*/,
+        0 /*environmental_variables*/,
+        bin_dir,
+        work_dir,
+        0 /*ready_recovery_action*/,
+        0 /*recovery_action*/,
+        sandbox);
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
@@ -758,7 +749,16 @@ TEST_F(ConverterTest, ConvertDeploymentConfigMissingShutdownTimeoutReturnsError)
     auto bin_dir = fbb.CreateString("/opt");
     auto work_dir = fbb.CreateString("/tmp");
     auto sandbox = buildDefaultSandbox(fbb);
-    auto deploy = fb::CreateDeploymentConfig(fbb, 1.0 /*ready_timeout*/, ::flatbuffers::nullopt /*shutdown_timeout*/, 0 /*environmental_variables*/, bin_dir, work_dir, 0 /*ready_recovery_action*/, 0 /*recovery_action*/, sandbox);
+    auto deploy = fb::CreateDeploymentConfig(
+        fbb,
+        1000 /*ready_timeout_ms*/,
+        ::flatbuffers::nullopt /*shutdown_timeout_ms*/,
+        0 /*environmental_variables*/,
+        bin_dir,
+        work_dir,
+        0 /*ready_recovery_action*/,
+        0 /*recovery_action*/,
+        sandbox);
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
@@ -775,12 +775,22 @@ TEST_F(ConverterTest, ConvertComponentValid)
     auto app_profile = fb::CreateApplicationProfile(fbb, fb::ApplicationType::Native, false /*is_self_terminating*/);
     auto bin_name = fbb.CreateString("my_binary");
     auto ready_cond = fb::CreateReadyCondition(fbb, fb::ProcessState::Running);
-    auto comp_props = fb::CreateComponentProperties(fbb, bin_name, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
+    auto comp_props = fb::CreateComponentProperties(
+        fbb, bin_name, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
 
     auto bin_dir = fbb.CreateString("/opt");
     auto work_dir = fbb.CreateString("/tmp");
     auto sandbox = buildDefaultSandbox(fbb);
-    auto deploy = fb::CreateDeploymentConfig(fbb, 1.0 /*ready_timeout*/, 1.0 /*shutdown_timeout*/, 0 /*environmental_variables*/, bin_dir, work_dir, 0 /*ready_recovery_action*/, 0 /*recovery_action*/, sandbox);
+    auto deploy = fb::CreateDeploymentConfig(
+        fbb,
+        1000 /*ready_timeout_ms*/,
+        1000 /*shutdown_timeout_ms*/,
+        0 /*environmental_variables*/,
+        bin_dir,
+        work_dir,
+        0 /*ready_recovery_action*/,
+        0 /*recovery_action*/,
+        sandbox);
 
     auto comp_name = fbb.CreateString("TestComp");
     auto comp_desc = fbb.CreateString("A test component");
@@ -802,14 +812,25 @@ TEST_F(ConverterTest, ConvertComponentsValid)
     ::flatbuffers::FlatBufferBuilder fbb;
 
     auto build_comp = [&](const char* name) {
-        auto app_profile = fb::CreateApplicationProfile(fbb, fb::ApplicationType::Native, false /*is_self_terminating*/);
+        auto app_profile =
+            fb::CreateApplicationProfile(fbb, fb::ApplicationType::Native, false /*is_self_terminating*/);
         auto bin_name = fbb.CreateString(name);
         auto ready_cond = fb::CreateReadyCondition(fbb, fb::ProcessState::Running);
-        auto comp_props = fb::CreateComponentProperties(fbb, bin_name, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
+        auto comp_props = fb::CreateComponentProperties(
+            fbb, bin_name, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
         auto bin_dir = fbb.CreateString("/opt");
         auto work_dir = fbb.CreateString("/tmp");
         auto sandbox = buildDefaultSandbox(fbb);
-        auto deploy = fb::CreateDeploymentConfig(fbb, 1.0 /*ready_timeout*/, 1.0 /*shutdown_timeout*/, 0 /*environmental_variables*/, bin_dir, work_dir, 0 /*ready_recovery_action*/, 0 /*recovery_action*/, sandbox);
+        auto deploy = fb::CreateDeploymentConfig(
+            fbb,
+            1000 /*ready_timeout_ms*/,
+            1000 /*shutdown_timeout_ms*/,
+            0 /*environmental_variables*/,
+            bin_dir,
+            work_dir,
+            0 /*ready_recovery_action*/,
+            0 /*recovery_action*/,
+            sandbox);
         auto comp_name = fbb.CreateString(name);
         return fb::CreateComponent(fbb, comp_name, 0 /*description*/, comp_props, deploy);
     };
@@ -835,14 +856,25 @@ TEST_F(ConverterTest, ConvertComponentsWithInvalidComponentReturnsError)
     RecordProperty("Description", "convertComponents returns error when a component has invalid fields.");
     ::flatbuffers::FlatBufferBuilder fbb;
 
-    auto app_profile = fb::CreateApplicationProfile(fbb, ::flatbuffers::nullopt /*application_type*/, false /*is_self_terminating*/);
+    auto app_profile =
+        fb::CreateApplicationProfile(fbb, ::flatbuffers::nullopt /*application_type*/, false /*is_self_terminating*/);
     auto bin_name = fbb.CreateString("bad_bin");
     auto ready_cond = fb::CreateReadyCondition(fbb, fb::ProcessState::Running);
-    auto comp_props = fb::CreateComponentProperties(fbb, bin_name, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
+    auto comp_props = fb::CreateComponentProperties(
+        fbb, bin_name, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
     auto bin_dir = fbb.CreateString("/opt");
     auto work_dir = fbb.CreateString("/tmp");
     auto sandbox = buildDefaultSandbox(fbb);
-    auto deploy = fb::CreateDeploymentConfig(fbb, 1.0 /*ready_timeout*/, 1.0 /*shutdown_timeout*/, 0 /*environmental_variables*/, bin_dir, work_dir, 0 /*ready_recovery_action*/, 0 /*recovery_action*/, sandbox);
+    auto deploy = fb::CreateDeploymentConfig(
+        fbb,
+        1000 /*ready_timeout_ms*/,
+        1000 /*shutdown_timeout_ms*/,
+        0 /*environmental_variables*/,
+        bin_dir,
+        work_dir,
+        0 /*ready_recovery_action*/,
+        0 /*recovery_action*/,
+        sandbox);
     auto comp_name = fbb.CreateString("BadComp");
     auto comp = fb::CreateComponent(fbb, comp_name, 0 /*description*/, comp_props, deploy);
     auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{comp});
@@ -864,7 +896,8 @@ TEST_F(ConverterTest, ConvertRunTargetsValid)
         auto switch_target = fbb.CreateString(recovery_target);
         auto switch_action = fb::CreateSwitchRunTargetAction(fbb, switch_target);
         auto rt_name = fbb.CreateString(name);
-        return fb::CreateRunTarget(fbb, rt_name, 0 /*description*/, 0 /*depends_on*/, 1.0 /*transition_timeout*/, switch_action);
+        return fb::CreateRunTarget(
+            fbb, rt_name, 0 /*description*/, 0 /*depends_on*/, 1000 /*transition_timeout_ms*/, switch_action);
     };
 
     auto rt_a = build_rt("Startup", "SafeState");
@@ -891,7 +924,13 @@ TEST_F(ConverterTest, ConvertRunTargetsWithInvalidRunTargetReturnsError)
     auto switch_target = fbb.CreateString("SafeState");
     auto switch_action = fb::CreateSwitchRunTargetAction(fbb, switch_target);
     auto rt_name = fbb.CreateString("BadRT");
-    auto rt = fb::CreateRunTarget(fbb, rt_name, 0 /*description*/, 0 /*depends_on*/, ::flatbuffers::nullopt /*transition_timeout*/, switch_action);
+    auto rt = fb::CreateRunTarget(
+        fbb,
+        rt_name,
+        0 /*description*/,
+        0 /*depends_on*/,
+        ::flatbuffers::nullopt /*transition_timeout*/,
+        switch_action);
     auto rts = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::RunTarget>>{rt});
     fbb.Finish(rts);
     const auto* ptr =
@@ -913,7 +952,7 @@ TEST_F(ConverterTest, ConvertRunTargetValid)
     auto rt_desc = fbb.CreateString("Initial state");
     auto rt_dep = fbb.CreateString("component_a");
     auto rt_deps = fbb.CreateVector(std::vector<::flatbuffers::Offset<::flatbuffers::String>>{rt_dep});
-    auto rt = fb::CreateRunTarget(fbb, rt_name, rt_desc, rt_deps, 5.0 /*transition_timeout*/, switch_action);
+    auto rt = fb::CreateRunTarget(fbb, rt_name, rt_desc, rt_deps, 5000 /*transition_timeout_ms*/, switch_action);
     fbb.Finish(rt);
     const auto* ptr = ::flatbuffers::GetRoot<fb::RunTarget>(fbb.GetBufferPointer());
 
@@ -934,7 +973,13 @@ TEST_F(ConverterTest, ConvertRunTargetMissingTransitionTimeoutReturnsError)
     auto switch_target = fbb.CreateString("SafeState");
     auto switch_action = fb::CreateSwitchRunTargetAction(fbb, switch_target);
     auto rt_name = fbb.CreateString("Startup");
-    auto rt = fb::CreateRunTarget(fbb, rt_name, 0 /*description*/, 0 /*depends_on*/, ::flatbuffers::nullopt /*transition_timeout*/, switch_action);
+    auto rt = fb::CreateRunTarget(
+        fbb,
+        rt_name,
+        0 /*description*/,
+        0 /*depends_on*/,
+        ::flatbuffers::nullopt /*transition_timeout_ms*/,
+        switch_action);
     fbb.Finish(rt);
     const auto* ptr = ::flatbuffers::GetRoot<fb::RunTarget>(fbb.GetBufferPointer());
 
@@ -950,7 +995,7 @@ TEST_F(ConverterTest, ConvertFallbackRunTargetValid)
     auto desc = fbb.CreateString("Fallback state");
     auto dep = fbb.CreateString("critical_comp");
     auto deps = fbb.CreateVector(std::vector<::flatbuffers::Offset<::flatbuffers::String>>{dep});
-    auto frt = fb::CreateFallbackRunTarget(fbb, desc, deps, 10.0 /*transition_timeout*/);
+    auto frt = fb::CreateFallbackRunTarget(fbb, desc, deps, 10000 /*transition_timeout_ms*/);
     fbb.Finish(frt);
     const auto* ptr = ::flatbuffers::GetRoot<fb::FallbackRunTarget>(fbb.GetBufferPointer());
 
@@ -987,7 +1032,7 @@ TEST_F(ConverterTest, ConvertAliveSupervisionValid)
 {
     RecordProperty("Description", "convertAliveSupervision maps evaluation_cycle correctly.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto as = fb::CreateAliveSupervision(fbb, 0.25 /*evaluation_cycle*/);
+    auto as = fb::CreateAliveSupervision(fbb, 250 /*evaluation_cycle_ms*/);
     fbb.Finish(as);
     const auto* ptr = ::flatbuffers::GetRoot<fb::AliveSupervision>(fbb.GetBufferPointer());
 
@@ -1022,7 +1067,7 @@ TEST_F(ConverterTest, ConvertWatchdogValid)
     RecordProperty("Description", "convertWatchdog maps all fields correctly.");
     ::flatbuffers::FlatBufferBuilder fbb;
     auto dev_path = fbb.CreateString("/dev/watchdog0");
-    auto wd = fb::CreateWatchdog(fbb, dev_path, 30.0 /*max_timeout*/, true /*deactivate*/, false /*magic_close*/);
+    auto wd = fb::CreateWatchdog(fbb, dev_path, 30000 /*max_timeout_ms*/, true /*deactivate*/, false /*magic_close*/);
     fbb.Finish(wd);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Watchdog>(fbb.GetBufferPointer());
 
@@ -1040,7 +1085,12 @@ TEST_F(ConverterTest, ConvertWatchdogMissingMaxTimeoutReturnsError)
     RecordProperty("Description", "Missing max_timeout returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
     auto dev_path = fbb.CreateString("/dev/watchdog0");
-    auto wd = fb::CreateWatchdog(fbb, dev_path, ::flatbuffers::nullopt /*max_timeout*/, true /*deactivate_on_shutdown*/, false /*require_magic_close*/);
+    auto wd = fb::CreateWatchdog(
+        fbb,
+        dev_path,
+        ::flatbuffers::nullopt /*max_timeout_ms*/,
+        true /*deactivate_on_shutdown*/,
+        false /*require_magic_close*/);
     fbb.Finish(wd);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Watchdog>(fbb.GetBufferPointer());
 
@@ -1054,7 +1104,12 @@ TEST_F(ConverterTest, ConvertWatchdogMissingDeactivateReturnsError)
     RecordProperty("Description", "Missing deactivate_on_shutdown returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
     auto dev_path = fbb.CreateString("/dev/watchdog0");
-    auto wd = fb::CreateWatchdog(fbb, dev_path, 30.0 /*max_timeout*/, ::flatbuffers::nullopt /*deactivate_on_shutdown*/, false /*require_magic_close*/);
+    auto wd = fb::CreateWatchdog(
+        fbb,
+        dev_path,
+        30000 /*max_timeout_ms*/,
+        ::flatbuffers::nullopt /*deactivate_on_shutdown*/,
+        false /*require_magic_close*/);
     fbb.Finish(wd);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Watchdog>(fbb.GetBufferPointer());
 
@@ -1068,7 +1123,12 @@ TEST_F(ConverterTest, ConvertWatchdogMissingMagicCloseReturnsError)
     RecordProperty("Description", "Missing require_magic_close returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
     auto dev_path = fbb.CreateString("/dev/watchdog0");
-    auto wd = fb::CreateWatchdog(fbb, dev_path, 30.0 /*max_timeout*/, true /*deactivate_on_shutdown*/, ::flatbuffers::nullopt /*require_magic_close*/);
+    auto wd = fb::CreateWatchdog(
+        fbb,
+        dev_path,
+        30000 /*max_timeout_ms*/,
+        true /*deactivate_on_shutdown*/,
+        ::flatbuffers::nullopt /*require_magic_close*/);
     fbb.Finish(wd);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Watchdog>(fbb.GetBufferPointer());
 
