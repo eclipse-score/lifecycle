@@ -373,7 +373,7 @@
       "type": "integer",
       "description": "Specifies the schema version number that the Launch Manager uses to determine how to parse and validate this configuration file.",
       "enum": [
-        1
+        2
       ]
     },
     "defaults": {
