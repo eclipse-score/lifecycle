@@ -21,7 +21,6 @@
 #include <score/assert.hpp>
 #include <sys/types.h>
 #include <cstdint>
-#include <limits>
 #include <string>
 #include <vector>
 
@@ -56,29 +55,6 @@ std::optional<T> optionalScalarValue(const ::flatbuffers::Optional<T>& field)
 
 namespace details
 {
-
-constexpr double kSecondsToMilliseconds = 1000.0;
-
-score::cpp::expected<uint32_t, IConfigLoader::Error> secondsToMs(double seconds)
-{
-    if (seconds < 0.0)
-    {
-        LM_LOG_ERROR() << "Negative time value " << seconds << " seconds is not supported";
-        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
-    }
-    if (seconds * kSecondsToMilliseconds > static_cast<double>(std::numeric_limits<uint32_t>::max()))
-    {
-        LM_LOG_ERROR() << "Time value " << seconds << " seconds exceeds maximum representable milliseconds";
-        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
-    }
-    const auto result = static_cast<uint32_t>(seconds * kSecondsToMilliseconds);
-    if (seconds > 0.0 && result == 0U)
-    {
-        LM_LOG_ERROR() << "Sub-millisecond time value " << seconds << " seconds rounds to 0ms";
-        return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
-    }
-    return result;
-}
 
 ApplicationType convertApplicationType(fb::ApplicationType fb_type)
 {
@@ -198,18 +174,13 @@ score::cpp::expected<std::optional<RestartAction>, IConfigLoader::Error> convert
     {
         return score::cpp::make_unexpected(number_of_attempts.error());
     }
-    auto delay_before_restart = requireScalarValue(ra->delay_before_restart(), "RestartAction::delay_before_restart");
+    auto delay_before_restart =
+        requireScalarValue(ra->delay_before_restart_ms(), "RestartAction::delay_before_restart_ms");
     if (!delay_before_restart.has_value())
     {
         return score::cpp::make_unexpected(delay_before_restart.error());
     }
-    auto delay_ms = secondsToMs(*delay_before_restart);
-    if (!delay_ms.has_value())
-    {
-        LM_LOG_ERROR() << "Invalid value for RestartAction::delay_before_restart";
-        return score::cpp::make_unexpected(delay_ms.error());
-    }
-    return std::optional<RestartAction>{RestartAction{*number_of_attempts, *delay_ms}};
+    return std::optional<RestartAction>{RestartAction{*number_of_attempts, *delay_before_restart}};
 }
 
 std::optional<SwitchRunTargetAction> convertSwitchRunTargetAction(const fb::SwitchRunTargetAction* sa)
@@ -237,7 +208,7 @@ score::cpp::expected<ComponentAliveSupervision, IConfigLoader::Error> convertCom
     if (fb_cas != nullptr)
     {
         auto reporting_cycle =
-            requireScalarValue(fb_cas->reporting_cycle(), "ComponentAliveSupervision::reporting_cycle");
+            requireScalarValue(fb_cas->reporting_cycle_ms(), "ComponentAliveSupervision::reporting_cycle_ms");
         if (!reporting_cycle.has_value())
         {
             return score::cpp::make_unexpected(reporting_cycle.error());
@@ -248,13 +219,7 @@ score::cpp::expected<ComponentAliveSupervision, IConfigLoader::Error> convertCom
         {
             return score::cpp::make_unexpected(failed_cycles_tolerance.error());
         }
-        auto reporting_cycle_ms = secondsToMs(*reporting_cycle);
-        if (!reporting_cycle_ms.has_value())
-        {
-            LM_LOG_ERROR() << "Invalid value for ComponentAliveSupervision::reporting_cycle";
-            return score::cpp::make_unexpected(reporting_cycle_ms.error());
-        }
-        result.reporting_cycle_ms = *reporting_cycle_ms;
+        result.reporting_cycle_ms = *reporting_cycle;
         result.failed_cycles_tolerance = *failed_cycles_tolerance;
         result.min_indications = optionalScalarValue(fb_cas->min_indications());
         result.max_indications = optionalScalarValue(fb_cas->max_indications());
@@ -419,30 +384,19 @@ score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentCo
             "DeploymentConfig::working_dir must never be nullptr as it is required in the schema");
         SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
             fb_dc->sandbox(), "DeploymentConfig::sandbox must never be nullptr as it is required in the schema");
-        auto ready_timeout = requireScalarValue(fb_dc->ready_timeout(), "DeploymentConfig::ready_timeout");
+        auto ready_timeout = requireScalarValue(fb_dc->ready_timeout_ms(), "DeploymentConfig::ready_timeout_ms");
         if (!ready_timeout.has_value())
         {
             return score::cpp::make_unexpected(ready_timeout.error());
         }
-        auto shutdown_timeout = requireScalarValue(fb_dc->shutdown_timeout(), "DeploymentConfig::shutdown_timeout");
+        auto shutdown_timeout =
+            requireScalarValue(fb_dc->shutdown_timeout_ms(), "DeploymentConfig::shutdown_timeout_ms");
         if (!shutdown_timeout.has_value())
         {
             return score::cpp::make_unexpected(shutdown_timeout.error());
         }
-        auto ready_timeout_ms = secondsToMs(*ready_timeout);
-        if (!ready_timeout_ms.has_value())
-        {
-            LM_LOG_ERROR() << "Invalid value for DeploymentConfig::ready_timeout";
-            return score::cpp::make_unexpected(ready_timeout_ms.error());
-        }
-        auto shutdown_timeout_ms = secondsToMs(*shutdown_timeout);
-        if (!shutdown_timeout_ms.has_value())
-        {
-            LM_LOG_ERROR() << "Invalid value for DeploymentConfig::shutdown_timeout";
-            return score::cpp::make_unexpected(shutdown_timeout_ms.error());
-        }
-        result.ready_timeout_ms = *ready_timeout_ms;
-        result.shutdown_timeout_ms = *shutdown_timeout_ms;
+        result.ready_timeout_ms = *ready_timeout;
+        result.shutdown_timeout_ms = *shutdown_timeout;
         result.environmental_variables = convertEnvironmentalVariables(fb_dc->environmental_variables());
         result.bin_dir = fb_dc->bin_dir()->str();
         result.working_dir = fb_dc->working_dir()->str();
@@ -506,7 +460,8 @@ score::cpp::expected<RunTargetConfig, IConfigLoader::Error> convertRunTarget(con
         SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
             fb_rt->recovery_action(),
             "RunTarget::recovery_action must never be nullptr as it is required in the schema");
-        auto transition_timeout = requireScalarValue(fb_rt->transition_timeout(), "RunTarget::transition_timeout");
+        auto transition_timeout =
+            requireScalarValue(fb_rt->transition_timeout_ms(), "RunTarget::transition_timeout_ms");
         if (!transition_timeout.has_value())
         {
             return score::cpp::make_unexpected(transition_timeout.error());
@@ -514,13 +469,7 @@ score::cpp::expected<RunTargetConfig, IConfigLoader::Error> convertRunTarget(con
         result.name = fb_rt->name()->str();
         result.description = safeString(fb_rt->description());
         result.depends_on = convertStringVector(fb_rt->depends_on());
-        auto transition_timeout_ms = secondsToMs(*transition_timeout);
-        if (!transition_timeout_ms.has_value())
-        {
-            LM_LOG_ERROR() << "Invalid value for RunTarget::transition_timeout";
-            return score::cpp::make_unexpected(transition_timeout_ms.error());
-        }
-        result.transition_timeout_ms = *transition_timeout_ms;
+        result.transition_timeout_ms = *transition_timeout;
         result.recovery_action = convertRequiredSwitchRunTargetAction(fb_rt->recovery_action());
     }
     return result;
@@ -533,20 +482,14 @@ score::cpp::expected<FallbackRunTargetConfig, IConfigLoader::Error> convertFallb
     if (fb_frt != nullptr)
     {
         auto transition_timeout =
-            requireScalarValue(fb_frt->transition_timeout(), "FallbackRunTarget::transition_timeout");
+            requireScalarValue(fb_frt->transition_timeout_ms(), "FallbackRunTarget::transition_timeout_ms");
         if (!transition_timeout.has_value())
         {
             return score::cpp::make_unexpected(transition_timeout.error());
         }
         result.description = safeString(fb_frt->description());
         result.depends_on = convertStringVector(fb_frt->depends_on());
-        auto transition_timeout_ms = secondsToMs(*transition_timeout);
-        if (!transition_timeout_ms.has_value())
-        {
-            LM_LOG_ERROR() << "Invalid value for FallbackRunTarget::transition_timeout";
-            return score::cpp::make_unexpected(transition_timeout_ms.error());
-        }
-        result.transition_timeout_ms = *transition_timeout_ms;
+        result.transition_timeout_ms = *transition_timeout;
     }
     return result;
 }
@@ -558,18 +501,12 @@ score::cpp::expected<AliveSupervisionConfig, IConfigLoader::Error> convertAliveS
     {
         return AliveSupervisionConfig{};
     }
-    auto evaluation_cycle = requireScalarValue(fb_as->evaluation_cycle(), "AliveSupervision::evaluation_cycle");
+    auto evaluation_cycle = requireScalarValue(fb_as->evaluation_cycle_ms(), "AliveSupervision::evaluation_cycle_ms");
     if (!evaluation_cycle.has_value())
     {
         return score::cpp::make_unexpected(evaluation_cycle.error());
     }
-    auto evaluation_cycle_ms = secondsToMs(*evaluation_cycle);
-    if (!evaluation_cycle_ms.has_value())
-    {
-        LM_LOG_ERROR() << "Invalid value for AliveSupervision::evaluation_cycle";
-        return score::cpp::make_unexpected(evaluation_cycle_ms.error());
-    }
-    return AliveSupervisionConfig{*evaluation_cycle_ms};
+    return AliveSupervisionConfig{*evaluation_cycle};
 }
 
 score::cpp::expected<std::optional<WatchdogConfig>, IConfigLoader::Error> convertWatchdog(const fb::Watchdog* fb_wd)
@@ -580,7 +517,7 @@ score::cpp::expected<std::optional<WatchdogConfig>, IConfigLoader::Error> conver
     }
     SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
         fb_wd->device_file_path(), "Watchdog::device_file_path must never be nullptr as it is required in the schema");
-    auto max_timeout = requireScalarValue(fb_wd->max_timeout(), "Watchdog::max_timeout");
+    auto max_timeout = requireScalarValue(fb_wd->max_timeout_ms(), "Watchdog::max_timeout_ms");
     if (!max_timeout.has_value())
     {
         return score::cpp::make_unexpected(max_timeout.error());
@@ -598,13 +535,7 @@ score::cpp::expected<std::optional<WatchdogConfig>, IConfigLoader::Error> conver
     }
     WatchdogConfig result{};
     result.device_file_path = fb_wd->device_file_path()->str();
-    auto max_timeout_ms = secondsToMs(*max_timeout);
-    if (!max_timeout_ms.has_value())
-    {
-        LM_LOG_ERROR() << "Invalid value for Watchdog::max_timeout";
-        return score::cpp::make_unexpected(max_timeout_ms.error());
-    }
-    result.max_timeout_ms = *max_timeout_ms;
+    result.max_timeout_ms = *max_timeout;
     result.deactivate_on_shutdown = *deactivate_on_shutdown;
     result.require_magic_close = *require_magic_close;
     return std::optional<WatchdogConfig>{std::move(result)};

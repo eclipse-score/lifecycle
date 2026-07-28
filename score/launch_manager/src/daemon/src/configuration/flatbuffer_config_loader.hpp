@@ -53,7 +53,7 @@ class FlatbufferConfigLoaderImpl : public IConfigLoader
 {
   public:
     /// @brief The configuration schema version supported by this loader.
-    static constexpr int32_t kExpectedSchemaVersion = 1;
+    static constexpr int32_t kExpectedSchemaVersion = 2;
 
     [[nodiscard]] score::cpp::expected<Config, Error> load(const score::filesystem::Path& path) override
     {
