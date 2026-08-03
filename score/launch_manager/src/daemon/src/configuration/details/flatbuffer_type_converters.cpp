@@ -174,7 +174,8 @@ score::cpp::expected<std::optional<RestartAction>, IConfigLoader::Error> convert
     {
         return score::cpp::make_unexpected(number_of_attempts.error());
     }
-    auto delay_before_restart = requireScalarValue(ra->delay_before_restart(), "RestartAction::delay_before_restart");
+    auto delay_before_restart =
+        requireScalarValue(ra->delay_before_restart_ms(), "RestartAction::delay_before_restart_ms");
     if (!delay_before_restart.has_value())
     {
         return score::cpp::make_unexpected(delay_before_restart.error());
@@ -207,7 +208,7 @@ score::cpp::expected<ComponentAliveSupervision, IConfigLoader::Error> convertCom
     if (fb_cas != nullptr)
     {
         auto reporting_cycle =
-            requireScalarValue(fb_cas->reporting_cycle(), "ComponentAliveSupervision::reporting_cycle");
+            requireScalarValue(fb_cas->reporting_cycle_ms(), "ComponentAliveSupervision::reporting_cycle_ms");
         if (!reporting_cycle.has_value())
         {
             return score::cpp::make_unexpected(reporting_cycle.error());
@@ -383,12 +384,13 @@ score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentCo
             "DeploymentConfig::working_dir must never be nullptr as it is required in the schema");
         SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
             fb_dc->sandbox(), "DeploymentConfig::sandbox must never be nullptr as it is required in the schema");
-        auto ready_timeout = requireScalarValue(fb_dc->ready_timeout(), "DeploymentConfig::ready_timeout");
+        auto ready_timeout = requireScalarValue(fb_dc->ready_timeout_ms(), "DeploymentConfig::ready_timeout_ms");
         if (!ready_timeout.has_value())
         {
             return score::cpp::make_unexpected(ready_timeout.error());
         }
-        auto shutdown_timeout = requireScalarValue(fb_dc->shutdown_timeout(), "DeploymentConfig::shutdown_timeout");
+        auto shutdown_timeout =
+            requireScalarValue(fb_dc->shutdown_timeout_ms(), "DeploymentConfig::shutdown_timeout_ms");
         if (!shutdown_timeout.has_value())
         {
             return score::cpp::make_unexpected(shutdown_timeout.error());
@@ -458,7 +460,8 @@ score::cpp::expected<RunTargetConfig, IConfigLoader::Error> convertRunTarget(con
         SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
             fb_rt->recovery_action(),
             "RunTarget::recovery_action must never be nullptr as it is required in the schema");
-        auto transition_timeout = requireScalarValue(fb_rt->transition_timeout(), "RunTarget::transition_timeout");
+        auto transition_timeout =
+            requireScalarValue(fb_rt->transition_timeout_ms(), "RunTarget::transition_timeout_ms");
         if (!transition_timeout.has_value())
         {
             return score::cpp::make_unexpected(transition_timeout.error());
@@ -479,7 +482,7 @@ score::cpp::expected<FallbackRunTargetConfig, IConfigLoader::Error> convertFallb
     if (fb_frt != nullptr)
     {
         auto transition_timeout =
-            requireScalarValue(fb_frt->transition_timeout(), "FallbackRunTarget::transition_timeout");
+            requireScalarValue(fb_frt->transition_timeout_ms(), "FallbackRunTarget::transition_timeout_ms");
         if (!transition_timeout.has_value())
         {
             return score::cpp::make_unexpected(transition_timeout.error());
@@ -498,7 +501,7 @@ score::cpp::expected<AliveSupervisionConfig, IConfigLoader::Error> convertAliveS
     {
         return AliveSupervisionConfig{};
     }
-    auto evaluation_cycle = requireScalarValue(fb_as->evaluation_cycle(), "AliveSupervision::evaluation_cycle");
+    auto evaluation_cycle = requireScalarValue(fb_as->evaluation_cycle_ms(), "AliveSupervision::evaluation_cycle_ms");
     if (!evaluation_cycle.has_value())
     {
         return score::cpp::make_unexpected(evaluation_cycle.error());
@@ -514,7 +517,7 @@ score::cpp::expected<std::optional<WatchdogConfig>, IConfigLoader::Error> conver
     }
     SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
         fb_wd->device_file_path(), "Watchdog::device_file_path must never be nullptr as it is required in the schema");
-    auto max_timeout = requireScalarValue(fb_wd->max_timeout(), "Watchdog::max_timeout");
+    auto max_timeout = requireScalarValue(fb_wd->max_timeout_ms(), "Watchdog::max_timeout_ms");
     if (!max_timeout.has_value())
     {
         return score::cpp::make_unexpected(max_timeout.error());
