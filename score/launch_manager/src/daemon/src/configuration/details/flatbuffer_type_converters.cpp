@@ -108,6 +108,18 @@ ProcessState convertProcessState(fb::ProcessState fb_state)
     }
 }
 
+FileExistenceState convertFileExistenceState(fb::FileExistenceState fb_state)
+{
+    switch (fb_state)
+    {
+        case fb::FileExistenceState::Deleted:
+            return FileExistenceState::Deleted;
+        case fb::FileExistenceState::Exists:
+        default:
+            return FileExistenceState::Exists;
+    }
+}
+
 score::cpp::expected<int32_t, IConfigLoader::Error> convertSchedulingPolicy(fb::SchedulingPolicy policy)
 {
     switch (policy)
@@ -301,6 +313,17 @@ score::cpp::expected<ApplicationProfile, IConfigLoader::Error> convertApplicatio
     return result;
 }
 
+std::optional<FileState> convertFileState(const fb::FileState* fb_fs)
+{
+    if (fb_fs == nullptr)
+    {
+        return std::nullopt;
+    }
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+        fb_fs->file_path(), "FileState::file_path must never be nullptr as it is required in the schema");
+    return FileState{fb_fs->file_path()->str(), convertFileExistenceState(fb_fs->state())};
+}
+
 score::cpp::expected<ReadyCondition, IConfigLoader::Error> convertReadyCondition(const fb::ReadyCondition* fb_rc)
 {
     ReadyCondition result{};
@@ -312,7 +335,13 @@ score::cpp::expected<ReadyCondition, IConfigLoader::Error> convertReadyCondition
             return score::cpp::make_unexpected(process_state.error());
         }
         result.process_state = convertProcessState(*process_state);
+        result.file_state = convertFileState(fb_rc->file_state());
     }
+
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+        !(result.process_state == std::nullopt && result.file_state == std::nullopt),
+        "At least one ready condition is required, exiting as configuration is invalid");
+
     return result;
 }
 

@@ -37,6 +37,12 @@ enum class ProcessState : uint8_t
     Terminated = 1
 };
 
+enum class FileExistenceState : uint8_t
+{
+    Exists = 0,
+    Deleted,
+};
+
 struct ComponentAliveSupervision
 {
     uint32_t reporting_cycle_ms{};
@@ -52,9 +58,16 @@ struct ApplicationProfile
     std::optional<ComponentAliveSupervision> alive_supervision;
 };
 
+struct FileState
+{
+    std::string file_path;
+    FileExistenceState state{FileExistenceState::Exists};
+};
+
 struct ReadyCondition
 {
-    ProcessState process_state{ProcessState::Running};
+    std::optional<ProcessState> process_state{ProcessState::Running};
+    std::optional<FileState> file_state;
 };
 
 struct ComponentProperties

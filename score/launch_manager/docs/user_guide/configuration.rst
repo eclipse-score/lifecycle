@@ -208,6 +208,17 @@ component_properties (object)
             * **Allowed Values:**
                 * ``"Running"``: The process has started and reached its running state.
                 * ``"Terminated"``: The process has started, reached its running state, and then terminated successfully.
+        * **file_state** (object, optional)
+            * **Description:** Specifies a ready condition based on the existence state of a file at a given path.
+            * **Properties:**
+                * **file_path** (string, required)
+                    * **Description:** Specifies the absolute path to the file being watched.
+                * **state** (string, optional)
+                    * **Description:** Specifies the required existence state of the file.
+                    * **Allowed Values:**
+                        * ``"Exists"``: The ready condition is ready when the file at ``file_path`` exists.
+                        * ``"Deleted"``: The ready condition is ready when teh file at ``file_path`` is deleted.
+                    * **Default:** ``"Exists"``
 
 .. _lm_conf_deployment_config_object_:
 

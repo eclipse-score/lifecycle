@@ -69,6 +69,10 @@ score::cpp::expected<TargetT, IConfigLoader::Error> validateRange(int64_t value,
 [[nodiscard]] ApplicationType convertApplicationType(fb::ApplicationType fb_type);
 /// @brief Converts a FlatBuffer ProcessState enum to the config ProcessState.
 [[nodiscard]] ProcessState convertProcessState(fb::ProcessState fb_state);
+/// @brief Converts a FlatBuffer FileState struct to the config equivalent.
+std::optional<FileState> convertFileState(const fb::FileState* fb_fs);
+/// @brief Converts a FlatBuffer FileExistenceState enum to the config equivalent.
+[[nodiscard]] FileExistenceState convertFileExistenceState(fb::FileExistenceState fb_state);
 /// @brief Converts a FlatBuffer SchedulingPolicy enum to a POSIX scheduling policy constant.
 [[nodiscard]] score::cpp::expected<int32_t, IConfigLoader::Error> convertSchedulingPolicy(fb::SchedulingPolicy policy);
 
