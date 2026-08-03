@@ -250,7 +250,7 @@ def gen_config(output_dir, config, input_filename, schema_version=None):
         if is_supervised(comp_props["application_profile"]["application_type"]):
             alive_sup = comp_props["application_profile"].get("alive_supervision", {})
             app_profile["alive_supervision"] = {
-                "reporting_cycle": sec_to_ms(alive_sup["reporting_cycle"]),
+                "reporting_cycle_ms": sec_to_ms(alive_sup["reporting_cycle"]),
                 "failed_cycles_tolerance": alive_sup["failed_cycles_tolerance"],
                 "min_indications": alive_sup["min_indications"],
                 "max_indications": alive_sup["max_indications"],
@@ -286,8 +286,8 @@ def gen_config(output_dir, config, input_filename, schema_version=None):
             sandbox_out["max_cpu_usage"] = sandbox["max_cpu_usage"]
 
         deployment = {
-            "ready_timeout": sec_to_ms(depl_cfg["ready_timeout"]),
-            "shutdown_timeout": sec_to_ms(depl_cfg["shutdown_timeout"]),
+            "ready_timeout_ms": sec_to_ms(depl_cfg["ready_timeout"]),
+            "shutdown_timeout_ms": sec_to_ms(depl_cfg["shutdown_timeout"]),
             "bin_dir": depl_cfg["bin_dir"],
             "working_dir": depl_cfg["working_dir"],
             "sandbox": sandbox_out,
@@ -304,7 +304,7 @@ def gen_config(output_dir, config, input_filename, schema_version=None):
             restart = rra.get("restart", rra)
             deployment["ready_recovery_action"] = {
                 "number_of_attempts": restart.get("number_of_attempts", 0),
-                "delay_before_restart": sec_to_ms(restart.get("delay_before_restart", 0)),
+                "delay_before_restart_ms": sec_to_ms(restart.get("delay_before_restart", 0)),
             }
 
         if "recovery_action" in depl_cfg:
@@ -323,7 +323,7 @@ def gen_config(output_dir, config, input_filename, schema_version=None):
     for rt_name, rt_config in config["run_targets"].items():
         rt = {
             "name": rt_name,
-            "transition_timeout": sec_to_ms(rt_config.get("transition_timeout", 3)),
+            "transition_timeout_ms": sec_to_ms(rt_config.get("transition_timeout", 3)),
             "recovery_action": {
                 "run_target": rt_config.get("recovery_action", {})
                 .get("switch_run_target", {})
@@ -341,7 +341,7 @@ def gen_config(output_dir, config, input_filename, schema_version=None):
     fallback = config.get("fallback_run_target", {})
     fb_out = {}
     if "transition_timeout" in fallback:
-        fb_out["transition_timeout"] = sec_to_ms(fallback["transition_timeout"])
+        fb_out["transition_timeout_ms"] = sec_to_ms(fallback["transition_timeout"])
     if fallback.get("description"):
         fb_out["description"] = fallback["description"]
     if "depends_on" in fallback and fallback["depends_on"]:
@@ -349,7 +349,7 @@ def gen_config(output_dir, config, input_filename, schema_version=None):
     out["fallback_run_target"] = fb_out
 
     out["alive_supervision"] = {
-        "evaluation_cycle": sec_to_ms(config.get("alive_supervision", {}).get(
+        "evaluation_cycle_ms": sec_to_ms(config.get("alive_supervision", {}).get(
             "evaluation_cycle", 0.5
         )),
     }
@@ -364,7 +364,7 @@ def gen_config(output_dir, config, input_filename, schema_version=None):
     if watchdog_config and required_watchdog_fields.issubset(watchdog_config.keys()):
         out["watchdog"] = {
             "device_file_path": watchdog_config["device_file_path"],
-            "max_timeout": sec_to_ms(watchdog_config["max_timeout"]),
+            "max_timeout_ms": sec_to_ms(watchdog_config["max_timeout"]),
             "deactivate_on_shutdown": watchdog_config["deactivate_on_shutdown"],
             "require_magic_close": watchdog_config["require_magic_close"],
         }

@@ -181,8 +181,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char* argv[])
 #ifdef USE_NEW_CONFIGURATION
         score::mw::launch_manager::configuration::FlatbufferConfigLoader config_loader;
         auto config_result = config_loader.load(config_path);
-        if (!config_result.has_value()) {
-            LM_LOG_FATAL() << "Failed to load config from: " << config_path;
+        if (!config_result.has_value())
+        {
+            LM_LOG_FATAL() << "Failed to load config from: " << std::string_view(config_path);
             return EXIT_FAILURE;
         }
 #endif

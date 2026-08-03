@@ -386,7 +386,7 @@ TEST_F(ConverterTest, ConvertComponentAliveSupervisionValid)
 
 TEST_F(ConverterTest, ConvertComponentAliveSupervisionMissingReportingCycleReturnsError)
 {
-    RecordProperty("Description", "Missing reporting_cycle returns InvalidFormat.");
+    RecordProperty("Description", "Missing reporting_cycle_ms returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
     auto cas = fb::CreateComponentAliveSupervision(
         fbb, ::flatbuffers::nullopt /*reporting_cycle_ms*/, 3 /*failed_cycles_tolerance*/);
@@ -719,7 +719,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigValid)
 
 TEST_F(ConverterTest, ConvertDeploymentConfigMissingReadyTimeoutReturnsError)
 {
-    RecordProperty("Description", "Missing ready_timeout returns InvalidFormat.");
+    RecordProperty("Description", "Missing ready_timeout_ms returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
     auto bin_dir = fbb.CreateString("/opt");
     auto work_dir = fbb.CreateString("/tmp");
@@ -744,7 +744,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigMissingReadyTimeoutReturnsError)
 
 TEST_F(ConverterTest, ConvertDeploymentConfigMissingShutdownTimeoutReturnsError)
 {
-    RecordProperty("Description", "Missing shutdown_timeout returns InvalidFormat.");
+    RecordProperty("Description", "Missing shutdown_timeout_ms returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
     auto bin_dir = fbb.CreateString("/opt");
     auto work_dir = fbb.CreateString("/tmp");
@@ -929,7 +929,7 @@ TEST_F(ConverterTest, ConvertRunTargetsWithInvalidRunTargetReturnsError)
         rt_name,
         0 /*description*/,
         0 /*depends_on*/,
-        ::flatbuffers::nullopt /*transition_timeout*/,
+        ::flatbuffers::nullopt /*transition_timeout_ms*/,
         switch_action);
     auto rts = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::RunTarget>>{rt});
     fbb.Finish(rts);
@@ -968,7 +968,7 @@ TEST_F(ConverterTest, ConvertRunTargetValid)
 
 TEST_F(ConverterTest, ConvertRunTargetMissingTransitionTimeoutReturnsError)
 {
-    RecordProperty("Description", "Missing transition_timeout returns InvalidFormat.");
+    RecordProperty("Description", "Missing transition_timeout_ms returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
     auto switch_target = fbb.CreateString("SafeState");
     auto switch_action = fb::CreateSwitchRunTargetAction(fbb, switch_target);
@@ -1009,7 +1009,7 @@ TEST_F(ConverterTest, ConvertFallbackRunTargetValid)
 
 TEST_F(ConverterTest, ConvertFallbackRunTargetMissingTimeoutReturnsError)
 {
-    RecordProperty("Description", "Missing transition_timeout returns InvalidFormat.");
+    RecordProperty("Description", "Missing transition_timeout_ms returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
     auto frt = fb::CreateFallbackRunTarget(fbb);
     fbb.Finish(frt);
@@ -1030,7 +1030,7 @@ TEST_F(ConverterTest, ConvertAliveSupervisionNullReturnsDefault)
 
 TEST_F(ConverterTest, ConvertAliveSupervisionValid)
 {
-    RecordProperty("Description", "convertAliveSupervision maps evaluation_cycle correctly.");
+    RecordProperty("Description", "convertAliveSupervision maps evaluation_cycle_ms correctly.");
     ::flatbuffers::FlatBufferBuilder fbb;
     auto as = fb::CreateAliveSupervision(fbb, 250 /*evaluation_cycle_ms*/);
     fbb.Finish(as);
@@ -1043,7 +1043,7 @@ TEST_F(ConverterTest, ConvertAliveSupervisionValid)
 
 TEST_F(ConverterTest, ConvertAliveSupervisionMissingCycleReturnsError)
 {
-    RecordProperty("Description", "Missing evaluation_cycle returns InvalidFormat.");
+    RecordProperty("Description", "Missing evaluation_cycle_ms returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
     auto as = fb::CreateAliveSupervision(fbb);
     fbb.Finish(as);
@@ -1082,7 +1082,7 @@ TEST_F(ConverterTest, ConvertWatchdogValid)
 
 TEST_F(ConverterTest, ConvertWatchdogMissingMaxTimeoutReturnsError)
 {
-    RecordProperty("Description", "Missing max_timeout returns InvalidFormat.");
+    RecordProperty("Description", "Missing max_timeout_ms returns InvalidFormat.");
     ::flatbuffers::FlatBufferBuilder fbb;
     auto dev_path = fbb.CreateString("/dev/watchdog0");
     auto wd = fb::CreateWatchdog(

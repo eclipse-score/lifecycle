@@ -36,7 +36,7 @@ enum SchedulingPolicy : byte {
 // Defines the configuration parameters used for alive monitoring of a component.
 table ComponentAliveSupervision {
   // Duration in milliseconds of the time interval used to verify alive notifications.
-  reporting_cycle:uint32 = null; // required
+  reporting_cycle_ms:uint32 = null; // required
   // Maximum number of consecutive reporting cycle failures before recovery is triggered.
   failed_cycles_tolerance:uint32 = null; // required
   // Minimum number of checkpoints that must be reported within each reporting_cycle.
@@ -75,7 +75,7 @@ table RestartAction {
   // Maximum number of restart attempts before recovery is considered failed.
   number_of_attempts:uint32 = null; // required
   // Delay in milliseconds before initiating a restart attempt.
-  delay_before_restart:uint32 = null; // required
+  delay_before_restart_ms:uint32 = null; // required
 }
 
 // Recovery action that switches to a specified Run Target.
@@ -113,9 +113,9 @@ table Sandbox {
 // Deployment configuration for a component.
 table DeploymentConfig {
   // Maximum time in milliseconds for the component to reach its ready state.
-  ready_timeout:uint32 = null; // required
+  ready_timeout_ms:uint32 = null; // required
   // Maximum time in milliseconds for the component to terminate after SIGTERM.
-  shutdown_timeout:uint32 = null; // required
+  shutdown_timeout_ms:uint32 = null; // required
   // Environment variables passed to the component at startup.
   environmental_variables:[EnvironmentalVariable]; // optional
   // Absolute path to the directory where the component is installed.
@@ -139,7 +139,7 @@ table RunTarget {
   // Names of components and Run Targets that must be activated with this Run Target.
   depends_on:[string]; // optional
   // Time limit in milliseconds for the Run Target transition.
-  transition_timeout:uint32 = null; // required
+  transition_timeout_ms:uint32 = null; // required
   // Recovery action when a component in this Run Target fails.
   recovery_action:SwitchRunTargetAction (required);
 }
@@ -157,7 +157,7 @@ table Component {
 // Global alive supervision configuration.
 table AliveSupervision {
   // Length in milliseconds of the time window used to assess alive supervision reports.
-  evaluation_cycle:uint32 = null; // required
+  evaluation_cycle_ms:uint32 = null; // required
 }
 
 // External watchdog device configuration.
@@ -165,7 +165,7 @@ table Watchdog {
   // Path to the external watchdog device file (e.g., /dev/watchdog).
   device_file_path:string (required); // required
   // Maximum timeout in milliseconds configured on the external watchdog.
-  max_timeout:uint32 = null; // required
+  max_timeout_ms:uint32 = null; // required
   // Whether the watchdog is deactivated during shutdown.
   deactivate_on_shutdown:bool = null; // required
   // Whether the magic close sequence is performed on intentional shutdown.
@@ -180,7 +180,7 @@ table FallbackRunTarget {
   // Names of components and Run Targets that must be activated.
   depends_on:[string]; // optional
   // Time limit in milliseconds for the Run Target transition.
-  transition_timeout:uint32 = null; // required
+  transition_timeout_ms:uint32 = null; // required
 }
 
 // Root configuration table for the S-CORE Launch Manager.
