@@ -216,8 +216,8 @@ component_properties (object)
                 * **state** (string, optional)
                     * **Description:** Specifies the required existence state of the file.
                     * **Allowed Values:**
-                        * ``"Exists"``: The ready condition is ready when the file at ``file_path`` exists.
-                        * ``"Deleted"``: The ready condition is ready when teh file at ``file_path`` is deleted.
+                        * ``"Exists"``: The component is ready when the file at ``file_path`` exists.
+                        * ``"Deleted"``: The component is ready when the file at ``file_path`` is deleted.
                     * **Default:** ``"Exists"``
 
 .. _lm_conf_deployment_config_object_:
