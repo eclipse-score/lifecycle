@@ -18,6 +18,8 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <sys/types.h>
+#include <variant>
 #include <vector>
 
 namespace score::mw::launch_manager::configuration
@@ -64,11 +66,8 @@ struct FileState
     FileExistenceState state{FileExistenceState::Exists};
 };
 
-struct ReadyCondition
-{
-    std::optional<ProcessState> process_state{ProcessState::Running};
-    std::optional<FileState> file_state;
-};
+
+using ReadyCondition = std::variant<ProcessState, FileState>;
 
 struct ComponentProperties
 {

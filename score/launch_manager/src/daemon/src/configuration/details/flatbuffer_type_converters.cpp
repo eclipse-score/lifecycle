@@ -324,25 +324,42 @@ std::optional<FileState> convertFileState(const fb::FileState* fb_fs)
     return FileState{fb_fs->file_path()->str(), convertFileExistenceState(fb_fs->state())};
 }
 
-score::cpp::expected<ReadyCondition, IConfigLoader::Error> convertReadyCondition(const fb::ReadyCondition* fb_rc)
+std::optional<ReadyCondition> convertReadyCondition(const fb::ReadyCondition* fb_rc)
 {
-    ReadyCondition result{};
-    if (fb_rc != nullptr)
+    if (fb_rc == nullptr)
     {
-        auto process_state = requireScalarValue(fb_rc->process_state(), "ReadyCondition::process_state");
-        if (!process_state.has_value())
-        {
-            return score::cpp::make_unexpected(process_state.error());
-        }
-        result.process_state = convertProcessState(*process_state);
-        result.file_state = convertFileState(fb_rc->file_state());
+        return std::nullopt;
     }
 
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
-        !(result.process_state == std::nullopt && result.file_state == std::nullopt),
-        "At least one ready condition is required, exiting as configuration is invalid");
+    const bool has_process_state = fb_rc->process_state().has_value();
+    const bool has_file_state = fb_rc->file_state() != nullptr;
 
-    return result;
+    if (has_process_state && has_file_state)
+    {
+        LM_LOG_ERROR() << "ReadyCondition cannot have both process_state and file_state set";
+        return std::nullopt;
+    }
+
+    if (!has_process_state && !has_file_state)
+    {
+        LM_LOG_ERROR() << "ReadyCondition must have either process_state or file_state set";
+        return std::nullopt;
+    }
+
+    if (has_process_state)
+    {
+        return ReadyCondition{convertProcessState(*fb_rc->process_state())};
+    }
+    else
+    {
+        auto file_state = convertFileState(fb_rc->file_state());
+        if (!file_state.has_value())
+        {
+            LM_LOG_ERROR() << "FileState conversion failed";
+            return std::nullopt;
+        }
+        return ReadyCondition{*file_state};
+    }
 }
 
 score::cpp::expected<ComponentProperties, IConfigLoader::Error> convertComponentProperties(
@@ -368,12 +385,7 @@ score::cpp::expected<ComponentProperties, IConfigLoader::Error> convertComponent
         result.process_arguments = convertStringVector(fb_cp->process_arguments());
         if (fb_cp->ready_condition() != nullptr)
         {
-            auto ready_cond = convertReadyCondition(fb_cp->ready_condition());
-            if (!ready_cond.has_value())
-            {
-                return score::cpp::make_unexpected(ready_cond.error());
-            }
-            result.ready_condition = std::move(*ready_cond);
+            result.ready_condition = convertReadyCondition(fb_cp->ready_condition());
         }
     }
     return result;

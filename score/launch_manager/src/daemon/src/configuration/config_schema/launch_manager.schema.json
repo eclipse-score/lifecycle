@@ -104,6 +104,7 @@
                     "Exists",
                     "Deleted"
                   ],
+                  "pattern": "^/.*",
                   "description": "Specifies the required existence state of the file. 'Exists': the file must be present at 'file_path'. 'Deleted': the file must be absent from 'file_path'. Defaults to 'Exists' if not specified."
                 }
               },

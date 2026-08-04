@@ -108,18 +108,27 @@ class ConfigurationAdapter final
 
     bool buildFromConfig(const Config& config);
 
-    OsProcess buildOsProcess(const ComponentConfig& comp, uint32_t process_index) const;
-    void fillStartupConfigFromDeployment(const ComponentConfig& comp, score::lcm::internal::osal::OsalConfig& startup)
-        const;
-    void fillStartupArguments(const ComponentProperties& props, score::lcm::internal::osal::OsalConfig& startup) const;
-    size_t fillStartupEnvironment(const DeploymentConfig& deploy, score::lcm::internal::osal::OsalConfig& startup)
-        const;
-    void appendAliveInterfaceEnvironment(
-        const ComponentConfig& comp,
-        size_t& env_index,
-        score::lcm::internal::osal::OsalConfig& startup) const;
+    OsProcess buildOsProcess(const ComponentConfig& comp,
+                             uint32_t process_index) const;
+
+    void fillStartupConfigFromDeployment(const ComponentConfig& comp,
+                                         score::lcm::internal::osal::OsalConfig& startup) const;
+
+    void fillStartupArguments(const ComponentProperties& props,
+                              score::lcm::internal::osal::OsalConfig& startup) const;
+
+    size_t fillStartupEnvironment(const DeploymentConfig& deploy,
+                                  score::lcm::internal::osal::OsalConfig& startup) const;
+
+    void appendAliveInterfaceEnvironment(const ComponentConfig& comp,
+                                         size_t& env_index,
+                                         score::lcm::internal::osal::OsalConfig& startup) const;
+
     PgManagerConfig buildPgManagerConfig(const ComponentConfig& comp) const;
-    DependencyList buildDependencyList(const ComponentProperties& props) const;
+
+
+    /// @brief Given a components properties, creates a list of dependencies.
+    [[nodiscard]] DependencyList buildDependencyList(const ComponentProperties& props) const;
 
     std::vector<ProcessGroupState> buildProcessGroupStates(const Config& config) const;
     ProcessGroupState buildProcessGroupState(

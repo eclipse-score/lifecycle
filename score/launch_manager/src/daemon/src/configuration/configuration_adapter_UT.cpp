@@ -39,7 +39,7 @@ Config makeMinimalConfig()
     comp_a.component_properties.application_profile.application_type = ApplicationType::ReportingAndSupervised;
     comp_a.component_properties.application_profile.is_self_terminating = false;
     comp_a.component_properties.application_profile.alive_supervision = ComponentAliveSupervision{500, 2, 1, 3};
-    comp_a.component_properties.ready_condition = ReadyCondition{ProcessState::Running, std::nullopt};
+    comp_a.component_properties.ready_condition = ReadyCondition{ProcessState::Running};
     comp_a.deployment_config.ready_timeout_ms = 500;
     comp_a.deployment_config.shutdown_timeout_ms = 500;
     comp_a.deployment_config.bin_dir = "/opt/apps";
@@ -56,7 +56,7 @@ Config makeMinimalConfig()
     comp_b.component_properties.application_profile.application_type = ApplicationType::Native;
     comp_b.component_properties.application_profile.is_self_terminating = true;
     comp_b.component_properties.depends_on = {"comp_a"};
-    comp_b.component_properties.ready_condition = ReadyCondition{ProcessState::Running, std::nullopt};
+    comp_b.component_properties.ready_condition = ReadyCondition{ProcessState::Running};
     comp_b.deployment_config.ready_timeout_ms = 1000;
     comp_b.deployment_config.shutdown_timeout_ms = 1000;
     comp_b.deployment_config.bin_dir = "/opt/apps";
@@ -354,7 +354,7 @@ TEST(ConfigurationAdapterReadyConditionTest, DependencyUsesTargetComponentReadyC
     comp_a.name = "comp_a";
     comp_a.component_properties.application_profile.application_type = ApplicationType::Native;
     comp_a.component_properties.application_profile.is_self_terminating = true;
-    comp_a.component_properties.ready_condition = ReadyCondition{ProcessState::Terminated, std::nullopt};
+    comp_a.component_properties.ready_condition = ReadyCondition{ProcessState::Terminated};
     comp_a.deployment_config.bin_dir = "/opt";
     comp_a.component_properties.binary_name = "comp_a";
     comp_a.deployment_config.working_dir = "/tmp";
@@ -367,7 +367,7 @@ TEST(ConfigurationAdapterReadyConditionTest, DependencyUsesTargetComponentReadyC
     comp_b.name = "comp_b";
     comp_b.component_properties.application_profile.application_type = ApplicationType::Native;
     comp_b.component_properties.application_profile.is_self_terminating = false;
-    comp_b.component_properties.ready_condition = ReadyCondition{ProcessState::Running, std::nullopt};
+    comp_b.component_properties.ready_condition = ReadyCondition{ProcessState::Running};
     comp_b.component_properties.depends_on = {"comp_a"};
     comp_b.deployment_config.bin_dir = "/opt";
     comp_b.component_properties.binary_name = "comp_b";
@@ -441,7 +441,7 @@ TEST(ConfigurationAdapterReadyConditionTest, DependencyDefaultsToRunningWhenTarg
     comp_b.name = "comp_b";
     comp_b.component_properties.application_profile.application_type = ApplicationType::Native;
     comp_b.component_properties.application_profile.is_self_terminating = false;
-    comp_b.component_properties.ready_condition = ReadyCondition{ProcessState::Terminated, std::nullopt};
+    comp_b.component_properties.ready_condition = ReadyCondition{ProcessState::Terminated};
     comp_b.component_properties.depends_on = {"comp_a"};
     comp_b.deployment_config.bin_dir = "/opt";
     comp_b.component_properties.binary_name = "comp_b";

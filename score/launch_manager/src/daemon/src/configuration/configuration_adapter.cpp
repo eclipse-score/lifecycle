@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cstring>
+#include <iostream>
 #include <map>
 #include <set>
 
@@ -199,19 +200,36 @@ DependencyList ConfigurationAdapter::buildDependencyList(const ComponentProperti
 
     for (const auto& dep_name : props.depends_on)
     {
+        auto dep_it = component_by_name_.find(dep_name);
+        if (dep_it == component_by_name_.end())
+        {
+            // Couldn't find component, continue
+            continue;
+        }
+
+        const auto& dep_props = dep_it->second->component_properties;
+
         Dependency dep{};
         dep.process_state_ = score::lcm::ProcessState::kRunning;
-
-        auto dep_it = component_by_name_.find(dep_name);
-        if (dep_it != component_by_name_.end())
+        if (dep_props.ready_condition.has_value())
         {
-            const auto& dep_props = dep_it->second->component_properties;
-            if (dep_props.ready_condition.has_value())
-            {
-                dep.process_state_ = dep_props.ready_condition->process_state == ProcessState::Running
-                                         ? score::lcm::ProcessState::kRunning
-                                         : score::lcm::ProcessState::kTerminated;
-            }
+            std::visit(
+                [&dep](auto&& arg) {
+                    using argT = std::decay_t<decltype(arg)>;
+
+                    if constexpr (std::is_same_v<argT, score::mw::launch_manager::configuration::ProcessState>)
+                    {
+                        dep.process_state_ = arg == ProcessState::Running ? score::lcm::ProcessState::kRunning
+                                                                          : score::lcm::ProcessState::kTerminated;
+                        return;
+                    }
+                    else if constexpr (std::is_same_v<argT, score::mw::launch_manager::configuration::FileState>)
+                    {
+                        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(false, "FileState is not yet supported");
+                        return;
+                    }
+                },
+                dep_props.ready_condition.value());
         }
 
         dep.target_process_id_ = IdentifierHash{dep_name};

@@ -68,8 +68,11 @@ table FileState {
 }
 
 // Defines the conditions that determine when the component enters the ready state.
+// Either process_state or file_state should be set, but not both.
 table ReadyCondition {
-  process_state:ProcessState = null; // required
+  // Required state of the component's POSIX process.
+  process_state:ProcessState = null; // optional
+  // File existence state condition.
   file_state:FileState; // optional
 }
 

@@ -109,7 +109,7 @@ std::optional<FileState> convertFileState(const fb::FileState* fb_fs);
 [[nodiscard]] score::cpp::expected<ApplicationProfile, IConfigLoader::Error> convertApplicationProfile(
     const fb::ApplicationProfile* fb_ap);
 /// @brief Converts a FlatBuffer ReadyCondition to the config equivalent.
-[[nodiscard]] score::cpp::expected<ReadyCondition, IConfigLoader::Error> convertReadyCondition(
+[[nodiscard]] std::optional<ReadyCondition> convertReadyCondition(
     const fb::ReadyCondition* fb_rc);
 /// @brief Converts a FlatBuffer ComponentProperties to the config equivalent.
 [[nodiscard]] score::cpp::expected<ComponentProperties, IConfigLoader::Error> convertComponentProperties(
