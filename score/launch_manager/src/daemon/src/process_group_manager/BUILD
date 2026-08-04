@@ -56,7 +56,7 @@ cc_library(
     }),
     include_prefix = "score/mw/launch_manager/process_group_manager",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager/details:__pkg__"],
+    visibility = ["//score:__subpackages__"],
     deps = [
         ":ialive_monitor_thread",
         ":iprocess",

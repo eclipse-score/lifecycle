@@ -110,10 +110,40 @@ cc_library(
 )
 
 cc_library(
+    name = "executive_unit",
+    hdrs = ["executive_unit.hpp", "native_execution_unit.hpp"],
+    include_prefix = "score/mw/launch_manager/osal",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/osal",
+    visibility = ["//score:__subpackages__"],
+    deps = [
+        ":return_types",
+        ":ipc_comms",
+        "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
+    ],
+)
+
+cc_library(
+    name = "native_execution_unit",
+    srcs = ["native_execution_unit.cpp"],
+    hdrs = ["native_execution_unit.hpp"],
+    include_prefix = "score/mw/launch_manager/osal",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/osal",
+    visibility = ["//score:__subpackages__"],
+    deps = [
+        ":executive_unit",
+        "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
+        "//score/launch_manager/src/daemon/src/common:log",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details:safe_process_map",
+    ],
+)
+
+cc_library(
     name = "osal",
     visibility = ["//score:__subpackages__"],
     deps = [
+        ":executive_unit",
         ":ipc_comms",
+        ":native_execution_unit",
         ":num_cores",
         ":return_types",
         ":security_policy",

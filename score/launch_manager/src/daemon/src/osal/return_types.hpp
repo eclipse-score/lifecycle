@@ -1,22 +1,11 @@
-/********************************************************************************
- * Copyright (c) 2025 Contributors to the Eclipse Foundation
- *
- * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
- *
- * This program and the accompanying materials are made available under the
- * terms of the Apache License Version 2.0 which is available at
- * https://www.apache.org/licenses/LICENSE-2.0
- *
- * SPDX-License-Identifier: Apache-2.0
- ********************************************************************************/
-
-
 #ifndef OSAL_ERROR_TYPES_HPP_INCLUDED
 #define OSAL_ERROR_TYPES_HPP_INCLUDED
 
 #include <sys/types.h>
 #include <cstdint>
+#include <functional>
+#include <utility>
+#include <atomic>
 
 namespace score {
 
@@ -60,6 +49,57 @@ enum class CommsType : std::uint_least8_t {
     ///@brief Indicates a timeout condition. The value 2 typically signifies timout failure.
 
     kTimeout = 2
+};
+
+/// @brief Opaque handle representing an execution unit instance.
+/// This replaces raw ProcessID as the key throughout the daemon, enabling support for multiple backends
+/// (native processes, OCI containers, delegated runtimes).
+class ExecutionHandle {
+   public:
+    /// @brief Default constructor
+    ExecutionHandle() = default;
+    
+    /// @brief Constructor from a token value
+    explicit ExecutionHandle(std::uint64_t token) : token_(token) {}
+    
+    /// @brief Copy constructor
+    ExecutionHandle(const ExecutionHandle&) = default;
+    
+    /// @brief Move constructor
+    ExecutionHandle(ExecutionHandle&&) noexcept = default;
+    
+    /// @brief Copy assignment operator
+    ExecutionHandle& operator=(const ExecutionHandle&) = default;
+    
+    /// @brief Move assignment operator
+    ExecutionHandle& operator=(ExecutionHandle&&) noexcept = default;
+    
+    /// @brief Destructor
+    ~ExecutionHandle() = default;
+    
+    /// @brief Equality comparison operator
+    bool operator==(const ExecutionHandle& other) const {
+        return token_ == other.token_;
+    }
+    
+    /// @brief Less-than comparison operator for ordering (required by SafeProcessMap)
+    bool operator<(const ExecutionHandle& other) const {
+        return token_ < other.token_;
+    }
+    
+    /// @brief Get the opaque token value
+    std::uint64_t token() const {
+        return token_;
+    }
+    
+   private:
+    std::uint64_t token_{0};
+};
+
+/// @brief Struct representing a death event from an execution unit.
+struct DeathEvent {
+    ExecutionHandle handle;  ///< Handle of the terminated execution unit
+    int32_t status;          ///< Exit/termination status
 };
 
 }  // namespace osal
