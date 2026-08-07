@@ -44,25 +44,19 @@ void MonitorIfDaemon::attachCheckpoint(Checkpoint& f_checkpoint_r) noexcept(fals
 
 void MonitorIfDaemon::updateData(const ifexm::ProcessState& f_observable_r) noexcept(true)
 {
-    ifexm::ProcessState::EProcState state{f_observable_r.getState()};
-    static constexpr ifexm::ProcessState::EProcState kInitState = ifexm::ProcessState::EProcState::starting;
-
-    if ((kInitState == state) || (ifexm::ProcessState::EProcState::running == state))
+    switch (f_observable_r.getEventType())
     {
-        if (isDeactivateRequest)
-        {
-            isProcessRestarted = true;
-        }
-        isActivateRequest = true;
-        isDeactivateRequest = false;
-    }
-    else if (ifexm::ProcessState::EProcState::off == state)
-    {
-        isDeactivateRequest = true;
-    }
-    else
-    {
-        // do nothing
+        case score::lcm::SupervisionEventType::kActivation:
+            if (isDeactivateRequest)
+            {
+                isProcessRestarted = true;
+            }
+            isActivateRequest = true;
+            isDeactivateRequest = false;
+            break;
+        case score::lcm::SupervisionEventType::kDeactivation:
+            isDeactivateRequest = true;
+            break;
     }
 }
 

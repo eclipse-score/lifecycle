@@ -14,6 +14,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 #include "score/mw/launch_manager/process_group_manager/mock_iprocess.hpp"
+#include "score/mw/launch_manager/supervision_control_client/mock_supervision_event_publisher.hpp"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <memory>
@@ -39,6 +40,9 @@ class ProcessInfoNodeFixture : public ::testing::Test
     {
         RecordProperty("TestType", "interface-test");
         RecordProperty("DerivationTechnique", "equivalence-classes");
+
+        ON_CALL(mock_publisher_, reportActivation).WillByDefault(Return(true));
+        ON_CALL(mock_publisher_, reportDeactivation).WillByDefault(Return(true));
     }
 
     /// @brief Helper method to create a ProcessInfoNode with the given parameters.
@@ -56,7 +60,7 @@ class ProcessInfoNodeFixture : public ::testing::Test
         config_.pgm_config_ = pgm_config;
 
         return std::make_unique<ProcessInfoNode>(
-            &config_, kProcessIndex, ready_condition, report_fn_, &mock_processIf_, process_map_);
+            &config_, kProcessIndex, ready_condition, &mock_publisher_, &mock_processIf_, process_map_);
     }
 
     /// @brief Helper method to create a ProcessInfoNode that is self-terminating.
@@ -88,16 +92,6 @@ class ProcessInfoNodeFixture : public ::testing::Test
         return createRunningProcessInfoNode(osal::CommsType::kReporting, termination_timeout);
     }
 
-    /// @brief Asserts that mock_report_fn_ is called with each of the given states, in the given order.
-    void expectStateTransitions(const std::vector<score::lcm::ProcessState>& states)
-    {
-        Sequence seq;
-        for (const auto state : states)
-        {
-            EXPECT_CALL(mock_report_fn_, Call(_, state, _)).InSequence(seq).WillOnce(Return(true));
-        }
-    }
-
     /// @brief Sets up expectations for the OS process being launched and successfully added to the process map.
     void expectSuccessfulProcessLaunch()
     {
@@ -121,8 +115,7 @@ class ProcessInfoNodeFixture : public ::testing::Test
     score::cpp::stop_source stop_source_{};
     std::shared_ptr<MockSafeProcessMapInserter> process_map_{std::make_shared<MockSafeProcessMapInserter>()};
     StrictMock<osal::MockIProcess> mock_processIf_{};
-    MockFunction<bool(IdentifierHash, score::lcm::ProcessState, timespec)> mock_report_fn_{};
-    ReportStateFn report_fn_{mock_report_fn_.AsStdFunction()};
+    NiceMock<MockSupervisionEventPublisher> mock_publisher_{};
 };
 
 // Bundles different cases for activate() that occur during startup, before the ready condition is reached.
@@ -169,7 +162,7 @@ TEST_F(ProcessInfoNodeStartupTest, CanStartReportingProcess_ReportsRunningInTime
     auto node = createProcessInfoNode(osal::CommsType::kReporting);
     expectSuccessfulProcessLaunch();
     EXPECT_CALL(mock_processIf_, waitForkRunning(_, _)).WillOnce(Return(osal::OsalReturnType::kSuccess));
-    expectStateTransitions({score::lcm::ProcessState::kStarting, score::lcm::ProcessState::kRunning});
+    EXPECT_CALL(mock_publisher_, reportActivation);
 
     auto result = node->activate(score::cpp::stop_token{});
 
@@ -273,10 +266,7 @@ TEST_F(ProcessInfoNodeStartupCrashTest, ProcesssTerminated_OnWaitForkRunningTime
     EXPECT_CALL(mock_processIf_, waitForkRunning(_, _)).WillOnce(Return(osal::OsalReturnType::kFail));
     // Simulate the OS handler reporting the killed process's exit once termination is requested.
     expectOsAcknowledgesTermination(node.get());
-    expectStateTransitions(
-        {score::lcm::ProcessState::kStarting,
-         score::lcm::ProcessState::kTerminating,
-         score::lcm::ProcessState::kTerminated});
+    EXPECT_CALL(mock_publisher_, reportActivation).Times(0);
 
     auto result = node->activate(score::cpp::stop_token{});
 
@@ -301,7 +291,7 @@ TEST_F(ProcessInfoNodeStartupCrashTest, ReportingProcess_CrashesBeforeReady_NoRe
                 node->tryHandleTermination(-1);
             }),
             Return(osal::OsalReturnType::kFail)));
-    expectStateTransitions({score::lcm::ProcessState::kStarting, score::lcm::ProcessState::kTerminated});
+    EXPECT_CALL(mock_publisher_, reportActivation).Times(0);
 
     auto result = node->activate(score::cpp::stop_token{});
 
@@ -336,15 +326,7 @@ TEST_F(ProcessInfoNodeStartupCrashTest, ReportingProcess_CrashesBeforeReady_With
                 node->tryHandleTermination(-1);
             }),
             Return(osal::OsalReturnType::kFail)));
-    expectStateTransitions(
-        {score::lcm::ProcessState::kStarting,
-         score::lcm::ProcessState::kTerminated,
-         score::lcm::ProcessState::kStarting,
-         score::lcm::ProcessState::kTerminated,
-         score::lcm::ProcessState::kStarting,
-         score::lcm::ProcessState::kTerminated,
-         score::lcm::ProcessState::kStarting,
-         score::lcm::ProcessState::kTerminated});
+    EXPECT_CALL(mock_publisher_, reportActivation).Times(0);
 
     auto result = node->activate(score::cpp::stop_token{});
 
@@ -424,12 +406,7 @@ TEST_F(ProcessInfoNodeStartupCrashTest, TimeoutThenSuccess_WithRestarts)
         .WillOnce(Return(osal::OsalReturnType::kSuccess));
     // Simulate the OS handler reporting the killed process's exit on the first (timed-out) attempt.
     expectOsAcknowledgesTermination(node.get());
-    expectStateTransitions(
-        {score::lcm::ProcessState::kStarting,
-         score::lcm::ProcessState::kTerminating,
-         score::lcm::ProcessState::kTerminated,
-         score::lcm::ProcessState::kStarting,
-         score::lcm::ProcessState::kRunning});
+    EXPECT_CALL(mock_publisher_, reportActivation);
 
     auto result = node->activate(score::cpp::stop_token{});
 
@@ -529,11 +506,7 @@ TEST_F(ProcessInfoNodeDeactivationTest, CanTerminateNonSelfTerminatingProcess)
         "to kTerminated.");
 
     EXPECT_CALL(mock_processIf_, waitForkRunning(_, _)).WillOnce(Return(osal::OsalReturnType::kSuccess));
-    expectStateTransitions(
-        {score::lcm::ProcessState::kStarting,
-         score::lcm::ProcessState::kRunning,
-         score::lcm::ProcessState::kTerminating,
-         score::lcm::ProcessState::kTerminated});
+    EXPECT_CALL(mock_publisher_, reportDeactivation);
 
     auto node = createRunningProcessInfoNode(osal::CommsType::kReporting);
     // Simulate the OS handler reporting the process's exit once termination is requested.
@@ -596,11 +569,7 @@ TEST_F(ProcessInfoNodeDeactivationTest, ProcessIgnoresSigterm_ForcedWithSigkill)
         "SIGKILL.");
 
     EXPECT_CALL(mock_processIf_, waitForkRunning(_, _)).WillOnce(Return(osal::OsalReturnType::kSuccess));
-    expectStateTransitions(
-        {score::lcm::ProcessState::kStarting,
-         score::lcm::ProcessState::kRunning,
-         score::lcm::ProcessState::kTerminating,
-         score::lcm::ProcessState::kTerminated});
+    EXPECT_CALL(mock_publisher_, reportDeactivation);
 
     auto node = createRunningProcessInfoNode_TermTimeout(std::chrono::milliseconds{0});
     EXPECT_CALL(mock_processIf_, requestTermination(_)).WillOnce(Return(osal::OsalReturnType::kSuccess));

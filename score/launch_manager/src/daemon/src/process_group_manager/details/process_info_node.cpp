@@ -31,7 +31,7 @@ ProcessInfoNode::ProcessInfoNode(
     const OsProcess* config,
     uint32_t index,
     ReadyCondition ready_condition,
-    ReportStateFn report_function,
+    ISupervisionEventPublisher* state_publisher,
     osal::IProcess* process_interface,
     std::shared_ptr<SafeProcessMapInserter> process_map)
     : terminator_(),
@@ -42,7 +42,7 @@ ProcessInfoNode::ProcessInfoNode(
       process_state_(score::lcm::ProcessState::kIdle),
       ready_condition_(ready_condition),
       config_(config),
-      report_state_(std::move(report_function)),
+      state_publisher_(state_publisher),
       process_interface_(process_interface),
       process_map_(std::move(process_map))
 {
@@ -77,9 +77,27 @@ IComponent::RequestResult ProcessInfoNode::tryReportSuccess()
     if (!success_returned_.test_and_set())
     {
         reached_ready_.store(true);
+
+        if (auto time = getTimeForReport())
+        {
+            state_publisher_->reportActivation(config_->process_id_, time.value());
+        }
+
         return {RequestState::kSuccess};
     }
     return {IComponent::RequestState::kWaiting};
+}
+
+std::optional<timespec> ProcessInfoNode::getTimeForReport() const
+{
+    if (config_->startup_config_.comms_type_ == osal::CommsType::kNoComms)
+    {
+        return std::nullopt;
+    }
+
+    timespec timestamp{};
+    static_cast<void>(clock_gettime(CLOCK_MONOTONIC, &timestamp));
+    return timestamp;
 }
 
 IComponent::RequestResult ProcessInfoNode::tryReportError(ComponentError error)
@@ -110,23 +128,6 @@ bool ProcessInfoNode::setState(score::lcm::ProcessState new_state)
     else
     {
         success = false;
-    }
-
-    if (success && config_->startup_config_.comms_type_ != osal::CommsType::kNoComms &&
-        score::lcm::ProcessState::kIdle != new_state)
-    {
-        // for a reporting process, report a process state change to PHM
-        // Note the following system call will not fail by design.
-        // Possible failure modes would be:
-        // a) CLOCK_MONOTONIC is not supported, but we assert that in all systems it is supported
-        // b) &timestamp points outside the accessible address space, but it does not
-        timespec timestamp{};
-        static_cast<void>(clock_gettime(CLOCK_MONOTONIC, &timestamp));
-        // Note that we ignore the return value.
-        // An error would indicate that PHM is not reading values fast enough from the shared memory; the buffer
-        // over-run should be visible at the PHM side and handled there. If PHM is not responding do we need to handle
-        // this? If PHM terminates state manager will be informed in any case.
-        static_cast<void>(report_state_(config_->process_id_, new_state, timestamp));
     }
 
     return success;
@@ -413,6 +414,10 @@ IComponent::RequestResult ProcessInfoNode::deactivate(score::cpp::stop_token sto
 {
     success_returned_.clear();
     reached_ready_.store(false);
+    if (auto time = getTimeForReport())
+    {
+        state_publisher_->reportDeactivation(config_->process_id_, time.value());
+    }
     terminateProcess(stop_token);
     setState(ProcessState::kIdle);
     return IComponent::RequestState::kSuccess;
