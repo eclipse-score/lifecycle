@@ -14,10 +14,12 @@
 #define CONFIG_HPP
 
 #include <sys/types.h>
+#include <chrono>
 #include <cstdint>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <variant>
 #include <vector>
 
 namespace score::mw::launch_manager::configuration
@@ -37,6 +39,12 @@ enum class ProcessState : uint8_t
     Terminated = 1
 };
 
+enum class FileExistenceState : uint8_t
+{
+    Exists = 0,
+    Deleted,
+};
+
 struct ComponentAliveSupervision
 {
     uint32_t reporting_cycle_ms{};
@@ -52,10 +60,14 @@ struct ApplicationProfile
     std::optional<ComponentAliveSupervision> alive_supervision;
 };
 
-struct ReadyCondition
+struct FileState
 {
-    ProcessState process_state{ProcessState::Running};
+    std::string file_path;
+    FileExistenceState state{FileExistenceState::Exists};
+    std::chrono::milliseconds polling_interval{10};
 };
+
+using ReadyCondition = std::variant<ProcessState, FileState>;
 
 struct ComponentProperties
 {

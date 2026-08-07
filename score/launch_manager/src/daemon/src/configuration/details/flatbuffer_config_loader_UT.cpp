@@ -35,6 +35,7 @@ using ::testing::IsFalse;
 using ::testing::IsNull;
 using ::testing::IsTrue;
 using ::testing::StrEq;
+using ::testing::VariantWith;
 
 const score::filesystem::Path kTestPath{"/tmp/test_config.bin"};
 
@@ -258,7 +259,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSingleComponent)
     ASSERT_THAT(comp.component_properties.process_arguments.size(), Eq(1U));
     EXPECT_THAT(comp.component_properties.process_arguments[0], Eq("--verbose"));
     ASSERT_THAT(comp.component_properties.ready_condition.has_value(), IsTrue());
-    EXPECT_THAT(comp.component_properties.ready_condition->process_state, Eq(ProcessState::Running));
+    EXPECT_THAT(*comp.component_properties.ready_condition, VariantWith<ProcessState>(ProcessState::Running));
     EXPECT_THAT(comp.deployment_config.ready_timeout_ms, Eq(1500U));
     EXPECT_THAT(comp.deployment_config.shutdown_timeout_ms, Eq(2500U));
     EXPECT_THAT(comp.deployment_config.bin_dir, Eq("/opt/bin"));

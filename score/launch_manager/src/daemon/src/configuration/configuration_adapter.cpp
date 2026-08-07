@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cstring>
+#include <iostream>
 #include <map>
 #include <set>
 
@@ -199,19 +200,33 @@ DependencyList ConfigurationAdapter::buildDependencyList(const ComponentProperti
 
     for (const auto& dep_name : props.depends_on)
     {
+        auto dep_it = component_by_name_.find(dep_name);
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+            dep_it != component_by_name_.end(), "Component's dependency points to a non-existent component");
+
+        const auto& dep_props = dep_it->second->component_properties;
+
         Dependency dep{};
         dep.process_state_ = score::lcm::ProcessState::kRunning;
-
-        auto dep_it = component_by_name_.find(dep_name);
-        if (dep_it != component_by_name_.end())
+        if (dep_props.ready_condition.has_value())
         {
-            const auto& dep_props = dep_it->second->component_properties;
-            if (dep_props.ready_condition.has_value())
-            {
-                dep.process_state_ = dep_props.ready_condition->process_state == ProcessState::Running
-                                         ? score::lcm::ProcessState::kRunning
-                                         : score::lcm::ProcessState::kTerminated;
-            }
+            std::visit(
+                [&dep](auto&& arg) {
+                    using argT = std::decay_t<decltype(arg)>;
+
+                    if constexpr (std::is_same_v<argT, score::mw::launch_manager::configuration::ProcessState>)
+                    {
+                        dep.process_state_ = arg == ProcessState::Running ? score::lcm::ProcessState::kRunning
+                                                                          : score::lcm::ProcessState::kTerminated;
+                        return;
+                    }
+                    else if constexpr (std::is_same_v<argT, score::mw::launch_manager::configuration::FileState>)
+                    {
+                        SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("FileState is not yet supported");
+                        return;
+                    }
+                },
+                dep_props.ready_condition.value());
         }
 
         dep.target_process_id_ = IdentifierHash{dep_name};
@@ -252,11 +267,9 @@ void ConfigurationAdapter::resolveDependsOnEntry(
         return;
     }
 
-    bool found = false;
     auto comp_it = component_to_process_index_.find(dep_name);
     if (comp_it != component_to_process_index_.end())
     {
-        found = true;
         if (std::find(indexes.begin(), indexes.end(), comp_it->second) == indexes.end())
         {
             indexes.push_back(comp_it->second);
@@ -275,14 +288,11 @@ void ConfigurationAdapter::resolveDependsOnEntry(
     auto dep_it = depends_on_by_name.find(dep_name);
     if (dep_it != depends_on_by_name.end())
     {
-        found = true;
         for (const auto& sub_dep : *dep_it->second)
         {
             resolveDependsOnEntry(sub_dep, depends_on_by_name, indexes, visited);
         }
     }
-
-    assert(found && "depends_on references unknown component or run_target");
 }
 
 ProcessGroupState ConfigurationAdapter::buildProcessGroupState(

@@ -569,5 +569,117 @@ TEST(ConfigurationAdapterFallbackTest, FallbackRunTargetResolvesDependenciesRecu
     adapter.deinitialize();
 }
 
+TEST(ConfigurationAdapterDependencyTest, DependencyOnNonExistentComponentIsIgnored)
+{
+    RecordProperty("Description", "When a component depends on a non-existent component, the dependency is skipped.");
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "explorative-testing");
+
+    ComponentConfig comp_a;
+    comp_a.name = "comp_a";
+    comp_a.component_properties.application_profile.application_type = ApplicationType::Native;
+    comp_a.component_properties.application_profile.is_self_terminating = false;
+    comp_a.component_properties.depends_on = {"non_existent_component", "also_missing"};
+    comp_a.deployment_config.bin_dir = "/opt";
+    comp_a.component_properties.binary_name = "comp_a";
+    comp_a.deployment_config.working_dir = "/tmp";
+    comp_a.deployment_config.sandbox.uid = 0;
+    comp_a.deployment_config.sandbox.gid = 0;
+    comp_a.deployment_config.sandbox.scheduling_policy = SCHED_OTHER;
+    comp_a.deployment_config.sandbox.scheduling_priority = 0;
+
+    std::vector<ComponentConfig> components;
+    components.push_back(std::move(comp_a));
+
+    RunTargetConfig startup;
+    startup.name = "Startup";
+    startup.depends_on = {"comp_a"};
+    startup.transition_timeout_ms = 5000;
+    startup.recovery_action.run_target = "fallback_run_target";
+
+    std::vector<RunTargetConfig> run_targets;
+    run_targets.push_back(std::move(startup));
+
+    FallbackRunTargetConfig fallback;
+    fallback.transition_timeout_ms = 1500;
+    AliveSupervisionConfig alive;
+    alive.evaluation_cycle_ms = 500;
+
+    auto config = ConfigBuilder{}
+                      .setComponents(std::move(components))
+                      .setRunTargets(std::move(run_targets))
+                      .setInitialRunTarget("Startup")
+                      .setFallbackRunTarget(std::move(fallback))
+                      .setAliveSupervision(alive)
+                      .build();
+
+    ConfigurationAdapter adapter;
+    EXPECT_DEATH(adapter.initialize(config), "Component's dependency.*");
+}
+
+TEST(ConfigurationAdapterReadyConditionTest, FileStateReadyConditionTriggersAssert)
+{
+    RecordProperty("Description", "When a dependency target has FileState ready_condition, it triggers an assertion.");
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "explorative-testing");
+
+    ComponentConfig comp_a;
+    comp_a.name = "comp_a";
+    comp_a.component_properties.application_profile.application_type = ApplicationType::Native;
+    comp_a.component_properties.application_profile.is_self_terminating = false;
+    FileState file_state{"/tmp/ready.txt", FileExistenceState::Exists, std::chrono::milliseconds{100}};
+    comp_a.component_properties.ready_condition = ReadyCondition{file_state};
+    comp_a.deployment_config.bin_dir = "/opt";
+    comp_a.component_properties.binary_name = "comp_a";
+    comp_a.deployment_config.working_dir = "/tmp";
+    comp_a.deployment_config.sandbox.uid = 0;
+    comp_a.deployment_config.sandbox.gid = 0;
+    comp_a.deployment_config.sandbox.scheduling_policy = SCHED_OTHER;
+    comp_a.deployment_config.sandbox.scheduling_priority = 0;
+
+    ComponentConfig comp_b;
+    comp_b.name = "comp_b";
+    comp_b.component_properties.application_profile.application_type = ApplicationType::Native;
+    comp_b.component_properties.application_profile.is_self_terminating = false;
+    comp_b.component_properties.ready_condition = ReadyCondition{ProcessState::Running};
+    comp_b.component_properties.depends_on = {"comp_a"};
+    comp_b.deployment_config.bin_dir = "/opt";
+    comp_b.component_properties.binary_name = "comp_b";
+    comp_b.deployment_config.working_dir = "/tmp";
+    comp_b.deployment_config.sandbox.uid = 0;
+    comp_b.deployment_config.sandbox.gid = 0;
+    comp_b.deployment_config.sandbox.scheduling_policy = SCHED_OTHER;
+    comp_b.deployment_config.sandbox.scheduling_priority = 0;
+
+    std::vector<ComponentConfig> components;
+    components.push_back(std::move(comp_a));
+    components.push_back(std::move(comp_b));
+
+    RunTargetConfig startup;
+    startup.name = "Startup";
+    startup.depends_on = {"comp_b"};
+    startup.transition_timeout_ms = 5000;
+    startup.recovery_action.run_target = "fallback_run_target";
+
+    std::vector<RunTargetConfig> run_targets;
+    run_targets.push_back(std::move(startup));
+
+    FallbackRunTargetConfig fallback;
+    fallback.transition_timeout_ms = 1500;
+    AliveSupervisionConfig alive;
+    alive.evaluation_cycle_ms = 500;
+
+    auto config = ConfigBuilder{}
+                      .setComponents(std::move(components))
+                      .setRunTargets(std::move(run_targets))
+                      .setInitialRunTarget("Startup")
+                      .setFallbackRunTarget(std::move(fallback))
+                      .setAliveSupervision(alive)
+                      .build();
+
+    ConfigurationAdapter adapter;
+    EXPECT_DEATH(adapter.initialize(config), "FileState.*");
+}
+
 }  // namespace
 }  // namespace score::mw::launch_manager::configuration
