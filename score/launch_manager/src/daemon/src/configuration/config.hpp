@@ -14,11 +14,11 @@
 #define CONFIG_HPP
 
 #include <sys/types.h>
+#include <chrono>
 #include <cstdint>
 #include <optional>
 #include <string>
 #include <string_view>
-#include <sys/types.h>
 #include <variant>
 #include <vector>
 
@@ -64,8 +64,8 @@ struct FileState
 {
     std::string file_path;
     FileExistenceState state{FileExistenceState::Exists};
+    std::chrono::milliseconds polling_interval{10};
 };
-
 
 using ReadyCondition = std::variant<ProcessState, FileState>;
 

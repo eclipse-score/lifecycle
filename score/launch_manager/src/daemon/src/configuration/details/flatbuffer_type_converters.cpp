@@ -321,7 +321,11 @@ std::optional<FileState> convertFileState(const fb::FileState* fb_fs)
     }
     SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
         fb_fs->file_path(), "FileState::file_path must never be nullptr as it is required in the schema");
-    return FileState{fb_fs->file_path()->str(), convertFileExistenceState(fb_fs->state())};
+
+    return FileState{
+        fb_fs->file_path()->str(),
+        convertFileExistenceState(fb_fs->state()),
+        std::chrono::milliseconds{fb_fs->polling_interval()}};
 }
 
 std::optional<ReadyCondition> convertReadyCondition(const fb::ReadyCondition* fb_rc)

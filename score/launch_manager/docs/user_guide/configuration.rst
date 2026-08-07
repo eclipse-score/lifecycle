@@ -219,6 +219,10 @@ component_properties (object)
                         * ``"Exists"``: The component is ready when the file at ``file_path`` exists.
                         * ``"Deleted"``: The component is ready when the file at ``file_path`` is deleted.
                     * **Default:** ``"Exists"``
+                * **polling_interval** (number, optional)
+                    * **Description:** Specifies the time interval, in seconds (e.g., ``0.5`` for 500 milliseconds), at which the **Launch Manager** checks the file existence state.
+                    * **Constraint:** Must be greater than 0.
+                    * **Default:** ``10ms``
 
 .. _lm_conf_deployment_config_object_:
 

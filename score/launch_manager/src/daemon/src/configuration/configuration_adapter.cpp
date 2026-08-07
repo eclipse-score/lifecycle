@@ -201,11 +201,8 @@ DependencyList ConfigurationAdapter::buildDependencyList(const ComponentProperti
     for (const auto& dep_name : props.depends_on)
     {
         auto dep_it = component_by_name_.find(dep_name);
-        if (dep_it == component_by_name_.end())
-        {
-            // Couldn't find component, continue
-            continue;
-        }
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+            dep_it != component_by_name_.end(), "Component's dependency points to a non-existent component");
 
         const auto& dep_props = dep_it->second->component_properties;
 
@@ -270,11 +267,9 @@ void ConfigurationAdapter::resolveDependsOnEntry(
         return;
     }
 
-    bool found = false;
     auto comp_it = component_to_process_index_.find(dep_name);
     if (comp_it != component_to_process_index_.end())
     {
-        found = true;
         if (std::find(indexes.begin(), indexes.end(), comp_it->second) == indexes.end())
         {
             indexes.push_back(comp_it->second);
@@ -293,14 +288,11 @@ void ConfigurationAdapter::resolveDependsOnEntry(
     auto dep_it = depends_on_by_name.find(dep_name);
     if (dep_it != depends_on_by_name.end())
     {
-        found = true;
         for (const auto& sub_dep : *dep_it->second)
         {
             resolveDependsOnEntry(sub_dep, depends_on_by_name, indexes, visited);
         }
     }
-
-    assert(found && "depends_on references unknown component or run_target");
 }
 
 ProcessGroupState ConfigurationAdapter::buildProcessGroupState(
