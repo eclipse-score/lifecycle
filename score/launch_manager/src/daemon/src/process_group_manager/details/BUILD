@@ -403,8 +403,8 @@ cc_library(
         "//score/launch_manager/src/daemon/src/osal:ipc_comms",
         "//score/launch_manager/src/daemon/src/osal:semaphore",
         "//score/launch_manager/src/daemon/src/process_group_manager:process_group_manager_hdrs",
-        "//score/launch_manager/src/daemon/src/supervision_control_client",
         "//score/launch_manager/src/daemon/src/recovery_client",
+        "//score/launch_manager/src/daemon/src/supervision_control_client",
         "@score_baselibs//score/language/futurecpp",
     ],
 )
