@@ -222,7 +222,7 @@ DependencyList ConfigurationAdapter::buildDependencyList(const ComponentProperti
                     }
                     else if constexpr (std::is_same_v<argT, score::mw::launch_manager::configuration::FileState>)
                     {
-                        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(false, "FileState is not yet supported");
+                        SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("FileState is not yet supported");
                         return;
                     }
                 },

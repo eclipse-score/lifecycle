@@ -115,9 +115,9 @@ FileExistenceState convertFileExistenceState(fb::FileExistenceState fb_state)
         case fb::FileExistenceState::Deleted:
             return FileExistenceState::Deleted;
         case fb::FileExistenceState::Exists:
-        default:
             return FileExistenceState::Exists;
     }
+    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE();
 }
 
 score::cpp::expected<int32_t, IConfigLoader::Error> convertSchedulingPolicy(fb::SchedulingPolicy policy)
@@ -352,7 +352,7 @@ std::optional<ReadyCondition> convertReadyCondition(const fb::ReadyCondition* fb
 
     if (has_process_state)
     {
-        return ReadyCondition{convertProcessState(*fb_rc->process_state())};
+        return convertProcessState(*fb_rc->process_state());
     }
     else
     {
@@ -362,7 +362,7 @@ std::optional<ReadyCondition> convertReadyCondition(const fb::ReadyCondition* fb
             LM_LOG_ERROR() << "FileState conversion failed";
             return std::nullopt;
         }
-        return ReadyCondition{*file_state};
+        return *file_state;
     }
 }
 

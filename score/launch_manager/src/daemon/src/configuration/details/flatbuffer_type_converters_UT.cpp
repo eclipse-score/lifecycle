@@ -623,6 +623,15 @@ TEST_F(ConverterTest, ConvertReadyConditionWithNeitherStateReturnsNullopt)
     EXPECT_EQ(result, std::nullopt);
 }
 
+TEST_F(ConverterTest, ConvertFileExistenceStateMapsDeath)
+{
+    RecordProperty("Description", "convertFileExistenceState Fires an assertion if an undefined enum is given.");
+    EXPECT_DEATH(
+        static_cast<void>(details::convertFileExistenceState(
+            static_cast<fb::FileExistenceState>(static_cast<int>(fb::FileExistenceState::MAX) + 1))),
+        ".*");
+}
+
 TEST_F(ConverterTest, ConvertFileExistenceStateMapsBothValues)
 {
     RecordProperty("Description", "convertFileExistenceState maps both enum values correctly.");
