@@ -245,6 +245,7 @@ bool ProcessGroupManager::initializeProcessGroups()
             const uint32_t num_run_targets = states ? static_cast<uint32_t>(states->size()) : 0U;
 
             process_groups_.push_back(
+
                 std::make_shared<Graph>(
                     num_processes + num_run_targets,
                     &configuration_,
@@ -477,6 +478,8 @@ void ProcessGroupManager::allProcessGroupsOff()
         {
             pg->forceKillProcesses();
         }
+
+        thread_pool_.reset();
     }
 }
 
