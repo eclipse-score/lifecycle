@@ -54,7 +54,7 @@
             },
             "deployment_config": {
                 "ready_timeout": 1.0,
-                "shutdown_timeout": 1.0,
+                "shutdown_timeout": 5.0,
                 "environmental_variables": {
                     "PROCESSIDENTIFIER": "control_client_mock"
                 }
