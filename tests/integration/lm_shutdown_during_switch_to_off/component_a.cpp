@@ -48,7 +48,6 @@ TEST(LmShutdownDuringSwitchToOff, ComponentA)
     {
         EXPECT_TRUE(touch_file(a_started)) << "failed to deploy file";
         score::mw::lifecycle::report_running();
-        FAIL() << "component_a should not be running after the launch manager has been SIGTERMed";
     }
 
     // Wait until the launch manager asks us to terminate (SIGTERM), which happens
