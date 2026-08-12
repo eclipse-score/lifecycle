@@ -36,15 +36,19 @@ namespace
 /// It must also be smaller than component_a's configured shutdown_timeout so the
 /// STOP job does not SIGKILL it on its own before the launch manager SIGTERM is
 /// handled (which would end the switch to Off early and defeat the test).
-constexpr unsigned int kTerminationDelaySeconds = 2U;
+constexpr unsigned int kTerminationDelaySeconds = 5U;
 }  // namespace
 
 TEST(LmShutdownDuringSwitchToOff, ComponentA)
 {
-    TEST_STEP("Report running")
+    const auto pid = getpid();
+    const std::string step_msg = "Report running with pid == " + std::to_string(pid);
+
+    TEST_STEP(step_msg)
     {
         EXPECT_TRUE(touch_file(a_started)) << "failed to deploy file";
         score::mw::lifecycle::report_running();
+        FAIL() << "component_a should not be running after the launch manager has been SIGTERMed";
     }
 
     // Wait until the launch manager asks us to terminate (SIGTERM), which happens

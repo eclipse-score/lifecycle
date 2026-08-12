@@ -38,7 +38,10 @@ TEST(LmShutdownDuringSwitchToOff, ControlClient)
     score::mw::lifecycle::ControlClient client{};
     ASSERT_TRUE(check_clean({test_end_location, a_started, a_terminating}));
 
-    TEST_STEP("Report running")
+    const auto pid = getpid();
+    const std::string step_msg = "Report running with pid == " + std::to_string(pid);
+
+    TEST_STEP(step_msg)
     {
         score::mw::lifecycle::report_running();
     }
@@ -70,5 +73,5 @@ TEST(LmShutdownDuringSwitchToOff, ControlClient)
 
 int main()
 {
-    return TestRunner(__FILE__, TerminationBehavior::kWait, TerminationNotification::kTestEnd).RunTests();
+    return TestRunner(__FILE__, TerminationBehavior::kContinue, TerminationNotification::kTestEnd).RunTests();
 }
