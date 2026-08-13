@@ -478,7 +478,8 @@ void ProcessGroupManager::allProcessGroupsOff()
     // respected. Processes deactivate in parallel, so the largest per-process
     // timeout (plus the SIGKILL grace) bounds how long the transition can take.
     // Scope this to the process nodes of the graph being shut down (its own
-    // process group) rather than the whole configuration.
+    // process group) that still have a live process to stop, rather than the whole
+    // configuration - already terminated or never-started processes are not waited on.
     const auto off_transition_timeout = graph.getMaxTerminationTimeout() + kMaxSigKillDelay;
     if (!waitForStateCompletion(GraphState::kInTransition, static_cast<int32_t>(off_transition_timeout.count())))
     {
