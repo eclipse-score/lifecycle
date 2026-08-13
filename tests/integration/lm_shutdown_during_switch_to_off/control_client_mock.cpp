@@ -12,9 +12,7 @@
  ********************************************************************************/
 #include <gtest/gtest.h>
 #include <unistd.h>
-#include <chrono>
 #include <filesystem>
-#include <thread>
 
 #include "common.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
@@ -66,13 +64,9 @@ TEST(LmShutdownDuringSwitchToOff, ControlClient)
     }
 
     // Block until the launch manager terminates us as part of the switch to Off /
-    // its own shutdown. Poll the flag rather than pause(): a process-directed
-    // SIGTERM may be handled on one of the control client's background threads,
-    // which would set exitRequested without waking a main thread blocked in pause().
-    while (!TestRunner::exitRequested)
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
+    // its own shutdown. See waitForTermination(): the ControlClient's background
+    // thread means we must not wait with a bare pause().
+    TestRunner::waitForTermination();
 }
 
 int main()

@@ -12,8 +12,6 @@
  ********************************************************************************/
 #include <gtest/gtest.h>
 #include <unistd.h>
-#include <chrono>
-#include <thread>
 
 #include "common.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
@@ -48,12 +46,9 @@ TEST(LmShutdownDuringSwitchToOff, ComponentA)
 
     // Wait until the launch manager asks us to terminate (SIGTERM), which happens
     // when the switch away from run_target_a (to the "Off" run target) begins.
-    // Poll the flag rather than pause(): a process-directed SIGTERM may be handled
-    // on a background thread (e.g. alive reporting), which would set exitRequested
-    // without waking a main thread blocked in pause().
     while (!TestRunner::exitRequested)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        pause();
     }
 
     TEST_STEP("Stall during termination to keep the run-target switch in progress")
