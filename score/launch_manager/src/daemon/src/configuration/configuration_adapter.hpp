@@ -88,6 +88,10 @@ class ConfigurationAdapter final
     std::optional<const std::vector<IdentifierHash>*> getListOfProcessGroups() const;
     std::optional<IdentifierHash> getSoftwareCluster(const IdentifierHash& process_group_id) const;
     std::optional<uint32_t> getNumberOfOsProcesses(const IdentifierHash& pg_name) const;
+    /// @brief Largest per-process shutdown_timeout (termination_timeout_ms_) across all configured
+    /// processes, or zero if none are configured. Used to bound the wait for the shutdown transition
+    /// to Off while still honouring each process's individual shutdown_timeout.
+    std::chrono::milliseconds getMaxTerminationTimeout() const;
     IdentifierHash getNameOfOffState(const IdentifierHash& pg_name) const;
     IdentifierHash getNameOfRecoveryState(const IdentifierHash& pg_name) const;
     std::optional<const score::mw::lifecycle::internal::ProcessGroupStateID*> getMainPGStartupState() const;

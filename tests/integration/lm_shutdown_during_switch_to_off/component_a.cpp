@@ -12,6 +12,8 @@
  ********************************************************************************/
 #include <gtest/gtest.h>
 #include <unistd.h>
+#include <chrono>
+#include <thread>
 
 #include "common.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
@@ -19,24 +21,18 @@
 
 namespace
 {
-/// @brief How long component_a stalls while it is being terminated. During a
-/// run-target switch the launch manager runs the STOP phase (terminating
-/// no-longer-needed processes) fully before the START phase (activating newly
-/// needed processes). By stalling here, component_a keeps the switch (to the
-/// "Off" run target) in the STOP phase, giving the test a deterministic window
-/// to send SIGTERM to the launch manager while the switch to Off is still in
-/// progress.
+/// @brief How long component_a stalls while it is being terminated. By stalling here, component_a keeps the switch (to
+/// the "Off" run target) in the STOP phase, giving the test a deterministic window to send SIGTERM to the launch
+/// manager while the switch to Off is still in progress.
 ///
 /// It must be comfortably larger than the time the test needs to observe
-/// `a_terminating` and deliver the SIGTERM to the launch manager AND larger than
-/// the launch manager's fixed shutdown grace period (see the NOTE in
-/// ProcessGroupManager::allProcessGroupsOff): the shutdown does NOT respect the
-/// per-process shutdown_timeout, so this stall outlives that grace period and
-/// component_a is force-terminated (SIGKILLed) - it does not write an XML result.
-/// It must also be smaller than component_a's configured shutdown_timeout so the
-/// STOP job does not SIGKILL it on its own before the launch manager SIGTERM is
-/// handled (which would end the switch to Off early and defeat the test).
-constexpr unsigned int kTerminationDelaySeconds = 5U;
+/// `a_terminating` and deliver the SIGTERM to the launch manager, so the switch
+/// to Off is still in progress when that SIGTERM arrives. It must also be
+/// comfortably smaller than component_a's configured shutdown_timeout: the launch
+/// manager honours that per-process shutdown_timeout during its own shutdown, so
+/// component_a is given time to exit on its own and terminates gracefully (and
+/// writes its XML result) rather than being force-terminated (SIGKILLed).
+constexpr unsigned int kTerminationDelaySeconds = 2U;
 }  // namespace
 
 TEST(LmShutdownDuringSwitchToOff, ComponentA)
@@ -52,9 +48,12 @@ TEST(LmShutdownDuringSwitchToOff, ComponentA)
 
     // Wait until the launch manager asks us to terminate (SIGTERM), which happens
     // when the switch away from run_target_a (to the "Off" run target) begins.
+    // Poll the flag rather than pause(): a process-directed SIGTERM may be handled
+    // on a background thread (e.g. alive reporting), which would set exitRequested
+    // without waking a main thread blocked in pause().
     while (!TestRunner::exitRequested)
     {
-        pause();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
     TEST_STEP("Stall during termination to keep the run-target switch in progress")

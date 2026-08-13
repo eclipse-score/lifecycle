@@ -94,19 +94,12 @@ def test_lm_shutdown(
     continue - it must NOT cancel the explicit switch to Off and redo it - all the
     processes it owns are stopped, and it exits cleanly.
 
-    NOTE: the launch manager does NOT respect the per-process shutdown_timeout
-    during its own shutdown (see the NOTE in ProcessGroupManager::
-    allProcessGroupsOff). It applies a single fixed grace period to the whole
-    in-progress transition, after which any process still terminating is
-    force-terminated (SIGKILLed). component_a deliberately stalls past that grace
-    period, so it is SIGKILLed and does NOT produce an XML result - this test
-    therefore does not assert on component_a's XML.
-
-    Note: this test currently FAILS. It documents a launch manager defect: on
-    SIGTERM, allProcessGroupsOff() unconditionally cancels every process group -
-    including one that is already transitioning to Off - and then restarts the
-    transition to Off, instead of letting the in-progress switch to Off continue.
-    The test passes once that defect is fixed.
+    The launch manager honours each component's individual shutdown_timeout during
+    its own shutdown: it waits for the in-progress transition to Off to complete,
+    giving every process up to its configured shutdown_timeout to exit before it
+    would be force-terminated. component_a stalls for less than its shutdown_timeout
+    while it is being terminated, so it is given time to exit on its own and
+    terminates gracefully (producing its XML result) rather than being SIGKILLed.
     """
 
     new_config_path = str(remote_test_dir / "etc/lm_shutdown_during_switch_to_off.bin")
@@ -189,8 +182,8 @@ def test_lm_shutdown(
         if proc.is_running():
             proc.stop()
 
-    # component_a is force-terminated (SIGKILLed) during shutdown (its stall
-    # outlives the launch manager's fixed shutdown grace period), so it does not
-    # produce an XML result and is intentionally not asserted here. control_client
-    # is stopped gracefully as part of the switch to Off and produces its result.
-    assert_test_results({"control_client_mock.xml"})
+    # Both components are stopped gracefully as part of the switch to Off and
+    # produce their XML results: control_client is terminated when the switch to
+    # Off begins, and component_a exits within its shutdown_timeout (which the
+    # launch manager honours) instead of being force-terminated.
+    assert_test_results({"control_client_mock.xml", "component_a.xml"})

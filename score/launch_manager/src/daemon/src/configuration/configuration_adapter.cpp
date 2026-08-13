@@ -429,6 +429,19 @@ std::optional<uint32_t> ConfigurationAdapter::getNumberOfOsProcesses(const Ident
     return std::nullopt;
 }
 
+std::chrono::milliseconds ConfigurationAdapter::getMaxTerminationTimeout() const
+{
+    std::chrono::milliseconds max_timeout{0};
+    for (const auto& pg : process_groups_)
+    {
+        for (const auto& process : pg.processes_)
+        {
+            max_timeout = std::max(max_timeout, process.pgm_config_.termination_timeout_ms_);
+        }
+    }
+    return max_timeout;
+}
+
 IdentifierHash ConfigurationAdapter::getNameOfOffState(const IdentifierHash& pg_name) const
 {
     auto pg = getProcessGroupByID(pg_name);
