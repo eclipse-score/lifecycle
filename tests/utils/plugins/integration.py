@@ -10,6 +10,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+import json
 import logging
 import os
 import re
@@ -74,12 +75,36 @@ def docker_configuration():
     }
 
 
-# Crashing exe name (core_pattern %e, i.e. the process comm truncated to 15
-# chars) -> path of the built binary under the Bazel output tree, used to
-# suggest a ready-to-run gdb command. Extend this map as needed.
-_GDB_BINARIES = {
-    "launch_manager": "bin/score/launch_manager/src/daemon/launch_manager",
-}
+# Length the kernel truncates a process comm (core_pattern %e) to: TASK_COMM_LEN
+# is 16 bytes including the NUL terminator, so 15 usable characters.
+_COMM_MAX = 15
+
+
+def _load_binary_src_map(cores_dir: str):
+    """Map each packaged test binary's basename to its execroot-relative source
+    path (``bazel-out/<config>/bin/...``), read from the pkg_tar manifest that
+    ``integration_test`` builds next to ``environment.tar``.
+
+    This is Bazel's own dest->src mapping, so it resolves aliases and the right
+    per-config path automatically. Returns an empty dict on any failure; callers
+    then fall back to a ``<path-to-binary>`` placeholder."""
+    try:
+        tar = os.path.realpath(os.environ["SCORE_TEST_BINARY_PATH"])
+        manifest = Path(tar).with_suffix(".manifest")
+        if not manifest.is_file():
+            # Fall back to reconstructing the manifest path under bazel-out.
+            m = re.search(r"^(.*)/bazel-out/([^/]+)/", cores_dir)
+            rel = Path(os.environ["SCORE_TEST_BINARY_PATH"]).with_suffix(".manifest")
+            manifest = Path(f"{m.group(1)}/bazel-out/{m.group(2)}/bin") / rel
+        entries = json.loads(manifest.read_text())
+        return {
+            os.path.basename(e["dest"]): e["src"]
+            for e in entries
+            if e.get("type") == "file"
+        }
+    except Exception:
+        logger.warning("Could not load binary manifest for gdb hints", exc_info=True)
+        return {}
 
 
 def _persistent_outputs_dir(undeclared: str) -> str:
@@ -92,9 +117,9 @@ def _persistent_outputs_dir(undeclared: str) -> str:
 def _core_dump_report_lines(names, cores_dir: str):
     """Build the crash-dump banner body: the cores location plus a ready-to-run
     gdb command per core dump."""
-    m = re.search(r"^(.*)/bazel-out/([^/]+)/", cores_dir)
+    m = re.search(r"^(.*)/bazel-out/", cores_dir)
     out_root = m.group(1) if m else ""
-    config = m.group(2) if m else "k8-fastbuild"
+    src_map = _load_binary_src_map(cores_dir)
 
     lines = [
         f"CRASH DUMP HAS BEEN CREATED! See {cores_dir} for details.",
@@ -103,8 +128,10 @@ def _core_dump_report_lines(names, cores_dir: str):
     ]
     for name in names:
         exe = name.split(".")[1] if name.count(".") >= 1 else name
-        rel = _GDB_BINARIES.get(exe)
-        binary = f"{out_root}/bazel-out/{config}/{rel}" if rel else "<path-to-binary>"
+        # %e is the comm truncated to _COMM_MAX chars, so match on that prefix;
+        # bail out to a placeholder unless exactly one binary matches.
+        matches = [src for base, src in src_map.items() if base[:_COMM_MAX] == exe]
+        binary = f"{out_root}/{matches[0]}" if len(matches) == 1 else "<path-to-binary>"
         lines.append(f'    gdb {binary} "{cores_dir}/{name}"')
     return lines
 
