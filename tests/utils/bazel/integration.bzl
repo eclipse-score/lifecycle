@@ -101,6 +101,7 @@ def integration_test(
             "--local-dir=/tmp/score_itf_host/{}".format(name),
         ],
     })
+
     # integration_plugin is listed last so pytest registers it after the
     # target plugin: its docker_configuration fixture then overrides the
     # score_itf default (last-registered -p plugin wins fixture overrides).

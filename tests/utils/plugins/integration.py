@@ -152,7 +152,9 @@ def _capture_core_dumps(request, target, test_output_dir):
     )
     enabled = rc == 0
     if not enabled:
-        logger.warning("Could not enable sandbox core dumps (core_pattern write failed)")
+        logger.warning(
+            "Could not enable sandbox core dumps (core_pattern write failed)"
+        )
 
     try:
         yield
