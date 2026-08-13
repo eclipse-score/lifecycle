@@ -432,6 +432,11 @@ score::mw::lifecycle::ProcessState ProcessInfoNode::getState() const
     return process_state_.load();
 }
 
+std::chrono::milliseconds ProcessInfoNode::getTerminationTimeout() const
+{
+    return config_ != nullptr ? config_->pgm_config_.termination_timeout_ms_ : std::chrono::milliseconds{0};
+}
+
 uint32_t ProcessInfoNode::getIndex() const
 {
     return process_index_;

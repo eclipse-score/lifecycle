@@ -21,6 +21,7 @@
 #include "score/mw/launch_manager/supervision_control_client/isupervision_event_publisher.hpp"
 #include <score/stop_token.hpp>
 #include <atomic>
+#include <chrono>
 
 namespace score::mw::lifecycle::internal
 {
@@ -98,6 +99,10 @@ class ProcessInfoNode final : public IComponent
 
     /// @return The current state of this process.
     score::mw::lifecycle::ProcessState getState() const;
+
+    /// @return The configured shutdown_timeout (termination_timeout_ms_) for this process, or zero
+    /// if the node has no configuration.
+    std::chrono::milliseconds getTerminationTimeout() const;
 
     /// @return The ControlClientChannel for this process, or nullptr if none exists.
     ControlClientChannelP getControlClientChannel() const;
