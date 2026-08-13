@@ -157,4 +157,4 @@ def test_lm_shutdown(
             proc.stop()
 
     # component_c never runs, so it produces no XML result.
-    assert_test_results({"control_client_mock.xml", "component_a.xml"})
+    assert_test_results({"mock_control_client.xml", "component_a.xml"})

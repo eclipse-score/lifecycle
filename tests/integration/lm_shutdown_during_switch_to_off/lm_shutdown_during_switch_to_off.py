@@ -186,4 +186,4 @@ def test_lm_shutdown(
     # produce their XML results: control_client is terminated when the switch to
     # Off begins, and component_a exits within its shutdown_timeout (which the
     # launch manager honours) instead of being force-terminated.
-    assert_test_results({"control_client_mock.xml", "component_a.xml"})
+    assert_test_results({"mock_control_client.xml", "component_a.xml"})
