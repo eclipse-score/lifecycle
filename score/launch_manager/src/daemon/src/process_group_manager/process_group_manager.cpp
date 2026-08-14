@@ -360,7 +360,7 @@ bool ProcessGroupManager::run()
 
             watchdog_->serviceWatchdog();
         }
-        LM_LOG_WARN() << "ProcessGroupManager::run() - received SIGTERM, exiting";
+        LM_LOG_INFO() << "ProcessGroupManager::run() - received SIGTERM, exiting";
     }
 
     allProcessGroupsOff();
