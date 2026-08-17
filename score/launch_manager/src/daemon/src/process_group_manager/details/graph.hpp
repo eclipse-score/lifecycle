@@ -288,10 +288,7 @@ class Graph final
     /// @brief For forced shutdown, kill all leftover processes
     void forceKillProcesses();
 
-    /// @brief Returns the largest configured shutdown_timeout across the processes
-    /// @details The largest configured shutdown_timeout (termination_timeout_ms_) across the process
-    /// nodes of this process group that still have a live process to stop (pid > 0 and not yet
-    /// terminated), or zero if there are none.
+    /// @brief Returns the largest configured shutdown_timeout across all running processes
     /// @return The timeout in milliseconds, or zero if there are no live processes to stop.
     std::chrono::milliseconds getMaxTerminationTimeout();
 

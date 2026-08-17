@@ -551,11 +551,7 @@ std::chrono::milliseconds Graph::getMaxTerminationTimeout()
     {
         if (const ProcessInfoNode* process = std::get_if<ProcessInfoNode>(&component))
         {
-            // Only processes with a live OS process still to stop actually consume the
-            // SIGTERM+timeout wait during the transition to Off. Already terminated/failed
-            // processes short-circuit deactivation, and never-started nodes (pid == 0) have
-            // nothing to wait for, so neither should inflate the bound. This excludes
-            // one-shot / ready-on-termination processes that have already exited.
+            // Only processes with a live OS process still to stop count
             if (process->getPid() > 0 && process->getState() < ProcessState::kTerminated)
             {
                 max_timeout = std::max(max_timeout, process->getTerminationTimeout());

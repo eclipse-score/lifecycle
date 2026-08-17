@@ -63,9 +63,7 @@ TEST(LmShutdownDuringSwitchToOff, ControlClient)
         client.ActivateRunTarget("Off");
     }
 
-    // Block until the launch manager terminates us as part of the switch to Off /
-    // its own shutdown. See waitForTermination(): the ControlClient's background
-    // thread means we must not wait with a bare pause().
+    // Block until the launch manager terminates us as part of its own shutdown.
     TestRunner::waitForTermination();
 }
 

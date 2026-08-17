@@ -19,26 +19,15 @@
 
 namespace
 {
-/// @brief How long component_a stalls while it is being terminated. By stalling here, component_a keeps the switch (to
-/// the "Off" run target) in the STOP phase, giving the test a deterministic window to send SIGTERM to the launch
-/// manager while the switch to Off is still in progress.
-///
-/// It must be comfortably larger than the time the test needs to observe
-/// `a_terminating` and deliver the SIGTERM to the launch manager, so the switch
-/// to Off is still in progress when that SIGTERM arrives. It must also be
-/// comfortably smaller than component_a's configured shutdown_timeout: the launch
-/// manager honours that per-process shutdown_timeout during its own shutdown, so
-/// component_a is given time to exit on its own and terminates gracefully (and
-/// writes its XML result) rather than being force-terminated (SIGKILLed).
+/// @brief How long component_a stalls while being terminated, keeping the switch to Off
+/// in progress so the test can send SIGTERM to the launch manager in time. Must be smaller
+/// than component_a's configured shutdown_timeout so it still exits gracefully.
 constexpr unsigned int kTerminationDelaySeconds = 2U;
 }  // namespace
 
 TEST(LmShutdownDuringSwitchToOff, ComponentA)
 {
-    const auto pid = getpid();
-    const std::string step_msg = "Report running with pid == " + std::to_string(pid);
-
-    TEST_STEP(step_msg)
+    TEST_STEP("Report running")
     {
         EXPECT_TRUE(touch_file(a_started)) << "failed to deploy file";
         score::mw::lifecycle::report_running();

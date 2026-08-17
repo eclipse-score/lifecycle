@@ -19,17 +19,9 @@
 
 namespace
 {
-/// @brief How long component_a stalls while it is being terminated. During a
-/// run-target switch the launch manager runs the STOP phase (terminating
-/// no-longer-needed processes) fully before the START phase (activating newly
-/// needed processes). By stalling here, component_a keeps the switch in the STOP
-/// phase, giving the test a deterministic window to send SIGTERM to the launch
-/// manager before run_target_c could ever be activated.
-///
-/// It must be larger than the time the test needs to observe `a_terminating` and
-/// deliver the SIGTERM, and smaller than component_a's configured
-/// shutdown_timeout so the process still exits gracefully (and writes its XML
-/// result) rather than being SIGKILLed.
+/// @brief How long component_a stalls while being terminated, keeping the run-target
+/// switch in progress so the test can send SIGTERM to the launch manager in time. Must
+/// be smaller than component_a's configured shutdown_timeout so it still exits gracefully.
 constexpr unsigned int kTerminationDelaySeconds = 2U;
 }  // namespace
 

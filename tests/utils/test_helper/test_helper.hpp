@@ -169,23 +169,12 @@ class TestRunner
     /// @brief True if the test process has received SIGINT or SIGTERM
     inline static std::atomic<bool> exitRequested = false;
 
-    /// @brief Block the calling (main) thread until the test process is asked to
-    /// terminate (a SIGINT/SIGTERM sets exitRequested via signalHandler).
-    ///
-    /// Poll the atomic flag instead of calling pause() directly. A process-directed
-    /// signal (from kill) is delivered to an arbitrary one of the process's threads
-    /// that has the signal unblocked. If the test process has more than one thread
-    /// (e.g. a ControlClient, whose constructor spawns a background IPC thread), the
-    /// handler may run on a background thread and set exitRequested there. pause()
-    /// only returns for a signal handled on the calling thread, so a main thread
-    /// blocked in pause() would not wake - it would stay parked until the launch
-    /// manager SIGKILLs it at its shutdown_timeout, and never write its XML result.
-    /// Polling observes the flag regardless of which thread handled the signal.
-    ///
-    /// TODO: A GitHub issue shall be created to adopt this helper in the remaining
-    /// tests/integration/*/control_client_mock.cpp binaries, which still wait with a
-    /// bare pause() and are subject to the same race. Kept out of the current PR to
-    /// keep its scope contained.
+    /// @brief Block the calling thread until a SIGINT/SIGTERM sets exitRequested.
+    /// @details Polls the flag instead of pause(): a process-directed signal may be
+    /// handled on a background thread (e.g. the ControlClient's IPC thread), which a
+    /// main thread parked in pause() would never observe.
+    // TODO: adopt this in the remaining tests/integration/*/*control*.cpp binaries
+    // that still wait with a bare pause().
     static void waitForTermination()
     {
         while (!exitRequested)
