@@ -470,16 +470,9 @@ void ProcessGroupManager::allProcessGroupsOff()
 
     LM_LOG_DEBUG() << "Wait for all process groups to complete the transition";
 
-    // Each worker deactivating a process already honours that process's configured
-    // shutdown_timeout: it sends SIGTERM, waits up to termination_timeout_ms_ for a
-    // graceful exit and only then SIGKILLs (waiting a further kMaxSigKillDelay).
-    // Bound the wait for the whole transition to Off by the slowest such process
-    // rather than a fixed grace period, so every component's shutdown_timeout is
-    // respected. Processes deactivate in parallel, so the largest per-process
-    // timeout (plus the SIGKILL grace) bounds how long the transition can take.
-    // Scope this to the process nodes of the graph being shut down (its own
-    // process group) that still have a live process to stop, rather than the whole
-    // configuration - already terminated or never-started processes are not waited on.
+    // Bound the whole transition-to-Off wait by the slowest still-running process's
+    // shutdown_timeout (plus the SIGKILL grace), so every component's configured
+    // timeout is honoured. Processes deactivate in parallel.
     const auto off_transition_timeout = graph.getMaxTerminationTimeout() + kMaxSigKillDelay;
     if (!waitForStateCompletion(GraphState::kInTransition, static_cast<int32_t>(off_transition_timeout.count())))
     {
