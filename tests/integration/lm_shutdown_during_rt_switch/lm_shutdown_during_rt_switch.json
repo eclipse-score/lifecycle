@@ -62,7 +62,7 @@
         },
         "component_a": {
             "component_properties": {
-                "binary_name": "component_a"
+                "binary_name": "process_hanging_on_sigterm"
             },
             "deployment_config": {
                 "shutdown_timeout": 5.0,

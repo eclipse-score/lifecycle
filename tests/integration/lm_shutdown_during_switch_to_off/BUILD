@@ -31,23 +31,12 @@ cc_binary(
     ],
 )
 
-cc_binary(
-    name = "component_a",
-    srcs = ["component_a.cpp"],
-    deps = [
-        ":lm_shutdown_common",
-        "//score/launch_manager:lifecycle_cc",
-        "//tests/utils/test_helper",
-        "@googletest//:gtest_main",
-    ],
-)
-
 integration_test(
     name = "lm_shutdown_during_switch_to_off",
     timeout = "short",
     srcs = ["lm_shutdown_during_switch_to_off.py"],
     binaries = [
-        ":component_a",
+        "//tests/utils/test_helper:process_hanging_on_sigterm",
         ":control_client_mock",
         "//score/launch_manager",
     ],
