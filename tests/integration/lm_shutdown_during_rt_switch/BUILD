@@ -20,8 +20,8 @@ cc_library(
 )
 
 cc_binary(
-    name = "control_client_mock",
-    srcs = ["mock_control_client.cpp"],
+    name = "control_client_test_driver",
+    srcs = ["control_client_test_driver.cpp"],
     deps = [
         ":lm_shutdown_common",
         "//score/launch_manager:control_cc",
@@ -49,7 +49,7 @@ integration_test(
     binaries = [
         "//tests/utils/test_helper:process_hanging_on_sigterm",
         ":component_c",
-        ":control_client_mock",
+        ":control_client_test_driver",
         "//score/launch_manager",
     ],
     config = ":lm_shutdown_during_rt_switch.json",

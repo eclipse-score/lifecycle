@@ -63,4 +63,4 @@ def test_lm_shutdown(target, setup_test, assert_test_results, remote_test_dir):
     # component_c never runs (the pending switch was cancelled), so it produces no XML
     # result; component_a and the control client shut down gracefully. The control
     # client additionally asserts that run_target_c was never activated.
-    assert_test_results({"mock_control_client.xml", "component_a.xml"})
+    assert_test_results({"control_client_test_driver.xml", "component_a.xml"})
