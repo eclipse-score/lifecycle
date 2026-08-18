@@ -218,12 +218,6 @@ IComponent::RequestResult ProcessInfoNode::tryHandleTermination(int32_t process_
         }
     }
 
-    if (control_client_channel_)
-    {
-        control_client_channel_->releaseParentMapping();
-        std::atomic_store(&control_client_channel_, ControlClientChannelP{});
-    }
-
     return res;
 }
 
@@ -275,11 +269,6 @@ IComponent::RequestResult ProcessInfoNode::startProcess(score::cpp::stop_token s
             LM_LOG_DEBUG() << "startProcess pid" << pid_ << "received for process:" << identifier_ << "( startup time:"
                            << std::chrono::round<std::chrono::microseconds>(launched_time - initial_time) << ")";
 
-            if (configuration::ApplicationType::StateManager ==
-                config_.component_properties.application_profile.application_type)
-            {
-                setupControlClientChannel();
-            }
             auto res = handleProcessStarted(stop_token);
             if (!res.has_value())
             {
@@ -352,12 +341,6 @@ IComponent::ComponentError ProcessInfoNode::getErrorAfterState(ProcessState stat
         return IComponent::ComponentError::kErrorBeforeReady;
     }
     return IComponent::ComponentError::kErrorAfterReady;
-}
-
-void ProcessInfoNode::setupControlClientChannel()
-{
-    // Make sure we store the control_client_channel before waiting for kRunning
-    std::atomic_store(&control_client_channel_, ControlClientChannel::getControlClientChannel(sync_));
 }
 
 score::cpp::expected_blank<IComponent::ComponentError> ProcessInfoNode::handleProcessStillStarting(
@@ -570,11 +553,6 @@ std::chrono::milliseconds ProcessInfoNode::getTerminationTimeout() const
 IdentifierHash ProcessInfoNode::getIdentifier() const
 {
     return identifier_;
-}
-
-ControlClientChannelP ProcessInfoNode::getControlClientChannel() const
-{
-    return std::atomic_load(&control_client_channel_);
 }
 
 }  // namespace score::mw::lifecycle::internal
