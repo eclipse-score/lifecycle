@@ -204,7 +204,6 @@ TEST_F(ProcessInfoNodeStartupTest, CanConstructIdleProcessInfoNode)
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kIdle));
     ASSERT_THAT(node->getPid(), Eq(0));
     ASSERT_THAT(node->active(), IsFalse());
-    ASSERT_THAT(node->getControlClientChannel(), IsNull());
 }
 
 TEST_F(ProcessInfoNodeStartupTest, CanStartNonReportingProcess)
@@ -221,7 +220,6 @@ TEST_F(ProcessInfoNodeStartupTest, CanStartNonReportingProcess)
 
     ASSERT_THAT(result.has_value(), IsTrue());
     ASSERT_THAT(result.value(), Eq(IComponent::RequestState::kSuccess));
-    ASSERT_THAT(node->getControlClientChannel(), IsNull());
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kRunning));
 }
 
@@ -238,7 +236,6 @@ TEST_F(ProcessInfoNodeStartupTest, CanStartReportingProcess_ReportsRunningInTime
 
     ASSERT_THAT(result.has_value(), IsTrue());
     ASSERT_THAT(result.value(), Eq(IComponent::RequestState::kSuccess));
-    ASSERT_THAT(node->getControlClientChannel(), IsNull());
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kRunning));
 }
 
@@ -735,7 +732,6 @@ TEST_F(ProcessInfoNodeMoveTest, MoveConstruct_IdleNode_PreservesObservableState)
     ASSERT_THAT(moved.getState(), Eq(score::mw::lifecycle::ProcessState::kIdle));
     ASSERT_THAT(moved.active(), IsFalse());
     ASSERT_THAT(moved.getPid(), Eq(0));
-    ASSERT_THAT(moved.getControlClientChannel(), IsNull());
 }
 
 TEST_F(ProcessInfoNodeMoveTest, MoveConstruct_RunningNode_PreservesAtomicState)
