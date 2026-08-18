@@ -72,17 +72,11 @@ TEST_F(AliveMonitorConfigTest, CapturesOnlySupervisedComponents)
         cfg::ComponentAliveSupervision{500, 2, 1, 3}));
     components.push_back(makeComponent("native_app", cfg::ApplicationType::Native, 1002, std::nullopt));
     components.push_back(makeComponent("reporting_app", cfg::ApplicationType::Reporting, 1003, std::nullopt));
-    components.push_back(makeComponent(
-        "state_manager",
-        cfg::ApplicationType::StateManager,
-        1004,
-        cfg::ComponentAliveSupervision{100, 0, std::nullopt, std::nullopt}));
 
     const AliveMonitorConfig result = aliveMonitorConfig(makeConfig(std::move(components), 250));
 
-    ASSERT_EQ(result.supervised_components.size(), 2U);
+    ASSERT_EQ(result.supervised_components.size(), 1U);
     EXPECT_EQ(result.supervised_components[0].name, "supervised_reporting");
-    EXPECT_EQ(result.supervised_components[1].name, "state_manager");
 }
 
 TEST_F(AliveMonitorConfigTest, CopiesPerComponentFields)

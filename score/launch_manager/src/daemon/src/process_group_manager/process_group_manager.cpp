@@ -76,11 +76,6 @@ bool ProcessGroupManager::initialize(const Config& config)
     sigaction(SIGUSR2, &action, NULL);
     sigaction(SIGVTALRM, &action, NULL);
 
-    if (!initializeControlClientHandler())
-    {
-        return false;
-    }
-
     if (!configuration_.initialize(config))
     {
         LM_LOG_ERROR() << "Failed to initialize config";
@@ -160,64 +155,6 @@ void ProcessGroupManager::deinitialize()
     process_map_.reset();
 }
 
-bool ProcessGroupManager::initializeControlClientHandler()
-{
-    bool result = false;
-
-    // Create shared memory for the nudge semaphore, using the specific
-    // file descriptor osal::Comms::control_client_handler_nudge_fd, and a random name.
-    // The name is removed from the file system after creation, memory
-    // is mapped and a pointer stored, the FD is kept open.
-    ControlClientChannel::nudgeControlClientHandler_ = nullptr;
-    char shm_name[static_cast<uint32_t>(score::mw::lifecycle::internal::ProcessLimits::maxLocalBuffSize)];
-
-    static_cast<void>(snprintf(
-        shm_name,
-        static_cast<uint32_t>(score::mw::lifecycle::internal::ProcessLimits::maxLocalBuffSize),
-        "/_nudge~._.~me_"));  // random name
-    int fd = shm_open(shm_name, O_CREAT | O_EXCL | O_RDWR, 0U);
-
-    if (fd >= 0)
-    {
-        shm_unlink(shm_name);
-
-        if (0 == ftruncate(fd, static_cast<off_t>(sizeof(osal::Semaphore))))
-        {
-            int fd2 =
-                dup2(fd, osal::IpcCommsSync::control_client_handler_nudge_fd);  // always make sure we are using fd=4
-            close(fd);
-
-            // dup2 clears the O_CLOEXEC flag so this needs to be set again
-            if (fcntl(fd2, F_SETFD, FD_CLOEXEC) != 0)
-            {
-                ::close(fd2);
-                return false;
-            }
-
-            if (osal::IpcCommsSync::control_client_handler_nudge_fd == fd2)
-            {
-                void* buf = mmap(NULL, sizeof(osal::Semaphore), PROT_WRITE, MAP_SHARED, fd2, 0);
-
-                // RULECHECKER_comment(1, 1, check_c_style_cast, "This is the definition provided by the OS and does a
-                // C-style cast.", true)
-                if (MAP_FAILED != buf)
-                {
-                    ControlClientChannel::nudgeControlClientHandler_ = static_cast<osal::Semaphore*>(buf);
-                    // coverity[cert_mem52_cpp_violation:FALSE] The allocated memory is checked by the containing if
-                    // statement.
-                    const auto osal_result = ControlClientChannel::nudgeControlClientHandler_->init(0U, true);
-                    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
-                        osal_result == osal::OsalReturnType::kSuccess, "ControlClientChannel semaphore init failed");
-
-                    result = true;
-                }
-            }
-        }
-    }
-
-    return result;
-}
-
 bool ProcessGroupManager::initializeProcessGroups()
 {
     bool success = false;
@@ -243,8 +180,7 @@ bool ProcessGroupManager::initializeProcessGroups()
                 worker_jobs_,
                 &process_interface_,
                 process_map_,
-                *supervision_control_notifier_.get(),
-                this));
+                *supervision_control_notifier_.get()));
         }
     }
     else
@@ -344,7 +280,6 @@ bool ProcessGroupManager::run()
 
             for (auto pg : process_groups_)
             {
-                controlClientHandler(*pg);
                 processGroupHandler(*pg);
             }
 
@@ -469,144 +404,6 @@ void ProcessGroupManager::allProcessGroupsOff()
     }
 }
 
-void ProcessGroupManager::controlClientHandler(Graph& pg)
-{
-    controlClientRequests(pg);
-    controlClientResponses(pg);
-}
-
-void ProcessGroupManager::controlClientResponses(Graph& pg)
-{
-    // Are there any events to report to Control Clients for this process group?
-    ControlClientMessage msg;
-
-    msg.request_or_response_ = pg.getPendingEvent();
-
-    if (ControlClientCode::kNotSet != msg.request_or_response_)
-    {
-        msg.process_group_state_.pg_name_ = pg.getProcessGroupName();
-        msg.process_group_state_.pg_state_name_ = pg.getProcessGroupState();
-        msg.originating_control_client_ = pg.getStateManager();
-        msg.execution_error_code_ = pg.getLastExecutionError();
-
-        // Notice we leave two entries free in the message Q to allow for immediate
-        // responses, otherwise messages are left pending in the process group.
-        if (sendResponse(msg))
-        {
-            pg.clearPendingEvent(msg.request_or_response_);
-        }
-    }
-    ControlClientMessage& cancel_msg = pg.getCancelMessage();
-
-    if (ControlClientCode::kNotSet != cancel_msg.request_or_response_)
-    {
-        if (sendResponse(cancel_msg))
-        {
-            cancel_msg.request_or_response_ = ControlClientCode::kNotSet;
-        }
-    }
-}
-
-bool ProcessGroupManager::sendResponse(ControlClientMessage msg)
-{
-    auto pin = getProcessInfoNode(
-        msg.originating_control_client_.process_group_index_, msg.originating_control_client_.process_index_);
-    bool ret = true;
-
-    if (pin)
-    {
-        auto scc = pin->getControlClientChannel();
-
-        if (scc)
-        {
-            LM_LOG_DEBUG() << "ProcessGroupManager::ControlClientHandler: Sending"
-                           << scc->toString(msg.request_or_response_) << "("
-                           << static_cast<int>(msg.request_or_response_) << ") re state"
-                           << msg.process_group_state_.pg_state_name_ << "of PG" << msg.process_group_state_.pg_name_;
-            ret = scc->sendResponse(msg);
-            if (!ret)
-            {
-                ControlClientChannel::nudgeControlClientHandler();
-            }
-        }
-    }
-
-    return ret;
-}
-
-void ProcessGroupManager::controlClientRequests(Graph& pg)
-{
-    const auto* control_client = pg.findControlClient();
-
-    if (!control_client)
-    {
-        return;
-    }
-
-    ControlClientChannelP scc = control_client->getControlClientChannel();
-
-    if (!scc)
-    {
-        return;
-    }
-
-    if (scc->getRequest())
-    {
-        // Fill in some routing details
-        scc->request().originating_control_client_.process_group_index_ =
-            static_cast<uint16_t>(pg.getProcessGroupIndex() & 0xFFFFU);
-        scc->request().originating_control_client_.process_index_ =
-            static_cast<uint16_t>(control_client->getIndex() & 0xFFFFU);
-
-        LM_LOG_DEBUG() << "ProcessGroupManager::ControlClientHandler: got request"
-                       << scc->toString(scc->request().request_or_response_) << "("
-                       << static_cast<int>(scc->request().request_or_response_) << ") re state"
-                       << scc->request().process_group_state_.pg_state_name_ << "of PG"
-                       << scc->request().process_group_state_.pg_name_;
-
-        // Now process the request
-        switch (scc->request().request_or_response_)
-        {
-            case ControlClientCode::kSetStateRequest:
-                processStateTransition(scc);
-                break;
-
-            case ControlClientCode::kGetExecutionErrorRequest:
-                processGetExecutionError(scc);
-                break;
-
-            case ControlClientCode::kGetInitialMachineStateRequest:
-                processGetInitialMachineStateTransitionResult(scc);
-                break;
-
-            case ControlClientCode::kValidateProcessGroupState:
-                processValidateFunctionStateID(scc);
-                break;
-
-            default:  // Error, this is not a recognised request!
-                scc->request().request_or_response_ = ControlClientCode::kInvalidRequest;
-                break;
-        }
-        scc->acknowledgeRequest();
-    }
-
-    // now process deferred requests for initial state transition results
-    if (ControlClientCode::kInitialMachineStateNotSet != initial_state_transition_result_ && scc->initial_result_count_)
-    {
-        ControlClientMessage msg;
-        msg.request_or_response_ = initial_state_transition_result_;
-        msg.originating_control_client_ = scc->request().originating_control_client_;
-        if (scc->sendResponse(msg))
-        {
-            scc->initial_result_count_--;
-        }
-        else
-        {
-            ControlClientChannel::nudgeControlClientHandler();  // will need to try again
-        }
-    }
-}
-
 void ProcessGroupManager::handleRecoveryRequest(const IdentifierHash& process_identifier)
 {
     auto pg = getProcessGroupByProcessId(process_identifier);
@@ -632,7 +429,6 @@ void ProcessGroupManager::handleRecoveryRequest(const IdentifierHash& process_id
             (void)pg->setPendingState(recovery_state);
             pg->setRequestStartTime();
             pg->cancel();
-            controlClientResponses(*pg);
         }
         else
         {
@@ -650,111 +446,6 @@ void ProcessGroupManager::handleRecoveryRequest(const IdentifierHash& process_id
         // Start new state transition
         (void)pg->setPendingState(recovery_state);
         pg->setRequestStartTime();
-    }
-}
-
-void ProcessGroupManager::processStateTransition(ControlClientChannelP scc)
-{
-    // First of all, if the process group is not known, then return kSetStateInvalidArguments straight away
-    // Set new pending target state
-    // If the process group is in transition
-    //   if the target state is not the requested state, send a kCanceled response
-    //   to the last state manager and cancel the graph
-    // Set new state manager
-    auto pg = getProcessGroup(scc->request().process_group_state_.pg_name_);
-
-    if (nullptr == pg)
-    {
-        // Error, unknown process group
-        scc->request().request_or_response_ = ControlClientCode::kSetStateInvalidArguments;
-    }
-    else
-    {
-        IdentifierHash old_state = pg->getProcessGroupState();
-        GraphState graph_state = pg->getState();
-        scc->request().request_or_response_ = ControlClientCode::kSetStateSuccess;
-
-        if (GraphState::kInTransition == graph_state)
-        {
-            if (old_state != scc->request().process_group_state_.pg_state_name_)
-            {
-                (void)pg->setPendingState(scc->request().process_group_state_.pg_state_name_);
-                // get state transition start time stamp
-                pg->setRequestStartTime();
-                pg->cancel();
-            }
-            else
-            {
-                // already in transition to the requested state
-                // pg->cancel();
-                scc->request().request_or_response_ = ControlClientCode::kSetStateTransitionToSameState;
-            }
-        }
-        else if (GraphState::kSuccess == graph_state && old_state == scc->request().process_group_state_.pg_state_name_)
-        {
-            // Already in state
-            scc->request().request_or_response_ = ControlClientCode::kSetStateAlreadyInState;
-        }
-        else
-        {
-            (void)pg->setPendingState(scc->request().process_group_state_.pg_state_name_);
-            // get state transition start time stamp
-            pg->setRequestStartTime();
-        }
-        pg->updateCancelMessage();
-        pg->setStateManager(scc->request().originating_control_client_);
-    }
-}
-
-void ProcessGroupManager::processGetExecutionError(ControlClientChannelP scc)
-{
-    // This is a synchronous call at the client side, but it's treated just like all the others,
-    // sending the response on the response channel. (The Control Client library will have to hide
-    // a future in the interface implementation)
-    std::shared_ptr<Graph> pg = getProcessGroup(scc->request().process_group_state_.pg_name_);
-
-    if (!pg)
-    {
-        // Error, unknown process group
-        scc->request().request_or_response_ = ControlClientCode::kExecutionErrorInvalidArguments;
-    }
-    else if (pg->getState() != GraphState::kUndefinedState)
-    {
-        // Error, process group not in an undefined state
-        scc->request().request_or_response_ = ControlClientCode::kExecutionErrorRequestFailed;
-    }
-    else
-    {
-        scc->request().execution_error_code_ = pg->getLastExecutionError();
-        scc->request().request_or_response_ = ControlClientCode::kExecutionErrorRequestSuccess;
-    }
-}
-
-void ProcessGroupManager::processGetInitialMachineStateTransitionResult(ControlClientChannelP scc)
-{
-    // If the machine process group is not valid or we have requested the result the maximum number of times
-    // we immediately return an error. Otherwise, the response is deferred until later.
-    if (!machine_process_group_ ||
-        ((1UL << (sizeof(scc->initial_result_count_) * 8UL)) - 1UL == scc->initial_result_count_))
-    {
-        // We know immediately that there is a failure
-        scc->request().request_or_response_ = ControlClientCode::kInitialMachineStateNotSet;
-    }
-    else
-    {
-        scc->initial_result_count_++;
-    }
-}
-
-void ProcessGroupManager::processValidateFunctionStateID(ControlClientChannelP scc)
-{
-    if (configuration_.getProcessIndexesList(scc->request().process_group_state_))
-    {
-        scc->request().request_or_response_ = ControlClientCode::kValidateProcessGroupStateSuccess;
-    }
-    else
-    {
-        scc->request().request_or_response_ = ControlClientCode::kValidateProcessGroupStateFailed;
     }
 }
 
@@ -784,9 +475,6 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
             // at the moment graph is not running...
             // i.e. it is not in kInTransition, kAborting or kCancelled state
             //
-            // if there was a pending request, it was processed in the previous if statement
-            // but it resulted in ControlClientCode::kSetStateInvalidArguments error
-            //
             // in short, graph is in an error state (kUndefinedState)
             // and there is no valid request from outside, to change this situation...
             //
@@ -805,12 +493,6 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
             pg.startTransition(recovery_state.pg_state_name_);
         }
     }
-}
-
-void ProcessGroupManager::setInitialStateTransitionResult(ControlClientCode result)
-{
-    initial_state_transition_result_ = result;
-    ControlClientChannel::nudgeControlClientHandler();
 }
 
 ProcessInfoNode* ProcessGroupManager::getProcessInfoNode(uint32_t pg_index, uint32_t process_index)

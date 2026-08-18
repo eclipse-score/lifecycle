@@ -25,11 +25,6 @@ namespace
 
 using ApplicationType = score::mw::lifecycle::internal::configuration::ApplicationType;
 
-bool isSupervisedType(ApplicationType app_type)
-{
-    return app_type == ApplicationType::ReportingAndSupervised || app_type == ApplicationType::StateManager;
-}
-
 }  // namespace
 
 AliveMonitorConfig aliveMonitorConfig(const score::mw::lifecycle::internal::configuration::Config& config)
@@ -39,7 +34,7 @@ AliveMonitorConfig aliveMonitorConfig(const score::mw::lifecycle::internal::conf
 
     for (const auto& comp : config.components())
     {
-        if (isSupervisedType(comp.component_properties.application_profile.application_type))
+        if (comp.component_properties.application_profile.application_type == ApplicationType::ReportingAndSupervised)
         {
             SupervisedComponentConfig info{};
             info.name = comp.name;

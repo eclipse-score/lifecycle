@@ -43,8 +43,6 @@ score::mw::lifecycle::internal::osal::CommsType ConfigurationAdapter::mapApplica
         case ApplicationType::Reporting:
         case ApplicationType::ReportingAndSupervised:
             return score::mw::lifecycle::internal::osal::CommsType::kReporting;
-        case ApplicationType::StateManager:
-            return score::mw::lifecycle::internal::osal::CommsType::kControlClient;
         case ApplicationType::Native:
         default:
             return score::mw::lifecycle::internal::osal::CommsType::kNoComms;
@@ -164,8 +162,7 @@ void ConfigurationAdapter::appendAliveInterfaceEnvironment(
     score::mw::lifecycle::internal::osal::OsalConfig& startup) const
 {
     bool is_supervised =
-        comp.component_properties.application_profile.application_type == ApplicationType::ReportingAndSupervised ||
-        comp.component_properties.application_profile.application_type == ApplicationType::StateManager;
+        comp.component_properties.application_profile.application_type == ApplicationType::ReportingAndSupervised;
     if (!is_supervised || env_index >= static_cast<size_t>(score::mw::lifecycle::internal::kMaxEnv))
     {
         return;

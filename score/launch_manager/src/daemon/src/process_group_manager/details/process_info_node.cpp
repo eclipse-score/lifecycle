@@ -174,12 +174,6 @@ IComponent::RequestResult ProcessInfoNode::tryHandleTermination(int32_t process_
         }
     }
 
-    if (control_client_channel_)
-    {
-        control_client_channel_->releaseParentMapping();
-        std::atomic_store(&control_client_channel_, ControlClientChannelP{});
-    }
-
     return res;
 }
 
@@ -216,10 +210,6 @@ IComponent::RequestResult ProcessInfoNode::startProcess(score::cpp::stop_token s
             LM_LOG_DEBUG() << "startProcess pid" << pid_
                            << "received for process:" << config_->startup_config_.short_name_;
 
-            if (osal::CommsType::kControlClient == config_->startup_config_.comms_type_)
-            {
-                setupControlClientChannel();
-            }
             auto res = handleProcessStarted(stop_token);
             if (!res.has_value())
             {
@@ -257,12 +247,6 @@ IComponent::RequestResult ProcessInfoNode::startProcess(score::cpp::stop_token s
 
     setState(ProcessState::kRunning);  // Can fail if we've terminated already
     return tryReportCompletion(ProcessState::kRunning);
-}
-
-void ProcessInfoNode::setupControlClientChannel()
-{
-    // Make sure we store the control_client_channel before waiting for kRunning
-    std::atomic_store(&control_client_channel_, ControlClientChannel::getControlClientChannel(sync_));
 }
 
 score::cpp::expected_blank<IComponent::ComponentError> ProcessInfoNode::handleProcessStillStarting(
@@ -435,11 +419,6 @@ score::mw::lifecycle::ProcessState ProcessInfoNode::getState() const
 uint32_t ProcessInfoNode::getIndex() const
 {
     return process_index_;
-}
-
-ControlClientChannelP ProcessInfoNode::getControlClientChannel() const
-{
-    return std::atomic_load(&control_client_channel_);
 }
 
 }  // namespace score::mw::lifecycle::internal

@@ -63,12 +63,6 @@ class ProcessLauncher final : public IProcess
     /// @return True if semaphore initialization is successful, false otherwise.
     bool initializeSemaphores(IpcCommsP block);
 
-    /// @brief Initializes the Control Client for communication using the shared memory block.
-    /// @param[in,out] fd Reference to store the file descriptor of the shared memory.
-    /// @param[in] config Pointer to the configuration for initializing the Control Client.
-    /// @return None.
-    IpcCommsP initializeControlClient(int& fd, const OsalConfig& config);
-
     /// @brief Handles the execution of the child process after forking.
     /// @param[in] param Reference to child process configuration.
     void handleChildProcess(ChildProcessConfig& param);

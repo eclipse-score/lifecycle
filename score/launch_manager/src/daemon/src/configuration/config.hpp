@@ -27,8 +27,7 @@ enum class ApplicationType : uint8_t
 {
     Native = 0,
     Reporting = 1,
-    ReportingAndSupervised = 2,
-    StateManager = 3
+    ReportingAndSupervised = 2
 };
 
 enum class ProcessState : uint8_t

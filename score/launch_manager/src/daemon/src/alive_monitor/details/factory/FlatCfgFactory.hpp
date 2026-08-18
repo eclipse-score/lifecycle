@@ -25,14 +25,6 @@
 
 namespace score
 {
-namespace mw::lifecycle
-{
-class ControlClient;
-}
-}  // namespace score
-
-namespace score
-{
 namespace mw::lifecycle::internal
 {
 namespace saf

@@ -15,7 +15,6 @@
 #define _INCLUDED_PROCESSINFONODE_
 
 #include "score/mw/launch_manager/configuration/configuration_adapter.hpp"
-#include "score/mw/launch_manager/control/control_client_channel.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 #include "score/mw/launch_manager/supervision_control_client/isupervision_event_publisher.hpp"
@@ -70,7 +69,6 @@ class ProcessInfoNode final : public IComponent
           reached_ready_(other.reached_ready_.load()),
           ready_condition_(other.ready_condition_),
           config_(other.config_),
-          control_client_channel_(std::move(other.control_client_channel_)),
           sync_(std::move(other.sync_)),
           state_publisher_(other.state_publisher_),
           process_interface_(other.process_interface_),
@@ -98,9 +96,6 @@ class ProcessInfoNode final : public IComponent
 
     /// @return The current state of this process.
     score::mw::lifecycle::ProcessState getState() const;
-
-    /// @return The ControlClientChannel for this process, or nullptr if none exists.
-    ControlClientChannelP getControlClientChannel() const;
 
   private:
     /// @brief Atomically transitions to new_state if the transition is valid. For reporting
@@ -161,9 +156,6 @@ class ProcessInfoNode final : public IComponent
     /// @brief Sends SIGKILL repeatedly until the process exits or the stop token is triggered.
     void handleForcedTermination(const score::cpp::stop_token& stop_token);
 
-    /// @brief Creates the ControlClientChannel from the process's IPC comms handle.
-    void setupControlClientChannel();
-
     /// @brief semaphore used to check termination with timeout
     osal::Semaphore terminator_{};
 
@@ -191,9 +183,6 @@ class ProcessInfoNode final : public IComponent
 
     /// @brief Pointer to config for this process
     const OsProcess* config_{nullptr};
-
-    /// @brief Pointer to the ControlClientChannel object if it exists
-    ControlClientChannelP control_client_channel_{nullptr};
 
     /// @brief Pointer to the comms for this process
     osal::IpcCommsP sync_{nullptr};
