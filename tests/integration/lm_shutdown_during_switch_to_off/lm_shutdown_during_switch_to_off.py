@@ -46,11 +46,8 @@ def test_lm_shutdown(target, setup_test, assert_test_results, remote_test_dir):
     new_config_path = str(remote_test_dir / "etc/lm_shutdown_during_switch_to_off.bin")
     a_terminating = remote_test_dir / "component_a_terminating"
 
-    # Run the launch manager until component_a signals it is stalling mid-termination
-    # (file `component_a_terminating`): the explicit switch to Off is then in progress.
-    # run_until_file_deployed stops the launch manager at that point by sending it a
-    # SIGTERM (to the launch manager process only, so it performs its own orderly
-    # shutdown) and asserts it exits cleanly (code 0).
+    # Run until `component_a_terminating` is deployed so we can send SIGTERM 
+    # to launch manager during the transition to Off
     run_until_file_deployed(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
