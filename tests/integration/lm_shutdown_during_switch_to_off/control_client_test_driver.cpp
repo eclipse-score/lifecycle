@@ -64,7 +64,10 @@ TEST(LmShutdownDuringSwitchToOff, ControlClient)
     }
 
     // Block until the launch manager terminates us as part of its own shutdown.
-    TestRunner::waitForTermination();
+    while (!TestRunner::exitRequested)
+    {
+        pause();
+    }
 }
 
 int main()

@@ -169,20 +169,6 @@ class TestRunner
     /// @brief True if the test process has received SIGINT or SIGTERM
     inline static std::atomic<bool> exitRequested = false;
 
-    /// @brief Block the calling thread until a SIGINT/SIGTERM sets exitRequested.
-    /// @details Polls the flag instead of pause(): a process-directed signal may be
-    /// handled on a background thread (e.g. the ControlClient's IPC thread), which a
-    /// main thread parked in pause() would never observe.
-    // TODO: adopt this in the remaining tests/integration/*/*control*.cpp binaries
-    // that still wait with a bare pause().
-    static void waitForTermination()
-    {
-        while (!exitRequested)
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        }
-    }
-
     /// @brief Use this function in main() to run all tests. It returns 0 if all tests are successful, or 1 otherwise.
     int RunTests()
     {
