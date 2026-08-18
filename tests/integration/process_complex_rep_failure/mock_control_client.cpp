@@ -13,7 +13,7 @@
 #include <gtest/gtest.h>
 
 #include "tests/utils/test_helper/test_helper.hpp"
-#include <score/mw/lifecycle/control_client.h>
+#include <score/mw/lifecycle/ilm_control.hpp>
 #include <score/mw/lifecycle/report_running.h>
 
 // Given a correct configuration with:
@@ -28,7 +28,8 @@
 
 TEST(RecoveryActionComplexRepFailure, ControlClientMock)
 {
-    score::mw::lifecycle::ControlClient client;
+    const auto client = score::mw::lifecycle::ILmControl::Create("StateManager/LaunchManager/Instance");
+    ASSERT_TRUE(client.has_value());
 
     ASSERT_TRUE(check_clean({test_end_location, fallback_file}));
 
@@ -40,8 +41,7 @@ TEST(RecoveryActionComplexRepFailure, ControlClientMock)
     // Start the run target run_target_app_does_report_krunning_in_time
     TEST_STEP("Activate RunTarget run_target_app_does_report_krunning_in_time")
     {
-        score::cpp::stop_token stop_token;
-        auto result = client.ActivateRunTarget("run_target_app_does_report_krunning_in_time").Get(stop_token);
+        auto result = client->get()->activate_run_target("run_target_app_does_report_krunning_in_time");
         EXPECT_TRUE(result.has_value()) << "Activating target run_target_app_does_report_krunning_in_time "
                                            "failed: "
                                         << result.error().Message();
@@ -56,8 +56,7 @@ TEST(RecoveryActionComplexRepFailure, ControlClientMock)
     // Start the run target run_target_app_does_not_report_krunning_in_time
     TEST_STEP("Activate RunTarget run_target_app_does_not_report_krunning_in_time")
     {
-        score::cpp::stop_token stop_token;
-        auto result = client.ActivateRunTarget("run_target_app_does_not_report_krunning_in_time").Get(stop_token);
+        auto result = client->get()->activate_run_target("run_target_app_does_not_report_krunning_in_time");
         EXPECT_FALSE(result.has_value()) << "Activating target run_target_app_does_not_report_krunning_in_time "
                                             "did not fail as expected.";
     }
@@ -71,7 +70,8 @@ TEST(RecoveryActionComplexRepFailure, ControlClientMock)
 
     TEST_STEP("Activate RunTarget Off")
     {
-        client.ActivateRunTarget("Off");
+        const auto result = client->get()->activate_run_target("Off");
+        EXPECT_TRUE(result.has_value()) << "Expected Off activation to succeed";
     }
 }
 

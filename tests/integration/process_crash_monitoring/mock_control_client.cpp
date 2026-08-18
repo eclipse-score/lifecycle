@@ -14,7 +14,7 @@
 
 #include "tests/utils/test_helper/test_helper.hpp"
 #include <fcntl.h>
-#include <score/mw/lifecycle/control_client.h>
+#include <score/mw/lifecycle/ilm_control.hpp>
 #include <score/mw/lifecycle/report_running.h>
 #include <chrono>
 #include <thread>
@@ -26,7 +26,8 @@
 
 TEST(ProcessCrashMonitoring, ControlClientMock)
 {
-    score::mw::lifecycle::ControlClient client;
+    const auto client = score::mw::lifecycle::ILmControl::Create("StateManager/LaunchManager/Instance");
+    ASSERT_TRUE(client.has_value());
 
     ASSERT_TRUE(check_clean({test_end_location, fallback_file}));
     // Establish communication with launch manager
@@ -37,8 +38,7 @@ TEST(ProcessCrashMonitoring, ControlClientMock)
 
     TEST_STEP("Start crashing process")
     {
-        score::cpp::stop_token stop_token;
-        auto result = client.ActivateRunTarget("run_target_crashing_app_on_runtime").Get(stop_token);
+        auto result = client->get()->activate_run_target("run_target_crashing_app_on_runtime");
         EXPECT_TRUE(result.has_value()) << "Activating target run_target_crashing_app_on_runtime failed: "
                                         << result.error().Message();
     }
@@ -59,7 +59,8 @@ TEST(ProcessCrashMonitoring, ControlClientMock)
     }
     TEST_STEP("Activate RunTarget Off")
     {
-        client.ActivateRunTarget("Off");
+        const auto result = client->get()->activate_run_target("Off");
+        EXPECT_TRUE(result.has_value()) << "Expected Off activation to succeed";
     }
 }
 

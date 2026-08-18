@@ -16,12 +16,14 @@
 #include <iostream>
 
 #include "tests/utils/test_helper/test_helper.hpp"
-#include <score/mw/lifecycle/control_client.h>
+#include <score/mw/lifecycle/ilm_control.hpp>
 #include <score/mw/lifecycle/report_running.h>
 
 TEST(Smoke, Daemon)
 {
-    score::mw::lifecycle::ControlClient client{};
+    const auto client = score::mw::lifecycle::ILmControl::Create("StateManager/LaunchManager/Instance");
+    ASSERT_TRUE(client.has_value());
+
     ASSERT_TRUE(check_clean({test_end_location}));
     TEST_STEP("Control daemon report running")
     {
@@ -31,19 +33,18 @@ TEST(Smoke, Daemon)
 
     TEST_STEP("Activate RunTarget Running")
     {
-        score::cpp::stop_token stop_token;
-        auto result = client.ActivateRunTarget("Running").Get(stop_token);
+        auto result = client->get()->activate_run_target("Running");
         EXPECT_TRUE(result.has_value()) << "Activating target Running failed: " << result.error().Message();
     }
     TEST_STEP("Activate RunTarget Startup")
     {
-        score::cpp::stop_token stop_token;
-        auto result = client.ActivateRunTarget("Startup").Get(stop_token);
+        auto result = client->get()->activate_run_target("Startup");
         EXPECT_TRUE(result.has_value());
     }
     TEST_STEP("Activate RunTarget Off")
     {
-        client.ActivateRunTarget("Off");
+        const auto result = client->get()->activate_run_target("Off");
+        EXPECT_TRUE(result.has_value()) << "Expected Off activation to succeed";
     }
 }
 

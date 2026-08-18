@@ -20,7 +20,7 @@
 #include "common.hpp"
 #include "get_fds.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
-#include <score/mw/lifecycle/control_client.h>
+#include <score/mw/lifecycle/ilm_control.hpp>
 #include <score/mw/lifecycle/report_running.h>
 
 int g_argc;
@@ -51,7 +51,8 @@ TEST(ControlClientFDs, FindOpenFDs)
         EXPECT_TRUE(open_fds.empty()) << "Found open files!\n" << oss.str();
     }
 
-    score::mw::lifecycle::ControlClient client{};
+    const auto client = score::mw::lifecycle::ILmControl::Create("StateManager/LaunchManager/Instance");
+    ASSERT_TRUE(client.has_value());
 
     TEST_STEP("After Control Client")
     {

@@ -13,12 +13,13 @@
 #include <gtest/gtest.h>
 
 #include "tests/utils/test_helper/test_helper.hpp"
-#include <score/mw/lifecycle/control_client.h>
+#include <score/mw/lifecycle/ilm_control.hpp>
 #include <score/mw/lifecycle/report_running.h>
 
 TEST(MissingBinaryFailure, ControlClientMock)
 {
-    score::mw::lifecycle::ControlClient client;
+    const auto client = score::mw::lifecycle::ILmControl::Create("StateManager/LaunchManager/Instance");
+    ASSERT_TRUE(client.has_value());
 
     ASSERT_TRUE(check_clean({test_end_location, fallback_file}));
 
@@ -29,8 +30,7 @@ TEST(MissingBinaryFailure, ControlClientMock)
 
     TEST_STEP("Activate RunTarget containing a component with a missing binary")
     {
-        score::cpp::stop_token stop_token;
-        auto result = client.ActivateRunTarget("run_target_with_missing_binary").Get(stop_token);
+        auto result = client->get()->activate_run_target("run_target_with_missing_binary");
         EXPECT_FALSE(result.has_value()) << "Activating a run target with a missing binary should fail.";
     }
     // Limitation: we cannot wait for the transition to fallback to complete
@@ -42,7 +42,8 @@ TEST(MissingBinaryFailure, ControlClientMock)
 
     TEST_STEP("Activate RunTarget Off")
     {
-        client.ActivateRunTarget("Off");
+        const auto result = client->get()->activate_run_target("Off");
+        EXPECT_TRUE(result.has_value()) << "Expected Off activation to succeed";
     }
 }
 

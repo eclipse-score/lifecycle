@@ -14,12 +14,13 @@
 #include <filesystem>
 
 #include "tests/utils/test_helper/test_helper.hpp"
-#include <score/mw/lifecycle/control_client.h>
+#include <score/mw/lifecycle/ilm_control.hpp>
 #include <score/mw/lifecycle/report_running.h>
 
 TEST(CrashOnStartup, ControlClientMock)
 {
-    score::mw::lifecycle::ControlClient client;
+    const auto client = score::mw::lifecycle::ILmControl::Create("StateManager/LaunchManager/Instance");
+    ASSERT_TRUE(client.has_value());
 
     ASSERT_TRUE(
         check_clean({crashCountPath(1), crashCountPath(2), crashCountPath(3), test_end_location, fallback_file}));
@@ -38,8 +39,7 @@ TEST(CrashOnStartup, ControlClientMock)
     {
         TEST_STEP(std::string{"Launch "} + std::string{run_target})
         {
-            score::cpp::stop_token stop_token;
-            auto result = client.ActivateRunTarget(run_target).Get(stop_token);
+            auto result = client->get()->activate_run_target(score::mw::lifecycle::RunTargetName{run_target});
             // Then, the LM should restart it and eventually succeed
             EXPECT_TRUE(result.has_value()) << "Activating " << run_target << " failed: " << result.error().Message();
         }
@@ -53,8 +53,7 @@ TEST(CrashOnStartup, ControlClientMock)
     // Given a process that crashes on startup but is not allowed to retry (number_of_attempts=0)
     TEST_STEP("Attempt to launch process crashing on startup without retries")
     {
-        score::cpp::stop_token stop_token;
-        auto result = client.ActivateRunTarget("run_target_crash_on_startup_once_but_no_retries").Get(stop_token);
+        auto result = client->get()->activate_run_target("run_target_crash_on_startup_once_but_no_retries");
         EXPECT_FALSE(result.has_value())
             << "Expected run_target_crash_on_startup_once_but_no_retries activation to fail";
     }
@@ -68,7 +67,8 @@ TEST(CrashOnStartup, ControlClientMock)
 
     TEST_STEP("Activate RunTarget Off")
     {
-        client.ActivateRunTarget("Off");
+        const auto result = client->get()->activate_run_target("Off");
+        EXPECT_TRUE(result.has_value()) << "Expected Off activation to succeed";
     }
 }
 

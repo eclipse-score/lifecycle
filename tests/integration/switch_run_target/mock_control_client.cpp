@@ -14,7 +14,7 @@
 #include <gtest/gtest.h>
 
 #include "tests/utils/test_helper/test_helper.hpp"
-#include <score/mw/lifecycle/control_client.h>
+#include <score/mw/lifecycle/ilm_control.hpp>
 #include <score/mw/lifecycle/report_running.h>
 
 // Given a configuration with the following dependency tree:
@@ -34,7 +34,8 @@
 
 TEST(SwitchRunTarget, ControlClientMock)
 {
-    score::mw::lifecycle::ControlClient client;
+    const auto client = score::mw::lifecycle::ILmControl::Create("StateManager/LaunchManager/Instance");
+    ASSERT_TRUE(client.has_value());
 
     ASSERT_TRUE(check_clean({test_end_location, a_started, b_started, d_started, e_started}));
     TEST_STEP("Report running")
@@ -49,8 +50,7 @@ TEST(SwitchRunTarget, ControlClientMock)
 
     TEST_STEP("Activate run target A")
     {
-        score::cpp::stop_token stop_token;
-        auto result = client.ActivateRunTarget("run_target_a").Get(stop_token);
+        auto result = client->get()->activate_run_target("run_target_a");
         EXPECT_TRUE(result.has_value()) << "Activating target run_target_a failed: " << result.error().Message();
     }
     TEST_STEP("Verify running processes")
@@ -63,8 +63,7 @@ TEST(SwitchRunTarget, ControlClientMock)
     // Processes A and B verify that they have been shut down in the correct order.
     TEST_STEP("Activate RunTarget Startup")
     {
-        score::cpp::stop_token stop_token;
-        auto result = client.ActivateRunTarget("Startup").Get(stop_token);
+        auto result = client->get()->activate_run_target("Startup");
         EXPECT_TRUE(result.has_value()) << "Activating target Startup failed: " << result.error().Message();
     }
 
