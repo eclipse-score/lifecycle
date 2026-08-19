@@ -30,6 +30,28 @@ logger = logging.getLogger(__name__)
 CORE_DUMP_DIR = "/tmp/score_cores"
 CORE_PATTERN = f"{CORE_DUMP_DIR}/core.%e.%p.%s.%t"
 
+# Workspace-root file the original core_pattern is mirrored to before it is
+# changed, so it is never lost if a run is force-killed. It is written
+# from inside the privileged container (see _capture_core_dumps) because the
+# sandboxed test process only sees the source tree read-only.
+CORE_PATTERN_BACKUP_NAME = ".original_core_pattern"
+
+
+def _core_dumps_enabled() -> bool:
+    """Core-dump capture is opt-in via ``--config=core_dump`` (see .bazelrc),
+    which forwards ``SCORE_ENABLE_CORE_DUMP`` into the test environment. When it
+    is off, the plugin behaves as if the crash-dump feature did not exist."""
+    return os.environ.get("SCORE_ENABLE_CORE_DUMP") == "1"
+
+
+def _host_workspace_root():
+    """Resolve the real (host) workspace root from this file's symlink target."""
+    resolved = Path(os.path.realpath(__file__))
+    for ancestor in resolved.parents:
+        if (ancestor / "MODULE.bazel").is_file():
+            return ancestor
+    return None
+
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -63,16 +85,24 @@ def docker_configuration():
     """Run the test container privileged with an unlimited core-file ulimit so
     crashing processes produce core dumps inside the sandbox.
 
-    Overrides the score_itf default (empty dict). Privileged is required because
-    core_pattern can only be written from a privileged container; the core
-    ulimit is inherited by every ``docker exec``ed process (e.g. the launch
-    manager under test)."""
+    Only when core-dump capture is enabled (--config=core_dump); otherwise
+    stick to unprivileged container. The workspace is bind-mounted read-write so
+    the container can persist the core_pattern backup to the host source tree,
+    which the sandboxed test process cannot write itself."""
+
+    if not _core_dumps_enabled():
+        return {}
+
     import docker  # imported lazily: only the docker target has this dependency
 
-    return {
+    config = {
         "privileged": True,
         "ulimits": [docker.types.Ulimit(name="core", soft=-1, hard=-1)],
     }
+    workspace = _host_workspace_root()
+    if workspace is not None:
+        config["volumes"] = {str(workspace): {"bind": str(workspace), "mode": "rw"}}
+    return config
 
 
 # Length the kernel truncates a process comm (core_pattern %e) to: TASK_COMM_LEN
@@ -157,26 +187,52 @@ def _collect_core_dumps(target, test_output_dir: Path):
     return downloaded
 
 
+def _enable_core_dumps_cmd(backup: str | None) -> str:
+    """Shell run inside the container to start capturing: back up the original
+    core_pattern to the workspace file (only if not already saved and not already
+    our test pattern), then route cores to the sandbox dir."""
+    cmd = f"mkdir -p {CORE_DUMP_DIR} && chmod 0777 {CORE_DUMP_DIR}"
+    if backup is not None:
+        cmd += (
+            f" && CUR=$(cat /proc/sys/kernel/core_pattern)"
+            f' && if [ ! -e {shlex.quote(backup)} ] && [ "$CUR" != {shlex.quote(CORE_PATTERN)} ]; then'
+            f' printf "%s" "$CUR" > {shlex.quote(backup)}; fi'
+        )
+    cmd += (
+        f" && printf '%s' {shlex.quote(CORE_PATTERN)} > /proc/sys/kernel/core_pattern"
+    )
+    return cmd
+
+
+def _restore_core_pattern_cmd(backup: str) -> str:
+    """Shell run inside the container on teardown: restore core_pattern from the
+    workspace backup and remove it. A no-op if the backup is absent (nothing was
+    saved, or the original is unknown)."""
+    return (
+        f"if [ -e {shlex.quote(backup)} ]; then "
+        f"cat {shlex.quote(backup)} > /proc/sys/kernel/core_pattern && "
+        f"rm -f {shlex.quote(backup)}; fi"
+    )
+
+
 @pytest.fixture(autouse=True)
 def _capture_core_dumps(request, target, test_output_dir):
     """Route core dumps to a sandbox-local directory for the duration of the
     test, collect any that were produced, then restore the original
-    core_pattern.
-
-    Only active for the Docker sandbox. core_pattern is a global kernel setting,
-    so it is set from inside the privileged container and reverted afterwards
-    (the "container-local + auto-restore" strategy)."""
+    core_pattern."""
+    if not _core_dumps_enabled():
+        yield  # core-dump capture not requested (--config=core_dump)
+        return
     if request.config.getoption("docker_image", default=None) is None:
         yield  # not the docker sandbox; nothing to capture
         return
 
-    rc, out = target.execute("cat /proc/sys/kernel/core_pattern")
-    original = out.decode(errors="replace").strip("\n") if rc == 0 else None
-
-    rc, _ = target.execute(
-        f"mkdir -p {CORE_DUMP_DIR} && chmod 0777 {CORE_DUMP_DIR} && "
-        f"printf '%s' {shlex.quote(CORE_PATTERN)} > /proc/sys/kernel/core_pattern"
+    workspace = _host_workspace_root()
+    backup = (
+        f"{workspace}/{CORE_PATTERN_BACKUP_NAME}" if workspace is not None else None
     )
+
+    rc, _ = target.execute(_enable_core_dumps_cmd(backup))
     enabled = rc == 0
     if not enabled:
         logger.warning(
@@ -194,10 +250,8 @@ def _capture_core_dumps(request, target, test_output_dir):
                 banners.append(_core_dump_report_lines(downloaded, cores_dir))
                 request.config._score_core_dump_banners = banners
         finally:
-            if enabled and original is not None:
-                target.execute(
-                    f"printf '%s' {shlex.quote(original)} > /proc/sys/kernel/core_pattern"
-                )
+            if enabled and backup is not None:
+                target.execute(_restore_core_pattern_cmd(backup))
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):

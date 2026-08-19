@@ -46,7 +46,7 @@ def test_lm_shutdown(target, setup_test, assert_test_results, remote_test_dir):
     new_config_path = str(remote_test_dir / "etc/lm_shutdown_during_switch_to_off.bin")
     a_terminating = remote_test_dir / "component_a_terminating"
 
-    # Run until `component_a_terminating` is deployed so we can send SIGTERM 
+    # Run until `component_a_terminating` is deployed so we can send SIGTERM
     # to launch manager during the transition to Off
     run_until_file_deployed(
         target=target,
