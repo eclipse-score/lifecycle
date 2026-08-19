@@ -20,6 +20,7 @@
 #include <score/assert.hpp>
 #include <unistd.h>
 #include <cstring>
+#include <iostream>
 
 namespace score::mw::lifecycle::internal
 {
@@ -51,7 +52,7 @@ ProcessInfoNode::ProcessInfoNode(
 
 IComponent::RequestResult ProcessInfoNode::tryReportCompletion(score::mw::lifecycle::ProcessState new_state)
 {
-    ProcessState desired_state{};
+    ProcessState desired_state{ProcessState::kRunning};
 
     const auto& ready_condition = config_.component_properties.ready_condition;
 
@@ -287,13 +288,27 @@ score::cpp::expected_blank<IComponent::ComponentError> ProcessInfoNode::handlePr
     const score::cpp::stop_token& stop_token)
 {
     static_cast<void>(stop_token);  // Not yet supported
+    const bool is_native =
+        configuration::ApplicationType::Native == config_.component_properties.application_profile.application_type;
+    bool ready_condition_met = false;
 
-    if (((configuration::ApplicationType::Native ==
-          config_.component_properties.application_profile.application_type) ||
-         (process_handling_.process_interface_->waitForkRunning(
-              sync_, std::chrono::milliseconds(config_.deployment_config.ready_timeout_ms)) ==
-          osal::OsalReturnType::kSuccess)) &&
-        (0 == status_))
+    std::visit(
+        [this, &ready_condition_met](auto&& arg) {
+            using T = std::decay_t<decltype(arg)>;
+
+            if constexpr (std::is_same_v<T, configuration::ProcessState>)
+            {
+                auto wait_res = process_handling_.process_interface_->waitForkRunning(
+                    sync_, std::chrono::milliseconds(config_.deployment_config.ready_timeout_ms));
+                ready_condition_met = wait_res == osal::OsalReturnType::kSuccess && 0 == status_;
+            }
+            else if constexpr (std::is_same_v<T, configuration::FileState>)
+            {
+            }
+        },
+        config_.component_properties.ready_condition.value());
+
+    if (is_native || ready_condition_met)
     {
         handleProcessRunning();
         return {};
