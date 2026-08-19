@@ -63,8 +63,6 @@ score::cpp::expected<TargetT, IConfigLoader::Error> validateRange(int64_t value,
 
 // --- Scalar and enum helpers ---
 
-/// @brief Converts a time value from seconds to milliseconds.
-[[nodiscard]] score::cpp::expected<uint32_t, IConfigLoader::Error> secondsToMs(double seconds);
 /// @brief Converts a FlatBuffer ApplicationType enum to the config ApplicationType.
 [[nodiscard]] ApplicationType convertApplicationType(fb::ApplicationType fb_type);
 /// @brief Converts a FlatBuffer ProcessState enum to the config ProcessState.
