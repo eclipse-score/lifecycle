@@ -30,14 +30,18 @@ Core-dump capture is **opt-in**: add `--config=core_dump` to include the support
 
 How it works:
 - `--config=core_dump` forwards `SCORE_ENABLE_CORE_DUMP=1` into the test
-  environment (see `.bazelrc`); the shared pytest plugin keys off it, individual
-  tests need no adaptions.
+  environment and sets the `//config:core_dump` build flag (see `.bazelrc`); the
+  shared pytest plugin keys off the env var, individual tests need no adaptions.
+- The build flag selects a **debug image variant** (`score_itf_examples_debug`,
+  the normal image plus `gdb`) so cores can be analysed inside the container.
+  Normal runs keep the slim `score_itf_examples` image, unchanged.
 - The sandbox container runs privileged with an unlimited core-file `ulimit` and
   a read-write bind-mount of the workspace root.
 - A shared fixture sets the kernel `core_pattern` to a sandbox-local path
-  (`/tmp/score_cores/core.%e.%p.%s.%t`), copies any core dumps produced during
-  the test into the Bazel test outputs, and then restores the original
-  `core_pattern`.
+  (`/tmp/score_cores/core.%e.%p.%s.%t`). On teardown it symbolizes each core
+  **inside the container** (where the binary and matching libraries live) into a
+  `<core>.bt.txt` backtrace, copies the cores and backtraces into the Bazel test
+  outputs, and restores the original `core_pattern`.
 - Before changing `core_pattern`, the fixture mirrors the original value to
   `.original_core_pattern` in the workspace root. The sandboxed test process sees
   the source tree read-only, so this file is written from inside the privileged
@@ -63,24 +67,49 @@ enables `--test_output=errors`, so the failing log is shown automatically):
 ================================== CRASH DUMP ==================================
 CRASH DUMP HAS BEEN CREATED! See <.../test.outputs/cores> for details.
 
-To open it in gdb (build the crashing binary with -c dbg for symbols):
-    gdb <.../bin/.../launch_manager> "<.../test.outputs/cores/core.launch_manager.*>"
+core.launch_manager.42.6.1787209649:
+    Program terminated with signal SIGABRT, Aborted.
+    #0  0x... in ?? () from /lib/x86_64-linux-gnu/libc.so.6
+    #1  0x... in raise () from /lib/x86_64-linux-gnu/libc.so.6
+    #2  0x... in abort () from /lib/x86_64-linux-gnu/libc.so.6
+    #3  0x... in <your crashing frame> at <file>:<line>
+    ...
+    Full backtrace (all threads): <.../cores/core.launch_manager.*.bt.txt>
+    Reopen in gdb inside the debug image:
+        docker run --rm -it -v <.../launch_manager>:/tmp/.../launch_manager:ro -v <.../cores>:/cores:ro score_itf_examples_debug:latest gdb /tmp/.../launch_manager /cores/core.launch_manager.*
 =========================== short test summary info ============================
 ```
-The printed paths are absolute and copy-pasteable. Core files are named
-`core.<exe>.<pid>.<signal>.<time>` (signal `11` = `SIGSEGV`); they are only
-produced on an actual crash and can be large (hundreds of MB).
+The crashing thread's stack is printed **inline** (symbolized inside the
+container, so libraries match). The printed paths are absolute and
+copy-pasteable. Core files are named `core.<exe>.<pid>.<signal>.<time>` (signal
+`11` = `SIGSEGV`, `6` = `SIGABRT`); they are only produced on an actual crash and
+can be large (hundreds of MB).
 
 ### Analysing a crash dump
 
-`fastbuild` binaries carry limited symbols; build with `-c dbg` for a usable
-backtrace:
+The crashing thread is already in the banner above. For the **full all-threads**
+dump, open the auto-captured backtrace file the fixture wrote next to the core:
 ```
-bazel build //score/launch_manager --config=x86_64-linux -c dbg
-gdb bazel-out/k8-fastbuild/bin/score/launch_manager/src/daemon/launch_manager \
-    "$(bazel info bazel-testlogs)/tests/integration/<test>/<test>/test.outputs/cores/"core.launch_manager.*
-# (gdb) bt
+cat "$(bazel info bazel-testlogs)/tests/integration/<test>/<test>/test.outputs/cores/"*.bt.txt
 ```
+`--config=core_dump` builds with `-c dbg` automatically, so the backtrace carries
+file/line information — no extra flag needed.
+
+The banner already prints a ready-to-run `docker run … gdb …` command per core.
+It must run **inside** the debug image (tagged `score_itf_examples_debug:latest`,
+which ships `gdb`), not on the host: the core references the container's
+libraries, so a host `gdb` unwind walks garbage. The command mounts the host
+binary at its original in-container path (so gdb matches the core without
+warnings) and the cores directory, then drops you into an interactive session:
+```
+CORES="$(bazel info bazel-testlogs)/tests/integration/<test>/<test>/test.outputs/cores"
+BIN="$(bazel info bazel-bin)/<path-to-crashing-binary>"
+docker run --rm -it -v "$BIN:/tmp/<remote>/<binary>:ro" -v "$CORES:/cores:ro" \
+    score_itf_examples_debug:latest \
+    gdb /tmp/<remote>/<binary> /cores/core.*
+```
+Running host `gdb` against the core is a last resort; if you must, point it at an
+exported container rootfs via `set sysroot` / `solib-search-path`.
 
 ## Important: the `core_pattern` is a global kernel setting
 

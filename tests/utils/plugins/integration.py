@@ -36,6 +36,15 @@ CORE_PATTERN = f"{CORE_DUMP_DIR}/core.%e.%p.%s.%t"
 # sandboxed test process only sees the source tree read-only.
 CORE_PATTERN_BACKUP_NAME = ".original_core_pattern"
 
+# Suffix of the symbolized backtrace written next to each core by gdb, inside the
+# container where the binary and matching libraries are present.
+BACKTRACE_SUFFIX = ".bt.txt"
+
+# gdb-equipped debug image (see tests/utils/bazel/integration.bzl). A core must be
+# reopened here, not with host gdb: the core references the container's libraries,
+# so a host unwind walks garbage.
+DEBUG_IMAGE = "score_itf_examples_debug:latest"
+
 
 def _core_dumps_enabled() -> bool:
     """Core-dump capture is opt-in via ``--config=core_dump`` (see .bazelrc),
@@ -144,36 +153,89 @@ def _persistent_outputs_dir(undeclared: str) -> str:
     return re.sub(r"/sandbox/[^/]+/\d+/execroot/", "/execroot/", undeclared)
 
 
-def _core_dump_report_lines(names, cores_dir: str):
-    """Build the crash-dump banner body: the cores location plus a ready-to-run
-    gdb command per core dump."""
+def _primary_backtrace(bt_path: str, max_frames: int = 40):
+    """Extract the crashing thread's frames from an auto-captured ``.bt.txt``:
+    the ``Program terminated`` line and the first ``bt`` block, stopping at the
+    all-threads (``thread apply all bt``) section. Returns [] if unreadable."""
+    try:
+        with open(bt_path, encoding="utf-8", errors="replace") as f:
+            raw = f.read().splitlines()
+    except OSError:
+        return []
+    lines = []
+    started = False
+    for line in raw:
+        if line.startswith("Program terminated"):
+            lines = [line]
+        elif line.startswith("Thread "):
+            break  # start of the all-threads dump; crashing thread already captured
+        elif line.startswith("#"):
+            started = True
+            if lines and lines[-1] == line:
+                continue  # gdb repeats frame #0 (stop location + bt); keep one
+            lines.append(line)
+        elif started and not line.strip():
+            break  # blank line ends the first bt block
+    return lines[: max_frames + 1]
+
+
+def _core_dump_report_lines(names, cores_dir: str, read_dir: str | None = None):
+    """Build the crash-dump banner body: per core, the crashing thread's stack
+    inline plus pointers to the full backtrace file and a ready-to-run gdb
+    command. ``cores_dir`` is the persistent path shown to the user; ``read_dir``
+    (defaults to it) is where the ``.bt.txt`` files are actually read from."""
+    read_dir = read_dir or cores_dir
+    remote_dir = os.environ.get("SCORE_TEST_REMOTE_DIRECTORY")
     m = re.search(r"^(.*)/bazel-out/", cores_dir)
     out_root = m.group(1) if m else ""
     src_map = _load_binary_src_map(cores_dir)
 
-    lines = [
-        f"CRASH DUMP HAS BEEN CREATED! See {cores_dir} for details.",
-        "",
-        "To open it in gdb (build the crashing binary with -c dbg for symbols):",
-    ]
+    lines = [f"CRASH DUMP HAS BEEN CREATED! See {cores_dir} for details."]
     for name in names:
         exe = name.split(".")[1] if name.count(".") >= 1 else name
         # %e is the comm truncated to _COMM_MAX chars, so match on that prefix;
         # bail out to a placeholder unless exactly one binary matches.
         matches = [src for base, src in src_map.items() if base[:_COMM_MAX] == exe]
         binary = f"{out_root}/{matches[0]}" if len(matches) == 1 else "<path-to-binary>"
-        lines.append(f'    gdb {binary} "{cores_dir}/{name}"')
+        # The core records the binary's in-container path; mount the host binary
+        # there so gdb matches it without a "core may not match" warning.
+        in_container = (
+            _incontainer_binary(name, remote_dir, src_map) if remote_dir else "/binary"
+        )
+        bt = _primary_backtrace(f"{read_dir}/{name}{BACKTRACE_SUFFIX}")
+        lines.append("")
+        lines.append(f"{name}:")
+        if bt:
+            lines += [f"    {frame}" for frame in bt]
+            lines.append(
+                f"    Full backtrace (all threads): "
+                f"{cores_dir}/{name}{BACKTRACE_SUFFIX}"
+            )
+        else:
+            lines.append(
+                "    (no backtrace auto-captured; only the debug image ships gdb "
+                "- run with --config=core_dump)"
+            )
+        # Reopen inside the debug image (not host gdb) so the core's libraries
+        # match; mount the binary and the cores dir read-only.
+        lines.append("    Reopen in gdb inside the debug image:")
+        lines.append(
+            f"        docker run --rm -it "
+            f"-v {binary}:{in_container}:ro -v {cores_dir}:/cores:ro "
+            f"{DEBUG_IMAGE} gdb {in_container} /cores/{name}"
+        )
     return lines
 
 
 def _collect_core_dumps(target, test_output_dir: Path):
-    """Download any core dumps produced in the sandbox into the Bazel test
-    outputs; return the list of downloaded core-dump names."""
+    """Download any core dumps (and their auto-captured ``.bt.txt`` backtraces)
+    produced in the sandbox into the Bazel test outputs; return the list of
+    downloaded core-dump names (backtraces excluded)."""
     rc, out = target.execute(f"ls -1 {CORE_DUMP_DIR} 2>/dev/null")
     if rc != 0:
         return []
     names = [n for n in out.decode(errors="replace").split() if n]
-    if not names:
+    if not any(not n.endswith(BACKTRACE_SUFFIX) for n in names):
         return []
     dest_dir = Path(test_output_dir) / "cores"
     dest_dir.mkdir(parents=True, exist_ok=True)
@@ -181,9 +243,10 @@ def _collect_core_dumps(target, test_output_dir: Path):
     for name in names:
         try:
             target.download(f"{CORE_DUMP_DIR}/{name}", str(dest_dir / name))
-            downloaded.append(name)
+            if not name.endswith(BACKTRACE_SUFFIX):
+                downloaded.append(name)
         except Exception:
-            logger.warning(f"Failed to download core dump {name}", exc_info=True)
+            logger.warning(f"Failed to download {name}", exc_info=True)
     return downloaded
 
 
@@ -215,6 +278,69 @@ def _restore_core_pattern_cmd(backup: str) -> str:
     )
 
 
+# gdb exit code the container command uses to signal "gdb not installed", so the
+# plugin can log a hint instead of silently producing no backtrace.
+_GDB_MISSING_RC = 42
+
+
+def _incontainer_binary(core_name: str, remote_dir: str, src_map: dict) -> str:
+    """In-container path of the binary that produced ``core_name``.
+
+    Cores are named ``core.<comm>.<pid>.<sig>.<time>``; %e is the comm truncated
+    to _COMM_MAX chars, so match that prefix against the packaged binaries (same
+    rule as the banner). Falls back to the raw comm if the match is ambiguous."""
+    exe = core_name.split(".")[1] if core_name.count(".") >= 1 else core_name
+    matches = [base for base in src_map if base[:_COMM_MAX] == exe]
+    basename = matches[0] if len(matches) == 1 else exe
+    return f"{remote_dir}/{basename}"
+
+
+def _capture_backtraces_cmd(core_to_binary: dict) -> str | None:
+    """Shell run inside the container: symbolize each core next to itself as
+    ``<core>.bt.txt``. Run here (not on the host) because the container holds the
+    binary and the matching libraries, so the unwind is correct. Exits
+    ``_GDB_MISSING_RC`` if gdb is absent (only the debug image ships it)."""
+    if not core_to_binary:
+        return None
+    parts = [f"command -v gdb >/dev/null 2>&1 || exit {_GDB_MISSING_RC}"]
+    for core, binary in core_to_binary.items():
+        core_path = shlex.quote(f"{CORE_DUMP_DIR}/{core}")
+        bt_path = shlex.quote(f"{CORE_DUMP_DIR}/{core}{BACKTRACE_SUFFIX}")
+        parts.append(
+            f"gdb -batch -nx -q -ex 'set pagination off' "
+            f"-ex bt -ex 'thread apply all bt' "
+            f"{shlex.quote(binary)} {core_path} > {bt_path} 2>&1 || true"
+        )
+    return " ; ".join(parts)
+
+
+def _capture_backtraces(target, test_output_dir: Path, remote_dir):
+    """Generate a symbolized backtrace next to each core before it is collected."""
+    if not remote_dir:
+        return
+    rc, out = target.execute(f"ls -1 {CORE_DUMP_DIR} 2>/dev/null")
+    if rc != 0:
+        return
+    cores = [
+        n
+        for n in out.decode(errors="replace").split()
+        if n and not n.endswith(BACKTRACE_SUFFIX)
+    ]
+    if not cores:
+        return
+    cores_dir = f"{_persistent_outputs_dir(str(test_output_dir))}/cores"
+    src_map = _load_binary_src_map(cores_dir)
+    cmd = _capture_backtraces_cmd(
+        {c: _incontainer_binary(c, remote_dir, src_map) for c in cores}
+    )
+    rc, _ = target.execute(cmd)
+    if rc == _GDB_MISSING_RC:
+        logger.warning(
+            "gdb not found in the test container; no backtrace captured. "
+            "Run with --config=core_dump to select the gdb-equipped debug image."
+        )
+
+
 @pytest.fixture(autouse=True)
 def _capture_core_dumps(request, target, test_output_dir):
     """Route core dumps to a sandbox-local directory for the duration of the
@@ -243,11 +369,18 @@ def _capture_core_dumps(request, target, test_output_dir):
         yield
     finally:
         try:
+            remote_dir = os.environ.get("SCORE_TEST_REMOTE_DIRECTORY")
+            _capture_backtraces(target, test_output_dir, remote_dir)
             downloaded = _collect_core_dumps(target, test_output_dir)
             if downloaded:
                 cores_dir = f"{_persistent_outputs_dir(str(test_output_dir))}/cores"
+                # Read the just-downloaded backtraces from the sandbox path; Bazel
+                # only copies them to cores_dir after the test process exits.
+                read_dir = str(Path(test_output_dir) / "cores")
                 banners = getattr(request.config, "_score_core_dump_banners", [])
-                banners.append(_core_dump_report_lines(downloaded, cores_dir))
+                banners.append(
+                    _core_dump_report_lines(downloaded, cores_dir, read_dir)
+                )
                 request.config._score_core_dump_banners = banners
         finally:
             if enabled and backup is not None:
