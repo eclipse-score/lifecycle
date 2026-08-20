@@ -15,6 +15,8 @@
 #include <unistd.h>
 #include <limits.h>
 
+#include <score/stop_token.hpp>
+
 #include <chrono>
 #include <cstdio>
 #include <fstream>
@@ -24,6 +26,7 @@
 
 #include "score/mw/launch_manager/osal/wait_for_file.hpp"
 
+using score::mw::lifecycle::internal::osal::FileWaitCondition;
 using score::mw::lifecycle::internal::osal::OsalReturnType;
 using score::mw::lifecycle::internal::osal::wait_for_file;
 
@@ -31,6 +34,12 @@ namespace
 {
 
 constexpr std::chrono::milliseconds kPollInterval{1U};
+
+/// Long enough that the tests below never hit it unintentionally; the timeout itself is covered by dedicated tests.
+constexpr std::chrono::milliseconds kWaitTimeout{60000U};
+
+constexpr auto kExists = FileWaitCondition::kExists;
+constexpr auto kNotExisting = FileWaitCondition::kNotExisting;
 
 class WaitForFileTest : public ::testing::Test
 {
@@ -55,7 +64,13 @@ class WaitForFileTest : public ::testing::Test
         ASSERT_TRUE(file.is_open());
     }
 
+    void removeFile() const
+    {
+        ASSERT_EQ(std::remove(path_.c_str()), 0);
+    }
+
     std::string path_{};
+    score::cpp::stop_source stop_source_{};
 };
 
 TEST_F(WaitForFileTest, ExistingFileIsReportedImmediately)
@@ -65,28 +80,47 @@ TEST_F(WaitForFileTest, ExistingFileIsReportedImmediately)
     createFile();
 
     const auto start = std::chrono::steady_clock::now();
-    EXPECT_EQ(wait_for_file(std::chrono::milliseconds{5000U}, path_, kPollInterval), OsalReturnType::kSuccess);
+    EXPECT_EQ(
+        wait_for_file(stop_source_.get_token(), path_, kExists, kWaitTimeout, kPollInterval), OsalReturnType::kSuccess);
     EXPECT_LT(std::chrono::steady_clock::now() - start, std::chrono::milliseconds{1000U});
 }
 
-TEST_F(WaitForFileTest, ZeroTimeoutStillChecksOnce)
+TEST_F(WaitForFileTest, AlreadyRequestedStopStillChecksOnce)
 {
-    RecordProperty("Description", "Verify that a timeout of zero performs a single existence check.");
+    RecordProperty("Description", "Verify that an already stopped token performs a single existence check.");
 
     createFile();
+    static_cast<void>(stop_source_.request_stop());
 
-    EXPECT_EQ(wait_for_file(std::chrono::milliseconds{0U}, path_, kPollInterval), OsalReturnType::kSuccess);
+    EXPECT_EQ(
+        wait_for_file(stop_source_.get_token(), path_, kExists, kWaitTimeout, kPollInterval), OsalReturnType::kSuccess);
 }
 
-TEST_F(WaitForFileTest, MissingFileTimesOut)
+TEST_F(WaitForFileTest, MissingFileReturnsTimeoutOnStopRequest)
 {
     RecordProperty(
-        "Description", "Verify that waiting for a file which never appears returns kTimeout after the given duration.");
+        "Description",
+        "Verify that waiting for a file which never appears returns kTimeout once a stop is "
+        "requested.");
 
-    const auto timeout = std::chrono::milliseconds{50U};
-    const auto start = std::chrono::steady_clock::now();
-    EXPECT_EQ(wait_for_file(timeout, path_, kPollInterval), OsalReturnType::kTimeout);
-    EXPECT_GE(std::chrono::steady_clock::now() - start, timeout);
+    static_cast<void>(stop_source_.request_stop());
+
+    EXPECT_EQ(
+        wait_for_file(stop_source_.get_token(), path_, kExists, kWaitTimeout, kPollInterval), OsalReturnType::kTimeout);
+}
+
+TEST_F(WaitForFileTest, StopRequestedWhileWaitingEndsTheWait)
+{
+    RecordProperty("Description", "Verify that a stop requested by another thread during the wait ends it.");
+
+    std::thread stopper{[this]() {
+        std::this_thread::sleep_for(std::chrono::milliseconds{20U});
+        static_cast<void>(stop_source_.request_stop());
+    }};
+
+    EXPECT_EQ(
+        wait_for_file(stop_source_.get_token(), path_, kExists, kWaitTimeout, kPollInterval), OsalReturnType::kTimeout);
+    stopper.join();
 }
 
 TEST_F(WaitForFileTest, MissingParentDirectoryTimesOut)
@@ -94,7 +128,10 @@ TEST_F(WaitForFileTest, MissingParentDirectoryTimesOut)
     RecordProperty("Description", "Verify that a path below a non existing directory is treated as not yet created.");
 
     const std::string path = path_ + "/no_such_directory/file";
-    EXPECT_EQ(wait_for_file(std::chrono::milliseconds{10U}, path, kPollInterval), OsalReturnType::kTimeout);
+    static_cast<void>(stop_source_.request_stop());
+
+    EXPECT_EQ(
+        wait_for_file(stop_source_.get_token(), path, kExists, kWaitTimeout, kPollInterval), OsalReturnType::kTimeout);
 }
 
 TEST_F(WaitForFileTest, FileCreatedWhileWaitingIsDetected)
@@ -106,7 +143,8 @@ TEST_F(WaitForFileTest, FileCreatedWhileWaitingIsDetected)
         createFile();
     }};
 
-    EXPECT_EQ(wait_for_file(std::chrono::milliseconds{5000U}, path_, kPollInterval), OsalReturnType::kSuccess);
+    EXPECT_EQ(
+        wait_for_file(stop_source_.get_token(), path_, kExists, kWaitTimeout, kPollInterval), OsalReturnType::kSuccess);
     creator.join();
 }
 
@@ -115,7 +153,132 @@ TEST_F(WaitForFileTest, DirectoryCountsAsExisting)
     RecordProperty("Description", "Verify that the check is not restricted to regular files.");
 
     EXPECT_EQ(
-        wait_for_file(std::chrono::milliseconds{0U}, ::testing::TempDir(), kPollInterval), OsalReturnType::kSuccess);
+        wait_for_file(stop_source_.get_token(), ::testing::TempDir(), kExists, kWaitTimeout, kPollInterval),
+        OsalReturnType::kSuccess);
+}
+
+TEST_F(WaitForFileTest, AbsentFileIsReportedImmediatelyForNotExisting)
+{
+    RecordProperty("Description", "Verify that a file which is already absent satisfies kNotExisting without waiting.");
+
+    const auto start = std::chrono::steady_clock::now();
+    EXPECT_EQ(
+        wait_for_file(stop_source_.get_token(), path_, kNotExisting, kWaitTimeout, kPollInterval),
+        OsalReturnType::kSuccess);
+    EXPECT_LT(std::chrono::steady_clock::now() - start, std::chrono::milliseconds{1000U});
+}
+
+TEST_F(WaitForFileTest, FileRemovedWhileWaitingIsDetected)
+{
+    RecordProperty(
+        "Description", "Verify that a file removed by another thread during the wait satisfies kNotExisting.");
+
+    createFile();
+
+    std::thread remover{[this]() {
+        std::this_thread::sleep_for(std::chrono::milliseconds{20U});
+        removeFile();
+    }};
+
+    EXPECT_EQ(
+        wait_for_file(stop_source_.get_token(), path_, kNotExisting, kWaitTimeout, kPollInterval),
+        OsalReturnType::kSuccess);
+    remover.join();
+}
+
+TEST_F(WaitForFileTest, ExistingFileTimesOutForNotExisting)
+{
+    RecordProperty("Description", "Verify that a file which never disappears returns kTimeout for kNotExisting.");
+
+    createFile();
+    constexpr std::chrono::milliseconds timeout{50U};
+
+    const auto start = std::chrono::steady_clock::now();
+    EXPECT_EQ(
+        wait_for_file(stop_source_.get_token(), path_, kNotExisting, timeout, kPollInterval), OsalReturnType::kTimeout);
+    EXPECT_GE(std::chrono::steady_clock::now() - start, timeout);
+}
+
+TEST_F(WaitForFileTest, MissingParentDirectoryCountsAsNotExisting)
+{
+    RecordProperty("Description", "Verify that a path below a non existing directory satisfies kNotExisting.");
+
+    const std::string path = path_ + "/no_such_directory/file";
+
+    EXPECT_EQ(
+        wait_for_file(stop_source_.get_token(), path, kNotExisting, kWaitTimeout, kPollInterval),
+        OsalReturnType::kSuccess);
+}
+
+TEST_F(WaitForFileTest, StopRequestedWhileWaitingForRemovalEndsTheWait)
+{
+    RecordProperty("Description", "Verify that a stop request also ends a wait for a file to disappear.");
+
+    createFile();
+
+    std::thread stopper{[this]() {
+        std::this_thread::sleep_for(std::chrono::milliseconds{20U});
+        static_cast<void>(stop_source_.request_stop());
+    }};
+
+    EXPECT_EQ(
+        wait_for_file(stop_source_.get_token(), path_, kNotExisting, kWaitTimeout, kPollInterval),
+        OsalReturnType::kTimeout);
+    stopper.join();
+}
+
+TEST_F(WaitForFileTest, EmptyPathFailsForNotExisting)
+{
+    RecordProperty("Description", "Verify that an empty path is rejected for kNotExisting instead of being polled.");
+
+    EXPECT_EQ(
+        wait_for_file(stop_source_.get_token(), std::string_view{}, kNotExisting, kWaitTimeout, kPollInterval),
+        OsalReturnType::kFail);
+}
+
+TEST_F(WaitForFileTest, MissingFileReturnsTimeoutWhenTheTimeoutElapses)
+{
+    RecordProperty("Description", "Verify that the wait ends with kTimeout once the given timeout has elapsed.");
+
+    constexpr std::chrono::milliseconds timeout{50U};
+
+    const auto start = std::chrono::steady_clock::now();
+    EXPECT_EQ(
+        wait_for_file(stop_source_.get_token(), path_, kExists, timeout, kPollInterval), OsalReturnType::kTimeout);
+    EXPECT_GE(std::chrono::steady_clock::now() - start, timeout);
+}
+
+TEST_F(WaitForFileTest, ZeroTimeoutStillChecksOnce)
+{
+    RecordProperty("Description", "Verify that an existing file is detected even with a zero timeout.");
+
+    createFile();
+
+    EXPECT_EQ(
+        wait_for_file(stop_source_.get_token(), path_, kExists, std::chrono::milliseconds{0U}, kPollInterval),
+        OsalReturnType::kSuccess);
+}
+
+TEST_F(WaitForFileTest, ZeroTimeoutOnMissingFileReturnsTimeout)
+{
+    RecordProperty("Description", "Verify that a zero timeout does not wait for a file which does not exist yet.");
+
+    EXPECT_EQ(
+        wait_for_file(stop_source_.get_token(), path_, kExists, std::chrono::milliseconds{0U}, kPollInterval),
+        OsalReturnType::kTimeout);
+}
+
+TEST_F(WaitForFileTest, PollIntervalDoesNotExtendTheTimeout)
+{
+    RecordProperty("Description", "Verify that a poll interval longer than the timeout does not delay the kTimeout.");
+
+    constexpr std::chrono::milliseconds timeout{20U};
+    constexpr std::chrono::milliseconds poll_interval{5000U};
+
+    const auto start = std::chrono::steady_clock::now();
+    EXPECT_EQ(
+        wait_for_file(stop_source_.get_token(), path_, kExists, timeout, poll_interval), OsalReturnType::kTimeout);
+    EXPECT_LT(std::chrono::steady_clock::now() - start, poll_interval);
 }
 
 TEST_F(WaitForFileTest, EmptyPathFails)
@@ -123,7 +286,21 @@ TEST_F(WaitForFileTest, EmptyPathFails)
     RecordProperty("Description", "Verify that an empty path is rejected instead of being polled.");
 
     EXPECT_EQ(
-        wait_for_file(std::chrono::milliseconds{5000U}, std::string_view{}, kPollInterval), OsalReturnType::kFail);
+        wait_for_file(stop_source_.get_token(), std::string_view{}, kExists, kWaitTimeout, kPollInterval),
+        OsalReturnType::kFail);
+}
+
+TEST_F(WaitForFileTest, NonNullTerminatedPathFails)
+{
+    RecordProperty("Description", "Verify that a path which is not null terminated is rejected instead of polled.");
+
+    createFile();
+    const std::string path = path_ + "x";
+    const std::string_view not_terminated{path.data(), path.size() - 1U};
+
+    EXPECT_EQ(
+        wait_for_file(stop_source_.get_token(), not_terminated, kExists, kWaitTimeout, kPollInterval),
+        OsalReturnType::kFail);
 }
 
 TEST_F(WaitForFileTest, TooLongPathFails)
@@ -131,7 +308,8 @@ TEST_F(WaitForFileTest, TooLongPathFails)
     RecordProperty("Description", "Verify that a path which does not fit into PATH_MAX is rejected.");
 
     const std::string path(PATH_MAX + 1U, 'a');
-    EXPECT_EQ(wait_for_file(std::chrono::milliseconds{5000U}, path, kPollInterval), OsalReturnType::kFail);
+    EXPECT_EQ(
+        wait_for_file(stop_source_.get_token(), path, kExists, kWaitTimeout, kPollInterval), OsalReturnType::kFail);
 }
 
 }  // namespace

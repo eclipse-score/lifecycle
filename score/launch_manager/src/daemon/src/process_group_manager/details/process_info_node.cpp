@@ -16,6 +16,7 @@
 #include "score/mw/launch_manager/common/alive_interface_path.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
+#include "score/mw/launch_manager/osal/wait_for_file.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 #include <score/assert.hpp>
 #include <unistd.h>
@@ -287,28 +288,47 @@ void ProcessInfoNode::setupControlClientChannel()
 score::cpp::expected_blank<IComponent::ComponentError> ProcessInfoNode::handleProcessStillStarting(
     const score::cpp::stop_token& stop_token)
 {
-    static_cast<void>(stop_token);  // Not yet supported
     const bool is_native =
         configuration::ApplicationType::Native == config_.component_properties.application_profile.application_type;
     bool ready_condition_met = false;
 
     std::visit(
-        [this, &ready_condition_met](auto&& arg) {
+        [this, &ready_condition_met, is_native](auto&& arg) {
             using T = std::decay_t<decltype(arg)>;
 
             if constexpr (std::is_same_v<T, configuration::ProcessState>)
             {
+                if (is_native)
+                {
+                    // A native process does not report kRunning, so its status is the only readiness indication.
+                    ready_condition_met = (0 == status_);
+                    return;
+                }
+
                 auto wait_res = process_handling_.process_interface_->waitForkRunning(
                     sync_, std::chrono::milliseconds(config_.deployment_config.ready_timeout_ms));
                 ready_condition_met = wait_res == osal::OsalReturnType::kSuccess && 0 == status_;
             }
             else if constexpr (std::is_same_v<T, configuration::FileState>)
             {
+                if (configuration::FileExistenceState::Exists != arg.state)
+                {
+                    LM_LOG_WARN() << "Ready condition of process" << process_index_ << "(" << config_.name
+                                  << ") waits for" << arg.file_path << "to disappear, which is not supported";
+                    return;
+                }
+
+                const auto wait_res = osal::wait_for_file(
+                    arg.file_path,
+                    arg.state,
+                    std::chrono::milliseconds(config_.deployment_config.ready_timeout_ms),
+                    arg.polling_interval);
+                ready_condition_met = (osal::OsalReturnType::kSuccess == wait_res) && (0 == status_);
             }
         },
-        config_.component_properties.ready_condition.value());
+        config_.component_properties.ready_condition);
 
-    if (is_native || ready_condition_met)
+    if (ready_condition_met)
     {
         handleProcessRunning();
         return {};

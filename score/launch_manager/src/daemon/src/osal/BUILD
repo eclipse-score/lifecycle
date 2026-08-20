@@ -44,7 +44,11 @@ cc_library(
     include_prefix = "score/mw/launch_manager/osal",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/osal",
     visibility = ["//score:__subpackages__"],
-    deps = [":return_types"],
+    deps = [
+        ":return_types",
+        "//score/launch_manager/src/daemon/src/configuration:component_config",
+        "@score_baselibs//score/language/futurecpp",
+    ],
 )
 
 lm_cc_test(
@@ -53,6 +57,7 @@ lm_cc_test(
     deps = [
         ":wait_for_file",
         "@googletest//:gtest_main",
+        "@score_baselibs//score/language/futurecpp",
     ],
 )
 
