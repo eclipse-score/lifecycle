@@ -22,6 +22,14 @@ cc_binary(
 )
 
 cc_binary(
+    name = "file_deleting_process",
+    srcs = ["file_deleting_process.cpp"],
+    deps = [
+        "//tests/utils/test_helper",
+    ],
+)
+
+cc_binary(
     name = "ready_file_verification_process",
     srcs = ["ready_file_verification_process.cpp"],
     deps = [
@@ -35,8 +43,12 @@ integration_test(
     srcs = ["ready_condition_file.py"],
     binaries = [
         ":file_creating_process",
+        ":file_deleting_process",
         ":ready_file_verification_process",
         "//score/launch_manager",
     ],
-    config = ":ready_condition_file.json",
+    config = [
+        ":ready_condition_file.json",
+        ":ready_condition_file_not_existing.json",
+    ],
 )

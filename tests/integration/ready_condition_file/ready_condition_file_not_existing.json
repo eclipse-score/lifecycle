@@ -36,23 +36,23 @@
         }
     },
     "components": {
-        "file_creating_component": {
+        "file_deleting_component": {
             "component_properties": {
-                "binary_name": "file_creating_process",
+                "binary_name": "file_deleting_process",
                 "process_arguments": [
-                    "/tmp/tests/ready_condition_file/ready_file"
+                    "/tmp/tests/ready_condition_file/vanishing_file"
                 ],
                 "ready_condition": {
                     "file_state": {
-                        "file_path": "/tmp/tests/ready_condition_file/ready_file",
-                        "state": "Exists",
+                        "file_path": "/tmp/tests/ready_condition_file/vanishing_file",
+                        "state": "NotExisting",
                         "polling_interval": 0.01
                     }
                 }
             },
             "deployment_config": {
                 "environmental_variables": {
-                    "PROCESSIDENTIFIER": "file_creating_component"
+                    "PROCESSIDENTIFIER": "file_deleting_component"
                 }
             }
         },
@@ -60,11 +60,11 @@
             "component_properties": {
                 "binary_name": "ready_file_verification_process",
                 "process_arguments": [
-                    "/tmp/tests/ready_condition_file/ready_file",
-                    "Exists"
+                    "/tmp/tests/ready_condition_file/vanishing_file",
+                    "NotExisting"
                 ],
                 "depends_on": [
-                    "file_creating_component"
+                    "file_deleting_component"
                 ],
                 "application_profile": {
                     "application_type": "Native",
@@ -84,7 +84,7 @@
     "run_targets": {
         "Startup": {
             "depends_on": [
-                "file_creating_component",
+                "file_deleting_component",
                 "verification_component"
             ],
             "recovery_action": {

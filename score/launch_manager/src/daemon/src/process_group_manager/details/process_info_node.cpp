@@ -311,13 +311,6 @@ score::cpp::expected_blank<IComponent::ComponentError> ProcessInfoNode::handlePr
             }
             else if constexpr (std::is_same_v<T, configuration::FileState>)
             {
-                if (configuration::FileExistenceState::Exists != arg.state)
-                {
-                    LM_LOG_WARN() << "Ready condition of process" << process_index_ << "(" << config_.name
-                                  << ") waits for" << arg.file_path << "to disappear, which is not supported";
-                    return;
-                }
-
                 const auto wait_res = osal::wait_for_file(
                     arg.file_path,
                     arg.state,

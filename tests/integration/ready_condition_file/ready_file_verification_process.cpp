@@ -14,37 +14,65 @@
 
 #include <filesystem>
 #include <string>
+#include <string_view>
 
 #include "tests/utils/test_helper/test_helper.hpp"
 
 // Given a correct configuration with:
 //   - An initial Run Target named "Startup"
-//   - Startup contains the Components "file_creating_component" and "verification_component"
-//   - file_creating_component has a file_state ready condition on a file it only creates after a delay
-//   - verification_component depends on file_creating_component
+//   - Startup contains a component with a file_state ready condition on a file whose state it only
+//     changes after a delay, and the Component "verification_component"
+//   - verification_component depends on the component owning the file
 
 // When launch manager is started
 
 std::string g_ready_file;
+bool g_expect_existing = true;
 
-TEST(ReadyConditionFile, ReadyFileExistsBeforeDependentStarts)
+TEST(ReadyConditionFile, ReadyConditionIsMetBeforeDependentStarts)
 {
-    // Then, this process is only started once the ready condition of file_creating_component is met:
-    TEST_STEP("Check that the ready condition file exists")
+    // Then, this process is only started once the ready condition of the component it depends on is met:
+    TEST_STEP("Check the state of the ready condition file")
     {
-        EXPECT_TRUE(std::filesystem::exists(g_ready_file))
-            << "'" << g_ready_file << "' does not exist, the dependent component was started too early";
+        if (g_expect_existing)
+        {
+            EXPECT_TRUE(std::filesystem::exists(g_ready_file))
+                << "'" << g_ready_file << "' does not exist, the dependent component was started too early";
+        }
+        else
+        {
+            EXPECT_FALSE(std::filesystem::exists(g_ready_file))
+                << "'" << g_ready_file << "' still exists, the dependent component was started too early";
+        }
     }
 }
 
 int main(int argc, char** argv)
 {
-    if (argc != 2)
+    if (argc != 3)
     {
-        std::cerr << "Expected the path of the ready condition file as the only argument" << std::endl;
+        std::cerr << "Expected the path of the ready condition file and its expected state "
+                     "('Exists' or 'NotExisting') as arguments"
+                  << std::endl;
         return EXIT_FAILURE;
     }
     g_ready_file = argv[1];
+
+    const std::string_view expected_state{argv[2]};
+    if (expected_state == "Exists")
+    {
+        g_expect_existing = true;
+    }
+    else if (expected_state == "NotExisting")
+    {
+        g_expect_existing = false;
+    }
+    else
+    {
+        std::cerr << "Unknown expected state '" << expected_state << "', expected 'Exists' or 'NotExisting'"
+                  << std::endl;
+        return EXIT_FAILURE;
+    }
 
     TestRunner runner{__FILE__, TerminationBehavior::kContinue, TerminationNotification::kTestEnd};
     return runner.RunTests();
