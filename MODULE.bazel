@@ -155,6 +155,10 @@ use_repo(
 #
 ###############################################################################
 
+# Import QNX aarch64 toolchain package (missing from central S-CORE use_repo block)
+qcc_repo_specific = use_extension("@score_bazel_cpp_toolchains//extensions:gcc.bzl", "gcc", dev_dependency = True)
+use_repo(qcc_repo_specific, "score_qcc_aarch64_toolchain_pkg")
+
 # aarch64 Linux GCC toolchain (not in central S-CORE config)
 gcc_aarch64 = use_extension("@score_bazel_cpp_toolchains//extensions:gcc.bzl", "gcc")
 gcc_aarch64.toolchain(
