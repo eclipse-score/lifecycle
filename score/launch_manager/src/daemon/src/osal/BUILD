@@ -56,8 +56,8 @@ lm_cc_test(
     srcs = ["details/posix/wait_for_file_UT.cpp"],
     deps = [
         ":wait_for_file",
+        "//score/launch_manager/src/daemon/src/configuration:component_config",
         "@googletest//:gtest_main",
-        "@score_baselibs//score/language/futurecpp",
     ],
 )
 
