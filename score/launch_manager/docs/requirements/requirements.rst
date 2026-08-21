@@ -295,8 +295,8 @@ Launching Processes
 Conditional Launching
 =====================
 
-.. comp_req:: Conditionally launch of processes
-    :id: comp_req__launch_man__cond_process_start
+.. comp_req:: Configurable ready state
+    :id: comp_req__launch_man__config_ready_cond
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -305,11 +305,28 @@ Conditional Launching
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall provide support to conditionally start a process
-    or process group based on the return value of a single or multiple :term:`Processes <Process>`
-    executed before.
+    The :term`Launch Manager` shall support configuration of conditions that
+    shall be met before the component is considered to have reached its
+    **ready state**.
 
-.. comp_req:: Condition timeout
+.. comp_req:: Dependency ordering
+    :id: comp_req__launch_man__ready_cond
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall starts a component only after all its
+    **dependencies** have successfully reached their **ready state**.
+
+.. TODO PR has defined the the bold terms in the glossary, however need to 
+   wait for a release to get these.
+   see https://github.com/eclipse-score/score/pull/3184
+
+.. comp_req:: Configurable activation timeout
     :id: comp_req__launch_man__total_wait_time_support
     :reqtype: Functional
     :security: NO
@@ -319,11 +336,11 @@ Conditional Launching
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall provide support for per condition configurable
-    total wait time for launch conditions to be satisfied.
+    The :term:`Launch Manager` shall support configuration of the maximum time
+    an activation of a run target can take.
 
-.. comp_req:: Conditional launch polling interval
-    :id: comp_req__launch_man__polling_interval
+.. comp_req:: Activation timeout
+    :id: comp_req__launch_man__total_wait_time_fail
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -332,32 +349,8 @@ Conditional Launching
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall provide support for per condition configurable
-    :term:`Polling Interval` for launch conditions to be checked.
-
-.. comp_req:: Pre-start validation
-    :id: comp_req__launch_man__validate_conditions
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall be able to validate the pre-start conditions of the executable using the conditions.
-
-.. comp_req:: post-start validation
-    :id: comp_req__launch_man__validation_conditions
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall be able to validate the start of the executable using the conditions.
+    If the activation of a run target exceeds the maximum time, then
+    the :term:`Launch Manager` shall consider this activation as failed.
 
 .. comp_req:: Launched Process status
     :id: comp_req__launch_man__launcher_status_storage
@@ -406,18 +399,6 @@ Conditional Launching
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide a method for condition check for a path.
-
-.. comp_req:: Condition check based on ENV
-    :id: comp_req__launch_man__env_variable_cond_check
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall provide a method for condition check for environment variable.
 
 .. comp_req:: Condition check based on all dependency
     :id: comp_req__launch_man__dependency_check
