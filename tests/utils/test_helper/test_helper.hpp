@@ -14,12 +14,9 @@
 #define TESTS_UTILS_TEST_HELPER_HPP
 
 #include <gtest/gtest.h>
-#include <atomic>
-#include <chrono>
 #include <filesystem>
 #include <string>
 #include <string_view>
-#include <thread>
 
 /// @return File path to an xml adjacent to the input file path
 inline std::string xmlPath(const std::string_view file)

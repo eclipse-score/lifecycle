@@ -153,17 +153,10 @@ void ProcessGroupManager::deinitialize()
     process_monitor_.reset();
     alive_monitor_thread_->stop();
     configuration_.deinitialize();
+    process_groups_.clear();
 
-    // Stop and join the worker threads BEFORE destroying the process groups.
-    // Worker threads run ProcessInfoNode::doWork(), which dereferences its Graph
-    // (nodeExecuted(), getState(), ...) via a raw back-pointer. If a transition is
-    // still completing on a worker thread (e.g. an in-progress switch to Off that
-    // is allowed to continue during shutdown), destroying the graphs first would be
-    // a use-after-free.
     thread_pool_.reset();
     worker_jobs_.reset();
-
-    process_groups_.clear();
     process_map_.reset();
 }
 
@@ -244,16 +237,14 @@ bool ProcessGroupManager::initializeProcessGroups()
             const auto* states = configuration_.getListOfProcessGroupStates(pg_name).value_or(nullptr);
             const uint32_t num_run_targets = states ? static_cast<uint32_t>(states->size()) : 0U;
 
-            process_groups_.push_back(
-
-                std::make_shared<Graph>(
-                    num_processes + num_run_targets,
-                    &configuration_,
-                    worker_jobs_,
-                    &process_interface_,
-                    process_map_,
-                    *supervision_control_notifier_.get(),
-                    this));
+            process_groups_.push_back(std::make_shared<Graph>(
+                num_processes + num_run_targets,
+                &configuration_,
+                worker_jobs_,
+                &process_interface_,
+                process_map_,
+                *supervision_control_notifier_.get(),
+                this));
         }
     }
     else
@@ -330,7 +321,6 @@ bool ProcessGroupManager::run()
     bool overflow_logged = false;
 
     if (result)
-    {
         while (!em_cancelled.load())
         {
             // Wait for something to happen...
@@ -360,8 +350,6 @@ bool ProcessGroupManager::run()
 
             watchdog_->serviceWatchdog();
         }
-        LM_LOG_INFO() << "ProcessGroupManager::run() - received SIGTERM, exiting";
-    }
 
     allProcessGroupsOff();
 
@@ -469,15 +457,8 @@ void ProcessGroupManager::allProcessGroupsOff()
     }
 
     LM_LOG_DEBUG() << "Wait for all process groups to complete the transition";
-
-    // Bound the whole transition-to-Off wait by the slowest still-running process's
-    // shutdown_timeout (plus the SIGKILL grace), so every component's configured
-    // timeout is honoured. Processes deactivate in parallel.
-    const auto off_transition_timeout = graph.getMaxTerminationTimeout() + kMaxSigKillDelay;
-    if (!waitForStateCompletion(GraphState::kInTransition, static_cast<int32_t>(off_transition_timeout.count())))
+    if (!waitForStateCompletion(GraphState::kInTransition, 1000))
     {
-        // Last resort: a process ignored even SIGKILL within its budget. Force-kill
-        // whatever is left and tear down the worker pool so shutdown can still proceed.
         LM_LOG_ERROR() << "NOTE: Transition to Off state timed out";
         thread_pool_->stop();
 
@@ -485,8 +466,6 @@ void ProcessGroupManager::allProcessGroupsOff()
         {
             pg->forceKillProcesses();
         }
-
-        thread_pool_.reset();
     }
 }
 

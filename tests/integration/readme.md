@@ -140,4 +140,3 @@ restores the original value on teardown. Two consequences:
   removed on success). The default `core_pattern` differs per system (e.g.
   `|/wsl-capture-crash ...` on WSL, `|/lib/systemd/systemd-coredump ...` on
   systemd hosts, or plain `core`).
-

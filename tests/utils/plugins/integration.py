@@ -378,9 +378,7 @@ def _capture_core_dumps(request, target, test_output_dir):
                 # only copies them to cores_dir after the test process exits.
                 read_dir = str(Path(test_output_dir) / "cores")
                 banners = getattr(request.config, "_score_core_dump_banners", [])
-                banners.append(
-                    _core_dump_report_lines(downloaded, cores_dir, read_dir)
-                )
+                banners.append(_core_dump_report_lines(downloaded, cores_dir, read_dir))
                 request.config._score_core_dump_banners = banners
         finally:
             if enabled and backup is not None:
