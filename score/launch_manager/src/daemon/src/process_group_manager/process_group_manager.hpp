@@ -138,6 +138,9 @@ class ProcessGroupManager final
     void cancel();
 
   private:
+    /// @brief Start providing the control API for clients to connect to.
+    void offerService();
+
     /// @brief Handle a single recovery request emitted by Alive supervision.
     void handleRecoveryRequest(const IdentifierHash& process_identifier);
 

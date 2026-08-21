@@ -16,10 +16,12 @@
 #include <unistd.h>
 #include <csignal>
 
+#include "score/mw/com/types.h"
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_monitor.hpp"
 #include "score/mw/launch_manager/process_group_manager/ialive_monitor_thread.hpp"
 #include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
+#include "score/mw/lifecycle/details/lm_control_service.h"
 
 namespace score::mw::lifecycle::internal
 {
@@ -244,6 +246,34 @@ void ProcessGroupManager::initializeGraphNodes()
     LM_LOG_DEBUG() << "Graphs initialized";
 }
 
+void ProcessGroupManager::offerService()
+{
+    const auto instance_specifier =
+        score::mw::com::InstanceSpecifier::Create(std::string{"LaunchManager/StateManager/Instance"});
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD(instance_specifier.has_value());
+
+    auto instance_result = LmControlSkeleton::Create(instance_specifier.value());
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD(instance_result.has_value());
+    auto instance = std::move(instance_result).value();
+
+    const auto register_result = instance.activate_run_target.RegisterHandler(
+        [this](ActivateRunTargetResponse& response, const ActivateRunTargetRequest& request) {
+            SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+                request.mode == ActivationMode::kForced, "Only ActivationMode::kForced is implemented");
+
+            IdentifierHash new_state = IdentifierHash(request.run_target_name.as_string_view());
+
+            Graph& graph = *process_groups_.front();
+            graph.setPendingState(new_state);
+
+            response = ActivateRunTargetResponse{status : RequestStatus::kRejected};
+        });
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD(register_result.has_value());
+
+    const auto offer_result = instance.OfferService();
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD(offer_result.has_value());
+}
+
 bool ProcessGroupManager::run()
 {
     // RULECHECKER_comment(1, 4, check_c_style_cast, "This is the definition provided by the OS and does a C-style
@@ -255,6 +285,8 @@ bool ProcessGroupManager::run()
 
     bool result = startInitialTransition();
     bool overflow_logged = false;
+
+    this->offerService();
 
     if (result)
         while (!em_cancelled.load())
