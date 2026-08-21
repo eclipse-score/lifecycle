@@ -1,0 +1,94 @@
+{
+    "schema_version": 1,
+    "defaults": {
+        "deployment_config": {
+            "bin_dir": "/tmp/tests/ready_condition_file_not_exists",
+            "ready_timeout": 1.0,
+            "shutdown_timeout": 1.0,
+            "ready_recovery_action": {
+                "restart": {
+                    "number_of_attempts": 0
+                }
+            },
+            "recovery_action": {
+                "switch_run_target": {
+                    "run_target": "fallback_run_target"
+                }
+            },
+            "environmental_variables": {
+                "LD_LIBRARY_PATH": "/opt/lib"
+            },
+            "sandbox": {
+                "uid": 0,
+                "gid": 0,
+                "scheduling_policy": "SCHED_OTHER",
+                "scheduling_priority": 0
+            }
+        },
+        "component_properties": {
+            "application_profile": {
+                "application_type": "Native",
+                "is_self_terminating": false
+            },
+            "ready_condition": {
+                "process_state": "Running"
+            }
+        }
+    },
+    "components": {
+        "file_deleting_component": {
+            "component_properties": {
+                "binary_name": "file_deletor",
+                "process_arguments": [
+                    "/tmp/tests/ready_condition_file_not_exists/vanishing_file", "300"
+                ],
+                "ready_condition": {
+                    "file_state": {
+                        "file_path": "/tmp/tests/ready_condition_file_not_exists/vanishing_file",
+                        "state": "NotExisting",
+                        "polling_interval": 0.01
+                    }
+                }
+            }
+        },
+        "verification_component": {
+            "component_properties": {
+                "binary_name": "ready_file_verification_process",
+                "process_arguments": [
+                    "/tmp/tests/ready_condition_file_not_exists/vanishing_file",
+                    "NotExisting"
+                ],
+                "depends_on": [
+                    "file_deleting_component"
+                ],
+                "application_profile": {
+                    "application_type": "Native",
+                    "is_self_terminating": true
+                },
+                "ready_condition": {
+                    "process_state": "Terminated"
+                }
+            }
+        }
+    },
+    "run_targets": {
+        "Startup": {
+            "depends_on": [
+                "file_deleting_component",
+                "verification_component"
+            ],
+            "recovery_action": {
+                "switch_run_target": {
+                    "run_target": "fallback_run_target"
+                }
+            }
+        }
+    },
+    "initial_run_target": "Startup",
+    "alive_supervision": {
+        "evaluation_cycle": 0.05
+    },
+    "fallback_run_target": {
+        "depends_on": []
+    }
+}

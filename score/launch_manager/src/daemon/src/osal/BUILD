@@ -11,6 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 load("@rules_cc//cc:defs.bzl", "cc_library")
+load("//tests/utils/bazel:unit_test.bzl", "lm_cc_test")
 
 cc_library(
     name = "return_types",
@@ -31,6 +32,38 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/daemon/src/osal",
     visibility = ["//score:__subpackages__"],
     deps = [":return_types"],
+)
+
+cc_library(
+    name = "wait_for_file",
+    srcs = ["details/posix/wait_for_file.cpp"],
+    hdrs = [
+        "return_types.hpp",
+        "wait_for_file.hpp",
+    ],
+    include_prefix = "score/mw/launch_manager/osal",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/osal",
+    visibility = ["//score:__subpackages__"],
+    deps = [
+        ":return_types",
+        "//score/launch_manager/src/daemon/src/configuration:component_config",
+        "@score_baselibs//score/language/futurecpp",
+        "@score_baselibs//score/os:errno",
+        "@score_baselibs//score/os:stat",
+    ],
+)
+
+lm_cc_test(
+    name = "wait_for_file_UT",
+    srcs = ["details/posix/wait_for_file_UT.cpp"],
+    deps = [
+        ":wait_for_file",
+        "//score/launch_manager/src/daemon/src/configuration:component_config",
+        "@googletest//:gtest_main",
+        "@score_baselibs//score/os:errno",
+        "@score_baselibs//score/os:stat",
+        "@score_baselibs//score/os/mocklib:stat_mock",
+    ],
 )
 
 cc_library(
@@ -127,5 +160,6 @@ cc_library(
         ":set_affinity",
         ":set_groups",
         ":sys_exit",
+        ":wait_for_file",
     ],
 )
