@@ -52,4 +52,6 @@ def test_ready_condition_file_not_existing(
         timeout_s=3.0,
     )
 
-    assert_test_results({"ready_file_verification_process.xml", "file_deletor.xml"})
+    assert_test_results(
+        {"ready_file_verification_process.xml", "reporting_process_file_deletor.xml"}
+    )

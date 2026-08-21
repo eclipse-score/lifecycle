@@ -10,16 +10,26 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <fcntl.h>
 #include <unistd.h>
 #include <limits.h>
 
+#include "score/os/errno.h"
+#include "score/os/mocklib/stat_mock.h"
+
+#include <cerrno>
+#include <cstdint>
+
 #include <chrono>
 #include <cstdio>
+#include <filesystem>
 #include <fstream>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <thread>
 
 #include "score/mw/launch_manager/osal/wait_for_file.hpp"
@@ -34,7 +44,10 @@ namespace
 constexpr std::chrono::milliseconds kPollInterval{1U};
 
 /// Long enough that the tests below never hit it unintentionally; the timeout itself is covered by dedicated tests.
-constexpr std::chrono::milliseconds kWaitTimeout{60000U};
+constexpr std::chrono::milliseconds kWaitTimeout{1000U};
+
+/// Upper bound for a call which must return on its first check instead of polling.
+constexpr std::chrono::milliseconds kImmediate{200U};
 
 /// Used where the condition can never be satisfied, so that the test does not wait for kWaitTimeout.
 constexpr std::chrono::milliseconds kNoWait{0U};
@@ -51,23 +64,26 @@ class WaitForFileTest : public ::testing::Test
         RecordProperty("DerivationTechnique", "explorative-testing");
 
         path_ = std::string{::testing::TempDir()} + "wait_for_file_UT_" + std::to_string(getpid());
-        static_cast<void>(std::remove(path_.c_str()));
+        std::filesystem::create_directory(::testing::TempDir());
+        static_cast<void>(std::filesystem::remove(path_.c_str()));
     }
 
     void TearDown() override
     {
-        static_cast<void>(std::remove(path_.c_str()));
+        std::filesystem::remove(path_.c_str());
     }
 
     void createFile() const
     {
-        std::ofstream file{path_};
-        ASSERT_TRUE(file.is_open());
+        int fd = ::open(path_.c_str(), O_RDWR | O_CREAT);
+        ASSERT_TRUE(fd > 0) << "ERRNO: " << errno << " Desc: " << std::strerror(errno) << " OPENING PATH: " << path_;
+        ::close(fd);
     }
 
     void removeFile() const
     {
-        ASSERT_EQ(std::remove(path_.c_str()), 0);
+        std::error_code ec{};
+        ASSERT_TRUE(std::filesystem::remove(path_.c_str(), ec)) << ec.message();
     }
 
     std::string path_{};
@@ -81,7 +97,7 @@ TEST_F(WaitForFileTest, ExistingFileIsReportedImmediately)
 
     const auto start = std::chrono::steady_clock::now();
     EXPECT_EQ(wait_for_file(path_, kExists, kWaitTimeout, kPollInterval), OsalReturnType::kSuccess);
-    EXPECT_LT(std::chrono::steady_clock::now() - start, std::chrono::milliseconds{1000U});
+    EXPECT_LT(std::chrono::steady_clock::now() - start, kImmediate);
 }
 
 TEST_F(WaitForFileTest, MissingParentDirectoryTimesOut)
@@ -119,7 +135,7 @@ TEST_F(WaitForFileTest, AbsentFileIsReportedImmediatelyForNotExisting)
 
     const auto start = std::chrono::steady_clock::now();
     EXPECT_EQ(wait_for_file(path_, kNotExisting, kWaitTimeout, kPollInterval), OsalReturnType::kSuccess);
-    EXPECT_LT(std::chrono::steady_clock::now() - start, std::chrono::milliseconds{1000U});
+    EXPECT_LT(std::chrono::steady_clock::now() - start, kImmediate);
 }
 
 TEST_F(WaitForFileTest, FileRemovedWhileWaitingIsDetected)
@@ -157,27 +173,6 @@ TEST_F(WaitForFileTest, MissingParentDirectoryCountsAsNotExisting)
     const std::string path = path_ + "/no_such_directory/file";
 
     EXPECT_EQ(wait_for_file(path, kNotExisting, kWaitTimeout, kPollInterval), OsalReturnType::kSuccess);
-}
-
-TEST_F(WaitForFileTest, PathBelowARegularFileCountsAsNotExisting)
-{
-    RecordProperty(
-        "Description", "Verify that ENOTDIR, raised by a regular file used as a directory, is not an error.");
-
-    createFile();
-    const std::string path = path_ + "/file";
-
-    EXPECT_EQ(wait_for_file(path, kNotExisting, kWaitTimeout, kPollInterval), OsalReturnType::kSuccess);
-}
-
-TEST_F(WaitForFileTest, PathBelowARegularFileTimesOutForExists)
-{
-    RecordProperty("Description", "Verify that ENOTDIR is treated as not yet created while waiting for kExists.");
-
-    createFile();
-    const std::string path = path_ + "/file";
-
-    EXPECT_EQ(wait_for_file(path, kExists, kNoWait, kPollInterval), OsalReturnType::kTimeout);
 }
 
 TEST_F(WaitForFileTest, EmptyPathFailsForNotExisting)
@@ -250,6 +245,69 @@ TEST_F(WaitForFileTest, TooLongPathFails)
 
     const std::string path(PATH_MAX + 1U, 'a');
     EXPECT_EQ(wait_for_file(path, kExists, kWaitTimeout, kPollInterval), OsalReturnType::kFail);
+}
+
+/// Errors which no filesystem reachable from a unit test raises reliably are injected through the score::os::Stat
+/// seam. ENOTDIR in particular cannot be provoked on QNX, where /tmp is a flat shmem namespace that resolves
+/// "<regular file>/child" to the file itself instead of failing.
+class WaitForFileMockTest : public ::testing::Test
+{
+  protected:
+    void SetUp() override
+    {
+        RecordProperty("TestType", "interface-test");
+        RecordProperty("DerivationTechnique", "explorative-testing");
+    }
+
+    static score::cpp::expected_blank<score::os::Error> failWith(const std::int32_t error_number)
+    {
+        return score::cpp::make_unexpected(score::os::Error::createFromErrno(error_number));
+    }
+
+    static constexpr auto kPath = "/some/path";
+
+    score::os::StatMock stat_mock_{};
+};
+
+TEST_F(WaitForFileMockTest, NotADirectoryCountsAsNotExisting)
+{
+    RecordProperty("Description", "Verify that ENOTDIR is treated as the path not existing.");
+
+    EXPECT_CALL(stat_mock_, stat(::testing::StrEq(kPath), ::testing::_, ::testing::_))
+        .WillOnce(::testing::Return(failWith(ENOTDIR)));
+
+    EXPECT_EQ(wait_for_file(kPath, kNotExisting, kWaitTimeout, kPollInterval, stat_mock_), OsalReturnType::kSuccess);
+}
+
+TEST_F(WaitForFileMockTest, NotADirectoryTimesOutForExists)
+{
+    RecordProperty("Description", "Verify that ENOTDIR is treated as not yet created while waiting for kExists.");
+
+    EXPECT_CALL(stat_mock_, stat(::testing::StrEq(kPath), ::testing::_, ::testing::_))
+        .WillOnce(::testing::Return(failWith(ENOTDIR)));
+
+    EXPECT_EQ(wait_for_file(kPath, kExists, kNoWait, kPollInterval, stat_mock_), OsalReturnType::kTimeout);
+}
+
+TEST_F(WaitForFileMockTest, InterruptedStatIsRetried)
+{
+    RecordProperty("Description", "Verify that EINTR neither ends the wait nor is reported as a failure.");
+
+    EXPECT_CALL(stat_mock_, stat(::testing::StrEq(kPath), ::testing::_, ::testing::_))
+        .WillOnce(::testing::Return(failWith(EINTR)))
+        .WillOnce(::testing::Return(score::cpp::expected_blank<score::os::Error>{}));
+
+    EXPECT_EQ(wait_for_file(kPath, kExists, kWaitTimeout, kPollInterval, stat_mock_), OsalReturnType::kSuccess);
+}
+
+TEST_F(WaitForFileMockTest, UnexpectedErrorFails)
+{
+    RecordProperty("Description", "Verify that an error other than ENOENT, ENOTDIR or EINTR aborts the wait.");
+
+    EXPECT_CALL(stat_mock_, stat(::testing::StrEq(kPath), ::testing::_, ::testing::_))
+        .WillOnce(::testing::Return(failWith(EACCES)));
+
+    EXPECT_EQ(wait_for_file(kPath, kExists, kWaitTimeout, kPollInterval, stat_mock_), OsalReturnType::kFail);
 }
 
 }  // namespace

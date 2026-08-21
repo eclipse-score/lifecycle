@@ -18,14 +18,6 @@
 
 #include "tests/utils/test_helper/test_helper.hpp"
 
-// Given a correct configuration with:
-//   - An initial Run Target named "Startup"
-//   - Startup contains a component with a file_state ready condition on a file whose state it only
-//     changes after a delay, and the Component "verification_component"
-//   - verification_component depends on the component owning the file
-
-// When launch manager is started
-
 std::string g_ready_file;
 bool g_expect_existing = true;
 

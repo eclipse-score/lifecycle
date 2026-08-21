@@ -49,11 +49,6 @@
                         "polling_interval": 0.01
                     }
                 }
-            },
-            "deployment_config": {
-                "environmental_variables": {
-                    "PROCESSIDENTIFIER": "file_deleting_component"
-                }
             }
         },
         "verification_component": {
@@ -72,11 +67,6 @@
                 },
                 "ready_condition": {
                     "process_state": "Terminated"
-                }
-            },
-            "deployment_config": {
-                "environmental_variables": {
-                    "PROCESSIDENTIFIER": "verification_component"
                 }
             }
         }

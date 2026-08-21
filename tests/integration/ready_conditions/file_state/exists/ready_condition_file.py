@@ -43,4 +43,6 @@ def test_ready_condition_file(target, setup_test, assert_test_results, remote_te
         timeout_s=3.0,
     )
 
-    assert_test_results({"ready_file_verification_process.xml", "file_creator.xml"})
+    assert_test_results(
+        {"ready_file_verification_process.xml", "reporting_process_file_creator.xml"}
+    )

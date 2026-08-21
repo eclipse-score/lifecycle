@@ -17,6 +17,7 @@
 #include <score/stop_token.hpp>
 
 #include "score/mw/launch_manager/configuration/component_config.hpp"
+#include "score/os/stat.h"
 #include <chrono>
 #include <cstdint>
 #include <string_view>
@@ -32,11 +33,13 @@ namespace score::mw::lifecycle::internal::osal
 /// @param condition The path state to wait for.
 /// @param timeout The maximum time to wait for the condition.
 /// @param poll_interval The time between two consecutive existence checks.
+/// @param stat_os Optional score::os::Stat instance used to query the path.
 OsalReturnType wait_for_file(
     std::string_view path,
     configuration::FileExistenceState condition,
     std::chrono::milliseconds timeout,
-    std::chrono::milliseconds poll_interval) noexcept;
+    std::chrono::milliseconds poll_interval,
+    const score::os::Stat& stat_os = score::os::Stat::instance()) noexcept;
 
 }  // namespace score::mw::lifecycle::internal::osal
 

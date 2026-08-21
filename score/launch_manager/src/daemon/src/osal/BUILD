@@ -48,6 +48,8 @@ cc_library(
         ":return_types",
         "//score/launch_manager/src/daemon/src/configuration:component_config",
         "@score_baselibs//score/language/futurecpp",
+        "@score_baselibs//score/os:errno",
+        "@score_baselibs//score/os:stat",
     ],
 )
 
@@ -58,6 +60,9 @@ lm_cc_test(
         ":wait_for_file",
         "//score/launch_manager/src/daemon/src/configuration:component_config",
         "@googletest//:gtest_main",
+        "@score_baselibs//score/os:errno",
+        "@score_baselibs//score/os:stat",
+        "@score_baselibs//score/os/mocklib:stat_mock",
     ],
 )
 

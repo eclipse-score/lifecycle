@@ -14,8 +14,12 @@
 #include "tests/utils/test_helper/test_helper.hpp"
 #include <gtest/gtest.h>
 #include <unistd.h>
+#include <cassert>
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
+#include <iostream>
+#include <string_view>
 #include <thread>
 
 enum class Operation : std::uint8_t
@@ -52,7 +56,11 @@ int main(int argc, char** argv)
                   << std::endl;
         return EXIT_FAILURE;
     }
-    const std::string_view prog_name{argv[0]};
+
+    const std::string_view full_path{argv[0]};
+    const std::size_t base_name_pos = full_path.rfind('/');
+    assert(base_name_pos != std::string_view::npos);
+    const std::string_view prog_name{std::next(full_path.begin(), base_name_pos + 1)};
 
     if (prog_name == "file_creator")
     {
@@ -61,6 +69,10 @@ int main(int argc, char** argv)
     else if (prog_name == "file_deletor")
     {
         g_operation = Operation::Delete;
+    }
+    else
+    {
+        assert(false && "Program has to be called either file_creator or file_deletor");
     }
 
     g_file_path = std::string_view{argv[1]};

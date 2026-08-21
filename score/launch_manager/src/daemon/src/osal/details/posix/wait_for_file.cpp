@@ -11,13 +11,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include <sys/stat.h>
-
 #include <algorithm>
-#include <cerrno>
 #include <chrono>
 #include <string_view>
 #include <thread>
+
+#include "score/os/errno.h"
+#include "score/os/stat.h"
 
 #include "score/mw/launch_manager/osal/wait_for_file.hpp"
 
@@ -28,7 +28,8 @@ OsalReturnType wait_for_file(
     std::string_view path,
     configuration::FileExistenceState condition,
     std::chrono::milliseconds timeout,
-    std::chrono::milliseconds poll_interval) noexcept
+    std::chrono::milliseconds poll_interval,
+    const score::os::Stat& stat_os) noexcept
 {
     // note: QNX has a wait_for API, however in the future a stop_token should
     // be used, when using the API call we wouldn't be able to check the
@@ -45,35 +46,33 @@ OsalReturnType wait_for_file(
 
     while (true)
     {
-        struct stat info{};
+        score::os::StatBuffer info{};
 
-        if (::stat(path.data(), &info) == 0)
+        const auto result = stat_os.stat(path.data(), info);
+        if (result.has_value())
         {
             if (wait_for_existence)
             {
                 return OsalReturnType::kSuccess;
             }
         }
+        // treat file or dir not existing as the same
+        else if (
+            (result.error() == score::os::Error::Code::kNoSuchFileOrDirectory) ||
+            (result.error() == score::os::Error::Code::kNotADirectory))
+        {
+            if (!wait_for_existence)
+            {
+                return OsalReturnType::kSuccess;
+            }
+        }
+        else if (result.error() == score::os::Error::Code::kOperationWasInterruptedBySignal)
+        {
+            // retry
+        }
         else
         {
-            switch (errno)
-            {
-                case (ENOENT):
-                    [[fallthrough]];  // threat file or dir not existing as the same
-                case (ENOTDIR):
-                    if (!wait_for_existence)
-                    {
-                        return OsalReturnType::kSuccess;
-                    }
-                    break;
-
-                case (EINTR):
-                    // retry
-                    break;
-
-                default:
-                    return OsalReturnType::kFail;
-            }
+            return OsalReturnType::kFail;
         }
 
         const auto now = std::chrono::steady_clock::now();
@@ -82,7 +81,7 @@ OsalReturnType wait_for_file(
             return OsalReturnType::kTimeout;
         }
 
-        // Never sleep past the deadline, so the timeout is honoured even with a coarse poll interval.
+        // never sleep past the deadline
         const auto remaining = deadline - now;
         std::this_thread::sleep_for(std::min<std::chrono::steady_clock::duration>(poll_interval, remaining));
     }
