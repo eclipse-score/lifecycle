@@ -14,22 +14,6 @@ load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
 load("//tests/utils/bazel:integration.bzl", "integration_test")
 
 cc_binary(
-    name = "file_creating_process",
-    srcs = ["file_creating_process.cpp"],
-    deps = [
-        "//tests/utils/test_helper",
-    ],
-)
-
-cc_binary(
-    name = "file_deleting_process",
-    srcs = ["file_deleting_process.cpp"],
-    deps = [
-        "//tests/utils/test_helper",
-    ],
-)
-
-cc_binary(
     name = "ready_file_verification_process",
     srcs = ["ready_file_verification_process.cpp"],
     deps = [
@@ -39,16 +23,12 @@ cc_binary(
 )
 
 integration_test(
-    name = "ready_condition_file",
-    srcs = ["ready_condition_file.py"],
+    name = "ready_condition_file_not_exists",
+    srcs = ["ready_condition_file_not_existing.py"],
     binaries = [
-        ":file_creating_process",
-        ":file_deleting_process",
+        "//tests/integration/ready_conditions/file_state/common:file_deletor",
         ":ready_file_verification_process",
         "//score/launch_manager",
     ],
-    config = [
-        ":ready_condition_file.json",
-        ":ready_condition_file_not_existing.json",
-    ],
+    config = ":ready_condition_file_not_existing.json",
 )

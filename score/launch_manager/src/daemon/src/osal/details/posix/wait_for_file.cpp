@@ -30,9 +30,11 @@ OsalReturnType wait_for_file(
     std::chrono::milliseconds timeout,
     std::chrono::milliseconds poll_interval) noexcept
 {
-    // note: QNX has a wait_for API, however this
+    // note: QNX has a wait_for API, however in the future a stop_token should
+    // be used, when using the API call we wouldn't be able to check the
+    // stop_token between stat calls.
 
-    // The terminator is expected right behind the view, so it is not part of its size.
+    // required null terminator
     if (path.empty() || (path.data()[path.size()] != '\0'))
     {
         return OsalReturnType::kFail;
@@ -45,7 +47,7 @@ OsalReturnType wait_for_file(
     {
         struct stat info{};
 
-        if (stat(path.data(), &info) == 0)
+        if (::stat(path.data(), &info) == 0)
         {
             if (wait_for_existence)
             {
@@ -56,8 +58,8 @@ OsalReturnType wait_for_file(
         {
             switch (errno)
             {
-                // The path, or one of its parent directories, does not exist.
                 case (ENOENT):
+                    [[fallthrough]];  // threat file or dir not existing as the same
                 case (ENOTDIR):
                     if (!wait_for_existence)
                     {
@@ -65,8 +67,8 @@ OsalReturnType wait_for_file(
                     }
                     break;
 
-                // The query was interrupted, so it says nothing about the path. Simply retry it.
                 case (EINTR):
+                    // retry
                     break;
 
                 default:

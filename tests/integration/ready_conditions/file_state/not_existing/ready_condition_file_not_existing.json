@@ -2,7 +2,7 @@
     "schema_version": 1,
     "defaults": {
         "deployment_config": {
-            "bin_dir": "/tmp/tests/ready_condition_file",
+            "bin_dir": "/tmp/tests/ready_condition_file_not_exists",
             "ready_timeout": 1.0,
             "shutdown_timeout": 1.0,
             "ready_recovery_action": {
@@ -38,13 +38,13 @@
     "components": {
         "file_deleting_component": {
             "component_properties": {
-                "binary_name": "file_deleting_process",
+                "binary_name": "file_deletor",
                 "process_arguments": [
-                    "/tmp/tests/ready_condition_file/vanishing_file"
+                    "/tmp/tests/ready_condition_file_not_exists/vanishing_file", "300"
                 ],
                 "ready_condition": {
                     "file_state": {
-                        "file_path": "/tmp/tests/ready_condition_file/vanishing_file",
+                        "file_path": "/tmp/tests/ready_condition_file_not_exists/vanishing_file",
                         "state": "NotExisting",
                         "polling_interval": 0.01
                     }
@@ -60,7 +60,7 @@
             "component_properties": {
                 "binary_name": "ready_file_verification_process",
                 "process_arguments": [
-                    "/tmp/tests/ready_condition_file/vanishing_file",
+                    "/tmp/tests/ready_condition_file_not_exists/vanishing_file",
                     "NotExisting"
                 ],
                 "depends_on": [

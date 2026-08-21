@@ -38,9 +38,9 @@
     "components": {
         "file_creating_component": {
             "component_properties": {
-                "binary_name": "file_creating_process",
+                "binary_name": "file_creator",
                 "process_arguments": [
-                    "/tmp/tests/ready_condition_file/ready_file"
+                    "/tmp/tests/ready_condition_file/ready_file", "300"
                 ],
                 "ready_condition": {
                     "file_state": {

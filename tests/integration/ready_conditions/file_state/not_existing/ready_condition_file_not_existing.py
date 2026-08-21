@@ -21,41 +21,6 @@ from attribute_plugin import add_test_properties
     test_type="interface-test",
     derivation_technique="explorative-testing",
 )
-def test_ready_condition_file(target, setup_test, assert_test_results, remote_test_dir):
-    """
-    Objective: Verifies that a component with a file_state ready condition only
-    reaches its ready state once the configured file exists.
-
-    The initial run target contains a component that touches its ready
-    condition file after a delay.
-
-    Expected Behaviour: The launch manager polls for the file and only starts
-    the dependent component after the file has been created.
-    """
-
-    config_path = str(remote_test_dir / "etc/ready_condition_file.bin")
-    ready_file = str(remote_test_dir / "ready_file")
-
-    # A leftover file from a previous run would satisfy the ready condition immediately.
-    target.execute(f"rm -f {ready_file}")
-
-    run_until_file_deployed(
-        target=target,
-        binary_path=str(remote_test_dir / "launch_manager"),
-        file_path=remote_test_dir.parent / "test_end",
-        cwd=str(remote_test_dir),
-        args=["-c", config_path],
-        timeout_s=3.0,
-    )
-
-    assert_test_results({"ready_file_verification_process.xml"})
-
-
-@add_test_properties(
-    partially_verifies=[],
-    test_type="interface-test",
-    derivation_technique="explorative-testing",
-)
 def test_ready_condition_file_not_existing(
     target, setup_test, assert_test_results, remote_test_dir
 ):
@@ -75,7 +40,8 @@ def test_ready_condition_file_not_existing(
 
     # The file has to be there when the launch manager starts polling, otherwise the ready
     # condition is satisfied right away and the test would pass without waiting for anything.
-    target.execute(f"touch {vanishing_file}")
+    res, stdout = target.execute(f"touch {vanishing_file}")
+    assert res == 0, stdout
 
     run_until_file_deployed(
         target=target,
@@ -86,4 +52,4 @@ def test_ready_condition_file_not_existing(
         timeout_s=3.0,
     )
 
-    assert_test_results({"ready_file_verification_process.xml"})
+    assert_test_results({"ready_file_verification_process.xml", "file_deletor.xml"})
