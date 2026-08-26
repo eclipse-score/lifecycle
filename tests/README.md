@@ -30,7 +30,8 @@
 Note the arguments are written so that you can add them to the end of the bazel
 test command.
 
-| Arg                            | What It Does                                  | Example Command                                 |
-|:-------------------------------|:----------------------------------------------|:------------------------------------------------|
-|`--test_arg=--no-local-cleanup` | Integration tests don't cleanup after running |`bazel test //... --test_arg=--no-local-cleanup` |
-|`--test_arg=-s`                 | More logging from the python test framework   |`bazel test //... --test_arg=-s`                 |
+| Arg                            | What It Does                                      | Example Command                                 |
+|:-------------------------------|:--------------------------------------------------|:------------------------------------------------|
+|`--test_arg=--no-local-cleanup` | Integration tests don't cleanup after running     |`bazel test //... --test_arg=--no-local-cleanup` |
+|`--test_arg="--test_runner=XYZ"`| Integration tests run with the given test runner  |`bazel test //... --test_arg="--test_runner=time` |
+|`--test_arg=-s`                 | More logging from the python test framework       |`bazel test //... --test_arg=-s`                 |

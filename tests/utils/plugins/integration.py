@@ -33,7 +33,10 @@ def pytest_addoption(parser):
         "--test_runner",
         action="store",
         default=None,
-        help="Program to run the test with e.g. valgrind.",
+        help="""Wrapper program to run the test inside, for example a debugger.
+        The wrapper program will be called with the test binary as its first
+        argument, followed by any number of test arguments. It must execute the
+        test binary with the provided arguments and exit when complete.""",
     )
 
 
