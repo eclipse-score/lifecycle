@@ -26,11 +26,11 @@ class IAliveMonitor
 
     /// @brief Start the monitor thread
     /// @warning Not valid if @c init() failed
-    virtual void start() = 0;
+    virtual void startMonitoring() = 0;
 
     /// @brief Stop the monitor thread
     /// @warning Not valid if @c init() failed
-    virtual void stop() = 0;
+    virtual void stopMonitoring() = 0;
 
     /// @brief Returns an interface for components to register their alive supervision
     /// @warning Not valid if @c init() failed

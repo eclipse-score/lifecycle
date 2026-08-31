@@ -161,7 +161,6 @@ cc_library(
         ":icomponent",
         ":process_handling",
         ":safe_process_map",
-        "//score/launch_manager/src/daemon/src/common:alive_interface_path",
         "//score/launch_manager/src/daemon/src/configuration:component_config",
         "//score/launch_manager/src/daemon/src/control:control_client_channel",
         "//score/launch_manager/src/daemon/src/osal:ifile_waiter",

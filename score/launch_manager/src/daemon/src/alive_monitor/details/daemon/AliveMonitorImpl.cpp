@@ -61,14 +61,14 @@ bool AliveMonitorImpl::init() noexcept
     return false;
 }
 
-void AliveMonitorImpl::start() noexcept
+void AliveMonitorImpl::startMonitoring() noexcept
 {
     alive_monitor_thread_ = std::thread([this]() {
         threadFn(stop_thread_);
     });
 }
 
-void AliveMonitorImpl::stop() noexcept
+void AliveMonitorImpl::stopMonitoring() noexcept
 {
     stop_thread_.store(true);
     if (alive_monitor_thread_.joinable())
