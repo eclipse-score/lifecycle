@@ -11,12 +11,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
+#include "score/mw/launch_manager/alive_monitor/mock_alive_supervision_handle.hpp"
+#include "score/mw/launch_manager/alive_monitor/mock_supervision_factory.hpp"
 #include "score/mw/launch_manager/osal/mock_ifile_waiter.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 #include "score/mw/launch_manager/process_group_manager/mock_iprocess.hpp"
-#include "score/mw/launch_manager/supervision_control_client/mock_alive_supervision_handle.hpp"
-#include "score/mw/launch_manager/supervision_control_client/mock_supervision_factory.hpp"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <chrono>

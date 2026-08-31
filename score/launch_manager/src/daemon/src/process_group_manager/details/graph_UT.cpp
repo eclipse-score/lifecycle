@@ -20,11 +20,11 @@
 #include <utility>
 #include <vector>
 
+#include "score/mw/launch_manager/alive_monitor/mock_alive_supervision_handle.hpp"
+#include "score/mw/launch_manager/alive_monitor/mock_supervision_factory.hpp"
 #include "score/mw/launch_manager/configuration/config.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
 #include "score/mw/launch_manager/process_group_manager/mock_iprocess.hpp"
-#include "score/mw/launch_manager/supervision_control_client/mock_alive_supervision_handle.hpp"
-#include "score/mw/launch_manager/supervision_control_client/mock_supervision_factory.hpp"
 
 namespace score::mw::lifecycle::internal
 {
@@ -527,9 +527,8 @@ TEST_F(GraphHandleComponentEventTest, failedFirstDuringTransition)
 
     // Fail the first job
     const auto first_job = job_queue_->pop();
-    graph_->handleComponentEvent(
-        ActivationFailed{
-            first_job->value().component.get().getIdentifier(), IComponent::ComponentError::kErrorBeforeReady});
+    graph_->handleComponentEvent(ActivationFailed{
+        first_job->value().component.get().getIdentifier(), IComponent::ComponentError::kErrorBeforeReady});
 
     const auto second_job = job_queue_->pop();
 
@@ -546,9 +545,8 @@ TEST_F(GraphHandleComponentEventTest, failureFollowedBySuccessFails)
 
     // Fail the first job
     const auto first_job = job_queue_->pop();
-    graph_->handleComponentEvent(
-        ActivationFailed{
-            first_job->value().component.get().getIdentifier(), IComponent::ComponentError::kErrorBeforeReady});
+    graph_->handleComponentEvent(ActivationFailed{
+        first_job->value().component.get().getIdentifier(), IComponent::ComponentError::kErrorBeforeReady});
 
     const auto second_job = job_queue_->pop();
     executeJobSuccessfully(second_job->value());
