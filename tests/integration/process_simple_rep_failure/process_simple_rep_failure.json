@@ -139,6 +139,11 @@
                 }
             }
         },
+        "fallback": {
+            "depends_on": [
+                "control_client_test_driver"
+            ]
+        },
         "Off": {
             "depends_on": []
         }
