@@ -38,6 +38,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/run_target.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/transition.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
+#include "score/mw/lifecycle/details/lm_control_service.h"
 #include <score/stop_token.hpp>
 
 namespace score::mw::lifecycle::internal
@@ -168,7 +169,8 @@ class Graph final
         uint32_t max_num_nodes,
         GraphConfig& configuration,
         std::shared_ptr<WorkerQueue> job_queue,
-        ProcessHandling process_handling);
+        ProcessHandling process_handling,
+        LmControlSkeleton skeleton);
 
     /// @brief Destructor to clean up resources used by the Graph object.
     ~Graph();
@@ -358,6 +360,9 @@ class Graph final
 
     /// @brief Transition timeout for Off state
     std::chrono::milliseconds off_state_transition_timeout_{0};
+
+    // TODO: Move to interface
+    LmControlSkeleton skeleton_;
 };
 
 }  // namespace score::mw::lifecycle::internal
