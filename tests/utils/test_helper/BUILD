@@ -21,6 +21,7 @@ exports_files(
         "verification_process.cpp",
         "complex_reporting_process.cpp",
         "counting_process.cpp",
+        "waiting_process.cpp",
     ],
     visibility = ["//tests:__subpackages__"],
 )
@@ -100,5 +101,14 @@ cc_binary(
     deps = [
         ":test_helper",
         "//score/launch_manager:lifecycle_cc",
+    ],
+)
+
+cc_binary(
+    name = "waiting_process",
+    srcs = ["waiting_process.cpp"],
+    visibility = ["//tests:__subpackages__"],
+    deps = [
+        ":test_helper",
     ],
 )
