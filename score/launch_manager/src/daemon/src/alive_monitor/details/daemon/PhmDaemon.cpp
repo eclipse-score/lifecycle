@@ -41,7 +41,7 @@ void PhmDaemon::performCyclicTriggers(void)
     {
         // No valid time value, use max value for synchronization
         // All received data will be considered.
-        syncTimestamp = std::chrono::nanoseconds{UINT64_MAX};
+        syncTimestamp = std::chrono::nanoseconds::max();
     }
 
     if (supervisionStateReader_.distributeChanges(syncTimestamp))
