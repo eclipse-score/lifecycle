@@ -28,6 +28,7 @@
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/common/process_group_state_id.hpp"
 #include "score/mw/launch_manager/configuration/config.hpp"
+#include "score/mw/launch_manager/control/icontrollable_graph.hpp"
 #include "score/mw/launch_manager/osal/semaphore.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_event.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_of.hpp"
@@ -169,8 +170,7 @@ class Graph final
         uint32_t max_num_nodes,
         GraphConfig& configuration,
         std::shared_ptr<WorkerQueue> job_queue,
-        ProcessHandling process_handling,
-        LmControlSkeleton skeleton);
+        ProcessHandling process_handling);
 
     /// @brief Destructor to clean up resources used by the Graph object.
     ~Graph();
@@ -273,6 +273,9 @@ class Graph final
     /// @return The timeout in milliseconds, or zero if there is no configured timeout.
     std::chrono::milliseconds getOffStateTransitionTimeout() const;
 
+    /// @brief Register a callback to be fired when the active run target changes.
+    void watch_active_run_target(std::function<void(IdentifierHash, RunTargetActivationSource)> callback);
+
   private:
     /// @brief Reports that a node has finished executing, enqueuing successors or updating the graph state if a
     /// transition has finished.
@@ -361,8 +364,7 @@ class Graph final
     /// @brief Transition timeout for Off state
     std::chrono::milliseconds off_state_transition_timeout_{0};
 
-    // TODO: Move to interface
-    LmControlSkeleton skeleton_;
+    std::optional<std::function<void(IdentifierHash, RunTargetActivationSource)>> active_run_target_callback_;
 };
 
 }  // namespace score::mw::lifecycle::internal
