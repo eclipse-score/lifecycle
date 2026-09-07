@@ -229,25 +229,19 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    if (!help && semaphore_name.empty() && !start_from_zero)
+    if (semaphore_name.empty())
     {
-        std::fprintf(stderr, "Invalid arguments! Must provide at least one option.\n");
+        std::fprintf(stderr, "A semaphore name must be provided.\n");
         return 1;
     }
 
-    if (!semaphore_name.empty() && !start_from_zero && expected_count == 0)
+    if (expected_count == 0)
     {
-        std::fprintf(stderr, "Invalid arguments! An expected count must be provided.\n");
+        std::fprintf(stderr, "Invalid count! An expected count must be provided.\n");
         return 1;
     }
 
-    if (start_from_zero && semaphore_name.empty())
-    {
-        std::fprintf(stderr, "Invalid arguments! A semaphore name must be passed if starting from zero.\n");
-        return 1;
-    }
-
-    if (!semaphore_name.empty() && semaphore_name[0] != '/')
+    if (semaphore_name[0] != '/')
     {
         std::fprintf(stderr, "Invalid semaphore name! POSIX named semaphores must start with '/'\n");
         return 1;
