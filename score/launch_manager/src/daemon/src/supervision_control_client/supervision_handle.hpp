@@ -15,7 +15,7 @@
 
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
-#include "score/mw/launch_manager/supervision_control_client/iactivation_state_reporter.hpp"
+#include "score/mw/launch_manager/supervision_control_client/ialive_supervision_handle.hpp"
 #include "score/mw/launch_manager/supervision_control_client/supervision_event.hpp"
 #include <ctime>
 
@@ -28,7 +28,9 @@ namespace mw::lifecycle
 /// @brief A supervision handle can be used by a process to manage its own alive supervision. It should be constructed
 /// by the alive monitor and provided to a process so that the process need not have access to the supervision buffer.
 /// The process can then report its own activation and deactivation.
-class SupervisionHandle : public IActivationStateReporter
+/// @details In this IAliveSupervisionHandle implementation, activate/deactivate requests do not directly control
+/// alive supervision objects. Requests are pushed on to a buffer and processed in a loop.
+class SupervisionHandle : public IAliveSupervisionHandle
 {
   public:
     /// @brief Construct a new supervision handle.
@@ -39,14 +41,14 @@ class SupervisionHandle : public IActivationStateReporter
     {
     }
 
-    /// @brief Report that the calling process has reached the active state at @param time
-    bool reportActivation(timespec time) noexcept override
+    /// @brief Request that the calling process begins supervision at @param time
+    bool activateSupervision(timespec time) noexcept override
     {
         return queueSupervisionEvent({process_id_, SupervisionEventType::kActivation, time});
     }
 
-    /// @brief Report that the calling process has changed from the active state at @param time
-    bool reportDeactivation(timespec time) noexcept override
+    /// @brief Request that the calling process stops supervision at @param time
+    bool deactivateSupervision(timespec time) noexcept override
     {
         return queueSupervisionEvent({process_id_, SupervisionEventType::kDeactivation, time});
     }

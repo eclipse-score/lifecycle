@@ -36,7 +36,7 @@ class SupervisionControlClient_UT : public ::testing::Test
 
     const IdentifierHash process_{"Process"};
     std::shared_ptr<SupervisionBufferType> buffer_;
-    std::unique_ptr<IActivationStateReporter> handle_;
+    std::unique_ptr<IAliveSupervisionHandle> handle_;
 };
 
 TEST_F(SupervisionControlClient_UT, SupervisionControlClient_QueueOneEvent_Succeeds)
@@ -49,7 +49,7 @@ TEST_F(SupervisionControlClient_UT, SupervisionControlClient_QueueOneEvent_Succe
 
     clock_gettime(CLOCK_MONOTONIC, &event1.systemClockTimestamp);
 
-    bool queued = handle_->reportActivation(event1.systemClockTimestamp);
+    bool queued = handle_->activateSupervision(event1.systemClockTimestamp);
     ASSERT_TRUE(queued);
 
     SupervisionEvent result;
@@ -75,7 +75,7 @@ TEST_F(SupervisionControlClient_UT, SupervisionControlClient_QueueMaxNumberOfEve
 
     for (size_t i = 0; i < static_cast<size_t>(BufferConstants::BUFFER_QUEUE_SIZE); ++i)
     {
-        bool queued = handle_->reportActivation(event.systemClockTimestamp);
+        bool queued = handle_->activateSupervision(event.systemClockTimestamp);
         ASSERT_TRUE(queued) << "Failed to queue event at index " << i;
     }
 
@@ -101,10 +101,10 @@ TEST_F(SupervisionControlClient_UT, SupervisionControlClient_QueueOneEventTooMan
 
     for (size_t i = 0; i < static_cast<size_t>(BufferConstants::BUFFER_QUEUE_SIZE); ++i)
     {
-        bool queued = handle_->reportActivation(event.systemClockTimestamp);
+        bool queued = handle_->activateSupervision(event.systemClockTimestamp);
         ASSERT_TRUE(queued) << "Failed to queue event at index " << i;
     }
 
-    bool queued = handle_->reportActivation(event.systemClockTimestamp);
+    bool queued = handle_->activateSupervision(event.systemClockTimestamp);
     ASSERT_FALSE(queued) << "Expected queuing to fail due to full buffer";
 }

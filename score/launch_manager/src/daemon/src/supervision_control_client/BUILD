@@ -26,8 +26,8 @@ cc_library(
 )
 
 cc_library(
-    name = "iactivation_state_reporter",
-    hdrs = ["iactivation_state_reporter.hpp"],
+    name = "ialive_supervision_handle",
+    hdrs = ["ialive_supervision_handle.hpp"],
     include_prefix = "score/mw/launch_manager/supervision_control_client",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/supervision_control_client",
     visibility = ["//score:__subpackages__"],
@@ -40,7 +40,7 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/daemon/src/supervision_control_client",
     visibility = ["//score:__subpackages__"],
     deps = [
-        ":iactivation_state_reporter",
+        ":ialive_supervision_handle",
         ":supervision_event",
         "//score/launch_manager/src/daemon/src/common:identifier_hash",
         "//score/launch_manager/src/daemon/src/common:log",
@@ -61,14 +61,14 @@ cc_library(
 )
 
 cc_library(
-    name = "mock_activation_state_reporter",
+    name = "mock_alive_supervision_handle",
     testonly = True,
-    hdrs = ["mock_activation_state_reporter.hpp"],
+    hdrs = ["mock_alive_supervision_handle.hpp"],
     include_prefix = "score/mw/launch_manager/supervision_control_client",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/supervision_control_client",
     visibility = ["//score:__subpackages__"],
     deps = [
-        ":iactivation_state_reporter",
+        ":ialive_supervision_handle",
         "@googletest//:gtest_main",
     ],
 )

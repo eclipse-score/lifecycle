@@ -52,10 +52,10 @@ ProcessInfoNode::ProcessInfoNode(configuration::ComponentConfig&& config, Proces
         config_.deployment_config.environmental_variables.add(
             "LCM_ALIVE_INTERFACE_PATH", aliveInterfacePath(identifier_));
 
-        state_publisher_ = process_handling_.supervision_factory.constructSupervision(
+        supervision_handle_ = process_handling_.supervision_factory.constructSupervision(
             identifier_, uid, app_profile.alive_supervision.value());
 
-        if (!state_publisher_)
+        if (!supervision_handle_)
         {
             LM_LOG_ERROR() << "Failed to set up alive supervision for" << identifier_;
         }
@@ -114,7 +114,7 @@ IComponent::RequestResult ProcessInfoNode::tryReportSuccess()
 
         if (auto time = getTimeForAliveState())
         {
-            state_publisher_->reportActivation(time.value());
+            supervision_handle_->activateSupervision(time.value());
         }
 
         return {RequestState::kSuccess};
@@ -124,7 +124,7 @@ IComponent::RequestResult ProcessInfoNode::tryReportSuccess()
 
 std::optional<timespec> ProcessInfoNode::getTimeForAliveState() const
 {
-    if (isSupervised() && state_publisher_)
+    if (isSupervised() && supervision_handle_)
     {
         timespec timestamp{};
         static_cast<void>(clock_gettime(CLOCK_MONOTONIC, &timestamp));
@@ -539,7 +539,7 @@ IComponent::RequestResult ProcessInfoNode::deactivate(score::cpp::stop_token sto
     reached_ready_.store(false);
     if (auto time = getTimeForAliveState())
     {
-        state_publisher_->reportDeactivation(time.value());
+        supervision_handle_->deactivateSupervision(time.value());
     }
     terminateProcess(stop_token);
     setState(ProcessState::kIdle);

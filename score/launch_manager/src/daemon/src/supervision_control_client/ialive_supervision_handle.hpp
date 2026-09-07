@@ -10,24 +10,26 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
+#ifndef IALIVE_SUPERVISION_HANDLE_HPP_INCLUDED
+#define IALIVE_SUPERVISION_HANDLE_HPP_INCLUDED
 
-#ifndef MOCK_SUPERVISION_FACTORY_HPP_INCLUDED
-#define MOCK_SUPERVISION_FACTORY_HPP_INCLUDED
-
-#include "score/mw/launch_manager/supervision_control_client/isupervision_factory.hpp"
-#include <gmock/gmock.h>
+#include <ctime>
 
 namespace score::mw::lifecycle
 {
 
-class MockSupervisionFactory : public ISupervisionFactory
+/// @brief IAliveSupervisionHandle interface for requesting alive supervision changes.
+class IAliveSupervisionHandle
 {
   public:
-    MOCK_METHOD(
-        std::unique_ptr<IAliveSupervisionHandle>,
-        constructSupervision,
-        (const IdentifierHash id, const uid_t uid, const internal::configuration::ComponentAliveSupervision& config),
-        (override));
+    /// @brief Destructor.
+    virtual ~IAliveSupervisionHandle() noexcept = default;
+
+    /// @brief Request that the calling process begins supervision at @param time
+    virtual bool activateSupervision(timespec time) noexcept = 0;
+
+    /// @brief Request that the calling process stops supervision at @param time
+    virtual bool deactivateSupervision(timespec time) noexcept = 0;
 };
 
 }  // namespace score::mw::lifecycle
