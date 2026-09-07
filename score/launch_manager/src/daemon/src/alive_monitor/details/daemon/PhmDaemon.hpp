@@ -156,7 +156,7 @@ class PhmDaemon final : public ISupervisionFactory
             else if (sleepResult == CycleTimer::kDeadlineAlreadyOver)
             {
                 LM_LOG_DEBUG() << "Phm Daemon: Phm cycle took"
-                               << std::chrono::round<std::chrono::milliseconds>(nsOverDeadline)
+                               << std::chrono::ceil<std::chrono::milliseconds>(nsOverDeadline)
                                << "longer than the configured cycle time";
             }
             else if (sleepResult != 0)
