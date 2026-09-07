@@ -5642,23 +5642,9 @@
     "FullyVerifies": null
   },
   {
-    "name": "SupervisionControlClient_UT__SupervisionControlClient_ConstructReceiver_Succeeds",
-    "file": "score/launch_manager/src/daemon/src/supervision_control_client/supervision_control_client_ut.cpp",
-    "line": "43",
-    "result": "passed",
-    "repo_name": "local_repo",
-    "hash": "",
-    "url": "",
-    "TestType": "interface-test",
-    "DerivationTechnique": "explorative-testing ",
-    "result_text": "",
-    "PartiallyVerifies": null,
-    "FullyVerifies": null
-  },
-  {
     "name": "SupervisionControlClient_UT__SupervisionControlClient_QueueOneEvent_Succeeds",
     "file": "score/launch_manager/src/daemon/src/supervision_control_client/supervision_control_client_ut.cpp",
-    "line": "53",
+    "line": "42",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5672,7 +5658,7 @@
   {
     "name": "SupervisionControlClient_UT__SupervisionControlClient_QueueMaxNumberOfEvents_Succeeds",
     "file": "score/launch_manager/src/daemon/src/supervision_control_client/supervision_control_client_ut.cpp",
-    "line": "81",
+    "line": "66",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5686,7 +5672,7 @@
   {
     "name": "SupervisionControlClient_UT__SupervisionControlClient_QueueOneEventTooMany_Fails",
     "file": "score/launch_manager/src/daemon/src/supervision_control_client/supervision_control_client_ut.cpp",
-    "line": "111",
+    "line": "94",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5952,7 +5938,7 @@
   {
     "name": "ProcessGroupManagerWatchdogTest__GivenMinimalConfig_ExpectWatchdogMethodsCalledInSequence_WhenInitializeCalled",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_group_manager_UT.cpp",
-    "line": "172",
+    "line": "174",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5966,7 +5952,7 @@
   {
     "name": "ProcessGroupManagerWatchdogTest__GivenMinimalConfig_ExpectWatchdogServicePerCycle_WhenRunCalled",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_group_manager_UT.cpp",
-    "line": "190",
+    "line": "192",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5980,7 +5966,7 @@
   {
     "name": "ProcessGroupManagerWatchdogTest__GivenMinimalConfig_ExpectWatchdogFired_WhenRecoveryClientOverflowsDuringRunCall",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_group_manager_UT.cpp",
-    "line": "210",
+    "line": "212",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5994,7 +5980,7 @@
   {
     "name": "ProcessGroupManagerWatchdogTest__GivenMinimalConfig_ExpectWatchdogDisabled_WhenDeinitializeCalled",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_group_manager_UT.cpp",
-    "line": "244",
+    "line": "246",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6344,7 +6330,7 @@
   {
     "name": "GraphOrdinaryTransitionTest__correctJobDetails",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "220",
+    "line": "234",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6358,7 +6344,7 @@
   {
     "name": "GraphOrdinaryTransitionTest__simpleActivationTransition",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "234",
+    "line": "248",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6372,7 +6358,7 @@
   {
     "name": "GraphOrdinaryTransitionTest__simpleDeactivationTransition",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "251",
+    "line": "265",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6386,7 +6372,7 @@
   {
     "name": "GraphInitialTransitionTest__nothingToDo",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "273",
+    "line": "287",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6400,7 +6386,7 @@
   {
     "name": "GraphInitialTransitionTest__jobFailure",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "286",
+    "line": "300",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6414,7 +6400,7 @@
   {
     "name": "GraphInitialTransitionTest__cancel",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "304",
+    "line": "318",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6428,7 +6414,7 @@
   {
     "name": "GraphInitialTransitionTest__unrecognizedRunTarget",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "324",
+    "line": "338",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6442,7 +6428,7 @@
   {
     "name": "GraphOffTransitionTest__normalShutdown",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "343",
+    "line": "357",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6456,7 +6442,7 @@
   {
     "name": "GraphOffTransitionTest__shutdownDuringTransition",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "363",
+    "line": "377",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6470,7 +6456,7 @@
   {
     "name": "GraphImplicitOffTargetTest__offRunTargetIsCreatedWhenNotConfigured",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "407",
+    "line": "427",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6484,7 +6470,7 @@
   {
     "name": "GraphImplicitOffTargetTest__offTransitionTimeoutFallsBackToDefault",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "430",
+    "line": "450",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6498,7 +6484,7 @@
   {
     "name": "GraphOffStateTimeoutTest__returnsConfiguredOffTimeout",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "463",
+    "line": "489",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6512,7 +6498,7 @@
   {
     "name": "GraphHandleComponentEventTest__failedFirstDuringTransition",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "488",
+    "line": "520",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6526,7 +6512,7 @@
   {
     "name": "GraphHandleComponentEventTest__failureFollowedBySuccessFails",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "508",
+    "line": "540",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6540,7 +6526,7 @@
   {
     "name": "GraphHandleComponentEventTest__unexpectedTerminationDuringSuccess",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "529",
+    "line": "561",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6554,7 +6540,7 @@
   {
     "name": "GraphHandleComponentEventTest__unexpectedTerminationDuringTransition",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "552",
+    "line": "584",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6568,7 +6554,7 @@
   {
     "name": "GraphTransitionFailuresTest__UnusualOrderOfFailures",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "588",
+    "line": "620",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6582,7 +6568,7 @@
   {
     "name": "GraphCancelTest__notInTransition",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "615",
+    "line": "647",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6596,7 +6582,7 @@
   {
     "name": "GraphCancelTest__cancelsOngoingTransition",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "625",
+    "line": "657",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6610,7 +6596,7 @@
   {
     "name": "GraphUtilitiesTest__getProcessInfoNode",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "646",
+    "line": "678",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6624,7 +6610,7 @@
   {
     "name": "GraphUtilitiesTest__isValidRunTarget",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "662",
+    "line": "694",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6638,7 +6624,7 @@
   {
     "name": "GraphUtilitiesTest__startTransitionWithUnrecognizedTargetDoesNotCrashOrTransition",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "675",
+    "line": "707",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6652,7 +6638,7 @@
   {
     "name": "GraphUtilitiesTest__getConfigMethods",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "693",
+    "line": "725",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6666,7 +6652,7 @@
   {
     "name": "GraphUtilitiesTest__forceKillProcesses",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "701",
+    "line": "733",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6680,7 +6666,7 @@
   {
     "name": "GraphUtilitiesTest__toString",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "715",
+    "line": "747",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6694,7 +6680,7 @@
   {
     "name": "GraphUtilitiesTest__gettersSetters",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "729",
+    "line": "761",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6792,7 +6778,7 @@
   {
     "name": "ProcessInfoNodeStartupTest__CanConstructIdleProcessInfoNode",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "160",
+    "line": "196",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6806,7 +6792,7 @@
   {
     "name": "ProcessInfoNodeStartupTest__CanStartNonReportingProcess",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "174",
+    "line": "210",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6820,7 +6806,7 @@
   {
     "name": "ProcessInfoNodeStartupTest__CanStartReportingProcess_ReportsRunningInTime",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "192",
+    "line": "228",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6834,7 +6820,7 @@
   {
     "name": "ProcessInfoNodeStartupTest__OsForkFails_ReturnsErrorBeforeReady",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "209",
+    "line": "245",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6848,7 +6834,7 @@
   {
     "name": "ProcessInfoNodeStartupTest__MapInsertError_ReturnsErrorBeforeReady",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "225",
+    "line": "261",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6862,7 +6848,7 @@
   {
     "name": "ProcessInfoNodeStartupTest__SelfTerminating_ExitsBeforeMapInsert_ReturnsSuccess",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "246",
+    "line": "282",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6876,7 +6862,7 @@
   {
     "name": "ProcessInfoNodeStartupTest__ActivateAlreadyActiveNode_ReturnsSuccess",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "271",
+    "line": "307",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6890,7 +6876,7 @@
   {
     "name": "ProcessInfoNodeStartupCrashTest__ProcesssTerminated_OnWaitForkRunningTimeout",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "416",
+    "line": "452",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6904,7 +6890,7 @@
   {
     "name": "ProcessInfoNodeStartupCrashTest__ReportingProcess_CrashesBeforeReady_NoRestarts",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "436",
+    "line": "472",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6918,7 +6904,7 @@
   {
     "name": "ProcessInfoNodeStartupCrashTest__ReportingProcess_CrashesBeforeReady_WithRestartAttempts",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "461",
+    "line": "497",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6932,7 +6918,7 @@
   {
     "name": "ProcessInfoNodeStartupCrashTest__NonReportingProcess_CrashesBeforeReady_NoRestarts",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "496",
+    "line": "532",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6946,7 +6932,7 @@
   {
     "name": "ProcessInfoNodeStartupCrashTest__NonReportingProcess_CrashesBeforeReady_WithRestartAttempts",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "520",
+    "line": "556",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6960,7 +6946,7 @@
   {
     "name": "ProcessInfoNodeStartupCrashTest__TimeoutThenSuccess_WithRestarts",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "549",
+    "line": "585",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6974,7 +6960,7 @@
   {
     "name": "ProcessInfoNodeUnexpectedTerminationTest__ProcesssCrashed_AfterReadyCondition",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "580",
+    "line": "617",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6988,7 +6974,7 @@
   {
     "name": "ProcessInfoNodeUnexpectedTerminationTest__SelfTerminatingProcess_ExitsWithoutTerminationRequest",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "594",
+    "line": "631",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -7002,7 +6988,7 @@
   {
     "name": "ProcessInfoNodeUnexpectedTerminationTest__SelfTerminating_TerminatedReadyCondition_CleanExit_ReturnsSuccess",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "611",
+    "line": "648",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -7016,7 +7002,7 @@
   {
     "name": "ProcessInfoNodeUnexpectedTerminationTest__SelfTerminating_CrashAfterReady_ReturnsErrorAfterReady",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "636",
+    "line": "673",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -7030,7 +7016,7 @@
   {
     "name": "ProcessInfoNodeDeactivationTest__CanTerminateNonSelfTerminatingProcess",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "659",
+    "line": "696",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -7044,7 +7030,7 @@
   {
     "name": "ProcessInfoNodeDeactivationTest__ProcessIgnoresSigterm_ForcedWithSigkill",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "722",
+    "line": "759",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -7058,7 +7044,7 @@
   {
     "name": "ProcessInfoNodeMoveTest__MoveConstruct_IdleNode_PreservesObservableState",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "686",
+    "line": "723",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -7072,7 +7058,7 @@
   {
     "name": "ProcessInfoNodeMoveTest__MoveConstruct_RunningNode_PreservesAtomicState",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "704",
+    "line": "741",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -7086,7 +7072,7 @@
   {
     "name": "ProcessInfoNodeFileStateTest__ConditionAlreadyMet_ReturnsSuccess",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "754",
+    "line": "790",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -7100,7 +7086,7 @@
   {
     "name": "ProcessInfoNodeFileStateTest__NotExistingCondition_ReturnsSuccess",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "787",
+    "line": "822",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -7114,7 +7100,7 @@
   {
     "name": "ProcessInfoNodeFileStateTest__NativeApplication_DoesNotIgnoreRunning_ReturnsSuccess",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "808",
+    "line": "842",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -7128,7 +7114,7 @@
   {
     "name": "ProcessInfoNodeFileStateTest__WaitForFileTimesOut_ReturnsActivationTimedOut",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "824",
+    "line": "858",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -7142,7 +7128,7 @@
   {
     "name": "ProcessInfoNodeTest/ProcessInfoNodeMapYieldTest__InsertReturnsYield/0",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "309",
+    "line": "345",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -7156,7 +7142,7 @@
   {
     "name": "ProcessInfoNodeTest/ProcessInfoNodeMapYieldTest__InsertReturnsYield/1",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "309",
+    "line": "345",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -7170,7 +7156,7 @@
   {
     "name": "ProcessInfoNodeTest/ProcessInfoNodeMapYieldTest__InsertReturnsYield/2",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "309",
+    "line": "345",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -7184,7 +7170,7 @@
   {
     "name": "ProcessInfoNodeTest/ProcessInfoNodeMapYieldTest__InsertReturnsYield/3",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "309",
+    "line": "345",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -7198,7 +7184,7 @@
   {
     "name": "ProcessInfoNodeTest/ProcessInfoNodeMapYieldTest__InsertReturnsYield/4",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "309",
+    "line": "345",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -7212,7 +7198,7 @@
   {
     "name": "ProcessInfoNodeTest/ProcessInfoNodeMapYieldTest__InsertReturnsYield/5",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "309",
+    "line": "345",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -7226,7 +7212,7 @@
   {
     "name": "ProcessInfoNodeTest/ProcessInfoNodeMapYieldTest__InsertReturnsYield/6",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "309",
+    "line": "345",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -7240,7 +7226,7 @@
   {
     "name": "ProcessInfoNodeTest/ProcessInfoNodeMapYieldTest__InsertReturnsYield/7",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "309",
+    "line": "345",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
