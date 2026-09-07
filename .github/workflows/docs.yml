@@ -26,7 +26,7 @@ jobs:
     if: |
       github.event.workflow_run.conclusion == 'success' &&
       contains(fromJSON('["pull_request", "push", "release"]'), github.event.workflow_run.event)
-    uses: eclipse-score/cicd-workflows/.github/workflows/docs-publish.yml@8d80e8df150cae21d53cbc8031d0f970648f7a67 # v0.0.3
+    uses: eclipse-score/cicd-workflows/.github/workflows/docs-publish.yml@cache
     permissions:
       actions: write
       contents: write
