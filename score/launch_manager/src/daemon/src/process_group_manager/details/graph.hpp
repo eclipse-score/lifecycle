@@ -39,7 +39,6 @@
 #include "score/mw/launch_manager/process_group_manager/details/run_target.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/transition.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
-#include "score/mw/launch_manager/supervision_control_client/isupervision_event_publisher.hpp"
 #include <score/stop_token.hpp>
 
 namespace score::mw::lifecycle::internal
@@ -47,6 +46,19 @@ namespace score::mw::lifecycle::internal
 
 using WorkerQueue =
     MPMCConcurrentQueue<std::optional<ComponentTask>, static_cast<std::size_t>(ProcessLimits::kMaxProcesses)>;
+
+/// @brief Config members needed to build the graph
+struct GraphConfig
+{
+    /// @brief Components that run targets may depend on
+    std::vector<configuration::ComponentConfig> components_;
+    /// @brief Run targets that can be activated
+    std::vector<configuration::RunTargetConfig> run_targets_;
+    /// @brief Information about the run target transitioned to in the event of an error
+    configuration::FallbackRunTargetConfig fallback_run_target_;
+    /// @brief Name of the first run target to launch
+    std::string initial_run_target_;
+};
 
 /// @brief GraphState - the graph/process group state.
 /// @details Enumeration representing the state of the graph.
@@ -149,10 +161,13 @@ class Graph final
 
     /// @brief Constructor to initialize a Graph object.
     /// @param max_num_nodes Maximum number of nodes this graph can hold.
+    /// @param configuration Configuration containing run target and component information.
+    /// @param job_queue Queue to push component jobs to for multithreaded processing.
     /// @param process_handling The interfaces used to start, stop and report on the OS processes.
+    /// @param transition_result_receiver Object to notify when the initial transition is complete.
     Graph(
         uint32_t max_num_nodes,
-        configuration::Config& configuration,
+        GraphConfig& configuration,
         std::shared_ptr<WorkerQueue> job_queue,
         ProcessHandling process_handling,
         ITransitionResultPublisher* transition_result_receiver);
@@ -172,14 +187,7 @@ class Graph final
     /// @brief Move assignment operator(deleted).
     Graph& operator=(Graph&&) noexcept = delete;
 
-    /// @brief Applies a ComponentEvent — produced by ProcessMonitor from worker/OS-handler thread
-    /// callbacks and drained on the main thread — to this graph.
-    /// @details Dispatches on the event's variant:
-    ///   - ActivationSuccessful / DeactivationComplete: `nodeExecuted(node_identifier, {})`
-    ///   - ActivationFailed: `nodeExecuted(node_identifier, make_unexpected(reason))`
-    ///   - UnexpectedTermination: `abort(1, kErrorAfterReady)` — ProcessMonitor::terminated() only
-    ///     pushes this event once a process has already reached its ready condition, so it is
-    ///     always a post-ready crash.
+    /// @brief Applies a ComponentEvent to this graph.
     /// @param event The event to process.
     void handleComponentEvent(const ComponentEvent& event);
 
@@ -351,7 +359,7 @@ class Graph final
     mutable std::mutex requested_state_mutex_{};
 
     /// @brief Config pointer to set up graph nodes
-    configuration::Config& configuration_;
+    GraphConfig& configuration_;
 
     /// @brief Queue to push component tasks to
     std::shared_ptr<WorkerQueue> job_queue_;

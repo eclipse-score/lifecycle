@@ -23,7 +23,8 @@
 #include "score/mw/launch_manager/configuration/config.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
 #include "score/mw/launch_manager/process_group_manager/mock_iprocess.hpp"
-#include "score/mw/launch_manager/supervision_control_client/mock_supervision_event_publisher.hpp"
+#include "score/mw/launch_manager/supervision_control_client/mock_alive_supervision_handle.hpp"
+#include "score/mw/launch_manager/supervision_control_client/mock_supervision_factory.hpp"
 
 namespace score::mw::lifecycle::internal
 {
@@ -52,8 +53,8 @@ class GraphTest : public ::testing::Test
         RecordProperty("TestType", "interface-test");
         RecordProperty("DerivationTechnique", "equivalence-classes");
 
-        ON_CALL(mock_supervision_event_publisher_, reportActivation).WillByDefault(Return(true));
-        ON_CALL(mock_supervision_event_publisher_, reportDeactivation).WillByDefault(Return(true));
+        ON_CALL(mock_alive_supervision_handle_, activateSupervision).WillByDefault(Return(true));
+        ON_CALL(mock_alive_supervision_handle_, deactivateSupervision).WillByDefault(Return(true));
 
         SetConfig();
 
@@ -61,9 +62,9 @@ class GraphTest : public ::testing::Test
         // (fixture-specific) config is in place.
         graph_ = std::make_unique<Graph>(
             10U,
-            config_.value(),
+            graph_config_,
             job_queue_,
-            ProcessHandling{mock_supervision_event_publisher_, &process_interface_, mock_process_map},
+            ProcessHandling{&process_interface_, mock_process_map, nullptr, mock_factory_},
             &mock_transition_result_publisher_);
     }
 
@@ -72,12 +73,18 @@ class GraphTest : public ::testing::Test
         auto procs = generateProcessComponents(1);
         auto rts = generateRunTargets(1);
         rts[1].depends_on = {procs[0].name};
-        config_ = ConfigBuilder{}
-                      .setComponents(std::move(procs))
-                      .setRunTargets(std::move(rts))
-                      .setInitialRunTarget("Startup")
-                      .setFallbackRunTarget(std::move(fallback))
-                      .build();
+        auto config = ConfigBuilder{}
+                          .setComponents(std::move(procs))
+                          .setRunTargets(std::move(rts))
+                          .setInitialRunTarget("Startup")
+                          .setFallbackRunTarget(std::move(fallback))
+                          .build();
+
+        graph_config_ = GraphConfig{
+            config.takeComponents(),
+            config.takeRunTargets(),
+            config.takeFallbackRunTarget(),
+            config.takeInitialRunTarget()};
     }
 
     std::vector<ComponentConfig> generateProcessComponents(int count)
@@ -179,12 +186,13 @@ class GraphTest : public ::testing::Test
         ASSERT_EQ(graph_->getProcessGroupState(), target);
     }
 
-    std::optional<Config> config_{};
+    GraphConfig graph_config_{};
     std::shared_ptr<WorkerQueue> job_queue_ = std::make_shared<WorkerQueue>();
     StrictMock<osal::MockIProcess> process_interface_{};
     std::shared_ptr<MockProcessMap> mock_process_map = std::make_shared<MockProcessMap>();
-    NiceMock<MockSupervisionEventPublisher> mock_supervision_event_publisher_{};
+    NiceMock<MockAliveSupervisionHandle> mock_alive_supervision_handle_{};
     MockTransitionResultPublisher mock_transition_result_publisher_{};
+    MockSupervisionFactory mock_factory_{};
     std::unique_ptr<Graph> graph_{};
 
     static constexpr std::string_view pg_string{"MainPG"};
@@ -208,12 +216,18 @@ class GraphOrdinaryTransitionTest : public GraphTest
         auto rts = generateRunTargets(2);
         rts[1].depends_on = {procs[0].name};
         rts[2].depends_on = {procs[1].name};
-        config_ = ConfigBuilder{}
-                      .setComponents(std::move(procs))
-                      .setRunTargets(std::move(rts))
-                      .setInitialRunTarget("Startup")
-                      .setFallbackRunTarget(std::move(fallback))
-                      .build();
+        auto config = ConfigBuilder{}
+                          .setComponents(std::move(procs))
+                          .setRunTargets(std::move(rts))
+                          .setInitialRunTarget("Startup")
+                          .setFallbackRunTarget(std::move(fallback))
+                          .build();
+
+        graph_config_ = GraphConfig{
+            config.takeComponents(),
+            config.takeRunTargets(),
+            config.takeFallbackRunTarget(),
+            config.takeInitialRunTarget()};
     }
 };
 
@@ -395,12 +409,18 @@ class GraphImplicitOffTargetTest : public GraphTest
         rts.push_back(startup);
         rts.push_back(std::move(rt));
 
-        config_ = ConfigBuilder{}
-                      .setComponents(std::move(procs))
-                      .setRunTargets(std::move(rts))
-                      .setInitialRunTarget("Startup")
-                      .setFallbackRunTarget(std::move(fallback))
-                      .build();
+        auto config = ConfigBuilder{}
+                          .setComponents(std::move(procs))
+                          .setRunTargets(std::move(rts))
+                          .setInitialRunTarget("Startup")
+                          .setFallbackRunTarget(std::move(fallback))
+                          .build();
+
+        graph_config_ = GraphConfig{
+            config.takeComponents(),
+            config.takeRunTargets(),
+            config.takeFallbackRunTarget(),
+            config.takeInitialRunTarget()};
     }
 };
 
@@ -449,12 +469,18 @@ class GraphOffStateTimeoutTest : public GraphTest
         // The Off run target must be the last entry generateRunTargets() appends.
         ASSERT_EQ(rts.back().name, "Off");
         rts.back().transition_timeout_ms = kOffTimeoutMs;
-        config_ = ConfigBuilder{}
-                      .setComponents(std::move(procs))
-                      .setRunTargets(std::move(rts))
-                      .setInitialRunTarget("Startup")
-                      .setFallbackRunTarget(std::move(fallback))
-                      .build();
+        auto config = ConfigBuilder{}
+                          .setComponents(std::move(procs))
+                          .setRunTargets(std::move(rts))
+                          .setInitialRunTarget("Startup")
+                          .setFallbackRunTarget(std::move(fallback))
+                          .build();
+
+        graph_config_ = GraphConfig{
+            config.takeComponents(),
+            config.takeRunTargets(),
+            config.takeFallbackRunTarget(),
+            config.takeInitialRunTarget()};
     }
 
     static constexpr std::uint32_t kOffTimeoutMs = 1234;
@@ -476,12 +502,18 @@ class GraphHandleComponentEventTest : public GraphTest
         auto procs = generateProcessComponents(2);
         auto rts = generateRunTargets(1);
         rts[1].depends_on = {procs[0].name, procs[1].name};
-        config_ = ConfigBuilder{}
-                      .setComponents(std::move(procs))
-                      .setRunTargets(std::move(rts))
-                      .setInitialRunTarget("Startup")
-                      .setFallbackRunTarget(std::move(fallback))
-                      .build();
+        auto config = ConfigBuilder{}
+                          .setComponents(std::move(procs))
+                          .setRunTargets(std::move(rts))
+                          .setInitialRunTarget("Startup")
+                          .setFallbackRunTarget(std::move(fallback))
+                          .build();
+
+        graph_config_ = GraphConfig{
+            config.takeComponents(),
+            config.takeRunTargets(),
+            config.takeFallbackRunTarget(),
+            config.takeInitialRunTarget()};
     }
 };
 
@@ -543,7 +575,8 @@ TEST_F(GraphHandleComponentEventTest, unexpectedTerminationDuringSuccess)
             }),
             Return(osal::OsalReturnType::kSuccess)));
 
-    graph_->handleComponentEvent(UnexpectedTermination{component->getIdentifier()});
+    graph_->handleComponentEvent(
+        UnexpectedTermination{component->getIdentifier(), IComponent::ComponentError::kErrorAfterReady});
 
     EXPECT_EQ(graph_->getState(), GraphState::kUndefinedState);
 }
@@ -571,13 +604,40 @@ TEST_F(GraphHandleComponentEventTest, unexpectedTerminationDuringTransition)
             Return(osal::OsalReturnType::kSuccess)));
 
     // The active component then crashes
-    graph_->handleComponentEvent(UnexpectedTermination{component_index});
+    graph_->handleComponentEvent(UnexpectedTermination{component_index, IComponent::ComponentError::kErrorAfterReady});
 
     const auto second_job = job_queue_->pop();
     executeJobSuccessfully(second_job->value());
     graph_->handleComponentEvent(ActivationSuccessful{second_job->value().component.get().getIdentifier()});
 
     EXPECT_EQ(graph_->getPendingEvent(), ControlClientCode::kFailedUnexpectedTermination);
+}
+
+class GraphTransitionFailuresTest : public GraphTest
+{
+};
+
+TEST_F(GraphTransitionFailuresTest, UnusualOrderOfFailures)
+{
+    RecordProperty(
+        "Description",
+        "Test that even if an unexpected termination is recieved before a successful activation, the graph reacts "
+        "correctly");
+
+    graph_->startTransition(IdentifierHash{run_target_name(0)});
+
+    const auto first_job = job_queue_->pop();
+    const auto component_id = first_job.value()->component.get().getIdentifier();
+
+    EXPECT_CALL(process_interface_, requestTermination)
+        .WillOnce(Return(osal::OsalReturnType::kSuccess));  // Process is already gone, semaphore will time out
+    EXPECT_CALL(process_interface_, forceTermination).WillOnce(Return(osal::OsalReturnType::kFail));
+
+    graph_->handleComponentEvent(UnexpectedTermination{component_id, IComponent::ComponentError::kErrorAfterReady});
+    graph_->handleComponentEvent(ActivationSuccessful{component_id});
+
+    EXPECT_EQ(graph_->getPendingEvent(), ControlClientCode::kFailedUnexpectedTermination);
+    EXPECT_EQ(graph_->getState(), GraphState::kUndefinedState) << "Graph should be in a final state";
 }
 
 class GraphCancelTest : public GraphTest

@@ -21,7 +21,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/process_handling.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 #include "score/mw/launch_manager/process_group_manager/process_state.hpp"
-#include "score/mw/launch_manager/supervision_control_client/isupervision_event_publisher.hpp"
+#include "score/mw/launch_manager/supervision_control_client/ialive_supervision_handle.hpp"
 #include <score/stop_token.hpp>
 #include <atomic>
 #include <chrono>
@@ -40,11 +40,20 @@ namespace score::mw::lifecycle::internal
 ///       In the future, this class shall be split up to properly separate Component and Process lifecycle.
 class ProcessInfoNode final : public IComponent
 {
+    /// @brief Enum representing different outcomes of a termination.
+    enum class TeminationResult : uint8_t
+    {
+        /// @brief Since the last startup, the process has not terminated.
+        kNone,
+        /// @brief The last termination was acceptable.
+        kOk,
+        /// @brief The last termination was invalid/unexpected.
+        kError,
+    };
+
   public:
     /// @brief Constructs a ProcessInfoNode.
     /// @param config Configuration for the OS process.
-    /// @param index The process index within its process group.
-    /// @param ready_condition Whether this process is considered ready when running or when terminated.
     /// @param process_handling The interfaces used to start, stop and report on the OS process.
     ProcessInfoNode(configuration::ComponentConfig&& config, ProcessHandling process_handling);
 
@@ -60,6 +69,7 @@ class ProcessInfoNode final : public IComponent
           control_client_channel_(std::move(other.control_client_channel_)),
           sync_(std::move(other.sync_)),
           process_handling_(std::move(other.process_handling_)),
+          supervision_handle_(std::move(other.supervision_handle_)),
           identifier_(other.identifier_)
     {
     }
@@ -92,6 +102,16 @@ class ProcessInfoNode final : public IComponent
     [[nodiscard]] ControlClientChannelP getControlClientChannel() const;
 
   private:
+    /// @brief Given that an error has occurred after the process has reached state @p state_reached, return an error
+    /// indicating whether this was an error before the ready condition was satisfied, or after.
+    ComponentError getErrorAfterState(ProcessState state_reached) const;
+
+    /// @brief Returns true if the process is configured to report kRunning
+    bool isReporting() const;
+
+    /// @brief Returns true if the process is configured to report to alive monitor
+    bool isSupervised() const;
+
     /// @brief Atomically transitions to new_state if the transition is valid. For reporting
     /// processes, also notifies the platform health manager of the state change.
     /// @param new_state The desired process state.
@@ -101,8 +121,8 @@ class ProcessInfoNode final : public IComponent
     /// @brief Helper method to post on the semaphore waiting for kRunning if it exists
     void unblockSync();
 
-    /// @brief If this process is configured to report to alive monitor, return the current time
-    [[nodiscard]] std::optional<timespec> getTimeForReport() const;
+    /// @brief If this process is successfully configured to report to alive monitor, return the current time
+    [[nodiscard]] std::optional<timespec> getTimeForAliveState() const;
 
     /// @brief Get the request result corresponding to the new state reached. For example, if the ready state is
     /// terminated, the function will only return kSuccess if the new state is kTerminated.
@@ -187,11 +207,17 @@ class ProcessInfoNode final : public IComponent
     /// @brief The interfaces used to control a OS process.
     ProcessHandling process_handling_;
 
+    /// @brief Interface for managing the process's alive supervision.
+    std::unique_ptr<IAliveSupervisionHandle> supervision_handle_;
+
     /// @brief Number ot times to try run the process.
     std::uint8_t start_tries_{1U};
 
     /// @brief Unique hash to identify this node.
     IdentifierHash identifier_;
+
+    /// @brief The result of the last termination since the process started.
+    TeminationResult termination_result_{};
 };
 
 }  // namespace score::mw::lifecycle::internal

@@ -32,18 +32,37 @@ ProcessInfoNode::ProcessInfoNode(configuration::ComponentConfig&& config, Proces
       exit_code_(0),
       config_(std::move(config)),
       process_handling_(std::move(process_handling)),
-      identifier_(IdentifierHash{{config_.name}})
+      identifier_(config_.name)
 {
-
-    if (config.component_properties.application_profile.application_type ==
-        configuration::ApplicationType::ReportingAndSupervised)
-    {
-        config_.deployment_config.environmental_variables.add(
-            "LCM_ALIVE_INTERFACE_PATH", aliveInterfacePath(IdentifierHash{config_.name}));
-    }
     if (config_.deployment_config.ready_recovery_action.has_value())
     {
         start_tries_ = config_.deployment_config.ready_recovery_action->number_of_attempts + 1;
+    }
+
+    const configuration::ApplicationProfile& app_profile = config_.component_properties.application_profile;
+
+    if (app_profile.application_type == configuration::ApplicationType::ReportingAndSupervised)
+    {
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
+            app_profile.alive_supervision.has_value(), "Supervised process did not have alive supervision config");
+        const uid_t uid = config_.deployment_config.sandbox.uid;
+
+        LM_LOG_DEBUG() << "Setting up alive supervision for" << identifier_;
+
+        config_.deployment_config.environmental_variables.add(
+            "LCM_ALIVE_INTERFACE_PATH", aliveInterfacePath(identifier_));
+
+        supervision_handle_ = process_handling_.supervision_factory.constructSupervision(
+            identifier_, uid, app_profile.alive_supervision.value());
+
+        if (!supervision_handle_)
+        {
+            LM_LOG_ERROR() << "Failed to set up alive supervision for" << identifier_;
+        }
+        else
+        {
+            LM_LOG_DEBUG() << "Successfully set up alive supervision for" << identifier_;
+        }
     }
 }
 
@@ -93,9 +112,9 @@ IComponent::RequestResult ProcessInfoNode::tryReportSuccess()
     {
         reached_ready_.store(true);
 
-        if (auto time = getTimeForReport())
+        if (auto time = getTimeForAliveState())
         {
-            process_handling_.state_publisher_.reportActivation(identifier_, time.value());
+            supervision_handle_->activateSupervision(time.value());
         }
 
         return {RequestState::kSuccess};
@@ -103,17 +122,16 @@ IComponent::RequestResult ProcessInfoNode::tryReportSuccess()
     return {IComponent::RequestState::kWaiting};
 }
 
-std::optional<timespec> ProcessInfoNode::getTimeForReport() const
+std::optional<timespec> ProcessInfoNode::getTimeForAliveState() const
 {
-    if (config_.component_properties.application_profile.application_type ==
-        score::mw::lifecycle::internal::configuration::ApplicationType::Native)
+    if (isSupervised() && supervision_handle_)
     {
-        return std::nullopt;
+        timespec timestamp{};
+        static_cast<void>(clock_gettime(CLOCK_MONOTONIC, &timestamp));
+        return timestamp;
     }
 
-    timespec timestamp{};
-    static_cast<void>(clock_gettime(CLOCK_MONOTONIC, &timestamp));
-    return timestamp;
+    return std::nullopt;
 }
 
 IComponent::RequestResult ProcessInfoNode::tryReportError(ComponentError error)
@@ -165,26 +183,37 @@ IComponent::RequestResult ProcessInfoNode::tryHandleTermination(int32_t process_
     LM_LOG_DEBUG() << "Process" << identifier_ << "( pid" << pid_ << ") terminated with exit code" << process_status;
     exit_code_ = process_status;
     IComponent::RequestResult res = {IComponent::RequestState::kWaiting};
-    if (has_semaphore_.exchange(false))
-    {
-        // Termination was requested, we don't care if exit code is not 0 (a SIGKILL will set exit code to 9)
-        setState(ProcessState::kTerminated);
-        unblockSync();
-        static_cast<void>(terminator_.post());
-    }
-    else if (getState() < ProcessState::kRunning)
-    {
-        // Defer to the startup thread to handle this
-        setState(ProcessState::kTerminated);
+    ProcessState starting = ProcessState::kStarting;
 
-        unblockSync();
+    if (config_.component_properties.application_profile.is_self_terminating && process_status == 0)
+    {
+        termination_result_ = TeminationResult::kOk;
     }
     else
     {
+        termination_result_ = TeminationResult::kError;
+    }
+
+    if (has_semaphore_.exchange(false))  // Termination was requested
+    {
+        // We don't care if the termination was valid, we requested it (e.g. a SIGKILL will set exit code to 9)
         setState(ProcessState::kTerminated);
-        if (config_.component_properties.application_profile.is_self_terminating && process_status == 0)
+
+        unblockSync();
+        static_cast<void>(terminator_.post());
+    }
+    else if (process_state_.compare_exchange_strong(starting, ProcessState::kTerminated))  // Process still starting
+    {
+        // In this case, we can't return anything because any definite result given here would invalidate startup
+        // recovery actions
+        unblockSync();
+    }
+    else  // This is a termination during normal execution
+    {
+        setState(ProcessState::kTerminated);
+
+        if (termination_result_ == TeminationResult::kOk)
         {
-            // Only valid case for a process to terminate without it being requested
             res = tryReportCompletion(ProcessState::kTerminated);
         }
         else
@@ -202,6 +231,18 @@ IComponent::RequestResult ProcessInfoNode::tryHandleTermination(int32_t process_
     }
 
     return res;
+}
+
+bool ProcessInfoNode::isReporting() const
+{
+    return config_.component_properties.application_profile.application_type != configuration::ApplicationType::Native;
+}
+
+bool ProcessInfoNode::isSupervised() const
+{
+    const auto app_type = config_.component_properties.application_profile.application_type;
+    return app_type == configuration::ApplicationType::ReportingAndSupervised ||
+           app_type == configuration::ApplicationType::StateManager;
 }
 
 IComponent::RequestResult ProcessInfoNode::startProcess(score::cpp::stop_token stop_token)
@@ -231,6 +272,7 @@ IComponent::RequestResult ProcessInfoNode::startProcess(score::cpp::stop_token s
         pid_ = 0;
         exit_code_ = 0;
         error = std::nullopt;
+        termination_result_ = TeminationResult::kNone;
         static_cast<void>(setState(score::mw::lifecycle::ProcessState::kStarting));  // Cannot fail by design
 
         if (osal::OsalReturnType::kSuccess == process_handling_.process_interface_->startProcess(pid_, sync_, config_))
@@ -280,8 +322,42 @@ IComponent::RequestResult ProcessInfoNode::startProcess(score::cpp::stop_token s
         return tryReportError(error.value());
     }
 
-    setState(ProcessState::kRunning);  // Can fail if we've terminated already
-    return tryReportCompletion(ProcessState::kRunning);
+    if (setState(ProcessState::kRunning))
+    {
+        return tryReportCompletion(ProcessState::kRunning);
+    }
+
+    // We have terminated after starting up
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
+        termination_result_ != TerminationResult::kNone, "setState(kRunning) failed without a termination result");
+    // Assuming we have already waited for all ready conditions that require waiting, we have now started up and
+    // terminated. Therefore, as long as the termination was valid, we have satisfied any running or terminated
+    // condition.
+    if (termination_result_ == TeminationResult::kOk)
+    {
+        return tryReportSuccess();
+    }
+
+    // We successfully reached kRunning, but reached kTerminated in error. This affects whether the error
+    // occurred before or after reaching the ready state
+    return tryReportError(getErrorAfterState(ProcessState::kRunning));
+}
+
+IComponent::ComponentError ProcessInfoNode::getErrorAfterState(ProcessState state_reached) const
+{
+    if (const configuration::ProcessState* state_condition =
+            std::get_if<configuration::ProcessState>(&config_.component_properties.ready_condition))
+    {
+        if (*state_condition == configuration::ProcessState::Terminated && state_reached == ProcessState::kRunning)
+        {
+            return IComponent::ComponentError::kErrorBeforeReady;
+        }
+    }
+    if (state_reached < ProcessState::kRunning)
+    {
+        return IComponent::ComponentError::kErrorBeforeReady;
+    }
+    return IComponent::ComponentError::kErrorAfterReady;
 }
 
 void ProcessInfoNode::setupControlClientChannel()
@@ -293,16 +369,13 @@ void ProcessInfoNode::setupControlClientChannel()
 score::cpp::expected_blank<IComponent::ComponentError> ProcessInfoNode::handleProcessStillStarting(
     const score::cpp::stop_token& stop_token)
 {
-    const bool is_native =
-        config_.component_properties.application_profile.application_type == configuration::ApplicationType::Native;
-
     const bool startup_condition_met = std::visit(
-        [this, is_native, &stop_token](auto&& arg) -> bool {
+        [this, &stop_token](auto&& arg) -> bool {
             using T = std::decay_t<decltype(arg)>;
 
             if constexpr (std::is_same_v<T, configuration::ProcessState>)
             {
-                if (is_native)
+                if (!isReporting())
                 {
                     // A native process does not report kRunning, so its exit code is the only readiness indication.
                     return exit_code_ == 0;
@@ -316,7 +389,7 @@ score::cpp::expected_blank<IComponent::ComponentError> ProcessInfoNode::handlePr
             else if constexpr (std::is_same_v<T, configuration::FileState>)
             {
 
-                if (!is_native)
+                if (isReporting())
                 {
                     // currently we do not support multiple ready conditions so we need
                     // to ignore the krunning signal.
@@ -359,21 +432,13 @@ score::cpp::expected_blank<IComponent::ComponentError> ProcessInfoNode::handlePr
 
 score::cpp::expected_blank<IComponent::ComponentError> ProcessInfoNode::handleProcessAlreadyTerminated()
 {
-    if ((0 != exit_code_) ||
-        (configuration::ApplicationType::Native != config_.component_properties.application_profile.application_type))
+    // The process did start successfully, but didn't report properly.
+    if (isReporting())
     {
-        // Error. To get a legal terminated before kRunning the process must be self-terminating, non-reporting
-        // and to have exited with zero exit code
-        LM_LOG_WARN() << "Got process termination before kRunning for pid" << pid_ << "(" << identifier_ << ")";
-        // This will cause the graph to fail unless we have restart attempts left
-        return score::cpp::make_unexpected(ComponentError::kErrorBeforeReady);
+        return score::cpp::make_unexpected(IComponent::ComponentError::kErrorBeforeReady);
     }
-    else
-    {
-        // case of a self-terminating, non-reporting process exiting nicely before we've had a chance to put an
-        // entry in the map
-        return {};
-    }
+    // In all other cases, the process did successfully reach the running state (because pid_ was set).
+    return {};
 }
 
 score::cpp::expected<score::cpp::expected_blank<IComponent::ComponentError>, IComponent::ComponentError>
@@ -384,7 +449,10 @@ ProcessInfoNode::handleProcessStarted(const score::cpp::stop_token& stop_token)
         case score::mw::lifecycle::internal::SafeProcessMapReturnType::kOk:  // Normal case, entry was put in
                                                                              // the map, process still running
             return handleProcessStillStarting(stop_token);
-        case score::mw::lifecycle::internal::SafeProcessMapReturnType::kYield:  // Process has already exited
+        case score::mw::lifecycle::internal::SafeProcessMapReturnType::kYield:
+            // Process has already exited and tryHandleTermination has completed.
+            // tryHandleTermination is called by insertIfNotTerminated() and therefore executes in sequence in this
+            // case.
             return handleProcessAlreadyTerminated();
         default:  // Error case when pn == -1
             // really bad fatal error, should not happen, treat as a failure to set the state & kill the process
@@ -396,7 +464,7 @@ ProcessInfoNode::handleProcessStarted(const score::cpp::stop_token& stop_token)
 
 void ProcessInfoNode::handleProcessRunning()
 {
-    if (configuration::ApplicationType::Native == config_.component_properties.application_profile.application_type)
+    if (!isReporting())
     {
         LM_LOG_DEBUG() << "Considered kRunning for Non Reporting Process pid" << pid_ << "(" << identifier_ << ")";
     }
@@ -469,9 +537,9 @@ IComponent::RequestResult ProcessInfoNode::deactivate(score::cpp::stop_token sto
 {
     success_returned_.clear();
     reached_ready_.store(false);
-    if (auto time = getTimeForReport())
+    if (auto time = getTimeForAliveState())
     {
-        process_handling_.state_publisher_.reportDeactivation(identifier_, time.value());
+        supervision_handle_->deactivateSupervision(time.value());
     }
     terminateProcess(stop_token);
     setState(ProcessState::kIdle);
