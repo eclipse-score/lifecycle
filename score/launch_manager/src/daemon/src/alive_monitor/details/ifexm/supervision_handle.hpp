@@ -13,10 +13,12 @@
 #ifndef SUPERVISION_HANDLE_HPP_INCLUDED
 #define SUPERVISION_HANDLE_HPP_INCLUDED
 
+#include "score/mw/launch_manager/alive_monitor/details/ifexm/supervision_event.hpp"
+#include "score/mw/launch_manager/alive_monitor/ialive_supervision_handle.hpp"
+#include "score/mw/launch_manager/common/alive_interface_path.hpp"
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
-#include "score/mw/launch_manager/supervision_control_client/ialive_supervision_handle.hpp"
-#include "score/mw/launch_manager/supervision_control_client/supervision_event.hpp"
+
 #include <ctime>
 
 namespace score
@@ -37,7 +39,7 @@ class SupervisionHandle : public IAliveSupervisionHandle
     /// @param process_id Identifier of the process being supervised.
     /// @param buffer Buffer to push supervision events to.
     explicit SupervisionHandle(IdentifierHash process_id, std::shared_ptr<SupervisionBufferType> buffer)
-        : process_id_(process_id), buffer_(buffer)
+        : process_id_(process_id), buffer_(buffer), ipc_path_(std::move(internal::aliveInterfacePath(process_id_)))
     {
     }
 
@@ -51,6 +53,12 @@ class SupervisionHandle : public IAliveSupervisionHandle
     bool deactivateSupervision(timespec time) noexcept override
     {
         return queueSupervisionEvent({process_id_, SupervisionEventType::kDeactivation, time});
+    }
+
+    /// @brief Get the name of the IPC file alive indications are sent to.
+    std::string_view getConnectionId() const noexcept override
+    {
+        return ipc_path_;
     }
 
   private:
@@ -74,6 +82,8 @@ class SupervisionHandle : public IAliveSupervisionHandle
     const IdentifierHash process_id_;
     /// @brief Buffer to push supervision events to
     std::shared_ptr<SupervisionBufferType> buffer_;
+    /// @brief IPC path for alive indications
+    std::string ipc_path_;
 };
 
 }  // namespace mw::lifecycle

@@ -48,10 +48,10 @@ class AliveMonitorImpl : public IAliveMonitor
         const std::size_t supervised_components);
 
     /// @brief @see IAliveMonitor definition
-    void start() noexcept override;
+    void startMonitoring() noexcept override;
 
     /// @brief @see IAliveMonitor definition
-    void stop() noexcept override;
+    void stopMonitoring() noexcept override;
 
     /// @brief @see IAliveMonitor definition
     [[nodiscard]] ISupervisionFactory& getSupervisionFactory() const noexcept override;
