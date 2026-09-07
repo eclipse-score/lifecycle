@@ -34,7 +34,7 @@ SupervisionManager::~SupervisionManager() = default;
 
 bool SupervisionManager::full() const
 {
-    return aliveSupervisions.size() == capacity;
+    return aliveSupervisions.size() >= capacity;
 }
 
 void SupervisionManager::reserve(std::size_t size)

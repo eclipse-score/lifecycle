@@ -112,7 +112,7 @@ IComponent::RequestResult ProcessInfoNode::tryReportSuccess()
     {
         reached_ready_.store(true);
 
-        if (auto time = getTimeForReport())
+        if (auto time = getTimeForAliveState())
         {
             state_publisher_->reportActivation(time.value());
         }
@@ -122,7 +122,7 @@ IComponent::RequestResult ProcessInfoNode::tryReportSuccess()
     return {IComponent::RequestState::kWaiting};
 }
 
-std::optional<timespec> ProcessInfoNode::getTimeForReport() const
+std::optional<timespec> ProcessInfoNode::getTimeForAliveState() const
 {
     if (isSupervised() && state_publisher_)
     {
@@ -537,7 +537,7 @@ IComponent::RequestResult ProcessInfoNode::deactivate(score::cpp::stop_token sto
 {
     success_returned_.clear();
     reached_ready_.store(false);
-    if (auto time = getTimeForReport())
+    if (auto time = getTimeForAliveState())
     {
         state_publisher_->reportDeactivation(time.value());
     }

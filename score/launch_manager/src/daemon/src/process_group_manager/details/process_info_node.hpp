@@ -122,7 +122,7 @@ class ProcessInfoNode final : public IComponent
     void unblockSync();
 
     /// @brief If this process is successfully configured to report to alive monitor, return the current time
-    [[nodiscard]] std::optional<timespec> getTimeForReport() const;
+    [[nodiscard]] std::optional<timespec> getTimeForAliveState() const;
 
     /// @brief Get the request result corresponding to the new state reached. For example, if the ready state is
     /// terminated, the function will only return kSuccess if the new state is kTerminated.
