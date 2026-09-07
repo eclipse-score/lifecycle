@@ -237,7 +237,7 @@ int main(int argc, char** argv)
 
     if (expected_count == 0)
     {
-        std::fprintf(stderr, "Invalid count! An expected count must be provided.\n");
+        std::fprintf(stderr, "Invalid count! An expected count greater than zero must be provided.\n");
         return 1;
     }
 
