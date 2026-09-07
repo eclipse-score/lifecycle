@@ -111,11 +111,6 @@ IComponent::RequestResult ProcessInfoNode::tryReportSuccess()
     {
         reached_ready_.store(true);
 
-        if (auto time = getTimeForAliveState())
-        {
-            supervision_handle_->activateSupervision(time.value());
-        }
-
         return {RequestState::kSuccess};
     }
     return {IComponent::RequestState::kWaiting};
@@ -529,6 +524,13 @@ IComponent::RequestResult ProcessInfoNode::activate(score::cpp::stop_token stop_
         return tryReportSuccess();
     }
     auto res = startProcess(std::move(stop_token));
+    if (res.has_value())
+    {
+        if (auto time = getTimeForAliveState())
+        {
+            supervision_handle_->activateSupervision(time.value());
+        }
+    }
     return res;
 }
 
