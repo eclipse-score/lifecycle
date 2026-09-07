@@ -76,13 +76,8 @@ class PhmDaemon final : public ISupervisionFactory
     {
         recoveryClient = recovery_client;
 
-        if (!construct(config.components()))
-        {
-            return EInitCode::kConstructFlatCfgFactoryFailed;
-        }
-
-        std::chrono::nanoseconds cycleTimeModified{timers::TimeConversion::convertMilliSecToNanoSec(
-            std::chrono::milliseconds{config.evaluation_cycle_ms})};
+        std::chrono::nanoseconds cycleTimeModified{
+            timers::TimeConversion::convertMilliSecToNanoSec(std::chrono::milliseconds{config.evaluation_cycle_ms})};
 
         cycleTimeModified = CycleTimeValidator::adjustCycleTimeOnClockAccuracy(cycleTimeModified, osClock);
 
