@@ -19,13 +19,13 @@
 namespace score::mw::lifecycle
 {
 
-    class MockAliveSupervisionHandle : public IAliveSupervisionHandle
-    {
-      public:
-        MOCK_METHOD(bool, activateSupervision, (timespec time), (override, noexcept));
-        MOCK_METHOD(bool, deactivateSupervision, (timespec time), (override, noexcept));
-        MOCK_METHOD(std::string_view, getConnectionId, (), (const, override, noexcept));
-    };
+class MockAliveSupervisionHandle : public IAliveSupervisionHandle
+{
+  public:
+    MOCK_METHOD(bool, activateSupervision, (timespec time), (override, noexcept));
+    MOCK_METHOD(bool, deactivateSupervision, (timespec time), (override, noexcept));
+    MOCK_METHOD(std::string_view, getConnectionId, (), (const, override, noexcept));
+};
 
 }  // namespace score::mw::lifecycle
 

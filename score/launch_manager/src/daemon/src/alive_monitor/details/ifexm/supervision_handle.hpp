@@ -39,9 +39,8 @@ class SupervisionHandle : public IAliveSupervisionHandle
     /// @param process_id Identifier of the process being supervised.
     /// @param buffer Buffer to push supervision events to.
     explicit SupervisionHandle(IdentifierHash process_id, std::shared_ptr<SupervisionBufferType> buffer)
-        : process_id_(process_id), buffer_(buffer)
+        : process_id_(process_id), buffer_(buffer), ipc_path_(std::move(internal::aliveInterfacePath(process_id_)))
     {
-        ipc_path_ = std::move(internal::aliveInterfacePath(process_id_));
     }
 
     /// @brief Request that the calling process begins supervision at @param time

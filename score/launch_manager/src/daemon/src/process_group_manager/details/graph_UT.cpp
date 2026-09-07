@@ -527,8 +527,9 @@ TEST_F(GraphHandleComponentEventTest, failedFirstDuringTransition)
 
     // Fail the first job
     const auto first_job = job_queue_->pop();
-    graph_->handleComponentEvent(ActivationFailed{
-        first_job->value().component.get().getIdentifier(), IComponent::ComponentError::kErrorBeforeReady});
+    graph_->handleComponentEvent(
+        ActivationFailed{
+            first_job->value().component.get().getIdentifier(), IComponent::ComponentError::kErrorBeforeReady});
 
     const auto second_job = job_queue_->pop();
 
@@ -545,8 +546,9 @@ TEST_F(GraphHandleComponentEventTest, failureFollowedBySuccessFails)
 
     // Fail the first job
     const auto first_job = job_queue_->pop();
-    graph_->handleComponentEvent(ActivationFailed{
-        first_job->value().component.get().getIdentifier(), IComponent::ComponentError::kErrorBeforeReady});
+    graph_->handleComponentEvent(
+        ActivationFailed{
+            first_job->value().component.get().getIdentifier(), IComponent::ComponentError::kErrorBeforeReady});
 
     const auto second_job = job_queue_->pop();
     executeJobSuccessfully(second_job->value());

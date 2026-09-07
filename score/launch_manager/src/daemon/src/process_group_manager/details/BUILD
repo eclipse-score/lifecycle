@@ -144,8 +144,8 @@ cc_library(
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
     deps = [
         ":safe_process_map",
-        "//score/launch_manager/src/daemon/src/osal:ifile_waiter",
         "//score/launch_manager/src/daemon/src/alive_monitor:isupervision_factory",
+        "//score/launch_manager/src/daemon/src/osal:ifile_waiter",
         "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
     ],
 )
@@ -179,9 +179,9 @@ lm_cc_test(
     deps = [
         ":process_info_node",
         ":safe_process_map",
-        "//score/launch_manager/src/daemon/src/osal:mock_ifile_waiter",
         "//score/launch_manager/src/daemon/src/alive_monitor:mock_alive_supervision_handle",
         "//score/launch_manager/src/daemon/src/alive_monitor:mock_supervision_factory",
+        "//score/launch_manager/src/daemon/src/osal:mock_ifile_waiter",
         "//score/launch_manager/src/daemon/src/process_group_manager:mock_iprocess",
         "@googletest//:gtest_main",
     ],
