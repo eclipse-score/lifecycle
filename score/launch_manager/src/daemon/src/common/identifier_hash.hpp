@@ -16,6 +16,7 @@
 
 #include <cstddef>
 #include <mutex>
+#include <optional>
 #include <ostream>
 #include <sstream>
 #include <string>
@@ -51,6 +52,21 @@ class IdentifierHash final
     /// @brief Constructs an IdentifierHash object with the given ID.
     /// @param A C-string representing an ID.
     explicit IdentifierHash(const char* id);
+
+    /// @brief Constructs an IdentifierHash object from the given ID,
+    ///        iff that ID is already in the registry.
+    /// @param id A const reference to std::string representing an ID.
+    static std::optional<IdentifierHash> if_exists(const std::string& id);
+
+    /// @brief Constructs an IdentifierHash object from the given ID,
+    ///        iff that ID is already in the registry.
+    /// @param id A std::string_view representing an ID.
+    static std::optional<IdentifierHash> if_exists(std::string_view id);
+
+    /// @brief Constructs an IdentifierHash object from the given ID,
+    ///        iff that ID is already in the registry.
+    /// @param A C-string representing an ID.
+    static std::optional<IdentifierHash> if_exists(const char* id);
 
     // This class is trivially copyable / movable
     // For this reason we are applying the rule of zero
@@ -135,6 +151,10 @@ class IdentifierHash final
     static std::mutex& get_registry_mutex();
 
   private:
+    /// @brief Constructs an IdentifierHash object with the given ID.
+    /// @param A raw ID.
+    explicit IdentifierHash(std::size_t hash_id);
+
     /// internal representation of the ID, that was passed in constructor
     std::size_t hash_id_ = 0;
 };

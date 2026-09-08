@@ -22,6 +22,9 @@ using std::stringstream;
 
 using score::mw::lifecycle::IdentifierHash;
 
+using std::literals::string_literals::operator""s;
+using std::literals::string_view_literals::operator""sv;
+
 class IdentifierHashTest : public ::testing::Test
 {
   protected:
@@ -154,6 +157,14 @@ TEST_F(IdentifierHashTest, IdentifierHash_ConstructorOverloadsAgreeOnTheSameCont
     ASSERT_EQ(IdentifierHash(as_string).data(), IdentifierHash(as_string_view).data());
     ASSERT_EQ(IdentifierHash(as_string).data(), IdentifierHash(as_c_string).data());
     ASSERT_EQ(IdentifierHash(as_string_view).data(), IdentifierHash(as_c_string).data());
+
+    ASSERT_EQ(
+        IdentifierHash::if_exists(as_string).value().data(), IdentifierHash::if_exists(as_string_view).value().data());
+    ASSERT_EQ(
+        IdentifierHash::if_exists(as_string).value().data(), IdentifierHash::if_exists(as_c_string).value().data());
+    ASSERT_EQ(
+        IdentifierHash::if_exists(as_string_view).value().data(),
+        IdentifierHash::if_exists(as_c_string).value().data());
 }
 
 TEST_F(IdentifierHashTest, IdentifierHash_LessThanOperator)
@@ -182,4 +193,58 @@ TEST_F(IdentifierHashTest, IdentifierHash_LessThanOperator)
         ASSERT_FALSE(hash1 < hash2);
         ASSERT_FALSE(hash2 < hash1);
     }
+}
+
+TEST_F(IdentifierHashTest, IdentifierHash_IfExists_Existing_CString)
+{
+    RecordProperty(
+        "Description", "Verify that IdentifierHash::if_exists(const char*) returns the hash when it exists.");
+
+    IdentifierHash("Hello");
+    EXPECT_TRUE(IdentifierHash::if_exists("Hello").has_value());
+}
+
+TEST_F(IdentifierHashTest, IdentifierHash_IfExists_NotExisting_CString)
+{
+    RecordProperty(
+        "Description",
+        "Verify that IdentifierHash::if_exists(const char*) returns std::nullopt when the hash does not exist.");
+
+    EXPECT_FALSE(IdentifierHash::if_exists("Hello C-string").has_value());
+}
+
+TEST_F(IdentifierHashTest, IdentifierHash_IfExists_Existing_StringView)
+{
+    RecordProperty(
+        "Description", "Verify that IdentifierHash::if_exists(std::string_view) returns the hash when it exists.");
+
+    IdentifierHash("Hello"sv);
+    EXPECT_TRUE(IdentifierHash::if_exists("Hello"sv).has_value());
+}
+
+TEST_F(IdentifierHashTest, IdentifierHash_IfExists_NotExisting_StringView)
+{
+    RecordProperty(
+        "Description",
+        "Verify that IdentifierHash::if_exists(std::string_view) returns std::nullopt when the hash does not exist.");
+
+    EXPECT_FALSE(IdentifierHash::if_exists("Hello string view"sv).has_value());
+}
+
+TEST_F(IdentifierHashTest, IdentifierHash_IfExists_Existing_String)
+{
+    RecordProperty(
+        "Description", "Verify that IdentifierHash::if_exists(const std::string&) returns the hash when it exists.");
+
+    IdentifierHash("Hello"s);
+    EXPECT_TRUE(IdentifierHash::if_exists("Hello"s).has_value());
+}
+
+TEST_F(IdentifierHashTest, IdentifierHash_IfExists_NotExisting_String)
+{
+    RecordProperty(
+        "Description",
+        "Verify that IdentifierHash::if_exists(const std::string&) returns std::nullopt when the hash does not exist.");
+
+    EXPECT_FALSE(IdentifierHash::if_exists("Hello string"s).has_value());
 }
