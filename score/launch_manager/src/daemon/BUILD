@@ -16,7 +16,10 @@ cc_binary(
     name = "launch_manager",
     srcs = ["src/main.cpp"],
     linkopts = select({
-        "@platforms//os:linux": ["-lpthread"],
+        "@platforms//os:linux": [
+            "-lpthread",
+            "-lrt",
+        ],
         "//conditions:default": [],
     }),
     visibility = ["//score/launch_manager:__subpackages__"],
