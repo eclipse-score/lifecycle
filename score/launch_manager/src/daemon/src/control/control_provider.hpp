@@ -20,6 +20,9 @@
 namespace score::mw::lifecycle::internal
 {
 
+/// @brief Provides the mw::com service for state managers to connect to.
+/// @details This cannot be moved, because the mw::com callbacks reference
+//           the ControlProvider at its original location.
 class ControlProvider
 {
   public:

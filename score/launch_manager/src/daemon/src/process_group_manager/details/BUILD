@@ -97,6 +97,7 @@ cc_library(
     deps = [
         ":icomponent",
         "//score/launch_manager/src/daemon/src/common:identifier_hash",
+        "@score_baselibs//score/concurrency/future",
     ],
 )
 
