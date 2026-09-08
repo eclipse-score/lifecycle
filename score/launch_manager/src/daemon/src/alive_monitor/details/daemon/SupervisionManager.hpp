@@ -11,10 +11,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#ifndef SWCLUSTERHANDLER_HPP_INCLUDED
-#define SWCLUSTERHANDLER_HPP_INCLUDED
+#ifndef SUPERVISIONMANAGER_HPP_INCLUDED
+#define SUPERVISIONMANAGER_HPP_INCLUDED
 
-#include "score/mw/launch_manager/alive_monitor/details/factory/IPhmFactory.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/factory/IAliveWorkerFactory.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/DataStructures.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEvent.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEventReader.hpp"
@@ -51,7 +51,7 @@ namespace daemon
 using mw::lifecycle::internal::configuration::AliveSupervisionConfig;
 using mw::lifecycle::internal::configuration::ComponentAliveSupervision;
 
-/// @brief Supervision manager wraps the full PHM Supervision and Recovery Notification functionality.
+/// @brief Supervision manager wraps the full Supervision and Recovery Notification functionality.
 /// @details This class requests construction of all required objects to do the Supervisions and Recovery Notifications.
 /// It also provides an abstract interface to trigger the cyclic evaluation.
 class SupervisionManager
@@ -59,7 +59,7 @@ class SupervisionManager
   public:
     /// @brief Constructor
     /// @param[in] factory Factory moved into the object to construct required alive supervision components
-    explicit SupervisionManager(std::unique_ptr<factory::IPhmFactory> factory);
+    explicit SupervisionManager(std::unique_ptr<factory::IAliveWorkerFactory> factory);
 
     /// @brief Destroys the workers
     virtual ~SupervisionManager();
@@ -94,8 +94,8 @@ class SupervisionManager
     /// @param [in] id Identifier of the component
     /// @param [in] component_config Alive supervision configuration for the component
     /// @param [in] uid The configured uid of the component. Used for IPC access control
-    /// @param [in] f_recoveryClient_r       Interface to the launch manager for recovery
-    /// @param [in] f_processStateReader_r   Process state reader object for PHM daemon
+    /// @param [in] f_recoveryClient_r       Interface for sending recovery request
+    /// @param [in] f_processStateReader_r   Process state reader object for Alive Monitor
     /// @return                              Construction is successful (true), otherwise failure (false)
     [[nodiscard]] bool constructWorker(
         const IdentifierHash& id,
@@ -139,7 +139,7 @@ class SupervisionManager
     /// Vector of Alive Supervisions
     std::vector<supervision::Alive> aliveSupervisions;
 
-    std::unique_ptr<factory::IPhmFactory> flatCfgFactory;
+    std::unique_ptr<factory::IAliveWorkerFactory> flatCfgFactory;
 
     /// @brief The number of alive supervisions we expect to successfully construct
     std::size_t capacity{0};

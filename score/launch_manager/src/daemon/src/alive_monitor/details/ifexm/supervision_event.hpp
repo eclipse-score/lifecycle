@@ -23,7 +23,7 @@
 namespace score::mw::lifecycle
 {
 
-/// @brief Type of supervision event sent from the launch manager to the alive monitor.
+/// @brief Type of supervision events sent to the alive monitor via a supervision handle.
 enum class SupervisionEventType : std::uint8_t
 {
     /// @brief Supervision should be activated (process reached running state).

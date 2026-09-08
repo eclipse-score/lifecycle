@@ -16,7 +16,7 @@
 #include <score/assert.hpp>
 
 #include "score/mw/launch_manager/alive_monitor/details/daemon/AliveMonitorImpl.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/daemon/PhmDaemon.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/daemon/CyclicExecutor.hpp"
 
 namespace score::mw::lifecycle::internal::saf::daemon
 {
@@ -35,7 +35,7 @@ bool AliveMonitorImpl::init() noexcept
     {
         m_osClock.startMeasurement();
 
-        m_daemon = std::make_unique<PhmDaemon>(m_osClock, supervised_components_);
+        m_daemon = std::make_unique<CyclicExecutor>(m_osClock, supervised_components_);
         EInitCode initResult = m_daemon->init(m_recovery_client, config_);
 
         if (initResult == EInitCode::kNoError)
