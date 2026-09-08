@@ -61,7 +61,7 @@ cc_library(
     hdrs = ["AliveMonitorImpl.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/daemon",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/daemon",
-    visibility = ["//score/launch_manager/src/daemon:__subpackages__"],
+    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
     deps = [
         ":cyclic_executor",
         "//score/launch_manager/src/daemon/src/alive_monitor:i_alive_monitor",
