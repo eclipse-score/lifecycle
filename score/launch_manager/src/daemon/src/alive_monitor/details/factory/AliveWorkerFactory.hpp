@@ -11,12 +11,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#ifndef FLATCFGFACTORY_HPP_INCLUDED
-#define FLATCFGFACTORY_HPP_INCLUDED
+#ifndef ALIVEWORKERFACTORY_HPP_INCLUDED
+#define ALIVEWORKERFACTORY_HPP_INCLUDED
 
 #include <memory>
 
-#include "score/mw/launch_manager/alive_monitor/details/factory/IPhmFactory.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/factory/IAliveWorkerFactory.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEventReader.hpp"
 #include "score/mw/launch_manager/configuration/config.hpp"
 #include <string>
@@ -30,55 +30,55 @@ class ControlClient;
 namespace score::mw::lifecycle::internal::saf::factory
 {
 
-/// @brief PHM Factory for FlatCfg AR21-11 format
-/// @details Provides methods to create worker objects depending on a AR21-11 based PHM FlatCfg file
+/// @brief Alive worker factory
+/// @details Provides methods to create worker objects
 ///          and establishes required links between the worker objects automatically.
-class FlatCfgFactory : public IPhmFactory
+class AliveWorkerFactory : public IAliveWorkerFactory
 {
   public:
     /// @brief Constructor
-    explicit FlatCfgFactory();
+    explicit AliveWorkerFactory();
 
     /// @brief Destructor
     /* RULECHECKER_comment(0, 5, check_min_instructions, "Default destructor is not provided\
        a function body", true_no_defect) */
-    ~FlatCfgFactory() override = default;
+    ~AliveWorkerFactory() override = default;
 
     /// @brief No Copy Constructor
-    FlatCfgFactory(const FlatCfgFactory&) = delete;
+    AliveWorkerFactory(const AliveWorkerFactory&) = delete;
     /// @brief No Copy Assignment
-    FlatCfgFactory& operator=(const FlatCfgFactory&) = delete;
+    AliveWorkerFactory& operator=(const AliveWorkerFactory&) = delete;
     /// @brief No Move Constructor
-    FlatCfgFactory(FlatCfgFactory&&) = delete;
+    AliveWorkerFactory(AliveWorkerFactory&&) = delete;
     /// @brief No Move Assignment
-    FlatCfgFactory& operator=(FlatCfgFactory&&) = delete;
+    AliveWorkerFactory& operator=(AliveWorkerFactory&&) = delete;
 
-    /// @brief Refer to the description of the base class (IPhmFactory)
+    /// @brief Refer to the description of the base class (IAliveWorkerFactory)
     bool createObservableEvent(
         std::vector<ifexm::ObservableEvent>& events,
         const IdentifierHash component_id,
         ifexm::ObservableEventReader& event_reader_) override;
 
-    /// Refer to the description of the base class (IPhmFactory)
+    /// Refer to the description of the base class (IAliveWorkerFactory)
     bool createAliveIfIpc(
         std::vector<ifappl::CheckpointIpcServer>& servers,
         const IdentifierHash component_id,
         const uid_t uid) override;
 
-    /// Refer to the description of the base class (IPhmFactory)
+    /// Refer to the description of the base class (IAliveWorkerFactory)
     bool createAliveIf(
         std::vector<ifappl::MonitorIfDaemon>& interfaces,
         ifappl::CheckpointIpcServer& ipc_server,
         ifexm::ObservableEvent& event) override;
 
-    /// Refer to the description of the base class (IPhmFactory)
+    /// Refer to the description of the base class (IAliveWorkerFactory)
     bool createSupervisionCheckpoint(
         std::vector<ifappl::Checkpoint>& checkpoints,
         ifappl::MonitorIfDaemon& interface,
         const ifexm::ObservableEvent& event,
         const IdentifierHash component_id) override;
 
-    /// Refer to the description of the base class (IPhmFactory)
+    /// Refer to the description of the base class (IAliveWorkerFactory)
     bool createAliveSupervision(
         std::vector<supervision::Alive>& supervisions,
         ifappl::Checkpoint& checkpoint,

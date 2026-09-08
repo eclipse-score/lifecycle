@@ -73,7 +73,7 @@ struct timespec& CycleTimer::calcNextShot() noexcept(true)
     static_assert(sizeof(long) == 8U, "long is not 64 bit");
     // tv_nsec max retval from clockGetTime()   0,000,000,001,000,000,000 ns (1s)
     // tv_nsec absolute max (long)(64bit)       9,223,372,036,854,775,807 ns
-    // sleepIntervalNs max (std::chrono::nanoseconds) 60,000,000,000 ns (60s CONSTR_PHM_DAEMON_CYCLE_TIME_RANGE)
+    // sleepIntervalNs max (std::chrono::nanoseconds) 60,000,000,000 ns (60s)
     // Overflow can occur after 9223372036854775807 / 60000000000 ~ 153722867 cycles
     // which corresponds to 153722867 * 60s = 9223372020s = 153722867min ~ 2562047h ~ 106751d ~ 292y
     // coverity[autosar_cpp14_a4_7_1_violation] overflow would only occur after ~292 years active device runtime

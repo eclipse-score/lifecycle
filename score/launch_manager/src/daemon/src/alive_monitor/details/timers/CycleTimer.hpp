@@ -32,7 +32,7 @@ class CycleTimer
 {
   public:
     /// @brief sleep() return code in case the deadline was already over before going to sleep
-    // coverity[autosar_cpp14_a0_1_1_violation:FALSE] kDeadlineAlreadyOver is used in PhmDaemon.hpp
+    // coverity[autosar_cpp14_a0_1_1_violation:FALSE] kDeadlineAlreadyOver is used in CyclicExecutor.hpp
     static constexpr int kDeadlineAlreadyOver{-1};
 
     /// @brief Sets the interface for performing the OS clock system calls.

@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#ifndef IPHMFACTORY_HPP_INCLUDED
-#define IPHMFACTORY_HPP_INCLUDED
+#ifndef IALIVEWORKERFACTORY_HPP_INCLUDED
+#define IALIVEWORKERFACTORY_HPP_INCLUDED
 
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/DataStructures.hpp"
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
@@ -50,32 +50,32 @@ namespace factory
 
 using ComponentAliveSupervision = configuration::ComponentAliveSupervision;
 
-/// @brief PHM Factory interface class
+/// @brief Alive worker factory interface class
 /// @details Provides methods to create worker objects
-class IPhmFactory
+class IAliveWorkerFactory
 {
   public:
     /* RULECHECKER_comment(0, 10, check_min_instructions, "Default constructor and default destructor are not provided\
      a function body", true_no_defect) */
     /// @brief Constructor
-    IPhmFactory() = default;
+    IAliveWorkerFactory() = default;
 
     /// @brief Destructor
-    virtual ~IPhmFactory() = default;
+    virtual ~IAliveWorkerFactory() = default;
 
     /// @brief No Copy Constructor
-    IPhmFactory(const IPhmFactory&) = delete;
+    IAliveWorkerFactory(const IAliveWorkerFactory&) = delete;
     /// @brief No Copy Assignment
-    IPhmFactory& operator=(const IPhmFactory&) = delete;
+    IAliveWorkerFactory& operator=(const IAliveWorkerFactory&) = delete;
     /// @brief No Move Constructor
-    IPhmFactory(IPhmFactory&&) = delete;
+    IAliveWorkerFactory(IAliveWorkerFactory&&) = delete;
     /// @brief No Move Assignment
-    IPhmFactory& operator=(IPhmFactory&&) = delete;
+    IAliveWorkerFactory& operator=(IAliveWorkerFactory&&) = delete;
 
     /// @brief Create an Observable Event
     /// @param [out] events Container to emplace the new event into
     /// @param [in] component_id Identifier of the component we wish to monitor
-    /// @param [in] f_processStateReader_r  Process state reader object for PHM daemon
+    /// @param [in] f_processStateReader_r  Process state reader object for AliveMonitor
     /// @return                             Object creation successful (true), otherwise failed (false)
     virtual bool createObservableEvent(
         std::vector<ifexm::ObservableEvent>& events,

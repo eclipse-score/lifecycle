@@ -47,7 +47,7 @@ Alive::Alive(
         (k_aliveReferenceCycle.count() != 0U), "k_aliveReferenceCycle=0 causes infinite loop during evaluation.");
 
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION_PRD_MESSAGE(
-        (aliveStatus == EStatus::kDeactivated), "Alive Supervision must start in deactivated state, see SWS_PHM_00204");
+        (aliveStatus == EStatus::kDeactivated), "Alive Supervision must start in deactivated state");
 
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION_PRD_MESSAGE(
         (recoveryClient_p != nullptr), "Recovery client must be provided");

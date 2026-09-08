@@ -74,7 +74,7 @@ class ObservableEventReader
     /// @returns Result containing SupervisionEvent in case of success, or ExecError in case of failure.
     score::Result<std::optional<SupervisionEvent>> getNextSupervisionEvent() noexcept;
 
-    /// @brief Ring buffer through which supervision events are received from the Launch Manager
+    /// @brief Ring buffer through which supervision events are received
     std::shared_ptr<SupervisionBufferType> buffer_;
 
     /// @brief Map for process id and observable event object

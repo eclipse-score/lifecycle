@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#ifndef PHMDAEMON_HPP_INCLUDED
-#define PHMDAEMON_HPP_INCLUDED
+#ifndef CYCLICEXECUTOR_HPP_INCLUDED
+#define CYCLICEXECUTOR_HPP_INCLUDED
 
 /* RULECHECKER_comment(0, 3, check_include_errno, "Required to process clock_nanosleep return value", true_no_defect) */
 #include <cerrno>
@@ -20,7 +20,6 @@
 
 #include "score/launch_manager/src/daemon/src/common/log.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/common/EInitCode.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/daemon/PhmDaemonConfig.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/daemon/SupervisionManager.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEventReader.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/CycleTimeValidator.hpp"
@@ -32,10 +31,10 @@
 namespace score::mw::lifecycle::internal::saf::daemon
 {
 
-/// @brief PHM daemon main class wraps the functionality for initialization and cyclic execution.
-/// @details This is the main class responsible to execute the main functionalities of PHM daemon,
+/// @brief Cyclic executor main class wraps the functionality for initialization and cyclic execution.
+/// @details This is the main class responsible to execute the main functionalities of the cyclic executor,
 ///          by using the necessary classes from this software component.
-class PhmDaemon final : public ISupervisionFactory
+class CyclicExecutor final : public ISupervisionFactory
 {
   public:
     using OsClock = score::mw::lifecycle::internal::saf::timers::OsClockInterface;
@@ -51,21 +50,21 @@ class PhmDaemon final : public ISupervisionFactory
     /// in tests)
     /* RULECHECKER_comment(3,1, check_expensive_to_copy_in_parameter, "Move only types cannot be passed by const ref",
        true_no_defect) */
-    explicit PhmDaemon(OsClock& f_osClock, std::size_t supervised_components);
+    explicit CyclicExecutor(OsClock& f_osClock, std::size_t supervised_components);
 
     /// @brief Destroys the workers
-    ~PhmDaemon() override = default;
+    ~CyclicExecutor() override = default;
 
     /// @brief No Copy Constructor
-    PhmDaemon(const PhmDaemon&) = delete;
+    CyclicExecutor(const CyclicExecutor&) = delete;
     /// @brief No Copy Assignment
-    PhmDaemon& operator=(const PhmDaemon&) = delete;
+    CyclicExecutor& operator=(const CyclicExecutor&) = delete;
     /// @brief No Move Constructor
-    PhmDaemon(PhmDaemon&&) = delete;
+    CyclicExecutor(CyclicExecutor&&) = delete;
     /// @brief No Move Assignment
-    PhmDaemon& operator=(PhmDaemon&&) = delete;
+    CyclicExecutor& operator=(CyclicExecutor&&) = delete;
 
-    /// @brief Wraps the initialization steps of the PHM daemon
+    /// @brief Wraps the initialization steps of the cyclic executor
     /// (Constructing the workers, adjusting the cycle time, initialization of fixed step timer)
     /// @param[in] recovery_client Shared pointer to recovery client
     /// @param[in] config Config holding alive monitor and component configuration
@@ -84,20 +83,20 @@ class PhmDaemon final : public ISupervisionFactory
         const std::chrono::nanoseconds timerInit{cycleTimer.init(cycleTimeModified)};
         if (timerInit.count() > 0)
         {
-            LM_LOG_INFO() << "Phm Daemon: The (configured) periodicity in [ns] is set to:" << cycleTimeModified;
-            LM_LOG_DEBUG() << "Phm Daemon: The accuracy of the monotonic system clock in [ns] is:"
+            LM_LOG_INFO() << "The (configured) periodicity in [ns] is set to:" << cycleTimeModified;
+            LM_LOG_DEBUG() << "The accuracy of the monotonic system clock in [ns] is:"
                            << CycleTimeValidator::getMonotonicClockAccuracy(osClock);
         }
         else
         {
-            LM_LOG_ERROR() << "Phm Daemon: Initialization of CycleTimer instance failed!";
+            LM_LOG_ERROR() << "Initialization of CycleTimer instance failed!";
             return EInitCode::kCycleTimeInitFailed;
         }
 
         return EInitCode::kNoError;
     }
 
-    /// @pre PhmDaemon::init() has been invoked without errors
+    /// @pre CyclicExecutor::init() has been invoked without errors
     /// @brief Start cyclic execution
     /// @param[in] f_terminateCond Boolean predicate to determine when to terminate the cyclic loop
     /// (e.g. due to a signal received)
@@ -123,13 +122,9 @@ class PhmDaemon final : public ISupervisionFactory
         std::chrono::nanoseconds startTimestamp{cycleTimer.start()};
         if (startTimestamp.count() == 0U)
         {
-            LM_LOG_ERROR() << "Phm Daemon: Failed to get initial timestamp";
+            LM_LOG_ERROR() << "Failed to get initial timestamp";
             return false;
         }
-
-#ifdef LAUNCH_MANAGER_ALIVE_SUPERVISION
-        processStateReader.distributeExmActivation(startTimestamp);
-#endif
 
         while (!f_terminateCond.load())
         {
@@ -145,26 +140,25 @@ class PhmDaemon final : public ISupervisionFactory
             const int sleepResult{cycleTimer.sleep(f_terminateCond, nsOverDeadline)};
             if (sleepResult == EINTR)
             {
-                LM_LOG_INFO() << "Phm Daemon: Sleep was interrupted by termination signal";
+                LM_LOG_INFO() << "Sleep was interrupted by termination signal";
                 break;
             }
             else if (sleepResult == CycleTimer::kDeadlineAlreadyOver)
             {
-                LM_LOG_DEBUG() << "Phm Daemon: Phm cycle took"
+                LM_LOG_DEBUG() << "Alive Monitoring cycle took"
                                << std::chrono::ceil<std::chrono::milliseconds>(nsOverDeadline)
                                << "longer than the configured cycle time";
             }
             else if (sleepResult != 0)
             {
-                LM_LOG_ERROR() << "Phm Daemon: Error during sleep system call, Code:"
-                               << static_cast<uint64_t>(sleepResult);
+                LM_LOG_ERROR() << "Error during sleep system call, Code:" << static_cast<uint64_t>(sleepResult);
             }
             else
             {
                 /* sleeping successfully */
             }
         }
-        LM_LOG_INFO() << "Phm Daemon: Received termination request - shutting down";
+        LM_LOG_INFO() << "Alive Monitor received termination request - shutting down";
 
         return true;
     }
@@ -185,8 +179,9 @@ class PhmDaemon final : public ISupervisionFactory
     }
 
   private:
-    /// @brief Perform cyclic execution of Phm daemon
-    /// @details Perform cyclic execution of Phm daemon functionalities, for e.g., evaluation of supervisions.
+    /// @brief Perform cyclic execution of the cyclic executor
+    /// @details Perform cyclic execution of the cyclic executor's functionalities, for e.g., evaluation of
+    /// supervisions.
     void performCyclicTriggers(void);
 
     /// @brief System clock interface to access the monotonic clock for sleep
@@ -198,13 +193,13 @@ class PhmDaemon final : public ISupervisionFactory
     /// @brief Buffer that supervision events are pushed to and read from
     std::shared_ptr<SupervisionBufferType> buffer_;
 
-    /// @brief Recovery interface to Launch Manager
+    /// @brief Recovery interface
     std::shared_ptr<RecoveryClient> recoveryClient;
 
     /// @brief Handler to construct and store objects needed for alive supervision
     SupervisionManager supervisionManager;
 
-    /// @brief Observable Event Reader for PHM daemon
+    /// @brief Observable Event Reader for the cyclic executor
     ObservableEventReader supervisionStateReader_;
 };
 

@@ -13,9 +13,9 @@
 
 #include <algorithm>
 
-#include "score/mw/launch_manager/alive_monitor/details/daemon/PhmDaemon.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/daemon/CyclicExecutor.hpp"
 
-#include "score/mw/launch_manager/alive_monitor/details/factory/FlatCfgFactory.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/factory/AliveWorkerFactory.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/MonitorIfDaemon.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/supervision/Alive.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
@@ -23,18 +23,18 @@
 namespace score::mw::lifecycle::internal::saf::daemon
 {
 
-PhmDaemon::PhmDaemon(OsClock& f_osClock, std::size_t supervised_components)
+CyclicExecutor::CyclicExecutor(OsClock& f_osClock, std::size_t supervised_components)
     : osClock{f_osClock},
       cycleTimer{&osClock},
       buffer_(std::make_shared<SupervisionBufferType>()),
-      supervisionManager{std::make_unique<factory::FlatCfgFactory>()},
+      supervisionManager{std::make_unique<factory::AliveWorkerFactory>()},
       supervisionStateReader_{buffer_}
 {
     buffer_->initialize();
     supervisionManager.reserve(supervised_components);
 }
 
-void PhmDaemon::performCyclicTriggers(void)
+void CyclicExecutor::performCyclicTriggers(void)
 {
     std::chrono::nanoseconds syncTimestamp{timers::OsClock::getMonotonicSystemClock()};
     if (syncTimestamp.count() == 0U)

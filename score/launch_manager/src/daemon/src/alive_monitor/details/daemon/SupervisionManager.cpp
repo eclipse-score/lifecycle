@@ -20,7 +20,7 @@
 namespace score::mw::lifecycle::internal::saf::daemon
 {
 
-SupervisionManager::SupervisionManager(std::unique_ptr<factory::IPhmFactory> factory)
+SupervisionManager::SupervisionManager(std::unique_ptr<factory::IAliveWorkerFactory> factory)
     : processStates{},
       aliveIfIpcs{},
       aliveInterfaces{},

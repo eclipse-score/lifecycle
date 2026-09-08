@@ -35,9 +35,7 @@ class Global;
 namespace ifappl
 {
 
-/// @brief Alive Interface for PHM Deamon
-/// @details The MonitorIfDaemon class provides methods to write/read information to the
-/// data exchange between PHM daemon and Application, which are only required on PHM Daemon side.
+/// @brief Reads checkpoints from IPC channel and pushes them to attached observers
 class MonitorIfDaemon : public common::Observer<ifexm::ObservableEvent>
 {
   public:

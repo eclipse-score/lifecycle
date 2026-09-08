@@ -18,7 +18,7 @@
 #include <thread>
 
 #include "score/mw/launch_manager/alive_monitor/IAliveMonitor.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/daemon/PhmDaemon.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/daemon/CyclicExecutor.hpp"
 #include "score/mw/launch_manager/configuration/config.hpp"
 
 namespace score::mw::lifecycle
@@ -30,7 +30,7 @@ namespace internal::saf::daemon
 {
 
 using SptrIRecoveryClient = std::shared_ptr<score::mw::lifecycle::IRecoveryClient>;
-using UptrPhmDaemon = std::unique_ptr<score::mw::lifecycle::internal::saf::daemon::PhmDaemon>;
+using UptrCyclicExecutor = std::unique_ptr<score::mw::lifecycle::internal::saf::daemon::CyclicExecutor>;
 using OsClock = internal::saf::timers::OsClockInterface;
 using configuration::AliveSupervisionConfig;
 
@@ -67,7 +67,7 @@ class AliveMonitorImpl : public IAliveMonitor
     /// @brief Client to send recovery requests to.
     SptrIRecoveryClient m_recovery_client{nullptr};
     /// @brief Daemon responsible for alive supervisions.
-    UptrPhmDaemon m_daemon{nullptr};
+    UptrCyclicExecutor m_daemon{nullptr};
     /// @brief Interface used to retrieve time.
     OsClock m_osClock{};
     /// @brief Parameters for alive supervision.
