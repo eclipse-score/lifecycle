@@ -12,6 +12,21 @@
 # *******************************************************************************
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
+# Packages allows to use the alive_monitor component API.
+package_group(
+    name = "api",
+    packages = ["//score/launch_manager/src/daemon/..."],
+)
+
+# Everything else in this package is internal to the alive_monitor component.
+# Visibility for everything in 'details' shall be :internal by default.
+package_group(
+    name = "internal",
+    packages = ["//score/launch_manager/src/daemon/src/alive_monitor/..."],
+)
+
+package(default_visibility = [":api"])
+
 cc_library(
     name = "alive_monitor",
     visibility = ["//score/launch_manager/src/daemon:__pkg__"],
@@ -25,7 +40,6 @@ cc_library(
     hdrs = ["IAliveMonitor.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor",
-    visibility = ["//score/launch_manager/src/daemon:__subpackages__"],
     deps = [
         "//score/launch_manager/src/daemon/src/alive_monitor:isupervision_factory",
     ],
@@ -37,7 +51,6 @@ cc_library(
     hdrs = ["mock_alive_monitor.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor",
-    visibility = ["//score/launch_manager/src/daemon:__subpackages__"],
     deps = [
         ":i_alive_monitor",
         "@googletest//:gtest_main",
@@ -49,7 +62,6 @@ cc_library(
     hdrs = ["ialive_supervision_handle.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor",
-    visibility = ["//score/launch_manager/src/daemon:__subpackages__"],
 )
 
 cc_library(
@@ -57,7 +69,6 @@ cc_library(
     hdrs = ["isupervision_factory.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor",
-    visibility = ["//score/launch_manager/src/daemon:__subpackages__"],
     deps = [
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:supervision_handle",
         "//score/launch_manager/src/daemon/src/common:identifier_hash",
@@ -71,7 +82,6 @@ cc_library(
     hdrs = ["mock_alive_supervision_handle.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor",
-    visibility = ["//score/launch_manager/src/daemon:__subpackages__"],
     deps = [
         ":ialive_supervision_handle",
         "@googletest//:gtest_main",
@@ -84,7 +94,6 @@ cc_library(
     hdrs = ["mock_supervision_factory.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor",
-    visibility = ["//score/launch_manager/src/daemon:__subpackages__"],
     deps = [
         ":isupervision_factory",
         "@googletest//:gtest_main",
