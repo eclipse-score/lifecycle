@@ -26,6 +26,7 @@
 #include "score/mw/launch_manager/configuration/config.hpp"
 #include "score/mw/launch_manager/control/icontrollable_graph.hpp"
 #include "score/mw/launch_manager/osal/wait_for_file.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/component_event.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_event_queue.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/os_handler.hpp"
@@ -182,6 +183,12 @@ class ProcessGroupManager final : public IControllableGraph
 
     /// @brief Creates process component objects, including the job queue and worker threads.
     void createProcessComponentsObjects(std::size_t total_processes);
+
+    /// @brief Respond to a GetActiveRunTarget event.
+    void handle_get_active_run_target(GetActiveRunTarget* event);
+
+    /// @brief Respond to a SetRequestedRunTarget event.
+    void handle_set_requested_run_target(SetRequestedRunTarget* event);
 
     /// @brief The configuration object associated with the ProcessGroupManager.
     GraphConfig configuration_;

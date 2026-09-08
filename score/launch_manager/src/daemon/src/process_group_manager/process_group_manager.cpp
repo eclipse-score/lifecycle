@@ -17,7 +17,10 @@
 #include <algorithm>
 #include <csignal>
 
+#include "score/concurrency/future/interruptible_future.h"
+#include "score/concurrency/future/interruptible_promise.h"
 #include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/component_event.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_monitor.hpp"
 #include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
 #include "score/mw/lifecycle/details/lm_control_service.h"
@@ -244,6 +247,14 @@ void ProcessGroupManager::processComponentEvents()
         {
             handleRecoveryRequest(supervision_failure->process_identifier);
         }
+        else if (auto* get_active_run_target = std::get_if<GetActiveRunTarget>(&*event))
+        {
+            handle_get_active_run_target(get_active_run_target);
+        }
+        else if (auto* set_requested_run_target = std::get_if<SetRequestedRunTarget>(&*event))
+        {
+            handle_set_requested_run_target(set_requested_run_target);
+        }
         else
         {
             graph_->handleComponentEvent(*event);
@@ -429,33 +440,72 @@ ProcessInfoNode* ProcessGroupManager::getProcessInfoNode(uint32_t pg_index, Iden
     return nullptr;
 }
 
-score::Result<IdentifierHash> ProcessGroupManager::get_active_run_target()
+void ProcessGroupManager::handle_get_active_run_target(GetActiveRunTarget* event)
 {
     if (graph_->getState() == GraphState::kInTransition)
     {
-        return score::MakeUnexpected(ExecErrc::kActivationInProgress);
+        const auto set_result = event->promise.SetValue(score::MakeUnexpected(ExecErrc::kActivationInProgress));
+        SCORE_LANGUAGE_FUTURECPP_ASSERT(set_result.has_value());
+        return;
     }
-    else
-    {
-        return graph_->getProcessGroupState();
-    }
+
+    const auto set_result = event->promise.SetValue(graph_->getProcessGroupState());
+    SCORE_LANGUAGE_FUTURECPP_ASSERT(set_result.has_value());
 }
 
-score::Result<void> ProcessGroupManager::set_requested_run_target(IdentifierHash run_target)
+Result<IdentifierHash> ProcessGroupManager::get_active_run_target()
 {
-    if (!graph_->isValidRunTarget(run_target))
+    auto promise = concurrency::InterruptiblePromise<Result<IdentifierHash>>{};
+
+    auto future_result = promise.GetInterruptibleFuture();
+    SCORE_LANGUAGE_FUTURECPP_ASSERT(future_result.has_value());
+    auto future = std::move(future_result).value();
+
+    const bool push_result = event_queue_->push(GetActiveRunTarget{promise : std::move(promise)});
+    SCORE_LANGUAGE_FUTURECPP_ASSERT(push_result);
+
+    const auto get_result = future.Get(cpp::stop_token{});
+    SCORE_LANGUAGE_FUTURECPP_ASSERT(get_result.has_value());
+    return get_result.value();
+}
+
+void ProcessGroupManager::handle_set_requested_run_target(SetRequestedRunTarget* event)
+{
+    if (!graph_->isValidRunTarget(event->run_target))
     {
-        return score::MakeUnexpected(ExecErrc::kRunTargetDoesntExist);
+        const auto set_result = event->promise.SetValue(score::MakeUnexpected(ExecErrc::kRunTargetDoesntExist));
+        SCORE_LANGUAGE_FUTURECPP_ASSERT(set_result.has_value());
+        return;
     }
 
-    if (graph_->getProcessGroupState() == run_target)
+    if (graph_->getProcessGroupState() == event->run_target)
     {
-        return score::MakeUnexpected(ExecErrc::kAlreadyInState);
+        const auto set_result = event->promise.SetValue(score::MakeUnexpected(ExecErrc::kAlreadyInState));
+        SCORE_LANGUAGE_FUTURECPP_ASSERT(set_result.has_value());
+        return;
     }
 
-    graph_->startTransition(run_target);
+    const auto start_result = graph_->startTransition(event->run_target);
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(start_result, "requesting a valid run target should succeed");
 
-    return {};
+    const auto set_result = event->promise.SetValue({});
+    SCORE_LANGUAGE_FUTURECPP_ASSERT(set_result.has_value());
+}
+
+Result<void> ProcessGroupManager::set_requested_run_target(IdentifierHash run_target)
+{
+    auto promise = concurrency::InterruptiblePromise<Result<void>>{};
+
+    auto future_result = promise.GetInterruptibleFuture();
+    SCORE_LANGUAGE_FUTURECPP_ASSERT(future_result.has_value());
+    auto future = std::move(future_result).value();
+
+    const bool push_result = event_queue_->push(SetRequestedRunTarget{run_target, promise : std::move(promise)});
+    SCORE_LANGUAGE_FUTURECPP_ASSERT(push_result);
+
+    const auto get_result = future.Get(cpp::stop_token{});
+    SCORE_LANGUAGE_FUTURECPP_ASSERT(get_result.has_value());
+    return get_result.value();
 }
 
 void ProcessGroupManager::watch_active_run_target(
