@@ -2690,7 +2690,7 @@
   {
     "name": "TimeConversionTest__ConvertToNanoSec_ZeroTimespec_ReturnsZero",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/TimeConversion_UT.cpp",
-    "line": "49",
+    "line": "48",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2704,7 +2704,7 @@
   {
     "name": "TimeConversionTest__ConvertToNanoSec_SecondsOnly_ReturnsSecondsInNanoSec",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/TimeConversion_UT.cpp",
-    "line": "56",
+    "line": "55",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2718,7 +2718,7 @@
   {
     "name": "TimeConversionTest__ConvertToNanoSec_NanoSecondsOnly_ReturnsNanoSeconds",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/TimeConversion_UT.cpp",
-    "line": "66",
+    "line": "65",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2732,7 +2732,7 @@
   {
     "name": "TimeConversionTest__ConvertToNanoSec_SecondsAndNanoSeconds_ReturnsSum",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/TimeConversion_UT.cpp",
-    "line": "74",
+    "line": "73",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2746,7 +2746,7 @@
   {
     "name": "TimeConversionTest__ConvertToNanoSec_NegativeSeconds_ReturnsZero",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/TimeConversion_UT.cpp",
-    "line": "84",
+    "line": "83",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2760,7 +2760,7 @@
   {
     "name": "TimeConversionTest__ConvertToNanoSec_NegativeNanoSeconds_ReturnsZero",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/TimeConversion_UT.cpp",
-    "line": "94",
+    "line": "93",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2774,7 +2774,7 @@
   {
     "name": "TimeConversionTest__ConvertToNanoSec_SecondsAboveMax_ReturnsZero",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/TimeConversion_UT.cpp",
-    "line": "104",
+    "line": "103",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2788,7 +2788,7 @@
   {
     "name": "TimeConversionTest__ConvertToNanoSec_MaxRepresentableValue_ReturnsMax",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/TimeConversion_UT.cpp",
-    "line": "116",
+    "line": "115",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2802,7 +2802,7 @@
   {
     "name": "TimeConversionTest__ConvertToNanoSec_NanoSecondOverflow_ReturnsZero",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/TimeConversion_UT.cpp",
-    "line": "126",
+    "line": "125",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2816,7 +2816,7 @@
   {
     "name": "TimeConversionTest__ConvertMilliSecToNanoSec_Zero_ReturnsZero",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/TimeConversion_UT.cpp",
-    "line": "140",
+    "line": "139",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2830,35 +2830,7 @@
   {
     "name": "TimeConversionTest__ConvertMilliSecToNanoSec_WholeMillis_ReturnsNanoSeconds",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/TimeConversion_UT.cpp",
-    "line": "146",
-    "result": "passed",
-    "repo_name": "local_repo",
-    "hash": "",
-    "url": "",
-    "TestType": "interface-test",
-    "DerivationTechnique": "boundary-values",
-    "result_text": "",
-    "PartiallyVerifies": null,
-    "FullyVerifies": null
-  },
-  {
-    "name": "TimeConversionTest__ConvertMilliSecToNanoSec_FractionalMillis_ReturnsNanoSeconds",
-    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/TimeConversion_UT.cpp",
-    "line": "157",
-    "result": "passed",
-    "repo_name": "local_repo",
-    "hash": "",
-    "url": "",
-    "TestType": "interface-test",
-    "DerivationTechnique": "boundary-values",
-    "result_text": "",
-    "PartiallyVerifies": null,
-    "FullyVerifies": null
-  },
-  {
-    "name": "TimeConversionTest__ConvertMilliSecToNanoSec_SubNanoSecond_TruncatesToZero",
-    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/TimeConversion_UT.cpp",
-    "line": "166",
+    "line": "145",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2872,7 +2844,7 @@
   {
     "name": "TimeConversionTest__ConvertMilliSecToNanoSec_Negative_ReturnsZero",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/TimeConversion_UT.cpp",
-    "line": "176",
+    "line": "154",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2886,7 +2858,7 @@
   {
     "name": "TimeConversionTest__ConvertMilliSecToNanoSec_Overflow_ReturnsMax",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/TimeConversion_UT.cpp",
-    "line": "182",
+    "line": "160",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2900,7 +2872,7 @@
   {
     "name": "TimeConversionTest__ConvertNanoSecToMilliSec_Zero_ReturnsZero",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/TimeConversion_UT.cpp",
-    "line": "197",
+    "line": "174",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2914,7 +2886,7 @@
   {
     "name": "TimeConversionTest__ConvertNanoSecToMilliSec_WholeMilli_ReturnsMilliSeconds",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/TimeConversion_UT.cpp",
-    "line": "203",
+    "line": "180",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2928,7 +2900,7 @@
   {
     "name": "TimeConversionTest__ConvertNanoSecToMilliSec_FractionalMilli_ReturnsMilliSeconds",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/TimeConversion_UT.cpp",
-    "line": "214",
+    "line": "189",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -2942,7 +2914,7 @@
   {
     "name": "TimeConversionTest__ConvertNanoSecToMilliSec_RoundTrip_PreservesValue",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/TimeConversion_UT.cpp",
-    "line": "223",
+    "line": "196",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3136,9 +3108,51 @@
     "FullyVerifies": null
   },
   {
+    "name": "SupervisionControlClient_UT__SupervisionControlClient_QueueOneEvent_Succeeds",
+    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/supervision_control_client_ut.cpp",
+    "line": "42",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing ",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "SupervisionControlClient_UT__SupervisionControlClient_QueueMaxNumberOfEvents_Succeeds",
+    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/supervision_control_client_ut.cpp",
+    "line": "66",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing ",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "SupervisionControlClient_UT__SupervisionControlClient_QueueOneEventTooMany_Fails",
+    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/supervision_control_client_ut.cpp",
+    "line": "94",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing ",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
     "name": "AliveSupervisionTest__AliveTransitionsOkToExpiredOnMissingHeartbeat",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/supervision/Alive_UT.cpp",
-    "line": "151",
+    "line": "153",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3152,7 +3166,7 @@
   {
     "name": "AliveSupervisionTest__AliveStaysOkWithCorrectHeartbeats",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/supervision/Alive_UT.cpp",
-    "line": "173",
+    "line": "175",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3166,7 +3180,7 @@
   {
     "name": "AliveSupervisionTest__AliveReportsEnqueueFailureWhenRingBufferFull",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/supervision/Alive_UT.cpp",
-    "line": "196",
+    "line": "198",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3180,7 +3194,7 @@
   {
     "name": "AliveSupervisionTest__AliveDebouncesThroughFailedBeforeExpired",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/supervision/Alive_UT.cpp",
-    "line": "216",
+    "line": "218",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3194,7 +3208,7 @@
   {
     "name": "AliveSupervisionTest__DeactivatesOnSupervisionDeactivation",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/supervision/Alive_UT.cpp",
-    "line": "241",
+    "line": "243",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3208,7 +3222,7 @@
   {
     "name": "AliveSupervisionTest__ReactivatesAfterDeactivation",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/supervision/Alive_UT.cpp",
-    "line": "257",
+    "line": "259",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3222,7 +3236,7 @@
   {
     "name": "AliveSupervisionTest__MaxIndicationViolationExpires",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/supervision/Alive_UT.cpp",
-    "line": "280",
+    "line": "282",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5637,48 +5651,6 @@
     "url": "",
     "TestType": "interface-test",
     "DerivationTechnique": "equivalence-classes",
-    "result_text": "",
-    "PartiallyVerifies": null,
-    "FullyVerifies": null
-  },
-  {
-    "name": "SupervisionControlClient_UT__SupervisionControlClient_QueueOneEvent_Succeeds",
-    "file": "score/launch_manager/src/daemon/src/supervision_control_client/supervision_control_client_ut.cpp",
-    "line": "42",
-    "result": "passed",
-    "repo_name": "local_repo",
-    "hash": "",
-    "url": "",
-    "TestType": "interface-test",
-    "DerivationTechnique": "explorative-testing ",
-    "result_text": "",
-    "PartiallyVerifies": null,
-    "FullyVerifies": null
-  },
-  {
-    "name": "SupervisionControlClient_UT__SupervisionControlClient_QueueMaxNumberOfEvents_Succeeds",
-    "file": "score/launch_manager/src/daemon/src/supervision_control_client/supervision_control_client_ut.cpp",
-    "line": "66",
-    "result": "passed",
-    "repo_name": "local_repo",
-    "hash": "",
-    "url": "",
-    "TestType": "interface-test",
-    "DerivationTechnique": "explorative-testing ",
-    "result_text": "",
-    "PartiallyVerifies": null,
-    "FullyVerifies": null
-  },
-  {
-    "name": "SupervisionControlClient_UT__SupervisionControlClient_QueueOneEventTooMany_Fails",
-    "file": "score/launch_manager/src/daemon/src/supervision_control_client/supervision_control_client_ut.cpp",
-    "line": "94",
-    "result": "passed",
-    "repo_name": "local_repo",
-    "hash": "",
-    "url": "",
-    "TestType": "interface-test",
-    "DerivationTechnique": "explorative-testing ",
     "result_text": "",
     "PartiallyVerifies": null,
     "FullyVerifies": null
