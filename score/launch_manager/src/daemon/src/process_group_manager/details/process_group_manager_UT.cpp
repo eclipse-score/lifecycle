@@ -14,9 +14,9 @@
 #include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
 
 #include "score/mw/launch_manager/alive_monitor/mock_alive_monitor.hpp"
+#include "score/mw/launch_manager/alive_monitor/mock_alive_supervision_handle.hpp"
+#include "score/mw/launch_manager/alive_monitor/mock_supervision_factory.hpp"
 #include "score/mw/launch_manager/recovery_client/mock_irecovery_client.h"
-#include "score/mw/launch_manager/supervision_control_client/mock_alive_supervision_handle.hpp"
-#include "score/mw/launch_manager/supervision_control_client/mock_supervision_factory.hpp"
 #include "score/mw/launch_manager/watchdog/mock_IWatchdogIf.hpp"
 
 #include <gmock/gmock.h>
@@ -117,7 +117,7 @@ class ProcessGroupManagerWatchdogTest : public Test
     void expectNormalStartup()
     {
         EXPECT_CALL(*alive_monitor_, init()).WillOnce(Return(true));
-        EXPECT_CALL(*alive_monitor_, start());
+        EXPECT_CALL(*alive_monitor_, startMonitoring());
         EXPECT_CALL(*watchdog_, init(_, _)).WillOnce(Return(true));
         EXPECT_CALL(*watchdog_, enable()).WillOnce(Return(true));
     }
@@ -180,7 +180,7 @@ TEST_F(ProcessGroupManagerWatchdogTest, GivenMinimalConfig_ExpectWatchdogMethods
     InSequence sequence;
     expectNormalStartup();
     EXPECT_CALL(*watchdog_, disable()).Times(1);
-    EXPECT_CALL(*alive_monitor_, stop()).Times(1);
+    EXPECT_CALL(*alive_monitor_, stopMonitoring()).Times(1);
 
     // When
     auto initialize_result = process_group_manager_->initialize();
@@ -199,7 +199,7 @@ TEST_F(ProcessGroupManagerWatchdogTest, GivenMinimalConfig_ExpectWatchdogService
     });
     // Called in deinitialize() after run() returns
     EXPECT_CALL(*watchdog_, disable()).Times(1);
-    EXPECT_CALL(*alive_monitor_, stop()).Times(1);
+    EXPECT_CALL(*alive_monitor_, stopMonitoring()).Times(1);
 
     // When
     ASSERT_TRUE(process_group_manager_->initialize());
@@ -223,7 +223,7 @@ TEST_F(ProcessGroupManagerWatchdogTest, GivenMinimalConfig_ExpectWatchdogFired_W
         process_group_manager_->cancel();
     });
     EXPECT_CALL(*watchdog_, disable()).Times(1);
-    EXPECT_CALL(*alive_monitor_, stop()).Times(1);
+    EXPECT_CALL(*alive_monitor_, stopMonitoring()).Times(1);
 
     // When
     ASSERT_TRUE(process_group_manager_->initialize());
@@ -250,7 +250,7 @@ TEST_F(ProcessGroupManagerWatchdogTest, GivenMinimalConfig_ExpectWatchdogDisable
     // We are explicitly calling deinitialize() in this test for readability,
     // so disable() and stop() are expected to be called twice: once in deinitialize() and once in TearDown().
     EXPECT_CALL(*watchdog_, disable()).Times(2);
-    EXPECT_CALL(*alive_monitor_, stop()).Times(2);
+    EXPECT_CALL(*alive_monitor_, stopMonitoring()).Times(2);
 
     // When
     ASSERT_TRUE(process_group_manager_->initialize());

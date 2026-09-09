@@ -19,14 +19,14 @@
 namespace score::mw::lifecycle::internal::saf::daemon
 {
 
-/// @brief Return codes for PhmDaemon Initialization
+/// @brief Return codes for AliveMonitor Initialization
 enum class EInitCode : std::int8_t
 {
-    kNoError,                        ///< Init Successful (no error occurred)
-    kNotInitialized,                 ///< Init was not performed
-    kCycleTimeInitFailed,            ///< Cyclic Timer initialization failed
-    kConstructFlatCfgFactoryFailed,  ///< FlatCfgFactory failed loading SWCL configurations
-    kGeneralError                    ///< General error
+    kNoError,                            ///< Init Successful (no error occurred)
+    kNotInitialized,                     ///< Init was not performed
+    kCycleTimeInitFailed,                ///< Cyclic Timer initialization failed
+    kConstructAliveWorkerFactoryFailed,  ///< AliveWorkerFactory failed loading SWCL configurations
+    kGeneralError                        ///< General error
 };
 
 }  // namespace score::mw::lifecycle::internal::saf::daemon

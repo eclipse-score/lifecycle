@@ -25,9 +25,9 @@ namespace score::mw::lifecycle
 {
 
 /// @brief Implementation class for score::mw::lifecycle::Alive class
-///        This class is responsible for establishing the connection between the application and PHM daemon
-///        by invoking the calls to PHM class methods and to forward the reported checkpoints from the application
-///        to PHM daemon for supervision evaluation
+///        This class is responsible for establishing the connection between the application and Launch Manager
+///        by invoking the calls to Launch Manager class methods and to forward the reported checkpoints from the
+///        application to Launch Manager for supervision evaluation
 class AliveImpl
 {
   public:
@@ -69,9 +69,9 @@ class AliveImpl
     void ReportCheckpoint() const noexcept(true);
 
   private:
-    /// @brief Connect the application process with PHM daemon using IPC
+    /// @brief Connect the application process with AliveMonitor using IPC
     /// @throws std::runtime_error in case ipc path could not be read from configuration
-    void connectToPhmDaemon(void) noexcept(false);
+    void connectToAliveMonitor(void) noexcept(false);
 
     /// @brief Read the Alive Interface Path from an environment variable.
     /// This is then used to initialise the IPC client
@@ -81,7 +81,7 @@ class AliveImpl
     /// @brief Instance specifier path of the Alive instance
     const std::string k_instanceSpecifierPath;
 
-    /// @brief IPC Connection to PHM Daemon
+    /// @brief IPC Connection to Launch Manager
     /// Class needs to be mutable to use in "const" reportCheckpoint method
     mutable std::unique_ptr<CheckpointIpcClient> ipcClient;
 };

@@ -14,6 +14,7 @@
 #define IALIVE_SUPERVISION_HANDLE_HPP_INCLUDED
 
 #include <ctime>
+#include <string_view>
 
 namespace score::mw::lifecycle
 {
@@ -30,6 +31,9 @@ class IAliveSupervisionHandle
 
     /// @brief Request that the calling process stops supervision at @param time
     virtual bool deactivateSupervision(timespec time) noexcept = 0;
+
+    /// @brief Get the name of the IPC file alive indications are sent to.
+    virtual std::string_view getConnectionId() const noexcept = 0;
 };
 
 }  // namespace score::mw::lifecycle

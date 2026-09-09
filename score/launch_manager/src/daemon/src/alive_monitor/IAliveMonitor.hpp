@@ -13,7 +13,7 @@
 #ifndef SAF_DAEMON_ALIVE_MONITOR_HPP_INCLUDED
 #define SAF_DAEMON_ALIVE_MONITOR_HPP_INCLUDED
 
-#include "score/mw/launch_manager/supervision_control_client/isupervision_factory.hpp"
+#include "score/mw/launch_manager/alive_monitor/isupervision_factory.hpp"
 
 namespace score::mw::lifecycle::internal::saf::daemon
 {
@@ -26,11 +26,11 @@ class IAliveMonitor
 
     /// @brief Start the monitor thread
     /// @warning Not valid if @c init() failed
-    virtual void start() = 0;
+    virtual void startMonitoring() = 0;
 
     /// @brief Stop the monitor thread
     /// @warning Not valid if @c init() failed
-    virtual void stop() = 0;
+    virtual void stopMonitoring() = 0;
 
     /// @brief Returns an interface for components to register their alive supervision
     /// @warning Not valid if @c init() failed

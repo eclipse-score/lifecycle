@@ -85,7 +85,7 @@ class OsClockInterface
         // coverity[autosar_cpp14_a4_7_1_violation] max long 2,147,483,647 ms which ~ 24.8 days which nobody will wait
         // for
         const long ms{(secDiff * 1000 /*ms per sec*/) + (nsDiff / 1000000 /*ns per ms*/)};
-        // LM_LOG_DEBUG() << "Phm Daemon: Initialization took " << ms << " ms";
+        // LM_LOG_DEBUG() << "Alive Monitor initialization took " << ms << " ms";
         return ms;
     }
 

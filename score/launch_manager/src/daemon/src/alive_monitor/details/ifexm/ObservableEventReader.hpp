@@ -17,8 +17,8 @@
 #include <map>
 
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEvent.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ifexm/supervision_event.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
-#include "score/mw/launch_manager/supervision_control_client/supervision_event.hpp"
 
 #include "score/result/result.h"
 
@@ -61,20 +61,20 @@ class ObservableEventReader
     /// @details Distribute supervision events to the registered Observable Event classes
     /// @param [in] f_syncTimestamp   Timestamp for cyclic synchronization
     /// @return     true (successful distribution), false (failed distribution)
-    bool distributeChanges(const timers::NanoSecondType f_syncTimestamp) noexcept;
+    bool distributeChanges(const std::chrono::nanoseconds f_syncTimestamp) noexcept;
 
   private:
     /// @brief Push update for changed registered process
     /// @param [in] f_event              Supervision event for which push update is needed
     /// @param [in] f_syncTimestamp      Timestamp for cyclic synchronization
     /// @return     true (sync timestamp is reached), false (sync timestamp is not yet reached)
-    bool pushUpdateTill(const SupervisionEvent& f_event, const timers::NanoSecondType f_syncTimestamp) noexcept;
+    bool pushUpdateTill(const SupervisionEvent& f_event, const std::chrono::nanoseconds f_syncTimestamp) noexcept;
 
     /// @brief Returns a queued SupervisionEvent that has not yet been parsed.
     /// @returns Result containing SupervisionEvent in case of success, or ExecError in case of failure.
     score::Result<std::optional<SupervisionEvent>> getNextSupervisionEvent() noexcept;
 
-    /// @brief Ring buffer through which supervision events are received from the Launch Manager
+    /// @brief Ring buffer through which supervision events are received
     std::shared_ptr<SupervisionBufferType> buffer_;
 
     /// @brief Map for process id and observable event object
