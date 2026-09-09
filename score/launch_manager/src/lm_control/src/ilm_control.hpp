@@ -109,17 +109,15 @@ class ILmControl
     ///
     /// Posts the request into the Launch Manager's fixed-capacity FIFO queue
     /// and returns as soon as the request is accepted. The Launch Manager
-    /// executes activations one at a time in FIFO order. Completion is
-    /// notified asynchronously via the callback registered with
-    /// register_run_target_activation_callback().
+    /// executes activations one at a time in FIFO order.
+    ///
     /// If the queue is full, kRequestQueueIsFull is returned immediately
     /// and the request is discarded.
     ///
+    /// Completion is notified asynchronously via the callback registered with
+    /// register_run_target_activation_callback().
+    ///
     /// @param[in] runTargetName  Name of a Run Target configured in the Launch Manager.
-    /// @param[in] force          If false (default), the request is queued behind any
-    ///                           in-progress activation and executed afterwards.
-    ///                           If true, any in-progress activation is cancelled, the
-    ///                           queue is cleared, and this activation starts immediately.
     ///
     /// @returns void when the Launch Manager accepted the request.
     ///
@@ -128,7 +126,28 @@ class ILmControl
     /// @error kRunTargetDoesntExist Name of the requested Run Target does not exist in current configuration.
     /// @error kCommunicationError         Connection with Launch Manager could not be established and request cannot be
     /// sent.
-    virtual score::Result<void> activate_run_target(RunTargetName runTargetName, bool force = false) = 0;
+    /*
+    Not implemented on the daemon side yet.
+
+    virtual score::Result<void> queue_run_target(RunTargetName runTargetName) = 0;
+    */
+
+    /// @brief Request Run Target activation.
+    ///
+    /// Cancels any previously queued activations, and immediately begins
+    /// switching to the specified run target.
+    ///
+    /// Completion is notified asynchronously via the callback registered with
+    /// register_run_target_activation_callback().
+    ///
+    /// @param[in] runTargetName  Name of a Run Target configured in the Launch Manager.
+    ///
+    /// @returns void when the Launch Manager accepted the request.
+    ///
+    /// @error kRunTargetDoesntExist Name of the requested Run Target does not exist in current configuration.
+    /// @error kCommunicationError         Connection with Launch Manager could not be established and request cannot be
+    /// sent.
+    virtual score::Result<void> force_run_target(RunTargetName runTargetName) = 0;
 
     /// @brief Register a callback invoked whenever Launch Manager finishes a Run Target activation.
     ///

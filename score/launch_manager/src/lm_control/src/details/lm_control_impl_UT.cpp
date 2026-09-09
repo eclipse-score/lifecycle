@@ -359,7 +359,7 @@ TEST_F(LmControlUT, MethodsFailWhileNotYetConnected)
 {
     RecordProperty(
         "Description",
-        "Before the service is discovered, activate_run_target and get_active_run_target return "
+        "Before the service is discovered, queue_run_target, force_run_target and get_active_run_target return "
         "kCommunicationError without issuing any proxy calls.");
 
     EXPECT_CALL(mock_, ActivateRunTarget(_)).Times(0);
@@ -367,9 +367,15 @@ TEST_F(LmControlUT, MethodsFailWhileNotYetConnected)
 
     auto sut = MakeLmControl();
 
-    auto activate = sut->activate_run_target("Running", false);
-    ASSERT_FALSE(activate.has_value());
-    EXPECT_EQ(activate.error(), ExecErrc::kCommunicationError);
+    /*
+    auto queue = sut->queue_run_target("Running");
+    ASSERT_FALSE(queue.has_value());
+    EXPECT_EQ(queue.error(), ExecErrc::kCommunicationError);
+    */
+
+    auto force = sut->force_run_target("Running");
+    ASSERT_FALSE(force.has_value());
+    EXPECT_EQ(force.error(), ExecErrc::kCommunicationError);
 
     auto get = sut->get_active_run_target();
     ASSERT_FALSE(get.has_value());
@@ -516,13 +522,13 @@ TEST_F(LmControlUT, StopFindServiceFailureOnDestructionIsTolerated)
 }
 
 // ---------------------------------------------------------------------------
-// activate_run_target
+// queue_run_target
 // ---------------------------------------------------------------------------
 
-TEST_F(LmControlUT, ActivateForwardsNameAndQueuedModeByDefault)
+/*
+TEST_F(LmControlUT, QueueForwardsNameAndUsesQueue)
 {
-    RecordProperty(
-        "Description", "activate_run_target forwards the run target name and defaults to queued activation mode.");
+    RecordProperty("Description", "queue_run_target forwards the run target name and uses the queued activation mode.");
 
     auto sut = MakeConnected();
 
@@ -533,46 +539,82 @@ TEST_F(LmControlUT, ActivateForwardsNameAndQueuedModeByDefault)
             Field(&ActivateRunTargetRequest::mode, ActivationMode::kQueued))))
         .WillOnce(Return(Accepted()));
 
-    // Through the interface: that is where the force=false default lives.
     ILmControl& lm_control = *sut;
-    EXPECT_TRUE(lm_control.activate_run_target("Driving").has_value());
+    EXPECT_TRUE(lm_control.queue_run_target("Driving").has_value());
 }
 
-TEST_F(LmControlUT, ActivateForcedMapsToForcedMode)
+TEST_F(LmControlUT, QueueRejectionSurfacesRejectionReason)
 {
-    RecordProperty("Description", "activate_run_target with force=true maps to forced activation mode.");
-
-    auto sut = MakeConnected();
-
-    EXPECT_CALL(mock_, ActivateRunTarget(Field(&ActivateRunTargetRequest::mode, ActivationMode::kForced)))
-        .WillOnce(Return(Accepted()));
-
-    EXPECT_TRUE(sut->activate_run_target("Driving", /*force=*/true).has_value());
-}
-
-TEST_F(LmControlUT, ActivateRejectionSurfacesRejectionReason)
-{
-    RecordProperty("Description", "A rejected activation surfaces the rejection reason as the returned error.");
+    RecordProperty("Description", "A rejected queue_run_target surfaces the rejection reason as the returned error.");
 
     auto sut = MakeConnected();
 
     EXPECT_CALL(mock_, ActivateRunTarget(_))
         .WillOnce(Return(ActivateRunTargetResponse{RequestStatus::kRejected, ExecErrc::kRequestQueueIsFull}));
 
-    auto result = sut->activate_run_target("Driving", false);
+    auto result = sut->queue_run_target("Driving");
     ASSERT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kRequestQueueIsFull);
 }
 
-TEST_F(LmControlUT, ActivateTransportFailureReturnsCommunicationError)
+TEST_F(LmControlUT, QueueTransportFailureReturnsCommunicationError)
 {
-    RecordProperty("Description", "A transport failure during activate_run_target is reported as kCommunicationError.");
+    RecordProperty("Description", "A transport failure during queue_run_target is reported as kCommunicationError.");
 
     auto sut = MakeConnected();
 
     EXPECT_CALL(mock_, ActivateRunTarget(_)).WillOnce(Return(score::MakeUnexpected(ExecErrc::kFailed)));
 
-    auto result = sut->activate_run_target("Driving", false);
+    auto result = sut->queue_run_target("Driving");
+    ASSERT_FALSE(result.has_value());
+    EXPECT_EQ(result.error(), ExecErrc::kCommunicationError);
+}
+*/
+
+// ---------------------------------------------------------------------------
+// force_run_target
+// ---------------------------------------------------------------------------
+
+TEST_F(LmControlUT, ForceForwardsNameAndUsesForce)
+{
+    RecordProperty("Description", "force_run_target forwards the run target name and uses the forced activation mode.");
+
+    auto sut = MakeConnected();
+
+    EXPECT_CALL(
+        mock_,
+        ActivateRunTarget(AllOf(
+            Field(&ActivateRunTargetRequest::run_target_name, RunTargetName{"Driving"}),
+            Field(&ActivateRunTargetRequest::mode, ActivationMode::kForced))))
+        .WillOnce(Return(Accepted()));
+
+    ILmControl& lm_control = *sut;
+    EXPECT_TRUE(lm_control.force_run_target("Driving").has_value());
+}
+
+TEST_F(LmControlUT, ForceRejectionSurfacesRejectionReason)
+{
+    RecordProperty("Description", "A rejected force_run_target surfaces the rejection reason as the returned error.");
+
+    auto sut = MakeConnected();
+
+    EXPECT_CALL(mock_, ActivateRunTarget(_))
+        .WillOnce(Return(ActivateRunTargetResponse{RequestStatus::kRejected, ExecErrc::kRequestQueueIsFull}));
+
+    auto result = sut->force_run_target("Driving");
+    ASSERT_FALSE(result.has_value());
+    EXPECT_EQ(result.error(), ExecErrc::kRequestQueueIsFull);
+}
+
+TEST_F(LmControlUT, ForceTransportFailureReturnsCommunicationError)
+{
+    RecordProperty("Description", "A transport failure during force_run_target is reported as kCommunicationError.");
+
+    auto sut = MakeConnected();
+
+    EXPECT_CALL(mock_, ActivateRunTarget(_)).WillOnce(Return(score::MakeUnexpected(ExecErrc::kFailed)));
+
+    auto result = sut->force_run_target("Driving");
     ASSERT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kCommunicationError);
 }

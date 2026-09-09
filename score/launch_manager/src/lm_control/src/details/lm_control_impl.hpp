@@ -170,7 +170,10 @@ class BasicLmControlImpl final : public ILmControl
         }
     }
 
-    score::Result<void> activate_run_target(RunTargetName runTargetName, bool force) override
+    /*
+    Not implemented on the daemon side yet.
+
+    score::Result<void> queue_run_target(RunTargetName runTargetName) override
     {
         auto* const proxy = connectedProxy();
         if (proxy == nullptr)
@@ -178,22 +181,51 @@ class BasicLmControlImpl final : public ILmControl
             return score::MakeUnexpected(ExecErrc::kCommunicationError);
         }
 
-        LM_LOG_DEBUG() << "LmControl: activate_run_target:" << runTargetName << " force=" << force;
+        LM_LOG_DEBUG() << "LmControl: queue_run_target:" << runTargetName;
 
-        const ActivateRunTargetRequest request{
-            runTargetName, force ? ActivationMode::kForced : ActivationMode::kQueued};
+        const ActivateRunTargetRequest request{runTargetName, ActivationMode::kQueued};
 
         const score::Result<MethodResultPtr<ActivateRunTargetResponse>> result = proxy->activate_run_target(request);
         if (!result.has_value())
         {
-            LM_LOG_ERROR() << "LmControl: activate_run_target: proxy method call failed with error:" << result.error();
+            LM_LOG_ERROR() << "LmControl: queue_run_target: proxy method call failed with error:" << result.error();
             return score::MakeUnexpected(ExecErrc::kCommunicationError);
         }
 
         const auto& response = *result.value();
         if (response.status == RequestStatus::kRejected)
         {
-            LM_LOG_DEBUG() << "LmControl: activate_run_target: rejected by LM with code" << response.rejection_reason;
+            LM_LOG_DEBUG() << "LmControl: queue_run_target: rejected by LM with code" << response.rejection_reason;
+            return score::MakeUnexpected(response.rejection_reason);
+        }
+
+        return {};
+    }
+    */
+
+    score::Result<void> force_run_target(RunTargetName runTargetName) override
+    {
+        auto* const proxy = connectedProxy();
+        if (proxy == nullptr)
+        {
+            return score::MakeUnexpected(ExecErrc::kCommunicationError);
+        }
+
+        LM_LOG_DEBUG() << "LmControl: force_run_target:" << runTargetName;
+
+        const ActivateRunTargetRequest request{runTargetName, ActivationMode::kForced};
+
+        const score::Result<MethodResultPtr<ActivateRunTargetResponse>> result = proxy->activate_run_target(request);
+        if (!result.has_value())
+        {
+            LM_LOG_ERROR() << "LmControl: force_run_target: proxy method call failed with error:" << result.error();
+            return score::MakeUnexpected(ExecErrc::kCommunicationError);
+        }
+
+        const auto& response = *result.value();
+        if (response.status == RequestStatus::kRejected)
+        {
+            LM_LOG_DEBUG() << "LmControl: force_run_target: rejected by LM with code" << response.rejection_reason;
             return score::MakeUnexpected(response.rejection_reason);
         }
 
