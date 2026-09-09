@@ -42,31 +42,13 @@ class IdentifierHash final
 {
   public:
     /// @brief Constructs an IdentifierHash object from the given ID.
-    /// @param id A const reference to std::string representing an ID.
-    explicit IdentifierHash(const std::string& id);
-
-    /// @brief Constructs an IdentifierHash object from the given ID.
-    /// @param id A std::string_view representing an ID.
+    /// @param id A string representing an ID.
     explicit IdentifierHash(std::string_view id);
 
-    /// @brief Constructs an IdentifierHash object with the given ID.
-    /// @param A C-string representing an ID.
-    explicit IdentifierHash(const char* id);
-
     /// @brief Constructs an IdentifierHash object from the given ID,
-    ///        iff that ID is already in the registry.
-    /// @param id A const reference to std::string representing an ID.
-    static std::optional<IdentifierHash> if_exists(const std::string& id);
-
-    /// @brief Constructs an IdentifierHash object from the given ID,
-    ///        iff that ID is already in the registry.
-    /// @param id A std::string_view representing an ID.
+    ///        if that ID is already in the registry.
+    /// @param id A string representing an ID.
     static std::optional<IdentifierHash> if_exists(std::string_view id);
-
-    /// @brief Constructs an IdentifierHash object from the given ID,
-    ///        iff that ID is already in the registry.
-    /// @param A C-string representing an ID.
-    static std::optional<IdentifierHash> if_exists(const char* id);
 
     // This class is trivially copyable / movable
     // For this reason we are applying the rule of zero

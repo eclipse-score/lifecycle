@@ -79,13 +79,6 @@ std::size_t Fnv1aHash(std::string_view data) noexcept
 
 }  // namespace
 
-IdentifierHash::IdentifierHash(const std::string& id)
-{
-    hash_id_ = Fnv1aHash(id);
-    const std::lock_guard<std::mutex> lock(get_registry_mutex());
-    get_registry()[hash_id_] = id;
-}
-
 IdentifierHash::IdentifierHash(std::string_view id)
 {
     hash_id_ = Fnv1aHash(id);
@@ -93,57 +86,14 @@ IdentifierHash::IdentifierHash(std::string_view id)
     get_registry()[hash_id_] = id;
 }
 
-IdentifierHash::IdentifierHash(const char* id)
-{
-    const std::string_view sv = (id != nullptr) ? std::string_view(id) : std::string_view("");
-    hash_id_ = Fnv1aHash(sv);
-    const std::lock_guard<std::mutex> lock(get_registry_mutex());
-    get_registry()[hash_id_] = sv;
-}
-
 IdentifierHash::IdentifierHash(std::size_t hash_id)
 {
     hash_id_ = hash_id;
 }
 
-std::optional<IdentifierHash> IdentifierHash::if_exists(const std::string& id)
-{
-    const std::size_t hash_id = Fnv1aHash(id);
-
-    const std::lock_guard<std::mutex> lock(get_registry_mutex());
-    const std::unordered_map<std::size_t, std::string>& registry = get_registry();
-
-    if (registry.find(hash_id) == registry.end())
-    {
-        return std::nullopt;
-    }
-    else
-    {
-        return IdentifierHash(hash_id);
-    }
-}
-
 std::optional<IdentifierHash> IdentifierHash::if_exists(std::string_view id)
 {
     const std::size_t hash_id = Fnv1aHash(id);
-
-    const std::lock_guard<std::mutex> lock(get_registry_mutex());
-    const std::unordered_map<std::size_t, std::string>& registry = get_registry();
-
-    if (registry.find(hash_id) == registry.end())
-    {
-        return std::nullopt;
-    }
-    else
-    {
-        return IdentifierHash(hash_id);
-    }
-}
-
-std::optional<IdentifierHash> IdentifierHash::if_exists(const char* id)
-{
-    const std::string_view sv = (id != nullptr) ? std::string_view(id) : std::string_view("");
-    const std::size_t hash_id = Fnv1aHash(sv);
 
     const std::lock_guard<std::mutex> lock(get_registry_mutex());
     const std::unordered_map<std::size_t, std::string>& registry = get_registry();
