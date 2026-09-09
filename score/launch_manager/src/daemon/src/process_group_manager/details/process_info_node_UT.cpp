@@ -106,8 +106,10 @@ class ProcessInfoNodeFixture : public ::testing::Test
             config.component_properties.application_profile.alive_supervision = alive;
         }
 
-        return std::make_unique<ProcessInfoNode>(
+        auto result = ProcessInfoNode::Create(
             std::move(config), ProcessHandling{&mock_processIf_, process_map_, nullptr, mock_factory_});
+        EXPECT_THAT(result.has_value(), IsTrue());
+        return std::make_unique<ProcessInfoNode>(std::move(result).value());
     }
 
     /// @brief Helper method to create a ProcessInfoNode with a FileState ready condition.
@@ -127,8 +129,10 @@ class ProcessInfoNodeFixture : public ::testing::Test
         config.deployment_config.ready_timeout_ms = static_cast<std::uint32_t>(ready_timeout.count());
         config.deployment_config.shutdown_timeout_ms = shutdown_timeout_ms_;
 
-        return std::make_unique<ProcessInfoNode>(
+        auto result = ProcessInfoNode::Create(
             std::move(config), ProcessHandling{&mock_processIf_, process_map_, &mock_file_waiter_, mock_factory_});
+        EXPECT_THAT(result.has_value(), IsTrue());
+        return std::make_unique<ProcessInfoNode>(std::move(result).value());
     }
 
     /// @brief Helper method to create a ProcessInfoNode that is self-terminating.
@@ -187,6 +191,30 @@ class ProcessInfoNodeFixture : public ::testing::Test
     StrictMock<osal::MockIFileWaiter> mock_file_waiter_{};
     NiceMock<MockSupervisionFactory> mock_factory_{};
 };
+
+TEST_F(ProcessInfoNodeFixture, CreateFailsWhenAliveSupervisionConstructionFails)
+{
+    RecordProperty(
+        "Description",
+        "Create() returns kErrorBeforeReady, instead of silently continuing, when the supervision factory fails to "
+        "construct a supervision handle.");
+    EXPECT_CALL(mock_factory_, constructSupervision).WillOnce(Return(nullptr));
+
+    configuration::ComponentConfig config{};
+    config.name = kProcessName;
+    config.component_properties.binary_name = kProcessName;
+    config.component_properties.application_profile.application_type =
+        configuration::ApplicationType::ReportingAndSupervised;
+    config.component_properties.application_profile.alive_supervision = configuration::ComponentAliveSupervision{
+        .reporting_cycle_ms = 10, .failed_cycles_tolerance = 1, .min_indications = 0, .max_indications = 0};
+    config.component_properties.ready_condition = configuration::ReadyCondition{configuration::ProcessState::Running};
+
+    auto result = ProcessInfoNode::Create(
+        std::move(config), ProcessHandling{&mock_processIf_, process_map_, nullptr, mock_factory_});
+
+    ASSERT_THAT(result.has_value(), IsFalse());
+    EXPECT_THAT(result.error(), Eq(IComponent::ComponentError::kErrorBeforeReady));
+}
 
 // Bundles different cases for activate() that occur during startup, before the ready condition is reached.
 class ProcessInfoNodeStartupTest : public ProcessInfoNodeFixture

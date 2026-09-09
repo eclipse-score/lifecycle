@@ -60,12 +60,14 @@ class GraphTest : public ::testing::Test
 
         // The Graph builds its nodes from the configuration, so it can only be created once the
         // (fixture-specific) config is in place.
-        graph_ = std::make_unique<Graph>(
+        auto graph_res = Graph::Create(
             10U,
             graph_config_,
             job_queue_,
             ProcessHandling{&process_interface_, mock_process_map, nullptr, mock_factory_},
             &mock_transition_result_publisher_);
+        ASSERT_THAT(graph_res.has_value(), IsTrue());
+        graph_ = std::move(graph_res).value();
     }
 
     virtual void SetConfig()
@@ -206,6 +208,58 @@ class GraphTest : public ::testing::Test
         10,
     };
 };
+
+// Deliberately does not derive from GraphTest: that fixture's SetUp() asserts Graph::Create() succeeds,
+// which is exactly what this test needs to fail.
+class GraphCreateFailureTest : public ::testing::Test
+{
+  protected:
+    GraphConfig graph_config_{};
+    std::shared_ptr<WorkerQueue> job_queue_ = std::make_shared<WorkerQueue>();
+    StrictMock<osal::MockIProcess> process_interface_{};
+    std::shared_ptr<MockProcessMap> mock_process_map = std::make_shared<MockProcessMap>();
+    MockSupervisionFactory mock_factory_{};
+    MockTransitionResultPublisher mock_transition_result_publisher_{};
+};
+
+TEST_F(GraphCreateFailureTest, ComponentSupervisionConstructionFailurePreventsGraphCreation)
+{
+    RecordProperty(
+        "Description",
+        "If a component's alive supervision fails to construct, Graph::Create() fails instead of silently "
+        "building a graph containing a partially-initialized node, so process group startup is correctly "
+        "escalated.");
+
+    ComponentConfig supervised_component{};
+    supervised_component.name = "supervised_process";
+    supervised_component.component_properties.ready_condition = ReadyCondition{configuration::ProcessState::Running};
+    supervised_component.component_properties.application_profile.application_type =
+        ApplicationType::ReportingAndSupervised;
+    supervised_component.component_properties.application_profile.alive_supervision = ComponentAliveSupervision{
+        .reporting_cycle_ms = 10, .failed_cycles_tolerance = 1, .min_indications = 0, .max_indications = 0};
+
+    std::vector<ComponentConfig> components{};
+    components.push_back(std::move(supervised_component));
+
+    std::vector<RunTargetConfig> run_targets{};
+    run_targets.push_back(RunTargetConfig{"Startup", "", {}, 10, {}});
+    run_targets.push_back(RunTargetConfig{"Off", "", {}, 10, {}});
+
+    graph_config_ =
+        GraphConfig{std::move(components), std::move(run_targets), FallbackRunTargetConfig{"", {}, 10}, "Startup"};
+
+    EXPECT_CALL(mock_factory_, constructSupervision).WillOnce(Return(nullptr));
+
+    auto result = Graph::Create(
+        3U,
+        graph_config_,
+        job_queue_,
+        ProcessHandling{&process_interface_, mock_process_map, nullptr, mock_factory_},
+        &mock_transition_result_publisher_);
+
+    ASSERT_THAT(result.has_value(), IsFalse());
+    EXPECT_THAT(result.error(), Eq(IComponent::ComponentError::kErrorBeforeReady));
+}
 
 class GraphOrdinaryTransitionTest : public GraphTest
 {

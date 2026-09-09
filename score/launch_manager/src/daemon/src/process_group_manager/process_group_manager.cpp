@@ -206,13 +206,21 @@ bool ProcessGroupManager::initializeControlClientHandler()
 
 bool ProcessGroupManager::initializeProcessGroups()
 {
-    graph_ = std::make_shared<Graph>(
+    auto graph_res = Graph::Create(
         // size is +2 for fallback + off
         configuration_.components_.size() + configuration_.run_targets_.size() + 2,
         configuration_,
         worker_jobs_,
         ProcessHandling{&process_interface_, process_map_, &file_waiter_, alive_monitor_->getSupervisionFactory()},
         this);
+
+    if (!graph_res.has_value())
+    {
+        LM_LOG_ERROR() << "Failed to initialize process group";
+        return false;
+    }
+
+    graph_ = std::move(graph_res).value();
 
     LM_LOG_DEBUG() << "Process group initialized successfully";
     return true;
