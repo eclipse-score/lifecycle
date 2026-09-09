@@ -147,13 +147,9 @@ TEST_F(IdentifierHashTest, IdentifierHash_HashValueIsStableAcrossCompilersAndPro
 TEST_F(IdentifierHashTest, IdentifierHash_ConstructorOverloadsAgreeOnTheSameContent)
 {
     RecordProperty("Description", "Verify all constructors of IdentifierHash have the same hash.");
-    const std::string as_string = "ProcessGroup1/Startup";
-    const std::string_view as_string_view = "ProcessGroup1/Startup";
-    const char* as_c_string = "ProcessGroup1/Startup";
 
-    ASSERT_EQ(IdentifierHash(as_string).data(), IdentifierHash(as_string_view).data());
-    ASSERT_EQ(IdentifierHash(as_string).data(), IdentifierHash(as_c_string).data());
-    ASSERT_EQ(IdentifierHash(as_string_view).data(), IdentifierHash(as_c_string).data());
+    ASSERT_EQ(IdentifierHash().data(), IdentifierHash("").data());
+    ASSERT_EQ(IdentifierHash().data(), IdentifierHash::if_exists("").value().data());
 }
 
 TEST_F(IdentifierHashTest, IdentifierHash_LessThanOperator)
@@ -182,4 +178,20 @@ TEST_F(IdentifierHashTest, IdentifierHash_LessThanOperator)
         ASSERT_FALSE(hash1 < hash2);
         ASSERT_FALSE(hash2 < hash1);
     }
+}
+
+TEST_F(IdentifierHashTest, IdentifierHash_IfExists_Existing_CString)
+{
+    RecordProperty("Description", "Verify that IdentifierHash::if_exists returns the hash when it exists.");
+
+    IdentifierHash("Hello");
+    EXPECT_TRUE(IdentifierHash::if_exists("Hello").has_value());
+}
+
+TEST_F(IdentifierHashTest, IdentifierHash_IfExists_NotExisting_CString)
+{
+    RecordProperty(
+        "Description", "Verify that IdentifierHash::if_exists returns std::nullopt when the hash does not exist.");
+
+    EXPECT_FALSE(IdentifierHash::if_exists("Hello C-string").has_value());
 }

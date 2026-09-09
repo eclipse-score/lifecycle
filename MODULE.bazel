@@ -44,8 +44,22 @@ bazel_dep(name = "score_devcontainer", version = "1.11.0", dev_dependency = True
 bazel_dep(name = "score_bazel_cpp_toolchains", version = "1.0.3", dev_dependency = True)
 
 gcc = use_extension("@score_bazel_cpp_toolchains//extensions:gcc.bzl", "gcc", dev_dependency = True)
+
+# Compiler-warning features are owned by score_cpp_policies
+_WARNING_ENABLED_FEATURES = [
+    "@score_cpp_policies//warnings/gcc/features:minimal_warnings",
+    "@score_cpp_policies//warnings/gcc/features:warnings_as_errors",
+]
+
+_WARNING_KNOWN_FEATURES = [
+    "@score_cpp_policies//warnings/gcc/features:strict_warnings",
+    "@score_cpp_policies//warnings/gcc/features:all_wall_warnings",
+]
+
 gcc.toolchain(
     name = "score_gcc_x86_64_toolchain",
+    extra_enabled_features = _WARNING_ENABLED_FEATURES,
+    extra_known_features = _WARNING_KNOWN_FEATURES,
     target_cpu = "x86_64",
     target_os = "linux",
     use_default_package = True,
@@ -53,6 +67,8 @@ gcc.toolchain(
 )
 gcc.toolchain(
     name = "score_gcc_aarch64_toolchain",
+    extra_enabled_features = _WARNING_ENABLED_FEATURES,
+    extra_known_features = _WARNING_KNOWN_FEATURES,
     target_cpu = "aarch64",
     target_os = "linux",
     use_default_package = True,
@@ -60,6 +76,8 @@ gcc.toolchain(
 )
 gcc.toolchain(
     name = "score_qcc_x86_64_toolchain",
+    extra_enabled_features = _WARNING_ENABLED_FEATURES,
+    extra_known_features = _WARNING_KNOWN_FEATURES,
     sdp_version = "8.0.4",
     target_cpu = "x86_64",
     target_os = "qnx",
@@ -68,6 +86,8 @@ gcc.toolchain(
 )
 gcc.toolchain(
     name = "score_qcc_aarch64_toolchain",
+    extra_enabled_features = _WARNING_ENABLED_FEATURES,
+    extra_known_features = _WARNING_KNOWN_FEATURES,
     sdp_version = "8.0.4",
     target_cpu = "aarch64",
     target_os = "qnx",

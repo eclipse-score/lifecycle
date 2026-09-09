@@ -17,7 +17,10 @@
 #include <cstdlib>
 #include <string_view>
 
-#if (_GNU_SOURCE && __GLIBC__ >= 2 && __GLIBC_MINOR__ >= 32) || __QNXNTO__
+#if (                                                                                           \
+    defined(_GNU_SOURCE) && defined(__GLIBC__) && defined(__GLIBC_MINOR__) && __GLIBC__ >= 2 && \
+    __GLIBC_MINOR__ >= 32) ||                                                                   \
+    defined(__QNXNTO__)
 #include <cstring>
 #endif
 
@@ -113,10 +116,10 @@ template <typename... T>
 template <typename... T>
 [[nodiscard]] bool signal_safe_log_errno(int log_errno, const T&... values)
 {
-#if _GNU_SOURCE && __GLIBC__ >= 2 && __GLIBC_MINOR__ >= 32
+#if defined(_GNU_SOURCE) && defined(__GLIBC__) && defined(__GLIBC_MINOR__) && __GLIBC__ >= 2 && __GLIBC_MINOR__ >= 32
     // strerrordesc_np is documented as async signal safe.
     return signal_safe_log(values..., " (", strerrordesc_np(log_errno), ")");
-#elif __QNXNTO__
+#elif defined(__QNXNTO__)
     // QNX strerror is documented as async signal safe.
     return signal_safe_log(values..., " (", strerror(log_errno), ")");
 #else
