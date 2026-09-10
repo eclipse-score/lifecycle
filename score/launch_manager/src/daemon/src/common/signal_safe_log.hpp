@@ -50,6 +50,11 @@ class signal_safe_buffer
     }
 
     /// @brief Append the given integer to the buffer.
+    /// @note std::to_chars is not guaranteed async signal safe by the C++ standard. It is
+    ///       restricted to integral types here because, unlike floating point types (e.g.
+    ///       libstdc++'s long double overload, which allocates), integral overloads are known not
+    ///       to allocate or throw in the implementations we support. See
+    ///       https://github.com/eclipse-score/lifecycle/issues/385.
     template <typename T, std::enable_if_t<std::is_integral_v<T>, bool> = true>
     void append(const T& value)
     {
