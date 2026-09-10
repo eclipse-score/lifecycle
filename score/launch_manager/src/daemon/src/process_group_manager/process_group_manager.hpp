@@ -110,7 +110,7 @@ class ProcessGroupManager final : public IControllableGraph
     /// @brief Cancels processGroupManager main routine as though SIGTERM had been sent
     void cancel();
 
-    [[nodiscard]] score::Result<IdentifierHash> get_active_run_target() override;
+    [[nodiscard]] score::Result<IdentifierHash> get_active_run_target() const override;
 
     [[nodiscard]] score::Result<void> set_requested_run_target(IdentifierHash run_target) override;
 
@@ -185,7 +185,7 @@ class ProcessGroupManager final : public IControllableGraph
     void createProcessComponentsObjects(std::size_t total_processes);
 
     /// @brief Respond to a GetActiveRunTarget event.
-    void handle_get_active_run_target(GetActiveRunTarget* event);
+    void handle_get_active_run_target(GetActiveRunTarget* event) const;
 
     /// @brief Respond to a SetRequestedRunTarget event.
     void handle_set_requested_run_target(SetRequestedRunTarget* event);

@@ -440,7 +440,7 @@ ProcessInfoNode* ProcessGroupManager::getProcessInfoNode(uint32_t pg_index, Iden
     return nullptr;
 }
 
-void ProcessGroupManager::handle_get_active_run_target(GetActiveRunTarget* event)
+void ProcessGroupManager::handle_get_active_run_target(GetActiveRunTarget* event) const
 {
     if (graph_->getState() == GraphState::kInTransition)
     {
@@ -453,7 +453,7 @@ void ProcessGroupManager::handle_get_active_run_target(GetActiveRunTarget* event
     SCORE_LANGUAGE_FUTURECPP_ASSERT(set_result.has_value());
 }
 
-Result<IdentifierHash> ProcessGroupManager::get_active_run_target()
+Result<IdentifierHash> ProcessGroupManager::get_active_run_target() const
 {
     auto promise = concurrency::InterruptiblePromise<Result<IdentifierHash>>{};
 

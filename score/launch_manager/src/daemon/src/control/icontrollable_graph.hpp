@@ -26,7 +26,7 @@ class IControllableGraph
   public:
     /// @brief Get the active run target, or an error if we are currently
     ///        in transition.
-    [[nodiscard]] virtual score::Result<IdentifierHash> get_active_run_target() = 0;
+    [[nodiscard]] virtual score::Result<IdentifierHash> get_active_run_target() const = 0;
 
     /// @brief Set the requested run target.
     [[nodiscard]] virtual score::Result<void> set_requested_run_target(IdentifierHash run_target) = 0;
