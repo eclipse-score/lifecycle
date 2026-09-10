@@ -22,6 +22,7 @@ cc_library(
     deps = [
         ":icontrollable_graph",
         "//score/launch_manager/src/daemon/src/common:log",
+        "//score/launch_manager/src/daemon/src/osal:ipc_comms",
         "//score/launch_manager/src/lm_control",
     ],
 )
