@@ -45,10 +45,10 @@ TEST(ControlClientFDs, FindOpenFDs)
         report_running();
     }
 
+    // The report_running file descriptor should be closed after use.
     TEST_STEP("After Running")
     {
         auto open_fds = get_fds();
-        EXPECT_TRUE(filter_fd(open_fds, std::regex("/dev/shm/ipc_shared_mem[0-9]+")));
         std::ostringstream oss;
         oss << open_fds;
         EXPECT_TRUE(open_fds.empty()) << "Found open files!\n" << oss.str();
@@ -58,15 +58,6 @@ TEST(ControlClientFDs, FindOpenFDs)
     {
         auto client_result = ILmControl::Create("StateManager/LaunchManager/Instance");
         ASSERT_TRUE(client_result.has_value()) << client_result.error().Message();
-    }
-
-    TEST_STEP("After Control Client")
-    {
-        auto open_fds = get_fds();
-        EXPECT_TRUE(filter_fd(open_fds, std::regex("/dev/shm/ipc_shared_mem[0-9]+")));
-        std::ostringstream oss;
-        oss << open_fds;
-        EXPECT_TRUE(open_fds.empty()) << "Found open files!\n" << oss.str();
     }
 
     TEST_STEP("Wait for other procs to finish")

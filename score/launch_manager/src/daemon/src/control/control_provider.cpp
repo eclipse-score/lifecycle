@@ -13,6 +13,7 @@
 
 #include "score/mw/launch_manager/control/control_provider.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/osal/ipc_comms.hpp"
 
 namespace
 {
@@ -152,6 +153,34 @@ void ControlProvider::offer_service()
 {
     const auto result = skeleton_.OfferService();
     SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(result.has_value(), result.error().Message().data());
+
+    // Workaround for https://github.com/eclipse-score/communication/issues/1064.
+    // This should be removed once the above issue is solved.
+    for (int fd = 0; fd < 16; fd++)
+    {
+        switch (fd)
+        {
+            case STDIN_FILENO:
+            case STDOUT_FILENO:
+            case STDERR_FILENO:
+            case osal::IpcCommsSync::sync_fd:
+                break;
+            default:
+                int flags = fcntl(fd, F_GETFD);
+                if (flags == -1)
+                {
+                    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+                        errno == EBADF, "fcntl F_GETFD failed with unexpected error");
+                }
+                else
+                {
+                    flags |= FD_CLOEXEC;
+                    const auto result = fcntl(fd, F_SETFD, flags);
+                    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(result != -1, "fcntl F_SETFD failed");
+                }
+                break;
+        }
+    }
 }
 
 }  // namespace score::mw::lifecycle::internal
