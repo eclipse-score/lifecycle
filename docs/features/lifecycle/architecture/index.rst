@@ -64,8 +64,13 @@ Static Architecture
    :safety: ASIL_B
    :status: valid
    :version: 1
-   :fulfils: feat_req__lifecycle__launch_support[version==1]
-   :includes: logic_arc_int__lifecycle__lifecycle_if[version==1], logic_arc_int__lifecycle__alive_if[version==1], logic_arc_int__lifecycle__controlif[version==1], logic_arc_int__lifecycle__deadline_monitor_if[version==1], logic_arc_int__lifecycle__logical_monitor_if[version==1]
+   :fulfils: feat_req__lifecycle__launch_support[version==1],
+             feat_req__lifecycle__logging_support[version==1]
+   :includes: logic_arc_int__lifecycle__lifecycle_if[version==1],
+              logic_arc_int__lifecycle__alive_if[version==1],
+              logic_arc_int__lifecycle__controlif[version==1],
+              logic_arc_int__lifecycle__deadline_monitor_if[version==1],
+              logic_arc_int__lifecycle__logical_monitor_if[version==1]
    :belongs_to: feat__lifecycle
 
    .. needarch::
@@ -77,22 +82,26 @@ Static Architecture
 Dynamic Architecture
 --------------------
 
-.. code-block:: rst
+The dynamic architecture between the interfaces and the user application
+are described in the following sub-pages:
 
-   .. feat_arc_dyn:: Dynamic View
-      :id: feat_arc_dyn__feature_name__dynamic_view
-      :security: YES
-      :safety: ASIL_B
-      :status: invalid
-      :fulfils: feat_req__feature_name__some_title
-      :belongs_to: feat__feature_name
+.. toctree::
+   :maxdepth: 1
 
-      Put here a sequence diagram
+   ./launch_manager
+   ./control_client
+   ./lifecycle_client
+   ./alive
+   ./launch_manager_configuration
+   ./health_monitor
+   ./external_monitoring
 
 Logical Interfaces
 ------------------
 
-The logical interfaces of the feature are defined in the `interfaces` section of the feature documentation in the project repository: :need:`doc__lifecycle_architecture`
+The logical interfaces of the feature are defined in the `interfaces` section
+of the feature documentation in the project repository:
+:need:`doc__lifecycle_architecture`
 
 Module Viewpoint
 ----------------
@@ -117,14 +126,4 @@ Module Viewpoint
       NativeApplication --> posix_signals : implements
       comp__lifecycle_launch_manager --> posix_signals : use
 
-Components Details
-------------------
 
-.. toctree::
-   :maxdepth: 1
-   :glob:
-
-   ./launch_manager
-   ./launch_manager_configuration
-   ./health_monitor
-   ./external_monitoring

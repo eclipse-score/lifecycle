@@ -139,7 +139,7 @@ docs_bundle(
     bundles = [
         {
             "bundle": "//score/launch_manager/src/lifecycle_client:docs",
-            "mount_at": "subcomponents/lifecycle_client",
+            "mount_at": "interfaces/lifecycle_client",
         },
     ],
     code_targets = [
