@@ -32,4 +32,3 @@ For the main feature description and requirements, see the belonging Feature in 
    safety_analysis/aou_requirements.rst
    safety_planning/index.rst
    security_planning/index.rst
-   glossary
