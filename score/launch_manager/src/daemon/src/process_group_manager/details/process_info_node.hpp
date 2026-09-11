@@ -25,6 +25,7 @@
 #include <score/stop_token.hpp>
 #include <atomic>
 #include <chrono>
+#include <string>
 
 namespace score::mw::lifecycle::internal
 {
@@ -172,6 +173,9 @@ class ProcessInfoNode final : public IComponent
 
     /// @brief Creates the ControlClientChannel from the process's IPC comms handle.
     void setupControlClientChannel();
+
+    /// @brief Returns a standardized identity string for logging, e.g. "Name: my_component, PID: 1234".
+    [[nodiscard]] std::string logId() const;
 
     /// @brief semaphore used to check termination with timeout
     osal::Semaphore terminator_{};
