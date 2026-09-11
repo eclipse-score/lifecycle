@@ -24,17 +24,18 @@ participant "Crashing Process" as app1
 activate LM
 activate app1
 
-== Switch Run Target ==
+...
 
-LM -> LM: analyze current state
-LM -> LM: determine transition plan
 
 app1 -> app1: Random crash
 app1 -> kernel: terminate
 destroy app1
-kernel -> LM: process termianted
+kernel -> LM: process terminated
 
 LM -> LM: analyze current state
-LM -> LM: transiotion to fallback run target
+LM -> LM: determine transition plan.\nA recovery action has to be ran,\nthe recovery action is to switch to a different Run Target.
+LM -> LM: Switch Run Target.
+
+...
 
 @enduml

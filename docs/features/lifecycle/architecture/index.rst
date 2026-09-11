@@ -82,8 +82,8 @@ Static Architecture
 Dynamic Architecture
 --------------------
 
-The dynamic architecture between the interfaces and the user application
-are described in the following sub-pages:
+Interactions between the :term:`Launch Manager` and a User applications
+(through it's interfaces):
 
 .. toctree::
    :maxdepth: 1
@@ -93,8 +93,16 @@ are described in the following sub-pages:
    ./lifecycle_client
    ./alive
    ./launch_manager_configuration
-   ./health_monitor
    ./external_monitoring
+
+
+Interaction between the :term:`Health Monitor` and :term:`Launch Manager`:
+
+.. toctree::
+   :maxdepth: 1
+
+   ./health_monitor
+
 
 Logical Interfaces
 ------------------
