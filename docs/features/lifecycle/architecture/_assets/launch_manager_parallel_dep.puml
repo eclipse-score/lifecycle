@@ -37,9 +37,5 @@ app1 -> app1: Internal User app initialization
 app1 -> LM: signal ready state via Lifecycle API
 app2 -> app2: Internal User app initialization
 app2 -> LM: signal ready state via Lifecycle API
-
-LM -> LM: analyze current state
-LM -> LM: determine transition plan
-
 ...
 @enduml

@@ -15,14 +15,20 @@
 Control Client
 ##############
 
-This interface provides control functionality for activating and managing run targets.It allows users to trigger execution of configured :term:`Run targets <Run target>` through a standardized activation mechanism.
+This interface provides control functionality for activating and managing run
+targets.
+It allows users to trigger execution of configured :term:`Run targets <Run
+target>` through a standardized activation mechanism.
 
 Interface
 =========
 
-The control interface is defined here: :need:`logic_arc_int__lifecycle__controlif`
-The :term:`Launch Manager` provides an interface, which allows an external State Manager application to request the :term:`Launch Manager` to start, stop or restart applications or groups of applications,
-which allows the implementation of a state management applications to support dynamic state control.
+The control interface is defined here:
+:need:`logic_arc_int__lifecycle__controlif` The :term:`Launch Manager` provides
+an interface, which allows an external State Manager application to request the
+:term:`Launch Manager` to start, stop or restart applications or groups of
+applications, which allows the implementation of a state management
+applications to support dynamic state control.
 
 Requirements
 ============
@@ -35,11 +41,13 @@ Requirements
 Dynamic architecture
 ====================
 
-The following use cases are supported by the `ControlInterface` provided by the :term:`Launch Manager`.
+The following use cases are supported by the `ControlInterface` provided by the
+:term:`Launch Manager`.
 
 **Activating a Run Target**
 
-When a request to activate a run target is received via the `ControlInterface`, the :term:`Launch Manager` shall perform the following operations:
+When a request to activate a run target is received via the `ControlInterface`,
+the :term:`Launch Manager` shall perform the following operations:
 
 1. **Validation**: Evaluate if the conditions are correct for activating the requested run target:
    - The run target exists in the configuration
@@ -59,7 +67,9 @@ When a request to activate a run target is received via the `ControlInterface`, 
    - Success if all components transitioned correctly
    - Failure with detailed error information if any component failed to transition
 
-This unified approach allows external state managers to request any run target activation without needing to know the current system state, as the :term:`Launch Manager` handles the transition logic internally.
+This unified approach allows external state managers to request any run target
+activation without needing to know the current system state, as the
+:term:`Launch Manager` handles the transition logic internally.
 
 .. feat_arc_dyn:: Control interface dynamic architecture activate run target
    :id: feat_arc_dyn__lifecycle__control_activate
