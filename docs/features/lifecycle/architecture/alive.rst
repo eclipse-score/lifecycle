@@ -14,6 +14,7 @@
 
 Alive
 #####
+
 The Alive Interface provides a basic watchdog functionality interface that
 delivers essential monitoring capabilities for system health and responsiveness
 tracking.
@@ -34,9 +35,6 @@ The liveliness mechanism includes:
 
 - Configurable heartbeat intervals per application
 - Timeout detection and failure handling
-
-Interface
-=========
 
 The alive interface is defined here: :need:`logic_arc_int__lifecycle__alive_if`
 
