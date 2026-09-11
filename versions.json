@@ -32,6 +32,10 @@
     "url": "https://eclipse-score.github.io/lifecycle/pr-618/"
   },
   {
+    "version": "pr-624",
+    "url": "https://eclipse-score.github.io/lifecycle/pr-624/"
+  },
+  {
     "version": "v0.1.0",
     "url": "https://eclipse-score.github.io/lifecycle/v0.1.0/"
   },
@@ -42,9 +46,5 @@
   {
     "version": "v0.3.0",
     "url": "https://eclipse-score.github.io/lifecycle/v0.3.0/"
-  },
-  {
-    "version": "pr-624",
-    "url": "https://eclipse-score.github.io/lifecycle/pr-624/"
   }
 ]
