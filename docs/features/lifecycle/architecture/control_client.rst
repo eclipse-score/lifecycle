@@ -20,27 +20,6 @@ targets.
 It allows users to trigger execution of configured :term:`Run targets <Run
 target>` through a standardized activation mechanism.
 
-Interface
-=========
-
-The control interface is defined here:
-:need:`logic_arc_int__lifecycle__controlif` The :term:`Launch Manager` provides
-an interface, which allows an external State Manager application to request the
-:term:`Launch Manager` to start, stop or restart applications or groups of
-applications, which allows the implementation of a state management
-applications to support dynamic state control.
-
-Requirements
-============
-
-- :need:`feat_req__lifecycle__control_commands`
-- :need:`feat_req__lifecycle__request_run_target_start`
-- :need:`feat_req__lifecycle__switch_run_targets`
-
-
-Dynamic architecture
-====================
-
 The following use cases are supported by the `ControlInterface` provided by the
 :term:`Launch Manager`.
 
@@ -70,6 +49,19 @@ the :term:`Launch Manager` shall perform the following operations:
 This unified approach allows external state managers to request any run target
 activation without needing to know the current system state, as the
 :term:`Launch Manager` handles the transition logic internally.
+
+Interface
+=========
+
+The control interface is defined here:
+:need:`logic_arc_int__lifecycle__controlif` The :term:`Launch Manager` provides
+an interface, which allows an external State Manager application to request the
+:term:`Launch Manager` to start, stop or restart applications or groups of
+applications, which allows the implementation of a state management
+applications to support dynamic state control.
+
+Dynamic architecture
+====================
 
 .. feat_arc_dyn:: Control interface dynamic architecture activate run target
    :id: feat_arc_dyn__lifecycle__control_activate
