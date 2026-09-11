@@ -20,7 +20,7 @@ namespace
 using score::mw::com::InstanceSpecifier;
 using score::mw::lifecycle::internal::LmControlSkeleton;
 
-LmControlSkeleton create_skeleton()
+LmControlSkeleton createSkeleton()
 {
     const auto instance_specifier_result =
         InstanceSpecifier::Create(std::string{"LaunchManager/StateManager/Instance"});
@@ -37,24 +37,24 @@ LmControlSkeleton create_skeleton()
 namespace score::mw::lifecycle::internal
 {
 
-ControlProvider::ControlProvider(IControllableGraph* graph) : skeleton_(create_skeleton()), graph_(graph)
+ControlProvider::ControlProvider(IControllableGraph* graph) : skeleton_(createSkeleton()), graph_(graph)
 {
-    setup_activate_run_target();
-    setup_get_active_run_target();
-    setup_activation_result();
-    offer_service();
+    setupActivateRunTarget();
+    setupGetActiveRunTarget();
+    setupActivationResult();
+    offerService();
 }
 
-void ControlProvider::setup_activate_run_target()
+void ControlProvider::setupActivateRunTarget()
 {
     const auto result = skeleton_.activate_run_target.RegisterHandler(
         [this](ActivateRunTargetResponse& response, const ActivateRunTargetRequest& request) {
-            this->handle_activate_run_target(response, request);
+            this->handleActivateRunTarget(response, request);
         });
     SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(result.has_value(), result.error().Message().data());
 }
 
-void ControlProvider::handle_activate_run_target(
+void ControlProvider::handleActivateRunTarget(
     ActivateRunTargetResponse& response,
     const ActivateRunTargetRequest& request)
 {
@@ -75,7 +75,7 @@ void ControlProvider::handle_activate_run_target(
         return;
     }
 
-    const score::Result<void> result = graph_->set_requested_run_target(new_state.value());
+    const score::Result<void> result = graph_->setRequestedRunTarget(new_state.value());
     if (!result.has_value())
     {
         response = ActivateRunTargetResponse{
@@ -88,17 +88,17 @@ void ControlProvider::handle_activate_run_target(
     response = ActivateRunTargetResponse{status : RequestStatus::kAccepted};
 }
 
-void ControlProvider::setup_get_active_run_target()
+void ControlProvider::setupGetActiveRunTarget()
 {
     const auto result = skeleton_.get_active_run_target.RegisterHandler([this](GetActiveRunTargetResponse& response) {
-        this->handle_get_active_run_target(response);
+        this->handleGetActiveRunTarget(response);
     });
     SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(result.has_value(), result.error().Message().data());
 }
 
-void ControlProvider::handle_get_active_run_target(GetActiveRunTargetResponse& response)
+void ControlProvider::handleGetActiveRunTarget(GetActiveRunTargetResponse& response)
 {
-    const score::Result<IdentifierHash> result = graph_->get_active_run_target();
+    const score::Result<IdentifierHash> result = graph_->getActiveRunTarget();
     if (!result.has_value())
     {
         SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
@@ -115,14 +115,14 @@ void ControlProvider::handle_get_active_run_target(GetActiveRunTargetResponse& r
     response = GetActiveRunTargetResponse{status : QueryStatus::kAvailable, run_target : RunTargetName(name)};
 }
 
-void ControlProvider::setup_activation_result()
+void ControlProvider::setupActivationResult()
 {
-    graph_->watch_active_run_target([this](IdentifierHash state, RunTargetActivationSource source) {
-        this->handle_activation_result(state, source);
+    graph_->registerActiveRunTargetCallback([this](IdentifierHash state, RunTargetActivationSource source) {
+        this->handleActivationResult(state, source);
     });
 }
 
-void ControlProvider::handle_activation_result(IdentifierHash state, RunTargetActivationSource source)
+void ControlProvider::handleActivationResult(IdentifierHash state, RunTargetActivationSource source)
 {
     auto allocate_result = skeleton_.activation_result.Allocate();
     if (!allocate_result.has_value())
@@ -153,7 +153,7 @@ void ControlProvider::handle_activation_result(IdentifierHash state, RunTargetAc
     LM_LOG_DEBUG() << "Sent the activation result to the state manager";
 }
 
-void ControlProvider::offer_service()
+void ControlProvider::offerService()
 {
     const auto result = skeleton_.OfferService();
     SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(result.has_value(), result.error().Message().data());

@@ -110,11 +110,12 @@ class ProcessGroupManager final : public IControllableGraph
     /// @brief Cancels processGroupManager main routine as though SIGTERM had been sent
     void cancel();
 
-    [[nodiscard]] score::Result<IdentifierHash> get_active_run_target() const override;
+    [[nodiscard]] score::Result<IdentifierHash> getActiveRunTarget() const override;
 
-    [[nodiscard]] score::Result<void> set_requested_run_target(IdentifierHash run_target) override;
+    [[nodiscard]] score::Result<void> setRequestedRunTarget(IdentifierHash run_target) override;
 
-    void watch_active_run_target(std::function<void(IdentifierHash, RunTargetActivationSource)> callback) override;
+    void registerActiveRunTargetCallback(
+        std::function<void(IdentifierHash, RunTargetActivationSource)> callback) override;
 
     const IdentifierHash recovery_state_{"fallback"};
 
@@ -185,10 +186,10 @@ class ProcessGroupManager final : public IControllableGraph
     void createProcessComponentsObjects(std::size_t total_processes);
 
     /// @brief Respond to a GetActiveRunTarget event.
-    void handle_get_active_run_target(GetActiveRunTarget* event) const;
+    void handleGetActiveRunTarget(GetActiveRunTarget* event) const;
 
     /// @brief Respond to a SetRequestedRunTarget event.
-    void handle_set_requested_run_target(SetRequestedRunTarget* event);
+    void handleSetRequestedRunTarget(SetRequestedRunTarget* event);
 
     /// @brief The configuration object associated with the ProcessGroupManager.
     GraphConfig configuration_;
