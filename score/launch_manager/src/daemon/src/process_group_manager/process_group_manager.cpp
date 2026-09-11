@@ -471,24 +471,41 @@ Result<IdentifierHash> ProcessGroupManager::getActiveRunTarget() const
 
 void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* event)
 {
+    IdentifierHash old_state = graph_->getProcessGroupState();
+    GraphState graph_state = graph_->getState();
+    Result<void> response = {};
+
     if (!graph_->isValidRunTarget(event->run_target))
     {
-        const auto set_result = event->promise.SetValue(score::MakeUnexpected(ExecErrc::kRunTargetDoesntExist));
-        SCORE_LANGUAGE_FUTURECPP_ASSERT(set_result.has_value());
-        return;
+        // Reject before this can reach Graph::startTransition() with no matching node (#541).
+        response = score::MakeUnexpected(ExecErrc::kRunTargetDoesntExist);
     }
-
-    if (graph_->getProcessGroupState() == event->run_target)
+    else if (GraphState::kInTransition == graph_state)
     {
-        const auto set_result = event->promise.SetValue(score::MakeUnexpected(ExecErrc::kAlreadyInState));
-        SCORE_LANGUAGE_FUTURECPP_ASSERT(set_result.has_value());
-        return;
+        if (old_state != event->run_target)
+        {
+            (void)graph_->setPendingState(event->run_target);
+            // get state transition start time stamp
+            graph_->setRequestStartTime();
+            graph_->cancel();
+        }
+        else
+        {
+            response = score::MakeUnexpected(ExecErrc::kInTransitionToSameState);
+        }
+    }
+    else if (GraphState::kSuccess == graph_state && old_state == event->run_target)
+    {
+        response = score::MakeUnexpected(ExecErrc::kAlreadyInState);
+    }
+    else
+    {
+        (void)graph_->setPendingState(event->run_target);
+        // get state transition start time stamp
+        graph_->setRequestStartTime();
     }
 
-    const auto start_result = graph_->startTransition(event->run_target);
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(start_result, "requesting a valid run target should succeed");
-
-    const auto set_result = event->promise.SetValue({});
+    const auto set_result = event->promise.SetValue(response);
     SCORE_LANGUAGE_FUTURECPP_ASSERT(set_result.has_value());
 }
 
