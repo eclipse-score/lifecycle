@@ -15,7 +15,9 @@
 
 #include <score/assert.hpp>
 
-#include "score/mw/launch_manager/alive_monitor/details/timers/OsClockInterface.hpp"
+#include <chrono>
+#include <thread>
+
 #include "score/mw/launch_manager/configuration/config.hpp"
 #include "score/mw/launch_manager/watchdog/details/Watchdog.hpp"
 
@@ -448,14 +450,11 @@ bool WatchdogImpl::validateTimeoutWithCycleTime(std::int64_t f_cycleTimeInNs, co
  * true_no_defect) */
 void WatchdogImpl::waitForever() const noexcept
 {
+    using namespace std::chrono_literals;
     // This code cannot be covered in tests, as it blocks execution forever
-    const score::mw::lifecycle::internal::saf::timers::OsClockInterface clock{};
-    struct timespec sleeptime = {};
-    sleeptime.tv_sec = 1;
-    sleeptime.tv_nsec = 0;
     while (true)
     {
-        static_cast<void>(clock.clockNanosleep(0, &sleeptime, NULL));
+        std::this_thread::sleep_for(1s);
     }
 }
 #if defined(__CTC__) && defined(__CODE_COVERAGE_ANNOTATION__)
