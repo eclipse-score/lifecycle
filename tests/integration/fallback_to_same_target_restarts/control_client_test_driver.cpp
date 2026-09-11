@@ -14,10 +14,12 @@
 
 #include "tests/utils/test_helper/test_helper.hpp"
 #include <fcntl.h>
-#include <score/mw/lifecycle/control_client.h>
+#include <score/mw/lifecycle/ilm_control.hpp>
 #include <score/mw/lifecycle/report_running.h>
 #include <chrono>
 #include <thread>
+
+using namespace score::mw::lifecycle;
 
 // Given a correct configuration with:
 //   - An initial Run Target named "Startup" containing "control_client_test_driver"
@@ -26,40 +28,69 @@
 
 TEST(FallbackToSameTargetRestarts, ControlClientTestDriver)
 {
-    score::mw::lifecycle::ControlClient client;
-
     const std::string_view process_file = "process_started_normally";
 
     ASSERT_TRUE(check_clean({process_file}));
-    // Establish communication with launch manager
+
+    std::unique_ptr<ILmControl> client;
+
+    TEST_STEP("Create client")
+    {
+        auto client_result = ILmControl::Create("StateManager/LaunchManager/Instance");
+        ASSERT_TRUE(client_result.has_value()) << client_result.error().Message();
+        client = std::move(client_result).value();
+    }
+
+    TEST_STEP("Register callback")
+    {
+        const auto result = client->register_run_target_activation_callback(push_event);
+        ASSERT_TRUE(result.has_value());
+    }
+
     TEST_STEP("Report running")
     {
-        score::mw::lifecycle::report_running();
+        report_running();
     }
+
+    pop_event([](RunTargetActivationSource source, RunTargetName target) {
+        TEST_STEP("Callback for RunTarget Startup")
+        {
+            EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
+            EXPECT_EQ(target, "Startup");
+        }
+    });
 
     TEST_STEP("Start crashing process")
     {
-        score::cpp::stop_token stop_token;
-        auto result = client.ActivateRunTarget("run_target_crashing_app_on_runtime").Get(stop_token);
-        EXPECT_TRUE(result.has_value()) << "Activating target run_target_crashing_app_on_runtime failed: "
-                                        << result.error().Message();
+        const auto result = client->activate_run_target("run_target_crashing_app_on_runtime", true);
+        EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
-    // When the process crashes, wait for the fallback to be activated.
-    {
-        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
-        while (!std::filesystem::exists(process_file) && std::chrono::steady_clock::now() < deadline)
+
+    pop_event([](RunTargetActivationSource source, RunTargetName target) {
+        TEST_STEP("Callback for RunTarget run_target_crashing_app_on_runtime")
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
+            EXPECT_EQ(target, "run_target_crashing_app_on_runtime");
         }
-    }
-    // Then
+    });
+
+    pop_event([](RunTargetActivationSource source, RunTargetName target) {
+        TEST_STEP("Callback for RunTarget fallback")
+        {
+            EXPECT_EQ(source, RunTargetActivationSource::kRecoveryAction);
+            EXPECT_EQ(target, "fallback");
+        }
+    });
+
     TEST_STEP("Verify process was restarted")
     {
         EXPECT_TRUE(std::filesystem::exists(process_file)) << "Process did not restart successfully";
     }
+
     TEST_STEP("Activate RunTarget Off")
     {
-        client.ActivateRunTarget("Off");
+        const auto result = client->activate_run_target("Off", true);
+        EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 }
 

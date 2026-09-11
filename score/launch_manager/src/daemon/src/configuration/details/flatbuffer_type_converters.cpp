@@ -84,7 +84,8 @@ ApplicationType convertApplicationType(fb::ApplicationType fb_type)
         case fb::ApplicationType::Reporting_And_Supervised:
             return ApplicationType::ReportingAndSupervised;
         case fb::ApplicationType::State_Manager:
-            return ApplicationType::StateManager;
+            // These are now equivalent as access control is done via mw::com
+            return ApplicationType::ReportingAndSupervised;
         case fb::ApplicationType::Native:
         default:
             return ApplicationType::Native;

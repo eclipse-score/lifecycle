@@ -25,6 +25,7 @@ cc_binary(
         "//score/launch_manager/src/daemon/src/common:assertion_handler",
         "//score/launch_manager/src/daemon/src/common:log",
         "//score/launch_manager/src/daemon/src/configuration:flatbuffer_config_loader",
+        "//score/launch_manager/src/daemon/src/control:control_provider",
         "//score/launch_manager/src/daemon/src/osal:ipc_comms",
         "//score/launch_manager/src/daemon/src/process_group_manager",
         "//score/launch_manager/src/daemon/src/recovery_client",

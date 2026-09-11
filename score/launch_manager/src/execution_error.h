@@ -42,8 +42,9 @@ enum class ExecErrc : score::result::ErrorCode
     kCycleOverrun = 13,             ///< Deterministic activation cycle time exceeded
     kActivationInProgress =
         14,  ///< A Run Target activation is already in progress; no single Run Target is currently active
-    kRequestQueueIsFull = 15,   ///< The activation request queue is full; the request was discarded
-    kRunTargetDoesntExist = 16  ///< The requested Run Target name does not exist in the current configuration
+    kRequestQueueIsFull = 15,    ///< The activation request queue is full; the request was discarded
+    kRunTargetDoesntExist = 16,  ///< The requested Run Target name does not exist in the current configuration
+    kNotImplemented = 17,        ///< The requested functionality is not yet implemented
 };
 
 class ExecErrorDomain final : public score::result::ErrorDomain
@@ -87,6 +88,8 @@ class ExecErrorDomain final : public score::result::ErrorDomain
                 return "The activation request queue is full; the request was discarded";
             case ExecErrc::kRunTargetDoesntExist:
                 return "The requested Run Target name does not exist in the current configuration";
+            case ExecErrc::kNotImplemented:
+                return "The requested functionality is not yet implemented";
             default:
                 return "Unknown error";
         }

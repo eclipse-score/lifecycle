@@ -20,6 +20,7 @@
 #include "score/mw/launch_manager/alive_monitor/details/daemon/AliveMonitorImpl.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/configuration/flatbuffer_config_loader.hpp"
+#include "score/mw/launch_manager/control/control_provider.hpp"
 #include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
 #include "score/mw/launch_manager/recovery_client/recovery_client.hpp"
 #include "score/mw/launch_manager/watchdog/WatchdogFactory.hpp"
@@ -129,13 +130,11 @@ int main(int argc, const char* argv[])
                 return EXIT_FAILURE;
         }
     }
-    // reserve files descriptor osal::IpcCommsSync::sync_fd (fd3) and
-    // osal::IpcCommsSync::control_client_handler_nudge_fd (fd4) for communication tpyes: kNoComms !fd3 & !fd4
+    // reserve files descriptor osal::IpcCommsSync::sync_fd (fd3)
+    // for communication tpyes: kNoComms !fd3 & !fd4
     // kReporting  fd3 & !fd4
-    // kControlClient  fd3 & fd4
     // the file descriptors are closed inside the handleComms function.
     reserveFD(osal::IpcCommsSync::sync_fd);
-    reserveFD(osal::IpcCommsSync::control_client_handler_nudge_fd);
 
     int exit_code = EXIT_FAILURE;
 
@@ -186,6 +185,9 @@ int main(int argc, const char* argv[])
 
         if (process_group_manager->initialize())
         {
+            // Remains active in the background until this variable goes out of scope.
+            const ControlProvider control_provider = ControlProvider(process_group_manager.get());
+
             if (runLCMDaemon(*process_group_manager))
             {
                 exit_code = EXIT_SUCCESS;
@@ -204,7 +206,6 @@ int main(int argc, const char* argv[])
     }
 
     close(osal::IpcCommsSync::sync_fd);
-    close(osal::IpcCommsSync::control_client_handler_nudge_fd);
 
     LM_LOG_INFO() << "Launch Manager completed with exit code value:" << exit_code;
 
