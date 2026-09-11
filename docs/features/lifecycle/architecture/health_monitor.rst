@@ -100,64 +100,45 @@ Dynamic Architecture
    :version: 1
    :safety: ASIL_B
    :fulfils: feat_req__lifecycle__liveliness_detection[version==1],
-             feat_req__lifecycle__hm_checkpoint[version==1]
+             feat_req__lifecycle__hm_checkpoint[version==1],
+             feat_req__lifecycle__hm_deadline[version==1],
    :belongs_to: feat__lifecycle[version==1]
 
    .. uml:: _assets/application_health_monitoring_dynamic.puml
       :scale: 50
       :align: center
 
-The most important interactions are the following:
+   The most important interactions are the following:
 
-.. list-table:: Sequence diagram Description
-   :widths: 10 90
-   :header-rows: 1
+   .. list-table:: Sequence diagram Description
+      :widths: 10 90
+      :header-rows: 1
 
-   * - Sequence number
-     - Description
-   * - 001
-     - :term:`Launch Manager` configuration for the alive monitoring of the `Monitored application` is parsed. This contains for example, what is the expected interval of alive notifications,
-       how long grace period is given before failing to a missed (never received) alive notification etc.
-   * - 002
-     - Start the startup grace period timer to allow the application to startup, before timing out to a missed alive notification
-   * - 003
-     - The `Monitored application` is started. (To simplify, no startup checks drawn here)
-   * - 004
-     - The `Monitored application` instantiate and configure the HealthMonitor
-   * - 006
-     - Cyclic reporting aliveness to the monitor.
-   * - 007
-     - HealthMonitor waking up and checking if the checkpoint(s) have been called
-   * - 008
-     - Report aliveness to the LM's application specific supervision, observing the health of the HealthMonitor itself
-   * - 009
-     - Checkpoint sent, but not on time
-   * - 010
-     - Wake up and check if the checkpoint(s) have been triggered. In this case it was not, and thus actions 011 and 012 are triggered.
-   * - 011
-     - Trigger a failure event to the Launch Manager. This event allows the monitor react faster than waiting for the timeout to expire.
-   * - 012
-     - Additionally, triggering alive must be stopped
+      * - Sequence number
+        - Description
+      * - 001
+        - :term:`Launch Manager` configuration for the alive monitoring of the `Monitored application` is parsed. This contains for example, what is the expected interval of alive notifications, how long grace period is given before failing to a missed (never received) alive notification etc.
+      * - 002
+        - Start the startup grace period timer to allow the application to startup, before timing out to a missed alive notification
+      * - 003
+        - The `Monitored application` is started. (To simplify, no startup checks drawn here)
+      * - 004
+        - The `Monitored application` instantiate and configure the HealthMonitor
+      * - 006
+        - Cyclic reporting aliveness to the monitor.
+      * - 007
+        - HealthMonitor waking up and checking if the checkpoint(s) have been called
+      * - 008
+        - Report aliveness to the LM's application specific supervision, observing the health of the HealthMonitor itself
+      * - 009
+        - Checkpoint sent, but not on time
+      * - 010
+        - Wake up and check if the checkpoint(s) have been triggered. In this case it was not, and thus actions 011 and 012 are triggered.
+      * - 011
+        - Trigger a failure event to the Launch Manager. This event allows the monitor react faster than waiting for the timeout to expire.
+      * - 012
+        - Additionally, triggering alive must be stopped
 
-Requirements
-------------
-
-- :need:`feat_req__lifecycle__liveliness_detection`
-- :need:`feat_req__lifecycle__hm_deadline`
-- :need:`feat_req__lifecycle__hm_checkpoint`
-- :need:`feat_req__lifecycle__hm_logical`
-
-Logical Monitor API
-===================
-
-Interface
----------
-
-The logical monitor interface is defined here: :need:`logic_arc_int__lifecycle__logical_monitor_if`
-
-
-Dynamic Architecture
---------------------
 
 .. feat_arc_dyn:: Logical control flow monitoring
    :id: feat_arc_dyn__lifecycle__app_ctrl_flow_mon
@@ -165,7 +146,9 @@ Dynamic Architecture
    :status: valid
    :version: 1
    :safety: ASIL_B
-   :fulfils: feat_req__lifecycle__liveliness_detection[version==1]
+   :fulfils: feat_req__lifecycle__liveliness_detection[version==1],
+             feat_req__lifecycle__hm_checkpoint[version==1],
+             feat_req__lifecycle__hm_logical[version==1],
    :belongs_to: feat__lifecycle[version==1]
 
    .. uml:: _assets/logical_sup.puml
