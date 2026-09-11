@@ -15,7 +15,8 @@
 Launch Manager Configuration
 ############################
 
-The :term:`Launch Manager` supports a set of configuration parameters, which are grouped in the following categories:
+The :term:`Launch Manager` supports a set of configuration parameters, which
+are grouped in the following categories:
 
 Component Configuration Parameters
 ==================================

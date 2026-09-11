@@ -43,10 +43,6 @@ The concept is based on 2 major components:
 
 <Design Constraints>
 
-Requirements
-------------
-
-The requirements for the feature architecture are defined in the `requirements` section of the feature documentation in the project repository: :need:`doc__lifecycle_requirements`
 
 Rationale Behind Architecture Decomposition
 *******************************************
@@ -78,21 +74,24 @@ Static Architecture
       :align: center
 
       {{ draw_feature(need(), needs) }}
+      artifact "Configuration" as cfg
+
+      comp__lifecycle_launch_manager --> cfg: use
 
 Dynamic Architecture
 --------------------
 
-Interactions between the :term:`Launch Manager` and a User applications
+Interactions between the :term:`Launch Manager` and a User application
 (through it's interfaces):
 
 .. toctree::
    :maxdepth: 1
 
-   ./launch_manager
    ./control_client
    ./lifecycle_client
    ./alive
    ./launch_manager_configuration
+   ./launch_manager
    ./external_monitoring
 
 
