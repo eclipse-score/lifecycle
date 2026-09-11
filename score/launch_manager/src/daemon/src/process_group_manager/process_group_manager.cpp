@@ -442,14 +442,22 @@ ProcessInfoNode* ProcessGroupManager::getProcessInfoNode(uint32_t pg_index, Iden
 
 void ProcessGroupManager::handleGetActiveRunTarget(GetActiveRunTarget* event) const
 {
-    if (graph_->getState() == GraphState::kInTransition)
+    Result<IdentifierHash> result;
+
+    switch (graph_->getState())
     {
-        const auto set_result = event->promise.SetValue(score::MakeUnexpected(ExecErrc::kActivationInProgress));
-        SCORE_LANGUAGE_FUTURECPP_ASSERT(set_result.has_value());
-        return;
+        case GraphState::kSuccess:
+            result = graph_->getProcessGroupState();
+            break;
+        case GraphState::kAborting:
+        case GraphState::kCancelled:
+        case GraphState::kInTransition:
+        case GraphState::kUndefinedState:
+            result = score::MakeUnexpected(ExecErrc::kActivationInProgress);
+            break;
     }
 
-    const auto set_result = event->promise.SetValue(graph_->getProcessGroupState());
+    const auto set_result = event->promise.SetValue(result);
     SCORE_LANGUAGE_FUTURECPP_ASSERT(set_result.has_value());
 }
 
