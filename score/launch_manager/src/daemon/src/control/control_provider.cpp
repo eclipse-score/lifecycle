@@ -58,8 +58,12 @@ void ControlProvider::handle_activate_run_target(
     ActivateRunTargetResponse& response,
     const ActivateRunTargetRequest& request)
 {
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
-        request.mode == ActivationMode::kForced, "Only ActivationMode::kForced is implemented");
+    if (request.mode != ActivationMode::kForced)
+    {
+        response =
+        ActivateRunTargetResponse{status : RequestStatus::kRejected, rejection_reason : ExecErrc::kNotImplemented};
+        return;
+    }
 
     const std::optional<IdentifierHash> new_state = IdentifierHash::if_exists(request.run_target_name.data());
     if (!new_state.has_value())
