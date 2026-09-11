@@ -32,10 +32,27 @@ Overview
    :status: valid
    :version: 1
    :safety: ASIL_B
-   :implements: logic_arc_int__lifecycle__controlif[version==1], logic_arc_int__lifecycle__alive_if[version==1]
-   :uses: logic_arc_int__log_cpp__logging[version==1], logic_arc_int__baselibs__json[version==1], logic_arc_int__os__unistd[version==1], logic_arc_int__lifecycle__lifecycle_if[version==1]
+   :implements: logic_arc_int__lifecycle__controlif[version==1],
+                logic_arc_int__lifecycle__alive_if[version==1],
+                logic_arc_int__lifecycle__lifecycle_if[version==1],
+   :uses: logic_arc_int__log_cpp__logging[version==1],
+          logic_arc_int__baselibs__json[version==1],
+          logic_arc_int__os__unistd[version==1],
    :security: NO
    :belongs_to: feat__lifecycle[version==1]
+
+    The :term:`Launch Manager` is a component that provides a framework for
+    managing the lifecycle of processes in the S-CORE platform.
+    It allows for launching, monitoring, and controlling processes based on
+    defined configurations and requirements.
+    As such, it is a central part of the lifecycle management in S-CORE and
+    knows about the state of all processes in the system.
+
+    It's foreseen ECU projects will need a custom state management to fulfill
+    ECU-project specific requirements.
+    The S-CORE stack will offer a framework to control application lifecycle,
+    but will not specify the State Manager.
+
 
 Requirements Linked to Component Architecture
 ---------------------------------------------

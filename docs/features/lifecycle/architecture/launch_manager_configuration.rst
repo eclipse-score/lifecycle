@@ -15,7 +15,8 @@
 Launch Manager Configuration
 ############################
 
-The :term:`Launch Manager` supports a set of configuration parameters, which are grouped in the following categories:
+The :term:`Launch Manager` supports a set of configuration parameters, which
+are grouped in the following categories:
 
 Component Configuration Parameters
 ==================================
@@ -65,7 +66,9 @@ Static Architecture
    :safety: ASIL_B
    :status: valid
    :version: 1
-   :fulfils: feat_req__com__interfaces[version==1]
+   :fulfils: feat_req__lifecycle__component_group_config[version==1],
+             feat_req__lifecycle__config_file_support[version==1],
+             feat_req__lifecycle__run_target_support[version==1]
 
    .. uml:: _assets/config_params_static.puml
       :scale: 50

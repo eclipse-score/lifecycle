@@ -1,0 +1,41 @@
+' *******************************************************************************
+' Copyright (c) 2026 Contributors to the Eclipse Foundation
+'
+' See the NOTICE file(s) distributed with this work for additional
+' information regarding copyright ownership.
+'
+' This program and the accompanying materials are made available under the
+' terms of the Apache License Version 2.0 which is available at
+' https://www.apache.org/licenses/LICENSE-2.0
+'
+' SPDX-License-Identifier: Apache-2.0
+' *******************************************************************************
+
+@startuml
+title Launch Manager - Termination Request
+
+autonumber "<b>[00]"
+
+participant "Launch Manager" as LM
+participant "OS (kernel)" as kernel
+participant "Crashing Process" as app1
+
+
+activate LM
+activate app1
+
+...
+
+
+app1 -> app1: Random crash
+app1 -> kernel: terminate
+destroy app1
+kernel -> LM: process terminated
+
+LM -> LM: analyze current state
+LM -> LM: determine transition plan.\nA recovery action has to be ran,\nthe recovery action is to switch to a different Run Target.
+LM -> LM: Switch Run Target.
+
+...
+
+@enduml
