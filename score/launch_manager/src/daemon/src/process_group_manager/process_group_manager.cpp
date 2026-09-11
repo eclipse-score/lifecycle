@@ -249,11 +249,11 @@ void ProcessGroupManager::processComponentEvents()
         }
         else if (auto* get_active_run_target = std::get_if<GetActiveRunTarget>(&*event))
         {
-            handle_get_active_run_target(get_active_run_target);
+            handleGetActiveRunTarget(get_active_run_target);
         }
         else if (auto* set_requested_run_target = std::get_if<SetRequestedRunTarget>(&*event))
         {
-            handle_set_requested_run_target(set_requested_run_target);
+            handleSetRequestedRunTarget(set_requested_run_target);
         }
         else
         {
@@ -440,7 +440,7 @@ ProcessInfoNode* ProcessGroupManager::getProcessInfoNode(uint32_t pg_index, Iden
     return nullptr;
 }
 
-void ProcessGroupManager::handle_get_active_run_target(GetActiveRunTarget* event) const
+void ProcessGroupManager::handleGetActiveRunTarget(GetActiveRunTarget* event) const
 {
     if (graph_->getState() == GraphState::kInTransition)
     {
@@ -453,7 +453,7 @@ void ProcessGroupManager::handle_get_active_run_target(GetActiveRunTarget* event
     SCORE_LANGUAGE_FUTURECPP_ASSERT(set_result.has_value());
 }
 
-Result<IdentifierHash> ProcessGroupManager::get_active_run_target() const
+Result<IdentifierHash> ProcessGroupManager::getActiveRunTarget() const
 {
     auto promise = concurrency::InterruptiblePromise<Result<IdentifierHash>>{};
 
@@ -469,7 +469,7 @@ Result<IdentifierHash> ProcessGroupManager::get_active_run_target() const
     return get_result.value();
 }
 
-void ProcessGroupManager::handle_set_requested_run_target(SetRequestedRunTarget* event)
+void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* event)
 {
     if (!graph_->isValidRunTarget(event->run_target))
     {
@@ -492,7 +492,7 @@ void ProcessGroupManager::handle_set_requested_run_target(SetRequestedRunTarget*
     SCORE_LANGUAGE_FUTURECPP_ASSERT(set_result.has_value());
 }
 
-Result<void> ProcessGroupManager::set_requested_run_target(IdentifierHash run_target)
+Result<void> ProcessGroupManager::setRequestedRunTarget(IdentifierHash run_target)
 {
     auto promise = concurrency::InterruptiblePromise<Result<void>>{};
 
@@ -508,10 +508,10 @@ Result<void> ProcessGroupManager::set_requested_run_target(IdentifierHash run_ta
     return get_result.value();
 }
 
-void ProcessGroupManager::watch_active_run_target(
+void ProcessGroupManager::registerActiveRunTargetCallback(
     std::function<void(IdentifierHash, RunTargetActivationSource)> callback)
 {
-    graph_->watch_active_run_target(callback);
+    graph_->registerActiveRunTargetCallback(callback);
 }
 
 }  // namespace score::mw::lifecycle::internal

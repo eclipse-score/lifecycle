@@ -26,13 +26,14 @@ class IControllableGraph
   public:
     /// @brief Get the active run target, or an error if we are currently
     ///        in transition.
-    [[nodiscard]] virtual score::Result<IdentifierHash> get_active_run_target() const = 0;
+    [[nodiscard]] virtual score::Result<IdentifierHash> getActiveRunTarget() const = 0;
 
     /// @brief Set the requested run target.
-    [[nodiscard]] virtual score::Result<void> set_requested_run_target(IdentifierHash run_target) = 0;
+    [[nodiscard]] virtual score::Result<void> setRequestedRunTarget(IdentifierHash run_target) = 0;
 
     /// @brief Register a callback to be fired when the active run target changes.
-    virtual void watch_active_run_target(std::function<void(IdentifierHash, RunTargetActivationSource)> callback) = 0;
+    virtual void registerActiveRunTargetCallback(
+        std::function<void(IdentifierHash, RunTargetActivationSource)> callback) = 0;
 };
 
 }  // namespace score::mw::lifecycle::internal
