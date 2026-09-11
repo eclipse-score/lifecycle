@@ -38,9 +38,6 @@ The liveliness mechanism includes:
 
 The alive interface is defined here: :need:`logic_arc_int__lifecycle__alive_if`
 
-Requirements
-============
-- :need:`feat_req__lifecycle__liveliness_detection`
 
 Dynamic architecture
 ====================
