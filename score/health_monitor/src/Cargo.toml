@@ -18,6 +18,7 @@ thread.workspace = true
 score_log.workspace = true
 score_testing_macros.workspace = true
 containers.workspace = true
+libc.workspace = true
 alive_rs = { workspace = true, optional = true }
 
 [dev-dependencies]
@@ -29,3 +30,6 @@ loom = { version = "0.7.2", features = ["checkpoint"] }
 [features]
 default = ["alive_rs"]
 stub_supervisor_api_client = []
+# Enable the ARM MTE (Memory Tagging Extension) protected memory provider.
+# Activated by the `//config:enable_arm_mte` Bazel flag.
+mte = []

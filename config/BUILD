@@ -137,3 +137,24 @@ config_setting(
     },
     visibility = ["//visibility:public"],
 )
+
+# Enable the ARM MTE (Memory Tagging Extension) memory provider.
+#
+# The provider allocates health monitor memory regions with hardware-assisted
+# tagging. It takes effect only on targets that support MTE (currently
+# aarch64 Linux); on other targets allocation fails at runtime with an error.
+#
+# Enable with: --//config:enable_arm_mte=True
+bool_flag(
+    name = "enable_arm_mte",
+    build_setting_default = False,
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "arm_mte_enabled",
+    flag_values = {
+        ":enable_arm_mte": "True",
+    },
+    visibility = ["//visibility:public"],
+)
