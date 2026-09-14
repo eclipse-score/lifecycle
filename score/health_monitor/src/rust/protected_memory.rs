@@ -46,6 +46,10 @@
 //!
 //! - MTE provides only 16 distinct tags, so distinct regions may share a tag.
 //!   Tag 0 is always excluded, which keeps untagged pointers detectable.
+//! - Tags are assigned per 16-byte granule, so the granule that holds the end
+//!   of a region is tagged as part of it. An access up to 15 bytes past the
+//!   requested size still matches the tag and is not detected; detection only
+//!   starts at the next granule boundary.
 //! - Tag check configuration (`PR_MTE_TCF_SYNC`) and tagged address support
 //!   (`PR_TAGGED_ADDR_ENABLE`) are per-thread kernel settings. They are enabled
 //!   for the calling thread on each allocation. Threads that only access
@@ -97,6 +101,11 @@ impl ProtectedMemoryAllocator {
     /// Returns `true` if [`Self::allocate`] provides hardware-protected memory,
     /// i.e. the `mte` feature is enabled and both the CPU and the operating
     /// system support MTE.
+    ///
+    /// Tag checking is a per-thread kernel setting, so where MTE is available
+    /// this call enables it for the calling thread as a side effect. Threads
+    /// that access protected regions without ever calling this method or
+    /// [`Self::allocate`] run without tag checking.
     pub fn is_protection_active(&self) -> bool {
         sys::is_protection_active()
     }
@@ -311,9 +320,9 @@ mod mte_linux {
         let ptr = unsafe { NonNull::new_unchecked(raw_ptr.cast::<u8>()) };
 
         // Tag every granule of the region with a random, non-zero tag and use a
-        // pointer carrying this tag for all accesses. Granules beyond `size`
-        // (the kernel rounds the mapping up to page size) keep the zero tag and
-        // act as faulting guard areas.
+        // pointer carrying this tag for all accesses. Granules that lie fully
+        // beyond the region (the kernel rounds the mapping up to page size)
+        // keep the zero tag and act as faulting guard areas.
         //
         // SAFETY: `is_protection_active` confirmed that the CPU implements MTE,
         // and `ptr` refers to the `PROT_MTE` mapping of `size` bytes created
@@ -384,20 +393,23 @@ mod mte_linux {
     /// The CPU must implement MTE, see [`is_mte_supported_by_cpu`].
     #[target_feature(enable = "mte")]
     unsafe fn create_random_tag(ptr: *mut u8) -> *mut u8 {
-        let tagged_ptr: *mut u8;
+        let tagged_addr: usize;
         // SAFETY: `irg` only derives a new logical address tag from `ptr`. It
         // accesses no memory, keeps the condition flags and must not be marked
         // `pure`, because it returns a different tag on every execution.
         unsafe {
             core::arch::asm!(
                 "irg {tagged}, {addr}, {excluded}",
-                tagged = lateout(reg) tagged_ptr,
+                tagged = lateout(reg) tagged_addr,
                 addr = in(reg) ptr,
                 excluded = in(reg) TAG_EXCLUDE_ZERO,
                 options(nomem, nostack, preserves_flags),
             );
         }
-        tagged_ptr
+        // Take only the address, which carries the new tag, and keep the
+        // provenance of the mapping. A pointer read directly out of the `asm!`
+        // block would carry no provenance of the allocation it points into.
+        ptr.with_addr(tagged_addr)
     }
 
     /// Store the tag carried by `tagged_ptr` in every granule of the memory
