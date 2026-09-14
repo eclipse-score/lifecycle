@@ -108,6 +108,7 @@ cc_library(
         "@score_baselibs//score/mw/log",
         "@score_baselibs//score/os:stdlib",
         "@score_baselibs//score/os/utils:signal",
+        "@score_baselibs//score/os/utils:thread",
     ],
 )
 

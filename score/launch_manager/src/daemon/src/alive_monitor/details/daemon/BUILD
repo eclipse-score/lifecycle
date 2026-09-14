@@ -67,5 +67,6 @@ cc_library(
         "//score/launch_manager/src/daemon/src/alive_monitor:i_alive_monitor",
         "//score/launch_manager/src/daemon/src/configuration:config",
         "@score_baselibs//score/language/futurecpp",
+        "@score_baselibs//score/os/utils:thread",
     ],
 )
