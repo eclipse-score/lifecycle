@@ -77,6 +77,60 @@ This dual approach ensures that both modern SCORE-aware applications and legacy
 native applications can participate in the dependency management system.
 
 
+Interacting with processes
+--------------------------
+
+The :term:`Launch Manager` provides interfaces for communication with launched
+applications, supporting two distinct application types:
+
+1. **SCORE Applications**: Implement the full Lifecycle Interface for
+   bidirectional communication with state reporting, liveliness indication, and
+   conditional signaling
+2. **Native Applications**: Controlled exclusively via POSIX signals (SIGTERM,
+   SIGKILL, etc.) without direct API communication
+
+This dual approach enables the :term:`Launch Manager` to manage both legacy
+native applications and SCORE-aware applications within the same system.
+
+The Lifecycle Interface serves as the communication channel between
+applications and the :term:`Launch Manager`.
+
+SCORE Applications
+^^^^^^^^^^^^^^^^^^
+
+**For SCORE Applications:**
+- Application state reporting (started, running, stopped)
+- Conditional signaling for application dependencies
+
+See :doc:`./lifecycle_client` for the full description of the Lifecycle Interface.
+
+Native Applications
+^^^^^^^^^^^^^^^^^^^
+
+Native applications that do not implement the Lifecycle Interface are
+controlled through POSIX signals:
+
+- **SIGTERM**: Graceful shutdown request
+- **SIGKILL**: Forced termination (after timeout)
+
+The :term:`Launch Manager` monitors native applications through:
+
+- Process ID (PID) tracking
+- Exit code evaluation
+- Resource usage monitoring via OS facilities
+- Timeout-based failure detection
+
+For native applications, the :term:`Launch Manager` provides:
+
+- Basic lifecycle control (start/stop)
+- Simple dependency management based on process existence
+- Configurable startup/shutdown timeouts
+- Exit code-based success/failure determination
+
+
+Dynamic Architecture
+====================
+
 .. feat_arc_dyn:: Launch Manager - Components Depends on Each Other
    :id: feat_arc_dyn__lifecycle__lcm_start
    :security: YES
