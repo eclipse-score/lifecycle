@@ -12,7 +12,7 @@
 ' *******************************************************************************
 
 @startuml
-title Launch Manager - Termination Request
+title Launch Manager - Crash Recovery
 
 autonumber "<b>[00]"
 
@@ -27,13 +27,13 @@ activate app1
 ...
 
 
-app1 -> app1: Random crash
-app1 -> kernel: terminate
+app1 -> app1: Random crash.
+app1 -> kernel: Terminate.
 destroy app1
-kernel -> LM: process terminated
+kernel -> LM: Process terminated.
 
-LM -> LM: analyze current state
-LM -> LM: determine transition plan.\nA recovery action has to be ran,\nthe recovery action is to switch to a different Run Target.
+LM -> LM: Analyze current state.
+LM -> LM: Determine transition plan.\nA recovery action has to be ran,\nthe recovery action is to switch to a different Run Target.
 LM -> LM: Switch Run Target.
 
 ...

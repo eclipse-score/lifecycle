@@ -27,18 +27,18 @@ activate app2
 
 == Switch Run Target ==
 
-LM -> LM: analyze current state
-LM -> LM: determine transition plan
+LM -> LM: Analyze current state.
+LM -> LM: Determine transition plan.
 
 
-LM -> app1: SIGTERM
-app1 -> kernel: terminate
+LM -> app1: SIGTERM.
+app1 -> kernel: Terminate.
 destroy app1
 
-LM -> app2: SIGTERM
-app2 -> app2: Ignore
-LM -> app2: SIGKILL
-app2 -> kernel: terminate
+LM -> app2: SIGTERM.
+app2 -> app2: Ignore.
+LM -> app2: SIGKILL.
+app2 -> kernel: Terminate.
 destroy app2
 
 @enduml
