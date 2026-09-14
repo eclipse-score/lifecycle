@@ -71,7 +71,7 @@ Dynamic architecture
    :security: YES
    :fulfils: feat_req__lifecycle__control_commands[version==1],
              feat_req__lifecycle__request_run_target_start[version==1],
-             feat_req__lifecycle__switch_run_targets[version==1],
+             feat_req__lifecycle__switch_run_targets[version==1]
    :belongs_to: feat__lifecycle[version==1]
 
    .. uml:: _assets/control_interface_start_sequence.puml

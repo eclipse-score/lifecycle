@@ -71,7 +71,7 @@ Dynamic Architecture
    :version: 1
    :safety: ASIL_B
    :security: YES
-   :fulfils: feat_req__lifecycle__lm_self_health_check[version==1],
+   :fulfils: feat_req__lifecycle__lm_self_health_check[version==1]
    :belongs_to: feat__lifecycle[version==1]
 
    .. uml:: _assets/external_monitoring_sequence.puml

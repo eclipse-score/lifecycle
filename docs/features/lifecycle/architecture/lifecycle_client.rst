@@ -39,9 +39,6 @@ applications and the :term:`Launch Manager`:
 - Basic process monitoring (PID-based status checking)
 - Exit code evaluation for failure detection
 
-Requirements
-============
-
 Interface
 =========
 
@@ -85,7 +82,6 @@ controlled through POSIX signals:
 
 - **SIGTERM**: Graceful shutdown request
 - **SIGKILL**: Forced termination (after timeout)
-- **SIGUSR1/SIGUSR2**: Application-specific signals (if configured)
 
 The :term:`Launch Manager` monitors native applications through:
 
@@ -122,10 +118,3 @@ Dynamic Architecture
    .. uml:: _assets/lifecycle_state_machine.puml
       :scale: 50
       :align: center
-
-Requirements
-============
-
-- :need:`feat_req__lifecycle__process_termination`
-- :need:`feat_req__lifecycle__launch_support`
-- :need:`feat_req__lifecycle__prog_lang`
