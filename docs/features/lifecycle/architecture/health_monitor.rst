@@ -12,6 +12,8 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
+:orphan:
+
 Health Monitor
 ##############
 
@@ -110,7 +112,7 @@ Dynamic Architecture
 
    The most important interactions are the following:
 
-   .. list-table:: Sequence diagram Description
+   .. list-table::
       :widths: 10 90
       :header-rows: 1
 
@@ -154,9 +156,3 @@ Dynamic Architecture
    .. uml:: _assets/logical_sup.puml
       :scale: 50
       :align: center
-
-
-Requirements
-------------
-
-- :need:`feat_req__lifecycle__hm_logical`

@@ -12,26 +12,13 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
+:orphan:
+
 Launch manager
 ##############
 
 The following describes the interaction between the
 :need:`comp__lifecycle_launch_manager` and the user application.
-
-
-Requirements
-============
-
-- :need:`feat_req__lifecycle__launch_support`
-- :need:`feat_req__lifecycle__process_ordering`
-- :need:`feat_req__lifecycle__parallel_launch_support`
-- :need:`feat_req__lifecycle__conditional_startup`
-- :need:`feat_req__lifecycle__start_named_run_target`
-- :need:`feat_req__lifecycle__process_termination`
-- :need:`feat_req__lifecycle__terminationn_dependency`
-- :need:`feat_req__lifecycle__monitor_abnormal_term`
-- :need:`feat_req__lifecycle__recovery_action_support`
-- :need:`feat_req__lifecycle__recov_run_target_switch`
 
 Overview
 ========
@@ -110,7 +97,7 @@ native applications can participate in the dependency management system.
    Reporting App 2 depends on Reporting App 1, Reporting App 1 has a ready
    condition of being in state running.
 
-   .. list-table:: Sequence diagram Description
+   .. list-table::
       :widths: 10 90
       :header-rows: 1
 
@@ -129,7 +116,7 @@ native applications can participate in the dependency management system.
       * - 006
         - Reporting App 1 does its internal initialization.
       * - 007
-        - Reporting App 1 signals to the Launch Manager that it has reached the ready condition using the Lifecycle API.
+        - Reporting App 1 signals to the Launch Manager that it has finished initialization.
       * - 008
         - Launch Manager analyzes the current state of the system.
       * - 009
@@ -143,7 +130,7 @@ native applications can participate in the dependency management system.
       * - 013
         - Reporting App 2 does its internal initialization.
       * - 014
-        - Reporting App 2 signals to the Launch Manager that it has reached the ready condition using the Lifecycle API.
+        - Reporting App 2 signals to the Launch Manager that it has finished initialization.
       * - 015
         - Launch Manager analyzes the current state of the system.
       * - 016
@@ -165,7 +152,7 @@ native applications can participate in the dependency management system.
       :scale: 50
       :align: center
 
-   .. list-table:: Sequence diagram Description
+   .. list-table::
       :widths: 10 90
       :header-rows: 1
 
@@ -174,7 +161,7 @@ native applications can participate in the dependency management system.
       * - 001
         - Launch Manager analyzes the current state of the system.
       * - 002
-        - Launch Manager determines the transition plan for switching the run target. In this case all components are to be terminated.
+        - Launch Manager determines the transition plan for switching the run target. In this case all components can be terminated in parallel.
       * - 003
         - Launch Manager sends SIGTERM to the well behaving application.
       * - 004
@@ -207,7 +194,7 @@ native applications can participate in the dependency management system.
    Configuration:
    Reporting App 2 depends on the termination of Reporting App 1.
 
-   .. list-table:: Sequence diagram Description
+   .. list-table::
       :widths: 10 90
       :header-rows: 1
 
@@ -216,35 +203,27 @@ native applications can participate in the dependency management system.
       * - 001
         - Launch Manager analyzes the current state of the system.
       * - 002
-        - Launch Manager determines the transition plan. In this case Reporting App 1 can be started, Reporting App 2 needs to wait for Reporting App 1 to terminate.
+        - Launch Manager determines the transition plan. In this case Reporting App 1 needs to be terminated before Reporting App 2 can be started.
       * - 003
-        - Launch Manager starts Reporting App 1.
+        - Launch Manager sends SIGTERM to Reporting App 1.
       * - 004
-        - Reporting App 1 is started.
+        - Reporting App 1 terminates through the operating system.
       * - 005
-        - Launch Manager waits for the ready condition of Reporting App 1.
-      * - 006
-        - Reporting App 1 does its internal initialization.
-      * - 007
-        - Reporting App 1 signals to the Launch Manager that it has reached the ready condition using the Lifecycle API.
-      * - 008
-        - At some point Reporting App 1 terminates.
-      * - 009
         - The operating system reports the termination of Reporting App 1 to the Launch Manager.
-      * - 010
+      * - 006
         - Launch Manager analyzes the current state of the system.
-      * - 011
+      * - 007
         - Launch Manager determines the transition plan. In this case Reporting App 2 can be started.
-      * - 012
+      * - 008
         - Launch Manager starts Reporting App 2.
-      * - 013
+      * - 009
         - Reporting App 2 is started.
-      * - 014
+      * - 010
         - Launch Manager waits for the ready condition of Reporting App 2.
-      * - 015
+      * - 011
         - Reporting App 2 does its internal initialization.
-      * - 016
-        - Reporting App 2 signals to the Launch Manager that it has reached the ready condition using the Lifecycle API.
+      * - 012
+        - Reporting App 2 signals to the Launch Manager that it has finished initialization.
 
 
 .. feat_arc_dyn:: Launch Manager - Run Components in Parallel
@@ -265,7 +244,7 @@ native applications can participate in the dependency management system.
    Configuration:
    Reporting App 1 and Reporting App 2 can be started independently.
 
-   .. list-table:: Sequence diagram Description
+   .. list-table::
       :widths: 10 90
       :header-rows: 1
 
@@ -286,11 +265,11 @@ native applications can participate in the dependency management system.
       * - 007
         - Reporting App 1 does its internal initialization.
       * - 008
-        - Reporting App 1 signals to the Launch Manager that it has reached the ready condition using the Lifecycle API.
+        - Reporting App 1 signals to the Launch Manager that it has finished initialization.
       * - 009
         - Reporting App 2 does its internal initialization.
       * - 010
-        - Reporting App 2 signals to the Launch Manager that it has reached the ready condition using the Lifecycle API.
+        - Reporting App 2 signals to the Launch Manager that it has finished initialization.
 
 
 .. feat_arc_dyn:: Launch Manager - Crash Recovery
@@ -308,7 +287,7 @@ native applications can participate in the dependency management system.
       :scale: 50
       :align: center
 
-   .. list-table:: Sequence diagram Description
+   .. list-table::
       :widths: 10 90
       :header-rows: 1
 
@@ -323,7 +302,7 @@ native applications can participate in the dependency management system.
       * - 004
         - Launch Manager analyzes the current state of the system.
       * - 005
-        - Launch Manager determines the transition plan.\nIn this case a recovery action needs to be run,\nand the recovery action is to switch to a different Run Target.
+        - Launch Manager determines the transition plan.In this case a recovery action needs to be run, and the recovery action is to switch to a different Run Target.
       * - 006
         - Launch Manager switches to the configured fallback Run Target.
 
