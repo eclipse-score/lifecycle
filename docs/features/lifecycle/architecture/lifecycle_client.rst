@@ -17,33 +17,6 @@
 Lifecycle Client
 ################
 
-The :term:`Launch Manager` provides interfaces for communication with launched
-applications, supporting two distinct application types:
-
-1. **SCORE Applications**: Implement the full Lifecycle Interface for
-   bidirectional communication with state reporting, liveliness indication, and
-   conditional signaling
-2. **Native Applications**: Controlled exclusively via POSIX signals (SIGTERM,
-   SIGKILL, etc.) without direct API communication
-
-This dual approach enables the :term:`Launch Manager` to manage both legacy
-native applications and SCORE-aware applications within the same system.
-
-The Lifecycle Interface serves as the communication channel between
-applications and the :term:`Launch Manager`:
-
-**For SCORE Applications:**
-- Application state reporting (started, running, stopped)
-- Conditional signaling for application dependencies
-
-**For Native Applications:**
-- Process lifecycle control via POSIX signals
-- Basic process monitoring (PID-based status checking)
-- Exit code evaluation for failure detection
-
-Interface
-=========
-
 The lifecycle interface is defined here:
 :need:`logic_arc_int__lifecycle__lifecycle_if`
 
@@ -53,51 +26,12 @@ different capabilities depending on the application type.
 **SCORE Application State Communication**
 
 SCORE applications implementing the Lifecycle Interface can communicate their
-internal state to the :term:`Launch Manager`. The state information includes:
-
-- **Started**: Application has successfully initialized and is ready to operate
-- **Running**: Application is actively executing its main functionality
-- **Stopped**: Application has terminated or is in the process of shutting down
-
+internal state to the :term:`Launch Manager`.
 The :term:`Launch Manager` uses this state information for:
 
 - Dependency resolution for other applications
 - Recovery action decisions
 - Status reporting to external state managers via the Control Interface
-
-
-**SCORE Application Conditional Signaling**
-
-SCORE applications can signal custom conditions to the :term:`Launch Manager`
-via the Alive Interface. This enables:
-
-- Complex dependency management beyond simple process startup
-- Coordination between interdependent applications
-
-Custom conditions can be used by other applications as launch dependencies,
-allowing for sophisticated startup orchestration.
-
-**Native Application Control**
-
-Native applications that do not implement the Lifecycle Interface are
-controlled through POSIX signals:
-
-- **SIGTERM**: Graceful shutdown request
-- **SIGKILL**: Forced termination (after timeout)
-
-The :term:`Launch Manager` monitors native applications through:
-
-- Process ID (PID) tracking
-- Exit code evaluation
-- Resource usage monitoring via OS facilities
-- Timeout-based failure detection
-
-For native applications, the :term:`Launch Manager` provides:
-
-- Basic lifecycle control (start/stop)
-- Simple dependency management based on process existence
-- Configurable startup/shutdown timeouts
-- Exit code-based success/failure determination
 
 
 Dynamic Architecture
