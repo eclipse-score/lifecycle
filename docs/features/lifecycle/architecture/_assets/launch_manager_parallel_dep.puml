@@ -22,20 +22,20 @@ participant "Reporting App 1" as app1
 participant "Reporting App 2" as app2
 activate LM
 
-LM -> LM: analyze current state
-LM -> LM: determine transition plan
+LM -> LM: Analyze current state.
+LM -> LM: Determine transition plan.
 
-LM -> kernel: Start Reporting App 1
-LM -> kernel: Start Reporting App 2
-kernel -> app1 **: Start
-kernel -> app2 **: Start
+LM -> kernel: Start Reporting App 1.
+LM -> kernel: Start Reporting App 2.
+kernel -> app1 **: Start.
+kernel -> app2 **: Start.
 
 activate app1
 activate app2
 
-app1 -> app1: Internal User app initialization
-app1 -> LM: signal ready state via Lifecycle API
-app2 -> app2: Internal User app initialization
-app2 -> LM: signal ready state via Lifecycle API
+app1 -> app1: Internal User app initialization.
+app1 -> LM: Signal ready state via Lifecycle API.
+app2 -> app2: Internal User app initialization.
+app2 -> LM: Signal ready state via Lifecycle API.
 ...
 @enduml

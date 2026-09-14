@@ -15,7 +15,7 @@
 Launch manager
 ##############
 
-The following describes the intaraction between the
+The following describes the interaction between the
 :need:`comp__lifecycle_launch_manager` and the user application.
 
 
@@ -79,19 +79,15 @@ Condition>`.
 :term:`Ready Conditions <Ready Condition>` are essential mechanisms that
 determine when a component has successfully completed its startup phase and is
 ready to fulfill its intended role in the system.
-These conditions provide
-flexibility in defining what constitutes a "ready" state for different types of
-components.
+These conditions provide flexibility in defining what constitutes a "ready"
+state for different types of components.
 For SCORE applications, components can actively report their readiness through
 the Lifecycle Interface by signaling specific states or custom conditions.
 For native applications, the :term:`Launch Manager` relies on external
 indicators such as process existence, file creation, network socket
 availability, or successful process termination.
 This dual approach ensures that both modern SCORE-aware applications and legacy
-native applications can participate in the dependency management system,
-allowing the :term:`Launch Manager` to orchestrate complex startup sequences
-where components depend on each other's readiness rather than just their launch
-order.
+native applications can participate in the dependency management system.
 
 
 .. feat_arc_dyn:: Launch Manager - Components Depends on Each Other
@@ -104,7 +100,7 @@ order.
    :fulfils: feat_req__lifecycle__launch_support[version==1],
              feat_req__lifecycle__process_ordering[version==1],
              feat_req__lifecycle__start_named_run_target[version==1],
-             feat_req__lifecycle__conditional_startup[version==1],
+             feat_req__lifecycle__conditional_startup[version==1]
 
    .. uml:: _assets/launch_manager_running_dep.puml
       :scale: 50
@@ -112,7 +108,7 @@ order.
 
    Configuration:
    Reporting App 2 depends on Reporting App 1, Reporting App 1 has a ready
-   condition of begin in state running.
+   condition of being in state running.
 
    .. list-table:: Sequence diagram Description
       :widths: 10 90
@@ -163,7 +159,7 @@ order.
    :belongs_to: feat__lifecycle[version==1]
    :fulfils: feat_req__lifecycle__launch_support[version==1],
              feat_req__lifecycle__process_termination[version==1],
-             feat_req__lifecycle__process_ordering[version==1],
+             feat_req__lifecycle__process_ordering[version==1]
 
    .. uml:: _assets/launch_manager_terminate_request.puml
       :scale: 50
@@ -297,7 +293,7 @@ order.
         - Reporting App 2 signals to the Launch Manager that it has reached the ready condition using the Lifecycle API.
 
 
-.. feat_arc_dyn:: Launch Manager - Termination Request
+.. feat_arc_dyn:: Launch Manager - Crash Recovery
    :id: feat_arc_dyn__lifecycle__crash
    :security: YES
    :status: valid

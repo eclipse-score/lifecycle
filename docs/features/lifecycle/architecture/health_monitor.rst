@@ -101,7 +101,7 @@ Dynamic Architecture
    :safety: ASIL_B
    :fulfils: feat_req__lifecycle__liveliness_detection[version==1],
              feat_req__lifecycle__hm_checkpoint[version==1],
-             feat_req__lifecycle__hm_deadline[version==1],
+             feat_req__lifecycle__hm_deadline[version==1]
    :belongs_to: feat__lifecycle[version==1]
 
    .. uml:: _assets/application_health_monitoring_dynamic.puml
@@ -148,7 +148,7 @@ Dynamic Architecture
    :safety: ASIL_B
    :fulfils: feat_req__lifecycle__liveliness_detection[version==1],
              feat_req__lifecycle__hm_checkpoint[version==1],
-             feat_req__lifecycle__hm_logical[version==1],
+             feat_req__lifecycle__hm_logical[version==1]
    :belongs_to: feat__lifecycle[version==1]
 
    .. uml:: _assets/logical_sup.puml
