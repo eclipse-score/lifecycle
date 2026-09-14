@@ -24,15 +24,23 @@
 //! corrupting health monitoring data.
 //!
 //! The provider is gated behind the `mte` feature, which is controlled by the
-//! `//config:enable_arm_mte` Bazel flag:
+//! `//config:enable_arm_mte` Bazel flag. Allocation succeeds on every supported
+//! target: hardware protection is applied where it is available, and the
+//! provider degrades to plain (unprotected) memory everywhere else.
 //!
-//! - **Feature disabled** (default): regions are allocated from plain,
-//!   unprotected (but still zero-initialized and 16-byte aligned) memory.
-//! - **Feature enabled on aarch64 Linux**: MTE-protected regions are provided.
-//!   The ARM CPU must support MTE, otherwise allocation fails at runtime with
-//!   [`ProtectedMemoryError::MteNotSupported`].
-//! - **Feature enabled on other targets**: allocation fails at runtime with
-//!   [`ProtectedMemoryError::MteNotSupported`], code still compiles cleanly.
+//! - **Feature disabled** (default): regions are served by the Rust allocator,
+//!   zero-initialized and 16-byte aligned, without hardware protection.
+//! - **Feature enabled on aarch64 Linux**: MTE-protected regions are provided
+//!   if the CPU and the kernel support MTE. Otherwise the provider reports an
+//!   error and degrades to plain memory.
+//! - **Feature enabled on any other target** (e.g. the x86_64 hosts running the
+//!   unit tests and the sanitizer builds): the provider reports an error and
+//!   degrades to plain memory.
+//!
+//! Degrading never happens silently: [`ProtectedMemoryAllocator::is_protection_active`]
+//! and [`ProtectedMemoryRegion::is_protected`] report whether hardware
+//! protection is in effect, so callers that must not run unprotected can detect
+//! the degraded configuration.
 //!
 //! Known limitations:
 //!
@@ -61,8 +69,6 @@ pub enum ProtectedMemoryError {
     InvalidArgument,
     /// System was unable to provide the requested memory.
     OutOfMemory,
-    /// Protected memory is not supported by the hardware or the operating system.
-    MteNotSupported,
 }
 
 /// Allocator providing protected memory regions for health monitoring data
@@ -73,7 +79,8 @@ impl ProtectedMemoryAllocator {
     /// Allocate a new, zero-initialized memory region of `size` bytes.
     ///
     /// The returned region is at least 16-byte aligned (one MTE granule) and is
-    /// released when it is dropped.
+    /// released when it is dropped. Missing MTE support does not fail the
+    /// allocation, see the module documentation for the degraded behavior.
     ///
     /// - `size` - size of the region in bytes, must be greater than zero.
     pub fn allocate(&self, size: usize) -> Result<ProtectedMemoryRegion, ProtectedMemoryError> {
@@ -87,8 +94,9 @@ impl ProtectedMemoryAllocator {
 
     /// Check whether memory protection is active on this platform.
     ///
-    /// Returns `true` if [`Self::allocate`] provides hardware-protected memory
-    /// (MTE available and enabled via the `mte` feature).
+    /// Returns `true` if [`Self::allocate`] provides hardware-protected memory,
+    /// i.e. the `mte` feature is enabled and both the CPU and the operating
+    /// system support MTE.
     pub fn is_protection_active(&self) -> bool {
         sys::is_protection_active()
     }
@@ -107,6 +115,10 @@ pub struct ProtectedMemoryRegion {
     release_size: usize,
     /// Size of the region visible to the user.
     size: usize,
+    /// Release function of the backend that provided the region.
+    release: fn(NonNull<u8>, usize),
+    /// Whether the region is protected by hardware memory tagging.
+    protected: bool,
 }
 
 impl ProtectedMemoryRegion {
@@ -121,6 +133,11 @@ impl ProtectedMemoryRegion {
     /// zero-sized requests.
     pub fn is_empty(&self) -> bool {
         false
+    }
+
+    /// Check whether this region is protected by hardware memory tagging.
+    pub fn is_protected(&self) -> bool {
+        self.protected
     }
 
     /// Pointer to the first byte of the region.
@@ -154,7 +171,7 @@ impl ProtectedMemoryRegion {
 
 impl Drop for ProtectedMemoryRegion {
     fn drop(&mut self) {
-        sys::release(self.release_ptr, self.release_size);
+        (self.release)(self.release_ptr, self.release_size);
     }
 }
 
@@ -167,24 +184,23 @@ unsafe impl Send for ProtectedMemoryRegion {}
 // read-only access (`&[u8]`), which is thread-safe.
 unsafe impl Sync for ProtectedMemoryRegion {}
 
-// Fallback backend: plain, unprotected memory.
-// Regions are served by the Rust allocator instead of `mmap` to keep the
-// behavior identical on all supported platforms (e.g. Linux and QNX use
-// different `mmap` flag values).
-#[cfg(not(feature = "mte"))]
-use self::fallback as sys;
-
-// MTE backend: hardware-tagged memory for aarch64 Linux.
+// MTE backend: hardware-tagged memory, available on aarch64 Linux only.
 #[cfg(all(feature = "mte", target_arch = "aarch64", target_os = "linux"))]
 use self::mte_linux as sys;
 
-// Backend for targets where MTE protection is requested but unsupported.
-#[cfg(all(feature = "mte", not(all(target_arch = "aarch64", target_os = "linux"))))]
-use self::unsupported as sys;
+// Plain backend: unprotected memory. Used when the `mte` feature is disabled
+// and on every target that cannot provide MTE at all (e.g. the x86_64 hosts
+// running the unit tests and the sanitizer builds).
+#[cfg(not(all(feature = "mte", target_arch = "aarch64", target_os = "linux")))]
+use self::plain as sys;
 
-#[cfg(not(feature = "mte"))]
-mod fallback {
-    use super::{error, MTE_GRANULE_SIZE, ProtectedMemoryError, ProtectedMemoryRegion};
+/// Plain, unprotected memory.
+///
+/// Regions are served by the Rust allocator instead of `mmap` to keep the
+/// behavior identical on all supported platforms (e.g. Linux and QNX use
+/// different `mmap` flag values).
+mod plain {
+    use super::{error, ProtectedMemoryError, ProtectedMemoryRegion, MTE_GRANULE_SIZE};
     use core::alloc::Layout;
     use core::ptr::NonNull;
 
@@ -194,12 +210,17 @@ mod fallback {
     /// Allocate a region of `size` bytes, `size` is greater than zero and does
     /// not exceed `isize::MAX`.
     pub(super) fn allocate(size: usize) -> Result<ProtectedMemoryRegion, ProtectedMemoryError> {
+        // Protection was requested at build time but cannot be provided here.
+        #[cfg(feature = "mte")]
+        error!("MTE memory protection is not available, using unprotected memory.");
+
         let layout = Layout::from_size_align(size, ALIGNMENT).map_err(|_| {
             error!("Requested protected memory size ({}) is invalid.", size);
             ProtectedMemoryError::InvalidArgument
         })?;
 
-        // SAFETY: layout has non-zero size (validated by the caller).
+        // SAFETY: `layout` has a non-zero size, zero-sized requests are
+        // rejected by `ProtectedMemoryAllocator::allocate`.
         let raw_ptr = unsafe { std::alloc::alloc_zeroed(layout) };
         let ptr = NonNull::new(raw_ptr).ok_or_else(|| {
             error!("Failed to allocate protected memory of size ({}).", size);
@@ -211,58 +232,67 @@ mod fallback {
             release_ptr: ptr,
             release_size: size,
             size,
+            release,
+            protected: false,
         })
     }
 
     /// Release memory allocated by [`allocate`].
     pub(super) fn release(ptr: NonNull<u8>, size: usize) {
-        // SAFETY: `ptr` was allocated by `allocate` with the same layout
-        // parameters.
-        unsafe { std::alloc::dealloc(ptr.as_ptr(), Layout::from_size_align_unchecked(size, ALIGNMENT)) };
+        // SAFETY: `allocate` accepted `size` and `ALIGNMENT` for this region,
+        // so they still describe a valid layout and need no re-validation.
+        let layout = unsafe { Layout::from_size_align_unchecked(size, ALIGNMENT) };
+        // SAFETY: `ptr` was allocated by `allocate` with exactly `layout` and
+        // is released only once, when the owning region is dropped.
+        unsafe { std::alloc::dealloc(ptr.as_ptr(), layout) };
     }
 
-    /// Hardware protection is not requested in this configuration.
+    /// Plain memory is never protected by hardware.
     pub(super) fn is_protection_active() -> bool {
         false
     }
 }
 
+/// MTE-protected memory for aarch64 Linux.
 #[cfg(all(feature = "mte", target_arch = "aarch64", target_os = "linux"))]
 mod mte_linux {
-    use super::{error, MTE_GRANULE_SIZE, ProtectedMemoryError, ProtectedMemoryRegion};
+    use super::{error, plain, ProtectedMemoryError, ProtectedMemoryRegion, MTE_GRANULE_SIZE};
     use core::ptr::NonNull;
 
     /// Exclude tag 0 when generating random tags, so that pointers without a
-    /// tag never match (Linux uapi: tag i is excluded if bit i is set).
+    /// tag never match (`irg` excludes tag `i` if bit `i` of the operand is set).
     const TAG_EXCLUDE_ZERO: u64 = 0x1;
 
-    /// MTE support flag in `AT_HWCAP2` (Linux uapi arch/arm64/include/uapi/asm/hwcap.h).
+    /// MTE support flag in `AT_HWCAP2` (Linux uapi `arch/arm64/include/uapi/asm/hwcap.h`).
     const HWCAP2_MTE: libc::c_ulong = 1 << 18;
 
-    /// Enable tagged memory pages (Linux uapi arch/arm64/include/uapi/asm/mman.h).
+    /// Map pages as MTE-tagged (Linux uapi `arch/arm64/include/uapi/asm/mman.h`).
     const PROT_MTE: libc::c_int = 0x20;
 
-    /// Enable tagged addresses and MTE synchronous tag checks for the calling
-    /// thread (Linux uapi include/uapi/linux/prctl.h).
-    const PR_SET_TAGGED_ADDR_CTRL: libc::c_int = 56;
-    const PR_TAGGED_ADDR_ENABLE: libc::c_ulong = 1 << 62;
+    /// Set the tagged address and tag check configuration of the calling thread
+    /// (Linux uapi `include/uapi/linux/prctl.h`).
+    const PR_SET_TAGGED_ADDR_CTRL: libc::c_int = 55;
+
+    /// Accept tagged pointers in system calls.
+    const PR_TAGGED_ADDR_ENABLE: libc::c_ulong = 0x1;
+
+    /// Report tag check faults synchronously, i.e. at the faulting access.
     const PR_MTE_TCF_SYNC: libc::c_ulong = 1 << 1;
+
+    /// Tags that `irg` is allowed to generate, shifted into the tag field of
+    /// the control word. All 16 tags are allowed here; tag 0 is excluded
+    /// through the `irg` operand instead, see [`TAG_EXCLUDE_ZERO`].
+    const PR_MTE_TAG_MASK: libc::c_ulong = 0xffff << 3;
 
     /// Allocate a region of `size` bytes, `size` is greater than zero and does
     /// not exceed `isize::MAX`.
     pub(super) fn allocate(size: usize) -> Result<ProtectedMemoryRegion, ProtectedMemoryError> {
         if !is_protection_active() {
-            error!("MTE memory protection is requested but not supported by the hardware.");
-            return Err(ProtectedMemoryError::MteNotSupported);
+            return plain::allocate(size);
         }
 
-        if enable_tag_checking_for_current_thread().is_err() {
-            error!("MTE memory protection is requested but the operating system does not support it.");
-            return Err(ProtectedMemoryError::MteNotSupported);
-        }
-
-        // SAFETY: all arguments are valid constants, anonymous mapping does
-        // not use a file descriptor.
+        // SAFETY: An anonymous mapping uses neither an address hint nor a file
+        // descriptor, all remaining arguments are valid constants.
         let raw_ptr = unsafe {
             libc::mmap(
                 core::ptr::null_mut(),
@@ -274,115 +304,135 @@ mod mte_linux {
             )
         };
         if raw_ptr == libc::MAP_FAILED {
-            error!("Failed to allocate protected memory of size ({}).", size);
-            return Err(ProtectedMemoryError::OutOfMemory);
+            error!("Failed to map protected memory of size ({}).", size);
+            return plain::allocate(size);
         }
-        // SAFETY: successful `mmap` returns a valid, page-aligned pointer.
+        // SAFETY: A successful `mmap` returns a valid, page-aligned pointer.
         let ptr = unsafe { NonNull::new_unchecked(raw_ptr.cast::<u8>()) };
 
-        // Tag every granule of the region with a random, non-zero tag and use
-        // a pointer carrying this tag for accesses. Granules beyond `size`
-        // (the kernel rounds up to page size) keep the zero tag and act as
-        // faulting guard areas.
+        // Tag every granule of the region with a random, non-zero tag and use a
+        // pointer carrying this tag for all accesses. Granules beyond `size`
+        // (the kernel rounds the mapping up to page size) keep the zero tag and
+        // act as faulting guard areas.
         //
-        // SAFETY: MTE availability is checked above.
-        let tagged_ptr = unsafe { create_random_tag(ptr.as_ptr()) };
-        // SAFETY: MTE availability is checked above.
-        unsafe { set_region_tag(tagged_ptr, size) };
+        // SAFETY: `is_protection_active` confirmed that the CPU implements MTE,
+        // and `ptr` refers to the `PROT_MTE` mapping of `size` bytes created
+        // above, which is the precondition of both functions.
+        let tagged_ptr = unsafe {
+            let tagged_ptr = create_random_tag(ptr.as_ptr());
+            set_region_tag(tagged_ptr, size);
+            tagged_ptr
+        };
 
         Ok(ProtectedMemoryRegion {
-            // SAFETY: tagging only modifies the upper bits, the pointer
-            // remains valid and non-null.
+            // SAFETY: Tagging only modifies the unused top bits of the address,
+            // so the tagged pointer is still non-null.
             access_ptr: unsafe { NonNull::new_unchecked(tagged_ptr) },
             release_ptr: ptr,
             release_size: size,
             size,
+            release,
+            protected: true,
         })
     }
 
     /// Release memory allocated by [`allocate`].
     pub(super) fn release(ptr: NonNull<u8>, size: usize) {
         // SAFETY: `ptr` is the untagged mapping base returned by `mmap` and
-        // `size` the length passed to `mmap`.
+        // `size` is the length that was passed to `mmap`. The mapping is
+        // unmapped only once, when the owning region is dropped.
         unsafe { libc::munmap(ptr.as_ptr().cast(), size) };
     }
 
-    /// Check whether the platform supports MTE.
+    /// Check whether MTE protection can be provided and prepare the calling
+    /// thread for tag checking.
+    ///
+    /// Tagged addressing and the tag check mode are per-thread kernel settings,
+    /// so they are applied whenever protection is queried or memory is
+    /// allocated.
     pub(super) fn is_protection_active() -> bool {
-        // SAFETY: `getauxval` has no preconditions.
+        is_mte_supported_by_cpu() && enable_tag_checking_for_current_thread()
+    }
+
+    /// Check whether the CPU implements MTE.
+    fn is_mte_supported_by_cpu() -> bool {
+        // SAFETY: `getauxval` has no preconditions, it neither dereferences
+        // caller-provided pointers nor reports errors through `errno`.
         unsafe { libc::getauxval(libc::AT_HWCAP2) & HWCAP2_MTE != 0 }
     }
 
-    /// Enable MTE synchronous tag checks and tagged addresses for the calling
-    /// thread.
-    fn enable_tag_checking_for_current_thread() -> Result<(), ProtectedMemoryError> {
-        // SAFETY: prctl with `PR_SET_TAGGED_ADDR_CTRL` has no pointer
-        // arguments.
-        let result = unsafe {
-            libc::prctl(
-                PR_SET_TAGGED_ADDR_CTRL,
-                PR_TAGGED_ADDR_ENABLE | PR_MTE_TCF_SYNC,
-                0u64,
-                0u64,
-                0u64,
-            )
-        };
-        if result != 0 {
-            return Err(ProtectedMemoryError::MteNotSupported);
-        }
-        Ok(())
+    /// Enable tagged addresses and synchronous tag checks for the calling
+    /// thread, returns `false` if the kernel does not support MTE.
+    fn enable_tag_checking_for_current_thread() -> bool {
+        // `PR_SET_TAGGED_ADDR_CTRL` requires the unused arguments to be zero.
+        const ZERO: libc::c_ulong = 0;
+
+        let mode = PR_TAGGED_ADDR_ENABLE | PR_MTE_TCF_SYNC | PR_MTE_TAG_MASK;
+        // SAFETY: `prctl` takes the control word of this option by value and
+        // dereferences none of its arguments.
+        let result = unsafe { libc::prctl(PR_SET_TAGGED_ADDR_CTRL, mode, ZERO, ZERO, ZERO) };
+        result == 0
     }
 
-    /// Create a pointer to `ptr` with a random, non-zero tag.
+    /// Return `ptr` with a randomly generated, non-zero logical address tag.
+    ///
+    /// The MTE intrinsics of `core::arch::aarch64` are nightly-only, so the
+    /// `irg` instruction is emitted directly.
+    ///
+    /// # Safety
+    ///
+    /// The CPU must implement MTE, see [`is_mte_supported_by_cpu`].
     #[target_feature(enable = "mte")]
     unsafe fn create_random_tag(ptr: *mut u8) -> *mut u8 {
-        // SAFETY: caller guarantees MTE is available on the platform.
-        unsafe { core::arch::aarch64::__arm_mte_create_random_tag(ptr, TAG_EXCLUDE_ZERO) }
+        let tagged_ptr: *mut u8;
+        // SAFETY: `irg` only derives a new logical address tag from `ptr`. It
+        // accesses no memory, keeps the condition flags and must not be marked
+        // `pure`, because it returns a different tag on every execution.
+        unsafe {
+            core::arch::asm!(
+                "irg {tagged}, {addr}, {excluded}",
+                tagged = lateout(reg) tagged_ptr,
+                addr = in(reg) ptr,
+                excluded = in(reg) TAG_EXCLUDE_ZERO,
+                options(nomem, nostack, preserves_flags),
+            );
+        }
+        tagged_ptr
     }
 
     /// Store the tag carried by `tagged_ptr` in every granule of the memory
-    /// range `tagged_ptr..tagged_ptr+size`.
+    /// range `tagged_ptr..tagged_ptr + size`.
+    ///
+    /// # Safety
+    ///
+    /// The CPU must implement MTE, see [`is_mte_supported_by_cpu`], and
+    /// `tagged_ptr` must refer to a `PROT_MTE` mapping of at least `size`
+    /// bytes.
     #[target_feature(enable = "mte")]
     unsafe fn set_region_tag(tagged_ptr: *mut u8, size: usize) {
-        let num_granules = size.div_ceil(MTE_GRANULE_SIZE);
-        for i in 0..num_granules {
-            // SAFETY: pointer arithmetic stays within the mapped region and
-            // preserves the tag. `__arm_mte_set_tag` stores the tag carried by
-            // the pointer at the granule the pointer refers to.
+        // Stepping by granule keeps every offset below `size` and therefore
+        // free of overflow, and covers the partially used trailing granule.
+        for offset in (0..size).step_by(MTE_GRANULE_SIZE) {
+            // SAFETY: `offset` is smaller than `size`, so it stays inside the
+            // mapping. Byte offsets preserve the logical address tag.
+            let granule = unsafe { tagged_ptr.byte_add(offset) };
+            // SAFETY: `stg` writes the allocation tag of the granule addressed
+            // by `granule`, which lies inside the `PROT_MTE` mapping.
             unsafe {
-                core::arch::aarch64::__arm_mte_set_tag(tagged_ptr.byte_add(i * MTE_GRANULE_SIZE));
+                core::arch::asm!(
+                    "stg {granule}, [{granule}]",
+                    granule = in(reg) granule,
+                    options(nostack, preserves_flags),
+                );
             }
         }
-    }
-}
-
-#[cfg(all(feature = "mte", not(all(target_arch = "aarch64", target_os = "linux"))))]
-mod unsupported {
-    use super::{error, ProtectedMemoryError, ProtectedMemoryRegion};
-    use core::ptr::NonNull;
-
-    /// MTE protection is requested but this target does not support it.
-    pub(super) fn allocate(size: usize) -> Result<ProtectedMemoryRegion, ProtectedMemoryError> {
-        error!(
-            "MTE memory protection is requested but not supported on this target (size: {}).",
-            size
-        );
-        Err(ProtectedMemoryError::MteNotSupported)
-    }
-
-    /// Nothing was allocated, nothing to release.
-    pub(super) fn release(_ptr: NonNull<u8>, _size: usize) {}
-
-    /// Hardware protection is not available in this configuration.
-    pub(super) fn is_protection_active() -> bool {
-        false
     }
 }
 
 #[cfg(all(test, not(loom)))]
 #[score_testing_macros::test_mod_with_log]
 mod tests {
-    use super::{MTE_GRANULE_SIZE, ProtectedMemoryAllocator, ProtectedMemoryError};
+    use super::{ProtectedMemoryAllocator, ProtectedMemoryError, MTE_GRANULE_SIZE};
 
     #[test]
     fn allocate_returns_requested_size() {
@@ -427,8 +477,9 @@ mod tests {
         assert!(region.as_slice().iter().all(|&byte| byte == 0xAA));
 
         // Boundary access at the last byte.
-        region.as_mut_slice()[region.len() - 1] = 0x55;
-        assert_eq!(region.as_slice()[region.len() - 1], 0x55);
+        let last_byte = region.len() - 1;
+        region.as_mut_slice()[last_byte] = 0x55;
+        assert_eq!(region.as_slice()[last_byte], 0x55);
     }
 
     #[test]
@@ -456,26 +507,38 @@ mod tests {
         assert_eq!(region.len(), 16);
     }
 
+    // Allocation must always provide usable memory, also on targets and CPUs
+    // without MTE support, and must report honestly whether the returned region
+    // is hardware-protected.
+    #[test]
+    fn region_reports_whether_it_is_protected() {
+        let allocator = ProtectedMemoryAllocator {};
+        let region = allocator.allocate(64).expect("allocation should succeed");
+
+        assert_eq!(region.is_protected(), allocator.is_protection_active());
+    }
+
     // Protection must never be active when the MTE feature is disabled.
     #[cfg(not(feature = "mte"))]
     #[test]
     fn protection_is_inactive_by_default() {
         let allocator = ProtectedMemoryAllocator {};
         assert!(!allocator.is_protection_active());
-        assert!(allocator.allocate(16).is_ok());
+
+        let region = allocator.allocate(64).expect("allocation should succeed");
+        assert!(!region.is_protected());
     }
 
-    // When MTE is requested on a target without MTE support (e.g. x86_64 CI
-    // hosts), allocation must fail at runtime instead of providing
-    // unprotected memory.
+    // The MTE feature may be enabled on targets that cannot provide MTE (e.g.
+    // the x86_64 hosts running the unit tests and the sanitizer builds). The
+    // provider then falls back to unprotected memory instead of failing.
     #[cfg(all(feature = "mte", not(all(target_arch = "aarch64", target_os = "linux"))))]
     #[test]
-    fn allocate_fails_if_mte_is_unsupported() {
+    fn allocate_falls_back_if_mte_is_unsupported() {
         let allocator = ProtectedMemoryAllocator {};
-        assert!(matches!(
-            allocator.allocate(16),
-            Err(ProtectedMemoryError::MteNotSupported)
-        ));
         assert!(!allocator.is_protection_active());
+
+        let region = allocator.allocate(64).expect("allocation should succeed");
+        assert!(!region.is_protected());
     }
 }

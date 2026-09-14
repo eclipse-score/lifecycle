@@ -28,11 +28,11 @@ PROC_MACRO_DEPS = [
 rust_library(
     name = "health_monitoring_lib",
     srcs = glob(["**/*.rs"]),
-    crate_root = "lib.rs",
     crate_features = select({
         "//config:arm_mte_enabled": ["mte"],
         "//conditions:default": [],
     }),
+    crate_root = "lib.rs",
     proc_macro_deps = PROC_MACRO_DEPS,
     visibility = ["//score:__subpackages__"],
     deps = COMMON_RUST_DEPS,
@@ -41,14 +41,31 @@ rust_library(
 rust_static_library(
     name = "health_monitoring_lib_ffi",
     srcs = glob(["**/*.rs"]),
-    crate_name = "health_monitoring_lib",
-    crate_root = "lib.rs",
     crate_features = select({
         "//config:arm_mte_enabled": ["mte"],
         "//conditions:default": [],
     }),
+    crate_name = "health_monitoring_lib",
+    crate_root = "lib.rs",
     proc_macro_deps = PROC_MACRO_DEPS,
     visibility = ["//score/health_monitor:__subpackages__"],
+    deps = COMMON_RUST_DEPS,
+)
+
+# Build coverage for the MTE backend. No default configuration compiles it, as
+# it is both feature and target gated, so it is built unconditionally for
+# aarch64 Linux. Skipped on every other platform.
+rust_library(
+    name = "health_monitoring_lib_mte",
+    srcs = glob(["**/*.rs"]),
+    crate_features = ["mte"],
+    crate_name = "health_monitoring_lib",
+    crate_root = "lib.rs",
+    proc_macro_deps = PROC_MACRO_DEPS,
+    target_compatible_with = [
+        "@platforms//cpu:aarch64",
+        "@platforms//os:linux",
+    ],
     deps = COMMON_RUST_DEPS,
 )
 

@@ -142,7 +142,8 @@ config_setting(
 #
 # The provider allocates health monitor memory regions with hardware-assisted
 # tagging. It takes effect only on targets that support MTE (currently
-# aarch64 Linux); on other targets allocation fails at runtime with an error.
+# aarch64 Linux). On every other target, and on CPUs without MTE, allocation
+# reports an error and degrades to plain, unprotected memory.
 #
 # Enable with: --//config:enable_arm_mte=True
 bool_flag(
