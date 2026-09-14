@@ -18,8 +18,8 @@ autonumber "<b>[00]"
 
 participant "Launch Manager" as LM
 participant "OS (kernel)" as kernel
-participant "Non self-terminating (well behaving)" as app1
-participant "Non self-terminating (badly behaving)" as app2
+participant "User App 1 (well behaving)" as app1
+participant "User App 2 (badly behaving)" as app2
 
 activate LM
 activate app1

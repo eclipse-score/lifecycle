@@ -12,6 +12,8 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
+:orphan:
+
 External Monitoring
 ###################
 
@@ -78,7 +80,7 @@ Dynamic Architecture
       :alt: External monitoring static arch
 
 
-   .. list-table:: Sequence diagram Description
+   .. list-table::
       :widths: 10 90
       :header-rows: 1
 

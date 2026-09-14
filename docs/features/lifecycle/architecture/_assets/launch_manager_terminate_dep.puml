@@ -21,20 +21,18 @@ participant "OS (kernel)" as kernel
 participant "Reporting App 1" as app1
 participant "Reporting App 2" as app2
 activate LM
+activate app1
+
+== Switch Run Target ==
 
 LM -> LM: Analyze current state.
 LM -> LM: Determine transition plan.
 
-LM -> kernel: Start Reporting App 1.
-kernel -> app1 **: Start.
-activate app1
-LM -> LM: Wait for Reporting App 1 ready condition.
-app1 -> app1: Internal User app initialization.
-app1 -> LM: Signal ready state via Lifecycle API.
-
-...
-
+LM -> app1: SIGTERM
 app1 -> kernel: Termination.
+destroy app1
+
+
 destroy app1
 kernel -> LM: Reporting App 1 terminated.
 deactivate app1
