@@ -36,13 +36,12 @@ Overview
                 logic_arc_int__lifecycle__alive_if[version==1],
                 logic_arc_int__lifecycle__lifecycle_if[version==1]
    :uses: logic_arc_int__log_cpp__logging[version==1],
-          logic_arc_int__baselibs__json[version==1],
           logic_arc_int__os__unistd[version==1]
    :security: NO
    :belongs_to: feat__lifecycle[version==1]
 
     The :term:`Launch Manager` is a component that provides a framework for
-    managing the lifecycle of processes in the S-CORE platform.
+    managing the lifecycle of any processes in the S-CORE platform.
     It allows for launching, monitoring, and controlling processes based on
     defined configurations and requirements.
     As such, it is a central part of the lifecycle management in S-CORE and

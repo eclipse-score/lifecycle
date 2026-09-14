@@ -25,22 +25,22 @@ activate LM
 LM -> LM: Analyze current state.
 LM -> LM: Determine transition plan.
 
-LM -> kernel: Start Reporting App 1.
-kernel -> app1 **: Start.
-activate app1
-LM -> LM: Wait for Reporting App 1 ready condition.
-app1 -> app1: Internal User app initialization.
-app1 -> LM: Signal ready state via Lifecycle API.
-
-LM -> LM: Analyze current state.
-LM -> LM: Determine transition plan.
-
 LM -> kernel: Start Reporting App 2.
 kernel -> app2 **: Start.
 activate app2
 LM -> LM: Wait for Reporting App 2 ready condition.
 app2 -> app2: Internal User app initialization.
 app2 -> LM: Signal ready state via Lifecycle API.
+
+LM -> LM: Analyze current state.
+LM -> LM: Determine transition plan.
+
+LM -> kernel: Start Reporting App 1.
+kernel -> app1 **: Start.
+activate app1
+LM -> LM: Wait for Reporting App 1 ready condition.
+app1 -> app1: Internal User app initialization.
+app1 -> LM: Signal ready state via Lifecycle API.
 
 LM -> LM: Analyze current state.
 LM -> LM: Update current run target state to active.

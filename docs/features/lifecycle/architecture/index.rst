@@ -78,29 +78,44 @@ Static Architecture
 
       comp__lifecycle_launch_manager --> cfg: use
 
+
+.. feat_arc_sta:: Configuration parameters static architecture
+   :id: feat_arc_sta__lifecycle__cfg_params_static
+   :security: YES
+   :safety: ASIL_B
+   :status: valid
+   :version: 1
+   :fulfils: feat_req__lifecycle__component_group_config[version==1],
+             feat_req__lifecycle__config_file_support[version==1],
+             feat_req__lifecycle__run_target_support[version==1]
+   :belongs_to: feat__lifecycle
+   :includes: logic_arc_int__lifecycle__lifecycle_if[version==1],
+              logic_arc_int__lifecycle__alive_if[version==1],
+              logic_arc_int__lifecycle__controlif[version==1],
+              logic_arc_int__lifecycle__deadline_monitor_if[version==1],
+              logic_arc_int__lifecycle__logical_monitor_if[version==1]
+
+   .. uml:: _assets/config_params_static.puml
+      :scale: 50
+      :align: center
+
+
 Dynamic Architecture
 --------------------
 
 Interactions between the :term:`Launch Manager` and a User application
 (through it's interfaces):
 
-.. toctree::
-   :maxdepth: 1
-
-   ./control_client
-   ./lifecycle_client
-   ./alive
-   ./launch_manager_configuration
-   ./launch_manager
-   ./external_monitoring
+* :doc:`./control_client`
+* :doc:`./lifecycle_client`
+* :doc:`./alive`
+* :doc:`./launch_manager`
+* :doc:`./external_monitoring`
 
 
 Interaction between the :term:`Health Monitor` and :term:`Launch Manager`:
 
-.. toctree::
-   :maxdepth: 1
-
-   ./health_monitor
+* :doc:`./health_monitor`
 
 
 Logical Interfaces
