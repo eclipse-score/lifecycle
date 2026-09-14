@@ -18,6 +18,9 @@
 #include <functional>
 #include <mutex>
 
+#include <score/jthread.hpp>
+#include <score/stop_token.hpp>
+
 #include "score/mw/launch_manager/common/constants.hpp"
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/control/control_client_channel.hpp"
@@ -187,19 +190,14 @@ class ControlClientImpl final
     /// Asynchronous nature of ControlClient API means responses to ControlClient requests, will arrive at
     /// a random point in future. For this reason a background thread is needed to monitor response_ link,
     /// this way we can deliver answers when they arrive from LCM.
-    std::unique_ptr<std::thread> ipc_response_thread_;
-
-    /// @brief Synchronization variable used to manage lifetime of ipc_response_thread_
-    /// As long as ipc_response_thread_running_ is set to true,
-    /// the ipc_response_thread_ should stay alive and perform its job.
-    /// When ipc_response_thread_running_ is set to false,
-    /// the ipc_response_thread_ should finish its execution and exit ASAP.
-    std::atomic_bool ipc_response_thread_running_;
+    /// Default-constructed (not joinable) until the constructor has finished validating the IPC channel, then
+    /// started via move-assignment. Requesting stop and joining on destruction is handled automatically.
+    score::cpp::jthread ipc_response_thread_;
 
     /// @brief Entry point for ipc_response_thread_
     /// This code will run in background and perform the work that is needed.
-    /// Exit from this function depends on ipc_response_thread_running_ variable.
-    void run();
+    /// Exit from this function depends on stop being requested on the given stop_token.
+    void run(score::cpp::stop_token stop_token);
 
     /// @brief Handle to the real IPC communication channel with LCM
     /// This handle is used to perform low level communication with LCM.

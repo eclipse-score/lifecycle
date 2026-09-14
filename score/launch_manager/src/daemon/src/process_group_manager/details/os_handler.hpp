@@ -15,11 +15,12 @@
 #define OS_HANDLER_HPP_INCLUDED
 
 #include <chrono>
-#include <thread>
 
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 #include "score/os/sys_wait.h"
-#include "score/os/utils/thread.h"
+
+#include <score/jthread.hpp>
+#include <score/stop_token.hpp>
 
 namespace score::mw::lifecycle::internal
 {
@@ -46,16 +47,12 @@ class OsHandler final
     OsHandler(SafeProcessMap& map, score::os::SysWait& sys_wait = score::os::SysWait::instance())
         : safe_process_map_(map), sys_wait_(sys_wait)
     {
-        score::os::set_thread_name(os_handler_, "os_handler");
     }
 
-    /// @brief Stops and and destroy the execution of the OsHandler's thread by setting the is_running_ flag to false,
-    /// allowing the thread to exit its main loop and then joining the thread to ensure proper termination.
-    ~OsHandler()
-    {
-        is_running_ = false;
-        os_handler_.join();
-    }
+    /// @brief Stops and destroys the execution of the OsHandler's thread by requesting a stop, allowing the thread to
+    /// exit its main loop, and then joining the thread to ensure proper termination.
+    /// This happens automatically as part of score::cpp::jthread's destructor.
+    ~OsHandler() = default;
 
     // Rule of five
     /// @brief No copy constructor needed.
@@ -75,20 +72,23 @@ class OsHandler final
     /// This method continuously checks for terminated processes using the OSAL waitForProcessTermination method
     /// If a terminated process is found, it locates the corresponding ProcessInfoNode by calling the findTerminated
     /// method of SafeProcessMap, and then notifies the ProcessInfoNode by calling its terminated method. If no
-    /// processes are terminating, it sleeps for a short duration to prevent CPU hogging.
-    void run();
+    /// processes are terminating, it sleeps for a short duration to prevent CPU hogging. Exits once a stop is
+    /// requested on the given stop_token.
+    void run(score::cpp::stop_token stop_token);
 
     /// @brief A reference to a SafeProcessMap that stores the mapping of processes to be managed.
     SafeProcessMap& safe_process_map_;
 
-    /// @brief Indicates whether the os handler's thread is currently running.
-    std::atomic_bool is_running_{true};
-
     /// @brief Interface to wait for child process termination.
     score::os::SysWait& sys_wait_;
 
-    /// @brief Thread object to manage execution of the run method.
-    std::thread os_handler_{&score::mw::lifecycle::internal::OsHandler::run, this};
+    /// @brief Thread object to manage execution of the run method. Automatically requests a stop and joins on
+    /// destruction.
+    score::cpp::jthread os_handler_{
+        score::cpp::jthread::name_hint{"os_handler"},
+        [this](score::cpp::stop_token stop_token) {
+            run(std::move(stop_token));
+        }};
 };
 
 }  // namespace score::mw::lifecycle::internal

@@ -31,5 +31,6 @@ cc_library(
         "//score/launch_manager/src/daemon/src/control:control_client_channel",
         "//score/launch_manager/src/daemon/src/osal:semaphore",
         "@score_baselibs//score/concurrency/future",
+        "@score_baselibs//score/language/futurecpp",
     ],
 )

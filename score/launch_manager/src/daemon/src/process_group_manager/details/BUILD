@@ -303,8 +303,8 @@ cc_library(
         ":safe_process_map",
         "//score/launch_manager/src/daemon/src/common:log",
         "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
+        "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/os:sys_wait",
-        "@score_baselibs//score/os/utils:thread",
     ],
 )
 
