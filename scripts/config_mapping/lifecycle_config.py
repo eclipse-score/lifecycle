@@ -130,6 +130,28 @@ def apply_file_state_defaults(ready_condition):
     ready_condition["file_state"] = {**merged}
 
 
+UINT32_MAX = 0xFFFFFFFF
+
+
+def sec_to_ms(sec: float) -> int:
+    """Convert a duration in seconds (float) to integer milliseconds.
+
+    Raises ValueError if the value is negative, overflows a uint32, or is a
+    sub-millisecond value that would silently round down to 0ms.
+    """
+    if sec < 0:
+        raise ValueError(f"Negative time value {sec} seconds is not supported")
+    ms = sec * 1000
+    if ms > UINT32_MAX:
+        raise ValueError(
+            f"Time value {sec} seconds exceeds maximum representable milliseconds"
+        )
+    result = int(ms)
+    if sec > 0 and result == 0:
+        raise ValueError(f"Sub-millisecond time value {sec} seconds rounds to 0ms")
+    return result
+
+
 def preprocess_defaults(global_defaults, config):
     """
     This function takes the input configuration and fills in any missing fields with default values.
@@ -302,10 +324,24 @@ def gen_config(output_dir, config, input_filename):
         if is_supervised(comp_props["application_profile"]["application_type"]):
             alive_sup = comp_props["application_profile"].get("alive_supervision", {})
             app_profile["alive_supervision"] = {
-                "reporting_cycle": alive_sup["reporting_cycle"],
+                "reporting_cycle_ms": sec_to_ms(alive_sup["reporting_cycle"]),
                 "failed_cycles_tolerance": alive_sup["failed_cycles_tolerance"],
                 "min_indications": alive_sup["min_indications"],
                 "max_indications": alive_sup["max_indications"],
+            }
+
+        ready_condition = comp_props.get(
+            "ready_condition", {"process_state": "Running"}
+        )
+        if "file_state" in ready_condition:
+            file_state = ready_condition["file_state"]
+            ready_condition = {
+                **ready_condition,
+                "file_state": {
+                    "file_path": file_state["file_path"],
+                    "state": file_state["state"],
+                    "polling_interval_ms": sec_to_ms(file_state["polling_interval"]),
+                },
             }
 
         props = {
@@ -313,9 +349,7 @@ def gen_config(output_dir, config, input_filename):
             "application_profile": app_profile,
             "depends_on": comp_props.get("depends_on", []),
             "process_arguments": comp_props.get("process_arguments", []),
-            "ready_condition": comp_props.get(
-                "ready_condition", {"process_state": "Running"}
-            ),
+            "ready_condition": ready_condition,
         }
         component["component_properties"] = props
 
@@ -338,8 +372,8 @@ def gen_config(output_dir, config, input_filename):
             sandbox_out["max_cpu_usage"] = sandbox["max_cpu_usage"]
 
         deployment = {
-            "ready_timeout": depl_cfg["ready_timeout"],
-            "shutdown_timeout": depl_cfg["shutdown_timeout"],
+            "ready_timeout_ms": sec_to_ms(depl_cfg["ready_timeout"]),
+            "shutdown_timeout_ms": sec_to_ms(depl_cfg["shutdown_timeout"]),
             "bin_dir": depl_cfg["bin_dir"],
             # Default the working directory to bin_dir (the directory the
             # executable lives in) when not set explicitly.
@@ -358,7 +392,9 @@ def gen_config(output_dir, config, input_filename):
             restart = rra.get("restart", rra)
             deployment["ready_recovery_action"] = {
                 "number_of_attempts": restart.get("number_of_attempts", 0),
-                "delay_before_restart": restart.get("delay_before_restart", 0),
+                "delay_before_restart_ms": sec_to_ms(
+                    restart.get("delay_before_restart", 0)
+                ),
             }
 
         if "recovery_action" in depl_cfg:
@@ -377,7 +413,7 @@ def gen_config(output_dir, config, input_filename):
     for rt_name, rt_config in config["run_targets"].items():
         rt = {
             "name": rt_name,
-            "transition_timeout": rt_config.get("transition_timeout", 3),
+            "transition_timeout_ms": sec_to_ms(rt_config.get("transition_timeout", 3)),
             "recovery_action": {
                 "run_target": rt_config.get("recovery_action", {})
                 .get("switch_run_target", {})
@@ -393,15 +429,18 @@ def gen_config(output_dir, config, input_filename):
     out["initial_run_target"] = config["initial_run_target"]
 
     fallback = config.get("fallback_run_target", {})
-    out["fallback_run_target"] = {
-        key: fallback[key]
-        for key in ("transition_timeout", "description", "depends_on")
-        if key in fallback
-    }
+    fb_out = {}
+    if "transition_timeout" in fallback:
+        fb_out["transition_timeout_ms"] = sec_to_ms(fallback["transition_timeout"])
+    if fallback.get("description"):
+        fb_out["description"] = fallback["description"]
+    if "depends_on" in fallback and fallback["depends_on"]:
+        fb_out["depends_on"] = fallback["depends_on"]
+    out["fallback_run_target"] = fb_out
 
     out["alive_supervision"] = {
-        "evaluation_cycle": config.get("alive_supervision", {}).get(
-            "evaluation_cycle", 0.5
+        "evaluation_cycle_ms": sec_to_ms(
+            config.get("alive_supervision", {}).get("evaluation_cycle", 0.5)
         ),
     }
 
@@ -415,7 +454,7 @@ def gen_config(output_dir, config, input_filename):
     if watchdog_config and required_watchdog_fields.issubset(watchdog_config.keys()):
         out["watchdog"] = {
             "device_file_path": watchdog_config["device_file_path"],
-            "max_timeout": watchdog_config["max_timeout"],
+            "max_timeout_ms": sec_to_ms(watchdog_config["max_timeout"]),
             "deactivate_on_shutdown": watchdog_config["deactivate_on_shutdown"],
             "require_magic_close": watchdog_config["require_magic_close"],
         }

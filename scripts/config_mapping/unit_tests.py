@@ -34,8 +34,36 @@ from lifecycle_config import (
     preprocess_defaults,
     schema_validation,
     score_defaults,
+    sec_to_ms,
     SCHED_POLICY_MAP,
 )
+
+# ---------------------------------------------------------------------------
+# sec_to_ms
+# ---------------------------------------------------------------------------
+
+
+def test_sec_to_ms_converts_positive_value():
+    assert sec_to_ms(1.5) == 1500
+
+
+def test_sec_to_ms_converts_zero():
+    assert sec_to_ms(0.0) == 0
+
+
+def test_sec_to_ms_rejects_negative_value():
+    with pytest.raises(ValueError, match="Negative time value"):
+        sec_to_ms(-1.0)
+
+
+def test_sec_to_ms_rejects_overflow():
+    with pytest.raises(ValueError, match="exceeds maximum representable milliseconds"):
+        sec_to_ms(5000000.0)
+
+
+def test_sec_to_ms_rejects_sub_millisecond():
+    with pytest.raises(ValueError, match="rounds to 0ms"):
+        sec_to_ms(0.0001)
 
 
 # ---------------------------------------------------------------------------
@@ -849,7 +877,7 @@ def test_gen_config_with_alive_supervision(tmp_path):
 
     app_profile = output["components"][0]["component_properties"]["application_profile"]
     assert "alive_supervision" in app_profile
-    assert app_profile["alive_supervision"]["reporting_cycle"] == 1.0
+    assert app_profile["alive_supervision"]["reporting_cycle_ms"] == 1000
     assert app_profile["alive_supervision"]["failed_cycles_tolerance"] == 3
     assert app_profile["alive_supervision"]["min_indications"] == 1
     assert app_profile["alive_supervision"]["max_indications"] == 5
@@ -915,7 +943,7 @@ def test_gen_config_with_watchdog(tmp_path):
     assert output["schema_version"] == 1
 
     assert output["watchdog"]["device_file_path"] == "/dev/watchdog0"
-    assert output["watchdog"]["max_timeout"] == 5
+    assert output["watchdog"]["max_timeout_ms"] == 5000
     assert output["watchdog"]["deactivate_on_shutdown"] is True
     assert output["watchdog"]["require_magic_close"] is True
 
@@ -1190,7 +1218,7 @@ def test_gen_config_ready_recovery_action(tmp_path):
 
     rra = output["components"][0]["deployment_config"]["ready_recovery_action"]
     assert rra["number_of_attempts"] == 3
-    assert rra["delay_before_restart"] == 5
+    assert rra["delay_before_restart_ms"] == 5000
 
 
 ## TODO

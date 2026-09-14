@@ -304,6 +304,7 @@ cc_library(
         "//score/launch_manager/src/daemon/src/common:log",
         "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
         "@score_baselibs//score/os:sys_wait",
+        "@score_baselibs//score/os/utils:thread",
     ],
 )
 

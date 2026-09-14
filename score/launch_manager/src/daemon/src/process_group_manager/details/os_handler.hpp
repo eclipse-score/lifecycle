@@ -19,6 +19,7 @@
 
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 #include "score/os/sys_wait.h"
+#include "score/os/utils/thread.h"
 
 namespace score::mw::lifecycle::internal
 {
@@ -45,6 +46,7 @@ class OsHandler final
     OsHandler(SafeProcessMap& map, score::os::SysWait& sys_wait = score::os::SysWait::instance())
         : safe_process_map_(map), sys_wait_(sys_wait)
     {
+        score::os::set_thread_name(os_handler_, "os_handler");
     }
 
     /// @brief Stops and and destroy the execution of the OsHandler's thread by setting the is_running_ flag to false,
