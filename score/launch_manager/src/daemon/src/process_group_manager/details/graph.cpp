@@ -37,8 +37,9 @@ namespace
 /// @param config The configuration containing components and run targets.
 /// @param process_handling The interfaces used to start, stop and report on the OS processes.
 /// @param run_target_map Map to keep the translation between IDHash to Index
-/// @return A populated dependency graph with all components and run targets.
-void CreateDependencyGraph(
+/// @return Success once populated with all components and run targets, or the error from the first
+/// component whose ProcessInfoNode failed to construct.
+score::cpp::expected_blank<IComponent::ComponentError> CreateDependencyGraph(
     DependencyGraph<IdentifierHash, Graph::Component>& graph,
     GraphConfig& config,
     ProcessHandling process_handling,
@@ -55,8 +56,14 @@ void CreateDependencyGraph(
         const auto name = component_config.name;
         auto depends_on = std::move(component_config.component_properties.depends_on);
 
-        const auto index = graph.try_emplace(
-            IdentifierHash{name}, std::in_place_type<ProcessInfoNode>, std::move(component_config), process_handling);
+        auto node_res = ProcessInfoNode::Create(std::move(component_config), process_handling);
+        if (!node_res.has_value())
+        {
+            return score::cpp::make_unexpected(node_res.error());
+        }
+
+        const auto index =
+            graph.try_emplace(IdentifierHash{name}, std::in_place_type<ProcessInfoNode>, std::move(node_res).value());
 
         LM_LOG_DEBUG() << "Creating component node:" << name;
         pending_dependencies.emplace_back(index, std::move(depends_on));
@@ -107,9 +114,31 @@ void CreateDependencyGraph(
     }
 
     LM_LOG_DEBUG() << "Created dependency graph with" << graph.size() << "total nodes";
+    return {};
 }
 
 }  // anonymous namespace
+
+score::cpp::expected<std::unique_ptr<Graph>, IComponent::ComponentError> Graph::Create(
+    uint32_t max_num_nodes,
+    GraphConfig& configuration,
+    std::shared_ptr<WorkerQueue> job_queue,
+    ProcessHandling process_handling,
+    ITransitionResultPublisher* transition_result_receiver)
+{
+    // std::unique_ptr rather than std::make_unique since the constructor is private.
+    std::unique_ptr<Graph> graph{
+        new Graph(max_num_nodes, configuration, job_queue, std::move(process_handling), transition_result_receiver)};
+
+    auto res = CreateDependencyGraph(
+        graph->nodes_, graph->configuration_, graph->process_handling_, graph->off_state_transition_timeout_);
+    if (!res.has_value())
+    {
+        return score::cpp::make_unexpected(res.error());
+    }
+
+    return graph;
+}
 
 Graph::Graph(
     uint32_t max_num_nodes,
@@ -128,7 +157,6 @@ Graph::Graph(
     last_state_manager_.process_identifier_ = IdentifierHash{""};  // an invalid state manager
     last_state_manager_.process_group_index_ = 0xFFFFU;
     cancel_message_.request_or_response_ = ControlClientCode::kNotSet;
-    CreateDependencyGraph(nodes_, configuration_, process_handling_, off_state_transition_timeout_);
 }
 
 Graph::~Graph()

@@ -24,6 +24,20 @@
 namespace score::mw::lifecycle::internal
 {
 
+score::cpp::expected<ProcessInfoNode, IComponent::ComponentError> ProcessInfoNode::Create(
+    configuration::ComponentConfig&& config,
+    ProcessHandling process_handling)
+{
+    ProcessInfoNode node{std::move(config), std::move(process_handling)};
+
+    if (auto res = node.setupAliveSupervision(); !res.has_value())
+    {
+        return score::cpp::make_unexpected(res.error());
+    }
+
+    return node;
+}
+
 ProcessInfoNode::ProcessInfoNode(configuration::ComponentConfig&& config, ProcessHandling process_handling)
     : terminator_(),
       has_semaphore_(false),
@@ -37,32 +51,38 @@ ProcessInfoNode::ProcessInfoNode(configuration::ComponentConfig&& config, Proces
     {
         start_tries_ = config_.deployment_config.ready_recovery_action->number_of_attempts + 1;
     }
+}
 
+score::cpp::expected_blank<IComponent::ComponentError> ProcessInfoNode::setupAliveSupervision()
+{
     const configuration::ApplicationProfile& app_profile = config_.component_properties.application_profile;
 
-    if (app_profile.application_type == configuration::ApplicationType::ReportingAndSupervised)
+    if (app_profile.application_type != configuration::ApplicationType::ReportingAndSupervised)
     {
-        SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
-            app_profile.alive_supervision.has_value(), "Supervised process did not have alive supervision config");
-        const uid_t uid = config_.deployment_config.sandbox.uid;
-
-        LM_LOG_DEBUG() << "Setting up alive supervision for" << identifier_;
-
-        supervision_handle_ = process_handling_.supervision_factory.constructSupervision(
-            identifier_, uid, app_profile.alive_supervision.value());
-
-        if (!supervision_handle_)
-        {
-            LM_LOG_ERROR() << "Failed to set up alive supervision for" << identifier_;
-        }
-        else
-        {
-            LM_LOG_DEBUG() << "Successfully set up alive supervision for" << identifier_;
-        }
-
-        config_.deployment_config.environmental_variables.add(
-            "LCM_ALIVE_INTERFACE_PATH", supervision_handle_->getConnectionId());
+        return {};
     }
+
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
+        app_profile.alive_supervision.has_value(), "Supervised process did not have alive supervision config");
+    const uid_t uid = config_.deployment_config.sandbox.uid;
+
+    LM_LOG_DEBUG() << "Setting up alive supervision for" << identifier_;
+
+    supervision_handle_ = process_handling_.supervision_factory.constructSupervision(
+        identifier_, uid, app_profile.alive_supervision.value());
+
+    if (!supervision_handle_)
+    {
+        LM_LOG_ERROR() << "Failed to set up alive supervision for" << identifier_;
+        return score::cpp::make_unexpected(ComponentError::kErrorBeforeReady);
+    }
+
+    LM_LOG_DEBUG() << "Successfully set up alive supervision for" << identifier_;
+
+    config_.deployment_config.environmental_variables.add(
+        "LCM_ALIVE_INTERFACE_PATH", supervision_handle_->getConnectionId());
+
+    return {};
 }
 
 IComponent::RequestResult ProcessInfoNode::tryReportCompletion(score::mw::lifecycle::ProcessState new_state)

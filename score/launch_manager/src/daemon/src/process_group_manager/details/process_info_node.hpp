@@ -22,6 +22,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/process_handling.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 #include "score/mw/launch_manager/process_group_manager/process_state.hpp"
+#include <score/expected.hpp>
 #include <score/stop_token.hpp>
 #include <atomic>
 #include <chrono>
@@ -52,10 +53,13 @@ class ProcessInfoNode final : public IComponent
     };
 
   public:
-    /// @brief Constructs a ProcessInfoNode.
+    /// @brief Constructs a ProcessInfoNode, setting up alive supervision if configured.
     /// @param config Configuration for the OS process.
     /// @param process_handling The interfaces used to start, stop and report on the OS process.
-    ProcessInfoNode(configuration::ComponentConfig&& config, ProcessHandling process_handling);
+    /// @return The constructed node, or kErrorBeforeReady if alive supervision construction failed.
+    [[nodiscard]] static score::cpp::expected<ProcessInfoNode, ComponentError> Create(
+        configuration::ComponentConfig&& config,
+        ProcessHandling process_handling);
 
     /// @brief Explicit move constructor required due to atomics. PIN must be moveable to exist in the graph
     ProcessInfoNode(ProcessInfoNode&& other) noexcept
@@ -70,7 +74,9 @@ class ProcessInfoNode final : public IComponent
           sync_(std::move(other.sync_)),
           process_handling_(std::move(other.process_handling_)),
           supervision_handle_(std::move(other.supervision_handle_)),
-          identifier_(other.identifier_)
+          start_tries_(other.start_tries_),
+          identifier_(other.identifier_),
+          termination_result_(other.termination_result_)
     {
     }
 
@@ -102,6 +108,16 @@ class ProcessInfoNode final : public IComponent
     [[nodiscard]] ControlClientChannelP getControlClientChannel() const;
 
   private:
+    /// @brief Constructs a ProcessInfoNode without setting up alive supervision. Use Create() instead.
+    /// @param config Configuration for the OS process.
+    /// @param process_handling The interfaces used to start, stop and report on the OS process.
+    ProcessInfoNode(configuration::ComponentConfig&& config, ProcessHandling process_handling);
+
+    /// @brief Sets up alive supervision for a Reporting_And_Supervised process. A no-op for any other application
+    /// type.
+    /// @return Success, or kErrorBeforeReady if construction of the supervision handle failed.
+    [[nodiscard]] score::cpp::expected_blank<ComponentError> setupAliveSupervision();
+
     /// @brief Given that an error has occurred after the process has reached state @p state_reached, return an error
     /// indicating whether this was an error before the ready condition was satisfied, or after.
     ComponentError getErrorAfterState(ProcessState state_reached) const;

@@ -33,12 +33,14 @@
 #include "score/mw/launch_manager/process_group_manager/details/component_of.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_task.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/dependency_graph.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/itransition_result_publisher.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_handling.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/run_target.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/transition.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
+#include <score/expected.hpp>
 #include <score/stop_token.hpp>
 
 namespace score::mw::lifecycle::internal
@@ -159,13 +161,15 @@ class Graph final
     static constexpr std::string_view off_state_name{"Off"};
     static constexpr std::string_view recovery_state_name{"fallback"};
 
-    /// @brief Constructor to initialize a Graph object.
+    /// @brief Creates a Graph, building all of its ProcessInfoNode and RunTarget nodes from @p configuration.
     /// @param max_num_nodes Maximum number of nodes this graph can hold.
     /// @param configuration Configuration containing run target and component information.
     /// @param job_queue Queue to push component jobs to for multithreaded processing.
     /// @param process_handling The interfaces used to start, stop and report on the OS processes.
     /// @param transition_result_receiver Object to notify when the initial transition is complete.
-    Graph(
+    /// @return The constructed Graph, or an error if any component node failed to construct (e.g. alive
+    /// supervision setup failed).
+    [[nodiscard]] static score::cpp::expected<std::unique_ptr<Graph>, IComponent::ComponentError> Create(
         uint32_t max_num_nodes,
         GraphConfig& configuration,
         std::shared_ptr<WorkerQueue> job_queue,
@@ -298,6 +302,19 @@ class Graph final
     std::chrono::milliseconds getOffStateTransitionTimeout() const;
 
   private:
+    /// @brief Constructs a Graph without populating its nodes. Use Create() instead.
+    /// @param max_num_nodes Maximum number of nodes this graph can hold.
+    /// @param configuration Configuration containing run target and component information.
+    /// @param job_queue Queue to push component jobs to for multithreaded processing.
+    /// @param process_handling The interfaces used to start, stop and report on the OS processes.
+    /// @param transition_result_receiver Object to notify when the initial transition is complete.
+    Graph(
+        uint32_t max_num_nodes,
+        GraphConfig& configuration,
+        std::shared_ptr<WorkerQueue> job_queue,
+        ProcessHandling process_handling,
+        ITransitionResultPublisher* transition_result_receiver);
+
     /// @brief Reports that a node has finished executing, enqueuing successors or updating the graph state if a
     /// transition has finished.
     void nodeExecuted(IdentifierHash node, score::cpp::expected_blank<IComponent::ComponentError> error);
