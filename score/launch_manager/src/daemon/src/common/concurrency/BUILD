@@ -72,6 +72,7 @@ cc_library(
         "//score/launch_manager/src/daemon/src/osal:semaphore",
         "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/mw/log",
+        "@score_baselibs//score/result",
     ],
 )
 
@@ -96,6 +97,7 @@ cc_library(
     deps = [
         ":fixed_size_queue",
         "@score_baselibs//score/language/futurecpp",
+        "@score_baselibs//score/result",
     ],
 )
 
