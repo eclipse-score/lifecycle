@@ -54,8 +54,9 @@ def integration_test(
     """
 
     bin_pkg_name = "{}_binaries_pkg".format(name)
-    config_name = "{}_config_pkg".format(name)
-    test_pkg_name = "{}_test_pkg".format(name)
+    lm_config_name = "{}_lm_config".format(name)
+    lm_config_pkg_name = "{}_lm_config_pkg".format(name)
+    mw_com_config_pkg_name = "{}_mw_com_config_pkg".format(name)
     test_tar_name = "{}_test_tar".format(name)
 
     pkg_files(
@@ -67,22 +68,25 @@ def integration_test(
 
     if config:
         launch_manager_config(
-            name = config_name,
+            name = lm_config_name,
             config = config,
             flatbuffer_out_dir = "etc",
         )
-        all_files = files + [":{}".format(config_name)]
-    else:
-        all_files = files
+        pkg_files(
+            name = lm_config_pkg_name,
+            srcs = [":{}".format(lm_config_name)],
+            prefix = "tests/{}".format(name),
+            attributes = pkg_attributes(mode = "0400"),
+        )
 
     pkg_files(
-        name = test_pkg_name,
-        srcs = all_files,
-        prefix = "tests/{}".format(name),
+        name = mw_com_config_pkg_name,
+        srcs = ["//tests/utils/environments:mw_com_config.json"],
+        prefix = "tests/{}/etc".format(name),
         attributes = pkg_attributes(mode = "0400"),
     )
 
-    pkg_tar(name = test_tar_name, srcs = [":{}".format(bin_pkg_name), ":{}".format(test_pkg_name)])
+    pkg_tar(name = test_tar_name, srcs = [":{}".format(bin_pkg_name), ":{}".format(lm_config_pkg_name), ":{}".format(mw_com_config_pkg_name)])
 
     final_deps = kwargs.pop("deps", []) + all_requirements + [
         "@score_tooling//python_basics/score_pytest:attribute_plugin",

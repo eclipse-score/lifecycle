@@ -13,21 +13,28 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_library(
-    name = "control_client_channel",
-    srcs = [
-        "control_client_channel.cpp",
-    ],
-    hdrs = [
-        "control_client_channel.hpp",
-    ],
+    name = "control_provider",
+    srcs = ["control_provider.cpp"],
+    hdrs = ["control_provider.hpp"],
     include_prefix = "score/mw/launch_manager/control",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/control",
-    visibility = ["//score:__subpackages__"],
+    visibility = ["//score/launch_manager/src/daemon:__pkg__"],
     deps = [
-        "//score/launch_manager/src/daemon/src/common:constants",
+        ":icontrollable_graph",
         "//score/launch_manager/src/daemon/src/common:log",
-        "//score/launch_manager/src/daemon/src/common:process_group_state_id",
         "//score/launch_manager/src/daemon/src/osal:ipc_comms",
-        "@score_baselibs//score/language/futurecpp",
+        "//score/launch_manager/src/lm_control",
+    ],
+)
+
+cc_library(
+    name = "icontrollable_graph",
+    hdrs = ["icontrollable_graph.hpp"],
+    include_prefix = "score/mw/launch_manager/control",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/control",
+    visibility = ["//score/launch_manager/src/daemon/src:__subpackages__"],
+    deps = [
+        "//score/launch_manager/src/daemon/src/common:identifier_hash",
+        "@score_baselibs//score/result",
     ],
 )

@@ -24,6 +24,7 @@
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
+#include "score/mw/lifecycle/run_target_activation_source.hpp"
 
 #include "score/assert.hpp"
 
@@ -115,19 +116,15 @@ Graph::Graph(
     uint32_t max_num_nodes,
     GraphConfig& configuration,
     std::shared_ptr<WorkerQueue> job_queue,
-    ProcessHandling process_handling,
-    ITransitionResultPublisher* transition_result_receiver)
+    ProcessHandling process_handling)
     : nodes_(max_num_nodes),
       transition_builder_(nodes_),
       state_(GraphState::kSuccess),
       configuration_(configuration),
       job_queue_(job_queue),
       process_handling_(std::move(process_handling)),
-      transition_result_receiver_(transition_result_receiver)
+      active_run_target_callback_(std::nullopt)
 {
-    last_state_manager_.process_identifier_ = IdentifierHash{""};  // an invalid state manager
-    last_state_manager_.process_group_index_ = 0xFFFFU;
-    cancel_message_.request_or_response_ = ControlClientCode::kNotSet;
     CreateDependencyGraph(nodes_, configuration_, process_handling_, off_state_transition_timeout_);
 }
 
@@ -218,10 +215,24 @@ void Graph::queueReadyNodes()
 
 void Graph::finalizeTransitionSuccess()
 {
+    if (active_run_target_callback_.has_value())
+    {
+        const IdentifierHash state = getProcessGroupState();
+
+        RunTargetActivationSource source;
+        if (is_initial_state_transition_)
+            source = RunTargetActivationSource::kInitialActivation;
+        else if (state == IdentifierHash{"fallback"})
+            source = RunTargetActivationSource::kRecoveryAction;
+        else
+            source = RunTargetActivationSource::kStateManagerRequest;
+
+        active_run_target_callback_.value()(state, source);
+    }
+
     if (is_initial_state_transition_)
     {
         is_initial_state_transition_ = false;
-        transition_result_receiver_->setInitialStateTransitionResult(ControlClientCode::kInitialMachineStateSuccess);
 
         // RULECHECKER_comment(1, 3, check_c_style_cast, "This is the definition provided by the OS and does
         // a C-style cast.", true)
@@ -230,8 +241,8 @@ void Graph::finalizeTransitionSuccess()
                        // weird value in debug messages.
                        << (static_cast<double>(clock()) / (static_cast<double>(CLOCKS_PER_SEC) / 1000.0)) << "ms";
     }
+
     setState(GraphState::kSuccess);
-    setPendingEvent(ControlClientCode::kSetStateSuccess);
 }
 
 void Graph::tryQueueNode(ComponentTask task)
@@ -254,7 +265,7 @@ void Graph::tryQueueNode(ComponentTask task)
             // here
             LM_LOG_ERROR() << "Failed to queue node for execution " << push_res.error();
 
-            abort(getLastExecutionError(), IComponent::ComponentError::kErrorBeforeReady);
+            setState(GraphState::kAborting);
             // Also, we need to be careful not to recurse or deadlock here. The below function does not lock any mutex
             // nor call this function
             handleNonTransitionExecution(GraphState::kAborting);
@@ -301,7 +312,6 @@ void Graph::startInitialTransition(IdentifierHash pg_state)
     if (!startTransition(pg_state))
     {
         is_initial_state_transition_ = false;
-        transition_result_receiver_->setInitialStateTransitionResult(ControlClientCode::kInitialMachineStateFailed);
     }
 }
 
@@ -346,7 +356,7 @@ void Graph::handleComponentEvent(const ComponentEvent& event)
             }
             else if constexpr (std::is_same_v<T, UnexpectedTermination>)
             {
-                abort(1, data.reason);
+                setState(GraphState::kAborting);
 
                 // Need to clean up any leftover resources
                 IComponent& failingComponent = componentOf(nodes_[data.node_identifier]);
@@ -371,7 +381,7 @@ void Graph::nodeExecuted(IdentifierHash node, score::cpp::expected_blank<ICompon
 
     if (!error.has_value())
     {
-        abort(1, error.error());
+        setState(GraphState::kAborting);
     }
 
     GraphState current_state = getState();
@@ -396,7 +406,6 @@ void Graph::handleNonTransitionExecution(GraphState current_state)
     if (is_initial_state_transition_)
     {
         is_initial_state_transition_ = false;
-        transition_result_receiver_->setInitialStateTransitionResult(ControlClientCode::kInitialMachineStateFailed);
         // RULECHECKER_comment(1, 3, check_c_style_cast, "This is the definition provided by the OS and does a C-style
         // cast.", true) coverity[cert_err33_c_violation:INTENTIONAL] Does not matter if clock() gives a weird value in
         // debug messages.
@@ -413,44 +422,11 @@ void Graph::handleNonTransitionExecution(GraphState current_state)
     }
 
     setState(GraphState::kUndefinedState);
-    if (current_state == GraphState::kAborting)
-    {
-        setPendingEvent(abort_code_);
-    }
-    else
-    {
-        ControlClientChannel::nudgeControlClientHandler();
-    }
-}
-
-void Graph::abort(uint32_t code, IComponent::ComponentError reason)
-{
-    if (!setState(GraphState::kAborting))
-    {
-        // Abort code will never be read in this case because there is no associated transition
-        return;
-    }
-    last_execution_error_ = code;
-    switch (reason)
-    {
-        case IComponent::ComponentError::kErrorAfterReady:
-            abort_code_ = ControlClientCode::kFailedUnexpectedTermination;
-            break;
-        case IComponent::ComponentError::kErrorBeforeReady:
-            abort_code_ = ControlClientCode::kFailedUnexpectedTerminationOnEnter;
-            break;
-        default:
-            abort_code_ = ControlClientCode::kSetStateFailed;
-            break;
-    }
 }
 
 void Graph::cancel()
 {
-    if (setState(GraphState::kCancelled))
-    {
-        setPendingEvent(ControlClientCode::kSetStateCancelled);
-    }
+    setState(GraphState::kCancelled);
 
     if (jobs_in_progress_ > 0)
     {
@@ -474,24 +450,6 @@ void Graph::forceKillProcesses()
             }
         }
     }
-}
-
-void Graph::updateCancelMessage()
-{
-    ControlClientCode code = getPendingEvent();
-
-    if (code != ControlClientCode::kNotSet)
-    {
-        cancel_message_.process_group_state_ = requested_state_;
-        cancel_message_.originating_control_client_ = last_state_manager_;
-        cancel_message_.request_or_response_ = code;
-        clearPendingEvent(code);
-    }
-}
-
-void Graph::setStateManager(ControlClientID& control_client_id)
-{
-    last_state_manager_ = control_client_id;
 }
 
 ProcessInfoNode* Graph::getProcessInfoNode(IdentifierHash process_index)
@@ -520,40 +478,6 @@ IdentifierHash Graph::getProcessGroupState()
     return requested_state_.pg_state_name_;
 }
 
-const ProcessInfoNode* Graph::findControlClient()
-{
-    auto* pin = getProcessInfoNode(getStateManager().process_identifier_);
-    if (pin && pin->getControlClientChannel())
-    {
-        return pin;
-    }
-
-    for (const auto [id, node] : nodes_)
-    {
-        if (const auto* process = std::get_if<ProcessInfoNode>(&node); process && process->getControlClientChannel())
-        {
-            return process;
-        }
-    }
-
-    return nullptr;
-}
-
-ControlClientID Graph::getStateManager()
-{
-    return last_state_manager_;
-}
-
-uint32_t Graph::getLastExecutionError()
-{
-    return last_execution_error_;
-}
-
-void Graph::setLastExecutionError(uint32_t code)
-{
-    last_execution_error_ = code;
-}
-
 IdentifierHash Graph::setPendingState(IdentifierHash new_state)
 {
     IdentifierHash old_state = pending_state_;
@@ -571,30 +495,6 @@ IdentifierHash Graph::setPendingState(IdentifierHash new_state)
 IdentifierHash Graph::getPendingState()
 {
     return pending_state_;
-}
-
-ControlClientCode Graph::getPendingEvent()
-{
-    return event_;
-}
-
-void Graph::clearPendingEvent(ControlClientCode expected)
-{
-    if (event_ == expected)
-    {
-        event_ = ControlClientCode::kNotSet;
-    }
-}
-
-void Graph::setPendingEvent(ControlClientCode event)
-{
-    event_ = event;
-    ControlClientChannel::nudgeControlClientHandler();
-}
-
-ControlClientMessage& Graph::getCancelMessage()
-{
-    return cancel_message_;
 }
 
 std::string_view Graph::toString(GraphState state)
@@ -634,6 +534,11 @@ std::chrono::time_point<std::chrono::steady_clock> Graph::getRequestStartTime()
 std::chrono::milliseconds Graph::getOffStateTransitionTimeout() const
 {
     return off_state_transition_timeout_;
+}
+
+void Graph::registerActiveRunTargetCallback(std::function<void(IdentifierHash, RunTargetActivationSource)> callback)
+{
+    active_run_target_callback_ = callback;
 }
 
 }  // namespace score::mw::lifecycle::internal

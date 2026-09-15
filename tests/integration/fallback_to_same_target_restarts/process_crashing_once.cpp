@@ -22,9 +22,6 @@ TEST(FallbackToSameTargetRestarts, CrashingProcess)
         score::mw::lifecycle::report_running();
     }
 
-    // Limitation: we can't wait for run target activation to complete
-    sleep(1);
-
     TEST_STEP("Crash if we haven't crashed yet")
     {
         const std::string_view crash_file = "process_crashed";
