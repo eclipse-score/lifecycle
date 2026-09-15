@@ -152,7 +152,7 @@ int main(int argc, const char* argv[])
         auto config_result = config_loader.load(config_path);
         if (!config_result.has_value())
         {
-            LM_LOG_FATAL() << "Failed to load config from: " << std::string_view(config_path);
+            LM_LOG_FATAL() << "Failed to load config from:" << std::string_view(config_path);
             return EXIT_FAILURE;
         }
         LM_LOG_DEBUG() << "Launch Manager Started !!!!";

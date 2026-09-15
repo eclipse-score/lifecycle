@@ -55,7 +55,7 @@ std::optional<IConfigLoader::Error> validateSchemaVersion(const fb::LaunchManage
     if (*config->schema_version() != FlatbufferConfigLoader::kExpectedSchemaVersion)
     {
         LM_LOG_ERROR() << "LaunchManagerConfig::schema_version" << *config->schema_version()
-                       << "does not match the supported version " << FlatbufferConfigLoader::kExpectedSchemaVersion;
+                       << "does not match the supported version" << FlatbufferConfigLoader::kExpectedSchemaVersion;
         return IConfigLoader::Error::UnsupportedVersion;
     }
     return std::nullopt;

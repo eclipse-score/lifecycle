@@ -518,7 +518,7 @@ void Alive::switchToExpired(Alive::EReason reason) noexcept(true)
     const bool enqueued = recoveryClient_p->sendRecoveryRequest(processIdentifier_);
     if (enqueued)
     {
-        LM_LOG_DEBUG() << "Recovery request enqueued successfully for alive supervision " << getConfigName()
+        LM_LOG_DEBUG() << "Recovery request enqueued successfully for alive supervision" << getConfigName()
                        << "failure";
     }
     else

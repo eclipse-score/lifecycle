@@ -535,8 +535,8 @@ void ProcessGroupManager::handleRecoveryRequest(const IdentifierHash& process_id
     // "fallback", it doesn't actually matter...
     const GraphState graph_state = graph_->getState();
 
-    LM_LOG_DEBUG() << "handleRecoveryRequest: Processing recovery request for process " << process_identifier
-                   << "to state " << recovery_state_;
+    LM_LOG_DEBUG() << "handleRecoveryRequest: Processing recovery request for process" << process_identifier
+                   << "to state" << recovery_state_;
 
     if (GraphState::kInTransition == graph_state)
     {

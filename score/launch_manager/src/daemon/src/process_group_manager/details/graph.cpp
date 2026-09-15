@@ -252,7 +252,7 @@ void Graph::tryQueueNode(ComponentTask task)
         {
             // This means the job will never be queued so we'll never get the nodeExecuted() call, we need to call it
             // here
-            LM_LOG_ERROR() << "Failed to queue node for execution " << push_res.error();
+            LM_LOG_ERROR() << "Failed to queue node for execution" << push_res.error();
 
             abort(getLastExecutionError(), IComponent::ComponentError::kErrorBeforeReady);
             // Also, we need to be careful not to recurse or deadlock here. The below function does not lock any mutex
@@ -334,7 +334,7 @@ void Graph::handleComponentEvent(const ComponentEvent& event)
             using T = std::decay_t<decltype(data)>;
             if constexpr (std::is_same_v<T, ActivationSuccessful> || std::is_same_v<T, DeactivationComplete>)
             {
-                LM_LOG_DEBUG() << "Component " << data.node_identifier << "finished "
+                LM_LOG_DEBUG() << "Component" << data.node_identifier << "finished"
                                << (std::is_same_v<T, ActivationSuccessful> ? std::string_view("activation")
                                                                            : std::string_view("deactivation"))
                                << "successfully";
