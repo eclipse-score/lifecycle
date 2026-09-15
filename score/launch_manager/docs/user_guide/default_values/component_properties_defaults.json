@@ -5,7 +5,7 @@
             "application_type": "Reporting_And_Supervised",
             "is_self_terminating": false,
             "alive_supervision": {
-                "reporting_cycle": 0.5,
+                "reporting_cycle_ms": 500,
                 "failed_cycles_tolerance": 2,
                 "min_indications": 1,
                 "max_indications": 3

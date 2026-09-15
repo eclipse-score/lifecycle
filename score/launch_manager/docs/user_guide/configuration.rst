@@ -83,8 +83,8 @@ alive_supervision (object)
 
 **Properties:**
 
-* **evaluation_cycle** (number, optional)
-    * **Description:** Specifies the length, in seconds (e.g., ``0.5`` for 500 milliseconds), of the time window used by the **Launch Manager** to assess incoming alive supervision reports from components.
+* **evaluation_cycle_ms** (integer, optional)
+    * **Description:** Specifies the length, in milliseconds, of the time window used by the **Launch Manager** to assess incoming alive supervision reports from components.
     * **Constraint:** Must be greater than 0.
 
 .. _lm_conf_watchdog_object_:
@@ -99,8 +99,8 @@ watchdog (object)
 
 * **device_file_path** (string, optional)
     * **Description:** Specifies the absolute path to the external watchdog device file (e.g., ``/dev/watchdog``).
-* **max_timeout** (number, optional)
-    * **Description:** Specifies the maximum timeout value, in seconds (e.g., ``0.5`` for 500 milliseconds), that the **Launch Manager** configures on the external watchdog during startup. The external watchdog uses this timeout as the deadline for receiving periodic alive reports from the **Launch Manager**.
+* **max_timeout_ms** (integer, optional)
+    * **Description:** Specifies the maximum timeout value, in milliseconds, that the **Launch Manager** configures on the external watchdog during startup. The external watchdog uses this timeout as the deadline for receiving periodic alive reports from the **Launch Manager**.
     * **Constraint:** Must be 0 or greater.
 * **deactivate_on_shutdown** (boolean, optional)
     * **Description:** Specifies whether the **Launch Manager** disables the external watchdog during shutdown. When set to ``true``, the watchdog is deactivated; when ``false``, it remains active, potentially triggering a reset if the shutdown is prolonged.
@@ -123,8 +123,8 @@ recovery_action (object)
         * **number_of_attempts** (integer, optional)
             * **Description:** Specifies the maximum number of restart attempts before the **Launch Manager** concludes that recovery cannot succeed for the component.
             * **Constraint:** Must be 0 or greater.
-        * **delay_before_restart** (number, optional)
-            * **Description:** Specifies the delay duration, in seconds (e.g., ``0.25`` for 250 milliseconds), that the **Launch Manager** waits before initiating a restart attempt.
+        * **delay_before_restart_ms** (integer, optional)
+            * **Description:** Specifies the delay duration, in milliseconds, that the **Launch Manager** waits before initiating a restart attempt.
             * **Constraint:** Must be 0 or greater.
 * **switch_run_target** (object, optional)
     * **Description:** Defines a recovery action that switches to a different **Run Target**. This can be a new **Run Target** or the current one to retry its activation.
@@ -147,8 +147,8 @@ run_target (object)
 * **depends_on** (array of strings, optional)
     * **Description:** Specifies the names of components and other **Run Targets** that must be successfully activated when this **Run Target** is activated. This defines the dependencies for a given operational mode.
     * **Items:** Each item is a string specifying the name of a component or **Run Target** on which this **Run Target** depends.
-* **transition_timeout** (number, optional)
-    * **Description:** Specifies the time limit, in seconds (e.g., ``1.5`` for 1500 milliseconds), for the **Run Target** transition to complete. If this limit is exceeded, the transition is considered failed.
+* **transition_timeout_ms** (integer, optional)
+    * **Description:** Specifies the time limit, in milliseconds, for the **Run Target** transition to complete. If this limit is exceeded, the transition is considered failed.
     * **Constraint:** Must be greater than 0.
 * **recovery_action** (object, optional)
     * **Description:** Specifies the recovery action to execute when a component assigned to this **Run Target** fails. This action is limited to ``switch_run_target`` operations.
@@ -182,17 +182,17 @@ component_properties (object)
             * **Description:** Defines the configuration parameters used for monitoring the "aliveness" of the component.
             * **Reference:** This property refers to the ``alive_supervision`` reusable type defined in this schema.
             * **Properties:** (These properties are also inherited from ``alive_supervision`` but are listed here for quick reference and clarity on the local context.)
-                * **reporting_cycle** (number, optional)
-                    * **Description:** Specifies the duration, in seconds (e.g., ``0.5`` for 500 milliseconds), of the time interval used to verify that the component sends alive notifications within the expected time frame.
+                * **reporting_cycle_ms** (integer, optional)
+                    * **Description:** Specifies the duration, in milliseconds, of the time interval used to verify that the component sends alive notifications within the expected time frame.
                     * **Constraint:** Must be greater than 0.
                 * **failed_cycles_tolerance** (integer, optional)
                     * **Description:** Specifies the maximum number of consecutive reporting cycle failures. Once the number of failed cycles exceeds this maximum, the **Launch Manager** will trigger the configured recovery action.
                     * **Constraint:** Must be 0 or greater.
                 * **min_indications** (integer, optional)
-                    * **Description:** Specifies the minimum number of checkpoints that must be reported within each configured ``reporting_cycle``.
+                    * **Description:** Specifies the minimum number of checkpoints that must be reported within each configured ``reporting_cycle_ms``.
                     * **Constraint:** Must be 0 or greater.
                 * **max_indications** (integer, optional)
-                    * **Description:** Specifies the maximum number of checkpoints that may be reported within each configured ``reporting_cycle``.
+                    * **Description:** Specifies the maximum number of checkpoints that may be reported within each configured ``reporting_cycle_ms``.
                     * **Constraint:** Must be 0 or greater.
 * **depends_on** (array of strings, optional)
     * **Description:** Specifies the names of components that this component depends on. Each specified dependency must be initialized and reach its **Ready State** before the **Launch Manager** will start this component. This ensures proper startup order.
@@ -219,10 +219,10 @@ component_properties (object)
                         * ``"Exists"``: The component is ready when the file at ``file_path`` exists.
                         * ``"NotExisting"``: The component is ready when the file at ``file_path`` does not exist.
                     * **Default:** ``"Exists"``
-                * **polling_interval** (number, optional)
-                    * **Description:** Specifies the time interval, in seconds (e.g., ``0.3`` for 300 milliseconds), at which the **Launch Manager** checks the file existence state.
+                * **polling_interval_ms** (integer, optional)
+                    * **Description:** Specifies the time interval, in milliseconds, at which the **Launch Manager** checks the file existence state.
                     * **Constraint:** Must be greater than 0.
-                    * **Default:** ``0.01``
+                    * **Default:** ``10``
 
 
 .. _lm_conf_deployment_config_object_:
@@ -235,11 +235,11 @@ deployment_config (object)
 
 **Properties:**
 
-* **ready_timeout** (number, optional)
-    * **Description:** Specifies the maximum time, in seconds (e.g., ``0.25`` for 250 milliseconds), allowed for the component to reach its **Ready State**. The timeout is measured from when the component's process is created until the ready conditions specified in ``component_properties.ready_condition`` are met.
+* **ready_timeout_ms** (integer, optional)
+    * **Description:** Specifies the maximum time, in milliseconds, allowed for the component to reach its **Ready State**. The timeout is measured from when the component's process is created until the ready conditions specified in ``component_properties.ready_condition`` are met.
     * **Constraint:** Must be greater than 0.
-* **shutdown_timeout** (number, optional)
-    * **Description:** Specifies the maximum time, in seconds (e.g., ``0.75`` for 750 milliseconds), allowed for the component to terminate after it receives a SIGTERM signal from the **Launch Manager**. The timeout is measured from when the **Launch Manager** sends the SIGTERM signal until the operating system notifies the **Launch Manager** that the child process has terminated.
+* **shutdown_timeout_ms** (integer, optional)
+    * **Description:** Specifies the maximum time, in milliseconds, allowed for the component to terminate after it receives a SIGTERM signal from the **Launch Manager**. The timeout is measured from when the **Launch Manager** sends the SIGTERM signal until the operating system notifies the **Launch Manager** that the child process has terminated.
     * **Constraint:** Must be greater than 0.
 * **environmental_variables** (object, optional)
     * **Description:** Defines the set of environment variables passed to the component at startup.
@@ -249,7 +249,7 @@ deployment_config (object)
 * **working_dir** (string, optional)
     * **Description:** Specifies the directory to be used as the working directory for the component during execution. If not defined, the binary's directory (``bin_dir``) is used as the working directory by default.
 * **ready_recovery_action** (object, optional)
-    * **Description:** Specifies the recovery action to execute when the component fails to reach its **Ready State** within the configured ``ready_timeout``. This action is limited to ``restart`` operations.
+    * **Description:** Specifies the recovery action to execute when the component fails to reach its **Ready State** within the configured ``ready_timeout_ms``. This action is limited to ``restart`` operations.
     * **Reference:** This property refers to the ``recovery_action`` reusable type defined in this schema, specifically enforcing the ``restart`` option.
 * **recovery_action** (object, optional)
     * **Description:** Specifies the recovery action to execute when the component malfunctions after successfully reaching its **Ready State**. This action is limited to ``switch_run_target`` operations.
@@ -400,8 +400,8 @@ fallback_run_target (object, optional)
 * **depends_on** (array of strings, required)
     * **Description:** Specifies the names of components and **Run Targets** that must be activated when this fallback **Run Target** is activated.
     * **Items:** Each item is a string specifying the name of a component or **Run Target** upon which this **Run Target** depends.
-* **transition_timeout** (number, optional)
-    * **Description:** Specifies the time limit, in seconds (e.g., ``1.5`` for 1500 milliseconds), for the **Run Target** transition. If this limit is exceeded, the transition is considered failed.
+* **transition_timeout_ms** (integer, optional)
+    * **Description:** Specifies the time limit, in milliseconds, for the **Run Target** transition. If this limit is exceeded, the transition is considered failed.
     * **Constraint:** Must be greater than 0.
 
 .. _lm_conf_alive_supervision_object_optional_:

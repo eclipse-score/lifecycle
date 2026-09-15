@@ -45,9 +45,9 @@ table ComponentAliveSupervision {
   reporting_cycle_ms:uint32 = null; // required
   // Maximum number of consecutive reporting cycle failures before recovery is triggered.
   failed_cycles_tolerance:uint32 = null; // required
-  // Minimum number of checkpoints that must be reported within each reporting_cycle.
+  // Minimum number of checkpoints that must be reported within each reporting_cycle_ms.
   min_indications:uint32 = null; // optional
-  // Maximum number of checkpoints that may be reported within each reporting_cycle.
+  // Maximum number of checkpoints that may be reported within each reporting_cycle_ms.
   max_indications:uint32 = null; // optional
 }
 

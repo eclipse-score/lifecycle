@@ -23,7 +23,7 @@ started successfully by calling the lifecycle API for the language it is
 implemented in. This is done by reporting the ``kRunning`` execution
 state.
 
-A ``ready_timeout`` can be configured for each component. If the
+A ``ready_timeout_ms`` can be configured for each component. If the
 process does not report ``kRunning`` within that timeout, the Launch
 Manager terminates the process and registers an error.
 
@@ -40,7 +40,7 @@ a ``SIGTERM`` signal by ending ongoing tasks, freeing resources and
 exiting.
 
 If a process does not terminate after receiving a ``SIGTERM``, and a
-``shutdown_timeout`` is configured, then after the timeout is fired a
+``shutdown_timeout_ms`` is configured, then after the timeout is fired a
 ``SIGKILL`` is sent and the process is forcefully terminated.
 
 State Management

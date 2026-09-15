@@ -1,14 +1,14 @@
 {
     "deployment_config": {
-        "ready_timeout": 0.5,
-        "shutdown_timeout": 0.5,
+        "ready_timeout_ms": 500,
+        "shutdown_timeout_ms": 500,
         "environmental_variables": {},
         "bin_dir": "/opt",
         "working_dir": "/tmp",
         "ready_recovery_action": {
             "restart": {
                 "number_of_attempts": 0,
-                "delay_before_restart": 0
+                "delay_before_restart_ms": 0
             }
         },
         "recovery_action": {

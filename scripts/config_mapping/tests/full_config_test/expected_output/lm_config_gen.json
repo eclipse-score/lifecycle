@@ -87,9 +87,9 @@
                 ],
                 "ready_condition": {
                     "file_state": {
-                        "file_path": "/var/run/b/ready",
                         "state": "Exists",
-                        "polling_interval_ms": 10
+                        "polling_interval_ms": 10,
+                        "file_path": "/var/run/b/ready"
                     }
                 }
             },
@@ -148,9 +148,9 @@
                 "process_arguments": [],
                 "ready_condition": {
                     "file_state": {
-                        "file_path": "/var/run/c/startup.lock",
                         "state": "NotExisting",
-                        "polling_interval_ms": 500
+                        "polling_interval_ms": 500,
+                        "file_path": "/var/run/c/startup.lock"
                     }
                 }
             },

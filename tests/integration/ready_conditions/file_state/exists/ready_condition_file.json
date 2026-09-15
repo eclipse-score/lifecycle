@@ -3,8 +3,8 @@
     "defaults": {
         "deployment_config": {
             "bin_dir": "/tmp/tests/ready_condition_file",
-            "ready_timeout": 1.0,
-            "shutdown_timeout": 1.0,
+            "ready_timeout_ms": 1000,
+            "shutdown_timeout_ms": 1000,
             "recovery_action": {
                 "switch_run_target": {
                     "run_target": "fallback_run_target"
@@ -47,13 +47,16 @@
             "component_properties": {
                 "binary_name": "file_modifier",
                 "process_arguments": [
-                    "create", "/tmp/tests/ready_condition_file/ready_file", "0", "native"
+                    "create",
+                    "/tmp/tests/ready_condition_file/ready_file",
+                    "0",
+                    "native"
                 ],
                 "ready_condition": {
                     "file_state": {
                         "file_path": "/tmp/tests/ready_condition_file/ready_file",
                         "state": "Exists",
-                        "polling_interval": 0.05
+                        "polling_interval_ms": 50
                     }
                 }
             }
@@ -62,7 +65,10 @@
             "component_properties": {
                 "binary_name": "file_modifier",
                 "process_arguments": [
-                    "create", "/tmp/tests/ready_condition_file/ready_file_reporting", "0", "report"
+                    "create",
+                    "/tmp/tests/ready_condition_file/ready_file_reporting",
+                    "0",
+                    "report"
                 ],
                 "application_profile": {
                     "application_type": "Reporting"
@@ -71,7 +77,7 @@
                     "file_state": {
                         "file_path": "/tmp/tests/ready_condition_file/ready_file_reporting",
                         "state": "Exists",
-                        "polling_interval": 0.05
+                        "polling_interval_ms": 50
                     }
                 }
             }
@@ -80,13 +86,16 @@
             "component_properties": {
                 "binary_name": "file_modifier",
                 "process_arguments": [
-                    "create", "/tmp/tests/ready_condition_file/ready_file_2", "1500", "native"
+                    "create",
+                    "/tmp/tests/ready_condition_file/ready_file_2",
+                    "1500",
+                    "native"
                 ],
                 "ready_condition": {
                     "file_state": {
                         "file_path": "/tmp/tests/ready_condition_file/ready_file_2",
                         "state": "Exists",
-                        "polling_interval": 0.1
+                        "polling_interval_ms": 100
                     }
                 }
             }
@@ -129,6 +138,8 @@
     },
     "initial_run_target": "Startup",
     "fallback_run_target": {
-        "depends_on": ["control_client_test_driver"]
+        "depends_on": [
+            "control_client_test_driver"
+        ]
     }
 }

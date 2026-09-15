@@ -2,8 +2,8 @@
     "schema_version": 1,
     "defaults": {
         "deployment_config": {
-            "ready_timeout": 1.0,
-            "shutdown_timeout": 2.0,
+            "ready_timeout_ms": 1000,
+            "shutdown_timeout_ms": 2000,
             "environmental_variables": {
                 "APP_ENV": "production",
                 "LOG_LEVEL": "info",
@@ -14,7 +14,7 @@
             "ready_recovery_action": {
                 "restart": {
                     "number_of_attempts": 3,
-                    "delay_before_restart": 1.0
+                    "delay_before_restart_ms": 1000
                 }
             },
             "recovery_action": {
@@ -39,7 +39,7 @@
                 "application_type": "Reporting_And_Supervised",
                 "is_self_terminating": false,
                 "alive_supervision": {
-                    "reporting_cycle": 0.5,
+                    "reporting_cycle_ms": 500,
                     "failed_cycles_tolerance": 3,
                     "min_indications": 1,
                     "max_indications": 5
@@ -54,7 +54,7 @@
         "run_target": {
             "description": "Default run target",
             "depends_on": [],
-            "transition_timeout": 5,
+            "transition_timeout_ms": 5000,
             "recovery_action": {
                 "switch_run_target": {
                     "run_target": "fallback_run_target"
@@ -62,11 +62,11 @@
             }
         },
         "alive_supervision": {
-            "evaluation_cycle": 0.5
+            "evaluation_cycle_ms": 500
         },
         "watchdog": {
             "device_file_path": "/dev/watchdog0",
-            "max_timeout": 10,
+            "max_timeout_ms": 10000,
             "deactivate_on_shutdown": false,
             "require_magic_close": true
         }
@@ -79,7 +79,7 @@
                     "application_type": "Reporting_And_Supervised",
                     "is_self_terminating": false,
                     "alive_supervision": {
-                        "reporting_cycle": 0.5,
+                        "reporting_cycle_ms": 500,
                         "failed_cycles_tolerance": 2,
                         "min_indications": 1,
                         "max_indications": 3
@@ -89,8 +89,8 @@
                 "process_arguments": ["--config", "/etc/a.conf", "--verbose"]
             },
             "deployment_config": {
-                "ready_timeout": 2.0,
-                "shutdown_timeout": 3.0,
+                "ready_timeout_ms": 2000,
+                "shutdown_timeout_ms": 3000,
                 "environmental_variables": {
                     "COMP_A_VAR": "a_value"
                 },
@@ -99,7 +99,7 @@
                 "ready_recovery_action": {
                     "restart": {
                         "number_of_attempts": 5,
-                        "delay_before_restart": 0.5
+                        "delay_before_restart_ms": 500
                     }
                 },
                 "recovery_action": {
@@ -156,7 +156,7 @@
                     "file_state": {
                         "file_path": "/var/run/c/startup.lock",
                         "state": "NotExisting",
-                        "polling_interval": 0.5
+                        "polling_interval_ms": 500
                     }
                 }
             },
@@ -175,7 +175,7 @@
                 "application_profile": {
                     "application_type": "State_Manager",
                     "alive_supervision": {
-                        "reporting_cycle": 0.1,
+                        "reporting_cycle_ms": 100,
                         "failed_cycles_tolerance": 0,
                         "min_indications": 0,
                         "max_indications": 10
@@ -195,7 +195,7 @@
         "Startup": {
             "description": "Initial startup mode with minimal services",
             "depends_on": ["state_manager"],
-            "transition_timeout": 3.0,
+            "transition_timeout_ms": 3000,
             "recovery_action": {
                 "switch_run_target": {
                     "run_target": "fallback_run_target"
@@ -205,7 +205,7 @@
         "Full": {
             "description": "Full operational mode with all services",
             "depends_on": ["component_a", "component_b", "component_c", "Startup"],
-            "transition_timeout": 10.0,
+            "transition_timeout_ms": 10000,
             "recovery_action": {
                 "switch_run_target": {
                     "run_target": "fallback_run_target"
@@ -215,7 +215,7 @@
         "Diagnostic": {
             "description": "Diagnostic mode for troubleshooting",
             "depends_on": ["component_a", "component_b"],
-            "transition_timeout": 7.5,
+            "transition_timeout_ms": 7500,
             "recovery_action": {
                 "switch_run_target": {
                     "run_target": "fallback_run_target"
@@ -227,14 +227,14 @@
     "fallback_run_target": {
         "description": "Fallback mode - all non-essential services stopped",
         "depends_on": ["state_manager"],
-        "transition_timeout": 1.5
+        "transition_timeout_ms": 1500
     },
     "alive_supervision": {
-        "evaluation_cycle": 0.25
+        "evaluation_cycle_ms": 250
     },
     "watchdog": {
         "device_file_path": "/dev/watchdog",
-        "max_timeout": 2,
+        "max_timeout_ms": 2000,
         "deactivate_on_shutdown": true,
         "require_magic_close": false
     }

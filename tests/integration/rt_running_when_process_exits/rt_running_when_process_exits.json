@@ -3,8 +3,8 @@
     "defaults": {
         "deployment_config": {
             "bin_dir": "/tmp/tests/rt_running_when_process_exits",
-            "ready_timeout": 2.0,
-            "shutdown_timeout": 1.0,
+            "ready_timeout_ms": 2000,
+            "shutdown_timeout_ms": 1000,
             "ready_recovery_action": {
                 "restart": {
                     "number_of_attempts": 0
@@ -42,7 +42,11 @@
         "setup_filesystem_sh": {
             "component_properties": {
                 "binary_name": "touch_file.sh",
-                "process_arguments": ["--text", "filesystem is ready", "setup_filesystem_output.txt"],
+                "process_arguments": [
+                    "--text",
+                    "filesystem is ready",
+                    "setup_filesystem_output.txt"
+                ],
                 "application_profile": {
                     "application_type": "Native",
                     "is_self_terminating": true
@@ -71,7 +75,13 @@
         "slow_setup_sh": {
             "component_properties": {
                 "binary_name": "touch_file.sh",
-                "process_arguments": ["--sleep", "1", "--text", "slow setup done", "slow_setup_output.txt"],
+                "process_arguments": [
+                    "--sleep",
+                    "1",
+                    "--text",
+                    "slow setup done",
+                    "slow_setup_output.txt"
+                ],
                 "application_profile": {
                     "application_type": "Native",
                     "is_self_terminating": true

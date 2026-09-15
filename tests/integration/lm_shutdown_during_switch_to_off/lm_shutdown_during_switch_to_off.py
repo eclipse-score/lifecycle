@@ -38,8 +38,8 @@ def test_lm_shutdown(target, setup_test, assert_test_results, remote_test_dir):
 
     Expected Behaviour: The launch manager lets the in-progress switch to Off
     continue, stops all the processes it owns, and exits cleanly. It honours each
-    component's shutdown_timeout, so component_a - which stalls for less than its
-    shutdown_timeout - exits gracefully (producing its XML result) rather than being
+    component's shutdown_timeout_ms, so component_a - which stalls for less than its
+    shutdown_timeout_ms - exits gracefully (producing its XML result) rather than being
     force-terminated.
     """
 
@@ -52,6 +52,6 @@ def test_lm_shutdown(target, setup_test, assert_test_results, remote_test_dir):
 
     # Both processes are stopped gracefully as part of the switch to Off and produce
     # their XML results: the control client is terminated when the switch to Off
-    # begins, and component_a exits within its shutdown_timeout (which the launch
+    # begins, and component_a exits within its shutdown_timeout_ms (which the launch
     # manager honours) instead of being force-terminated.
     assert_test_results({"control_client_test_driver.xml", "component_a.xml"})

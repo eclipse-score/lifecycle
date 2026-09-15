@@ -3,8 +3,8 @@
     "defaults": {
         "deployment_config": {
             "bin_dir": "/tmp/tests/crash_ignores_dependents",
-            "ready_timeout": 1.0,
-            "shutdown_timeout": 1.0,
+            "ready_timeout_ms": 1000,
+            "shutdown_timeout_ms": 1000,
             "ready_recovery_action": {
                 "restart": {
                     "number_of_attempts": 0
@@ -30,7 +30,7 @@
                 "application_type": "Reporting",
                 "is_self_terminating": false,
                 "alive_supervision": {
-                    "reporting_cycle": 0.1,
+                    "reporting_cycle_ms": 100,
                     "min_indications": 1,
                     "max_indications": 3,
                     "failed_cycles_tolerance": 1
@@ -52,11 +52,13 @@
                         "min_indications": 0
                     }
                 },
-                "depends_on": ["component_crashing_once"]
+                "depends_on": [
+                    "component_crashing_once"
+                ]
             },
             "deployment_config": {
-                "ready_timeout": 1.0,
-                "shutdown_timeout": 1.0,
+                "ready_timeout_ms": 1000,
+                "shutdown_timeout_ms": 1000,
                 "environmental_variables": {
                     "PROCESSIDENTIFIER": "test_process"
                 }
@@ -86,7 +88,7 @@
     },
     "initial_run_target": "Startup",
     "alive_supervision": {
-        "evaluation_cycle": 0.05
+        "evaluation_cycle_ms": 50
     },
     "fallback_run_target": {
         "depends_on": [

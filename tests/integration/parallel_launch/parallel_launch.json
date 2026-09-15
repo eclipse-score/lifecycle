@@ -3,8 +3,8 @@
     "defaults": {
         "deployment_config": {
             "bin_dir": "/tmp/tests/parallel_launch",
-            "ready_timeout": 5.0,
-            "shutdown_timeout": 0.2,
+            "ready_timeout_ms": 5000,
+            "shutdown_timeout_ms": 200,
             "environmental_variables": {
                 "LD_LIBRARY_PATH": "/opt/lib"
             },

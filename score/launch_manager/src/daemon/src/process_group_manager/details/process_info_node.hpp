@@ -95,7 +95,7 @@ class ProcessInfoNode final : public IComponent
     /// @return The current state of this process.
     [[nodiscard]] score::mw::lifecycle::ProcessState getState() const;
 
-    /// @return The configured shutdown_timeout for this process, or zero
+    /// @return The configured shutdown_timeout_ms for this process, or zero
     std::chrono::milliseconds getTerminationTimeout() const;
 
     /// @return The ControlClientChannel for this process, or nullptr if none exists.

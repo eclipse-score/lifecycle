@@ -3,8 +3,8 @@
     "defaults": {
         "deployment_config": {
             "bin_dir": "/tmp/tests/shutdown_signal",
-            "ready_timeout": 1.0,
-            "shutdown_timeout": 1.0,
+            "ready_timeout_ms": 1000,
+            "shutdown_timeout_ms": 1000,
             "ready_recovery_action": {
                 "restart": {
                     "number_of_attempts": 0
@@ -30,8 +30,8 @@
                 }
             },
             "deployment_config": {
-                "ready_timeout": 1.0,
-                "shutdown_timeout": 1.0,
+                "ready_timeout_ms": 1000,
+                "shutdown_timeout_ms": 1000,
                 "environmental_variables": {
                     "PROCESSIDENTIFIER": "control_daemon"
                 }
@@ -45,7 +45,7 @@
                 }
             },
             "deployment_config": {
-                "shutdown_timeout": 0.5,
+                "shutdown_timeout_ms": 500,
                 "environmental_variables": {
                     "PROCESSIDENTIFIER": "DefaultPG_app0"
                 }
