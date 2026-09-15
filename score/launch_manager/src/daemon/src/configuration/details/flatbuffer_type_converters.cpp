@@ -37,7 +37,7 @@ score::cpp::expected<T, IConfigLoader::Error> requireScalarValue(
 {
     if (!field.has_value())
     {
-        LM_LOG_ERROR() << field_name << " is required but missing";
+        LM_LOG_ERROR() << field_name << "is required but missing";
         return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
     }
     return *field;

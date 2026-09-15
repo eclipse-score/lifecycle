@@ -348,7 +348,7 @@ bool ProcessLauncher::setupComms(IpcCommsP& block, int& fd, const configuration:
 
 IpcCommsP ProcessLauncher::initializeControlClient(int& fd, const configuration::ComponentConfig& config)
 {
-    LM_LOG_DEBUG() << "Initialize the control client for" << config.name << " process";
+    LM_LOG_DEBUG() << "Initialize the control client for" << config.name << "process";
     /* Initialise the control client communications */
     IpcCommsP shared_block = nullptr;
     ControlClientChannelP scc = ControlClientChannel::initializeControlClientChannel(fd, &shared_block);

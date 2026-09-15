@@ -536,7 +536,7 @@ void ProcessGroupManager::handleRecoveryRequest(const IdentifierHash& process_id
     const GraphState graph_state = graph_->getState();
 
     LM_LOG_DEBUG() << "handleRecoveryRequest: Processing recovery request for process " << process_identifier
-                   << " to state " << recovery_state_;
+                   << "to state " << recovery_state_;
 
     if (GraphState::kInTransition == graph_state)
     {

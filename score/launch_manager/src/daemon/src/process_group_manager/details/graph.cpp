@@ -334,10 +334,10 @@ void Graph::handleComponentEvent(const ComponentEvent& event)
             using T = std::decay_t<decltype(data)>;
             if constexpr (std::is_same_v<T, ActivationSuccessful> || std::is_same_v<T, DeactivationComplete>)
             {
-                LM_LOG_DEBUG() << "Component " << data.node_identifier << " finished "
+                LM_LOG_DEBUG() << "Component " << data.node_identifier << "finished "
                                << (std::is_same_v<T, ActivationSuccessful> ? std::string_view("activation")
                                                                            : std::string_view("deactivation"))
-                               << " successfully";
+                               << "successfully";
                 nodeExecuted(data.node_identifier, {});
             }
             else if constexpr (std::is_same_v<T, ActivationFailed>)
