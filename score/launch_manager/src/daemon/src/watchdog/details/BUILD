@@ -30,7 +30,6 @@ cc_library(
     visibility = ["//score/launch_manager/src/daemon/src/watchdog:__subpackages__"],
     deps = [
         ":watchdog",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:os_clock_interface",
         "//score/launch_manager/src/daemon/src/common:log",
         "//score/launch_manager/src/daemon/src/configuration:config",
         "//score/launch_manager/src/daemon/src/watchdog:i_watchdog_if",
