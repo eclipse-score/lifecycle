@@ -99,7 +99,7 @@ class CycleTimer
         int result{EINTR};  // means that the sleep was interrupted by a signal
         while ((EINTR == result) && (!f_exitRequested_r.load()))
         {
-            result = osInterface->clockNanosleep(static_cast<int>(TIMER_ABSTIME), &deadline, NULL);
+            result = osInterface->clockNanosleep(TIMER_ABSTIME, &deadline, NULL);
         }
         return result;
     }
