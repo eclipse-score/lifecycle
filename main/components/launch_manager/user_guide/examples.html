@@ -578,8 +578,8 @@ apply various features effectively.</p>
 <span class="w">    </span><span class="nt">&quot;schema_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;defaults&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nt">&quot;deployment_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;ready_timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;shutdown_timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;ready_timeout_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;shutdown_timeout_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span>
 <span class="w">            </span><span class="nt">&quot;environmental_variables&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                </span><span class="nt">&quot;LD_LIBRARY_PATH&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/opt/lib&quot;</span>
 <span class="w">            </span><span class="p">},</span>
@@ -588,7 +588,7 @@ apply various features effectively.</p>
 <span class="w">            </span><span class="nt">&quot;ready_recovery_action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                </span><span class="nt">&quot;restart&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                    </span><span class="nt">&quot;number_of_attempts&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
-<span class="w">                    </span><span class="nt">&quot;delay_before_restart&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">                    </span><span class="nt">&quot;delay_before_restart_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
 <span class="w">                </span><span class="p">}</span>
 <span class="w">            </span><span class="p">},</span>
 <span class="w">            </span><span class="nt">&quot;recovery_action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -609,7 +609,7 @@ apply various features effectively.</p>
 <span class="w">                </span><span class="nt">&quot;application_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Reporting_And_Supervised&quot;</span><span class="p">,</span>
 <span class="w">                </span><span class="nt">&quot;is_self_terminating&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <span class="w">                </span><span class="nt">&quot;alive_supervision&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                    </span><span class="nt">&quot;reporting_cycle&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;reporting_cycle_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span>
 <span class="w">                    </span><span class="nt">&quot;failed_cycles_tolerance&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
 <span class="w">                    </span><span class="nt">&quot;min_indications&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
 <span class="w">                    </span><span class="nt">&quot;max_indications&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span>
@@ -623,14 +623,14 @@ apply various features effectively.</p>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">        </span><span class="nt">&quot;run_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="nt">&quot;depends_on&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<span class="w">            </span><span class="nt">&quot;transition_timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span>
+<span class="w">            </span><span class="nt">&quot;transition_timeout_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5000</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">&quot;alive_supervision&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;evaluation_cycle&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">        </span><span class="nt">&quot;alive_supervision&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;evaluation_cycle_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">        </span><span class="nt">&quot;watchdog&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="nt">&quot;device_file_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/dev/watchdog&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;max_timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2.0</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;max_timeout_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2000</span><span class="p">,</span>
 <span class="w">            </span><span class="nt">&quot;deactivate_on_shutdown&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
 <span class="w">            </span><span class="nt">&quot;require_magic_close&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
 <span class="w">        </span><span class="p">}</span>
@@ -644,7 +644,10 @@ apply various features effectively.</p>
 <span class="w">                    </span><span class="nt">&quot;application_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Native&quot;</span><span class="p">,</span>
 <span class="w">                    </span><span class="nt">&quot;is_self_terminating&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="w">                </span><span class="p">},</span>
-<span class="w">                </span><span class="nt">&quot;process_arguments&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;-a&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;-b&quot;</span><span class="p">],</span>
+<span class="w">                </span><span class="nt">&quot;process_arguments&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                    </span><span class="s2">&quot;-a&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="s2">&quot;-b&quot;</span>
+<span class="w">                </span><span class="p">],</span>
 <span class="w">                </span><span class="nt">&quot;ready_condition&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                    </span><span class="nt">&quot;process_state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Terminated&quot;</span>
 <span class="w">                </span><span class="p">}</span>
@@ -660,10 +663,12 @@ apply various features effectively.</p>
 <span class="w">                </span><span class="nt">&quot;application_profile&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                    </span><span class="nt">&quot;application_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Native&quot;</span>
 <span class="w">                </span><span class="p">},</span>
-<span class="w">                </span><span class="nt">&quot;depends_on&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;setup_filesystem_sh&quot;</span><span class="p">]</span>
+<span class="w">                </span><span class="nt">&quot;depends_on&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                    </span><span class="s2">&quot;setup_filesystem_sh&quot;</span>
+<span class="w">                </span><span class="p">]</span>
 <span class="w">            </span><span class="p">},</span>
 <span class="w">            </span><span class="nt">&quot;deployment_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">&quot;bin_dir&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/opt/apps/dlt-daemon&quot;</span>
+<span class="w">                </span><span class="nt">&quot;bin_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/opt/apps/dlt-daemon&quot;</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">        </span><span class="nt">&quot;someip-daemon&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -672,17 +677,20 @@ apply various features effectively.</p>
 <span class="w">                </span><span class="nt">&quot;binary_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;someipd&quot;</span>
 <span class="w">            </span><span class="p">},</span>
 <span class="w">            </span><span class="nt">&quot;deployment_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">&quot;bin_dir&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/opt/apps/someip&quot;</span>
+<span class="w">                </span><span class="nt">&quot;bin_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/opt/apps/someip&quot;</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">        </span><span class="nt">&quot;test_app1&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Simple test application&quot;</span><span class="p">,</span>
 <span class="w">            </span><span class="nt">&quot;component_properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                </span><span class="nt">&quot;binary_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;test_app1&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;depends_on&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;dlt-daemon&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;someip-daemon&quot;</span><span class="p">]</span>
+<span class="w">                </span><span class="nt">&quot;depends_on&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                    </span><span class="s2">&quot;dlt-daemon&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="s2">&quot;someip-daemon&quot;</span>
+<span class="w">                </span><span class="p">]</span>
 <span class="w">            </span><span class="p">},</span>
 <span class="w">            </span><span class="nt">&quot;deployment_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">&quot;bin_dir&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/opt/apps/test_app1&quot;</span>
+<span class="w">                </span><span class="nt">&quot;bin_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/opt/apps/test_app1&quot;</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">        </span><span class="nt">&quot;state_manager&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -692,17 +700,21 @@ apply various features effectively.</p>
 <span class="w">                </span><span class="nt">&quot;application_profile&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                    </span><span class="nt">&quot;application_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;State_Manager&quot;</span>
 <span class="w">                </span><span class="p">},</span>
-<span class="w">                </span><span class="nt">&quot;depends_on&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;setup_filesystem_sh&quot;</span><span class="p">]</span>
+<span class="w">                </span><span class="nt">&quot;depends_on&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                    </span><span class="s2">&quot;setup_filesystem_sh&quot;</span>
+<span class="w">                </span><span class="p">]</span>
 <span class="w">            </span><span class="p">},</span>
 <span class="w">            </span><span class="nt">&quot;deployment_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">&quot;bin_dir&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/opt/apps/state_manager&quot;</span>
+<span class="w">                </span><span class="nt">&quot;bin_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/opt/apps/state_manager&quot;</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="nt">&quot;run_targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nt">&quot;Minimal&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Minimal functionality of the system&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;depends_on&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;state_manager&quot;</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;depends_on&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s2">&quot;state_manager&quot;</span>
+<span class="w">            </span><span class="p">],</span>
 <span class="w">            </span><span class="nt">&quot;recovery_action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                </span><span class="nt">&quot;switch_run_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                    </span><span class="nt">&quot;run_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Off&quot;</span>
@@ -711,8 +723,11 @@ apply various features effectively.</p>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">        </span><span class="nt">&quot;Full&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Everything running&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;depends_on&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;test_app1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Minimal&quot;</span><span class="p">],</span>
-<span class="w">            </span><span class="nt">&quot;transition_timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;depends_on&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s2">&quot;test_app1&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;Minimal&quot;</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;transition_timeout_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5000</span><span class="p">,</span>
 <span class="w">            </span><span class="nt">&quot;recovery_action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                </span><span class="nt">&quot;switch_run_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                    </span><span class="nt">&quot;run_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Minimal&quot;</span>
@@ -728,18 +743,18 @@ apply various features effectively.</p>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;alive_supervision&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;evaluation_cycle&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">    </span><span class="nt">&quot;alive_supervision&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;evaluation_cycle_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="nt">&quot;fallback_run_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Switching off everything&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;depends_on&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<span class="w">        </span><span class="nt">&quot;transition_timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.5</span>
+<span class="w">        </span><span class="nt">&quot;transition_timeout_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1500</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="nt">&quot;initial_run_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Minimal&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;watchdog&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nt">&quot;device_file_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/dev/watchdog&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;max_timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;max_timeout_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2000</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;deactivate_on_shutdown&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;require_magic_close&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
 <span class="w">    </span><span class="p">}</span>

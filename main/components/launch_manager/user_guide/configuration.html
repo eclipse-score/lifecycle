@@ -605,8 +605,8 @@
 <p><strong>Properties:</strong></p>
 <ul class="simple">
 <li><dl class="simple">
-<dt><strong>evaluation_cycle</strong> (number, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the length, in seconds (e.g., <code class="docutils literal notranslate"><span class="pre">0.5</span></code> for 500 milliseconds), of the time window used by the <strong>Launch Manager</strong> to assess incoming alive supervision reports from components.</p></li>
+<dt><strong>evaluation_cycle_ms</strong> (integer, optional)</dt><dd><ul>
+<li><p><strong>Description:</strong> Specifies the length, in milliseconds, of the time window used by the <strong>Launch Manager</strong> to assess incoming alive supervision reports from components.</p></li>
 <li><p><strong>Constraint:</strong> Must be greater than 0.</p></li>
 </ul>
 </dd>
@@ -630,8 +630,8 @@
 </dl>
 </li>
 <li><dl class="simple">
-<dt><strong>max_timeout</strong> (number, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the maximum timeout value, in seconds (e.g., <code class="docutils literal notranslate"><span class="pre">0.5</span></code> for 500 milliseconds), that the <strong>Launch Manager</strong> configures on the external watchdog during startup. The external watchdog uses this timeout as the deadline for receiving periodic alive reports from the <strong>Launch Manager</strong>.</p></li>
+<dt><strong>max_timeout_ms</strong> (integer, optional)</dt><dd><ul>
+<li><p><strong>Description:</strong> Specifies the maximum timeout value, in milliseconds, that the <strong>Launch Manager</strong> configures on the external watchdog during startup. The external watchdog uses this timeout as the deadline for receiving periodic alive reports from the <strong>Launch Manager</strong>.</p></li>
 <li><p><strong>Constraint:</strong> Must be 0 or greater.</p></li>
 </ul>
 </dd>
@@ -675,8 +675,8 @@
 </dl>
 </li>
 <li><dl class="simple">
-<dt><strong>delay_before_restart</strong> (number, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the delay duration, in seconds (e.g., <code class="docutils literal notranslate"><span class="pre">0.25</span></code> for 250 milliseconds), that the <strong>Launch Manager</strong> waits before initiating a restart attempt.</p></li>
+<dt><strong>delay_before_restart_ms</strong> (integer, optional)</dt><dd><ul>
+<li><p><strong>Description:</strong> Specifies the delay duration, in milliseconds, that the <strong>Launch Manager</strong> waits before initiating a restart attempt.</p></li>
 <li><p><strong>Constraint:</strong> Must be 0 or greater.</p></li>
 </ul>
 </dd>
@@ -736,8 +736,8 @@
 </dl>
 </li>
 <li><dl class="simple">
-<dt><strong>transition_timeout</strong> (number, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the time limit, in seconds (e.g., <code class="docutils literal notranslate"><span class="pre">1.5</span></code> for 1500 milliseconds), for the <strong>Run Target</strong> transition to complete. If this limit is exceeded, the transition is considered failed.</p></li>
+<dt><strong>transition_timeout_ms</strong> (integer, optional)</dt><dd><ul>
+<li><p><strong>Description:</strong> Specifies the time limit, in milliseconds, for the <strong>Run Target</strong> transition to complete. If this limit is exceeded, the transition is considered failed.</p></li>
 <li><p><strong>Constraint:</strong> Must be greater than 0.</p></li>
 </ul>
 </dd>
@@ -804,8 +804,8 @@
 <li><dl class="simple">
 <dt><strong>Properties:</strong> (These properties are also inherited from <code class="docutils literal notranslate"><span class="pre">alive_supervision</span></code> but are listed here for quick reference and clarity on the local context.)</dt><dd><ul>
 <li><dl class="simple">
-<dt><strong>reporting_cycle</strong> (number, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the duration, in seconds (e.g., <code class="docutils literal notranslate"><span class="pre">0.5</span></code> for 500 milliseconds), of the time interval used to verify that the component sends alive notifications within the expected time frame.</p></li>
+<dt><strong>reporting_cycle_ms</strong> (integer, optional)</dt><dd><ul>
+<li><p><strong>Description:</strong> Specifies the duration, in milliseconds, of the time interval used to verify that the component sends alive notifications within the expected time frame.</p></li>
 <li><p><strong>Constraint:</strong> Must be greater than 0.</p></li>
 </ul>
 </dd>
@@ -821,7 +821,7 @@
 </li>
 <li><dl class="simple">
 <dt><strong>min_indications</strong> (integer, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the minimum number of checkpoints that must be reported within each configured <code class="docutils literal notranslate"><span class="pre">reporting_cycle</span></code>.</p></li>
+<li><p><strong>Description:</strong> Specifies the minimum number of checkpoints that must be reported within each configured <code class="docutils literal notranslate"><span class="pre">reporting_cycle_ms</span></code>.</p></li>
 <li><p><strong>Constraint:</strong> Must be 0 or greater.</p></li>
 </ul>
 </dd>
@@ -829,7 +829,7 @@
 </li>
 <li><dl class="simple">
 <dt><strong>max_indications</strong> (integer, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the maximum number of checkpoints that may be reported within each configured <code class="docutils literal notranslate"><span class="pre">reporting_cycle</span></code>.</p></li>
+<li><p><strong>Description:</strong> Specifies the maximum number of checkpoints that may be reported within each configured <code class="docutils literal notranslate"><span class="pre">reporting_cycle_ms</span></code>.</p></li>
 <li><p><strong>Constraint:</strong> Must be 0 or greater.</p></li>
 </ul>
 </dd>
@@ -916,10 +916,10 @@
 </dl>
 </li>
 <li><dl class="simple">
-<dt><strong>polling_interval</strong> (number, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the time interval, in seconds (e.g., <code class="docutils literal notranslate"><span class="pre">0.3</span></code> for 300 milliseconds), at which the <strong>Launch Manager</strong> checks the file existence state.</p></li>
+<dt><strong>polling_interval_ms</strong> (integer, optional)</dt><dd><ul>
+<li><p><strong>Description:</strong> Specifies the time interval, in milliseconds, at which the <strong>Launch Manager</strong> checks the file existence state.</p></li>
 <li><p><strong>Constraint:</strong> Must be greater than 0.</p></li>
-<li><p><strong>Default:</strong> <code class="docutils literal notranslate"><span class="pre">0.01</span></code></p></li>
+<li><p><strong>Default:</strong> <code class="docutils literal notranslate"><span class="pre">10</span></code></p></li>
 </ul>
 </dd>
 </dl>
@@ -951,16 +951,16 @@
 <p><strong>Properties:</strong></p>
 <ul class="simple">
 <li><dl class="simple">
-<dt><strong>ready_timeout</strong> (number, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the maximum time, in seconds (e.g., <code class="docutils literal notranslate"><span class="pre">0.25</span></code> for 250 milliseconds), allowed for the component to reach its <strong>Ready State</strong>. The timeout is measured from when the component’s process is created until the ready conditions specified in <code class="docutils literal notranslate"><span class="pre">component_properties.ready_condition</span></code> are met.</p></li>
+<dt><strong>ready_timeout_ms</strong> (integer, optional)</dt><dd><ul>
+<li><p><strong>Description:</strong> Specifies the maximum time, in milliseconds, allowed for the component to reach its <strong>Ready State</strong>. The timeout is measured from when the component’s process is created until the ready conditions specified in <code class="docutils literal notranslate"><span class="pre">component_properties.ready_condition</span></code> are met.</p></li>
 <li><p><strong>Constraint:</strong> Must be greater than 0.</p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt><strong>shutdown_timeout</strong> (number, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the maximum time, in seconds (e.g., <code class="docutils literal notranslate"><span class="pre">0.75</span></code> for 750 milliseconds), allowed for the component to terminate after it receives a SIGTERM signal from the <strong>Launch Manager</strong>. The timeout is measured from when the <strong>Launch Manager</strong> sends the SIGTERM signal until the operating system notifies the <strong>Launch Manager</strong> that the child process has terminated.</p></li>
+<dt><strong>shutdown_timeout_ms</strong> (integer, optional)</dt><dd><ul>
+<li><p><strong>Description:</strong> Specifies the maximum time, in milliseconds, allowed for the component to terminate after it receives a SIGTERM signal from the <strong>Launch Manager</strong>. The timeout is measured from when the <strong>Launch Manager</strong> sends the SIGTERM signal until the operating system notifies the <strong>Launch Manager</strong> that the child process has terminated.</p></li>
 <li><p><strong>Constraint:</strong> Must be greater than 0.</p></li>
 </ul>
 </dd>
@@ -990,7 +990,7 @@
 </li>
 <li><dl class="simple">
 <dt><strong>ready_recovery_action</strong> (object, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the recovery action to execute when the component fails to reach its <strong>Ready State</strong> within the configured <code class="docutils literal notranslate"><span class="pre">ready_timeout</span></code>. This action is limited to <code class="docutils literal notranslate"><span class="pre">restart</span></code> operations.</p></li>
+<li><p><strong>Description:</strong> Specifies the recovery action to execute when the component fails to reach its <strong>Ready State</strong> within the configured <code class="docutils literal notranslate"><span class="pre">ready_timeout_ms</span></code>. This action is limited to <code class="docutils literal notranslate"><span class="pre">restart</span></code> operations.</p></li>
 <li><p><strong>Reference:</strong> This property refers to the <code class="docutils literal notranslate"><span class="pre">recovery_action</span></code> reusable type defined in this schema, specifically enforcing the <code class="docutils literal notranslate"><span class="pre">restart</span></code> option.</p></li>
 </ul>
 </dd>
@@ -1253,8 +1253,8 @@ If not configured explicitly, the <strong>Launch Manager</strong> will automatic
 </dl>
 </li>
 <li><dl class="simple">
-<dt><strong>transition_timeout</strong> (number, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the time limit, in seconds (e.g., <code class="docutils literal notranslate"><span class="pre">1.5</span></code> for 1500 milliseconds), for the <strong>Run Target</strong> transition. If this limit is exceeded, the transition is considered failed.</p></li>
+<dt><strong>transition_timeout_ms</strong> (integer, optional)</dt><dd><ul>
+<li><p><strong>Description:</strong> Specifies the time limit, in milliseconds, for the <strong>Run Target</strong> transition. If this limit is exceeded, the transition is considered failed.</p></li>
 <li><p><strong>Constraint:</strong> Must be greater than 0.</p></li>
 </ul>
 </dd>
@@ -1293,8 +1293,8 @@ If not configured explicitly, the <strong>Launch Manager</strong> will automatic
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">alive_supervision_defaults.json</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;alive_supervision&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;evaluation_cycle&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">    </span><span class="nt">&quot;alive_supervision&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;evaluation_cycle_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -1321,7 +1321,7 @@ If not configured explicitly, the <strong>Launch Manager</strong> will automatic
 <span class="w">    </span><span class="nt">&quot;run_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;depends_on&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<span class="w">        </span><span class="nt">&quot;transition_timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;transition_timeout_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3000</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;recovery_action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="nt">&quot;switch_run_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                </span><span class="nt">&quot;run_target&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fallback_run_target&quot;</span>
@@ -1344,7 +1344,7 @@ If not configured explicitly, the <strong>Launch Manager</strong> will automatic
 <span class="w">            </span><span class="nt">&quot;application_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Reporting_And_Supervised&quot;</span><span class="p">,</span>
 <span class="w">            </span><span class="nt">&quot;is_self_terminating&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <span class="w">            </span><span class="nt">&quot;alive_supervision&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">&quot;reporting_cycle&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;reporting_cycle_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span>
 <span class="w">                </span><span class="nt">&quot;failed_cycles_tolerance&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
 <span class="w">                </span><span class="nt">&quot;min_indications&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
 <span class="w">                </span><span class="nt">&quot;max_indications&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span>
@@ -1367,15 +1367,15 @@ If not configured explicitly, the <strong>Launch Manager</strong> will automatic
 <span class="sd-summary-text">deployment_config_defaults.json</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;deployment_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;ready_timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;shutdown_timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;ready_timeout_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;shutdown_timeout_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;environmental_variables&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
 <span class="w">        </span><span class="nt">&quot;bin_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/opt&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;working_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/tmp&quot;</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">&quot;ready_recovery_action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="nt">&quot;restart&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                </span><span class="nt">&quot;number_of_attempts&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">&quot;delay_before_restart&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">                </span><span class="nt">&quot;delay_before_restart_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">        </span><span class="nt">&quot;recovery_action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>

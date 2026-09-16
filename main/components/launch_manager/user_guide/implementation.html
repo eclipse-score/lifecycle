@@ -570,7 +570,7 @@
 started successfully by calling the lifecycle API for the language it is
 implemented in. This is done by reporting the <code class="docutils literal notranslate"><span class="pre">kRunning</span></code> execution
 state.</p>
-<p>A <code class="docutils literal notranslate"><span class="pre">ready_timeout</span></code> can be configured for each component. If the
+<p>A <code class="docutils literal notranslate"><span class="pre">ready_timeout_ms</span></code> can be configured for each component. If the
 process does not report <code class="docutils literal notranslate"><span class="pre">kRunning</span></code> within that timeout, the Launch
 Manager terminates the process and registers an error.</p>
 </section>
@@ -585,7 +585,7 @@ Manager terminates the process and registers an error.</p>
 a <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code> signal by ending ongoing tasks, freeing resources and
 exiting.</p>
 <p>If a process does not terminate after receiving a <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code>, and a
-<code class="docutils literal notranslate"><span class="pre">shutdown_timeout</span></code> is configured, then after the timeout is fired a
+<code class="docutils literal notranslate"><span class="pre">shutdown_timeout_ms</span></code> is configured, then after the timeout is fired a
 <code class="docutils literal notranslate"><span class="pre">SIGKILL</span></code> is sent and the process is forcefully terminated.</p>
 </section>
 <section id="state-management">

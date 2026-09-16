@@ -563,19 +563,19 @@ currently not supported and are ignored.</p></li>
 <li><p>For ReadyCondition <code class="docutils literal notranslate"><span class="pre">process_state:Terminated</span></code>, the mapping is only
 supported for Components that have at least one Component depending on it.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">ready_recovery_action</span></code> only supports the RecoveryAction of type
-<code class="docutils literal notranslate"><span class="pre">restart</span></code>. The parameter <code class="docutils literal notranslate"><span class="pre">delay_before_restart</span></code> is currently not
+<code class="docutils literal notranslate"><span class="pre">restart</span></code>. The parameter <code class="docutils literal notranslate"><span class="pre">delay_before_restart_ms</span></code> is currently not
 supported and is ignored. Setting it to a non-zero value will have no effect
 and the component will be restarted immediately.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">recovery_action</span></code> only supports <code class="docutils literal notranslate"><span class="pre">switch_run_target</span></code> with the
 <code class="docutils literal notranslate"><span class="pre">run_target</span></code> set to <code class="docutils literal notranslate"><span class="pre">fallback_run_target</span></code>.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">ready_timeout</span></code> is used as the timeout until process state Running is
+<li><p>The <code class="docutils literal notranslate"><span class="pre">ready_timeout_ms</span></code> is used as the timeout until process state Running is
 reached, even in case the ReadyCondition is <code class="docutils literal notranslate"><span class="pre">process_state:Terminated</span></code>.</p></li>
 </ul>
 </section>
 <section id="run-target">
 <h3>Run target<a class="headerlink" href="#run-target" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p>The parameter <code class="docutils literal notranslate"><span class="pre">run_targets/&lt;RunTarget&gt;/transition_timeout</span></code> is currently not
+<li><p>The parameter <code class="docutils literal notranslate"><span class="pre">run_targets/&lt;RunTarget&gt;/transition_timeout_ms</span></code> is currently not
 supported and is ignored.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">recovery_action</span></code> only supports <code class="docutils literal notranslate"><span class="pre">switch_run_target</span></code> with the
 <code class="docutils literal notranslate"><span class="pre">run_target</span></code> set to <code class="docutils literal notranslate"><span class="pre">fallback_run_target</span></code>.</p></li>
