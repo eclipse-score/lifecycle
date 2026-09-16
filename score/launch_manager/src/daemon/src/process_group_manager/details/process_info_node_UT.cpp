@@ -102,7 +102,7 @@ class ProcessInfoNodeFixture : public ::testing::Test
         if (application_type == configuration::ApplicationType::ReportingAndSupervised)
         {
             configuration::ComponentAliveSupervision alive{
-                .reporting_cycle_ms = 10, .failed_cycles_tolerance = 1, .min_indications = 0, .max_indications = 0};
+                10 /*reporting_cycle_ms*/, 1 /*failed_cycles_tolerance*/, 0 /*min_indications*/, 0 /*max_indications*/};
             config.component_properties.application_profile.alive_supervision = alive;
         }
 
