@@ -11,9 +11,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "score/mw/launch_manager/run.hpp"
+#ifndef RUN_HPP_INCLUDED
+#define RUN_HPP_INCLUDED
 
-int main(int argc, const char* argv[])
+namespace score::mw::lifecycle::internal
 {
-    return score::mw::lifecycle::internal::run(argc, argv);
-}
+
+int run(int argc, const char* argv[]);
+
+}  // namespace score::mw::lifecycle::internal
+
+#endif  // RUN_HPP_INCLUDED
