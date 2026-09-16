@@ -26,29 +26,40 @@ namespace score::mw::lifecycle::internal
 class ControlProvider
 {
   public:
-    ControlProvider(IControllableGraph* graph);
+    /// @brief Fallible constructor for ControllableGraph.
+    static Result<ControlProvider*> Create(IControllableGraph* graph);
+
+    ~ControlProvider() = default;
+
+    // Cannot be moved because callbacks capture the ControlProvider by reference.
+    ControlProvider(const ControlProvider&) = delete;
+    ControlProvider(ControlProvider&&) = delete;
+    ControlProvider& operator=(const ControlProvider&) = delete;
+    ControlProvider operator=(ControlProvider&&) = delete;
 
   private:
+    explicit ControlProvider(LmControlSkeleton skeleton, IControllableGraph* graph);
+
     /// @brief Register the handler for activate_run_target.
-    void setupActivateRunTarget();
+    Result<void> setupActivateRunTarget();
 
     /// @brief Handle an activate_run_target request.
     void handleActivateRunTarget(ActivateRunTargetResponse& response, const ActivateRunTargetRequest& request);
 
     /// @brief Register the handler for get_active_run_target.
-    void setupGetActiveRunTarget();
+    Result<void> setupGetActiveRunTarget();
 
     /// @brief Handle a get_active_run_target request.
     void handleGetActiveRunTarget(GetActiveRunTargetResponse& response);
 
     /// @brief Register the handler for activation_result.
-    void setupActivationResult();
+    Result<void> setupActivationResult();
 
     /// @brief Handle an activation_result event.
     void handleActivationResult(IdentifierHash state, RunTargetActivationSource source);
 
     /// @brief Make the service available to clients.
-    void offerService();
+    Result<void> offerService();
 
     /// @brief The external `mw::com` interface.
     LmControlSkeleton skeleton_;

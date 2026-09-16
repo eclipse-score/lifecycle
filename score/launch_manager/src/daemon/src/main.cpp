@@ -185,10 +185,17 @@ int main(int argc, const char* argv[])
 
         if (process_group_manager->initialize())
         {
-            // Remains active in the background until this variable goes out of scope.
-            const ControlProvider control_provider = ControlProvider(process_group_manager.get());
+            // Remains active in the background until the ControlProvider is destroyed.
+            const score::Result<ControlProvider*> control_provider_result =
+                ControlProvider::Create(process_group_manager.get());
 
-            if (runLCMDaemon(*process_group_manager))
+            if (!control_provider_result.has_value())
+            {
+                LM_LOG_FATAL() << "Failed to set up LmControl service provider:"
+                               << control_provider_result.error().Message();
+                exit_code = EXIT_FAILURE;
+            }
+            else if (runLCMDaemon(*process_group_manager))
             {
                 exit_code = EXIT_SUCCESS;
             }

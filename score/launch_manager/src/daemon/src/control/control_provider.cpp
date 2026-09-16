@@ -15,43 +15,75 @@
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
 
-namespace
-{
-using score::mw::com::InstanceSpecifier;
-using score::mw::lifecycle::internal::LmControlSkeleton;
-
-LmControlSkeleton createSkeleton()
-{
-    const auto instance_specifier_result =
-        InstanceSpecifier::Create(std::string{"LaunchManager/StateManager/Instance"});
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
-        instance_specifier_result.has_value(), instance_specifier_result.error().Message().data());
-
-    auto skeleton_result = LmControlSkeleton::Create(instance_specifier_result.value());
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(skeleton_result.has_value(), skeleton_result.error().Message().data());
-
-    return std::move(skeleton_result).value();
-}
-}  // namespace
-
 namespace score::mw::lifecycle::internal
 {
 
-ControlProvider::ControlProvider(IControllableGraph* graph) : skeleton_(createSkeleton()), graph_(graph)
+Result<ControlProvider*> ControlProvider::Create(IControllableGraph* graph)
 {
-    setupActivateRunTarget();
-    setupGetActiveRunTarget();
-    setupActivationResult();
-    offerService();
+    const Result<com::InstanceSpecifier> instance_specifier_result =
+        com::InstanceSpecifier::Create(std::string{"LaunchManager/StateManager/Instance"});
+    if (!instance_specifier_result.has_value())
+    {
+        LM_LOG_ERROR() << "Failed to create mw::com instance specifier:" << instance_specifier_result.error().Message();
+        return MakeUnexpected(ExecErrc::kCommunicationError);
+    }
+
+    Result<LmControlSkeleton> skeleton_result = LmControlSkeleton::Create(instance_specifier_result.value());
+    if (!skeleton_result.has_value())
+    {
+        LM_LOG_ERROR() << "Failed to create LmControlSkeleton:" << skeleton_result.error().Message();
+        return MakeUnexpected(ExecErrc::kCommunicationError);
+    }
+    LmControlSkeleton skeleton = std::move(skeleton_result).value();
+
+    auto* control_provider = new ControlProvider{std::move(skeleton), graph};
+
+    const Result<void> setup_activate_run_target_result = control_provider->setupActivateRunTarget();
+    if (!setup_activate_run_target_result.has_value())
+    {
+        return MakeUnexpected(ExecErrc::kCommunicationError);
+    }
+
+    const Result<void> setup_get_active_run_target_result = control_provider->setupGetActiveRunTarget();
+    if (!setup_get_active_run_target_result.has_value())
+    {
+        return MakeUnexpected(ExecErrc::kCommunicationError);
+    }
+
+    const Result<void> setup_activation_result_result = control_provider->setupActivationResult();
+    if (!setup_activation_result_result.has_value())
+    {
+        return MakeUnexpected(ExecErrc::kCommunicationError);
+    }
+
+    const Result<void> offer_service_result = control_provider->offerService();
+    if (!offer_service_result.has_value())
+    {
+        return MakeUnexpected(ExecErrc::kCommunicationError);
+    }
+
+    return control_provider;
 }
 
-void ControlProvider::setupActivateRunTarget()
+ControlProvider::ControlProvider(LmControlSkeleton skeleton, IControllableGraph* graph)
+    : skeleton_(std::move(skeleton)), graph_(graph)
+{
+}
+
+Result<void> ControlProvider::setupActivateRunTarget()
 {
     const auto result = skeleton_.activate_run_target.RegisterHandler(
         [this](ActivateRunTargetResponse& response, const ActivateRunTargetRequest& request) {
             this->handleActivateRunTarget(response, request);
         });
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(result.has_value(), result.error().Message().data());
+
+    if (!result.has_value())
+    {
+        LM_LOG_ERROR() << "Failed to register handler for activate_run_target:" << result.error().Message();
+        return MakeUnexpected(ExecErrc::kCommunicationError);
+    }
+
+    return {};
 }
 
 void ControlProvider::handleActivateRunTarget(
@@ -88,12 +120,19 @@ void ControlProvider::handleActivateRunTarget(
     response = ActivateRunTargetResponse{status : RequestStatus::kAccepted};
 }
 
-void ControlProvider::setupGetActiveRunTarget()
+Result<void> ControlProvider::setupGetActiveRunTarget()
 {
     const auto result = skeleton_.get_active_run_target.RegisterHandler([this](GetActiveRunTargetResponse& response) {
         this->handleGetActiveRunTarget(response);
     });
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(result.has_value(), result.error().Message().data());
+
+    if (!result.has_value())
+    {
+        LM_LOG_ERROR() << "Failed to register handler for get_active_run_target:" << result.error().Message();
+        return MakeUnexpected(ExecErrc::kCommunicationError);
+    }
+
+    return {};
 }
 
 void ControlProvider::handleGetActiveRunTarget(GetActiveRunTargetResponse& response)
@@ -115,11 +154,13 @@ void ControlProvider::handleGetActiveRunTarget(GetActiveRunTargetResponse& respo
     response = GetActiveRunTargetResponse{status : QueryStatus::kAvailable, run_target : RunTargetName(name)};
 }
 
-void ControlProvider::setupActivationResult()
+Result<void> ControlProvider::setupActivationResult()
 {
     graph_->registerActiveRunTargetCallback([this](IdentifierHash state, RunTargetActivationSource source) {
         this->handleActivationResult(state, source);
     });
+
+    return {};
 }
 
 void ControlProvider::handleActivationResult(IdentifierHash state, RunTargetActivationSource source)
@@ -153,10 +194,14 @@ void ControlProvider::handleActivationResult(IdentifierHash state, RunTargetActi
     LM_LOG_DEBUG() << "Sent the activation result to the state manager";
 }
 
-void ControlProvider::offerService()
+Result<void> ControlProvider::offerService()
 {
     const auto result = skeleton_.OfferService();
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(result.has_value(), result.error().Message().data());
+    if (!result.has_value())
+    {
+        LM_LOG_ERROR() << "Failed to offer mw::com service:" << result.error().Message();
+        return MakeUnexpected(ExecErrc::kCommunicationError);
+    }
 
     // Workaround for https://github.com/eclipse-score/communication/issues/1064.
     // This should be removed once the above issue is solved.
@@ -185,6 +230,8 @@ void ControlProvider::offerService()
                 break;
         }
     }
+
+    return {};
 }
 
 }  // namespace score::mw::lifecycle::internal
