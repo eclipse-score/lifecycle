@@ -3,8 +3,8 @@
     "defaults": {
         "deployment_config": {
             "bin_dir": "/tmp/tests/sandbox_options",
-            "ready_timeout": 1.0,
-            "shutdown_timeout": 1.0,
+            "ready_timeout_ms": 1000,
+            "shutdown_timeout_ms": 1000,
             "ready_recovery_action": {
                 "restart": {
                     "number_of_attempts": 0
@@ -30,7 +30,7 @@
                 "application_type": "Reporting",
                 "is_self_terminating": false,
                 "alive_supervision": {
-                    "reporting_cycle": 0.1,
+                    "reporting_cycle_ms": 100,
                     "min_indications": 1,
                     "max_indications": 3,
                     "failed_cycles_tolerance": 1
@@ -68,7 +68,11 @@
                 "sandbox": {
                     "uid": 666,
                     "gid": 666,
-                    "supplementary_group_ids": [123, 321, 456],
+                    "supplementary_group_ids": [
+                        123,
+                        321,
+                        456
+                    ],
                     "scheduling_policy": "SCHED_FIFO",
                     "scheduling_priority": 10
                 },
@@ -130,7 +134,11 @@
         "verification_component": {
             "component_properties": {
                 "binary_name": "verification_process",
-                "depends_on": ["sandbox_options_process_a", "sandbox_options_process_b", "sandbox_options_process_c"],
+                "depends_on": [
+                    "sandbox_options_process_a",
+                    "sandbox_options_process_b",
+                    "sandbox_options_process_c"
+                ],
                 "process_arguments": [
                     "test_end"
                 ],
@@ -158,7 +166,7 @@
     },
     "initial_run_target": "Startup",
     "alive_supervision": {
-        "evaluation_cycle": 0.05
+        "evaluation_cycle_ms": 50
     },
     "fallback_run_target": {
         "depends_on": []

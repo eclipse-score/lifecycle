@@ -31,8 +31,8 @@
                 }
             },
             "deployment_config": {
-                "ready_timeout": 1.0,
-                "shutdown_timeout": 1.0,
+                "ready_timeout_ms": 1000,
+                "shutdown_timeout_ms": 1000,
                 "environmental_variables": {
                     "PROCESSIDENTIFIER": "control_client_test_driver"
                 }
@@ -41,7 +41,9 @@
         "component_a": {
             "component_properties": {
                 "binary_name": "component_a",
-                "depends_on": ["component_b"]
+                "depends_on": [
+                    "component_b"
+                ]
             },
             "deployment_config": {
                 "environmental_variables": {

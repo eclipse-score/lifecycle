@@ -2,8 +2,8 @@
     "schema_version": 1,
     "defaults": {
         "deployment_config": {
-            "ready_timeout": 0.5,
-            "shutdown_timeout": 0.5,
+            "ready_timeout_ms": 500,
+            "shutdown_timeout_ms": 500,
             "environmental_variables": {
                 "LD_LIBRARY_PATH": "/opt/lib",
                 "GLOBAL_ENV_VAR": "abc",
@@ -13,7 +13,7 @@
             "ready_recovery_action": {
                 "restart": {
                     "number_of_attempts": 1,
-                    "delay_before_restart": 0.5
+                    "delay_before_restart_ms": 500
                 }
             },
             "recovery_action": {
@@ -38,7 +38,7 @@
                 "application_type": "Reporting_And_Supervised",
                 "is_self_terminating": false,
                 "alive_supervision": {
-                    "reporting_cycle": 0.5,
+                    "reporting_cycle_ms": 500,
                     "failed_cycles_tolerance": 2,
                     "min_indications": 1,
                     "max_indications": 3
@@ -51,7 +51,7 @@
             }
         },
         "run_target": {
-            "transition_timeout": 5,
+            "transition_timeout_ms": 5000,
             "recovery_action": {
                 "switch_run_target": {
                     "run_target": "Off"
@@ -59,7 +59,7 @@
             }
         },
         "alive_supervision" : {
-            "evaluation_cycle": 0.5
+            "evaluation_cycle_ms": 500
         }
     },
     "components": {
@@ -141,7 +141,7 @@
         "Full": {
             "description": "Everything running",
             "depends_on": ["test_app1", "Startup"],
-            "transition_timeout": 5,
+            "transition_timeout_ms": 5000,
             "recovery_action": {
                 "switch_run_target": {
                     "run_target": "fallback_run_target"
@@ -153,14 +153,14 @@
     "fallback_run_target": {
         "description": "Switching off everything",
         "depends_on": [],
-        "transition_timeout": 1.5
+        "transition_timeout_ms": 1500
     },
     "alive_supervision" : {
-        "evaluation_cycle": 0.5
+        "evaluation_cycle_ms": 500
     },
     "watchdog": {
         "device_file_path": "/dev/watchdog",
-        "max_timeout": 2,
+        "max_timeout_ms": 2000,
         "deactivate_on_shutdown": true,
         "require_magic_close": false
     }

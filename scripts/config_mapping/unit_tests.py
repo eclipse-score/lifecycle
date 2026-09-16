@@ -34,37 +34,8 @@ from lifecycle_config import (
     preprocess_defaults,
     schema_validation,
     score_defaults,
-    sec_to_ms,
     SCHED_POLICY_MAP,
 )
-
-# ---------------------------------------------------------------------------
-# sec_to_ms
-# ---------------------------------------------------------------------------
-
-
-def test_sec_to_ms_converts_positive_value():
-    assert sec_to_ms(1.5) == 1500
-
-
-def test_sec_to_ms_converts_zero():
-    assert sec_to_ms(0.0) == 0
-
-
-def test_sec_to_ms_rejects_negative_value():
-    with pytest.raises(ValueError, match="Negative time value"):
-        sec_to_ms(-1.0)
-
-
-def test_sec_to_ms_rejects_overflow():
-    with pytest.raises(ValueError, match="exceeds maximum representable milliseconds"):
-        sec_to_ms(5000000.0)
-
-
-def test_sec_to_ms_rejects_sub_millisecond():
-    with pytest.raises(ValueError, match="rounds to 0ms"):
-        sec_to_ms(0.0001)
-
 
 # ---------------------------------------------------------------------------
 # preprocess_defaults
@@ -79,8 +50,8 @@ def test_preprocessing_basic():
     global_defaults = json.loads("""
     {
         "deployment_config": {
-            "ready_timeout": 0.5,
-            "shutdown_timeout": 0.5,
+            "ready_timeout_ms": 500,
+            "shutdown_timeout_ms": 500,
             "environmental_variables" : {
                 "global_default1": "global_default_value1",
                 "global_default2": "global_default_value2"
@@ -97,7 +68,7 @@ def test_preprocessing_basic():
             }
         },
         "alive_supervision": {
-            "evaluation_cycle": 0.5
+            "evaluation_cycle_ms": 500
         },
         "watchdog": {}
     }""")
@@ -106,7 +77,7 @@ def test_preprocessing_basic():
         "schema_version": 1,
         "defaults": {
             "deployment_config": {
-                "shutdown_timeout": 1.0,
+                "shutdown_timeout_ms": 1000,
                 "environmental_variables" : {
                     "global_default2": "config_default_overwritten_value2",
                     "config_default3": "config_default_value3",
@@ -115,7 +86,7 @@ def test_preprocessing_basic():
                 "recovery_action": {
                     "restart": {
                         "number_of_attempts": 1,
-                        "delay_before_restart": 0.5
+                        "delay_before_restart_ms": 500
                     }
                 }
             },
@@ -148,11 +119,11 @@ def test_preprocessing_basic():
         },
         "run_targets": {},
         "alive_supervision": {
-            "evaluation_cycle": 0.1
+            "evaluation_cycle_ms": 100
         },
         "watchdog": {
             "device_file_path": "/dev/watchdog",
-            "max_timeout": 2,
+            "max_timeout_ms": 2000,
             "deactivate_on_shutdown": true,
             "require_magic_close": false
         }
@@ -172,8 +143,8 @@ def test_preprocessing_basic():
                     }
                 },
                 "deployment_config": {
-                    "ready_timeout": 0.5,
-                    "shutdown_timeout": 1.0,
+                    "ready_timeout_ms": 500,
+                    "shutdown_timeout_ms": 1000,
                     "environmental_variables" : {
                         "global_default1": "global_default_value1",
                         "global_default2": "config_default_overwritten_value2",
@@ -195,11 +166,11 @@ def test_preprocessing_basic():
         },
         "run_targets": {},
         "alive_supervision": {
-            "evaluation_cycle": 0.1
+            "evaluation_cycle_ms": 100
         },
         "watchdog": {
             "device_file_path": "/dev/watchdog",
-            "max_timeout": 2,
+            "max_timeout_ms": 2000,
             "deactivate_on_shutdown": true,
             "require_magic_close": false
         }
@@ -220,10 +191,16 @@ def test_preprocessing_non_merging_dicts():
         "defaults": {
             "deployment_config": {
                 "ready_recovery_action": {
-                    "restart": {"number_of_attempts": 100, "delay_before_restart": 999}
+                    "restart": {
+                        "number_of_attempts": 100,
+                        "delay_before_restart_ms": 999,
+                    }
                 },
                 "recovery_action": {
-                    "restart": {"number_of_attempts": 200, "delay_before_restart": 888}
+                    "restart": {
+                        "number_of_attempts": 200,
+                        "delay_before_restart_ms": 888,
+                    }
                 },
             }
         },
@@ -297,17 +274,17 @@ def test_preprocessing_minimal_config():
                 }
             }
         },
-        "run_targets": {"Startup": {"transition_timeout": 1}},
+        "run_targets": {"Startup": {"transition_timeout_ms": 1}},
         "initial_run_target": "Startup",
-        "fallback_run_target": {"transition_timeout": 2},
+        "fallback_run_target": {"transition_timeout_ms": 2},
     }
     result = preprocess_defaults(score_defaults, config)
     assert (
-        result["components"]["c1"]["deployment_config"]["ready_timeout"] == 0.5
+        result["components"]["c1"]["deployment_config"]["ready_timeout_ms"] == 500
     )  # from global defaults
-    assert result["run_targets"]["Startup"]["transition_timeout"] == 1  # user value
+    assert result["run_targets"]["Startup"]["transition_timeout_ms"] == 1  # user value
     assert "fallback_run_target" in result
-    assert result["fallback_run_target"]["transition_timeout"] == 2
+    assert result["fallback_run_target"]["transition_timeout_ms"] == 2
 
 
 def test_preprocessing_empty_components():
@@ -318,7 +295,7 @@ def test_preprocessing_empty_components():
         "schema_version": 1,
         "run_targets": {"Startup": {}},
         "initial_run_target": "Startup",
-        "fallback_run_target": {"transition_timeout": 1},
+        "fallback_run_target": {"transition_timeout_ms": 1},
     }
     result = preprocess_defaults(score_defaults, config)
     assert result["components"] == {}
@@ -327,7 +304,7 @@ def test_preprocessing_empty_components():
 
 def test_preprocessing_fallback_with_custom_defaults():
     """
-    fallback_run_target should use transition_timeout from merged defaults (config-level)
+    fallback_run_target should use transition_timeout_ms from merged defaults (config-level)
     rather than from score_defaults.
     """
     config = {
@@ -335,10 +312,10 @@ def test_preprocessing_fallback_with_custom_defaults():
         "run_targets": {"Startup": {}},
         "initial_run_target": "Startup",
         "fallback_run_target": {},
-        "defaults": {"run_target": {"transition_timeout": 99}},
+        "defaults": {"run_target": {"transition_timeout_ms": 99}},
     }
     result = preprocess_defaults(score_defaults, config)
-    assert result["fallback_run_target"]["transition_timeout"] == 99
+    assert result["fallback_run_target"]["transition_timeout_ms"] == 99
 
 
 def test_preprocessing_alive_supervision_presence_based_on_app_type():
@@ -469,11 +446,11 @@ def test_preprocessing_no_defaults_section():
         },
         "run_targets": {"Startup": {}},
         "initial_run_target": "Startup",
-        "fallback_run_target": {"transition_timeout": 1},
+        "fallback_run_target": {"transition_timeout_ms": 1},
     }
     result = preprocess_defaults(score_defaults, config)
-    # ready_timeout comes from score_defaults
-    assert result["components"]["c1"]["deployment_config"]["ready_timeout"] == 0.5
+    # ready_timeout_ms comes from score_defaults
+    assert result["components"]["c1"]["deployment_config"]["ready_timeout_ms"] == 500
     # bin_dir comes from score_defaults
     assert result["components"]["c1"]["deployment_config"]["bin_dir"] == "/opt"
 
@@ -491,14 +468,14 @@ def _config_with_file_state(file_state):
         },
         "run_targets": {"Startup": {}},
         "initial_run_target": "Startup",
-        "fallback_run_target": {"transition_timeout": 1},
+        "fallback_run_target": {"transition_timeout_ms": 1},
     }
 
 
 def test_preprocessing_file_state_defaults():
     """
     A file_state ready condition only requires a file_path, state and
-    polling_interval are filled in with their defaults.
+    polling_interval_ms are filled in with their defaults.
     """
     config = _config_with_file_state({"file_path": "/tmp/ready"})
     result = preprocess_defaults(score_defaults, config)
@@ -509,7 +486,7 @@ def test_preprocessing_file_state_defaults():
         "file_state": {
             "file_path": "/tmp/ready",
             "state": "Exists",
-            "polling_interval": 0.01,
+            "polling_interval_ms": 10,
         }
     }
 
@@ -519,14 +496,14 @@ def test_preprocessing_file_state_defaults_overridden():
     User specified file_state values take precedence over the defaults.
     """
     config = _config_with_file_state(
-        {"file_path": "/tmp/ready", "state": "NotExisting", "polling_interval": 0.5}
+        {"file_path": "/tmp/ready", "state": "NotExisting", "polling_interval_ms": 500}
     )
     result = preprocess_defaults(score_defaults, config)
     file_state = result["components"]["c1"]["component_properties"]["ready_condition"][
         "file_state"
     ]
     assert file_state["state"] == "NotExisting"
-    assert file_state["polling_interval"] == 0.5
+    assert file_state["polling_interval_ms"] == 500
 
 
 def test_preprocessing_file_state_defaults_not_applied_for_process_state():
@@ -545,7 +522,7 @@ def test_preprocessing_file_state_defaults_not_applied_for_process_state():
         },
         "run_targets": {"Startup": {}},
         "initial_run_target": "Startup",
-        "fallback_run_target": {"transition_timeout": 1},
+        "fallback_run_target": {"transition_timeout_ms": 1},
     }
     result = preprocess_defaults(score_defaults, config)
     assert result["components"]["c1"]["component_properties"]["ready_condition"] == {
@@ -808,8 +785,8 @@ def test_gen_config_minimal(tmp_path):
                     "application_profile": {"application_type": "REPORTING"}
                 },
                 "deployment_config": {
-                    "ready_timeout": 1.0,
-                    "shutdown_timeout": 2.0,
+                    "ready_timeout_ms": 1000,
+                    "shutdown_timeout_ms": 2000,
                     "bin_dir": "/opt/app",
                     "sandbox": {"uid": 1000, "gid": 1000},
                 },
@@ -847,7 +824,7 @@ def test_gen_config_with_alive_supervision(tmp_path):
                     "application_profile": {
                         "application_type": "Reporting_And_Supervised",
                         "alive_supervision": {
-                            "reporting_cycle": 1.0,
+                            "reporting_cycle_ms": 1000,
                             "failed_cycles_tolerance": 3,
                             "min_indications": 1,
                             "max_indications": 5,
@@ -855,8 +832,8 @@ def test_gen_config_with_alive_supervision(tmp_path):
                     }
                 },
                 "deployment_config": {
-                    "ready_timeout": 1.0,
-                    "shutdown_timeout": 2.0,
+                    "ready_timeout_ms": 1000,
+                    "shutdown_timeout_ms": 2000,
                     "bin_dir": "/opt",
                     "sandbox": {"uid": 1000, "gid": 1000},
                 },
@@ -895,8 +872,8 @@ def test_gen_config_without_alive_supervision(tmp_path):
                     "application_profile": {"application_type": "REPORTING"}
                 },
                 "deployment_config": {
-                    "ready_timeout": 1.0,
-                    "shutdown_timeout": 2.0,
+                    "ready_timeout_ms": 1000,
+                    "shutdown_timeout_ms": 2000,
                     "bin_dir": "/opt",
                     "sandbox": {"uid": 1000, "gid": 1000},
                 },
@@ -930,7 +907,7 @@ def test_gen_config_with_watchdog(tmp_path):
         "alive_supervision": {},
         "watchdog": {
             "device_file_path": "/dev/watchdog0",
-            "max_timeout": 5,
+            "max_timeout_ms": 5000,
             "deactivate_on_shutdown": True,
             "require_magic_close": True,
         },
@@ -962,7 +939,7 @@ def test_gen_config_watchdog_partial_fields_omitted(tmp_path):
         "alive_supervision": {},
         "watchdog": {
             "device_file_path": "/dev/watchdog0"
-        },  # missing max_timeout, deactivate_on_shutdown, require_magic_close
+        },  # missing max_timeout_ms, deactivate_on_shutdown, require_magic_close
     }
     gen_config(str(tmp_path), config, "test_input.json")
 
@@ -984,8 +961,8 @@ def test_gen_config_with_sandbox_limits(tmp_path):
                     "application_profile": {"application_type": "REPORTING"}
                 },
                 "deployment_config": {
-                    "ready_timeout": 1.0,
-                    "shutdown_timeout": 2.0,
+                    "ready_timeout_ms": 1000,
+                    "shutdown_timeout_ms": 2000,
                     "bin_dir": "/opt",
                     "sandbox": {
                         "uid": 1000,
@@ -1042,8 +1019,8 @@ def test_gen_config_env_variables_list_format(tmp_path):
                     "application_profile": {"application_type": "REPORTING"}
                 },
                 "deployment_config": {
-                    "ready_timeout": 1.0,
-                    "shutdown_timeout": 2.0,
+                    "ready_timeout_ms": 1000,
+                    "shutdown_timeout_ms": 2000,
                     "bin_dir": "/opt",
                     "sandbox": {"uid": 1000, "gid": 1000},
                     "environmental_variables": {"FOO": "bar", "BAZ": "qux"},
@@ -1081,8 +1058,8 @@ def test_gen_config_run_target_with_dependencies(tmp_path):
                     "application_profile": {"application_type": "REPORTING"}
                 },
                 "deployment_config": {
-                    "ready_timeout": 1.0,
-                    "shutdown_timeout": 2.0,
+                    "ready_timeout_ms": 1000,
+                    "shutdown_timeout_ms": 2000,
                     "bin_dir": "/opt",
                     "sandbox": {"uid": 1000, "gid": 1000},
                 },
@@ -1092,8 +1069,8 @@ def test_gen_config_run_target_with_dependencies(tmp_path):
                     "application_profile": {"application_type": "NOT_REPORTING"}
                 },
                 "deployment_config": {
-                    "ready_timeout": 1.0,
-                    "shutdown_timeout": 2.0,
+                    "ready_timeout_ms": 1000,
+                    "shutdown_timeout_ms": 2000,
                     "bin_dir": "/opt",
                     "sandbox": {"uid": 1000, "gid": 1000},
                 },
@@ -1105,7 +1082,7 @@ def test_gen_config_run_target_with_dependencies(tmp_path):
         },
         "initial_run_target": "Startup",
         "fallback_run_target": {},
-        "alive_supervision": {"evaluation_cycle": 0.5},
+        "alive_supervision": {"evaluation_cycle_ms": 500},
         "watchdog": {},
     }
     gen_config(str(tmp_path), config, "test_input.json")
@@ -1159,8 +1136,8 @@ def test_gen_config_scheduling_policy_mapping(tmp_path):
                         "application_profile": {"application_type": "REPORTING"}
                     },
                     "deployment_config": {
-                        "ready_timeout": 1.0,
-                        "shutdown_timeout": 2.0,
+                        "ready_timeout_ms": 1000,
+                        "shutdown_timeout_ms": 2000,
                         "bin_dir": "/opt",
                         "sandbox": {"uid": 1000, "gid": 1000, "scheduling_policy": src},
                     },
@@ -1168,7 +1145,7 @@ def test_gen_config_scheduling_policy_mapping(tmp_path):
             },
             "run_targets": {"Startup": {}},
             "initial_run_target": "Startup",
-            "fallback_run_target": {"transition_timeout": 1},
+            "fallback_run_target": {"transition_timeout_ms": 1},
             "alive_supervision": {},
             "watchdog": {},
         }
@@ -1184,7 +1161,7 @@ def test_gen_config_scheduling_policy_mapping(tmp_path):
 
 
 def test_gen_config_ready_recovery_action(tmp_path):
-    """ready_recovery_action with restart sub-keys should output number_of_attempts and delay_before_restart."""
+    """ready_recovery_action with restart sub-keys should output number_of_attempts and delay_before_restart_ms."""
     config = {
         "schema_version": 1,
         "components": {
@@ -1193,19 +1170,22 @@ def test_gen_config_ready_recovery_action(tmp_path):
                     "application_profile": {"application_type": "REPORTING"}
                 },
                 "deployment_config": {
-                    "ready_timeout": 1.0,
-                    "shutdown_timeout": 2.0,
+                    "ready_timeout_ms": 1000,
+                    "shutdown_timeout_ms": 2000,
                     "bin_dir": "/opt",
                     "sandbox": {"uid": 1000, "gid": 1000},
                     "ready_recovery_action": {
-                        "restart": {"number_of_attempts": 3, "delay_before_restart": 5}
+                        "restart": {
+                            "number_of_attempts": 3,
+                            "delay_before_restart_ms": 5000,
+                        }
                     },
                 },
             }
         },
         "run_targets": {"Startup": {}},
         "initial_run_target": "Startup",
-        "fallback_run_target": {"transition_timeout": 1},
+        "fallback_run_target": {"transition_timeout_ms": 1},
         "alive_supervision": {},
         "watchdog": {},
     }
@@ -1232,8 +1212,8 @@ def test_gen_config_unmapped_scheduling_policy(tmp_path):
                     "application_profile": {"application_type": "REPORTING"}
                 },
                 "deployment_config": {
-                    "ready_timeout": 1.0,
-                    "shutdown_timeout": 2.0,
+                    "ready_timeout_ms": 1000,
+                    "shutdown_timeout_ms": 2000,
                     "bin_dir": "/opt",
                     "sandbox": {
                         "uid": 1000,
@@ -1245,7 +1225,7 @@ def test_gen_config_unmapped_scheduling_policy(tmp_path):
         },
         "run_targets": {"Startup": {}},
         "initial_run_target": "Startup",
-        "fallback_run_target": {"transition_timeout": 1},
+        "fallback_run_target": {"transition_timeout_ms": 1},
         "alive_supervision": {},
         "watchdog": {},
     }
@@ -1391,3 +1371,38 @@ def test_schema_validation_smoke():
     assert schema_validation({"name": "test", "count": 42}, schema) is True
     # Invalid config (missing required field)
     assert schema_validation({"count": 42}, schema) is False
+
+
+def _minimal_config_with_ready_timeout_ms(ready_timeout_ms):
+    return {
+        "schema_version": 1,
+        "components": {},
+        "run_targets": {},
+        "initial_run_target": "Startup",
+        "fallback_run_target": {"depends_on": []},
+        "defaults": {
+            "deployment_config": {
+                "ready_timeout_ms": ready_timeout_ms,
+                "shutdown_timeout_ms": 500,
+            }
+        },
+    }
+
+
+def test_schema_validation_rejects_out_of_range_ms_field(schema_file):
+    """
+    Timing fields are now integer milliseconds directly in the schema (see #635); the schema
+    itself, not lifecycle_config.py, is responsible for rejecting negative, non-integer and
+    overflowing values.
+    """
+    schema = load_json_file(schema_file)
+
+    assert schema_validation(_minimal_config_with_ready_timeout_ms(500), schema) is True
+    assert schema_validation(_minimal_config_with_ready_timeout_ms(-1), schema) is False
+    assert (
+        schema_validation(_minimal_config_with_ready_timeout_ms(1.5), schema) is False
+    )
+    assert (
+        schema_validation(_minimal_config_with_ready_timeout_ms(4294967296), schema)
+        is False
+    )

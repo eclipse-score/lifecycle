@@ -3,8 +3,8 @@
     "defaults": {
         "deployment_config": {
             "bin_dir": "/tmp/tests/process_fd_leak",
-            "ready_timeout": 1.0,
-            "shutdown_timeout": 1.0,
+            "ready_timeout_ms": 1000,
+            "shutdown_timeout_ms": 1000,
             "ready_recovery_action": {
                 "restart": {
                     "number_of_attempts": 0
@@ -31,7 +31,7 @@
                 "is_self_terminating": true,
                 "alive_supervision": {
                     "min_indications": 0
-                    }
+                }
             },
             "ready_condition": {
                 "process_state": "Running"
@@ -73,7 +73,7 @@
     },
     "initial_run_target": "Startup",
     "alive_supervision": {
-        "evaluation_cycle": 0.05
+        "evaluation_cycle_ms": 50
     },
     "fallback_run_target": {
         "depends_on": []
