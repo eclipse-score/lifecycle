@@ -41,25 +41,25 @@ Result<ControlProvider*> ControlProvider::Create(IRunTargetControl* graph)
     const Result<void> setup_activate_run_target_result = control_provider->setupActivateRunTarget();
     if (!setup_activate_run_target_result.has_value())
     {
-        return MakeUnexpected(ExecErrc::kCommunicationError);
+        return MakeUnexpected(static_cast<ExecErrc>(*setup_activate_run_target_result.error()));
     }
 
     const Result<void> setup_get_active_run_target_result = control_provider->setupGetActiveRunTarget();
     if (!setup_get_active_run_target_result.has_value())
     {
-        return MakeUnexpected(ExecErrc::kCommunicationError);
+        return MakeUnexpected(static_cast<ExecErrc>(*setup_get_active_run_target_result.error()));
     }
 
     const Result<void> setup_activation_result_result = control_provider->setupActivationResult();
     if (!setup_activation_result_result.has_value())
     {
-        return MakeUnexpected(ExecErrc::kCommunicationError);
+        return MakeUnexpected(static_cast<ExecErrc>(*setup_activation_result_result.error()));
     }
 
     const Result<void> offer_service_result = control_provider->offerService();
     if (!offer_service_result.has_value())
     {
-        return MakeUnexpected(ExecErrc::kCommunicationError);
+        return MakeUnexpected(static_cast<ExecErrc>(*offer_service_result.error()));
     }
 
     return control_provider;
