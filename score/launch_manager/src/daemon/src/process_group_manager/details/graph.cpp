@@ -224,7 +224,7 @@ void Graph::finalizeTransitionSuccess()
         {
             source = RunTargetActivationSource::kInitialActivation;
         }
-        else if (state == IdentifierHash{"fallback"})
+        else if (state == Graph::recovery_state_name)
         {
             source = RunTargetActivationSource::kRecoveryAction;
         }
