@@ -440,7 +440,7 @@ ProcessInfoNode* ProcessGroupManager::getProcessInfoNode(uint32_t pg_index, Iden
     return nullptr;
 }
 
-void ProcessGroupManager::handleGetActiveRunTarget(GetActiveRunTarget* event) const
+void ProcessGroupManager::handleGetActiveRunTarget(GetActiveRunTarget* event) const noexcept
 {
     Result<IdentifierHash> result;
 
@@ -461,7 +461,7 @@ void ProcessGroupManager::handleGetActiveRunTarget(GetActiveRunTarget* event) co
     SCORE_LANGUAGE_FUTURECPP_ASSERT(set_result.has_value());
 }
 
-Result<IdentifierHash> ProcessGroupManager::getActiveRunTarget() const
+Result<IdentifierHash> ProcessGroupManager::getActiveRunTarget() const noexcept
 {
     auto promise = concurrency::InterruptiblePromise<Result<IdentifierHash>>{};
 
@@ -477,7 +477,7 @@ Result<IdentifierHash> ProcessGroupManager::getActiveRunTarget() const
     return get_result.value();
 }
 
-void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* event)
+void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* event) noexcept
 {
     IdentifierHash old_state = graph_->getProcessGroupState();
     GraphState graph_state = graph_->getState();
@@ -517,7 +517,7 @@ void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* eve
     SCORE_LANGUAGE_FUTURECPP_ASSERT(set_result.has_value());
 }
 
-Result<void> ProcessGroupManager::setRequestedRunTarget(IdentifierHash run_target)
+Result<void> ProcessGroupManager::setRequestedRunTarget(IdentifierHash run_target) noexcept
 {
     auto promise = concurrency::InterruptiblePromise<Result<void>>{};
 
@@ -533,7 +533,7 @@ Result<void> ProcessGroupManager::setRequestedRunTarget(IdentifierHash run_targe
     return get_result.value();
 }
 
-void ProcessGroupManager::registerActiveRunTargetCallback(ActivationCallbackT callback)
+void ProcessGroupManager::registerActiveRunTargetCallback(ActivationCallbackT callback) noexcept
 {
     graph_->registerActiveRunTargetCallback(callback);
 }

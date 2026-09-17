@@ -274,7 +274,7 @@ class Graph final
     std::chrono::milliseconds getOffStateTransitionTimeout() const;
 
     /// @brief Register a callback to be fired when the active run target changes.
-    void registerActiveRunTargetCallback(ActivationCallbackT callback);
+    void registerActiveRunTargetCallback(ActivationCallbackT callback) noexcept;
 
   private:
     /// @brief Reports that a node has finished executing, enqueuing successors or updating the graph state if a

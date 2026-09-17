@@ -27,7 +27,7 @@ class ControlProvider
 {
   public:
     /// @brief Fallible constructor for ControllableGraph.
-    static Result<ControlProvider*> Create(IRunTargetControl* graph);
+    static Result<ControlProvider*> Create(IRunTargetControl* graph) noexcept;
 
     ~ControlProvider() = default;
 
@@ -38,28 +38,28 @@ class ControlProvider
     ControlProvider operator=(ControlProvider&&) = delete;
 
   private:
-    explicit ControlProvider(LmControlSkeleton skeleton, IRunTargetControl* graph);
+    explicit ControlProvider(LmControlSkeleton skeleton, IRunTargetControl* graph) noexcept;
 
     /// @brief Register the handler for activate_run_target.
-    Result<void> setupActivateRunTarget();
+    Result<void> setupActivateRunTarget() noexcept;
 
     /// @brief Handle an activate_run_target request.
-    void handleActivateRunTarget(ActivateRunTargetResponse& response, const ActivateRunTargetRequest& request);
+    void handleActivateRunTarget(ActivateRunTargetResponse& response, const ActivateRunTargetRequest& request) noexcept;
 
     /// @brief Register the handler for get_active_run_target.
-    Result<void> setupGetActiveRunTarget();
+    Result<void> setupGetActiveRunTarget() noexcept;
 
     /// @brief Handle a get_active_run_target request.
-    void handleGetActiveRunTarget(GetActiveRunTargetResponse& response);
+    void handleGetActiveRunTarget(GetActiveRunTargetResponse& response) noexcept;
 
     /// @brief Register the handler for activation_result.
-    Result<void> setupActivationResult();
+    Result<void> setupActivationResult() noexcept;
 
     /// @brief Handle an activation_result event.
-    void handleActivationResult(IdentifierHash state, RunTargetActivationSource source);
+    void handleActivationResult(IdentifierHash state, RunTargetActivationSource source) noexcept;
 
     /// @brief Make the service available to clients.
-    Result<void> offerService();
+    Result<void> offerService() noexcept;
 
     /// @brief The external `mw::com` interface.
     LmControlSkeleton skeleton_;

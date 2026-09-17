@@ -110,11 +110,11 @@ class ProcessGroupManager final : public IRunTargetControl
     /// @brief Cancels processGroupManager main routine as though SIGTERM had been sent
     void cancel();
 
-    [[nodiscard]] score::Result<IdentifierHash> getActiveRunTarget() const override;
+    [[nodiscard]] score::Result<IdentifierHash> getActiveRunTarget() const noexcept override;
 
-    [[nodiscard]] score::Result<void> setRequestedRunTarget(IdentifierHash run_target) override;
+    [[nodiscard]] score::Result<void> setRequestedRunTarget(IdentifierHash run_target) noexcept override;
 
-    void registerActiveRunTargetCallback(ActivationCallbackT callback) override;
+    void registerActiveRunTargetCallback(ActivationCallbackT callback) noexcept override;
 
     const IdentifierHash recovery_state_{"fallback"};
 
@@ -185,10 +185,10 @@ class ProcessGroupManager final : public IRunTargetControl
     void createProcessComponentsObjects(std::size_t total_processes);
 
     /// @brief Respond to a GetActiveRunTarget event.
-    void handleGetActiveRunTarget(GetActiveRunTarget* event) const;
+    void handleGetActiveRunTarget(GetActiveRunTarget* event) const noexcept;
 
     /// @brief Respond to a SetRequestedRunTarget event.
-    void handleSetRequestedRunTarget(SetRequestedRunTarget* event);
+    void handleSetRequestedRunTarget(SetRequestedRunTarget* event) noexcept;
 
     /// @brief The configuration object associated with the ProcessGroupManager.
     GraphConfig configuration_;

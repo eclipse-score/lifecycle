@@ -28,13 +28,13 @@ class IRunTargetControl
   public:
     /// @brief Get the active run target, or an error if we are currently
     ///        in transition.
-    [[nodiscard]] virtual score::Result<IdentifierHash> getActiveRunTarget() const = 0;
+    [[nodiscard]] virtual score::Result<IdentifierHash> getActiveRunTarget() const noexcept = 0;
 
     /// @brief Set the requested run target.
-    [[nodiscard]] virtual score::Result<void> setRequestedRunTarget(IdentifierHash run_target) = 0;
+    [[nodiscard]] virtual score::Result<void> setRequestedRunTarget(IdentifierHash run_target) noexcept = 0;
 
     /// @brief Register a callback to be fired when the active run target changes.
-    virtual void registerActiveRunTargetCallback(ActivationCallbackT callback) = 0;
+    virtual void registerActiveRunTargetCallback(ActivationCallbackT callback) noexcept = 0;
 };
 
 }  // namespace score::mw::lifecycle::internal

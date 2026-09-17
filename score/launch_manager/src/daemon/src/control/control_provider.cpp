@@ -18,7 +18,7 @@
 namespace score::mw::lifecycle::internal
 {
 
-Result<ControlProvider*> ControlProvider::Create(IRunTargetControl* graph)
+Result<ControlProvider*> ControlProvider::Create(IRunTargetControl* graph) noexcept
 {
     const Result<com::InstanceSpecifier> instance_specifier_result =
         com::InstanceSpecifier::Create(std::string{"LaunchManager/StateManager/Instance"});
@@ -65,12 +65,12 @@ Result<ControlProvider*> ControlProvider::Create(IRunTargetControl* graph)
     return control_provider;
 }
 
-ControlProvider::ControlProvider(LmControlSkeleton skeleton, IRunTargetControl* graph)
+ControlProvider::ControlProvider(LmControlSkeleton skeleton, IRunTargetControl* graph) noexcept
     : skeleton_(std::move(skeleton)), graph_(graph)
 {
 }
 
-Result<void> ControlProvider::setupActivateRunTarget()
+Result<void> ControlProvider::setupActivateRunTarget() noexcept
 {
     const auto result = skeleton_.activate_run_target.RegisterHandler(
         [this](ActivateRunTargetResponse& response, const ActivateRunTargetRequest& request) {
@@ -88,7 +88,7 @@ Result<void> ControlProvider::setupActivateRunTarget()
 
 void ControlProvider::handleActivateRunTarget(
     ActivateRunTargetResponse& response,
-    const ActivateRunTargetRequest& request)
+    const ActivateRunTargetRequest& request) noexcept
 {
     // See https://github.com/eclipse-score/lifecycle/issues/643.
     if (request.mode != ActivationMode::kForced)
@@ -127,7 +127,7 @@ void ControlProvider::handleActivateRunTarget(
     response = ActivateRunTargetResponse{status : RequestStatus::kAccepted};
 }
 
-Result<void> ControlProvider::setupGetActiveRunTarget()
+Result<void> ControlProvider::setupGetActiveRunTarget() noexcept
 {
     const auto result = skeleton_.get_active_run_target.RegisterHandler([this](GetActiveRunTargetResponse& response) {
         this->handleGetActiveRunTarget(response);
@@ -142,7 +142,7 @@ Result<void> ControlProvider::setupGetActiveRunTarget()
     return {};
 }
 
-void ControlProvider::handleGetActiveRunTarget(GetActiveRunTargetResponse& response)
+void ControlProvider::handleGetActiveRunTarget(GetActiveRunTargetResponse& response) noexcept
 {
     const score::Result<IdentifierHash> result = graph_->getActiveRunTarget();
     if (!result.has_value())
@@ -161,7 +161,7 @@ void ControlProvider::handleGetActiveRunTarget(GetActiveRunTargetResponse& respo
     response = GetActiveRunTargetResponse{status : QueryStatus::kAvailable, run_target : RunTargetName(name)};
 }
 
-Result<void> ControlProvider::setupActivationResult()
+Result<void> ControlProvider::setupActivationResult() noexcept
 {
     graph_->registerActiveRunTargetCallback([this](IdentifierHash state, RunTargetActivationSource source) {
         this->handleActivationResult(state, source);
@@ -170,7 +170,7 @@ Result<void> ControlProvider::setupActivationResult()
     return {};
 }
 
-void ControlProvider::handleActivationResult(IdentifierHash state, RunTargetActivationSource source)
+void ControlProvider::handleActivationResult(IdentifierHash state, RunTargetActivationSource source) noexcept
 {
     auto allocate_result = skeleton_.activation_result.Allocate();
     if (!allocate_result.has_value())
@@ -201,7 +201,7 @@ void ControlProvider::handleActivationResult(IdentifierHash state, RunTargetActi
     LM_LOG_DEBUG() << "Sent the activation result to the state manager";
 }
 
-Result<void> ControlProvider::offerService()
+Result<void> ControlProvider::offerService() noexcept
 {
     const auto result = skeleton_.OfferService();
     if (!result.has_value())
