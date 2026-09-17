@@ -24,6 +24,24 @@
 namespace score::mw::lifecycle::internal
 {
 
+namespace
+{
+// Shared by both the std::ostream and score::mw::log::LogStream overloads below so the
+// formatting only lives in one place. mw::log::LogStream automatically inserts a whitespace
+// between successive stream operations, so the literals below intentionally omit it; the
+// plain std::ostream fallback renders slightly more tightly as a result.
+template <typename StreamT>
+StreamT& streamProcessLogId(StreamT& stream, const ProcessLogId& id)
+{
+    return stream << "Name:" << id.identifier << ", PID:" << id.pid;
+}
+}  // namespace
+
+std::ostream& operator<<(std::ostream& os, const ProcessLogId& id)
+{
+    return streamProcessLogId(os, id);
+}
+
 ProcessInfoNode::ProcessInfoNode(configuration::ComponentConfig&& config, ProcessHandling process_handling)
     : terminator_(),
       has_semaphore_(false),
@@ -46,18 +64,18 @@ ProcessInfoNode::ProcessInfoNode(configuration::ComponentConfig&& config, Proces
             app_profile.alive_supervision.has_value(), "Supervised process did not have alive supervision config");
         const uid_t uid = config_.deployment_config.sandbox.uid;
 
-        LM_LOG_DEBUG() << "Setting up alive supervision for" << identifier_;
+        LM_LOG_DEBUG() << logId() << "setting up alive supervision";
 
         supervision_handle_ = process_handling_.supervision_factory.constructSupervision(
             identifier_, uid, app_profile.alive_supervision.value());
 
         if (!supervision_handle_)
         {
-            LM_LOG_ERROR() << "Failed to set up alive supervision for" << identifier_;
+            LM_LOG_ERROR() << logId() << "failed to set up alive supervision";
         }
         else
         {
-            LM_LOG_DEBUG() << "Successfully set up alive supervision for" << identifier_;
+            LM_LOG_DEBUG() << logId() << "successfully set up alive supervision";
         }
 
         config_.deployment_config.environmental_variables.add(
@@ -174,7 +192,7 @@ void ProcessInfoNode::unblockSync()
 
 IComponent::RequestResult ProcessInfoNode::tryHandleTermination(int32_t process_status)
 {
-    LM_LOG_DEBUG() << "Process" << identifier_ << "( pid" << pid_ << ") terminated with exit code" << process_status;
+    LM_LOG_DEBUG() << logId() << "terminated with exit code" << process_status;
     exit_code_ = process_status;
     IComponent::RequestResult res = {IComponent::RequestState::kWaiting};
     ProcessState starting = ProcessState::kStarting;
@@ -212,8 +230,7 @@ IComponent::RequestResult ProcessInfoNode::tryHandleTermination(int32_t process_
         }
         else
         {
-            LM_LOG_WARN() << "unexpected termination of process" << identifier_ << "( pid" << pid_ << "exit code"
-                          << exit_code_ << ")";
+            LM_LOG_WARN() << logId() << "unexpected termination, exit code" << exit_code_;
             res = score::cpp::make_unexpected(IComponent::ComponentError::kErrorAfterReady);
         }
     }
@@ -241,8 +258,8 @@ bool ProcessInfoNode::isSupervised() const
 
 IComponent::RequestResult ProcessInfoNode::startProcess(score::cpp::stop_token stop_token)
 {
-    LM_LOG_DEBUG() << "Starting process (" << identifier_ << ") from executable" << config_.deployment_config.bin_dir
-                   << "/" << config_.component_properties.binary_name;
+    LM_LOG_DEBUG() << logId() << "starting from executable" << config_.deployment_config.bin_dir << "/"
+                   << config_.component_properties.binary_name;
 
     std::optional<ComponentError> error;
     const std::chrono::time_point initial_time = std::chrono::steady_clock::now();
@@ -258,7 +275,7 @@ IComponent::RequestResult ProcessInfoNode::startProcess(score::cpp::stop_token s
         // - Terminating: A termination is in progress (allowed)
         if (!setState(score::mw::lifecycle::ProcessState::kIdle))
         {
-            LM_LOG_WARN() << "Starting process" << this << "failed: termination in progress";
+            LM_LOG_WARN() << logId() << "starting failed: termination in progress";
             error = ComponentError::kErrorBeforeReady;
             break;
         }
@@ -272,8 +289,8 @@ IComponent::RequestResult ProcessInfoNode::startProcess(score::cpp::stop_token s
         if (osal::OsalReturnType::kSuccess == process_handling_.process_interface_->startProcess(pid_, sync_, config_))
         {
             const std::chrono::time_point launched_time = std::chrono::steady_clock::now();
-            LM_LOG_DEBUG() << "startProcess pid" << pid_ << "received for process:" << identifier_ << "( startup time:"
-                           << std::chrono::round<std::chrono::microseconds>(launched_time - initial_time) << ")";
+            LM_LOG_DEBUG() << logId() << "started, startup time:"
+                           << std::chrono::round<std::chrono::microseconds>(launched_time - initial_time);
 
             if (configuration::ApplicationType::StateManager ==
                 config_.component_properties.application_profile.application_type)
@@ -308,7 +325,7 @@ IComponent::RequestResult ProcessInfoNode::startProcess(score::cpp::stop_token s
         sync_.reset();
     }
     const std::chrono::time_point finished_time = std::chrono::steady_clock::now();
-    LM_LOG_DEBUG() << "startProcess for process (" << config_.name << ") done, took"
+    LM_LOG_DEBUG() << logId() << "startProcess done, took"
                    << std::chrono::round<std::chrono::milliseconds>(finished_time - initial_time);
 
     if (error.has_value())
@@ -360,6 +377,11 @@ void ProcessInfoNode::setupControlClientChannel()
     std::atomic_store(&control_client_channel_, ControlClientChannel::getControlClientChannel(sync_));
 }
 
+ProcessLogId ProcessInfoNode::logId() const
+{
+    return {identifier_, pid_};
+}
+
 score::cpp::expected_blank<IComponent::ComponentError> ProcessInfoNode::handleProcessStillStarting(
     const score::cpp::stop_token& stop_token)
 {
@@ -400,7 +422,7 @@ score::cpp::expected_blank<IComponent::ComponentError> ProcessInfoNode::handlePr
 
                 if (wait_res != osal::OsalReturnType::kSuccess)
                 {
-                    LM_LOG_ERROR() << "Error Waiting for file";
+                    LM_LOG_ERROR() << logId() << "error waiting for file";
                 }
 
                 return (wait_res == osal::OsalReturnType::kSuccess) && (exit_code_ == 0);
@@ -419,7 +441,7 @@ score::cpp::expected_blank<IComponent::ComponentError> ProcessInfoNode::handlePr
         return score::cpp::make_unexpected(ComponentError::kErrorBeforeReady);
     }
 
-    LM_LOG_WARN() << "Got kRunning timeout for process (" << identifier_ << ")";
+    LM_LOG_WARN() << logId() << "got kRunning timeout";
     terminateProcess(stop_token);
     return score::cpp::make_unexpected(ComponentError::kActivationTimedOut);
 }
@@ -450,7 +472,7 @@ ProcessInfoNode::handleProcessStarted(const score::cpp::stop_token& stop_token)
             return handleProcessAlreadyTerminated();
         default:  // Error case when pn == -1
             // really bad fatal error, should not happen, treat as a failure to set the state & kill the process
-            LM_LOG_ERROR() << "Could not add PID to map!";
+            LM_LOG_ERROR() << logId() << "could not add to process map!";
             terminateProcess(stop_token);
             return score::cpp::make_unexpected(ComponentError::kErrorBeforeReady);
     }
@@ -460,37 +482,37 @@ void ProcessInfoNode::handleProcessRunning()
 {
     if (!isReporting())
     {
-        LM_LOG_DEBUG() << "Considered kRunning for Non Reporting Process pid" << pid_ << "(" << identifier_ << ")";
+        LM_LOG_DEBUG() << logId() << "considered kRunning (non-reporting)";
     }
     else
     {
-        LM_LOG_DEBUG() << "Got kRunning for pid" << pid_ << "(" << identifier_ << ")";
+        LM_LOG_DEBUG() << logId() << "got kRunning";
     }
 }
 
 void ProcessInfoNode::terminateProcess(const score::cpp::stop_token& stop_token)
 {
-    LM_LOG_DEBUG() << "terminating process (" << identifier_ << ")";
+    LM_LOG_DEBUG() << logId() << "terminating";
 
     if (setState(score::mw::lifecycle::ProcessState::kTerminating))
     {
         handleTerminationProcess(stop_token);
     }
-    LM_LOG_DEBUG() << "terminateProcess for process (" << identifier_ << ") done";
+    LM_LOG_DEBUG() << logId() << "terminateProcess done";
 }
 
 void ProcessInfoNode::handleTerminationProcess(const score::cpp::stop_token& stop_token)
 {
     static_cast<void>(terminator_.init(0U, false));
     has_semaphore_.store(true);
-    LM_LOG_DEBUG() << "Requesting termination of process pid" << pid_ << "(" << identifier_ << ")";
+    LM_LOG_DEBUG() << logId() << "requesting termination";
 
     // handle request termination
     if ((process_handling_.process_interface_->requestTermination(pid_) == osal::OsalReturnType::kFail) ||
         (terminator_.timedWait(std::chrono::milliseconds(config_.deployment_config.shutdown_timeout_ms)) ==
          osal::OsalReturnType::kSuccess))
     {
-        LM_LOG_DEBUG() << "Queuing jobs after regular termination of process (" << identifier_ << ")";
+        LM_LOG_DEBUG() << logId() << "queuing jobs after regular termination";
     }
     else
     {
@@ -506,12 +528,12 @@ void ProcessInfoNode::handleForcedTermination(const score::cpp::stop_token& stop
 {
     static_cast<void>(stop_token);  // Not yet supported
 
-    LM_LOG_WARN() << "Process (" << identifier_ << ") did not respond to SIGTERM, sending SIGKILL";
+    LM_LOG_WARN() << logId() << "did not respond to SIGTERM, sending SIGKILL";
 
     while ((osal::OsalReturnType::kSuccess == process_handling_.process_interface_->forceTermination(pid_)) &&
            (terminator_.timedWait(score::mw::lifecycle::internal::kMaxSigKillDelay) != osal::OsalReturnType::kSuccess))
     {
-        LM_LOG_FATAL() << "Process (" << identifier_ << ") did not respond to SIGKILL!!";
+        LM_LOG_FATAL() << logId() << "did not respond to SIGKILL!!";
     }
 }
 
@@ -578,3 +600,17 @@ ControlClientChannelP ProcessInfoNode::getControlClientChannel() const
 }
 
 }  // namespace score::mw::lifecycle::internal
+
+#ifdef LC_LOG_SCORE_MW_LOG
+
+namespace score::mw::lifecycle::internal
+{
+
+score::mw::log::LogStream& operator<<(score::mw::log::LogStream& stream, const ProcessLogId& id)
+{
+    return streamProcessLogId(stream, id);
+}
+
+}  // namespace score::mw::lifecycle::internal
+
+#endif  // LC_LOG_SCORE_MW_LOG

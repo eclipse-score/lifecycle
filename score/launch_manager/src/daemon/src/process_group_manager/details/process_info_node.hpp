@@ -25,9 +25,23 @@
 #include <score/stop_token.hpp>
 #include <atomic>
 #include <chrono>
+#include <ostream>
 
 namespace score::mw::lifecycle::internal
 {
+
+/// @brief Lightweight, allocation-free formatter for a process's standardized log identity.
+/// @details Streams as "Name:<name>, PID:<pid>" (score::mw::log::LogStream inserts the
+/// separating whitespace itself). Held by value (both members are trivially copyable) so it
+/// can be passed straight to a log stream without any heap allocation.
+struct ProcessLogId
+{
+    IdentifierHash identifier;
+    osal::ProcessID pid;
+};
+
+/// @brief Streams a ProcessLogId as "Name:<name>, PID:<pid>".
+std::ostream& operator<<(std::ostream& os, const ProcessLogId& id);
 
 /// @brief Represents both a process and a component in the graph.
 /// @details A ProcessInfoNode is a node in the dependency graph that represents an OS process and its associated
@@ -173,6 +187,9 @@ class ProcessInfoNode final : public IComponent
     /// @brief Creates the ControlClientChannel from the process's IPC comms handle.
     void setupControlClientChannel();
 
+    /// @brief Returns a standardized identity for logging, e.g. "Name: my_component, PID: 1234". Allocation-free.
+    [[nodiscard]] ProcessLogId logId() const;
+
     /// @brief semaphore used to check termination with timeout
     osal::Semaphore terminator_{};
 
@@ -221,5 +238,18 @@ class ProcessInfoNode final : public IComponent
 };
 
 }  // namespace score::mw::lifecycle::internal
+
+#ifdef LC_LOG_SCORE_MW_LOG
+#include "score/mw/log/logger.h"
+
+namespace score::mw::lifecycle::internal
+{
+
+/// @brief Streams a ProcessLogId as "Name: <name>, PID: <pid>".
+score::mw::log::LogStream& operator<<(score::mw::log::LogStream& stream, const ProcessLogId& id);
+
+}  // namespace score::mw::lifecycle::internal
+
+#endif  // LC_LOG_SCORE_MW_LOG
 
 #endif
