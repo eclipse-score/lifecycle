@@ -18,6 +18,7 @@
 #include <thread>
 
 #include <score/assert.hpp>
+#include <score/utility.hpp>
 
 #include "score/concurrency/future/interruptible_future.h"
 #include "score/concurrency/future/interruptible_promise.h"
@@ -64,8 +65,7 @@ ControlClientImpl::ControlClientImpl(
     : undefined_state_callback_{undefinedStateCallback},
       control_client_requests_{},
       ipc_request_semaphore_{},
-      ipc_response_thread_(nullptr),
-      ipc_response_thread_running_{true},
+      ipc_response_thread_{},
       ipc_channel_{nullptr}
 {
 
@@ -108,24 +108,26 @@ ControlClientImpl::ControlClientImpl(
     SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
         score::mw::lifecycle::internal::osal::OsalReturnType::kSuccess == init_result,
         "ControlClient semaphore initialization failed");
-    ipc_response_thread_ = std::make_unique<std::thread>(&ControlClientImpl::run, this);
+    ipc_response_thread_ = score::cpp::jthread([this](score::cpp::stop_token stop_token) {
+        run(std::move(stop_token));
+    });
 }
 
 ControlClientImpl::~ControlClientImpl() noexcept
 {
     std::unique_lock<std::mutex> lock(instance_creation_mutex_);
     instance_created_ = false;
-    ipc_response_thread_running_ = false;
 
-    if (ipc_response_thread_->joinable())
+    score::cpp::ignore = ipc_response_thread_.request_stop();
+    if (ipc_response_thread_.joinable())
     {
-        ipc_response_thread_->join();
+        ipc_response_thread_.join();
     }
 
     static_cast<void>(ipc_request_semaphore_.deinit());
 }
 
-void ControlClientImpl::run()
+void ControlClientImpl::run(score::cpp::stop_token stop_token)
 {
     // creating a instance called msg for ControlClientMessage that will handle all the communication between LCM and
     // ControlClientImpl
@@ -198,7 +200,7 @@ void ControlClientImpl::run()
     // in that case, we just return from the function
     if (nullptr != ipc_channel_)
     {
-        while (ipc_response_thread_running_)
+        while (!stop_token.stop_requested())
         {
             if (ipc_channel_->getResponse(msg))
             {

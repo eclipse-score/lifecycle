@@ -13,12 +13,14 @@
 
 #include "score/mw/launch_manager/process_group_manager/details/os_handler.hpp"
 
+#include <thread>
+
 namespace score::mw::lifecycle::internal
 {
 
-void OsHandler::run(void)
+void OsHandler::run(score::cpp::stop_token stop_token)
 {
-    while (is_running_)
+    while (!stop_token.stop_requested())
     {
         int32_t wait_status = 0;
         auto result = sys_wait_.wait(&wait_status);

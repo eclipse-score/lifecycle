@@ -58,6 +58,9 @@ class LifeCycleManager
 
     /**
      * \brief The thread dedicated to signal handling.
+     *
+     * \note std::thread, not score::cpp::jthread used: this thread just blocks in sigwait() (see handle_signal()),
+     * it never polls a stop_token.
      */
     std::thread m_signal_handler_thread; /* NOLINT(score-banned-type) using std::thread by desing */
 
