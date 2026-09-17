@@ -63,13 +63,9 @@ html[data-theme="dark"] {
 .bd-main .bd-content .bd-article-container {
     max-width: 100%;  /* default is 60em */
   }
-/* Whole page size — stretch to the full viewport width on wide screens
-   (default max-width is 88rem), but keep a small left/right gutter so the
-   content doesn't run to the screen edges. */
+/* Whole page size */
 .bd-page-width {
-    max-width: none;
-    padding-left: 2rem;
-    padding-right: 2rem;
+    max-width: 100rem;  /* default is 88rem */
 }
 
 
