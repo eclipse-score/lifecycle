@@ -17,55 +17,36 @@
 #include "score/mw/launch_manager/process_group_manager/irun_target_control.hpp"
 #include "score/mw/lifecycle/details/lm_control_service.h"
 
+#include <memory>
+
 namespace score::mw::lifecycle::internal
 {
 
 /// @brief Provides the mw::com service for state managers to connect to.
-/// @details This cannot be moved, because the mw::com callbacks reference
-//           the ControlProvider at its original location.
 class ControlProvider
 {
   public:
     /// @brief Fallible constructor for ControllableGraph.
-    static Result<ControlProvider*> Create(IRunTargetControl* graph) noexcept;
+    static Result<ControlProvider> Create(IRunTargetControl* graph) noexcept;
 
-    ~ControlProvider() = default;
+    // Movable: the mw::com/graph callbacks registered during `Create` capture a pointer to
+    // `Impl`, not to `ControlProvider` itself, so moving a `ControlProvider` only moves the
+    // `unique_ptr` — `Impl`'s address (the thing the callbacks actually point at) never
+    // changes. Declared out-of-line (not `= default` here) because `Impl` is still an
+    // incomplete type at this point; defined in the .cpp once `Impl` is complete.
+    ControlProvider(ControlProvider&&) noexcept;
+    ControlProvider& operator=(ControlProvider&&) noexcept;
+    ~ControlProvider();
 
-    // Cannot be moved because callbacks capture the ControlProvider by reference.
     ControlProvider(const ControlProvider&) = delete;
-    ControlProvider(ControlProvider&&) = delete;
     ControlProvider& operator=(const ControlProvider&) = delete;
-    ControlProvider operator=(ControlProvider&&) = delete;
 
   private:
-    explicit ControlProvider(LmControlSkeleton skeleton, IRunTargetControl* graph) noexcept;
+    class Impl;
 
-    /// @brief Register the handler for activate_run_target.
-    Result<void> setupActivateRunTarget() noexcept;
+    explicit ControlProvider(std::unique_ptr<Impl> impl) noexcept;
 
-    /// @brief Handle an activate_run_target request.
-    void handleActivateRunTarget(ActivateRunTargetResponse& response, const ActivateRunTargetRequest& request) noexcept;
-
-    /// @brief Register the handler for get_active_run_target.
-    Result<void> setupGetActiveRunTarget() noexcept;
-
-    /// @brief Handle a get_active_run_target request.
-    void handleGetActiveRunTarget(GetActiveRunTargetResponse& response) noexcept;
-
-    /// @brief Register the handler for activation_result.
-    Result<void> setupActivationResult() noexcept;
-
-    /// @brief Handle an activation_result event.
-    void handleActivationResult(IdentifierHash state, RunTargetActivationSource source) noexcept;
-
-    /// @brief Make the service available to clients.
-    Result<void> offerService() noexcept;
-
-    /// @brief The external `mw::com` interface.
-    LmControlSkeleton skeleton_;
-
-    /// @brief The underlying graph implementation.
-    IRunTargetControl* graph_;
+    std::unique_ptr<Impl> impl_;
 };
 
 }  // namespace score::mw::lifecycle::internal
