@@ -28,7 +28,6 @@
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/common/process_group_state_id.hpp"
 #include "score/mw/launch_manager/configuration/config.hpp"
-#include "score/mw/launch_manager/control/icontrollable_graph.hpp"
 #include "score/mw/launch_manager/osal/semaphore.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_event.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_of.hpp"
@@ -39,6 +38,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/run_target.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/transition.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
+#include "score/mw/launch_manager/process_group_manager/irun_target_control.hpp"
 #include "score/mw/lifecycle/details/lm_control_service.h"
 #include <score/stop_token.hpp>
 
@@ -274,7 +274,7 @@ class Graph final
     std::chrono::milliseconds getOffStateTransitionTimeout() const;
 
     /// @brief Register a callback to be fired when the active run target changes.
-    void registerActiveRunTargetCallback(std::function<void(IdentifierHash, RunTargetActivationSource)> callback);
+    void registerActiveRunTargetCallback(ActivationCallbackT callback);
 
   private:
     /// @brief Reports that a node has finished executing, enqueuing successors or updating the graph state if a
@@ -364,7 +364,7 @@ class Graph final
     /// @brief Transition timeout for Off state
     std::chrono::milliseconds off_state_transition_timeout_{0};
 
-    std::optional<std::function<void(IdentifierHash, RunTargetActivationSource)>> active_run_target_callback_;
+    std::optional<ActivationCallbackT> active_run_target_callback_;
 };
 
 }  // namespace score::mw::lifecycle::internal

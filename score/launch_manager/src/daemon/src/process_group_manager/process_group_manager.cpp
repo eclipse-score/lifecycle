@@ -533,8 +533,7 @@ Result<void> ProcessGroupManager::setRequestedRunTarget(IdentifierHash run_targe
     return get_result.value();
 }
 
-void ProcessGroupManager::registerActiveRunTargetCallback(
-    std::function<void(IdentifierHash, RunTargetActivationSource)> callback)
+void ProcessGroupManager::registerActiveRunTargetCallback(ActivationCallbackT callback)
 {
     graph_->registerActiveRunTargetCallback(callback);
 }

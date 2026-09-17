@@ -24,7 +24,6 @@
 #include "score/mw/launch_manager/common/constants.hpp"
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/configuration/config.hpp"
-#include "score/mw/launch_manager/control/icontrollable_graph.hpp"
 #include "score/mw/launch_manager/osal/wait_for_file.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_event.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_event_queue.hpp"
@@ -35,6 +34,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/process_monitor.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
+#include "score/mw/launch_manager/process_group_manager/irun_target_control.hpp"
 #include "score/mw/launch_manager/recovery_client/recovery_client.hpp"
 #include "score/mw/launch_manager/watchdog/IWatchdogIf.hpp"
 #include "score/mw/lifecycle/details/lm_control_service.h"
@@ -55,7 +55,7 @@ namespace score::mw::lifecycle::internal
 ///     configured by integrator. Interaction with OSAL to start and stop processes. Interaction with OSAL to discover
 ///     when processes terminated in an unexpected way. Fulfilling PG State transitions requests from SM, as well as
 ///     informing SM about unexpected problems (for example process crashes).
-class ProcessGroupManager final : public IControllableGraph
+class ProcessGroupManager final : public IRunTargetControl
 {
     using WorkerQueue =
         MPMCConcurrentQueue<std::optional<ComponentTask>, static_cast<std::size_t>(ProcessLimits::kMaxProcesses)>;
@@ -114,8 +114,7 @@ class ProcessGroupManager final : public IControllableGraph
 
     [[nodiscard]] score::Result<void> setRequestedRunTarget(IdentifierHash run_target) override;
 
-    void registerActiveRunTargetCallback(
-        std::function<void(IdentifierHash, RunTargetActivationSource)> callback) override;
+    void registerActiveRunTargetCallback(ActivationCallbackT callback) override;
 
     const IdentifierHash recovery_state_{"fallback"};
 

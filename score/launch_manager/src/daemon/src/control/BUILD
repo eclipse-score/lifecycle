@@ -20,21 +20,9 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/daemon/src/control",
     visibility = ["//score/launch_manager/src/daemon:__pkg__"],
     deps = [
-        ":icontrollable_graph",
         "//score/launch_manager/src/daemon/src/common:log",
         "//score/launch_manager/src/daemon/src/osal:ipc_comms",
+        "//score/launch_manager/src/daemon/src/process_group_manager:irun_target_control",
         "//score/launch_manager/src/lm_control",
-    ],
-)
-
-cc_library(
-    name = "icontrollable_graph",
-    hdrs = ["icontrollable_graph.hpp"],
-    include_prefix = "score/mw/launch_manager/control",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/control",
-    visibility = ["//score/launch_manager/src/daemon/src:__subpackages__"],
-    deps = [
-        "//score/launch_manager/src/daemon/src/common:identifier_hash",
-        "@score_baselibs//score/result",
     ],
 )

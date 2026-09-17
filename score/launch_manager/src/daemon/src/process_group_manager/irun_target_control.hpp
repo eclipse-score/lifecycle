@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#ifndef SCORE_LCM_ICONTROLLABLE_GRAPH
-#define SCORE_LCM_ICONTROLLABLE_GRAPH
+#ifndef SCORE_LCM_IRUN_TARGET_CONTROL
+#define SCORE_LCM_IRUN_TARGET_CONTROL
 
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/lifecycle/run_target_activation_source.hpp"
@@ -21,7 +21,9 @@
 namespace score::mw::lifecycle::internal
 {
 
-class IControllableGraph
+using ActivationCallbackT = std::function<void(IdentifierHash, RunTargetActivationSource)>;
+
+class IRunTargetControl
 {
   public:
     /// @brief Get the active run target, or an error if we are currently
@@ -32,10 +34,9 @@ class IControllableGraph
     [[nodiscard]] virtual score::Result<void> setRequestedRunTarget(IdentifierHash run_target) = 0;
 
     /// @brief Register a callback to be fired when the active run target changes.
-    virtual void registerActiveRunTargetCallback(
-        std::function<void(IdentifierHash, RunTargetActivationSource)> callback) = 0;
+    virtual void registerActiveRunTargetCallback(ActivationCallbackT callback) = 0;
 };
 
 }  // namespace score::mw::lifecycle::internal
 
-#endif  // SCORE_LCM_ICONTROLLABLE_GRAPH
+#endif  // SCORE_LCM_IRUN_TARGET_CONTROL

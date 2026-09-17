@@ -14,7 +14,7 @@
 #ifndef SCORE_LCM_CONTROL_PROVIDER
 #define SCORE_LCM_CONTROL_PROVIDER
 
-#include "score/mw/launch_manager/control/icontrollable_graph.hpp"
+#include "score/mw/launch_manager/process_group_manager/irun_target_control.hpp"
 #include "score/mw/lifecycle/details/lm_control_service.h"
 
 namespace score::mw::lifecycle::internal
@@ -27,7 +27,7 @@ class ControlProvider
 {
   public:
     /// @brief Fallible constructor for ControllableGraph.
-    static Result<ControlProvider*> Create(IControllableGraph* graph);
+    static Result<ControlProvider*> Create(IRunTargetControl* graph);
 
     ~ControlProvider() = default;
 
@@ -38,7 +38,7 @@ class ControlProvider
     ControlProvider operator=(ControlProvider&&) = delete;
 
   private:
-    explicit ControlProvider(LmControlSkeleton skeleton, IControllableGraph* graph);
+    explicit ControlProvider(LmControlSkeleton skeleton, IRunTargetControl* graph);
 
     /// @brief Register the handler for activate_run_target.
     Result<void> setupActivateRunTarget();
@@ -65,7 +65,7 @@ class ControlProvider
     LmControlSkeleton skeleton_;
 
     /// @brief The underlying graph implementation.
-    IControllableGraph* graph_;
+    IRunTargetControl* graph_;
 };
 
 }  // namespace score::mw::lifecycle::internal

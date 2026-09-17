@@ -18,7 +18,7 @@
 namespace score::mw::lifecycle::internal
 {
 
-Result<ControlProvider*> ControlProvider::Create(IControllableGraph* graph)
+Result<ControlProvider*> ControlProvider::Create(IRunTargetControl* graph)
 {
     const Result<com::InstanceSpecifier> instance_specifier_result =
         com::InstanceSpecifier::Create(std::string{"LaunchManager/StateManager/Instance"});
@@ -65,7 +65,7 @@ Result<ControlProvider*> ControlProvider::Create(IControllableGraph* graph)
     return control_provider;
 }
 
-ControlProvider::ControlProvider(LmControlSkeleton skeleton, IControllableGraph* graph)
+ControlProvider::ControlProvider(LmControlSkeleton skeleton, IRunTargetControl* graph)
     : skeleton_(std::move(skeleton)), graph_(graph)
 {
 }

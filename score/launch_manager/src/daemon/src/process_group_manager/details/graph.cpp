@@ -542,7 +542,7 @@ std::chrono::milliseconds Graph::getOffStateTransitionTimeout() const
     return off_state_transition_timeout_;
 }
 
-void Graph::registerActiveRunTargetCallback(std::function<void(IdentifierHash, RunTargetActivationSource)> callback)
+void Graph::registerActiveRunTargetCallback(ActivationCallbackT callback)
 {
     active_run_target_callback_ = callback;
 }
