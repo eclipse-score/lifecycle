@@ -45,7 +45,7 @@ TEST_F(SupervisionControlClient_UT, SupervisionControlClient_QueueOneEvent_Succe
         "Description",
         "This test verifies that a single SupervisionEvent can be successfully queued using the "
         "SupervisionControlNotifier and retrieved using the SupervisionControlReceiver.");
-    SupervisionEvent event1{.id = process_, .eventType = SupervisionEventType::kActivation, .systemClockTimestamp = {}};
+    SupervisionEvent event1{process_, SupervisionEventType::kActivation, {}};
 
     clock_gettime(CLOCK_MONOTONIC, &event1.systemClockTimestamp);
 
@@ -71,7 +71,7 @@ TEST_F(SupervisionControlClient_UT, SupervisionControlClient_QueueMaxNumberOfEve
         "SupervisionEvent "
         "instances defined by the buffer size, and that they can be retrieved using the SupervisionControlReceiver.");
 
-    SupervisionEvent event{.id = process_, .eventType = SupervisionEventType::kActivation, .systemClockTimestamp = {}};
+    SupervisionEvent event{process_, SupervisionEventType::kActivation, {}};
 
     for (size_t i = 0; i < static_cast<size_t>(BufferConstants::BUFFER_QUEUE_SIZE); ++i)
     {
@@ -97,7 +97,7 @@ TEST_F(SupervisionControlClient_UT, SupervisionControlClient_QueueOneEventTooMan
         "Description",
         "This test verifies that attempting to queue a SupervisionEvent when the buffer is already at maximum capacity "
         "results in a failure, and that no additional events can be retrieved from the receiver.");
-    SupervisionEvent event{.id = process_, .eventType = SupervisionEventType::kActivation, .systemClockTimestamp = {}};
+    SupervisionEvent event{process_, SupervisionEventType::kActivation, {}};
 
     for (size_t i = 0; i < static_cast<size_t>(BufferConstants::BUFFER_QUEUE_SIZE); ++i)
     {

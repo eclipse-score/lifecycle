@@ -75,10 +75,7 @@ void setLimit(const int resource, const std::size_t amount, const std::string_vi
         return;
     }
 
-    const struct rlimit limit{
-        .rlim_cur = amount,
-        .rlim_max = amount,
-    };
+    const struct rlimit limit{amount, amount};
 
     applyLimitOrDie(resource, limit, rlimit_name);
 }

@@ -34,12 +34,7 @@ This section provides an overview of the measurement units used within the confi
 Time Intervals
 --------------
 
-All time values in the **Launch Manager** configuration are specified in **seconds**. When a fraction of a second is required, a **decimal point** must be used.
-
-For example:
-
-* ``0.5`` represents a time interval of 500 milliseconds.
-* ``1.5`` represents a time interval of 1500 milliseconds.
+All time values in the **Launch Manager** configuration are specified in **milliseconds**.
 
 Using a consistent unit prevents ambiguity and makes the configuration values easier to compare and understand.
 
