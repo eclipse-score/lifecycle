@@ -384,6 +384,26 @@ cc_library(
     ],
 )
 
+lm_cc_test(
+    name = "process_launcher_UT",
+    srcs = ["process_launcher_UT.cpp"],
+    linkopts = [
+        "-Wl,--wrap=fork",
+        "-Wl,--wrap=execve",
+        "-Wl,--wrap=kill",
+        "-Wl,--wrap=wait",
+        "-Wl,--wrap=access",
+        "-Wl,--wrap=shm_open",
+        "-Wl,--wrap=ftruncate",
+        "-Wl,--wrap=shm_unlink",
+    ],
+    linkstatic = True,
+    deps = [
+        ":process_launcher",
+        "@googletest//:gtest_main",
+    ],
+)
+
 cc_library(
     name = "dependency_graph",
     hdrs = [
