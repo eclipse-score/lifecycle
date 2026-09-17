@@ -18,6 +18,7 @@
 #include <cstring>
 #include <iostream>
 #include <memory>
+#include <optional>
 
 #include "score/mw/launch_manager/alive_monitor/details/daemon/AliveMonitorImpl.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
@@ -175,16 +176,24 @@ int run(int argc, const char* argv[])
             std::move(watchdog),
             config_result.value().takeWatchdog());
 
+        // Declared here, outside the `if` block below, and deliberately not destroyed until
+        // after `deinitialize()` returns: `deinitialize()`'s own comment notes that a worker may
+        // still be (de)activating a node when it runs, and drains those in flight before
+        // resetting `graph_`. A drain that completes a transition calls
+        // Graph::finalizeTransitionSuccess(), which invokes the very callback `ControlProvider`
+        // registered via `registerActiveRunTargetCallback`. If `ControlProvider` were destroyed
+        // before that drain finishes -- as it would be if scoped only to the `if` block below --
+        // that callback would fire through a dangling pointer.
+        std::optional<score::Result<ControlProvider>> control_provider_result;
+
         if (process_group_manager->initialize())
         {
-            // Remains active in the background until the ControlProvider is destroyed.
-            const score::Result<ControlProvider*> control_provider_result =
-                ControlProvider::Create(process_group_manager.get());
+            control_provider_result = ControlProvider::Create(process_group_manager.get());
 
-            if (!control_provider_result.has_value())
+            if (!control_provider_result->has_value())
             {
                 LM_LOG_FATAL() << "Failed to set up LmControl service provider:"
-                               << control_provider_result.error().Message();
+                               << control_provider_result->error().Message();
                 exit_code = EXIT_FAILURE;
             }
             else if (runLCMDaemon(*process_group_manager))
@@ -198,6 +207,9 @@ int run(int argc, const char* argv[])
             process_group_manager->deinitialize();
             process_group_manager.reset();
         }
+
+        // Safe to let `control_provider_result` go out of scope now: `deinitialize()` above has
+        // already joined every worker and reset `graph_`, so no further callback can arrive.
     }
     catch (...)
     {
