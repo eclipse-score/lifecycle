@@ -25,10 +25,16 @@ The following ready conditions are supported:
 
 .. _lm_ready_condition_running:
 
-Running
-=======
+Process Running
+===============
 
-**Configuration value:** ``"Running"``
+**Configuration:**
+
+.. code-block:: json
+
+   {
+      "process_state":"Running"
+   }
 
 The component is considered ready as soon as its process has reported
 ``kRunning`` to the **Launch Manager** via the lifecycle API. The process is
@@ -39,10 +45,16 @@ initialization is complete.
 
 .. _lm_ready_condition_terminated:
 
-Terminated
-==========
+Process Terminated
+==================
 
-**Configuration value:** ``"Terminated"``
+**Configuration:**
+
+.. code-block:: json
+
+   {
+      "process_state":"Terminated"
+   }
 
 The component is considered ready once its process has reported ``kRunning``
 via the lifecycle API **and** subsequently terminated with a successful exit
@@ -52,3 +64,37 @@ failure, not as reaching the Ready State.
 
 Use this condition for one-shot tasks (e.g. mounting a filesystem, applying
 configuration) that signal completion by exiting cleanly.
+
+
+.. _lm_ready_condition_filestate:
+
+File State
+==========
+
+**Configuration:**
+
+.. code-block:: json
+
+   {
+      "file_state": {
+         "state": "Exists",
+         "polling_interval": 0.01,
+         "file_path": "/var/run/b/ready"
+      }
+   }
+
+.. code-block:: json
+
+   {
+      "file_state": {
+         "state": "NotExisting",
+         "polling_interval": 0.01,
+         "file_path": "/var/run/c/startup.lock"
+      }
+   }
+
+The component is considered ready once the file specified in ``file_path``
+reaches the desired state (``Exists`` or ``NotExisting``).
+
+The Launch Manager polls for the existence or deletion of the file with the
+configured ``polling_interval``.
