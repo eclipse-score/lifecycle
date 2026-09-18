@@ -296,7 +296,7 @@ Conditional Launching
     :term:`dependencies <Dependency (between components)>` have successfully reached their :term:`Ready State`.
 
 .. comp_req:: Configuration of run target activation timeout
-    :id: comp_req__launch_man__conf_rt_active_timeout
+    :id: comp_req__launch_man__conf_rt_active_tout
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -309,7 +309,7 @@ Conditional Launching
     an activation of a run target can take.
 
 .. comp_req:: Run target activation timeout
-    :id: comp_req__launch_man__rt_activate_timeout
+    :id: comp_req__launch_man__rt_activate_tout
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -320,6 +320,34 @@ Conditional Launching
 
     If the activation of a run target exceeds the maximum configured time, then
     the :term:`Launch Manager` shall consider this activation as failed.
+
+.. comp_req:: Configuration of component activation timeout
+    :id: comp_req__launch_man__conf_comp_active_tout
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:Launch Manager shall support configuring a timeout value that
+    defines the maximum time allowed for a component to reach its
+    :term:`Ready State`.
+
+.. comp_req:: Component activation timeout
+    :id: comp_req__launch_man__comp_activate_tout
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    If a component does not reach its :term:`Ready State` within the configured
+    timeout, the :term:`Launch Manager` shall consider the component activation
+    attempt as failed.
 
 .. comp_req:: Launched Process status
     :id: comp_req__launch_man__launcher_status_storage

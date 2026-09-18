@@ -95,6 +95,7 @@ struct Sandbox
 
 struct DeploymentConfig
 {
+    // req-Id: comp_req__launch_man__conf_comp_active_tout
     uint32_t ready_timeout_ms{};
     uint32_t shutdown_timeout_ms{};
     Environment environmental_variables;
