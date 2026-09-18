@@ -67,7 +67,7 @@
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
     "PartiallyVerifies": null,
-    "FullyVerifies": "feat_req__lifecycle__request_run_target_start, feat_req__lifecycle__switch_run_targets, comp_req__launch_man__process_state_comm, feat_req__lifecycle__process_termination, feat_req__lifecycle__terminationn_dependency, feat_req__lifecycle__process_ordering, comp_req__launch_man__launch_manager_shutdown"
+    "FullyVerifies": "feat_req__lifecycle__conditional_startup, feat_req__lifecycle__control_commands, feat_req__lifecycle__process_ordering, feat_req__lifecycle__process_termination, feat_req__lifecycle__request_run_target_start, feat_req__lifecycle__run_target_support, feat_req__lifecycle__switch_run_targets, feat_req__lifecycle__terminationn_dependency, comp_req__launch_man__launch_manager_shutdown, comp_req__launch_man__process_state_comm"
   },
   {
     "name": "test_rt_running_when_process_exits",
@@ -95,7 +95,7 @@
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
     "PartiallyVerifies": "feat_req__lifecycle__recovery_action_support",
-    "FullyVerifies": "comp_req__launch_man__failure_detect, comp_req__launch_man__retries_configurable, feat_req__lifecycle__recov_run_target_switch"
+    "FullyVerifies": "comp_req__launch_man__failure_detect, comp_req__launch_man__retries_configurable, feat_req__lifecycle__recov_run_target_switch, feat_req__lifecycle__liveliness_detection"
   },
   {
     "name": "test_sandbox_options",
@@ -136,8 +136,8 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "feat_req__lifecycle__recov_run_target_switch, feat_req__lifecycle__recovery_action_support",
-    "FullyVerifies": "comp_req__launch_man__failure_detect"
+    "PartiallyVerifies": null,
+    "FullyVerifies": "feat_req__lifecycle__recov_run_target_switch, feat_req__lifecycle__recovery_action_support, feat_req__lifecycle__liveliness_detection, comp_req__launch_man__failure_detect"
   },
   {
     "name": "test_shutdown_signal",
