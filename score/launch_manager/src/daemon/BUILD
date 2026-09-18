@@ -16,7 +16,12 @@ cc_binary(
     name = "launch_manager",
     srcs = ["src/main.cpp"],
     linkopts = select({
-        "@platforms//os:linux": ["-lpthread"],
+        # glibc v2.34 integrated libpthread, libdl, libutil, libanl and librt into libc.
+        # However we keep these links to the old libraries for compatibility with older glibc versions.
+        "@platforms//os:linux": [
+            "-lpthread",
+            "-lrt",
+        ],
         "//conditions:default": [],
     }),
     visibility = ["//score/launch_manager:__subpackages__"],
