@@ -12,14 +12,13 @@
 # *******************************************************************************
 load("@rules_cc//cc:defs.bzl", "cc_binary")
 
-cc_binary(
-    name = "launch_manager",
-    srcs = ["src/main.cpp"],
-    linkopts = select({
-        "@platforms//os:linux": ["-lpthread"],
-        "//conditions:default": [],
-    }),
-    visibility = ["//score/launch_manager:__subpackages__"],
+cc_library(
+    name = "run",
+    srcs = ["src/run.cpp"],
+    hdrs = ["src/run.hpp"],
+    include_prefix = "score/mw/launch_manager",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/",
+    visibility = ["//score/launch_manager/src/daemon:__pkg__"],
     deps = [
         "//score/launch_manager/src/daemon/src/alive_monitor",
         "//score/launch_manager/src/daemon/src/common:assertion_handler",
@@ -31,5 +30,18 @@ cc_binary(
         "//score/launch_manager/src/daemon/src/recovery_client",
         "//score/launch_manager/src/daemon/src/watchdog:watchdog_factory",
         "@score_baselibs//score/language/futurecpp",
+    ],
+)
+
+cc_binary(
+    name = "launch_manager",
+    srcs = ["src/main.cpp"],
+    linkopts = select({
+        "@platforms//os:linux": ["-lpthread"],
+        "//conditions:default": [],
+    }),
+    visibility = ["//score/launch_manager:__subpackages__"],
+    deps = [
+        "//score/launch_manager/src/daemon:run",
     ],
 )
