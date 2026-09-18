@@ -15,9 +15,9 @@
 
 # ============================================================================
 # LLVM source-based coverage (Linux, Clang + Ferrocene) — unified Rust + C++.
-# Canonical consumer snippet from score_tooling//coverage. Run with:
+# Canonical consumer snippet from score_coverage. Run with:
 #   bazel coverage --config=llvm_cov //score/... --build_tests_only
-#   bazel run @score_tooling//coverage:generate_coverage_html
+#   bazel run @score_coverage//:generate_coverage_html
 # ============================================================================
 coverage:llvm_cov --nocache_test_results
 coverage:llvm_cov --cxxopt=-O0
@@ -52,10 +52,10 @@ coverage:llvm_cov --copt=-Wno-error
 coverage:llvm_cov --features=-treat_warnings_as_errors
 coverage:llvm_cov --host_features=-treat_warnings_as_errors
 
-# The merger lives in score_tooling (no consumer-specific wiring needed); the
+# The merger lives in score_coverage (no consumer-specific wiring needed); the
 # reporter_wrapper is instantiated in //quality/coverage because it carries the
 # coverage scope and LLVM tool labels.
-coverage:llvm_cov --coverage_output_generator=@score_tooling//coverage:merger
+coverage:llvm_cov --coverage_output_generator=@score_coverage//:merger
 coverage:llvm_cov --coverage_report_generator=//quality/coverage:reporter_wrapper
 
 # Keep raw profraw files instead of converting to LCOV; the merger handles
