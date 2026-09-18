@@ -168,15 +168,15 @@ deb = use_repo_rule("@download_utils//download/deb:defs.bzl", "download_deb")
 deb(
     name = "acl-deb",
     build = "//externals/acl:acl.BUILD",
+    integrity = "sha256-KnA/bzvcYynaDSMuzZrrro9OzQZxIS11nWDehotot2k=",
     urls = ["https://archive.ubuntu.com/ubuntu/pool/main/a/acl/libacl1-dev_2.2.52-3build1_amd64.deb"],
-    visibility = ["//visibility:public"],
 )
 
 deb(
     name = "acl-deb-aarch64",
     build = "//externals/acl:acl.BUILD",
+    integrity = "sha256-FLXaPIOleZmu7p9IFZ+W6/9QCP0XjM5yWNuN3qcqOBQ=",
     urls = ["https://launchpadlibrarian.net/581258948/libacl1-dev_2.3.1-1_arm64.deb"],
-    visibility = ["//visibility:public"],
 )
 
 PYTHON_VERSION = "3.12"
