@@ -15,6 +15,8 @@
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
 
+#include <memory>
+
 namespace score::mw::lifecycle::internal
 {
 
@@ -36,33 +38,35 @@ Result<ControlProvider*> ControlProvider::Create(IRunTargetControl* graph) noexc
     }
     LmControlSkeleton skeleton = std::move(skeleton_result).value();
 
-    auto* control_provider = new ControlProvider{std::move(skeleton), graph};
+    // Freed automatically via `guard` on any of the failure paths below; released to the
+    // caller only once every setup step below has succeeded.
+    std::unique_ptr<ControlProvider> guard{new ControlProvider{std::move(skeleton), graph}};
 
-    const Result<void> setup_activate_run_target_result = control_provider->setupActivateRunTarget();
+    const Result<void> setup_activate_run_target_result = guard->setupActivateRunTarget();
     if (!setup_activate_run_target_result.has_value())
     {
         return MakeUnexpected(static_cast<ExecErrc>(*setup_activate_run_target_result.error()));
     }
 
-    const Result<void> setup_get_active_run_target_result = control_provider->setupGetActiveRunTarget();
+    const Result<void> setup_get_active_run_target_result = guard->setupGetActiveRunTarget();
     if (!setup_get_active_run_target_result.has_value())
     {
         return MakeUnexpected(static_cast<ExecErrc>(*setup_get_active_run_target_result.error()));
     }
 
-    const Result<void> setup_activation_result_result = control_provider->setupActivationResult();
+    const Result<void> setup_activation_result_result = guard->setupActivationResult();
     if (!setup_activation_result_result.has_value())
     {
         return MakeUnexpected(static_cast<ExecErrc>(*setup_activation_result_result.error()));
     }
 
-    const Result<void> offer_service_result = control_provider->offerService();
+    const Result<void> offer_service_result = guard->offerService();
     if (!offer_service_result.has_value())
     {
         return MakeUnexpected(static_cast<ExecErrc>(*offer_service_result.error()));
     }
 
-    return control_provider;
+    return guard.release();
 }
 
 ControlProvider::ControlProvider(LmControlSkeleton skeleton, IRunTargetControl* graph) noexcept
