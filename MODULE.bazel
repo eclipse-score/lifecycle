@@ -34,6 +34,9 @@ bazel_dep(name = "google_benchmark", version = "1.9.5", dev_dependency = True)
 
 bazel_dep(name = "score_docs_as_code", version = "8.1.2")
 bazel_dep(name = "score_tooling", version = "2.2.1")
+
+bazel_dep(name = "score_coverage", version = "0.2.0", dev_dependency = True)
+
 bazel_dep(name = "score_process_description", version = "2.1.2")
 bazel_dep(name = "score_platform", version = "0.7.2")
 
@@ -113,7 +116,7 @@ llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm", 
 llvm.toolchain(
     cxx_standard = {"": "c++17"},
     extra_known_features = [
-        "@score_tooling//coverage:enable_llvm_coverage_for_death_tests",
+        "@score_coverage//:enable_llvm_coverage_for_death_tests",
     ],
     llvm_version = "22.1.7",
     stdlib = {"": "stdc++"},
