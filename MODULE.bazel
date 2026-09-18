@@ -155,13 +155,7 @@ use_repo(imagefs, "score_qnx_aarch64_ifs_toolchain", "score_qnx_x86_64_ifs_toolc
 ## Rust Toolchain
 bazel_dep(name = "score_toolchains_rust", version = "0.10.0", dev_dependency = True)
 
-# S-CORE crates
-bazel_dep(name = "score_crates", version = "0.0.10")
-git_override(
-    module_name = "score_crates",
-    commit = "4656dda8f04a3d88c8089f63111195840cfbd9e3",
-    remote = "https://github.com/eclipse-score/score-crates.git",
-)
+bazel_dep(name = "score_crates", version = "0.0.12")
 
 deb = use_repo_rule("@download_utils//download/deb:defs.bzl", "download_deb")
 
