@@ -33,6 +33,7 @@ being a non-profit and open source organization, can not take over any liability
    :maxdepth: 1
    :caption: Content
 
+   release_note_v_0_7_0
    release_note_v_0_6_1
    release_note_v_0_6_0
    release_note_v_0_5_0

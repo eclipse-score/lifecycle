@@ -38,8 +38,8 @@ def gen_lifecycle_config(
         "defaults": {
             "deployment_config": {
                 "bin_dir": "/opt",
-                "ready_timeout": 2.0,
-                "shutdown_timeout": 2.0,
+                "ready_timeout_ms": 2000,
+                "shutdown_timeout_ms": 2000,
                 "ready_recovery_action": {"restart": {"number_of_attempts": 0}},
                 "recovery_action": {"switch_run_target": {"run_target": "Startup"}},
                 "environmental_variables": {"LD_LIBRARY_PATH": "/opt/lib"},
@@ -55,7 +55,7 @@ def gen_lifecycle_config(
                     "application_type": "Reporting",
                     "is_self_terminating": False,
                     "alive_supervision": {
-                        "reporting_cycle": 0.1,
+                        "reporting_cycle_ms": 100,
                         "min_indications": 1,
                         "max_indications": 3,
                         "failed_cycles_tolerance": 1,
@@ -67,7 +67,7 @@ def gen_lifecycle_config(
         "components": {},
         "run_targets": {},
         "initial_run_target": "Startup",
-        "alive_supervision": {"evaluation_cycle": 0.05},
+        "alive_supervision": {"evaluation_cycle_ms": 50},
     }
 
     running_deps = []
@@ -77,15 +77,15 @@ def gen_lifecycle_config(
         "component_properties": {
             "binary_name": "control_app/control_daemon",
             "application_profile": {
-                "application_type": "State_Manager",
+                "application_type": "Reporting_And_Supervised",
                 "alive_supervision": {
                     "min_indications": 0,
                 },
             },
         },
         "deployment_config": {
-            "ready_timeout": 1.0,
-            "shutdown_timeout": 1.0,
+            "ready_timeout_ms": 1000,
+            "shutdown_timeout_ms": 1000,
             "environmental_variables": {"PROCESSIDENTIFIER": "control_daemon"},
         },
     }

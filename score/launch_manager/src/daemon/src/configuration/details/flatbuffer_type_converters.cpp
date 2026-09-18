@@ -37,7 +37,7 @@ score::cpp::expected<T, IConfigLoader::Error> requireScalarValue(
 {
     if (!field.has_value())
     {
-        LM_LOG_ERROR() << field_name << " is required but missing";
+        LM_LOG_ERROR() << field_name << "is required but missing";
         return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
     }
     return *field;
@@ -60,7 +60,8 @@ ApplicationType convertApplicationType(fb::ApplicationType fb_type)
         case fb::ApplicationType::Reporting_And_Supervised:
             return ApplicationType::ReportingAndSupervised;
         case fb::ApplicationType::State_Manager:
-            return ApplicationType::StateManager;
+            // These are now equivalent as access control is done via mw::com
+            return ApplicationType::ReportingAndSupervised;
         case fb::ApplicationType::Native:
         default:
             return ApplicationType::Native;
@@ -102,7 +103,7 @@ score::cpp::expected<int32_t, IConfigLoader::Error> convertSchedulingPolicy(fb::
         case fb::SchedulingPolicy::RR:
             return SCHED_RR;
         default:
-            LM_LOG_ERROR() << "Unsupported scheduling policy: " << static_cast<int>(policy);
+            LM_LOG_ERROR() << "Unsupported scheduling policy:" << static_cast<int>(policy);
             return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
     }
 }

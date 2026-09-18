@@ -3,8 +3,8 @@
     "defaults": {
         "deployment_config": {
             "bin_dir": "/tmp/tests/ready_condition_file_not_exists",
-            "ready_timeout": 0.1,
-            "shutdown_timeout": 1.0,
+            "ready_timeout_ms": 100,
+            "shutdown_timeout_ms": 1000,
             "ready_recovery_action": {
                 "restart": {
                     "number_of_attempts": 0
@@ -45,7 +45,10 @@
             "component_properties": {
                 "binary_name": "file_modifier",
                 "process_arguments": [
-                    "delete", "/tmp/tests/ready_condition_file_not_exists/vanishing_file", "0", "native"
+                    "delete",
+                    "/tmp/tests/ready_condition_file_not_exists/vanishing_file",
+                    "0",
+                    "native"
                 ],
                 "application_profile": {
                     "application_type": "Native"
@@ -54,7 +57,7 @@
                     "file_state": {
                         "file_path": "/tmp/tests/ready_condition_file_not_exists/vanishing_file",
                         "state": "NotExisting",
-                        "polling_interval": 0.1
+                        "polling_interval_ms": 100
                     }
                 }
             }
@@ -63,7 +66,10 @@
             "component_properties": {
                 "binary_name": "file_modifier",
                 "process_arguments": [
-                    "delete", "/tmp/tests/ready_condition_file_not_exists/vanishing_file_report", "0", "report"
+                    "delete",
+                    "/tmp/tests/ready_condition_file_not_exists/vanishing_file_report",
+                    "0",
+                    "report"
                 ],
                 "application_profile": {
                     "application_type": "Reporting"
@@ -72,7 +78,7 @@
                     "file_state": {
                         "file_path": "/tmp/tests/ready_condition_file_not_exists/vanishing_file_report",
                         "state": "NotExisting",
-                        "polling_interval": 0.1
+                        "polling_interval_ms": 100
                     }
                 }
             }
@@ -81,13 +87,16 @@
             "component_properties": {
                 "binary_name": "file_modifier",
                 "process_arguments": [
-                    "delete", "/tmp/tests/ready_condition_file_not_exists/vanishing_file_2", "500", "native"
+                    "delete",
+                    "/tmp/tests/ready_condition_file_not_exists/vanishing_file_2",
+                    "500",
+                    "native"
                 ],
                 "ready_condition": {
                     "file_state": {
                         "file_path": "/tmp/tests/ready_condition_file_not_exists/vanishing_file_2",
                         "state": "NotExisting",
-                        "polling_interval": 0.1
+                        "polling_interval_ms": 100
                     }
                 }
             }
@@ -125,11 +134,16 @@
                     "run_target": "fallback_run_target"
                 }
             }
+        },
+        "fallback": {
+            "depends_on": [
+                "control_client_test_driver"
+            ]
         }
     },
     "initial_run_target": "Startup",
     "alive_supervision": {
-        "evaluation_cycle": 0.05
+        "evaluation_cycle_ms": 50
     },
     "fallback_run_target": {
         "depends_on": []

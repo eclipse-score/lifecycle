@@ -75,7 +75,7 @@ bool WatchdogImpl::init(
         if (!configureDevice(config, cycle_time_ns))
         {
             LM_LOG_ERROR() << "Watchdog: Error when configuring watchdog device" << config.fileName
-                           << " - Watchdog initialization failed.";
+                           << "- Watchdog initialization failed.";
             isSuccess = false;
         }
     }

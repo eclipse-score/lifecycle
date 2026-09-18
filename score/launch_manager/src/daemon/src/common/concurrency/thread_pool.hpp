@@ -101,7 +101,7 @@ class ThreadPool final
                 {
                     break;
                 }
-                LM_LOG_ERROR() << "Got an error getting a job: " << job.error();
+                LM_LOG_ERROR() << "Got an error getting a job:" << job.error();
                 continue;
             }
             component_controller_.doWork(std::move(**job));

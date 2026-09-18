@@ -51,8 +51,8 @@ score::cpp::expected<TargetT, IConfigLoader::Error> validateRange(int64_t value,
     if (value < static_cast<int64_t>(std::numeric_limits<TargetT>::min()) ||
         value > static_cast<int64_t>(std::numeric_limits<TargetT>::max()))
     {
-        LM_LOG_ERROR() << field_name << " " << value << " is out of valid range ["
-                       << std::numeric_limits<TargetT>::min() << "," << std::numeric_limits<TargetT>::max() << "]";
+        LM_LOG_ERROR() << field_name << value << "is out of valid range [" << std::numeric_limits<TargetT>::min() << ","
+                       << std::numeric_limits<TargetT>::max() << "]";
         return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
     }
     return static_cast<TargetT>(value);

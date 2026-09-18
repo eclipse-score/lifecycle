@@ -34,25 +34,26 @@
               "type": "object",
               "description": "Defines the configuration parameters used for alive monitoring of the component.",
               "properties": {
-                "reporting_cycle": {
-                  "type": "number",
+                "reporting_cycle_ms": {
+                  "type": "integer",
                   "exclusiveMinimum": 0,
-                  "description": "Specifies the duration, in seconds (e.g., '0.5' for 500 milliseconds), of the time interval used to verify that the component sends alive notifications within the expected time frame."
+                  "maximum": 4294967295,
+                  "description": "Specifies the duration, in milliseconds, of the time interval used to verify that the component sends alive notifications within the expected time frame."
                 },
                 "failed_cycles_tolerance": {
                   "type": "integer",
                   "minimum": 0,
-                  "description": "Specifies the maximum number of consecutive reporting cycle failures (see 'reporting_cycle'). Once the number of failed cycles exceeds this maximum, the Launch Manager will trigger the configured recovery action."
+                  "description": "Specifies the maximum number of consecutive reporting cycle failures (see 'reporting_cycle_ms'). Once the number of failed cycles exceeds this maximum, the Launch Manager will trigger the configured recovery action."
                 },
                 "min_indications": {
                   "type": "integer",
                   "minimum": 0,
-                  "description": "Specifies the minimum number of checkpoints that must be reported within each configured 'reporting_cycle'."
+                  "description": "Specifies the minimum number of checkpoints that must be reported within each configured 'reporting_cycle_ms'."
                 },
                 "max_indications": {
                   "type": "integer",
                   "minimum": 0,
-                  "description": "Specifies the maximum number of checkpoints that may be reported within each configured 'reporting_cycle'."
+                  "description": "Specifies the maximum number of checkpoints that may be reported within each configured 'reporting_cycle_ms'."
                 }
               },
               "required": [],
@@ -107,10 +108,11 @@
                   ],
                   "description": "Specifies the required existence of the file. 'Exists': the file must be present at 'file_path'. 'NotExisting': the file must be absent from 'file_path'. Defaults to 'Exists' if not specified."
                 },
-                "polling_interval": {
-                  "type": "number",
+                "polling_interval_ms": {
+                  "type": "integer",
                   "exclusiveMinimum": 0,
-                  "description": "Specifies the time interval, in seconds (e.g., '0.3' for 300 milliseconds), at which the Launch Manager checks the file existence. Defaults to 10 milliseconds."
+                  "maximum": 4294967295,
+                  "description": "Specifies the time interval, in milliseconds, at which the Launch Manager checks the file existence. Defaults to 10 milliseconds."
                 }
               },
               "required": [
@@ -150,10 +152,11 @@
               "minimum": 0,
               "description": "Specifies the maximum number of restart attempts before the Launch Manager concludes that recovery cannot succeed."
             },
-            "delay_before_restart": {
-              "type": "number",
+            "delay_before_restart_ms": {
+              "type": "integer",
               "minimum": 0,
-              "description": "Specifies the delay duration, in seconds (e.g., '0.25' for 250 milliseconds), that the Launch Manager waits before initiating a restart attempt."
+              "maximum": 4294967295,
+              "description": "Specifies the delay duration, in milliseconds, that the Launch Manager waits before initiating a restart attempt."
             }
           },
           "required": [],
@@ -190,15 +193,17 @@
       "type": "object",
       "description": "Defines a reusable type that contains configuration parameters that are specific to a particular deployment environment or system setup.",
       "properties": {
-        "ready_timeout": {
-          "type": "number",
+        "ready_timeout_ms": {
+          "type": "integer",
           "exclusiveMinimum": 0,
-          "description": "Specifies the maximum time, in seconds (e.g., '0.25' for 250 milliseconds), allowed for the component to reach its ready state. The timeout is measured from when the component process is created until the ready conditions specified in 'component_properties.ready_condition' are met."
+          "maximum": 4294967295,
+          "description": "Specifies the maximum time, in milliseconds, allowed for the component to reach its ready state. The timeout is measured from when the component process is created until the ready conditions specified in 'component_properties.ready_condition' are met."
         },
-        "shutdown_timeout": {
-          "type": "number",
+        "shutdown_timeout_ms": {
+          "type": "integer",
           "exclusiveMinimum": 0,
-          "description": "Specifies the maximum time, in seconds (e.g., '0.75' for 750 milliseconds), allowed for the component to terminate after it receives a SIGTERM signal from the Launch Manager. The timeout is measured from when the Launch Manager sends the SIGTERM signal until the Operating System notifies the Launch Manager that the child process has terminated."
+          "maximum": 4294967295,
+          "description": "Specifies the maximum time, in milliseconds, allowed for the component to terminate after it receives a SIGTERM signal from the Launch Manager. The timeout is measured from when the Launch Manager sends the SIGTERM signal until the Operating System notifies the Launch Manager that the child process has terminated."
         },
         "environmental_variables": {
           "type": "object",
@@ -338,10 +343,11 @@
             "description": "Specifies the name of a component or Run Target that this Run Target depends on."
           }
         },
-        "transition_timeout": {
-          "type": "number",
-          "description": "Specifies the time limit, in seconds (e.g., '1.5' for 1500 milliseconds), for the Run Target transition. If this limit is exceeded, the transition is considered failed.",
-          "exclusiveMinimum": 0
+        "transition_timeout_ms": {
+          "type": "integer",
+          "description": "Specifies the time limit, in milliseconds, for the Run Target transition. If this limit is exceeded, the transition is considered failed.",
+          "exclusiveMinimum": 0,
+          "maximum": 4294967295
         },
         "recovery_action": {
           "allOf": [
@@ -372,10 +378,11 @@
       "type": "object",
       "description": "Defines a reusable type that contains configuration parameters for alive supervision.",
       "properties": {
-        "evaluation_cycle": {
-          "type": "number",
+        "evaluation_cycle_ms": {
+          "type": "integer",
           "exclusiveMinimum": 0,
-          "description": "Specifies the length, in seconds (e.g., '0.5' for 500 milliseconds), of the time window used to assess incoming alive supervision reports."
+          "maximum": 4294967295,
+          "description": "Specifies the length, in milliseconds, of the time window used to assess incoming alive supervision reports."
         }
       },
       "required": [],
@@ -389,10 +396,11 @@
           "type": "string",
           "description": "Specifies the path to the external watchdog device file (e.g., /dev/watchdog)."
         },
-        "max_timeout": {
-          "type": "number",
+        "max_timeout_ms": {
+          "type": "integer",
           "minimum": 0,
-          "description": "Specifies the maximum timeout value, in seconds (e.g., '0.5' for 500 milliseconds), that the Launch Manager configures on the external watchdog during startup. The external watchdog uses this timeout as the deadline for receiving periodic alive reports from the Launch Manager."
+          "maximum": 4294967295,
+          "description": "Specifies the maximum timeout value, in milliseconds, that the Launch Manager configures on the external watchdog during startup. The external watchdog uses this timeout as the deadline for receiving periodic alive reports from the Launch Manager."
         },
         "deactivate_on_shutdown": {
           "type": "boolean",
@@ -502,10 +510,11 @@
             "description": "Specifies the name of a component or Run Target that this Run Target depends on."
           }
         },
-        "transition_timeout": {
-          "type": "number",
-          "description": "Specifies the time limit, in seconds (e.g., '1.5' for 1500 milliseconds), for the Run Target transition. If this limit is exceeded, the transition is considered failed.",
-          "exclusiveMinimum": 0
+        "transition_timeout_ms": {
+          "type": "integer",
+          "description": "Specifies the time limit, in milliseconds, for the Run Target transition. If this limit is exceeded, the transition is considered failed.",
+          "exclusiveMinimum": 0,
+          "maximum": 4294967295
         }
       },
       "required": [

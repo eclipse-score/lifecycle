@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2026 Contributors to the Eclipse Foundation
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -11,22 +11,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#ifndef SCORE_LCM_ITRANSITION_RESULT_PUBLISHER
-#define SCORE_LCM_ITRANSITION_RESULT_PUBLISHER
-
-#include "score/mw/launch_manager/control/control_client_channel.hpp"
+#ifndef RUN_HPP_INCLUDED
+#define RUN_HPP_INCLUDED
 
 namespace score::mw::lifecycle::internal
 {
 
-class ITransitionResultPublisher
-{
-  public:
-    virtual void setInitialStateTransitionResult(ControlClientCode result) = 0;
-
-    virtual ~ITransitionResultPublisher() = default;
-};
+int run(int argc, const char* argv[]);
 
 }  // namespace score::mw::lifecycle::internal
 
-#endif  // SCORE_LCM_ITRANSITION_RESULT_PUBLISHER
+#endif  // RUN_HPP_INCLUDED
