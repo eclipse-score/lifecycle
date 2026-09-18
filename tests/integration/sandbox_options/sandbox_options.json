@@ -56,7 +56,7 @@
                     "--scheduling-policy=SCHED_FIFO",
                     "--scheduling-priority=10",
                     "--working-dir=/tmp",
-                    "--affinity=0xFFFF"
+                    "--affinity=all"
                 ],
                 "ready_condition": {
                     "process_state": "Terminated"

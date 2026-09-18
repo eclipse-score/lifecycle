@@ -38,6 +38,14 @@ namespace sandbox_options
 ///
 /// Every value is optional: a value that is not set is not verified. This lets a component leave
 /// an option unset (e.g. no working directory) without the verification flagging it.
+struct AffinityExpectation
+{
+    /// Special case for "all", as this depends on the number of CPU cores
+    /// of the machine executing the test
+    bool all_cpus;
+    std::uint64_t mask;
+};
+
 struct ExpectedValues
 {
     std::optional<int> policy;
@@ -46,7 +54,7 @@ struct ExpectedValues
     std::optional<gid_t> gid;
     std::optional<std::vector<gid_t>> supplementary_groups;
     std::optional<std::string> working_dir;
-    std::optional<std::uint64_t> affinity;
+    std::optional<AffinityExpectation> affinity;
 };
 
 inline const char* policy_name(const int policy)
@@ -222,6 +230,19 @@ inline ::testing::AssertionResult verifyAffinity(const std::uint64_t expected_af
     }
 
     return to_result(failures);
+}
+
+/// @brief Verify that the current CPU affinity mask includes every online CPU.
+inline ::testing::AssertionResult verifyAffinityAllCpus()
+{
+    const long available_cpus = sysconf(_SC_NPROCESSORS_ONLN);
+    if ((available_cpus <= 0) || (available_cpus > 64))
+    {
+        return ::testing::AssertionFailure() << "Unsupported number of available CPUs: " << available_cpus;
+    }
+
+    const auto expected_affinity = (std::uint64_t{1} << available_cpus) - 1U;
+    return verifyAffinity(expected_affinity);
 }
 
 /// @brief Verify that the calling thread runs with the expected scheduling policy and priority.

@@ -121,7 +121,14 @@ bool parse_arguments(int argc, char** argv, ExpectedValues& out)
         }
         else if (match_option(arg, "affinity", value))
         {
-            out.affinity = std::stoull(value, nullptr, 16);
+            if (value == "all")
+            {
+                out.affinity = sandbox_options::AffinityExpectation{true, 0};
+            }
+            else
+            {
+                out.affinity = sandbox_options::AffinityExpectation{false, std::stoull(value, nullptr, 16)};
+            }
         }
         else
         {
@@ -168,13 +175,16 @@ TEST(SandboxOptions, RunAndVerify)
     {
         TEST_STEP("Verify CPU affinity on main thread")
         {
-            EXPECT_TRUE(sandbox_options::verifyAffinity(*expected.affinity));
+            EXPECT_TRUE(
+                expected.affinity->all_cpus ? sandbox_options::verifyAffinityAllCpus()
+                                            : sandbox_options::verifyAffinity(expected.affinity->mask));
         }
         TEST_STEP("Verify CPU affinity on a spawned thread")
         {
             ::testing::AssertionResult thread_result = ::testing::AssertionSuccess();
             std::thread worker([&thread_result]() {
-                thread_result = sandbox_options::verifyAffinity(*expected.affinity);
+                thread_result = expected.affinity->all_cpus ? sandbox_options::verifyAffinityAllCpus()
+                                                            : sandbox_options::verifyAffinity(expected.affinity->mask);
             });
             worker.join();
             EXPECT_TRUE(thread_result);
