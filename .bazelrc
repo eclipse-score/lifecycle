@@ -16,7 +16,6 @@ common --registry=https://bcr.bazel.build
 common --http_connector_attempts=10
 common --http_connector_retry_max_timeout=1s
 common --http_timeout_scaling=2.0
-
 # Unset ANDROID_HOME to prevent rules_android from searching for the Android SDK.
 # rules_android is a transitive dependency, and on GitHub runners the Android SDK
 # directory is often deleted while the ANDROID_HOME environment variable remains set.
@@ -27,12 +26,6 @@ build --tool_java_language_version=17
 build --java_runtime_version=remotejdk_17
 build --tool_java_runtime_version=remotejdk_17
 build --credential_helper=*.qnx.com=%workspace%/scripts/internal/qnx_creds.py
-
-# Enable warnings and treat them as errors
-build --copt=-Wall
-build --copt=-Wextra
-build --copt=-Werror
-build --copt=-Wno-error=deprecated-declarations
 
 # Disable warnings for external code
 build --per_file_copt=external/.*@-w

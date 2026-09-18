@@ -83,7 +83,7 @@ TEST_F(signal_safe_log_test, signal_safe_log_test_minimum_length)
 
     const auto stderr = testing::internal::GetCapturedStderr();
 
-#if __QNXNTO__
+#ifdef __QNXNTO__
     EXPECT_EQ(stderr->size(), 1024);
     EXPECT_EQ(stderr->back(), '\n');
 #else
@@ -101,7 +101,7 @@ TEST_F(signal_safe_log_test, signal_safe_log_test_maximum_length)
 
     const auto stderr = testing::internal::GetCapturedStderr();
 
-#if __QNXNTO__
+#ifdef __QNXNTO__
     EXPECT_EQ(stderr->size(), 1024);
     EXPECT_EQ(stderr->back(), 'A');
 #else

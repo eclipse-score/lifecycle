@@ -62,9 +62,10 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Setup Bazel with shared caching
-        uses: eclipse-score/cicd-actions/setup-bazel-cache@212bbf86267e9381da9d2daf962d12f6feafbc90
+        uses: eclipse-score/cicd-actions/setup-bazel-cache@cache
         with:
-          unique-cache-name: ${{ github.workflow }}-${{ github.job }}-${{ matrix.name }}
+          disk-cache-key: ${{ github.job }}-${{ matrix.name }}
+          enable-profiling: true
 
       - name: Build with Bazel
         if: matrix.build

@@ -23,7 +23,7 @@
 namespace
 {
 /// @brief How long the process stalls while being terminated.
-/// Must be smaller than the configured shutdown_timeout so the
+/// Must be smaller than the configured shutdown_timeout_ms so the
 /// process still exits gracefully.
 constexpr unsigned int kTerminationDelaySeconds = 2U;
 

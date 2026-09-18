@@ -20,6 +20,7 @@
 #include "score/mw/launch_manager/alive_monitor/details/daemon/AliveMonitorImpl.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/configuration/flatbuffer_config_loader.hpp"
+#include "score/mw/launch_manager/control/control_provider.hpp"
 #include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
 #include "score/mw/launch_manager/recovery_client/recovery_client.hpp"
 #include "score/mw/launch_manager/watchdog/WatchdogFactory.hpp"
@@ -129,13 +130,11 @@ int main(int argc, const char* argv[])
                 return EXIT_FAILURE;
         }
     }
-    // reserve files descriptor osal::IpcCommsSync::sync_fd (fd3) and
-    // osal::IpcCommsSync::control_client_handler_nudge_fd (fd4) for communication tpyes: kNoComms !fd3 & !fd4
+    // reserve files descriptor osal::IpcCommsSync::sync_fd (fd3)
+    // for communication tpyes: kNoComms !fd3 & !fd4
     // kReporting  fd3 & !fd4
-    // kControlClient  fd3 & fd4
     // the file descriptors are closed inside the handleComms function.
     reserveFD(osal::IpcCommsSync::sync_fd);
-    reserveFD(osal::IpcCommsSync::control_client_handler_nudge_fd);
 
     int exit_code = EXIT_FAILURE;
 
@@ -152,7 +151,7 @@ int main(int argc, const char* argv[])
         auto config_result = config_loader.load(config_path);
         if (!config_result.has_value())
         {
-            LM_LOG_FATAL() << "Failed to load config from: " << std::string_view(config_path);
+            LM_LOG_FATAL() << "Failed to load config from:" << std::string_view(config_path);
             return EXIT_FAILURE;
         }
         LM_LOG_DEBUG() << "Launch Manager Started !!!!";
@@ -186,7 +185,17 @@ int main(int argc, const char* argv[])
 
         if (process_group_manager->initialize())
         {
-            if (runLCMDaemon(*process_group_manager))
+            // Remains active in the background until the ControlProvider is destroyed.
+            const score::Result<ControlProvider*> control_provider_result =
+                ControlProvider::Create(process_group_manager.get());
+
+            if (!control_provider_result.has_value())
+            {
+                LM_LOG_FATAL() << "Failed to set up LmControl service provider:"
+                               << control_provider_result.error().Message();
+                exit_code = EXIT_FAILURE;
+            }
+            else if (runLCMDaemon(*process_group_manager))
             {
                 exit_code = EXIT_SUCCESS;
             }
@@ -204,7 +213,6 @@ int main(int argc, const char* argv[])
     }
 
     close(osal::IpcCommsSync::sync_fd);
-    close(osal::IpcCommsSync::control_client_handler_nudge_fd);
 
     LM_LOG_INFO() << "Launch Manager completed with exit code value:" << exit_code;
 

@@ -2,7 +2,7 @@
     "run_target": {
         "description": "",
         "depends_on": [],
-        "transition_timeout": 3,
+        "transition_timeout_ms": 3000,
         "recovery_action": {
             "switch_run_target": {
                 "run_target": "fallback_run_target"

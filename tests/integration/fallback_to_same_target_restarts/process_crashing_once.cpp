@@ -17,19 +17,33 @@
 
 TEST(FallbackToSameTargetRestarts, CrashingProcess)
 {
-    TEST_STEP("Report running")
+    const std::string_view crash_file = "process_crashed";
+
+    if (std::filesystem::exists(crash_file))
     {
-        score::mw::lifecycle::report_running();
+        TEST_STEP("Create process file")
+        {
+            ASSERT_TRUE(touch_file("process_started_normally"));
+        }
+
+        // Don't report running until the file is created. This prevents the
+        // test driver exiting too early and causing the test to fail.
+        TEST_STEP("Report running")
+        {
+            score::mw::lifecycle::report_running();
+        }
     }
-
-    // Limitation: we can't wait for run target activation to complete
-    sleep(1);
-
-    TEST_STEP("Crash if we haven't crashed yet")
+    else
     {
-        const std::string_view crash_file = "process_crashed";
+        TEST_STEP("Report running")
+        {
+            score::mw::lifecycle::report_running();
+        }
 
-        if (!std::filesystem::exists(crash_file))
+        // Limitation: we can't wait for run target activation to complete
+        sleep(1);
+
+        TEST_STEP("Crash")
         {
             std::cout << "Process crashing..." << std::endl;
             if (!touch_file(crash_file))
@@ -38,9 +52,6 @@ TEST(FallbackToSameTargetRestarts, CrashingProcess)
             }
             exit(1);
         }
-
-        ASSERT_TRUE(touch_file("process_started_normally"));
-        std::cout << "Process finishing normally" << std::endl;
     }
 }
 

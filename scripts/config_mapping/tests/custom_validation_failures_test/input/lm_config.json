@@ -25,7 +25,7 @@
         "Fallback": {
             "description": "Nothing running",
             "depends_on": [],
-            "transition_timeout": 5,
+            "transition_timeout_ms": 5000,
             "recovery_action": {
                 "switch_run_target": {
                     "run_target": "fallback_run_target"

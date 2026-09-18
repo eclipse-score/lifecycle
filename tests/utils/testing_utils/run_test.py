@@ -10,10 +10,23 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+from os import environ
+from typing import Optional
 
 
-def run_test(*, target, binary_path, args=None, cwd="/", timeout=15):
+def run_test(
+    *, target, binary_path, args: Optional[list[str]] = None, cwd="/", timeout=15
+):
     """Run an integration test to completion."""
 
-    process = target.execute_async(binary_path, args=args, cwd=cwd)
+    local_args = []
+    if args:
+        local_args = args
+
+    test_runner = environ.get("SCORE_TEST_RUNNER", None)
+    if test_runner:
+        local_args.insert(0, binary_path)
+        binary_path = test_runner
+
+    process = target.execute_async(binary_path, args=local_args, cwd=cwd)
     assert process.wait(timeout) == 0

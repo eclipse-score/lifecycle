@@ -17,6 +17,7 @@
 #include "score/mw/log/logging.h"
 #include "score/os/errno.h"
 #include "score/os/stdlib_impl.h"
+#include "score/os/utils/thread.h"
 #include <cstdlib>
 
 #include <score/utility.hpp>
@@ -134,6 +135,7 @@ bool score::mw::lifecycle::LifeCycleManager::initialize_internal()
     }
     // only start thread if everything was ok
     m_signal_handler_thread = std::thread(&LifeCycleManager::handle_signal, this);  // LCOV_EXCL_BR_LINE
+    score::os::set_thread_name(m_signal_handler_thread, "lcm_signal");
     return true;
 }
 

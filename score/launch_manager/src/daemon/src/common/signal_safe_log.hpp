@@ -17,7 +17,10 @@
 #include <cstdlib>
 #include <string_view>
 
-#if (_GNU_SOURCE && __GLIBC__ >= 2 && __GLIBC_MINOR__ >= 32) || __QNXNTO__
+#if (                                                                                           \
+    defined(_GNU_SOURCE) && defined(__GLIBC__) && defined(__GLIBC_MINOR__) && __GLIBC__ >= 2 && \
+    __GLIBC_MINOR__ >= 32) ||                                                                   \
+    defined(__QNXNTO__)
 #include <cstring>
 #endif
 
@@ -47,6 +50,11 @@ class signal_safe_buffer
     }
 
     /// @brief Append the given integer to the buffer.
+    /// @note std::to_chars is not guaranteed async signal safe by the C++ standard. It is
+    ///       restricted to integral types here because, unlike floating point types (e.g.
+    ///       libstdc++'s long double overload, which allocates), integral overloads are known not
+    ///       to allocate or throw in the implementations we support. See
+    ///       https://github.com/eclipse-score/lifecycle/issues/385.
     template <typename T, std::enable_if_t<std::is_integral_v<T>, bool> = true>
     void append(const T& value)
     {
@@ -113,10 +121,10 @@ template <typename... T>
 template <typename... T>
 [[nodiscard]] bool signal_safe_log_errno(int log_errno, const T&... values)
 {
-#if _GNU_SOURCE && __GLIBC__ >= 2 && __GLIBC_MINOR__ >= 32
+#if defined(_GNU_SOURCE) && defined(__GLIBC__) && defined(__GLIBC_MINOR__) && __GLIBC__ >= 2 && __GLIBC_MINOR__ >= 32
     // strerrordesc_np is documented as async signal safe.
     return signal_safe_log(values..., " (", strerrordesc_np(log_errno), ")");
-#elif __QNXNTO__
+#elif defined(__QNXNTO__)
     // QNX strerror is documented as async signal safe.
     return signal_safe_log(values..., " (", strerror(log_errno), ")");
 #else

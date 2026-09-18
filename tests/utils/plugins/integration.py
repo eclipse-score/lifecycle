@@ -29,6 +29,15 @@ def pytest_addoption(parser):
         default=None,
         help="Absolute remote directory path used during test execution.",
     )
+    parser.addoption(
+        "--test_runner",
+        action="store",
+        default=None,
+        help="""Wrapper program to run the test inside, for example a debugger.
+        The wrapper program will be called with the test binary as its first
+        argument, followed by any number of test arguments. It must execute the
+        test binary with the provided arguments and exit when complete.""",
+    )
 
 
 @pytest.fixture
@@ -51,3 +60,7 @@ def pytest_configure(config):
     remote_dir = config.getoption("--score-test-remote-directory", default=None)
     if remote_dir is not None:
         os.environ["SCORE_TEST_REMOTE_DIRECTORY"] = remote_dir
+
+    test_runner = config.getoption("--test_runner", default=None)
+    if test_runner is not None:
+        os.environ["SCORE_TEST_RUNNER"] = test_runner

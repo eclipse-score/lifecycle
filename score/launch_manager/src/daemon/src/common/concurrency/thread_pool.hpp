@@ -18,6 +18,7 @@
 #include "score/mw/launch_manager/common/constants.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent_controller.hpp"
+#include "score/os/utils/thread.h"
 #include <memory>
 #include <thread>
 #include <vector>
@@ -47,7 +48,8 @@ class ThreadPool final
         for (uint32_t i = 0U; i < num_threads; ++i)
         {
             static_cast<void>(i);
-            worker_threads_.emplace_back(std::make_unique<std::thread>(&ThreadPool::run, this));
+            auto& worker = worker_threads_.emplace_back(std::make_unique<std::thread>(&ThreadPool::run, this));
+            score::os::set_thread_name(*worker, "worker");
         }
     }
 
@@ -99,7 +101,7 @@ class ThreadPool final
                 {
                     break;
                 }
-                LM_LOG_ERROR() << "Got an error getting a job: " << job.error();
+                LM_LOG_ERROR() << "Got an error getting a job:" << job.error();
                 continue;
             }
             component_controller_.doWork(std::move(**job));

@@ -17,6 +17,7 @@
 
 #include "score/mw/launch_manager/alive_monitor/details/daemon/AliveMonitorImpl.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/daemon/CyclicExecutor.hpp"
+#include "score/os/utils/thread.h"
 
 namespace score::mw::lifecycle::internal::saf::daemon
 {
@@ -41,7 +42,7 @@ bool AliveMonitorImpl::init() noexcept
         if (initResult == EInitCode::kNoError)
         {
             const long ms{m_osClock.endMeasurement()};
-            LM_LOG_DEBUG() << "AliveMonitor: Initialization took " << ms << " ms";
+            LM_LOG_DEBUG() << "AliveMonitor: Initialization took" << ms << "ms";
             return true;
         }
         else
@@ -66,6 +67,7 @@ void AliveMonitorImpl::startMonitoring() noexcept
     alive_monitor_thread_ = std::thread([this]() {
         threadFn(stop_thread_);
     });
+    score::os::set_thread_name(alive_monitor_thread_, "health_mon");
 }
 
 void AliveMonitorImpl::stopMonitoring() noexcept
