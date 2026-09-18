@@ -32,17 +32,17 @@
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/score.css?v=bb63a8e1" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/score.css?v=415257cb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/score_needs.css?v=82a1844f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/score_design.css?v=8048e6ee" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-data-viewer/jsonview.bundle.css?v=f6ef2277" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-needs/libs/html/datatables.min.css?v=4b4fd840" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-needs/common_css/need_toggle.css?v=5c6620df" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-needs/common_css/needstable.css?v=5e1b6797" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-needs/common_css/need_links.css?v=2150a916" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-needs/common_css/need_style.css?v=92936fa5" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-needs/common_css/need_core.css?v=f5b60a78" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-needs/common_css/need_style.css?v=92936fa5" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-needs/common_css/need_toggle.css?v=5c6620df" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-needs/common_css/need_links.css?v=2150a916" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-needs/modern.css?v=803738c0" />
   
   <!-- So that users can add custom icons -->
@@ -570,7 +570,7 @@
 started successfully by calling the lifecycle API for the language it is
 implemented in. This is done by reporting the <code class="docutils literal notranslate"><span class="pre">kRunning</span></code> execution
 state.</p>
-<p>A <code class="docutils literal notranslate"><span class="pre">ready_timeout</span></code> can be configured for each component. If the
+<p>A <code class="docutils literal notranslate"><span class="pre">ready_timeout_ms</span></code> can be configured for each component. If the
 process does not report <code class="docutils literal notranslate"><span class="pre">kRunning</span></code> within that timeout, the Launch
 Manager terminates the process and registers an error.</p>
 </section>
@@ -585,7 +585,7 @@ Manager terminates the process and registers an error.</p>
 a <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code> signal by ending ongoing tasks, freeing resources and
 exiting.</p>
 <p>If a process does not terminate after receiving a <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code>, and a
-<code class="docutils literal notranslate"><span class="pre">shutdown_timeout</span></code> is configured, then after the timeout is fired a
+<code class="docutils literal notranslate"><span class="pre">shutdown_timeout_ms</span></code> is configured, then after the timeout is fired a
 <code class="docutils literal notranslate"><span class="pre">SIGKILL</span></code> is sent and the process is forcefully terminated.</p>
 </section>
 <section id="state-management">
@@ -675,7 +675,7 @@ detect cancellation.</p>
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/eclipse-score/lifecycle/edit/main/docs/components/launch_manager/user_guide/implementationmanager/docs/user_guide/implementation.rst">
+    <a href="https://github.com/eclipse-score/lifecycle/edit/main/score/launch_manager/docs/user_guide/implementation.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
