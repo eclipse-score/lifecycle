@@ -11,6 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 load("@rules_cc//cc:defs.bzl", "cc_library")
+load("//tests/utils/bazel:unit_test.bzl", "lm_cc_test")
 
 cc_library(
     name = "control_provider",
@@ -24,5 +25,23 @@ cc_library(
         "//score/launch_manager/src/daemon/src/osal:ipc_comms",
         "//score/launch_manager/src/daemon/src/process_group_manager:irun_target_control",
         "//score/launch_manager/src/lm_control",
+    ],
+)
+
+lm_cc_test(
+    name = "control_provider_UT",
+    srcs = ["control_provider_UT.cpp"],
+    args = [
+        "--service_instance_manifest",
+        "$(rootpath control_provider_test_mw_com_config.json)",
+    ],
+    data = ["control_provider_test_mw_com_config.json"],
+    deps = [
+        ":control_provider",
+        "//score/launch_manager:error",
+        "//score/launch_manager/src/daemon/src/process_group_manager:irun_target_control",
+        "@googletest//:gtest",
+        "@score_baselibs//score/string_manipulation/arguments",
+        "@score_communication//score/mw/com",
     ],
 )
