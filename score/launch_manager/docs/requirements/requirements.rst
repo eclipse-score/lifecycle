@@ -15,7 +15,8 @@
 Component Launch Manager Requirements
 #####################################
 
-**NOTE:** Requirements which are not planned to be implemented in the version 1.0 of the Launch Manager are set to status invalid.
+.. note:: 
+    Requirements which are not planned to be implemented in the version 1.0 of the Launch Manager are set to status **invalid**.
 
 .. document:: Launch Manager Requirements
    :id: doc__launch_manager_requirements
@@ -45,12 +46,15 @@ Launching Processes
     .. note::
         This is a similar concept to piping in shell scripting, where the output of one process can be used as the input to another.
 
+.. 
+    Why does everything map here to feat_req__lifecycle__custom_cond_support? 
+    When looking on this requirement it seems it is related to Control interface API.
 .. comp_req:: Handling process args
     :id: comp_req__launch_man__process_launch_args
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__custom_cond_support[version==1]
+    :derived_from: feat_req__lifecycle__launch_support[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
