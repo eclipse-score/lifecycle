@@ -13,13 +13,14 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("//tests/utils/bazel:unit_test.bzl", "lm_cc_test")
 
+package(default_visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:internal"])
+
 cc_library(
     name = "i_supervision",
     srcs = ["ISupervision.cpp"],
     hdrs = ["ISupervision.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/supervision",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/supervision",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
     deps = [
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
         "//score/launch_manager/src/daemon/src/common:identifier_hash",
@@ -32,7 +33,6 @@ cc_library(
     hdrs = ["Alive.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/supervision",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/supervision",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
     deps = [
         ":i_supervision",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/common:time_sorting_buffer",

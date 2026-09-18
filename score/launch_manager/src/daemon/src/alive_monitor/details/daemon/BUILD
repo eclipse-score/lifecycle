@@ -12,13 +12,14 @@
 # *******************************************************************************
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
+package(default_visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:internal"])
+
 cc_library(
     name = "sw_cluster_handler",
     srcs = ["SupervisionManager.cpp"],
     hdrs = ["SupervisionManager.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/daemon",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/daemon",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
     deps = [
         "//score/launch_manager/src/daemon/src/alive_monitor/details/factory:alive_worker_factory",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:checkpoint",
@@ -39,7 +40,6 @@ cc_library(
     hdrs = ["CyclicExecutor.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/daemon",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/daemon",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
     deps = [
         ":sw_cluster_handler",
         "//score/launch_manager/src/daemon/src/alive_monitor:isupervision_factory",
@@ -61,7 +61,6 @@ cc_library(
     hdrs = ["AliveMonitorImpl.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/daemon",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/daemon",
-    visibility = ["//score/launch_manager/src/daemon:__subpackages__"],
     deps = [
         ":cyclic_executor",
         "//score/launch_manager/src/daemon/src/alive_monitor:i_alive_monitor",
