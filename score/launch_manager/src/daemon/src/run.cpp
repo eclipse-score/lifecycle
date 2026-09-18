@@ -139,13 +139,6 @@ int run(int argc, const char* argv[])
 
     try
     {
-        /// @todo Check that we're not already running
-
-        // if (-1 == daemon(-1, -1)) {
-        //     LM_LOG_FATAL() << "LCM could not daemonize!, error:" << strerror(errno);
-        //     return EXIT_FAILURE;
-        // }
-
         configuration::FlatbufferConfigLoader config_loader;
         auto config_result = config_loader.load(config_path);
         if (!config_result.has_value())
