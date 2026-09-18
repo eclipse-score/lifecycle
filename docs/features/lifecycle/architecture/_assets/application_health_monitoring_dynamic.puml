@@ -43,7 +43,7 @@ HM -> HM: Wakeup and check if the\ncheckpoints have been called
 HM -> LM: Supervision failure notification
 
 HM -X LM: Stop triggering alive
-LM -> LM: Error reaction\n(notify State manager)
+LM -> LM: Error reaction\n(Recovery Action)
 
 hnote across: Use Case: Direct error report by the Application
 
@@ -51,7 +51,7 @@ App -> HM: Report error
 HM -> LM: Supervision failure notification
 
 HM -X LM: Stop triggering alive
-LM -> LM: Error reaction\n(notify State manager)
+LM -> LM: Error reaction\n(Recovery Action)
 
 hnote across: Use Case: Crashed Application
 
@@ -61,7 +61,6 @@ destroy HM
 
 LM -> LM: Wakeup and check if the\ncheckpoints have been called 
 LM -> LM: No alive notification seen
-LM -> LM: Error reaction\n(notify State manager)
-
+LM -> LM: Error reaction\n(Recovery Action)
 
 @enduml
