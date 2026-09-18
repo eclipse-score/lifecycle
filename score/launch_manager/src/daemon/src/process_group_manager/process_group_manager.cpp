@@ -345,7 +345,7 @@ void ProcessGroupManager::handleRecoveryRequest(const IdentifierHash& process_id
 {
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(bool(graph_), "Graph not initialized");
 
-    const IdentifierHash old_state = graph_->getProcessGroupState();
+    const IdentifierHash old_state = graph_->getRequestedRunTarget();
     // the fallback state doesn't have a name in the config, so we use
     // "fallback", it doesn't actually matter...
     const GraphState graph_state = graph_->getState();
@@ -390,17 +390,15 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
 
     if (GraphState::kSuccess == graph_state || GraphState::kUndefinedState == graph_state)
     {
-        ProcessGroupStateID pgs;
-        pgs.pg_state_name_ = pg.setPendingState(IdentifierHash(""));
+        IdentifierHash last_state = pg.setPendingState(IdentifierHash(""));
 
-        if ((pgs.pg_state_name_ != IdentifierHash("")) &&
-            ((pgs.pg_state_name_ != pg.getProcessGroupState()) || (GraphState::kUndefinedState == graph_state)))
+        if ((last_state != IdentifierHash("")) &&
+            ((last_state != pg.getRequestedRunTarget()) || (GraphState::kUndefinedState == graph_state)))
         {
-            pgs.pg_name_ = pg.getProcessGroupName();
-            LM_LOG_DEBUG() << "Start transition to" << pgs.pg_state_name_ << "for PG" << pgs.pg_name_;
+            LM_LOG_DEBUG() << "Start transition to" << last_state;
 
             // Already rejected via isValidRunTarget() in processStateTransition() (#541) if invalid.
-            const bool started = pg.startTransition(pgs.pg_state_name_);
+            const bool started = pg.startTransition(last_state);
             SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(started, "pending state was not rejected by isValidRunTarget()");
         }
 
@@ -414,17 +412,13 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
             //
             // we will try to perform recovery action
 
-            ProcessGroupStateID recovery_state;
-            recovery_state.pg_name_ = pg.getProcessGroupName();
-            recovery_state.pg_state_name_ = IdentifierHash("fallback");
-
-            LM_LOG_WARN() << "Problem discovered, activating recovery state:" << recovery_state.pg_state_name_;
+            LM_LOG_WARN() << "Problem discovered, activating recovery state:" << Graph::recovery_state_name;
 
             // no point checking errors here...
             // nobody requested this transition, so there is nowhere to communicate an error
             // if we failed and there is no external request, we will try again next time
             pg.setRequestStartTime();
-            const bool started = pg.startTransition(recovery_state.pg_state_name_);
+            const bool started = pg.startTransition(IdentifierHash{Graph::recovery_state_name});
             SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(started, "fallback RunTarget node missing");
         }
     }
@@ -447,7 +441,7 @@ void ProcessGroupManager::handleGetActiveRunTarget(GetActiveRunTarget* event) co
     switch (graph_->getState())
     {
         case GraphState::kSuccess:
-            result = graph_->getProcessGroupState();
+            result = graph_->getRequestedRunTarget();
             break;
         case GraphState::kAborting:
         case GraphState::kCancelled:
@@ -479,7 +473,7 @@ Result<IdentifierHash> ProcessGroupManager::getActiveRunTarget() const noexcept
 
 void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* event) noexcept
 {
-    IdentifierHash old_state = graph_->getProcessGroupState();
+    IdentifierHash old_state = graph_->getRequestedRunTarget();
     GraphState graph_state = graph_->getState();
     Result<void> response = {};
 

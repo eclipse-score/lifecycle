@@ -176,7 +176,7 @@ class GraphTest : public ::testing::Test
         }
 
         ASSERT_EQ(graph_->getState(), GraphState::kSuccess);
-        ASSERT_EQ(graph_->getProcessGroupState(), target);
+        ASSERT_EQ(graph_->getRequestedRunTarget(), target);
     }
 
     GraphConfig graph_config_{};
@@ -251,7 +251,7 @@ TEST_F(GraphOrdinaryTransitionTest, simpleActivationTransition)
     graph_->handleComponentEvent(ActivationSuccessful{IdentifierHash{process_name(0)}});
 
     ASSERT_EQ(graph_->getState(), GraphState::kSuccess);
-    EXPECT_EQ(graph_->getProcessGroupState(), target);
+    EXPECT_EQ(graph_->getRequestedRunTarget(), target);
 }
 
 TEST_F(GraphOrdinaryTransitionTest, simpleDeactivationTransition)
@@ -269,7 +269,7 @@ TEST_F(GraphOrdinaryTransitionTest, simpleDeactivationTransition)
     graph_->handleComponentEvent(DeactivationComplete{IdentifierHash{process_name(0)}});
 
     ASSERT_EQ(graph_->getState(), GraphState::kSuccess);
-    EXPECT_EQ(graph_->getProcessGroupState(), target);
+    EXPECT_EQ(graph_->getRequestedRunTarget(), target);
 }
 
 class GraphInitialTransitionTest : public GraphTest
@@ -409,7 +409,7 @@ TEST_F(GraphImplicitOffTargetTest, offRunTargetIsCreatedWhenNotConfigured)
     graph_->handleComponentEvent(DeactivationComplete{job->value().component.get().getIdentifier()});
 
     EXPECT_EQ(graph_->getState(), GraphState::kSuccess);
-    EXPECT_EQ(graph_->getProcessGroupState(), IdentifierHash{"Off"});
+    EXPECT_EQ(graph_->getRequestedRunTarget(), IdentifierHash{"Off"});
 }
 
 TEST_F(GraphImplicitOffTargetTest, offTransitionTimeoutFallsBackToDefault)
@@ -680,14 +680,6 @@ TEST_F(GraphUtilitiesTest, startTransitionWithUnrecognizedTargetDoesNotCrashOrTr
 
     EXPECT_FALSE(started);
     EXPECT_EQ(graph_->getState(), state_before);
-}
-
-TEST_F(GraphUtilitiesTest, getConfigMethods)
-{
-    RecordProperty("Description", "Test that various getters related to the config return the correct values");
-
-    // We don't care this method will be removed
-    EXPECT_EQ(graph_->getProcessGroupName(), "");
 }
 
 TEST_F(GraphUtilitiesTest, forceKillProcesses)

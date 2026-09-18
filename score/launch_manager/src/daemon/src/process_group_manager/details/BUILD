@@ -218,7 +218,6 @@ cc_library(
         ":safe_process_map",
         ":transition",
         "//score/launch_manager/src/daemon/src/common:identifier_hash",
-        "//score/launch_manager/src/daemon/src/common:process_group_state_id",
         "//score/launch_manager/src/daemon/src/common/concurrency:mpmc_concurrent_queue",
         "//score/launch_manager/src/daemon/src/configuration:config",
         "//score/launch_manager/src/daemon/src/osal:semaphore",
