@@ -73,10 +73,16 @@ TEST_F(ControlProviderUT, SecondCreateForSameInstanceFailsCleanly)
 
     // NOTE: this fails at LmControlSkeleton::Create() itself (an flock on a marker file), before
     // Create() ever reaches the `new ControlProvider{...}` this fix wraps in a unique_ptr guard.
-    // It does not exercise that guard's cleanup path -- no config-based way to make one of the
-    // later setup steps (setupActivateRunTarget/setupGetActiveRunTarget/offerService) fail was
-    // found; RegisterHandler succeeds even when a method is missing from the deployment config.
-    // That path's correctness rests on unique_ptr's RAII guarantee rather than on this test.
+    // It does not exercise that guard's cleanup path. Traced why no config-based trigger exists
+    // for the other three setup steps: SkeletonMethod::RegisterHandler (communication's
+    // score/mw/com/impl/bindings/lola/skeleton_method.cpp) unconditionally does
+    // `type_erased_callback_ = std::move(...); return {};` -- it cannot fail on this binding, so
+    // setupActivateRunTarget/setupGetActiveRunTarget can't either, and setupActivationResult's
+    // own body is an unconditional `return {};`. That leaves offerService(), whose only reachable
+    // failure mode here is genuine OS resource exhaustion (e.g. an artificially lowered FD
+    // rlimit) during SHM event-slot allocation -- deliberately not done here, since it'd depend on
+    // the binding's internal FD-consumption pattern and risk CI flakiness for little benefit. This
+    // path's correctness rests on unique_ptr's RAII guarantee rather than on an executable test.
     const Result<ControlProvider*> first_result = ControlProvider::Create(&graph_);
     ASSERT_TRUE(first_result.has_value());
 
