@@ -342,7 +342,7 @@ class Graph final
     /// @brief The interfaces passed to the process nodes to control their OS processes
     ProcessHandling process_handling_;
 
-    /// @brief Set the true if this is the MainPG and this is the initial state transition
+    /// @brief Set the true if this is the initial state transition
     bool is_initial_state_transition_{false};
 
     /// @brief The pending state transition, if any

@@ -187,9 +187,6 @@ class GraphTest : public ::testing::Test
     MockSupervisionFactory mock_factory_{};
     std::unique_ptr<Graph> graph_{};
 
-    static constexpr std::string_view pg_string{"MainPG"};
-    const IdentifierHash pg_name{pg_string};
-
     RunTargetConfig startup = {"Startup", "", {}, 10, {}};
     RunTargetConfig off = {"Off", "", {}, 10, {}};
     FallbackRunTargetConfig fallback = {
