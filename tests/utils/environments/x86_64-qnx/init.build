@@ -66,14 +66,21 @@
     fsevmgr
     waitfor /dev/fsnotify
 
-    # Create a RAM disk and mount it at /tmp
+    # Create RAM disks for the ITF test harness and temporary files.
     echo "---> Starting devb-ram"
-    devb-ram ram capacity=1 blk ramdisk=128m,cache=512k,vnode=256 2>/dev/null
+    devb-ram ram capacity=1 blk ramdisk=10m,cache=512k,vnode=256 2>/dev/null
     waitfor /dev/ram0
+    devb-ram ram capacity=1 blk ramdisk=128m,cache=512k,vnode=256 2>/dev/null
+    waitfor /dev/ram1
 
-    echo "---> Mounting RAM disk"
+    echo "---> Mounting discovery RAM disk"
     mkqnx6fs -q /dev/ram0
-    mount /dev/ram0 /tmp
+    mount /dev/ram0 /tmp_discovery
+    chmod 777 /tmp_discovery
+
+    echo "---> Mounting temporary RAM disk"
+    mkqnx6fs -q /dev/ram1
+    mount /dev/ram1 /tmp
     chmod 777 /tmp
 
     # Pseudo-terminal driver needed by sshd
