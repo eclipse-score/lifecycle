@@ -268,8 +268,8 @@ Launching Processes
 Conditional Launching
 =====================
 
-.. comp_req:: Conditionally launch of processes
-    :id: comp_req__launch_man__cond_process_start
+.. comp_req:: Configuration of component readiness conditions
+    :id: comp_req__launch_man__conf_of_comp_ready_cond
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -278,12 +278,12 @@ Conditional Launching
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall provide support to conditionally start a process
-    or process group based on the return value of a single or multiple :term:`Processes <Process>`
-    executed before.
+    The :term:`Launch Manager` shall support configuration of conditions that
+    shall be met before the component is considered to have reached its
+    :term:`Ready State`.
 
-.. comp_req:: Condition timeout
-    :id: comp_req__launch_man__total_wait_time_support
+.. comp_req:: Dependency based startup order
+    :id: comp_req__launch_man__dep_based_startup_order
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -292,11 +292,11 @@ Conditional Launching
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall provide support for per condition configurable
-    total wait time for launch conditions to be satisfied.
+    The :term:`Launch Manager` shall start a component only after all its
+    :term:`dependencies <Dependency (between components)>` have successfully reached their :term:`Ready State`.
 
-.. comp_req:: Conditional launch polling interval
-    :id: comp_req__launch_man__polling_interval
+.. comp_req:: Configuration of run target activation timeout
+    :id: comp_req__launch_man__conf_rt_active_tout
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -305,11 +305,11 @@ Conditional Launching
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall provide support for per condition configurable
-    :term:`Polling Interval` for launch conditions to be checked.
+    The :term:`Launch Manager` shall support configuration of the maximum time
+    an activation of a run target can take.
 
-.. comp_req:: Pre-start validation
-    :id: comp_req__launch_man__validate_conditions
+.. comp_req:: Run target activation timeout
+    :id: comp_req__launch_man__rt_activate_tout
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -318,10 +318,11 @@ Conditional Launching
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall be able to validate the pre-start conditions of the executable using the conditions.
+    If the activation of a run target exceeds the maximum configured time, then
+    the :term:`Launch Manager` shall consider this activation as failed.
 
-.. comp_req:: post-start validation
-    :id: comp_req__launch_man__validation_conditions
+.. comp_req:: Configuration of component activation timeout
+    :id: comp_req__launch_man__conf_comp_active_tout
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -330,7 +331,23 @@ Conditional Launching
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall be able to validate the start of the executable using the conditions.
+    The :term:Launch Manager shall support configuring a timeout value that
+    defines the maximum time allowed for a component to reach its
+    :term:`Ready State`.
+
+.. comp_req:: Component activation timeout
+    :id: comp_req__launch_man__comp_activate_tout
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    If a component does not reach its :term:`Ready State` within the configured
+    timeout, the :term:`Launch Manager` shall consider the component activation
+    attempt as failed.
 
 .. comp_req:: Launched Process status
     :id: comp_req__launch_man__launcher_status_storage
@@ -379,18 +396,6 @@ Conditional Launching
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide a method for condition check for a path.
-
-.. comp_req:: Condition check based on ENV
-    :id: comp_req__launch_man__env_variable_cond_check
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall provide a method for condition check for environment variable.
 
 .. comp_req:: Condition check based on all dependency
     :id: comp_req__launch_man__dependency_check
