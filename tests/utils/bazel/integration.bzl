@@ -19,6 +19,8 @@ load("//tests/utils/bazel:constants.bzl", "SCORE_TEST_INSTALL_PREFIX")
 
 DEFAULT_QEMU_CONFIG = "//config:qemu_config"
 DEFAULT_QEMU_IMAGE = "//config:qemu_image"
+DEFAULT_DOCKER_IMAGE_TARGET = "//tests/utils/environments/x86_64-linux"
+DEFAULT_DOCKER_IMAGE_TAG = "score_itf_examples:latest"
 
 def integration_test(
         name,
@@ -29,6 +31,8 @@ def integration_test(
         install_prefix = SCORE_TEST_INSTALL_PREFIX,
         qemu_config = DEFAULT_QEMU_CONFIG,
         qemu_image = DEFAULT_QEMU_IMAGE,
+        docker_image_target = DEFAULT_DOCKER_IMAGE_TARGET,
+        docker_image_tag = DEFAULT_DOCKER_IMAGE_TAG,
         plugins = [],
         **kwargs):
     """Creates an integration test.
@@ -51,6 +55,9 @@ def integration_test(
             Defaults to the `//config:qemu_config` label flag.
         qemu_image: QEMU image used by the QEMU test target.
             Defaults to the `//config:qemu_image` label flag.
+        docker_image_target: Docker image used by the
+            `//config:integration_docker` variant of this test.
+        docker_image_tag: `repo_tags` value for the image at `docker_image_target`.
         plugins: Additional bazel plugins used by the test.
         **kwargs: Miscellaneous arguments passed through to `py_itf_test`
     """
@@ -96,7 +103,7 @@ def integration_test(
     ]
     final_data = kwargs.pop("data", []) + [":{}".format(test_tar_name)] + select({
         "//config:integration_docker": [
-            "//tests/utils/environments/x86_64-linux",
+            docker_image_target,
         ],
         "//config:integration_qemu": [
             qemu_config,
@@ -110,8 +117,8 @@ def integration_test(
         "--score-test-remote-directory={}/tests/{}".format(install_prefix, name),
     ] + select({
         "//config:integration_docker": [
-            "--docker-image-bootstrap=$(location //tests/utils/environments/x86_64-linux)",
-            "--docker-image=score_itf_examples:latest",
+            "--docker-image-bootstrap=$(location {})".format(docker_image_target),
+            "--docker-image={}".format(docker_image_tag),
         ],
         "//config:integration_qemu": [
             "--qemu-config=$(location {})".format(qemu_config),
