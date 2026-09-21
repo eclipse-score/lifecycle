@@ -229,7 +229,7 @@ Dynamic Architecture
       * - 008
         - The badly behaving application terminates through the operating system.
 
-.. feat_arc_dyn:: Launch Manager - Components Depends on Termination
+.. feat_arc_dyn:: Launch Manager - Termination Order
    :id: feat_arc_dyn__lifecycle__lcm_term_order
    :security: YES
    :status: valid
@@ -246,7 +246,7 @@ Dynamic Architecture
       :align: center
 
    Configuration:
-   Reporting App 2 depends on the termination of Reporting App 1.
+   Reporting App 2 depends on the Running of Reporting App 1.
 
    .. list-table::
       :widths: 10 90
@@ -257,7 +257,7 @@ Dynamic Architecture
       * - 001
         - Launch Manager analyzes the current state of the system.
       * - 002
-        - Launch Manager determines the transition plan. In this case Reporting App 1 needs to be terminated before Reporting App 2 can be started.
+        - Launch Manager determines the transition plan. Reporting App 1 must be terminated first because Reporting App 2 depends on it running.
       * - 003
         - Launch Manager sends SIGTERM to Reporting App 1.
       * - 004
@@ -267,17 +267,17 @@ Dynamic Architecture
       * - 006
         - Launch Manager analyzes the current state of the system.
       * - 007
-        - Launch Manager determines the transition plan. In this case Reporting App 2 can be started.
+        - Launch Manager determines the transition plan. Reporting App 2 can now be terminated since Reporting App 1 is no longer running.
       * - 008
-        - Launch Manager starts Reporting App 2.
+        - Launch Manager sends SIGTERM to Reporting App 2.
       * - 009
-        - Reporting App 2 is started.
+        - Reporting App 2 terminates through the operating system.
       * - 010
-        - Launch Manager waits for the ready condition of Reporting App 2.
+        - The operating system reports the termination of Reporting App 2 to the Launch Manager.
       * - 011
-        - Reporting App 2 does its internal initialization.
+        - Launch Manager analyzes the current state of the system.
       * - 012
-        - Reporting App 2 signals to the Launch Manager that it has finished initialization.
+        - Launch Manager determines the transition plan for the next transition or run target.
 
 
 .. feat_arc_dyn:: Launch Manager - Run Components in Parallel
