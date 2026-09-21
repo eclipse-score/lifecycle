@@ -164,8 +164,8 @@ bool Graph::setState(const GraphState new_state)
     {
         auto request_end_time = std::chrono::steady_clock::now();
         auto timeDiff = std::chrono::duration_cast<std::chrono::milliseconds>(request_end_time - getRequestStartTime());
-        LM_LOG_INFO() << "Completed the request for PG" << getProcessGroupName() << "to State" << getProcessGroupState()
-                      << "in" << timeDiff.count() << "ms";
+        LM_LOG_INFO() << "Completed the request for run target" << getRequestedRunTarget() << "in" << timeDiff.count()
+                      << "ms";
     }
     return target_state == new_state;
 }
@@ -217,7 +217,7 @@ void Graph::finalizeTransitionSuccess()
 {
     if (active_run_target_callback_.has_value())
     {
-        const IdentifierHash state = getProcessGroupState();
+        const IdentifierHash state = getRequestedRunTarget();
 
         RunTargetActivationSource source;
         if (is_initial_state_transition_)
@@ -286,8 +286,8 @@ bool Graph::startTransition(IdentifierHash pg_state)
     IdentifierHash old_state_name;
     {
         std::lock_guard<std::mutex> lock(requested_state_mutex_);
-        old_state_name = requested_state_.pg_state_name_;
-        requested_state_.pg_state_name_ = pg_state;
+        old_state_name = requested_state_;
+        requested_state_ = pg_state;
     }
 
     if (!isValidRunTarget(pg_state))
@@ -340,7 +340,7 @@ bool Graph::startTransitionToOffState()
 bool Graph::isTransitioningToOff() const
 {
     std::lock_guard<std::mutex> lock(requested_state_mutex_);
-    return (getState() == GraphState::kInTransition) && (requested_state_.pg_state_name_ == off_state_);
+    return (getState() == GraphState::kInTransition) && (requested_state_ == off_state_);
 }
 
 void Graph::handleComponentEvent(const ComponentEvent& event)
@@ -468,20 +468,15 @@ ProcessInfoNode* Graph::getProcessInfoNode(IdentifierHash process_index)
     return std::get_if<ProcessInfoNode>(&nodes_[process_index]);
 }
 
-IdentifierHash Graph::getProcessGroupName()
-{
-    return requested_state_.pg_name_;
-}
-
 GraphState Graph::getState() const
 {
     return state_;
 }
 
-IdentifierHash Graph::getProcessGroupState()
+IdentifierHash Graph::getRequestedRunTarget()
 {
     std::lock_guard<std::mutex> lock(requested_state_mutex_);
-    return requested_state_.pg_state_name_;
+    return requested_state_;
 }
 
 IdentifierHash Graph::setPendingState(IdentifierHash new_state)
