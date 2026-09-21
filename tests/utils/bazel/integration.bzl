@@ -19,7 +19,7 @@ load("//tests/utils/bazel:constants.bzl", "SCORE_TEST_INSTALL_PREFIX")
 
 DEFAULT_QEMU_CONFIG = "//config:qemu_config"
 DEFAULT_QEMU_IMAGE = "//config:qemu_image"
-DEFAULT_DOCKER_IMAGE_TARGET = "//tests/utils/environments/x86_64-linux"
+DEFAULT_DOCKER_IMAGE_TARGET = "@score_lifecycle//tests/utils/environments/x86_64-linux"
 DEFAULT_DOCKER_IMAGE_TAG = "score_itf_examples:latest"
 
 def integration_test(
@@ -90,7 +90,7 @@ def integration_test(
 
     pkg_files(
         name = mw_com_config_pkg_name,
-        srcs = ["//tests/utils/environments:mw_com_config.json"],
+        srcs = ["@score_lifecycle//tests/utils/environments:mw_com_config.json"],
         prefix = "tests/{}/etc".format(name),
         attributes = pkg_attributes(mode = "0400"),
     )
@@ -99,7 +99,7 @@ def integration_test(
 
     final_deps = kwargs.pop("deps", []) + all_requirements + [
         "@score_tooling//python_basics/score_pytest:attribute_plugin",
-        "//tests/utils/testing_utils",
+        "@score_lifecycle//tests/utils/testing_utils",
     ]
     final_data = kwargs.pop("data", []) + [":{}".format(test_tar_name)] + select({
         "//config:integration_docker": [
@@ -128,7 +128,7 @@ def integration_test(
             "--local-dir=/tmp/score_itf_host/{}".format(name),
         ],
     })
-    final_plugins = plugins + ["//tests/utils/plugins:integration_plugin"] + select({
+    final_plugins = plugins + ["@score_lifecycle//tests/utils/plugins:integration_plugin"] + select({
         "//config:integration_docker": ["@score_itf//score/itf/plugins:docker_plugin"],
         "//config:integration_qemu": ["@score_itf//score/itf/plugins:qemu_plugin"],
         "//config:integration_host": ["//tests/utils/plugins:localhost_plugin"],
