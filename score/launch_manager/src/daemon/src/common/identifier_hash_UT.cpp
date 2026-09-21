@@ -195,3 +195,13 @@ TEST_F(IdentifierHashTest, IdentifierHash_IfExists_NotExisting_CString)
 
     EXPECT_FALSE(IdentifierHash::if_exists("Hello C-string").has_value());
 }
+
+TEST_F(IdentifierHashTest, IdentifierHash_GetName)
+{
+    RecordProperty(
+        "Description",
+        "Verify that IdentifierHash::get_name returns the correct name and does not modify the input object.");
+
+    const IdentifierHash hash{"Joe"};
+    EXPECT_EQ(hash.get_name(), "Joe");
+}
