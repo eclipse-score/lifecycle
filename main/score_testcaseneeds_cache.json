@@ -7420,6 +7420,20 @@
     "FullyVerifies": null
   },
   {
+    "name": "IdentifierHashTest__IdentifierHash_GetName",
+    "file": "score/launch_manager/src/daemon/src/common/identifier_hash_UT.cpp",
+    "line": "199",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing ",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
     "name": "FixedSizeQueueTest__StaticProperties",
     "file": "score/launch_manager/src/daemon/src/common/concurrency/fixed_size_queue_test.cpp",
     "line": "34",
