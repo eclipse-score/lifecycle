@@ -29,6 +29,7 @@ def integration_test(
         install_prefix = SCORE_TEST_INSTALL_PREFIX,
         qemu_config = DEFAULT_QEMU_CONFIG,
         qemu_image = DEFAULT_QEMU_IMAGE,
+        plugins = [],
         **kwargs):
     """Creates an integration test.
 
@@ -50,6 +51,7 @@ def integration_test(
             Defaults to the `//config:qemu_config` label flag.
         qemu_image: QEMU image used by the QEMU test target.
             Defaults to the `//config:qemu_image` label flag.
+        plugins: Additional bazel plugins used by the test.
         **kwargs: Miscellaneous arguments passed through to `py_itf_test`
     """
 
@@ -119,7 +121,7 @@ def integration_test(
             "--local-dir=/tmp/score_itf_host/{}".format(name),
         ],
     })
-    final_plugins = ["//tests/utils/plugins:integration_plugin"] + select({
+    final_plugins = plugins + ["//tests/utils/plugins:integration_plugin"] + select({
         "//config:integration_docker": ["@score_itf//score/itf/plugins:docker_plugin"],
         "//config:integration_qemu": ["@score_itf//score/itf/plugins:qemu_plugin"],
         "//config:integration_host": ["//tests/utils/plugins:localhost_plugin"],
