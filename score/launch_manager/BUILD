@@ -149,3 +149,11 @@ docs_bundle(
     source_dir = "docs",
     visibility = ["//visibility:public"],
 )
+
+docs_bundle(
+    name = "product_documentation",
+    data = ["//score/launch_manager/src/daemon/src/configuration/config_schema:config_schema_files"],
+    source_dir = "docs/product_documentation",
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+)
