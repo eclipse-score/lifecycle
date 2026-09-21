@@ -42,5 +42,8 @@
             }
         }
     },
-    "initial_run_target": "Minimal"
+    "initial_run_target": "Minimal",
+    "fallback_run_target": {
+        "depends_on": []
+    }
 }

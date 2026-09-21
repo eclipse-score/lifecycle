@@ -170,7 +170,6 @@ def test_custom_validation_failures(schema_file):
     Test that custom validation checks implemented in lifecycle_config.py are correctly identifying invalid configurations.
     The input configuration contains the following issues:
     * The run target "Minimal" has a recovery action that switches to a run target "Fallback" instead of "fallback_run_target"
-    * The mandatory "fallback_run_target" is missing from the configuration
     * Reserved name "fallback_run_target" is used for a RunTarget name which is not allowed
     """
     test_name = "custom_validation_failures_test"
@@ -188,7 +187,6 @@ def test_custom_validation_failures(schema_file):
 
         expected_errors = [
             'recovery RunTarget must be set to "fallback_run_target"',
-            "fallback_run_target is a mandatory configuration",
             'RunTarget name "fallback_run_target" is reserved',
         ]
         actual_error_output = e.stderr

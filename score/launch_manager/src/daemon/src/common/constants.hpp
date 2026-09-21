@@ -49,7 +49,7 @@ constexpr std::int64_t kMainLoopCycleTimeNs{kMainLoopCycleTimeMs * 1'000'000LL};
 enum class ProcessLimits : std::uint32_t
 {
     kMaxProcesses = 1024U,    ///< Maximum number of processes allowed
-    kNumWorkerThreads = 32U,  ///< Maximum number of worker threads allowed
+    kNumWorkerThreads = 16U,  ///< Size of the used thread pool
     maxLocalBuffSize = 32U    ///< Maximum size for local buffer
 };
 
