@@ -257,7 +257,7 @@ Dynamic Architecture
       * - 001
         - Launch Manager analyzes the current state of the system.
       * - 002
-        - Launch Manager determines the transition plan. Reporting App 1 must be terminated first because Reporting App 2 depends on it running.
+        - Launch Manager determines the transition plan. Reporting App 1 must be terminated first because Reporting App 1 depends on Reporting App 2 running.
       * - 003
         - Launch Manager sends SIGTERM to Reporting App 1.
       * - 004

@@ -40,7 +40,7 @@ deactivate app1
 LM -> LM: Analyze current state.
 LM -> LM: Determine transition plan.
 
-LM -> kernel: SIGTERM
+LM -> app2: SIGTERM
 kernel -> app2: Termination.
 destroy app2
 
