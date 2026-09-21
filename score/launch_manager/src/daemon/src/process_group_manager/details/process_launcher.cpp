@@ -172,10 +172,8 @@ void changeSecurityPolicy(const score::mw::lifecycle::internal::configuration::S
 namespace score::mw::lifecycle::internal::osal
 {
 
-OsalReturnType ProcessLauncher::startProcess(
-    ProcessID& pid,
-    IpcCommsP& block,
-    const score::mw::lifecycle::internal::configuration::ComponentConfig& config)
+OsalReturnType
+ProcessLauncher::startProcess(ProcessID& pid, IpcCommsP& block, const configuration::ComponentConfig& config)
 {
     OsalReturnType result = OsalReturnType::kFail;
 
@@ -194,7 +192,7 @@ OsalReturnType ProcessLauncher::startProcess(
         bool comms_result = true;
 
         auto app_type = config.component_properties.application_profile.application_type;
-        if (app_type != score::mw::lifecycle::internal::configuration::ApplicationType::Native)
+        if (app_type != configuration::ApplicationType::Native)
         {
             comms_result = setupComms(block, fd, config);
         }
