@@ -744,12 +744,6 @@ def test_custom_validations_ready_condition_both_states(full_valid_config):
     assert custom_validations(full_valid_config) is False
 
 
-def test_custom_validations_missing_fallback_run_target(full_valid_config):
-    """fallback_run_target is mandatory."""
-    del full_valid_config["fallback_run_target"]
-    assert custom_validations(full_valid_config) is False
-
-
 def test_custom_validations_cyclic_deps_fails(full_valid_config):
     """Cyclic dependencies from check_cyclic_dependencies should be caught."""
     full_valid_config["components"]["c1"] = {
@@ -766,7 +760,6 @@ def test_custom_validations_multiple_errors(full_valid_config):
     """When multiple validations fail all errors are reported and result is False."""
     full_valid_config["run_targets"]["fallback_run_target"] = {"depends_on": []}
     full_valid_config["run_targets"]["app1"] = {"depends_on": []}
-    del full_valid_config["fallback_run_target"]
     assert custom_validations(full_valid_config) is False
 
 
@@ -1406,3 +1399,14 @@ def test_schema_validation_rejects_out_of_range_ms_field(schema_file):
         schema_validation(_minimal_config_with_ready_timeout_ms(4294967296), schema)
         is False
     )
+
+
+def test_schema_validation_requires_fallback_run_target(schema_file):
+    """fallback_run_target is a mandatory top-level property in the schema."""
+    schema = load_json_file(schema_file)
+
+    config = _minimal_config_with_ready_timeout_ms(500)
+    assert schema_validation(config, schema) is True
+
+    del config["fallback_run_target"]
+    assert schema_validation(config, schema) is False

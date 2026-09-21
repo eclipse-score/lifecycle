@@ -533,7 +533,8 @@
   },
   "required": [
     "schema_version",
-    "initial_run_target"
+    "initial_run_target",
+    "fallback_run_target"
   ],
   "additionalProperties": false
 }

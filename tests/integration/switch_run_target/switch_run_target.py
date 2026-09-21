@@ -18,13 +18,16 @@ from attribute_plugin import add_test_properties
 
 @add_test_properties(
     fully_verifies=[
-        "feat_req__lifecycle__request_run_target_start",
-        "feat_req__lifecycle__switch_run_targets",
-        "comp_req__launch_man__process_state_comm",
-        "feat_req__lifecycle__process_termination",
-        "feat_req__lifecycle__terminationn_dependency",
+        "feat_req__lifecycle__conditional_startup",
+        "feat_req__lifecycle__control_commands",
         "feat_req__lifecycle__process_ordering",
+        "feat_req__lifecycle__process_termination",
+        "feat_req__lifecycle__request_run_target_start",
+        "feat_req__lifecycle__run_target_support",
+        "feat_req__lifecycle__switch_run_targets",
+        "feat_req__lifecycle__terminationn_dependency",
         "comp_req__launch_man__launch_manager_shutdown",
+        "comp_req__launch_man__process_state_comm",
     ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",

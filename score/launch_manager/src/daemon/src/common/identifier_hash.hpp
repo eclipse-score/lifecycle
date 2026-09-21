@@ -132,6 +132,9 @@ class IdentifierHash final
     /// @return A reference to the static mutex guarding get_registry().
     static std::mutex& get_registry_mutex();
 
+    /// @brief Returns the name associated with this IdentifierHash.
+    std::string_view get_name() const;
+
   private:
     /// @brief Constructs an IdentifierHash object with the given ID.
     /// @param A raw ID.
