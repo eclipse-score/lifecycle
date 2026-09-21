@@ -18,7 +18,7 @@ Launch Manager
 .. toctree::
    :titlesonly:
 
-   user_guide/index.rst
+   product_documentation/index.rst
    product_documentation/known_limitations.rst
 
 .. toctree::
