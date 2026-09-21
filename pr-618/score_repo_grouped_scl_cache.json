@@ -7,6 +7,66 @@
     },
     "needs": [
       {
+        "need": "comp_req__launch_man__conf_of_comp_ready_cond",
+        "links": {
+          "CodeLinks": [
+            {
+              "file": "score/launch_manager/src/daemon/src/configuration/component_config.hpp",
+              "line": 81,
+              "tag": "// req-Id:",
+              "need": "comp_req__launch_man__conf_of_comp_ready_cond",
+              "full_line": "// req-Id: comp_req__launch_man__conf_of_comp_ready_cond"
+            }
+          ],
+          "TestLinks": []
+        }
+      },
+      {
+        "need": "comp_req__launch_man__conf_comp_active_tout",
+        "links": {
+          "CodeLinks": [
+            {
+              "file": "score/launch_manager/src/daemon/src/configuration/component_config.hpp",
+              "line": 98,
+              "tag": "// req-Id:",
+              "need": "comp_req__launch_man__conf_comp_active_tout",
+              "full_line": "// req-Id: comp_req__launch_man__conf_comp_active_tout"
+            }
+          ],
+          "TestLinks": []
+        }
+      },
+      {
+        "need": "comp_req__launch_man__conf_rt_active_tout",
+        "links": {
+          "CodeLinks": [
+            {
+              "file": "score/launch_manager/src/daemon/src/configuration/config.hpp",
+              "line": 37,
+              "tag": "// req-Id:",
+              "need": "comp_req__launch_man__conf_rt_active_tout",
+              "full_line": "// req-Id: comp_req__launch_man__conf_rt_active_tout"
+            }
+          ],
+          "TestLinks": []
+        }
+      },
+      {
+        "need": "comp_req__launch_man__dep_based_startup_order",
+        "links": {
+          "CodeLinks": [
+            {
+              "file": "score/launch_manager/src/daemon/src/process_group_manager/details/transition.hpp",
+              "line": 254,
+              "tag": "// req-Id:",
+              "need": "comp_req__launch_man__dep_based_startup_order",
+              "full_line": "// req-Id: comp_req__launch_man__dep_based_startup_order"
+            }
+          ],
+          "TestLinks": []
+        }
+      },
+      {
         "need": "feat_req__lifecycle__parallel_launch_support",
         "links": {
           "CodeLinks": [],
@@ -16,6 +76,74 @@
               "file": "tests/integration/parallel_launch/parallel_launch.py",
               "line": 19,
               "need": "feat_req__lifecycle__parallel_launch_support",
+              "verify_type": "fully",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
+        }
+      },
+      {
+        "need": "feat_req__lifecycle__conditional_startup",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
+            {
+              "name": "test_switch_run_target",
+              "file": "tests/integration/switch_run_target/switch_run_target.py",
+              "line": 19,
+              "need": "feat_req__lifecycle__conditional_startup",
+              "verify_type": "fully",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
+        }
+      },
+      {
+        "need": "feat_req__lifecycle__control_commands",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
+            {
+              "name": "test_switch_run_target",
+              "file": "tests/integration/switch_run_target/switch_run_target.py",
+              "line": 19,
+              "need": "feat_req__lifecycle__control_commands",
+              "verify_type": "fully",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
+        }
+      },
+      {
+        "need": "feat_req__lifecycle__process_ordering",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
+            {
+              "name": "test_switch_run_target",
+              "file": "tests/integration/switch_run_target/switch_run_target.py",
+              "line": 19,
+              "need": "feat_req__lifecycle__process_ordering",
+              "verify_type": "fully",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
+        }
+      },
+      {
+        "need": "feat_req__lifecycle__process_termination",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
+            {
+              "name": "test_switch_run_target",
+              "file": "tests/integration/switch_run_target/switch_run_target.py",
+              "line": 19,
+              "need": "feat_req__lifecycle__process_termination",
               "verify_type": "fully",
               "result": "passed",
               "result_text": ""
@@ -41,6 +169,23 @@
         }
       },
       {
+        "need": "feat_req__lifecycle__run_target_support",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
+            {
+              "name": "test_switch_run_target",
+              "file": "tests/integration/switch_run_target/switch_run_target.py",
+              "line": 19,
+              "need": "feat_req__lifecycle__run_target_support",
+              "verify_type": "fully",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
+        }
+      },
+      {
         "need": "feat_req__lifecycle__switch_run_targets",
         "links": {
           "CodeLinks": [],
@@ -50,6 +195,40 @@
               "file": "tests/integration/switch_run_target/switch_run_target.py",
               "line": 19,
               "need": "feat_req__lifecycle__switch_run_targets",
+              "verify_type": "fully",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
+        }
+      },
+      {
+        "need": "feat_req__lifecycle__terminationn_dependency",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
+            {
+              "name": "test_switch_run_target",
+              "file": "tests/integration/switch_run_target/switch_run_target.py",
+              "line": 19,
+              "need": "feat_req__lifecycle__terminationn_dependency",
+              "verify_type": "fully",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
+        }
+      },
+      {
+        "need": "comp_req__launch_man__launch_manager_shutdown",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
+            {
+              "name": "test_switch_run_target",
+              "file": "tests/integration/switch_run_target/switch_run_target.py",
+              "line": 19,
+              "need": "comp_req__launch_man__launch_manager_shutdown",
               "verify_type": "fully",
               "result": "passed",
               "result_text": ""
@@ -85,74 +264,6 @@
               "file": "tests/integration/process_launch_args/process_launch_args.py",
               "line": 19,
               "need": "comp_req__launch_man__process_state_comm",
-              "verify_type": "fully",
-              "result": "passed",
-              "result_text": ""
-            }
-          ]
-        }
-      },
-      {
-        "need": "feat_req__lifecycle__process_termination",
-        "links": {
-          "CodeLinks": [],
-          "TestLinks": [
-            {
-              "name": "test_switch_run_target",
-              "file": "tests/integration/switch_run_target/switch_run_target.py",
-              "line": 19,
-              "need": "feat_req__lifecycle__process_termination",
-              "verify_type": "fully",
-              "result": "passed",
-              "result_text": ""
-            }
-          ]
-        }
-      },
-      {
-        "need": "feat_req__lifecycle__terminationn_dependency",
-        "links": {
-          "CodeLinks": [],
-          "TestLinks": [
-            {
-              "name": "test_switch_run_target",
-              "file": "tests/integration/switch_run_target/switch_run_target.py",
-              "line": 19,
-              "need": "feat_req__lifecycle__terminationn_dependency",
-              "verify_type": "fully",
-              "result": "passed",
-              "result_text": ""
-            }
-          ]
-        }
-      },
-      {
-        "need": "feat_req__lifecycle__process_ordering",
-        "links": {
-          "CodeLinks": [],
-          "TestLinks": [
-            {
-              "name": "test_switch_run_target",
-              "file": "tests/integration/switch_run_target/switch_run_target.py",
-              "line": 19,
-              "need": "feat_req__lifecycle__process_ordering",
-              "verify_type": "fully",
-              "result": "passed",
-              "result_text": ""
-            }
-          ]
-        }
-      },
-      {
-        "need": "comp_req__launch_man__launch_manager_shutdown",
-        "links": {
-          "CodeLinks": [],
-          "TestLinks": [
-            {
-              "name": "test_switch_run_target",
-              "file": "tests/integration/switch_run_target/switch_run_target.py",
-              "line": 19,
-              "need": "comp_req__launch_man__launch_manager_shutdown",
               "verify_type": "fully",
               "result": "passed",
               "result_text": ""
@@ -231,7 +342,7 @@
               "file": "tests/integration/process_simple_rep_failure/process_simple_rep_failure.py",
               "line": 19,
               "need": "feat_req__lifecycle__recovery_action_support",
-              "verify_type": "partially",
+              "verify_type": "fully",
               "result": "passed",
               "result_text": ""
             },
@@ -318,7 +429,7 @@
               "file": "tests/integration/process_simple_rep_failure/process_simple_rep_failure.py",
               "line": 19,
               "need": "feat_req__lifecycle__recov_run_target_switch",
-              "verify_type": "partially",
+              "verify_type": "fully",
               "result": "passed",
               "result_text": ""
             },
@@ -328,6 +439,32 @@
               "line": 19,
               "need": "feat_req__lifecycle__recov_run_target_switch",
               "verify_type": "partially",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
+        }
+      },
+      {
+        "need": "feat_req__lifecycle__liveliness_detection",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
+            {
+              "name": "test_crash_on_startup",
+              "file": "tests/integration/crash_on_startup/crash_on_startup.py",
+              "line": 22,
+              "need": "feat_req__lifecycle__liveliness_detection",
+              "verify_type": "fully",
+              "result": "passed",
+              "result_text": ""
+            },
+            {
+              "name": "test_recovery_action_simple_rep_failure",
+              "file": "tests/integration/process_simple_rep_failure/process_simple_rep_failure.py",
+              "line": 19,
+              "need": "feat_req__lifecycle__liveliness_detection",
+              "verify_type": "fully",
               "result": "passed",
               "result_text": ""
             }
