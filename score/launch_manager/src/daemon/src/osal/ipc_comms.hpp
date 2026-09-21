@@ -18,7 +18,7 @@
 #include <memory>
 
 #include "score/mw/launch_manager/common/log.hpp"
-#include "semaphore.hpp"
+#include "score/mw/launch_manager/osal/semaphore.hpp"
 
 namespace score::mw::lifecycle::internal::osal
 {

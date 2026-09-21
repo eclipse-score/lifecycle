@@ -23,7 +23,7 @@
 #include <chrono>
 #include <cstdint>
 
-#include "return_types.hpp"
+#include "score/mw/launch_manager/osal/return_types.hpp"
 
 namespace score::mw::lifecycle::internal::osal
 {

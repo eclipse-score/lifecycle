@@ -25,7 +25,6 @@ cc_library(
     name = "semaphore",
     srcs = ["details/posix/semaphore.cpp"],
     hdrs = [
-        "return_types.hpp",
         "semaphore.hpp",
     ],
     include_prefix = "score/mw/launch_manager/osal",
@@ -38,7 +37,6 @@ cc_library(
     name = "wait_for_file",
     srcs = ["details/posix/wait_for_file.cpp"],
     hdrs = [
-        "return_types.hpp",
         "wait_for_file.hpp",
     ],
     include_prefix = "score/mw/launch_manager/osal",
@@ -73,7 +71,6 @@ cc_library(
     name = "ifile_waiter",
     hdrs = [
         "ifile_waiter.hpp",
-        "return_types.hpp",
     ],
     include_prefix = "score/mw/launch_manager/osal",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/osal",
@@ -165,8 +162,6 @@ cc_library(
     name = "ipc_comms",
     hdrs = [
         "ipc_comms.hpp",
-        "return_types.hpp",
-        "semaphore.hpp",
     ],
     include_prefix = "score/mw/launch_manager/osal",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/osal",
