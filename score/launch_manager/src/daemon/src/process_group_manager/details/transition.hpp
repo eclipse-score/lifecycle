@@ -251,6 +251,7 @@ class Transition
     /// aborted transition are captured too). Then moves to the Starting Phase to bring up @p target.
     void setupTransition(Key target)
     {
+        // req-Id: comp_req__launch_man__dep_based_startup_order
         // Sets up or resets our stored info for this transition
         for (const auto& [key, value] : graph_)
         {
