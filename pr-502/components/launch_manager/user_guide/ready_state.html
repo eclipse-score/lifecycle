@@ -568,18 +568,28 @@
 <strong>Launch Manager</strong> considers that component to have reached its <strong>Ready
 State</strong>.</p>
 <p>The following ready conditions are supported:</p>
-<section id="running">
-<span id="lm-ready-condition-running"></span><h2>Running<a class="headerlink" href="#running" title="Link to this heading">#</a></h2>
-<p><strong>Configuration value:</strong> <code class="docutils literal notranslate"><span class="pre">&quot;Running&quot;</span></code></p>
+<section id="process-running">
+<span id="lm-ready-condition-running"></span><h2>Process Running<a class="headerlink" href="#process-running" title="Link to this heading">#</a></h2>
+<p><strong>Configuration:</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">   </span><span class="nt">&quot;process_state&quot;</span><span class="p">:</span><span class="s2">&quot;Running&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 <p>The component is considered ready as soon as its process has reported
 <code class="docutils literal notranslate"><span class="pre">kRunning</span></code> to the <strong>Launch Manager</strong> via the lifecycle API. The process is
 expected to remain alive and continue providing its service.</p>
 <p>Use this condition for long-running daemons that signal readiness once their
 initialization is complete.</p>
 </section>
-<section id="terminated">
-<span id="lm-ready-condition-terminated"></span><h2>Terminated<a class="headerlink" href="#terminated" title="Link to this heading">#</a></h2>
-<p><strong>Configuration value:</strong> <code class="docutils literal notranslate"><span class="pre">&quot;Terminated&quot;</span></code></p>
+<section id="process-terminated">
+<span id="lm-ready-condition-terminated"></span><h2>Process Terminated<a class="headerlink" href="#process-terminated" title="Link to this heading">#</a></h2>
+<p><strong>Configuration:</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">   </span><span class="nt">&quot;process_state&quot;</span><span class="p">:</span><span class="s2">&quot;Terminated&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 <p>The component is considered ready once its process has reported <code class="docutils literal notranslate"><span class="pre">kRunning</span></code>
 via the lifecycle API <strong>and</strong> subsequently terminated with a successful exit
 code.
@@ -587,6 +597,32 @@ A process that exits without first reporting <code class="docutils literal notra
 failure, not as reaching the Ready State.</p>
 <p>Use this condition for one-shot tasks (e.g. mounting a filesystem, applying
 configuration) that signal completion by exiting cleanly.</p>
+</section>
+<section id="file-state">
+<span id="lm-ready-condition-filestate"></span><h2>File State<a class="headerlink" href="#file-state" title="Link to this heading">#</a></h2>
+<p><strong>Configuration:</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">   </span><span class="nt">&quot;file_state&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Exists&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;polling_interval&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.01</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;file_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/var/run/b/ready&quot;</span>
+<span class="w">   </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">   </span><span class="nt">&quot;file_state&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;NotExisting&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;polling_interval&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.01</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;file_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/var/run/c/startup.lock&quot;</span>
+<span class="w">   </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The component is considered ready once the file specified in <code class="docutils literal notranslate"><span class="pre">file_path</span></code>
+reaches the desired state (<code class="docutils literal notranslate"><span class="pre">Exists</span></code> or <code class="docutils literal notranslate"><span class="pre">NotExisting</span></code>).</p>
+<p>The Launch Manager polls for the existence or deletion of the file with the
+configured <code class="docutils literal notranslate"><span class="pre">polling_interval</span></code>.</p>
 </section>
 </section>
 
@@ -637,8 +673,9 @@ configuration) that signal completion by exiting cleanly.</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running">Running</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#terminated">Terminated</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#process-running">Process Running</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#process-terminated">Process Terminated</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#file-state">File State</a></li>
 </ul>
   </nav></div>
 
