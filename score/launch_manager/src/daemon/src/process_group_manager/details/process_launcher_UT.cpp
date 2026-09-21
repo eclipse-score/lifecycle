@@ -498,6 +498,12 @@ class StartProcessTest : public ProcessLauncherTest
         ProcessLauncherTest::TearDown();
     }
 
+    void ExpectChildProcessStarts()
+    {
+        EXPECT_CALL(*g_syscall_mock, access).WillOnce(Return(0));
+        EXPECT_CALL(*g_syscall_mock, fork).WillOnce(Return(0));
+    }
+
     IpcCommsSync* StubShmObject()
     {
         const int fd = 123;
@@ -542,6 +548,63 @@ TEST_F(StartProcessTest, startProcessForkFailed)
 
     EXPECT_CALL(*g_syscall_mock, access(_, _)).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, fork).WillOnce(Return(-1));
+
+    EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
+}
+
+TEST_F(StartProcessTest, handleCommsFailsFnctl)
+{
+    RecordProperty(
+        "Description", "Verify that the forked process exits if setting up comms fails due to a syscall failure");
+
+    config_.component_properties.application_profile.application_type = configuration::ApplicationType::Reporting;
+    ExpectChildProcessStarts();
+    StubShmObject();
+    EXPECT_CALL(*g_syscall_mock, fcntl).WillOnce(Return(-1));
+
+    EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE));
+
+    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+}
+
+class SetupCommsTest : public StartProcessTest
+{
+    void SetUp() override
+    {
+        StartProcessTest::SetUp();
+
+        config_.component_properties.application_profile.application_type = configuration::ApplicationType::Reporting;
+
+        EXPECT_CALL(*g_syscall_mock, access).WillOnce(Return(0));
+    }
+};
+
+TEST_F(SetupCommsTest, shmOpenFails)
+{
+    RecordProperty("Description", "Verify that if opening shared memory fails, startProcess fails");
+
+    EXPECT_CALL(*g_syscall_mock, shm_open).WillOnce(Return(-1));
+
+    EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
+}
+
+TEST_F(SetupCommsTest, ftruncateFails)
+{
+    RecordProperty("Description", "Verify that if truncating shared memory fails, startProcess fails");
+
+    EXPECT_CALL(*g_syscall_mock, shm_open).WillOnce(Return(123));
+    EXPECT_CALL(*g_syscall_mock, ftruncate).WillOnce(Return(-1));
+
+    EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
+}
+
+TEST_F(SetupCommsTest, getCommsFails)
+{
+    RecordProperty("Description", "Verify that if truncating shared memory fails, startProcess fails");
+
+    EXPECT_CALL(*g_syscall_mock, shm_open).WillOnce(Return(123));
+    EXPECT_CALL(*g_syscall_mock, ftruncate).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, mmap).WillOnce(Return(MAP_FAILED));
 
     EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
 }
@@ -705,6 +768,19 @@ TEST_F(StartProcessTest, setRLimitFails)
     EXPECT_CALL(*g_syscall_mock, setrlimit).WillOnce(Return(-1));
 
     EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE));
+
+    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+}
+
+TEST_F(StartProcessTest, setRLimitIgnore)
+{
+    RecordProperty("Description", "Verify that rlimits are not set if the configured value is 0");
+
+    config_.deployment_config.sandbox.max_cpu_usage = 0;
+    config_.deployment_config.sandbox.max_memory_usage = 0;
+
+    EXPECT_CALL(*g_syscall_mock, access).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, setrlimit).Times(0);
 
     static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
 }

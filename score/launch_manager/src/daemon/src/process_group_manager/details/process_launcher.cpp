@@ -82,8 +82,6 @@ void setLimit(const int resource, const std::size_t amount, const std::string_vi
 /// @details The implementation should be async signal safe.
 void handleComms(score::mw::lifecycle::internal::osal::ChildProcessConfig& param)
 {
-    // kNoComms !fd3 & !fd4
-    // kReporting  fd3 & !fd4
     if (!param.shared_block)
     {
         // kNoComms, fds are CLOEXEC
@@ -96,26 +94,17 @@ void handleComms(score::mw::lifecycle::internal::osal::ChildProcessConfig& param
     // It must be ensured that sync_fd (f3) remains open depending on
     // the communication type. Flag FD_CLOEXEC is cleared conditionally to ensure that the
     // respective file descriptor remains open after the execve call.
-    switch (param.shared_block->comms_type_)
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
+        param.shared_block->comms_type_ != CommsType::kNoComms,
+        "This case means param.shared_block == nullptr and is expected to be handled above");
+
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
+        param.shared_block->comms_type_ == CommsType::kReporting, "This is the only remaining comms type in use");
+
+    if (-1 == fcntl(IpcCommsSync::sync_fd, F_SETFD, 0))
     {
-        case CommsType::kNoComms:
-            // in the current implementation this case means param.shared_block == nullptr and is handled above
-            break;
-        case CommsType::kReporting:
-            if (-1 == fcntl(IpcCommsSync::sync_fd, F_SETFD, 0))
-            {
-                static_cast<void>(signal_safe_log_errno(errno, "fcntl at line ", __LINE__, " failed"));
-                sysexit(EXIT_FAILURE);
-            }
-            break;
-        default:
-            static_cast<void>(signal_safe_log(
-                "at line ",
-                __LINE__,
-                " unknown CommsType ",
-                static_cast<std::int32_t>(param.shared_block->comms_type_)));
-            sysexit(EXIT_FAILURE);
-            break;
+        static_cast<void>(signal_safe_log_errno(errno, "fcntl at line ", __LINE__, " failed"));
+        sysexit(EXIT_FAILURE);
     }
 }
 
@@ -248,8 +237,6 @@ ProcessLauncher::startProcess(ProcessID& pid, IpcCommsP& block, const configurat
 
 bool ProcessLauncher::setupComms(IpcCommsP& block, int& fd, const configuration::ComponentConfig& config)
 {
-    const auto app_type = config.component_properties.application_profile.application_type;
-
     size_t length = sizeof(IpcCommsSync);
 
     constexpr std::string_view kShmNamePrefix{"/ipc_shared_mem"};
@@ -294,17 +281,11 @@ bool ProcessLauncher::setupComms(IpcCommsP& block, int& fd, const configuration:
     }
 
     // Map application type to CommsType for backward compatibility
-    switch (app_type)
-    {
-        case configuration::ApplicationType::Native:
-            block->comms_type_ = CommsType::kNoComms;
-            break;
-        case configuration::ApplicationType::Reporting:
-        case configuration::ApplicationType::ReportingAndSupervised:
-        default:
-            block->comms_type_ = CommsType::kReporting;
-            break;
-    }
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
+        config.component_properties.application_profile.application_type != configuration::ApplicationType::Native,
+        "We should not set up the comms object if the application type is native. This used to be the kNoComms case");
+
+    block->comms_type_ = CommsType::kReporting;
 
     if (!initializeSemaphores(block))
     {
