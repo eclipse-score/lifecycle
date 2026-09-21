@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Launch Manager Configuration &#8212; Lifecycle and Health Management  documentation</title>
+    <title>Lifecycle Client &#8212; Lifecycle and Health Management  documentation</title>
   
   
   
@@ -62,7 +62,7 @@
     <script src="../../../_static/sphinx-needs/libs/html/datatables.min.js?v=8a4aee21"></script>
     <script src="../../../_static/sphinx-needs/libs/html/datatables_loader.js?v=a2cae175"></script>
     <script src="../../../_static/sphinx-needs/libs/html/sphinx_needs_collapse.js?v=dca66431"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'features/lifecycle/architecture/launch_manager_configuration';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'features/lifecycle/architecture/lifecycle_client';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://eclipse-score.github.io/lifecycle/versions.json';
@@ -73,8 +73,6 @@
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Health Monitor" href="health_monitor.html" />
-    <link rel="prev" title="Launch manager" href="launch_manager.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -159,7 +157,7 @@
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-<li class="nav-item current active">
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../../index.html">
     Features
   </a>
@@ -323,8 +321,10 @@
       
       
       
+        
+      
       <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
         
 
   
@@ -339,7 +339,7 @@
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-<li class="nav-item current active">
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../../index.html">
     Features
   </a>
@@ -458,43 +458,6 @@
     
   </div>
   
-    <div class="sidebar-primary-items__start sidebar-primary__section">
-        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
-  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
-  </svg>
-  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
-  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
-</button></div>
-        <div class="sidebar-primary-item">
-
-<nav class="bd-docs-nav bd-links"
-     aria-label="Section Navigation">
-  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Lifecycle</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Feature Architecture</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="launch_manager.html">Launch manager</a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="#">Launch Manager Configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="health_monitor.html">Health Monitor</a></li>
-<li class="toctree-l3"><a class="reference internal" href="external_monitoring.html">External Monitoring</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2"><a class="reference internal" href="chklst_arc_inspection.html">Architecture Inspection Checklist</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../safety_analysis/fmea.html">FMEA (Failure Modes and Effects Analysis)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../safety_analysis/dfa.html">DFA (Dependent Failure Analysis)</a></li>
-
-<li class="toctree-l2"><a class="reference internal" href="../safety_analysis/aou_requirements.html">AoU Feature Requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../safety_planning/index.html">Feature Safety Work Products List</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../security_planning/index.html">Feature Security Work Products List</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../glossary.html">Glossary</a></li>
-</ul>
-</details></li>
-</ul>
-</div>
-</nav></div>
-    </div>
-  
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
       <div class="sidebar-primary-item">
@@ -530,16 +493,7 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    
-    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Features</a></li>
-    
-    
-    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Lifecycle</a></li>
-    
-    
-    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Feature Architecture</a></li>
-    
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Launch Manager Configuration</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Lifecycle Client</span></li>
   </ul>
 </nav>
 </div>
@@ -556,51 +510,28 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="launch-manager-configuration">
-<h1>Launch Manager Configuration<a class="headerlink" href="#launch-manager-configuration" title="Link to this heading">#</a></h1>
-<p>The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> supports a set of configuration parameters, which are grouped in the following categories:</p>
-<section id="component-configuration-parameters">
-<h2>Component Configuration Parameters<a class="headerlink" href="#component-configuration-parameters" title="Link to this heading">#</a></h2>
-<p>These parameters specify the arguments needed for spawning a process.</p>
+  <section id="lifecycle-client">
+<h1>Lifecycle Client<a class="headerlink" href="#lifecycle-client" title="Link to this heading">#</a></h1>
+<p>The lifecycle interface is defined here:
+<a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int__lifecycle__lifecycle_if">logic_arc_int__lifecycle__lifecycle_if</a></p>
+<p>The following use cases are supported by the Lifecycle Interface, with
+different capabilities depending on the application type.</p>
+<p><strong>SCORE Application State Communication</strong></p>
+<p>SCORE applications implementing the Lifecycle Interface can communicate their
+internal state to the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a>.
+The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> uses this state information for:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="../../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__uid_gid_support" title="comp_req__launch_man__uid_gid_support"><em class="xref need">Process user, group IDs sup... (comp_req__launch_man__uid_gid_support)</em></a></p></li>
-<li><p><a class="reference internal" href="../../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__supplementary_groups" title="comp_req__launch_man__supplementary_groups"><em class="xref need">Supplementary group support (comp_req__launch_man__supplementary_groups)</em></a></p></li>
-<li><p><a class="reference internal" href="../../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__runmask_support" title="comp_req__launch_man__runmask_support"><em class="xref need">CPU runmask support (comp_req__launch_man__runmask_support)</em></a></p></li>
-<li><p><a class="reference internal" href="../../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__launch_priority_support" title="comp_req__launch_man__launch_priority_support"><em class="xref need">Process priority support (comp_req__launch_man__launch_priority_support)</em></a></p></li>
-<li><p><a class="reference internal" href="../../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__cwd_support" title="comp_req__launch_man__cwd_support"><em class="xref need">CWD support (comp_req__launch_man__cwd_support)</em></a></p></li>
-<li><p><a class="reference internal" href="../../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_launch_args" title="comp_req__launch_man__process_launch_args"><em class="xref need">Handling process args (comp_req__launch_man__process_launch_args)</em></a></p></li>
-<li><p><a class="reference internal" href="../../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__std_handle_redir" title="comp_req__launch_man__std_handle_redir"><em class="xref need">Standard handle redirection (comp_req__launch_man__std_handle_redir)</em></a></p></li>
-<li><p><a class="reference internal" href="../../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__aslr_support" title="comp_req__launch_man__aslr_support"><em class="xref need">ASLR support (comp_req__launch_man__aslr_support)</em></a></p></li>
-<li><p><a class="reference internal" href="../../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_rlimit_support" title="comp_req__launch_man__process_rlimit_support"><em class="xref need">Resource limit support (comp_req__launch_man__process_rlimit_support)</em></a></p></li>
-<li><p><a class="reference internal" href="../../../components/launch_manager/requirements/requirements.html#comp_req__launch_man__support_secpol_type" title="comp_req__launch_man__support_secpol_type"><em class="xref need">Security policy support (comp_req__launch_man__support_secpol_type)</em></a></p></li>
+<li><p>Dependency resolution for other applications</p></li>
+<li><p>Recovery action decisions</p></li>
+<li><p>Status reporting to external state managers via the Control Interface</p></li>
 </ul>
-</section>
-<section id="dependency-parameters">
-<h2>Dependency parameters<a class="headerlink" href="#dependency-parameters" title="Link to this heading">#</a></h2>
-<p>These parameters specify how the components depend on each other.</p>
-</section>
-<section id="recovery-parameters">
-<h2>Recovery parameters<a class="headerlink" href="#recovery-parameters" title="Link to this heading">#</a></h2>
-<p>These parameters specify the recovery actions for a component, when it fails.</p>
-</section>
-<section id="alive-monitoring-parameters">
-<h2>Alive monitoring parameters<a class="headerlink" href="#alive-monitoring-parameters" title="Link to this heading">#</a></h2>
-<p>These parameters specify the alive monitoring rules for the application.</p>
-</section>
-<section id="requirements-related-to-the-external-monitoring">
-<h2>Requirements related to the external monitoring<a class="headerlink" href="#requirements-related-to-the-external-monitoring" title="Link to this heading">#</a></h2>
-<p>These parameters specify how the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> itself is monitored.</p>
-<ul class="simple">
-<li><p><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__lm_self_health_check">feat_req__lifecycle__lm_self_health_check</a></p></li>
-</ul>
-</section>
-<section id="static-architecture">
-<h2>Static Architecture<a class="headerlink" href="#static-architecture" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-7908ae42">
-<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_logic_arc_int table" id="logic_arc_int__lifecycle__cfg_params_static">
+<section id="dynamic-architecture">
+<h2>Dynamic Architecture<a class="headerlink" href="#dynamic-architecture" title="Link to this heading">#</a></h2>
+<div class="need_container docutils container" id="SNCB-b933e464">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__state_machine_if">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
-<div class="line"><span><span class="needs_title"><span class="needs_data">Configuration parameters static architecture</span></span></span></div>
+<div class="line"><span><span class="needs_title"><span class="needs_data">Component State Machine</span></span></span></div>
 </div>
 </td>
 <td class="head_center" colspan="2"><div class="needs_head line-block">
@@ -617,7 +548,8 @@
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
-<div class="line"><span><div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/communication/requirements/index.html#feat_req__com__interfaces">feat_req__com__interfaces</a></span></span></div>
+<div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#feat__lifecycle">feat__lifecycle</a></span></span></div>
+<div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__conditional_startup">feat_req__lifecycle__conditional_startup</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__custom_cond_support">feat_req__lifecycle__custom_cond_support</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__launch_support">feat_req__lifecycle__launch_support</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_ordering">feat_req__lifecycle__process_ordering</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_termination">feat_req__lifecycle__process_termination</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__prog_lang">feat_req__lifecycle__prog_lang</a></span></span></div>
 </span></div>
 </div>
 </td>
@@ -625,16 +557,16 @@
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-908acf8eca37d12f9995d7096a18317a717f9982.svg" type="image/svg+xml" style="width:1028px;height:839px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-a95e02dfd416d4fecbdbc858ac5aa04807a15c25.svg" type="image/svg+xml" style="width:313px;height:524px;background:#FFFFFF;"></object></p>
 </figure>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
-<div class="line"><span><span class="needs-id"><a class="reference internal" href="#logic_arc_int__lifecycle__cfg_params_static" title="logic_arc_int__lifecycle__cfg_params_static">logic_arc_int__lifecycle__cfg_params_static</a></span></span></div>
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#feat_arc_dyn__lifecycle__state_machine_if" title="feat_arc_dyn__lifecycle__state_machine_if">feat_arc_dyn__lifecycle__state_machine_if</a></span></span></div>
 </div>
 </td>
 <td class="footer" colspan="2"><div class="needs_footer line-block">
-<div class="line"><span><span class="needs_type_name"><span class="needs_data">Logical Interface &amp; Feature Interface View</span></span></span></div>
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Feature Sequence Diagram</span></span></span></div>
 </div>
 </td>
 <td class="footer_right" colspan="2"></td>
@@ -656,24 +588,6 @@
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="launch_manager.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Launch manager</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="health_monitor.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Health Monitor</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
 </div>
                 </footer>
               
@@ -693,12 +607,7 @@
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#component-configuration-parameters">Component Configuration Parameters</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dependency-parameters">Dependency parameters</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#recovery-parameters">Recovery parameters</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#alive-monitoring-parameters">Alive monitoring parameters</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements-related-to-the-external-monitoring">Requirements related to the external monitoring</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#static-architecture">Static Architecture</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamic-architecture">Dynamic Architecture</a></li>
 </ul>
   </nav></div>
 
@@ -706,7 +615,7 @@
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/eclipse-score/lifecycle/edit/main/docs/features/lifecycle/architecture/launch_manager_configuration.rst">
+    <a href="https://github.com/eclipse-score/lifecycle/edit/main/docs/features/lifecycle/architecture/lifecycle_client.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
