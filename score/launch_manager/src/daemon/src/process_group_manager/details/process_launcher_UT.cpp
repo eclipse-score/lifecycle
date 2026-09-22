@@ -15,6 +15,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <cerrno>
+#include <cstdarg>
 #include <thread>
 
 #include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
@@ -45,7 +46,7 @@ class SyscallMock
     MOCK_METHOD(int, setrlimit, (__rlimit_resource_t __resource, const struct rlimit* __rlimits), ());
     MOCK_METHOD(int, setSecurityPolicy, (const char* policy), ());
     MOCK_METHOD(__pid_t, getpid, (), ());
-    MOCK_METHOD(int, fcntl, (int __fd, int __cmd), ());
+    MOCK_METHOD(int, fcntl, (int __fd, int __cmd, void* arg), ());
     MOCK_METHOD(int, setgroups, (size_t n, const gid_t* groups), ());
     MOCK_METHOD(int, sem_init, (sem_t * __sem, int __pshared, unsigned int __value), ());
     MOCK_METHOD(int, sem_destroy, (sem_t * __sem), ());
@@ -282,12 +283,19 @@ extern int __real_fcntl(int __fd, int __cmd, ...);
 
 int __wrap_fcntl(int __fd, int __cmd, ...)
 {
+    void* arg = nullptr;
+    va_list args;
+
+    va_start(args, __cmd);
+    arg = va_arg(args, void*);
+    va_end(args);
+
     if (g_syscall_mock)
     {
-        return g_syscall_mock->fcntl(__fd, __cmd);
+        return g_syscall_mock->fcntl(__fd, __cmd, arg);
     }
 
-    return __real_fcntl(__fd, __cmd);
+    return __real_fcntl(__fd, __cmd, arg);
 }
 
 // wrap for sem_init
@@ -380,6 +388,9 @@ class ProcessLauncherTest : public ::testing::Test
 
         // Used by logging framework
         ON_CALL(*g_syscall_mock, access).WillByDefault(Invoke(__real_access));
+        ON_CALL(*g_syscall_mock, fcntl).WillByDefault(Invoke(__real_fcntl));
+        EXPECT_CALL(*g_syscall_mock, access).Times(AnyNumber());
+        EXPECT_CALL(*g_syscall_mock, fcntl).Times(AnyNumber());
     }
 
     void TearDown() override
@@ -412,6 +423,10 @@ class ProcessLauncherTest : public ::testing::Test
         ON_CALL(*g_syscall_mock, sem_destroy).WillByDefault(Invoke(__real_sem_destroy));
         ON_CALL(*g_syscall_mock, sem_trywait).WillByDefault(Invoke(__real_sem_trywait));
         ON_CALL(*g_syscall_mock, sem_post).WillByDefault(Invoke(__real_sem_post));
+        EXPECT_CALL(*g_syscall_mock, sem_init).Times(AtLeast(1));
+        EXPECT_CALL(*g_syscall_mock, sem_destroy).Times(AtLeast(1));
+        EXPECT_CALL(*g_syscall_mock, sem_trywait).Times(AnyNumber());
+        EXPECT_CALL(*g_syscall_mock, sem_post).Times(AnyNumber());
     }
 
     std::unique_ptr<ProcessLauncher> process_launcher;
@@ -553,12 +568,19 @@ TEST_F(TerminationTest, forceTerminationInvalid)
     EXPECT_EQ(res, OsalReturnType::kFail);
 }
 
+// The sysexit mock can throw this to interrupt execution
+struct SysExitException
+{
+};
+
 class StartProcessTest : public ProcessLauncherTest
 {
   protected:
     void SetUp() override
     {
         ProcessLauncherTest::SetUp();
+
+        EXPECT_CALL(*g_syscall_mock, getpid).Times(AnyNumber()).WillRepeatedly(Return(forked_pid));
 
         config_.name = "TestComponent";
         config_.component_properties.binary_name = "TestProcess";
@@ -589,17 +611,40 @@ class StartProcessTest : public ProcessLauncherTest
         EXPECT_CALL(*g_syscall_mock, fork).WillOnce(Return(0));
     }
 
+    void ExpectSuccessfulSchedulingAndSecurity()
+    {
+        EXPECT_CALL(*g_syscall_mock, setpgid).Times(AnyNumber()).WillRepeatedly(Return(0));
+        EXPECT_CALL(*g_syscall_mock, sched_setscheduler).Times(AnyNumber()).WillRepeatedly(Return(0));
+        EXPECT_CALL(*g_syscall_mock, setgid).Times(AnyNumber()).WillRepeatedly(Return(0));
+        EXPECT_CALL(*g_syscall_mock, setuid).Times(AnyNumber()).WillRepeatedly(Return(0));
+    }
+
+    void ExpectSuccessfulChdir()
+    {
+        EXPECT_CALL(*g_syscall_mock, chdir).Times(AnyNumber()).WillRepeatedly(Return(0));
+    }
+
     IpcCommsSync* StubShmObject()
     {
         const int fd = 123;
         void* data = static_cast<void*>(test_buffer.data());
         EXPECT_CALL(*g_syscall_mock, shm_open).WillOnce(Return(fd));
+        EXPECT_CALL(*g_syscall_mock, shm_unlink).WillOnce(Return(0));
         EXPECT_CALL(*g_syscall_mock, mmap(_, _, _, _, fd, _)).WillOnce(Return(data));
         EXPECT_CALL(*g_syscall_mock, ftruncate(fd, _)).WillOnce(Return(0));
         EXPECT_CALL(*g_syscall_mock, munmap(data, sizeof(IpcCommsSync))).WillOnce(Return(0));
 
         return static_cast<IpcCommsSync*>(data);
     }
+
+    void ExpectSetupComms()
+    {
+        StubShmObject();
+
+        EXPECT_CALL(*g_syscall_mock, sem_init).Times(AnyNumber()).WillRepeatedly(Return(0));
+    }
+
+    const pid_t forked_pid = 23;
 
     configuration::ComponentConfig config_ = {};
     ProcessID pid_;
@@ -642,12 +687,12 @@ TEST_F(StartProcessTest, handleCommsFailsFnctl)
 
     config_.component_properties.application_profile.application_type = configuration::ApplicationType::Reporting;
     ExpectChildProcessStarts();
-    StubShmObject();
+    ExpectSetupComms();
     EXPECT_CALL(*g_syscall_mock, fcntl).WillOnce(Return(-1));
 
-    EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE));
+    EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
-    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), SysExitException);
 }
 
 class SetupCommsTest : public StartProcessTest
@@ -676,6 +721,7 @@ TEST_F(SetupCommsTest, ftruncateFails)
     RecordProperty("Description", "Verify that if truncating shared memory fails, startProcess fails");
 
     EXPECT_CALL(*g_syscall_mock, shm_open).WillOnce(Return(123));
+    EXPECT_CALL(*g_syscall_mock, shm_unlink).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, ftruncate).WillOnce(Return(-1));
 
     EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
@@ -686,6 +732,7 @@ TEST_F(SetupCommsTest, getCommsFails)
     RecordProperty("Description", "Verify that if truncating shared memory fails, startProcess fails");
 
     EXPECT_CALL(*g_syscall_mock, shm_open).WillOnce(Return(123));
+    EXPECT_CALL(*g_syscall_mock, shm_unlink).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, ftruncate).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, mmap).WillOnce(Return(MAP_FAILED));
 
@@ -709,8 +756,9 @@ class SetSchedulingAndSecurityTest : public StartProcessTest
     {
         StartProcessTest::SetUp();
 
-        EXPECT_CALL(*g_syscall_mock, access).WillOnce(Return(0));
-        EXPECT_CALL(*g_syscall_mock, fork).WillOnce(Return(0));  // Test the child process
+        ExpectChildProcessStarts();
+        ExpectSuccessfulChdir();
+        EXPECT_CALL(*g_syscall_mock, execve).Times(AtMost(1));
     }
 };
 
@@ -723,9 +771,9 @@ TEST_F(SetSchedulingAndSecurityTest, setpgidFails)
     EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
 
-    EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE));
+    EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
-    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), SysExitException);
 }
 
 TEST_F(SetSchedulingAndSecurityTest, setgidFails)
@@ -737,9 +785,9 @@ TEST_F(SetSchedulingAndSecurityTest, setgidFails)
     EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(-1));
     EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
 
-    EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE));
+    EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
-    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), SysExitException);
 }
 
 TEST_F(SetSchedulingAndSecurityTest, setuidFails)
@@ -751,9 +799,9 @@ TEST_F(SetSchedulingAndSecurityTest, setuidFails)
     EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(-1));
 
-    EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE));
+    EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
-    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), SysExitException);
 }
 
 TEST_F(SetSchedulingAndSecurityTest, setschedFails)
@@ -765,9 +813,9 @@ TEST_F(SetSchedulingAndSecurityTest, setschedFails)
     EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
 
-    EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE));
+    EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
-    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), SysExitException);
 }
 
 TEST_F(SetSchedulingAndSecurityTest, setschedClampedUpper)
@@ -820,21 +868,22 @@ TEST_F(SetSchedulingAndSecurityTest, setgroupsFails)
     EXPECT_CALL(*g_syscall_mock, sched_setscheduler).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setgroups).WillOnce(Return(-1));
 
-    EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE));
+    EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
-    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), SysExitException);
 }
 
 TEST_F(StartProcessTest, chdirFails)
 {
     RecordProperty("Description", "Verify that the forked process exits if changing the working dir fails");
 
-    EXPECT_CALL(*g_syscall_mock, access).WillOnce(Return(0));
+    ExpectChildProcessStarts();
+    ExpectSuccessfulSchedulingAndSecurity();
     EXPECT_CALL(*g_syscall_mock, chdir).WillOnce(Return(-1));
 
-    EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE));
+    EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
-    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), SysExitException);
 }
 
 TEST_F(StartProcessTest, changeSecurityPolicyFails)
@@ -843,12 +892,14 @@ TEST_F(StartProcessTest, changeSecurityPolicyFails)
 
     config_.deployment_config.sandbox.security_policy = "security";
 
-    EXPECT_CALL(*g_syscall_mock, access).WillOnce(Return(0));
+    ExpectChildProcessStarts();
+    ExpectSuccessfulSchedulingAndSecurity();
+    ExpectSuccessfulChdir();
     EXPECT_CALL(*g_syscall_mock, setSecurityPolicy).WillOnce(Return(-1));
 
-    EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE));
+    EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
-    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), SysExitException);
 }
 
 TEST_F(StartProcessTest, setRLimitFails)
@@ -857,12 +908,14 @@ TEST_F(StartProcessTest, setRLimitFails)
 
     config_.deployment_config.sandbox.max_cpu_usage = 500;
 
-    EXPECT_CALL(*g_syscall_mock, access).WillOnce(Return(0));
+    ExpectChildProcessStarts();
+    ExpectSuccessfulSchedulingAndSecurity();
+    ExpectSuccessfulChdir();
     EXPECT_CALL(*g_syscall_mock, setrlimit).WillOnce(Return(-1));
 
-    EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE));
+    EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
-    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), SysExitException);
 }
 
 TEST_F(StartProcessTest, setRLimitIgnore)
@@ -872,8 +925,11 @@ TEST_F(StartProcessTest, setRLimitIgnore)
     config_.deployment_config.sandbox.max_cpu_usage = 0;
     config_.deployment_config.sandbox.max_memory_usage = 0;
 
-    EXPECT_CALL(*g_syscall_mock, access).WillOnce(Return(0));
+    ExpectChildProcessStarts();
+    ExpectSuccessfulSchedulingAndSecurity();
+    ExpectSuccessfulChdir();
     EXPECT_CALL(*g_syscall_mock, setrlimit).Times(0);
+    EXPECT_CALL(*g_syscall_mock, execve).Times(AtMost(1));
 
     static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
 }
@@ -882,12 +938,14 @@ TEST_F(StartProcessTest, execveFails)
 {
     RecordProperty("Description", "Verify that the forked process exits if execve fails");
 
-    EXPECT_CALL(*g_syscall_mock, access).WillOnce(Return(0));
+    ExpectChildProcessStarts();
+    ExpectSuccessfulSchedulingAndSecurity();
+    ExpectSuccessfulChdir();
     EXPECT_CALL(*g_syscall_mock, execve).WillOnce(Return(-1));
 
-    EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE));
+    EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
-    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), SysExitException);
 }
 
 // Define a matcher that checks a null-terminated char** against a vector of strings
@@ -925,7 +983,6 @@ TEST_F(StartProcessTest, startProcessChildSuccess)
 {
     RecordProperty("Description", "Verify that when startProcess succeeds, the forked process is configured correctly");
 
-    const pid_t forked_pid = 23;
     const int scheduler = SCHED_FIFO;
     const int uid = 11;
     const int gid = 13;
