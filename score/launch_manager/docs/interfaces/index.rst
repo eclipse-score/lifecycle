@@ -12,7 +12,7 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-Sub-Component documentation
+Interfaces documentation
 ---------------------------
 
 .. toctree will be filled by docs_bundle via bazel

@@ -41,6 +41,11 @@ namespace score::mw::lifecycle
 class IdentifierHash final
 {
   public:
+    /// @brief Construct a null IdentifierHash.
+    /// @details Every instance constructed through this method will have the
+    ///          same identifier, corresponding to an empty string.
+    IdentifierHash();
+
     /// @brief Constructs an IdentifierHash object from the given ID.
     /// @param id A string representing an ID.
     explicit IdentifierHash(std::string_view id);
@@ -83,33 +88,6 @@ class IdentifierHash final
     /// @param other The IdentifierHash object to compare with.
     /// @return true if the hash of this object is less than the hash of the other, false otherwise.
     bool operator<(const IdentifierHash& other) const;  // Overloaded operator for comparison
-
-    ///@brief Default constructor for the IdentifierHash class.
-    /// This constructor initializes the IdentifierHash object with a default ID value.
-    /// The ID value is calculated by hashing an empty string using std::hash<std::string>.
-
-    // this constructor is used in the code that is not part of the POC
-    // not sure if we should have this constructor or not, but there is code like this:
-    //
-    //      In Configurationmanager.cpp
-    //      ---------------------------
-    //      ProcessGroup process_group_data;
-    //      OsProcess instance;
-    //      ProcessGroupStateID pg_info;
-    //
-    //      In Configurationmanager.hpp
-    //      ---------------------------
-    //      struct ProcessGroup {
-    //      IdentifierHash                    name_;
-    //      };
-    //      struct ProcessGroupStateID {
-    //      IdentifierHash                    pg_name_;
-    //      IdentifierHash                    pg_state_;
-    //      };
-    //
-    //     probably the above code should be removed or modified
-    //     but for temporary purpose we are keeping this constructor
-    IdentifierHash();
 
     /// @brief Returns the data associated with the IdentifierHash.
     /// This function returns the data stored in the IdentifierHash object.

@@ -823,11 +823,11 @@ TEST_F(ConverterTest, ConvertDeploymentConfigValid)
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
-    auto result = convertDeploymentConfig(ptr);
+    auto result = convertDeploymentConfig(ptr, "my_binary");
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(result->ready_timeout_ms, Eq(1500U));
     EXPECT_THAT(result->shutdown_timeout_ms, Eq(2500U));
-    EXPECT_THAT(result->bin_dir, Eq("/opt/bin"));
+    EXPECT_THAT(result->executable_path, Eq("/opt/bin/my_binary"));
     EXPECT_THAT(result->working_dir, Eq("/tmp"));
     EXPECT_THAT(result->ready_recovery_action.has_value(), IsFalse());
     EXPECT_THAT(result->recovery_action.has_value(), IsFalse());
@@ -853,7 +853,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigMissingReadyTimeoutReturnsError)
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
-    auto result = convertDeploymentConfig(ptr);
+    auto result = convertDeploymentConfig(ptr, "my_binary");
     ASSERT_THAT(result.has_value(), IsFalse());
     EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
 }
@@ -878,7 +878,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigMissingShutdownTimeoutReturnsError)
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
-    auto result = convertDeploymentConfig(ptr);
+    auto result = convertDeploymentConfig(ptr, "my_binary");
     ASSERT_THAT(result.has_value(), IsFalse());
     EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
 }
@@ -919,6 +919,7 @@ TEST_F(ConverterTest, ConvertComponentValid)
     EXPECT_THAT(result->name, Eq("TestComp"));
     EXPECT_THAT(result->description, Eq("A test component"));
     EXPECT_THAT(result->component_properties.binary_name, Eq("my_binary"));
+    EXPECT_THAT(result->deployment_config.executable_path, Eq("/opt/my_binary"));
     EXPECT_THAT(result->deployment_config.ready_timeout_ms, Eq(1000U));
 }
 

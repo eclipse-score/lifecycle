@@ -45,8 +45,8 @@ T secToMs(const T f_timeout)
 /* RULECHECKER_comment(0:0,3:0, check_expensive_to_copy_in_parameter, "Move only types cannot be passed by const
  * ref",true_no_defect) */
 /* RULECHECKER_comment(0:0,9:0, check_min_instructions, "Constructor with empty body is valid", true_no_defect) */
-WatchdogImpl::WatchdogImpl(score::os::Ioctl& ioctl, score::os::Fcntl& fcntl, score::os::Unistd& unistd) noexcept
-    : IWatchdogIf(), watchdogDevice_(), state_(ELibState::idle), ioctl_(ioctl), fcntl_(fcntl), unistd_(unistd)
+WatchdogImpl::WatchdogImpl(DeviceIf& deviceIf, score::os::Fcntl& fcntl, score::os::Unistd& unistd) noexcept
+    : IWatchdogIf(), watchdogDevice_(), state_(ELibState::idle), deviceIf_(deviceIf), fcntl_(fcntl), unistd_(unistd)
 {
 }
 
@@ -158,8 +158,8 @@ void WatchdogImpl::serviceWatchdog() noexcept
      * true_no_defect) */
     /* RULECHECKER_comment(1:0,2:0, check_underlying_signedness_conversion, "Linux-only constant from external
      * interface", true_no_defect) */
-    static_cast<void>(
-        ioctl_.ioctl(watchdogDevice_->fileDescriptor, static_cast<std::int32_t>(WDIOC_KEEPALIVE), nullptr));
+    static_cast<void>(deviceIf_.ioctl(
+        watchdogDevice_->fileDescriptor, static_cast<DeviceIf::IoctlRequestType>(WDIOC_KEEPALIVE), nullptr));
 }
 
 void WatchdogImpl::fireWatchdogReaction() noexcept
@@ -195,7 +195,7 @@ bool WatchdogImpl::setEnableCardOption(std::int32_t f_fd) const noexcept
      * true_no_defect) */
     /* RULECHECKER_comment(1:0,1:0, check_underlying_signedness_conversion, "Linux-only constant from external
      * interface", true_no_defect) */
-    return ioctl_.ioctl(f_fd, static_cast<std::int32_t>(WDIOC_SETOPTIONS), &options).has_value();
+    return deviceIf_.ioctl(f_fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETOPTIONS), &options) >= 0;
 }
 
 std::int32_t WatchdogImpl::getConfiguredTimeout(std::int32_t& f_configuredTimeout_r, std::int32_t f_fd) const noexcept
@@ -209,7 +209,7 @@ std::int32_t WatchdogImpl::getConfiguredTimeout(std::int32_t& f_configuredTimeou
      * true_no_defect) */
     /* RULECHECKER_comment(1:0,2:0, check_underlying_signedness_conversion, "Linux-only constant from external
      * interface", true_no_defect) */
-    if (!ioctl_.ioctl(f_fd, static_cast<std::int32_t>(WDIOC_GETTIMEOUT), &f_configuredTimeout_r).has_value())
+    if (deviceIf_.ioctl(f_fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_GETTIMEOUT), &f_configuredTimeout_r) < 0)
     {
         return -1;
     }
@@ -231,7 +231,7 @@ std::int32_t WatchdogImpl::getRemainingTime(std::int32_t& f_remainingTime_r, std
      * true_no_defect) */
     /* RULECHECKER_comment(1:0,2:0, check_underlying_signedness_conversion, "Linux-only constant from external
      * interface", true_no_defect) */
-    if (!ioctl_.ioctl(f_fd, static_cast<std::int32_t>(WDIOC_GETTIMELEFT), &f_remainingTime_r).has_value())
+    if (deviceIf_.ioctl(f_fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_GETTIMELEFT), &f_remainingTime_r) < 0)
     {
         return -1;
     }
@@ -254,14 +254,16 @@ bool WatchdogImpl::setTimeout(std::int32_t f_fd, std::uint16_t f_timeoutInMs) co
      * true_no_defect) */
     /* RULECHECKER_comment(1:0,1:0, check_underlying_signedness_conversion, "Linux-only constant from external
      * interface", true_no_defect) */
-    const bool ioctlSuccessful{ioctl_.ioctl(f_fd, static_cast<std::int32_t>(WDIOC_SETTIMEOUT), &timeout).has_value()};
+    const bool ioctlSuccessful{
+        deviceIf_.ioctl(f_fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETTIMEOUT), &timeout) >= 0};
     timeout = secToMs(timeout);
     timeoutBefore = secToMs(timeoutBefore);
 #else
     // cast is save since int32 is bigger than uint16
     std::int32_t timeout{static_cast<std::int32_t>(f_timeoutInMs)};
     std::int32_t timeoutBefore{timeout};
-    const bool ioctlSuccessful{ioctl_.ioctl(f_fd, WDIOC_SETTIMEOUT, &timeout).has_value()};
+    const bool ioctlSuccessful{
+        deviceIf_.ioctl(f_fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETTIMEOUT), &timeout) >= 0};
 #endif
     // The timeout value may have been altered to the nearest timeout that is supported,
     // if the given timeout is not supported.
@@ -388,8 +390,8 @@ bool WatchdogImpl::disableDevice(WatchdogDevice& f_watchdogDevice_r) const noexc
      * true_no_defect) */
     /* RULECHECKER_comment(1:0,2:0, check_underlying_signedness_conversion, "Linux-only constant from external
      * interface", true_no_defect) */
-    static_cast<void>(
-        ioctl_.ioctl(f_watchdogDevice_r.fileDescriptor, static_cast<std::int32_t>(WDIOC_SETOPTIONS), &option));
+    static_cast<void>(deviceIf_.ioctl(
+        f_watchdogDevice_r.fileDescriptor, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETOPTIONS), &option));
     static_cast<void>(unistd_.close(f_watchdogDevice_r.fileDescriptor));
     f_watchdogDevice_r.fileDescriptor = -1;
     return true;
