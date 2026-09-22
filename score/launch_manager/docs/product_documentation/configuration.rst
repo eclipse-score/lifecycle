@@ -34,12 +34,7 @@ This section provides an overview of the measurement units used within the confi
 Time intervals
 --------------
 
-All time values in the **Launch Manager** configuration are specified in **seconds**. When a fraction of a second is required, a **decimal point** must be used.
-
-For example:
-
-* ``0.5`` represents a time interval of 500 milliseconds.
-* ``1.5`` represents a time interval of 1500 milliseconds.
+All time values in the **Launch Manager** configuration are specified in **milliseconds**.
 
 Using a consistent unit prevents ambiguity and makes the configuration values easier to compare and understand.
 
@@ -80,10 +75,6 @@ Reusable types
 
 The following sections describe the reusable types that form the basis of the **Launch Manager** configuration.
 
-The schema entries use a flat definition-list format: each property name is
-shown first, followed by its description, constraints, defaults, references, and
-allowed values where applicable.
-
 .. _lm_conf_alive_supervision_object_:
 
 alive_supervision (object)
@@ -94,8 +85,8 @@ alive_supervision (object)
 
 **Properties:**
 
-evaluation_cycle (number, optional)
-    Description: Specifies the length, in seconds (e.g., ``0.5`` for 500 milliseconds), of the time window used by the **Launch Manager** to assess incoming alive supervision reports from components.
+evaluation_cycle_ms (integer, optional)
+    Description: Specifies the length, in milliseconds, of the time window used by the **Launch Manager** to assess incoming alive supervision reports from components.
     Constraint: Must be greater than 0.
 
 .. _lm_conf_watchdog_object_:
@@ -111,8 +102,8 @@ watchdog (object)
 device_file_path (string, optional)
     Description: Specifies the absolute path to the external watchdog device file (e.g., ``/dev/watchdog``).
 
-max_timeout (number, optional)
-    Description: Specifies the maximum timeout value, in seconds (e.g., ``0.5`` for 500 milliseconds), that the **Launch Manager** configures on the external watchdog during startup. The external watchdog uses this timeout as the deadline for receiving periodic alive reports from the **Launch Manager**.
+max_timeout_ms (integer, optional)
+    Description: Specifies the maximum timeout value, in milliseconds, that the **Launch Manager** configures on the external watchdog during startup. The external watchdog uses this timeout as the deadline for receiving periodic alive reports from the **Launch Manager**.
     Constraint: Must be 0 or greater.
 
 deactivate_on_shutdown (boolean, optional)
@@ -140,10 +131,9 @@ restart.number_of_attempts (integer, optional)
     Description: Specifies the maximum number of restart attempts before the **Launch Manager** concludes that recovery cannot succeed for the component.
     Constraint: Must be 0 or greater.
 
-restart.delay_before_restart (number, optional)
-    Description: Specifies the delay duration, in seconds (e.g., ``0.25`` for 250 milliseconds), that the **Launch Manager** waits before initiating a restart attempt.
+restart.delay_before_restart_ms (integer, optional)
+    Description: Specifies the delay duration, in milliseconds, that the **Launch Manager** waits before initiating a restart attempt.
     Constraint: Must be 0 or greater.
-    **Note**: This is currently not supported and is ignored.
 
 switch_run_target (object, optional)
     Description: Defines a recovery action that switches to a different **Run Target**. This can be a new **Run Target** or the current one to retry its activation.
@@ -168,8 +158,8 @@ depends_on (array of strings, optional)
     Description: Specifies the names of components and other **Run Targets** that must be successfully activated when this **Run Target** is activated. This defines the dependencies for a given operational mode.
     Items: Each item is a string specifying the name of a component or **Run Target** on which this **Run Target** depends.
 
-transition_timeout (number, optional)
-    Description: Specifies the time limit, in seconds (e.g., ``1.5`` for 1500 milliseconds), for the **Run Target** transition to complete. If this limit is exceeded, the transition is considered failed.
+transition_timeout_ms (integer, optional)
+    Description: Specifies the time limit, in milliseconds, for the **Run Target** transition to complete. If this limit is exceeded, the transition is considered failed.
     Constraint: Must be greater than 0.
 
 recovery_action (object, optional)
@@ -209,8 +199,8 @@ application_profile.alive_supervision (object, optional)
     Reference: This property refers to the ``alive_supervision`` reusable type defined in this schema.
     Properties: These properties are also inherited from ``alive_supervision`` but are listed here for quick reference and clarity on the local context.
 
-application_profile.alive_supervision.reporting_cycle (number, optional)
-    Description: Specifies the duration, in seconds (e.g., ``0.5`` for 500 milliseconds), of the time interval used to verify that the component sends alive notifications within the expected time frame.
+application_profile.alive_supervision.reporting_cycle_ms (integer, optional)
+    Description: Specifies the duration, in milliseconds, of the time interval used to verify that the component sends alive notifications within the expected time frame.
     Constraint: Must be greater than 0.
 
 application_profile.alive_supervision.failed_cycles_tolerance (integer, optional)
@@ -218,11 +208,11 @@ application_profile.alive_supervision.failed_cycles_tolerance (integer, optional
     Constraint: Must be 0 or greater.
 
 application_profile.alive_supervision.min_indications (integer, optional)
-    Description: Specifies the minimum number of checkpoints that must be reported within each configured ``reporting_cycle``.
+    Description: Specifies the minimum number of checkpoints that must be reported within each configured ``reporting_cycle_ms``.
     Constraint: Must be 0 or greater.
 
 application_profile.alive_supervision.max_indications (integer, optional)
-    Description: Specifies the maximum number of checkpoints that may be reported within each configured ``reporting_cycle``.
+    Description: Specifies the maximum number of checkpoints that may be reported within each configured ``reporting_cycle_ms``.
     Constraint: Must be 0 or greater.
 
 depends_on (array of strings, optional)
@@ -258,10 +248,10 @@ ready_condition.file_state.state (string, optional)
 
     Default: ``"Exists"``
 
-ready_condition.file_state.polling_interval (number, optional)
-    Description: Specifies the time interval, in seconds (e.g., ``0.3`` for 300 milliseconds), at which the **Launch Manager** checks the file existence state.
+ready_condition.file_state.polling_interval_ms (integer, optional)
+    Description: Specifies the time interval, in milliseconds, at which the **Launch Manager** checks the file existence state.
     Constraint: Must be greater than 0.
-    Default: ``0.01``
+    Default: ``10``
 
 .. _lm_conf_deployment_config_object_:
 
@@ -273,12 +263,12 @@ deployment_config (object)
 
 **Properties:**
 
-ready_timeout (number, optional)
-    Description: Specifies the maximum time, in seconds (e.g., ``0.25`` for 250 milliseconds), allowed for the component to reach its **Ready State**. The timeout is measured from when the component's process is created until the ready conditions specified in ``component_properties.ready_condition`` are met.
+ready_timeout_ms (integer, optional)
+    Description: Specifies the maximum time, in milliseconds, allowed for the component to reach its **Ready State**. The timeout is measured from when the component's process is created until the ready conditions specified in ``component_properties.ready_condition`` are met.
     Constraint: Must be greater than 0.
 
-shutdown_timeout (number, optional)
-    Description: Specifies the maximum time, in seconds (e.g., ``0.75`` for 750 milliseconds), allowed for the component to terminate after it receives a SIGTERM signal from the **Launch Manager**. The timeout is measured from when the **Launch Manager** sends the SIGTERM signal until the operating system notifies the **Launch Manager** that the child process has terminated.
+shutdown_timeout_ms (integer, optional)
+    Description: Specifies the maximum time, in milliseconds, allowed for the component to terminate after it receives a SIGTERM signal from the **Launch Manager**. The timeout is measured from when the **Launch Manager** sends the SIGTERM signal until the operating system notifies the **Launch Manager** that the child process has terminated.
     Constraint: Must be greater than 0.
 
 environmental_variables (object, optional)
@@ -292,7 +282,7 @@ working_dir (string, optional)
     Description: Specifies the directory to be used as the working directory for the component during execution. If not defined, the binary's directory (``bin_dir``) is used as the working directory by default.
 
 ready_recovery_action (object, optional)
-    Description: Specifies the recovery action to execute when the component fails to reach its **Ready State** within the configured ``ready_timeout``. This action is limited to ``restart`` operations.
+    Description: Specifies the recovery action to execute when the component fails to reach its **Ready State** within the configured ``ready_timeout_ms``. This action is limited to ``restart`` operations.
     Reference: This property refers to the ``recovery_action`` reusable type defined in this schema, specifically enforcing the ``restart`` option.
 
 recovery_action (object, optional)
@@ -340,16 +330,14 @@ Launch manager root properties
 The top-level configuration of the **Launch Manager** is structured into several distinct sections, each serving a specific purpose in defining the system's behavior and managed components. While reusable types provide the foundational building blocks, these root properties orchestrate their application to form a complete and functional configuration.
 
 A significant portion of the configuration is dedicated to defining default behaviors and managing the primary entities:
-
 * The ``defaults`` section allows users to establish system-wide default configuration parameters that can be inherited by components and **Run Targets**, thereby reducing repetitive configurations.
 * The ``components`` section defines the specific software components managed by the **Launch Manager**, with each component leveraging the ``component_properties`` and ``deployment_config`` reusable types to detail its characteristics and operational environment.
 * The ``run_targets`` section specifies all available **Run Targets**, where each **Run Target** is an instantiation of the ``run_target`` reusable type, grouping components into operational modes.
 
 Beyond these core sections, several other crucial properties govern the overall operation of the **Launch Manager**:
-
 * The ``schema_version`` property ensures compatibility by indicating the schema version used for the configuration file.
 * The ``initial_run_target`` explicitly defines which **Run Target** the **Launch Manager** must activate upon startup.
-* The ``fallback_run_target`` provides a specialized **Run Target** to be activated when all other recovery attempts for normal **Run Targets** have been exhausted. This particular **Run Target** does not include a ``recovery_action`` property, as it represents the ultimate state of system recovery; if its activation also fails, an external watchdog mechanism is triggered.
+* The ``fallback_run_target`` provides a specialized **Run Target** to be activated when all other recovery attempts for normal **Run Targets** have been exhausted. This particular **Run Target** does not include a ``recovery_action`` property, as it represents the final state; if its activation also fails, the external watchdog will be triggered.
 * The ``watchdog`` property configures the external watchdog device used for monitoring the **Launch Manager** itself.
 * The ``alive_supervision`` property defines the global evaluation cycle parameters for monitoring processes launched by the **Launch Manager**.
 
@@ -462,8 +450,8 @@ depends_on (array of strings, required)
     Description: Specifies the names of components and **Run Targets** that must be activated when this fallback **Run Target** is activated.
     Items: Each item is a string specifying the name of a component or **Run Target** upon which this **Run Target** depends.
 
-transition_timeout (number, optional)
-    Description: Specifies the time limit, in seconds (e.g., ``1.5`` for 1500 milliseconds), for the **Run Target** transition. If this limit is exceeded, the transition is considered failed.
+transition_timeout_ms (integer, optional)
+    Description: Specifies the time limit, in milliseconds, for the **Run Target** transition. If this limit is exceeded, the transition is considered failed.
     Constraint: Must be greater than 0.
 
 .. _lm_conf_alive_supervision_object_optional_:
@@ -471,31 +459,27 @@ transition_timeout (number, optional)
 alive_supervision (object, optional)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**Description:**
-    Defines the global alive supervision configuration parameters used to monitor component health. If specified, this configuration overrides any default values set in ``defaults.alive_supervision``.
-**Reference:**
-  This property refers to the ``alive_supervision`` reusable type defined in this schema.
+    Description: Defines the global alive supervision configuration parameters used to monitor component health. If specified, this configuration will override any default values set in ``defaults.alive_supervision``.
+    Reference: This property refers to the ``alive_supervision`` reusable type defined in this schema.
 
 .. _lm_conf_watchdog_object_optional_:
 
 watchdog (object, optional)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**Description:**
-    Defines the global external watchdog device configuration used by the **Launch Manager**. If specified, this configuration overrides any default values set in ``defaults.watchdog``.
-**Reference:**
-  This property refers to the ``watchdog`` reusable type defined in this schema.
+**Description:** Defines the global external watchdog device configuration used by the **Launch Manager**. If specified, this configuration will override any default values set in ``defaults.watchdog``.
+**Reference:** This property refers to the ``watchdog`` reusable type defined in this schema.
 
 .. _lm_conf_default_values:
 
 Default values
 ==============
 
-The **Launch Manager** configuration extensively utilizes the concept of default values to streamline the configuration process and simplify initial setup. The fundamental principle is that even if a specific configuration value is not explicitly provided by the user, a default value is always applied, ensuring a complete and valid configuration.
+The **Launch Manager** configuration extensively utilizes the concept of default values to streamline the configuration process and simplify initial setup. The fundamental principle is that even if a specific configuration value is not explicitly provided by the user, a default value will always be applied, ensuring a complete and valid configuration.
 
 To achieve this robust defaulting mechanism, the **Launch Manager** employs two distinct levels of default values:
 
-1. **User-Defined Defaults:** These are specified within the ``defaults`` section of the **Launch Manager** configuration. Users can define a set of configuration options here, which are applied if those options are not provided at a more specific level within the configuration (e.g., within an individual component, a **Run Target**, or at the root level for properties like ``alive_supervision`` or ``watchdog``).
+1. **User-Defined Defaults:** These are specified within the ``defaults`` section of the **Launch Manager** configuration. Users can define a set of configuration options here, which will be applied if those options are not provided at a more specific level within the configuration (e.g., within an individual component, a **Run Target**, or at the root level for properties like ``alive_supervision`` or ``watchdog``).
 2. **S-CORE Standard Defaults:** These represent a second tier of default values, provided by the S-CORE standard itself. The purpose of these defaults is to ensure a valid configuration value is available even if an option is entirely absent from both its specific definition and the user-defined ``defaults`` section.
 
 The S-CORE standard defaults are particularly beneficial during the development phase. They allow developers to concentrate on core tasks without needing to meticulously define every configuration option, as a functional default is guaranteed.
@@ -520,7 +504,7 @@ alive_supervision
 watchdog
   Defines default values for ``watchdog`` properties.
 
-    Please note that an empty object (``{}``) for ``watchdog`` signifies that the **Launch Manager** disables watchdog functionality by default.
+  Please note that an empty object (``{}``) for ``watchdog`` signifies that the **Launch Manager** will disable watchdog functionality by default.
 
   .. dropdown:: watchdog_defaults.json
 
@@ -556,7 +540,7 @@ fallback_run_target
 
   While the S-CORE standard does not currently provide an official default JSON configuration for ``fallback_run_target``, its behavior when unconfigured is important to understand.
 
-    If ``fallback_run_target`` is not explicitly configured by the user, the Bazel target responsible for generating configuration files creates a **Run Target** that does not depend on any component. In this specific scenario, the ``fallback_run_target`` effectively causes all components to shut down, with the exception of the **Launch Manager** itself. Understanding this default behavior is crucial for ensuring the desired system state during operation.
+  If ``fallback_run_target`` is not explicitly configured by the user, the Bazel target responsible for generating configuration files will create a **Run Target** that does not depend on any component. In this specific scenario, the ``fallback_run_target`` will effectively cause all components to shut down, with the exception of the **Launch Manager** itself. Understanding this default behavior is crucial for ensuring the desired system state during operation.
 
 .. _lm_conf_inheritance_of_default_values:
 
@@ -565,6 +549,6 @@ Inheritance of default values
 
 Given that the **Launch Manager** supports multiple levels of default values, specific rules govern their inheritance and application. The inheritance order is straightforward:
 
-1. If a configuration value is not explicitly specified at a specific location (e.g., within an individual component's definition, a **Run Target's** definition, or a root-level property like ``alive_supervision``), the **Launch Manager** first attempts to use the corresponding value from the user-defined ``defaults`` section.
-2. If the value is also not specified within the user-defined ``defaults`` section, then the **Launch Manager** applies the S-CORE standard default value for that option.
+1. If a configuration value is not explicitly specified at a specific location (e.g., within an individual component's definition, a **Run Target's** definition, or a root-level property like ``alive_supervision``), the **Launch Manager** will first attempt to use the corresponding value from the user-defined ``defaults`` section.
+2. If the value is also not specified within the user-defined ``defaults`` section, then the **Launch Manager** will apply the S-CORE standard default value for that option.
 

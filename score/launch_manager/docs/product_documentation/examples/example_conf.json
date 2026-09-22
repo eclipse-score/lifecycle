@@ -2,8 +2,8 @@
     "schema_version": 1,
     "defaults": {
         "deployment_config": {
-            "ready_timeout": 0.5,
-            "shutdown_timeout": 0.5,
+            "ready_timeout_ms": 500,
+            "shutdown_timeout_ms": 500,
             "environmental_variables": {
                 "LD_LIBRARY_PATH": "/opt/lib"
             },
@@ -12,7 +12,7 @@
             "ready_recovery_action": {
                 "restart": {
                     "number_of_attempts": 0,
-                    "delay_before_restart": 0
+                    "delay_before_restart_ms": 0
                 }
             },
             "recovery_action": {
@@ -33,7 +33,7 @@
                 "application_type": "Reporting_And_Supervised",
                 "is_self_terminating": false,
                 "alive_supervision": {
-                    "reporting_cycle": 0.5,
+                    "reporting_cycle_ms": 500,
                     "failed_cycles_tolerance": 2,
                     "min_indications": 1,
                     "max_indications": 3
@@ -47,14 +47,14 @@
         },
         "run_target": {
             "depends_on": [],
-            "transition_timeout": 5
+            "transition_timeout_ms": 5000
         },
-        "alive_supervision" : {
-            "evaluation_cycle": 0.5
+        "alive_supervision": {
+            "evaluation_cycle_ms": 500
         },
         "watchdog": {
             "device_file_path": "/dev/watchdog",
-            "max_timeout": 2.0,
+            "max_timeout_ms": 2000,
             "deactivate_on_shutdown": true,
             "require_magic_close": false
         }
@@ -68,7 +68,10 @@
                     "application_type": "Native",
                     "is_self_terminating": true
                 },
-                "process_arguments": ["-a", "-b"],
+                "process_arguments": [
+                    "-a",
+                    "-b"
+                ],
                 "ready_condition": {
                     "process_state": "Terminated"
                 }
@@ -84,10 +87,12 @@
                 "application_profile": {
                     "application_type": "Native"
                 },
-                "depends_on": ["setup_filesystem_sh"]
+                "depends_on": [
+                    "setup_filesystem_sh"
+                ]
             },
             "deployment_config": {
-                "bin_dir" : "/opt/apps/dlt-daemon"
+                "bin_dir": "/opt/apps/dlt-daemon"
             }
         },
         "someip-daemon": {
@@ -96,17 +101,20 @@
                 "binary_name": "someipd"
             },
             "deployment_config": {
-                "bin_dir" : "/opt/apps/someip"
+                "bin_dir": "/opt/apps/someip"
             }
         },
         "test_app1": {
             "description": "Simple test application",
             "component_properties": {
                 "binary_name": "test_app1",
-                "depends_on": ["dlt-daemon", "someip-daemon"]
+                "depends_on": [
+                    "dlt-daemon",
+                    "someip-daemon"
+                ]
             },
             "deployment_config": {
-                "bin_dir" : "/opt/apps/test_app1"
+                "bin_dir": "/opt/apps/test_app1"
             }
         },
         "state_manager": {
@@ -116,17 +124,21 @@
                 "application_profile": {
                     "application_type": "State_Manager"
                 },
-                "depends_on": ["setup_filesystem_sh"]
+                "depends_on": [
+                    "setup_filesystem_sh"
+                ]
             },
             "deployment_config": {
-                "bin_dir" : "/opt/apps/state_manager"
+                "bin_dir": "/opt/apps/state_manager"
             }
         }
     },
     "run_targets": {
         "Minimal": {
             "description": "Minimal functionality of the system",
-            "depends_on": ["state_manager"],
+            "depends_on": [
+                "state_manager"
+            ],
             "recovery_action": {
                 "switch_run_target": {
                     "run_target": "Off"
@@ -135,8 +147,11 @@
         },
         "Full": {
             "description": "Everything running",
-            "depends_on": ["test_app1", "Minimal"],
-            "transition_timeout": 5,
+            "depends_on": [
+                "test_app1",
+                "Minimal"
+            ],
+            "transition_timeout_ms": 5000,
             "recovery_action": {
                 "switch_run_target": {
                     "run_target": "Minimal"
@@ -152,18 +167,18 @@
             }
         }
     },
-    "alive_supervision" : {
-        "evaluation_cycle": 0.5
+    "alive_supervision": {
+        "evaluation_cycle_ms": 500
     },
     "fallback_run_target": {
         "description": "Switching off everything",
         "depends_on": [],
-        "transition_timeout": 1.5
+        "transition_timeout_ms": 1500
     },
     "initial_run_target": "Minimal",
     "watchdog": {
         "device_file_path": "/dev/watchdog",
-        "max_timeout": 2,
+        "max_timeout_ms": 2000,
         "deactivate_on_shutdown": true,
         "require_magic_close": false
     }
