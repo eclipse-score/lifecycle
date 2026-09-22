@@ -15,6 +15,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <cerrno>
+#include <thread>
 
 #include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
 
@@ -331,7 +332,27 @@ class ProcessLauncherTest : public ::testing::Test
         g_syscall_mock.reset();
     }
 
+    std::shared_ptr<IpcCommsSync> GetInitialisedIpc()
+    {
+        std::memset(test_buffer.data(), 0, test_buffer.size());
+        auto* sync = reinterpret_cast<IpcCommsSync*>(test_buffer.data());
+
+        sync->comms_type_ = score::mw::lifecycle::internal::osal::CommsType::kNoComms;
+        sync->pid_ = 0;
+        EXPECT_EQ(sync->reply_sync_.init(0, false), OsalReturnType::kSuccess);
+        EXPECT_EQ(sync->send_sync_.init(0, false), OsalReturnType::kSuccess);
+
+        std::shared_ptr<IpcCommsSync> shared{sync, [](IpcCommsSync* ptr) {
+                                                 EXPECT_EQ(ptr->reply_sync_.deinit(), OsalReturnType::kSuccess);
+                                                 EXPECT_EQ(ptr->send_sync_.deinit(), OsalReturnType::kSuccess);
+                                             }};
+
+        return shared;
+    }
+
     std::unique_ptr<ProcessLauncher> process_launcher;
+
+    alignas(IpcCommsSync) std::array<std::byte, sizeof(IpcCommsSync)> test_buffer;
 };
 
 TEST_F(ProcessLauncherTest, waitForTerminationSuccess)
@@ -519,8 +540,6 @@ class StartProcessTest : public ProcessLauncherTest
     configuration::ComponentConfig config_ = {};
     ProcessID pid_;
     IpcCommsP sync_;
-
-    alignas(IpcCommsSync) std::array<std::byte, sizeof(IpcCommsSync)> test_buffer;
 };
 
 TEST_F(StartProcessTest, startProcessNoFile)
@@ -891,4 +910,88 @@ TEST_F(StartProcessTest, startProcessChildSuccess)
 
     EXPECT_EQ(block->pid_, forked_pid);
     EXPECT_EQ(block->comms_type_, CommsType::kReporting);
+}
+
+class ClientMethodsTest : public ProcessLauncherTest
+{
+};
+
+using namespace std::chrono_literals;
+
+TEST_F(ProcessLauncherTest, ignoreRunningNoSync)
+{
+    RecordProperty("Description", "Verify that ignoreRunning correctly handles a null pointer");
+
+    std::shared_ptr<IpcCommsSync> sync;
+
+    EXPECT_EQ(process_launcher->ignoreRunning(sync), OsalReturnType::kFail);
+}
+
+TEST_F(ProcessLauncherTest, ignoreRunningSuccess)
+{
+    RecordProperty("Description", "Verify that ignoreRunning posts on the reply semaphore");
+
+    std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
+    OsalReturnType waitRes = OsalReturnType::kFail;
+
+    auto waiter = std::thread{[&waitRes, &sync]() {
+        waitRes = sync->reply_sync_.timedWait(5000ms);
+    }};
+
+    EXPECT_EQ(process_launcher->ignoreRunning(sync), OsalReturnType::kSuccess);
+    waiter.join();
+    EXPECT_EQ(waitRes, OsalReturnType::kSuccess);
+}
+
+TEST_F(ProcessLauncherTest, kRunningNoSync)
+{
+    RecordProperty("Description", "Verify that waitForkRunning correctly handles a null pointer");
+
+    std::shared_ptr<IpcCommsSync> sync;
+
+    EXPECT_EQ(process_launcher->waitForkRunning(sync, 1ms), OsalReturnType::kFail);
+}
+
+TEST_F(ProcessLauncherTest, kRunningSuccess)
+{
+    RecordProperty(
+        "Description",
+        "Verify that waitForkRunning waits for a notification, posts a reply, and then waits for another notification "
+        "before proceeding");
+
+    std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
+    OsalReturnType waitRes = OsalReturnType::kFail;
+    OsalReturnType postRes = OsalReturnType::kFail;
+
+    auto waiter = std::thread{[&waitRes, &postRes, sync]() {
+        std::cout << "start t" << std::endl;
+        postRes = sync->send_sync_.post();
+        std::cout << "posted" << std::endl;
+        if (postRes == OsalReturnType::kSuccess)
+        {
+            waitRes = sync->reply_sync_.timedWait(5000ms);
+            std::cout << "waited" << std::endl;
+        }
+        if (waitRes == OsalReturnType::kSuccess)
+        {
+            postRes = sync->send_sync_.post();
+            std::cout << "posted again" << std::endl;
+        }
+    }};
+
+    EXPECT_EQ(process_launcher->waitForkRunning(sync, 5000ms), OsalReturnType::kSuccess);
+    waiter.join();
+    ASSERT_EQ(postRes, OsalReturnType::kSuccess) << "Posting on the semaphore failed (test problem)";
+    EXPECT_EQ(waitRes, OsalReturnType::kSuccess);
+}
+
+TEST_F(ProcessLauncherTest, kRunningTimeout)
+{
+    RecordProperty(
+        "Description",
+        "Verify that waitForkRunning returns a timeout failure if no notification is received within the timeout");
+
+    std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
+
+    EXPECT_EQ(process_launcher->waitForkRunning(sync, 1ms), OsalReturnType::kTimeout);
 }
