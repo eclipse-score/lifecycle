@@ -406,6 +406,10 @@ lm_cc_test(
         "-Wl,--wrap=setrlimit",
         "-Wl,--wrap=getpid",
         "-Wl,--wrap=fcntl",
+        "-Wl,--wrap=sem_init",
+        "-Wl,--wrap=sem_destroy",
+        "-Wl,--wrap=sem_trywait",
+        "-Wl,--wrap=sem_post",
     ],
     linkstatic = True,
     deps = [
