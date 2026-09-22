@@ -287,7 +287,7 @@ bool ProcessLauncher::setupComms(IpcCommsP& block, int& fd, const configuration:
 
     block->comms_type_ = CommsType::kReporting;
 
-    if (!initializeSemaphores(block))
+    if (!IpcCommsSync::initializeSemaphores(block))
     {
         LM_LOG_ERROR() << "Semaphore init failed:" << config.name
                        << "Unable to initialize send_sync or reply_sync semaphore.";
@@ -295,20 +295,6 @@ bool ProcessLauncher::setupComms(IpcCommsP& block, int& fd, const configuration:
     }
 
     return true;
-}
-
-bool ProcessLauncher::initializeSemaphores(IpcCommsP shared_block)
-{
-    bool result = true;
-
-    if (osal::OsalReturnType::kFail == shared_block->send_sync_.init(0U, true) ||
-        osal::OsalReturnType::kFail == shared_block->reply_sync_.init(0U, true))
-    {
-        result = false;
-        LM_LOG_ERROR() << "Semaphore init failed: Unable to initialize send_sync or reply_sync semaphore.";
-    }
-
-    return result;
 }
 
 /// @details The implementation should be async signal safe.
@@ -546,26 +532,7 @@ OsalReturnType ProcessLauncher::waitForkRunning(IpcCommsP sync, std::chrono::mil
         result = sync->send_sync_.timedWait(std::chrono::milliseconds(100));
     }
 
-    // We are not interested in the result of msync, just whether it worked or not.
-    // If it did not work, the child process has probably crashed and corrupted the shared memory
-    // so we should not try to deinitialize the semaphores.
-    // mincore would be more appropriate here, but is not available on QNX
-    if (msync(sync.get(), sizeof(IpcCommsSync), MS_ASYNC) == 0)
-    {
-        if (sync->send_sync_.deinit() != OsalReturnType::kSuccess)
-        {
-            LM_LOG_WARN() << "Failed to deinitialize send_sync semaphore.";
-        }
-        if (sync->reply_sync_.deinit() != OsalReturnType::kSuccess)
-        {
-            LM_LOG_WARN() << "Failed to deinitialize reply_sync semaphore.";
-        }
-    }
-    else
-    {
-        LM_LOG_WARN() << "Skipping semaphore deinitialization - shared memory region appears invalid:"
-                      << errno_message(errno);
-    }
+    IpcCommsSync::deinit(sync);
 
     return result;
 }

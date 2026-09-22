@@ -56,11 +56,6 @@ class ProcessLauncher final : public IProcess
     bool
     setupComms(IpcCommsP& sync, int& fd, const score::mw::lifecycle::internal::configuration::ComponentConfig& config);
 
-    /// @brief Initializes semaphores within a given shared memory block.
-    /// @param[in] block Pointer to the shared memory block where semaphores will be initialized.
-    /// @return True if semaphore initialization is successful, false otherwise.
-    bool initializeSemaphores(IpcCommsP block);
-
     /// @brief Handles the execution of the child process after forking.
     /// @param[in] param Reference to child process configuration.
     void handleChildProcess(ChildProcessConfig& param);
