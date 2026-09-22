@@ -47,6 +47,10 @@ class SyscallMock
     MOCK_METHOD(__pid_t, getpid, (), ());
     MOCK_METHOD(int, fcntl, (int __fd, int __cmd), ());
     MOCK_METHOD(int, setgroups, (size_t n, const gid_t* groups), ());
+    MOCK_METHOD(int, sem_init, (sem_t * __sem, int __pshared, unsigned int __value), ());
+    MOCK_METHOD(int, sem_destroy, (sem_t * __sem), ());
+    MOCK_METHOD(int, sem_trywait, (sem_t * __sem), ());
+    MOCK_METHOD(int, sem_post, (sem_t * __sem), ());
 };
 
 std::unique_ptr<SyscallMock> g_syscall_mock = nullptr;
@@ -285,6 +289,58 @@ int __wrap_fcntl(int __fd, int __cmd, ...)
 
     return __real_fcntl(__fd, __cmd);
 }
+
+// wrap for sem_init
+extern int __real_sem_init(sem_t* __sem, int __pshared, unsigned int __value);
+
+int __wrap_sem_init(sem_t* __sem, int __pshared, unsigned int __value)
+{
+    if (g_syscall_mock)
+    {
+        return g_syscall_mock->sem_init(__sem, __pshared, __value);
+    }
+
+    return __real_sem_init(__sem, __pshared, __value);
+}
+
+// wrap for sem_destroy
+extern int __real_sem_destroy(sem_t* __sem);
+
+int __wrap_sem_destroy(sem_t* __sem)
+{
+    if (g_syscall_mock)
+    {
+        return g_syscall_mock->sem_destroy(__sem);
+    }
+
+    return __real_sem_destroy(__sem);
+}
+
+// wrap for sem_trywait
+extern int __real_sem_trywait(sem_t* __sem);
+
+int __wrap_sem_trywait(sem_t* __sem)
+{
+    if (g_syscall_mock)
+    {
+        return g_syscall_mock->sem_trywait(__sem);
+    }
+
+    return __real_sem_trywait(__sem);
+}
+
+// wrap for sem_post
+extern int __real_sem_post(sem_t* __sem);
+
+int __wrap_sem_post(sem_t* __sem)
+{
+    if (g_syscall_mock)
+    {
+        return g_syscall_mock->sem_post(__sem);
+    }
+
+    return __real_sem_post(__sem);
+}
 }
 
 namespace score::mw::lifecycle::internal::osal
@@ -348,6 +404,14 @@ class ProcessLauncherTest : public ::testing::Test
                                              }};
 
         return shared;
+    }
+
+    void UseRealSemaphores()
+    {
+        ON_CALL(*g_syscall_mock, sem_init).WillByDefault(Invoke(__real_sem_init));
+        ON_CALL(*g_syscall_mock, sem_destroy).WillByDefault(Invoke(__real_sem_destroy));
+        ON_CALL(*g_syscall_mock, sem_trywait).WillByDefault(Invoke(__real_sem_trywait));
+        ON_CALL(*g_syscall_mock, sem_post).WillByDefault(Invoke(__real_sem_post));
     }
 
     std::unique_ptr<ProcessLauncher> process_launcher;
@@ -628,6 +692,16 @@ TEST_F(SetupCommsTest, getCommsFails)
     EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
 }
 
+TEST_F(SetupCommsTest, initSemaphoresFails)
+{
+    RecordProperty("Description", "Verify that if setting up the semaphores fails, startProcess fails");
+
+    StubShmObject();
+    EXPECT_CALL(*g_syscall_mock, sem_init).WillRepeatedly(Return(-1));
+
+    EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
+}
+
 class SetSchedulingAndSecurityTest : public StartProcessTest
 {
   protected:
@@ -880,6 +954,7 @@ TEST_F(StartProcessTest, startProcessChildSuccess)
     EXPECT_CALL(*g_syscall_mock, fork).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, getpid).WillRepeatedly(Return(forked_pid));
     EXPECT_CALL(*g_syscall_mock, fcntl).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, sem_init).Times(2).WillRepeatedly(Return(0));
     EXPECT_CALL(*g_syscall_mock, setpgid(0, forked_pid));
     EXPECT_CALL(*g_syscall_mock, sched_setscheduler(0, scheduler, _)).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setuid(uid)).WillOnce(Return(0));
@@ -918,11 +993,26 @@ class ClientMethodsTest : public ProcessLauncherTest
 
 using namespace std::chrono_literals;
 
+TEST_F(ProcessLauncherTest, ignoreRunningNoPost)
+{
+    RecordProperty("Description", "Verify that ignoreRunning correctly handles a failed semaphore post");
+
+    EXPECT_CALL(*g_syscall_mock, sem_init).WillRepeatedly(Return(0));
+    EXPECT_CALL(*g_syscall_mock, sem_destroy).WillRepeatedly(Return(0));
+    std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
+    EXPECT_CALL(*g_syscall_mock, sem_post).WillOnce(SetErrnoAndReturn(EINVAL, -1));
+
+    EXPECT_EQ(process_launcher->waitForkRunning(sync, std::nullopt), OsalReturnType::kFail);
+}
+
 TEST_F(ProcessLauncherTest, ignoreRunningSuccess)
 {
     RecordProperty(
-        "Description", "Verify that waitForkRunning without a timeout posts on the reply semaphore without waiting");
+        "Description",
+        "Verify that waitForkRunning without a timeout posts on the reply semaphore without waiting and returns a "
+        "success");
 
+    UseRealSemaphores();
     std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
     OsalReturnType waitRes = OsalReturnType::kFail;
 
@@ -951,23 +1041,20 @@ TEST_F(ProcessLauncherTest, kRunningSuccess)
         "Verify that waitForkRunning waits for a notification, posts a reply, and then waits for another notification "
         "before proceeding");
 
+    UseRealSemaphores();
     std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
     OsalReturnType waitRes = OsalReturnType::kFail;
     OsalReturnType postRes = OsalReturnType::kFail;
 
     auto waiter = std::thread{[&waitRes, &postRes, sync]() {
-        std::cout << "start t" << std::endl;
         postRes = sync->send_sync_.post();
-        std::cout << "posted" << std::endl;
         if (postRes == OsalReturnType::kSuccess)
         {
             waitRes = sync->reply_sync_.timedWait(5000ms);
-            std::cout << "waited" << std::endl;
         }
         if (waitRes == OsalReturnType::kSuccess)
         {
             postRes = sync->send_sync_.post();
-            std::cout << "posted again" << std::endl;
         }
     }};
 
@@ -982,6 +1069,8 @@ TEST_F(ProcessLauncherTest, kRunningTimeout)
     RecordProperty(
         "Description",
         "Verify that waitForkRunning returns a timeout failure if no notification is received within the timeout");
+
+    UseRealSemaphores();
 
     std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
 
