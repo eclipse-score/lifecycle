@@ -29,6 +29,9 @@ from attribute_plugin import add_test_properties
         "comp_req__launch_man__launch_manager_shutdown",
         "comp_req__launch_man__process_state_comm",
     ],
+    partially_verifies=[
+        "comp_req__launch_man__process_launch_args",
+    ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
 )

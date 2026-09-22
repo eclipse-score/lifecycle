@@ -118,7 +118,9 @@ def require_realtime_scheduling(target):
         "comp_req__launch_man__cwd_support",
         "comp_req__launch_man__supplementary_groups",
     ],
-    partially_verifies=[],
+    partially_verifies=[
+        "comp_req__launch_man__process_launch_args",
+    ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
 )

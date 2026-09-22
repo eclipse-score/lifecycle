@@ -20,6 +20,7 @@ from attribute_plugin import add_test_properties
     fully_verifies=[],
     partially_verifies=[
         "comp_req__launch_man__launcher_exit_shutdown",
+        "comp_req__launch_man__process_launch_args",
     ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",

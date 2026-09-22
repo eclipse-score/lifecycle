@@ -20,6 +20,9 @@ from attribute_plugin import add_test_properties
     fully_verifies=[
         "feat_req__lifecycle__parallel_launch_support",
     ],
+    partially_verifies=[
+        "comp_req__launch_man__process_launch_args",
+    ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
 )

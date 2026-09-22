@@ -17,7 +17,9 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    partially_verifies=[],
+    partially_verifies=[
+        "comp_req__launch_man__process_launch_args",
+    ],
     fully_verifies=[
         "feat_req__lifecycle__recov_run_target_switch",
         "feat_req__lifecycle__recovery_action_support",
