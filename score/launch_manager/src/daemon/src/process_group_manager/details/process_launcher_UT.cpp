@@ -22,7 +22,7 @@
 
 using namespace testing;
 
-// NOLINTBEGIN - clang-tidy does not like syscalls :D
+// NOLINTBEGIN - clang-tidy does not like syscalls
 
 class SyscallMock
 {
@@ -585,7 +585,7 @@ class StartProcessTest : public ProcessLauncherTest
         config_.name = "TestComponent";
         config_.component_properties.binary_name = "TestProcess";
         config_.component_properties.application_profile.application_type = configuration::ApplicationType::Native;
-        config_.deployment_config.bin_dir = "/bin";
+        config_.deployment_config.executable_path = "/bin/TestProcess";
         config_.deployment_config.working_dir = "/tmp";
         config_.deployment_config.sandbox.max_memory_usage = std::nullopt;
         config_.deployment_config.sandbox.max_cpu_usage = std::nullopt;
@@ -991,7 +991,8 @@ TEST_F(StartProcessTest, startProcessChildSuccess)
     const std::uint32_t cpu_limit = 500;
     const std::string security_policy = "security";
     const std::vector<std::string> args_in = {"-c 2", "--argument yes"};
-    const std::vector<std::string> expected_launch_args = {"/bin/TestProcess", args_in[0], args_in[1]};
+    const std::vector<std::string> expected_launch_args = {
+        config_.deployment_config.executable_path, args_in[0], args_in[1]};
 
     config_.component_properties.application_profile.application_type = configuration::ApplicationType::Reporting;
     config_.deployment_config.sandbox.scheduling_policy = scheduler;
