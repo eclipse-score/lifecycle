@@ -181,6 +181,7 @@ version = "0.0.1"
 dependencies = [
  "alive_rs",
  "containers",
+ "libc",
  "loom",
  "score_log",
  "score_testing_macros",

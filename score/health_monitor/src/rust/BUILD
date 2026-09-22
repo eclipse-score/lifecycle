@@ -17,6 +17,7 @@ COMMON_RUST_DEPS = [
     "@score_baselibs//src/containers:containers",
     "@score_baselibs//src/thread:thread",
     "@score_baselibs//src/log/score_log:score_log",
+    "@score_crates//:libc",
     "//score/launch_manager:alive_rust",
 ]
 
@@ -27,6 +28,10 @@ PROC_MACRO_DEPS = [
 rust_library(
     name = "health_monitoring_lib",
     srcs = glob(["**/*.rs"]),
+    crate_features = select({
+        "//config:arm_mte_enabled": ["mte"],
+        "//conditions:default": [],
+    }),
     crate_root = "lib.rs",
     proc_macro_deps = PROC_MACRO_DEPS,
     visibility = ["//score:__subpackages__"],
@@ -36,6 +41,10 @@ rust_library(
 rust_static_library(
     name = "health_monitoring_lib_ffi",
     srcs = glob(["**/*.rs"]),
+    crate_features = select({
+        "//config:arm_mte_enabled": ["mte"],
+        "//conditions:default": [],
+    }),
     crate_name = "health_monitoring_lib",
     crate_root = "lib.rs",
     proc_macro_deps = PROC_MACRO_DEPS,
@@ -43,10 +52,30 @@ rust_static_library(
     deps = COMMON_RUST_DEPS,
 )
 
+# Build coverage for the MTE backend. No default configuration compiles it, as
+# it is both feature and target gated, so it is built unconditionally for
+# aarch64 Linux. Skipped on every other platform.
+rust_library(
+    name = "health_monitoring_lib_mte",
+    srcs = glob(["**/*.rs"]),
+    crate_features = ["mte"],
+    crate_name = "health_monitoring_lib",
+    crate_root = "lib.rs",
+    proc_macro_deps = PROC_MACRO_DEPS,
+    target_compatible_with = [
+        "@platforms//cpu:aarch64",
+        "@platforms//os:linux",
+    ],
+    deps = COMMON_RUST_DEPS,
+)
+
 rust_static_library(
     name = "health_monitoring_lib_stub_supervisor",
     srcs = glob(["**/*.rs"]),
-    crate_features = ["stub_supervisor_api_client"],
+    crate_features = ["stub_supervisor_api_client"] + select({
+        "//config:arm_mte_enabled": ["mte"],
+        "//conditions:default": [],
+    }),
     crate_root = "lib.rs",
     proc_macro_deps = PROC_MACRO_DEPS,
     visibility = ["//score/health_monitor:__subpackages__"],
@@ -56,7 +85,10 @@ rust_static_library(
 rust_test(
     name = "tests",
     crate = ":health_monitoring_lib",
-    crate_features = ["stub_supervisor_api_client"],
+    crate_features = ["stub_supervisor_api_client"] + select({
+        "//config:arm_mte_enabled": ["mte"],
+        "//conditions:default": [],
+    }),
     rustc_flags = [
         "-C",
         "link-arg=-lm",
@@ -84,7 +116,10 @@ rust_test(
 rust_test(
     name = "loom_tests",
     crate = ":health_monitoring_lib",
-    crate_features = ["stub_supervisor_api_client"],
+    crate_features = ["stub_supervisor_api_client"] + select({
+        "//config:arm_mte_enabled": ["mte"],
+        "//conditions:default": [],
+    }),
     rustc_flags = [
         "--cfg",
         "loom",
