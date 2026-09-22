@@ -479,7 +479,7 @@
             {
               "name": "test_sandbox_options",
               "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 113,
+              "line": 119,
               "need": "comp_req__launch_man__uid_gid_support",
               "verify_type": "fully",
               "result": "passed",
@@ -496,7 +496,7 @@
             {
               "name": "test_sandbox_options",
               "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 113,
+              "line": 119,
               "need": "comp_req__launch_man__launch_priority_support",
               "verify_type": "fully",
               "result": "passed",
@@ -513,7 +513,7 @@
             {
               "name": "test_sandbox_options",
               "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 113,
+              "line": 119,
               "need": "comp_req__launch_man__scheduling_policy",
               "verify_type": "fully",
               "result": "passed",
@@ -530,7 +530,7 @@
             {
               "name": "test_sandbox_options",
               "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 113,
+              "line": 119,
               "need": "comp_req__launch_man__cwd_support",
               "verify_type": "fully",
               "result": "passed",
@@ -547,7 +547,7 @@
             {
               "name": "test_sandbox_options",
               "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 113,
+              "line": 119,
               "need": "comp_req__launch_man__supplementary_groups",
               "verify_type": "fully",
               "result": "passed",
