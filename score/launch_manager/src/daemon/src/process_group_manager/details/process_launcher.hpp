@@ -40,10 +40,7 @@ class ProcessLauncher final : public IProcess
     OsalReturnType waitForTermination(ProcessID& pid, int32_t& status) override;
 
     /// @see IProcess::waitForkRunning() for details
-    OsalReturnType waitForkRunning(IpcCommsP sync, std::chrono::milliseconds timeout) override;
-
-    /// @see IProcess::waitForkRunning() for details
-    OsalReturnType ignoreRunning(IpcCommsP sync) override;
+    OsalReturnType waitForkRunning(IpcCommsP sync, std::optional<std::chrono::milliseconds> timeout) override;
 
   private:
     /// @brief Creates shared memory for communication between processes.

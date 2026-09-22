@@ -918,18 +918,10 @@ class ClientMethodsTest : public ProcessLauncherTest
 
 using namespace std::chrono_literals;
 
-TEST_F(ProcessLauncherTest, ignoreRunningNoSync)
-{
-    RecordProperty("Description", "Verify that ignoreRunning correctly handles a null pointer");
-
-    std::shared_ptr<IpcCommsSync> sync;
-
-    EXPECT_EQ(process_launcher->ignoreRunning(sync), OsalReturnType::kFail);
-}
-
 TEST_F(ProcessLauncherTest, ignoreRunningSuccess)
 {
-    RecordProperty("Description", "Verify that ignoreRunning posts on the reply semaphore");
+    RecordProperty(
+        "Description", "Verify that waitForkRunning without a timeout posts on the reply semaphore without waiting");
 
     std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
     OsalReturnType waitRes = OsalReturnType::kFail;
@@ -938,7 +930,7 @@ TEST_F(ProcessLauncherTest, ignoreRunningSuccess)
         waitRes = sync->reply_sync_.timedWait(5000ms);
     }};
 
-    EXPECT_EQ(process_launcher->ignoreRunning(sync), OsalReturnType::kSuccess);
+    EXPECT_EQ(process_launcher->waitForkRunning(sync, std::nullopt), OsalReturnType::kSuccess);
     waiter.join();
     EXPECT_EQ(waitRes, OsalReturnType::kSuccess);
 }
