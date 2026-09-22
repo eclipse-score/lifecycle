@@ -12,25 +12,30 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
+:orphan:
+
 Launch manager
 ##############
 
-The :term:`Launch Manager` is a component that provides a framework for managing
-the lifecycle of processes in the S-CORE platform. It allows for launching,
-monitoring, and controlling processes based on defined configurations and
-requirements. As such, it is a central part of the lifecycle management in
-S-CORE and knows about the state of all processes in the system.
-
-It's foreseen ECU projects will need a custom state management to fulfill ECU-project specific requirements.  The S-CORE stack will offer a framework to control application lifecycle, but will not specify the State Manager.
+The following describes the interaction between the
+:need:`comp__lifecycle_launch_manager` and the user application.
 
 Overview
 ========
 
-The functionality of the :term:`Launch Manager` is defined by configuration data, which spawns a directed acyclic graph (DAG) of :term:`Components <Component>` and so called :term:`Run Targets <Run Target>`.
-The :term:`Run Targets <Run Target>` are virtual nodes in the DAG and represent :term:`Run States <Run State>` of the system.
-The :term:`Launch Manager` is responsible for starting and stopping the processes in the correct order, based on the dependencies defined in the configuration data.
+The functionality of the :term:`Launch Manager` is defined by configuration
+data, which spawns a directed acyclic graph (DAG) of :term:`Components
+<Component>` and so called :term:`Run Targets <Run Target>`.
+The :term:`Run Targets <Run Target>` are virtual nodes in the DAG and represent
+:term:`Run States <Run State>` of the system.
+The :term:`Launch Manager` is responsible for starting and stopping the
+processes in the correct order, based on the dependencies defined in the
+configuration data.
 
-E.g. the configuration below consists of three :term:`Run Targets <Run Target>` managing 9 components. If the user selects e.g. the :term:`Run Target` "debug" the :term:`Launch Manager` will start the components in the following order defined by the dependencies.
+E.g. the configuration below consists of three :term:`Run Targets <Run Target>`
+managing 9 components. If the user selects e.g. the :term:`Run Target` "debug"
+the :term:`Launch Manager` will start the components in the following order
+defined by the dependencies.
 
 1. flash driver
 2. filesystem
@@ -42,147 +47,71 @@ E.g. the configuration below consists of three :term:`Run Targets <Run Target>` 
    :scale: 50
    :align: center
 
-The :need:`comp__lifecycle_launch_manager` implements the following interfaces,for the selection of :term:`Run Target` s, starting and stopping of components and monitoring of the processes.
+The :need:`comp__lifecycle_launch_manager` implements the following
+interfaces,for the selection of :term:`Run Target` s, starting and stopping of
+components and monitoring of the processes.
 
 Switching between Run Targets
 -----------------------------
 
-The :term:`Launch Manager` allows switching between different :term:`Run Targets <Run Target>`. When a switch is requested, the :term:`Launch Manager` evaluates the current state and the target state,
-determining which components need to be started or stopped based on their dependencies.
+The :term:`Launch Manager` allows switching between different :term:`Run
+Targets <Run Target>`. When a switch is requested, the :term:`Launch Manager`
+evaluates the current state and the target state, determining which components
+need to be started or stopped based on their dependencies.
 
-When a component is started the :term:`Launch Manager` will start the corresponding process and monitor its state via :term:`Ready Conditions <Ready Condition>`.
+When a component is started the :term:`Launch Manager` will start the
+corresponding process and monitor its state via :term:`Ready Conditions <Ready
+Condition>`.
 
-:term:`Ready Conditions <Ready Condition>` are essential mechanisms that determine when a component has successfully completed its startup phase and is ready to fulfill its intended role in the system. These conditions provide flexibility in defining what constitutes a "ready" state for different types of components. For SCORE applications, components can actively report their readiness through the Lifecycle Interface by signaling specific states or custom conditions. For native applications, the :term:`Launch Manager` relies on external indicators such as process existence, file creation, network socket availability, or successful process termination. This dual approach ensures that both modern SCORE-aware applications and legacy native applications can participate in the dependency management system, allowing the :term:`Launch Manager` to orchestrate complex startup sequences where components depend on each other's readiness rather than just their launch order.
-
-
-Control Interface
-=================
-
-This interface provides control functionality for activating and managing run targets.It allows users to trigger execution of configured :term:`Run targets <Run target>` through a standardized activation mechanism.
-
-Interface
----------
-
-The control interface is defined here: :need:`logic_arc_int__lifecycle__controlif`
-The :term:`Launch Manager` provides an interface, which allows an external State Manager application to request the :term:`Launch Manager` to start, stop or restart applications or groups of applications,
-which allows the implementation of a state management applications to support dynamic state control.
-
-
-
-Dynamic architecture
---------------------
-
-The following use cases are supported by the `ControlInterface` provided by the :term:`Launch Manager`.
-
-**Activating a Run Target**
-
-When a request to activate a run target is received via the `ControlInterface`, the :term:`Launch Manager` shall perform the following operations:
-
-1. **Validation**: Evaluate if the conditions are correct for activating the requested run target:
-   - The run target exists in the configuration
-   - All dependencies for the run target are resolvable
-   - Required resources are available
-
-2. **Transition Logic**: Determine the transition from the current state to the target state:
-   - If a different run target is active, perform a switch operation (stop current, start requested)
-   - If the same run target is already active, verify its state and potentially restart failed components
-
-3. **Execution**: Execute the transition in the correct dependency order:
-   - Stop components that are not part of the new run target
-   - Start components that are required for the new run target
-   - Respect dependency relationships during both stop and start operations
-
-4. **Response**: Return status to the caller:
-   - Success if all components transitioned correctly
-   - Failure with detailed error information if any component failed to transition
-
-This unified approach allows external state managers to request any run target activation without needing to know the current system state, as the :term:`Launch Manager` handles the transition logic internally.
+:term:`Ready Conditions <Ready Condition>` are essential mechanisms that
+determine when a component has successfully completed its startup phase and is
+ready to fulfill its intended role in the system.
+These conditions provide flexibility in defining what constitutes a "ready"
+state for different types of components.
+For SCORE applications, components can actively report their readiness through
+the Lifecycle Interface by signaling specific states or custom conditions.
+For native applications, the :term:`Launch Manager` relies on external
+indicators such as process existence, file creation, network socket
+availability, or successful process termination.
+This dual approach ensures that both modern SCORE-aware applications and legacy
+native applications can participate in the dependency management system.
 
 
-.. feat_arc_dyn:: Control interface dynamic architecture activate run target
-   :id: feat_arc_dyn__lifecycle__control_activate
-   :status: valid
-   :version: 1
-   :safety: ASIL_B
-   :security: YES
-   :fulfils: feat_req__lifecycle__control_commands[version==1], feat_req__lifecycle__request_run_target_start[version==1], feat_req__lifecycle__switch_run_targets[version==1]
-   :belongs_to: feat__lifecycle[version==1]
+Interacting with processes
+--------------------------
 
-   .. uml:: _assets/control_interface_start_sequence.puml
-      :scale: 50
-      :align: center
+The :term:`Launch Manager` provides interfaces for communication with launched
+applications, supporting two distinct application types:
 
+1. **SCORE Applications**: Implement the full Lifecycle Interface for
+   bidirectional communication with state reporting, liveliness indication, and
+   conditional signaling
+2. **Native Applications**: Controlled exclusively via POSIX signals (SIGTERM,
+   SIGKILL, etc.) without direct API communication
 
+This dual approach enables the :term:`Launch Manager` to manage both legacy
+native applications and SCORE-aware applications within the same system.
 
-Requirements
-------------
+The Lifecycle Interface serves as the communication channel between
+applications and the :term:`Launch Manager`.
 
-- :need:`feat_req__lifecycle__control_commands`
-- :need:`feat_req__lifecycle__request_run_target_start`
-- :need:`feat_req__lifecycle__switch_run_targets`
-
-
-
-Lifecycle Interface
-===================
-
-
-The :term:`Launch Manager` provides interfaces for communication with launched applications, supporting two distinct application types:
-
-1. **SCORE Applications**: Implement the full Lifecycle Interface for bidirectional communication with state reporting, liveliness indication, and conditional signaling
-2. **Native Applications**: Controlled exclusively via POSIX signals (SIGTERM, SIGKILL, etc.) without direct API communication
-
-This dual approach enables the :term:`Launch Manager` to manage both legacy native applications and SCORE-aware applications within the same system.
-
-The Lifecycle Interface serves as the communication channel between applications and the :term:`Launch Manager`:
+SCORE Applications
+^^^^^^^^^^^^^^^^^^
 
 **For SCORE Applications:**
 - Application state reporting (started, running, stopped)
 - Conditional signaling for application dependencies
 
-**For Native Applications:**
-- Process lifecycle control via POSIX signals
-- Basic process monitoring (PID-based status checking)
-- Exit code evaluation for failure detection
+See :doc:`./lifecycle_client` for the full description of the Lifecycle Interface.
 
-Interface
----------
+Native Applications
+^^^^^^^^^^^^^^^^^^^
 
-The lifecycle interface is defined here: :need:`logic_arc_int__lifecycle__lifecycle_if`
-
-The following use cases are supported by the Lifecycle Interface, with different capabilities depending on the application type.
-
-**SCORE Application State Communication**
-
-SCORE applications implementing the Lifecycle Interface can communicate their internal state to the :term:`Launch Manager`. The state information includes:
-
-- **Started**: Application has successfully initialized and is ready to operate
-- **Running**: Application is actively executing its main functionality
-- **Stopped**: Application has terminated or is in the process of shutting down
-
-The :term:`Launch Manager` uses this state information for:
-
-- Dependency resolution for other applications
-- Recovery action decisions
-- Status reporting to external state managers via the Control Interface
-
-
-**SCORE Application Conditional Signaling**
-
-SCORE applications can signal custom conditions to the :term:`Launch Manager` via the Alive Interface. This enables:
-
-- Complex dependency management beyond simple process startup
-- Coordination between interdependent applications
-
-Custom conditions can be used by other applications as launch dependencies, allowing for sophisticated startup orchestration.
-
-**Native Application Control**
-
-Native applications that do not implement the Lifecycle Interface are controlled through POSIX signals:
+Native applications that do not implement the Lifecycle Interface are
+controlled through POSIX signals:
 
 - **SIGTERM**: Graceful shutdown request
 - **SIGKILL**: Forced termination (after timeout)
-- **SIGUSR1/SIGUSR2**: Application-specific signals (if configured)
 
 The :term:`Launch Manager` monitors native applications through:
 
@@ -200,70 +129,234 @@ For native applications, the :term:`Launch Manager` provides:
 
 
 Dynamic Architecture
---------------------
+====================
 
-.. feat_arc_dyn:: Lifecyle Interface
-   :id: feat_arc_dyn__lifecycle__state_machine_if
+.. feat_arc_dyn:: Launch Manager - Components Depends on Each Other
+   :id: feat_arc_dyn__lifecycle__lcm_start
    :security: YES
    :status: valid
    :version: 1
    :safety: ASIL_B
-   :fulfils: feat_req__lifecycle__process_termination[version==1], feat_req__lifecycle__launch_support[version==1]
    :belongs_to: feat__lifecycle[version==1]
+   :fulfils: feat_req__lifecycle__launch_support[version==1],
+             feat_req__lifecycle__process_ordering[version==1],
+             feat_req__lifecycle__start_named_run_target[version==1],
+             feat_req__lifecycle__conditional_startup[version==1]
 
-   .. uml:: _assets/lifecycle_state_machine.puml
+   .. uml:: _assets/launch_manager_running_dep.puml
       :scale: 50
       :align: center
 
-Requirements
-------------
+   Configuration:
+   Reporting App 2 depends on Reporting App 1, Reporting App 1 has a ready
+   condition of being in state running.
 
-- :need:`feat_req__lifecycle__process_termination`
-- :need:`feat_req__lifecycle__launch_support`
+   .. list-table::
+      :widths: 10 90
+      :header-rows: 1
+
+      * - Sequence number
+        - Description
+      * - 001
+        - Launch Manager analyzes the current state of the system.
+      * - 002
+        - Launch Manager identifies the components that need to be started or stopped based on the current state.
+      * - 003
+        - Launch Manager starts the components that need to be started. In this case Reporting App 1.
+      * - 004
+        - Reporting App 1 is started.
+      * - 005
+        - Launch Manager waits for the signal from the Lifecycle API.
+      * - 006
+        - Reporting App 1 does its internal initialization.
+      * - 007
+        - Reporting App 1 signals to the Launch Manager that it has finished initialization.
+      * - 008
+        - Launch Manager analyzes the current state of the system.
+      * - 009
+        - Launch Manager identifies the components that need to be started or stopped based on the current state. In this case Reporting App 2 can be started.
+      * - 010
+        - Launch Manager starts the components that need to be started. In this case Reporting App 2.
+      * - 011
+        - Reporting App 2 is started.
+      * - 012
+        - Launch Manager waits for the signal from the Lifecycle API.
+      * - 013
+        - Reporting App 2 does its internal initialization.
+      * - 014
+        - Reporting App 2 signals to the Launch Manager that it has finished initialization.
+      * - 015
+        - Launch Manager analyzes the current state of the system.
+      * - 016
+        - Launch Manager marks the Run Target as active.
 
 
-
-Alive Interface
-===============
-The Alive Interface provides a basic watchdog functionality interface that delivers essential monitoring capabilities for system health and responsiveness tracking.
-It implements core watchdog operations including heartbeat signals to ensure reliable operation and automatic recovery from unresponsive states.
-
-**SCORE Application Liveliness Reporting**
-
-SCORE applications can periodically signal their liveliness to the :term:`Launch Manager` through the Alive Interface. This mechanism allows the :term:`Launch Manager` to:
-
-- Detect application failures or hangs
-- Trigger recovery actions when liveliness is lost
-- Maintain accurate process health status
-
-The liveliness mechanism includes:
-
-- Configurable heartbeat intervals per application
-- Timeout detection and failure handling
-
-Interface
----------
-
-The alive interface is defined here: :need:`logic_arc_int__lifecycle__alive_if`
-
-
-Dynamic architecture
---------------------
-
-.. feat_arc_dyn:: Alive Monitoring
-   :id: feat_arc_dyn__lifecycle__alive_monitor
+.. feat_arc_dyn:: Launch Manager - Termination Request
+   :id: feat_arc_dyn__lifecycle__lcm_term
    :security: YES
    :status: valid
    :version: 1
    :safety: ASIL_B
-   :fulfils: feat_req__lifecycle__liveliness_detection[version==1]
-   :includes:
    :belongs_to: feat__lifecycle[version==1]
+   :fulfils: feat_req__lifecycle__launch_support[version==1],
+             feat_req__lifecycle__process_termination[version==1],
+             feat_req__lifecycle__process_ordering[version==1]
 
-   .. uml:: _assets/alive_monitoring_dynamic.puml
+   .. uml:: _assets/launch_manager_terminate_request.puml
       :scale: 50
       :align: center
 
-Requirements
-------------
-- :need:`feat_req__lifecycle__liveliness_detection`
+   .. list-table::
+      :widths: 10 90
+      :header-rows: 1
+
+      * - Sequence number
+        - Description
+      * - 001
+        - Launch Manager analyzes the current state of the system.
+      * - 002
+        - Launch Manager determines the transition plan for switching the run target. In this case all components can be terminated in parallel.
+      * - 003
+        - Launch Manager sends SIGTERM to the well behaving application.
+      * - 004
+        - The well behaving application terminates through the operating system.
+      * - 005
+        - Launch Manager sends SIGTERM to the badly behaving application.
+      * - 006
+        - The badly behaving application ignores the SIGTERM request.
+      * - 007
+        - Launch Manager sends SIGKILL to force termination of the badly behaving application.
+      * - 008
+        - The badly behaving application terminates through the operating system.
+
+.. feat_arc_dyn:: Launch Manager - Termination Order
+   :id: feat_arc_dyn__lifecycle__lcm_term_order
+   :security: YES
+   :status: valid
+   :version: 1
+   :safety: ASIL_B
+   :belongs_to: feat__lifecycle[version==1]
+   :fulfils: feat_req__lifecycle__launch_support[version==1],
+             feat_req__lifecycle__process_termination[version==1],
+             feat_req__lifecycle__process_ordering[version==1],
+             feat_req__lifecycle__terminationn_dependency[version==1]
+
+   .. uml:: _assets/launch_manager_terminate_dep.puml
+      :scale: 50
+      :align: center
+
+   Configuration:
+   Reporting App 2 depends on the Running of Reporting App 1.
+
+   .. list-table::
+      :widths: 10 90
+      :header-rows: 1
+
+      * - Sequence number
+        - Description
+      * - 001
+        - Launch Manager analyzes the current state of the system.
+      * - 002
+        - Launch Manager determines the transition plan. Reporting App 1 must be terminated first because Reporting App 1 depends on Reporting App 2 running.
+      * - 003
+        - Launch Manager sends SIGTERM to Reporting App 1.
+      * - 004
+        - Reporting App 1 terminates through the operating system.
+      * - 005
+        - The operating system reports the termination of Reporting App 1 to the Launch Manager.
+      * - 006
+        - Launch Manager analyzes the current state of the system.
+      * - 007
+        - Launch Manager determines the transition plan. Reporting App 2 can now be terminated since Reporting App 1 is no longer running.
+      * - 008
+        - Launch Manager sends SIGTERM to Reporting App 2.
+      * - 009
+        - Reporting App 2 terminates through the operating system.
+      * - 010
+        - The operating system reports the termination of Reporting App 2 to the Launch Manager.
+      * - 011
+        - Launch Manager analyzes the current state of the system.
+      * - 012
+        - Launch Manager determines the transition plan for the next transition or run target.
+
+
+.. feat_arc_dyn:: Launch Manager - Run Components in Parallel
+   :id: feat_arc_dyn__lifecycle__lcm_parallel
+   :security: YES
+   :status: valid
+   :version: 1
+   :safety: ASIL_B
+   :belongs_to: feat__lifecycle[version==1]
+   :fulfils: feat_req__lifecycle__launch_support[version==1],
+             feat_req__lifecycle__process_ordering[version==1],
+             feat_req__lifecycle__parallel_launch_support[version==1]
+
+   .. uml:: _assets/launch_manager_parallel_dep.puml
+      :scale: 50
+      :align: center
+
+   Configuration:
+   Reporting App 1 and Reporting App 2 can be started independently.
+
+   .. list-table::
+      :widths: 10 90
+      :header-rows: 1
+
+      * - Sequence number
+        - Description
+      * - 001
+        - Launch Manager analyzes the current state of the system.
+      * - 002
+        - Launch Manager determines the transition plan. In this case both Reporting App 1 and Reporting App 2 can be started in parallel.
+      * - 003
+        - Launch Manager starts Reporting App 1.
+      * - 004
+        - Launch Manager starts Reporting App 2.
+      * - 005
+        - Reporting App 1 is started.
+      * - 006
+        - Reporting App 2 is started.
+      * - 007
+        - Reporting App 1 does its internal initialization.
+      * - 008
+        - Reporting App 1 signals to the Launch Manager that it has finished initialization.
+      * - 009
+        - Reporting App 2 does its internal initialization.
+      * - 010
+        - Reporting App 2 signals to the Launch Manager that it has finished initialization.
+
+
+.. feat_arc_dyn:: Launch Manager - Crash Recovery
+   :id: feat_arc_dyn__lifecycle__crash
+   :security: YES
+   :status: valid
+   :version: 1
+   :safety: ASIL_B
+   :belongs_to: feat__lifecycle[version==1]
+   :fulfils: feat_req__lifecycle__monitor_abnormal_term[version==1],
+             feat_req__lifecycle__recovery_action_support[version==1],
+             feat_req__lifecycle__recov_run_target_switch[version==1]
+
+   .. uml:: _assets/launch_manager_random_crash.puml
+      :scale: 50
+      :align: center
+
+   .. list-table::
+      :widths: 10 90
+      :header-rows: 1
+
+      * - Sequence number
+        - Description
+      * - 001
+        - The monitored process crashes unexpectedly.
+      * - 002
+        - The crashed process terminates through the operating system.
+      * - 003
+        - The operating system reports the terminated process to the Launch Manager.
+      * - 004
+        - Launch Manager analyzes the current state of the system.
+      * - 005
+        - Launch Manager determines the transition plan.In this case a recovery action needs to be run, and the recovery action is to switch to a different Run Target.
+      * - 006
+        - Launch Manager switches to the configured fallback Run Target.
+
