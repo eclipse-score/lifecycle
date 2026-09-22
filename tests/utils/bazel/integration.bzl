@@ -44,6 +44,13 @@ def integration_test(
         :config: The launch manager configuration
         :(name): Runs the test script
 
+    Note:
+        We currently support calling this macro from user modules to allow
+        score_lifecycle integration tests to be executed in other repositories.
+        This only works when bazel labels are absolute. We ensure labels
+        start with "@score_lifecycle//" to ensure they can be resolved from user
+        modules.
+
     Args:
         name: Name of the test
         srcs: The test script
