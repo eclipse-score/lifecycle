@@ -268,12 +268,6 @@ deployment_config (object)
             * **Description:** Specifies the scheduling policy applied to the component's initial thread. Supported values correspond to OS-defined policies (e.g., ``SCHED_FIFO``, ``SCHED_RR``, ``SCHED_OTHER``). Custom string values may also be supported depending on the operating system.
         * **scheduling_priority** (integer, optional)
             * **Description:** Specifies the scheduling priority applied to the component's initial thread, influencing its allocation of CPU time.
-        * **max_memory_usage** (integer, optional)
-            * **Description:** Specifies the maximum amount of memory, in bytes, that the component is permitted to use during runtime.
-            * **Constraint:** Must be greater than 0.
-        * **max_cpu_usage** (integer, optional)
-            * **Description:** Specifies the maximum CPU usage limit for the component, expressed as a percentage (%) of total CPU capacity.
-            * **Constraint:** Must be greater than 0.
 
 .. _lm_conf_launch_manager_root_properties:
 

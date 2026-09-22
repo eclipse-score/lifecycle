@@ -653,15 +653,7 @@ TEST_F(ConverterTest, ConvertSandboxValid)
     auto sec_policy = fbb.CreateString("strict");
     auto supp_gids = fbb.CreateVector(std::vector<int64_t>{100, 200});
     auto sandbox = fb::CreateSandbox(
-        fbb,
-        1000 /*uid*/,
-        1000 /*gid*/,
-        supp_gids,
-        sec_policy,
-        fb::SchedulingPolicy::FIFO,
-        50 /*scheduling_priority*/,
-        4096 /*max_memory_usage*/,
-        80 /*max_cpu_usage*/);
+        fbb, 1000 /*uid*/, 1000 /*gid*/, supp_gids, sec_policy, fb::SchedulingPolicy::FIFO, 50 /*scheduling_priority*/);
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
@@ -674,10 +666,6 @@ TEST_F(ConverterTest, ConvertSandboxValid)
     EXPECT_THAT(result->security_policy.value(), Eq("strict"));
     EXPECT_THAT(result->scheduling_policy, Eq(SCHED_FIFO));
     EXPECT_THAT(result->scheduling_priority, Eq(50));
-    ASSERT_THAT(result->max_memory_usage.has_value(), IsTrue());
-    EXPECT_THAT(result->max_memory_usage.value(), Eq(4096U));
-    ASSERT_THAT(result->max_cpu_usage.has_value(), IsTrue());
-    EXPECT_THAT(result->max_cpu_usage.value(), Eq(80U));
 }
 
 TEST_F(ConverterTest, ConvertSandboxMissingUidReturnsError)

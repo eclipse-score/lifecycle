@@ -124,10 +124,6 @@ table Sandbox {
   scheduling_policy:SchedulingPolicy = null; // required
   // Scheduling priority for the component's initial thread.
   scheduling_priority:int32 = null; // required
-  // Maximum memory in bytes the component is permitted to use.
-  max_memory_usage:uint64 = null; // optional
-  // Maximum CPU usage as a percentage of total CPU capacity.
-  max_cpu_usage:uint32 = null; // optional
 }
 
 // Deployment configuration for a component.

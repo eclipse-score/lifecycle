@@ -944,46 +944,6 @@ def test_gen_config_watchdog_partial_fields_omitted(tmp_path):
     assert "watchdog" not in output
 
 
-def test_gen_config_with_sandbox_limits(tmp_path):
-    """sandbox max_memory_usage and max_cpu_usage should appear in output when present."""
-    config = {
-        "schema_version": 1,
-        "components": {
-            "app1": {
-                "component_properties": {
-                    "application_profile": {"application_type": "REPORTING"}
-                },
-                "deployment_config": {
-                    "ready_timeout_ms": 1000,
-                    "shutdown_timeout_ms": 2000,
-                    "bin_dir": "/opt",
-                    "sandbox": {
-                        "uid": 1000,
-                        "gid": 1000,
-                        "max_memory_usage": 1024,
-                        "max_cpu_usage": 50,
-                    },
-                },
-            }
-        },
-        "run_targets": {"Startup": {}},
-        "initial_run_target": "Startup",
-        "fallback_run_target": {},
-        "alive_supervision": {},
-        "watchdog": {},
-    }
-    gen_config(str(tmp_path), config, "test_input.json")
-
-    with open(tmp_path / "test_input_gen.json") as f:
-        output = json.load(f)
-
-    assert output["schema_version"] == 1
-
-    sandbox = output["components"][0]["deployment_config"]["sandbox"]
-    assert sandbox["max_memory_usage"] == 1024
-    assert sandbox["max_cpu_usage"] == 50
-
-
 def test_gen_config_output_filename_matches_spec(tmp_path):
     """Output files should follow the {stem}_gen.json pattern."""
     config = {

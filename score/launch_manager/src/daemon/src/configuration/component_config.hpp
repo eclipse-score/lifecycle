@@ -89,8 +89,6 @@ struct Sandbox
     std::optional<std::string> security_policy;
     std::int32_t scheduling_policy;
     std::int32_t scheduling_priority{};
-    std::optional<std::uint64_t> max_memory_usage;
-    std::optional<std::uint32_t> max_cpu_usage;
 };
 
 struct DeploymentConfig

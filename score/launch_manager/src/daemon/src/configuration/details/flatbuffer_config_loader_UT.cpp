@@ -511,15 +511,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
     auto sec_policy = fbb.CreateString("strict");
     auto supp_gids = fbb.CreateVector(std::vector<int64_t>{100, 200});
     auto sandbox = fb::CreateSandbox(
-        fbb,
-        1000 /*uid*/,
-        1000 /*gid*/,
-        supp_gids,
-        sec_policy,
-        fb::SchedulingPolicy::FIFO,
-        50 /*scheduling_priority*/,
-        4096 /*max_memory_usage*/,
-        80 /*max_cpu_usage*/);
+        fbb, 1000 /*uid*/, 1000 /*gid*/, supp_gids, sec_policy, fb::SchedulingPolicy::FIFO, 50 /*scheduling_priority*/);
 
     auto bin_dir = fbb.CreateString("/opt");
     auto work_dir = fbb.CreateString("/tmp");
@@ -550,10 +542,6 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
     EXPECT_THAT(sb.security_policy.value(), Eq("strict"));
     EXPECT_THAT(sb.scheduling_policy, Eq(SCHED_FIFO));
     EXPECT_THAT(sb.scheduling_priority, Eq(50));
-    ASSERT_THAT(sb.max_memory_usage.has_value(), IsTrue());
-    EXPECT_THAT(sb.max_memory_usage.value(), Eq(4096U));
-    ASSERT_THAT(sb.max_cpu_usage.has_value(), IsTrue());
-    EXPECT_THAT(sb.max_cpu_usage.value(), Eq(80U));
 }
 
 TEST_F(FlatbufferConfigLoaderTest, LoadComponentAliveSupervision)

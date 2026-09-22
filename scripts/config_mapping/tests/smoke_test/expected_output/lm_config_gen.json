@@ -34,9 +34,7 @@
                     ],
                     "security_policy": "policy_name",
                     "scheduling_policy": "OTHER",
-                    "scheduling_priority": 0,
-                    "max_memory_usage": 1024,
-                    "max_cpu_usage": 75
+                    "scheduling_priority": 0
                 },
                 "environmental_variables": [
                     {
@@ -97,9 +95,7 @@
                     ],
                     "security_policy": "policy_name",
                     "scheduling_policy": "OTHER",
-                    "scheduling_priority": 0,
-                    "max_memory_usage": 1024,
-                    "max_cpu_usage": 75
+                    "scheduling_priority": 0
                 },
                 "environmental_variables": [
                     {
@@ -164,9 +160,7 @@
                     ],
                     "security_policy": "policy_name",
                     "scheduling_policy": "OTHER",
-                    "scheduling_priority": 0,
-                    "max_memory_usage": 1024,
-                    "max_cpu_usage": 75
+                    "scheduling_priority": 0
                 },
                 "environmental_variables": [
                     {
@@ -234,9 +228,7 @@
                     ],
                     "security_policy": "policy_name",
                     "scheduling_policy": "OTHER",
-                    "scheduling_priority": 0,
-                    "max_memory_usage": 1024,
-                    "max_cpu_usage": 75
+                    "scheduling_priority": 0
                 },
                 "environmental_variables": [
                     {
@@ -303,9 +295,7 @@
                     ],
                     "security_policy": "policy_name",
                     "scheduling_policy": "OTHER",
-                    "scheduling_priority": 0,
-                    "max_memory_usage": 1024,
-                    "max_cpu_usage": 75
+                    "scheduling_priority": 0
                 },
                 "environmental_variables": [
                     {

@@ -332,10 +332,6 @@ def gen_config(output_dir, config, input_filename):
             "scheduling_policy": sched_policy,
             "scheduling_priority": sandbox.get("scheduling_priority", 0),
         }
-        if "max_memory_usage" in sandbox:
-            sandbox_out["max_memory_usage"] = sandbox["max_memory_usage"]
-        if "max_cpu_usage" in sandbox:
-            sandbox_out["max_cpu_usage"] = sandbox["max_cpu_usage"]
 
         deployment = {
             "ready_timeout_ms": depl_cfg["ready_timeout_ms"],

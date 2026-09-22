@@ -28,9 +28,7 @@
                 "supplementary_group_ids": [100, 200, 300],
                 "security_policy": "apparmor_profile",
                 "scheduling_policy": "SCHED_FIFO",
-                "scheduling_priority": 50,
-                "max_memory_usage": 536870912,
-                "max_cpu_usage": 80
+                "scheduling_priority": 50
             }
         },
         "component_properties": {
@@ -113,9 +111,7 @@
                     "supplementary_group_ids": [50, 60],
                     "security_policy": "apparmor_a",
                     "scheduling_policy": "SCHED_RR",
-                    "scheduling_priority": 75,
-                    "max_memory_usage": 268435456,
-                    "max_cpu_usage": 50
+                    "scheduling_priority": 75
                 }
             }
         },

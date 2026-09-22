@@ -309,16 +309,6 @@
             "scheduling_priority": {
               "type": "integer",
               "description": "Specifies the scheduling priority applied to the component's initial thread."
-            },
-            "max_memory_usage": {
-              "type": "integer",
-              "exclusiveMinimum": 0,
-              "description": "Specifies the maximum amount of memory, in bytes, that the component is permitted to use during runtime."
-            },
-            "max_cpu_usage": {
-              "type": "integer",
-              "exclusiveMinimum": 0,
-              "description": "Specifies the maximum CPU usage limit for the component, expressed as a percentage (%) of total CPU capacity."
             }
           },
           "additionalProperties": false

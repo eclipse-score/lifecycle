@@ -411,8 +411,6 @@ score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(const fb::San
                                  : std::nullopt;
     result.scheduling_policy = *scheduling_policy;
     result.scheduling_priority = *scheduling_priority;
-    result.max_memory_usage = optionalScalarValue(fb_sb->max_memory_usage());
-    result.max_cpu_usage = optionalScalarValue(fb_sb->max_cpu_usage());
     return result;
 }
 
