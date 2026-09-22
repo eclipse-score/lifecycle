@@ -491,24 +491,7 @@ OsalReturnType ProcessLauncher::waitForTermination(osal::ProcessID& pid, int32_t
     return result;
 }
 
-OsalReturnType ProcessLauncher::ignoreRunning(IpcCommsP sync)
-{
-    if (!sync)
-    {
-        LM_LOG_ERROR() << "Invalid shared memory pointer: The shared memory pointer is null.";
-        return OsalReturnType::kFail;
-    }
-
-    const auto post_res = sync->reply_sync_.post();
-    if (post_res == OsalReturnType::kFail)
-    {
-        LM_LOG_ERROR() << "Semaphore post failed";
-        return OsalReturnType::kFail;
-    }
-    return OsalReturnType::kSuccess;
-}
-
-OsalReturnType ProcessLauncher::waitForkRunning(IpcCommsP sync, std::chrono::milliseconds timeout)
+OsalReturnType ProcessLauncher::waitForkRunning(IpcCommsP sync, std::optional<std::chrono::milliseconds> timeout)
 {
     OsalReturnType result = OsalReturnType::kSuccess;
 
@@ -518,16 +501,25 @@ OsalReturnType ProcessLauncher::waitForkRunning(IpcCommsP sync, std::chrono::mil
         return OsalReturnType::kFail;
     }
 
-    const auto time_res = sync->send_sync_.timedWait(timeout);
+    if (timeout.has_value())
+    {
+        result = sync->send_sync_.timedWait(timeout.value());
+    }
+
     const auto post_res = sync->reply_sync_.post();
 
-    if ((time_res == OsalReturnType::kFail) || (post_res == OsalReturnType::kFail))
+    if (post_res == OsalReturnType::kFail)
+    {
+        LM_LOG_ERROR() << "Semaphore post failed";
+        result = OsalReturnType::kFail;
+    }
+
+    if (result == OsalReturnType::kFail)
     {
         LM_LOG_ERROR() << "Semaphore timedWait or post failed: Unable to wait or post on semaphores within the "
                           "specified timeout.";
-        result = OsalReturnType::kFail;
     }
-    else
+    else if (timeout.has_value())
     {
         result = sync->send_sync_.timedWait(std::chrono::milliseconds(100));
     }

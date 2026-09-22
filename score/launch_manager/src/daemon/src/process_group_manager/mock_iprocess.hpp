@@ -32,8 +32,11 @@ class MockIProcess : public IProcess
     MOCK_METHOD(OsalReturnType, requestTermination, (ProcessID pid), (override));
     MOCK_METHOD(OsalReturnType, forceTermination, (ProcessID pid), (override));
     MOCK_METHOD(OsalReturnType, waitForTermination, (ProcessID & pid, int32_t& status), (override));
-    MOCK_METHOD(OsalReturnType, waitForkRunning, (IpcCommsP sync, std::chrono::milliseconds timeout), (override));
-    MOCK_METHOD(OsalReturnType, ignoreRunning, (IpcCommsP sync), (override));
+    MOCK_METHOD(
+        OsalReturnType,
+        waitForkRunning,
+        (IpcCommsP sync, std::optional<std::chrono::milliseconds> timeout),
+        (override));
 };
 
 }  // namespace score::mw::lifecycle::internal::osal
