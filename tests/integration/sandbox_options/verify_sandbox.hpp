@@ -21,10 +21,15 @@
 #include <algorithm>
 #include <array>
 #include <climits>
+#include <cstdint>
 #include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
+
+#if defined(__QNX__)
+#include <sys/neutrino.h>
+#endif
 
 namespace sandbox_options
 {
@@ -33,6 +38,14 @@ namespace sandbox_options
 ///
 /// Every value is optional: a value that is not set is not verified. This lets a component leave
 /// an option unset (e.g. no working directory) without the verification flagging it.
+struct AffinityExpectation
+{
+    /// Special case for "all", as this depends on the number of CPU cores
+    /// of the machine executing the test
+    bool all_cpus;
+    std::uint64_t mask;
+};
+
 struct ExpectedValues
 {
     std::optional<int> policy;
@@ -41,6 +54,7 @@ struct ExpectedValues
     std::optional<gid_t> gid;
     std::optional<std::vector<gid_t>> supplementary_groups;
     std::optional<std::string> working_dir;
+    std::optional<AffinityExpectation> affinity;
 };
 
 inline const char* policy_name(const int policy)
@@ -149,6 +163,86 @@ inline ::testing::AssertionResult verifyWorkingDir(const std::string& expected_w
     }
 
     return to_result(failures);
+}
+
+/// @brief Verify that the process' current CPU affinity mask matches the expectation.
+/// @param[in] expected_affinity Expected affinity mask, one bit per CPU.
+/// @return AssertionSuccess if the affinity mask matches, otherwise AssertionFailure.
+inline ::testing::AssertionResult verifyAffinity(const std::uint64_t expected_affinity)
+{
+    std::ostringstream failures;
+    std::uint64_t current_affinity = 0;
+    constexpr int kCores = 64;
+
+#if defined(__QNX__)
+    // ThreadCtl only offers a combined get-and-set: request a run mask covering every CPU (a
+    // no-op given the process is already confined by its actual mask) and read back the mask
+    // that was in effect beforehand, which is the state configured by the launch manager.
+    constexpr int kSize = RMSK_SIZE(kCores);
+    struct
+    {
+        int size;
+        unsigned runmask[kSize];
+        unsigned inherit_mask[kSize];
+    } tm{kSize, {}, {}};
+    for (int cpu = 0; cpu < kCores; ++cpu)
+    {
+        RMSK_SET(cpu, tm.runmask);
+        RMSK_SET(cpu, tm.inherit_mask);
+    }
+
+    if (ThreadCtl(_NTO_TCTL_RUNMASK_GET_AND_SET_INHERIT, &tm) != 0)
+    {
+        failures << "Failed to get CPU affinity\n";
+        return to_result(failures);
+    }
+
+    for (int cpu = 0; cpu < kCores; ++cpu)
+    {
+        if (RMSK_ISSET(cpu, tm.runmask))
+        {
+            current_affinity |= (std::uint64_t{1} << cpu);
+        }
+    }
+#else
+    cpu_set_t cpu_set;
+    CPU_ZERO(&cpu_set);
+    if (sched_getaffinity(0, sizeof(cpu_set), &cpu_set) != 0)
+    {
+        failures << "Failed to get CPU affinity\n";
+        return to_result(failures);
+    }
+
+    // Fold the cpu_set_t into a 64-bit mask, one bit per CPU, to compare against the CLI value.
+    for (int cpu = 0; cpu < kCores; ++cpu)
+    {
+        if (CPU_ISSET(cpu, &cpu_set))
+        {
+            current_affinity |= (std::uint64_t{1} << cpu);
+        }
+    }
+#endif
+
+    if (current_affinity != expected_affinity)
+    {
+        failures << "Expected affinity=0x" << std::hex << expected_affinity << " but got affinity=0x"
+                 << current_affinity << std::dec << "\n";
+    }
+
+    return to_result(failures);
+}
+
+/// @brief Verify that the current CPU affinity mask includes every online CPU.
+inline ::testing::AssertionResult verifyAffinityAllCpus()
+{
+    const long available_cpus = sysconf(_SC_NPROCESSORS_ONLN);
+    if ((available_cpus <= 0) || (available_cpus > 64))
+    {
+        return ::testing::AssertionFailure() << "Unsupported number of available CPUs: " << available_cpus;
+    }
+
+    const auto expected_affinity = (std::uint64_t{1} << available_cpus) - 1U;
+    return verifyAffinity(expected_affinity);
 }
 
 /// @brief Verify that the calling thread runs with the expected scheduling policy and priority.

@@ -239,6 +239,61 @@ TEST_F(EnvironmentTest, EmptyEnvironmentEnvpIsNullTerminated)
     EXPECT_THAT(envp[0], IsNull());
 }
 
+TEST_F(EnvironmentTest, SetMovesInEntriesAndUpdatesEnvp)
+{
+    RecordProperty("Description", "set() moves in entries and makes them visible via size(), iteration and envp().");
+
+    std::vector<EnvironmentVariable> entries;
+    entries.emplace_back("A", "1");
+    entries.emplace_back("B", "2");
+
+    Environment env;
+    env.set(std::move(entries));
+
+    EXPECT_THAT(env.size(), Eq(2U));
+    char* const* envp = env.envp();
+    EXPECT_THAT(envp[0], StrEq("A=1"));
+    EXPECT_THAT(envp[1], StrEq("B=2"));
+    EXPECT_THAT(envp[2], IsNull());
+}
+
+TEST_F(EnvironmentTest, SetReplacesPreviouslyAddedEntries)
+{
+    RecordProperty("Description", "set() discards entries added earlier.");
+
+    Environment env;
+    env.add("OLD", "stale");
+
+    std::vector<EnvironmentVariable> entries;
+    entries.emplace_back("NEW", "fresh");
+    env.set(std::move(entries));
+
+    EXPECT_THAT(env.size(), Eq(1U));
+    char* const* envp = env.envp();
+    EXPECT_THAT(envp[0], StrEq("NEW=fresh"));
+    EXPECT_THAT(envp[1], IsNull());
+}
+
+TEST_F(EnvironmentTest, EnvpIsUpToDateWithoutRebuildOnAccess)
+{
+    RecordProperty(
+        "Description",
+        "envp() performs no allocation: the pointer array is already valid from a previous call and still "
+        "reflects all entries.");
+
+    Environment env;
+    env.add("A", "1");
+
+    // envp() must be callable between fork() and execve(), so it must not rebuild anything. Calling it
+    // repeatedly has to yield the same array without any mutation.
+    char* const* first = env.envp();
+    char* const* second = env.envp();
+
+    EXPECT_THAT(second, Eq(first));
+    EXPECT_THAT(second[0], StrEq("A=1"));
+    EXPECT_THAT(second[1], IsNull());
+}
+
 TEST_F(EnvironmentTest, RangeBasedForLoopWorks)
 {
     RecordProperty("Description", "Environment supports range-based for loop.");

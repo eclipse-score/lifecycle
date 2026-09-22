@@ -26,7 +26,6 @@
 
 #include "score/mw/launch_manager/common/concurrency/mpmc_concurrent_queue.hpp"
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
-#include "score/mw/launch_manager/common/process_group_state_id.hpp"
 #include "score/mw/launch_manager/configuration/config.hpp"
 #include "score/mw/launch_manager/osal/semaphore.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_event.hpp"
@@ -228,12 +227,9 @@ class Graph final
     /// at that index is a RunTarget rather than a ProcessInfoNode.
     ProcessInfoNode* getProcessInfoNode(IdentifierHash process_index);
 
-    /// @return The identifier of the process group managed by this graph.
-    IdentifierHash getProcessGroupName();
-
-    /// @return The current target state of the process group. Only meaningful when
-    /// getState() returns GraphState::kSuccess.
-    IdentifierHash getProcessGroupState();
+    /// @return The currently requested run target.
+    /// @note Only meaningful when getState() returns GraphState::kSuccess.
+    IdentifierHash getRequestedRunTarget();
 
     /// @brief Update the details for the cancel message to match the current state.
     void updateCancelMessage();
@@ -331,10 +327,10 @@ class Graph final
     /// @brief Current state of the graph.
     GraphState state_{GraphState::kSuccess};
 
-    /// @brief the requested (target) Process Group State
-    ProcessGroupStateID requested_state_{};
+    /// @brief the requested run target.
+    IdentifierHash requested_state_{};
 
-    /// @brief Mutex protecting concurrent access to requested_state_.pg_state_name_.
+    /// @brief Mutex protecting concurrent access to requested_state_.
     mutable std::mutex requested_state_mutex_{};
 
     /// @brief Config pointer to set up graph nodes
@@ -346,7 +342,7 @@ class Graph final
     /// @brief The interfaces passed to the process nodes to control their OS processes
     ProcessHandling process_handling_;
 
-    /// @brief Set the true if this is the MainPG and this is the initial state transition
+    /// @brief Set the true if this is the initial state transition
     bool is_initial_state_transition_{false};
 
     /// @brief The pending state transition, if any

@@ -52,7 +52,7 @@ Config makeMinimalConfig()
     component.component_properties.ready_condition = ReadyCondition{ProcessState::Running};
     component.deployment_config.ready_timeout_ms = 500U;
     component.deployment_config.shutdown_timeout_ms = 500U;
-    component.deployment_config.bin_dir = "/bin";
+    component.deployment_config.executable_path = "/bin/true";
     component.deployment_config.working_dir = "/workspaces/lifecycle";
     component.deployment_config.sandbox.uid = 1000U;
     component.deployment_config.sandbox.gid = 1000U;
