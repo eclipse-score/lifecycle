@@ -67,7 +67,7 @@ void applyLimitOrDie(const int resource, const rlimit& limit, const std::string_
 /// @brief Sets the limit if given a non-zero value, otherwise skips.
 /// @details The implementation should be async signal safe.
 /// @warning This will sysexit if the set is not succesful.
-void setLimit(const int resource, const std::size_t amount, const std::string_view rlimit_name) noexcept
+void setLimit(const int resource, const std::size_t amount, const std::string_view rlimit_name) noexcept(false)
 {
     if (amount == 0U)
     {
