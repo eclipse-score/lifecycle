@@ -72,16 +72,28 @@
     }
   },
   {
-    "need": "feat_req__lifecycle__parallel_launch_support",
+    "need": "comp_req__launch_man__path_condition_check",
     "links": {
       "CodeLinks": [],
       "TestLinks": [
         {
-          "name": "test_parallel_launch",
-          "file": "tests/integration/parallel_launch/parallel_launch.py",
+          "name": "test_ready_condition_file",
+          "file": "tests/integration/ready_conditions/file_state/exists/ready_condition_file.py",
           "line": 19,
-          "need": "feat_req__lifecycle__parallel_launch_support",
-          "verify_type": "fully",
+          "need": "comp_req__launch_man__path_condition_check",
+          "verify_type": "partially",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        },
+        {
+          "name": "test_ready_condition_file_not_existing",
+          "file": "tests/integration/ready_conditions/file_state/not_existing/ready_condition_file_not_existing.py",
+          "line": 19,
+          "need": "comp_req__launch_man__path_condition_check",
+          "verify_type": "partially",
           "result": "passed",
           "result_text": "",
           "repo_name": "local_repo",
@@ -316,6 +328,170 @@
     }
   },
   {
+    "need": "feat_req__lifecycle__recov_run_target_switch",
+    "links": {
+      "CodeLinks": [],
+      "TestLinks": [
+        {
+          "name": "test_recovery_action_simple_rep_failure",
+          "file": "tests/integration/process_simple_rep_failure/process_simple_rep_failure.py",
+          "line": 19,
+          "need": "feat_req__lifecycle__recov_run_target_switch",
+          "verify_type": "fully",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        },
+        {
+          "name": "test_recovery_action_complex_rep_failure",
+          "file": "tests/integration/process_complex_rep_failure/process_complex_rep_failure.py",
+          "line": 19,
+          "need": "feat_req__lifecycle__recov_run_target_switch",
+          "verify_type": "partially",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        },
+        {
+          "name": "test_crash_on_startup",
+          "file": "tests/integration/crash_on_startup/crash_on_startup.py",
+          "line": 22,
+          "need": "feat_req__lifecycle__recov_run_target_switch",
+          "verify_type": "fully",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        }
+      ]
+    }
+  },
+  {
+    "need": "feat_req__lifecycle__recovery_action_support",
+    "links": {
+      "CodeLinks": [],
+      "TestLinks": [
+        {
+          "name": "test_recovery_action_simple_rep_failure",
+          "file": "tests/integration/process_simple_rep_failure/process_simple_rep_failure.py",
+          "line": 19,
+          "need": "feat_req__lifecycle__recovery_action_support",
+          "verify_type": "fully",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        },
+        {
+          "name": "test_recovery_action_complex_rep_failure",
+          "file": "tests/integration/process_complex_rep_failure/process_complex_rep_failure.py",
+          "line": 19,
+          "need": "feat_req__lifecycle__recovery_action_support",
+          "verify_type": "partially",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        },
+        {
+          "name": "test_crash_on_startup",
+          "file": "tests/integration/crash_on_startup/crash_on_startup.py",
+          "line": 22,
+          "need": "feat_req__lifecycle__recovery_action_support",
+          "verify_type": "partially",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        }
+      ]
+    }
+  },
+  {
+    "need": "feat_req__lifecycle__liveliness_detection",
+    "links": {
+      "CodeLinks": [],
+      "TestLinks": [
+        {
+          "name": "test_recovery_action_simple_rep_failure",
+          "file": "tests/integration/process_simple_rep_failure/process_simple_rep_failure.py",
+          "line": 19,
+          "need": "feat_req__lifecycle__liveliness_detection",
+          "verify_type": "fully",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        },
+        {
+          "name": "test_crash_on_startup",
+          "file": "tests/integration/crash_on_startup/crash_on_startup.py",
+          "line": 22,
+          "need": "feat_req__lifecycle__liveliness_detection",
+          "verify_type": "fully",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        }
+      ]
+    }
+  },
+  {
+    "need": "comp_req__launch_man__failure_detect",
+    "links": {
+      "CodeLinks": [],
+      "TestLinks": [
+        {
+          "name": "test_recovery_action_simple_rep_failure",
+          "file": "tests/integration/process_simple_rep_failure/process_simple_rep_failure.py",
+          "line": 19,
+          "need": "comp_req__launch_man__failure_detect",
+          "verify_type": "fully",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        },
+        {
+          "name": "test_recovery_action_complex_rep_failure",
+          "file": "tests/integration/process_complex_rep_failure/process_complex_rep_failure.py",
+          "line": 19,
+          "need": "comp_req__launch_man__failure_detect",
+          "verify_type": "fully",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        },
+        {
+          "name": "test_crash_on_startup",
+          "file": "tests/integration/crash_on_startup/crash_on_startup.py",
+          "line": 22,
+          "need": "comp_req__launch_man__failure_detect",
+          "verify_type": "fully",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        }
+      ]
+    }
+  },
+  {
     "need": "feat_req__lifecycle__start_named_run_target",
     "links": {
       "CodeLinks": [],
@@ -380,279 +556,15 @@
     }
   },
   {
-    "need": "feat_req__lifecycle__recovery_action_support",
+    "need": "feat_req__lifecycle__parallel_launch_support",
     "links": {
       "CodeLinks": [],
       "TestLinks": [
         {
-          "name": "test_crash_on_startup",
-          "file": "tests/integration/crash_on_startup/crash_on_startup.py",
-          "line": 22,
-          "need": "feat_req__lifecycle__recovery_action_support",
-          "verify_type": "partially",
-          "result": "passed",
-          "result_text": "",
-          "repo_name": "local_repo",
-          "hash": "",
-          "url": ""
-        },
-        {
-          "name": "test_recovery_action_simple_rep_failure",
-          "file": "tests/integration/process_simple_rep_failure/process_simple_rep_failure.py",
+          "name": "test_parallel_launch",
+          "file": "tests/integration/parallel_launch/parallel_launch.py",
           "line": 19,
-          "need": "feat_req__lifecycle__recovery_action_support",
-          "verify_type": "fully",
-          "result": "passed",
-          "result_text": "",
-          "repo_name": "local_repo",
-          "hash": "",
-          "url": ""
-        },
-        {
-          "name": "test_recovery_action_complex_rep_failure",
-          "file": "tests/integration/process_complex_rep_failure/process_complex_rep_failure.py",
-          "line": 19,
-          "need": "feat_req__lifecycle__recovery_action_support",
-          "verify_type": "partially",
-          "result": "passed",
-          "result_text": "",
-          "repo_name": "local_repo",
-          "hash": "",
-          "url": ""
-        }
-      ]
-    }
-  },
-  {
-    "need": "comp_req__launch_man__failure_detect",
-    "links": {
-      "CodeLinks": [],
-      "TestLinks": [
-        {
-          "name": "test_crash_on_startup",
-          "file": "tests/integration/crash_on_startup/crash_on_startup.py",
-          "line": 22,
-          "need": "comp_req__launch_man__failure_detect",
-          "verify_type": "fully",
-          "result": "passed",
-          "result_text": "",
-          "repo_name": "local_repo",
-          "hash": "",
-          "url": ""
-        },
-        {
-          "name": "test_recovery_action_simple_rep_failure",
-          "file": "tests/integration/process_simple_rep_failure/process_simple_rep_failure.py",
-          "line": 19,
-          "need": "comp_req__launch_man__failure_detect",
-          "verify_type": "fully",
-          "result": "passed",
-          "result_text": "",
-          "repo_name": "local_repo",
-          "hash": "",
-          "url": ""
-        },
-        {
-          "name": "test_recovery_action_complex_rep_failure",
-          "file": "tests/integration/process_complex_rep_failure/process_complex_rep_failure.py",
-          "line": 19,
-          "need": "comp_req__launch_man__failure_detect",
-          "verify_type": "fully",
-          "result": "passed",
-          "result_text": "",
-          "repo_name": "local_repo",
-          "hash": "",
-          "url": ""
-        }
-      ]
-    }
-  },
-  {
-    "need": "comp_req__launch_man__retries_configurable",
-    "links": {
-      "CodeLinks": [],
-      "TestLinks": [
-        {
-          "name": "test_crash_on_startup",
-          "file": "tests/integration/crash_on_startup/crash_on_startup.py",
-          "line": 22,
-          "need": "comp_req__launch_man__retries_configurable",
-          "verify_type": "fully",
-          "result": "passed",
-          "result_text": "",
-          "repo_name": "local_repo",
-          "hash": "",
-          "url": ""
-        }
-      ]
-    }
-  },
-  {
-    "need": "feat_req__lifecycle__recov_run_target_switch",
-    "links": {
-      "CodeLinks": [],
-      "TestLinks": [
-        {
-          "name": "test_crash_on_startup",
-          "file": "tests/integration/crash_on_startup/crash_on_startup.py",
-          "line": 22,
-          "need": "feat_req__lifecycle__recov_run_target_switch",
-          "verify_type": "fully",
-          "result": "passed",
-          "result_text": "",
-          "repo_name": "local_repo",
-          "hash": "",
-          "url": ""
-        },
-        {
-          "name": "test_recovery_action_simple_rep_failure",
-          "file": "tests/integration/process_simple_rep_failure/process_simple_rep_failure.py",
-          "line": 19,
-          "need": "feat_req__lifecycle__recov_run_target_switch",
-          "verify_type": "fully",
-          "result": "passed",
-          "result_text": "",
-          "repo_name": "local_repo",
-          "hash": "",
-          "url": ""
-        },
-        {
-          "name": "test_recovery_action_complex_rep_failure",
-          "file": "tests/integration/process_complex_rep_failure/process_complex_rep_failure.py",
-          "line": 19,
-          "need": "feat_req__lifecycle__recov_run_target_switch",
-          "verify_type": "partially",
-          "result": "passed",
-          "result_text": "",
-          "repo_name": "local_repo",
-          "hash": "",
-          "url": ""
-        }
-      ]
-    }
-  },
-  {
-    "need": "feat_req__lifecycle__liveliness_detection",
-    "links": {
-      "CodeLinks": [],
-      "TestLinks": [
-        {
-          "name": "test_crash_on_startup",
-          "file": "tests/integration/crash_on_startup/crash_on_startup.py",
-          "line": 22,
-          "need": "feat_req__lifecycle__liveliness_detection",
-          "verify_type": "fully",
-          "result": "passed",
-          "result_text": "",
-          "repo_name": "local_repo",
-          "hash": "",
-          "url": ""
-        },
-        {
-          "name": "test_recovery_action_simple_rep_failure",
-          "file": "tests/integration/process_simple_rep_failure/process_simple_rep_failure.py",
-          "line": 19,
-          "need": "feat_req__lifecycle__liveliness_detection",
-          "verify_type": "fully",
-          "result": "passed",
-          "result_text": "",
-          "repo_name": "local_repo",
-          "hash": "",
-          "url": ""
-        }
-      ]
-    }
-  },
-  {
-    "need": "comp_req__launch_man__uid_gid_support",
-    "links": {
-      "CodeLinks": [],
-      "TestLinks": [
-        {
-          "name": "test_sandbox_options",
-          "file": "tests/integration/sandbox_options/sandbox_options.py",
-          "line": 113,
-          "need": "comp_req__launch_man__uid_gid_support",
-          "verify_type": "fully",
-          "result": "passed",
-          "result_text": "",
-          "repo_name": "local_repo",
-          "hash": "",
-          "url": ""
-        }
-      ]
-    }
-  },
-  {
-    "need": "comp_req__launch_man__launch_priority_support",
-    "links": {
-      "CodeLinks": [],
-      "TestLinks": [
-        {
-          "name": "test_sandbox_options",
-          "file": "tests/integration/sandbox_options/sandbox_options.py",
-          "line": 113,
-          "need": "comp_req__launch_man__launch_priority_support",
-          "verify_type": "fully",
-          "result": "passed",
-          "result_text": "",
-          "repo_name": "local_repo",
-          "hash": "",
-          "url": ""
-        }
-      ]
-    }
-  },
-  {
-    "need": "comp_req__launch_man__scheduling_policy",
-    "links": {
-      "CodeLinks": [],
-      "TestLinks": [
-        {
-          "name": "test_sandbox_options",
-          "file": "tests/integration/sandbox_options/sandbox_options.py",
-          "line": 113,
-          "need": "comp_req__launch_man__scheduling_policy",
-          "verify_type": "fully",
-          "result": "passed",
-          "result_text": "",
-          "repo_name": "local_repo",
-          "hash": "",
-          "url": ""
-        }
-      ]
-    }
-  },
-  {
-    "need": "comp_req__launch_man__cwd_support",
-    "links": {
-      "CodeLinks": [],
-      "TestLinks": [
-        {
-          "name": "test_sandbox_options",
-          "file": "tests/integration/sandbox_options/sandbox_options.py",
-          "line": 113,
-          "need": "comp_req__launch_man__cwd_support",
-          "verify_type": "fully",
-          "result": "passed",
-          "result_text": "",
-          "repo_name": "local_repo",
-          "hash": "",
-          "url": ""
-        }
-      ]
-    }
-  },
-  {
-    "need": "comp_req__launch_man__supplementary_groups",
-    "links": {
-      "CodeLinks": [],
-      "TestLinks": [
-        {
-          "name": "test_sandbox_options",
-          "file": "tests/integration/sandbox_options/sandbox_options.py",
-          "line": 113,
-          "need": "comp_req__launch_man__supplementary_groups",
+          "need": "feat_req__lifecycle__parallel_launch_support",
           "verify_type": "fully",
           "result": "passed",
           "result_text": "",
@@ -696,15 +608,35 @@
     }
   },
   {
-    "need": "comp_req__launch_man__shutdown_signal",
+    "need": "feat_req__lifecycle__monitor_abnormal_term",
     "links": {
       "CodeLinks": [],
       "TestLinks": [
         {
-          "name": "test_shutdown_signal",
-          "file": "tests/integration/shutdown_signal/shutdown_signal.py",
+          "name": "test_process_crash_monitoring",
+          "file": "tests/integration/process_crash_monitoring/process_crash_monitoring.py",
           "line": 19,
-          "need": "comp_req__launch_man__shutdown_signal",
+          "need": "feat_req__lifecycle__monitor_abnormal_term",
+          "verify_type": "fully",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        }
+      ]
+    }
+  },
+  {
+    "need": "comp_req__launch_man__process_launch_args",
+    "links": {
+      "CodeLinks": [],
+      "TestLinks": [
+        {
+          "name": "test_process_launch_args",
+          "file": "tests/integration/process_launch_args/process_launch_args.py",
+          "line": 19,
+          "need": "comp_req__launch_man__process_launch_args",
           "verify_type": "fully",
           "result": "passed",
           "result_text": "",
@@ -736,15 +668,15 @@
     }
   },
   {
-    "need": "feat_req__lifecycle__monitor_abnormal_term",
+    "need": "comp_req__launch_man__retries_configurable",
     "links": {
       "CodeLinks": [],
       "TestLinks": [
         {
-          "name": "test_process_crash_monitoring",
-          "file": "tests/integration/process_crash_monitoring/process_crash_monitoring.py",
-          "line": 19,
-          "need": "feat_req__lifecycle__monitor_abnormal_term",
+          "name": "test_crash_on_startup",
+          "file": "tests/integration/crash_on_startup/crash_on_startup.py",
+          "line": 22,
+          "need": "comp_req__launch_man__retries_configurable",
           "verify_type": "fully",
           "result": "passed",
           "result_text": "",
@@ -756,28 +688,16 @@
     }
   },
   {
-    "need": "comp_req__launch_man__path_condition_check",
+    "need": "comp_req__launch_man__shutdown_signal",
     "links": {
       "CodeLinks": [],
       "TestLinks": [
         {
-          "name": "test_ready_condition_file",
-          "file": "tests/integration/ready_conditions/file_state/exists/ready_condition_file.py",
+          "name": "test_shutdown_signal",
+          "file": "tests/integration/shutdown_signal/shutdown_signal.py",
           "line": 19,
-          "need": "comp_req__launch_man__path_condition_check",
-          "verify_type": "partially",
-          "result": "passed",
-          "result_text": "",
-          "repo_name": "local_repo",
-          "hash": "",
-          "url": ""
-        },
-        {
-          "name": "test_ready_condition_file_not_existing",
-          "file": "tests/integration/ready_conditions/file_state/not_existing/ready_condition_file_not_existing.py",
-          "line": 19,
-          "need": "comp_req__launch_man__path_condition_check",
-          "verify_type": "partially",
+          "need": "comp_req__launch_man__shutdown_signal",
+          "verify_type": "fully",
           "result": "passed",
           "result_text": "",
           "repo_name": "local_repo",
@@ -788,15 +708,95 @@
     }
   },
   {
-    "need": "comp_req__launch_man__process_launch_args",
+    "need": "comp_req__launch_man__uid_gid_support",
     "links": {
       "CodeLinks": [],
       "TestLinks": [
         {
-          "name": "test_process_launch_args",
-          "file": "tests/integration/process_launch_args/process_launch_args.py",
-          "line": 19,
-          "need": "comp_req__launch_man__process_launch_args",
+          "name": "test_sandbox_options",
+          "file": "tests/integration/sandbox_options/sandbox_options.py",
+          "line": 119,
+          "need": "comp_req__launch_man__uid_gid_support",
+          "verify_type": "fully",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        }
+      ]
+    }
+  },
+  {
+    "need": "comp_req__launch_man__launch_priority_support",
+    "links": {
+      "CodeLinks": [],
+      "TestLinks": [
+        {
+          "name": "test_sandbox_options",
+          "file": "tests/integration/sandbox_options/sandbox_options.py",
+          "line": 119,
+          "need": "comp_req__launch_man__launch_priority_support",
+          "verify_type": "fully",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        }
+      ]
+    }
+  },
+  {
+    "need": "comp_req__launch_man__scheduling_policy",
+    "links": {
+      "CodeLinks": [],
+      "TestLinks": [
+        {
+          "name": "test_sandbox_options",
+          "file": "tests/integration/sandbox_options/sandbox_options.py",
+          "line": 119,
+          "need": "comp_req__launch_man__scheduling_policy",
+          "verify_type": "fully",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        }
+      ]
+    }
+  },
+  {
+    "need": "comp_req__launch_man__cwd_support",
+    "links": {
+      "CodeLinks": [],
+      "TestLinks": [
+        {
+          "name": "test_sandbox_options",
+          "file": "tests/integration/sandbox_options/sandbox_options.py",
+          "line": 119,
+          "need": "comp_req__launch_man__cwd_support",
+          "verify_type": "fully",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        }
+      ]
+    }
+  },
+  {
+    "need": "comp_req__launch_man__supplementary_groups",
+    "links": {
+      "CodeLinks": [],
+      "TestLinks": [
+        {
+          "name": "test_sandbox_options",
+          "file": "tests/integration/sandbox_options/sandbox_options.py",
+          "line": 119,
+          "need": "comp_req__launch_man__supplementary_groups",
           "verify_type": "fully",
           "result": "passed",
           "result_text": "",
