@@ -75,6 +75,7 @@ build:x86_64-qnx --config=score-qnx-x86_64
 
 test:x86_64-qnx --//config:integration_mode=qemu
 test:x86_64-qnx --//config:unit_mode=skip
+test:x86_64-qnx --run_under=@score_itf//scripts:run_under_qemu
 
 build:unit-tests-x86_64-qnx --config=x86_64-qnx
 
