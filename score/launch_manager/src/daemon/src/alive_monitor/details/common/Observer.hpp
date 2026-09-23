@@ -16,8 +16,9 @@
 #include <score/assert.hpp>
 #include <algorithm>
 #include <cstdint>
-
 #include <vector>
+
+#include "score/mw/launch_manager/common/identifier_hash.hpp"
 
 namespace score::mw::lifecycle::internal::saf::common
 {
@@ -50,6 +51,9 @@ class Observer
     /// @details Update method to be called by the observed object to receive updates.
     /// @param [in]  f_observable_r     Observable as reference.
     virtual void updateData(const Type_Observable& f_observable_r) noexcept(true) = 0;
+
+    [[nodiscard]]
+    virtual IdentifierHash getIdentifier() const noexcept(true) = 0;
 
   protected:
     /// @brief Move Constructor
@@ -112,9 +116,10 @@ class Observable
     {
         for (auto& observer : observers)
         {
-            // We can be sure that *this is of type Type_Observable, anything else would be a programming error.
-            // The runtime checks performed by dynamic_cast are not necessary.
-            SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD((dynamic_cast<Type_Observable*>(this)) != NULL);
+            static_assert(
+                std::is_base_of_v<Observable<Type_Observable>, Type_Observable>,
+                "Observable type must inherit from template on itself for the following static cast to work. This "
+                "pattern is known as CRTP (curiously recurring template parameter).");
             observer->updateData(static_cast<Type_Observable&>(*this));
         }
     }

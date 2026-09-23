@@ -593,4 +593,9 @@ std::chrono::nanoseconds Alive::getTimestampOfUpdateEvent(const TimeSortedUpdate
     return timestamp;
 }
 
+IdentifierHash Alive::getIdentifier() const noexcept
+{
+    return getConfigName();
+}
+
 }  // namespace score::mw::lifecycle::internal::saf::supervision

@@ -41,6 +41,30 @@ AliveWorkerFactory::AliveWorkerFactory() : IAliveWorkerFactory()
 {
 }
 
+template <typename ObserverType, class T, typename... Args>
+bool EmplaceAndAttach(
+    std::vector<ObserverType>& result,
+    common::Observable<T>& observable,
+    std::string_view description,
+    Args&&... args) noexcept
+{
+    static_assert(std::is_base_of_v<common::Observer<T>, ObserverType>, "ObserverType must be an Observer of T");
+
+    try
+    {
+        common::Observer<T>& res = result.emplace_back(std::forward<Args>(args)...);
+        observable.attachObserver(res);
+        LM_LOG_DEBUG() << "Successfully created" << description << ":" << res.getIdentifier();
+        return true;
+    }
+    catch (const std::exception& f_exception_r)
+    {
+        LM_LOG_ERROR() << "Could not emplace" << description
+                       << "due to exception:" << std::string_view{f_exception_r.what()};
+        return false;
+    }
+}
+
 bool AliveWorkerFactory::createObservableEvent(
     std::vector<ifexm::ObservableEvent>& events,
     const IdentifierHash component_id,
@@ -119,20 +143,7 @@ bool AliveWorkerFactory::createAliveIf(
     ifappl::CheckpointIpcServer& ipc_server,
     ifexm::ObservableEvent& event)
 {
-    try
-    {
-        auto& interface = interfaces.emplace_back(ipc_server, ipc_server.getPath().data());
-        event.attachObserver(interface);
-
-        LM_LOG_DEBUG() << "Successfully created MonitorInterface:" << interface.getInterfaceName();
-        return true;
-    }
-    catch (const std::exception& f_exception_r)
-    {
-        LM_LOG_ERROR() << "Could not create all necessary Monitor interfaces due to exception:"
-                       << std::string_view{f_exception_r.what()};
-        return false;
-    }
+    return EmplaceAndAttach(interfaces, event, "MonitorInterface", ipc_server, ipc_server.getPath().data());
 }
 
 bool AliveWorkerFactory::createSupervisionCheckpoint(
@@ -166,23 +177,15 @@ bool AliveWorkerFactory::createAliveSupervision(
     const IdentifierHash component_id,
     const ComponentAliveSupervision component_config)
 {
-    try
-    {
-        auto& alive = supervisions.emplace_back(
-            component_id, component_config, recovery_client, checkpoint, kDefaultAliveSupCheckpointBufferElements);
-
-        event.attachObserver(alive);
-
-        LM_LOG_DEBUG() << "Successfully created alive supervision worker object:" << alive.getConfigName();
-        return true;
-    }
-    catch (const std::exception& f_exception_r)
-    {
-        LM_LOG_ERROR() << "Could not create all necessary alive supervision "
-                          "worker objects, due to exception:"
-                       << std::string_view{f_exception_r.what()};
-        return false;
-    }
+    return EmplaceAndAttach(
+        supervisions,
+        event,
+        "alive supervision worker object",
+        component_id,
+        component_config,
+        recovery_client,
+        checkpoint,
+        kDefaultAliveSupCheckpointBufferElements);
 }
 
 }  // namespace score::mw::lifecycle::internal::saf::factory

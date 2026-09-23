@@ -119,6 +119,8 @@ class Alive : public ISupervision,
     /// @return True if sendRecoveryRequest failed
     bool hasRecoveryEnqueueFailed(void) const noexcept;
 
+    IdentifierHash getIdentifier() const noexcept override;
+
   private:
     /// @brief The pointer is only stored for the identification of a checkpoint observer. It can be further used for
     /// accessing const members only.

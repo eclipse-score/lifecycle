@@ -43,6 +43,7 @@ class CheckpointMock : public common::Observer<ifappl::Checkpoint>
 {
   public:
     MOCK_METHOD(void, updateData, (const ifappl::Checkpoint&), (noexcept));
+    MOCK_METHOD(IdentifierHash, getIdentifier, (), (const, noexcept));
 };
 
 struct MonitorIfDaemonFixture
@@ -151,10 +152,11 @@ class MonitorIfDaemonTest : public ::testing::Test
 
 TEST_F(MonitorIfDaemonTest, GetInterfaceName_ReturnsNameGivenAtConstruction)
 {
-    RecordProperty("Description", "Verify that getInterfaceName() returns the string supplied to the constructor.");
+    RecordProperty(
+        "Description", "Verify that getIdentifier() returns the hash of the string supplied to the constructor.");
 
     MonitorIfDaemonFixture fix;
-    EXPECT_EQ(fix.monitor.getInterfaceName(), MonitorIfDaemonFixture::kInterfaceName);
+    EXPECT_EQ(fix.monitor.getIdentifier(), IdentifierHash(MonitorIfDaemonFixture::kInterfaceName));
 }
 
 TEST_F(MonitorIfDaemonTest, InitiallyInactive_CheckForNewData_DoesNotNotifyCheckpoint)

@@ -26,7 +26,7 @@ MonitorIfDaemon::MonitorIfDaemon(CheckpointIpcServer& f_ipcServer_r, const char*
 {
 }
 
-const std::string& MonitorIfDaemon::getInterfaceName(void) const noexcept(true)
+IdentifierHash MonitorIfDaemon::getIdentifier() const noexcept(true)
 {
     return k_interfaceName;
 }
