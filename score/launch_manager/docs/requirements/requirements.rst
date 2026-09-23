@@ -331,7 +331,7 @@ Conditional Launching
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:Launch Manager shall support configuring a timeout value that
+    The :term:`Launch Manager` shall support configuring a timeout value that
     defines the maximum time allowed for a component to reach its
     :term:`Ready State`.
 
@@ -359,7 +359,13 @@ Conditional Launching
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall provide a way to store the status of the launched process.
+    The :term:`Launch Manager` shall provide a way to store the status of the
+    launched process.
+
+    .. note
+       store where?
+       what status? process status?
+       provide to who? through what interface?
 
 .. comp_req:: Condition check based on status
     :id: comp_req__launch_man__condition_check_method
@@ -371,7 +377,14 @@ Conditional Launching
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall provide a method for condition check based on process state.
+    The :term:`Launch Manager` shall provide a method for ready condition check
+    based on process state.
+
+    .. note
+       provide to who?
+       is this kRunning?
+       Launch Manager shall provide a ready condition that is satisifed based on
+       process state?
 
 .. comp_req:: Configuration of action based on condition evaluation
     :id: comp_req__launch_man__config_actions_cond
@@ -379,14 +392,21 @@ Conditional Launching
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__conditional_startup[version==1]
-    :status: valid
+    :status: invalid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall provide a way to configure actions based on condition evaluation i.e. to be able to configure SUCCESS and FAILURE case.
+    The :term:`Launch Manager` shall provide a way to configure actions based
+    on condition evaluation i.e. to be able to configure SUCCESS and FAILURE
+    case.
 
-.. comp_req:: Condition check based on path
-    :id: comp_req__launch_man__path_condition_check
+    .. note
+       This should be removed, this is too complex to configure for the user
+       and reason about.
+       Or is this recovery actions?
+
+.. comp_req:: File state ready condition
+    :id: comp_req__launch_man__rc_file_state
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -395,7 +415,8 @@ Conditional Launching
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall provide a method for condition check for a path.
+    The :term:`Launch Manager` shall support a :term:`Ready Condition` that is
+    satisfied when a configured file path exists or does not exist.
 
 .. comp_req:: Condition check based on all dependency
     :id: comp_req__launch_man__dependency_check
@@ -403,11 +424,16 @@ Conditional Launching
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__conditional_startup[version==1]
-    :status: valid
+    :status: invalid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide a method to check if all dependencies have been executed.
+
+    .. note
+       Provide to who? control client api? why?
+       if this is talking about internal behaviour then this should be a
+       detailed desig element with more specifics
 
 .. comp_req:: Condition check based on at least one dependency
     :id: comp_req__launch_man__check_dependency_exec
@@ -415,14 +441,17 @@ Conditional Launching
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__conditional_startup[version==1]
-    :status: valid
+    :status: invalid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide a method to check if at least one dependency has been executed.
 
-.. comp_req:: Condition check for each SWC its dependencies
-    :id: comp_req__launch_man__define_swc_dependencies
+    .. note
+       see above?
+
+.. comp_req:: Condition check for each run target its dependencies
+    :id: comp_req__launch_man__define_rt_dependencies
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -431,7 +460,8 @@ Conditional Launching
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall provide a way to define for each :term:`SWC` (Software Components), its dependencies.
+    The :term:`Launch Manager` shall provide a configuration parameter to
+    define each :term:`Run Targets <Run Target>` :term:`dependencies <Dependency (between run targets)>`.
 
 
 Process Management
