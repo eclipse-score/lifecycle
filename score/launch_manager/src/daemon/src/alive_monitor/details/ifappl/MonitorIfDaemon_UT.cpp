@@ -39,7 +39,7 @@ std::string makeUniqueIpcName()
     return "test_monifd_ipc_" + std::to_string(g_ipcCounter.fetch_add(1));
 }
 
-class CheckpointMock : public common::Observer<ifappl::Checkpoint>
+class AliveMock : public common::Observer<ifappl::Checkpoint>
 {
   public:
     MOCK_METHOD(void, updateData, (const ifappl::Checkpoint&), (noexcept));
@@ -52,17 +52,14 @@ struct MonitorIfDaemonFixture
     static constexpr std::string_view kInterfaceName = "test_interface";
 
     ifexm::ObservableEvent processState;
-    ifappl::Checkpoint checkpoint;
     ifappl::CheckpointIpcServer ipcServer;
     ifappl::MonitorIfDaemon monitor;
-    CheckpointMock checkpointMock;
+    AliveMock checkpointMock;
 
-    MonitorIfDaemonFixture()
-        : processState(kProcessId), checkpoint(&processState), ipcServer{}, monitor(ipcServer, kInterfaceName.data())
+    MonitorIfDaemonFixture() : processState(kProcessId), ipcServer{}, monitor(ipcServer, kInterfaceName.data())
     {
         processState.attachObserver(monitor);
-        monitor.attachCheckpoint(checkpoint);
-        checkpoint.attachObserver(checkpointMock);
+        monitor.attachObserver(checkpointMock);
     }
 
     /// Initialize the IPC server so that peek/pop/hasOverflow use real shared memory.
@@ -196,14 +193,12 @@ TEST_F(MonitorIfDaemonTest, ActivationEvent_ActivatesMonitorOnNextCheckForNewDat
         "the next checkForNewData transitions the monitor to kActive.");
 
     MonitorIfDaemonFixture fix;
-    EXPECT_CALL(fix.checkpointMock, updateData).Times(1);
     fix.initIpc();
     fix.activateProcess(mockClock());
     const auto checkpoint_time = mockClockOffset();
+    EXPECT_CALL(fix.checkpointMock, updateData(Field(&ifappl::Checkpoint::timestamp, checkpoint_time))).Times(1);
     fix.sendCheckpoint(checkpoint_time);
     fix.monitor.checkForNewData(mockClock());  // activates AND reads in the same call
-
-    EXPECT_EQ(fix.checkpoint.getTimestamp(), checkpoint_time);
 }
 
 TEST_F(MonitorIfDaemonTest, DeactivationEvent_DeactivatesMonitor_NoFurtherDataForwarded)
@@ -236,14 +231,12 @@ TEST_F(MonitorIfDaemonTest, Active_CheckpointDataForwarded)
         "sync window must be forwarded to the matching checkpoint observer.");
 
     MonitorIfDaemonFixture fix;
-    EXPECT_CALL(fix.checkpointMock, updateData).Times(1);
     fix.initIpc();
     fix.activateProcess(mockClock());
     const auto checkpoint_time = mockClock();
+    EXPECT_CALL(fix.checkpointMock, updateData(Field(&ifappl::Checkpoint::timestamp, checkpoint_time))).Times(1);
     fix.sendCheckpoint(checkpoint_time);
     fix.monitor.checkForNewData(mockClock());
-
-    EXPECT_EQ(fix.checkpoint.getTimestamp(), checkpoint_time);
 }
 
 TEST_F(MonitorIfDaemonTest, Active_FutureTimestamp_NotForwardedInCurrentCycle)
@@ -272,11 +265,11 @@ TEST_F(MonitorIfDaemonTest, Active_FutureTimestampCheckpoint_ConsumedInLaterCycl
     fix.initIpc();
     fix.activateProcess(mockClock());
     const auto future_time = mockClockFuture(2);
+    EXPECT_CALL(fix.checkpointMock, updateData(Field(&ifappl::Checkpoint::timestamp, future_time))).Times(1);
     fix.sendCheckpoint(future_time);
     fix.monitor.checkForNewData(mockClock());  // not consumed yet
     mockClockSkip(2);
     fix.monitor.checkForNewData(mockClock());  // now within window -> consumed
-    EXPECT_EQ(fix.checkpoint.getTimestamp(), future_time);
 }
 
 TEST_F(MonitorIfDaemonTest, Active_MultipleCheckpointsInOneCycle_AllForwarded)
@@ -305,15 +298,14 @@ TEST_F(MonitorIfDaemonTest, Active_OverflowDetected_TransitionsToInactiveOverflo
         "and the monitor transitions to kInactiveOverflow.");
 
     MonitorIfDaemonFixture fix;
-    EXPECT_CALL(fix.checkpointMock, updateData).Times(1);  // one overflow notification
+    EXPECT_CALL(fix.checkpointMock, updateData(Field(&ifappl::Checkpoint::isDataLossEvent, true)))
+        .Times(1);  // one overflow notification
     fix.initIpc();
     fix.activateProcess(mockClock());
     fix.monitor.checkForNewData(mockClock());  // -> kActive
 
     fix.fillIpcBufferToTriggerOverflow();
     fix.monitor.checkForNewData(mockClock());  // overflow detected -> kInactiveOverflow
-
-    EXPECT_TRUE(fix.checkpoint.getDataLossEvent());
 }
 
 TEST_F(MonitorIfDaemonTest, InactiveOverflow_NoProcessRestart_DoesNotRepeatNotification)

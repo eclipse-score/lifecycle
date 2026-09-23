@@ -37,6 +37,7 @@ cc_library(
         ":i_supervision",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/common:time_sorting_buffer",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:checkpoint",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:monitor_if_daemon",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:observable_event",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
         "//score/launch_manager/src/daemon/src/common:log",

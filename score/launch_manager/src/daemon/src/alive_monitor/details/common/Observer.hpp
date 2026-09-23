@@ -112,15 +112,11 @@ class Observable
 
     /// @brief Push Results To Observers
     /// @details Send updates to all attached observers.
-    void pushResultToObservers() noexcept(true)
+    void pushResultToObservers(Type_Observable& result) noexcept(true)
     {
         for (auto& observer : observers)
         {
-            static_assert(
-                std::is_base_of_v<Observable<Type_Observable>, Type_Observable>,
-                "Observable type must inherit from template on itself for the following static cast to work. This "
-                "pattern is known as CRTP (curiously recurring template parameter).");
-            observer->updateData(static_cast<Type_Observable&>(*this));
+            observer->updateData(result);
         }
     }
 

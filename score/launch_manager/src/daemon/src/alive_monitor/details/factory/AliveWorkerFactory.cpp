@@ -21,7 +21,6 @@
 
 #include "score/launch_manager/src/daemon/src/common/log.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/factory/IAliveWorkerFactory.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/ifappl/Checkpoint.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/MonitorIfDaemon.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEvent.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/supervision/Alive.hpp"
@@ -146,32 +145,9 @@ bool AliveWorkerFactory::createAliveIf(
     return EmplaceAndAttach(interfaces, event, "MonitorInterface", ipc_server, ipc_server.getPath().data());
 }
 
-bool AliveWorkerFactory::createSupervisionCheckpoint(
-    std::vector<ifappl::Checkpoint>& checkpoints,
-    ifappl::MonitorIfDaemon& interface,
-    const ifexm::ObservableEvent& event,
-    const IdentifierHash component_id)
-{
-    try
-    {
-        auto& checkpoint = checkpoints.emplace_back(&event);
-        interface.attachCheckpoint(checkpoint);
-
-        LM_LOG_DEBUG() << "Successfully created supervision checkpoint for component:" << component_id;
-
-        return true;
-    }
-    catch (const std::exception& f_exception_r)
-    {
-        LM_LOG_ERROR() << "Could not create supervision worker objects, due to exception:"
-                       << std::string_view{f_exception_r.what()};
-        return false;
-    }
-}
-
 bool AliveWorkerFactory::createAliveSupervision(
     std::vector<supervision::Alive>& supervisions,
-    ifappl::Checkpoint& checkpoint,
+    ifappl::MonitorIfDaemon& interface,
     ifexm::ObservableEvent& event,
     const std::shared_ptr<IRecoveryClient> recovery_client,
     const IdentifierHash component_id,
@@ -184,7 +160,7 @@ bool AliveWorkerFactory::createAliveSupervision(
         component_id,
         component_config,
         recovery_client,
-        checkpoint,
+        interface,
         kDefaultAliveSupCheckpointBufferElements);
 }
 

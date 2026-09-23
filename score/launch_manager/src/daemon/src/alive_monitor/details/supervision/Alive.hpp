@@ -20,6 +20,7 @@
 #include "score/mw/launch_manager/alive_monitor/details/common/Observer.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/common/TimeSortingBuffer.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/Checkpoint.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ifappl/MonitorIfDaemon.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEvent.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/supervision/ISupervision.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
@@ -66,7 +67,7 @@ class Alive : public ISupervision,
     /// @param [in] id Id of the component to monitor
     /// @param [in] f_aliveCfg_r    Alive Supervision configuration structure
     /// @param [in] recovery_client Client to notify in case of a supervision failure
-    /// @param [in] checkpoint_r Checkpoint for the supervision to observe
+    /// @param [in] interface Interface for the supervision to observe
     /// @param [in] bufferSize Size of the internal buffer: the maximum number of events to evaluate the supervision can
     /// store without losing data
     /// @warning    Constructor may throw std::exceptions
@@ -74,7 +75,7 @@ class Alive : public ISupervision,
         const IdentifierHash id,
         const ComponentAliveSupervision& f_aliveCfg_r,
         const std::shared_ptr<IRecoveryClient> recovery_client,
-        saf::ifappl::Checkpoint& checkpoint_r,
+        saf::ifappl::MonitorIfDaemon& interface,
         const uint16_t bufferSize) noexcept(false);
 
     /// @brief Destructor
@@ -122,16 +123,9 @@ class Alive : public ISupervision,
     IdentifierHash getIdentifier() const noexcept override;
 
   private:
-    /// @brief The pointer is only stored for the identification of a checkpoint observer. It can be further used for
-    /// accessing const members only.
-    using CheckpointIdentifier = const score::mw::lifecycle::internal::saf::ifappl::Checkpoint*;
-
     /// @brief Time sorted checkpoint snapshot
     struct CheckpointSnapshot final
     {
-        /// @brief Checkpoint identifier
-        // cppcheck-suppress unusedStructMember
-        CheckpointIdentifier identifier_p{nullptr};
         /// @brief timestamp of checkpoint
         std::chrono::nanoseconds timestamp{std::chrono::nanoseconds::max()};
     };

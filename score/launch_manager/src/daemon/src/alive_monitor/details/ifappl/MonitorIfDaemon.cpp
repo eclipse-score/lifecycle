@@ -31,11 +31,6 @@ IdentifierHash MonitorIfDaemon::getIdentifier() const noexcept(true)
     return k_interfaceName;
 }
 
-void MonitorIfDaemon::attachCheckpoint(Checkpoint& f_checkpoint_r) noexcept(false)
-{
-    checkpointObservers.push_back(&f_checkpoint_r);
-}
-
 void MonitorIfDaemon::updateData(const ifexm::ObservableEvent& f_observable_r) noexcept(true)
 {
     switch (f_observable_r.event.eventType)
@@ -72,7 +67,7 @@ void MonitorIfDaemon::checkForNewData(const std::chrono::nanoseconds f_syncTimes
                 break;
             }
 
-            const auto readingFromIpcSuccessful = pushNewDataToCheckpointObservers(f_syncTimestamp);
+            const auto readingFromIpcSuccessful = pushNewDataToObservers(f_syncTimestamp);
             if (!readingFromIpcSuccessful)
             {
                 handleOverflow();
@@ -95,7 +90,7 @@ void MonitorIfDaemon::checkForNewData(const std::chrono::nanoseconds f_syncTimes
                 // Notify observers again about the overflow, when the process got restarted.
                 // Shared memory is still broken, even after restart of the process.
                 isProcessRestarted = false;
-                pushOverflowInfoToCheckpointObservers();
+                pushOverflowInfoToObservers();
             }
             break;
         }
@@ -114,19 +109,22 @@ void MonitorIfDaemon::handleOverflow()
 {
     LM_LOG_WARN() << "MonitorInterface: Potential data loss of checkpoint ring buffer occurred."
                   << "Instance:" << k_interfaceName;
-    pushOverflowInfoToCheckpointObservers();
+    pushOverflowInfoToObservers();
     status = EInternalState::kInactiveOverflow;
 }
 
-void MonitorIfDaemon::pushCheckpointToObservers(const CheckpointBufferElement& f_elem_r)
+Checkpoint GetCheckpoint(CheckpointBufferElement& data)
 {
-    for (auto& observer : checkpointObservers)
+    Checkpoint res{false, data.timestamp};
+    // If monotonic system clock fails, set data loss event.
+    if (data.timestamp.count() == 0U)
     {
-        observer->pushData(f_elem_r.timestamp);
+        res.isDataLossEvent = true;
     }
+    return res;
 }
 
-bool MonitorIfDaemon::pushNewDataToCheckpointObservers(const std::chrono::nanoseconds f_syncTimestamp)
+bool MonitorIfDaemon::pushNewDataToObservers(const std::chrono::nanoseconds f_syncTimestamp)
 {
     using IpcResult = CheckpointIpcServer::EIpcPeekResult;
     std::uint32_t amountOfReceivedCheckpoints{0U};
@@ -142,7 +140,8 @@ bool MonitorIfDaemon::pushNewDataToCheckpointObservers(const std::chrono::nanose
         if ((result == IpcResult::kOk) && (elem_p->timestamp <= f_syncTimestamp))
         {
             // Checkpoint belongs to this cycle, push it to observers
-            pushCheckpointToObservers(*elem_p);
+            Checkpoint checkpoint = GetCheckpoint(*elem_p);
+            pushResultToObservers(checkpoint);
             ++amountOfReceivedCheckpoints;
             elem_p = nullptr;
             if (ipcserver_r.pop())
@@ -183,13 +182,13 @@ bool MonitorIfDaemon::pushNewDataToCheckpointObservers(const std::chrono::nanose
     return success;
 }
 
-void MonitorIfDaemon::pushOverflowInfoToCheckpointObservers(void) const
+void MonitorIfDaemon::pushOverflowInfoToObservers()
 {
-    for (auto& observer : checkpointObservers)
-    {
-        observer->setDataLossEvent(true);
-        observer->pushData(static_cast<std::chrono::nanoseconds>(0));
-    }
+    // Observers take a copy of the checkpoint
+    // TODO: allow for copy pushResultToObservers
+    Checkpoint checkpoint{true, std::chrono::nanoseconds{0}};
+
+    pushResultToObservers(checkpoint);
 }
 
 }  // namespace score::mw::lifecycle::internal::saf::ifappl

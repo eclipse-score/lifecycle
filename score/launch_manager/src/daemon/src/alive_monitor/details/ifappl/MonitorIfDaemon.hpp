@@ -14,6 +14,7 @@
 #ifndef MonitorIfDaemon_HPP_INCLUDED
 #define MonitorIfDaemon_HPP_INCLUDED
 
+#include "score/mw/launch_manager/alive_monitor/details/common/Observer.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/Checkpoint.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/DataStructures.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
@@ -36,7 +37,7 @@ namespace ifappl
 {
 
 /// @brief Reads checkpoints from IPC channel and pushes them to attached observers
-class MonitorIfDaemon : public common::Observer<ifexm::ObservableEvent>
+class MonitorIfDaemon : public common::Observer<ifexm::ObservableEvent>, public common::Observable<Checkpoint>
 {
   public:
     /// @brief No Default Constructor
@@ -67,13 +68,6 @@ class MonitorIfDaemon : public common::Observer<ifexm::ObservableEvent>
     /// @return     Interface name as string
     IdentifierHash getIdentifier() const noexcept(true) override;
 
-    /// @brief Attach checkpoint
-    /// @details Attaches a checkpoint observer to the Alive interface
-    /// Note: Attached observers will receive updates in case there is new information
-    /// @param [in] f_checkpoint_r      Checkpoint which is added to the observer array
-    /// @throws std::bad_alloc in case of insufficient memory for vector allocation
-    void attachCheckpoint(Checkpoint& f_checkpoint_r) noexcept(false);
-
     /// @brief Update data received from ObservableEvent
     /// @param [in]  f_observable_r ObservableEvent object which has send the update
     void updateData(const ifexm::ObservableEvent& f_observable_r) noexcept(true) override;
@@ -95,7 +89,7 @@ class MonitorIfDaemon : public common::Observer<ifexm::ObservableEvent>
     /// @brief Push overflow event information to all checkpoint observer
     /// @details Every attached checkpoint observer will be informed that a data loss event in the
     /// Alive interface has occurred
-    void pushOverflowInfoToCheckpointObservers(void) const;
+    void pushOverflowInfoToObservers();
 
     /// @brief Move to kInactiveOverflow state and push overflow event to observers
     void handleOverflow(void);
@@ -104,11 +98,7 @@ class MonitorIfDaemon : public common::Observer<ifexm::ObservableEvent>
     /// @details The checkpoint ring buffer data is pushed to checkpoint specific objects.
     /// @param [in]  f_syncTimestamp        Timestamp till data shall be read, newer data will not be considered
     /// @returns True if reading data from IPC channel and pushing data to observers was successful, else false
-    bool pushNewDataToCheckpointObservers(const std::chrono::nanoseconds f_syncTimestamp);
-
-    /// @brief Push a single checkpoint to observers
-    /// @param[in] f_elem_r The checkpoint to push to observers
-    void pushCheckpointToObservers(const CheckpointBufferElement& f_elem_r);
+    bool pushNewDataToObservers(const std::chrono::nanoseconds f_syncTimestamp);
 
     /// Internal states for instances of this class
     enum class EInternalState : std::uint8_t
@@ -132,9 +122,6 @@ class MonitorIfDaemon : public common::Observer<ifexm::ObservableEvent>
 
     /// Interface name
     const IdentifierHash k_interfaceName;
-
-    /// Array of checkpoint observers attached to the Alive interface
-    std::vector<Checkpoint*> checkpointObservers{};
 
     /// @brief IPC connection to application
     CheckpointIpcServer& ipcserver_r;
