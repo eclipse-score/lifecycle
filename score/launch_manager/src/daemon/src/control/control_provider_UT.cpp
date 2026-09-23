@@ -19,7 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include <optional>
+#include <memory>
 #include <type_traits>
 #include <utility>
 
@@ -28,13 +28,12 @@ namespace score::mw::lifecycle::internal
 namespace
 {
 
-// Locks in the exact contract this class was reworked to provide (see the class comment in
-// control_provider.hpp): movable via a stable `Impl*` the registered callbacks capture, but
-// never copyable, since copying would either alias or duplicate that `Impl`. A regression here
-// (e.g. someone reinstating `= delete` on the move ops, or defaulting a copy op) would silently
-// reintroduce the dangling-callback bug this Pimpl was introduced to fix.
-static_assert(std::is_nothrow_move_constructible_v<ControlProvider>);
-static_assert(std::is_nothrow_move_assignable_v<ControlProvider>);
+// Locks in the contract from the class comment in control_provider.hpp: the registered callbacks
+// capture the ControlProvider's own address, so it must stay neither movable nor copyable, and
+// is handed out as a `std::unique_ptr` instead. A regression here (e.g. someone defaulting the
+// move ops) would silently reintroduce a dangling-callback bug.
+static_assert(!std::is_move_constructible_v<ControlProvider>);
+static_assert(!std::is_move_assignable_v<ControlProvider>);
 static_assert(!std::is_copy_constructible_v<ControlProvider>);
 static_assert(!std::is_copy_assignable_v<ControlProvider>);
 
@@ -82,34 +81,44 @@ TEST_F(ControlProviderUT, StaticAssertionsCompiled)
     SUCCEED();
 }
 
-TEST_F(ControlProviderUT, CallbacksDispatchThroughMovedInstance)
+TEST_F(ControlProviderUT, CallbacksDispatchAfterOwnershipTransfer)
 {
     RecordProperty(
         "Description",
-        "After a ControlProvider is moved, its registered callbacks still dispatch through the "
-        "moved-to instance's Impl, not through a stale, already-destroyed one.");
+        "After the std::unique_ptr returned by Create() is moved to a different owner, the "
+        "registered callbacks still dispatch through the same, still-alive ControlProvider.");
 
     const IdentifierHash run_target_id{"control_provider_ut_run_target"};
 
-    std::optional<ControlProvider> moved_to;
+    std::unique_ptr<ControlProvider> owner;
     {
-        Result<ControlProvider> create_result = ControlProvider::Create(&graph_);
+        Result<std::unique_ptr<ControlProvider>> create_result = ControlProvider::Create(&graph_);
         ASSERT_TRUE(create_result.has_value());
 
-        ControlProvider original = std::move(create_result).value();
-
-        // Move `original` into the outer-scoped `moved_to`, then let `original` (and this
-        // block) be destroyed. If the registered callback captured `original`'s own address
-        // instead of the stable, heap-allocated `Impl*` -- the exact bug the Pimpl in this PR
-        // fixes -- that address is gone once this block ends, and triggering the callback below
-        // would be a genuine use-after-scope, not just a theoretical one.
-        moved_to.emplace(std::move(original));
+        // Only the pointer moves; the ControlProvider the callbacks captured stays where it is.
+        owner = std::move(create_result).value();
     }
-    ASSERT_TRUE(moved_to.has_value());
+    ASSERT_NE(owner, nullptr);
 
     // Doesn't crash and doesn't trip ASan/UBSan iff the callback dispatches through the
-    // still-alive `Impl` that `moved_to` now owns.
+    // still-alive ControlProvider that `owner` now holds.
     graph_.TriggerActivation(run_target_id, RunTargetActivationSource::kStateManagerRequest);
+}
+
+TEST_F(ControlProviderUT, DestructionReleasesService)
+{
+    RecordProperty(
+        "Description",
+        "Destroying the ControlProvider returned by Create() releases the offered service, so "
+        "a later Create() for the same instance succeeds again.");
+
+    Result<std::unique_ptr<ControlProvider>> first = ControlProvider::Create(&graph_);
+    ASSERT_TRUE(first.has_value());
+    first.value().reset();
+
+    FakeRunTargetControl second_graph;
+    Result<std::unique_ptr<ControlProvider>> second = ControlProvider::Create(&second_graph);
+    EXPECT_TRUE(second.has_value());
 }
 
 }  // namespace

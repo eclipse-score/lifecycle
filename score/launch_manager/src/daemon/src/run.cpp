@@ -18,7 +18,6 @@
 #include <cstring>
 #include <iostream>
 #include <memory>
-#include <optional>
 
 #include "score/mw/launch_manager/alive_monitor/details/daemon/AliveMonitorImpl.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
@@ -184,21 +183,26 @@ int run(int argc, const char* argv[])
         // registered via `registerActiveRunTargetCallback`. If `ControlProvider` were destroyed
         // before that drain finishes -- as it would be if scoped only to the `if` block below --
         // that callback would fire through a dangling pointer.
-        std::optional<score::Result<ControlProvider>> control_provider_result;
+        std::unique_ptr<ControlProvider> control_provider;
 
         if (process_group_manager->initialize())
         {
-            control_provider_result = ControlProvider::Create(process_group_manager.get());
+            score::Result<std::unique_ptr<ControlProvider>> control_provider_result =
+                ControlProvider::Create(process_group_manager.get());
 
-            if (!control_provider_result->has_value())
+            if (!control_provider_result.has_value())
             {
                 LM_LOG_FATAL() << "Failed to set up LmControl service provider:"
-                               << control_provider_result->error().Message();
+                               << control_provider_result.error().Message();
                 exit_code = EXIT_FAILURE;
             }
-            else if (runLCMDaemon(*process_group_manager))
+            else
             {
-                exit_code = EXIT_SUCCESS;
+                control_provider = std::move(control_provider_result).value();
+                if (runLCMDaemon(*process_group_manager))
+                {
+                    exit_code = EXIT_SUCCESS;
+                }
             }
         }
 
@@ -208,7 +212,7 @@ int run(int argc, const char* argv[])
             process_group_manager.reset();
         }
 
-        // Safe to let `control_provider_result` go out of scope now: `deinitialize()` above has
+        // Safe to let `control_provider` go out of scope now: `deinitialize()` above has
         // already joined every worker and reset `graph_`, so no further callback can arrive.
     }
     catch (...)

@@ -18,47 +18,7 @@
 namespace score::mw::lifecycle::internal
 {
 
-// Holds everything that self-references via a captured `this`: the three callbacks registered
-// below all capture `Impl*`, and that address has to stay fixed for as long as they are
-// registered (there is no unregister path). `ControlProvider` itself only owns a
-// `unique_ptr<Impl>`, so it stays freely movable while `Impl`'s address never moves.
-class ControlProvider::Impl
-{
-  public:
-    Impl(LmControlSkeleton skeleton, IRunTargetControl* graph) noexcept : skeleton_(std::move(skeleton)), graph_(graph)
-    {
-    }
-
-    /// @brief Register the handler for activate_run_target.
-    Result<void> setupActivateRunTarget() noexcept;
-
-    /// @brief Handle an activate_run_target request.
-    void handleActivateRunTarget(ActivateRunTargetResponse& response, const ActivateRunTargetRequest& request) noexcept;
-
-    /// @brief Register the handler for get_active_run_target.
-    Result<void> setupGetActiveRunTarget() noexcept;
-
-    /// @brief Handle a get_active_run_target request.
-    void handleGetActiveRunTarget(GetActiveRunTargetResponse& response) noexcept;
-
-    /// @brief Register the handler for activation_result.
-    Result<void> setupActivationResult() noexcept;
-
-    /// @brief Handle an activation_result event.
-    void handleActivationResult(IdentifierHash state, RunTargetActivationSource source) noexcept;
-
-    /// @brief Make the service available to clients.
-    Result<void> offerService() noexcept;
-
-  private:
-    /// @brief The external `mw::com` interface.
-    LmControlSkeleton skeleton_;
-
-    /// @brief The underlying graph implementation.
-    IRunTargetControl* graph_;
-};
-
-Result<ControlProvider> ControlProvider::Create(IRunTargetControl* graph) noexcept
+Result<std::unique_ptr<ControlProvider>> ControlProvider::Create(IRunTargetControl* graph) noexcept
 {
     const Result<com::InstanceSpecifier> instance_specifier_result =
         com::InstanceSpecifier::Create(std::string{"LaunchManager/StateManager/Instance"});
@@ -76,49 +36,43 @@ Result<ControlProvider> ControlProvider::Create(IRunTargetControl* graph) noexce
     }
     LmControlSkeleton skeleton = std::move(skeleton_result).value();
 
-    // `unique_ptr` rather than the previous raw `new`: on any of the failure paths below, this
-    // is freed automatically instead of leaking (the previous version returned
-    // `MakeUnexpected(...)` without ever deleting the raw pointer it had just allocated).
-    auto impl = std::make_unique<ControlProvider::Impl>(std::move(skeleton), graph);
+    // Owned by a `unique_ptr` so that it is freed on any of the failure paths below. Not
+    // `std::make_unique`, because the constructor is private.
+    std::unique_ptr<ControlProvider> control_provider{new ControlProvider{std::move(skeleton), graph}};
 
-    const Result<void> setup_activate_run_target_result = impl->setupActivateRunTarget();
+    const Result<void> setup_activate_run_target_result = control_provider->setupActivateRunTarget();
     if (!setup_activate_run_target_result.has_value())
     {
         return MakeUnexpected(static_cast<ExecErrc>(*setup_activate_run_target_result.error()));
     }
 
-    const Result<void> setup_get_active_run_target_result = impl->setupGetActiveRunTarget();
+    const Result<void> setup_get_active_run_target_result = control_provider->setupGetActiveRunTarget();
     if (!setup_get_active_run_target_result.has_value())
     {
         return MakeUnexpected(static_cast<ExecErrc>(*setup_get_active_run_target_result.error()));
     }
 
-    const Result<void> setup_activation_result_result = impl->setupActivationResult();
+    const Result<void> setup_activation_result_result = control_provider->setupActivationResult();
     if (!setup_activation_result_result.has_value())
     {
         return MakeUnexpected(static_cast<ExecErrc>(*setup_activation_result_result.error()));
     }
 
-    const Result<void> offer_service_result = impl->offerService();
+    const Result<void> offer_service_result = control_provider->offerService();
     if (!offer_service_result.has_value())
     {
         return MakeUnexpected(static_cast<ExecErrc>(*offer_service_result.error()));
     }
 
-    return ControlProvider{std::move(impl)};
+    return control_provider;
 }
 
-ControlProvider::ControlProvider(std::unique_ptr<Impl> impl) noexcept : impl_(std::move(impl))
+ControlProvider::ControlProvider(LmControlSkeleton skeleton, IRunTargetControl* graph) noexcept
+    : skeleton_(std::move(skeleton)), graph_(graph)
 {
 }
 
-// Defined here rather than defaulted in the header: `Impl` is only a complete type from this
-// point in the file onward, and a deleter/mover for `unique_ptr<Impl>` needs that completeness.
-ControlProvider::ControlProvider(ControlProvider&&) noexcept = default;
-ControlProvider& ControlProvider::operator=(ControlProvider&&) noexcept = default;
-ControlProvider::~ControlProvider() = default;
-
-Result<void> ControlProvider::Impl::setupActivateRunTarget() noexcept
+Result<void> ControlProvider::setupActivateRunTarget() noexcept
 {
     const auto result = skeleton_.activate_run_target.RegisterHandler(
         [this](ActivateRunTargetResponse& response, const ActivateRunTargetRequest& request) {
@@ -134,7 +88,7 @@ Result<void> ControlProvider::Impl::setupActivateRunTarget() noexcept
     return {};
 }
 
-void ControlProvider::Impl::handleActivateRunTarget(
+void ControlProvider::handleActivateRunTarget(
     ActivateRunTargetResponse& response,
     const ActivateRunTargetRequest& request) noexcept
 {
@@ -175,7 +129,7 @@ void ControlProvider::Impl::handleActivateRunTarget(
     response = ActivateRunTargetResponse{status : RequestStatus::kAccepted};
 }
 
-Result<void> ControlProvider::Impl::setupGetActiveRunTarget() noexcept
+Result<void> ControlProvider::setupGetActiveRunTarget() noexcept
 {
     const auto result = skeleton_.get_active_run_target.RegisterHandler([this](GetActiveRunTargetResponse& response) {
         this->handleGetActiveRunTarget(response);
@@ -190,7 +144,7 @@ Result<void> ControlProvider::Impl::setupGetActiveRunTarget() noexcept
     return {};
 }
 
-void ControlProvider::Impl::handleGetActiveRunTarget(GetActiveRunTargetResponse& response) noexcept
+void ControlProvider::handleGetActiveRunTarget(GetActiveRunTargetResponse& response) noexcept
 {
     const score::Result<IdentifierHash> result = graph_->getActiveRunTarget();
     if (!result.has_value())
@@ -208,7 +162,7 @@ void ControlProvider::Impl::handleGetActiveRunTarget(GetActiveRunTargetResponse&
     response = GetActiveRunTargetResponse{status : QueryStatus::kAvailable, run_target};
 }
 
-Result<void> ControlProvider::Impl::setupActivationResult() noexcept
+Result<void> ControlProvider::setupActivationResult() noexcept
 {
     graph_->registerActiveRunTargetCallback([this](IdentifierHash state, RunTargetActivationSource source) {
         this->handleActivationResult(state, source);
@@ -217,7 +171,7 @@ Result<void> ControlProvider::Impl::setupActivationResult() noexcept
     return {};
 }
 
-void ControlProvider::Impl::handleActivationResult(IdentifierHash state, RunTargetActivationSource source) noexcept
+void ControlProvider::handleActivationResult(IdentifierHash state, RunTargetActivationSource source) noexcept
 {
     auto allocate_result = skeleton_.activation_result.Allocate();
     if (!allocate_result.has_value())
@@ -248,7 +202,7 @@ void ControlProvider::Impl::handleActivationResult(IdentifierHash state, RunTarg
     LM_LOG_DEBUG() << "Sent the activation result to the state manager";
 }
 
-Result<void> ControlProvider::Impl::offerService() noexcept
+Result<void> ControlProvider::offerService() noexcept
 {
     const auto result = skeleton_.OfferService();
     if (!result.has_value())
