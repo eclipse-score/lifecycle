@@ -61,7 +61,6 @@ cc_library(
     name = "error_event",
     hdrs = [
         "src/execution_error.h",
-        "src/execution_error_event.h",
     ],
     include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/src",
