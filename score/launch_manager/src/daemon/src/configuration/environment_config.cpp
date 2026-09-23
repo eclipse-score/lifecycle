@@ -66,6 +66,13 @@ void Environment::reserve(std::size_t count)
 void Environment::add(std::string_view key, std::string_view value)
 {
     entries_.emplace_back(key, value);
+    rebuildPointers();
+}
+
+void Environment::set(std::vector<EnvironmentVariable>&& entries)
+{
+    entries_ = std::move(entries);
+    rebuildPointers();
 }
 
 Environment::const_iterator Environment::begin() const
@@ -85,7 +92,6 @@ std::size_t Environment::size() const
 
 char* const* Environment::envp() const
 {
-    rebuildPointers();
     // const_cast is required to convert to the type expected by execve
     return const_cast<char* const*>(pointers_.data());
 }

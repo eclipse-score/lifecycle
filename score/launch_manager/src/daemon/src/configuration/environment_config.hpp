@@ -61,6 +61,8 @@ class Environment
     void reserve(std::size_t count);
     /// @brief Adds an environment variable with the given key and value.
     void add(std::string_view key, std::string_view value);
+    /// @brief Replaces all stored environment variables by moving in @p entries.
+    void set(std::vector<EnvironmentVariable>&& entries);
 
     /// @brief Returns an iterator to the first environment variable.
     const_iterator begin() const;
@@ -75,7 +77,8 @@ class Environment
   private:
     void rebuildPointers() const;
     std::vector<EnvironmentVariable> entries_;
-    mutable std::vector<const char*> pointers_;
+    // Default-initialized with the nullptr terminator so envp() is valid even before any add()/set() call.
+    mutable std::vector<const char*> pointers_{nullptr};
 };
 
 }  // namespace score::mw::lifecycle::internal::configuration

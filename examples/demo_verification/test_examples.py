@@ -135,7 +135,8 @@ def test_examples(target, setup_test, remote_test_dir):
     _assert_not_running(target, "cpp_supervised_app")
 
     _step("Stopping launch manager (SIGTERM)")
-    res, _ = target.execute(f"kill -TERM {lm_proc.pid()}")
-    assert res == 0, "Failed to send SIGTERM to launch manager process group"
-    time.sleep(0.5)
+    # Note: Cannot use lm_proc.stop() as the lm_proc.pid() is not the pid of the launch manager process itself
+    # when running the test via qemu
+    _send_signal(target, "launch_manager", "TERM")
+    time.sleep(1)
     assert not lm_proc.is_running(), "Launch manager did not stop after SIGTERM"

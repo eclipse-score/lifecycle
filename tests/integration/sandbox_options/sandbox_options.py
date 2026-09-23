@@ -93,13 +93,19 @@ def docker_configuration(request):
 
 
 @pytest.fixture(autouse=True)
-def require_realtime_scheduling(target):
-    """Fail the test where the container cannot use real-time scheduling at all.
+def require_realtime_scheduling(request, target):
+    """Fail Docker tests where the container cannot use real-time scheduling.
 
     This is the case on cgroup v1 hosts with CONFIG_RT_GROUP_SCHED whose daemon has no real-time
     bandwidth configured (see docker_configuration): the launch manager then cannot apply the
     configured SCHED_FIFO/SCHED_RR policies and the managed processes report a mismatch.
     """
+
+    # This check is only for Linux docker-based execution.
+    # Skip check for full qemu emulation (the option is undeclared when the QEMU plugin isn't loaded).
+    if request.config.getoption("qemu_config", default=None):
+        return
+
     exit_code, output = target.execute("chrt -f 1 true")
     if exit_code != 0:
         pytest.fail(

@@ -34,9 +34,9 @@ Launch Manager
    safety_analysis/dfa.rst
    safety_analysis/aou_requirements.rst
 
-Subcomponents
-=============
+Interfaces
+==========
 .. toctree::
    :titlesonly:
 
-   subcomponents/index
+   interfaces/index

@@ -267,7 +267,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSingleComponent)
     EXPECT_THAT(comp.component_properties.ready_condition, VariantWith<ProcessState>(Eq(ProcessState::Running)));
     EXPECT_THAT(comp.deployment_config.ready_timeout_ms, Eq(1500U));
     EXPECT_THAT(comp.deployment_config.shutdown_timeout_ms, Eq(2500U));
-    EXPECT_THAT(comp.deployment_config.bin_dir, Eq("/opt/bin"));
+    EXPECT_THAT(comp.deployment_config.executable_path, Eq("/opt/bin/my_binary"));
     EXPECT_THAT(comp.deployment_config.working_dir, Eq("/tmp"));
 }
 

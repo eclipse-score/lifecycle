@@ -93,7 +93,7 @@ class ProcessGroupManager final : public IRunTargetControl
     /// un-maps the memory for the nudge semaphore
     void deinitialize();
 
-    /// @brief Self-initiates the state transition to MainPG::Startup (Machine State Startup), then enters
+    /// @brief Self-initiates the state transition to Startup, then enters
     /// and remains in a loop polling state managers and process groups using the
     /// `processGroupHandler()` methods until SIGINT or SIGTERM is received, then transitions all the
     /// process groups to the "Off" state before returning. Each time a piece of work is serviced, wait on
