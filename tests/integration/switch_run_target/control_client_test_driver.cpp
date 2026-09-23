@@ -59,7 +59,7 @@ TEST(SwitchRunTarget, ControlClientTestDriver)
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget Startup")
+        TEST_STEP("Callback for run target Startup")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
             EXPECT_EQ(target, "Startup");
@@ -79,7 +79,7 @@ TEST(SwitchRunTarget, ControlClientTestDriver)
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget A")
+        TEST_STEP("Callback for run target A")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
             EXPECT_EQ(target, "run_target_a");
@@ -95,14 +95,14 @@ TEST(SwitchRunTarget, ControlClientTestDriver)
     }
     // Processes A and B verify that they have been shut down in the correct order.
 
-    TEST_STEP("Activate RunTarget Startup")
+    TEST_STEP("Activate run target Startup")
     {
         const auto result = client->activate_run_target("Startup", true);
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget Startup")
+        TEST_STEP("Callback for run target Startup")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
             EXPECT_EQ(target, "Startup");

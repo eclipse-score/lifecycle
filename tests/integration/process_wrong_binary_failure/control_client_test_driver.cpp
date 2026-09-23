@@ -43,28 +43,28 @@ TEST(MissingBinaryFailure, ControlClientTestDriver)
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget Startup")
+        TEST_STEP("Callback for run target Startup")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
             EXPECT_EQ(target, "Startup");
         }
     });
 
-    TEST_STEP("Activate RunTarget containing a component with a missing binary")
+    TEST_STEP("Activate run target containing a component with a missing binary")
     {
         const auto result = client->activate_run_target("run_target_with_missing_binary", true);
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget fallback")
+        TEST_STEP("Callback for run target fallback")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kRecoveryAction);
             EXPECT_EQ(target, "fallback");
         }
     });
 
-    TEST_STEP("Activate RunTarget Off")
+    TEST_STEP("Activate run target Off")
     {
         const auto result = client->activate_run_target("Off", true);
         EXPECT_TRUE(result.has_value()) << result.error().Message();

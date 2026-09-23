@@ -51,7 +51,7 @@ TEST(Smoke, Daemon)
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget Startup")
+        TEST_STEP("Callback for run target Startup")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
             EXPECT_EQ(target, "Startup");
@@ -65,14 +65,14 @@ TEST(Smoke, Daemon)
         EXPECT_EQ(result.value(), "Startup");
     }
 
-    TEST_STEP("Activate RunTarget Running")
+    TEST_STEP("Activate run target Running")
     {
         const auto result = client->activate_run_target("Running", true);
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget Running")
+        TEST_STEP("Callback for run target Running")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
             EXPECT_EQ(target, "Running");
@@ -86,14 +86,14 @@ TEST(Smoke, Daemon)
         EXPECT_EQ(result.value(), "Running");
     }
 
-    TEST_STEP("Activate RunTarget Startup")
+    TEST_STEP("Activate run target Startup")
     {
         const auto result = client->activate_run_target("Startup", true);
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget Startup")
+        TEST_STEP("Callback for run target Startup")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
             EXPECT_EQ(target, "Startup");
@@ -107,7 +107,7 @@ TEST(Smoke, Daemon)
         EXPECT_EQ(result.value(), "Startup");
     }
 
-    TEST_STEP("Activate RunTarget Off")
+    TEST_STEP("Activate run target Off")
     {
         const auto result = client->activate_run_target("Off", true);
         EXPECT_TRUE(result.has_value()) << result.error().Message();

@@ -59,7 +59,7 @@ TEST(LmShutdownDuringSwitchToOff, ControlClient)
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget Startup")
+        TEST_STEP("Callback for run target Startup")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
             EXPECT_EQ(target, "Startup");
@@ -73,7 +73,7 @@ TEST(LmShutdownDuringSwitchToOff, ControlClient)
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget run_target_a")
+        TEST_STEP("Callback for run target run_target_a")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
             EXPECT_EQ(target, "run_target_a");

@@ -44,7 +44,7 @@ TEST(CrashOnStartup, ControlClientTestDriver)
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget Startup")
+        TEST_STEP("Callback for run target Startup")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
             EXPECT_EQ(target, "Startup");
@@ -66,7 +66,7 @@ TEST(CrashOnStartup, ControlClientTestDriver)
 
         // Then, the LM should restart it and eventually succeed
         pop_event([&run_target](RunTargetActivationSource source, RunTargetName target) {
-            TEST_STEP(std::string{"Callback for RunTarget "} + std::string{run_target})
+            TEST_STEP(std::string{"Callback for run target "} + std::string{run_target})
             {
                 EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
                 EXPECT_EQ(target, run_target);
@@ -87,7 +87,7 @@ TEST(CrashOnStartup, ControlClientTestDriver)
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget fallback")
+        TEST_STEP("Callback for run target fallback")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kRecoveryAction);
             EXPECT_EQ(target, "fallback");
@@ -101,7 +101,7 @@ TEST(CrashOnStartup, ControlClientTestDriver)
         EXPECT_TRUE(std::filesystem::exists(fallback_file)) << "Fallback run target should have been activated";
     }
 
-    TEST_STEP("Activate RunTarget Off")
+    TEST_STEP("Activate run target Off")
     {
         const auto result = client->activate_run_target("Off", true);
         EXPECT_TRUE(result.has_value()) << result.error().Message();
