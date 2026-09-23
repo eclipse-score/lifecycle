@@ -67,7 +67,7 @@ TEST(RtRunningWhenProcessExits, ControlClientTestDriver)
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget Startup")
+        TEST_STEP("Callback for run target Startup")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
             EXPECT_EQ(target, "Startup");
@@ -83,7 +83,7 @@ TEST(RtRunningWhenProcessExits, ControlClientTestDriver)
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget run_target_reader")
+        TEST_STEP("Callback for run target run_target_reader")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
             EXPECT_EQ(target, "run_target_reader");
@@ -98,7 +98,7 @@ TEST(RtRunningWhenProcessExits, ControlClientTestDriver)
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget run_target_slow_setup")
+        TEST_STEP("Callback for run target run_target_slow_setup")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
             EXPECT_EQ(target, "run_target_slow_setup");

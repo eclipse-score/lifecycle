@@ -623,7 +623,7 @@ score::cpp::expected<std::vector<RunTargetConfig>, IConfigLoader::Error> convert
             auto run_target = convertRunTarget(rt);
             if (!run_target.has_value())
             {
-                LM_LOG_ERROR() << "Failed to load configuration for RunTarget '" << safeString(rt->name()) << "'";
+                LM_LOG_ERROR() << "Failed to load configuration for run target '" << safeString(rt->name()) << "'";
                 return score::cpp::make_unexpected(run_target.error());
             }
             run_targets.emplace_back(std::move(*run_target));
