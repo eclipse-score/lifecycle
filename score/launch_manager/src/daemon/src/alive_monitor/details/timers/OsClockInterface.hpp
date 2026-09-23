@@ -18,8 +18,6 @@
 
 namespace score::mw::lifecycle::internal::saf::timers
 {
-/* RULECHECKER_comment(0, 60, check_member_function_missing_static, "Intentionally not static and\
-   retained as member function", true_no_defect) */
 /// @brief Interface for POSIX clock system calls (free functions such as clock_nanosleep())
 /// @note The clockId parameter is set to CLOCK_MONOTONIC for all calls
 /// @details The interface allows to mock the direct system calls to 'clock_xx()' for unit
@@ -40,8 +38,6 @@ class OsClockInterface
     /// @brief No Move Assignment
     OsClockInterface& operator=(OsClockInterface&&) = delete;
 
-    /* RULECHECKER_comment(0, 10, check_max_parameters, "clock_nanosleep internally\
-       is a standard library function requires 4 parameters", true_no_defect) */
     /// @brief Sleep for the amount of time
     /// @details By default the POSIX clock_nanosleep() call shall be used
     virtual int clockNanosleep(int f_flags, const struct timespec* f_req, struct timespec* f_rem) const
@@ -78,11 +74,8 @@ class OsClockInterface
     {
         // In case getting the timestamp fails, the resulting measurement will be 0
         (void)clockGetTime(&initFinishedTime);
-        // coverity[autosar_cpp14_a4_7_1_violation] monotonic clock is used, so the time difference is always positive
         const long secDiff{initFinishedTime.tv_sec - startTime.tv_sec};
-        // coverity[autosar_cpp14_a4_7_1_violation] monotonic clock is used, so the time difference is always positive
         const long nsDiff{initFinishedTime.tv_nsec - startTime.tv_nsec};
-        // coverity[autosar_cpp14_a4_7_1_violation] max long 2,147,483,647 ms which ~ 24.8 days which nobody will wait
         // for
         const long ms{(secDiff * 1000 /*ms per sec*/) + (nsDiff / 1000000 /*ns per ms*/)};
         // LM_LOG_DEBUG() << "Alive Monitor initialization took " << ms << " ms";
@@ -94,7 +87,6 @@ class OsClockInterface
     struct timespec startTime{0, 0};
 
     /// @brief Timestamp when initialization finishes (just before kRunning is reported)
-    // coverity[autosar_cpp14_m3_4_1_violation] block scope definition is intentionally avoided for maintainability
     struct timespec initFinishedTime{0, 0};
 };
 

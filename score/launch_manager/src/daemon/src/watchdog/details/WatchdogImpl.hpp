@@ -28,7 +28,6 @@
 namespace score::mw::lifecycle::internal::watchdog
 {
 
-// coverity[autosar_cpp14_m3_4_1_violation] block scope definition is intentionally avoided for maintainability
 constexpr const char* kMagicCloseChar{"V"};
 
 /// @brief Simple Watchdog implementation
@@ -61,7 +60,6 @@ class WatchdogImpl : public IWatchdogIf
     WatchdogImpl& operator=(WatchdogImpl&& f_source_r) & noexcept = delete;
 
     /// @brief Destructor
-    /* RULECHECKER_comment(0, 2, check_min_instructions, "Default destructor has no body", true_no_defect) */
     ~WatchdogImpl() override = default;
 
     /// @copydoc IWatchdogIf::init()
@@ -89,16 +87,7 @@ class WatchdogImpl : public IWatchdogIf
     virtual void waitForever() const noexcept;
 
   private:
-    /* RULECHECKER_comment(1:0,15:0, check_non_pod_struct, "We want to treat it as POD as alternative implementation
-     * would increase complexity", true_no_defect) */
-    /* RULECHECKER_comment(1:0,15:0, check_non_private_non_pod_field, "We want to treat it as POD as alternative
-     * implementation would increase complexity", true_no_defect) */
-
     /// @brief The watchdog device configuration.
-    /* RULECHECKER_comment(1:0,2:0, check_non_pod_struct, "Intentionally using a struct with non-pod members as
-     * alternatives would more complex", true_no_defect) */
-    /* RULECHECKER_comment(1:0,18:0, check_non_private_non_pod_field, "Intentionally using a struct with non-pod members
-     * as alternatives would more complex", true_no_defect) */
     struct DeviceConfig final
     {
         /// @brief Absolute file path of watchdog device file typically stored under /dev folder.

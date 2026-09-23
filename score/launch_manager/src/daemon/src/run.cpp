@@ -106,7 +106,6 @@ void reserveFD(int fd)
 /// @param argc Number of command-line arguments.
 /// @param argv Array of command-line arguments.
 /// @return The exit code. 0 for success, non-zero for failure.
-// coverity[autosar_cpp14_a15_3_3_violation:FALSE] Only logging occurs outside the try-catch enclosing main().
 int run(int argc, const char* argv[])
 {
     const char* config_path = "etc/launch_manager_config.bin";

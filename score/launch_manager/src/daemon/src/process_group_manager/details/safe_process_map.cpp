@@ -66,7 +66,6 @@ void SafeProcessMap::findNode(uint32_t& mask, uint32_t& parent, osal::ProcessID 
     }
 }
 
-// RULECHECKER_comment(1, 1, check_max_parameters, "refactored with WI #9343", true);
 int32_t SafeProcessMap::insertNode(uint32_t& mask, uint32_t& parent, osal::ProcessID& key, ProcessInfoData& data)
 {
     int32_t ret_value = -1;
@@ -109,7 +108,6 @@ int32_t SafeProcessMap::insertNode(uint32_t& mask, uint32_t& parent, osal::Proce
     return ret_value;
 }
 
-// RULECHECKER_comment(1, 1, check_max_parameters, "refactored with WI #9343", true);
 int32_t SafeProcessMap::removeNode(ProcessInfoData& target, ProcessInfoData& data, uint32_t& parent, uint32_t& root)
 {
     // found key. There are 4 situations:
@@ -170,7 +168,6 @@ void SafeProcessMap::findLeaf(uint32_t& leaf, uint32_t& leaf_parent)
     }
 }
 
-// RULECHECKER_comment(1, 1, check_max_parameters, "refactored with WI #9343", true);
 void SafeProcessMap::deleteNode(uint32_t& parent, uint32_t& leaf, uint32_t& root, uint32_t& leaf_parent)
 {
     if (leaf == root)

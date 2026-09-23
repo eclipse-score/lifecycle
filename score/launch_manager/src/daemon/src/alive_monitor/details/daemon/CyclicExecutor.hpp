@@ -14,7 +14,6 @@
 #ifndef CYCLICEXECUTOR_HPP_INCLUDED
 #define CYCLICEXECUTOR_HPP_INCLUDED
 
-/* RULECHECKER_comment(0, 3, check_include_errno, "Required to process clock_nanosleep return value", true_no_defect) */
 #include <cerrno>
 #include <memory>
 
@@ -48,8 +47,6 @@ class CyclicExecutor final : public ISupervisionFactory
     /// @param[in] f_osClock Access to the system clock (dependency injection possible in tests)
     /// @param[in] supervised_components Number of components that will register alive supervision
     /// in tests)
-    /* RULECHECKER_comment(3,1, check_expensive_to_copy_in_parameter, "Move only types cannot be passed by const ref",
-       true_no_defect) */
     explicit CyclicExecutor(OsClock& f_osClock, std::size_t supervised_components);
 
     /// @brief Destroys the workers
@@ -114,8 +111,6 @@ class CyclicExecutor final : public ISupervisionFactory
     /// @todo Add more sophisticated time handling (deviation reporting, reporting on sleep errors)
     /// @todo Rework the signal handling
     /// @todo Monitor the correct increment of the sleep interval
-    /* RULECHECKER_comment(0, 4, check_cheap_to_copy_in_parameter, "f_terminateCond is passed as reference\
-       for signal handling", true_no_defect) */
     template <typename TerminationSignalPredType>
     bool startCyclicExec(const TerminationSignalPredType& f_terminateCond) noexcept
     {

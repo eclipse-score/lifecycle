@@ -33,8 +33,6 @@ using configuration::ComponentAliveSupervision;
 
 /// @brief Alive Supervision
 /// @details Alive Supervision contains the logic for health monitoring - Alive supervision
-/* RULECHECKER_comment(0, 11, check_source_character_set, "Special character in comment is mandatory\
-    due to sphinx-need syntax.", false) */
 /// @verbatim embed:rst:leading-slashes
 /// The Alive Supervision state machine implementation is a combination of Adaptive Autosar
 /// Alive Supervision (correct, incorrect, debouncing) and Local Supervision requirements (de/activation).
@@ -46,8 +44,6 @@ using configuration::ComponentAliveSupervision;
 ///     - :ref:`Alive timing diagram for large reference cycle<alive-timing-evaluation-large-ref-cycle>`
 ///
 /// @endverbatim
-/* RULECHECKER_comment(0, 3, check_multiple_non_interface_bases, "Observable and Observer are tolerated\
-    exceptions of this rule.", false) */
 class Alive : public ISupervision,
               public saf::common::Observable<Alive>,
               public saf::common::Observer<ifappl::Checkpoint>,
@@ -58,12 +54,6 @@ class Alive : public ISupervision,
     Alive() = delete;
 
     /// @brief Default Move Constructor
-    /* RULECHECKER_comment(0, 7, check_min_instructions, "Default constructor is not provided\
-       a function body", true_no_defect) */
-    /* RULECHECKER_comment(0, 5, check_incomplete_data_member_construction, "Default constructor is not provided\
-       the member initializer", false) */
-    /* RULECHECKER_comment(0, 3, check_copy_in_move_constructor, "Default constructor is not provided\
-       the member initializer", false) */
     Alive(Alive&&) = default;
     /// @brief No Move Assignment
     Alive& operator=(Alive&&) = delete;
@@ -88,8 +78,6 @@ class Alive : public ISupervision,
         const uint16_t bufferSize) noexcept(false);
 
     /// @brief Destructor
-    /* RULECHECKER_comment(0, 3, check_min_instructions, "Default destructor is not provided\
-       a function body", true_no_defect) */
     ~Alive() override = default;
 
     /// @brief Status enumeration

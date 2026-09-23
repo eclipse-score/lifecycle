@@ -240,11 +240,7 @@ void Graph::finalizeTransitionSuccess()
     {
         is_initial_state_transition_ = false;
 
-        // RULECHECKER_comment(1, 3, check_c_style_cast, "This is the definition provided by the OS and does
-        // a C-style cast.", true)
         LM_LOG_DEBUG() << "clock() at successful initial state transition:"
-                       // coverity[cert_err33_c_violation:INTENTIONAL] Does not matter if clock() gives a
-                       // weird value in debug messages.
                        << (static_cast<double>(clock()) / (static_cast<double>(CLOCKS_PER_SEC) / 1000.0)) << "ms";
     }
 
@@ -412,8 +408,6 @@ void Graph::handleNonTransitionExecution(GraphState current_state)
     if (is_initial_state_transition_)
     {
         is_initial_state_transition_ = false;
-        // RULECHECKER_comment(1, 3, check_c_style_cast, "This is the definition provided by the OS and does a C-style
-        // cast.", true) coverity[cert_err33_c_violation:INTENTIONAL] Does not matter if clock() gives a weird value in
         // debug messages.
         const auto clock_ms = (static_cast<double>(clock()) / (static_cast<double>(CLOCKS_PER_SEC) / 1000.0));
 

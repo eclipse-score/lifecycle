@@ -25,7 +25,6 @@ extern "C" {
 
 int8_t score_mw_lifecycle_report_running(void)
 {
-    // RULECHECKER_comment(1, 2, check_static_object_dynamic_initialization, "static variable is in function scope so
     // this initialization is safe", false)
     static score::mw::lifecycle::ReportRunningImpl g_impl{};
     const auto result = g_impl.ReportRunningState();

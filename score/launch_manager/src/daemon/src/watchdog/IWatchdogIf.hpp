@@ -33,8 +33,6 @@ namespace score::mw::lifecycle::internal::watchdog
 class IWatchdogIf
 {
   public:
-    /* RULECHECKER_comment(0, 14, check_single_use_pod_variable, "Constants are required for testing", true_no_defect)
-     */
 #ifdef __QNXNTO__
     /// @brief Minimum supported timeout value in ms for QNX target
     static constexpr std::uint16_t kTimeoutMinMillis{100U};
@@ -56,7 +54,6 @@ class IWatchdogIf
         "Main loop cycle time must be less than the minimum watchdog timeout");
 
     /// @brief Destructor.
-    /* RULECHECKER_comment(0, 2, check_min_instructions, "Default destructor has no body", true_no_defect) */
     virtual ~IWatchdogIf() noexcept = default;
 
     /// @brief Initialize the watchdog library
@@ -108,7 +105,6 @@ class IWatchdogIf
 
   protected:
     /// @brief Default constructor.
-    /* RULECHECKER_comment(0, 2, check_min_instructions, "Default destructor has no body", true_no_defect) */
     IWatchdogIf() = default;
 
     /// @brief No copy constructor.

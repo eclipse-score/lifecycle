@@ -15,7 +15,6 @@
 #define CYCLETIMER_HPP_INCLUDED
 
 #include <unistd.h>
-/* RULECHECKER_comment(0, 3, check_include_errno, "Required to process clock_nanosleep return value", true_no_defect) */
 #include <cerrno>
 
 #include "score/mw/launch_manager/alive_monitor/details/timers/OsClockInterface.hpp"
@@ -32,7 +31,6 @@ class CycleTimer
 {
   public:
     /// @brief sleep() return code in case the deadline was already over before going to sleep
-    // coverity[autosar_cpp14_a0_1_1_violation:FALSE] kDeadlineAlreadyOver is used in CyclicExecutor.hpp
     static constexpr int kDeadlineAlreadyOver{-1};
 
     /// @brief Sets the interface for performing the OS clock system calls.
@@ -72,8 +70,6 @@ class CycleTimer
     ///
     /// @details On initial entry of the cyclic loop, this method will return immediately,
     /// if no initial time interval has been added.
-    /* RULECHECKER_comment(0, 4, check_cheap_to_copy_in_parameter, "f_exitRequested_r is passed as reference\
-       to refer to original object", true_no_defect) */
     template <typename TerminationSignalPredType>
     int sleep(const TerminationSignalPredType& f_exitRequested_r, std::chrono::nanoseconds& f_nsOverDeadline_r)
         const noexcept

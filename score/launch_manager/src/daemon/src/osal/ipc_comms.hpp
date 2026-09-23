@@ -30,8 +30,6 @@ using IpcCommsP = std::shared_ptr<IpcCommsSync>;
 /// The `IpcCommsSync` structure is designed to handle synchronization mechanisms required
 /// for inter-process communication. It uses semaphores to manage synchronization,
 /// a process ID to identify the communicating process, and a flag to manage file descriptor closure.
-// RULECHECKER_comment(1, 1, check_incomplete_data_member_construction, "wi 45913 - This struct is POD, which doesn't
-// have user-declared constructor. The rule doesn’t apply.", false)
 struct IpcCommsSync final
 {
     /// @brief Semaphore for synchronizing replies.
@@ -93,8 +91,6 @@ struct IpcCommsSync final
         IpcCommsP ret = nullptr;
         void* buf = mmap(nullptr, sizeof(IpcCommsSync), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
-        // RULECHECKER_comment(1, 1, check_c_style_cast, "This is the definition provided by the OS and does a C-style
-        // cast.", true)
         if (MAP_FAILED != buf)
         {
             ret = IpcCommsP(static_cast<IpcCommsSync*>(buf), IpcCommsDeletor());

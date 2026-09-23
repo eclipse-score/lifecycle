@@ -26,14 +26,11 @@ namespace score::mw::lifecycle::internal::saf::ifappl
 /// @todo Implement logic to determine the number of checkpoint entries
 /// that an Alive instance can report between two cycles
 /// of AliveMonitor.
-// coverity[autosar_cpp14_a0_1_1_violation] value is referenced in multiple files, but depending on build package.
 constexpr uint16_t k_maxCheckpointBufferElements{512U};
 
 /// @brief Variable data exchange buffer: For every report of checkpoint,
 /// one new instance of the below structure is created and stored
 /// in the shared memory
-/* RULECHECKER_comment(0,17, check_member_function_in_struct, "Member fuctions \
-required for Vector and IPC APIs", true_no_defect) */
 struct CheckpointBufferElement final
 {
     /// @brief Timestamp of the checkpoint

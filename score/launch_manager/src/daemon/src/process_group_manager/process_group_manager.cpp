@@ -63,7 +63,6 @@ bool ProcessGroupManager::initialize()
 {
     // setup signal handler
     em_cancelled.store(false);
-    // RULECHECKER_comment(1, 1, check_union_object, "Union type defined in external library is used.", true)
     struct sigaction action;
 
     action.sa_handler = my_signal_handler;
@@ -189,11 +188,7 @@ void ProcessGroupManager::createProcessComponentsObjects(std::size_t total_proce
 
 bool ProcessGroupManager::run()
 {
-    // RULECHECKER_comment(1, 4, check_c_style_cast, "This is the definition provided by the OS and does a C-style
-    // cast.", true)
     LM_LOG_DEBUG() << "clock() at run():"
-                   // coverity[cert_err33_c_violation:INTENTIONAL] Does not matter if clock() gives a weird value in
-                   // debug messages.
                    << (static_cast<double>(clock()) / (static_cast<double>(CLOCKS_PER_SEC) / 1000.0)) << "ms";
 
     bool result = startInitialTransition();

@@ -28,9 +28,6 @@ namespace mw::lifecycle
 using ExecutionError = std::uint32_t;
 
 /// @brief Represents an execution error event which happens in a Process Group.
-///
-// RULECHECKER_comment(1, 1, check_incomplete_data_member_construction, "wi 45913 - This struct is POD, which doesn't
-// have user-declared constructor. The rule doesn’t apply.", false)
 struct ExecutionErrorEvent final
 {
   public:
