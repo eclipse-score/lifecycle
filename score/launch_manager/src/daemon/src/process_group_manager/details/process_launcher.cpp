@@ -33,6 +33,7 @@
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include <charconv>
 #include <array>
+#include <cassert>
 #include <cerrno>
 #include <csignal>
 #include <cstdio>
@@ -94,12 +95,13 @@ void handleComms(score::mw::lifecycle::internal::osal::ChildProcessConfig& param
     // It must be ensured that sync_fd (f3) remains open depending on
     // the communication type. Flag FD_CLOEXEC is cleared conditionally to ensure that the
     // respective file descriptor remains open after the execve call.
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
-        param.shared_block->comms_type_ != CommsType::kNoComms,
-        "This case means param.shared_block == nullptr and is expected to be handled above");
+    assert(
+        param.shared_block->comms_type_ != CommsType::kNoComms &&
+        "Invalid comms type, kNoComms is expected to be handled above");
 
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
-        param.shared_block->comms_type_ == CommsType::kReporting, "This is the only remaining comms type in use");
+    assert(
+        param.shared_block->comms_type_ == CommsType::kReporting &&
+        "Invalid comms type, a communicating process must be kReporting");
 
     if (-1 == fcntl(IpcCommsSync::sync_fd, F_SETFD, 0))
     {
@@ -180,7 +182,7 @@ ProcessLauncher::startProcess(ProcessID& pid, IpcCommsP& block, const configurat
         block = nullptr;
         bool comms_result = true;
 
-        auto app_type = config.component_properties.application_profile.application_type;
+        const auto& app_type = config.component_properties.application_profile.application_type;
         if (app_type != configuration::ApplicationType::Native)
         {
             comms_result = setupComms(block, fd, config);
