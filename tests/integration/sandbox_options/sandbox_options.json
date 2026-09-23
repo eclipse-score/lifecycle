@@ -55,7 +55,8 @@
                     "--supplementary-groups=123,321,456",
                     "--scheduling-policy=SCHED_FIFO",
                     "--scheduling-priority=10",
-                    "--working-dir=/tmp"
+                    "--working-dir=/tmp",
+                    "--affinity=all"
                 ],
                 "ready_condition": {
                     "process_state": "Terminated"

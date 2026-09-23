@@ -572,12 +572,6 @@ def custom_validations(config):
             )
             success = False
 
-    if "fallback_run_target" not in config:
-        report_error(
-            "fallback_run_target is a mandatory configuration but was not found in the config."
-        )
-        success = False
-
     try:
         check_cyclic_dependencies(config)
     except ValueError as e:

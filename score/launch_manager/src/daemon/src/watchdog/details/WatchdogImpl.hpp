@@ -18,8 +18,8 @@
 
 #include "score/mw/launch_manager/configuration/config.hpp"
 #include "score/mw/launch_manager/watchdog/IWatchdogIf.hpp"
+#include "score/mw/launch_manager/watchdog/details/DeviceIf.hpp"
 #include "score/os/fcntl.h"
-#include "score/os/ioctl.h"
 #include "score/os/unistd.h"
 #include <optional>
 #include <string>
@@ -37,14 +37,14 @@ class WatchdogImpl : public IWatchdogIf
 {
   public:
     /// @brief Constructor
-    /// @param[in] ioctl The score::os::Ioctl instance used to issue ioctl calls on watchdog device files.
+    /// @param[in] deviceIf The DeviceIf instance used to issue ioctl calls on watchdog device files.
     ///        Defaults to the production singleton. A mock can be injected for testing.
     /// @param[in] fcntl The score::os::Fcntl instance used to open watchdog device files.
     ///        Defaults to the production singleton. A mock can be injected for testing.
     /// @param[in] unistd The score::os::Unistd instance used to close watchdog device files.
     ///        Defaults to the production singleton. A mock can be injected for testing.
     explicit WatchdogImpl(
-        score::os::Ioctl& ioctl = score::os::Ioctl::instance(),
+        DeviceIf& deviceIf = DeviceIf::instance(),
         score::os::Fcntl& fcntl = score::os::Fcntl::instance(),
         score::os::Unistd& unistd = score::os::Unistd::instance()) noexcept;
 
@@ -223,7 +223,7 @@ class WatchdogImpl : public IWatchdogIf
     /// @brief The internal state of this class
     ELibState state_;
     /// @brief Interface used to issue ioctl calls on watchdog device files.
-    score::os::Ioctl& ioctl_;
+    DeviceIf& deviceIf_;
     /// @brief Interface used to open watchdog device files.
     score::os::Fcntl& fcntl_;
     /// @brief Interface used to close watchdog device files.

@@ -154,7 +154,8 @@ Environment convertEnvironmentalVariables(
     Environment result;
     if (vec != nullptr)
     {
-        result.reserve(vec->size());
+        std::vector<EnvironmentVariable> entries;
+        entries.reserve(vec->size());
         for (const auto* ev : *vec)
         {
             if (ev != nullptr)
@@ -163,9 +164,10 @@ Environment convertEnvironmentalVariables(
                     ev->key(), "EnvironmentalVariable::key must never be nullptr as it is required in the schema");
                 SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
                     ev->value(), "EnvironmentalVariable::value must never be nullptr as it is required in the schema");
-                result.add(ev->key()->str(), ev->value()->str());
+                entries.emplace_back(ev->key()->str(), ev->value()->str());
             }
         }
+        result.set(std::move(entries));
     }
     return result;
 }
@@ -416,7 +418,9 @@ score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(const fb::San
     return result;
 }
 
-score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentConfig(const fb::DeploymentConfig* fb_dc)
+score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentConfig(
+    const fb::DeploymentConfig* fb_dc,
+    std::string_view binary_name)
 {
     DeploymentConfig result{};
     if (fb_dc != nullptr)
@@ -442,7 +446,7 @@ score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentCo
         result.ready_timeout_ms = *ready_timeout;
         result.shutdown_timeout_ms = *shutdown_timeout;
         result.environmental_variables = convertEnvironmentalVariables(fb_dc->environmental_variables());
-        result.bin_dir = fb_dc->bin_dir()->str();
+        result.executable_path = fb_dc->bin_dir()->str() + "/" + std::string{binary_name};
         result.working_dir = fb_dc->working_dir()->str();
         auto ready_recovery = convertRestartAction(fb_dc->ready_recovery_action());
         if (!ready_recovery.has_value())
@@ -483,7 +487,8 @@ score::cpp::expected<ComponentConfig, IConfigLoader::Error> convertComponent(con
             return score::cpp::make_unexpected(component_properties.error());
         }
         result.component_properties = std::move(*component_properties);
-        auto deployment_config = convertDeploymentConfig(fb_comp->deployment_config());
+        auto deployment_config =
+            convertDeploymentConfig(fb_comp->deployment_config(), result.component_properties.binary_name);
         if (!deployment_config.has_value())
         {
             LM_LOG_ERROR() << "Invalid deployment_config for Component '" << result.name << "'";

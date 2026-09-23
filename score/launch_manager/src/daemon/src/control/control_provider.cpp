@@ -203,10 +203,9 @@ void ControlProvider::Impl::handleGetActiveRunTarget(GetActiveRunTargetResponse&
         return;
     }
 
-    const std::lock_guard<std::mutex> lock(IdentifierHash::get_registry_mutex());
-    const std::string& name = IdentifierHash::get_registry()[result.value().data()];
+    const RunTargetName run_target{result.value().get_name()};
 
-    response = GetActiveRunTargetResponse{status : QueryStatus::kAvailable, run_target : RunTargetName(name)};
+    response = GetActiveRunTargetResponse{status : QueryStatus::kAvailable, run_target};
 }
 
 Result<void> ControlProvider::Impl::setupActivationResult() noexcept
