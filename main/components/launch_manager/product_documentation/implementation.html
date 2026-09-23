@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Integration &#8212; Lifecycle and Health Management  documentation</title>
+    <title>Implementation &#8212; Lifecycle and Health Management  documentation</title>
   
   
   
@@ -62,7 +62,7 @@
     <script src="../../../_static/sphinx-needs/libs/html/datatables.min.js?v=8a4aee21"></script>
     <script src="../../../_static/sphinx-needs/libs/html/datatables_loader.js?v=a2cae175"></script>
     <script src="../../../_static/sphinx-needs/libs/html/sphinx_needs_collapse.js?v=dca66431"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'components/launch_manager/user_guide/integration';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'components/launch_manager/product_documentation/implementation';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://eclipse-score.github.io/lifecycle/versions.json';
@@ -73,8 +73,8 @@
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Configuration Examples" href="examples.html" />
-    <link rel="prev" title="Configuration" href="configuration.html" />
+    <link rel="next" title="Known Limitations" href="known_limitations.html" />
+    <link rel="prev" title="Configuration examples" href="examples.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -473,16 +473,17 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Launch Manager</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">User Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Lifecycle Product Documentation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="concepts.html">Overview</a></li>
 <li class="toctree-l3"><a class="reference internal" href="ready_state.html">Ready Conditions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="configuration.html">Configuration</a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="#">Integration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples.html">Configuration Examples</a></li>
-<li class="toctree-l3"><a class="reference internal" href="implementation.html">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="integration.html">Integration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples.html">Configuration examples</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="known_limitations.html">Known Limitations</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="../product_documentation/known_limitations.html">Known Limitations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="known_limitations.html">Known Limitations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../requirements/index.html">Requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../requirements/chklst_req_inspection.html">Requirement Inspection Checklist</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../architecture/index.html">Component Architecture</a></li>
@@ -543,9 +544,9 @@
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Launch Manager</a></li>
     
     
-    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User Guide</a></li>
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Lifecycle Product Documentation</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Integration</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Implementation</span></li>
   </ul>
 </nav>
 </div>
@@ -562,37 +563,59 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="integration">
-<span id="lm-integration"></span><h1>Integration<a class="headerlink" href="#integration" title="Link to this heading">#</a></h1>
-<section id="configuration">
-<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">#</a></h2>
-<p>The <strong>Launch Manager</strong> is currently configured with a single json file.
-See <a class="reference internal" href="configuration.html#lm-config"><span class="std std-ref">Configuration</span></a> and <a class="reference internal" href="examples.html#lm-config-examples"><span class="std std-ref">Configuration Examples</span></a> for details about the <strong>Launch Manager</strong> configuration format.</p>
-<section id="generating-flatbuffer-file">
-<span id="lm-integration-generating-flatbuffer-file"></span><h3>Generating flatbuffer file<a class="headerlink" href="#generating-flatbuffer-file" title="Link to this heading">#</a></h3>
-<p>The json configuration has to be converted to a flatbuffer file before it can be used by the <strong>Launch Manager</strong>.</p>
-<p>The provided bazel function <code class="docutils literal notranslate"><span class="pre">launch_manager_config</span></code> handles the compilation of the json configuration to flatbuffer files.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;@score_lifecycle//:defs.bzl&quot;</span><span class="p">,</span> <span class="s2">&quot;launch_manager_config&quot;</span><span class="p">)</span>
-
-<span class="c1"># This is your launch manager json configuration</span>
-<span class="n">exports_files</span><span class="p">([</span><span class="s2">&quot;lm_config.json&quot;</span><span class="p">])</span>
-
-<span class="c1"># Afterwards, you can refer to the generated flatbuffer files with :example_config_gen</span>
-<span class="c1"># The generated flatbuffer file has identical as the json configuration file, but with &quot;.bin&quot; file ending (example: &quot;lm_config.bin&quot;)</span>
-<span class="n">launch_manager_config</span><span class="p">(</span>
-    <span class="n">name</span> <span class="o">=</span><span class="s2">&quot;example_config_gen&quot;</span><span class="p">,</span>
-    <span class="n">config</span><span class="o">=</span><span class="s2">&quot;//scripts/config_mapping:lm_config.json&quot;</span>
-<span class="p">)</span>
-</pre></div>
+  <section id="implementation">
+<h1>Implementation<a class="headerlink" href="#implementation" title="Link to this heading">#</a></h1>
+<section id="starting-a-process">
+<h2>Starting a process<a class="headerlink" href="#starting-a-process" title="Link to this heading">#</a></h2>
+<p>A reporting process must signal to the Launch Manager that it has
+started successfully by calling the lifecycle API for the language it is
+implemented in. This is done by reporting the <code class="docutils literal notranslate"><span class="pre">kRunning</span></code> execution
+state.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">ready_timeout_ms</span></code> can be configured for each component. If the
+process does not report <code class="docutils literal notranslate"><span class="pre">kRunning</span></code> within that timeout, the Launch
+Manager terminates the process and registers an error.</p>
+</section>
+<section id="stopping-a-process">
+<h2>Stopping a process<a class="headerlink" href="#stopping-a-process" title="Link to this heading">#</a></h2>
+<p>A process can be configured to terminate in 2 ways:</p>
+<ul class="simple">
+<li><p><strong>Self-terminating</strong> - The process terminates whenever it wants.</p></li>
+<li><p><strong>Non-self-terminating</strong> - The process remains alive until LCM requests the process to end using a <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code> signal.</p></li>
+</ul>
+<p>For a process to support being terminated by LCM, it needs to respond to
+a <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code> signal by ending ongoing tasks, freeing resources and
+exiting.</p>
+<p>If a process does not terminate after receiving a <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code>, and a
+<code class="docutils literal notranslate"><span class="pre">shutdown_timeout_ms</span></code> is configured, then after the timeout is fired a
+<code class="docutils literal notranslate"><span class="pre">SIGKILL</span></code> is sent and the process is forcefully terminated.</p>
+</section>
+<section id="state-management">
+<h2>State management<a class="headerlink" href="#state-management" title="Link to this heading">#</a></h2>
+<p>A <strong>state manager</strong> is an application that dictates which run-targets shall be
+active by communicating with the launch manager using the <code class="docutils literal notranslate"><span class="pre">ControlClient</span></code>.
+The <strong>control client</strong> exposes a single API <code class="docutils literal notranslate"><span class="pre">ActivateRunTarget</span></code> which allows
+the user to provide the name of the run-target to activate.
+<code class="docutils literal notranslate"><span class="pre">ActivateRunTarget</span></code> returns a future that resolves once the transition
+is complete.
+Whether to <code class="docutils literal notranslate"><span class="pre">.wait()</span></code> on it is up to the implementation, a state manager may
+choose to wait before issuing the next transition, or fire and continue without
+blocking.</p>
+<p>The <strong>state manager</strong> is itself a managed component and <strong>must</strong> report
+<code class="docutils literal notranslate"><span class="pre">kRunning</span></code> to the Launch Manager using the lifecycle API before calling
+<code class="docutils literal notranslate"><span class="pre">ActivateRunTarget</span></code>.
+Failing to do so means the Launch Manager does not consider the <strong>state
+manager</strong> ready, which blocks the startup procedure from completing.
+The configuration also requires that the component that is the <strong>state manager</strong> has
+to have the field <code class="docutils literal notranslate"><span class="pre">application_profile.application_type</span></code> set to
+<code class="docutils literal notranslate"><span class="pre">State_Manager</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">ActivateRunTarget</span></code> is called while a transition is already in
+progress, the in-flight transition is cancelled, its returned future will
+resolve with a <code class="docutils literal notranslate"><span class="pre">kCancelled</span></code> error, and the new transition will be served
+instead. Always check the result of each <code class="docutils literal notranslate"><span class="pre">ActivateRunTarget</span></code> call to
+detect cancellation.</p>
 </div>
-</section>
-<section id="location-of-the-configuration-file">
-<span id="lm-integration-location-of-configuration-file"></span><h3>Location of the configuration file<a class="headerlink" href="#location-of-the-configuration-file" title="Link to this heading">#</a></h3>
-<p>The <strong>Launch Manager</strong> can be started with a CLI flag defining the absolute or relative path to the configuration file:</p>
-<p><code class="docutils literal notranslate"><span class="pre">launch_manager</span> <span class="pre">-c</span> <span class="pre">&lt;config</span> <span class="pre">path&gt;</span></code></p>
-<p>Example: <code class="docutils literal notranslate"><span class="pre">launch_manager</span> <span class="pre">-c</span> <span class="pre">/opt/launch_manager/etc/lm_config.bin</span></code></p>
-<p>If <code class="docutils literal notranslate"><span class="pre">-c</span></code> is not specified, the <strong>Launch Manager</strong> will attempt to load the configuration from the default path <code class="docutils literal notranslate"><span class="pre">etc/launch_manager_config.bin</span></code>.</p>
-</section>
 </section>
 </section>
 
@@ -607,20 +630,20 @@ See <a class="reference internal" href="configuration.html#lm-config"><span clas
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="configuration.html"
+       href="examples.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Configuration</p>
+        <p class="prev-next-title">Configuration examples</p>
       </div>
     </a>
     <a class="right-next"
-       href="examples.html"
+       href="known_limitations.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Configuration Examples</p>
+        <p class="prev-next-title">Known Limitations</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -643,11 +666,9 @@ See <a class="reference internal" href="configuration.html#lm-config"><span clas
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration">Configuration</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#generating-flatbuffer-file">Generating flatbuffer file</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#location-of-the-configuration-file">Location of the configuration file</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#starting-a-process">Starting a process</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stopping-a-process">Stopping a process</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#state-management">State management</a></li>
 </ul>
   </nav></div>
 
@@ -655,7 +676,7 @@ See <a class="reference internal" href="configuration.html#lm-config"><span clas
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/eclipse-score/lifecycle/edit/main/score/launch_manager/docs/user_guide/integration.rst">
+    <a href="https://github.com/eclipse-score/lifecycle/edit/main/score/launch_manager/docs/product_documentation/implementation.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
