@@ -35,17 +35,17 @@ class SyscallMock
     MOCK_METHOD(int, shm_unlink, (const char*), ());
     MOCK_METHOD(int, ftruncate, (int, off_t), ());
     MOCK_METHOD(int, access, (const char*, int), ());
-    MOCK_METHOD(void*, mmap, (void* __addr, size_t __len, int __prot, int __flags, int __fd, __off_t __offset), ());
+    MOCK_METHOD(void*, mmap, (void* __addr, size_t __len, int __prot, int __flags, int __fd, off_t __offset), ());
     MOCK_METHOD(int, munmap, (void* __addr, size_t __len), ());
     MOCK_METHOD(void, sysexit, (int status), ());
-    MOCK_METHOD(int, setpgid, (__pid_t __pid, __pid_t __pgid), ());
-    MOCK_METHOD(int, setgid, (__gid_t __gid), ());
-    MOCK_METHOD(int, setuid, (__uid_t __uid), ());
-    MOCK_METHOD(int, sched_setscheduler, (__pid_t __pid, int __policy, const struct sched_param*), ());
+    MOCK_METHOD(int, setpgid, (pid_t __pid, pid_t __pgid), ());
+    MOCK_METHOD(int, setgid, (gid_t __gid), ());
+    MOCK_METHOD(int, setuid, (uid_t __uid), ());
+    MOCK_METHOD(int, sched_setscheduler, (pid_t __pid, int __policy, const struct sched_param*), ());
     MOCK_METHOD(int, chdir, (const char* __path), ());
-    MOCK_METHOD(int, setrlimit, (__rlimit_resource_t __resource, const struct rlimit* __rlimits), ());
+    MOCK_METHOD(int, setrlimit, (int __resource, const struct rlimit* __rlimits), ());
     MOCK_METHOD(int, setSecurityPolicy, (const char* policy), ());
-    MOCK_METHOD(__pid_t, getpid, (), ());
+    MOCK_METHOD(pid_t, getpid, (), ());
     MOCK_METHOD(int, fcntl, (int __fd, int __cmd, void* arg), ());
     MOCK_METHOD(int, setgroups, (size_t n, const gid_t* groups), ());
     MOCK_METHOD(int, sem_init, (sem_t * __sem, int __pshared, unsigned int __value), ());
@@ -162,9 +162,9 @@ int __wrap_access(const char* name, int type)
 }
 
 // wrap for mmap
-extern void* __real_mmap(void* __addr, size_t __len, int __prot, int __flags, int __fd, __off_t __offset);
+extern void* __real_mmap(void* __addr, size_t __len, int __prot, int __flags, int __fd, off_t __offset);
 
-void* __wrap_mmap(void* __addr, size_t __len, int __prot, int __flags, int __fd, __off_t __offset)
+void* __wrap_mmap(void* __addr, size_t __len, int __prot, int __flags, int __fd, off_t __offset)
 {
     if (g_syscall_mock)
     {
@@ -188,9 +188,9 @@ int __wrap_munmap(void* __addr, size_t __len)
 }
 
 // wrap for setpgid
-extern int __real_setpgid(__pid_t __pid, __pid_t __pgid);
+extern int __real_setpgid(pid_t __pid, pid_t __pgid);
 
-int __wrap_setpgid(__pid_t __pid, __pid_t __pgid)
+int __wrap_setpgid(pid_t __pid, pid_t __pgid)
 {
     if (g_syscall_mock)
     {
@@ -201,9 +201,9 @@ int __wrap_setpgid(__pid_t __pid, __pid_t __pgid)
 }
 
 // wrap for setgid
-extern int __real_setgid(__gid_t __gid);
+extern int __real_setgid(gid_t __gid);
 
-int __wrap_setgid(__gid_t __gid)
+int __wrap_setgid(gid_t __gid)
 {
     if (g_syscall_mock)
     {
@@ -214,9 +214,9 @@ int __wrap_setgid(__gid_t __gid)
 }
 
 // wrap for setuid
-extern int __real_setuid(__uid_t __uid);
+extern int __real_setuid(uid_t __uid);
 
-int __wrap_setuid(__uid_t __uid)
+int __wrap_setuid(uid_t __uid)
 {
     if (g_syscall_mock)
     {
@@ -227,9 +227,9 @@ int __wrap_setuid(__uid_t __uid)
 }
 
 // wrap for sched_setscheduler
-extern int __real_sched_setscheduler(__pid_t __pid, int __policy, const struct sched_param* __param);
+extern int __real_sched_setscheduler(pid_t __pid, int __policy, const struct sched_param* __param);
 
-int __wrap_sched_setscheduler(__pid_t __pid, int __policy, const struct sched_param* __param)
+int __wrap_sched_setscheduler(pid_t __pid, int __policy, const struct sched_param* __param)
 {
     if (g_syscall_mock)
     {
@@ -253,9 +253,9 @@ int __wrap_chdir(const char* __path)
 }
 
 // wrap for setrlimit
-extern int __real_setrlimit(__rlimit_resource_t __resource, const struct rlimit* __rlimits);
+extern int __real_setrlimit(int __resource, const struct rlimit* __rlimits);
 
-int __wrap_setrlimit(__rlimit_resource_t __resource, const struct rlimit* __rlimits)
+int __wrap_setrlimit(int __resource, const struct rlimit* __rlimits)
 {
     if (g_syscall_mock)
     {
@@ -268,7 +268,7 @@ int __wrap_setrlimit(__rlimit_resource_t __resource, const struct rlimit* __rlim
 // wrap for getpid
 extern int __real_getpid();
 
-__pid_t __wrap_getpid()
+pid_t __wrap_getpid()
 {
     if (g_syscall_mock)
     {
