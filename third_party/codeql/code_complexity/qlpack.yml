@@ -1,0 +1,15 @@
+---
+# CodeQL query pack providing file/function size and complexity metrics.
+#
+# Ported from vsps_quality_packages//tools/codeql/code-complexity. The
+# `codeql/cpp-all` dependency (rather than the originally declared
+# `codeql/cpp-queries`) is what actually provides the `cpp` standard library
+# used by `import cpp` in these queries; its version is pinned to what is
+# vendored in our @codeql_bundle (see MODULE.bazel) so this pack resolves
+# fully offline, with no registry access required.
+library: false
+name: code-complexity-queries
+version: 1.0.0
+dependencies:
+  codeql/cpp-all: 5.0.0
+suites: suites

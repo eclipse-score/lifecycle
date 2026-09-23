@@ -1,0 +1,3 @@
+# CodeQL suite: file/function size and complexity threshold queries.
+# Ported from vsps_quality_packages//tools/codeql/code-complexity/suites.
+- queries: code-complexity-queries
