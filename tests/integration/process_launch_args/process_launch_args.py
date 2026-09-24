@@ -22,6 +22,8 @@ from attribute_plugin import add_test_properties
         "feat_req__lifecycle__launch_support",
         "comp_req__launch_man__process_state_comm",
         "comp_req__launch_man__process_launch_args",
+        "comp_req__launch_man__rc_lifecycle",
+        "comp_req__launch_man__rt_comp_dep",
     ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",

@@ -349,8 +349,8 @@ Conditional Launching
     timeout, the :term:`Launch Manager` shall consider the component activation
     attempt as failed.
 
-.. comp_req:: Run target dependencies
-    :id: comp_req__launch_man__define_rt_dependencies
+.. comp_req:: Run target to run target dependencies
+    :id: comp_req__launch_man__rt_rt_dep
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -360,15 +360,30 @@ Conditional Launching
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide a configuration parameter to
-    define each :term:`Run Targets <Run Target>`
-    :term:`dependencies <Dependency (between run targets)>`.
+    define a :term:`Run Targets <Run Target>`
+    :term:`dependencies <Dependency (between run targets)>` to another
+    :term:`Run Target`.
 
+.. comp_req:: Run target to component dependencies
+    :id: comp_req__launch_man__rt_comp_dep
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall provide a configuration parameter to
+    define a :term:`Run Targets <Run Target>`
+    :term:`dependencies <Dependency (between run targets)>` to another
+    :term:`Component`.
 
 Ready Conditions
 ----------------
 
 .. comp_req:: Ready Condition - OS Process State
-    :id: comp_req__launch_man__condition_check_method
+    :id: comp_req__launch_man__rc_os_state
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B

@@ -28,6 +28,8 @@ from attribute_plugin import add_test_properties
         "feat_req__lifecycle__terminationn_dependency",
         "comp_req__launch_man__launch_manager_shutdown",
         "comp_req__launch_man__process_state_comm",
+        "comp_req__launch_man__rt_rt_dep",
+        "comp_req__launch_man__rt_comp_dep",
     ],
     partially_verifies=[
         "comp_req__launch_man__process_launch_args",
@@ -37,10 +39,17 @@ from attribute_plugin import add_test_properties
 )
 def test_switch_run_target(target, setup_test, assert_test_results, remote_test_dir):
     """
-    Objective: Verifies that the launch manager respects component and run target dependencies when switching run targets and shuting down, enforcing correct startup and termination order.
+    Objective: Verifies that the launch manager respects component and run
+    target dependencies when switching run targets and shuting down, enforcing
+    correct startup and termination order.
 
-    The control client activates run_target_a, which depends on run_target_c (containing component_d) and component_a (which depends on component_b). After activation it switches back to Startup, and then Off.
-    Expected Behaviour: During activation resp. deactivation of run_target_a, component B starts before component A, component D is started, component A terminates before component B, and component E (not in the dependency chain) is never launched.
+    The control client activates run_target_a, which depends on run_target_c
+    (containing component_d) and component_a (which depends on component_b).
+    After activation it switches back to Startup, and then Off.
+    Expected Behaviour: During activation resp. deactivation of run_target_a,
+    component B starts before component A, component D is started, component A
+    terminates before component B, and component E (not in the dependency
+    chain) is never launched.
     """
 
     run_test(

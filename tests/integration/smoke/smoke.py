@@ -17,6 +17,9 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
+    fully_verifies=[
+        "comp_req__launch_man__rt_comp_dep",
+    ],
     partially_verifies=[
         "comp_req__launch_man__process_launch_args",
     ],
