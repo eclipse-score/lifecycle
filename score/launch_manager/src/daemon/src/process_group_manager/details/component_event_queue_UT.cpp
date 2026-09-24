@@ -80,6 +80,38 @@ TEST_F(ComponentEventQueueTest, GetNextEventReturnsSupervisionFailureWithPayload
     EXPECT_EQ(failure.process_identifier, process_identifier);
 }
 
+TEST_F(ComponentEventQueueTest, GetNextEventReturnsGetActiveRunTargetWithCompletionSlot)
+{
+    RecordProperty(
+        "Description",
+        "Verify a pushed GetActiveRunTarget event is returned with its CompletionSlot pointer intact.");
+    CompletionSlot<Result<IdentifierHash>> slot;
+    EXPECT_TRUE(queue_.push(GetActiveRunTarget{completion : &slot}));
+
+    auto event = queue_.getNextEvent();
+    ASSERT_TRUE(event.has_value());
+    ASSERT_TRUE(std::holds_alternative<GetActiveRunTarget>(*event));
+    const auto& get_active = std::get<GetActiveRunTarget>(*event);
+    EXPECT_EQ(get_active.completion, &slot);
+}
+
+TEST_F(ComponentEventQueueTest, GetNextEventReturnsSetRequestedRunTargetWithPayloadAndCompletionSlot)
+{
+    RecordProperty(
+        "Description",
+        "Verify a pushed SetRequestedRunTarget event is returned with its run_target and CompletionSlot pointer intact.");
+    CompletionSlot<Result<void>> slot;
+    const IdentifierHash target{"RunTargetA"};
+    EXPECT_TRUE(queue_.push(SetRequestedRunTarget{run_target : target, completion : &slot}));
+
+    auto event = queue_.getNextEvent();
+    ASSERT_TRUE(event.has_value());
+    ASSERT_TRUE(std::holds_alternative<SetRequestedRunTarget>(*event));
+    const auto& set_target = std::get<SetRequestedRunTarget>(*event);
+    EXPECT_EQ(set_target.run_target, target);
+    EXPECT_EQ(set_target.completion, &slot);
+}
+
 TEST_F(ComponentEventQueueTest, GetOverflowStaysFalseUnderNormalUsage)
 {
     RecordProperty("Description", "Verify getOverflow() stays false when events are pushed and drained normally.");
@@ -130,6 +162,13 @@ TEST_F(ComponentEventQueueTest, GetNextEventStillDrainsQueuedEventsAfterStop)
     ASSERT_TRUE(event.has_value());
     EXPECT_TRUE(std::holds_alternative<ActivationSuccessful>(*event));
     EXPECT_FALSE(queue_.getNextEvent().has_value());
+}
+
+TEST_F(ComponentEventQueueTest, PushReturnsFalseAfterStop)
+{
+    RecordProperty("Description", "Verify push returns false immediately if the queue has been stopped.");
+    queue_.stop();
+    EXPECT_FALSE(queue_.push(ActivationSuccessful{IdentifierHash{"process"}}));
 }
 
 }  // namespace score::mw::lifecycle::internal

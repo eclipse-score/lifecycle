@@ -17,9 +17,10 @@
 #include <cstdint>
 #include <variant>
 
-#include "score/concurrency/future/interruptible_promise.h"
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/completion_slot.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
+#include "score/result/result.h"
 
 namespace score::mw::lifecycle::internal
 {
@@ -73,14 +74,14 @@ struct [[nodiscard]] SupervisionFailure
 /// @brief The state manager wants to know which run target is currently active.
 struct [[nodiscard]] GetActiveRunTarget
 {
-    concurrency::InterruptiblePromise<Result<IdentifierHash>> promise;
+    CompletionSlot<Result<IdentifierHash>>* completion{nullptr};
 };
 
 /// @brief The state manager wants to change to a different run target.
 struct [[nodiscard]] SetRequestedRunTarget
 {
     IdentifierHash run_target;
-    concurrency::InterruptiblePromise<Result<void>> promise;
+    CompletionSlot<Result<void>>* completion{nullptr};
 };
 
 /// @brief A graph-relevant state change. There is only ever a single graph, so no process-group

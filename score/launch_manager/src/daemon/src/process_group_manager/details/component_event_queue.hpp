@@ -51,9 +51,12 @@ class ComponentEventQueue final : public IComponentEventPublisherConsumer
     [[nodiscard]] bool push(ComponentEvent&& event) override
     {
         auto result = queue_.push(std::move(event));
-        if (!result.has_value() && result.error() == mw::lifecycle::internal::ConcurrencyErrc::kOverflow)
+        if (!result.has_value())
         {
-            overflow_.store(true, std::memory_order_release);
+            if (result.error() == mw::lifecycle::internal::ConcurrencyErrc::kOverflow)
+            {
+                overflow_.store(true, std::memory_order_release);
+            }
             return false;
         }
         return true;
