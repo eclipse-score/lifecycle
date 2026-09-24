@@ -136,8 +136,8 @@ def integration_test(
         ],
     })
     final_plugins = plugins + ["@score_lifecycle//tests/utils/plugins:integration_plugin"] + select({
-        "//config:integration_docker": ["@score_itf//score/itf/plugins:docker_plugin"],
-        "//config:integration_qemu": ["@score_itf//score/itf/plugins:qemu_plugin"],
+        "//config:integration_docker": ["@score_itf//score/itf/plugins:docker_plugin", "@score_itf//score/itf/plugins:core_dump_plugin"],
+        "//config:integration_qemu": ["@score_itf//score/itf/plugins:qemu_plugin", "@score_itf//score/itf/plugins:core_dump_plugin"],
         "//config:integration_host": ["@score_lifecycle//tests/utils/plugins:localhost_plugin"],
     })
 
