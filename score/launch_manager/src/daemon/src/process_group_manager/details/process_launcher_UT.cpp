@@ -69,16 +69,10 @@ class ProcessLauncherTest : public ::testing::Test
         return shared;
     }
 
-    void UseRealSemaphores()
+    void ExpectSemaphoreLifecycle()
     {
-        ON_CALL(*g_syscall_mock, sem_init).WillByDefault(Invoke(__real_sem_init));
-        ON_CALL(*g_syscall_mock, sem_destroy).WillByDefault(Invoke(__real_sem_destroy));
-        ON_CALL(*g_syscall_mock, sem_trywait).WillByDefault(Invoke(__real_sem_trywait));
-        ON_CALL(*g_syscall_mock, sem_post).WillByDefault(Invoke(__real_sem_post));
-        EXPECT_CALL(*g_syscall_mock, sem_init).Times(AtLeast(1));
-        EXPECT_CALL(*g_syscall_mock, sem_destroy).Times(AtLeast(1));
-        EXPECT_CALL(*g_syscall_mock, sem_trywait).Times(AnyNumber());
-        EXPECT_CALL(*g_syscall_mock, sem_post).Times(AnyNumber());
+        EXPECT_CALL(*g_syscall_mock, sem_init).Times(AtLeast(1)).WillRepeatedly(Return(0));
+        EXPECT_CALL(*g_syscall_mock, sem_destroy).Times(AtLeast(1)).WillRepeatedly(Return(0));
     }
 
     std::unique_ptr<ProcessLauncher> process_launcher;
@@ -722,17 +716,11 @@ TEST_F(ProcessLauncherTest, ignoreRunningSuccess)
         "Verify that waitForkRunning without a timeout posts on the reply semaphore without waiting and returns a "
         "success");
 
-    UseRealSemaphores();
+    ExpectSemaphoreLifecycle();
     std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
-    OsalReturnType waitRes = OsalReturnType::kFail;
-
-    auto waiter = std::thread{[&waitRes, &sync]() {
-        waitRes = sync->reply_sync_.timedWait(5000ms);
-    }};
+    EXPECT_CALL(*g_syscall_mock, sem_post).Times(1);
 
     EXPECT_EQ(process_launcher->waitForkRunning(sync, std::nullopt), OsalReturnType::kSuccess);
-    waiter.join();
-    EXPECT_EQ(waitRes, OsalReturnType::kSuccess);
 }
 
 TEST_F(ProcessLauncherTest, kRunningNoSync)
@@ -751,27 +739,14 @@ TEST_F(ProcessLauncherTest, kRunningSuccess)
         "Verify that waitForkRunning waits for a notification, posts a reply, and then waits for another notification "
         "before proceeding");
 
-    UseRealSemaphores();
+    ExpectSemaphoreLifecycle();
     std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
-    OsalReturnType waitRes = OsalReturnType::kFail;
-    OsalReturnType postRes = OsalReturnType::kFail;
 
-    auto waiter = std::thread{[&waitRes, &postRes, sync]() {
-        postRes = sync->send_sync_.post();
-        if (postRes == OsalReturnType::kSuccess)
-        {
-            waitRes = sync->reply_sync_.timedWait(5000ms);
-        }
-        if (waitRes == OsalReturnType::kSuccess)
-        {
-            postRes = sync->send_sync_.post();
-        }
-    }};
+    Expectation waits = EXPECT_CALL(*g_syscall_mock, sem_trywait).WillOnce(Return(0));
+    Expectation posts = EXPECT_CALL(*g_syscall_mock, sem_post).After(waits).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, sem_trywait).After(posts).WillOnce(Return(0));
 
-    EXPECT_EQ(process_launcher->waitForkRunning(sync, 5000ms), OsalReturnType::kSuccess);
-    waiter.join();
-    ASSERT_EQ(postRes, OsalReturnType::kSuccess) << "Posting on the semaphore failed (test problem)";
-    EXPECT_EQ(waitRes, OsalReturnType::kSuccess);
+    EXPECT_EQ(process_launcher->waitForkRunning(sync, 1ms), OsalReturnType::kSuccess);
 }
 
 TEST_F(ProcessLauncherTest, kRunningTimeout)
@@ -780,9 +755,11 @@ TEST_F(ProcessLauncherTest, kRunningTimeout)
         "Description",
         "Verify that waitForkRunning returns a timeout failure if no notification is received within the timeout");
 
-    UseRealSemaphores();
+    ExpectSemaphoreLifecycle();
 
     std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
+    EXPECT_CALL(*g_syscall_mock, sem_trywait).WillRepeatedly(SetErrnoAndReturn(EAGAIN, -1));
+    EXPECT_CALL(*g_syscall_mock, sem_post).Times(1);  // Posts even if the wait fails...
 
     EXPECT_EQ(process_launcher->waitForkRunning(sync, 1ms), OsalReturnType::kTimeout);
 }
