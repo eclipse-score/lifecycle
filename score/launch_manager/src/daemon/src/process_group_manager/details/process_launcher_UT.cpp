@@ -59,6 +59,9 @@ class ProcessLauncherTest : public ::testing::Test
         sync->pid_ = 0;
         EXPECT_EQ(sync->reply_sync_.init(0, false), OsalReturnType::kSuccess);
         EXPECT_EQ(sync->send_sync_.init(0, false), OsalReturnType::kSuccess);
+        // Real msync calls would treat this fake shared memory as invalid because it isn't page aligned.
+        ON_CALL(*g_syscall_mock, msync(sync, _, _)).WillByDefault(Return(0));
+        EXPECT_CALL(*g_syscall_mock, msync).Times(AnyNumber());
 
         std::shared_ptr<IpcCommsSync> shared{sync, [](IpcCommsSync* ptr) {
                                              }};

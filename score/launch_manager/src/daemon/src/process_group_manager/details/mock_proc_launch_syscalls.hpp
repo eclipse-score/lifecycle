@@ -62,6 +62,7 @@ class SyscallMock
     MOCK_METHOD(int, sem_destroy, (sem_t * __sem), ());
     MOCK_METHOD(int, sem_trywait, (sem_t * __sem), ());
     MOCK_METHOD(int, sem_post, (sem_t * __sem), ());
+    MOCK_METHOD(int, msync, (void* __addr, size_t __len, int __flags), ());
 };
 
 std::unique_ptr<SyscallMock> g_syscall_mock = nullptr;
@@ -358,6 +359,19 @@ int __wrap_sem_post(sem_t* __sem)
     }
 
     return __real_sem_post(__sem);
+}
+
+// wrap for msync
+extern int __real_msync(void* __addr, size_t __len, int __flags);
+
+int __wrap_msync(void* __addr, size_t __len, int __flags)
+{
+    if (g_syscall_mock)
+    {
+        return g_syscall_mock->msync(__addr, __len, __flags);
+    }
+
+    return __real_msync(__addr, __len, __flags);
 }
 }
 
