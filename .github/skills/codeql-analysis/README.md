@@ -17,9 +17,8 @@ Run, reproduce, and debug the repository's CodeQL / MISRA static analysis
 
 ## What it covers
 - How the two-phase pipeline works (`create-database` traced build → `analyze-database`).
-- Which query packs the analysis runs (MISRA C++ default suite + `cpp-code-scanning` + CERT C++ L1
-  + CERT C L1 + `AlertSuppression`), where each comes from, and the
-  `--report codeql-report-complexity` alternative.
+- The `--report` checks (`misra-default`, `cpp-code-scanning`, `cert-cpp-l1`, `cert-c-l1`,
+  `code-complexity`) — which pack each runs, and how to combine them (default = MISRA only).
 - The `/var/tmp` sandbox-writable requirement (else silent empty databases).
 - How to build one database and reuse it across query packs.
 - The database's cached-BQRS trap when iterating on query sources, and `--rerun`.

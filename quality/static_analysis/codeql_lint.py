@@ -57,17 +57,20 @@ COMPILED_PACK_RUNFILE = "codeql_coding_standards_compiled/pack/qlpack.yml"
 CERT_CPP_COMPILED_PACK_RUNFILE = "codeql_coding_standards_cert_cpp_compiled/pack/qlpack.yml"
 CERT_C_COMPILED_PACK_RUNFILE = "codeql_coding_standards_cert_c_compiled/pack/qlpack.yml"
 
-# Named analysis presets selectable with --report. The DEFAULT preset (used
-# whenever --report is omitted, including by CI) is the full standards analysis:
-# the MISRA C++ default suite plus the four supplementary checks below. The only
-# other choice is the local code-complexity metrics pack, which REPLACES the
-# standards analysis rather than adding to it.
-DEFAULT_REPORT = "default"
-COMPLEXITY_REPORT = "codeql-report-complexity"
+# Named checks selectable with --report (one or more, space-separated). When
+# --report is omitted, only the MISRA C++ default suite is run (the historical,
+# single-standard behavior). Each value maps to one query pack/suite in
+# _build_report_analysis_spec(); the AlertSuppression helper query is always
+# appended so `// codeql[...]` in-source suppressions keep working regardless of
+# the selected checks.
 REPORT_CHOICES = [
-    DEFAULT_REPORT,
-    COMPLEXITY_REPORT,
+    "misra-default",
+    "cert-cpp-l1",
+    "cert-c-l1",
+    "cpp-code-scanning",
+    "code-complexity",
 ]
+DEFAULT_REPORTS = ["misra-default"]
 
 
 def _find_coding_standards_root():
@@ -241,61 +244,83 @@ def create_database(code_ql_path, config_path, target, source_root, database_pat
 
 
 def _build_report_analysis_spec(report, source_root):
-    """Build the query targets and pack search paths for a named report preset.
+    """Build the query targets and pack search paths for the selected checks.
+
+    ``report`` is a list of check names (see REPORT_CHOICES). Each check maps to
+    one query pack/suite specifier; all of them are passed to a single
+    `codeql database analyze` invocation (it accepts several and produces one
+    combined SARIF, so multiple checks run as ONE analysis rather than several
+    that get merged afterwards). The AlertSuppression helper query is always
+    appended so in-source `// codeql[...]` suppressions work for whichever
+    checks are selected.
 
     Returns a dict with:
       - query_targets: list of query/suite/pack specifiers passed to
-        `codeql database analyze` (it accepts several in one invocation and
-        produces a single combined SARIF, so multi-standard reports run as
-        ONE analysis rather than several that get merged afterwards).
+        `codeql database analyze`.
       - search_paths: list of pre-compiled release-pack roots for --search-path.
       - additional_packs: list of directories (containing uncompiled qlpack.yml
         dirs) for --additional-packs.
       - run_coding_standards_reports: whether to run the codeql-coding-standards
-        analysis_report/recategorize tooling afterwards (MISRA/CERT compliance
-        reports; not meaningful for the local complexity metrics report, whose
-        findings are not coding-standards rules and which writes no report).
+        analysis_report/recategorize tooling afterwards (True when at least one
+        MISRA/CERT suite is selected, i.e. coding-standards guidelines).
 
     See REPORT_CHOICES / the --report flag.
     """
-    if report == DEFAULT_REPORT:
-        misra_root = _find_compiled_pack_root()
-        cert_cpp_root = _find_cert_cpp_pack_root()
-        cert_c_root = _find_cert_c_pack_root()
-        misra_name, misra_version = _read_pack_identity(misra_root)
-        cert_cpp_name, cert_cpp_version = _read_pack_identity(cert_cpp_root)
-        cert_c_name, cert_c_version = _read_pack_identity(cert_c_root)
-        return {
-            "query_targets": [
-                f"{misra_name}@{misra_version}:{MISRA_DEFAULT_SUITE_NAME}",
-                CPP_CODE_SCANNING_SPEC,
-                f"{cert_cpp_name}@{cert_cpp_version}:{CERT_CPP_L1_SUITE_NAME}",
-                f"{cert_c_name}@{cert_c_version}:{CERT_C_L1_SUITE_NAME}",
-                ALERT_SUPPRESSION_SPEC,
-            ],
-            "search_paths": [misra_root, cert_cpp_root, cert_c_root],
-            "additional_packs": [],
-            "run_coding_standards_reports": True,
-        }
+    query_targets = []
+    search_paths = []
+    additional_packs = []
+    run_coding_standards_reports = False
 
-    if report == COMPLEXITY_REPORT:
-        complexity_pack_dir = os.path.join(source_root, COMPLEXITY_PACK_RELATIVE_DIR)
-        if not os.path.isfile(os.path.join(complexity_pack_dir, "qlpack.yml")):
-            raise RuntimeError(
-                f"Local code-complexity query pack not found at '{complexity_pack_dir}'."
-            )
-        return {
-            "query_targets": [COMPLEXITY_SUITE_SPEC],
-            "search_paths": [],
+    for check in report:
+        if check == "misra-default":
+            pack_root = _find_compiled_pack_root()
+            pack_name, pack_version = _read_pack_identity(pack_root)
+            query_targets.append(f"{pack_name}@{pack_version}:{MISRA_DEFAULT_SUITE_NAME}")
+            search_paths.append(pack_root)
+            run_coding_standards_reports = True
+        elif check == "cert-cpp-l1":
+            pack_root = _find_cert_cpp_pack_root()
+            pack_name, pack_version = _read_pack_identity(pack_root)
+            query_targets.append(f"{pack_name}@{pack_version}:{CERT_CPP_L1_SUITE_NAME}")
+            search_paths.append(pack_root)
+            run_coding_standards_reports = True
+        elif check == "cert-c-l1":
+            pack_root = _find_cert_c_pack_root()
+            pack_name, pack_version = _read_pack_identity(pack_root)
+            query_targets.append(f"{pack_name}@{pack_version}:{CERT_C_L1_SUITE_NAME}")
+            search_paths.append(pack_root)
+            run_coding_standards_reports = True
+        elif check == "cpp-code-scanning":
+            query_targets.append(CPP_CODE_SCANNING_SPEC)
+        elif check == "code-complexity":
+            complexity_pack_dir = os.path.join(source_root, COMPLEXITY_PACK_RELATIVE_DIR)
+            if not os.path.isfile(os.path.join(complexity_pack_dir, "qlpack.yml")):
+                raise RuntimeError(
+                    f"Local code-complexity query pack not found at '{complexity_pack_dir}'."
+                )
+            query_targets.append(COMPLEXITY_SUITE_SPEC)
             # --additional-packs takes the PARENT directory of the pack (it
             # searches subdirectories for qlpack.yml files matching the
             # specifier's pack name), i.e. third_party/codeql, not the
             # code_complexity dir itself.
-            "additional_packs": [os.path.dirname(complexity_pack_dir)],
-            "run_coding_standards_reports": False,
-        }
+            additional_packs.append(os.path.dirname(complexity_pack_dir))
+        else:
+            raise ValueError(f"Unknown report preset: {check!r}")
 
-    raise ValueError(f"Unknown report preset: {report!r}")
+    # AlertSuppression is a helper, not a selectable check: it enables
+    # `// codeql[...]` in-source suppressions for the checks above.
+    query_targets.append(ALERT_SUPPRESSION_SPEC)
+
+    # De-duplicate while preserving order (multiple checks can share a pack).
+    search_paths = list(dict.fromkeys(search_paths))
+    additional_packs = list(dict.fromkeys(additional_packs))
+
+    return {
+        "query_targets": query_targets,
+        "search_paths": search_paths,
+        "additional_packs": additional_packs,
+        "run_coding_standards_reports": run_coding_standards_reports,
+    }
 
 
 def analyze_database(
@@ -306,7 +331,7 @@ def analyze_database(
     recategorize_path=None,
     coding_standards_config_path=None,
     query_spec=None,
-    report=DEFAULT_REPORT,
+    report=DEFAULT_REPORTS,
     rerun=False,
     output_prefix="codeql",
     output_dir=None,
@@ -653,14 +678,14 @@ def main():
     parser.add_argument("--query-spec", help="CodeQL query spec")
     parser.add_argument(
         "--report",
+        nargs="+",
         choices=REPORT_CHOICES,
-        default=DEFAULT_REPORT,
-        help="Named analysis preset selecting which query pack(s)/suite(s) to "
-        "run. 'default' (the behavior when --report is omitted, and what CI "
-        "runs) is the full standards analysis: the MISRA C++ default suite "
-        "plus cpp-code-scanning, CERT C++ L1, CERT C L1 and the "
-        "AlertSuppression query. 'codeql-report-complexity' instead runs only "
-        "the local code-complexity metrics pack. Ignored when --query-spec is "
+        default=DEFAULT_REPORTS,
+        help="One or more checks to run (space-separated). When omitted, only "
+        "'misra-default' (the MISRA C++ default suite) is run. Available "
+        "checks: misra-default, cert-cpp-l1, cert-c-l1, cpp-code-scanning, "
+        "code-complexity. The AlertSuppression helper query is always added so "
+        "'// codeql[...]' suppressions work. Ignored when --query-spec is "
         "given.",
     )
     parser.add_argument(

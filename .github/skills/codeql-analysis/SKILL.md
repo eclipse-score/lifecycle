@@ -24,12 +24,11 @@ the pitfalls. Use it when:
    then `codeql database finalize`. The seed is a fresh timestamp each run and lands in every
    `CppCompile` action's environment, so `--nouse_action_cache` + the seed force a full
    recompile-and-trace every time (no TU is skipped).
-2. **analyze-database** — runs the **default standards analysis**: the **vendored pre-compiled**
-   MISRA C++ pack (`@codeql_coding_standards_compiled//:pack`, referenced as
-   `<name>@<version>:codeql-suites/misra-cpp-default.qls` via `--search-path`) **plus four
-   supplementary checks** — `cpp-code-scanning.qls`, CERT C++ L1, CERT C L1 and
-   `AlertSuppression.ql` (see §6). `--query-spec` overrides this to run a single query from the
-   vendored **source** pack (`@codeql_coding_standards`).
+2. **analyze-database** — runs the checks selected with `--report` (default: the **vendored
+   pre-compiled** MISRA C++ pack, `<name>@<version>:codeql-suites/misra-cpp-default.qls` via
+   `--search-path`; the other checks — `cpp-code-scanning`, CERT C++ L1, CERT C L1,
+   `code-complexity` — are opt-in; see §6). `--query-spec` overrides this to run a single query
+   from the vendored **source** pack (`@codeql_coding_standards`).
 
 CI (`.github/workflows/_codeql.yml`, invoked by `nightly_quality.yml`, cron `0 0 * * *`) runs
 this command for the **Linux** config, and — automatically, whenever the `SCORE_QNX_LICENSE`
@@ -92,49 +91,54 @@ When comparing two result sets, split by rule ID (`grep -oE '(RULE|DIR)-[0-9]+-[
   compiler/build/host difference.
 - Compiler version (clang 19 vs 22) and `--jobs` do NOT change counts. Confirmed hermetic.
 
-### 6. What the analysis runs — the default set, and `--report`
-The analysis (what CI runs, and what you get with no `--report`) is **five query specifiers passed
-to a single `codeql database analyze` invocation**, producing ONE SARIF with a single `run`
-(no post-hoc merging):
+### 6. What the analysis runs — the `--report` checks
+`--report` takes **one or more** named checks (space-separated). When omitted, only
+`misra-default` runs (the MISRA C++ default suite). Each check maps to one query pack/suite;
+all selected checks are passed to a **single** `codeql database analyze` invocation, producing
+ONE SARIF with a single `run` (no post-hoc merging).
 
-| # | specifier | source | rules |
-| - | --- | --- | --- |
-| 1 | `codeql/misra-cpp-coding-standards@<v>:codeql-suites/misra-cpp-default.qls` | pre-compiled release pack (`@codeql_coding_standards_compiled`), via `--search-path` | 218 |
-| 2 | `codeql/cpp-queries:codeql-suites/cpp-code-scanning.qls` | bundled in `@codeql_bundle` (no search path needed) | 57 |
-| 3 | `codeql/cert-cpp-coding-standards@<v>:codeql-suites/cert-cpp-l1.qls` | pre-compiled release pack (`@codeql_coding_standards_cert_cpp_compiled`) | 23 |
-| 4 | `codeql/cert-c-coding-standards@<v>:codeql-suites/cert-c-l1.qls` | pre-compiled release pack (`@codeql_coding_standards_cert_c_compiled`) | 18 |
-| 5 | `codeql/cpp-queries:AlertSuppression.ql` | bundled in `@codeql_bundle` | 0 (suppression helper) |
+| check | specifier | source | rules |
+| --- | --- | --- | --- |
+| `misra-default` | `codeql/misra-cpp-coding-standards@<v>:codeql-suites/misra-cpp-default.qls` | pre-compiled pack (`@codeql_coding_standards_compiled`), `--search-path` | 218 |
+| `cpp-code-scanning` | `codeql/cpp-queries:codeql-suites/cpp-code-scanning.qls` | bundled in `@codeql_bundle` | 57 |
+| `cert-cpp-l1` | `codeql/cert-cpp-coding-standards@<v>:codeql-suites/cert-cpp-l1.qls` | pre-compiled pack (`@codeql_coding_standards_cert_cpp_compiled`) | 23 |
+| `cert-c-l1` | `codeql/cert-c-coding-standards@<v>:codeql-suites/cert-c-l1.qls` | pre-compiled pack (`@codeql_coding_standards_cert_c_compiled`) | 18 |
+| `code-complexity` | `code-complexity-queries:suites/thresholds.qls` | local uncompiled pack (`//third_party/codeql/code_complexity`), `--additional-packs` | 6 |
 
-Rule counts measured on the small `db_reports_test` database: **316 rules** = 218 `cpp/misra/*`
-+ 57 other `cpp/*` + 23 `cpp/cert/*` + 18 `c/cert/*`. `AlertSuppression.ql` contributes no rule —
-it is the helper that makes `// codeql[<query-id>]` suppression comments work for the other
-queries, so it has to be part of the same invocation (it is why specifiers 2-5 together add
-exactly 98 rules).
+`AlertSuppression.ql` (the helper that makes `// codeql[<query-id>]` comments work) is **always**
+appended — 0 rules of its own, but part of every run.
 
-The three coding-standards packs are all extracted from the **same** pinned
-`coding-standards-codeql-packs.zip` release asset (only `pack_tarball` differs: `misra-cpp-`,
-`cert-cpp-`, `cert-c-`), so the CERT packs cost no extra download, and nothing is compiled or
-fetched from a registry at analysis time.
+```bash
+# default: MISRA C++ default suite only
+bazel run //quality/static_analysis:codeql_lint -- --target //score/...
 
-`--report` exists only to deviate from that default, and has exactly two choices:
-- **`default`** (also the value when `--report` is omitted) — the five specifiers above.
-- **`codeql-report-complexity`** — REPLACES them with the local, **uncompiled**
-  `code-complexity-queries:suites/thresholds.qls` metrics pack. CodeQL compiles it on first use
-  (~2 min, then cached in `~/.codeql/compile-cache`) and finds it by the `name:` in its
-  `qlpack.yml` through `--additional-packs=<repo>/third_party/codeql` (the pack's *parent* dir;
-  the repo dir is `third_party/codeql/code_complexity`, the pack name is `code-complexity-queries`).
-  Its `qlpack.yml` declares `codeql/cpp-all: 5.0.0` (not the original `codeql/cpp-queries: 1.5.10`)
-  — that is the pack providing the `cpp` library used by `import cpp`, and the version matches what
-  `@codeql_bundle` vendors, so it resolves fully offline. Its six queries are **metrics**, i.e. they
-  fire only above `params > 5`, `cyclomatic > 20`, `func LOC > 200`, `file LOC > 4000`, `goto > 0`,
-  `recursive paths > 0`; a small scope legitimately yields **0 findings** (see §7 for how to prove
-  the thresholds are actually being applied). This preset also skips the MISRA/CERT compliance
-  reports, because its findings are not coding-standards rules.
+# a single supplementary check
+bazel run //quality/static_analysis:codeql_lint -- --report code-complexity --target //score/...
+
+# several checks combined
+bazel run //quality/static_analysis:codeql_lint -- \
+  --report cert-cpp-l1 cert-c-l1 cpp-code-scanning code-complexity --target //score/...
+```
+
+The three coding-standards packs are extracted from the **same** pinned
+`coding-standards-codeql-packs.zip` release asset (only `pack_tarball` differs), so the CERT
+packs cost no extra download, and nothing is compiled or fetched from a registry at analysis time.
+
+`code-complexity` is the one exception: a local **uncompiled** pack whose `qlpack.yml` declares
+`codeql/cpp-all: 5.0.0` (not the original `codeql/cpp-queries: 1.5.10`) — the pack providing
+`import cpp`, pinned to what `@codeql_bundle` vendors, so it resolves offline. It compiles on
+first use (~2 min, cached in `~/.codeql/compile-cache`) and is found by its `name:` via
+`--additional-packs=<repo>/third_party/codeql` (the pack's *parent* dir; the repo dir is
+`third_party/codeql/code_complexity`, the pack name `code-complexity-queries`). Its six queries
+are **metrics** (fire only above `params > 5`, `cyclomatic > 20`, `func LOC > 200`,
+`file LOC > 4000`, `goto > 0`, `recursive paths > 0`), so a small scope legitimately yields
+0 findings (§7 shows how to prove the thresholds apply). It also skips the MISRA/CERT compliance
+reports (not coding-standards rules).
 
 `--query-spec` still takes priority over `--report` when both are given.
 
 CI (`.github/workflows/_codeql.yml`) invokes the tool with no `--report`, so the nightly analysis
-performs this full five-specifier run (Linux, and QNX when the license secret is provided).
+runs MISRA-only (`misra-default`).
 
 ### 7. Iterating on query sources: the database's BQRS cache (and `--rerun`)
 `codeql database analyze` stores per-query results in
