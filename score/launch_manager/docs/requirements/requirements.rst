@@ -275,7 +275,9 @@ Launching Processes
     detach from parent.
 
     .. note::
-        A detached process continues to run independently of its parent process; it is also known as a daemon process.
+        Detaching from the parent process is also known as creating a daemon process.
+        **Use case:** There might be processes which need to continue running independently of the launch manager.
+
 
 Conditional Launching
 =====================
@@ -463,7 +465,7 @@ Process Management
     and failure reaction activities of :term:`Processes <Process>`.
 
     .. note::
-        Use case: When the :term:`Launch Manager` shuts down, selected :term:`Processes <Process>` can be kept alive to continue their execution without interruption.
+        **Use case:** When the :term:`Launch Manager` shuts down, selected :term:`Processes <Process>` can be kept alive to continue their execution without interruption.
 
 
 .. comp_req:: Multiple instance of executable
@@ -592,7 +594,8 @@ Terminating Processes
     without considering the started :term:`Processes <Process>`.
 
     .. note::
-        Fast shutdown allows the :term:`Launch Manager` to terminate itself normally, without waiting for the started :term:`Processes <Process>`.
+        Fast shutdown allows the :term:`Launch Manager` to terminate its own process **normally**, without waiting for the started :term:`Processes <Process>`.
+        **Use case:** This is relevant when the system needs to restart quickly and only cares about the state of launch manager, but ignores the child processes.
 
 .. comp_req:: Launch Manager shutdown
     :id: comp_req__launch_man__launcher_exit_shutdown
@@ -665,6 +668,7 @@ Monitoring, Notification and Recovery
 
     .. note::
         An adopted process is a process that was not originally launched by the :term:`Launch Manager`.
+        **Use case:** There might be processes which are needed to start very early during bootup.
 
 .. comp_req:: Process launch monitoring
     :id: comp_req__launch_man__failure_detect
@@ -698,7 +702,7 @@ Monitoring, Notification and Recovery
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
-    :status: valid
+    :status: invalid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
