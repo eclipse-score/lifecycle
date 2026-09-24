@@ -422,6 +422,7 @@ lm_cc_test(
         "-Wl,--wrap=sem_destroy",
         "-Wl,--wrap=sem_trywait",
         "-Wl,--wrap=sem_post",
+        "-Wl,--wrap=msync",
     ],
     linkstatic = True,
     deps = [
