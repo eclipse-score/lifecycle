@@ -15,6 +15,12 @@
 
 load("@score_coverage//:defs.bzl", "score_coverage_reporter", "score_coverage_scope")
 
+sh_binary(
+    name = "run_coverage",
+    srcs = ["run_coverage.sh"],
+    visibility = ["//visibility:public"],
+)
+
 # Declares which production targets define the coverage scope. Everything in
 # scope but untested shows up at 0%; everything outside is filtered out.
 score_coverage_scope(

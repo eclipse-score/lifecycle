@@ -46,21 +46,11 @@ jobs:
         with:
           disk-cache-key: ${{ github.job }}
 
-      - name: Collect coverage
-        run: |
-          bazel coverage \
-            --config=llvm_cov \
-            --lockfile_mode=error \
-            --build_tests_only \
-            //score/...
-
-      - name: Generate report and enforce threshold
+      - name: Generate coverage report and enforce threshold
         env:
           COVERAGE_THRESHOLD: ${{ inputs.coverage-threshold }}
         run: |
-          bazel run @score_coverage//:generate_coverage_html -- \
-            --yaml quality/coverage/coverage_justifications.yaml \
-            --archive-dir coverage_artifacts
+          bazel build //quality/coverage:run_coverage
 
       - name: Upload coverage report
         if: always()
