@@ -1780,7 +1780,7 @@
   {
     "name": "ExecErrorDomainTest__AllKnownCodesReturnNonEmptyMessage",
     "file": "score/launch_manager/src/exec_error_domain_UT.cpp",
-    "line": "59",
+    "line": "61",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -1794,7 +1794,7 @@
   {
     "name": "ExecErrorDomainTest__AllKnownCodesHaveDistinctMessages",
     "file": "score/launch_manager/src/exec_error_domain_UT.cpp",
-    "line": "70",
+    "line": "72",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -1808,7 +1808,7 @@
   {
     "name": "ExecErrorDomainTest__UnknownCodeReturnsNonEmptyMessage",
     "file": "score/launch_manager/src/exec_error_domain_UT.cpp",
-    "line": "83",
+    "line": "85",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
