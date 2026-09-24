@@ -388,4 +388,11 @@ StrictModes no
 UseDNS no
 MaxAuthTries 3
 LoginGraceTime 30
+# Every connection arrives through the QEMU user-mode NAT, so all clients share
+# the source address 10.0.2.2. OpenSSH's per-source penalties would therefore
+# let a single misbehaving connection lock out the whole test harness: a probe
+# that the client abandons while sshd is still booting trips LoginGraceTime,
+# which penalises 10.0.2.2 for 90s and makes sshd drop every later connection
+# without sending a banner. Pointless here, so switch the heuristic off.
+PerSourcePenalties no
 }
