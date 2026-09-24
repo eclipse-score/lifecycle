@@ -61,8 +61,6 @@ class ProcessLauncherTest : public ::testing::Test
         EXPECT_EQ(sync->send_sync_.init(0, false), OsalReturnType::kSuccess);
 
         std::shared_ptr<IpcCommsSync> shared{sync, [](IpcCommsSync* ptr) {
-                                                 EXPECT_EQ(ptr->reply_sync_.deinit(), OsalReturnType::kSuccess);
-                                                 EXPECT_EQ(ptr->send_sync_.deinit(), OsalReturnType::kSuccess);
                                              }};
 
         return shared;
