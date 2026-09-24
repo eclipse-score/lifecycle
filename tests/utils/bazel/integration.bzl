@@ -19,6 +19,8 @@ load("//tests/utils/bazel:constants.bzl", "SCORE_TEST_INSTALL_PREFIX")
 
 DEFAULT_QEMU_CONFIG = "//config:qemu_config"
 DEFAULT_QEMU_IMAGE = "//config:qemu_image"
+DEFAULT_DOCKER_IMAGE_TARGET = "@score_lifecycle//tests/utils/environments/x86_64-linux"
+DEFAULT_DOCKER_IMAGE_TAG = "score_itf_examples:latest"
 
 def integration_test(
         name,
@@ -29,6 +31,9 @@ def integration_test(
         install_prefix = SCORE_TEST_INSTALL_PREFIX,
         qemu_config = DEFAULT_QEMU_CONFIG,
         qemu_image = DEFAULT_QEMU_IMAGE,
+        docker_image_target = DEFAULT_DOCKER_IMAGE_TARGET,
+        docker_image_tag = DEFAULT_DOCKER_IMAGE_TAG,
+        plugins = [],
         **kwargs):
     """Creates an integration test.
 
@@ -38,6 +43,13 @@ def integration_test(
         :environment: A tarball of all the files in the test environment
         :config: The launch manager configuration
         :(name): Runs the test script
+
+    Note:
+        We currently support calling this macro from user modules to allow
+        score_lifecycle integration tests to be executed in other repositories.
+        This only works when bazel labels are absolute. We ensure labels
+        start with "@score_lifecycle//" to ensure they can be resolved from user
+        modules.
 
     Args:
         name: Name of the test
@@ -50,12 +62,17 @@ def integration_test(
             Defaults to the `//config:qemu_config` label flag.
         qemu_image: QEMU image used by the QEMU test target.
             Defaults to the `//config:qemu_image` label flag.
+        docker_image_target: Docker image used by the
+            `//config:integration_docker` variant of this test.
+        docker_image_tag: `repo_tags` value for the image at `docker_image_target`.
+        plugins: Additional bazel plugins used by the test.
         **kwargs: Miscellaneous arguments passed through to `py_itf_test`
     """
 
     bin_pkg_name = "{}_binaries_pkg".format(name)
-    config_name = "{}_config_pkg".format(name)
-    test_pkg_name = "{}_test_pkg".format(name)
+    lm_config_name = "{}_lm_config".format(name)
+    lm_config_pkg_name = "{}_lm_config_pkg".format(name)
+    mw_com_config_pkg_name = "{}_mw_com_config_pkg".format(name)
     test_tar_name = "{}_test_tar".format(name)
 
     pkg_files(
@@ -67,30 +84,33 @@ def integration_test(
 
     if config:
         launch_manager_config(
-            name = config_name,
+            name = lm_config_name,
             config = config,
             flatbuffer_out_dir = "etc",
         )
-        all_files = files + [":{}".format(config_name)]
-    else:
-        all_files = files
+        pkg_files(
+            name = lm_config_pkg_name,
+            srcs = [":{}".format(lm_config_name)],
+            prefix = "tests/{}".format(name),
+            attributes = pkg_attributes(mode = "0400"),
+        )
 
     pkg_files(
-        name = test_pkg_name,
-        srcs = all_files,
-        prefix = "tests/{}".format(name),
+        name = mw_com_config_pkg_name,
+        srcs = ["@score_lifecycle//tests/utils/environments:mw_com_config.json"],
+        prefix = "tests/{}/etc".format(name),
         attributes = pkg_attributes(mode = "0400"),
     )
 
-    pkg_tar(name = test_tar_name, srcs = [":{}".format(bin_pkg_name), ":{}".format(test_pkg_name)])
+    pkg_tar(name = test_tar_name, srcs = [":{}".format(bin_pkg_name), ":{}".format(lm_config_pkg_name), ":{}".format(mw_com_config_pkg_name)])
 
     final_deps = kwargs.pop("deps", []) + all_requirements + [
         "@score_tooling//python_basics/score_pytest:attribute_plugin",
-        "//tests/utils/testing_utils",
+        "@score_lifecycle//tests/utils/testing_utils",
     ]
     final_data = kwargs.pop("data", []) + [":{}".format(test_tar_name)] + select({
         "//config:integration_docker": [
-            "//tests/utils/environments/x86_64-linux",
+            docker_image_target,
         ],
         "//config:integration_qemu": [
             qemu_config,
@@ -104,8 +124,8 @@ def integration_test(
         "--score-test-remote-directory={}/tests/{}".format(install_prefix, name),
     ] + select({
         "//config:integration_docker": [
-            "--docker-image-bootstrap=$(location //tests/utils/environments/x86_64-linux)",
-            "--docker-image=score_itf_examples:latest",
+            "--docker-image-bootstrap=$(location {})".format(docker_image_target),
+            "--docker-image={}".format(docker_image_tag),
         ],
         "//config:integration_qemu": [
             "--qemu-config=$(location {})".format(qemu_config),
@@ -115,10 +135,10 @@ def integration_test(
             "--local-dir=/tmp/score_itf_host/{}".format(name),
         ],
     })
-    final_plugins = ["//tests/utils/plugins:integration_plugin"] + select({
+    final_plugins = plugins + ["@score_lifecycle//tests/utils/plugins:integration_plugin"] + select({
         "//config:integration_docker": ["@score_itf//score/itf/plugins:docker_plugin"],
         "//config:integration_qemu": ["@score_itf//score/itf/plugins:qemu_plugin"],
-        "//config:integration_host": ["//tests/utils/plugins:localhost_plugin"],
+        "//config:integration_host": ["@score_lifecycle//tests/utils/plugins:localhost_plugin"],
     })
 
     # The QEMU plugin uses a hardcoded port so we can only run one test at a time.

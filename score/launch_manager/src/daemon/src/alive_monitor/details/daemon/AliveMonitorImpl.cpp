@@ -42,7 +42,7 @@ bool AliveMonitorImpl::init() noexcept
         if (initResult == EInitCode::kNoError)
         {
             const long ms{m_osClock.endMeasurement()};
-            LM_LOG_DEBUG() << "AliveMonitor: Initialization took " << ms << " ms";
+            LM_LOG_DEBUG() << "AliveMonitor: Initialization took" << ms << "ms";
             return true;
         }
         else

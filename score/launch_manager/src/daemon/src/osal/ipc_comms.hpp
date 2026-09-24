@@ -30,8 +30,6 @@ using IpcCommsP = std::shared_ptr<IpcCommsSync>;
 /// The `IpcCommsSync` structure is designed to handle synchronization mechanisms required
 /// for inter-process communication. It uses semaphores to manage synchronization,
 /// a process ID to identify the communicating process, and a flag to manage file descriptor closure.
-// RULECHECKER_comment(1, 1, check_incomplete_data_member_construction, "wi 45913 - This struct is POD, which doesn't
-// have user-declared constructor. The rule doesn’t apply.", false)
 struct IpcCommsSync final
 {
     /// @brief Semaphore for synchronizing replies.
@@ -53,20 +51,13 @@ struct IpcCommsSync final
 
     /// @brief Type of communications used for this process.
     /// The `comms_type_` member identifies whether the process has no communications
-    /// with Launch Manager (`kNoComms`), is expected to report kRunning (`kReporting`)
-    /// or is a state manager (`kControlClient`) i.e., a process that is allowed to use
-    /// the Control Client interface.
+    /// with Launch Manager (`kNoComms`) or is expected to report kRunning (`kReporting`).
     CommsType comms_type_;
 
     /// @brief Constant for the synchronization file descriptor.
     /// The `sync_fd` is a constant representing the file descriptor used for synchronization
     /// during communication. It is set to a value of 111 by default.
     static const int sync_fd = 111;
-
-    /// @brief Constant for the file descriptor used to signal state transitions
-    /// The semaphore used to signal state transitions is stored in an unlinked shared memory area. This requires
-    /// the constant “control_client_handler_nudge_fd” so that the spawned processes can access this resource.
-    static const int control_client_handler_nudge_fd = 4;
 
     // Cannot construct or destruct objects of this type
 
@@ -100,8 +91,6 @@ struct IpcCommsSync final
         IpcCommsP ret = nullptr;
         void* buf = mmap(nullptr, sizeof(IpcCommsSync), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
-        // RULECHECKER_comment(1, 1, check_c_style_cast, "This is the definition provided by the OS and does a C-style
-        // cast.", true)
         if (MAP_FAILED != buf)
         {
             ret = IpcCommsP(static_cast<IpcCommsSync*>(buf), IpcCommsDeletor());

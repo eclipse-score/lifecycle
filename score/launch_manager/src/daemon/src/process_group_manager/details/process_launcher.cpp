@@ -24,7 +24,6 @@
 
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/common/signal_safe_log.hpp"
-#include "score/mw/launch_manager/control/control_client_channel.hpp"
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
 #include "score/mw/launch_manager/osal/security_policy.hpp"
 #include "score/mw/launch_manager/osal/set_affinity.hpp"
@@ -75,10 +74,7 @@ void setLimit(const int resource, const std::size_t amount, const std::string_vi
         return;
     }
 
-    const struct rlimit limit{
-        .rlim_cur = amount,
-        .rlim_max = amount,
-    };
+    const struct rlimit limit{amount, amount};
 
     applyLimitOrDie(resource, limit, rlimit_name);
 }
@@ -88,7 +84,6 @@ void handleComms(score::mw::lifecycle::internal::osal::ChildProcessConfig& param
 {
     // kNoComms !fd3 & !fd4
     // kReporting  fd3 & !fd4
-    // kControlClient  fd3 & fd4
     if (!param.shared_block)
     {
         // kNoComms, fds are CLOEXEC
@@ -98,7 +93,7 @@ void handleComms(score::mw::lifecycle::internal::osal::ChildProcessConfig& param
     param.fd = dup2(param.fd, param.shared_block->sync_fd);  // always make sure we are using fd=3
     param.shared_block->pid_ = getpid();                     // Store pid for check at client end
 
-    // It must be ensured that sync_fd (f3) and control_client_handler_nudge_fd (fd4) remain open depending on
+    // It must be ensured that sync_fd (f3) remains open depending on
     // the communication type. Flag FD_CLOEXEC is cleared conditionally to ensure that the
     // respective file descriptor remains open after the execve call.
     switch (param.shared_block->comms_type_)
@@ -108,19 +103,6 @@ void handleComms(score::mw::lifecycle::internal::osal::ChildProcessConfig& param
             break;
         case CommsType::kReporting:
             if (-1 == fcntl(IpcCommsSync::sync_fd, F_SETFD, 0))
-            {
-                static_cast<void>(signal_safe_log_errno(errno, "fcntl at line ", __LINE__, " failed"));
-                sysexit(EXIT_FAILURE);
-            }
-            close(IpcCommsSync::control_client_handler_nudge_fd);
-            break;
-        case CommsType::kControlClient:
-            if (-1 == fcntl(IpcCommsSync::sync_fd, F_SETFD, 0))
-            {
-                static_cast<void>(signal_safe_log_errno(errno, "fcntl at line ", __LINE__, " failed"));
-                sysexit(EXIT_FAILURE);
-            }
-            if (-1 == fcntl(IpcCommsSync::control_client_handler_nudge_fd, F_SETFD, 0))
             {
                 static_cast<void>(signal_safe_log_errno(errno, "fcntl at line ", __LINE__, " failed"));
                 sysexit(EXIT_FAILURE);
@@ -199,10 +181,10 @@ OsalReturnType ProcessLauncher::startProcess(
 
     if (!config.component_properties.binary_name.empty())
     {
-        std::string executable_path = config.deployment_config.bin_dir + "/" + config.component_properties.binary_name;
-        if (access(executable_path.c_str(), X_OK) != 0)
+        if (access(config.deployment_config.executable_path.c_str(), X_OK) != 0)
         {
-            static_cast<void>(signal_safe_log("File does not exist or is not executable: ", executable_path));
+            static_cast<void>(signal_safe_log(
+                "File does not exist or is not executable: ", config.deployment_config.executable_path));
             return result;
         }
 
@@ -271,10 +253,6 @@ bool ProcessLauncher::setupComms(IpcCommsP& block, int& fd, const configuration:
     const auto app_type = config.component_properties.application_profile.application_type;
 
     size_t length = sizeof(IpcCommsSync);
-    if (configuration::ApplicationType::StateManager == app_type)
-    {
-        length += sizeof(ControlClientChannel);
-    }
 
     constexpr std::string_view kShmNamePrefix{"/ipc_shared_mem"};
     std::array<char, static_cast<std::size_t>(ProcessLimits::maxLocalBuffSize)> shm_name{};
@@ -297,8 +275,7 @@ bool ProcessLauncher::setupComms(IpcCommsP& block, int& fd, const configuration:
     fd = shm_open(shm_name.data(), O_CREAT | O_EXCL | O_RDWR, 0U);
     if (fd < 0)
     {
-        LM_LOG_ERROR() << "shm_open failed:" << config.deployment_config.bin_dir << "/"
-                       << config.component_properties.binary_name
+        LM_LOG_ERROR() << "shm_open failed:" << config.deployment_config.executable_path
                        << "Unable to open shared memory object. Error:" << errno_message(errno);
         return false;
     }
@@ -307,14 +284,12 @@ bool ProcessLauncher::setupComms(IpcCommsP& block, int& fd, const configuration:
 
     if (-1 == ftruncate(fd, static_cast<int>(length)))
     {
-        LM_LOG_ERROR() << "ftruncate failed:" << config.deployment_config.bin_dir << "/"
-                       << config.component_properties.binary_name
+        LM_LOG_ERROR() << "ftruncate failed:" << config.deployment_config.executable_path
                        << "Unable to set size of shared memory file descriptor. Error:" << errno_message(errno);
         return false;
     }
 
-    block = (configuration::ApplicationType::StateManager == app_type) ? initializeControlClient(fd, config)
-                                                                       : IpcCommsSync::getCommsObject(fd);
+    block = IpcCommsSync::getCommsObject(fd);
     if (!block)
     {
         return false;
@@ -323,9 +298,6 @@ bool ProcessLauncher::setupComms(IpcCommsP& block, int& fd, const configuration:
     // Map application type to CommsType for backward compatibility
     switch (app_type)
     {
-        case configuration::ApplicationType::StateManager:
-            block->comms_type_ = CommsType::kControlClient;
-            break;
         case configuration::ApplicationType::Native:
             block->comms_type_ = CommsType::kNoComms;
             break;
@@ -344,22 +316,6 @@ bool ProcessLauncher::setupComms(IpcCommsP& block, int& fd, const configuration:
     }
 
     return true;
-}
-
-IpcCommsP ProcessLauncher::initializeControlClient(int& fd, const configuration::ComponentConfig& config)
-{
-    LM_LOG_DEBUG() << "Initialize the control client for" << config.name << " process";
-    /* Initialise the control client communications */
-    IpcCommsP shared_block = nullptr;
-    ControlClientChannelP scc = ControlClientChannel::initializeControlClientChannel(fd, &shared_block);
-    if (!scc)
-    {
-        LM_LOG_ERROR() << "Failed to obtain ControlClientChannel for " << config.name
-                       << ": initializeControlClientChannel returned nullptr";
-        return nullptr;  // Caller will see shared_block maybe null and treat as failure later.
-    }
-    scc->initialize();
-    return shared_block;
 }
 
 bool ProcessLauncher::initializeSemaphores(IpcCommsP shared_block)
@@ -467,14 +423,10 @@ void ProcessLauncher::handleChildProcess(ChildProcessConfig& param)
     implementMemoryResourceLimits(param.config.deployment_config.sandbox);
     changeSecurityPolicy(param.config.deployment_config.sandbox);
 
-    // Build executable path
-    std::string executable_path =
-        param.config.deployment_config.bin_dir + "/" + param.config.component_properties.binary_name;
-
     // Build argv array - note: must be null-terminated
     std::array<const char*, kArgvArraySize> argv{};
     size_t arg_idx = 0;
-    argv[arg_idx++] = executable_path.c_str();
+    argv[arg_idx++] = param.config.deployment_config.executable_path.c_str();
     for (const auto& arg : param.config.component_properties.process_arguments)
     {
         if (arg_idx < kArgvArraySize - 1)
@@ -488,13 +440,10 @@ void ProcessLauncher::handleChildProcess(ChildProcessConfig& param)
     char* const* envp = param.config.deployment_config.environmental_variables.envp();
 
     // Finally, execute the process, passing all the arguments and environment variables
-
-    // RULECHECKER_comment(1, 1, check_pointer_qualifier_cast_const, "Remove const for standard library with char type
-    // arguments.", true);
     if (-1 == execve(argv[0], const_cast<char* const*>(argv.data()), envp))
     {
-        static_cast<void>(
-            signal_safe_log_errno(errno, "execve failed: Unable to execute the ", executable_path, " app."));
+        static_cast<void>(signal_safe_log_errno(
+            errno, "execve failed: Unable to execute the ", param.config.deployment_config.executable_path, " app."));
         sysexit(EXIT_FAILURE);
     }
 }
@@ -635,7 +584,7 @@ OsalReturnType ProcessLauncher::waitForkRunning(IpcCommsP sync, std::chrono::mil
     }
     else
     {
-        LM_LOG_WARN() << "Skipping semaphore deinitialization - shared memory region appears invalid: "
+        LM_LOG_WARN() << "Skipping semaphore deinitialization - shared memory region appears invalid:"
                       << errno_message(errno);
     }
 

@@ -26,19 +26,19 @@ Component
 * For ReadyCondition ``process_state:Terminated``, the mapping is only
   supported for Components that have at least one Component depending on it.
 * The ``ready_recovery_action`` only supports the RecoveryAction of type
-  ``restart``. The parameter ``delay_before_restart`` is currently not
+  ``restart``. The parameter ``delay_before_restart_ms`` is currently not
   supported and is ignored. Setting it to a non-zero value will have no effect
   and the component will be restarted immediately.
 * The ``recovery_action`` only supports ``switch_run_target`` with the
   ``run_target`` set to ``fallback_run_target``.
-* The ``ready_timeout`` is used as the timeout until process state Running is
+* The ``ready_timeout_ms`` is used as the timeout until process state Running is
   reached, even in case the ReadyCondition is ``process_state:Terminated``.
 
 
 Run target
 ----------
 
-* The parameter ``run_targets/<RunTarget>/transition_timeout`` is currently not
+* The parameter ``run_targets/<RunTarget>/transition_timeout_ms`` is currently not
   supported and is ignored.
 * The ``recovery_action`` only supports ``switch_run_target`` with the
   ``run_target`` set to ``fallback_run_target``.

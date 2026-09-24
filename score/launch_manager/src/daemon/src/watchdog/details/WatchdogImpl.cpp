@@ -26,27 +26,21 @@ namespace
 {
 #ifndef __QNXNTO__
 template <typename T>
-// coverity[autosar_cpp14_a2_10_4_violation] There is no static definition within the same namespace or no namespace.
 T msToSec(const T f_timeout)
 {
     return f_timeout / 1000U /*ms per seconds*/;
 }
 template <typename T>
-// coverity[autosar_cpp14_a2_10_4_violation] There is no static definition within the same namespace or no namespace.
 T secToMs(const T f_timeout)
 {
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION_PRD(f_timeout < std::numeric_limits<T>::max() / 1000);
-    // coverity[autosar_cpp14_a4_7_1_violation] Watchdog device implementations have a limit in second range.
     return f_timeout * 1000 /*ms per seconds*/;
 }
 #endif
 }  // namespace
 
-/* RULECHECKER_comment(0:0,3:0, check_expensive_to_copy_in_parameter, "Move only types cannot be passed by const
- * ref",true_no_defect) */
-/* RULECHECKER_comment(0:0,9:0, check_min_instructions, "Constructor with empty body is valid", true_no_defect) */
-WatchdogImpl::WatchdogImpl(score::os::Ioctl& ioctl, score::os::Fcntl& fcntl, score::os::Unistd& unistd) noexcept
-    : IWatchdogIf(), watchdogDevice_(), state_(ELibState::idle), ioctl_(ioctl), fcntl_(fcntl), unistd_(unistd)
+WatchdogImpl::WatchdogImpl(DeviceIf& deviceIf, score::os::Fcntl& fcntl, score::os::Unistd& unistd) noexcept
+    : IWatchdogIf(), watchdogDevice_(), state_(ELibState::idle), deviceIf_(deviceIf), fcntl_(fcntl), unistd_(unistd)
 {
 }
 
@@ -75,7 +69,7 @@ bool WatchdogImpl::init(
         if (!configureDevice(config, cycle_time_ns))
         {
             LM_LOG_ERROR() << "Watchdog: Error when configuring watchdog device" << config.fileName
-                           << " - Watchdog initialization failed.";
+                           << "- Watchdog initialization failed.";
             isSuccess = false;
         }
     }
@@ -150,16 +144,8 @@ void WatchdogImpl::serviceWatchdog() noexcept
         watchdogDevice_->fileDescriptor >= 0, "Watchdog file descriptor is not valid");
 
     // save to ignore return value here. If keepalive does not work, watchdog will eventually fire
-    /* RULECHECKER_comment(1:0,5:0, check_bitop_recast, "Linux-only constant from external interface",
-     * true_no_defect) */
-    /* RULECHECKER_comment(1:0,4:0, check_bitop_type, "Linux-only constant from external interface",
-     * true_no_defect) */
-    /* RULECHECKER_comment(1:0,3:0, check_plain_char_operator, "Linux-only constant from external interface",
-     * true_no_defect) */
-    /* RULECHECKER_comment(1:0,2:0, check_underlying_signedness_conversion, "Linux-only constant from external
-     * interface", true_no_defect) */
-    static_cast<void>(
-        ioctl_.ioctl(watchdogDevice_->fileDescriptor, static_cast<std::int32_t>(WDIOC_KEEPALIVE), nullptr));
+    static_cast<void>(deviceIf_.ioctl(
+        watchdogDevice_->fileDescriptor, static_cast<DeviceIf::IoctlRequestType>(WDIOC_KEEPALIVE), nullptr));
 }
 
 void WatchdogImpl::fireWatchdogReaction() noexcept
@@ -188,28 +174,14 @@ void WatchdogImpl::fireWatchdogReaction() noexcept
 bool WatchdogImpl::setEnableCardOption(std::int32_t f_fd) const noexcept
 {
     std::int32_t options{WDIOS_ENABLECARD};
-    /* RULECHECKER_comment(1:0,4:0, check_bitop_recast, "Linux-only constant from external interface", true_no_defect)
-     */
-    /* RULECHECKER_comment(1:0,3:0, check_bitop_type, "Linux-only constant from external interface", true_no_defect) */
-    /* RULECHECKER_comment(1:0,2:0, check_plain_char_operator, "Linux-only constant from external interface",
-     * true_no_defect) */
-    /* RULECHECKER_comment(1:0,1:0, check_underlying_signedness_conversion, "Linux-only constant from external
-     * interface", true_no_defect) */
-    return ioctl_.ioctl(f_fd, static_cast<std::int32_t>(WDIOC_SETOPTIONS), &options).has_value();
+    return deviceIf_.ioctl(f_fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETOPTIONS), &options) >= 0;
 }
 
 std::int32_t WatchdogImpl::getConfiguredTimeout(std::int32_t& f_configuredTimeout_r, std::int32_t f_fd) const noexcept
 {
     f_configuredTimeout_r = -1;
 
-    /* RULECHECKER_comment(1:0,5:0, check_bitop_recast, "Linux-only constant from external interface", true_no_defect)
-     */
-    /* RULECHECKER_comment(1:0,4:0, check_bitop_type, "Linux-only constant from external interface", true_no_defect) */
-    /* RULECHECKER_comment(1:0,3:0, check_plain_char_operator, "Linux-only constant from external interface",
-     * true_no_defect) */
-    /* RULECHECKER_comment(1:0,2:0, check_underlying_signedness_conversion, "Linux-only constant from external
-     * interface", true_no_defect) */
-    if (!ioctl_.ioctl(f_fd, static_cast<std::int32_t>(WDIOC_GETTIMEOUT), &f_configuredTimeout_r).has_value())
+    if (deviceIf_.ioctl(f_fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_GETTIMEOUT), &f_configuredTimeout_r) < 0)
     {
         return -1;
     }
@@ -224,14 +196,7 @@ std::int32_t WatchdogImpl::getConfiguredTimeout(std::int32_t& f_configuredTimeou
 std::int32_t WatchdogImpl::getRemainingTime(std::int32_t& f_remainingTime_r, std::int32_t f_fd) const noexcept
 {
     f_remainingTime_r = -1;
-    /* RULECHECKER_comment(1:0,5:0, check_bitop_recast, "Linux-only constant from external interface", true_no_defect)
-     */
-    /* RULECHECKER_comment(1:0,4:0, check_bitop_type, "Linux-only constant from external interface", true_no_defect) */
-    /* RULECHECKER_comment(1:0,3:0, check_plain_char_operator, "Linux-only constant from external interface",
-     * true_no_defect) */
-    /* RULECHECKER_comment(1:0,2:0, check_underlying_signedness_conversion, "Linux-only constant from external
-     * interface", true_no_defect) */
-    if (!ioctl_.ioctl(f_fd, static_cast<std::int32_t>(WDIOC_GETTIMELEFT), &f_remainingTime_r).has_value())
+    if (deviceIf_.ioctl(f_fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_GETTIMELEFT), &f_remainingTime_r) < 0)
     {
         return -1;
     }
@@ -247,21 +212,16 @@ bool WatchdogImpl::setTimeout(std::int32_t f_fd, std::uint16_t f_timeoutInMs) co
 #ifndef __QNXNTO__
     std::int32_t timeout{static_cast<std::int32_t>(msToSec(f_timeoutInMs))};
     std::int32_t timeoutBefore{timeout};
-    /* RULECHECKER_comment(1:0,4:0, check_bitop_recast, "Linux-only constant from external interface", true_no_defect)
-     */
-    /* RULECHECKER_comment(1:0,3:0, check_bitop_type, "Linux-only constant from external interface", true_no_defect) */
-    /* RULECHECKER_comment(1:0,2:0, check_plain_char_operator, "Linux-only constant from external interface",
-     * true_no_defect) */
-    /* RULECHECKER_comment(1:0,1:0, check_underlying_signedness_conversion, "Linux-only constant from external
-     * interface", true_no_defect) */
-    const bool ioctlSuccessful{ioctl_.ioctl(f_fd, static_cast<std::int32_t>(WDIOC_SETTIMEOUT), &timeout).has_value()};
+    const bool ioctlSuccessful{
+        deviceIf_.ioctl(f_fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETTIMEOUT), &timeout) >= 0};
     timeout = secToMs(timeout);
     timeoutBefore = secToMs(timeoutBefore);
 #else
     // cast is save since int32 is bigger than uint16
     std::int32_t timeout{static_cast<std::int32_t>(f_timeoutInMs)};
     std::int32_t timeoutBefore{timeout};
-    const bool ioctlSuccessful{ioctl_.ioctl(f_fd, WDIOC_SETTIMEOUT, &timeout).has_value()};
+    const bool ioctlSuccessful{
+        deviceIf_.ioctl(f_fd, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETTIMEOUT), &timeout) >= 0};
 #endif
     // The timeout value may have been altered to the nearest timeout that is supported,
     // if the given timeout is not supported.
@@ -381,15 +341,8 @@ bool WatchdogImpl::disableDevice(WatchdogDevice& f_watchdogDevice_r) const noexc
         static_cast<void>(unistd_.write(f_watchdogDevice_r.fileDescriptor, kMagicCloseChar, static_cast<size_t>(2)));
     }
     std::int32_t option{WDIOS_DISABLECARD};
-    /* RULECHECKER_comment(1:0,5:0, check_bitop_recast, "Linux-only constant from external interface", true_no_defect)
-     */
-    /* RULECHECKER_comment(1:0,4:0, check_bitop_type, "Linux-only constant from external interface", true_no_defect) */
-    /* RULECHECKER_comment(1:0,3:0, check_plain_char_operator, "Linux-only constant from external interface",
-     * true_no_defect) */
-    /* RULECHECKER_comment(1:0,2:0, check_underlying_signedness_conversion, "Linux-only constant from external
-     * interface", true_no_defect) */
-    static_cast<void>(
-        ioctl_.ioctl(f_watchdogDevice_r.fileDescriptor, static_cast<std::int32_t>(WDIOC_SETOPTIONS), &option));
+    static_cast<void>(deviceIf_.ioctl(
+        f_watchdogDevice_r.fileDescriptor, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETOPTIONS), &option));
     static_cast<void>(unistd_.close(f_watchdogDevice_r.fileDescriptor));
     f_watchdogDevice_r.fileDescriptor = -1;
     return true;
@@ -398,9 +351,7 @@ bool WatchdogImpl::disableDevice(WatchdogDevice& f_watchdogDevice_r) const noexc
 bool WatchdogImpl::hasValidTimeout(const DeviceConfig& f_config_r) noexcept
 {
     const bool validRange{(f_config_r.timeoutMax >= kTimeoutMinMillis) && (f_config_r.timeoutMax <= kTimeoutMaxMillis)};
-    // coverity[autosar_cpp14_m0_1_2_violation] validResolution always true (kTimeoutResolution=1) only for __QNXNTO__
     const bool validResolution{(f_config_r.timeoutMax % kTimeoutResolution == 0U)};
-    // coverity[autosar_cpp14_m0_1_2_violation] validResolution always true only for __QNXNTO__
     return validRange && validResolution;
 }
 
@@ -440,12 +391,9 @@ bool WatchdogImpl::validateTimeoutWithCycleTime(std::int64_t f_cycleTimeInNs, co
 }
 
 #if defined(__CTC__) && defined(__CODE_COVERAGE_ANNOTATION__)
-/* RULECHECKER_comment(1:0,2:0, check_pragma_usage, "External tooling requires pragma", true_no_defect) */
 #pragma CTC ANNOTATION This function cannot be covered in tests as it implements an infinite loop.
 #pragma CTC SKIP
 #endif
-/* RULECHECKER_comment(1:0,1:0, check_member_function_missing_static, "Intentionally not static for testing",
- * true_no_defect) */
 void WatchdogImpl::waitForever() const noexcept
 {
     // This code cannot be covered in tests, as it blocks execution forever
@@ -459,7 +407,6 @@ void WatchdogImpl::waitForever() const noexcept
     }
 }
 #if defined(__CTC__) && defined(__CODE_COVERAGE_ANNOTATION__)
-/* RULECHECKER_comment(1:0,1:0, check_pragma_usage, "External tooling requires pragma", true_no_defect) */
 #pragma CTC ENDSKIP
 #endif
 

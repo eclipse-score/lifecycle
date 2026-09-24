@@ -22,11 +22,6 @@
 #include <string>
 #include <vector>
 
-namespace score::mw::lifecycle
-{
-class ControlClient;
-}  // namespace score::mw::lifecycle
-
 namespace score::mw::lifecycle::internal::saf::factory
 {
 
@@ -40,8 +35,6 @@ class AliveWorkerFactory : public IAliveWorkerFactory
     explicit AliveWorkerFactory();
 
     /// @brief Destructor
-    /* RULECHECKER_comment(0, 5, check_min_instructions, "Default destructor is not provided\
-       a function body", true_no_defect) */
     ~AliveWorkerFactory() override = default;
 
     /// @brief No Copy Constructor

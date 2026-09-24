@@ -26,6 +26,7 @@
 #include <limits>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <vector>
 
@@ -51,8 +52,8 @@ score::cpp::expected<TargetT, IConfigLoader::Error> validateRange(int64_t value,
     if (value < static_cast<int64_t>(std::numeric_limits<TargetT>::min()) ||
         value > static_cast<int64_t>(std::numeric_limits<TargetT>::max()))
     {
-        LM_LOG_ERROR() << field_name << " " << value << " is out of valid range ["
-                       << std::numeric_limits<TargetT>::min() << "," << std::numeric_limits<TargetT>::max() << "]";
+        LM_LOG_ERROR() << field_name << value << "is out of valid range [" << std::numeric_limits<TargetT>::min() << ","
+                       << std::numeric_limits<TargetT>::max() << "]";
         return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
     }
     return static_cast<TargetT>(value);
@@ -112,8 +113,10 @@ score::cpp::expected<TargetT, IConfigLoader::Error> validateRange(int64_t value,
 /// @brief Converts a FlatBuffer Sandbox to the config equivalent with range validation.
 [[nodiscard]] score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(const fb::Sandbox* fb_sb);
 /// @brief Converts a FlatBuffer DeploymentConfig to the config equivalent.
+/// @param binary_name Executable name relative to the configured bin_dir.
 [[nodiscard]] score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentConfig(
-    const fb::DeploymentConfig* fb_dc);
+    const fb::DeploymentConfig* fb_dc,
+    std::string_view binary_name);
 /// @brief Converts a single FlatBuffer Component to a ComponentConfig.
 [[nodiscard]] score::cpp::expected<ComponentConfig, IConfigLoader::Error> convertComponent(
     const fb::Component* fb_comp);

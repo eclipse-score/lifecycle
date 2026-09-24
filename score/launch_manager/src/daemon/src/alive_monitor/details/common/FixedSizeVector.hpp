@@ -103,8 +103,6 @@ class FixedSizeVector
     /// noexcept(false)
     /// @param f_inputElement_r Reference to element that has to be copied to FixedSizeVector
     /// @return True if element is added successfully to the FixedSizeVector
-    /* RULECHECKER_comment(0, 10, check_cheap_to_copy_in_parameter, "Copying a value of template type could become
-     * expensive", true_no_defect) */
     bool push_back(const Type& f_inputElement_r)
     {
         bool result = false;

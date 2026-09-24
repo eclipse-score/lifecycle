@@ -34,7 +34,6 @@ template <
     typename Payload,
     std::uint16_t MaxNumberElements,
     class Socket = ipc_dropin::Socket<sizeof(Payload), MaxNumberElements>>
-// coverity[autosar_cpp14_a12_1_6_violation:FALSE] Base class constructor is used
 class IpcClient final : public IpcBase<Payload, MaxNumberElements, Socket>
 {
     /// @brief Take over definitions from base class
@@ -62,8 +61,6 @@ class IpcClient final : public IpcBase<Payload, MaxNumberElements, Socket>
     /// @brief Default move constructor
     IpcClient(IpcClient&&) noexcept(true) = default;
     /// @brief Default move assignment
-    /* RULECHECKER_comment(0,3, check_inherited_member_function_hidden, "Move assignment operator shall be\
-    defined due to rule of five", false) */
     IpcClient& operator=(IpcClient&& rhs) noexcept(true)
     {
         Base::operator=(std::move(rhs));

@@ -27,9 +27,6 @@ std::int32_t setaffinity(std::uint64_t cpumask) noexcept(true)
     {
         if (cpumask & (1ULL << i))
         {
-            // RULECHECKER_comment(1, 2, check_underlying_signedness_conversion, "This is the definition provided by the
-            // OS and does a signedness conversion.", true) RULECHECKER_comment(1, 1, check_c_style_cast, "This is the
-            // definition provided by the OS and does a C-style cast.", true)
             CPU_SET(i, &mask);
         }
     }

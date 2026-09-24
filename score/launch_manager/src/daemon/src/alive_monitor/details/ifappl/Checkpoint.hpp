@@ -50,12 +50,6 @@ class Checkpoint : public saf::common::Observable<Checkpoint>
 
     /// @brief Default Move Constructor
     /// Cannot be noexcept, since the base class move constructor is not noexcept
-    /* RULECHECKER_comment(0, 7, check_min_instructions, "Default constructor is not provided\
-       a function body", true_no_defect) */
-    /* RULECHECKER_comment(0, 5, check_incomplete_data_member_construction, "Default constructor is not provided\
-       the member initializer", false) */
-    /* RULECHECKER_comment(0, 3, check_copy_in_move_constructor, "The default move constructor invokes parameterised\
-       constructor internally. This invokes std::string copy construction", true_no_defect) */
     Checkpoint(Checkpoint&&) = default;
 
     /// @brief Default Destructor

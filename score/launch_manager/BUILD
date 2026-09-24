@@ -18,7 +18,7 @@ package(default_visibility = ["//visibility:public"])
 
 alias(
     name = "control_cc",
-    actual = "//score/launch_manager/src/control_client:control_client",
+    actual = "//score/launch_manager/src/lm_control:lm_control",
 )
 
 alias(
@@ -61,7 +61,6 @@ cc_library(
     name = "error_event",
     hdrs = [
         "src/execution_error.h",
-        "src/execution_error_event.h",
     ],
     include_prefix = "score/mw/lifecycle",
     strip_include_prefix = "/score/launch_manager/src",
@@ -139,7 +138,7 @@ docs_bundle(
     bundles = [
         {
             "bundle": "//score/launch_manager/src/lifecycle_client:docs",
-            "mount_at": "subcomponents/lifecycle_client",
+            "mount_at": "interfaces/lifecycle_client",
         },
     ],
     code_targets = [
@@ -147,5 +146,13 @@ docs_bundle(
     ],
     data = ["//score/launch_manager/src/daemon/src/configuration/config_schema:config_schema_files"],
     source_dir = "docs",
+    visibility = ["//visibility:public"],
+)
+
+docs_bundle(
+    name = "product_documentation",
+    data = ["//score/launch_manager/src/daemon/src/configuration/config_schema:config_schema_files"],
+    source_dir = "docs/product_documentation",
+    tags = ["manual"],
     visibility = ["//visibility:public"],
 )

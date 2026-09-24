@@ -16,8 +16,6 @@
 
 namespace score::mw::lifecycle::internal::saf::timers
 {
-/* RULECHECKER_comment(0, 3, check_static_object_zero_initialization, "As per rule definition, \
-using constexpr enforces constant initialization by the compiler", false) */
 constexpr int CycleTimer::kDeadlineAlreadyOver;
 
 CycleTimer::CycleTimer(const score::mw::lifecycle::internal::saf::timers::OsClockInterface* f_osInterface) noexcept
@@ -76,7 +74,6 @@ struct timespec& CycleTimer::calcNextShot() noexcept(true)
     // sleepIntervalNs max (std::chrono::nanoseconds) 60,000,000,000 ns (60s)
     // Overflow can occur after 9223372036854775807 / 60000000000 ~ 153722867 cycles
     // which corresponds to 153722867 * 60s = 9223372020s = 153722867min ~ 2562047h ~ 106751d ~ 292y
-    // coverity[autosar_cpp14_a4_7_1_violation] overflow would only occur after ~292 years active device runtime
     deadline.tv_nsec += sleepIntervalNs.count();
 
     handleNanoSecOverflow();

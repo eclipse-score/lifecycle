@@ -160,4 +160,10 @@ std::mutex& IdentifierHash::get_registry_mutex()
     return registry_mutex;
 }
 
+std::string_view IdentifierHash::get_name() const
+{
+    const std::lock_guard<std::mutex> lock(get_registry_mutex());
+    return get_registry()[hash_id_];
+}
+
 }  // namespace score::mw::lifecycle

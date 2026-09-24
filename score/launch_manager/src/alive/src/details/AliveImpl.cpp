@@ -28,7 +28,6 @@ AliveImpl::AliveImpl(
     std::unique_ptr<CheckpointIpcClient> f_ipcClient) noexcept(false)
     : k_instanceSpecifierPath(f_instanceSpecifier_r), ipcClient(std::move(f_ipcClient))
 {
-    // coverity[autosar_cpp14_a15_5_2_violation] This warning comes from pipc-sa(external library)
     connectToAliveMonitor();
 }
 

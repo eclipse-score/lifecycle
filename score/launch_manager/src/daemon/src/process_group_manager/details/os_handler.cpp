@@ -28,7 +28,7 @@ void OsHandler::run(void)
             if (score::mw::lifecycle::internal::SafeProcessMapReturnType::kInsertionError ==
                 safe_process_map_.findTerminated(result.value(), wait_status))
             {
-                LM_LOG_ERROR() << "No more resources available to track process with PID " << result.value()
+                LM_LOG_ERROR() << "No more resources available to track process with PID" << result.value()
                                << "(SafeProcessMap capacity exceeded).";
             }
         }

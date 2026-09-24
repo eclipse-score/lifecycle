@@ -18,8 +18,8 @@
 
 #include "score/mw/launch_manager/configuration/config.hpp"
 #include "score/mw/launch_manager/watchdog/IWatchdogIf.hpp"
+#include "score/mw/launch_manager/watchdog/details/DeviceIf.hpp"
 #include "score/os/fcntl.h"
-#include "score/os/ioctl.h"
 #include "score/os/unistd.h"
 #include <optional>
 #include <string>
@@ -28,7 +28,6 @@
 namespace score::mw::lifecycle::internal::watchdog
 {
 
-// coverity[autosar_cpp14_m3_4_1_violation] block scope definition is intentionally avoided for maintainability
 constexpr const char* kMagicCloseChar{"V"};
 
 /// @brief Simple Watchdog implementation
@@ -37,14 +36,14 @@ class WatchdogImpl : public IWatchdogIf
 {
   public:
     /// @brief Constructor
-    /// @param[in] ioctl The score::os::Ioctl instance used to issue ioctl calls on watchdog device files.
+    /// @param[in] deviceIf The DeviceIf instance used to issue ioctl calls on watchdog device files.
     ///        Defaults to the production singleton. A mock can be injected for testing.
     /// @param[in] fcntl The score::os::Fcntl instance used to open watchdog device files.
     ///        Defaults to the production singleton. A mock can be injected for testing.
     /// @param[in] unistd The score::os::Unistd instance used to close watchdog device files.
     ///        Defaults to the production singleton. A mock can be injected for testing.
     explicit WatchdogImpl(
-        score::os::Ioctl& ioctl = score::os::Ioctl::instance(),
+        DeviceIf& deviceIf = DeviceIf::instance(),
         score::os::Fcntl& fcntl = score::os::Fcntl::instance(),
         score::os::Unistd& unistd = score::os::Unistd::instance()) noexcept;
 
@@ -61,7 +60,6 @@ class WatchdogImpl : public IWatchdogIf
     WatchdogImpl& operator=(WatchdogImpl&& f_source_r) & noexcept = delete;
 
     /// @brief Destructor
-    /* RULECHECKER_comment(0, 2, check_min_instructions, "Default destructor has no body", true_no_defect) */
     ~WatchdogImpl() override = default;
 
     /// @copydoc IWatchdogIf::init()
@@ -89,16 +87,7 @@ class WatchdogImpl : public IWatchdogIf
     virtual void waitForever() const noexcept;
 
   private:
-    /* RULECHECKER_comment(1:0,15:0, check_non_pod_struct, "We want to treat it as POD as alternative implementation
-     * would increase complexity", true_no_defect) */
-    /* RULECHECKER_comment(1:0,15:0, check_non_private_non_pod_field, "We want to treat it as POD as alternative
-     * implementation would increase complexity", true_no_defect) */
-
     /// @brief The watchdog device configuration.
-    /* RULECHECKER_comment(1:0,2:0, check_non_pod_struct, "Intentionally using a struct with non-pod members as
-     * alternatives would more complex", true_no_defect) */
-    /* RULECHECKER_comment(1:0,18:0, check_non_private_non_pod_field, "Intentionally using a struct with non-pod members
-     * as alternatives would more complex", true_no_defect) */
     struct DeviceConfig final
     {
         /// @brief Absolute file path of watchdog device file typically stored under /dev folder.
@@ -223,7 +212,7 @@ class WatchdogImpl : public IWatchdogIf
     /// @brief The internal state of this class
     ELibState state_;
     /// @brief Interface used to issue ioctl calls on watchdog device files.
-    score::os::Ioctl& ioctl_;
+    DeviceIf& deviceIf_;
     /// @brief Interface used to open watchdog device files.
     score::os::Fcntl& fcntl_;
     /// @brief Interface used to close watchdog device files.

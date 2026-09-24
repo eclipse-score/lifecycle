@@ -39,8 +39,6 @@ class ISupervision
     explicit ISupervision(const IdentifierHash f_supervisionConfigName_p) noexcept(true);
 
     /// @brief Default destructor
-    /* RULECHECKER_comment(0, 3, check_min_instructions, "Default destructor is not provided\
-       a function body", true_no_defect) */
     virtual ~ISupervision() = default;
 
     /// @brief Trigger evaluation
@@ -56,12 +54,6 @@ class ISupervision
 
   protected:
     /// @brief Default Move Constructor
-    /* RULECHECKER_comment(0, 7, check_min_instructions, "Default constructor is not provided\
-       a function body", true_no_defect) */
-    /* RULECHECKER_comment(0, 5, check_incomplete_data_member_construction, "Default constructor is not provided\
-       the member initializer", false) */
-    /* RULECHECKER_comment(0, 3, check_copy_in_move_constructor, "Default constructor is not provided\
-       the member initializer", false) */
     ISupervision(ISupervision&&) = default;
     /// @brief No Copy Constructor
     ISupervision(ISupervision&) = delete;

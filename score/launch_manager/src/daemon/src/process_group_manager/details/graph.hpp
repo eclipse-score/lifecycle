@@ -27,18 +27,18 @@
 #include "score/mw/launch_manager/common/concurrency/mpmc_concurrent_queue.hpp"
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/configuration/config.hpp"
-#include "score/mw/launch_manager/control/control_client_channel.hpp"
 #include "score/mw/launch_manager/osal/semaphore.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_event.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_of.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_task.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/dependency_graph.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/itransition_result_publisher.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_handling.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/run_target.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/transition.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
+#include "score/mw/launch_manager/process_group_manager/irun_target_control.hpp"
+#include "score/mw/lifecycle/details/lm_control_service.h"
 #include <score/stop_token.hpp>
 
 namespace score::mw::lifecycle::internal
@@ -131,7 +131,6 @@ enum class GraphState : std::uint_least8_t
 /// kAborting       -> kInTransition    kAborting
 /// kUndefinedState -> kSuccess         kUndefinedState
 /// kUndefinedState -> kAborting        kUndefinedState
-// coverity[autosar_cpp14_m3_4_1_violation:INTENTIONAL] The value is used in a global context.
 // clang-format off
 static constexpr GraphState state_results[][static_cast<uint>(GraphState::kUndefinedState) + 1U] = {
     //from kSuccess                     kInTransition               kAborting                 kCancelled                      kUndefinedState              to new_state
@@ -169,8 +168,7 @@ class Graph final
         uint32_t max_num_nodes,
         GraphConfig& configuration,
         std::shared_ptr<WorkerQueue> job_queue,
-        ProcessHandling process_handling,
-        ITransitionResultPublisher* transition_result_receiver);
+        ProcessHandling process_handling);
 
     /// @brief Destructor to clean up resources used by the Graph object.
     ~Graph();
@@ -228,25 +226,12 @@ class Graph final
     /// at that index is a RunTarget rather than a ProcessInfoNode.
     ProcessInfoNode* getProcessInfoNode(IdentifierHash process_index);
 
-    /// @return The identifier of the process group managed by this graph.
-    IdentifierHash getProcessGroupName();
-
-    /// @return The current target state of the process group. Only meaningful when
-    /// getState() returns GraphState::kSuccess.
-    IdentifierHash getProcessGroupState();
-
-    /// @return The ProcessInfoNode that has a ControlClientChannel, or nullptr if none exists.
-    const ProcessInfoNode* findControlClient();
-
-    /// @brief Sets the control client that is managing state transitions for this process group.
-    /// @param control_client_id The identifier of the new state manager.
-    void setStateManager(ControlClientID& control_client_id);
+    /// @return The currently requested run target.
+    /// @note Only meaningful when getState() returns GraphState::kSuccess.
+    IdentifierHash getRequestedRunTarget();
 
     /// @brief Update the details for the cancel message to match the current state.
     void updateCancelMessage();
-
-    /// @return Information about the control client managing this process group's state.
-    ControlClientID getStateManager();
 
     /// @return The error code set by the last process that caused an unexpected termination.
     uint32_t getLastExecutionError();
@@ -262,20 +247,6 @@ class Graph final
 
     /// @return The pending state, or an empty hash if no state is pending.
     IdentifierHash getPendingState();
-
-    /// @return The pending event code, or kNotSet if there is none.
-    ControlClientCode getPendingEvent();
-
-    /// @brief Clears the pending event, but only if its current value matches expected.
-    /// @param expected The event code to compare against.
-    void clearPendingEvent(ControlClientCode expected);
-
-    /// @brief Stores a pending event code and notifies the ProcessGroupManager to process it.
-    /// @param event The event code to store.
-    void setPendingEvent(ControlClientCode event);
-
-    /// @return The cancel message prepared when updateCancelMessage() was called.
-    ControlClientMessage& getCancelMessage();
 
     /// @brief A utility function that converts codes to strings for logging purposes
     /// @param state The state to convert
@@ -296,6 +267,9 @@ class Graph final
     /// if not configured.
     /// @return The timeout in milliseconds, or zero if there is no configured timeout.
     std::chrono::milliseconds getOffStateTransitionTimeout() const;
+
+    /// @brief Register a callback to be fired when the active run target changes.
+    void registerActiveRunTargetCallback(ActivationCallbackT callback) noexcept;
 
   private:
     /// @brief Reports that a node has finished executing, enqueuing successors or updating the graph state if a
@@ -352,10 +326,10 @@ class Graph final
     /// @brief Current state of the graph.
     GraphState state_{GraphState::kSuccess};
 
-    /// @brief the requested (target) Process Group State
-    ProcessGroupStateID requested_state_{};
+    /// @brief the requested run target.
+    IdentifierHash requested_state_{};
 
-    /// @brief Mutex protecting concurrent access to requested_state_.pg_state_name_.
+    /// @brief Mutex protecting concurrent access to requested_state_.
     mutable std::mutex requested_state_mutex_{};
 
     /// @brief Config pointer to set up graph nodes
@@ -367,29 +341,11 @@ class Graph final
     /// @brief The interfaces passed to the process nodes to control their OS processes
     ProcessHandling process_handling_;
 
-    /// @brief Class to receive information about the initial state transition result
-    ITransitionResultPublisher* transition_result_receiver_;
-
-    /// @brief The state manager node for this process group
-    ControlClientID last_state_manager_{};
-
-    /// @brief The last execution error set on an unexpected termination
-    uint32_t last_execution_error_{0U};
-
-    /// @brief Set the true if this is the MainPG and this is the initial state transition
+    /// @brief Set the true if this is the initial state transition
     bool is_initial_state_transition_{false};
 
     /// @brief The pending state transition, if any
     IdentifierHash pending_state_{""};
-
-    /// @brief Any pending event to report
-    ControlClientCode event_{ControlClientCode::kNotSet};
-
-    /// @brief Reason that tha graph was aborted
-    ControlClientCode abort_code_{ControlClientCode::kNotSet};
-
-    /// @brief The message to send when a transition is cancelled
-    ControlClientMessage cancel_message_{};
 
     /// @brief Constant for Off state.
     const IdentifierHash off_state_{"Off"};
@@ -402,6 +358,8 @@ class Graph final
 
     /// @brief Transition timeout for Off state
     std::chrono::milliseconds off_state_transition_timeout_{0};
+
+    std::optional<ActivationCallbackT> active_run_target_callback_;
 };
 
 }  // namespace score::mw::lifecycle::internal
