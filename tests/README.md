@@ -35,3 +35,12 @@ test command.
 |`--test_arg=--no-local-cleanup` | Integration tests don't cleanup after running     |`bazel test //... --test_arg=--no-local-cleanup` |
 |`--test_arg="--test_runner=XYZ"`| Integration tests run with the given test runner  |`bazel test //... --test_arg="--test_runner=time` |
 |`--test_arg=-s`                 | More logging from the python test framework       |`bazel test //... --test_arg=-s`                 |
+
+## Core Dumps
+
+For QNX, the core dump setup is part of the `init.build` script.
+Core Dumps will automatically be downloaded from the qemu machine. Check the logs for the exact path.
+
+For Linux, you'll have to set the core pattern on your **host** machine as this is shared to the docker container:
+
+`sudo sysctl -w kernel.core_pattern="/tmp/core.%e.%p"`
