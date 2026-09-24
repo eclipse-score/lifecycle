@@ -14,6 +14,24 @@
 #ifndef MOCK_PROC_LAUNCH_SYSCALLS
 #define MOCK_PROC_LAUNCH_SYSCALLS
 
+#include <fcntl.h>
+#include <grp.h>
+#include <libgen.h>
+#include <semaphore.h>
+#include <sys/mman.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <cassert>
+#include <cerrno>
+#include <climits>
+#include <csignal>
+#include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+
+#include <gmock/gmock.h>
+
 // NOLINTBEGIN - clang-tidy does not like syscalls
 
 class SyscallMock
