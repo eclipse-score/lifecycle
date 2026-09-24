@@ -18,7 +18,6 @@
 #include <optional>
 
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/Checkpoint.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/ifappl/MockMonitorIfDaemon.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEvent.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/supervision/Alive.hpp"
 #include "score/mw/launch_manager/common/constants.hpp"
@@ -43,6 +42,15 @@ class MockRecoveryClient : public IRecoveryClient
         (IRecoveryClient::RecoveryRequestCallback callback),
         (noexcept, override));
     MOCK_METHOD(bool, sendRecoveryRequest, (const IdentifierHash& process_group_identifier), (noexcept, override));
+};
+
+class MockMonitorIfDaemon : public common::Observable<ifappl::Checkpoint>
+{
+  public:
+    void PushCheckpointToObservers(ifappl::Checkpoint checkpoint)
+    {
+        pushResultToObservers(checkpoint);
+    }
 };
 
 /// Helper: build a minimal Alive under test.
@@ -90,7 +98,7 @@ struct AliveFixture
     std::shared_ptr<MockRecoveryClient> mockClient = std::make_shared<MockRecoveryClient>();
 
     ifexm::ObservableEvent processState;
-    ifappl::MockMonitorIfDaemon mock_monitor;
+    MockMonitorIfDaemon mock_monitor;
 
     std::unique_ptr<Alive> alive;
 

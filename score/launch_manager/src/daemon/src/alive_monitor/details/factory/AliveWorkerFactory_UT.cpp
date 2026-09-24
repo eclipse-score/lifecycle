@@ -26,7 +26,4 @@ createAliveIf
 createAliveSupervision
 - ''
 
-createSupervisionCheckpoint
-- MonitorIfDaemon
-
 */

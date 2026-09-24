@@ -14,8 +14,8 @@
 #ifndef MonitorIfDaemon_HPP_INCLUDED
 #define MonitorIfDaemon_HPP_INCLUDED
 
+#include "score/mw/launch_manager/alive_monitor/details/ifappl/Checkpoint.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/DataStructures.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/ifappl/IMonitorIfDaemon.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEvent.hpp"
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
 
@@ -23,7 +23,7 @@ namespace score::mw::lifecycle::internal::saf::ifappl
 {
 
 /// @brief Reads checkpoints from IPC channel and pushes them to attached observers
-class MonitorIfDaemon : public IMonitorIfDaemon
+class MonitorIfDaemon : public common::Observer<ifexm::ObservableEvent>, public common::Observable<Checkpoint>
 {
   public:
     /// @brief No Default Constructor
@@ -61,7 +61,7 @@ class MonitorIfDaemon : public IMonitorIfDaemon
     /// @brief Check for new data
     /// @details Check Alive interface for new data from application side
     /// @param [in]  f_syncTimestamp    Timestamp till data shall be read, newer data will not be considered
-    void checkForNewData(const std::chrono::nanoseconds f_syncTimestamp) noexcept(true) override;
+    void checkForNewData(const std::chrono::nanoseconds f_syncTimestamp) noexcept(true);
 
   private:
     /// @brief Check if checkpoint ring buffer overflow has occurred

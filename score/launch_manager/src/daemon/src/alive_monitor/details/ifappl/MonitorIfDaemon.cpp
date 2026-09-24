@@ -20,7 +20,7 @@ namespace score::mw::lifecycle::internal::saf::ifappl
 {
 
 MonitorIfDaemon::MonitorIfDaemon(CheckpointIpcServer& f_ipcServer_r, const char* f_interfaceName_p)
-    : IMonitorIfDaemon(), k_interfaceName(f_interfaceName_p), ipcserver_r(f_ipcServer_r)
+    : Observer<ifexm::ObservableEvent>(), k_interfaceName(f_interfaceName_p), ipcserver_r(f_ipcServer_r)
 {
 }
 
