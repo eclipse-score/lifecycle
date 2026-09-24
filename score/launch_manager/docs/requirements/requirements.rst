@@ -407,7 +407,7 @@ Ready Conditions
     The :term:`Launch Manager` shall support a :term:`Ready Condition` that is
     satisfied when a configured file path exists or does not exist.
 
-.. comp_req:: Control Interface - Query Run Target State
+.. comp_req:: Condition check based on all dependency
     :id: comp_req__launch_man__dependency_check
     :reqtype: Functional
     :security: NO
@@ -419,24 +419,17 @@ Ready Conditions
 
     The :term:`Launch Manager` shall provide a method to check if all dependencies have been executed.
 
-    .. note
-       Provide to who? control client api? why?
-       if this is talking about internal behaviour then this should be a
-       detailed desig element with more specifics
-
-.. comp_req:: Control Interface - Query Component State
+.. comp_req:: Condition check based on at least one dependency
     :id: comp_req__launch_man__check_dependency_exec
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__query_commands[version==1]
+    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
     :status: invalid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall provide a :term:`Control Interface`
-    interface to check if a :term:`Component` is in it's :term:`Ready State`.
-
+    The :term:`Launch Manager` shall provide a method to check if at least one dependency has been executed.
 
 Process Management
 ==================
