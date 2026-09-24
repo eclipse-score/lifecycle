@@ -111,17 +111,6 @@ void MonitorIfDaemon::handleOverflow()
     status = EInternalState::kInactiveOverflow;
 }
 
-Checkpoint GetCheckpoint(CheckpointBufferElement& data)
-{
-    Checkpoint res{false, data.timestamp};
-    // If monotonic system clock fails, set data loss event.
-    if (data.timestamp.count() == 0U)
-    {
-        res.isDataLossEvent = true;
-    }
-    return res;
-}
-
 bool MonitorIfDaemon::pushNewDataToObservers(const std::chrono::nanoseconds f_syncTimestamp)
 {
     using IpcResult = CheckpointIpcServer::EIpcPeekResult;
@@ -138,7 +127,7 @@ bool MonitorIfDaemon::pushNewDataToObservers(const std::chrono::nanoseconds f_sy
         if ((result == IpcResult::kOk) && (elem_p->timestamp <= f_syncTimestamp))
         {
             // Checkpoint belongs to this cycle, push it to observers
-            Checkpoint checkpoint = GetCheckpoint(*elem_p);
+            Checkpoint checkpoint = Checkpoint{elem_p->timestamp};
             pushResultToObservers(checkpoint);
             ++amountOfReceivedCheckpoints;
             elem_p = nullptr;
@@ -183,8 +172,7 @@ bool MonitorIfDaemon::pushNewDataToObservers(const std::chrono::nanoseconds f_sy
 void MonitorIfDaemon::pushOverflowInfoToObservers()
 {
     // Observers take a copy of the checkpoint
-    // TODO: allow for copy pushResultToObservers
-    Checkpoint checkpoint{true, std::chrono::nanoseconds{0}};
+    Checkpoint checkpoint{std::chrono::nanoseconds{0}};
 
     pushResultToObservers(checkpoint);
 }

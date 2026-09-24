@@ -40,6 +40,12 @@ AliveWorkerFactory::AliveWorkerFactory() : IAliveWorkerFactory()
 {
 }
 
+/// @brief Helper method to create a new observer object in place and attach it to the given observable
+/// @param [in] result Container to emplace the constructed observer to
+/// @param [in] observable Object the new observer should observe
+/// @param [in] description Short description of the observer class for logging
+/// @param [in] args Arguments to construct the observer with
+/// @returns True if successful, false otherwise. When false, @p result may or may not have been emplaced to.
 template <typename ObserverType, class T, typename... Args>
 bool EmplaceAndAttach(
     std::vector<ObserverType>& result,

@@ -134,7 +134,7 @@ struct AliveFixture
     /// Report one alive heartbeat checkpoint at the given timestamp.
     void reportHeartbeat(std::chrono::nanoseconds timestamp)
     {
-        mock_monitor.PushCheckpointToObservers(ifappl::Checkpoint{timestamp == 0ns, timestamp});
+        mock_monitor.PushCheckpointToObservers(ifappl::Checkpoint{timestamp});
     }
 };
 

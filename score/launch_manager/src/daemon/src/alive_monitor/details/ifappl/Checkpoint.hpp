@@ -27,6 +27,13 @@ struct Checkpoint
 
     /// @brief Timestamp value in [nano seconds]
     std::chrono::nanoseconds timestamp;
+
+    /// @brief Construct a checkpoint from a timestamp
+    /// @details If the timestamp is zero, this is assumed to be a data loss event
+    explicit Checkpoint(std::chrono::nanoseconds p_timestamp)
+        : isDataLossEvent(p_timestamp.count() == 0), timestamp(p_timestamp)
+    {
+    }
 };
 
 }  // namespace score::mw::lifecycle::internal::saf::ifappl

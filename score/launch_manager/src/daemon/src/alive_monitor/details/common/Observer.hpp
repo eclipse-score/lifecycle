@@ -52,6 +52,7 @@ class Observer
     /// @param [in]  f_observable_r     Observable as reference.
     virtual void updateData(const Type_Observable& f_observable_r) noexcept(true) = 0;
 
+    /// @return Hashed name used to identify this object
     [[nodiscard]]
     virtual IdentifierHash getIdentifier() const noexcept(true) = 0;
 
@@ -112,7 +113,8 @@ class Observable
 
     /// @brief Push Results To Observers
     /// @details Send updates to all attached observers.
-    void pushResultToObservers(Type_Observable& result) noexcept(true)
+    /// @param [in] result The updated object to be observed (usually @c *this )
+    void pushResultToObservers(const Type_Observable& result) noexcept(true)
     {
         for (auto& observer : observers)
         {

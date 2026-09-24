@@ -119,6 +119,7 @@ class Alive : public ISupervision,
     /// @return True if sendRecoveryRequest failed
     bool hasRecoveryEnqueueFailed(void) const noexcept;
 
+    /// @return Hashed name used to identify this object
     IdentifierHash getIdentifier() const noexcept override;
 
   private:
