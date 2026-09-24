@@ -37,9 +37,8 @@ cc_library(
 )
 
 cc_library(
-    name = "monitor_if_daemon",
-    srcs = ["MonitorIfDaemon.cpp"],
-    hdrs = ["MonitorIfDaemon.hpp"],
+    name = "i_monitor_if_daemon",
+    hdrs = ["IMonitorIfDaemon.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/ifappl",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/ifappl",
     visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
@@ -50,6 +49,36 @@ cc_library(
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:observable_event",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
         "//score/launch_manager/src/daemon/src/common:log",
+    ],
+)
+
+cc_library(
+    name = "monitor_if_daemon",
+    srcs = ["MonitorIfDaemon.cpp"],
+    hdrs = ["MonitorIfDaemon.hpp"],
+    include_prefix = "score/mw/launch_manager/alive_monitor/details/ifappl",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/ifappl",
+    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
+    deps = [
+        ":checkpoint",
+        ":data_structures",
+        ":i_monitor_if_daemon",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/common:observer",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:observable_event",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
+        "//score/launch_manager/src/daemon/src/common:log",
+    ],
+)
+
+cc_library(
+    name = "mock_monitor_if_daemon",
+    hdrs = ["MockMonitorIfDaemon.hpp"],
+    include_prefix = "score/mw/launch_manager/alive_monitor/details/ifappl",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/ifappl",
+    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
+    deps = [
+        ":i_monitor_if_daemon",
+        "@googletest//:gtest_main",
     ],
 )
 

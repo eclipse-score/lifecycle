@@ -20,7 +20,7 @@
 #include "score/mw/launch_manager/alive_monitor/details/common/Observer.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/common/TimeSortingBuffer.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/Checkpoint.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/ifappl/MonitorIfDaemon.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ifappl/IMonitorIfDaemon.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEvent.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/supervision/ISupervision.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
@@ -75,7 +75,7 @@ class Alive : public ISupervision,
         const IdentifierHash id,
         const ComponentAliveSupervision& f_aliveCfg_r,
         const std::shared_ptr<IRecoveryClient> recovery_client,
-        saf::ifappl::MonitorIfDaemon& interface,
+        ifappl::IMonitorIfDaemon& interface,
         const uint16_t bufferSize) noexcept(false);
 
     /// @brief Destructor

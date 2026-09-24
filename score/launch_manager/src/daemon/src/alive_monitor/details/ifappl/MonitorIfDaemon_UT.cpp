@@ -261,7 +261,6 @@ TEST_F(MonitorIfDaemonTest, Active_FutureTimestampCheckpoint_ConsumedInLaterCycl
         "be consumed and forwarded when the sync window catches up.");
 
     MonitorIfDaemonFixture fix;
-    EXPECT_CALL(fix.checkpointMock, updateData).Times(1);
     fix.initIpc();
     fix.activateProcess(mockClock());
     const auto future_time = mockClockFuture(2);

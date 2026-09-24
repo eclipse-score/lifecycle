@@ -28,7 +28,7 @@ Alive::Alive(
     const IdentifierHash id,
     const ComponentAliveSupervision& f_aliveCfg_r,
     const std::shared_ptr<IRecoveryClient> recovery_client,
-    saf::ifappl::MonitorIfDaemon& interface,
+    saf::ifappl::IMonitorIfDaemon& interface,
     const uint16_t bufferSize)
     : ISupervision(id),
       k_aliveReferenceCycle(

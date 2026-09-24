@@ -11,18 +11,16 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "score/mw/launch_manager/alive_monitor/details/ifappl/MonitorIfDaemon.hpp"
-
 #include <cstring>
 
-#include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEvent.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ifappl/MonitorIfDaemon.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
 
 namespace score::mw::lifecycle::internal::saf::ifappl
 {
 
 MonitorIfDaemon::MonitorIfDaemon(CheckpointIpcServer& f_ipcServer_r, const char* f_interfaceName_p)
-    : Observer<ifexm::ObservableEvent>(), k_interfaceName(f_interfaceName_p), ipcserver_r(f_ipcServer_r)
+    : IMonitorIfDaemon(), k_interfaceName(f_interfaceName_p), ipcserver_r(f_ipcServer_r)
 {
 }
 
