@@ -14,7 +14,7 @@
 #ifndef MOCK_START_ACTION_HPP_INCLUDED
 #define MOCK_START_ACTION_HPP_INCLUDED
 
-#include "score/mw/launch_manager/process_group_manager/details/istart_action.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/start_action/istart_action.hpp"
 #include <gmock/gmock.h>
 
 namespace score::mw::lifecycle::internal

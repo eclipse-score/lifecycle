@@ -14,7 +14,7 @@
 #ifndef MOCK_STOP_ACTION_HPP_INCLUDED
 #define MOCK_STOP_ACTION_HPP_INCLUDED
 
-#include "score/mw/launch_manager/process_group_manager/details/istop_action.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/stop_action/istop_action.hpp"
 #include <gmock/gmock.h>
 
 namespace score::mw::lifecycle::internal
