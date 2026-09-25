@@ -12,6 +12,7 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/process_group_manager/details/component.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/force_stop_action/mock_force_stop_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/mock_ready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/start_action/mock_start_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/stop_action/mock_stop_action.hpp"
@@ -36,7 +37,8 @@ TEST(ComponentTest, StartSucceeds)
 {
     MockStartAction start_action;
     MockStopAction stop_action;
-    Component component(&start_action, &stop_action, {});
+    MockForceStopAction force_stop_action;
+    Component component(&start_action, &stop_action, &force_stop_action, {});
 
     const auto result = component.activate(score::cpp::stop_token{});
 
@@ -47,7 +49,8 @@ TEST(ComponentTest, StartActionCalled)
 {
     MockStartAction start_action;
     MockStopAction stop_action;
-    Component component(&start_action, &stop_action, {});
+    MockForceStopAction force_stop_action;
+    Component component(&start_action, &stop_action, &force_stop_action, {});
 
     EXPECT_CALL(start_action, start()).WillOnce(Return(mock_handle));
 
@@ -58,7 +61,8 @@ TEST(ComponentTest, StopActionCalled)
 {
     MockStartAction start_action;
     MockStopAction stop_action;
-    Component component(&start_action, &stop_action, {});
+    MockForceStopAction force_stop_action;
+    Component component(&start_action, &stop_action, &force_stop_action, {});
 
     ON_CALL(start_action, start()).WillByDefault(Return(mock_handle));
     EXPECT_CALL(stop_action, stop(_)).WillOnce(Invoke(expect_mock_handle));
@@ -73,7 +77,8 @@ TEST(ComponentTest, ReadyConditionsCalled)
     MockStopAction stop_action;
     MockReadyCondition ready_condition_1;
     MockReadyCondition ready_condition_2;
-    Component component(&start_action, &stop_action, {&ready_condition_1, &ready_condition_2});
+    MockForceStopAction force_stop_action;
+    Component component(&start_action, &stop_action, &force_stop_action, {&ready_condition_1, &ready_condition_2});
 
     InSequence sequence;
     ON_CALL(start_action, start()).WillByDefault(Return(mock_handle));
@@ -87,7 +92,8 @@ TEST(ComponentTest, StartSetsActive)
 {
     MockStartAction start_action;
     MockStopAction stop_action;
-    Component component(&start_action, &stop_action, {});
+    MockForceStopAction force_stop_action;
+    Component component(&start_action, &stop_action, &force_stop_action, {});
 
     static_cast<void>(component.activate(score::cpp::stop_token{}));
 
@@ -98,7 +104,21 @@ TEST(ComponentTest, StopClearsActive)
 {
     MockStartAction start_action;
     MockStopAction stop_action;
-    Component component(&start_action, &stop_action, {});
+    MockForceStopAction force_stop_action;
+    Component component(&start_action, &stop_action, &force_stop_action, {});
+
+    static_cast<void>(component.activate(score::cpp::stop_token{}));
+    component.deactivate(score::cpp::stop_token{});
+
+    EXPECT_FALSE(component.active());
+}
+
+TEST(ComponentTest, ForceStopClearsActive)
+{
+    MockStartAction start_action;
+    MockStopAction stop_action;
+    MockForceStopAction force_stop_action;
+    Component component(&start_action, &stop_action, &force_stop_action, {});
 
     static_cast<void>(component.activate(score::cpp::stop_token{}));
     component.deactivate(score::cpp::stop_token{});
