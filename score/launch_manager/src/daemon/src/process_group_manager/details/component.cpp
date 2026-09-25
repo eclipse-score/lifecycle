@@ -19,11 +19,13 @@ namespace score::mw::lifecycle::internal
 Component::Component(
     const IStartAction* start_action,
     const IStopAction* stop_action,
+    const IForceStopAction* force_stop_action,
     const std::vector<const IReadyCondition*> ready_conditions,
     IdentifierHash identifier)
     : handle_(EmptyHandle{}),
       start_action_(start_action),
       stop_action_(stop_action),
+      force_stop_action_(force_stop_action),
       ready_conditions_(ready_conditions),
       identifier_(identifier)
 {

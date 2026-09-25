@@ -23,6 +23,7 @@ cc_library(
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
         ":icomponent",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action:iforce_stop_action",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition:iready_condition",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/start_action:istart_action",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/stop_action:istop_action",
@@ -35,6 +36,7 @@ lm_cc_test(
     deps = [
         ":component",
         ":mock_component",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action:mock_force_stop_action",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition:mock_ready_condition",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/start_action:mock_start_action",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/stop_action:mock_stop_action",

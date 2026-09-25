@@ -14,6 +14,7 @@
 #ifndef SCORE_LCM_COMPONENT_HPP_INCLUDED
 #define SCORE_LCM_COMPONENT_HPP_INCLUDED
 
+#include "score/mw/launch_manager/process_group_manager/details/force_stop_action/iforce_stop_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/iready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/start_action/istart_action.hpp"
@@ -29,6 +30,7 @@ class Component final : public IComponent
     Component(
         const IStartAction* start_action,
         const IStopAction* stop_action,
+        const IForceStopAction* force_stop_action,
         const std::vector<const IReadyCondition*> ready_conditions,
         IdentifierHash identifier = IdentifierHash{});
 
@@ -42,6 +44,7 @@ class Component final : public IComponent
     std::optional<Handle> handle_;
     const IStartAction* start_action_;
     const IStopAction* stop_action_;
+    const IForceStopAction* force_stop_action_;
     const std::vector<const IReadyCondition*> ready_conditions_;
     IdentifierHash identifier_;
 };
