@@ -699,7 +699,7 @@ def main():
         "database is always freshly created.",
     )
     parser.add_argument("--output-prefix", default="codeql", help="Output prefix")
-    parser.add_argument("--output-dir", help="Output directory")
+    parser.add_argument("--output-dir", help="Output directory (default: the repo root)")
     parser.add_argument(
         "--build-config",
         action="append",
@@ -720,6 +720,12 @@ def main():
     # otherwise land deep inside the Bazel output tree instead of the repo.
     if args.output_dir and not os.path.isabs(args.output_dir):
         args.output_dir = os.path.join(source_root, args.output_dir)
+
+    # When --output-dir is omitted, write results into the repo root rather than
+    # the Bazel output tree (the old default was `bazel info output_path`, which
+    # lives under the Bazel cache and is easy to lose for local runs).
+    if not args.output_dir:
+        args.output_dir = source_root
 
     # Make codeql_path absolute
     codeql_path = os.path.abspath(args.codeql_path) if args.codeql_path else None

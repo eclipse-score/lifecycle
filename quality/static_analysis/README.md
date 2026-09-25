@@ -36,7 +36,7 @@ bazel run --config=x86_64-linux //quality/static_analysis:codeql_lint -- \
 | `--report CHECK...` | Checks to run (space-separated; default `misra-default`). See table below. |
 | `--phase {create-database,analyze-database,all}` | Build DB, analyze, or both (default `all`) |
 | `--database-path PATH` | DB location (must be under `/var/tmp`; `create-/analyze-database` phases) |
-| `--output-dir DIR` | Where the SARIF + `analysis_reports/` are written (relative paths resolve against the repo root) |
+| `--output-dir DIR` | Where the SARIF + `analysis_reports/` are written (default: the repo root; relative paths resolve against it) |
 | `--output-prefix P` | SARIF filename prefix (default `codeql`) |
 | `--rerun` | Re-evaluate queries even if cached BQRS results exist (needed after editing query sources) |
 | `--query-spec SPEC` | Run a single query from the coding-standards sources (overrides `--report`) |
