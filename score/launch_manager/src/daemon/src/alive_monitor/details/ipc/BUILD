@@ -12,6 +12,8 @@
 # *******************************************************************************
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
+package(default_visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:internal"])
+
 cc_library(
     name = "ipc_if",
     hdrs = [
@@ -23,7 +25,7 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/ipc",
     visibility = [
         "//score/launch_manager/src/alive:__subpackages__",
-        "//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__",
+        "//score/launch_manager/src/daemon/src/alive_monitor:internal",
     ],
     deps = ["//externals/ipc_dropin"] + select({
         "@platforms//os:qnx": [],
