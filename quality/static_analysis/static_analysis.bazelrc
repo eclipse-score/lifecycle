@@ -55,11 +55,13 @@ build:clang-tidy-fix --output_groups=+rules_lint_patch
 
 common:codeql --platform_suffix=codeql
 common:codeql --extra_toolchains=@llvm_toolchain//:cc-toolchain-x86_64-linux
-# Register the Ferrocene Rust toolchains (host + miri), mirroring
-# coverage:llvm_cov's `--config=toolchain_common`. Without these, Rust targets
-# that require the miri toolchain type (e.g. `miri_test` rules) fail toolchain
-# resolution under `--config=codeql`, aborting the traced build.
-common:codeql --config=toolchain_common
+# Register the Ferrocene host/exec Rust toolchain (via _score_common, mirroring
+# coverage:llvm_cov). Without it, Rust crates built in the exec configuration
+# (e.g. proc-macro deps) fall back to the rules_rust stable toolchain and fail to
+# compile nightly-only features. Also register the miri toolchain so Rust targets
+# that require the miri toolchain type (e.g. `miri_test` rules) resolve under
+# `--config=codeql`, otherwise the traced build aborts on toolchain resolution.
+common:codeql --config=_score_common
 common:codeql --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_x86_64_unknown_linux_gnu_miri
 common:codeql --sandbox_writable_path=/var/tmp
 common:codeql --nouse_action_cache
