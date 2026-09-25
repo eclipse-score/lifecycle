@@ -15,19 +15,22 @@
 Lifecycle Documentation
 =======================
 
-Module / Feature Documentation
+Feature Documentation
 ------------------------------
 
 .. toctree::
    :maxdepth: 1
 
    features/index
-   manuals/index
+
+Module Documentation
+--------------------
+
+.. toctree::
+   :maxdepth: 1
+
    module/index
-   safety_mgt/index
-   security_mgt/index
-   release/index
-   verification_report/index
+   verification_report/module_verification_report
 
 Component documentation
 ------------------------
@@ -37,6 +40,13 @@ Component documentation
 
    components/index
 
+Release Notes
+-------------
+
+.. toctree::
+   :maxdepth: 1
+
+   release/index
 
 .. _quick-start-building-testing:
 
