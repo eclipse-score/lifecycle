@@ -17,9 +17,15 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
+    fully_verifies=[
+        "comp_req__launch_man__rc_lifecycle",
+        "comp_req__launch_man__rc_os_state",
+        "comp_req__launch_man__rt_comp_dep",
+    ],
     partially_verifies=[
         # Health monitoring requirements not yet ready
-        "comp_req__launch_man__ext_monitor_notify"
+        "comp_req__launch_man__ext_monitor_notify",
+        "comp_req__launch_man__process_launch_args",
     ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",

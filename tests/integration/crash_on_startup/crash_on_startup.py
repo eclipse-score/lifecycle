@@ -25,8 +25,14 @@ from attribute_plugin import add_test_properties
         "comp_req__launch_man__retries_configurable",
         "feat_req__lifecycle__recov_run_target_switch",
         "feat_req__lifecycle__liveliness_detection",
+        "comp_req__launch_man__rc_lifecycle",
+        "comp_req__launch_man__rc_os_state",
+        "comp_req__launch_man__rt_comp_dep",
     ],
-    partially_verifies=["feat_req__lifecycle__recovery_action_support"],
+    partially_verifies=[
+        "feat_req__lifecycle__recovery_action_support",
+        "comp_req__launch_man__process_launch_args",
+    ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
 )

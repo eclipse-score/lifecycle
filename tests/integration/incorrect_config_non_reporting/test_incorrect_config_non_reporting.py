@@ -17,7 +17,14 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    partially_verifies=[],
+    fully_verifies=[
+        "comp_req__launch_man__rc_lifecycle",
+        "comp_req__launch_man__rc_os_state",
+        "comp_req__launch_man__rt_comp_dep",
+    ],
+    partially_verifies=[
+        "comp_req__launch_man__process_launch_args",
+    ],
     test_type="interface-test",
     derivation_technique="explorative-testing",
 )
