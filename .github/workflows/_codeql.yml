@@ -1,0 +1,98 @@
+# *******************************************************************************
+# Copyright (c) 2026 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+
+name: "CodeQL Analysis"
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      fetch-only:
+        description: "When true, runs --nobuild to fetch dependencies only."
+        type: string
+        default: "false"
+
+jobs:
+  codeql-linux:
+    name: Run CodeQL analysis (Linux)
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: write
+      security-events: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Bazel with shared caching
+        uses: eclipse-score/cicd-actions/setup-bazel-cache@cache
+        with:
+          disk-cache-key: ${{ github.job }}-codeql
+          enable-profiling: false
+
+      - name: Fetch dependencies (--nobuild)
+        if: inputs.fetch-only == 'true'
+        run: bazel build --config=x86_64-linux --nobuild //...
+
+      - name: Run CodeQL analysis (Linux)
+        if: inputs.fetch-only != 'true'
+        id: run-codeql
+        run: |
+          set -euo pipefail
+
+          bazel run --config=x86_64-linux //quality/static_analysis:codeql_lint -- \
+            --output-dir /tmp/codeql-results/linux \
+            --output-prefix codeql-nightly \
+            --target //score/...
+
+      - name: Deduplicate and upload SARIF
+        if: ${{ !cancelled() && inputs.fetch-only != 'true' && steps.run-codeql.outcome == 'success' }}
+        id: merge-codeql
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p /tmp/codeql-results/publish
+
+          # Deduplicate SARIF results using the SARIF Multitool
+          bazel run --config=x86_64-linux @sarif_multitool//:sarif_multitool_cli -- \
+            merge /tmp/codeql-results/linux/codeql-nightly.sarif \
+            --merge-empty-logs \
+            --output-file /tmp/codeql-results/publish/codeql-nightly.sarif
+
+      - name: Upload SARIF to GitHub Code Scanning
+        if: ${{ !cancelled() && steps.merge-codeql.outcome == 'success' }}
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: /tmp/codeql-results/publish/codeql-nightly.sarif
+          category: codeql-nightly
+
+      - name: Upload SARIF results
+        if: ${{ !cancelled() && steps.merge-codeql.outcome == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: codeql-sarif-results
+          path: /tmp/codeql-results/publish/codeql-nightly.sarif
+          retention-days: 30
+
+      - name: Upload compliance reports
+        if: ${{ !cancelled() && inputs.fetch-only != 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: codeql-compliance-reports
+          path: /tmp/codeql-results/linux/analysis_reports/
+          retention-days: 30
+          if-no-files-found: warn

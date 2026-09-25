@@ -1,0 +1,71 @@
+# =============================================================================
+# CodeQL Coding Standards configuration
+# =============================================================================
+# Consumed by //quality/static_analysis:codeql_lint (the codeql-coding-standards
+# `process_coding_standards_config` / `analysis_report` tooling). Two optional
+# sections:
+#
+#   deviations                   - waive a specific finding with a written rationale
+#   guideline-recategorizations  - change a guideline's compliance category
+#
+# Both are validated against the coding-standards JSON schema; a malformed
+# entry aborts the run.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Deviations
+# -----------------------------------------------------------------------------
+# A deviation waives a finding (identified by `rule-id` + `query-id`) with a
+# written `justification`. It applies either to a whole subtree via `paths`, or
+# to a single location via `code-identifier` (a marker placed in the source).
+#
+# Example 1 - deviation for an entire directory:
+#
+#   deviations:
+#     - rule-id: "RULE-18-5-2"
+#       query-id: "cpp/misra/avoid-program-terminating-functions"
+#       justification: "The software is designed for a fail-silent system. ..."
+#       paths:
+#         - "score/**"
+#
+# Example 2 - deviation scoped to specific code via a code identifier:
+#
+#   deviations:
+#     - rule-id: "RULE-6-8-3"
+#       query-id: "cpp/misra/automatic-storage-assigned-to-object-greater-lifetime"
+#       code-identifier: "my-deviation"
+#       scope: "Applies only to the locations marked with this code identifier."
+#       justification: "Why this specific usage is safe / necessary."
+#
+# The `code-identifier` is then referenced in the source with a marker. The
+# standard must match the query: `misra`, `cert` or `autosar`.
+#
+#   # comment form
+#   // codeql::misra_deviation(my-deviation)            # this statement
+#   // codeql::misra_deviation_next_line(my-deviation)  # the next line
+#   // codeql::misra_deviation_begin(my-deviation)      # start of a range
+#   // codeql::misra_deviation_end(my-deviation)        # end of a range
+#
+#   # attribute form (functions, variables, statements)
+#   [[codeql::misra_deviation("my-deviation")]]
+#
+# Optional record fields: `raised-by` / `approved-by` (name + date) and
+# `permit-id` (see `deviation-permits`).
+# -----------------------------------------------------------------------------
+deviations: []
+
+# -----------------------------------------------------------------------------
+# Guideline recategorizations
+# -----------------------------------------------------------------------------
+# Change the compliance category of a MISRA guideline. Valid categories, from
+# most to least severe: `mandatory`, `required`, `advisory`, `disapplied`.
+#
+# Examples:
+#
+#   guideline-recategorizations:
+#     - rule-id: "RULE-9-5-1"     # lower a "required" rule to advisory
+#       category: "advisory"
+#     - rule-id: "RULE-0-1-1"     # remove a rule from the analysis entirely
+#       category: "disapplied"
+# -----------------------------------------------------------------------------
+guideline-recategorizations: []
