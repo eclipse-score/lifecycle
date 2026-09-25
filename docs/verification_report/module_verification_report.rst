@@ -25,3 +25,5 @@ Verification Report
    :security: YES
    :realizes: wp__verification_module_ver_report
    :post_template: module_verification_report
+
+   Verification report for the Lifecycle module. This report is generated based on the module verification plan and the module verification work product (:need:`wp__verification_module_ver_report`), and covers all components of the module.

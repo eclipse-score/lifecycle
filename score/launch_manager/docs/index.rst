@@ -18,21 +18,17 @@ Launch Manager
 .. toctree::
    :titlesonly:
 
-   product_documentation/index.rst
-   product_documentation/known_limitations.rst
+   product_documentation/index
 
 .. toctree::
    :hidden:
 
-   requirements/index.rst
-   requirements/chklst_req_inspection
-   architecture/index.rst
-   architecture/chklst_arc_inspection
-   detailed_design/index.rst
-   detailed_design/chklst_impl_inspection
-   safety_analysis/fmea.rst
-   safety_analysis/dfa.rst
-   safety_analysis/aou_requirements.rst
+   requirements/index
+   architecture/index
+   detailed_design/index
+   safety_analysis/fmea
+   safety_analysis/dfa
+   safety_analysis/aou_requirements
 
 Interfaces
 ==========
