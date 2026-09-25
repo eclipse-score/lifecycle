@@ -71,7 +71,7 @@ TEST(ParallelLaunch, ControlClientTestDriver)
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget Startup")
+        TEST_STEP("Callback for run target Startup")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
             EXPECT_EQ(target, "Startup");
@@ -85,7 +85,7 @@ TEST(ParallelLaunch, ControlClientTestDriver)
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget run_target_parallel_launch")
+        TEST_STEP("Callback for run target run_target_parallel_launch")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
             EXPECT_EQ(target, "run_target_parallel_launch");
@@ -101,7 +101,7 @@ TEST(ParallelLaunch, ControlClientTestDriver)
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget Startup")
+        TEST_STEP("Callback for run target Startup")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
             EXPECT_EQ(target, "Startup");
@@ -129,7 +129,7 @@ TEST(ParallelLaunch, ControlClientTestDriver)
         EXPECT_LT(max_start, min_running) << "Components were not launched in parallel";
     }
 
-    TEST_STEP("Activate RunTarget Off")
+    TEST_STEP("Activate run target Off")
     {
         const auto result = client->activate_run_target("Off", true);
         EXPECT_TRUE(result.has_value()) << result.error().Message();
