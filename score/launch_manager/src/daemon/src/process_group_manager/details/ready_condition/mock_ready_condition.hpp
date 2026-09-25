@@ -14,7 +14,7 @@
 #ifndef MOCK_READY_CONDITION_HPP_INCLUDED
 #define MOCK_READY_CONDITION_HPP_INCLUDED
 
-#include "score/mw/launch_manager/process_group_manager/details/iready_condition.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/ready_condition/iready_condition.hpp"
 #include <gmock/gmock.h>
 
 namespace score::mw::lifecycle::internal

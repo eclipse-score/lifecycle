@@ -12,9 +12,9 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/process_group_manager/details/component.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/mock_ready_condition.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/mock_start_action.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/mock_stop_action.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/ready_condition/mock_ready_condition.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/start_action/mock_start_action.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/stop_action/mock_stop_action.hpp"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

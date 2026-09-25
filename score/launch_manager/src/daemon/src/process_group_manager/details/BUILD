@@ -23,9 +23,9 @@ cc_library(
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
         ":icomponent",
-        ":iready_condition",
-        ":istart_action",
-        ":istop_action",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition:iready_condition",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/start_action:istart_action",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/stop_action:istop_action",
     ],
 )
 
@@ -35,9 +35,9 @@ lm_cc_test(
     deps = [
         ":component",
         ":mock_component",
-        ":mock_ready_condition",
-        ":mock_start_action",
-        ":mock_stop_action",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition:mock_ready_condition",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/start_action:mock_start_action",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/stop_action:mock_stop_action",
         "@googletest//:gtest_main",
     ],
 )
@@ -86,33 +86,6 @@ cc_library(
 )
 
 cc_library(
-    name = "istart_action",
-    hdrs = ["istart_action.hpp"],
-    include_prefix = "score/mw/launch_manager/process_group_manager/details",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
-    deps = [":handle"],
-)
-
-cc_library(
-    name = "istop_action",
-    hdrs = ["istop_action.hpp"],
-    include_prefix = "score/mw/launch_manager/process_group_manager/details",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
-    deps = [":handle"],
-)
-
-cc_library(
-    name = "iready_condition",
-    hdrs = ["iready_condition.hpp"],
-    include_prefix = "score/mw/launch_manager/process_group_manager/details",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
-    deps = [":handle"],
-)
-
-cc_library(
     name = "mock_component",
     testonly = True,
     hdrs = ["mock_component.hpp"],
@@ -121,45 +94,6 @@ cc_library(
     visibility = ["//score:__subpackages__"],
     deps = [
         ":icomponent",
-        "@googletest//:gtest_main",
-    ],
-)
-
-cc_library(
-    name = "mock_start_action",
-    testonly = True,
-    hdrs = ["mock_start_action.hpp"],
-    include_prefix = "score/mw/launch_manager/process_group_manager/details",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
-    deps = [
-        ":istart_action",
-        "@googletest//:gtest_main",
-    ],
-)
-
-cc_library(
-    name = "mock_stop_action",
-    testonly = True,
-    hdrs = ["mock_stop_action.hpp"],
-    include_prefix = "score/mw/launch_manager/process_group_manager/details",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
-    deps = [
-        ":istop_action",
-        "@googletest//:gtest_main",
-    ],
-)
-
-cc_library(
-    name = "mock_ready_condition",
-    testonly = True,
-    hdrs = ["mock_ready_condition.hpp"],
-    include_prefix = "score/mw/launch_manager/process_group_manager/details",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
-    deps = [
-        ":iready_condition",
         "@googletest//:gtest_main",
     ],
 )
