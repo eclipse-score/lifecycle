@@ -101,7 +101,7 @@ Glossary
       Address Space Layout Randomization - a security technique that randomizes the memory layout of processes.
 
     Recovery Action
-      Actions taken by the Launch Manager when a process fails or terminates abnormally.
+      Actions taken by the Launch Manager when a component fails or terminates abnormally.
 
     Ready Condition
       A configurable condition that must be satisfied before a component is considered ready and operational. Ready conditions can include file system checks, network availability, or custom application-specific signals.
@@ -130,8 +130,11 @@ Glossary
     SWC
       Software Components - modular software units that can be independently managed.
 
-    Run target
-      A named collection of processes and their dependencies that can be launched, stopped, or switched as a group to achieve a specific operational mode or configuration.
+    Run Target
+      A named collection of components and their dependencies that can be activated, stopped, or switched as a group to achieve a specific operational mode or configuration.
+
+    Fallback Run Target
+      A designated Run Target that the system can switch to in case the current active Run Target resp. one of its components fails. 
 
     Operating System
       The system software that manages computer hardware and software resources and provides common services for computer programs.

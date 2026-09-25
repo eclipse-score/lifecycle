@@ -16,7 +16,7 @@ Component Launch Manager Requirements
 #####################################
 
 .. note:: 
-    Requirements which are not planned to be implemented in the version 1.0 of the Launch Manager are set to status **invalid**.
+    Requirements which are not planned to be implemented in the version 1.0 of S-CORE are set to status **invalid**.
 
 .. document:: Launch Manager Requirements
    :id: doc__launch_manager_requirements
@@ -595,7 +595,7 @@ Terminating Processes
 
     .. note::
         Fast shutdown allows the :term:`Launch Manager` to terminate its own process **normally**, without waiting for the started :term:`Processes <Process>`.
-        **Use case:** This is relevant when the system needs to restart quickly and only cares about the state of launch manager, but ignores the child processes.
+        **Use case:** This is relevant when the system needs to restart quickly, so it shuts down the launch manager in ordinary manner, but ignores the child processes.
 
 .. comp_req:: Launch Manager shutdown
     :id: comp_req__launch_man__launcher_exit_shutdown
@@ -683,8 +683,8 @@ Monitoring, Notification and Recovery
     The :term:`Launch Manager` shall be able to detect and react to failure of the
     process launch.
 
-.. comp_req:: Recovery by relaunching process
-    :id: comp_req__launch_man__recovery_relaunch
+.. comp_req:: Recovery by restarting component
+    :id: comp_req__launch_man__recovery_restart
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -693,10 +693,67 @@ Monitoring, Notification and Recovery
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall be able to react to a process failure by
-    relaunching the process.
+    The :term:`Launch Manager` shall be able to react to a 
+    :term:`Component` which fails to reach its :term:`Ready Condition` 
+    by restarting this :term:`Component`.
 
-.. comp_req:: Recovery by stopping the process
+.. comp_req:: Recovery by reactivating the component
+    :id: comp_req__launch_man__recovery_reactivate
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall be able to react to a 
+    :term:`Component` failure by reactivating the failed 
+    :term:`Component`.
+
+.. comp_req:: Recovery by switching the run target to fallback run target
+    :id: comp_req__launch_man__recovery_switch_rt_fbrt
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall be able to react to a 
+    :term:`Component` failure by switching to the 
+    :term:`Fallback Run Target`.
+
+.. comp_req:: Recovery by switching the run target on run target level
+    :id: comp_req__launch_man__recovery_switch_rt_rt
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall be able to react to a 
+    :term:`Component` failure by switching to another 
+    :term:`Run Target` which is configured on the current active :term:`Run Target`.
+
+.. comp_req:: Recovery by switching the run target on component level
+    :id: comp_req__launch_man__recovery_switch_rt_cmp
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall be able to react to a 
+    :term:`Component` failure by switching to another 
+    :term:`Run Target` which is configured on the failed :term:`Component`.
+
+.. comp_req:: Recovery by stopping the component
     :id: comp_req__launch_man__recovery_stop
     :reqtype: Functional
     :security: NO
@@ -706,21 +763,22 @@ Monitoring, Notification and Recovery
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall be able to react to a process failure by
-    stopping the process.
+    The :term:`Launch Manager` shall be able to react to a 
+    :term:`Component` failure by stopping the failed 
+    :term:`Component`.
 
-.. comp_req:: Recovery by stopping the process and starting another process
+.. comp_req:: Recovery by stopping the component and starting another component
     :id: comp_req__launch_man__recovery_stop_start
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
-    :status: valid
+    :status: invalid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall be able to react to a process failure by
-    stopping the process and starting another process.
+    The :term:`Launch Manager` shall be able to react to a :term:`Component` failure by
+    stopping the failed :term:`Component` and starting another :term:`Component`.
 
 .. comp_req:: Recovery by triggering Device Safe State
     :id: comp_req__launch_man__recovery_dss
@@ -732,8 +790,8 @@ Monitoring, Notification and Recovery
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall be able to react to a process failure by
-    triggering :term:`QNX` :term:`Operating System` Device Safe State (:term:`DSS`).
+    The :term:`Launch Manager` shall be able to react to a :term:`Component` failure by
+    triggering a :term:`QNX` :term:`Operating System` Device Safe State (:term:`DSS`).
 
 .. comp_req:: Launch manager external watchdog notification
     :id: comp_req__launch_man__lm_ext_watchdog_notify
