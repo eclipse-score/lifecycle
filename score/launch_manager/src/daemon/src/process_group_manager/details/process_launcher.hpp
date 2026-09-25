@@ -40,10 +40,7 @@ class ProcessLauncher final : public IProcess
     OsalReturnType waitForTermination(ProcessID& pid, int32_t& status) override;
 
     /// @see IProcess::waitForkRunning() for details
-    OsalReturnType waitForkRunning(IpcCommsP sync, std::chrono::milliseconds timeout) override;
-
-    /// @see IProcess::waitForkRunning() for details
-    OsalReturnType ignoreRunning(IpcCommsP sync) override;
+    OsalReturnType waitForkRunning(IpcCommsP sync, std::optional<std::chrono::milliseconds> timeout) override;
 
   private:
     /// @brief Creates shared memory for communication between processes.
@@ -55,11 +52,6 @@ class ProcessLauncher final : public IProcess
     /// @return True if shared memory creation and initialization are successful, false otherwise.
     bool
     setupComms(IpcCommsP& sync, int& fd, const score::mw::lifecycle::internal::configuration::ComponentConfig& config);
-
-    /// @brief Initializes semaphores within a given shared memory block.
-    /// @param[in] block Pointer to the shared memory block where semaphores will be initialized.
-    /// @return True if semaphore initialization is successful, false otherwise.
-    bool initializeSemaphores(IpcCommsP block);
 
     /// @brief Handles the execution of the child process after forking.
     /// @param[in] param Reference to child process configuration.

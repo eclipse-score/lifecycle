@@ -385,6 +385,54 @@ cc_library(
 )
 
 cc_library(
+    name = "mock_proc_launch_syscalls",
+    testonly = True,
+    hdrs = ["mock_proc_launch_syscalls.hpp"],
+    include_prefix = "score/mw/launch_manager/process_group_manager/details",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
+    deps = [
+        "@googletest//:gtest_main",
+    ],
+)
+
+lm_cc_test(
+    name = "process_launcher_UT",
+    srcs = ["process_launcher_UT.cpp"],
+    linkopts = [
+        "-Wl,--wrap=fork",
+        "-Wl,--wrap=execve",
+        "-Wl,--wrap=kill",
+        "-Wl,--wrap=wait",
+        "-Wl,--wrap=access",
+        "-Wl,--wrap=shm_open",
+        "-Wl,--wrap=ftruncate",
+        "-Wl,--wrap=shm_unlink",
+        "-Wl,--wrap=mmap",
+        "-Wl,--wrap=munmap",
+        "-Wl,--wrap=setpgid",
+        "-Wl,--wrap=setgid",
+        "-Wl,--wrap=setuid",
+        "-Wl,--wrap=sched_setscheduler",
+        "-Wl,--wrap=chdir",
+        "-Wl,--wrap=setrlimit",
+        "-Wl,--wrap=getpid",
+        "-Wl,--wrap=fcntl",
+        "-Wl,--wrap=sem_init",
+        "-Wl,--wrap=sem_destroy",
+        "-Wl,--wrap=sem_trywait",
+        "-Wl,--wrap=sem_post",
+        "-Wl,--wrap=msync",
+    ],
+    linkstatic = True,
+    deps = [
+        ":mock_proc_launch_syscalls",
+        ":process_launcher",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
     name = "dependency_graph",
     hdrs = [
         "dependency_graph.hpp",

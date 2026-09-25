@@ -370,7 +370,7 @@ score::cpp::expected_blank<IComponent::ComponentError> ProcessInfoNode::handlePr
                 {
                     // currently we do not support multiple ready conditions so we need
                     // to ignore the krunning signal.
-                    auto wait_res = process_handling_.process_interface_->ignoreRunning(sync_);
+                    auto wait_res = process_handling_.process_interface_->waitForkRunning(sync_, std::nullopt);
                     static_cast<void>(wait_res);
                 }
 
