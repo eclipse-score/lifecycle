@@ -11,11 +11,6 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
-# `Sarif.Multitool` is a self-contained, single-file .NET publish (bundles the
-# .NET runtime; no `dotnet`/`npm`/`npx`/network access needed at runtime), so
-# it runs standalone. `data = glob(["**"])` keeps its (unused but harmless)
-# companion files (*.pdb, *.xml, *.dll.config) alongside it in runfiles, in
-# case of any relative-path lookups.
 sh_binary(
     name = "sarif_multitool_cli",
     srcs = ["Sarif.Multitool"],
@@ -23,5 +18,5 @@ sh_binary(
         ["**"],
         exclude = ["Sarif.Multitool"],
     ),
-    visibility = ["//visibility:public"],
+    visibility = ["@//quality/static_analysis:__pkg__"],
 )

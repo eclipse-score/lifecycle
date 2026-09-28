@@ -16,7 +16,7 @@ py_binary(
     name = "process_coding_standards_config",
     srcs = ["scripts/configuration/process_coding_standards_config.py"],
     deps = [requirement("pyyaml")],
-    visibility = ["//visibility:public"],
+    visibility = ["@//quality/static_analysis:__pkg__"],
 )
 
 py_binary(
@@ -34,7 +34,7 @@ py_binary(
         requirement("jsonschema"),
         requirement("pyyaml"),
     ],
-    visibility = ["//visibility:public"],
+    visibility = ["@//quality/static_analysis:__pkg__"],
 )
 
 py_binary(
@@ -50,5 +50,5 @@ py_binary(
     data = ["supported_codeql_configs.json"] + glob(["cpp/**"]),
     deps = [requirement("pyyaml")],
     imports = ["scripts/reports","scripts/shared"],
-    visibility = ["//visibility:public"],
+    visibility = ["@//quality/static_analysis:__pkg__"],
 )

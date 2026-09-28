@@ -13,12 +13,12 @@
 filegroup(
     name = "codeql",
     srcs = glob(["**"]),
-    visibility = ["//visibility:public"],
+    visibility = ["@//quality/static_analysis:__pkg__"],
 )
 
 sh_binary(
     name = "codeql_cli",
     srcs = ["codeql/codeql"],
     data = glob(["codeql/**"]),
-    visibility = ["//visibility:public"],
+    visibility = ["@//quality/static_analysis:__pkg__"],
 )
