@@ -1,3 +1,16 @@
+<!-- ----------------------------------------------------------------------------
+  Copyright (c) 2026 Contributors to the Eclipse Foundation
+
+  See the NOTICE file(s) distributed with this work for additional
+  information regarding copyright ownership.
+
+  This program and the accompanying materials are made available under the
+  terms of the Apache License Version 2.0 which is available at
+  https://www.apache.org/licenses/LICENSE-2.0
+
+  SPDX-License-Identifier: Apache-2.0
+----------------------------------------------------------------------------- -->
+
 # Static Code Analysis (CodeQL / MISRA / CERT)
 
 This directory hosts the repo's hermetic CodeQL static-analysis pipeline
@@ -23,10 +36,6 @@ bazel run --config=x86_64-linux //quality/static_analysis:codeql_lint -- \
   --report cert-cpp-l1 cert-c-l1 cpp-code-scanning code-complexity \
   --target $(bazel query 'kind("cc_library|cc_binary", //score/...)')
 ```
-
-> The check is spelled **`code-complexity`** (hyphen) on the command line. The *directory* of the
-> local pack is `third_party/codeql/code_complexity` (underscore) — that's just a filesystem name;
-> the `--report` value uses the hyphenated pack name.
 
 ## CLI reference
 

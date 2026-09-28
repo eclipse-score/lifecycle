@@ -38,9 +38,8 @@ CERT_C_L1_SUITE_NAME = "codeql-suites/cert-c-l1.qls"
 CPP_CODE_SCANNING_SPEC = "codeql/cpp-queries:codeql-suites/cpp-code-scanning.qls"
 ALERT_SUPPRESSION_SPEC = "codeql/cpp-queries:AlertSuppression.ql"
 
-# Local, uncompiled query pack (ported from vsps_quality_packages//tools/codeql/
-# code-complexity) providing file/function size and complexity metrics. Lives
-# directly in this repo's source tree, so it is resolved relative to
+# Local, uncompiled query pack providing file/function size and complexity metrics.
+# Lives directly in this repo's source tree, so it is resolved relative to
 # source_root rather than through Bazel runfiles.
 COMPLEXITY_PACK_RELATIVE_DIR = "third_party/codeql/code_complexity"
 COMPLEXITY_SUITE_SPEC = "code-complexity-queries:suites/thresholds.qls"
@@ -54,7 +53,9 @@ COMPILED_PACK_RUNFILE = "codeql_coding_standards_compiled/pack/qlpack.yml"
 # from the same coding-standards-codeql-packs.zip release asset (see
 # @codeql_coding_standards_cert_cpp_compiled / @codeql_coding_standards_cert_c_compiled
 # in MODULE.bazel).
-CERT_CPP_COMPILED_PACK_RUNFILE = "codeql_coding_standards_cert_cpp_compiled/pack/qlpack.yml"
+CERT_CPP_COMPILED_PACK_RUNFILE = (
+    "codeql_coding_standards_cert_cpp_compiled/pack/qlpack.yml"
+)
 CERT_C_COMPILED_PACK_RUNFILE = "codeql_coding_standards_cert_c_compiled/pack/qlpack.yml"
 
 # Named checks selectable with --report (one or more, space-separated). When
@@ -192,11 +193,15 @@ def _read_pack_identity(pack_root):
             elif version is None and stripped.startswith("version:"):
                 version = stripped.split(":", 1)[1].strip().strip("'\"")
     if not name or not version:
-        raise RuntimeError(f"Could not read pack name/version from {pack_root}/qlpack.yml")
+        raise RuntimeError(
+            f"Could not read pack name/version from {pack_root}/qlpack.yml"
+        )
     return name, version
 
 
-def create_database(code_ql_path, config_path, target, source_root, database_path, build_configs=None):
+def create_database(
+    code_ql_path, config_path, target, source_root, database_path, build_configs=None
+):
     """Create the CodeQL database: init, build with tracing, finalize.
 
     ``build_configs`` is an optional list of additional Bazel ``--config`` names
@@ -233,7 +238,9 @@ def create_database(code_ql_path, config_path, target, source_root, database_pat
     for extra_config in build_configs or []:
         bazel_cmd += f" --config={extra_config}"
     bazel_cmd += _get_action_env_extension(codeql_env)
-    subprocess.run(f"{bazel_cmd} {target}", shell=True, env=env, cwd=source_root, check=True)
+    subprocess.run(
+        f"{bazel_cmd} {target}", shell=True, env=env, cwd=source_root, check=True
+    )
 
     # Finalize database
     subprocess.run(
@@ -275,7 +282,9 @@ def _build_report_analysis_spec(report, source_root):
         if check == "misra-default":
             pack_root = _find_compiled_pack_root()
             pack_name, pack_version = _read_pack_identity(pack_root)
-            query_targets.append(f"{pack_name}@{pack_version}:{MISRA_DEFAULT_SUITE_NAME}")
+            query_targets.append(
+                f"{pack_name}@{pack_version}:{MISRA_DEFAULT_SUITE_NAME}"
+            )
             search_paths.append(pack_root)
             run_coding_standards_reports = True
         elif check == "cert-cpp-l1":
@@ -293,7 +302,9 @@ def _build_report_analysis_spec(report, source_root):
         elif check == "cpp-code-scanning":
             query_targets.append(CPP_CODE_SCANNING_SPEC)
         elif check == "code-complexity":
-            complexity_pack_dir = os.path.join(source_root, COMPLEXITY_PACK_RELATIVE_DIR)
+            complexity_pack_dir = os.path.join(
+                source_root, COMPLEXITY_PACK_RELATIVE_DIR
+            )
             if not os.path.isfile(os.path.join(complexity_pack_dir, "qlpack.yml")):
                 raise RuntimeError(
                     f"Local code-complexity query pack not found at '{complexity_pack_dir}'."
@@ -355,7 +366,8 @@ def _seed_codeql_package_cache(packages_dir):
         return
 
     vendored_qtil = os.path.join(
-        compiled_pack_root, ".codeql", "libraries", "advanced-security", "qtil")
+        compiled_pack_root, ".codeql", "libraries", "advanced-security", "qtil"
+    )
     if not os.path.isdir(vendored_qtil):
         return
 
@@ -368,7 +380,8 @@ def _seed_codeql_package_cache(packages_dir):
             shutil.copytree(src, dst)
             print(
                 f" Seeded CodeQL package cache with vendored "
-                f"advanced-security/qtil/{entry}")
+                f"advanced-security/qtil/{entry}"
+            )
 
 
 def analyze_database(
@@ -423,7 +436,9 @@ def analyze_database(
         if spec["search_paths"]:
             analyze_flags.append(f"--search-path={':'.join(spec['search_paths'])}")
         if spec["additional_packs"]:
-            analyze_flags.append(f"--additional-packs={':'.join(spec['additional_packs'])}")
+            analyze_flags.append(
+                f"--additional-packs={':'.join(spec['additional_packs'])}"
+            )
         run_coding_standards_reports = spec["run_coding_standards_reports"]
     query_arg = " " + " ".join(query_targets)
     common_analyze_flags = " ".join(analyze_flags)
@@ -460,7 +475,11 @@ def analyze_database(
     # reports that include at least one codeql-coding-standards suite (MISRA
     # and/or CERT); skipped for the generic code-scanning-only run and for the
     # local complexity report, whose rule IDs aren't coding-standards guidelines.
-    if run_coding_standards_reports and analysis_report_path and os.path.exists(analysis_report_path):
+    if (
+        run_coding_standards_reports
+        and analysis_report_path
+        and os.path.exists(analysis_report_path)
+    ):
         print(" Generating MISRA/CERT compliance reports...")
         try:
             # Make analysis_report executable and run it
@@ -488,7 +507,8 @@ def analyze_database(
             # cache" on machines with an empty cache (see
             # _seed_codeql_package_cache).
             _seed_codeql_package_cache(
-                os.path.join(os.path.expanduser("~"), ".codeql", "packages"))
+                os.path.join(os.path.expanduser("~"), ".codeql", "packages")
+            )
 
             # analysis_report expects positional args: database-dir sarif-file output-dir
 
@@ -516,11 +536,17 @@ def analyze_database(
 def recategorize_sarif(recategorize_path, coding_standards_config_path, sarif_path):
     if not recategorize_path:
         return sarif_path
-    if not coding_standards_config_path or not os.path.isfile(coding_standards_config_path):
-        raise RuntimeError(f"Coding standards config file not found: {coding_standards_config_path!r}")
+    if not coding_standards_config_path or not os.path.isfile(
+        coding_standards_config_path
+    ):
+        raise RuntimeError(
+            f"Coding standards config file not found: {coding_standards_config_path!r}"
+        )
 
     recategorize_path = os.path.realpath(recategorize_path)
-    coding_standards_schema_path, sarif_schema_path = _find_recategorization_schema_paths()
+    coding_standards_schema_path, sarif_schema_path = (
+        _find_recategorization_schema_paths()
+    )
     coding_standards_schema_path = os.path.realpath(coding_standards_schema_path)
     sarif_schema_path = os.path.realpath(sarif_schema_path)
     recategorized_sarif_path = f"{sarif_path}.recategorized"
@@ -552,7 +578,7 @@ def _resolve_source_path(uri, source_root):
     if uri.startswith("file://"):
         return urllib.parse.unquote(urllib.parse.urlparse(uri).path)
     if uri.startswith("file:"):
-        return urllib.parse.unquote(uri[len("file:"):])
+        return urllib.parse.unquote(uri[len("file:") :])
     if os.path.isabs(uri):
         return uri
     return os.path.join(source_root, uri)
@@ -610,7 +636,9 @@ def _add_suppression_justifications(sarif_path, source_root):
     for run in sarif.get("runs", []):
         rule_id_by_index = {
             index: rule.get("id")
-            for index, rule in enumerate(run.get("tool", {}).get("driver", {}).get("rules", []))
+            for index, rule in enumerate(
+                run.get("tool", {}).get("driver", {}).get("rules", [])
+            )
         }
         for result in run.get("results", []):
             suppressions = result.get("suppressions")
@@ -621,11 +649,16 @@ def _add_suppression_justifications(sarif_path, source_root):
                 rule_id = rule_id_by_index.get(result.get("ruleIndex"))
             if not rule_id:
                 continue
-            justification = _find_suppression_justification(result, rule_id, source_root)
+            justification = _find_suppression_justification(
+                result, rule_id, source_root
+            )
             if not justification:
                 continue
             for suppression in suppressions:
-                if suppression.get("kind") == "inSource" and "justification" not in suppression:
+                if (
+                    suppression.get("kind") == "inSource"
+                    and "justification" not in suppression
+                ):
                     suppression["justification"] = justification
                     changed = True
 
@@ -664,15 +697,22 @@ def _normalize_sarif_run(run):
         enumerate(rules),
         key=lambda indexed_rule: indexed_rule[1].get("id", ""),
     )
-    index_map = {old_index: new_index for new_index, (old_index, _) in enumerate(ordered_rules)}
+    index_map = {
+        old_index: new_index for new_index, (old_index, _) in enumerate(ordered_rules)
+    }
     driver["rules"] = [rule for _, rule in ordered_rules]
 
     artifacts = run.get("artifacts", [])
     ordered_artifacts = sorted(
         enumerate(artifacts),
-        key=lambda indexed_artifact: indexed_artifact[1].get("location", {}).get("uri", ""),
+        key=lambda indexed_artifact: (
+            indexed_artifact[1].get("location", {}).get("uri", "")
+        ),
     )
-    artifact_index_map = {old_index: new_index for new_index, (old_index, _) in enumerate(ordered_artifacts)}
+    artifact_index_map = {
+        old_index: new_index
+        for new_index, (old_index, _) in enumerate(ordered_artifacts)
+    }
     run["artifacts"] = [artifact for _, artifact in ordered_artifacts]
 
     for result in run.get("results", []):
@@ -694,7 +734,9 @@ def _remap_artifact_indices(value, artifact_index_map):
             if artifact_location.get("uri"):
                 del artifact_location["index"]
             else:
-                artifact_location["index"] = artifact_index_map[artifact_location["index"]]
+                artifact_location["index"] = artifact_index_map[
+                    artifact_location["index"]
+                ]
         for child in value.values():
             _remap_artifact_indices(child, artifact_index_map)
     elif isinstance(value, list):
@@ -709,8 +751,12 @@ def _find_recategorization_schema_paths():
     coding_standards_schema_path = runfiles.Rlocation(
         "codeql_coding_standards/schemas/coding-standards-schema-1.0.0.json"
     )
-    sarif_schema_path = runfiles.Rlocation("codeql_coding_standards/schemas/sarif-schema-2.1.0.json")
-    if not coding_standards_schema_path or not os.path.isfile(coding_standards_schema_path):
+    sarif_schema_path = runfiles.Rlocation(
+        "codeql_coding_standards/schemas/sarif-schema-2.1.0.json"
+    )
+    if not coding_standards_schema_path or not os.path.isfile(
+        coding_standards_schema_path
+    ):
         raise RuntimeError("Failed to load Coding Standards schema!")
     if not sarif_schema_path or not os.path.isfile(sarif_schema_path):
         raise RuntimeError("Failed to load Sarif schema!")
@@ -758,7 +804,9 @@ def main():
         "database is always freshly created.",
     )
     parser.add_argument("--output-prefix", default="codeql", help="Output prefix")
-    parser.add_argument("--output-dir", help="Output directory (default: the repo root)")
+    parser.add_argument(
+        "--output-dir", help="Output directory (default: the repo root)"
+    )
     parser.add_argument(
         "--build-config",
         action="append",
@@ -788,7 +836,9 @@ def main():
 
     # Make codeql_path absolute
     codeql_path = os.path.abspath(args.codeql_path) if args.codeql_path else None
-    coding_standards_config_path = os.path.join(source_root, CODING_STANDARDS_CONFIG_RELATIVE_PATH)
+    coding_standards_config_path = os.path.join(
+        source_root, CODING_STANDARDS_CONFIG_RELATIVE_PATH
+    )
     if not os.path.isabs(coding_standards_config_path):
         coding_standards_config_path = os.path.abspath(coding_standards_config_path)
 
@@ -826,7 +876,9 @@ def main():
         # database inside it (codeql database init does not create parents).
         os.makedirs(output_path, exist_ok=True)
         os.makedirs(TMP_PATH_FOR_DATABASES, exist_ok=True)
-        with tempfile.TemporaryDirectory(dir=TMP_PATH_FOR_DATABASES) as database_location:
+        with tempfile.TemporaryDirectory(
+            dir=TMP_PATH_FOR_DATABASES
+        ) as database_location:
             create_database(
                 codeql_path,
                 args.config_path,
@@ -860,7 +912,9 @@ def _get_action_env_extension(codeql_env):
 def _get_merged_environment(codeql_env):
     env = os.environ.copy()
     for var in codeql_env:
-        env[var] = f"{codeql_env[var]}:{env.get(var, '')}" if var in env else codeql_env[var]
+        env[var] = (
+            f"{codeql_env[var]}:{env.get(var, '')}" if var in env else codeql_env[var]
+        )
     return env
 
 

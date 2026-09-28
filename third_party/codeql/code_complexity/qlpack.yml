@@ -1,12 +1,17 @@
----
-# CodeQL query pack providing file/function size and complexity metrics.
+# *******************************************************************************
+# Copyright (c) 2026 Contributors to the Eclipse Foundation
 #
-# Ported from vsps_quality_packages//tools/codeql/code-complexity. The
-# `codeql/cpp-all` dependency (rather than the originally declared
-# `codeql/cpp-queries`) is what actually provides the `cpp` standard library
-# used by `import cpp` in these queries; its version is pinned to what is
-# vendored in our @codeql_bundle (see MODULE.bazel) so this pack resolves
-# fully offline, with no registry access required.
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+
+# CodeQL query pack providing file/function size and complexity metrics.
 library: false
 name: code-complexity-queries
 version: 1.0.0

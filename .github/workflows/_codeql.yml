@@ -51,10 +51,12 @@ jobs:
         run: |
           set -euo pipefail
 
+          # As a first step, we only active the non-misra ruleset
           bazel run --config=x86_64-linux //quality/static_analysis:codeql_lint -- \
             --output-dir /tmp/codeql-results/linux \
             --output-prefix codeql-nightly \
-            --target //score/...
+            --report cert-cpp-l1 cert-c-l1 cpp-code-scanning code-complexity \
+            --target $(bazel query 'kind("cc_library|cc_binary", //score/...)')
 
       - name: Deduplicate and upload SARIF
         if: ${{ !cancelled() && inputs.fetch-only != 'true' && steps.run-codeql.outcome == 'success' }}

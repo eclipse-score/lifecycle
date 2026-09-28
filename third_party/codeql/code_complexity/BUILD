@@ -12,7 +12,7 @@
 # *******************************************************************************
 
 # Local, uncompiled CodeQL query pack providing file/function size and
-# complexity metrics (ported from vsps_quality_packages//tools/codeql/code-complexity).
+# complexity metrics.
 # Resolved by codeql_lint.py via --additional-packs=third_party/codeql (relative
 # to the repo root), not via Bazel runfiles, since it is analyzed in place as
 # part of the traced-build source tree rather than fetched as an external
