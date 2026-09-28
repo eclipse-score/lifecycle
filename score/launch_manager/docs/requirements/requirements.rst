@@ -684,20 +684,6 @@ Monitoring, Notification and Recovery
     The :term:`Launch Manager` shall be able to detect and react to failure of the
     process launch.
 
-.. comp_req:: Recovery by restarting component
-    :id: comp_req__launch_man__recovery_restart
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall be able to react to a 
-    :term:`Component failure (during activation)` 
-    by restarting this :term:`Component`.
-
 .. comp_req:: Recovery by reactivating the component
     :id: comp_req__launch_man__recovery_reactivate
     :reqtype: Functional
@@ -709,7 +695,7 @@ Monitoring, Notification and Recovery
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall be able to react to a 
-    :term:`Component failure (during runtime)` by reactivating the failed 
+    :term:`Component failure` by reactivating the failed 
     :term:`Component`.
 
 .. comp_req:: Recovery by switching the run target to fallback run target
@@ -723,7 +709,7 @@ Monitoring, Notification and Recovery
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall be able to react to a 
-    :term:`Component failure (during runtime)` by switching to the 
+    :term:`Component failure` by switching to the 
     :term:`Fallback Run Target`.
 
 .. comp_req:: Recovery by switching the run target on run target level
@@ -737,7 +723,7 @@ Monitoring, Notification and Recovery
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall be able to react to a 
-    :term:`Component failure (during runtime)` by switching to another 
+    :term:`Component failure` by switching to another 
     :term:`Run Target` which is configured on the current active :term:`Run Target`.
 
 .. comp_req:: Recovery by switching the run target on component level
