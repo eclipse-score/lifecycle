@@ -698,20 +698,6 @@ Monitoring, Notification and Recovery
     :term:`Component failure` by reactivating the failed 
     :term:`Component`.
 
-.. comp_req:: Recovery by switching the run target to fallback run target
-    :id: comp_req__launch_man__recovery_switch_rt_fbrt
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall be able to react to a 
-    :term:`Component failure` by switching to the 
-    :term:`Fallback Run Target`.
-
 .. comp_req:: Recovery by switching the run target on run target level
     :id: comp_req__launch_man__recovery_switch_rt_rt
     :reqtype: Functional
@@ -767,8 +753,8 @@ Monitoring, Notification and Recovery
     The :term:`Launch Manager` shall be able to react to a :term:`Component` failure by
     stopping the failed :term:`Component` and starting another :term:`Component`.
 
-.. comp_req:: Recovery by triggering Device Safe State
-    :id: comp_req__launch_man__recovery_dss
+.. comp_req:: Recovery by triggering the watchdog
+    :id: comp_req__launch_man__recovery_watchdog
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -778,7 +764,7 @@ Monitoring, Notification and Recovery
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall be able to react to a :term:`Component` failure by
-    triggering a :term:`QNX` :term:`Operating System` Device Safe State (:term:`DSS`).
+    triggering a :term:`Watchdog`.
 
 .. comp_req:: Launch manager external watchdog notification
     :id: comp_req__launch_man__lm_ext_watchdog_notify
