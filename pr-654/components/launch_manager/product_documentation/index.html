@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>User Guide &#8212; Lifecycle and Health Management  documentation</title>
+    <title>Lifecycle Product Documentation &#8212; Lifecycle and Health Management  documentation</title>
   
   
   
@@ -62,7 +62,7 @@
     <script src="../../../_static/sphinx-needs/libs/html/datatables.min.js?v=8a4aee21"></script>
     <script src="../../../_static/sphinx-needs/libs/html/datatables_loader.js?v=a2cae175"></script>
     <script src="../../../_static/sphinx-needs/libs/html/sphinx_needs_collapse.js?v=dca66431"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'components/launch_manager/user_guide/index';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'components/launch_manager/product_documentation/index';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://eclipse-score.github.io/lifecycle/versions.json';
@@ -473,16 +473,17 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Launch Manager</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">User Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">Lifecycle Product Documentation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="concepts.html">Overview</a></li>
 <li class="toctree-l3"><a class="reference internal" href="ready_state.html">Ready Conditions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="integration.html">Integration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples.html">Configuration Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples.html">Configuration examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="implementation.html">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="known_limitations.html">Known Limitations</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="../product_documentation/known_limitations.html">Known Limitations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="known_limitations.html">Known Limitations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../requirements/index.html">Requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../requirements/chklst_req_inspection.html">Requirement Inspection Checklist</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../architecture/index.html">Component Architecture</a></li>
@@ -542,7 +543,7 @@
     
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Launch Manager</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">User Guide</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Lifecycle Product Documentation</span></li>
   </ul>
 </nav>
 </div>
@@ -559,8 +560,8 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="user-guide">
-<h1>User Guide<a class="headerlink" href="#user-guide" title="Link to this heading">#</a></h1>
+  <section id="lifecycle-product-documentation">
+<h1>Lifecycle Product Documentation<a class="headerlink" href="#lifecycle-product-documentation" title="Link to this heading">#</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="concepts.html">Overview</a><ul>
@@ -573,9 +574,9 @@
 <li class="toctree-l3"><a class="reference internal" href="concepts.html#components">Components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="concepts.html#ready-state">Ready state</a></li>
 <li class="toctree-l3"><a class="reference internal" href="concepts.html#run-targets">Run targets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="concepts.html#starting-components">Starting Components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concepts.html#starting-components">Starting components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="concepts.html#dependencies">Dependencies</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="concepts.html#rules-for-configuring-dependencies">Rules for Configuring Dependencies</a></li>
+<li class="toctree-l4"><a class="reference internal" href="concepts.html#rules-for-configuring-dependencies">Rules for configuring dependencies</a></li>
 <li class="toctree-l4"><a class="reference internal" href="concepts.html#example">Example</a></li>
 </ul>
 </li>
@@ -591,12 +592,12 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="configuration.html#measurement-units">Measurement units</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="configuration.html#time-intervals">Time Intervals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#time-intervals">Time intervals</a></li>
 <li class="toctree-l3"><a class="reference internal" href="configuration.html#memory">Memory</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="configuration.html#configuration-schema">Configuration schema</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="configuration.html#reusable-types">Reusable Types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#reusable-types">Reusable types</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="configuration.html#alive-supervision-object">alive_supervision (object)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="configuration.html#watchdog-object">watchdog (object)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="configuration.html#recovery-action-object">recovery_action (object)</a></li>
@@ -605,7 +606,7 @@
 <li class="toctree-l4"><a class="reference internal" href="configuration.html#deployment-config-object">deployment_config (object)</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="configuration.html#launch-manager-root-properties">Launch Manager Root Properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#launch-manager-root-properties">Launch manager root properties</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="configuration.html#schema-version-integer-required">schema_version (integer, required)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="configuration.html#defaults-object-optional">defaults (object, optional)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="configuration.html#components-object-optional">components (object, optional)</a></li>
@@ -618,9 +619,9 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="configuration.html#default-values">Default Values</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="configuration.html#s-core-standard-defaults">S-CORE Standard Defaults</a></li>
-<li class="toctree-l3"><a class="reference internal" href="configuration.html#inheritance-of-default-values">Inheritance Of Default Values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#default-values">Default values</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#s-core-standard-defaults">S-CORE standard defaults</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#inheritance-of-default-values">Inheritance of default values</a></li>
 </ul>
 </li>
 </ul>
@@ -633,14 +634,22 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Configuration Examples</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Configuration examples</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="examples.html#example-conf-json"><cite>example_conf.json</cite></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="implementation.html">Implementation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="implementation.html#starting-a-process">Starting a process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="implementation.html#stopping-a-process">Stopping a process</a></li>
-<li class="toctree-l2"><a class="reference internal" href="implementation.html#state-management">State Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="implementation.html#state-management">State management</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="known_limitations.html">Known Limitations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="known_limitations.html#configuration">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="known_limitations.html#component">Component</a></li>
+<li class="toctree-l3"><a class="reference internal" href="known_limitations.html#run-target">Run target</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -690,7 +699,7 @@
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/eclipse-score/lifecycle/edit/main/score/launch_manager/docs/user_guide/index.rst">
+    <a href="https://github.com/eclipse-score/lifecycle/edit/main/score/launch_manager/docs/product_documentation/index.rst">
       <i class="fa-solid fa-pencil"></i>
       
       

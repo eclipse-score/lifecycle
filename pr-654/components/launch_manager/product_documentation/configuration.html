@@ -62,7 +62,7 @@
     <script src="../../../_static/sphinx-needs/libs/html/datatables.min.js?v=8a4aee21"></script>
     <script src="../../../_static/sphinx-needs/libs/html/datatables_loader.js?v=a2cae175"></script>
     <script src="../../../_static/sphinx-needs/libs/html/sphinx_needs_collapse.js?v=dca66431"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'components/launch_manager/user_guide/configuration';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'components/launch_manager/product_documentation/configuration';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://eclipse-score.github.io/lifecycle/versions.json';
@@ -473,16 +473,17 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Launch Manager</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">User Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Lifecycle Product Documentation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="concepts.html">Overview</a></li>
 <li class="toctree-l3"><a class="reference internal" href="ready_state.html">Ready Conditions</a></li>
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">Configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="integration.html">Integration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples.html">Configuration Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples.html">Configuration examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="implementation.html">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="known_limitations.html">Known Limitations</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="../product_documentation/known_limitations.html">Known Limitations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="known_limitations.html">Known Limitations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../requirements/index.html">Requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../requirements/chklst_req_inspection.html">Requirement Inspection Checklist</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../architecture/index.html">Component Architecture</a></li>
@@ -543,7 +544,7 @@
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Launch Manager</a></li>
     
     
-    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User Guide</a></li>
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Lifecycle Product Documentation</a></li>
     
     <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Configuration</span></li>
   </ul>
@@ -564,12 +565,12 @@
                   
   <section id="configuration">
 <span id="lm-config"></span><h1>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">#</a></h1>
-<p>The following section will exaplin all configuration parameters.</p>
+<p>This section describes all configuration parameters.</p>
 <section id="measurement-units">
 <span id="lm-conf-measurement-units"></span><h2>Measurement units<a class="headerlink" href="#measurement-units" title="Link to this heading">#</a></h2>
 <p>This section provides an overview of the measurement units used within the configuration and explains how they ensure consistent representation of values within the system.</p>
 <section id="time-intervals">
-<span id="lm-conf-time-intervals"></span><h3>Time Intervals<a class="headerlink" href="#time-intervals" title="Link to this heading">#</a></h3>
+<span id="lm-conf-time-intervals"></span><h3>Time intervals<a class="headerlink" href="#time-intervals" title="Link to this heading">#</a></h3>
 <p>All time values in the <strong>Launch Manager</strong> configuration are specified in <strong>milliseconds</strong>.</p>
 <p>Using a consistent unit prevents ambiguity and makes the configuration values easier to compare and understand.</p>
 </section>
@@ -586,10 +587,17 @@
 </section>
 <section id="configuration-schema">
 <span id="lm-conf-configuration-schema"></span><h2>Configuration schema<a class="headerlink" href="#configuration-schema" title="Link to this heading">#</a></h2>
-<p>This section provides a detailed description of the <strong>Launch Manager</strong> configuration schema. This section is organized to facilitate understanding, starting with common building blocks and then proceeding to the top-level configuration properties.</p>
-<p>The <strong>Launch Manager</strong> configuration leverages reusable definitions, primarily found within the standard <code class="docutils literal notranslate"><span class="pre">$defs</span></code> object. These reusable types are the fundamental building blocks of the <strong>Launch Manager</strong> configuration. A thorough understanding of these types will simplify comprehension of the overall configuration structure and the interaction between different settings.</p>
+<p>This section provides a detailed description of the <strong>Launch Manager</strong>
+configuration schema. This section is organized to facilitate understanding,
+starting with common building blocks and then proceeding to the top-level
+configuration properties.</p>
+<p>The <strong>Launch Manager</strong> configuration leverages reusable definitions, primarily
+found within the standard <code class="docutils literal notranslate"><span class="pre">$defs</span></code> object. These reusable types are the
+fundamental building blocks of the <strong>Launch Manager</strong> configuration. A thorough
+understanding of these types simplifies comprehension of the overall
+configuration structure and the interaction between different settings.</p>
 <section id="reusable-types">
-<span id="lm-conf-reusable-types"></span><h3>Reusable Types<a class="headerlink" href="#reusable-types" title="Link to this heading">#</a></h3>
+<span id="lm-conf-reusable-types"></span><h3>Reusable types<a class="headerlink" href="#reusable-types" title="Link to this heading">#</a></h3>
 <p>The following sections describe the reusable types that form the basis of the <strong>Launch Manager</strong> configuration.</p>
 <section id="alive-supervision-object">
 <span id="lm-conf-alive-supervision-object"></span><h4>alive_supervision (object)<a class="headerlink" href="#alive-supervision-object" title="Link to this heading">#</a></h4>
@@ -598,16 +606,11 @@
 </dd>
 </dl>
 <p><strong>Properties:</strong></p>
-<ul class="simple">
-<li><dl class="simple">
-<dt><strong>evaluation_cycle_ms</strong> (integer, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the length, in milliseconds, of the time window used by the <strong>Launch Manager</strong> to assess incoming alive supervision reports from components.</p></li>
-<li><p><strong>Constraint:</strong> Must be greater than 0.</p></li>
-</ul>
+<dl class="simple">
+<dt>evaluation_cycle_ms (integer, optional)</dt><dd><p>Description: Specifies the length, in milliseconds, of the time window used by the <strong>Launch Manager</strong> to assess incoming alive supervision reports from components.
+Constraint: Must be greater than 0.</p>
 </dd>
 </dl>
-</li>
-</ul>
 </section>
 <section id="watchdog-object">
 <span id="lm-conf-watchdog-object"></span><h4>watchdog (object)<a class="headerlink" href="#watchdog-object" title="Link to this heading">#</a></h4>
@@ -616,96 +619,41 @@
 </dd>
 </dl>
 <p><strong>Properties:</strong></p>
-<ul class="simple">
-<li><dl class="simple">
-<dt><strong>device_file_path</strong> (string, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the absolute path to the external watchdog device file (e.g., <code class="docutils literal notranslate"><span class="pre">/dev/watchdog</span></code>).</p></li>
-</ul>
+<dl class="simple">
+<dt>device_file_path (string, optional)</dt><dd><p>Description: Specifies the absolute path to the external watchdog device file (e.g., <code class="docutils literal notranslate"><span class="pre">/dev/watchdog</span></code>).</p>
+</dd>
+<dt>max_timeout_ms (integer, optional)</dt><dd><p>Description: Specifies the maximum timeout value, in milliseconds, that the <strong>Launch Manager</strong> configures on the external watchdog during startup. The external watchdog uses this timeout as the deadline for receiving periodic alive reports from the <strong>Launch Manager</strong>.
+Constraint: Must be 0 or greater.</p>
+</dd>
+<dt>deactivate_on_shutdown (boolean, optional)</dt><dd><p>Description: Specifies whether the <strong>Launch Manager</strong> disables the external watchdog during shutdown. When set to <code class="docutils literal notranslate"><span class="pre">true</span></code>, the watchdog is deactivated; when <code class="docutils literal notranslate"><span class="pre">false</span></code>, it remains active, potentially triggering a reset if the shutdown is prolonged.</p>
+</dd>
+<dt>require_magic_close (boolean, optional)</dt><dd><p>Description: Specifies whether the <strong>Launch Manager</strong> performs a defined shutdown sequence to inform the external watchdog that the shutdown is intentional and to prevent a watchdog-initiated reset. When <code class="docutils literal notranslate"><span class="pre">true</span></code>, the magic close sequence is performed; when <code class="docutils literal notranslate"><span class="pre">false</span></code>, it is not, which might lead to an unintentional reset.</p>
 </dd>
 </dl>
-</li>
-<li><dl class="simple">
-<dt><strong>max_timeout_ms</strong> (integer, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the maximum timeout value, in milliseconds, that the <strong>Launch Manager</strong> configures on the external watchdog during startup. The external watchdog uses this timeout as the deadline for receiving periodic alive reports from the <strong>Launch Manager</strong>.</p></li>
-<li><p><strong>Constraint:</strong> Must be 0 or greater.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>deactivate_on_shutdown</strong> (boolean, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies whether the <strong>Launch Manager</strong> disables the external watchdog during shutdown. When set to <code class="docutils literal notranslate"><span class="pre">true</span></code>, the watchdog is deactivated; when <code class="docutils literal notranslate"><span class="pre">false</span></code>, it remains active, potentially triggering a reset if the shutdown is prolonged.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>require_magic_close</strong> (boolean, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies whether the <strong>Launch Manager</strong> performs a defined shutdown sequence to inform the external watchdog that the shutdown is intentional and to prevent a watchdog-initiated reset. When <code class="docutils literal notranslate"><span class="pre">true</span></code>, the magic close sequence is performed; when <code class="docutils literal notranslate"><span class="pre">false</span></code>, it is not, which might lead to an unintentional reset.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
 </section>
 <section id="recovery-action-object">
 <span id="lm-conf-recovery-action-object"></span><h4>recovery_action (object)<a class="headerlink" href="#recovery-action-object" title="Link to this heading">#</a></h4>
 <dl class="simple">
-<dt><strong>Description:</strong></dt><dd><p>Defines a reusable type that specifies recovery actions to execute when an error or failure occurs. This object must contain exactly one of the defined recovery actions.</p>
+<dt><strong>Description:</strong></dt><dd><p>Defines a reusable type that specifies recovery actions to execute when an
+error or failure occurs. This object must contain exactly one of the defined
+recovery actions.</p>
 </dd>
 </dl>
 <p><strong>Properties:</strong></p>
-<ul class="simple">
-<li><dl class="simple">
-<dt><strong>restart</strong> (object, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Defines a recovery action that restarts the POSIX process associated with this component.</p></li>
-<li><dl class="simple">
-<dt><strong>Properties:</strong></dt><dd><ul>
-<li><dl class="simple">
-<dt><strong>number_of_attempts</strong> (integer, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the maximum number of restart attempts before the <strong>Launch Manager</strong> concludes that recovery cannot succeed for the component.</p></li>
-<li><p><strong>Constraint:</strong> Must be 0 or greater.</p></li>
-</ul>
+<dl class="simple">
+<dt>restart (object, optional)</dt><dd><p>Description: Defines a recovery action that restarts the POSIX process associated with this component.</p>
+</dd>
+<dt>restart.number_of_attempts (integer, optional)</dt><dd><p>Description: Specifies the maximum number of restart attempts before the <strong>Launch Manager</strong> concludes that recovery cannot succeed for the component.
+Constraint: Must be 0 or greater.</p>
+</dd>
+<dt>restart.delay_before_restart_ms (integer, optional)</dt><dd><p>Description: Specifies the delay duration, in milliseconds, that the <strong>Launch Manager</strong> waits before initiating a restart attempt.
+Constraint: Must be 0 or greater.</p>
+</dd>
+<dt>switch_run_target (object, optional)</dt><dd><p>Description: Defines a recovery action that switches to a different <strong>Run Target</strong>. This can be a new <strong>Run Target</strong> or the current one to retry its activation.</p>
+</dd>
+<dt>switch_run_target.run_target (string, optional)</dt><dd><p>Description: Specifies the name of the <strong>Run Target</strong> that the <strong>Launch Manager</strong> should switch to upon failure.</p>
 </dd>
 </dl>
-</li>
-<li><dl class="simple">
-<dt><strong>delay_before_restart_ms</strong> (integer, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the delay duration, in milliseconds, that the <strong>Launch Manager</strong> waits before initiating a restart attempt.</p></li>
-<li><p><strong>Constraint:</strong> Must be 0 or greater.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>switch_run_target</strong> (object, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Defines a recovery action that switches to a different <strong>Run Target</strong>. This can be a new <strong>Run Target</strong> or the current one to retry its activation.</p></li>
-<li><dl class="simple">
-<dt><strong>Properties:</strong></dt><dd><ul>
-<li><dl class="simple">
-<dt><strong>run_target</strong> (string, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the name of the <strong>Run Target</strong> that the <strong>Launch Manager</strong> should switch to upon failure.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
 </section>
 <section id="run-target-object">
 <span id="lm-conf-run-target-object"></span><h4>run_target (object)<a class="headerlink" href="#run-target-object" title="Link to this heading">#</a></h4>
@@ -714,39 +662,19 @@
 </dd>
 </dl>
 <p><strong>Properties:</strong></p>
-<ul class="simple">
-<li><dl class="simple">
-<dt><strong>description</strong> (string, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies a user-defined description of the <strong>Run Target’s</strong> purpose or operational context.</p></li>
-</ul>
+<dl class="simple">
+<dt>description (string, optional)</dt><dd><p>Description: Specifies a user-defined description of the <strong>Run Target’s</strong> purpose or operational context.</p>
+</dd>
+<dt>depends_on (array of strings, optional)</dt><dd><p>Description: Specifies the names of components and other <strong>Run Targets</strong> that must be successfully activated when this <strong>Run Target</strong> is activated. This defines the dependencies for a given operational mode.
+Items: Each item is a string specifying the name of a component or <strong>Run Target</strong> on which this <strong>Run Target</strong> depends.</p>
+</dd>
+<dt>transition_timeout_ms (integer, optional)</dt><dd><p>Description: Specifies the time limit, in milliseconds, for the <strong>Run Target</strong> transition to complete. If this limit is exceeded, the transition is considered failed.
+Constraint: Must be greater than 0.</p>
+</dd>
+<dt>recovery_action (object, optional)</dt><dd><p>Description: Specifies the recovery action to execute when a component assigned to this <strong>Run Target</strong> fails. This action is limited to <code class="docutils literal notranslate"><span class="pre">switch_run_target</span></code> operations.
+Reference: This property refers to the <code class="docutils literal notranslate"><span class="pre">recovery_action</span></code> reusable type defined in this schema, specifically enforcing the <code class="docutils literal notranslate"><span class="pre">switch_run_target</span></code> option.</p>
 </dd>
 </dl>
-</li>
-<li><dl class="simple">
-<dt><strong>depends_on</strong> (array of strings, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the names of components and other <strong>Run Targets</strong> that must be successfully activated when this <strong>Run Target</strong> is activated. This defines the dependencies for a given operational mode.</p></li>
-<li><p><strong>Items:</strong> Each item is a string specifying the name of a component or <strong>Run Target</strong> on which this <strong>Run Target</strong> depends.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>transition_timeout_ms</strong> (integer, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the time limit, in milliseconds, for the <strong>Run Target</strong> transition to complete. If this limit is exceeded, the transition is considered failed.</p></li>
-<li><p><strong>Constraint:</strong> Must be greater than 0.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>recovery_action</strong> (object, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the recovery action to execute when a component assigned to this <strong>Run Target</strong> fails. This action is limited to <code class="docutils literal notranslate"><span class="pre">switch_run_target</span></code> operations.</p></li>
-<li><p><strong>Reference:</strong> This property refers to the <cite>recovery_action</cite> reusable type defined in this schema, specifically enforcing the <code class="docutils literal notranslate"><span class="pre">switch_run_target</span></code> option.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
 </section>
 <section id="component-properties-object">
 <span id="lm-conf-component-properties-object"></span><h4>component_properties (object)<a class="headerlink" href="#component-properties-object" title="Link to this heading">#</a></h4>
@@ -755,187 +683,70 @@
 </dd>
 </dl>
 <p><strong>Properties:</strong></p>
-<ul class="simple">
-<li><dl class="simple">
-<dt><strong>binary_name</strong> (string, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the relative path of the executable file within the directory defined by <code class="docutils literal notranslate"><span class="pre">deployment_config.bin_dir</span></code>. The final executable path will be resolved as <code class="docutils literal notranslate"><span class="pre">{deployment_config.bin_dir}/{binary_name}</span></code>. Example values include simple filenames (e.g., <code class="docutils literal notranslate"><span class="pre">test_app1</span></code>) or paths to executables within subdirectories (e.g., <code class="docutils literal notranslate"><span class="pre">bin/test_app1</span></code>).</p></li>
-</ul>
+<dl>
+<dt>binary_name (string, optional)</dt><dd><p>Description: Specifies the relative path of the executable file within the directory defined by <code class="docutils literal notranslate"><span class="pre">deployment_config.bin_dir</span></code>. The final executable path is resolved as <code class="docutils literal notranslate"><span class="pre">{deployment_config.bin_dir}/{binary_name}</span></code>. Example values include simple filenames (e.g., <code class="docutils literal notranslate"><span class="pre">test_app1</span></code>) or paths to executables within subdirectories (e.g., <code class="docutils literal notranslate"><span class="pre">bin/test_app1</span></code>).</p>
 </dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>application_profile</strong> (object, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Defines the application profile that specifies the runtime behavior and capabilities of this component, particularly concerning its interaction with the <strong>Launch Manager</strong>.</p></li>
-<li><dl class="simple">
-<dt><strong>Properties:</strong></dt><dd><ul>
-<li><dl class="simple">
-<dt><strong>application_type</strong> (string, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the level of integration between the component and the <strong>Launch Manager</strong>.</p></li>
-<li><dl class="simple">
-<dt><strong>Allowed Values:</strong></dt><dd><ul>
+<dt>application_profile (object, optional)</dt><dd><p>Description: Defines the application profile that specifies the runtime behavior and capabilities of this component, particularly concerning its interaction with the <strong>Launch Manager</strong>.</p>
+</dd>
+<dt>application_profile.application_type (string, optional)</dt><dd><p>Description: Specifies the level of integration between the component and the <strong>Launch Manager</strong>.
+Allowed values:</p>
+<ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;Native&quot;</span></code>: Indicates no integration with the <strong>Launch Manager</strong>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;Reporting&quot;</span></code>: Implies the component uses <strong>Launch Manager</strong> lifecycle APIs for basic reporting.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;Reporting_And_Supervised&quot;</span></code>: Implies the component uses lifecycle APIs and sends alive notifications to the <strong>Launch Manager</strong>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;State_Manager&quot;</span></code>: Implies the component uses lifecycle APIs, sends alive notifications, and has permission to change the active <strong>Run Target</strong>.</p></li>
 </ul>
 </dd>
-</dl>
-</li>
-</ul>
+<dt>application_profile.is_self_terminating (boolean, optional)</dt><dd><p>Description: Indicates whether the component is designed to terminate automatically once its planned tasks are completed (<code class="docutils literal notranslate"><span class="pre">true</span></code>), or if it is expected to remain running until explicitly requested to terminate by the <strong>Launch Manager</strong> (<code class="docutils literal notranslate"><span class="pre">false</span></code>).</p>
 </dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>is_self_terminating</strong> (boolean, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Indicates whether the component is designed to terminate automatically once its planned tasks are completed (<code class="docutils literal notranslate"><span class="pre">true</span></code>), or if it is expected to remain running until explicitly requested to terminate by the <strong>Launch Manager</strong> (<code class="docutils literal notranslate"><span class="pre">false</span></code>).</p></li>
-</ul>
+<dt>application_profile.alive_supervision (object, optional)</dt><dd><p>Description: Defines the configuration parameters used for monitoring the “aliveness” of the component.
+Reference: This property refers to the <code class="docutils literal notranslate"><span class="pre">alive_supervision</span></code> reusable type defined in this schema.
+Properties: These properties are also inherited from <code class="docutils literal notranslate"><span class="pre">alive_supervision</span></code> but are listed here for quick reference and clarity on the local context.</p>
 </dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>alive_supervision</strong> (object, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Defines the configuration parameters used for monitoring the “aliveness” of the component.</p></li>
-<li><p><strong>Reference:</strong> This property refers to the <code class="docutils literal notranslate"><span class="pre">alive_supervision</span></code> reusable type defined in this schema.</p></li>
-<li><dl class="simple">
-<dt><strong>Properties:</strong> (These properties are also inherited from <code class="docutils literal notranslate"><span class="pre">alive_supervision</span></code> but are listed here for quick reference and clarity on the local context.)</dt><dd><ul>
-<li><dl class="simple">
-<dt><strong>reporting_cycle_ms</strong> (integer, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the duration, in milliseconds, of the time interval used to verify that the component sends alive notifications within the expected time frame.</p></li>
-<li><p><strong>Constraint:</strong> Must be greater than 0.</p></li>
-</ul>
+<dt>application_profile.alive_supervision.reporting_cycle_ms (integer, optional)</dt><dd><p>Description: Specifies the duration, in milliseconds, of the time interval used to verify that the component sends alive notifications within the expected time frame.
+Constraint: Must be greater than 0.</p>
 </dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>failed_cycles_tolerance</strong> (integer, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the maximum number of consecutive reporting cycle failures. Once the number of failed cycles exceeds this maximum, the <strong>Launch Manager</strong> will trigger the configured recovery action.</p></li>
-<li><p><strong>Constraint:</strong> Must be 0 or greater.</p></li>
-</ul>
+<dt>application_profile.alive_supervision.failed_cycles_tolerance (integer, optional)</dt><dd><p>Description: Specifies the maximum number of consecutive reporting cycle failures. Once the number of failed cycles exceeds this maximum, the <strong>Launch Manager</strong> triggers the configured recovery action.
+Constraint: Must be 0 or greater.</p>
 </dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>min_indications</strong> (integer, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the minimum number of checkpoints that must be reported within each configured <code class="docutils literal notranslate"><span class="pre">reporting_cycle_ms</span></code>.</p></li>
-<li><p><strong>Constraint:</strong> Must be 0 or greater.</p></li>
-</ul>
+<dt>application_profile.alive_supervision.min_indications (integer, optional)</dt><dd><p>Description: Specifies the minimum number of checkpoints that must be reported within each configured <code class="docutils literal notranslate"><span class="pre">reporting_cycle_ms</span></code>.
+Constraint: Must be 0 or greater.</p>
 </dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>max_indications</strong> (integer, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the maximum number of checkpoints that may be reported within each configured <code class="docutils literal notranslate"><span class="pre">reporting_cycle_ms</span></code>.</p></li>
-<li><p><strong>Constraint:</strong> Must be 0 or greater.</p></li>
-</ul>
+<dt>application_profile.alive_supervision.max_indications (integer, optional)</dt><dd><p>Description: Specifies the maximum number of checkpoints that may be reported within each configured <code class="docutils literal notranslate"><span class="pre">reporting_cycle_ms</span></code>.
+Constraint: Must be 0 or greater.</p>
 </dd>
-</dl>
-</li>
-</ul>
+<dt>depends_on (array of strings, optional)</dt><dd><p>Description: Specifies the names of components that this component depends on. Each specified dependency must be initialized and reach its <strong>Ready State</strong> before the <strong>Launch Manager</strong> starts this component. This ensures proper startup order.
+Items: Each item is a string specifying the name of a component on which this component depends.</p>
 </dd>
-</dl>
-</li>
-</ul>
+<dt>process_arguments (array of strings, optional)</dt><dd><p>Description: Specifies an ordered list of command-line arguments to be passed to the component at startup.
+Items: Each item is a string specifying a single command-line argument token as a UTF-8 string; the order of arguments is preserved.</p>
 </dd>
-</dl>
-</li>
-</ul>
+<dt>ready_condition (object, optional)</dt><dd><p>Description: Defines the set of conditions that determine when the component completes its initializing state and enters the <strong>Ready State</strong>.</p>
 </dd>
-</dl>
-</li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>depends_on</strong> (array of strings, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the names of components that this component depends on. Each specified dependency must be initialized and reach its <strong>Ready State</strong> before the <strong>Launch Manager</strong> will start this component. This ensures proper startup order.</p></li>
-<li><p><strong>Items:</strong> Each item is a string specifying the name of a component on which this component depends.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>process_arguments</strong> (array of strings, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies an ordered list of command-line arguments to be passed to the component at startup.</p></li>
-<li><p><strong>Items:</strong> Each item is a string specifying a single command-line argument token as a UTF-8 string; the order of arguments is preserved.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>ready_condition</strong> (object, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Defines the set of conditions that determine when the component completes its initializing state and enters the <strong>Ready State</strong>.</p></li>
-<li><dl class="simple">
-<dt><strong>Properties:</strong></dt><dd><ul>
-<li><dl class="simple">
-<dt><strong>process_state</strong> (string, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the required state of the component’s POSIX process for it to be considered ready.</p></li>
-<li><dl class="simple">
-<dt><strong>Allowed Values:</strong></dt><dd><ul>
+<dt>ready_condition.process_state (string, optional)</dt><dd><p>Description: Specifies the required state of the component’s POSIX process for it to be considered ready.
+Allowed values:</p>
+<ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;Running&quot;</span></code>: The process has started and reached its running state.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;Terminated&quot;</span></code>: The process has started, reached its running state, and then terminated successfully.</p></li>
 </ul>
 </dd>
-</dl>
-</li>
-</ul>
+<dt>ready_condition.file_state (object, optional)</dt><dd><p>Description: Specifies a ready condition based on the existence of a file at a given path.</p>
 </dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>file_state</strong> (object, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies a ready condition based on the existence of a file at a given path.</p></li>
-<li><dl class="simple">
-<dt><strong>Properties:</strong></dt><dd><ul>
-<li><dl class="simple">
-<dt><strong>file_path</strong> (string, required)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the absolute path to the file being watched.</p></li>
-</ul>
+<dt>ready_condition.file_state.file_path (string, required)</dt><dd><p>Description: Specifies the absolute path to the file being watched.</p>
 </dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>state</strong> (string, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the required existence state of the file.</p></li>
-<li><dl class="simple">
-<dt><strong>Allowed Values:</strong></dt><dd><ul>
+<dt>ready_condition.file_state.state (string, optional)</dt><dd><p>Description: Specifies the required existence state of the file.
+Allowed values:</p>
+<ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;Exists&quot;</span></code>: The component is ready when the file at <code class="docutils literal notranslate"><span class="pre">file_path</span></code> exists.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;NotExisting&quot;</span></code>: The component is ready when the file at <code class="docutils literal notranslate"><span class="pre">file_path</span></code> does not exist.</p></li>
 </ul>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">&quot;Exists&quot;</span></code></p>
+</dd>
+<dt>ready_condition.file_state.polling_interval_ms (integer, optional)</dt><dd><p>Description: Specifies the time interval, in milliseconds, at which the <strong>Launch Manager</strong> checks the file existence state.
+Constraint: Must be greater than 0.
+Default: <code class="docutils literal notranslate"><span class="pre">10</span></code></p>
 </dd>
 </dl>
-</li>
-<li><p><strong>Default:</strong> <code class="docutils literal notranslate"><span class="pre">&quot;Exists&quot;</span></code></p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>polling_interval_ms</strong> (integer, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the time interval, in milliseconds, at which the <strong>Launch Manager</strong> checks the file existence state.</p></li>
-<li><p><strong>Constraint:</strong> Must be greater than 0.</p></li>
-<li><p><strong>Default:</strong> <code class="docutils literal notranslate"><span class="pre">10</span></code></p></li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
 </section>
 <section id="deployment-config-object">
 <span id="lm-conf-deployment-config-object"></span><h4>deployment_config (object)<a class="headerlink" href="#deployment-config-object" title="Link to this heading">#</a></h4>
@@ -944,152 +755,66 @@
 </dd>
 </dl>
 <p><strong>Properties:</strong></p>
-<ul class="simple">
-<li><dl class="simple">
-<dt><strong>ready_timeout_ms</strong> (integer, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the maximum time, in milliseconds, allowed for the component to reach its <strong>Ready State</strong>. The timeout is measured from when the component’s process is created until the ready conditions specified in <code class="docutils literal notranslate"><span class="pre">component_properties.ready_condition</span></code> are met.</p></li>
-<li><p><strong>Constraint:</strong> Must be greater than 0.</p></li>
-</ul>
+<dl class="simple">
+<dt>ready_timeout_ms (integer, optional)</dt><dd><p>Description: Specifies the maximum time, in milliseconds, allowed for the component to reach its <strong>Ready State</strong>. The timeout is measured from when the component’s process is created until the ready conditions specified in <code class="docutils literal notranslate"><span class="pre">component_properties.ready_condition</span></code> are met.
+Constraint: Must be greater than 0.</p>
+</dd>
+<dt>shutdown_timeout_ms (integer, optional)</dt><dd><p>Description: Specifies the maximum time, in milliseconds, allowed for the component to terminate after it receives a SIGTERM signal from the <strong>Launch Manager</strong>. The timeout is measured from when the <strong>Launch Manager</strong> sends the SIGTERM signal until the operating system notifies the <strong>Launch Manager</strong> that the child process has terminated.
+Constraint: Must be greater than 0.</p>
+</dd>
+<dt>environmental_variables (object, optional)</dt><dd><p>Description: Defines the set of environment variables passed to the component at startup.
+Additional properties: Each key represents an environment variable name, and its value (a string) specifies the environment variable’s value. An empty string is allowed and represents an intentionally empty environment variable.</p>
+</dd>
+<dt>bin_dir (string, optional)</dt><dd><p>Description: Specifies the absolute filesystem path to the directory where the component’s executable is installed.</p>
+</dd>
+<dt>working_dir (string, optional)</dt><dd><p>Description: Specifies the directory to be used as the working directory for the component during execution. If not defined, the binary’s directory (<code class="docutils literal notranslate"><span class="pre">bin_dir</span></code>) is used as the working directory by default.</p>
+</dd>
+<dt>ready_recovery_action (object, optional)</dt><dd><p>Description: Specifies the recovery action to execute when the component fails to reach its <strong>Ready State</strong> within the configured <code class="docutils literal notranslate"><span class="pre">ready_timeout_ms</span></code>. This action is limited to <code class="docutils literal notranslate"><span class="pre">restart</span></code> operations.
+Reference: This property refers to the <code class="docutils literal notranslate"><span class="pre">recovery_action</span></code> reusable type defined in this schema, specifically enforcing the <code class="docutils literal notranslate"><span class="pre">restart</span></code> option.</p>
+</dd>
+<dt>recovery_action (object, optional)</dt><dd><p>Description: Specifies the recovery action to execute when the component malfunctions after successfully reaching its <strong>Ready State</strong>. This action is limited to <code class="docutils literal notranslate"><span class="pre">switch_run_target</span></code> operations.
+Reference: This property refers to the <code class="docutils literal notranslate"><span class="pre">recovery_action</span></code> reusable type defined in this schema, specifically enforcing the <code class="docutils literal notranslate"><span class="pre">switch_run_target</span></code> option.</p>
+</dd>
+<dt>sandbox (object, optional)</dt><dd><p>Description: Defines the sandbox configuration parameters that isolate and constrain the component’s runtime execution, enhancing system security and stability.</p>
+</dd>
+<dt>sandbox.uid (integer, optional)</dt><dd><p>Description: Specifies the POSIX user ID (UID) under which this component executes.
+Constraint: Must be 0 or greater.</p>
+</dd>
+<dt>sandbox.gid (integer, optional)</dt><dd><p>Description: Specifies the primary POSIX group ID (GID) under which this component executes.
+Constraint: Must be 0 or greater.</p>
+</dd>
+<dt>sandbox.supplementary_group_ids (array of integers, optional)</dt><dd><p>Description: Specifies the list of supplementary POSIX group IDs (GIDs) assigned to this component. These provide additional access permissions.
+Items: Each item is an integer specifying a single supplementary POSIX group ID (GID).
+Constraint: Each item must be 0 or greater.</p>
+</dd>
+<dt>sandbox.security_policy (string, optional)</dt><dd><p>Description: Specifies the security policy or confinement profile name (such as an SELinux or AppArmor profile) assigned to the component, dictating its operating privileges.</p>
+</dd>
+<dt>sandbox.scheduling_policy (string, optional)</dt><dd><p>Description: Specifies the scheduling policy applied to the component’s initial thread. Supported values correspond to OS-defined policies (e.g., <code class="docutils literal notranslate"><span class="pre">SCHED_FIFO</span></code>, <code class="docutils literal notranslate"><span class="pre">SCHED_RR</span></code>, <code class="docutils literal notranslate"><span class="pre">SCHED_OTHER</span></code>). Custom string values may also be supported depending on the operating system.</p>
+</dd>
+<dt>sandbox.scheduling_priority (integer, optional)</dt><dd><p>Description: Specifies the scheduling priority applied to the component’s initial thread, influencing its allocation of CPU time.</p>
+</dd>
+<dt>sandbox.max_memory_usage (integer, optional)</dt><dd><p>Description: Specifies the maximum amount of memory, in bytes, that the component is permitted to use during runtime.
+Constraint: Must be greater than 0.</p>
+</dd>
+<dt>sandbox.max_cpu_usage (integer, optional)</dt><dd><p>Description: Specifies the maximum CPU usage limit for the component, expressed as a percentage (%) of total CPU capacity.
+Constraint: Must be greater than 0.</p>
 </dd>
 </dl>
-</li>
-<li><dl class="simple">
-<dt><strong>shutdown_timeout_ms</strong> (integer, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the maximum time, in milliseconds, allowed for the component to terminate after it receives a SIGTERM signal from the <strong>Launch Manager</strong>. The timeout is measured from when the <strong>Launch Manager</strong> sends the SIGTERM signal until the operating system notifies the <strong>Launch Manager</strong> that the child process has terminated.</p></li>
-<li><p><strong>Constraint:</strong> Must be greater than 0.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>environmental_variables</strong> (object, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Defines the set of environment variables passed to the component at startup.</p></li>
-<li><p><strong>Additional Properties:</strong> Each key represents an environment variable name, and its value (a string) specifies the environment variable’s value. An empty string is allowed and represents an intentionally empty environment variable.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>bin_dir</strong> (string, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the absolute filesystem path to the directory where the component’s executable is installed.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>working_dir</strong> (string, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the directory to be used as the working directory for the component during execution. If not defined, the binary’s directory (<code class="docutils literal notranslate"><span class="pre">bin_dir</span></code>) is used as the working directory by default.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>ready_recovery_action</strong> (object, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the recovery action to execute when the component fails to reach its <strong>Ready State</strong> within the configured <code class="docutils literal notranslate"><span class="pre">ready_timeout_ms</span></code>. This action is limited to <code class="docutils literal notranslate"><span class="pre">restart</span></code> operations.</p></li>
-<li><p><strong>Reference:</strong> This property refers to the <code class="docutils literal notranslate"><span class="pre">recovery_action</span></code> reusable type defined in this schema, specifically enforcing the <code class="docutils literal notranslate"><span class="pre">restart</span></code> option.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>recovery_action</strong> (object, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the recovery action to execute when the component malfunctions after successfully reaching its <strong>Ready State</strong>. This action is limited to <code class="docutils literal notranslate"><span class="pre">switch_run_target</span></code> operations.</p></li>
-<li><p><strong>Reference:</strong> This property refers to the <code class="docutils literal notranslate"><span class="pre">recovery_action</span></code> reusable type defined in this schema, specifically enforcing the <code class="docutils literal notranslate"><span class="pre">switch_run_target</span></code> option.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>sandbox</strong> (object, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Defines the sandbox configuration parameters that isolate and constrain the component’s runtime execution, enhancing system security and stability.</p></li>
-<li><dl class="simple">
-<dt><strong>Properties:</strong></dt><dd><ul>
-<li><dl class="simple">
-<dt><strong>uid</strong> (integer, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the POSIX user ID (UID) under which this component executes.</p></li>
-<li><p><strong>Constraint:</strong> Must be 0 or greater.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>gid</strong> (integer, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the primary POSIX group ID (GID) under which this component executes.</p></li>
-<li><p><strong>Constraint:</strong> Must be 0 or greater.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>supplementary_group_ids</strong> (array of integers, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the list of supplementary POSIX group IDs (GIDs) assigned to this component. These provide additional access permissions.</p></li>
-<li><p><strong>Items:</strong> Each item is an integer specifying a single supplementary POSIX group ID (GID).</p></li>
-<li><p><strong>Constraint:</strong> Each item must be 0 or greater.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>security_policy</strong> (string, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the security policy or confinement profile name (such as an SELinux or AppArmor profile) assigned to the component, dictating its operating privileges.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>scheduling_policy</strong> (string, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the scheduling policy applied to the component’s initial thread. Supported values correspond to OS-defined policies (e.g., <code class="docutils literal notranslate"><span class="pre">SCHED_FIFO</span></code>, <code class="docutils literal notranslate"><span class="pre">SCHED_RR</span></code>, <code class="docutils literal notranslate"><span class="pre">SCHED_OTHER</span></code>). Custom string values may also be supported depending on the operating system.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>scheduling_priority</strong> (integer, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the scheduling priority applied to the component’s initial thread, influencing its allocation of CPU time.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>max_memory_usage</strong> (integer, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the maximum amount of memory, in bytes, that the component is permitted to use during runtime.</p></li>
-<li><p><strong>Constraint:</strong> Must be greater than 0.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>max_cpu_usage</strong> (integer, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the maximum CPU usage limit for the component, expressed as a percentage (%) of total CPU capacity.</p></li>
-<li><p><strong>Constraint:</strong> Must be greater than 0.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
 </section>
 </section>
 <section id="launch-manager-root-properties">
-<span id="lm-conf-launch-manager-root-properties"></span><h3>Launch Manager Root Properties<a class="headerlink" href="#launch-manager-root-properties" title="Link to this heading">#</a></h3>
+<span id="lm-conf-launch-manager-root-properties"></span><h3>Launch manager root properties<a class="headerlink" href="#launch-manager-root-properties" title="Link to this heading">#</a></h3>
 <p>The top-level configuration of the <strong>Launch Manager</strong> is structured into several distinct sections, each serving a specific purpose in defining the system’s behavior and managed components. While reusable types provide the foundational building blocks, these root properties orchestrate their application to form a complete and functional configuration.</p>
 <p>A significant portion of the configuration is dedicated to defining default behaviors and managing the primary entities:
-The <code class="docutils literal notranslate"><span class="pre">defaults</span></code> section allows users to establish system-wide default configuration parameters that can be inherited by components and <strong>Run Targets</strong>, thereby reducing repetitive configurations.
-The <code class="docutils literal notranslate"><span class="pre">components</span></code> section defines the specific software components managed by the <strong>Launch Manager</strong>, with each component leveraging the <code class="docutils literal notranslate"><span class="pre">component_properties</span></code> and <code class="docutils literal notranslate"><span class="pre">deployment_config</span></code> reusable types to detail its characteristics and operational environment.
-The <code class="docutils literal notranslate"><span class="pre">run_targets</span></code> section specifies all available <strong>Run Targets</strong>, where each <strong>Run Target</strong> is an instantiation of the <code class="docutils literal notranslate"><span class="pre">run_target</span></code> reusable type, grouping components into operational modes.</p>
+* The <code class="docutils literal notranslate"><span class="pre">defaults</span></code> section allows users to establish system-wide default configuration parameters that can be inherited by components and <strong>Run Targets</strong>, thereby reducing repetitive configurations.
+* The <code class="docutils literal notranslate"><span class="pre">components</span></code> section defines the specific software components managed by the <strong>Launch Manager</strong>, with each component leveraging the <code class="docutils literal notranslate"><span class="pre">component_properties</span></code> and <code class="docutils literal notranslate"><span class="pre">deployment_config</span></code> reusable types to detail its characteristics and operational environment.
+* The <code class="docutils literal notranslate"><span class="pre">run_targets</span></code> section specifies all available <strong>Run Targets</strong>, where each <strong>Run Target</strong> is an instantiation of the <code class="docutils literal notranslate"><span class="pre">run_target</span></code> reusable type, grouping components into operational modes.</p>
 <p>Beyond these core sections, several other crucial properties govern the overall operation of the <strong>Launch Manager</strong>:
-The <code class="docutils literal notranslate"><span class="pre">schema_version</span></code> property ensures compatibility by indicating the schema version used for the configuration file.
-The <code class="docutils literal notranslate"><span class="pre">initial_run_target</span></code> explicitly defines which <strong>Run Target</strong> the <strong>Launch Manager</strong> must activate upon startup.
-The <code class="docutils literal notranslate"><span class="pre">fallback_run_target</span></code> provides a specialized <strong>Run Target</strong> to be activated when all other recovery attempts for normal <strong>Run Targets</strong> have been exhausted. This particular <strong>Run Target</strong> does not include a <code class="docutils literal notranslate"><span class="pre">recovery_action</span></code> property, as it represents the ultimate state of system recovery; if its activation also fails, an external watchdog mechanism will be triggered.
-The <code class="docutils literal notranslate"><span class="pre">watchdog</span></code> property configures the external watchdog device used for monitoring the <strong>Launch Manager</strong> itself.
-The <code class="docutils literal notranslate"><span class="pre">alive_supervision</span></code> property defines the global evaluation cycle parameters for monitoring processes launched by the <strong>Launch Manager</strong>.</p>
+* The <code class="docutils literal notranslate"><span class="pre">schema_version</span></code> property ensures compatibility by indicating the schema version used for the configuration file.
+* The <code class="docutils literal notranslate"><span class="pre">initial_run_target</span></code> explicitly defines which <strong>Run Target</strong> the <strong>Launch Manager</strong> must activate upon startup.
+* The <code class="docutils literal notranslate"><span class="pre">fallback_run_target</span></code> provides a specialized <strong>Run Target</strong> to be activated when all other recovery attempts for normal <strong>Run Targets</strong> have been exhausted. This particular <strong>Run Target</strong> does not include a <code class="docutils literal notranslate"><span class="pre">recovery_action</span></code> property, as it represents the final state; if its activation also fails, the external watchdog will be triggered.
+* The <code class="docutils literal notranslate"><span class="pre">watchdog</span></code> property configures the external watchdog device used for monitoring the <strong>Launch Manager</strong> itself.
+* The <code class="docutils literal notranslate"><span class="pre">alive_supervision</span></code> property defines the global evaluation cycle parameters for monitoring processes launched by the <strong>Launch Manager</strong>.</p>
 <p>With this overview in mind, let us now examine each root configuration property in detail.</p>
 <section id="schema-version-integer-required">
 <span id="lm-conf-schema-version-integer-required"></span><h4>schema_version (integer, required)<a class="headerlink" href="#schema-version-integer-required" title="Link to this heading">#</a></h4>
@@ -1107,48 +832,23 @@ The <code class="docutils literal notranslate"><span class="pre">alive_supervisi
 </dd>
 </dl>
 <p><strong>Properties:</strong></p>
-<ul class="simple">
-<li><dl class="simple">
-<dt><strong>component_properties</strong> (object, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Defines default component property values applied to all components unless overridden in individual component definitions.</p></li>
-<li><p><strong>Reference:</strong> This property refers to the <code class="docutils literal notranslate"><span class="pre">component_properties</span></code> reusable type defined in this schema.</p></li>
-</ul>
+<dl class="simple">
+<dt>component_properties (object, optional)</dt><dd><p>Description: Defines default component property values applied to all components unless overridden in individual component definitions.
+Reference: This property refers to the <code class="docutils literal notranslate"><span class="pre">component_properties</span></code> reusable type defined in this schema.</p>
+</dd>
+<dt>deployment_config (object, optional)</dt><dd><p>Description: Defines default deployment configuration values applied to all components unless overridden in individual component definitions.
+Reference: This property refers to the <code class="docutils literal notranslate"><span class="pre">deployment_config</span></code> reusable type defined in this schema.</p>
+</dd>
+<dt>run_target (object, optional)</dt><dd><p>Description: Defines default <strong>Run Target</strong> configuration values applied to all <strong>Run Targets</strong> unless overridden in individual <strong>Run Target</strong> definitions.
+Reference: This property refers to the <code class="docutils literal notranslate"><span class="pre">run_target</span></code> reusable type defined in this schema.</p>
+</dd>
+<dt>alive_supervision (object, optional)</dt><dd><p>Description: Defines default alive supervision configuration values. These values are used unless a global <code class="docutils literal notranslate"><span class="pre">alive_supervision</span></code> configuration is explicitly specified at the root level of the configuration file.
+Reference: This property refers to the <code class="docutils literal notranslate"><span class="pre">alive_supervision</span></code> reusable type defined in this schema.</p>
+</dd>
+<dt>watchdog (object, optional)</dt><dd><p>Description: Defines default watchdog configuration values. These values are applied to all watchdogs unless overridden in individual watchdog definitions.
+Reference: This property refers to the <code class="docutils literal notranslate"><span class="pre">watchdog</span></code> reusable type defined in this schema.</p>
 </dd>
 </dl>
-</li>
-<li><dl class="simple">
-<dt><strong>deployment_config</strong> (object, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Defines default deployment configuration values applied to all components unless overridden in individual component definitions.</p></li>
-<li><p><strong>Reference:</strong> This property refers to the <code class="docutils literal notranslate"><span class="pre">deployment_config</span></code> reusable type defined in this schema.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>run_target</strong> (object, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Defines default <strong>Run Target</strong> configuration values applied to all <strong>Run Targets</strong> unless overridden in individual <strong>Run Target</strong> definitions.</p></li>
-<li><p><strong>Reference:</strong> This property refers to the <code class="docutils literal notranslate"><span class="pre">run_target</span></code> reusable type defined in this schema.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>alive_supervision</strong> (object, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Defines default alive supervision configuration values. These values are used unless a global <code class="docutils literal notranslate"><span class="pre">alive_supervision</span></code> configuration is explicitly specified at the root level of the configuration file.</p></li>
-<li><p><strong>Reference:</strong> This property refers to the <code class="docutils literal notranslate"><span class="pre">alive_supervision</span></code> reusable type defined in this schema.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>watchdog</strong> (object, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Defines default watchdog configuration values. These values are applied to all watchdogs unless overridden in individual watchdog definitions.</p></li>
-<li><p><strong>Reference:</strong> This property refers to the <code class="docutils literal notranslate"><span class="pre">watchdog</span></code> reusable type defined in this schema.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
 </section>
 <section id="components-object-optional">
 <span id="lm-conf-components-object-optional"></span><h4>components (object, optional)<a class="headerlink" href="#components-object-optional" title="Link to this heading">#</a></h4>
@@ -1157,44 +857,18 @@ The <code class="docutils literal notranslate"><span class="pre">alive_supervisi
 </dd>
 </dl>
 <p><strong>Pattern Properties:</strong> Keys must be valid identifiers (alphanumeric characters, underscores, and hyphens).</p>
-<ul class="simple">
-<li><dl class="simple">
-<dt><strong>Component Definition</strong> (object)</dt><dd><ul>
-<li><p><strong>Description:</strong> Defines an individual component’s configuration properties and deployment settings.</p></li>
-<li><dl class="simple">
-<dt><strong>Properties:</strong></dt><dd><ul>
-<li><dl class="simple">
-<dt><strong>description</strong> (string, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies a human-readable description of the component’s purpose.</p></li>
-</ul>
+<dl class="simple">
+<dt>Component Definition (object)</dt><dd><p>Description: Defines an individual component’s configuration properties and deployment settings.</p>
+</dd>
+<dt>Component Definition.description (string, optional)</dt><dd><p>Description: Specifies a human-readable description of the component’s purpose.</p>
+</dd>
+<dt>Component Definition.component_properties (object, optional)</dt><dd><p>Description: Defines specific component properties for this component. Any properties not explicitly specified here are inherited from <code class="docutils literal notranslate"><span class="pre">defaults.component_properties</span></code>.
+Reference: This property refers to the <code class="docutils literal notranslate"><span class="pre">component_properties</span></code> reusable type defined in this schema.</p>
+</dd>
+<dt>Component Definition.deployment_config (object, optional)</dt><dd><p>Description: Defines deployment configuration for this component. Any properties not explicitly specified here are inherited from <code class="docutils literal notranslate"><span class="pre">defaults.deployment_config</span></code>.
+Reference: This property refers to the <code class="docutils literal notranslate"><span class="pre">deployment_config</span></code> reusable type defined in this schema.</p>
 </dd>
 </dl>
-</li>
-<li><dl class="simple">
-<dt><strong>component_properties</strong> (object, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Defines specific component properties for this component. Any properties not explicitly specified here will be inherited from <code class="docutils literal notranslate"><span class="pre">defaults.component_properties</span></code>.</p></li>
-<li><p><strong>Reference:</strong> This property refers to the <code class="docutils literal notranslate"><span class="pre">component_properties</span></code> reusable type defined in this schema.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>deployment_config</strong> (object, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Defines deployment configuration for this component. Any properties not explicitly specified here will be inherited from <code class="docutils literal notranslate"><span class="pre">defaults.deployment_config</span></code>.</p></li>
-<li><p><strong>Reference:</strong> This property refers to the <code class="docutils literal notranslate"><span class="pre">deployment_config</span></code> reusable type defined in this schema.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
 </section>
 <section id="run-targets-object-optional">
 <span id="lm-conf-run-targets-object-optional"></span><h4>run_targets (object, optional)<a class="headerlink" href="#run-targets-object-optional" title="Link to this heading">#</a></h4>
@@ -1203,19 +877,14 @@ The <code class="docutils literal notranslate"><span class="pre">alive_supervisi
 </dd>
 </dl>
 <p><strong>Pattern Properties:</strong> Keys must be valid identifiers (alphanumeric characters, underscores, and hyphens).</p>
-<ul class="simple">
-<li><dl class="simple">
-<dt><strong>Run Target Definition</strong> (object)</dt><dd><ul>
-<li><p><strong>Description:</strong> Defines an individual <strong>Run Target’s</strong> configuration, specifying the components and dependencies that constitute a particular operational mode.</p></li>
-<li><p><strong>Reference:</strong> This property refers to the <code class="docutils literal notranslate"><span class="pre">run_target</span></code> reusable type defined in this schema.</p></li>
-</ul>
+<dl class="simple">
+<dt>Run Target Definition (object)</dt><dd><p>Description: Defines an individual <strong>Run Target’s</strong> configuration, specifying the components and dependencies that constitute a particular operational mode.
+Reference: This property refers to the <code class="docutils literal notranslate"><span class="pre">run_target</span></code> reusable type defined in this schema.</p>
 </dd>
 </dl>
-</li>
-</ul>
 <p>The name “Off” is reserved for a special <strong>Run Target</strong> that represents the system’s shutdown state.
-If a <strong>Run Target</strong> with this name is configured explicitly, the <strong>Launch Manager</strong> will transition to this <strong>Run Target</strong> when receiving a SIGTERM signal.
-If not configured explicitly, the <strong>Launch Manager</strong> will automatically create a default <strong>Run Target</strong> named “Off” with no dependencies.</p>
+If a <strong>Run Target</strong> with this name is configured explicitly, the <strong>Launch Manager</strong> transitions to this <strong>Run Target</strong> when receiving a SIGTERM signal.
+If not configured explicitly, the <strong>Launch Manager</strong> automatically creates a default <strong>Run Target</strong> named “Off” with no dependencies.</p>
 </section>
 <section id="initial-run-target-string-required">
 <span id="lm-conf-initial-run-target-string-required"></span><h4>initial_run_target (string, required)<a class="headerlink" href="#initial-run-target-string-required" title="Link to this heading">#</a></h4>
@@ -1227,40 +896,27 @@ If not configured explicitly, the <strong>Launch Manager</strong> will automatic
 <section id="fallback-run-target-object-optional">
 <span id="lm-conf-fallback-run-target-object-optional"></span><h4>fallback_run_target (object, optional)<a class="headerlink" href="#fallback-run-target-object-optional" title="Link to this heading">#</a></h4>
 <dl class="simple">
-<dt><strong>Description:</strong></dt><dd><p>Defines the fallback <strong>Run Target</strong> configuration. The <strong>Launch Manager</strong> activates this <strong>Run Target</strong> when all recovery attempts for other <strong>Run Targets</strong> have been exhausted. This specific <strong>Run Target</strong> does not include a <code class="docutils literal notranslate"><span class="pre">recovery_action</span></code> property, as it represents the final state; if its activation also fails, the external watchdog will be triggered.</p>
+<dt><strong>Description:</strong></dt><dd><p>Defines the fallback <strong>Run Target</strong> configuration. The <strong>Launch Manager</strong> activates this <strong>Run Target</strong> when all recovery attempts for other <strong>Run Targets</strong> have been exhausted. This specific <strong>Run Target</strong> does not include a <code class="docutils literal notranslate"><span class="pre">recovery_action</span></code> property, as it represents the final state; if its activation also fails, the external watchdog is triggered.</p>
 </dd>
 </dl>
 <p><strong>Properties:</strong></p>
-<ul class="simple">
-<li><dl class="simple">
-<dt><strong>description</strong> (string, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies a human-readable description of the fallback <strong>Run Target</strong>.</p></li>
-</ul>
+<dl class="simple">
+<dt>description (string, optional)</dt><dd><p>Description: Specifies a human-readable description of the fallback <strong>Run Target</strong>.</p>
+</dd>
+<dt>depends_on (array of strings, required)</dt><dd><p>Description: Specifies the names of components and <strong>Run Targets</strong> that must be activated when this fallback <strong>Run Target</strong> is activated.
+Items: Each item is a string specifying the name of a component or <strong>Run Target</strong> upon which this <strong>Run Target</strong> depends.</p>
+</dd>
+<dt>transition_timeout_ms (integer, optional)</dt><dd><p>Description: Specifies the time limit, in milliseconds, for the <strong>Run Target</strong> transition. If this limit is exceeded, the transition is considered failed.
+Constraint: Must be greater than 0.</p>
 </dd>
 </dl>
-</li>
-<li><dl class="simple">
-<dt><strong>depends_on</strong> (array of strings, required)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the names of components and <strong>Run Targets</strong> that must be activated when this fallback <strong>Run Target</strong> is activated.</p></li>
-<li><p><strong>Items:</strong> Each item is a string specifying the name of a component or <strong>Run Target</strong> upon which this <strong>Run Target</strong> depends.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>transition_timeout_ms</strong> (integer, optional)</dt><dd><ul>
-<li><p><strong>Description:</strong> Specifies the time limit, in milliseconds, for the <strong>Run Target</strong> transition. If this limit is exceeded, the transition is considered failed.</p></li>
-<li><p><strong>Constraint:</strong> Must be greater than 0.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
 </section>
 <section id="alive-supervision-object-optional">
 <span id="lm-conf-alive-supervision-object-optional"></span><h4>alive_supervision (object, optional)<a class="headerlink" href="#alive-supervision-object-optional" title="Link to this heading">#</a></h4>
-<p><strong>Description:</strong> Defines the global alive supervision configuration parameters used to monitor component health. If specified, this configuration will override any default values set in <code class="docutils literal notranslate"><span class="pre">defaults.alive_supervision</span></code>.
-<strong>Reference:</strong> This property refers to the <code class="docutils literal notranslate"><span class="pre">alive_supervision</span></code> reusable type defined in this schema.</p>
+<blockquote>
+<div><p>Description: Defines the global alive supervision configuration parameters used to monitor component health. If specified, this configuration will override any default values set in <code class="docutils literal notranslate"><span class="pre">defaults.alive_supervision</span></code>.
+Reference: This property refers to the <code class="docutils literal notranslate"><span class="pre">alive_supervision</span></code> reusable type defined in this schema.</p>
+</div></blockquote>
 </section>
 <section id="watchdog-object-optional">
 <span id="lm-conf-watchdog-object-optional"></span><h4>watchdog (object, optional)<a class="headerlink" href="#watchdog-object-optional" title="Link to this heading">#</a></h4>
@@ -1270,7 +926,7 @@ If not configured explicitly, the <strong>Launch Manager</strong> will automatic
 </section>
 </section>
 <section id="default-values">
-<span id="lm-conf-default-values"></span><h2>Default Values<a class="headerlink" href="#default-values" title="Link to this heading">#</a></h2>
+<span id="lm-conf-default-values"></span><h2>Default values<a class="headerlink" href="#default-values" title="Link to this heading">#</a></h2>
 <p>The <strong>Launch Manager</strong> configuration extensively utilizes the concept of default values to streamline the configuration process and simplify initial setup. The fundamental principle is that even if a specific configuration value is not explicitly provided by the user, a default value will always be applied, ensuring a complete and valid configuration.</p>
 <p>To achieve this robust defaulting mechanism, the <strong>Launch Manager</strong> employs two distinct levels of default values:</p>
 <ol class="arabic simple">
@@ -1279,7 +935,7 @@ If not configured explicitly, the <strong>Launch Manager</strong> will automatic
 </ol>
 <p>The S-CORE standard defaults are particularly beneficial during the development phase. They allow developers to concentrate on core tasks without needing to meticulously define every configuration option, as a functional default is guaranteed.</p>
 <section id="s-core-standard-defaults">
-<span id="lm-conf-s-core-standard-defaults"></span><h3>S-CORE Standard Defaults<a class="headerlink" href="#s-core-standard-defaults" title="Link to this heading">#</a></h3>
+<span id="lm-conf-s-core-standard-defaults"></span><h3>S-CORE standard defaults<a class="headerlink" href="#s-core-standard-defaults" title="Link to this heading">#</a></h3>
 <p>The <strong>Launch Manager</strong> guarantees the availability of these specific default values, which are applied when no corresponding configuration is found in the explicit definition of a property (e.g., within a component’s <code class="docutils literal notranslate"><span class="pre">deployment_config</span></code>, a <strong>Run Target’s</strong> settings, or a root-level property) or within the user-defined <code class="docutils literal notranslate"><span class="pre">defaults</span></code> section.</p>
 <p>The full, canonical definitions for these S-CORE standard defaults are provided in separate JSON files, shown below:</p>
 <dl>
@@ -1399,7 +1055,7 @@ If not configured explicitly, the <strong>Launch Manager</strong> will automatic
 </dl>
 </section>
 <section id="inheritance-of-default-values">
-<span id="lm-conf-inheritance-of-default-values"></span><h3>Inheritance Of Default Values<a class="headerlink" href="#inheritance-of-default-values" title="Link to this heading">#</a></h3>
+<span id="lm-conf-inheritance-of-default-values"></span><h3>Inheritance of default values<a class="headerlink" href="#inheritance-of-default-values" title="Link to this heading">#</a></h3>
 <p>Given that the <strong>Launch Manager</strong> supports multiple levels of default values, specific rules govern their inheritance and application. The inheritance order is straightforward:</p>
 <ol class="arabic simple">
 <li><p>If a configuration value is not explicitly specified at a specific location (e.g., within an individual component’s definition, a <strong>Run Target’s</strong> definition, or a root-level property like <code class="docutils literal notranslate"><span class="pre">alive_supervision</span></code>), the <strong>Launch Manager</strong> will first attempt to use the corresponding value from the user-defined <code class="docutils literal notranslate"><span class="pre">defaults</span></code> section.</p></li>
@@ -1457,12 +1113,12 @@ If not configured explicitly, the <strong>Launch Manager</strong> will automatic
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#measurement-units">Measurement units</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#time-intervals">Time Intervals</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#time-intervals">Time intervals</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#memory">Memory</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-schema">Configuration schema</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reusable-types">Reusable Types</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reusable-types">Reusable types</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#alive-supervision-object">alive_supervision (object)</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#watchdog-object">watchdog (object)</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#recovery-action-object">recovery_action (object)</a></li>
@@ -1471,7 +1127,7 @@ If not configured explicitly, the <strong>Launch Manager</strong> will automatic
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#deployment-config-object">deployment_config (object)</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#launch-manager-root-properties">Launch Manager Root Properties</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#launch-manager-root-properties">Launch manager root properties</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#schema-version-integer-required">schema_version (integer, required)</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#defaults-object-optional">defaults (object, optional)</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#components-object-optional">components (object, optional)</a></li>
@@ -1484,9 +1140,9 @@ If not configured explicitly, the <strong>Launch Manager</strong> will automatic
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#default-values">Default Values</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#s-core-standard-defaults">S-CORE Standard Defaults</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inheritance-of-default-values">Inheritance Of Default Values</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#default-values">Default values</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#s-core-standard-defaults">S-CORE standard defaults</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inheritance-of-default-values">Inheritance of default values</a></li>
 </ul>
 </li>
 </ul>
@@ -1496,7 +1152,7 @@ If not configured explicitly, the <strong>Launch Manager</strong> will automatic
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/eclipse-score/lifecycle/edit/main/score/launch_manager/docs/user_guide/configuration.rst">
+    <a href="https://github.com/eclipse-score/lifecycle/edit/main/score/launch_manager/docs/product_documentation/configuration.rst">
       <i class="fa-solid fa-pencil"></i>
       
       

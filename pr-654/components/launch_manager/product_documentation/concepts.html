@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Implementation &#8212; Lifecycle and Health Management  documentation</title>
+    <title>Overview &#8212; Lifecycle and Health Management  documentation</title>
   
   
   
@@ -62,7 +62,7 @@
     <script src="../../../_static/sphinx-needs/libs/html/datatables.min.js?v=8a4aee21"></script>
     <script src="../../../_static/sphinx-needs/libs/html/datatables_loader.js?v=a2cae175"></script>
     <script src="../../../_static/sphinx-needs/libs/html/sphinx_needs_collapse.js?v=dca66431"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'components/launch_manager/user_guide/implementation';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'components/launch_manager/product_documentation/concepts';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://eclipse-score.github.io/lifecycle/versions.json';
@@ -73,8 +73,8 @@
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Known Limitations" href="../product_documentation/known_limitations.html" />
-    <link rel="prev" title="Configuration Examples" href="examples.html" />
+    <link rel="next" title="Ready Conditions" href="ready_state.html" />
+    <link rel="prev" title="Lifecycle Product Documentation" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -473,16 +473,17 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Launch Manager</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">User Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="concepts.html">Overview</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Lifecycle Product Documentation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Overview</a></li>
 <li class="toctree-l3"><a class="reference internal" href="ready_state.html">Ready Conditions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="integration.html">Integration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples.html">Configuration Examples</a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="#">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples.html">Configuration examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="implementation.html">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="known_limitations.html">Known Limitations</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="../product_documentation/known_limitations.html">Known Limitations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="known_limitations.html">Known Limitations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../requirements/index.html">Requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../requirements/chklst_req_inspection.html">Requirement Inspection Checklist</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../architecture/index.html">Component Architecture</a></li>
@@ -543,9 +544,9 @@
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Launch Manager</a></li>
     
     
-    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User Guide</a></li>
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Lifecycle Product Documentation</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Implementation</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Overview</span></li>
   </ul>
 </nav>
 </div>
@@ -562,59 +563,171 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="implementation">
-<h1>Implementation<a class="headerlink" href="#implementation" title="Link to this heading">#</a></h1>
-<section id="starting-a-process">
-<h2>Starting a process<a class="headerlink" href="#starting-a-process" title="Link to this heading">#</a></h2>
-<p>A reporting process must signal to the Launch Manager that it has
-started successfully by calling the lifecycle API for the language it is
-implemented in. This is done by reporting the <code class="docutils literal notranslate"><span class="pre">kRunning</span></code> execution
-state.</p>
-<p>A <code class="docutils literal notranslate"><span class="pre">ready_timeout_ms</span></code> can be configured for each component. If the
-process does not report <code class="docutils literal notranslate"><span class="pre">kRunning</span></code> within that timeout, the Launch
-Manager terminates the process and registers an error.</p>
+  <section id="overview">
+<span id="lm-user-guide"></span><h1>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h1>
+<section id="introduction">
+<span id="lm-introduction"></span><h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">#</a></h2>
+<section id="what-is-the-launch-manager">
+<span id="lm-what-is-the-launch-manager"></span><h3>What is the Launch Manager?<a class="headerlink" href="#what-is-the-launch-manager" title="Link to this heading">#</a></h3>
+<p>The <strong>Launch Manager</strong> is a system daemon responsible for managing the
+execution of software components on an embedded target. It is designed
+to run for the lifetime of the target and take care of platform
+initialization, ordered start-up and shutdown of components, and
+recovery from unexpected failures.</p>
 </section>
-<section id="stopping-a-process">
-<h2>Stopping a process<a class="headerlink" href="#stopping-a-process" title="Link to this heading">#</a></h2>
-<p>A process can be configured to terminate in 2 ways:</p>
+<section id="responsibilities">
+<span id="lm-responsibilities"></span><h3>Responsibilities<a class="headerlink" href="#responsibilities" title="Link to this heading">#</a></h3>
+<p>The Launch Manager is responsible for:</p>
 <ul class="simple">
-<li><p><strong>Self-terminating</strong> - The process terminates whenever it wants.</p></li>
-<li><p><strong>Non-self-terminating</strong> - The process remains alive until LCM requests the process to end using a <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code> signal.</p></li>
+<li><p><strong>Component lifecycle control</strong> - spawning and terminating OS
+processes according to their configured parameters (executable path,
+user/group identity, environment, scheduling policy).</p></li>
+<li><p><strong>Dependency resolution</strong> - ensuring components start and stop in the
+correct order based on declared startup and shutdown dependencies.</p></li>
+<li><p><strong>Failure recovery</strong> - detecting unexpected process termination and
+executing configured recovery actions such as restarting a component
+or switching to a recovery Run Target.</p></li>
+<li><p><strong>Run Target management</strong> - determining which components are active
+at any given time by activating and deactivating named Run Targets in
+response to requests from a Control Client.</p></li>
 </ul>
-<p>For a process to support being terminated by LCM, it needs to respond to
-a <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code> signal by ending ongoing tasks, freeing resources and
-exiting.</p>
-<p>If a process does not terminate after receiving a <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code>, and a
-<code class="docutils literal notranslate"><span class="pre">shutdown_timeout_ms</span></code> is configured, then after the timeout is fired a
-<code class="docutils literal notranslate"><span class="pre">SIGKILL</span></code> is sent and the process is forcefully terminated.</p>
 </section>
-<section id="state-management">
-<h2>State Management<a class="headerlink" href="#state-management" title="Link to this heading">#</a></h2>
-<p>A <strong>state manager</strong> is an application that dictates which run-targets shall be
-active by communicating with the launch manager using the <code class="docutils literal notranslate"><span class="pre">ControlClient</span></code>.
-The <strong>control client</strong> exposes a single API <code class="docutils literal notranslate"><span class="pre">ActivateRunTarget</span></code> which allows
-the user to provide the name of the run-target to activate.
-<code class="docutils literal notranslate"><span class="pre">ActivateRunTarget</span></code> returns a future that resolves once the transition
-is complete.
-Whether to <code class="docutils literal notranslate"><span class="pre">.wait()</span></code> on it is up to the implementation, a state manager may
-choose to wait before issuing the next transition, or fire and continue without
-blocking.</p>
-<p>The <strong>state manager</strong> is itself a managed component and <strong>must</strong> report
-<code class="docutils literal notranslate"><span class="pre">kRunning</span></code> to the Launch Manager using the lifecycle API before calling
-<code class="docutils literal notranslate"><span class="pre">ActivateRunTarget</span></code>.
-Failing to do so means the Launch Manager does not consider the <strong>state
-manager</strong> ready, which blocks the startup procedure from completing.
-The configuration also requires that the component that is the <strong>state manager</strong> has
-to have the field <code class="docutils literal notranslate"><span class="pre">application_profile.application_type</span></code> set to
-<code class="docutils literal notranslate"><span class="pre">State_Manager</span></code>.</p>
+</section>
+<section id="key-concepts">
+<span id="lm-key-concepts"></span><h2>Key concepts<a class="headerlink" href="#key-concepts" title="Link to this heading">#</a></h2>
+<section id="components">
+<span id="lm-components"></span><h3>Components<a class="headerlink" href="#components" title="Link to this heading">#</a></h3>
+<p>A <strong>Component</strong> is an independent, deployable software unit managed by
+the Launch Manager. This can be a long-running daemon developed with the
+lifecycle API, a one-shot application, or any arbitrary binary such as <code class="docutils literal notranslate"><span class="pre">ls</span></code>.
+Components are defined independently of the
+systems they run on, which allows the same component to be deployed
+across multiple target configurations without modification.</p>
+<p>The specific deployment parameters of a component (such as which run
+targets it is included in, its startup timeout, or its termination
+behavior) are kept separate from the component’s inherent properties.
+This separation allows for reusability across different system
+configurations.</p>
+</section>
+<section id="ready-state">
+<span id="lm-ready-state"></span><h3>Ready state<a class="headerlink" href="#ready-state" title="Link to this heading">#</a></h3>
+<p>Each component has a <strong>Ready State</strong>. A component reaches the Ready State when
+it has started successfully and has satisfied its configured ready condition.</p>
+<p>Supported ready conditions include <code class="docutils literal notranslate"><span class="pre">Running</span></code>, where the component is
+considered ready as soon as its process has reported <code class="docutils literal notranslate"><span class="pre">kRunning</span></code> via the
+lifecycle API, and <code class="docutils literal notranslate"><span class="pre">Terminated</span></code>, where the component is considered ready
+once it has reported <code class="docutils literal notranslate"><span class="pre">kRunning</span></code> and subsequently exited successfully.
+For the full list of supported conditions, see <a class="reference internal" href="ready_state.html#lm-ready-conditions"><span class="std std-ref">Ready Conditions</span></a>.</p>
+<p>A component can also be configured to be <strong>non-reporting</strong>. The Launch Manager
+considers it to be in the <strong>Ready State</strong> as soon as its process has been
+spawned.
+This is useful for integrating third-party binaries or system utilities where
+the source code cannot be modified to report the running state.</p>
+<p>It is important to understand that the Ready State reflects a
+component’s <em>functional availability</em>, not merely the existence of its
+OS process. For example, a component that mounts a file system remains
+in the Ready State for as long as the mount is active, even if the
+process that performed the mount has already exited.</p>
+<p>Reaching the <strong>Ready State</strong> signals that the component is fully operational
+and capable of providing its services.
+The application developer determines when this state is reached. Other
+components can then safely rely on its services, and the Launch Manager can
+continue evaluating the startup procedure.</p>
+<p class="plantuml">
+<object data="../../../_images/plantuml-7f1ad083e5cc3342c5862938908eb5f9c8669907.svg" type="image/svg+xml" style="width:564px;height:178px;background:#FFFFFF;"></object></p>
+<p class="plantuml">
+<object data="../../../_images/plantuml-a564a262eabe418ba7f31d0267e8baa7f22f71ee.svg" type="image/svg+xml" style="width:570px;height:268px;background:#FFFFFF;"></object></p>
+<p class="plantuml">
+<object data="../../../_images/plantuml-8a7e0b3a8b31ae6f6551656fcd632bf8f3b75386.svg" type="image/svg+xml" style="width:593px;height:268px;background:#FFFFFF;"></object></p>
+</section>
+<section id="run-targets">
+<span id="lm-run-targets"></span><h3>Run targets<a class="headerlink" href="#run-targets" title="Link to this heading">#</a></h3>
+<p>A <strong>Run Target</strong> defines a named collection of components that are
+intended to be active together. Only <strong>one Run Target can be active at a
+time</strong>. When a Run Target is activated, the Launch Manager transitions
+the system exclusively to that target, any components not assigned to it
+are terminated.</p>
+<p>When a Run Target is activated, the Launch Manager performs the
+following:</p>
+<ul class="simple">
+<li><p>All <strong>active</strong> components that are not assigned to the new Run Target are
+terminated.</p></li>
+<li><p>All components that are assigned to the new Run Target but are <strong>not</strong> yet
+<strong>active</strong> are started.</p></li>
+</ul>
+</section>
+<section id="starting-components">
+<span id="lm-starting-components"></span><h3>Starting components<a class="headerlink" href="#starting-components" title="Link to this heading">#</a></h3>
+<p>The Launch Manager starts a component primarily for either of the following
+reasons:</p>
+<ul class="simple">
+<li><p>A component is directly assigned to a <strong>Run Target</strong> that is currently being activated.</p></li>
+<li><p>Another component, which is assigned to a <strong>Run Target</strong> being activated, explicitly depends on that component.</p></li>
+</ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">ActivateRunTarget</span></code> is called while a transition is already in
-progress, the in-flight transition is cancelled, its returned future will
-resolve with a <code class="docutils literal notranslate"><span class="pre">kCancelled</span></code> error, and the new transition will be served
-instead. Always check the result of each <code class="docutils literal notranslate"><span class="pre">ActivateRunTarget</span></code> call to
-detect cancellation.</p>
+<p>The exact interleaving of terminations and starts during a transition is not
+defined, new components may be started before, after, or concurrently with
+the termination of outgoing components. If a component depends on another
+being fully stopped or fully ready before it proceeds, this should be
+expressed using dependencies between components or run-targets rather than
+relying on transition ordering.</p>
 </div>
+</section>
+<section id="dependencies">
+<span id="lm-dependencies"></span><h3>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading">#</a></h3>
+<p>A fundamental aspect of <strong>Launch Manager</strong> configuration involves understanding
+how components are assigned to a <strong>Run Target</strong> and how dependencies are
+declared.</p>
+<p>When a component is said to be assigned to a <strong>Run Target</strong>, it means the <strong>Run
+Target’s</strong> configuration explicitly lists the component’s name within its
+<code class="docutils literal notranslate"><span class="pre">depends_on</span></code> parameter.</p>
+<p>Similarly, when a component depends on another component, its own
+<code class="docutils literal notranslate"><span class="pre">component_properties.depends_on</span></code> configuration parameter will list the name
+of the other component it requires.</p>
+<p>Additionally, a <strong>Run Target</strong> can declare a dependency on another <strong>Run
+Target</strong>.
+In this scenario, the name of the dependent <strong>Run Target</strong> is listed within the
+<code class="docutils literal notranslate"><span class="pre">depends_on</span></code> configuration parameter of the primary <strong>Run Target</strong>.
+The most effective way to conceptualize this relationship is to imagine that
+the list of components assigned to the dependent <strong>Run Target</strong> is effectively
+included in the list of components of the primary <strong>Run Target</strong>.</p>
+<p>Dependencies in the <strong>Launch Manager</strong> are resolved transitively.
+When a <strong>Run Target</strong> is activated, the <strong>Launch Manager</strong> does not only start
+the components and <strong>Run Targets</strong> directly listed in its <code class="docutils literal notranslate"><span class="pre">depends_on</span></code>, it
+follows the full dependency chain recursively until all dependencies are
+accounted for.</p>
+<p>This means that a component brought in by a <strong>Run Target</strong> dependency is
+treated as if it were directly assigned to the activating <strong>Run Target</strong>.
+If that component itself depends on further components, those are pulled in as
+well.</p>
+<section id="rules-for-configuring-dependencies">
+<span id="lm-dependency-rules"></span><h4>Rules for configuring dependencies<a class="headerlink" href="#rules-for-configuring-dependencies" title="Link to this heading">#</a></h4>
+<p>When configuring dependencies within the <strong>Launch Manager</strong>, the following
+rules must be observed to ensure correct system behavior:</p>
+<ul class="simple">
+<li><p>A <strong>Component</strong> can depend on another <strong>Component</strong>.</p></li>
+<li><p>A <strong>Run Target</strong> can depend on a <strong>Component</strong>.</p></li>
+<li><p>A <strong>Run Target</strong> can depend on another <strong>Run Target</strong>.</p></li>
+<li><p>A <strong>Component</strong> cannot depend on a <strong>Run Target</strong>.</p></li>
+</ul>
+</section>
+<section id="example">
+<span id="lm-run-targets-example"></span><h4>Example<a class="headerlink" href="#example" title="Link to this heading">#</a></h4>
+<p>The following diagram illustrates two Run Targets sharing some
+components and each having components exclusive to them. When
+transitioning from <em>Startup</em> to <em>Full</em>, the Launch Manager deactivates
+components not assigned to <em>Full</em> and activates those that are.</p>
+<p class="plantuml">
+<object data="../../../_images/plantuml-142a2e9d5412f8356bb3b4298051eeb90e84b603.svg" type="image/svg+xml" style="width:430px;height:362px;background:#FFFFFF;"></object></p>
+<p>The order in which components are started and stopped within a
+transition is determined by their configured dependencies.
+And so the following is the sequence diagram showing the
+processes being started:</p>
+<p class="plantuml">
+<object data="../../../_images/plantuml-84e4bdb34cbe13c4cda7466280f8b0c22589b26b.svg" type="image/svg+xml" style="width:504px;height:345px;background:#FFFFFF;"></object></p>
+</section>
+</section>
 </section>
 </section>
 
@@ -629,20 +742,20 @@ detect cancellation.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="examples.html"
+       href="index.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Configuration Examples</p>
+        <p class="prev-next-title">Lifecycle Product Documentation</p>
       </div>
     </a>
     <a class="right-next"
-       href="../product_documentation/known_limitations.html"
+       href="ready_state.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Known Limitations</p>
+        <p class="prev-next-title">Ready Conditions</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -665,9 +778,23 @@ detect cancellation.</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#starting-a-process">Starting a process</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stopping-a-process">Stopping a process</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#state-management">State Management</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">Introduction</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-the-launch-manager">What is the Launch Manager?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#responsibilities">Responsibilities</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-concepts">Key concepts</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#components">Components</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ready-state">Ready state</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#run-targets">Run targets</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#starting-components">Starting components</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dependencies">Dependencies</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#rules-for-configuring-dependencies">Rules for configuring dependencies</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -675,7 +802,7 @@ detect cancellation.</p>
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/eclipse-score/lifecycle/edit/main/score/launch_manager/docs/user_guide/implementation.rst">
+    <a href="https://github.com/eclipse-score/lifecycle/edit/main/score/launch_manager/docs/product_documentation/concepts.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
