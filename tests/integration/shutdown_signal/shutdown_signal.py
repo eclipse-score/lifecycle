@@ -49,6 +49,5 @@ def test_shutdown_signal(target, setup_test, assert_test_results, remote_test_di
         cwd=str(remote_test_dir),
     )
 
-    assert_test_results(
-        {"control_client_test_driver.xml", "shutdown_signal_process.xml"}
-    )
+    # Expectation for "shutdown_signal_process.xml" not required as there is no verification in this process
+    assert_test_results({"control_client_test_driver.xml"})

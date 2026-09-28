@@ -18,7 +18,6 @@
 
 namespace score::mw::lifecycle::internal::osal
 {
-// coverity[autosar_cpp14_m3_4_1_violation:INTENTIONAL] The value is used in a global context.
 constexpr uint32_t kDefaultNumCores = 64U;  // Default value if unable to determine number of cores
 
 /// @brief Get the number of CPU cores available on the system.

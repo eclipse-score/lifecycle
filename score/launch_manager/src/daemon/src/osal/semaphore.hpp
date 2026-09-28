@@ -110,7 +110,6 @@ class Semaphore final
 
   private:
     /// @brief POSIX semaphore object
-    // RULECHECKER_comment(1, 1, check_union_object, "Union type defined in external library is used.", true)
     sem_t sem_;
 };
 

@@ -440,9 +440,6 @@ void ProcessLauncher::handleChildProcess(ChildProcessConfig& param)
     char* const* envp = param.config.deployment_config.environmental_variables.envp();
 
     // Finally, execute the process, passing all the arguments and environment variables
-
-    // RULECHECKER_comment(1, 1, check_pointer_qualifier_cast_const, "Remove const for standard library with char type
-    // arguments.", true);
     if (-1 == execve(argv[0], const_cast<char* const*>(argv.data()), envp))
     {
         static_cast<void>(signal_safe_log_errno(

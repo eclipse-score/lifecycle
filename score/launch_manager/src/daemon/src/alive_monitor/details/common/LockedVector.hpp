@@ -36,8 +36,6 @@ class LockedVector final : private FixedSizeVector<Type>
         : FixedSizeVector<Type>(std::move(f_araCoreVector_r))
     {
     }
-    /* RULECHECKER_comment(0, 70, check_member_function_missing_static, "The underlying FixedSizeVector object could not
-     * be made static", true_no_defect) */
     /// @brief Return a reference to the first element of the LockedVector
     /// @details If LockedVector is empty, return value is undefined
     Type& front(void) noexcept(true)

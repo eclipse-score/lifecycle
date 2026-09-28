@@ -16,7 +16,6 @@
 namespace score::mw::lifecycle::internal::osal
 {
 #if defined(__CTC__)
-/* RULECHECKER_comment(1:0,2:0, check_pragma_usage, "External tooling requires pragma", true_no_defect) */
 #pragma CTC ANNOTATION The end of this function cannot be reached by tests after std::abort() is called, \
     but the business logic before it is tested.
 #pragma CTC SKIP
@@ -32,7 +31,6 @@ void sysexit(int status)
     std::_Exit(status);
 }
 #if defined(__CTC__)
-/* RULECHECKER_comment(1:0,1:0, check_pragma_usage, "External tooling requires pragma", true_no_defect) */
 #pragma CTC ENDSKIP
 #endif
 }  // namespace score::mw::lifecycle::internal::osal

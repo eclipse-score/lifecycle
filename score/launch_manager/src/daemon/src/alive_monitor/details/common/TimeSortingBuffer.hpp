@@ -66,8 +66,6 @@ class TimeSortingBuffer
     /// @param [in] f_element_r     Element which shall be copied into the buffer
     /// @param [in] f_timestamp     Timestamp used for sorting it into the buffer
     /// @return                     Success of push (true) sufficient space in buffer was available
-    /* RULECHECKER_comment(0, 3, check_cheap_to_copy_in_parameter, "For template argument f_element_r, it is not \
-    possible to classify cheap_to_copy or expensive_to_copy without referring original object.", true_no_defect) */
     bool push(const TimeSortedElementType& f_element_r, const std::chrono::nanoseconds f_timestamp)
     {
         bool isSuccess{false};
@@ -123,10 +121,6 @@ class TimeSortingBuffer
   private:
     /// Sort Chain Element
     /// Structure used for sorting the elements
-    /* RULECHECKER_comment(0, 11, check_non_private_non_pod_field, "Struct is only used internally within this class",
-     * true_no_defect) */
-    /* RULECHECKER_comment(0, 10, check_non_pod_struct, "Struct is only used internally within this class",
-     * true_no_defect) */
     struct SortChainElement
     {
         SortChainElement* previous_p{

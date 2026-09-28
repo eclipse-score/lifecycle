@@ -14,8 +14,6 @@
 #include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/TimeConversion.hpp"
 
-/* RULECHECKER_comment(0, 4, {check_include_time}, "Monotonic clock is needed from this header.\
-    other clocks and time format is not used.", true_no_defect) */
 #include <cstdint>
 #include <ctime>
 

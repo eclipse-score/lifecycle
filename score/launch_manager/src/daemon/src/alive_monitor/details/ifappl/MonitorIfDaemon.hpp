@@ -58,17 +58,9 @@ class MonitorIfDaemon : public common::Observer<ifexm::ObservableEvent>
     explicit MonitorIfDaemon(CheckpointIpcServer& f_ipcServer_r, const char* f_interfaceName_p) noexcept(false);
 
     /// @brief Default Move Constructor
-    /* RULECHECKER_comment(0, 7, check_min_instructions, "Default constructor is not provided\
-       a function body", true_no_defect) */
-    /* RULECHECKER_comment(0, 5, check_incomplete_data_member_construction, "Default constructor is not provided\
-       the member initializer", false) */
-    /* RULECHECKER_comment(0, 3, check_copy_in_move_constructor, "The default move constructor invokes parameterised\
-       constructor internally. This invokes std::string copy construction", true_no_defect) */
     MonitorIfDaemon(MonitorIfDaemon&&) = default;
 
     /// @brief Default Destructor
-    /* RULECHECKER_comment(0, 3, check_min_instructions, "Default destructor is not provided\
-       a function body", true_no_defect) */
     ~MonitorIfDaemon() override = default;
 
     /// @brief Get interface Name

@@ -101,11 +101,11 @@ OS process. For example, a component that mounts a file system remains
 in the Ready State for as long as the mount is active, even if the
 process that performed the mount has already exited.
 
-Reaching the **Ready State** signals to the Launch Manager that the
-component is fully operational and capable of providing its services,
-this point is decided by the application developer. This
-allows for other components to safely rely on other components services
-and for the startup procedure to be evaluated by the Launch Manager.
+Reaching the **Ready State** signals that the component is fully operational
+and capable of providing its services.
+The application developer determines when this state is reached. Other
+components can then safely rely on its services, and the Launch Manager can
+continue evaluating the startup procedure.
 
 .. uml:: ./images/lm_non_reporting.puml
 
@@ -128,21 +128,19 @@ are terminated.
 When a Run Target is activated, the Launch Manager performs the
 following:
 
-- All components currently in the **active** that are **not** assigned to
-  the new Run Target are terminated.
+- All **active** components that are not assigned to the new Run Target are
+  terminated.
 - All components that are assigned to the new Run Target but are **not** yet
   **active** are started.
 
 
 .. _lm_starting_components:
 
-Starting Components
+Starting components
 -------------------
 
-With the definitions of **Components**, **Run Targets**, and **Ready State**
-established, let us clarify the conditions under which the **Launch Manager**
-will initiate a component's startup sequence. Components will be started for
-two primary reasons:
+The Launch Manager starts a component primarily for either of the following
+reasons:
 
 * A component is directly assigned to a **Run Target** that is currently being activated.
 * Another component, which is assigned to a **Run Target** being activated, explicitly depends on that component.
@@ -194,7 +192,7 @@ well.
 
 .. _lm_dependency_rules:
 
-Rules for Configuring Dependencies
+Rules for configuring dependencies
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 When configuring dependencies within the **Launch Manager**, the following

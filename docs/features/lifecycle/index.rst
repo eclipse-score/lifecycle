@@ -25,11 +25,11 @@ For the main feature description and requirements, see the belonging Feature in 
 .. toctree::
    :hidden:
 
-   architecture/index.rst
-   architecture/chklst_arc_inspection.rst
-   safety_analysis/fmea.rst
-   safety_analysis/dfa.rst
-   safety_analysis/aou_requirements.rst
-   safety_planning/index.rst
-   security_planning/index.rst
+   architecture/index
+   architecture/chklst_arc_inspection
+   safety_analysis/fmea
+   safety_analysis/dfa
+   safety_analysis/aou_requirements
+   safety_planning/index
+   security_planning/index
    glossary

@@ -42,10 +42,9 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Setup Bazel with shared caching
-        uses: eclipse-score/cicd-actions/setup-bazel-cache@cache
+        uses: eclipse-score/cicd-actions/setup-bazel-cache@e2a2a587a759b681632040ec1e1294015a0405f5 # setup-bazel-cache/v0.1.0
         with:
           disk-cache-key: ${{ github.job }}
-          enable-profiling: true
 
       - name: Collect coverage
         run: |

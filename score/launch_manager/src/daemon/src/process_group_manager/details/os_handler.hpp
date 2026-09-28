@@ -27,7 +27,6 @@ namespace score::mw::lifecycle::internal
 /// @brief Delay duration between successive iterations of the OsHandler's main loop when no processes are terminating.
 /// This constant prevents the OsHandler from consuming excessive CPU resources by sleeping for a specified duration
 /// if no processes are detected to be terminating.
-// coverity[autosar_cpp14_m3_4_1_violation:INTENTIONAL] The value is used in a global context.
 constexpr std::chrono::milliseconds OS_HANDLER_LOOP_DELAY{100};  // TODO - Define actual delay value
 
 /// @brief The OsHandler class notifies a ProcessInfoNode when a child process terminates.

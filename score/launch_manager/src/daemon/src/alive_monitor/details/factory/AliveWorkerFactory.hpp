@@ -35,8 +35,6 @@ class AliveWorkerFactory : public IAliveWorkerFactory
     explicit AliveWorkerFactory();
 
     /// @brief Destructor
-    /* RULECHECKER_comment(0, 5, check_min_instructions, "Default destructor is not provided\
-       a function body", true_no_defect) */
     ~AliveWorkerFactory() override = default;
 
     /// @brief No Copy Constructor

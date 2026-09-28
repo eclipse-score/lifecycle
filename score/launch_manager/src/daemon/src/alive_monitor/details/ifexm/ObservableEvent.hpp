@@ -35,12 +35,6 @@ class ObservableEvent : public saf::common::Observable<ObservableEvent>
     explicit ObservableEvent(const IdentifierHash& process_id) noexcept(false);
 
     /// @brief Default Move Constructor
-    /* RULECHECKER_comment(0, 7, check_min_instructions, "Default constructor is not provided\
-       a function body", true_no_defect) */
-    /* RULECHECKER_comment(0, 5, check_incomplete_data_member_construction, "Default constructor is not provided\
-       the member initializer", false) */
-    /* RULECHECKER_comment(0, 3, check_copy_in_move_constructor, "The default move constructor invokes parameterised\
-       constructor internally. This invokes std::string copy construction", true_no_defect) */
     ObservableEvent(ObservableEvent&&) = default;
 
     /// @brief No Copy Constructor
@@ -51,8 +45,6 @@ class ObservableEvent : public saf::common::Observable<ObservableEvent>
     ObservableEvent& operator=(ObservableEvent&&) = delete;
 
     /// @brief Default Destructor
-    /* RULECHECKER_comment(0, 5, check_min_instructions, "Default destructor is not provided\
-       a function body", true_no_defect) */
     ~ObservableEvent() override = default;
 
     /// @brief Event to observe

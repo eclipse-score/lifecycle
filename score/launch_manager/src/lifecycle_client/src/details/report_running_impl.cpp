@@ -68,7 +68,6 @@ score::Result<std::monostate> ReportRunningImpl::reportKRunningtoDaemon() const 
         return comms_error;
     }
 
-    // coverity[autosar_cpp14_a18_5_8_violation:FALSE] sync is a shared memory object and so has to be allocated.
     const IpcCommsP sync = IpcCommsSync::getCommsObject(sync_fd);
 
     if (!sync)

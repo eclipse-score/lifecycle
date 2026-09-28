@@ -32,7 +32,7 @@ bazel_dep(name = "google_benchmark", version = "1.9.5", dev_dependency = True)
 
 # S-CORE process rules
 
-bazel_dep(name = "score_docs_as_code", version = "8.1.2")
+bazel_dep(name = "score_docs_as_code", version = "8.2.0")
 bazel_dep(name = "score_tooling", version = "2.2.1")
 
 bazel_dep(name = "score_rust_policies", version = "0.0.5", dev_dependency = True)
@@ -281,6 +281,13 @@ pip.parse(
 use_repo(pip, "score_lifecycle_pip")
 
 bazel_dep(name = "score_itf", version = "0.5.0", dev_dependency = True)
+
+# Need latest ITF for qemu arm support which is not part latest release
+git_override(
+    module_name = "score_itf",
+    commit = "38ae9a3dd98ccc7434e1f8b57ca4a3d2bac82e2f",
+    remote = "https://github.com/eclipse-score/itf.git",
+)
 
 oci = use_extension("@rules_oci//oci:extensions.bzl", "oci", dev_dependency = True)
 oci.pull(

@@ -12,14 +12,15 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-User Guide
-##########
+Lifecycle Product Documentation
+###############################
 
 .. toctree::
 
-   concepts.rst
-   ready_state.rst
-   configuration.rst
-   integration.rst
-   examples.rst
-   implementation.rst
+   concepts
+   ready_state
+   configuration
+   integration
+   examples
+   implementation
+   known_limitations

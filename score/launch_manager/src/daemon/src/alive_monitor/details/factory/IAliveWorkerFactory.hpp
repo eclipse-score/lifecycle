@@ -55,8 +55,6 @@ using ComponentAliveSupervision = configuration::ComponentAliveSupervision;
 class IAliveWorkerFactory
 {
   public:
-    /* RULECHECKER_comment(0, 10, check_min_instructions, "Default constructor and default destructor are not provided\
-     a function body", true_no_defect) */
     /// @brief Constructor
     IAliveWorkerFactory() = default;
 

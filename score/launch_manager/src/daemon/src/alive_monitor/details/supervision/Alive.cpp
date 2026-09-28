@@ -53,7 +53,6 @@ Alive::Alive(
         (recoveryClient_p != nullptr), "Recovery client must be provided");
 }
 
-// coverity[exn_spec_violation:FALSE] std::length_error is not thrown from push() which uses fixed-size-vector
 void Alive::updateData(const score::mw::lifecycle::internal::saf::ifappl::Checkpoint& f_observable_r) noexcept(true)
 {
     std::chrono::nanoseconds timestamp{f_observable_r.getTimestamp()};
@@ -75,7 +74,6 @@ void Alive::updateData(const score::mw::lifecycle::internal::saf::ifappl::Checkp
     }
 }
 
-// coverity[exn_spec_violation:FALSE] std::length_error is not thrown from push() which uses fixed-size-vector
 void Alive::updateData(const ifexm::ObservableEvent& f_observable_r) noexcept(true)
 {
     const std::chrono::nanoseconds timestamp{
@@ -462,7 +460,6 @@ void Alive::switchToFailed(void) noexcept(true)
 {
     aliveStatus = EStatus::kFailed;
     // Method caller is responsible for preventing overflow
-    // coverity[autosar_cpp14_a4_7_1_violation] value can only reach k_failedSupervisionCyclesTolerance
     failedSupervisionCycles++;
 
     logExpiredFailedStateDetails();
@@ -568,8 +565,6 @@ void Alive::logExpiredFailedStateDetails() const noexcept(true)
     }
 
     const bool minError{isMinError()};
-    /* RULECHECKER_comment(0, 4, check_conditional_as_sub_expression, "Ternary operation is very simple",
-     * true_no_defect) */
     const std::uint64_t aliveIndicationMargin{minError ? k_minAliveIndications : k_maxAliveIndications};
     const std::string_view expectedComparison{minError ? ">=" : "<="};
     LM_LOG_WARN() << "Alive Supervision (" << getConfigName() << ")" << failedState << ", due to" << indicationCount
@@ -592,8 +587,6 @@ std::chrono::nanoseconds Alive::getTimestampOfUpdateEvent(const TimeSortedUpdate
     else
     {
         SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD(std::holds_alternative<SyncSnapshot>(f_updateEvent));
-        // coverity[cert_exp34_c_violation] SyncSnapshot type is stored also check assert above
-        // coverity[dereference] SyncSnapshot type is stored also check assert above
         timestamp = std::get<SyncSnapshot>(f_updateEvent);
     }
 

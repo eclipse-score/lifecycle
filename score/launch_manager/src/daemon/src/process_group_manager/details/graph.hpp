@@ -131,7 +131,6 @@ enum class GraphState : std::uint_least8_t
 /// kAborting       -> kInTransition    kAborting
 /// kUndefinedState -> kSuccess         kUndefinedState
 /// kUndefinedState -> kAborting        kUndefinedState
-// coverity[autosar_cpp14_m3_4_1_violation:INTENTIONAL] The value is used in a global context.
 // clang-format off
 static constexpr GraphState state_results[][static_cast<uint>(GraphState::kUndefinedState) + 1U] = {
     //from kSuccess                     kInTransition               kAborting                 kCancelled                      kUndefinedState              to new_state

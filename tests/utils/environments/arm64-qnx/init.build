@@ -11,26 +11,33 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
-# This file originates from https://github.com/eclipse-score/communication/blob/8826549731f455fad66bd8f54292e3355bf046c3/quality/integration_testing/environments/qnx8_qemu/init_x86_64.build
-# with some modifications
+# This file is the AArch64 counterpart of
+# //tests/utils/environments/x86_64-qnx:init.build and is intentionally kept as
+# close to it as possible. The board specific bits (load address, startup
+# program, serial driver and network transport) follow the QNX SDP 8.0
+# definitions for the QEMU "virt" board, see
+# ${QNX_HOST}/common/mkqnximage/qemu/snippets/definitions.type_qemu
 
 [-optional]
 
-[image=0x3600000]
-[virtual=x86_64,multiboot] boot = {
-    startup-x86 -v -D8250..115200 -zz
+# QEMU loads a raw AArch64 -kernel image at RAM base + 0x80000, which is
+# 0x40080000 on the "virt" machine.
+[image=0x40080000]
+[virtual=aarch64le,raw] boot = {
+    startup-qemu-virt -v
     PATH=/proc/boot
     LD_LIBRARY_PATH=/proc/boot
     [+keeplinked] procnto-smp-instr
 }
 
 [+script] startup-script = {
-    display_msg Welcome to QNX OS 8.0 on x86_64 tweaked for S-CORE!
+    display_msg Welcome to QNX OS 8.0 on AArch64 tweaked for S-CORE!
     # These env variables get inherited by all programs which follow
     SYSNAME=nto
     TERM=qansi
 
-    devc-ser8250 &
+    # The "virt" board exposes a PL011 UART at 0x9000000 on SPI 1 (IRQ 33).
+    devc-serpl011 -F 0x9000000,33 &
     waitfor /dev/ser1
     reopen /dev/ser1
 
@@ -44,11 +51,6 @@
     echo "---> Starting slogger2"
     slogger2 -m -s 253952 -G 7 -V -g 486
     waitfor /dev/slog2
-
-    # PCI server required for virtio-net (QEMU networking)
-    echo "---> Starting PCI Services"
-    pci-server --config=/proc/boot/pci_server.cfg
-    waitfor /dev/pci
 
     # Required to support POSIX pipes (used e.g. by service discovery)
     echo "---> Starting Pipe"
@@ -70,7 +72,7 @@
     echo "---> Starting devb-ram"
     devb-ram ram capacity=1 blk ramdisk=10m,cache=512k,vnode=256 2>/dev/null
     waitfor /dev/ram0
-    devb-ram ram capacity=1 blk ramdisk=128m,cache=512k,vnode=256 2>/dev/null
+    devb-ram ram capacity=1 blk ramdisk=256m,cache=512k,vnode=256 2>/dev/null
     waitfor /dev/ram1
 
     echo "---> Mounting discovery RAM disk"
@@ -87,9 +89,11 @@
     echo "---> Starting devc-pty"
     devc-pty -n 32
 
-    # Networking stack for SSH-based ITF test harness communication
+    # Networking stack for SSH-based ITF test harness communication. On the
+    # "virt" board the virtio NIC is attached via virtio-mmio and discovered
+    # through the flattened device tree, so no PCI server is needed.
     echo "---> Starting Networking"
-    io-sock -m phy -m pci -d vtnet_pci
+    io-sock -m phy -m fdt -d vtnet_mmio
     waitfor /dev/socket
 
     echo "---> Configuring network interface"
@@ -126,14 +130,14 @@ libc.so                                  # C standard library (essential)
 libc.so.6                                # Main C library (malloc, printf, file I/O, etc.)
 libcam.so.2                              # CAM library for device access
 libcrypto.so.3                           # OpenSSL 3 crypto library (needed by qcrypto-openssl-3 plugin)
-libexpat.so.2                            # XML parser library (needed by PCI subsystem)
+libexpat.so.2                            # XML parser library (needed by ifconfig)
+libfdt.so.1                              # Flattened device tree library (needed by mods-fdt)
 libfsnotify.so.1                         # File system notification library
 libgcc_s.so.1                            # GCC runtime support library
 libiconv.so.1                            # Character encoding conversion library
 libjail.so.1                             # Jail/sandbox library (needed by sshd)
 libm.so                                  # Math library
 libpam.so.2                              # PAM authentication library (needed by sshd)
-libpci.so.3.0                            # PCI access library (needed by pci-server)
 libqcrypto.so.1.0                        # QNX cryptographic library
 libqh.so.1                               # QNX helper library
 libqnxnoexcept.so=${QNXNOEXCEPT_LIBRARY}
@@ -146,15 +150,16 @@ libssl.so.3                              # OpenSSL TLS library (needed by sshd)
 libz.so                                  # Zlib compression library
 
 # qcrypto plugin loaded by the random service at runtime
-[search=${QNX_TARGET}/x86_64/lib/dll] qcrypto-openssl-3.so
+[search=${QNX_TARGET}/aarch64le/lib/dll] qcrypto-openssl-3.so
 
 #############################################
 ### NETWORKING COMPONENTS ###
 #############################################
 io-sock                                  # Network stack manager
-mods-pci.so                              # PCI network module
+mods-fdt.so                              # Flattened device tree enumeration module
 mods-phy.so                              # PHY network module
-devs-vtnet_pci.so                        # VirtIO network PCI driver (QEMU)
+mods-phy_fdt.so                          # PHY device tree bindings
+devs-vtnet_mmio.so                       # VirtIO network MMIO driver (QEMU virt)
 
 [type=link] /bin/sh=/proc/boot/ksh       # Create symbolic link: sh -> ksh (standard shell link)
 [type=link] /bin/ls=/proc/boot/ls        # Link ls to IFS version for compatibility
@@ -273,7 +278,7 @@ toybox                                   # Minimal Unix utilities collection (re
 #############################################
 devb-ram                                 # RAM disk block device manager
 devc-pty                                 # Pseudo-terminal driver (needed by sshd)
-devc-ser8250                             # Serial port driver for 8250/16550 UART controllers (console access)
+devc-serpl011                            # Serial port driver for PL011 UART controllers (console access)
 fsevmgr                                  # File system event manager
 getconf                                  # Get system configuration values
 hostname                                 # Set/display system hostname
@@ -284,7 +289,6 @@ ln                                       # Create file links
 mkqnx6fs                                 # Create QNX6 file systems
 mount                                    # File system mount utility - mounts/unmounts file systems
 on                                       # Command execution utility - runs commands with specific options
-pci-server                               # PCI server (required for virtio-net)
 pdebug                                   # Process debugger
 pidin                                    # Process information display - shows running processes (like 'ps' on Linux)
 pipe                                     # Named pipe manager
@@ -300,44 +304,10 @@ sysctl                                   # View/modify kernel parameters
 /usr/libexec/sshd-session=${QNX_TARGET}/${PROCESSOR}/usr/libexec/sshd-session  # SSH session handler (required by OpenSSH 9.8+)
 
 #############################################
-### PCI COMPONENTS ###
-#############################################
-pci/pci_hw-Intel_x86.so
-pci/pci_slog2.so
-pci/pci_cap-0x05.so
-pci/pci_cap-0x10.so
-pci/pci_cap-0x11.so
-pci/pci_strings.so
-pci/pci_bkwd_compat.so
-pci/pci_debug2.so
-
-#############################################
 ### SYSTEM DIRECTORIES ###
 #############################################
 [gid=0 uid=0 dperms=755 type=dir] /var/chroot/sshd
 [gid=0 uid=0 dperms=700 type=dir] /var/ssh
-
-[perms=0444] pci_server.cfg = {
-[buscfg]
-DO_BUS_CONFIG=no
-
-[envars]
-PCI_DEBUG_MODULE=pci_debug2.so
-PCI_HW_MODULE=pci_hw-Intel_x86.so
-PCI_HW_CONFIG_FILE=/proc/boot/pci_hw.cfg
-}
-
-[perms=0444] pci_hw.cfg = {
-[interrupts]
-B0:D17:F0    A    18
-B0:D17:F0    B    19
-B0:D17:F0    C    16
-B0:D17:F0    D    17
-B3:D0:F0     A    18
-B3:D0:F0     B    19
-B3:D0:F0     C    16
-B3:D0:F0     D    17
-}
 
 [uid=0 gid=0 perms=0444] /etc/passwd = {
 root::0:0:Superuser:/:/bin/sh

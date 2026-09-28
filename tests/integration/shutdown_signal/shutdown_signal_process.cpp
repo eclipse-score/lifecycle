@@ -42,30 +42,31 @@ void shutdownSignalHandler(int /*signum*/)
         static_cast<void>(close(fd));
     }
 
-    // Do NOT terminate: block until SIGKILL arrives so shutdown requires it.
-    while (true)
-    {
-        static_cast<void>(pause());
-    }
+    // Do not terminate, main keeps running
 }
 }  // namespace
 
-TEST(ShutdownSignal, Process)
+int main()
 {
     // Remove any leftover file from a previous manual run.
-    ASSERT_TRUE(check_clean({sigterm_received_file}, false));
+    const auto cleanup_success = check_clean({sigterm_received_file}, false);
+    if (!cleanup_success)
+    {
+        return EXIT_FAILURE;
+    }
 
-    // Install our own SIGTERM handler. This must happen after the TestRunner
-    // constructor (which registers its default handler), so that ours takes
-    // precedence for the shutdown signal sent by the Launch Manager.
+    // Install our own SIGTERM handler.
     signal(SIGTERM, shutdownSignalHandler);
 
     // Report running so the Launch Manager considers this process ready and the
     // "Running" run target can be activated.
     score::mw::lifecycle::report_running();
-}
 
-int main()
-{
-    return TestRunner(__FILE__).RunTests();
+    while (true)
+    {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+
+    // never reached
+    return EXIT_FAILURE;
 }

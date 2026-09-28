@@ -43,7 +43,7 @@ If a process does not terminate after receiving a ``SIGTERM``, and a
 ``shutdown_timeout_ms`` is configured, then after the timeout is fired a
 ``SIGKILL`` is sent and the process is forcefully terminated.
 
-State Management
+State management
 ================
 
 A **state manager** is an application that dictates which run-targets shall be

@@ -36,8 +36,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        bazel-config: [unit-tests-x86_64-qnx, unit-tests-arm64-qnx]
-    uses: eclipse-score/cicd-workflows/.github/workflows/qnx-build.yml@8c48c65fc9e8927a06214192e6ebce520853087d
+        bazel-config: [unit-tests-x86_64-qnx, unit-tests-arm64-qnx, x86_64-qnx, arm64-qnx]
+    uses: eclipse-score/cicd-workflows/.github/workflows/qnx-build.yml@145c53eb965228c981ba0073bbf8adb2b2ab0ebf
     permissions:
       contents: read
       pull-requests: read
@@ -45,6 +45,7 @@ jobs:
       bazel-target: "//score/... //examples/..."
       bazel-config: ${{ matrix.bazel-config }}
       bazel-test-target: "//examples/... //score/... //tests/..."
+      extra-bazel-test-flags: "--test_timeout=120,600,1800,7200" # Increase test timeout due to QEMU emulation
       credential-helper: "scripts/internal/qnx_creds.py"
       bazel-disk-cache: ${{ matrix.bazel-config }}
     secrets:

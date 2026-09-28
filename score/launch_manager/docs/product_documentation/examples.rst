@@ -14,14 +14,13 @@
 
 .. _lm_config_examples:
 
-Configuration Examples
+Configuration examples
 ======================
 
-This document provides a set of configuration examples that come with the
-**Launch Manager** schema. These examples are designed to show common ways to
-use **Launch Manager** and to demonstrate how configurations should be
-structured. They serve as practical guides, helping users understand how to
-apply various features effectively.
+This section provides an example configuration included with the Launch Manager
+schema.
+The example demonstrates how to define components, Run Targets, and their
+dependencies.
 
 `example_conf.json`
 -------------------

@@ -30,7 +30,6 @@ bool ObservableEventReader::registerObservableEvent(
 {
     bool flagSuccess{false};
 
-    // coverity[autosar_cpp14_a8_5_2_violation:FALSE] type auto shall not be initialized with {} AUTOSAR.8.5.3A
     auto pairInsertResult = processStateMap.insert({f_processId, &f_processState_r});
     flagSuccess = pairInsertResult.second;
 

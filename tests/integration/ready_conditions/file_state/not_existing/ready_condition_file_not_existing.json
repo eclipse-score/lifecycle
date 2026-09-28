@@ -3,7 +3,7 @@
     "defaults": {
         "deployment_config": {
             "bin_dir": "/tmp/tests/ready_condition_file_not_exists",
-            "ready_timeout_ms": 100,
+            "ready_timeout_ms": 1000,
             "shutdown_timeout_ms": 1000,
             "ready_recovery_action": {
                 "restart": {
@@ -37,7 +37,10 @@
             "component_properties": {
                 "binary_name": "control_client_test_driver",
                 "application_profile": {
-                    "application_type": "State_Manager"
+                    "application_type": "State_Manager",
+                    "alive_supervision": {
+                        "min_indications": 0
+                    }
                 }
             }
         },
@@ -99,6 +102,9 @@
                         "polling_interval_ms": 100
                     }
                 }
+            },
+            "deployment_config": {
+                "ready_timeout_ms": 100
             }
         }
     },

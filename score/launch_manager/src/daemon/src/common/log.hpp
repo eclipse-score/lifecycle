@@ -34,8 +34,6 @@ namespace score::mw::lifecycle::internal
 /// More information can be found in docs/architecture/concepts/logging/logging.rst file.
 inline score::mw::log::Logger& _getLmLogger() noexcept
 {
-    // RULECHECKER_comment(1, 1, check_static_object_dynamic_initialization, "This is safe because the static is a
-    // function local.", true);
     static score::mw::log::Logger& log{score::mw::log::CreateLogger("LM", "Launch Manager logging context")};
     return log;
 }
@@ -254,8 +252,6 @@ class Logger
 
 inline Logger& _getLmLogger() noexcept
 {
-    // RULECHECKER_comment(1, 1, check_static_object_dynamic_initialization, "This is safe because the static is a
-    // function local.", true);
     static Logger log{"LCLM", "Launch Manager logging context"};
     return log;
 }

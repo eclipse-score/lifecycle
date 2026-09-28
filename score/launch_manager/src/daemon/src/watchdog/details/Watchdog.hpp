@@ -25,33 +25,17 @@
 // For Linux, these constants are defined in linux/watchdog.h - we use the same naming here.
 // Note that there are slight differences in the datatype of these constants for QNX compared to linux.
 constexpr char WATCHDOG_IOCTL_BASE{'W'};
-// coverity[autosar_cpp14_m3_4_1_violation] definition in header is intended to replicate the linux/watchdog.h
 constexpr std::int32_t WDIOS_ENABLECARD{0x0002};
-// coverity[autosar_cpp14_m3_4_1_violation] definition in header is intended to replicate the linux/watchdog.h
 constexpr std::int32_t WDIOS_DISABLECARD{0x0001};
 
-/* RULECHECKER_comment(0,4, check_underlying_narrowing_conversion, "No narrowing conversion", false) */
-/* RULECHECKER_comment(0,3, check_c_style_cast, "Use of POSIX header functionality", false) */
 constexpr std::int32_t WDIOC_SETOPTIONS{_IOW(WATCHDOG_IOCTL_BASE, 4, std::int32_t)};
 
-/* RULECHECKER_comment(0,4, check_underlying_narrowing_conversion, "No narrowing conversion", false) */
-/* RULECHECKER_comment(0,3, check_c_style_cast, "Use of POSIX header functionality", false) */
-// coverity[autosar_cpp14_m3_4_1_violation] definition in header is intended to replicate the linux/watchdog.h
 constexpr std::int32_t WDIOC_KEEPALIVE{_IOR(WATCHDOG_IOCTL_BASE, 5, std::int32_t)};
 
-/* RULECHECKER_comment(0,5, check_underlying_narrowing_conversion, "No narrowing conversion", false) */
-/* RULECHECKER_comment(0,4, check_c_style_cast, "Use of POSIX header functionality", false) */
-// coverity[autosar_cpp14_m3_4_1_violation] definition in header is intended to replicate the linux/watchdog.h
 constexpr std::int32_t WDIOC_SETTIMEOUT{_IOWR(WATCHDOG_IOCTL_BASE, 6, std::int32_t)};
 
-/* RULECHECKER_comment(0,5, check_underlying_narrowing_conversion, "No narrowing conversion", false) */
-/* RULECHECKER_comment(0,4, check_c_style_cast, "Use of POSIX header functionality", false) */
-// coverity[autosar_cpp14_m3_4_1_violation] definition in header is intended to replicate the linux/watchdog.h
 constexpr std::int32_t WDIOC_GETTIMEOUT{_IOR(WATCHDOG_IOCTL_BASE, 7, std::int32_t)};
 
-/* RULECHECKER_comment(0,5, check_underlying_narrowing_conversion, "No narrowing conversion", false) */
-/* RULECHECKER_comment(0,4, check_c_style_cast, "Use of POSIX header functionality", false) */
-// coverity[autosar_cpp14_m3_4_1_violation] definition in header is intended to replicate the linux/watchdog.h
 constexpr std::int32_t WDIOC_GETTIMELEFT{_IOR(WATCHDOG_IOCTL_BASE, 10, std::int32_t)};
 #endif
 
