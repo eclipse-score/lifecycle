@@ -267,7 +267,7 @@ Launching Processes
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__custom_cond_support[version==1]
-    :status: valid
+    :status: invalid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
