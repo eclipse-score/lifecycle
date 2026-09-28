@@ -32,3 +32,13 @@ cc_library(
         "@googletest//:gtest_main",
     ],
 )
+
+cc_library(
+    name = "empty_stop_action",
+    srcs = ["empty_stop_action.cpp"],
+    hdrs = ["empty_stop_action.hpp"],
+    include_prefix = "score/mw/launch_manager/process_group_manager/details/stop_action",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details/stop_action",
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
+    deps = [":istop_action"],
+)
