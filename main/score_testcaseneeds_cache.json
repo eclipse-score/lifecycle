@@ -1134,6 +1134,48 @@
     "FullyVerifies": null
   },
   {
+    "name": "ControlProviderUT__StaticAssertionsCompiled",
+    "file": "score/launch_manager/src/daemon/src/control/control_provider_UT.cpp",
+    "line": "83",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "ControlProviderUT__CallbacksDispatchAfterOwnershipTransfer",
+    "file": "score/launch_manager/src/daemon/src/control/control_provider_UT.cpp",
+    "line": "95",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "ControlProviderUT__DestructionReleasesService",
+    "file": "score/launch_manager/src/daemon/src/control/control_provider_UT.cpp",
+    "line": "119",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
     "name": "WaitForFileTest__FileExists",
     "file": "score/launch_manager/src/daemon/src/osal/details/posix/wait_for_file_UT.cpp",
     "line": "49",
