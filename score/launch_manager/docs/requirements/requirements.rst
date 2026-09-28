@@ -698,8 +698,8 @@ Monitoring, Notification and Recovery
     :term:`Component failure` by reactivating the failed 
     :term:`Component`.
 
-.. comp_req:: Recovery by switching the run target on run target level
-    :id: comp_req__launch_man__recovery_switch_rt_rt
+.. comp_req:: Recovery by switching the run target
+    :id: comp_req__launch_man__recovery_switch_rt
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -710,21 +710,7 @@ Monitoring, Notification and Recovery
 
     The :term:`Launch Manager` shall be able to react to a 
     :term:`Component failure` by switching to another 
-    :term:`Run Target` which is configured on the current active :term:`Run Target`.
-
-.. comp_req:: Recovery by switching the run target on component level
-    :id: comp_req__launch_man__recovery_switch_rt_cmp
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall be able to react to a 
-    :term:`Component failure` by switching to another 
-    :term:`Run Target` which is configured on the failed :term:`Component`.
+    :term:`Run Target`.
 
 .. comp_req:: Recovery by stopping the component
     :id: comp_req__launch_man__recovery_stop
@@ -737,7 +723,7 @@ Monitoring, Notification and Recovery
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall be able to react to a 
-    :term:`Component` failure by stopping the failed 
+    :term:`Component failure` by stopping the failed 
     :term:`Component`.
 
 .. comp_req:: Recovery by stopping the component and starting another component
@@ -750,10 +736,10 @@ Monitoring, Notification and Recovery
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall be able to react to a :term:`Component` failure by
-    stopping the failed :term:`Component` and starting another :term:`Component`.
+    The :term:`Launch Manager` shall be able to react to a :term:`Component failure` by
+    stopping the failed :term:`Component` and starting another :term:`Component` instead.
 
-.. comp_req:: Recovery by triggering the watchdog
+.. comp_req:: Recovery by stopping the servicing of the watchdog
     :id: comp_req__launch_man__recovery_watchdog
     :reqtype: Functional
     :security: NO
@@ -763,8 +749,8 @@ Monitoring, Notification and Recovery
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall be able to react to a :term:`Component` failure by
-    triggering a :term:`Watchdog`.
+    The :term:`Launch Manager` shall be able to react to a :term:`Component failure` by
+    stopping the servicing of the :term:`Watchdog`.
 
 .. comp_req:: Launch manager external watchdog notification
     :id: comp_req__launch_man__lm_ext_watchdog_notify
