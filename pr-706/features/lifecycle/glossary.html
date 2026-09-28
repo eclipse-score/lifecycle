@@ -530,6 +530,8 @@ detects abnormal situation it can change the <a class="reference internal" href=
 </dd>
 <dt id="term-Component">Component<a class="headerlink" href="#term-Component" title="Link to this term">#</a></dt><dd><p>A configurable unit in the Launch Manager that describes an executable and its runtime environment (sandbox). Components can be grouped together in Run Targets to define system operational states.</p>
 </dd>
+<dt id="term-Component-failure">Component failure<a class="headerlink" href="#term-Component-failure" title="Link to this term">#</a></dt><dd><p>A state when the component has failed to reach its <a class="reference internal" href="#term-Ready-Condition"><span class="xref std std-term">Ready Condition</span></a>, a running component has terminated abnormally or its supervision failed.</p>
+</dd>
 <dt id="term-Ready-State">Ready State<a class="headerlink" href="#term-Ready-State" title="Link to this term">#</a></dt><dd><p>A state when the component is ready to provide services to other components.</p>
 </dd>
 <dt id="term-Dependency-between-components">Dependency (between components)<a class="headerlink" href="#term-Dependency-between-components" title="Link to this term">#</a></dt><dd><p>A configuration parameter indicating that <strong>Component A</strong> can only start
@@ -558,7 +560,7 @@ on <strong>Run Target B</strong>.</p>
 </dd>
 <dt id="term-ASLR">ASLR<a class="headerlink" href="#term-ASLR" title="Link to this term">#</a></dt><dd><p>Address Space Layout Randomization - a security technique that randomizes the memory layout of processes.</p>
 </dd>
-<dt id="term-Recovery-Action">Recovery Action<a class="headerlink" href="#term-Recovery-Action" title="Link to this term">#</a></dt><dd><p>Actions taken by the Launch Manager when a process fails or terminates abnormally.</p>
+<dt id="term-Recovery-Action">Recovery Action<a class="headerlink" href="#term-Recovery-Action" title="Link to this term">#</a></dt><dd><p>Actions taken by the Launch Manager as a response to a <a class="reference internal" href="#term-Component-failure"><span class="xref std std-term">Component failure</span></a> or <a class="reference internal" href="#term-Run-Target"><span class="xref std std-term">Run Target</span></a> activation failure.</p>
 </dd>
 <dt id="term-Ready-Condition">Ready Condition<a class="headerlink" href="#term-Ready-Condition" title="Link to this term">#</a></dt><dd><p>A configurable condition that must be satisfied before a component is considered ready and operational. Ready conditions can include file system checks, network availability, or custom application-specific signals.</p>
 <p>Ready conditions can either be reported by the component itself through the Lifecycle Interface or determined via external state monitoring. External state examples include: process started, file is available, socket was opened, or that the process finished successfully.</p>
@@ -577,7 +579,9 @@ on <strong>Run Target B</strong>.</p>
 </dd>
 <dt id="term-SWC">SWC<a class="headerlink" href="#term-SWC" title="Link to this term">#</a></dt><dd><p>Software Components - modular software units that can be independently managed.</p>
 </dd>
-<dt id="term-Run-target">Run target<a class="headerlink" href="#term-Run-target" title="Link to this term">#</a></dt><dd><p>A named collection of processes and their dependencies that can be launched, stopped, or switched as a group to achieve a specific operational mode or configuration.</p>
+<dt id="term-Run-Target">Run Target<a class="headerlink" href="#term-Run-Target" title="Link to this term">#</a></dt><dd><p>A named collection of components and their dependencies that can be activated, stopped, or switched as a group to achieve a specific operational mode or configuration.</p>
+</dd>
+<dt id="term-Fallback-Run-Target">Fallback Run Target<a class="headerlink" href="#term-Fallback-Run-Target" title="Link to this term">#</a></dt><dd><p>A designated Run Target that the system can switch to in case the current active Run Target resp. one of its components fails.</p>
 </dd>
 <dt id="term-Operating-System">Operating System<a class="headerlink" href="#term-Operating-System" title="Link to this term">#</a></dt><dd><p>The system software that manages computer hardware and software resources and provides common services for computer programs.</p>
 </dd>
