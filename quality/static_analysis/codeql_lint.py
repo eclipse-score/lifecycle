@@ -323,6 +323,54 @@ def _build_report_analysis_spec(report, source_root):
     }
 
 
+def _seed_codeql_package_cache(packages_dir):
+    """Pre-seed CodeQL's per-user package cache with the vendored qtil pack.
+
+    The main ``codeql database analyze`` step is hermetic: it runs the
+    pre-compiled coding-standards packs, which vendor every library dependency
+    (including ``advanced-security/qtil``) under ``.codeql/libraries/`` and are
+    made discoverable via ``--search-path``.
+
+    The ``analysis_report`` tool is NOT hermetic. It runs its own
+    ``codeql database run-queries`` over the *source* coding-standards pack
+    (``codeql/common-cpp-coding-standards``) without any ``--search-path``, so
+    CodeQL resolves that pack's ``advanced-security/qtil`` dependency from the
+    per-user download cache (``~/.codeql/packages``). On a machine whose cache
+    has never been populated (a colleague's laptop, a fresh CI runner), the
+    deviation/diagnostics queries fail with::
+
+        Pack 'advanced-security/qtil@0.0.3' was not found in the pack download
+        cache. ... A 'codeql resolve extensions-by-pack' operation failed with
+        error code 2
+
+    rather than downloading it (offline CI / hermetic build). Copy the
+    already-vendored pack into the cache so the dependency resolves without any
+    network access. Idempotent: existing cache entries are left untouched.
+    """
+    try:
+        compiled_pack_root = _find_compiled_pack_root()
+    except RuntimeError:
+        # No vendored MISRA pack available -> nothing to seed (and no
+        # coding-standards report will run anyway).
+        return
+
+    vendored_qtil = os.path.join(
+        compiled_pack_root, ".codeql", "libraries", "advanced-security", "qtil")
+    if not os.path.isdir(vendored_qtil):
+        return
+
+    target_qtil = os.path.join(packages_dir, "advanced-security", "qtil")
+    for entry in sorted(os.listdir(vendored_qtil)):
+        src = os.path.join(vendored_qtil, entry)
+        dst = os.path.join(target_qtil, entry)
+        if os.path.isdir(src) and not os.path.exists(dst):
+            os.makedirs(target_qtil, exist_ok=True)
+            shutil.copytree(src, dst)
+            print(
+                f" Seeded CodeQL package cache with vendored "
+                f"advanced-security/qtil/{entry}")
+
+
 def analyze_database(
     code_ql_path,
     database_path,
@@ -430,6 +478,17 @@ def analyze_database(
             print(f" CodeQL bin dir exists: {os.path.isdir(codeql_bin_dir)}")
             env["PATH"] = f"{codeql_bin_dir}:{env.get('PATH', '')}"
             print(f" PATH for analysis_report: {env['PATH']}")
+
+            # analysis_report runs its own `codeql database run-queries` over the
+            # SOURCE coding-standards pack, whose `advanced-security/qtil`
+            # dependency is NOT part of the CodeQL CLI distribution. Pre-seed the
+            # per-user package cache from the vendored pre-compiled pack so it
+            # resolves hermetically instead of failing with "Pack
+            # 'advanced-security/qtil@0.0.3' was not found in the pack download
+            # cache" on machines with an empty cache (see
+            # _seed_codeql_package_cache).
+            _seed_codeql_package_cache(
+                os.path.join(os.path.expanduser("~"), ".codeql", "packages"))
 
             # analysis_report expects positional args: database-dir sarif-file output-dir
 
