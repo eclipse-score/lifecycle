@@ -13,13 +13,14 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("//tests/utils/bazel:unit_test.bzl", "lm_cc_test")
 
+package(default_visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:internal"])
+
 cc_library(
     name = "observable_event",
     srcs = ["ObservableEvent.cpp"],
     hdrs = ["ObservableEvent.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/ifexm",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/ifexm",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
     deps = [
         ":supervision_event",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/common:observer",
@@ -33,7 +34,6 @@ cc_library(
     hdrs = ["ObservableEventReader.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/ifexm",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/ifexm",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
     deps = [
         ":observable_event",
         ":supervision_event",
@@ -61,7 +61,6 @@ cc_library(
     hdrs = ["supervision_handle.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/ifexm",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/ifexm",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
     deps = [
         ":supervision_event",
         "//score/launch_manager/src/daemon/src/alive_monitor:ialive_supervision_handle",

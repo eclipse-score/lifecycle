@@ -13,12 +13,13 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("//tests/utils/bazel:unit_test.bzl", "lm_cc_test")
 
+package(default_visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:internal"])
+
 cc_library(
     name = "observer",
     hdrs = ["Observer.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/common",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/common",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
     deps = ["@score_baselibs//score/language/futurecpp"],
 )
 
@@ -27,7 +28,6 @@ cc_library(
     hdrs = ["FixedSizeVector.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/common",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/common",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
 )
 
 cc_library(
@@ -35,7 +35,6 @@ cc_library(
     hdrs = ["EInitCode.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/common",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/common",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
 )
 
 cc_library(
@@ -43,7 +42,6 @@ cc_library(
     hdrs = ["LockedVector.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/common",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/common",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
     deps = [":fixed_size_vector"],
 )
 
@@ -52,7 +50,6 @@ cc_library(
     hdrs = ["TimeSortingBuffer.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/common",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/common",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
     deps = [
         ":fixed_size_vector",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",

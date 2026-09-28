@@ -12,12 +12,13 @@
 # *******************************************************************************
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
+package(default_visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:internal"])
+
 cc_library(
     name = "i_alive_worker_factory",
     hdrs = ["IAliveWorkerFactory.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/factory",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/factory",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
     deps = [
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:data_structures",
     ],
@@ -29,7 +30,6 @@ cc_library(
     hdrs = ["AliveWorkerFactory.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/factory",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/factory",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
     deps = [
         ":i_alive_worker_factory",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:checkpoint",

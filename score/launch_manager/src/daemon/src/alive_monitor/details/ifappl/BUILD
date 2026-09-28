@@ -13,6 +13,8 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("//tests/utils/bazel:unit_test.bzl", "lm_cc_test")
 
+package(default_visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:internal"])
+
 cc_library(
     name = "data_structures",
     hdrs = ["DataStructures.hpp"],
@@ -20,7 +22,7 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/ifappl",
     visibility = [
         "//score/launch_manager/src/alive:__subpackages__",
-        "//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__",
+        "//score/launch_manager/src/daemon/src/alive_monitor:internal",
     ],
     deps = [
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ipc:ipc_if",
@@ -34,7 +36,6 @@ cc_library(
     hdrs = ["Checkpoint.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/ifappl",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/ifappl",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
     deps = [
         "//score/launch_manager/src/daemon/src/alive_monitor/details/common:observer",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:observable_event",
@@ -48,7 +49,6 @@ cc_library(
     hdrs = ["MonitorIfDaemon.hpp"],
     include_prefix = "score/mw/launch_manager/alive_monitor/details/ifappl",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/ifappl",
-    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
     deps = [
         ":checkpoint",
         ":data_structures",
