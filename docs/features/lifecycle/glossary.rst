@@ -104,7 +104,7 @@ Glossary
       Address Space Layout Randomization - a security technique that randomizes the memory layout of processes.
 
     Recovery Action
-      Actions taken by the Launch Manager when a component fails or terminates abnormally.
+      Actions taken by the Launch Manager as a response to a :term:`Component failure` or :term:`Run Target` activation failure.
 
     Ready Condition
       A configurable condition that must be satisfied before a component is considered ready and operational. Ready conditions can include file system checks, network availability, or custom application-specific signals.
