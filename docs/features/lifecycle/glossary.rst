@@ -60,6 +60,12 @@ Glossary
     Component
       A configurable unit in the Launch Manager that describes an executable and its runtime environment (sandbox). Components can be grouped together in Run Targets to define system operational states.
 
+    Component failure (during runtime)
+      A state when a running component has terminated abnormally or its supervision failed.
+
+    Component failure (during activation)
+      A state when the component has failed to reach its :term:`Ready Condition`.
+
     Ready State
       A state when the component is ready to provide services to other components.
 

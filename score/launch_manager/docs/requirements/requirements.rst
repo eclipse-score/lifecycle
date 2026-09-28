@@ -668,7 +668,8 @@ Monitoring, Notification and Recovery
 
     .. note::
         An adopted process is a process that was not originally launched by the :term:`Launch Manager`.
-        **Use case:** There might be processes which are needed to start very early during bootup.
+        **Use case:** There might be processes which are needed to start very early during bootup and 
+        are therefore launched by the system before the :term:`Launch Manager` takes control.
 
 .. comp_req:: Process launch monitoring
     :id: comp_req__launch_man__failure_detect
@@ -694,7 +695,7 @@ Monitoring, Notification and Recovery
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall be able to react to a 
-    :term:`Component` which fails to reach its :term:`Ready Condition` 
+    :term:`Component failure (during activation)` 
     by restarting this :term:`Component`.
 
 .. comp_req:: Recovery by reactivating the component
@@ -708,7 +709,7 @@ Monitoring, Notification and Recovery
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall be able to react to a 
-    :term:`Component` failure by reactivating the failed 
+    :term:`Component failure (during runtime)` by reactivating the failed 
     :term:`Component`.
 
 .. comp_req:: Recovery by switching the run target to fallback run target
@@ -722,7 +723,7 @@ Monitoring, Notification and Recovery
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall be able to react to a 
-    :term:`Component` failure by switching to the 
+    :term:`Component failure (during runtime)` by switching to the 
     :term:`Fallback Run Target`.
 
 .. comp_req:: Recovery by switching the run target on run target level
@@ -736,7 +737,7 @@ Monitoring, Notification and Recovery
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall be able to react to a 
-    :term:`Component` failure by switching to another 
+    :term:`Component failure (during runtime)` by switching to another 
     :term:`Run Target` which is configured on the current active :term:`Run Target`.
 
 .. comp_req:: Recovery by switching the run target on component level
@@ -750,7 +751,7 @@ Monitoring, Notification and Recovery
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall be able to react to a 
-    :term:`Component` failure by switching to another 
+    :term:`Component failure` by switching to another 
     :term:`Run Target` which is configured on the failed :term:`Component`.
 
 .. comp_req:: Recovery by stopping the component
