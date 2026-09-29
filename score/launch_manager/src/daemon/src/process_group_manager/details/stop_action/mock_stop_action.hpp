@@ -23,7 +23,7 @@ namespace score::mw::lifecycle::internal
 class MockStopAction : public IStopAction
 {
   public:
-    MOCK_METHOD(void, stop, (const Handle handle), (override, const));
+    MOCK_METHOD(Result<void>, stop, (const Handle handle), (override, const));
 };
 
 }  // namespace score::mw::lifecycle::internal

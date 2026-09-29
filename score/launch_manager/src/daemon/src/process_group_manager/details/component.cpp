@@ -33,11 +33,21 @@ Component::Component(
 
 IComponent::RequestResult Component::activate(score::cpp::stop_token stop_token)
 {
-    handle_ = start_action_->start();
+    const auto start_result = start_action_->start();
+    if (!start_result.has_value())
+    {
+        return cpp::make_unexpected(ComponentError::kErrorBeforeReady);
+    }
+    handle_ = start_result.value();
+
     for (const IReadyCondition* ready_condition : ready_conditions_)
     {
-        ready_condition->wait(handle_.value());
+        if (!ready_condition->wait(handle_.value()).has_value())
+        {
+            return cpp::make_unexpected(ComponentError::kErrorBeforeReady);
+        }
     }
+
     return RequestState::kSuccess;
 }
 
@@ -45,7 +55,10 @@ IComponent::RequestResult Component::deactivate(score::cpp::stop_token stop_toke
 {
     if (handle_.has_value())
     {
-        stop_action_->stop(handle_.value());
+        if (!stop_action_->stop(handle_.value()).has_value())
+        {
+            return cpp::make_unexpected(ComponentError::kErrorAfterReady);
+        }
     }
     handle_ = std::nullopt;
     return RequestState::kSuccess;

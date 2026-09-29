@@ -22,7 +22,7 @@ namespace score::mw::lifecycle::internal
 class EmptyStopAction final : public IStopAction
 {
   public:
-    void stop(const Handle) const override;
+    Result<void> stop(const Handle) const override;
 };
 
 }  // namespace score::mw::lifecycle::internal

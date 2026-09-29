@@ -23,7 +23,7 @@ namespace score::mw::lifecycle::internal
 class MockStartAction : public IStartAction
 {
   public:
-    MOCK_METHOD(Handle, start, (), (override, const));
+    MOCK_METHOD(Result<Handle>, start, (), (override, const));
 };
 
 }  // namespace score::mw::lifecycle::internal

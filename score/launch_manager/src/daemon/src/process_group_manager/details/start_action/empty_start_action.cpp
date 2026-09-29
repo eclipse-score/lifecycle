@@ -16,7 +16,7 @@
 namespace score::mw::lifecycle::internal
 {
 
-Handle EmptyStartAction::start() const
+Result<Handle> EmptyStartAction::start() const
 {
     return EmptyHandle{};
 }
