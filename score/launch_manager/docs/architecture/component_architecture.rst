@@ -36,7 +36,13 @@ Overview
                 logic_arc_int__lifecycle__alive_if[version==1],
                 logic_arc_int__lifecycle__lifecycle_if[version==1]
    :uses: logic_arc_int__log_cpp__logging[version==1],
-          logic_arc_int__os__unistd[version==1]
+          logic_arc_int__os__unistd[version==1],
+          logic_arc_int__os__libcpp[version==1],
+          logic_arc_int__os__stat[version==1],
+          logic_arc_int__os__mman[version==1],
+          logic_arc_int__baselibs__result[version==1],
+          logic_arc_int__baselibs__flatbuffers[version==1],
+          logic_arc_int__communication__user[version==1]
    :security: NO
    :belongs_to: feat__lifecycle[version==1]
 

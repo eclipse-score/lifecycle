@@ -30,6 +30,7 @@ docs_bundle(
         ":health_monitoring_cc",
         ":health_monitoring_rust",
     ],
+    primary_need_id = "comp__health_monitor",
     source_dir = "docs",
     visibility = ["//visibility:public"],
 )
