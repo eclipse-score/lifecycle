@@ -27,8 +27,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
@@ -46,10 +46,10 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-needs/modern.css?v=803738c0" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
     <script src="../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
@@ -64,7 +64,7 @@
     <script src="../../_static/sphinx-needs/libs/html/sphinx_needs_collapse.js?v=dca66431"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'features/lifecycle/glossary';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://eclipse-score.github.io/lifecycle/versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = '';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -530,6 +530,8 @@ detects abnormal situation it can change the <a class="reference internal" href=
 </dd>
 <dt id="term-Component">Component<a class="headerlink" href="#term-Component" title="Link to this term">#</a></dt><dd><p>A configurable unit in the Launch Manager that describes an executable and its runtime environment (sandbox). Components can be grouped together in Run Targets to define system operational states.</p>
 </dd>
+<dt id="term-Component-failure">Component failure<a class="headerlink" href="#term-Component-failure" title="Link to this term">#</a></dt><dd><p>A state when the component has failed to reach its <a class="reference internal" href="#term-Ready-Condition"><span class="xref std std-term">Ready Condition</span></a>, a running component has terminated abnormally or its supervision failed.</p>
+</dd>
 <dt id="term-Ready-State">Ready State<a class="headerlink" href="#term-Ready-State" title="Link to this term">#</a></dt><dd><p>A state when the component is ready to provide services to other components.</p>
 </dd>
 <dt id="term-Dependency-between-components">Dependency (between components)<a class="headerlink" href="#term-Dependency-between-components" title="Link to this term">#</a></dt><dd><p>A configuration parameter indicating that <strong>Component A</strong> can only start
@@ -558,7 +560,7 @@ on <strong>Run Target B</strong>.</p>
 </dd>
 <dt id="term-ASLR">ASLR<a class="headerlink" href="#term-ASLR" title="Link to this term">#</a></dt><dd><p>Address Space Layout Randomization - a security technique that randomizes the memory layout of processes.</p>
 </dd>
-<dt id="term-Recovery-Action">Recovery Action<a class="headerlink" href="#term-Recovery-Action" title="Link to this term">#</a></dt><dd><p>Actions taken by the Launch Manager when a process fails or terminates abnormally.</p>
+<dt id="term-Recovery-Action">Recovery Action<a class="headerlink" href="#term-Recovery-Action" title="Link to this term">#</a></dt><dd><p>Actions taken by the Launch Manager as a response to a <a class="reference internal" href="#term-Component-failure"><span class="xref std std-term">Component failure</span></a> or <a class="reference internal" href="#term-Run-Target"><span class="xref std std-term">Run Target</span></a> activation failure.</p>
 </dd>
 <dt id="term-Ready-Condition">Ready Condition<a class="headerlink" href="#term-Ready-Condition" title="Link to this term">#</a></dt><dd><p>A configurable condition that must be satisfied before a component is considered ready and operational. Ready conditions can include file system checks, network availability, or custom application-specific signals.</p>
 <p>Ready conditions can either be reported by the component itself through the Lifecycle Interface or determined via external state monitoring. External state examples include: process started, file is available, socket was opened, or that the process finished successfully.</p>
@@ -577,7 +579,9 @@ on <strong>Run Target B</strong>.</p>
 </dd>
 <dt id="term-SWC">SWC<a class="headerlink" href="#term-SWC" title="Link to this term">#</a></dt><dd><p>Software Components - modular software units that can be independently managed.</p>
 </dd>
-<dt id="term-Run-target">Run target<a class="headerlink" href="#term-Run-target" title="Link to this term">#</a></dt><dd><p>A named collection of processes and their dependencies that can be launched, stopped, or switched as a group to achieve a specific operational mode or configuration.</p>
+<dt id="term-Run-Target">Run Target<a class="headerlink" href="#term-Run-Target" title="Link to this term">#</a></dt><dd><p>A named collection of components and their dependencies that can be activated, stopped, or switched as a group to achieve a specific operational mode or configuration.</p>
+</dd>
+<dt id="term-Fallback-Run-Target">Fallback Run Target<a class="headerlink" href="#term-Fallback-Run-Target" title="Link to this term">#</a></dt><dd><p>A designated Run Target that the system can switch to in case the current active Run Target resp. one of its components fails.</p>
 </dd>
 <dt id="term-Operating-System">Operating System<a class="headerlink" href="#term-Operating-System" title="Link to this term">#</a></dt><dd><p>The system software that manages computer hardware and software resources and provides common services for computer programs.</p>
 </dd>
@@ -652,8 +656,8 @@ on <strong>Run Target B</strong>.</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -677,7 +681,7 @@ on <strong>Run Target B</strong>.</p>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
 </p></div>
       
     </div>

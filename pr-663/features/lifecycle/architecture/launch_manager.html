@@ -27,8 +27,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
@@ -46,10 +46,10 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-needs/modern.css?v=803738c0" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
     <script src="../../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
@@ -64,7 +64,7 @@
     <script src="../../../_static/sphinx-needs/libs/html/sphinx_needs_collapse.js?v=dca66431"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'features/lifecycle/architecture/launch_manager';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://eclipse-score.github.io/lifecycle/versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = '';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -465,14 +465,14 @@
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
 <p>The functionality of the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> is defined by configuration
-data, which spawns a directed acyclic graph (DAG) of <a class="reference internal" href="../glossary.html#term-Component"><span class="xref std std-term">Components</span></a> and so called <a class="reference internal" href="../glossary.html#term-Run-target"><span class="xref std std-term">Run Targets</span></a>.
-The <a class="reference internal" href="../glossary.html#term-Run-target"><span class="xref std std-term">Run Targets</span></a> are virtual nodes in the DAG and represent
+data, which spawns a directed acyclic graph (DAG) of <a class="reference internal" href="../glossary.html#term-Component"><span class="xref std std-term">Components</span></a> and so called <a class="reference internal" href="../glossary.html#term-Run-Target"><span class="xref std std-term">Run Targets</span></a>.
+The <a class="reference internal" href="../glossary.html#term-Run-Target"><span class="xref std std-term">Run Targets</span></a> are virtual nodes in the DAG and represent
 <a class="reference internal" href="../glossary.html#term-Run-State"><span class="xref std std-term">Run States</span></a> of the system.
 The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> is responsible for starting and stopping the
 processes in the correct order, based on the dependencies defined in the
 configuration data.</p>
-<p>E.g. the configuration below consists of three <a class="reference internal" href="../glossary.html#term-Run-target"><span class="xref std std-term">Run Targets</span></a>
-managing 9 components. If the user selects e.g. the <a class="reference internal" href="../glossary.html#term-Run-target"><span class="xref std std-term">Run Target</span></a> “debug”
+<p>E.g. the configuration below consists of three <a class="reference internal" href="../glossary.html#term-Run-Target"><span class="xref std std-term">Run Targets</span></a>
+managing 9 components. If the user selects e.g. the <a class="reference internal" href="../glossary.html#term-Run-Target"><span class="xref std std-term">Run Target</span></a> “debug”
 the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> will start the components in the following order
 defined by the dependencies.</p>
 <ol class="arabic simple">
@@ -487,11 +487,11 @@ defined by the dependencies.</p>
 <object data="../../../_images/plantuml-8a854fbc8c202c0b507b252cb61991a5a9d0da90.svg" type="image/svg+xml" style="width:397px;height:933px;background:#FFFFFF;"></object></p>
 </figure>
 <p>The <a class="reference internal" href="../../../components/launch_manager/architecture/component_architecture.html#comp__lifecycle_launch_manager" title="comp__lifecycle_launch_manager"><em class="xref need">Launch Manager (comp__lifecycle_launch_manager)</em></a> implements the following
-interfaces,for the selection of <a class="reference internal" href="../glossary.html#term-Run-target"><span class="xref std std-term">Run Target</span></a> s, starting and stopping of
+interfaces,for the selection of <a class="reference internal" href="../glossary.html#term-Run-Target"><span class="xref std std-term">Run Target</span></a> s, starting and stopping of
 components and monitoring of the processes.</p>
 <section id="switching-between-run-targets">
 <h3>Switching between Run Targets<a class="headerlink" href="#switching-between-run-targets" title="Link to this heading">#</a></h3>
-<p>The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> allows switching between different <a class="reference internal" href="../glossary.html#term-Run-target"><span class="xref std std-term">Run
+<p>The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> allows switching between different <a class="reference internal" href="../glossary.html#term-Run-Target"><span class="xref std std-term">Run
 Targets</span></a>. When a switch is requested, the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a>
 evaluates the current state and the target state, determining which components
 need to be started or stopped based on their dependencies.</p>
@@ -559,7 +559,7 @@ controlled through POSIX signals:</p>
 </section>
 <section id="dynamic-architecture">
 <h2>Dynamic Architecture<a class="headerlink" href="#dynamic-architecture" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-f4b016dc">
+<div class="need_container docutils container" id="SNCB-34a75e50">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__lcm_start">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -672,7 +672,7 @@ condition of being in state running.</p>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-52726471">
+<div class="need_container docutils container" id="SNCB-e9b78b19">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__lcm_term">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -758,7 +758,7 @@ condition of being in state running.</p>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-d1e90a1a">
+<div class="need_container docutils container" id="SNCB-13372326">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__lcm_term_order">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -858,7 +858,7 @@ Reporting App 2 depends on the Running of Reporting App 1.</p>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-855cacbe">
+<div class="need_container docutils container" id="SNCB-98f3abbf">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__lcm_parallel">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -952,7 +952,7 @@ Reporting App 1 and Reporting App 2 can be started independently.</p>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-7a990d4f">
+<div class="need_container docutils container" id="SNCB-6529b001">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__crash">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1106,8 +1106,8 @@ Reporting App 1 and Reporting App 2 can be started independently.</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1131,7 +1131,7 @@ Reporting App 1 and Reporting App 2 can be started independently.</p>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
 </p></div>
       
     </div>
