@@ -279,6 +279,19 @@ Launching Processes
         **Use case:** There might be processes which need to continue running independently of the launch manager.
 
 
+.. comp_req:: Launching processes in parallel
+    :id: comp_req__launch_man__launch_parallel
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__launch_support[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall shall provide support for launching :term:`Processes <Process>`
+    in parallel.
+
 Conditional Launching
 =====================
 
