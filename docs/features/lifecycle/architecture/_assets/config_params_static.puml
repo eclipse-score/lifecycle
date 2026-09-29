@@ -20,70 +20,100 @@ class LaunchManager
 
 class LaunchConfiguration
 {
-
 }
 
-LaunchManager "1" -- "1" LaunchConfiguration
-
+LaunchManager "1" --> "1" LaunchConfiguration
+LaunchConfiguration "1" -d-> "1..*" RunTargetConfig : initial Run Target
+LaunchConfiguration "1" -d-> "1..*" RunTargetConfig : fallback Run Target
 
 class ConfigFile
 {
 
 }
 
-LaunchConfiguration "1" -- "1..*" ConfigFile
-
-
+LaunchConfiguration "1" *--> "1..*" ConfigFile
 
 class ComponentConfig {
-
+  + {field} name
 }
 
-ConfigFile "1" -- "1..*" ComponentConfig
-
-class AliveMonitoring {
-  + alive notification interval
-  + Startup grace period
-  + failure tolerance limit
+class RunTargetConfig {
+    + {field} name
+    + {field} transition timeout
+    + {field} recovery action (e.g. switch run target)
 }
 
+ConfigFile "1" *-d-> "1..*" ComponentConfig
+ConfigFile "1" *-d-> "1..*" RunTargetConfig
 
-class RecoveryAction {
-   + recovery action type (eg. restart, stop, ignore, DSS)
-   + retry count (how many times to try)
-   + wait time (before the component can be started again)
+RunTargetConfig "1" -l-> "1..*" RunTargetConfig : \ndependency
+RunTargetConfig "1" -r-> "1..*" ComponentConfig : dependency
+
+class AliveSupervision {
+  + {field} expected alive notification interval
+  + {field} expected alive notification count (min/max)
+  + {field} failure tolerance limit
 }
 
-
-class Dependency {
-  + depency type
+class ComponentRecoveryAction {
+   + {field} recovery action type (eg. restart, stop, ignore, DSS)
+   + {field} retry count (how many times to try)
+   + {field} wait time (before the component can be started again)
 }
+
+class ReadyCondition {}
+
+class FileStateCondition {
+  + {field} state (exists, not exists)
+  + {field} polling interval
+}
+
+class ProcessStateCondition {
+  + {field} Running/Terminated
+}
+
+FileStateCondition -up-|> ReadyCondition
+ProcessStateCondition -up-|> ReadyCondition
+
+class ComponentProperties {
+  + {field} binary name
+  + {field} type (e.g. Reporting process, native process, supervised process)
+  + {field} self terminating (true/false)
+  + {field} process arguments
+} 
+
+ComponentProperties "1" *-d-> "1" ReadyCondition
+ComponentProperties "1" *-d-> "1" AliveSupervision
+
+class DeploymentConfig {
+  + {field} binary dir
+  + {field} working dir
+  + {field} ready timeout
+  + {field} shutdown timeout
+  + {field} environment variables
+}
+
+DeploymentConfig *--> "1" SandboxConfig
+DeploymentConfig *--> "1..*" ComponentRecoveryAction
 
 class SandboxConfig {
-+ UID
-+ GID
-+ supplementary groups
-+ runmask
-+ priority
-+ ability
-+ security
-+ cwd
-+ environmental variables
-+ command
-+ arguments
-+ stdin
-+ stdout
-+ stderr
-+ aslr
-+ rlimits
-+ time between sigterm and sigkill
+  + {field} UID
+  + {field} GID
+  + {field} supplementary groups
+  + {field} runmask
+  + {field} priority
+  + {field} ability
+  + {field} security
+  + {field} cwd
+  + {field} stdin
+  + {field} stdout
+  + {field} stderr
+  + {field} aslr
+  + {field} rlimits
 }
 
-ComponentConfig "1" -- "1" Dependency
-ComponentConfig "1" -- "1" ProcessConfig
-ComponentConfig "1" -- "1" AliveMonitoring
-ComponentConfig "1" -- "1" RecoveryAction
-
-Dependency "1" --> "0..*" ComponentConfig: (reference to another component)
+ComponentConfig "1" -l-> "1..*" ComponentConfig: (reference to other components)
+ComponentConfig "1" o-d-> "1" ComponentProperties
+ComponentConfig "1" o-d-> "1" DeploymentConfig
 
 @enduml
