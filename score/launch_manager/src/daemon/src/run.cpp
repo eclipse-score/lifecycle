@@ -174,10 +174,11 @@ int run(int argc, const char* argv[])
             std::move(watchdog),
             config_result.value().takeWatchdog());
 
+        std::unique_ptr<ControlProvider> control_provider;
+
         if (process_group_manager->initialize())
         {
-            // Remains active in the background until the ControlProvider is destroyed.
-            const score::Result<ControlProvider*> control_provider_result =
+            score::Result<std::unique_ptr<ControlProvider>> control_provider_result =
                 ControlProvider::Create(process_group_manager.get());
 
             if (!control_provider_result.has_value())
@@ -186,9 +187,13 @@ int run(int argc, const char* argv[])
                                << control_provider_result.error().Message();
                 exit_code = EXIT_FAILURE;
             }
-            else if (runLCMDaemon(*process_group_manager))
+            else
             {
-                exit_code = EXIT_SUCCESS;
+                control_provider = std::move(control_provider_result).value();
+                if (runLCMDaemon(*process_group_manager))
+                {
+                    exit_code = EXIT_SUCCESS;
+                }
             }
         }
 

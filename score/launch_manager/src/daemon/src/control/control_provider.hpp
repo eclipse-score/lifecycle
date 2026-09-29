@@ -17,17 +17,20 @@
 #include "score/mw/launch_manager/process_group_manager/irun_target_control.hpp"
 #include "score/mw/lifecycle/details/lm_control_service.h"
 
+#include <memory>
+
 namespace score::mw::lifecycle::internal
 {
 
 /// @brief Provides the mw::com service for state managers to connect to.
 /// @details This cannot be moved, because the mw::com callbacks reference
-//           the ControlProvider at its original location.
+//           the ControlProvider at its original location. It is therefore
+//           handed out as a `std::unique_ptr`, which keeps that address fixed.
 class ControlProvider
 {
   public:
     /// @brief Fallible constructor for ControllableGraph.
-    static Result<ControlProvider*> Create(IRunTargetControl* graph) noexcept;
+    static Result<std::unique_ptr<ControlProvider>> Create(IRunTargetControl* graph) noexcept;
 
     ~ControlProvider() = default;
 
