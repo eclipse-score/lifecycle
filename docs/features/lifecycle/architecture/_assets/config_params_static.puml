@@ -11,7 +11,7 @@
 ' SPDX-License-Identifier: Apache-2.0
 ' *******************************************************************************
 
-@startuml
+@startuml "Abstract Launch Manager Configuration Structure"
 
 class LaunchManager
 {
@@ -34,14 +34,28 @@ class ConfigFile
 LaunchConfiguration "1" *--> "1..*" ConfigFile
 
 class ComponentConfig {
-  + {field} name
+'''Component Properties'''
+  + {field} component name
+  + {field} binary name
+  + {field} type (e.g. Reporting process, native process, supervised process)
+  + {field} self terminating (true/false)
+  + {field} process arguments
+'''Deployment Properties'''
+  + {field} binary dir
+  + {field} working dir
+  + {field} ready timeout
+  + {field} shutdown timeout
+  + {field} environment variables
 }
 
 class RunTargetConfig {
-    + {field} name
+    + {field} Run Target name
     + {field} transition timeout
-    + {field} recovery action (e.g. switch run target)
 }
+
+class RunTargetRecoveryAction as "RunTarget\nRecoveryAction" {}
+
+RunTargetConfig "1" -d-> "1..*" RunTargetRecoveryAction
 
 ConfigFile "1" *-d-> "1..*" ComponentConfig
 ConfigFile "1" *-d-> "1..*" RunTargetConfig
@@ -55,11 +69,20 @@ class AliveSupervision {
   + {field} failure tolerance limit
 }
 
-class ComponentRecoveryAction {
-   + {field} recovery action type (eg. restart, stop, ignore, DSS)
+class ComponentRecoveryAction as "Component\nRecoveryAction" {}
+class SafeStateRecoveryAction as "SafeState\nRecoveryAction" {}
+class ComponentRestartRecoveryAction as "ComponentRestart\nRecoveryAction" {
    + {field} retry count (how many times to try)
    + {field} wait time (before the component can be started again)
 }
+SafeStateRecoveryAction -u-|> ComponentRecoveryAction
+ComponentRestartRecoveryAction -u-|> ComponentRecoveryAction
+
+class SwitchRunTargetRecoveryAction as "SwitchRunTarget\nRecoveryAction" {
+   + {field} next Run Target
+}
+SwitchRunTargetRecoveryAction -u-|> RunTargetRecoveryAction
+SwitchRunTargetRecoveryAction -u-|> ComponentRecoveryAction
 
 class ReadyCondition {}
 
@@ -75,27 +98,6 @@ class ProcessStateCondition {
 FileStateCondition -up-|> ReadyCondition
 ProcessStateCondition -up-|> ReadyCondition
 
-class ComponentProperties {
-  + {field} binary name
-  + {field} type (e.g. Reporting process, native process, supervised process)
-  + {field} self terminating (true/false)
-  + {field} process arguments
-} 
-
-ComponentProperties "1" *-d-> "1" ReadyCondition
-ComponentProperties "1" *-d-> "1" AliveSupervision
-
-class DeploymentConfig {
-  + {field} binary dir
-  + {field} working dir
-  + {field} ready timeout
-  + {field} shutdown timeout
-  + {field} environment variables
-}
-
-DeploymentConfig *--> "1" SandboxConfig
-DeploymentConfig *--> "1..*" ComponentRecoveryAction
-
 class SandboxConfig {
   + {field} UID
   + {field} GID
@@ -104,7 +106,6 @@ class SandboxConfig {
   + {field} priority
   + {field} ability
   + {field} security
-  + {field} cwd
   + {field} stdin
   + {field} stdout
   + {field} stderr
@@ -112,8 +113,10 @@ class SandboxConfig {
   + {field} rlimits
 }
 
-ComponentConfig "1" -l-> "1..*" ComponentConfig: (reference to other components)
-ComponentConfig "1" o-d-> "1" ComponentProperties
-ComponentConfig "1" o-d-> "1" DeploymentConfig
+ComponentConfig "1" -l-> "1..*" ComponentConfig: dependency
+ComponentConfig "1" *-d-> "1" ReadyCondition
+ComponentConfig "1" *-d-> "1" AliveSupervision
+ComponentConfig "1" *--> "1" SandboxConfig
+ComponentConfig "1" *--> "1" ComponentRecoveryAction
 
 @enduml
