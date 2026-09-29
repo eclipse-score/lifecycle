@@ -29,6 +29,11 @@
 coverage:llvm_cov --config=_score_common
 
 coverage:llvm_cov --nocache_test_results
+# Instrument everything under //score. Left unset, Bazel guesses the filter
+# from the packages of the test targets (stripping only a trailing "/tests");
+# a library tested from a "test" subpackage is then compiled without counters
+# unless one of its deps happens to be instrumented (score_coverage 0.3.1).
+coverage:llvm_cov --instrumentation_filter=^//score[/:]
 coverage:llvm_cov --cxxopt=-O0
 coverage:llvm_cov --combined_report=lcov
 coverage:llvm_cov --experimental_fetch_all_coverage_outputs
