@@ -15,6 +15,7 @@
 #define SCORE_LCM_IFORCE_STOP_ACTION_HPP_INCLUDED
 
 #include "score/mw/launch_manager/process_group_manager/details/handle.hpp"
+#include "score/result/result.h"
 
 namespace score::mw::lifecycle::internal
 {
@@ -23,7 +24,7 @@ class IForceStopAction
 {
   public:
     virtual ~IForceStopAction() = default;
-    virtual void force_stop(const Handle handle) const = 0;
+    virtual Result<void> force_stop(const Handle handle) const = 0;
 };
 
 }  // namespace score::mw::lifecycle::internal

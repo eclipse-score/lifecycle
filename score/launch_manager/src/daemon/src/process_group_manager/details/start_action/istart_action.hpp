@@ -15,6 +15,7 @@
 #define SCORE_LCM_ISTART_ACTION_HPP_INCLUDED
 
 #include "score/mw/launch_manager/process_group_manager/details/handle.hpp"
+#include "score/result/result.h"
 
 namespace score::mw::lifecycle::internal
 {
@@ -23,7 +24,7 @@ class IStartAction
 {
   public:
     virtual ~IStartAction() = default;
-    virtual Handle start() const = 0;
+    virtual Result<Handle> start() const = 0;
 };
 
 }  // namespace score::mw::lifecycle::internal

@@ -22,7 +22,7 @@ namespace score::mw::lifecycle::internal
 class EmptyStartAction final : public IStartAction
 {
   public:
-    Handle start() const override;
+    Result<Handle> start() const override;
 };
 
 }  // namespace score::mw::lifecycle::internal

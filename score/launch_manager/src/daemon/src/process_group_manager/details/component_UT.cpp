@@ -52,7 +52,7 @@ TEST(ComponentTest, StartActionCalled)
     MockForceStopAction force_stop_action;
     Component component(&start_action, &stop_action, &force_stop_action, {});
 
-    EXPECT_CALL(start_action, start()).WillOnce(Return(mock_handle));
+    EXPECT_CALL(start_action, start()).WillOnce(Return(Result<Handle>{mock_handle}));
 
     static_cast<void>(component.activate(score::cpp::stop_token{}));
 }
@@ -64,8 +64,8 @@ TEST(ComponentTest, StopActionCalled)
     MockForceStopAction force_stop_action;
     Component component(&start_action, &stop_action, &force_stop_action, {});
 
-    ON_CALL(start_action, start()).WillByDefault(Return(mock_handle));
-    EXPECT_CALL(stop_action, stop(_)).WillOnce(Invoke(expect_mock_handle));
+    ON_CALL(start_action, start()).WillByDefault(Return(Result<Handle>{mock_handle}));
+    EXPECT_CALL(stop_action, stop(_)).WillOnce(DoAll(Invoke(expect_mock_handle), Return(Result<void>{})));
 
     static_cast<void>(component.activate(score::cpp::stop_token{}));
     component.deactivate(score::cpp::stop_token{});
@@ -81,9 +81,9 @@ TEST(ComponentTest, ReadyConditionsCalled)
     Component component(&start_action, &stop_action, &force_stop_action, {&ready_condition_1, &ready_condition_2});
 
     InSequence sequence;
-    ON_CALL(start_action, start()).WillByDefault(Return(mock_handle));
-    EXPECT_CALL(ready_condition_1, wait(_)).WillOnce(Invoke(expect_mock_handle));
-    EXPECT_CALL(ready_condition_2, wait(_)).WillOnce(Invoke(expect_mock_handle));
+    ON_CALL(start_action, start()).WillByDefault(Return(Result<Handle>{mock_handle}));
+    EXPECT_CALL(ready_condition_1, wait(_)).WillOnce(DoAll(Invoke(expect_mock_handle), Return(Result<void>{})));
+    EXPECT_CALL(ready_condition_2, wait(_)).WillOnce(DoAll(Invoke(expect_mock_handle), Return(Result<void>{})));
 
     static_cast<void>(component.activate(score::cpp::stop_token{}));
 }

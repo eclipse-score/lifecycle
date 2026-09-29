@@ -23,7 +23,7 @@ namespace score::mw::lifecycle::internal
 class MockReadyCondition : public IReadyCondition
 {
   public:
-    MOCK_METHOD(void, wait, (const Handle handle), (override, const));
+    MOCK_METHOD(Result<void>, wait, (const Handle handle), (override, const));
 };
 
 }  // namespace score::mw::lifecycle::internal

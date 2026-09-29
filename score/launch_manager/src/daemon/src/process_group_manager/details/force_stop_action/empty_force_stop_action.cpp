@@ -16,8 +16,9 @@
 namespace score::mw::lifecycle::internal
 {
 
-void EmptyForceStopAction::force_stop(const Handle) const
+Result<void> EmptyForceStopAction::force_stop(const Handle) const
 {
+    return {};
 }
 
 }  // namespace score::mw::lifecycle::internal
