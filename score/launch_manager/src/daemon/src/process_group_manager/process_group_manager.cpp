@@ -458,7 +458,7 @@ Result<IdentifierHash> ProcessGroupManager::getActiveRunTarget() const noexcept
     SCORE_LANGUAGE_FUTURECPP_ASSERT(future_result.has_value());
     auto future = std::move(future_result).value();
 
-    const bool push_result = event_queue_->push(GetActiveRunTarget{promise : std::move(promise)});
+    const bool push_result = event_queue_->push(GetActiveRunTarget{std::move(promise)});
     SCORE_LANGUAGE_FUTURECPP_ASSERT(push_result);
 
     const auto get_result = future.Get(cpp::stop_token{});
@@ -514,7 +514,7 @@ Result<void> ProcessGroupManager::setRequestedRunTarget(IdentifierHash run_targe
     SCORE_LANGUAGE_FUTURECPP_ASSERT(future_result.has_value());
     auto future = std::move(future_result).value();
 
-    const bool push_result = event_queue_->push(SetRequestedRunTarget{run_target, promise : std::move(promise)});
+    const bool push_result = event_queue_->push(SetRequestedRunTarget{run_target, std::move(promise)});
     SCORE_LANGUAGE_FUTURECPP_ASSERT(push_result);
 
     const auto get_result = future.Get(cpp::stop_token{});

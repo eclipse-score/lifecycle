@@ -60,6 +60,9 @@ Glossary
     Component
       A configurable unit in the Launch Manager that describes an executable and its runtime environment (sandbox). Components can be grouped together in Run Targets to define system operational states.
 
+    Component failure
+      A state when the component has failed to reach its :term:`Ready Condition`, a running component has terminated abnormally or its supervision failed.
+
     Ready State
       A state when the component is ready to provide services to other components.
 
@@ -101,7 +104,7 @@ Glossary
       Address Space Layout Randomization - a security technique that randomizes the memory layout of processes.
 
     Recovery Action
-      Actions taken by the Launch Manager when a process fails or terminates abnormally.
+      Actions taken by the Launch Manager as a response to a :term:`Component failure` or :term:`Run Target` activation failure.
 
     Ready Condition
       A configurable condition that must be satisfied before a component is considered ready and operational. Ready conditions can include file system checks, network availability, or custom application-specific signals.
@@ -130,8 +133,11 @@ Glossary
     SWC
       Software Components - modular software units that can be independently managed.
 
-    Run target
-      A named collection of processes and their dependencies that can be launched, stopped, or switched as a group to achieve a specific operational mode or configuration.
+    Run Target
+      A named collection of components and their dependencies that can be activated, stopped, or switched as a group to achieve a specific operational mode or configuration.
+
+    Fallback Run Target
+      A designated Run Target that the system can switch to in case the current active Run Target resp. one of its components fails. 
 
     Operating System
       The system software that manages computer hardware and software resources and provides common services for computer programs.
