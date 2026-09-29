@@ -143,8 +143,14 @@ docs_bundle(
     ],
     code_targets = [
         ":launch_manager",
+        ":alive_cc",
+        ":alive_rust",
+        ":control_cc",
+        ":lifecycle_cc",
+        ":lifecycle_rust",
     ],
     data = ["//score/launch_manager/src/daemon/src/configuration/config_schema:config_schema_files"],
+    primary_need_id = "comp__lifecycle_launch_manager",
     source_dir = "docs",
     visibility = ["//visibility:public"],
 )

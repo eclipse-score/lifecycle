@@ -14,24 +14,18 @@
 # Coverage
 
 Unified C++ + Rust code coverage via the shared LLVM source-based setup from
-`@score_tooling//coverage`. The code itself lives in score_tooling; this
+`@score_coverage`. The code itself lives in the standalone
+[score_coverage](https://github.com/eclipse-score/coverage_tool) module; this
 directory only holds the repo-specific pieces.
 
 ## Usage
 
-Run the coverage build over the in-scope targets, then generate the HTML report:
+Run the coverage build and generate the HTML report with the wrapper target:
 
 ```bash
-# 1. Collect coverage
-#    Note: Targets with "no-coverage" tag are skipped
-bazel coverage --config=llvm_cov //score/... --build_tests_only
+bazel run //quality/coverage:run_coverage
 
-# 2. Generate the HTML report
-bazel run @score_tooling//coverage:generate_coverage_html -- \
-  --yaml quality/coverage/coverage_justifications.yaml \
-  --archive-dir coverage_artifacts
-
-# 3. Open it.
+# Open the report.
 xdg-open coverage_artifacts/coverage_linux/index.html
 ```
 
