@@ -17,7 +17,8 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    fully_verifies=["feat_req__lifecycle__monitor_abnormal_term"],
+    fully_verifies=[],
+    partially_verifies=["feat_req__lifecycle__monitor_processes"],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
 )

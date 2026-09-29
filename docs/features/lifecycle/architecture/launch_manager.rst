@@ -333,7 +333,7 @@ Dynamic Architecture
    :version: 1
    :safety: ASIL_B
    :belongs_to: feat__lifecycle[version==1]
-   :fulfils: feat_req__lifecycle__monitor_abnormal_term[version==1],
+   :fulfils: feat_req__lifecycle__monitor_processes[version==1],
              feat_req__lifecycle__recovery_action_support[version==1],
              feat_req__lifecycle__recov_run_target_switch[version==1]
 
