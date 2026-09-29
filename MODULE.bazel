@@ -293,6 +293,7 @@ pip.parse(
 )
 use_repo(pip, "score_lifecycle_pip")
 
+# CodeQL Python dependencies
 pip.parse(
     hub_name = "codeql_coding_standards_pip_hub",
     python_version = PYTHON_VERSION,
