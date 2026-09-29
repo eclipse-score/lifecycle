@@ -15,6 +15,7 @@
 
 #include <score/assert.hpp>
 
+#include <unistd.h>
 #include <chrono>
 #include <thread>
 
@@ -398,11 +399,10 @@ bool WatchdogImpl::validateTimeoutWithCycleTime(std::int64_t f_cycleTimeInNs, co
 #endif
 void WatchdogImpl::waitForever() const noexcept
 {
-    using namespace std::chrono_literals;
     // This code cannot be covered in tests, as it blocks execution forever
     while (true)
     {
-        std::this_thread::sleep_for(1s);
+        pause();
     }
 }
 #if defined(__CTC__) && defined(__CODE_COVERAGE_ANNOTATION__)
