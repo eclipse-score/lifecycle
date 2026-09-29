@@ -309,7 +309,7 @@ Conditional Launching
     The :term:`Launch Manager` shall start a component only after all its
     :term:`dependencies <Dependency (between components)>` have successfully reached their :term:`Ready State`.
 
-.. comp_req:: Configuration of run target activation timeout
+.. comp_req:: Configuration of Run Target activation timeout
     :id: comp_req__launch_man__conf_rt_active_tout
     :reqtype: Functional
     :security: NO
@@ -320,9 +320,9 @@ Conditional Launching
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall support configuration of the maximum time
-    an activation of a run target can take.
+    an activation of a Run Target can take.
 
-.. comp_req:: Run target activation timeout
+.. comp_req:: Run Target activation timeout
     :id: comp_req__launch_man__rt_activate_tout
     :reqtype: Functional
     :security: NO
@@ -332,7 +332,7 @@ Conditional Launching
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    If the activation of a run target exceeds the maximum configured time, then
+    If the activation of a Run Target exceeds the maximum configured time, then
     the :term:`Launch Manager` shall consider this activation as failed.
 
 .. comp_req:: Configuration of component activation timeout
@@ -520,7 +520,7 @@ Process Management
     The :term:`Launch Manager` shall permit the stop order of non-dependent processes to be specified.
 
 
-Run targets
+Run Targets
 ===========
 
 .. comp_req:: Process state
@@ -698,7 +698,7 @@ Monitoring, Notification and Recovery
     :term:`Component failure` by reactivating the failed 
     :term:`Component`.
 
-.. comp_req:: Recovery by switching the run target
+.. comp_req:: Recovery by switching the Run Target
     :id: comp_req__launch_man__recovery_switch_rt
     :reqtype: Functional
     :security: NO

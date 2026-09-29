@@ -33,7 +33,7 @@ def test_rt_running_when_process_exits(
     process has actually exited, both when the terminated-ready component has a dependent and when
     it has none.
 
-    A control client (control_client_test_driver) activates two run targets in sequence:
+    A control client (control_client_test_driver) activates two Run Targets in sequence:
       - run_target_reader:     filesystem_reader (ready "Running") depends on setup_filesystem_sh
                                (self-terminating, ready "Terminated"). The terminated-ready
                                component HAS a dependent, so filesystem_reader finds the prepared
@@ -41,7 +41,7 @@ def test_rt_running_when_process_exits(
       - run_target_slow_setup: depends directly on slow_setup_sh (self-terminating, ready
                                "Terminated") which has NO dependent. slow_setup_sh waits briefly
                                before writing its marker file; the control client verifies that
-                               the marker exists once activation completes, i.e. the run target
+                               the marker exists once activation completes, i.e. the Run Target
                                only became ready once the process had terminated.
 
     Expected Behaviour: Both activations complete only after the respective terminated-ready

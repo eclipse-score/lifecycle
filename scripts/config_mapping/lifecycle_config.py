@@ -431,7 +431,7 @@ def gen_config(output_dir, config, input_filename):
 
 def check_cyclic_dependencies(config):
     """
-    Checks for cyclic dependencies between run targets and components.
+    Checks for cyclic dependencies between Run Targets and components.
     Raises ValueError if a cyclic dependency is found.
     """
 
@@ -443,7 +443,7 @@ def check_cyclic_dependencies(config):
         run_target, ancestors_run_targets=None, ancestors_components=None
     ):
         """
-        Resolve all component dependencies for the given run target.
+        Resolve all component dependencies for the given Run Target.
 
         ancestors_run_targets and ancestors_components track the current
         recursion path to detect cyclic dependencies without rejecting
@@ -473,7 +473,7 @@ def check_cyclic_dependencies(config):
                     "component_properties"
                 ]
                 if "depends_on" in component_props:
-                    # All dependencies must be components, since components can't depend on run targets
+                    # All dependencies must be components, since components can't depend on Run Targets
                     for dep in component_props["depends_on"]:
                         if dep not in config["components"]:
                             raise ValueError(
@@ -496,17 +496,17 @@ def check_cyclic_dependencies(config):
 
                 ancestors_components.pop()
             else:
-                # If the dependency is not a component, it must be a run target
+                # If the dependency is not a component, it must be a Run Target
                 if dependency_name not in config["run_targets"]:
                     raise ValueError(
-                        f"Run target depends on unknown run target or component '{dependency_name}'."
+                        f"Run Target depends on unknown Run Target or component '{dependency_name}'."
                     )
                 if dependency_name in ancestors_run_targets:
                     path = format_dependency_path(
                         ancestors_run_targets, dependency_name
                     )
                     raise ValueError(
-                        f"Cyclic dependency detected: run target '{dependency_name}' "
+                        f"Cyclic dependency detected: Run Target '{dependency_name}' "
                         f"has already been visited.\n  Path: {path}"
                     )
                 ancestors_run_targets.append(dependency_name)

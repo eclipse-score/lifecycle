@@ -28,7 +28,7 @@ def test_ready_condition_file_not_existing(
     Objective: Verifies that a component with a NotExisting file_state ready
     condition only reaches its ready state once the configured file is gone.
 
-    The initial run target contains a component that removes its ready
+    The initial Run Target contains a component that removes its ready
     condition file after a delay, and a second component depending on it.
 
     Expected Behaviour: The launch manager polls for the file and only starts

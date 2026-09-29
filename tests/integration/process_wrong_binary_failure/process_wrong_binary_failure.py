@@ -25,8 +25,8 @@ def test_process_wrong_binary_failure(
     target, setup_test, assert_test_results, remote_test_dir
 ):
     """
-    Objective: Verifies that activating a run target containing a component whose binary does not exist
-    results in a failure and triggers the configured recovery action (switch to fallback run target).
+    Objective: Verifies that activating a Run Target containing a component whose binary does not exist
+    results in a failure and triggers the configured recovery action (switch to fallback Run Target).
     """
 
     run_test(

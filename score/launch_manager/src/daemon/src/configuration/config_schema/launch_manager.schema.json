@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "title": "Configuration schema for the S-CORE Launch Manager",
-  "description": "Defines the structure and valid values for the Launch Manager configuration file, which specifies managed components, run targets, and recovery behaviors.",
+  "description": "Defines the structure and valid values for the Launch Manager configuration file, which specifies managed components, Run Targets, and recovery behaviors.",
   "$defs": {
     "component_properties": {
       "type": "object",

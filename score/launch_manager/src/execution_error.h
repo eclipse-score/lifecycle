@@ -27,18 +27,18 @@ enum class ExecErrc : score::result::ErrorCode
     kInvalidArguments = 2,    ///< Invalid argument was passed
     kCommunicationError = 3,  ///< Communication error occurred
     kMetaModelError = 4,      ///< Wrong meta model identifier passed to a function
-    kCancelled = 5,           ///< Transition to the requested run target was cancelled by a newer request
+    kCancelled = 5,           ///< Transition to the requested Run Target was cancelled by a newer request
     kFailed = 6,              ///< Requested operation could not be performed
-    kFailedUnexpectedTerminationOnExit = 7,   ///< Unexpected termination while stopping the previous run target
-    kFailedUnexpectedTerminationOnEnter = 8,  ///< Unexpected termination while starting the next run target
+    kFailedUnexpectedTerminationOnExit = 7,   ///< Unexpected termination while stopping the previous Run Target
+    kFailedUnexpectedTerminationOnEnter = 8,  ///< Unexpected termination while starting the next Run Target
     kInvalidTransition = 9,         ///< Transition invalid (e.g. report kRunning when already in Running Process State)
-    kAlreadyInState = 10,           ///< Transition to the requested run target failed because it is already active
-    kInTransitionToSameState = 11,  ///< Transition to the requested run target failed because the same transition
+    kAlreadyInState = 10,           ///< Transition to the requested Run Target failed because it is already active
+    kInTransitionToSameState = 11,  ///< Transition to the requested Run Target failed because the same transition
                                     ///< is already in progress
     kActivationInProgress =
-        12,  ///< A run target activation is already in progress; no single run target is currently active
+        12,  ///< A Run Target activation is already in progress; no single Run Target is currently active
     kRequestQueueIsFull = 13,    ///< The activation request queue is full; the request was discarded
-    kRunTargetDoesntExist = 14,  ///< The requested run target does not exist in the current configuration
+    kRunTargetDoesntExist = 14,  ///< The requested Run Target does not exist in the current configuration
     kNotImplemented = 15,        ///< The requested functionality is not yet implemented
 };
 
@@ -58,26 +58,26 @@ class ExecErrorDomain final : public score::result::ErrorDomain
             case ExecErrc::kMetaModelError:
                 return "Wrong meta model identifier passed to a function";
             case ExecErrc::kCancelled:
-                return "Transition to the requested run target was cancelled by a newer request";
+                return "Transition to the requested Run Target was cancelled by a newer request";
             case ExecErrc::kFailed:
                 return "Requested operation could not be performed";
             case ExecErrc::kFailedUnexpectedTerminationOnExit:
-                return "Unexpected termination while stopping the previous run target";
+                return "Unexpected termination while stopping the previous Run Target";
             case ExecErrc::kFailedUnexpectedTerminationOnEnter:
-                return "Unexpected termination while starting the next run target";
+                return "Unexpected termination while starting the next Run Target";
             case ExecErrc::kInvalidTransition:
                 return "Transition invalid (e.g. report kRunning when already in Running Process State)";
             case ExecErrc::kAlreadyInState:
-                return "Transition to the requested run target failed because it is already active";
+                return "Transition to the requested Run Target failed because it is already active";
             case ExecErrc::kInTransitionToSameState:
-                return " Transition to the requested run target failed because the same transition"
+                return " Transition to the requested Run Target failed because the same transition"
                        " is already in progress";
             case ExecErrc::kActivationInProgress:
-                return "A run target activation is already in progress; no single run target is currently active";
+                return "A Run Target activation is already in progress; no single Run Target is currently active";
             case ExecErrc::kRequestQueueIsFull:
                 return "The activation request queue is full; the request was discarded";
             case ExecErrc::kRunTargetDoesntExist:
-                return "The requested run target does not exist in the current configuration";
+                return "The requested Run Target does not exist in the current configuration";
             case ExecErrc::kNotImplemented:
                 return "The requested functionality is not yet implemented";
             default:

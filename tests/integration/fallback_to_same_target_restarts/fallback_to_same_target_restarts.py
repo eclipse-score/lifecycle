@@ -27,7 +27,7 @@ def test_fallback_to_same_target_restarts(
     """
     Objective: Verifies that the launch manager correctly restarts a crashed process if it is active in the fallback state.
 
-    A process crashes after run target activation completes and proceeds normally the second time it is launched.
+    A process crashes after Run Target activation completes and proceeds normally the second time it is launched.
     Expected Behaviour: The process is relaunched and completes normally.
     """
 

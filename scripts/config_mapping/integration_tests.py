@@ -156,7 +156,7 @@ def test_minimal_config(schema_file):
 def test_full_config(schema_file):
     """
     Test generation of launch manager configuration
-    with all parameters specified at every level (defaults, components, run targets,
+    with all parameters specified at every level (defaults, components, Run Targets,
     alive supervision, watchdog, sandbox, etc.).
     """
     test_name = "full_config_test"
@@ -169,7 +169,7 @@ def test_custom_validation_failures(schema_file):
     """
     Test that custom validation checks implemented in lifecycle_config.py are correctly identifying invalid configurations.
     The input configuration contains the following issues:
-    * The run target "Minimal" has a recovery action that switches to a run target "Fallback" instead of "fallback_run_target"
+    * The Run Target "Minimal" has a recovery action that switches to a Run Target "Fallback" instead of "fallback_run_target"
     * Reserved name "fallback_run_target" is used for a RunTarget name which is not allowed
     """
     test_name = "custom_validation_failures_test"

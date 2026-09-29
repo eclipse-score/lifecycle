@@ -345,7 +345,7 @@ TEST_F(ConverterTest, ConvertSwitchRunTargetActionNullReturnsNullopt)
 
 TEST_F(ConverterTest, ConvertSwitchRunTargetActionValid)
 {
-    RecordProperty("Description", "convertSwitchRunTargetAction returns the run target name.");
+    RecordProperty("Description", "convertSwitchRunTargetAction returns the Run Target name.");
     ::flatbuffers::FlatBufferBuilder fbb;
     auto target = fbb.CreateString("Fallback");
     auto sa = fb::CreateSwitchRunTargetAction(fbb, target);
@@ -1006,7 +1006,7 @@ TEST_F(ConverterTest, ConvertComponentsWithInvalidComponentReturnsError)
 
 TEST_F(ConverterTest, ConvertRunTargetsValid)
 {
-    RecordProperty("Description", "convertRunTargets maps multiple run targets in order.");
+    RecordProperty("Description", "convertRunTargets maps multiple Run Targets in order.");
     ::flatbuffers::FlatBufferBuilder fbb;
 
     auto build_rt = [&](const char* name, const char* recovery_target) {
@@ -1035,7 +1035,7 @@ TEST_F(ConverterTest, ConvertRunTargetsValid)
 
 TEST_F(ConverterTest, ConvertRunTargetsWithInvalidRunTargetReturnsError)
 {
-    RecordProperty("Description", "convertRunTargets returns error when a run target has invalid fields.");
+    RecordProperty("Description", "convertRunTargets returns error when a Run Target has invalid fields.");
     ::flatbuffers::FlatBufferBuilder fbb;
 
     auto switch_target = fbb.CreateString("SafeState");

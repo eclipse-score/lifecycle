@@ -38,7 +38,7 @@ def test_recovery_action_simple_rep_failure(
 
     Case 2: Using simple reporting, the process does not report running in time (500ms above boundary)
     Expected Behaviour: Reporting running is not successful, recovery action is executed.
-    The recovery action switches to the fallback run target, the activation of the fallback run target is verified in the test.
+    The recovery action switches to the fallback Run Target, the activation of the fallback Run Target is verified in the test.
     """
 
     run_test(

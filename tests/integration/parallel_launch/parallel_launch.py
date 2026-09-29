@@ -27,7 +27,7 @@ def test_parallel_launch(target, setup_test, assert_test_results, remote_test_di
     """
     Objective: Verifies that the launch manager launches independent processes in parallel.
 
-    One run target depends on three independent components. Each component records a
+    One Run Target depends on three independent components. Each component records a
     timestamp before sleeping and one after reporting running. If launched in parallel,
     all components start before any of them finishes sleeping and reports running.
     Expected Behaviour: The latest start timestamp precedes the earliest running timestamp.

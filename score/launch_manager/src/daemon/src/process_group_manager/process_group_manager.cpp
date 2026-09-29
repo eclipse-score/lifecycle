@@ -307,12 +307,12 @@ void ProcessGroupManager::allProcessGroupsOff()
             LM_LOG_ERROR() << "NOTE: Cancellation timed out";
         }
 
-        LM_LOG_DEBUG() << "Start transitioning to Off run target";
+        LM_LOG_DEBUG() << "Start transitioning to Off Run Target";
         (void)graph_->startTransitionToOffState();
     }
     else
     {
-        LM_LOG_DEBUG() << "Already transitioning to Off run target, skipping cancellation";
+        LM_LOG_DEBUG() << "Already transitioning to Off Run Target, skipping cancellation";
     }
 
     LM_LOG_DEBUG() << "Wait for transition completion";
@@ -323,7 +323,7 @@ void ProcessGroupManager::allProcessGroupsOff()
     {
         // Last resort: a process ignored even SIGKILL within its budget. Force-kill
         // whatever is left and tear down the worker pool so shutdown can still proceed.
-        LM_LOG_ERROR() << "NOTE: Transition to Off run target timed out";
+        LM_LOG_ERROR() << "NOTE: Transition to Off Run Target timed out";
         thread_pool_->stop();
         graph_->forceKillProcesses();
         thread_pool_.reset();
@@ -354,13 +354,13 @@ void ProcessGroupManager::handleRecoveryRequest(const IdentifierHash& process_id
         else
         {
             // Already in transition to the requested state
-            LM_LOG_DEBUG() << "handleRecoveryRequest: Already transitioning to same run target";
+            LM_LOG_DEBUG() << "handleRecoveryRequest: Already transitioning to same Run Target";
         }
     }
     else if (GraphState::kSuccess == graph_state && old_state == recovery_state_)
     {
         // Already in the requested state
-        LM_LOG_DEBUG() << "handleRecoveryRequest: Already in requested run target";
+        LM_LOG_DEBUG() << "handleRecoveryRequest: Already in requested Run Target";
     }
     else
     {
@@ -389,7 +389,7 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
             // Already rejected via isValidRunTarget() in processStateTransition() (#541) if invalid.
             const bool started = pg.startTransition(last_state);
             SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
-                started, "pending run target was not rejected by isValidRunTarget()");
+                started, "pending Run Target was not rejected by isValidRunTarget()");
         }
 
         if (GraphState::kUndefinedState == pg.getState())
@@ -409,7 +409,7 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
             // if we failed and there is no external request, we will try again next time
             pg.setRequestStartTime();
             const bool started = pg.startTransition(IdentifierHash{Graph::recovery_state_name});
-            SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(started, "fallback run target node missing");
+            SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(started, "fallback Run Target node missing");
         }
     }
 }

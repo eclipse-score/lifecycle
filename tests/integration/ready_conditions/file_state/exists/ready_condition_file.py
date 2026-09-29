@@ -26,7 +26,7 @@ def test_ready_condition_file(target, setup_test, assert_test_results, remote_te
     Objective: Verifies that a component with a file_state ready condition only
     reaches its ready state once the configured file exists.
 
-    The initial run target contains a component that touches its ready
+    The initial Run Target contains a component that touches its ready
     condition file after a delay.
 
     Expected Behaviour: The launch manager polls for the file and only starts

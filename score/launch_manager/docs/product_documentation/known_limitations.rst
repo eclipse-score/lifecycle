@@ -35,7 +35,7 @@ Component
   reached, even in case the ReadyCondition is ``process_state:Terminated``.
 
 
-Run target
+Run Target
 ----------
 
 * The parameter ``run_targets/<RunTarget>/transition_timeout_ms`` is currently not

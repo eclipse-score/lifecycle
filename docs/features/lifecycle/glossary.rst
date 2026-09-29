@@ -71,7 +71,7 @@ Glossary
       after **Component B** has reached its :term:`Ready State`. In this case,
       **Component A** depends on **Component B**.
 
-    Dependency (between run targets)
+    Dependency (between Run Targets)
       A configuration parameter indicating that **Run Target A** includes all
       components from **Run Target B**. In this case, **Run Target A** depends
       on **Run Target B**.

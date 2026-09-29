@@ -50,13 +50,13 @@ using WorkerQueue =
 /// @brief Config members needed to build the graph
 struct GraphConfig
 {
-    /// @brief Components that run targets may depend on
+    /// @brief Components that Run Targets may depend on
     std::vector<configuration::ComponentConfig> components_;
-    /// @brief Run targets that can be activated
+    /// @brief Run Targets that can be activated
     std::vector<configuration::RunTargetConfig> run_targets_;
-    /// @brief Information about the run target transitioned to in the event of an error
+    /// @brief Information about the Run Target transitioned to in the event of an error
     configuration::FallbackRunTargetConfig fallback_run_target_;
-    /// @brief Name of the first run target to launch
+    /// @brief Name of the first Run Target to launch
     std::string initial_run_target_;
 };
 
@@ -160,7 +160,7 @@ class Graph final
 
     /// @brief Constructor to initialize a Graph object.
     /// @param max_num_nodes Maximum number of nodes this graph can hold.
-    /// @param configuration Configuration containing run target and component information.
+    /// @param configuration Configuration containing Run Target and component information.
     /// @param job_queue Queue to push component jobs to for multithreaded processing.
     /// @param process_handling The interfaces used to start, stop and report on the OS processes.
     /// @param transition_result_receiver Object to notify when the initial transition is complete.
@@ -195,12 +195,12 @@ class Graph final
     void cancel();
 
     /// @brief Begin transitioning this process group to the given state.
-    /// @return False if pg_state is not a recognized run target in this graph's configuration; the
+    /// @return False if pg_state is not a recognized Run Target in this graph's configuration; the
     /// transition is not started in that case. True otherwise.
     /// @param pg_state The target process group state.
     bool startTransition(IdentifierHash pg_state);
 
-    /// @return True if pg_state is a run target known to this graph's configuration.
+    /// @return True if pg_state is a Run Target known to this graph's configuration.
     /// @param pg_state The process group state to check.
     bool isValidRunTarget(IdentifierHash pg_state);
 
@@ -226,7 +226,7 @@ class Graph final
     /// at that index is a RunTarget rather than a ProcessInfoNode.
     ProcessInfoNode* getProcessInfoNode(IdentifierHash process_index);
 
-    /// @return The currently requested run target.
+    /// @return The currently requested Run Target.
     /// @note Only meaningful when getState() returns GraphState::kSuccess.
     IdentifierHash getRequestedRunTarget();
 
@@ -268,7 +268,7 @@ class Graph final
     /// @return The timeout in milliseconds, or zero if there is no configured timeout.
     std::chrono::milliseconds getOffStateTransitionTimeout() const;
 
-    /// @brief Register a callback to be fired when the active run target changes.
+    /// @brief Register a callback to be fired when the active Run Target changes.
     void registerActiveRunTargetCallback(ActivationCallbackT callback) noexcept;
 
   private:
@@ -326,7 +326,7 @@ class Graph final
     /// @brief Current state of the graph.
     GraphState state_{GraphState::kSuccess};
 
-    /// @brief the requested run target.
+    /// @brief the requested Run Target.
     IdentifierHash requested_state_{};
 
     /// @brief Mutex protecting concurrent access to requested_state_.

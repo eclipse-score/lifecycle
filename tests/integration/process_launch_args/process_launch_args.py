@@ -30,7 +30,7 @@ def test_process_launch_args(target, setup_test, assert_test_results, remote_tes
     """
     Objective: Verifies that the launch manager correctly passes configured launch arguments to processes.
 
-    A process is configured with a command line argument and launched via the initial run target.
+    A process is configured with a command line argument and launched via the initial Run Target.
     Expected Behaviour: Process starts successfully, reports running, and receives the configured argument value.
     """
 

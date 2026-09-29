@@ -21,7 +21,7 @@
 constexpr std::string_view a_started = "component_a_started";
 
 /// @brief Written by component_a when it starts being terminated (i.e. the
-/// switch away from run_target_a - here, the switch to the "Off" run target -
+/// switch away from run_target_a - here, the switch to the "Off" Run Target -
 /// has begun). component_a then stalls, which keeps the run-target switch in
 /// progress and gives the test a deterministic window in which to send SIGTERM
 /// to the launch manager.

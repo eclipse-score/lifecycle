@@ -21,7 +21,7 @@ The extra flags make the `_step()` markers from `test_examples.py` visible in th
 
 The test verifies the following scenarios end-to-end:
 
-- Launch manager starts and enters `Startup` run target
+- Launch manager starts and enters `Startup` Run Target
 - Transition to `Running` — all demo apps start
 - Transition back to `Startup` — all demo apps stop
 - Transition to `Running` again

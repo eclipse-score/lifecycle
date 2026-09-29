@@ -28,10 +28,10 @@ def test_lm_shutdown(target, setup_test, assert_test_results, remote_test_dir):
     """
     Objective: Verifies that the Launch Manager exits after performing a shutdown
     (stopping all processes it owns) when a SIGTERM arrives while an explicit switch
-    to the "Off" run target is already in progress.
+    to the "Off" Run Target is already in progress.
 
     The control client activates run_target_a and then explicitly requests a switch
-    to the "Off" run target. component_a (part of run_target_a) stalls while it is
+    to the "Off" Run Target. component_a (part of run_target_a) stalls while it is
     being terminated during that switch, keeping the switch to Off in progress. That
     window is signalled by the file `component_a_terminating`, at which point the
     launch manager is sent a SIGTERM.

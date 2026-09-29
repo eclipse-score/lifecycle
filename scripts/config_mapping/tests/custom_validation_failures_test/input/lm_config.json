@@ -33,7 +33,7 @@
             }
         },
         "fallback_run_target": {
-            "description": "Fallback run target",
+            "description": "Fallback Run Target",
             "depends_on": [],
             "recovery_action": {
                 "switch_run_target": {

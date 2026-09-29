@@ -29,7 +29,7 @@ def test_complex_monitoring(target, setup_test, assert_test_results, remote_test
     Objective: Verifies that the launch manager correctly handles recovery actions triggered by a heartbeat monitor failure.
 
     Process registers a heartbeat monitor, sends heartbeats within the configured time range for 1 second, then stops sending heartbeats.
-    Expected Behaviour: Health monitor detects the missed heartbeats and triggers a recovery action, activating the fallback run target.
+    Expected Behaviour: Health monitor detects the missed heartbeats and triggers a recovery action, activating the fallback Run Target.
     """
 
     run_test(
