@@ -50,7 +50,7 @@ jobs:
         env:
           COVERAGE_THRESHOLD: ${{ inputs.coverage-threshold }}
         run: |
-          bazel build //quality/coverage:run_coverage
+          bazel run //quality/coverage:run_coverage
 
       - name: Upload coverage report
         if: always()
