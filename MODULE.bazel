@@ -12,12 +12,8 @@
 # *******************************************************************************
 module(name = "score_lifecycle")
 
-# CodeQL Coding Standards release used for BOTH the query sources / report
-# scripts (@codeql_coding_standards) and the pre-compiled query pack
-# (@codeql_coding_standards_compiled). These two must always come from the same
-# release, so their version is defined once here and both derive their download
-# URL from it.
-CODING_STANDARDS_VERSION = "2.62.0"
+# CodeQL Coding Standards release
+CODEQL_STANDARDS_VERSION = "2.62.0"
 
 # Bazel global rules
 bazel_dep(name = "bazel_skylib", version = "1.9.0")
@@ -274,9 +270,7 @@ deb(
 http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 # The MISRA C++ analysis runs a pre-compiled query pack published with the
-# codeql-coding-standards release (see codeql_release_pack.bzl). This avoids
-# compiling the queries locally while keeping the analysis hermetic (pinned by
-# sha256) and aligned with the pinned coding_standards version above.
+# codeql-coding-standards release (see codeql_release_pack.bzl).
 codeql_release_pack = use_repo_rule(
     "//third_party/codeql:codeql_release_pack.bzl",
     "codeql_release_pack",
@@ -348,44 +342,34 @@ http_archive(
     patch_args = ["-p1"],
     patches = ["//third_party/codeql:codeql_coding_standards_misra.patch"],
     sha256 = "2aa4f4c3efd87eb24fe33bbef7f982b616a6653ae4f2a67ece268ef50cdd1ff3",
-    strip_prefix = "codeql-coding-standards-{version}".format(version = CODING_STANDARDS_VERSION),
-    urls = ["https://github.com/github/codeql-coding-standards/archive/refs/tags/v{version}.tar.gz".format(version = CODING_STANDARDS_VERSION)],
+    strip_prefix = "codeql-coding-standards-{version}".format(version = CODEQL_STANDARDS_VERSION),
+    urls = ["https://github.com/github/codeql-coding-standards/archive/refs/tags/v{version}.tar.gz".format(version = CODEQL_STANDARDS_VERSION)],
 )
 
 codeql_release_pack(
     name = "codeql_coding_standards_compiled",
     pack_tarball = "misra-cpp-coding-standards.tgz",
     sha256 = "775e34cb36e522c30f3c4381c0758a7fbe29e6c9a5428eb6c9ad67ebd145cb0b",
-    urls = ["https://github.com/github/codeql-coding-standards/releases/download/v{version}/coding-standards-codeql-packs.zip".format(version = CODING_STANDARDS_VERSION)],
+    urls = ["https://github.com/github/codeql-coding-standards/releases/download/v{version}/coding-standards-codeql-packs.zip".format(version = CODEQL_STANDARDS_VERSION)],
 )
 
-# CERT C++ and CERT C pre-compiled query packs. These are extracted from the
-# SAME coding-standards-codeql-packs.zip release asset as the MISRA C++ pack
-# above (hence the identical sha256, which verifies the outer zip download,
-# not the per-standard tarball) — no extra network fetch beyond what is
-# already pinned for MISRA C++.
+# CERT C++ and CERT C pre-compiled query packs.
 codeql_release_pack(
     name = "codeql_coding_standards_cert_cpp_compiled",
     pack_tarball = "cert-cpp-coding-standards.tgz",
     sha256 = "775e34cb36e522c30f3c4381c0758a7fbe29e6c9a5428eb6c9ad67ebd145cb0b",
-    urls = ["https://github.com/github/codeql-coding-standards/releases/download/v{version}/coding-standards-codeql-packs.zip".format(version = CODING_STANDARDS_VERSION)],
+    urls = ["https://github.com/github/codeql-coding-standards/releases/download/v{version}/coding-standards-codeql-packs.zip".format(version = CODEQL_STANDARDS_VERSION)],
 )
 
 codeql_release_pack(
     name = "codeql_coding_standards_cert_c_compiled",
     pack_tarball = "cert-c-coding-standards.tgz",
     sha256 = "775e34cb36e522c30f3c4381c0758a7fbe29e6c9a5428eb6c9ad67ebd145cb0b",
-    urls = ["https://github.com/github/codeql-coding-standards/releases/download/v{version}/coding-standards-codeql-packs.zip".format(version = CODING_STANDARDS_VERSION)],
+    urls = ["https://github.com/github/codeql-coding-standards/releases/download/v{version}/coding-standards-codeql-packs.zip".format(version = CODEQL_STANDARDS_VERSION)],
 )
 
 # Self-contained (single-file .NET publish) Linux x64 build of the official
-# Microsoft SARIF SDK's Sarif.Multitool, distributed as the npm package
-# @microsoft/sarif-multitool-linux (the same tool used by
-# .github/actions/00_infrastructure/merge_sarif_reports for rules_lint, and by
-# //quality/static_analysis:merge_codeql_findings for the Linux/QNX CodeQL
-# union). Fetched by pinned URL + sha256 (like codeql_bundle above) rather
-# than via `npx` at runtime, so the merge step needs no network access and is
-# fully reproducible.
+# Microsoft SARIF SDK's Sarif.Multitool
 http_archive(
     name = "sarif_multitool",
     build_file = "//third_party/sarif:sarif_multitool.BUILD",

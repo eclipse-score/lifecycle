@@ -33,10 +33,12 @@ py_binary(
     main = "codeql_lint.py",
     tags = ["local"],
     target_compatible_with = ["@platforms//os:linux"],
+    visibility = ["//visibility:private"],
     deps = ["@rules_python//python/runfiles"],
 )
 
 filegroup(
     name = "config",
     srcs = ["config.yaml"],
+    visibility = ["//visibility:private"],
 )
