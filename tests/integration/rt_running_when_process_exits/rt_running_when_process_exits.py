@@ -17,8 +17,8 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
+    fully_verifies=[],
     partially_verifies=[
-        "feat_req__lifecycle__start_named_run_target",
         "feat_req__lifecycle__launch_support",
         "comp_req__launch_man__process_state_comm",
     ],

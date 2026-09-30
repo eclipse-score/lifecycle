@@ -17,7 +17,10 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    partially_verifies=[],
+    fully_verifies=[],
+    partially_verifies=[
+        "feat_req__lifecycle__launch_support",
+    ],
     test_type="interface-test",
     derivation_technique="error-guessing",
 )
