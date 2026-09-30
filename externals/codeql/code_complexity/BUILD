@@ -13,7 +13,7 @@
 
 # Local, uncompiled CodeQL query pack providing file/function size and
 # complexity metrics.
-# Resolved by codeql_lint.py via --additional-packs=third_party/codeql (relative
+# Resolved by codeql_lint.py via --additional-packs=externals/codeql (relative
 # to the repo root).
 filegroup(
     name = "pack",

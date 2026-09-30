@@ -273,7 +273,7 @@ http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "ht
 # The MISRA C++ analysis runs a pre-compiled query pack published with the
 # codeql-coding-standards release (see codeql_release_pack.bzl).
 codeql_release_pack = use_repo_rule(
-    "//third_party/codeql:codeql_release_pack.bzl",
+    "//externals/codeql:codeql_release_pack.bzl",
     "codeql_release_pack",
 )
 
@@ -298,7 +298,7 @@ use_repo(pip, "score_lifecycle_pip")
 pip.parse(
     hub_name = "codeql_coding_standards_pip_hub",
     python_version = PYTHON_VERSION,
-    requirements_lock = "//third_party/codeql:requirements_lock.txt",
+    requirements_lock = "//externals/codeql:requirements_lock.txt",
 )
 use_repo(pip, "codeql_coding_standards_pip_hub")
 
@@ -333,16 +333,16 @@ bazel_dep(name = "grpc-java", version = "1.78.0")
 # codeql_coding_standards release.
 http_archive(
     name = "codeql_bundle",
-    build_file = "//third_party/codeql:codeql.BUILD",
+    build_file = "//externals/codeql:codeql.BUILD",
     sha256 = "a94f674bb3c23ea5e9a2ad06b64847dd0277b15014d2517ecd9c41c88e6caa65",
     url = "https://github.com/github/codeql-action/releases/download/codeql-bundle-v2.21.4/codeql-bundle-linux64.tar.gz",
 )
 
 http_archive(
     name = "codeql_coding_standards",
-    build_file = "//third_party/codeql:codeql_coding_standards.BUILD",
+    build_file = "//externals/codeql:codeql_coding_standards.BUILD",
     patch_args = ["-p1"],
-    patches = ["//third_party/codeql:codeql_coding_standards_misra.patch"],
+    patches = ["//externals/codeql:codeql_coding_standards_misra.patch"],
     sha256 = "2aa4f4c3efd87eb24fe33bbef7f982b616a6653ae4f2a67ece268ef50cdd1ff3",
     strip_prefix = "codeql-coding-standards-{version}".format(version = CODEQL_STANDARDS_VERSION),
     urls = ["https://github.com/github/codeql-coding-standards/archive/refs/tags/v{version}.tar.gz".format(version = CODEQL_STANDARDS_VERSION)],
@@ -374,7 +374,7 @@ codeql_release_pack(
 # Microsoft SARIF SDK's Sarif.Multitool
 http_archive(
     name = "sarif_multitool",
-    build_file = "//third_party/sarif:sarif_multitool.BUILD",
+    build_file = "//externals/sarif:sarif_multitool.BUILD",
     patch_cmds = ["chmod +x Sarif.Multitool"],
     sha256 = "019fe2535318b1954579bea1dac391b652e90e24dea11082625abd9a25d3816d",
     strip_prefix = "package",

@@ -21,7 +21,7 @@ py_binary(
     ],
     data = [
         ":config",
-        "//third_party/codeql/code_complexity:pack",
+        "//externals/codeql/code_complexity:pack",
         "@codeql_bundle//:codeql_cli",
         "@codeql_coding_standards//:analysis_report",
         "@codeql_coding_standards//:guideline_recategorize",

@@ -41,12 +41,12 @@ ALERT_SUPPRESSION_SPEC = "codeql/cpp-queries:AlertSuppression.ql"
 # Local, uncompiled query pack providing file/function size and complexity metrics.
 # Lives directly in this repo's source tree, so it is resolved relative to
 # source_root rather than through Bazel runfiles.
-COMPLEXITY_PACK_RELATIVE_DIR = "third_party/codeql/code_complexity"
+COMPLEXITY_PACK_RELATIVE_DIR = "externals/codeql/code_complexity"
 COMPLEXITY_SUITE_SPEC = "code-complexity-queries:suites/thresholds.qls"
 
 # Runfiles path of the vendored pre-compiled MISRA C++ query pack's manifest,
 # used to anchor the pack root. Provided by the @codeql_coding_standards_compiled
-# repository (see third_party/codeql/codeql_release_pack.bzl).
+# repository (see externals/codeql/codeql_release_pack.bzl).
 COMPILED_PACK_RUNFILE = "codeql_coding_standards_compiled/pack/qlpack.yml"
 
 # Same idea for the CERT C++ and CERT C pre-compiled packs, both extracted
@@ -98,7 +98,7 @@ def _find_release_pack_root(runfile_path, pack_repo_label, required_suite=None):
 
     Generalizes over the MISRA C++, CERT C++ and CERT C pre-compiled packs,
     all vendored the same way by a @codeql_release_pack repository (see
-    third_party/codeql/codeql_release_pack.bzl): a pre-compiled pack published
+    externals/codeql/codeql_release_pack.bzl): a pre-compiled pack published
     with the codeql-coding-standards release, containing the compiled queries
     (`.qlx`), the default suites and all library dependencies bundled under
     `.codeql/libraries/`. Analyzing against such a pack (referenced by its
@@ -312,7 +312,7 @@ def _build_report_analysis_spec(report, source_root):
             query_targets.append(COMPLEXITY_SUITE_SPEC)
             # --additional-packs takes the PARENT directory of the pack (it
             # searches subdirectories for qlpack.yml files matching the
-            # specifier's pack name), i.e. third_party/codeql, not the
+            # specifier's pack name), i.e. externals/codeql, not the
             # code_complexity dir itself.
             additional_packs.append(os.path.dirname(complexity_pack_dir))
         else:
