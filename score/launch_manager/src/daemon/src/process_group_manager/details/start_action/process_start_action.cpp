@@ -13,13 +13,12 @@
 
 #include "score/mw/launch_manager/process_group_manager/details/start_action/process_start_action.hpp"
 #include "score/mw/launch_manager/osal/return_types.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
 #include "score/mw/lifecycle/execution_error.h"
 
 namespace score::mw::lifecycle::internal
 {
 
-ProcessStartAction::ProcessStartAction(osal::ProcessLauncher& launcher, const configuration::ComponentConfig& config)
+ProcessStartAction::ProcessStartAction(osal::IProcess& launcher, const configuration::ComponentConfig& config)
     : launcher_(launcher), config_(config)
 {
 }

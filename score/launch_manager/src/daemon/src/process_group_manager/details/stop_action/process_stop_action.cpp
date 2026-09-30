@@ -13,13 +13,12 @@
 
 #include "score/mw/launch_manager/process_group_manager/details/stop_action/process_stop_action.hpp"
 #include "score/mw/launch_manager/osal/return_types.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
 #include "score/mw/lifecycle/execution_error.h"
 
 namespace score::mw::lifecycle::internal
 {
 
-ProcessStopAction::ProcessStopAction(osal::ProcessLauncher& launcher) : launcher_(launcher)
+ProcessStopAction::ProcessStopAction(osal::IProcess& launcher) : launcher_(launcher)
 {
 }
 
