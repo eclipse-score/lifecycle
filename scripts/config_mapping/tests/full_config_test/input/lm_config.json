@@ -30,7 +30,8 @@
                 "scheduling_policy": "SCHED_FIFO",
                 "scheduling_priority": 50,
                 "max_memory_usage": 536870912,
-                "max_cpu_usage": 80
+                "max_cpu_usage": 80,
+                "affinity_mask": "0x3"
             }
         },
         "component_properties": {
