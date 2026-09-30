@@ -695,7 +695,7 @@ Monitoring, Notification and Recovery
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
+    :derived_from: feat_req__lifecycle__monitor_processes[version==1]
     :status: invalid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -726,7 +726,7 @@ Monitoring, Notification and Recovery
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -740,7 +740,7 @@ Monitoring, Notification and Recovery
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -754,7 +754,7 @@ Monitoring, Notification and Recovery
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
     :status: invalid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -768,7 +768,7 @@ Monitoring, Notification and Recovery
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
     :status: invalid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -781,7 +781,7 @@ Monitoring, Notification and Recovery
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
     :status: invalid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
