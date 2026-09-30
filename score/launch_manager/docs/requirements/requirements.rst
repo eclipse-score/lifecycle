@@ -708,8 +708,8 @@ Monitoring, Notification and Recovery
         **Use case:** There might be processes which are needed to start very early during bootup and 
         are therefore launched by the system before the :term:`Launch Manager` takes control.
 
-.. comp_req:: Process launch monitoring
-    :id: comp_req__launch_man__failure_detect
+.. comp_req:: Component monitoring during startup
+    :id: comp_req__launch_man__failure_detect_startup
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -718,8 +718,20 @@ Monitoring, Notification and Recovery
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall be able to detect and react to failure of the
-    process launch.
+    The :term:`Launch Manager` shall be able to detect :term:`Component failure` during startup of the :term:`Component`. I.e. before reaching its :term:`Ready State`.
+
+.. comp_req:: Component monitoring during runtime
+    :id: comp_req__launch_man__failure_detect_runtime
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__monitor_processes[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall be able to detect :term:`Component failure` during runtime of the :term:`Component`. I.e. after reaching its :term:`Ready State`.
+
 
 .. comp_req:: Recovery by reactivating the component
     :id: comp_req__launch_man__recovery_reactivate
