@@ -45,3 +45,18 @@ cc_library(
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [":iforce_stop_action"],
 )
+
+cc_library(
+    name = "process_force_stop_action",
+    srcs = ["process_force_stop_action.cpp"],
+    hdrs = ["process_force_stop_action.hpp"],
+    include_prefix = "score/mw/launch_manager/process_group_manager/details/force_stop_action",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action",
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
+    deps = [
+        ":iforce_stop_action",
+        "//score/launch_manager:error",
+        "//score/launch_manager/src/daemon/src/osal:return_types",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details:process_launcher",
+    ],
+)

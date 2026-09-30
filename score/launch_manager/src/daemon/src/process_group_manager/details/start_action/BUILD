@@ -45,3 +45,19 @@ cc_library(
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [":istart_action"],
 )
+
+cc_library(
+    name = "process_start_action",
+    srcs = ["process_start_action.cpp"],
+    hdrs = ["process_start_action.hpp"],
+    include_prefix = "score/mw/launch_manager/process_group_manager/details/start_action",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details/start_action",
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
+    deps = [
+        ":istart_action",
+        "//score/launch_manager:error",
+        "//score/launch_manager/src/daemon/src/configuration:component_config",
+        "//score/launch_manager/src/daemon/src/osal:return_types",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details:process_launcher",
+    ],
+)

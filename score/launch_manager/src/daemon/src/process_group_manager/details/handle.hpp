@@ -17,6 +17,8 @@
 #include <sys/types.h>
 #include <variant>
 
+#include "score/mw/launch_manager/osal/ipc_comms.hpp"
+
 namespace score::mw::lifecycle::internal
 {
 
@@ -27,6 +29,7 @@ struct EmptyHandle
 struct ProcessHandle
 {
     pid_t pid;
+    osal::IpcCommsP sync;
 };
 
 using Handle = std::variant<EmptyHandle, ProcessHandle>;
