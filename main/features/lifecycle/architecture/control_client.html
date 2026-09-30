@@ -462,29 +462,29 @@
 <h1>Control Client<a class="headerlink" href="#control-client" title="Link to this heading">#</a></h1>
 <p>This interface provides control functionality for activating and managing run
 targets.
-It allows users to trigger execution of configured <a class="reference internal" href="../glossary.html#term-Run-Target"><span class="xref std std-term">Run targets</span></a> through a standardized activation mechanism.</p>
+It allows users to trigger execution of configured <a class="reference internal" href="../glossary.html#term-Run-Target"><span class="xref std std-term">Run Targets</span></a> through a standardized activation mechanism.</p>
 <p>The following use cases are supported by the <cite>ControlInterface</cite> provided by the
 <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a>.</p>
 <p><strong>Activating a Run Target</strong></p>
-<p>When a request to activate a run target is received via the <cite>ControlInterface</cite>,
+<p>When a request to activate a Run Target is received via the <cite>ControlInterface</cite>,
 the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> shall perform the following operations:</p>
 <ol class="arabic simple">
-<li><p><strong>Validation</strong>: Evaluate if the conditions are correct for activating the requested run target:
-- The run target exists in the configuration
-- All dependencies for the run target are resolvable
+<li><p><strong>Validation</strong>: Evaluate if the conditions are correct for activating the requested Run Target:
+- The Run Target exists in the configuration
+- All dependencies for the Run Target are resolvable
 - Required resources are available</p></li>
 <li><p><strong>Transition Logic</strong>: Determine the transition from the current state to the target state:
-- If a different run target is active, perform a switch operation (stop current, start requested)
-- If the same run target is already active, verify its state and potentially restart failed components</p></li>
+- If a different Run Target is active, perform a switch operation (stop current, start requested)
+- If the same Run Target is already active, verify its state and potentially restart failed components</p></li>
 <li><p><strong>Execution</strong>: Execute the transition in the correct dependency order:
-- Stop components that are not part of the new run target
-- Start components that are required for the new run target
+- Stop components that are not part of the new Run Target
+- Start components that are required for the new Run Target
 - Respect dependency relationships during both stop and start operations</p></li>
 <li><p><strong>Response</strong>: Return status to the caller:
 - Success if all components transitioned correctly
 - Failure with detailed error information if any component failed to transition</p></li>
 </ol>
-<p>This unified approach allows external state managers to request any run target
+<p>This unified approach allows external state managers to request any Run Target
 activation without needing to know the current system state, as the
 <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> handles the transition logic internally.</p>
 <section id="interface">
@@ -498,11 +498,11 @@ applications to support dynamic state control.</p>
 </section>
 <section id="dynamic-architecture">
 <h2>Dynamic architecture<a class="headerlink" href="#dynamic-architecture" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-6f7b8e69">
+<div class="need_container docutils container" id="SNCB-af35aee6">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__control_activate">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
-<div class="line"><span><span class="needs_title"><span class="needs_data">Control interface dynamic architecture activate run target</span></span></span></div>
+<div class="line"><span><span class="needs_title"><span class="needs_data">Control interface dynamic architecture activate Run Target</span></span></span></div>
 </div>
 </td>
 <td class="head_center" colspan="2"><div class="needs_head line-block">
@@ -528,7 +528,7 @@ applications to support dynamic state control.</p>
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-ec1f25a9f1a9b7198b49a8e4ce2fb45a178fec8f.svg" type="image/svg+xml" style="width:1396px;height:779px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-8cb725ef1d48f3f06ae3ca2ed34b82656b6a727f.svg" type="image/svg+xml" style="width:1409px;height:779px;background:#FFFFFF;"></object></p>
 </figure>
 </td>
 </tr>
