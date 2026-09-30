@@ -11,6 +11,8 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
+load("//tests/utils/bazel:unit_test.bzl", "lm_cc_test")
+
 cc_library(
     name = "iforce_stop_action",
     hdrs = ["iforce_stop_action.hpp"],
@@ -46,6 +48,15 @@ cc_library(
     deps = [":iforce_stop_action"],
 )
 
+lm_cc_test(
+    name = "empty_force_stop_action_UT",
+    srcs = ["empty_force_stop_action_UT.cpp"],
+    deps = [
+        ":empty_force_stop_action",
+        "@googletest//:gtest_main",
+    ],
+)
+
 cc_library(
     name = "process_force_stop_action",
     srcs = ["process_force_stop_action.cpp"],
@@ -57,6 +68,17 @@ cc_library(
         ":iforce_stop_action",
         "//score/launch_manager:error",
         "//score/launch_manager/src/daemon/src/osal:return_types",
-        "//score/launch_manager/src/daemon/src/process_group_manager/details:process_launcher",
+        "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
+    ],
+)
+
+lm_cc_test(
+    name = "process_force_stop_action_UT",
+    srcs = ["process_force_stop_action_UT.cpp"],
+    deps = [
+        ":process_force_stop_action",
+        "//score/launch_manager:error",
+        "//score/launch_manager/src/daemon/src/process_group_manager:mock_iprocess",
+        "@googletest//:gtest_main",
     ],
 )

@@ -16,8 +16,8 @@
 
 #include "score/mw/launch_manager/configuration/component_config.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/handle.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/start_action/istart_action.hpp"
+#include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include "score/result/result.h"
 
 namespace score::mw::lifecycle::internal
@@ -26,12 +26,12 @@ namespace score::mw::lifecycle::internal
 class ProcessStartAction final : public IStartAction
 {
   public:
-    ProcessStartAction(osal::ProcessLauncher& launcher, const configuration::ComponentConfig& config);
+    ProcessStartAction(osal::IProcess& launcher, const configuration::ComponentConfig& config);
 
     Result<Handle> start() const override;
 
   private:
-    osal::ProcessLauncher& launcher_;
+    osal::IProcess& launcher_;
     const configuration::ComponentConfig& config_;
 };
 

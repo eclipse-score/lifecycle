@@ -11,6 +11,8 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
+load("//tests/utils/bazel:unit_test.bzl", "lm_cc_test")
+
 cc_library(
     name = "istart_action",
     hdrs = ["istart_action.hpp"],
@@ -46,6 +48,15 @@ cc_library(
     deps = [":istart_action"],
 )
 
+lm_cc_test(
+    name = "empty_start_action_UT",
+    srcs = ["empty_start_action_UT.cpp"],
+    deps = [
+        ":empty_start_action",
+        "@googletest//:gtest_main",
+    ],
+)
+
 cc_library(
     name = "process_start_action",
     srcs = ["process_start_action.cpp"],
@@ -58,6 +69,17 @@ cc_library(
         "//score/launch_manager:error",
         "//score/launch_manager/src/daemon/src/configuration:component_config",
         "//score/launch_manager/src/daemon/src/osal:return_types",
-        "//score/launch_manager/src/daemon/src/process_group_manager/details:process_launcher",
+        "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
+    ],
+)
+
+lm_cc_test(
+    name = "process_start_action_UT",
+    srcs = ["process_start_action_UT.cpp"],
+    deps = [
+        ":process_start_action",
+        "//score/launch_manager:error",
+        "//score/launch_manager/src/daemon/src/process_group_manager:mock_iprocess",
+        "@googletest//:gtest_main",
     ],
 )

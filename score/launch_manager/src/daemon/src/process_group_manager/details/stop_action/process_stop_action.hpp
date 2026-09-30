@@ -14,8 +14,8 @@
 #ifndef SCORE_LCM_PROCESS_STOP_ACTION_HPP_INCLUDED
 #define SCORE_LCM_PROCESS_STOP_ACTION_HPP_INCLUDED
 
-#include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/stop_action/istop_action.hpp"
+#include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include "score/result/result.h"
 
 namespace score::mw::lifecycle::internal
@@ -24,14 +24,14 @@ namespace score::mw::lifecycle::internal
 class ProcessStopAction final : public IStopAction
 {
   public:
-    explicit ProcessStopAction(osal::ProcessLauncher& launcher);
+    explicit ProcessStopAction(osal::IProcess& launcher);
 
     Result<void> stop(const Handle handle) const override;
     Result<void> operator()(const ProcessHandle process) const;
     Result<void> operator()(const Handle handle) const;
 
   private:
-    osal::ProcessLauncher& launcher_;
+    osal::IProcess& launcher_;
 };
 
 }  // namespace score::mw::lifecycle::internal
