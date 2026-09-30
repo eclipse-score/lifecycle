@@ -536,12 +536,24 @@ Process Management
 Run Targets
 ===========
 
+.. comp_req:: Launching run target
+    :id: comp_req__launch_man__start_named_run_target
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__run_target_support[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall be able to start a named :term:`Run Target`.
+
 .. comp_req:: Process state
     :id: comp_req__launch_man__process_state_comm
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__switch_run_targets[version==1]
+    :derived_from: feat_req__lifecycle__process_ordering[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -549,6 +561,18 @@ Run Targets
     The :term:`Launch Manager` shall have a means for the launched :term:`Processes <Process>`
     to communicate a state, which represents the launched processes' internal state,
     to the launcher.
+
+.. comp_req:: Switch between run targets
+    :id: comp_req__launch_man__switch_run_targets
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__run_target_support[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall be able to switch between different :term:`run targets <Run target>`.
 
 
 Terminating Processes
@@ -559,7 +583,7 @@ Terminating Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__switch_run_targets[version==1]
+    :derived_from: feat_req__lifecycle__process_termination[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -572,7 +596,7 @@ Terminating Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__terminationn_dependency[version==1]
+    :derived_from: feat_req__lifecycle__process_termination[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -585,7 +609,7 @@ Terminating Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__terminationn_dependency[version==1]
+    :derived_from: feat_req__lifecycle__termination_dependency[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -598,7 +622,7 @@ Terminating Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__terminationn_dependency[version==1]
+    :derived_from: feat_req__lifecycle__termination_dependency[version==1]
     :status: invalid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -615,7 +639,7 @@ Terminating Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__terminationn_dependency[version==1]
+    :derived_from: feat_req__lifecycle__termination_dependency[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -628,7 +652,7 @@ Terminating Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__terminationn_dependency[version==1]
+    :derived_from: feat_req__lifecycle__process_termination[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -689,7 +713,7 @@ Monitoring, Notification and Recovery
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__switch_run_targets[version==1]
+    :derived_from: feat_req__lifecycle__monitor_processes[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
