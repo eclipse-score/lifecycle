@@ -50,3 +50,12 @@ cc_library(
         "@platforms//os:linux": ["//externals/acl"],
     }),
 )
+
+cc_library(
+    name = "alive_worker_factory_UT",
+    srcs = ["AliveWorkerFactory_UT.cpp"],
+    deps = [
+        ":alive_worker_factory",
+        "@googletest//:gtest_main",
+    ],
+)
