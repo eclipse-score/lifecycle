@@ -11,6 +11,8 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
+load("//tests/utils/bazel:unit_test.bzl", "lm_cc_test")
+
 cc_library(
     name = "iready_condition",
     hdrs = ["iready_condition.hpp"],
@@ -32,6 +34,32 @@ cc_library(
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
         ":iready_condition",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "report_running_ready_condition",
+    srcs = ["report_running_ready_condition.cpp"],
+    hdrs = ["report_running_ready_condition.hpp"],
+    include_prefix = "score/mw/launch_manager/process_group_manager/details/ready_condition",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition",
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
+    deps = [
+        ":iready_condition",
+        "//score/launch_manager:error",
+        "//score/launch_manager/src/daemon/src/osal:return_types",
+        "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
+    ],
+)
+
+lm_cc_test(
+    name = "report_running_ready_condition_UT",
+    srcs = ["report_running_ready_condition_UT.cpp"],
+    deps = [
+        ":report_running_ready_condition",
+        "//score/launch_manager:error",
+        "//score/launch_manager/src/daemon/src/process_group_manager:mock_iprocess",
         "@googletest//:gtest_main",
     ],
 )
