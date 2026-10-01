@@ -13,8 +13,11 @@
 
 #include <gtest/gtest.h>
 #include <sched.h>
+#include <sys/resource.h>
 #include <unistd.h>
+#include <cctype>
 #include <iostream>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -72,6 +75,96 @@ std::vector<gid_t> parse_groups(const std::string& csv)
     return groups;
 }
 
+// Maps the lowercase name used on the CLI (e.g. "as") to this platform's RLIMIT_* constant. This
+// resolution happens on the target itself, at the process' own compile time, so - unlike the
+// Launch Manager's wire format - it never needs translating between QNX and Linux.
+std::optional<int> resource_from_name(const std::string& name)
+{
+    if (name == "as")
+    {
+        return RLIMIT_AS;
+    }
+    if (name == "core")
+    {
+        return RLIMIT_CORE;
+    }
+    if (name == "cpu")
+    {
+        return RLIMIT_CPU;
+    }
+    if (name == "data")
+    {
+        return RLIMIT_DATA;
+    }
+    if (name == "fsize")
+    {
+        return RLIMIT_FSIZE;
+    }
+    if (name == "nofile")
+    {
+        return RLIMIT_NOFILE;
+    }
+    if (name == "stack")
+    {
+        return RLIMIT_STACK;
+    }
+    return std::nullopt;
+}
+
+// Parse a single rlimit bound: either a non-negative integer, or the literal "unlimited", which
+// maps to this platform's own RLIM_INFINITY (not the Launch Manager's wire sentinel).
+rlim_t parse_rlimit_bound(const std::string& token)
+{
+    if (token == "unlimited")
+    {
+        return RLIM_INFINITY;
+    }
+    return static_cast<rlim_t>(std::stoull(token));
+}
+
+// Parse "--rlimit-<name>=<soft>,<hard>" into an RlimitExpectation, or nullopt if 'arg' does not
+// have this form or names an unrecognized resource.
+std::optional<sandbox_options::RlimitExpectation> parse_rlimit_option(const std::string& arg)
+{
+    constexpr std::string_view kPrefix = "--rlimit-";
+    if (arg.rfind(kPrefix, 0) != 0)
+    {
+        return std::nullopt;
+    }
+
+    const auto equals_pos = arg.find('=');
+    if (equals_pos == std::string::npos)
+    {
+        return std::nullopt;
+    }
+
+    const std::string name = arg.substr(kPrefix.size(), equals_pos - kPrefix.size());
+    const auto resource = resource_from_name(name);
+    if (!resource.has_value())
+    {
+        return std::nullopt;
+    }
+
+    const std::string bounds = arg.substr(equals_pos + 1);
+    const auto comma_pos = bounds.find(',');
+    if (comma_pos == std::string::npos)
+    {
+        return std::nullopt;
+    }
+
+    std::string display_name = "RLIMIT_";
+    for (const char c : name)
+    {
+        display_name += static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+    }
+
+    return sandbox_options::RlimitExpectation{
+        *resource,
+        display_name,
+        parse_rlimit_bound(bounds.substr(0, comma_pos)),
+        parse_rlimit_bound(bounds.substr(comma_pos + 1))};
+}
+
 // If 'arg' has the form "--<key>=<value>", store the value in 'value' and return true.
 bool match_option(const std::string& arg, const std::string_view key, std::string& value)
 {
@@ -95,7 +188,11 @@ bool parse_arguments(int argc, char** argv, ExpectedValues& out)
     for (int i = 1; i < argc; ++i)
     {
         const std::string arg = argv[i];
-        if (match_option(arg, "uid", value))
+        if (auto rlimit = parse_rlimit_option(arg))
+        {
+            out.rlimits.push_back(std::move(*rlimit));
+        }
+        else if (match_option(arg, "uid", value))
         {
             out.uid = static_cast<uid_t>(std::stoul(value));
         }
@@ -191,6 +288,17 @@ TEST(SandboxOptions, RunAndVerify)
         }
     }
 
+    if (!expected.rlimits.empty())
+    {
+        TEST_STEP("Verify resource limits")
+        {
+            for (const auto& rlimit_expectation : expected.rlimits)
+            {
+                EXPECT_TRUE(sandbox_options::verifyRlimit(rlimit_expectation));
+            }
+        }
+    }
+
     TEST_STEP("Verify scheduling policy and priority in the main thread")
     {
         EXPECT_TRUE(sandbox_options::verifyScheduling(expected.policy, expected.priority, "main thread"));
@@ -217,7 +325,8 @@ int main(int argc, char** argv)
     if (!parse_arguments(argc, argv, expected))
     {
         std::cerr << "Recognized sandbox options: --uid, --gid, --supplementary-groups, "
-                     "--scheduling-policy, --scheduling-priority, --working-dir, --affinity"
+                     "--scheduling-policy, --scheduling-priority, --working-dir, --affinity, "
+                     "--rlimit-<as|core|cpu|data|fsize|nofile|stack>=<soft>,<hard>"
                   << std::endl;
         return 1;
     }

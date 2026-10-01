@@ -91,7 +91,14 @@
                     "--uid=0",
                     "--gid=0",
                     "--scheduling-policy=SCHED_RR",
-                    "--scheduling-priority=10"
+                    "--scheduling-priority=10",
+                    "--rlimit-as=314572800,314572800",
+                    "--rlimit-core=0,0",
+                    "--rlimit-cpu=60,120",
+                    "--rlimit-data=268435456,268435456",
+                    "--rlimit-fsize=104857600,104857600",
+                    "--rlimit-nofile=1024,unlimited",
+                    "--rlimit-stack=8388608,8388608"
                 ],
                 "ready_condition": {
                     "process_state": "Terminated"
@@ -106,7 +113,22 @@
                     "gid": 0,
                     "supplementary_group_ids": [],
                     "scheduling_policy": "SCHED_RR",
-                    "scheduling_priority": 10
+                    "scheduling_priority": 10,
+                    "rlimits": {
+                        "RLIMIT_AS": 314572800,
+                        "RLIMIT_CORE": 0,
+                        "RLIMIT_CPU": {
+                            "soft": 60,
+                            "hard": 120
+                        },
+                        "RLIMIT_DATA": 268435456,
+                        "RLIMIT_FSIZE": 104857600,
+                        "RLIMIT_NOFILE": {
+                            "soft": 1024,
+                            "hard": "unlimited"
+                        },
+                        "RLIMIT_STACK": 8388608
+                    }
                 }
             }
         },

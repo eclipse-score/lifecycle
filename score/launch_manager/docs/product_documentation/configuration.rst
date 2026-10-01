@@ -314,13 +314,33 @@ sandbox.scheduling_policy (string, optional)
 sandbox.scheduling_priority (integer, optional)
     Description: Specifies the scheduling priority applied to the component's initial thread, influencing its allocation of CPU time.
 
-sandbox.max_memory_usage (integer, optional)
-    Description: Specifies the maximum amount of memory, in bytes, that the component is permitted to use during runtime.
-    Constraint: Must be greater than 0.
+sandbox.rlimits (object, optional)
+    Description: Defines the POSIX resource limits (rlimits) applied to the component before it is executed.
 
-sandbox.max_cpu_usage (integer, optional)
-    Description: Specifies the maximum CPU usage limit for the component, expressed as a percentage (%) of total CPU capacity.
-    Constraint: Must be greater than 0.
+    Each key names a resource limit specified by POSIX.1 (XSI). For the meaning of a limit and the behaviour when it is exceeded, see ``setrlimit(2)`` and IEEE Std 1003.1 ``<sys/resource.h>``.
+
+    A value is either a single integer, which is shorthand for an equal soft and hard limit, or an object with explicit ``soft`` and ``hard`` members. Either bound may be the literal string ``"unlimited"`` instead of an integer. Units are documented for each value separately.
+
+sandbox.rlimits.RLIMIT_AS (integer or object, optional)
+    Description: Specifies the maximum size, in bytes, of the component's total virtual address space.
+
+sandbox.rlimits.RLIMIT_CORE (integer or object, optional)
+    Description: Specifies the maximum size, in bytes, of a core dump file the component may produce; 0 disables core dumps.
+
+sandbox.rlimits.RLIMIT_CPU (integer or object, optional)
+    Description: Specifies the maximum amount of CPU time, in seconds, the component may accumulate over its entire lifetime.
+
+sandbox.rlimits.RLIMIT_DATA (integer or object, optional)
+    Description: Specifies the maximum size, in bytes, of the component's data segment.
+
+sandbox.rlimits.RLIMIT_FSIZE (integer or object, optional)
+    Description: Specifies the maximum size, in bytes, of a file the component may create.
+
+sandbox.rlimits.RLIMIT_NOFILE (integer or object, optional)
+    Description: Specifies the highest file descriptor number the component may use, plus one.
+
+sandbox.rlimits.RLIMIT_STACK (integer or object, optional)
+    Description: Specifies the maximum size, in bytes, of the component's process stack; applied before the component's executable image is loaded.
 
 .. _lm_conf_launch_manager_root_properties:
 

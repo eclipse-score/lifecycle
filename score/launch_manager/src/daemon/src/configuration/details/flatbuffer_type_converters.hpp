@@ -71,6 +71,14 @@ score::cpp::expected<TargetT, IConfigLoader::Error> validateRange(int64_t value,
 [[nodiscard]] FileExistenceState convertFileExistenceState(fb::FileExistenceState fb_state);
 /// @brief Converts a FlatBuffer SchedulingPolicy enum to a POSIX scheduling policy constant.
 [[nodiscard]] score::cpp::expected<int32_t, IConfigLoader::Error> convertSchedulingPolicy(fb::SchedulingPolicy policy);
+/// @brief Returns the platform's RLIMIT_* constant for the given flatbuffer rlimit enum value, or an
+/// InvalidFormat error.
+[[nodiscard]] score::cpp::expected<int, IConfigLoader::Error> toPlatformResource(fb::RlimitResource fb_resource);
+/// @brief Converts a FlatBuffer vector of Rlimit tables to a vector of ResourceLimit, resolving
+/// each flatbuffer rlimit entry to the platform-specific RLIMIT_* constant and special value "unlimited"
+/// to RLIM_INFINITY.
+[[nodiscard]] score::cpp::expected<std::vector<ResourceLimit>, IConfigLoader::Error> convertRlimits(
+    const ::flatbuffers::Vector<::flatbuffers::Offset<fb::Rlimit>>* vec);
 
 // --- String and vector helpers ---
 

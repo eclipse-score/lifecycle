@@ -21,8 +21,6 @@ Configuration
 Component
 ---------
 
-* The sandbox parameters ``max_memory_usage`` and ``max_cpu_usage`` are
-  currently not supported and are ignored.
 * For ReadyCondition ``process_state:Terminated``, the mapping is only
   supported for Components that have at least one Component depending on it.
 * The ``ready_recovery_action`` only supports the RecoveryAction of type
