@@ -274,7 +274,8 @@ def parse_affinity_mask(value, component_name):
             f"Component '{component_name}': affinity_mask must be a hexadecimal string "
             f'such as "0x3", but got {value!r}.'
         )
-    if not 1 <= mask <= 0xFFFFFFFFFFFFFFFF:
+
+    if mask < 1 or mask > 0xFFFFFFFFFFFFFFFF:
         raise ValueError(
             f"Component '{component_name}': affinity_mask must select at least one core "
             f"and at most 64 cores, but got {value!r}."
