@@ -31,6 +31,7 @@ test_suite(
         "//tests/integration/ready_conditions/file_state/exists:ready_condition_file",
         "//tests/integration/ready_conditions/file_state/not_existing:ready_condition_file_not_exists",
         "//tests/integration/rt_running_when_process_exits",
+        "//tests/integration/run_target_request_handling",
         "//tests/integration/sandbox_options",
         "//tests/integration/shutdown_signal",
         "//tests/integration/smoke",
