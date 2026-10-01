@@ -8580,19 +8580,5 @@
     "result_text": "",
     "PartiallyVerifies": null,
     "FullyVerifies": "comp_req__launch_man__uid_gid_support, comp_req__launch_man__launch_priority_support, comp_req__launch_man__scheduling_policy, comp_req__launch_man__cwd_support, comp_req__launch_man__supplementary_groups"
-  },
-  {
-    "name": "externals/codeql/pip_requirements.test",
-    "file": null,
-    "line": null,
-    "result": "passed",
-    "repo_name": null,
-    "hash": null,
-    "url": null,
-    "TestType": null,
-    "DerivationTechnique": null,
-    "result_text": "",
-    "PartiallyVerifies": null,
-    "FullyVerifies": null
   }
 ]
