@@ -20,7 +20,7 @@ Component::Component(
     const IStartAction& start_action,
     const IStopAction& stop_action,
     const IForceStopAction& force_stop_action,
-    const std::vector<std::reference_wrapper<const IReadyCondition>> ready_conditions,
+    const cpp::span<std::reference_wrapper<const IReadyCondition>> ready_conditions,
     IdentifierHash identifier)
     : handle_(EmptyHandle{}),
       start_action_(start_action),

@@ -19,6 +19,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/iready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/start_action/istart_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/stop_action/istop_action.hpp"
+#include <score/span.hpp>
 #include <functional>
 #include <vector>
 
@@ -32,7 +33,8 @@ class Component final : public IComponent
         const IStartAction& start_action,
         const IStopAction& stop_action,
         const IForceStopAction& force_stop_action,
-        std::vector<std::reference_wrapper<const IReadyCondition>> ready_conditions,
+        cpp::span<std::reference_wrapper<const IReadyCondition>> ready_conditions =
+            cpp::span<std::reference_wrapper<const IReadyCondition>>{},
         IdentifierHash identifier = IdentifierHash{});
 
     RequestResult activate(cpp::stop_token stop_token) override;
@@ -46,7 +48,7 @@ class Component final : public IComponent
     const IStartAction& start_action_;
     const IStopAction& stop_action_;
     const IForceStopAction& force_stop_action_;
-    const std::vector<std::reference_wrapper<const IReadyCondition>> ready_conditions_;
+    const cpp::span<std::reference_wrapper<const IReadyCondition>> ready_conditions_;
     IdentifierHash identifier_;
 };
 
