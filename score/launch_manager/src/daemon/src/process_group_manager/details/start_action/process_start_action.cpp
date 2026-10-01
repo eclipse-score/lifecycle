@@ -23,7 +23,7 @@ ProcessStartAction::ProcessStartAction(osal::IProcess& launcher, const configura
 {
 }
 
-Result<Handle> ProcessStartAction::start() const
+Result<Handle> ProcessStartAction::start(cpp::stop_token stop_token) const
 {
     osal::ProcessID pid = 0;
     osal::IpcCommsP sync = nullptr;

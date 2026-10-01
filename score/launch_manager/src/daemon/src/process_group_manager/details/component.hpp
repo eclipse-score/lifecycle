@@ -34,8 +34,8 @@ class Component final : public IComponent
         const std::vector<const IReadyCondition*> ready_conditions,
         IdentifierHash identifier = IdentifierHash{});
 
-    RequestResult activate(score::cpp::stop_token stop_token) override;
-    RequestResult deactivate(score::cpp::stop_token stop_token) override;
+    RequestResult activate(cpp::stop_token stop_token) override;
+    RequestResult deactivate(cpp::stop_token stop_token) override;
     RequestResult tryHandleTermination(int32_t status) override;
     [[nodiscard]] IdentifierHash getIdentifier() const override;
     [[nodiscard]] bool active() const override;

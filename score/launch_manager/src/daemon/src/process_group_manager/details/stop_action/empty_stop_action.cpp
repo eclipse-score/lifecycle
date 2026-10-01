@@ -16,7 +16,7 @@
 namespace score::mw::lifecycle::internal
 {
 
-Result<void> EmptyStopAction::stop(const Handle) const
+Result<void> EmptyStopAction::stop(cpp::stop_token stop_token, const Handle) const
 {
     return {};
 }

@@ -25,7 +25,7 @@ ReportRunningReadyCondition::ReportRunningReadyCondition(
 {
 }
 
-Result<void> ReportRunningReadyCondition::wait(const Handle handle) const
+Result<void> ReportRunningReadyCondition::wait(cpp::stop_token stop_token, const Handle handle) const
 {
     return std::visit(*this, handle);
 }

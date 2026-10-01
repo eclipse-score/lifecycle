@@ -23,7 +23,7 @@ TEST(EmptyForceStopActionTest, ForceStopSucceeds)
 {
     EmptyForceStopAction empty_force_stop_action;
 
-    const auto result = empty_force_stop_action.force_stop(EmptyHandle{});
+    const auto result = empty_force_stop_action.force_stop(cpp::stop_token{}, EmptyHandle{});
 
     EXPECT_TRUE(result.has_value());
 }

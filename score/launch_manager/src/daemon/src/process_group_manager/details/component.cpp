@@ -31,9 +31,9 @@ Component::Component(
 {
 }
 
-IComponent::RequestResult Component::activate(score::cpp::stop_token stop_token)
+IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
 {
-    const auto start_result = start_action_->start();
+    const auto start_result = start_action_->start(stop_token);
     if (!start_result.has_value())
     {
         return cpp::make_unexpected(ComponentError::kErrorBeforeReady);
@@ -42,7 +42,7 @@ IComponent::RequestResult Component::activate(score::cpp::stop_token stop_token)
 
     for (const IReadyCondition* ready_condition : ready_conditions_)
     {
-        if (!ready_condition->wait(handle_.value()).has_value())
+        if (!ready_condition->wait(stop_token, handle_.value()).has_value())
         {
             return cpp::make_unexpected(ComponentError::kErrorBeforeReady);
         }
@@ -51,11 +51,11 @@ IComponent::RequestResult Component::activate(score::cpp::stop_token stop_token)
     return RequestState::kSuccess;
 }
 
-IComponent::RequestResult Component::deactivate(score::cpp::stop_token stop_token)
+IComponent::RequestResult Component::deactivate(cpp::stop_token stop_token)
 {
     if (handle_.has_value())
     {
-        if (!stop_action_->stop(handle_.value()).has_value())
+        if (!stop_action_->stop(stop_token, handle_.value()).has_value())
         {
             return cpp::make_unexpected(ComponentError::kErrorAfterReady);
         }
