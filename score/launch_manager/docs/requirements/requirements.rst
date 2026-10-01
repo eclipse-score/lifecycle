@@ -373,9 +373,9 @@ Conditional Launching
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall provide a configuration parameter to
-    define a :term:`Run Targets <Run Target>`
-    :term:`dependencies <Dependency (between run targets)>` to another
+    The :term:`Launch Manager` shall provide support to
+    define a :term:`Run Target <Run Target>`
+    :term:`dependency <Dependency (between run targets)>` to another
     :term:`Run Target`.
 
 .. comp_req:: Run target to component dependencies
@@ -388,9 +388,9 @@ Conditional Launching
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall provide a configuration parameter to
-    define a :term:`Run Targets <Run Target>`
-    :term:`dependencies <Dependency (between run targets)>` to :term:`Components <Component>`.
+    The :term:`Launch Manager` shall provide support to
+    define a :term:`Run Target <Run Target>`
+    :term:`dependency <Dependency (between run targets)>` to :term:`Components <Component>`.
 
 Ready Conditions
 ----------------
