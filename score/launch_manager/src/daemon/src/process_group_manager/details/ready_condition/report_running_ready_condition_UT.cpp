@@ -35,7 +35,7 @@ TEST(ReportRunningReadyConditionTest, WaitCallsWaitForkRunningWithSyncAndTimeout
     EXPECT_CALL(launcher, waitForkRunning(mock_handle.sync, std::optional<std::chrono::milliseconds>(10ms)))
         .WillOnce(Return(osal::OsalReturnType::kSuccess));
 
-    static_cast<void>(report_running_ready_condition.wait(mock_handle));
+    static_cast<void>(report_running_ready_condition.wait(cpp::stop_token{}, mock_handle));
 }
 
 TEST(ReportRunningReadyConditionTest, WaitSucceedsReturnsSuccess)
@@ -45,7 +45,7 @@ TEST(ReportRunningReadyConditionTest, WaitSucceedsReturnsSuccess)
 
     ON_CALL(launcher, waitForkRunning(_, _)).WillByDefault(Return(osal::OsalReturnType::kSuccess));
 
-    const Result<void> result = report_running_ready_condition.wait(mock_handle);
+    const Result<void> result = report_running_ready_condition.wait(cpp::stop_token{}, mock_handle);
 
     EXPECT_TRUE(result.has_value());
 }
@@ -57,7 +57,7 @@ TEST(ReportRunningReadyConditionTest, WaitFailsReturnsError)
 
     ON_CALL(launcher, waitForkRunning(_, _)).WillByDefault(Return(osal::OsalReturnType::kFail));
 
-    const Result<void> result = report_running_ready_condition.wait(mock_handle);
+    const Result<void> result = report_running_ready_condition.wait(cpp::stop_token{}, mock_handle);
 
     EXPECT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
@@ -68,7 +68,7 @@ TEST(ReportRunningReadyConditionTest, WaitWithEmptyHandleReturnsError)
     NiceMock<osal::MockIProcess> launcher;
     const ReportRunningReadyCondition report_running_ready_condition(launcher, std::nullopt);
 
-    const Result<void> result = report_running_ready_condition.wait(EmptyHandle{});
+    const Result<void> result = report_running_ready_condition.wait(cpp::stop_token{}, EmptyHandle{});
 
     EXPECT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kNotImplemented);

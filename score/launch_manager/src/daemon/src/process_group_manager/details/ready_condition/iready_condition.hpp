@@ -16,6 +16,7 @@
 
 #include "score/mw/launch_manager/process_group_manager/details/handle.hpp"
 #include "score/result/result.h"
+#include <score/stop_token.hpp>
 
 namespace score::mw::lifecycle::internal
 {
@@ -24,7 +25,7 @@ class IReadyCondition
 {
   public:
     virtual ~IReadyCondition() = default;
-    virtual Result<void> wait(const Handle handle) const = 0;
+    virtual Result<void> wait(cpp::stop_token stop_token, const Handle handle) const = 0;
 };
 
 }  // namespace score::mw::lifecycle::internal

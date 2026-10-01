@@ -28,7 +28,7 @@ class ProcessStartAction final : public IStartAction
   public:
     ProcessStartAction(osal::IProcess& launcher, const configuration::ComponentConfig& config);
 
-    Result<Handle> start() const override;
+    Result<Handle> start(cpp::stop_token stop_token) const override;
 
   private:
     osal::IProcess& launcher_;

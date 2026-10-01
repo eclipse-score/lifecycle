@@ -29,7 +29,7 @@ class ReportRunningReadyCondition final : public IReadyCondition
   public:
     explicit ReportRunningReadyCondition(osal::IProcess& launcher, std::optional<std::chrono::milliseconds> timeout);
 
-    Result<void> wait(const Handle handle) const override;
+    Result<void> wait(cpp::stop_token stop_token, const Handle handle) const override;
     Result<void> operator()(const ProcessHandle process) const;
     Result<void> operator()(const Handle handle) const;
 

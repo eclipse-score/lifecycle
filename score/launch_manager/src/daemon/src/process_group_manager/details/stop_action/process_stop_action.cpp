@@ -22,7 +22,7 @@ ProcessStopAction::ProcessStopAction(osal::IProcess& launcher) : launcher_(launc
 {
 }
 
-Result<void> ProcessStopAction::stop(const Handle handle) const
+Result<void> ProcessStopAction::stop(cpp::stop_token stop_token, const Handle handle) const
 {
     return std::visit(*this, handle);
 }

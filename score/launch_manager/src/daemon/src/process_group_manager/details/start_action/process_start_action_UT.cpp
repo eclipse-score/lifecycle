@@ -32,7 +32,7 @@ TEST(ProcessStartActionTest, StartCallsStartProcessWithConfig)
 
     EXPECT_CALL(launcher, startProcess(_, _, Ref(config))).WillOnce(Return(osal::OsalReturnType::kSuccess));
 
-    static_cast<void>(process_start_action.start());
+    static_cast<void>(process_start_action.start(cpp::stop_token{}));
 }
 
 TEST(ProcessStartActionTest, StartSucceedsReturnsProcessHandle)
@@ -45,7 +45,7 @@ TEST(ProcessStartActionTest, StartSucceedsReturnsProcessHandle)
     ON_CALL(launcher, startProcess(_, _, _))
         .WillByDefault(DoAll(SetArgReferee<0>(expected_pid), Return(osal::OsalReturnType::kSuccess)));
 
-    const Result<Handle> result = process_start_action.start();
+    const Result<Handle> result = process_start_action.start(cpp::stop_token{});
 
     EXPECT_TRUE(result.has_value());
     EXPECT_EQ(std::get<ProcessHandle>(result.value()).pid, expected_pid);
@@ -59,7 +59,7 @@ TEST(ProcessStartActionTest, StartFailsReturnsError)
 
     ON_CALL(launcher, startProcess(_, _, _)).WillByDefault(Return(osal::OsalReturnType::kFail));
 
-    const Result<Handle> result = process_start_action.start();
+    const Result<Handle> result = process_start_action.start(cpp::stop_token{});
 
     EXPECT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kGeneralError);

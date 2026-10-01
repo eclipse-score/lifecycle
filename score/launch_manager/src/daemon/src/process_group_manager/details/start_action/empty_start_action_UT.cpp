@@ -23,7 +23,7 @@ TEST(EmptyStartActionTest, StartSucceeds)
 {
     EmptyStartAction empty_start_action;
 
-    const auto result = empty_start_action.start();
+    const auto result = empty_start_action.start(cpp::stop_token{});
 
     EXPECT_TRUE(result.has_value());
 }
@@ -32,7 +32,7 @@ TEST(EmptyStartActionTest, StartReturnsEmptyHandle)
 {
     EmptyStartAction empty_start_action;
 
-    const auto result = empty_start_action.start();
+    const auto result = empty_start_action.start(cpp::stop_token{});
 
     EXPECT_TRUE(std::holds_alternative<EmptyHandle>(result.value()));
 }

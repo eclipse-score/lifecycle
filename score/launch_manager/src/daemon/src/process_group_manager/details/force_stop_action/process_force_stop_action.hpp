@@ -26,7 +26,7 @@ class ProcessForceStopAction final : public IForceStopAction
   public:
     explicit ProcessForceStopAction(osal::IProcess& launcher);
 
-    Result<void> force_stop(const Handle handle) const override;
+    Result<void> force_stop(cpp::stop_token stop_token, const Handle handle) const override;
     Result<void> operator()(const ProcessHandle process) const;
     Result<void> operator()(const Handle handle) const;
 

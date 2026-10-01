@@ -22,7 +22,7 @@ namespace score::mw::lifecycle::internal
 class EmptyForceStopAction final : public IForceStopAction
 {
   public:
-    Result<void> force_stop(const Handle) const override;
+    Result<void> force_stop(cpp::stop_token stop_token, const Handle) const override;
 };
 
 }  // namespace score::mw::lifecycle::internal
