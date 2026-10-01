@@ -27,6 +27,7 @@ cc_library(
         "//score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition:iready_condition",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/start_action:istart_action",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/stop_action:istop_action",
+        "@score_baselibs//score/language/futurecpp",
     ],
 )
 
