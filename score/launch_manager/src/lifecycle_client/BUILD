@@ -151,6 +151,28 @@ cc_library(
 )
 
 cc_library(
+    name = "report_running_test_lib",
+    testonly = True,
+    srcs = ["src/report_running.cpp"],
+    hdrs = ["src/report_running.h"],
+    features = COMPILER_WARNING_FEATURES,
+    include_prefix = "score/mw/lifecycle",
+    strip_include_prefix = "/score/launch_manager/src/lifecycle_client/src",
+    deps = [
+        "//score/launch_manager/src/lifecycle_client/src/details:mock_report_running_impl",
+    ],
+)
+
+lm_cc_test(
+    name = "report_running_UT",
+    srcs = ["src/report_running_UT.cpp"],
+    deps = [
+        ":report_running_test_lib",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
     name = "mock_application_context",
     testonly = True,
     srcs = [
