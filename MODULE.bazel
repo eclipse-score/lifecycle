@@ -322,7 +322,7 @@ oci.pull(
 use_repo(oci, "debian-test-runtime", "debian-test-runtime_linux_amd64")
 
 bazel_dep(name = "score_baselibs", version = "0.2.14")
-bazel_dep(name = "score_communication", version = "0.4.0")
+bazel_dep(name = "score_communication", version = "0.5.0")
 
 # Needed to fix bazel mod errors
 # see https://github.com/grpc/grpc-java/issues/12165
