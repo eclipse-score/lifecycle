@@ -41,6 +41,10 @@ Glossary
       Interface to monitor the health of a process, e.g. to check if a process is
       alive or if it is running as expected.
 
+    Lifecycle Interface
+      Interface to report :term:`readiness <Ready State>` of a process to the
+      :term:`Launch Manager`.
+
     Alive Monitoring
       Checks if an application reports an alive state in a certain period.
 

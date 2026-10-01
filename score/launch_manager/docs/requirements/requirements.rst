@@ -419,8 +419,7 @@ Ready Conditions
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall support a :term:`Ready Condition` that is
-    satisfied when the :need:`logic_arc_int_op__lifecycle__run` interface
-    is called.
+    satisfied when :term:`Component` notifies the :term:`Lifecycle Interface`.
 
 .. comp_req:: Ready Condition - File state 
     :id: comp_req__launch_man__rc_file_state
