@@ -47,7 +47,7 @@ TEST(ComponentTest, StartSucceeds)
     MockStartAction start_action;
     MockStopAction stop_action;
     MockForceStopAction force_stop_action;
-    Component component(&start_action, &stop_action, &force_stop_action, {});
+    Component component(start_action, stop_action, force_stop_action, {});
 
     const auto result = component.activate(cpp::stop_token{});
 
@@ -59,7 +59,7 @@ TEST(ComponentTest, StartActionCalled)
     MockStartAction start_action;
     MockStopAction stop_action;
     MockForceStopAction force_stop_action;
-    Component component(&start_action, &stop_action, &force_stop_action, {});
+    Component component(start_action, stop_action, force_stop_action, {});
 
     EXPECT_CALL(start_action, start(_))
         .WillOnce(DoAll(WithArg<0>(Invoke(expect_mock_stop_token)), Return(Result<Handle>{mock_handle})));
@@ -72,7 +72,7 @@ TEST(ComponentTest, StopActionCalled)
     MockStartAction start_action;
     MockStopAction stop_action;
     MockForceStopAction force_stop_action;
-    Component component(&start_action, &stop_action, &force_stop_action, {});
+    Component component(start_action, stop_action, force_stop_action, {});
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
     EXPECT_CALL(stop_action, stop(_, _))
@@ -92,7 +92,7 @@ TEST(ComponentTest, ReadyConditionsCalled)
     MockReadyCondition ready_condition_1;
     MockReadyCondition ready_condition_2;
     MockForceStopAction force_stop_action;
-    Component component(&start_action, &stop_action, &force_stop_action, {&ready_condition_1, &ready_condition_2});
+    Component component(start_action, stop_action, force_stop_action, {ready_condition_1, ready_condition_2});
 
     InSequence sequence;
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
@@ -115,7 +115,7 @@ TEST(ComponentTest, StartSetsActive)
     MockStartAction start_action;
     MockStopAction stop_action;
     MockForceStopAction force_stop_action;
-    Component component(&start_action, &stop_action, &force_stop_action, {});
+    Component component(start_action, stop_action, force_stop_action, {});
 
     static_cast<void>(component.activate(cpp::stop_token{}));
 
@@ -127,7 +127,7 @@ TEST(ComponentTest, StopClearsActive)
     MockStartAction start_action;
     MockStopAction stop_action;
     MockForceStopAction force_stop_action;
-    Component component(&start_action, &stop_action, &force_stop_action, {});
+    Component component(start_action, stop_action, force_stop_action, {});
 
     static_cast<void>(component.activate(cpp::stop_token{}));
     component.deactivate(cpp::stop_token{});
@@ -140,7 +140,7 @@ TEST(ComponentTest, ForceStopClearsActive)
     MockStartAction start_action;
     MockStopAction stop_action;
     MockForceStopAction force_stop_action;
-    Component component(&start_action, &stop_action, &force_stop_action, {});
+    Component component(start_action, stop_action, force_stop_action, {});
 
     static_cast<void>(component.activate(cpp::stop_token{}));
     component.deactivate(cpp::stop_token{});

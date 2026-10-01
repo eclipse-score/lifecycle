@@ -17,10 +17,10 @@ namespace score::mw::lifecycle::internal
 {
 
 Component::Component(
-    const IStartAction* start_action,
-    const IStopAction* stop_action,
-    const IForceStopAction* force_stop_action,
-    const std::vector<const IReadyCondition*> ready_conditions,
+    const IStartAction& start_action,
+    const IStopAction& stop_action,
+    const IForceStopAction& force_stop_action,
+    const std::vector<std::reference_wrapper<const IReadyCondition>> ready_conditions,
     IdentifierHash identifier)
     : handle_(EmptyHandle{}),
       start_action_(start_action),
@@ -33,16 +33,16 @@ Component::Component(
 
 IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
 {
-    const auto start_result = start_action_->start(stop_token);
+    const auto start_result = start_action_.start(stop_token);
     if (!start_result.has_value())
     {
         return cpp::make_unexpected(ComponentError::kErrorBeforeReady);
     }
     handle_ = start_result.value();
 
-    for (const IReadyCondition* ready_condition : ready_conditions_)
+    for (const IReadyCondition& ready_condition : ready_conditions_)
     {
-        if (!ready_condition->wait(stop_token, handle_.value()).has_value())
+        if (!ready_condition.wait(stop_token, handle_.value()).has_value())
         {
             return cpp::make_unexpected(ComponentError::kErrorBeforeReady);
         }
@@ -55,7 +55,7 @@ IComponent::RequestResult Component::deactivate(cpp::stop_token stop_token)
 {
     if (handle_.has_value())
     {
-        if (!stop_action_->stop(stop_token, handle_.value()).has_value())
+        if (!stop_action_.stop(stop_token, handle_.value()).has_value())
         {
             return cpp::make_unexpected(ComponentError::kErrorAfterReady);
         }
