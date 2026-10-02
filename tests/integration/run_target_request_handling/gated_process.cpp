@@ -32,10 +32,7 @@ std::string component_name()
 }
 }  // namespace
 
-// Holds back report_running() until the control client creates the release
-// file, so the activation of this component's Run Target stays in progress for
-// as long as the control client needs. If the launch manager stops the process
-// before it is released, it exits without reporting running.
+// Reports running only once the control client creates the release file.
 TEST(RunTargetRequestHandling, GatedProcess)
 {
     const std::string name = component_name();
@@ -72,7 +69,6 @@ TEST(RunTargetRequestHandling, GatedProcess)
 
 int main()
 {
-    // Name the XML result after the deployed component so the two deployments of
-    // this binary don't collide.
+    // One XML result per deployed component.
     return TestRunner(component_name()).RunTests();
 }

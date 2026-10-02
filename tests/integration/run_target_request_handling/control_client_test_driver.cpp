@@ -26,13 +26,7 @@ using namespace score::mw::lifecycle;
 
 namespace
 {
-/// @brief Polls get_active_run_target() until the launch manager reports that an
-/// activation is in progress.
-///
-/// An accepted activation request is only recorded as pending; the transition
-/// itself starts on a later cycle of the launch manager's main loop. Waiting for
-/// kActivationInProgress makes sure the next request is handled while the
-/// transition is really running, instead of racing with its start.
+/// Waits until an accepted request has actually started its transition.
 testing::AssertionResult wait_for_activation_in_progress(ILmControl& client)
 {
     constexpr auto kPollInterval = std::chrono::milliseconds(10);
@@ -50,7 +44,7 @@ testing::AssertionResult wait_for_activation_in_progress(ILmControl& client)
     return testing::AssertionFailure() << "Activation did not reach the in-progress state";
 }
 
-/// @brief Polls until `file` exists, i.e. until a gated process has been started.
+/// Waits until `file` exists.
 testing::AssertionResult wait_for_file(const std::string& file)
 {
     constexpr auto kPollInterval = std::chrono::milliseconds(10);
@@ -68,18 +62,6 @@ testing::AssertionResult wait_for_file(const std::string& file)
 }
 }  // namespace
 
-// Characterizes how the launch manager answers activation requests that do not
-// lead to a plain, uninterrupted transition:
-// - a Run Target that does not exist is rejected,
-// - a repeated request for the Run Target currently being activated is rejected,
-// - a request for the Run Target that is already active is rejected,
-// - a (forced) request for another Run Target while an activation is in
-//   progress is accepted and replaces it: the replaced Run Target is never
-//   reported as activated.
-//
-// gated_a and gated_b only report running once this client creates their
-// release file, so the activations of run_target_a and run_target_b stay in
-// progress until the client lets them finish.
 TEST(RunTargetRequestHandling, ControlClient)
 {
     ASSERT_TRUE(check_clean(
@@ -163,9 +145,7 @@ TEST(RunTargetRequestHandling, ControlClient)
         const auto result = client->activate_run_target("run_target_b", true);
         EXPECT_TRUE(result.has_value()) << result.error().Message();
         ASSERT_TRUE(wait_for_activation_in_progress(*client));
-        // The transition first deactivates gated_a; only request Startup once
-        // gated_b has actually been launched, so the replacement always hits an
-        // activation that is under way (and gated_b always writes its result).
+        // gated_a is deactivated first; wait until gated_b is launched.
         ASSERT_TRUE(wait_for_file(started_file(gated_b)));
     }
 
@@ -177,8 +157,7 @@ TEST(RunTargetRequestHandling, ControlClient)
 
     TEST_STEP("Release gated_b")
     {
-        // The activation of gated_b is already under way; releasing it lets the
-        // cancelled transition settle so that Startup can be activated.
+        // Lets the replaced activation settle.
         ASSERT_TRUE(touch_file(release_file(gated_b)));
     }
 

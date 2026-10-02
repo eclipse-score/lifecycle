@@ -17,22 +17,17 @@
 #include <string>
 #include <string_view>
 
-/// @brief Components deploying the gated_process binary. Each one only belongs
-/// to the Run Target of the same suffix.
+/// Components deploying the gated_process binary.
 constexpr std::string_view gated_a = "gated_a";
 constexpr std::string_view gated_b = "gated_b";
 
-/// @return File the control client creates to let `component` report running.
-/// Until it exists, the activation of the component's Run Target stays in
-/// progress, which gives the control client a deterministic window to send
-/// further requests.
+/// @return File that lets `component` report running.
 inline std::string release_file(const std::string_view component)
 {
     return std::string{component} + "_release";
 }
 
-/// @return File `component` creates as soon as it has been started, before it
-/// waits for its release file.
+/// @return File `component` creates when it starts.
 inline std::string started_file(const std::string_view component)
 {
     return std::string{component} + "_started";

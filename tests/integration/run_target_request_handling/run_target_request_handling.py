@@ -25,22 +25,13 @@ def test_run_target_request_handling(
     target, setup_test, assert_test_results, remote_test_dir
 ):
     """
-    Objective: Characterizes how the launch manager answers Run Target activation
-    requests that do not lead to a plain, uninterrupted transition.
+    Objective: Verifies how the launch manager answers rejected and replaced Run
+    Target activation requests.
 
-    The control client requests, in order: a Run Target that does not exist;
-    run_target_a twice, the second time while the first activation is still in
-    progress; run_target_a again once it is active; and, while run_target_b is
-    being activated, Startup. gated_a and gated_b only report running once the
-    control client releases them, which keeps those activations in progress for
-    as long as the control client needs.
-
-    Expected Behaviour: The unknown Run Target is rejected with
-    kRunTargetDoesntExist, the repeated request during the activation with
-    kInTransitionToSameState, and the request for the active Run Target with
-    kAlreadyInState. The request for Startup is accepted and replaces the
-    activation of run_target_b: the next activation reported is Startup, and
-    run_target_b is never reported as activated.
+    Expected Behaviour: Unknown, repeated and already active requests are rejected
+    with kRunTargetDoesntExist, kInTransitionToSameState and kAlreadyInState. A
+    request during an activation replaces it, and the replaced Run Target is never
+    reported as activated.
     """
 
     run_test(
