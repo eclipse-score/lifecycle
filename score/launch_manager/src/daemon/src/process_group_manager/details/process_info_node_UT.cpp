@@ -21,10 +21,10 @@
 #include <gtest/gtest.h>
 #include <chrono>
 #include <cstdint>
+#include <future>
 #include <memory>
 #include <string>
 #include <utility>
-#include <vector>
 
 using namespace testing;
 
@@ -98,6 +98,7 @@ class ProcessInfoNodeFixture : public ::testing::Test
         config.component_properties.ready_condition = configuration::ReadyCondition{ready_state};
         config.deployment_config.ready_recovery_action = configuration::RestartAction{restart_attempts, 0U};
         config.deployment_config.shutdown_timeout_ms = shutdown_timeout_ms_;
+        config.deployment_config.ready_timeout_ms = ready_timeout_ms_;
 
         if (application_type == configuration::ApplicationType::ReportingAndSupervised)
         {
@@ -181,6 +182,7 @@ class ProcessInfoNodeFixture : public ::testing::Test
 
     /// @brief Termination timeout applied to every node created by the helpers below.
     std::uint32_t shutdown_timeout_ms_{1000U};
+    std::uint32_t ready_timeout_ms_{1000U};
     score::cpp::stop_source stop_source_{};
     std::shared_ptr<MockSafeProcessMapInserter> process_map_{std::make_shared<MockSafeProcessMapInserter>()};
     StrictMock<osal::MockIProcess> mock_processIf_{};
@@ -654,16 +656,29 @@ TEST_F(ProcessInfoNodeUnexpectedTerminationTest, SelfTerminating_TerminatedReady
         0 /*restart_attempts*/,
         true /*self terminating*/,
         configuration::ProcessState::Terminated /*ready condition*/);
-    expectSuccessfulProcessLaunch();
-    // activate() returns kWaiting because kRunning != kTerminated (the ready condition).
+
+    // std::future to hold the asynchronous termination handler execution
+    std::future<IComponent::RequestResult> termination_future;
+
+    EXPECT_CALL(mock_processIf_, startProcess(_, _, _)).WillOnce(Return(osal::OsalReturnType::kSuccess));
+
+    EXPECT_CALL(*process_map_, insertIfNotTerminated(_, _))
+        // Call tryHandleTermination once the process has started
+        .WillOnce(InvokeWithoutArgs([node = node.get(), &termination_future]() {
+            termination_future = std::async(std::launch::async, [node]() {
+                return node->tryHandleTermination(0);
+            });
+            return score::mw::lifecycle::internal::SafeProcessMapReturnType::kOk;
+        }));
+
+    // activate() returns kSuccess because kTerminated (the ready condition) is reached within the timeout
     auto activate_result = node->activate(score::cpp::stop_token{});
     ASSERT_THAT(activate_result.has_value(), IsTrue());
-    ASSERT_THAT(activate_result.value(), Eq(IComponent::RequestState::kWaiting));
+    ASSERT_THAT(activate_result.value(), Eq(IComponent::RequestState::kSuccess));
 
-    auto result = node->tryHandleTermination(0);
-
-    ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result.value(), Eq(IComponent::RequestState::kSuccess));
+    auto termination_result = termination_future.get();
+    ASSERT_THAT(termination_result.has_value(), IsTrue());
+    ASSERT_THAT(termination_result.value(), Eq(IComponent::RequestState::kWaiting));
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kTerminated));
 }
 
