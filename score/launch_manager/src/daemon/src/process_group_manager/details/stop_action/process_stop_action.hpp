@@ -21,16 +21,34 @@
 namespace score::mw::lifecycle::internal
 {
 
+/// @brief A stop action which gracefully stops a POSIX process.
+/// @details The process is stopped by sending SIGTERM, which the process may handle
+///          to perform cleanup before exiting.
 class ProcessStopAction final : public IStopAction
 {
   public:
+    /// @brief Creates a new process stop action.
+    /// @param launcher The process launcher used to stop the process.
     explicit ProcessStopAction(osal::IProcess& launcher);
 
+    /// @brief Gracefully stop the process represented by the given handle.
+    /// @param stop_token Token which can be used to interrupt the action.
+    /// @param handle The resource to act upon.
+    /// @return Whether the action was successful, or failed with an error.
     Result<void> stop(cpp::stop_token stop_token, const Handle handle) const override;
+
+    /// @brief Gracefully stop the process represented by the given handle.
+    /// @param process The process to act upon.
+    /// @return Whether the action was successful, or failed with an error.
     Result<void> operator()(const ProcessHandle process) const;
+
+    /// @brief Gracefully stop the resource represented by the given handle.
+    /// @param handle The resource to act upon.
+    /// @return Always returns a not-implemented error.
     Result<void> operator()(const Handle handle) const;
 
   private:
+    /// @brief The process launcher used to stop the process.
     osal::IProcess& launcher_;
 };
 

@@ -19,9 +19,14 @@
 namespace score::mw::lifecycle::internal
 {
 
+/// @brief A force stop action which does nothing.
 class EmptyForceStopAction final : public IForceStopAction
 {
   public:
+    /// @brief Does nothing and returns success.
+    /// @param stop_token Token which can be used to interrupt the action.
+    /// @param handle The resource to act upon.
+    /// @return Always successful.
     Result<void> force_stop(cpp::stop_token stop_token, const Handle) const override;
 };
 

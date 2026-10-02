@@ -22,16 +22,21 @@
 namespace score::mw::lifecycle::internal
 {
 
+/// @brief Signifies that we are not managing any resource.
+/// @details This is useful for run targets and synchronisation points,
+///          which exist only to depend on other components.
 struct EmptyHandle
 {
 };
 
+/// @brief Represents a POSIX process that we are managing.
 struct ProcessHandle
 {
     pid_t pid;
     osal::IpcCommsP sync;
 };
 
+/// @brief Represents some resource that we are managing.
 using Handle = std::variant<EmptyHandle, ProcessHandle>;
 
 }  // namespace score::mw::lifecycle::internal

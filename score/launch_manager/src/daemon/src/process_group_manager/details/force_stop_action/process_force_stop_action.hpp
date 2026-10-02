@@ -21,16 +21,34 @@
 namespace score::mw::lifecycle::internal
 {
 
+/// @brief A force stop action which forcefully stops a POSIX process.
+/// @details The process is stopped by sending SIGKILL, which cannot be caught
+///          by the process and results in immediate termination.
 class ProcessForceStopAction final : public IForceStopAction
 {
   public:
+    /// @brief Creates a new process force stop action.
+    /// @param launcher The process launcher used to stop the process.
     explicit ProcessForceStopAction(osal::IProcess& launcher);
 
+    /// @brief Forcefully stop the process represented by the given handle.
+    /// @param stop_token Token which can be used to interrupt the action.
+    /// @param handle The resource to act upon.
+    /// @return Whether the action was successful, or failed with an error.
     Result<void> force_stop(cpp::stop_token stop_token, const Handle handle) const override;
+
+    /// @brief Forcefully stop the process represented by the given handle.
+    /// @param process The process to act upon.
+    /// @return Whether the action was successful, or failed with an error.
     Result<void> operator()(const ProcessHandle process) const;
+
+    /// @brief Forcefully stop the resource represented by the given handle.
+    /// @param handle The resource to act upon.
+    /// @return Always returns a not-implemented error.
     Result<void> operator()(const Handle handle) const;
 
   private:
+    /// @brief The process launcher used to stop the process.
     osal::IProcess& launcher_;
 };
 
