@@ -16,10 +16,15 @@
 [*] -d-> Terminated
 Terminated -> Starting : Component is started in its configured sandbox.\nAll dependencies are ready and the component is\nconfigured to run in the currently active Run Target.
 Starting --> Ready : The component\nReady Condition is fulfilled.
-Ready --> Terminating : Component is being terminated\n either on request (e.g. Run Target change)\nor <color:red>due to supervision failure</color>.
+Ready --> Terminating : Component is being terminated (e.g. due to Run Target change)
 Terminating --> Terminated : Component is now terminated\n(this may have required <color:red>forceful termination</color>\n<color:red>if component violated the shutdown timeout</color>).
-Starting -[#red]-> Terminated : <color:red>Component crashed</color>\n<color:red>or is forcefully terminated</color>\n<color:red>due to activation timeout violation</color>
-Ready -[#red]-> Terminated : <color:red>Component crashed</color>
+
+state Fault #red
+Ready -[#red]-> Fault : <color:red>Supervision failure</color>.
+Starting -[#red]-> Fault : <color:red>Component crashed</color>\nor <color:red>Ready Condition timeout</color>.
+Ready -[#red]-> Fault : <color:red>Component crashed</color>
+
+Fault -[#red]-> Terminating : <color:red>Recovery action (Restart, Run Target change, etc.)</color>.
 
 legend right
 	Error cases are highlighted in <color:red>red</color>.

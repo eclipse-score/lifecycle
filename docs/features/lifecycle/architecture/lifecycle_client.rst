@@ -83,3 +83,4 @@ This is the case if the component is configured to be ready when the underlying 
 
 SCORE applications use the Lifecycle Interface for reporting the "Running" state to signal they finished their initialization.
 This transitions the process state machine from state `Starting` to state `Running`.
+For Native applications which do not report their state, the process state machine advances directly to `Running` after successful start of the process.
