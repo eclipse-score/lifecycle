@@ -33,7 +33,7 @@ TEST(ProcessForceStopActionTest, ForceStopCallsForceTerminationWithPid)
 
     EXPECT_CALL(launcher, forceTermination(mock_handle.pid)).WillOnce(Return(osal::OsalReturnType::kSuccess));
 
-    static_cast<void>(process_force_stop_action.force_stop(cpp::stop_token{}, mock_handle));
+    static_cast<void>(process_force_stop_action.forceStop(cpp::stop_token{}, mock_handle));
 }
 
 TEST(ProcessForceStopActionTest, ForceStopSucceedsReturnsSuccess)
@@ -43,7 +43,7 @@ TEST(ProcessForceStopActionTest, ForceStopSucceedsReturnsSuccess)
 
     ON_CALL(launcher, forceTermination(_)).WillByDefault(Return(osal::OsalReturnType::kSuccess));
 
-    const Result<void> result = process_force_stop_action.force_stop(cpp::stop_token{}, mock_handle);
+    const Result<void> result = process_force_stop_action.forceStop(cpp::stop_token{}, mock_handle);
 
     EXPECT_TRUE(result.has_value());
 }
@@ -55,7 +55,7 @@ TEST(ProcessForceStopActionTest, ForceStopFailsReturnsError)
 
     ON_CALL(launcher, forceTermination(_)).WillByDefault(Return(osal::OsalReturnType::kFail));
 
-    const Result<void> result = process_force_stop_action.force_stop(cpp::stop_token{}, mock_handle);
+    const Result<void> result = process_force_stop_action.forceStop(cpp::stop_token{}, mock_handle);
 
     EXPECT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
@@ -66,7 +66,7 @@ TEST(ProcessForceStopActionTest, ForceStopWithEmptyHandleReturnsError)
     NiceMock<osal::MockIProcess> launcher;
     const ProcessForceStopAction process_force_stop_action(launcher);
 
-    const Result<void> result = process_force_stop_action.force_stop(cpp::stop_token{}, EmptyHandle{});
+    const Result<void> result = process_force_stop_action.forceStop(cpp::stop_token{}, EmptyHandle{});
 
     EXPECT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kNotImplemented);
