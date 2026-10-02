@@ -31,7 +31,7 @@ class IForceStopAction
     /// @param stop_token Token which can be used to interrupt the action.
     /// @param handle The resource to act upon.
     /// @return Whether the action was successful, or failed with an error.
-    virtual Result<void> force_stop(cpp::stop_token stop_token, const Handle handle) const = 0;
+    virtual Result<void> forceStop(cpp::stop_token stop_token, const Handle handle) const = 0;
 };
 
 }  // namespace score::mw::lifecycle::internal

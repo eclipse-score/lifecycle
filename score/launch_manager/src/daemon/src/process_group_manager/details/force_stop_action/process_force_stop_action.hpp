@@ -35,7 +35,7 @@ class ProcessForceStopAction final : public IForceStopAction
     /// @param stop_token Token which can be used to interrupt the action.
     /// @param handle The resource to act upon.
     /// @return Whether the action was successful, or failed with an error.
-    Result<void> force_stop(cpp::stop_token stop_token, const Handle handle) const override;
+    Result<void> forceStop(cpp::stop_token stop_token, const Handle handle) const override;
 
     /// @brief Forcefully stop the process represented by the given handle.
     /// @param process The process to act upon.
