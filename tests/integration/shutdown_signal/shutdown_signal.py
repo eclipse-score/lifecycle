@@ -18,6 +18,7 @@ from attribute_plugin import add_test_properties
 
 @add_test_properties(
     fully_verifies=[
+        "feat_req__lifecycle__process_termination",
         "comp_req__launch_man__shutdown_signal",
     ],
     partially_verifies=[],

@@ -17,7 +17,11 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    partially_verifies=["comp_req__launch_man__path_condition_check"],
+    fully_verifies=[],
+    partially_verifies=[
+        "comp_req__launch_man__rc_file_state",
+        "feat_req__lifecycle__conditional_startup",
+    ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
 )

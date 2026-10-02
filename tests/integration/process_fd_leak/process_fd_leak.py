@@ -18,8 +18,12 @@ from attribute_plugin import add_test_properties
 
 @add_test_properties(
     fully_verifies=[],
-    test_type="resource-usage",
-    derivation_technique="explorative-testing",
+    partially_verifies=[
+        "comp_req__launch_man__rc_lifecycle",
+        "comp_req__launch_man__rc_os_state",
+    ],
+    test_type="interface-test",
+    derivation_technique="error-guessing",
 )
 def test_process_fd_leak(target, setup_test, assert_test_results, remote_test_dir):
     """Tests the inherited file descriptors from LCM for Native, Reporting and
@@ -32,7 +36,6 @@ def test_process_fd_leak(target, setup_test, assert_test_results, remote_test_di
         cwd=str(remote_test_dir),
     )
 
-    # That the process is started and an XML file is produced verifies feat_req__lifecycle__launch_support
     assert_test_results(
         {"native.xml", "control_client_test_driver.xml", "reporting.xml"}
     )
