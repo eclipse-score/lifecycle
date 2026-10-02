@@ -23,15 +23,26 @@
 namespace score::mw::lifecycle::internal
 {
 
+/// @brief A start action which starts a POSIX process.
 class ProcessStartAction final : public IStartAction
 {
   public:
+    /// @brief Creates a new process start action.
+    /// @param launcher The process launcher used to start the process.
+    /// @param config Configuration describing the executable to launch
+    ///               and its environment.
     ProcessStartAction(osal::IProcess& launcher, const configuration::ComponentConfig& config);
 
+    /// @brief Start a process.
+    /// @param stop_token Token which can be used to interrupt the action.
+    /// @return The handle of the started process, or an error if the action failed.
     Result<Handle> start(cpp::stop_token stop_token) const override;
 
   private:
+    /// @brief The process launcher used to start the process.
     osal::IProcess& launcher_;
+
+    /// @brief Configuration describing the executable to launch and its environment.
     const configuration::ComponentConfig& config_;
 };
 

@@ -24,17 +24,39 @@
 namespace score::mw::lifecycle::internal
 {
 
+/// @brief A ready condition which waits for a process to report running
+///        through a shared memory channel.
 class ReportRunningReadyCondition final : public IReadyCondition
 {
   public:
+    /// @brief Creates a new report running ready condition.
+    /// @param launcher The process launcher used to wait for the process.
+    /// @param timeout The maximum duration to wait for the process to report running,
+    ///                or no timeout if not specified.
     explicit ReportRunningReadyCondition(osal::IProcess& launcher, std::optional<std::chrono::milliseconds> timeout);
 
+    /// @brief Wait until the resource represented by the given handle is ready.
+    /// @param stop_token Token which can be used to interrupt the wait.
+    /// @param handle The resource to wait on.
+    /// @return Whether the wait was successful, or failed with an error.
     Result<void> wait(cpp::stop_token stop_token, const Handle handle) const override;
+
+    /// @brief Wait until the process represented by the given handle reports running.
+    /// @param process The process to wait on.
+    /// @return Whether the wait was successful, or failed with an error.
     Result<void> operator()(const ProcessHandle process) const;
+
+    /// @brief Wait until the resource represented by the given handle is ready.
+    /// @param handle The resource to wait on.
+    /// @return Always returns a not-implemented error.
     Result<void> operator()(const Handle handle) const;
 
   private:
+    /// @brief The process launcher used to wait for the process.
     osal::IProcess& launcher_;
+
+    /// @brief The maximum duration to wait for the process to report running,
+    ///        or no timeout if not specified.
     const std::optional<std::chrono::milliseconds> timeout_;
 };
 

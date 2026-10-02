@@ -21,10 +21,16 @@
 namespace score::mw::lifecycle::internal
 {
 
+/// @brief A condition which decides when a resource has finished its startup.
 class IReadyCondition
 {
   public:
     virtual ~IReadyCondition() = default;
+
+    /// @brief Wait until the resource represented by the given handle is ready.
+    /// @param stop_token Token which can be used to interrupt the wait.
+    /// @param handle The resource to wait on.
+    /// @return Whether the wait was successful, or failed with an error.
     virtual Result<void> wait(cpp::stop_token stop_token, const Handle handle) const = 0;
 };
 

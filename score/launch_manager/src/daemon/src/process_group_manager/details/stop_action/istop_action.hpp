@@ -21,10 +21,16 @@
 namespace score::mw::lifecycle::internal
 {
 
+/// @brief An action which describes how to gracefully stop a resource.
 class IStopAction
 {
   public:
     virtual ~IStopAction() = default;
+
+    /// @brief Gracefully stop the resource represented by the given handle.
+    /// @param stop_token Token which can be used to interrupt the action.
+    /// @param handle The resource to act upon.
+    /// @return Whether the action was successful, or failed with an error.
     virtual Result<void> stop(cpp::stop_token stop_token, const Handle handle) const = 0;
 };
 

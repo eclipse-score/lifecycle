@@ -22,7 +22,7 @@ Component::Component(
     const IForceStopAction& force_stop_action,
     const cpp::span<std::reference_wrapper<const IReadyCondition>> ready_conditions,
     IdentifierHash identifier)
-    : handle_(EmptyHandle{}),
+    : handle_(std::nullopt),
       start_action_(start_action),
       stop_action_(stop_action),
       force_stop_action_(force_stop_action),
