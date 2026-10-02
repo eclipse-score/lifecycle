@@ -367,7 +367,7 @@ score::cpp::expected_blank<IComponent::ComponentError> ProcessInfoNode::handlePr
                 // we can return early
                 if (!isReporting() && (*ready_state == configuration::ProcessState::Running))
                 {
-                    return true;
+                    return exit_code_ == 0;
                 }
 
                 // We only want to wait for kRunning with Reporting processes
