@@ -44,7 +44,8 @@ Result<void> ReportRunningReadyCondition::operator()(const ProcessHandle process
 
 Result<void> ReportRunningReadyCondition::operator()(const Handle handle) const
 {
-    return MakeUnexpected(ExecErrc::kNotImplemented);
+    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE(
+        "ReportRunningReadyCondition should only be called with a ProcessHandle");
 }
 
 }  // namespace score::mw::lifecycle::internal
