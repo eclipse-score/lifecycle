@@ -516,6 +516,9 @@ configurations, user and group IDs etc.</p>
 <dt id="term-Health-Monitor-Interface">Health Monitor Interface<a class="headerlink" href="#term-Health-Monitor-Interface" title="Link to this term">#</a></dt><dd><p>Interface to monitor the health of a process, e.g. to check if a process is
 alive or if it is running as expected.</p>
 </dd>
+<dt id="term-Lifecycle-Interface">Lifecycle Interface<a class="headerlink" href="#term-Lifecycle-Interface" title="Link to this term">#</a></dt><dd><p>Interface to report <a class="reference internal" href="#term-Ready-State"><span class="xref std std-term">readiness</span></a> of a process to the
+<a class="reference internal" href="#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a>.</p>
+</dd>
 <dt id="term-Alive-Monitoring">Alive Monitoring<a class="headerlink" href="#term-Alive-Monitoring" title="Link to this term">#</a></dt><dd><p>Checks if an application reports an alive state in a certain period.</p>
 </dd>
 <dt id="term-Deadline-Monitoring">Deadline Monitoring<a class="headerlink" href="#term-Deadline-Monitoring" title="Link to this term">#</a></dt><dd><p>Monitor to detect if a state was reached within a specified time related to
@@ -565,7 +568,10 @@ on <strong>Run Target B</strong>.</p>
 <dt id="term-Ready-Condition">Ready Condition<a class="headerlink" href="#term-Ready-Condition" title="Link to this term">#</a></dt><dd><p>A configurable condition that must be satisfied before a component is considered ready and operational. Ready conditions can include file system checks, network availability, or custom application-specific signals.</p>
 <p>Ready conditions can either be reported by the component itself through the Lifecycle Interface or determined via external state monitoring. External state examples include: process started, file is available, socket was opened, or that the process finished successfully.</p>
 </dd>
-<dt id="term-Liveliness">Liveliness<a class="headerlink" href="#term-Liveliness" title="Link to this term">#</a></dt><dd><p>The state indicating that a process is active and responding as expected.</p>
+<dt id="term-Liveliness">Liveliness<a class="headerlink" href="#term-Liveliness" title="Link to this term">#</a></dt><dd><p>Term indicating that a <a class="reference internal" href="#term-Component"><span class="xref std std-term">Component</span></a> is periodically sending an
+alive notification (using the
+<a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int_op__lifecycle__report_health">logic_arc_int_op__lifecycle__report_health</a> interface) as
+per configuration.</p>
 </dd>
 <dt id="term-Watchdog">Watchdog<a class="headerlink" href="#term-Watchdog" title="Link to this term">#</a></dt><dd><p>A monitoring mechanism that detects system failures and can trigger recovery actions.</p>
 </dd>

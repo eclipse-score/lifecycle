@@ -7324,7 +7324,7 @@
   {
     "name": "test_smoke_test",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "134",
+    "line": "138",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7338,7 +7338,7 @@
   {
     "name": "test_minimal_config",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "145",
+    "line": "149",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7352,7 +7352,7 @@
   {
     "name": "test_full_config",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "156",
+    "line": "160",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7364,9 +7364,37 @@
     "FullyVerifies": null
   },
   {
-    "name": "test_custom_validation_failures",
+    "name": "test_custom_validation_failures[fallback_run_target_name]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "168",
+    "line": "202",
+    "result": "passed",
+    "repo_name": null,
+    "hash": null,
+    "url": null,
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "test_custom_validation_failures[reporting_terminated_condition]",
+    "file": "scripts/config_mapping/integration_tests.py",
+    "line": "202",
+    "result": "passed",
+    "repo_name": null,
+    "hash": null,
+    "url": null,
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "test_custom_validation_failures[shutdown_timeout_condition]",
+    "file": "scripts/config_mapping/integration_tests.py",
+    "line": "202",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7380,7 +7408,7 @@
   {
     "name": "test_schema_validation_failures",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "202",
+    "line": "242",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -8298,7 +8326,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__path_condition_check",
+    "PartiallyVerifies": "comp_req__launch_man__rc_file_state, feat_req__lifecycle__conditional_startup",
     "FullyVerifies": null
   },
   {
@@ -8312,7 +8340,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__path_condition_check",
+    "PartiallyVerifies": "comp_req__launch_man__rc_file_state, feat_req__lifecycle__conditional_startup",
     "FullyVerifies": null
   },
   {
@@ -8326,8 +8354,8 @@
     "TestType": "interface-test",
     "DerivationTechnique": "error-guessing",
     "result_text": "",
-    "PartiallyVerifies": null,
-    "FullyVerifies": null
+    "PartiallyVerifies": "comp_req__launch_man__process_launch_args",
+    "FullyVerifies": "comp_req__launch_man__rc_lifecycle, comp_req__launch_man__rt_comp_dep"
   },
   {
     "name": "test_crash_ignores_dependents",
@@ -8340,7 +8368,7 @@
     "TestType": "interface-test",
     "DerivationTechnique": "design-analysis",
     "result_text": "",
-    "PartiallyVerifies": null,
+    "PartiallyVerifies": "comp_req__launch_man__failure_detect",
     "FullyVerifies": null
   },
   {
@@ -8354,8 +8382,8 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": null,
-    "FullyVerifies": "feat_req__lifecycle__conditional_startup, feat_req__lifecycle__control_commands, feat_req__lifecycle__process_ordering, feat_req__lifecycle__process_termination, feat_req__lifecycle__request_run_target_start, feat_req__lifecycle__run_target_support, feat_req__lifecycle__switch_run_targets, feat_req__lifecycle__terminationn_dependency, comp_req__launch_man__launch_manager_shutdown, comp_req__launch_man__process_state_comm"
+    "PartiallyVerifies": "comp_req__launch_man__process_launch_args",
+    "FullyVerifies": "feat_req__lifecycle__conditional_startup, feat_req__lifecycle__control_commands, feat_req__lifecycle__process_ordering, feat_req__lifecycle__process_termination, feat_req__lifecycle__request_run_target_start, feat_req__lifecycle__run_target_support, feat_req__lifecycle__switch_run_targets, feat_req__lifecycle__terminationn_dependency, comp_req__launch_man__launch_manager_shutdown, comp_req__launch_man__process_state_comm, comp_req__launch_man__rt_rt_dep, comp_req__launch_man__rt_comp_dep"
   },
   {
     "name": "test_recovery_action_simple_rep_failure",
@@ -8368,8 +8396,8 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": null,
-    "FullyVerifies": "feat_req__lifecycle__recov_run_target_switch, feat_req__lifecycle__recovery_action_support, feat_req__lifecycle__liveliness_detection, comp_req__launch_man__failure_detect"
+    "PartiallyVerifies": "comp_req__launch_man__process_launch_args",
+    "FullyVerifies": "feat_req__lifecycle__recov_run_target_switch, feat_req__lifecycle__recovery_action_support, feat_req__lifecycle__liveliness_detection, comp_req__launch_man__failure_detect, comp_req__launch_man__rc_lifecycle, comp_req__launch_man__rc_os_state, comp_req__launch_man__rt_comp_dep"
   },
   {
     "name": "test_rt_running_when_process_exits",
@@ -8382,7 +8410,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "feat_req__lifecycle__start_named_run_target, feat_req__lifecycle__launch_support, comp_req__launch_man__process_state_comm",
+    "PartiallyVerifies": "feat_req__lifecycle__launch_support, comp_req__launch_man__process_state_comm",
     "FullyVerifies": null
   },
   {
@@ -8396,7 +8424,7 @@
     "TestType": "interface-test",
     "DerivationTechnique": "explorative-testing",
     "result_text": "",
-    "PartiallyVerifies": null,
+    "PartiallyVerifies": "feat_req__lifecycle__launch_support",
     "FullyVerifies": null
   },
   {
@@ -8407,10 +8435,10 @@
     "repo_name": "local_repo",
     "hash": "",
     "url": "",
-    "TestType": "interface-test",
-    "DerivationTechnique": "explorative-testing",
+    "TestType": "requirements-based",
+    "DerivationTechnique": "error-guessing",
     "result_text": "",
-    "PartiallyVerifies": null,
+    "PartiallyVerifies": "comp_req__launch_man__rc_lifecycle",
     "FullyVerifies": null
   },
   {
@@ -8438,7 +8466,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__launcher_exit_shutdown",
+    "PartiallyVerifies": "feat_req__lifecycle__terminationn_dependency, comp_req__launch_man__launcher_exit_shutdown",
     "FullyVerifies": null
   },
   {
@@ -8452,8 +8480,8 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": null,
-    "FullyVerifies": "feat_req__lifecycle__monitor_abnormal_term"
+    "PartiallyVerifies": "comp_req__launch_man__recovery_switch_rt",
+    "FullyVerifies": null
   },
   {
     "name": "test_process_launch_args",
@@ -8466,8 +8494,8 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": null,
-    "FullyVerifies": "feat_req__lifecycle__start_named_run_target, feat_req__lifecycle__launch_support, comp_req__launch_man__process_state_comm, comp_req__launch_man__process_launch_args"
+    "PartiallyVerifies": "feat_req__lifecycle__launch_support",
+    "FullyVerifies": "comp_req__launch_man__process_launch_args"
   },
   {
     "name": "test_recovery_action_complex_rep_failure",
@@ -8480,8 +8508,8 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "feat_req__lifecycle__recov_run_target_switch, feat_req__lifecycle__recovery_action_support",
-    "FullyVerifies": "comp_req__launch_man__failure_detect"
+    "PartiallyVerifies": "comp_req__launch_man__rc_lifecycle, comp_req__launch_man__recovery_switch_rt, feat_req__lifecycle__recov_run_target_switch, feat_req__lifecycle__recovery_action_support",
+    "FullyVerifies": null
   },
   {
     "name": "test_process_fd_leak",
@@ -8491,10 +8519,10 @@
     "repo_name": "local_repo",
     "hash": "",
     "url": "",
-    "TestType": "resource-usage",
-    "DerivationTechnique": "explorative-testing",
+    "TestType": "interface-test",
+    "DerivationTechnique": "error-guessing",
     "result_text": "",
-    "PartiallyVerifies": null,
+    "PartiallyVerifies": "comp_req__launch_man__rc_lifecycle, comp_req__launch_man__rc_os_state",
     "FullyVerifies": null
   },
   {
@@ -8522,8 +8550,8 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "feat_req__lifecycle__recovery_action_support",
-    "FullyVerifies": "comp_req__launch_man__failure_detect, comp_req__launch_man__retries_configurable, feat_req__lifecycle__recov_run_target_switch, feat_req__lifecycle__liveliness_detection"
+    "PartiallyVerifies": "feat_req__lifecycle__monitor_abnormal_term, feat_req__lifecycle__recovery_action_support, comp_req__launch_man__failure_detect",
+    "FullyVerifies": "feat_req__lifecycle__recov_run_target_switch, comp_req__launch_man__retries_configurable"
   },
   {
     "name": "test_lm_shutdown",
@@ -8536,7 +8564,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__launcher_exit_shutdown",
+    "PartiallyVerifies": "feat_req__lifecycle__terminationn_dependency, comp_req__launch_man__launcher_exit_shutdown",
     "FullyVerifies": null
   },
   {
@@ -8550,7 +8578,7 @@
     "TestType": "interface-test",
     "DerivationTechnique": "error-guessing",
     "result_text": "",
-    "PartiallyVerifies": null,
+    "PartiallyVerifies": "feat_req__lifecycle__launch_support",
     "FullyVerifies": null
   },
   {
@@ -8565,7 +8593,63 @@
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
     "PartiallyVerifies": null,
-    "FullyVerifies": "comp_req__launch_man__shutdown_signal"
+    "FullyVerifies": "feat_req__lifecycle__process_termination, comp_req__launch_man__shutdown_signal"
+  },
+  {
+    "name": "test_already_active_run_target",
+    "file": "tests/integration/run_target_requests/already_active_run_target/already_active_run_target.py",
+    "line": "19",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "test_unknown_run_target",
+    "file": "tests/integration/run_target_requests/unknown_run_target/unknown_run_target.py",
+    "line": "19",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "test_replaced_activation",
+    "file": "tests/integration/run_target_requests/replaced_activation/replaced_activation.py",
+    "line": "19",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "test_same_run_target_in_transition",
+    "file": "tests/integration/run_target_requests/same_run_target_in_transition/same_run_target_in_transition.py",
+    "line": "19",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
   },
   {
     "name": "test_sandbox_options",
@@ -8578,22 +8662,8 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": null,
-    "FullyVerifies": "comp_req__launch_man__uid_gid_support, comp_req__launch_man__launch_priority_support, comp_req__launch_man__scheduling_policy, comp_req__launch_man__cwd_support, comp_req__launch_man__supplementary_groups"
-  },
-  {
-    "name": "test_run_target_request_handling",
-    "file": "tests/integration/run_target_request_handling/run_target_request_handling.py",
-    "line": "19",
-    "result": "passed",
-    "repo_name": "local_repo",
-    "hash": "",
-    "url": "",
-    "TestType": "interface-test",
-    "DerivationTechnique": "explorative-testing",
-    "result_text": "",
-    "PartiallyVerifies": null,
-    "FullyVerifies": null
+    "PartiallyVerifies": "comp_req__launch_man__process_launch_args",
+    "FullyVerifies": "comp_req__launch_man__uid_gid_support, comp_req__launch_man__launch_priority_support, comp_req__launch_man__scheduling_policy, comp_req__launch_man__cwd_support, comp_req__launch_man__supplementary_groups, comp_req__launch_man__rc_os_state, comp_req__launch_man__rt_comp_dep"
   },
   {
     "name": "externals/codeql/pip_requirements.test",
