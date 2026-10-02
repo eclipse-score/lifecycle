@@ -61,15 +61,12 @@ TEST(ProcessStopActionTest, StopFailsReturnsError)
     EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
 }
 
-TEST(ProcessStopActionTest, StopWithEmptyHandleReturnsError)
+TEST(ProcessStopActionTest, StopWithEmptyHandleAborts)
 {
     NiceMock<osal::MockIProcess> launcher;
     const ProcessStopAction process_stop_action(launcher);
 
-    const Result<void> result = process_stop_action.stop(cpp::stop_token{}, EmptyHandle{});
-
-    EXPECT_FALSE(result.has_value());
-    EXPECT_EQ(result.error(), ExecErrc::kNotImplemented);
+    EXPECT_DEATH(static_cast<void>(process_stop_action.stop(cpp::stop_token{}, EmptyHandle{})), "Unreachable_Code");
 }
 
 }  // namespace

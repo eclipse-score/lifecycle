@@ -41,7 +41,7 @@ Result<void> ProcessStopAction::operator()(const ProcessHandle process) const
 
 Result<void> ProcessStopAction::operator()(const Handle handle) const
 {
-    return MakeUnexpected(ExecErrc::kNotImplemented);
+    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("ProcessStopAction should only be called with a ProcessHandle");
 }
 
 }  // namespace score::mw::lifecycle::internal

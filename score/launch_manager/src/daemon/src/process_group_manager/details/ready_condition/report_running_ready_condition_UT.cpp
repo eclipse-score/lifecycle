@@ -63,15 +63,13 @@ TEST(ReportRunningReadyConditionTest, WaitFailsReturnsError)
     EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
 }
 
-TEST(ReportRunningReadyConditionTest, WaitWithEmptyHandleReturnsError)
+TEST(ReportRunningReadyConditionTest, WaitWithEmptyHandleAborts)
 {
     NiceMock<osal::MockIProcess> launcher;
     const ReportRunningReadyCondition report_running_ready_condition(launcher, std::nullopt);
 
-    const Result<void> result = report_running_ready_condition.wait(cpp::stop_token{}, EmptyHandle{});
-
-    EXPECT_FALSE(result.has_value());
-    EXPECT_EQ(result.error(), ExecErrc::kNotImplemented);
+    EXPECT_DEATH(
+        static_cast<void>(report_running_ready_condition.wait(cpp::stop_token{}, EmptyHandle{})), "Unreachable_Code");
 }
 
 }  // namespace
