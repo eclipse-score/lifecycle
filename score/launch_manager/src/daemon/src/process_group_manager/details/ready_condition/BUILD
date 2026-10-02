@@ -40,6 +40,34 @@ cc_library(
 )
 
 cc_library(
+    name = "file_ready_condition",
+    srcs = ["file_ready_condition.cpp"],
+    hdrs = ["file_ready_condition.hpp"],
+    include_prefix = "score/mw/launch_manager/process_group_manager/details/ready_condition",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition",
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
+    deps = [
+        ":iready_condition",
+        "//score/launch_manager:error",
+        "//score/launch_manager/src/daemon/src/configuration:component_config",
+        "//score/launch_manager/src/daemon/src/osal:ifile_waiter",
+        "//score/launch_manager/src/daemon/src/osal:return_types",
+        "@score_baselibs//score/language/safecpp/string_view:zstring_view",
+    ],
+)
+
+lm_cc_test(
+    name = "file_ready_condition_UT",
+    srcs = ["file_ready_condition_UT.cpp"],
+    deps = [
+        ":file_ready_condition",
+        "//score/launch_manager:error",
+        "//score/launch_manager/src/daemon/src/osal:mock_ifile_waiter",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
     name = "report_running_ready_condition",
     srcs = ["report_running_ready_condition.cpp"],
     hdrs = ["report_running_ready_condition.hpp"],
