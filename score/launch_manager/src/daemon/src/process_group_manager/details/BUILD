@@ -15,6 +15,37 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 load("//tests/utils/bazel:unit_test.bzl", "lm_cc_test")
 
 cc_library(
+    name = "component",
+    srcs = ["component.cpp"],
+    hdrs = ["component.hpp"],
+    include_prefix = "score/mw/launch_manager/process_group_manager/details",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
+    deps = [
+        ":icomponent",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action:iforce_stop_action",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition:iready_condition",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/start_action:istart_action",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/stop_action:istop_action",
+        "@score_baselibs//score/language/futurecpp",
+    ],
+)
+
+lm_cc_test(
+    name = "component_UT",
+    srcs = ["component_UT.cpp"],
+    deps = [
+        ":component",
+        ":mock_component",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action:mock_force_stop_action",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition:mock_ready_condition",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/start_action:mock_start_action",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/stop_action:mock_stop_action",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
     name = "component_task",
     hdrs = ["component_task.hpp"],
     include_prefix = "score/mw/launch_manager/process_group_manager/details",
@@ -47,6 +78,15 @@ cc_library(
         "//score/launch_manager/src/daemon/src/common:identifier_hash",
         "@score_baselibs//score/language/futurecpp",
     ],
+)
+
+cc_library(
+    name = "handle",
+    hdrs = ["handle.hpp"],
+    include_prefix = "score/mw/launch_manager/process_group_manager/details",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
+    deps = ["//score/launch_manager/src/daemon/src/osal:ipc_comms"],
 )
 
 cc_library(
@@ -371,7 +411,7 @@ cc_library(
     hdrs = ["process_launcher.hpp"],
     include_prefix = "score/mw/launch_manager/process_group_manager/details",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
         "//score/launch_manager/src/daemon/src/common:log",
         "//score/launch_manager/src/daemon/src/common:signal_safe_log",
