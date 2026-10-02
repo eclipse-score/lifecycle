@@ -40,6 +40,11 @@ TEST(RunTargetRequestHandling, GatedProcess)
 {
     const std::string name = component_name();
 
+    TEST_STEP("Signal start")
+    {
+        EXPECT_TRUE(touch_file(started_file(name)));
+    }
+
     TEST_STEP("Wait for release")
     {
         while (!TestRunner::exitRequested && !std::filesystem::exists(release_file(name)))

@@ -14,6 +14,7 @@
 #include <unistd.h>
 
 #include <chrono>
+#include <filesystem>
 #include <thread>
 
 #include "common.hpp"
@@ -48,6 +49,23 @@ testing::AssertionResult wait_for_activation_in_progress(ILmControl& client)
     }
     return testing::AssertionFailure() << "Activation did not reach the in-progress state";
 }
+
+/// @brief Polls until `file` exists, i.e. until a gated process has been started.
+testing::AssertionResult wait_for_file(const std::string& file)
+{
+    constexpr auto kPollInterval = std::chrono::milliseconds(10);
+    constexpr int kMaxPolls = 300;
+
+    for (int poll = 0; poll < kMaxPolls; ++poll)
+    {
+        if (std::filesystem::exists(file))
+        {
+            return testing::AssertionSuccess();
+        }
+        std::this_thread::sleep_for(kPollInterval);
+    }
+    return testing::AssertionFailure() << file << " was not created";
+}
 }  // namespace
 
 // Characterizes how the launch manager answers activation requests that do not
@@ -64,8 +82,13 @@ testing::AssertionResult wait_for_activation_in_progress(ILmControl& client)
 // progress until the client lets them finish.
 TEST(RunTargetRequestHandling, ControlClient)
 {
-    ASSERT_TRUE(
-        check_clean({release_file(gated_a), running_file(gated_a), release_file(gated_b), running_file(gated_b)}));
+    ASSERT_TRUE(check_clean(
+        {started_file(gated_a),
+         release_file(gated_a),
+         running_file(gated_a),
+         started_file(gated_b),
+         release_file(gated_b),
+         running_file(gated_b)}));
     std::unique_ptr<ILmControl> client;
 
     TEST_STEP("Create client")
@@ -140,6 +163,10 @@ TEST(RunTargetRequestHandling, ControlClient)
         const auto result = client->activate_run_target("run_target_b", true);
         EXPECT_TRUE(result.has_value()) << result.error().Message();
         ASSERT_TRUE(wait_for_activation_in_progress(*client));
+        // The transition first deactivates gated_a; only request Startup once
+        // gated_b has actually been launched, so the replacement always hits an
+        // activation that is under way (and gated_b always writes its result).
+        ASSERT_TRUE(wait_for_file(started_file(gated_b)));
     }
 
     TEST_STEP("Request Startup while run_target_b is being activated")
