@@ -19,12 +19,12 @@
 #include <string>
 #include <thread>
 
-#include "common.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
 #include <score/mw/lifecycle/report_running.h>
 
 namespace
 {
+/// @return The component this binary is deployed as (PROCESSIDENTIFIER).
 std::string component_name()
 {
     const char* process_id = std::getenv("PROCESSIDENTIFIER");
@@ -32,19 +32,22 @@ std::string component_name()
 }
 }  // namespace
 
-// Reports running only once the control client creates the release file.
-TEST(RunTargetRequestHandling, GatedProcess)
+// Creates gatedStartedPath() on start, then reports running only once the test
+// creates gatedReleasePath(). This keeps the activation of its Run Target in
+// progress for as long as the test needs. If the launch manager stops it before it
+// is released, it exits without reporting running.
+TEST(GatedProcess, ReportsRunningOnRelease)
 {
     const std::string name = component_name();
 
     TEST_STEP("Signal start")
     {
-        EXPECT_TRUE(touch_file(started_file(name)));
+        EXPECT_TRUE(touch_file(gatedStartedPath(name)));
     }
 
     TEST_STEP("Wait for release")
     {
-        while (!TestRunner::exitRequested && !std::filesystem::exists(release_file(name)))
+        while (!TestRunner::exitRequested && !std::filesystem::exists(gatedReleasePath(name)))
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
@@ -58,7 +61,6 @@ TEST(RunTargetRequestHandling, GatedProcess)
     TEST_STEP("Report running")
     {
         score::mw::lifecycle::report_running();
-        EXPECT_TRUE(touch_file(running_file(name)));
     }
 
     while (!TestRunner::exitRequested)
@@ -69,6 +71,7 @@ TEST(RunTargetRequestHandling, GatedProcess)
 
 int main()
 {
-    // One XML result per deployed component.
+    // Name the XML result after the deployed component so multiple deployments of this
+    // shared binary don't collide.
     return TestRunner(component_name()).RunTests();
 }

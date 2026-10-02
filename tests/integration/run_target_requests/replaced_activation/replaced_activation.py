@@ -21,26 +21,18 @@ from attribute_plugin import add_test_properties
     test_type="interface-test",
     derivation_technique="explorative-testing",
 )
-def test_run_target_request_handling(
-    target, setup_test, assert_test_results, remote_test_dir
-):
+def test_replaced_activation(target, setup_test, assert_test_results, remote_test_dir):
     """
-    Objective: Verifies how the launch manager answers rejected and replaced Run
-    Target activation requests.
+    Objective: Verifies that a forced request for another Run Target replaces an activation in progress.
 
-    Expected Behaviour: Unknown, repeated and already active requests are rejected
-    with kRunTargetDoesntExist, kInTransitionToSameState and kAlreadyInState. A
-    request during an activation replaces it, and the replaced Run Target is never
-    reported as activated.
+    Expected Behaviour: The request for Startup is accepted, the next activation reported is Startup, and run_target_gated is never reported as activated.
     """
 
     run_test(
         target=target,
         binary_path=str(remote_test_dir / "launch_manager"),
-        args=["-c", str(remote_test_dir / "etc/run_target_request_handling.bin")],
+        args=["-c", str(remote_test_dir / "etc/replaced_activation.bin")],
         cwd=str(remote_test_dir),
     )
 
-    assert_test_results(
-        {"control_client_test_driver.xml", "gated_a.xml", "gated_b.xml"}
-    )
+    assert_test_results({"control_client_test_driver.xml", "gated.xml"})

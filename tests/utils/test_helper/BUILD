@@ -85,6 +85,17 @@ cc_binary(
 )
 
 cc_binary(
+    name = "gated_process",
+    srcs = ["gated_process.cpp"],
+    visibility = ["//tests:__subpackages__"],
+    deps = [
+        ":test_helper",
+        "//score/launch_manager:lifecycle_cc",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_binary(
     name = "process_crashing_on_startup_n_times",
     srcs = ["process_crashing_on_startup_n_times.cpp"],
     visibility = ["//tests:__subpackages__"],
