@@ -25,7 +25,6 @@ extern "C" {
 
 int8_t score_mw_lifecycle_report_running(void)
 {
-    // this initialization is safe", false)
     static score::mw::lifecycle::ReportRunningImpl g_impl{};
     const auto result = g_impl.ReportRunningState();
     if (!result)
