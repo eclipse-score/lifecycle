@@ -18,8 +18,8 @@ from attribute_plugin import add_test_properties
 
 @add_test_properties(
     partially_verifies=[
-        "feat_req__lifecycle__start_named_run_target",
         "feat_req__lifecycle__launch_support",
+        "feat_req__lifecycle__process_ordering"
         "comp_req__launch_man__process_state_comm",
     ],
     test_type="requirements-based",

@@ -140,7 +140,7 @@ Dynamic Architecture
    :belongs_to: feat__lifecycle[version==1]
    :fulfils: feat_req__lifecycle__launch_support[version==1],
              feat_req__lifecycle__process_ordering[version==1],
-             feat_req__lifecycle__start_named_run_target[version==1],
+             feat_req__lifecycle__run_target_support[version==1],
              feat_req__lifecycle__conditional_startup[version==1]
 
    .. uml:: _assets/launch_manager_running_dep.puml
@@ -239,7 +239,7 @@ Dynamic Architecture
    :fulfils: feat_req__lifecycle__launch_support[version==1],
              feat_req__lifecycle__process_termination[version==1],
              feat_req__lifecycle__process_ordering[version==1],
-             feat_req__lifecycle__terminationn_dependency[version==1]
+             feat_req__lifecycle__termination_dependency[version==1]
 
    .. uml:: _assets/launch_manager_terminate_dep.puml
       :scale: 50
@@ -288,15 +288,14 @@ Dynamic Architecture
    :safety: ASIL_B
    :belongs_to: feat__lifecycle[version==1]
    :fulfils: feat_req__lifecycle__launch_support[version==1],
-             feat_req__lifecycle__process_ordering[version==1],
-             feat_req__lifecycle__parallel_launch_support[version==1]
+             feat_req__lifecycle__process_ordering[version==1]
 
    .. uml:: _assets/launch_manager_parallel_dep.puml
       :scale: 50
       :align: center
 
    Configuration:
-   Reporting App 1 and Reporting App 2 can be started independently.
+   Reporting App 1 and Reporting App 2 with no dependencies in between.
 
    .. list-table::
       :widths: 10 90
@@ -333,9 +332,8 @@ Dynamic Architecture
    :version: 1
    :safety: ASIL_B
    :belongs_to: feat__lifecycle[version==1]
-   :fulfils: feat_req__lifecycle__monitor_abnormal_term[version==1],
-             feat_req__lifecycle__recovery_action_support[version==1],
-             feat_req__lifecycle__recov_run_target_switch[version==1]
+   :fulfils: feat_req__lifecycle__monitor_processes[version==1],
+             feat_req__lifecycle__recovery_action_support[version==1]
 
    .. uml:: _assets/launch_manager_random_crash.puml
       :scale: 50
