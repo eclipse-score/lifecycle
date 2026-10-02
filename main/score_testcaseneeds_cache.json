@@ -7324,7 +7324,7 @@
   {
     "name": "test_smoke_test",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "134",
+    "line": "138",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7338,7 +7338,7 @@
   {
     "name": "test_minimal_config",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "145",
+    "line": "149",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7352,7 +7352,7 @@
   {
     "name": "test_full_config",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "156",
+    "line": "160",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7364,9 +7364,37 @@
     "FullyVerifies": null
   },
   {
-    "name": "test_custom_validation_failures",
+    "name": "test_custom_validation_failures[fallback_run_target_name]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "168",
+    "line": "202",
+    "result": "passed",
+    "repo_name": null,
+    "hash": null,
+    "url": null,
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "test_custom_validation_failures[reporting_terminated_condition]",
+    "file": "scripts/config_mapping/integration_tests.py",
+    "line": "202",
+    "result": "passed",
+    "repo_name": null,
+    "hash": null,
+    "url": null,
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "test_custom_validation_failures[shutdown_timeout_condition]",
+    "file": "scripts/config_mapping/integration_tests.py",
+    "line": "202",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7380,7 +7408,7 @@
   {
     "name": "test_schema_validation_failures",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "202",
+    "line": "242",
     "result": "passed",
     "repo_name": null,
     "hash": null,
