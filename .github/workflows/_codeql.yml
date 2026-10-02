@@ -84,7 +84,7 @@ jobs:
 
       - name: Upload SARIF results
         if: ${{ !cancelled() && steps.merge-codeql.outcome == 'success' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: codeql-sarif-results
           path: /tmp/codeql-results/publish/codeql-nightly.sarif
@@ -92,7 +92,7 @@ jobs:
 
       - name: Upload compliance reports
         if: ${{ !cancelled() && inputs.fetch-only != 'true' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: codeql-compliance-reports
           path: /tmp/codeql-results/linux/analysis_reports/
