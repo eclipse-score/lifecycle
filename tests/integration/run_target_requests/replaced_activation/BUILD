@@ -20,6 +20,7 @@ cc_binary(
         "//score/launch_manager:control_cc",
         "//score/launch_manager:lifecycle_cc",
         "//tests/utils/test_helper",
+        "//tests/utils/test_helper:gated_process_helper",
         "@googletest//:gtest_main",
     ],
 )

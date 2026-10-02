@@ -37,6 +37,16 @@ cc_library(
 )
 
 cc_library(
+    name = "gated_process_helper",
+    hdrs = ["gated_process.hpp"],
+    visibility = ["//tests:__subpackages__"],
+    deps = [
+        "//score/launch_manager/src/lm_control",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
     name = "process_utils",
     hdrs = ["process_utils.hpp"],
     visibility = ["//tests:__subpackages__"],
@@ -89,6 +99,7 @@ cc_binary(
     srcs = ["gated_process.cpp"],
     visibility = ["//tests:__subpackages__"],
     deps = [
+        ":gated_process_helper",
         ":test_helper",
         "//score/launch_manager:lifecycle_cc",
         "@googletest//:gtest_main",
