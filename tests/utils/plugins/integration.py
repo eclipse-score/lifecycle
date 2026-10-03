@@ -15,6 +15,18 @@ from pathlib import Path
 
 import pytest
 
+from score.itf.plugins.core import determine_target_scope
+
+
+@pytest.fixture(scope=determine_target_scope)
+def docker_configuration():
+    """Enable core dump generation inside the Docker target."""
+    import docker as pypi_docker
+
+    return {
+        "ulimits": [pypi_docker.types.Ulimit(name="core", soft=-1, hard=-1)],
+    }
+
 
 def pytest_addoption(parser):
     parser.addoption(
