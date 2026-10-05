@@ -76,7 +76,7 @@ TEST(ProcessCrashMonitoring, ControlClientTestDriver)
         TEST_STEP("Callback for Run Target fallback")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kRecoveryAction);
-            EXPECT_EQ(target, "fallback");
+            EXPECT_EQ(target, "fallback_run_target");
         }
     });
 
