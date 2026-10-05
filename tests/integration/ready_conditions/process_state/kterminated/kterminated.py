@@ -18,7 +18,7 @@ from attribute_plugin import add_test_properties
 
 @add_test_properties(
     partially_verifies=[
-        "comp_req__launch_man__condition_check_method",
+        "comp_req__launch_man__conf_of_comp_ready_cond",
         "feat_req__lifecycle__conditional_startup",
     ],
     test_type="requirements-based",
