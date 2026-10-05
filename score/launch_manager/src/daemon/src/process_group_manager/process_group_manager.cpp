@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <algorithm>
 #include <csignal>
+#include <ctime>
 
 #include "score/concurrency/future/interruptible_future.h"
 #include "score/concurrency/future/interruptible_promise.h"
@@ -186,8 +187,17 @@ void ProcessGroupManager::createProcessComponentsObjects(std::size_t total_proce
 
 bool ProcessGroupManager::run()
 {
-    LM_LOG_DEBUG() << "clock() at run():"
-                   << (static_cast<double>(clock()) / (static_cast<double>(CLOCKS_PER_SEC) / 1000.0)) << "ms";
+    const auto clock_ticks = std::clock();
+    if (clock_ticks == static_cast<std::clock_t>(-1))
+    {
+        LM_LOG_WARN() << "Unable to read process clock at run()";
+    }
+    else
+    {
+        LM_LOG_DEBUG() << "clock() at run():"
+                       << (static_cast<double>(clock_ticks) / (static_cast<double>(CLOCKS_PER_SEC) / 1000.0))
+                       << "ms";
+    }
 
     bool result = startInitialTransition();
     bool overflow_logged = false;
