@@ -99,12 +99,12 @@ Static Architecture
       :scale: 50
       :align: center
 
-The Launch Manager configuration is structured into Run Target and Component configurations.
-Each component configuration defines how a component is started, supervised, and recovered within the system.
-Components may depend on one another, forming a dependency graph.
+The Launch Manager configuration is structured around Run Target and Component configurations.
+Each Component configuration specifies how the Component is started, monitored, and recovered during system operation. 
+Components can have dependencies on other Components, collectively forming a dependency graph.
 
-Run Targets are configured through the Run Target configuration, which defines the dependencies between components and other Run Targets.
-The configured Run Target dependencies are the direct dependencies within the dependency graph.
+Run Targets are configured through Run Target configurations, which define dependencies on Components and other Run Targets.
+These dependencies determine which Components are activated when a Run Target is activated.
 
 The Launch Manager is configured with an *Initial Run Target* and *Fallback Run Target*. The *Initial Run Target* is activated when the Launch Manager is first started.
 The *Fallback Run Target* specifies the Run Target that is activated if a failure occurs that cannot be recovered.
