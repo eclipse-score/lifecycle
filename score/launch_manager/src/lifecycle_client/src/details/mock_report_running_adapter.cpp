@@ -28,8 +28,8 @@
 /// production code calls (e.g., ReportRunningImpl{}.ReportRunningState()) to the GMock object,
 /// enabling EXPECT_CALL verification.
 
-#include "score/mw/lifecycle/lifecycle_client/details/mock_report_running_impl.h"
 #include "score/mw/lifecycle/execution_error.h"
+#include "score/mw/lifecycle/lifecycle_client/details/mock_report_running_impl.h"
 #include "score/mw/lifecycle/lifecycle_client/details/report_running_impl.hpp"
 
 #include <atomic>
@@ -98,13 +98,10 @@ void ReportRunningImplMock::ResetReportedFlag()
     GetReportedFlag() = false;
 }
 
-// ============================================================================
 // Link-time substitution implementations
-// ============================================================================
 // The following implementations REPLACE the real ReportRunningImpl methods
 // when this file is linked into a test. They act as an adapter layer that
 // routes calls to the GMock object via the callback functions above.
-// ============================================================================
 
 ReportRunningImpl::ReportRunningImpl() noexcept
 {

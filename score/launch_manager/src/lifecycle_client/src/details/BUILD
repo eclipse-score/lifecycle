@@ -32,7 +32,7 @@ cc_library(
 cc_library(
     name = "mock_report_running_impl",
     testonly = True,
-    srcs = ["mock_report_running_impl.cpp"],
+    srcs = ["mock_report_running_adapter.cpp"],
     hdrs = [
         "mock_report_running_impl.h",
         "report_running_impl.hpp",
