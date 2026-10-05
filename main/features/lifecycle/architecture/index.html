@@ -497,7 +497,7 @@
                   
   <section id="feature-architecture">
 <h1>Feature Architecture<a class="headerlink" href="#feature-architecture" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-ce25b067">
+<div class="need_container docutils container" id="SNCB-41b54806">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__lifecycle_module_architecture">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -566,7 +566,7 @@ deadline monitoring and logical program flow monitoring</p></li>
 </section>
 <section id="static-architecture">
 <h2>Static Architecture<a class="headerlink" href="#static-architecture" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-d641980e">
+<div class="need_container docutils container" id="SNCB-7fb985f9">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_sta table" id="feat_arc_sta__lifecycle__static_view_arch">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -596,7 +596,7 @@ deadline monitoring and logical program flow monitoring</p></li>
 <td class="meta" colspan="3"></td>
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><p class="plantuml" id="needarch-features/lifecycle/architecture/index-0">
-<object data="../../../_images/plantuml-5a6d875148293558f8db04003cf2371131897328.svg" type="image/svg+xml" style="width:1464px;height:905px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-412ead7a861657cac02a5b9e17a248fbd18367dd.svg" type="image/svg+xml" style="width:1446px;height:905px;background:#FFFFFF;"></object></p>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
@@ -613,7 +613,7 @@ deadline monitoring and logical program flow monitoring</p></li>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-a58fc67f">
+<div class="need_container docutils container" id="SNCB-6142723f">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_sta table" id="feat_arc_sta__lifecycle__cfg_params_static">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -644,7 +644,7 @@ deadline monitoring and logical program flow monitoring</p></li>
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-908acf8eca37d12f9995d7096a18317a717f9982.svg" type="image/svg+xml" style="width:1028px;height:839px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-a9996ce6cad9e562a1d90bd8f1bd2f7f87065ccf.svg" type="image/svg+xml" style="width:1344px;height:1009px;background:#FFFFFF;"></object></p>
 </figure>
 </td>
 </tr>
@@ -662,6 +662,13 @@ deadline monitoring and logical program flow monitoring</p></li>
 </table>
 </div>
 </div>
+<p>The Launch Manager configuration is structured around Run Target and Component configurations.
+Each Component configuration specifies how the Component is started, monitored, and recovered during system operation.
+Components can have dependencies on other Components, collectively forming a dependency graph.</p>
+<p>Run Targets are configured through Run Target configurations, which define dependencies on Components and other Run Targets.
+These dependencies determine which Components are activated when a Run Target is activated.</p>
+<p>The Launch Manager is configured with an <em>Initial Run Target</em> and <em>Fallback Run Target</em>. The <em>Initial Run Target</em> is activated when the Launch Manager is first started.
+The <em>Fallback Run Target</em> specifies the Run Target that is activated if a failure occurs that cannot be recovered.</p>
 </section>
 <section id="dynamic-architecture">
 <h2>Dynamic Architecture<a class="headerlink" href="#dynamic-architecture" title="Link to this heading">#</a></h2>
