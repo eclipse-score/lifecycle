@@ -67,20 +67,24 @@ class RingBuffer
     {
         static_assert(std::is_trivially_copyable<T>::value, "RingBuffer only supports trivially copyable types");
         static_assert(std::is_trivially_destructible<T>::value, "T must be trivially destructible");
-        static_assert(
-            sizeof(T) <= ElementSize,
-            "RingBuffer payload size mismatch: sizeof(T) must be <= ElementSize template parameter");
-        lock_guard lock(&mutex_);
-        if (fullImpl())
+        if constexpr (sizeof(T) > ElementSize)
         {
-            overflow_flag_.store(true, std::memory_order_relaxed);
             return false;
         }
-        Node& n = nodes_[write_head_];
-        std::memcpy(n.storage, &value, sizeof(T));
-        n.size_ = sizeof(T);
-        advanceWriteHead();
-        return true;
+        else
+        {
+            lock_guard lock(&mutex_);
+            if (fullImpl())
+            {
+                overflow_flag_.store(true, std::memory_order_relaxed);
+                return false;
+            }
+            Node& n = nodes_[write_head_];
+            std::memcpy(n.storage, &value, sizeof(T));
+            n.size_ = sizeof(T);
+            advanceWriteHead();
+            return true;
+        }
     }
 
     template <typename T, typename... Args>

@@ -190,30 +190,34 @@ ProcessLauncher::startProcess(ProcessID& pid, IpcCommsP& block, const configurat
 
         if (comms_result)
         {
-            /// @todo need to recheck after logging framework implementation.
-            static_cast<void>(fflush(stdout));
-
-            pid = fork();
-
-            if (pid == kPosixSuccess)
+            if (fflush(stdout) != 0)
             {
-                /*
-                 * From this point on, only async signal safe functions can be
-                 * used. `fork` only copies the current thread, so any locks
-                 * which were held at that time will never be released.
-                 * See `man 2 fork`.
-                 */
-                ChildProcessConfig param = {config, fd, block};
-                handleChildProcess(param);
-                result = OsalReturnType::kSuccess;
-            }
-            else if (pid > kPidZero)
-            {
-                result = OsalReturnType::kSuccess;
+                LM_LOG_ERROR() << "Failed to flush stdout before forking.";
             }
             else
             {
-                LM_LOG_ERROR() << "Fork failed: Unable to create a new process.";
+                pid = fork();
+
+                if (pid == kPosixSuccess)
+                {
+                    /*
+                     * From this point on, only async signal safe functions can be
+                     * used. `fork` only copies the current thread, so any locks
+                     * which were held at that time will never be released.
+                     * See `man 2 fork`.
+                     */
+                    ChildProcessConfig param = {config, fd, block};
+                    handleChildProcess(param);
+                    result = OsalReturnType::kSuccess;
+                }
+                else if (pid > kPidZero)
+                {
+                    result = OsalReturnType::kSuccess;
+                }
+                else
+                {
+                    LM_LOG_ERROR() << "Fork failed: Unable to create a new process.";
+                }
             }
         }
         else
