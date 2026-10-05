@@ -12,7 +12,7 @@
 ' *******************************************************************************
 
 @startuml
-title Launch Manager - Termination Request
+title Launch Manager - "Normal" Shutdown
 
 autonumber "<b>[00]"
 
@@ -27,12 +27,11 @@ activate app1
 activate ran
 
 note over LM,app1
-Launch Manager has already started Components setup_filesystems.sh, random and app1.
-All components are in state `Ready`.
+The Run Target "Running" is currently active.
 end note
 
-[-> LM : Activate Run Target ("Off")
-LM -> LM : Determine transition plan
+[-> LM : SIGTERM
+LM -> LM : Determine transition plan to Run Target "Off"
 LM -> app1 : SIGTERM
 app1 -> app1 : Terminate
 
@@ -76,5 +75,8 @@ end par
 
 LM -> LM : Run Target Off successfully activated
 
+LM -> LM : Deinitialize, free resources
+[<- LM : exit
+destroy LM
 ...
 @enduml

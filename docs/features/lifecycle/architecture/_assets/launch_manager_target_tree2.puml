@@ -12,21 +12,18 @@
 ' *******************************************************************************
 
 @startuml
-title Control Interface Static Architecture
+  title Simple Dependency Graph
 
-package "Launch Manager" {
-    [Launch Manager (LM)] as LM
-    interface ControlInterface
-    
-    LM -- ControlInterface : implements
-}
+  state Running #lightblue
+  state Off #lightblue
 
-package "State Manager" {
-    [State Manager] as SM
-}
 
-SM -up-> ControlInterface : uses
+  state app1: Binary: /opt/bin/app1\nReadyCondition: Process Running
 
-note right of [ControlInterface] : Start/Stop/Restart components\nQuery status\n...
+  state setup_filesystems: Binary: /etc/setup_filesystems.sh\nReadyCondition: Process Terminated
+  state random: Binary: /bin/random\nReadyCondition: /dev/random exists
 
+  Running --> app1
+  app1 --> setup_filesystems
+  app1 --> random
 @enduml

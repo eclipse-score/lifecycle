@@ -63,7 +63,6 @@ alt Start DemoApp2 (depends on DemoApp1)
     kernel --> LM: spawn result for DemoApp2
     
     DemoApp2 -> DemoApp2: initialize and register device /dev/Demo2
-    DemoApp2 -> LM: signal ready via Lifecycle API
     kernel --> LM: device /dev/Demo2 registered
 end
 

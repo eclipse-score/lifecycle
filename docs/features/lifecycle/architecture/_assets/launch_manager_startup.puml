@@ -12,39 +12,38 @@
 ' *******************************************************************************
 
 @startuml
-title Control Interface - Stop components
-
+title Launch Manager Startup
 autonumber "<b>[00]"
 
-
-participant "Tester" as Tester
-participant "State Manager" as SM
 participant "Launch Manager" as LM
-participant "OS (kernel)" as kernel
-participant "DemoApp1" as DemoApp1
-participant "DemoApp2" as DemoApp2
-
-
-
-Tester -> SM: Stop Group (eg. UDS)
-SM -> SM: evaluate request
-SM -> LM: Stop group DemoApps
 activate LM
-LM -> DemoApp1: SIGTERM
-activate DemoApp1
-LM -> DemoApp2: SIGTERM
-activate DemoApp2
-
-DemoApp1 -> DemoApp1: do shutdown actions
-DemoApp2 -> DemoApp2: do shutdown actions
-
-destroy DemoApp1
-
-LM -> LM: check if the apps terminated within\nthe termination timeout?
-LM -> DemoApp2: SIGKILL
-destroy DemoApp2
 
 
-LM --> SM: DemoApps terminated
+[-> LM: Start Launch Manager
+
+LM -> LM: Read configuration file
+
+alt #pink Error in configuration file
+    LM ->[ : Launch Manager terminates
+end alt
+LM -> LM: Preallocate internal resources (memory, thread pool, ipc channels, etc.)
+
+alt #pink Not enough resources available
+    LM ->[ : Launch Manager terminates
+end alt
+
+LM -> LM: Initialize watchdog connection
+
+alt #pink Failure during watchodog initialization
+    LM ->[ : Launch Manager terminates
+end alt
+
+LM -> LM: Build dependency graph
+LM -> LM: Start transition to initial Run Target: Running
+
+=== Start Transition to Run Target "Running" ==
+
+...
+
 
 @enduml
