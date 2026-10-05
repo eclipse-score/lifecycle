@@ -25,7 +25,7 @@ namespace score::mw::lifecycle::internal
 /// @brief Struct representing data in a map item
 struct ProcessInfoData
 {
-    int32_t status_ = -1;              ///< Exit status for process
+    int status_ = -1;                  ///< Exit status for process
     IComponent* component_ = nullptr;  ///< Pointer to the termination callback associated with this item.
 };
 /// @brief Struct representing an item in the map.
@@ -100,7 +100,7 @@ class SafeProcessMap final : public SafeProcessMapInserter
     ///         kYield if the process ID was not found and an already-terminated entry was inserted,
     ///         kInsertionError if an error occurred during insertion (e.g., out of memory),
     ///         or kInvalidIdError if the provided process ID (`key`) is not valid (< 0).
-    SafeProcessMapReturnType findTerminated(osal::ProcessID key, int32_t status);
+    SafeProcessMapReturnType findTerminated(osal::ProcessID key, int status);
 
     /// @brief Inserts a process into the map if it has not already terminated.
     /// @see SafeProcessMapInserter::insertIfNotTerminated() for details

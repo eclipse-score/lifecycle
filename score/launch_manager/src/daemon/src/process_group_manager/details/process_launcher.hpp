@@ -37,7 +37,7 @@ class ProcessLauncher final : public IProcess
     OsalReturnType forceTermination(ProcessID pid) override;
 
     /// @see IProcess::waitForTermination() for details
-    OsalReturnType waitForTermination(ProcessID& pid, int32_t& status) override;
+    OsalReturnType waitForTermination(ProcessID& pid, int& status) override;
 
     /// @see IProcess::waitForkRunning() for details
     OsalReturnType waitForkRunning(IpcCommsP sync, std::optional<std::chrono::milliseconds> timeout) override;

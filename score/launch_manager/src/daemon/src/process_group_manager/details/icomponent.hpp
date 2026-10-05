@@ -66,7 +66,7 @@ class IComponent
     /// @brief Notify the component that it has terminated with status @p status
     /// @returns kSuccess if the component is now ready, kWaiting if the component is waiting for a notification, or an
     /// error if the termination was not expected.
-    [[nodiscard]] virtual RequestResult tryHandleTermination(int32_t status) = 0;
+    [[nodiscard]] virtual RequestResult tryHandleTermination(int status) = 0;
 
     /// @returns the index of the component in the graph.
     [[nodiscard]] virtual IdentifierHash getIdentifier() const = 0;

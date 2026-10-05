@@ -30,7 +30,7 @@ class IComponentController
 
     /// @brief Notify @p component that it has terminated with status @p status. Forward the appropriate event to the
     /// event queue
-    virtual void terminated(IComponent& component, int32_t status) = 0;
+    virtual void terminated(IComponent& component, int status) = 0;
 
     virtual ~IComponentController() = default;
 };

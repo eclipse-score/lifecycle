@@ -51,7 +51,7 @@ class RunTarget final : public IComponent
         return RequestState::kSuccess;
     }
 
-    RequestResult tryHandleTermination(int32_t) override
+    RequestResult tryHandleTermination(int) override
     {
         return RequestState::kSuccess;
     }

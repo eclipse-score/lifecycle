@@ -172,7 +172,7 @@ void ProcessInfoNode::unblockSync()
     }
 }
 
-IComponent::RequestResult ProcessInfoNode::tryHandleTermination(int32_t process_status)
+IComponent::RequestResult ProcessInfoNode::tryHandleTermination(int process_status)
 {
     LM_LOG_DEBUG() << "Process" << identifier_ << "( pid" << pid_ << ") terminated with exit code" << process_status;
     exit_code_ = process_status;

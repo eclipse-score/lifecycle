@@ -38,7 +38,7 @@ class ProcessMonitor final : public IComponentController
 
     /// @brief Notify @p component that it has terminated with status @p status. If this is an error or finishes a
     /// component activation, report to the event queue
-    void terminated(IComponent& component, int32_t status) override;
+    void terminated(IComponent& component, int status) override;
 
   private:
     IComponentEventPublisher& event_queue_;

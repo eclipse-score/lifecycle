@@ -20,7 +20,7 @@ void OsHandler::run(void)
 {
     while (is_running_)
     {
-        int32_t wait_status = 0;
+        int wait_status = 0;
         auto result = sys_wait_.wait(&wait_status);
 
         if (result.has_value() && result.value() > 0)

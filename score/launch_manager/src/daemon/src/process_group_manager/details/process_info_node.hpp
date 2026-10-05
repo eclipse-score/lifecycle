@@ -83,7 +83,7 @@ class ProcessInfoNode final : public IComponent
 
     RequestResult deactivate(score::cpp::stop_token stop_token) override;
 
-    RequestResult tryHandleTermination(int32_t process_status) override;
+    RequestResult tryHandleTermination(int process_status) override;
 
     [[nodiscard]] bool active() const override;
 
@@ -175,7 +175,8 @@ class ProcessInfoNode final : public IComponent
     osal::ProcessID pid_ = 0;
 
     /// @brief The status reported by the operating system when the process terminated
-    std::atomic<int32_t> exit_code_{0};
+    // POSIX defines this as a default sized `int`
+    std::atomic<int> exit_code_{0};
 
     /// @brief The current state of the OS process
     std::atomic<score::mw::lifecycle::ProcessState> process_state_{score::mw::lifecycle::ProcessState::kIdle};

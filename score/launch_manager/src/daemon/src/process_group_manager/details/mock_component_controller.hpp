@@ -23,7 +23,7 @@ class MockComponentController : public IComponentController
 {
   public:
     MOCK_METHOD(void, doWork, (ComponentTask && task), (override));
-    MOCK_METHOD(void, terminated, (IComponent & component, int32_t status), (override));
+    MOCK_METHOD(void, terminated, (IComponent & component, int status), (override));
 };
 
 }  // namespace score::mw::lifecycle::internal

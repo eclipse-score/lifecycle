@@ -85,12 +85,12 @@ TEST_F(ProcessLauncherTest, waitForTerminationSuccess)
     RecordProperty("Description", "Test that waitForTermination calls `wait` and sets the correct values");
 
     const pid_t pid = 7;
-    const uint32_t status = 9;
+    const int status = 9;
 
     EXPECT_CALL(*g_syscall_mock, wait).WillOnce(DoAll(SetArgPointee<0>(status), Return(pid)));
 
     ProcessID out_pid;
-    int32_t out_status;
+    int out_status;
     const auto res = process_launcher->waitForTermination(out_pid, out_status);
 
     EXPECT_EQ(out_pid, pid);
@@ -105,7 +105,7 @@ TEST_F(ProcessLauncherTest, waitForTerminationFails)
     EXPECT_CALL(*g_syscall_mock, wait).WillOnce(SetErrnoAndReturn(WNOHANG, -1));
 
     ProcessID out_pid;
-    int32_t out_status;
+    int out_status;
     const auto res = process_launcher->waitForTermination(out_pid, out_status);
 
     EXPECT_EQ(res, OsalReturnType::kFail);

@@ -470,9 +470,9 @@ OsalReturnType ProcessLauncher::forceTermination(ProcessID pid)
     return result;
 }
 
-OsalReturnType ProcessLauncher::waitForTermination(osal::ProcessID& pid, int32_t& status)
+OsalReturnType ProcessLauncher::waitForTermination(osal::ProcessID& pid, int& status)
 {
-    int32_t wait_status;
+    int wait_status;
     osal::OsalReturnType result = osal::OsalReturnType::kFail;
 
     pid_t terminated_pid = wait(&wait_status);

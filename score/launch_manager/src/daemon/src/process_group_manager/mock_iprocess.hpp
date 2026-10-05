@@ -31,7 +31,7 @@ class MockIProcess : public IProcess
         (override));
     MOCK_METHOD(OsalReturnType, requestTermination, (ProcessID pid), (override));
     MOCK_METHOD(OsalReturnType, forceTermination, (ProcessID pid), (override));
-    MOCK_METHOD(OsalReturnType, waitForTermination, (ProcessID & pid, int32_t& status), (override));
+    MOCK_METHOD(OsalReturnType, waitForTermination, (ProcessID & pid, int& status), (override));
     MOCK_METHOD(
         OsalReturnType,
         waitForkRunning,

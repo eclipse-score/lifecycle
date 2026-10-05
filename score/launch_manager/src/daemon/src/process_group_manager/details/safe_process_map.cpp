@@ -291,7 +291,7 @@ int32_t SafeProcessMap::search(osal::ProcessID key, ProcessInfoData data)
     return ret_value;
 }
 
-SafeProcessMapReturnType SafeProcessMap::findTerminated(osal::ProcessID key, int32_t status)
+SafeProcessMapReturnType SafeProcessMap::findTerminated(osal::ProcessID key, int status)
 {
     return static_cast<SafeProcessMapReturnType>(search(key, {status, nullptr}));
 }

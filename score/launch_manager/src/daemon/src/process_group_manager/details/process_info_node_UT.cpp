@@ -169,7 +169,7 @@ class ProcessInfoNodeFixture : public ::testing::Test
     }
 
     /// @brief Sets up requestTermination to synchronously deliver the OS exit notification.
-    void expectOsAcknowledgesTermination(ProcessInfoNode* node, int32_t exit_status = 0)
+    void expectOsAcknowledgesTermination(ProcessInfoNode* node, int exit_status = 0)
     {
         EXPECT_CALL(mock_processIf_, requestTermination(_))
             .WillOnce(DoAll(

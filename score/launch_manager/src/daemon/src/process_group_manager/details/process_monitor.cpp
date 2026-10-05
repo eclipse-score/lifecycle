@@ -110,7 +110,7 @@ void ProcessMonitor::doWork(ComponentTask&& task)
     }
 }
 
-void ProcessMonitor::terminated(IComponent& component, int32_t status)
+void ProcessMonitor::terminated(IComponent& component, int status)
 {
     auto res = component.tryHandleTermination(status);
     bool push_res = true;

@@ -47,7 +47,7 @@ class MockComponent : public IComponent
   public:
     MOCK_METHOD(RequestResult, activate, (score::cpp::stop_token stop_token), (override));
     MOCK_METHOD(RequestResult, deactivate, (score::cpp::stop_token stop_token), (override));
-    MOCK_METHOD(RequestResult, tryHandleTermination, (int32_t status), (override));
+    MOCK_METHOD(RequestResult, tryHandleTermination, (int status), (override));
     MOCK_METHOD(bool, active, (), (const override));
     MOCK_METHOD(bool, stopped, (), (const override));
     MOCK_METHOD(score::mw::lifecycle::IdentifierHash, getIdentifier, (), (const override));

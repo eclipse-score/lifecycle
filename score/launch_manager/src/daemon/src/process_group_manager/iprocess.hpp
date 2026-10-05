@@ -100,13 +100,13 @@ class IProcess
     /// This method blocks until a child process of the caller terminates, then returns the process ID and termination
     /// status. It can be used by the OsHandler to monitor termination of child processes.
     ///@param[out] pid A pointer to a ProcessID where the ID of the terminated process will be stored.
-    ///@param[out] status A pointer to an int32_t where the termination status of the process will be stored.
+    ///@param[out] status A pointer to an int where the termination status of the process will be stored.
     ///@return An OSAL return type indicating the success or failure of the wait operation.
     ///         - `OsalReturnType::KSuccess` if the operation is successful and a process ID, together with exit status
     ///         is available.
     ///         - `OsalReturnType::KFail` otherwise, the value stored in pid and status is undefined.
 
-    virtual OsalReturnType waitForTermination(ProcessID& pid, int32_t& status) = 0;
+    virtual OsalReturnType waitForTermination(ProcessID& pid, int& status) = 0;
 
     /// @brief This method wait for kRunning to be received from the process that was started
     /// @param sync     The valid pointer returned from startProcess. Must not be NULL

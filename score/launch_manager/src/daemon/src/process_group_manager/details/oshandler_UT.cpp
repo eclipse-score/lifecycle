@@ -60,12 +60,12 @@ TEST_F(OsHandlerTest, WaitReturnsProcessId_FindTerminatedIsCalled)
     // given — insert a callback for pid 1000
     process_map_.insertIfNotTerminated(1000, &component_);
 
-    constexpr int32_t kExitStatus = 42;
+    constexpr int kExitStatus = 42;
     EXPECT_CALL(ccontroller_, terminated(_, kExitStatus)).Times(AtLeast(1));
 
     // sys_wait returns pid 1000 once, then blocks with error
     EXPECT_CALL(*sys_wait_mock_, wait(_))
-        .WillOnce([](std::int32_t* stat_loc) -> score::cpp::expected<pid_t, score::os::Error> {
+        .WillOnce([](int* stat_loc) -> score::cpp::expected<pid_t, score::os::Error> {
             *stat_loc = kExitStatus;
             return 1000;
         })
@@ -127,7 +127,7 @@ TEST_F(OsHandlerTest, WaitReturnsProcessIdBeforeRegistration_LaterRegistrationRe
     std::atomic_bool first_wait_seen{false};
 
     EXPECT_CALL(*sys_wait_mock_, wait(_))
-        .WillOnce([&first_wait_seen](std::int32_t* stat_loc) -> score::cpp::expected<pid_t, score::os::Error> {
+        .WillOnce([&first_wait_seen](int* stat_loc) -> score::cpp::expected<pid_t, score::os::Error> {
             *stat_loc = 99;
             first_wait_seen.store(true);
             return 4000;
@@ -175,7 +175,7 @@ TEST_F(OsHandlerTest, WaitReturnsUnknownPidWhenMapIsFull_OutOfResourcesPathDoesN
     }
 
     EXPECT_CALL(*sys_wait_mock_, wait(_))
-        .WillOnce([](std::int32_t* stat_loc) -> score::cpp::expected<pid_t, score::os::Error> {
+        .WillOnce([](int* stat_loc) -> score::cpp::expected<pid_t, score::os::Error> {
             *stat_loc = 17;
             return 9999;
         })
@@ -203,7 +203,7 @@ TEST_F(OsHandlerTest, WaitReturnsErrorThenProcessId_HandlerRecoversAndInvokesCal
 
     EXPECT_CALL(*sys_wait_mock_, wait(_))
         .WillOnce(Return(score::cpp::unexpected(score::os::Error::createFromErrno(ECHILD))))
-        .WillOnce([](std::int32_t* stat_loc) -> score::cpp::expected<pid_t, score::os::Error> {
+        .WillOnce([](int* stat_loc) -> score::cpp::expected<pid_t, score::os::Error> {
             *stat_loc = 7;
             return 5000;
         })
