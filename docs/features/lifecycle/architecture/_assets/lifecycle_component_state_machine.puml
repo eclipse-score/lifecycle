@@ -14,13 +14,13 @@
 @startuml Component State Machine
 
 [*] -d-> Deactivated
-Deactivated -> Starting : Component is started in its configured sandbox.\nAll dependencies are ready and the component is\nconfigured to run in the currently active Run Target.
-Starting --> Ready : The component\nReady Condition is fulfilled.
+Deactivated -> Activating : Component is started in its configured sandbox.\nAll dependencies are ready and the component is\nconfigured to run in the currently active Run Target.
+Activating --> Ready : The component\nReady Condition is fulfilled.
 Ready --> Deactivating : Component is being deactivated (e.g. due to Run Target change)
 Deactivating --> Deactivated : Component is now deactivated\n(this may have required <color:red>forceful termination</color>\n<color:red>if component violated the shutdown timeout</color>).
 
 state Fault #red
-Starting -[#red]-> Fault : <color:red>Component crashed</color>\nor <color:red>Ready Condition timeout</color>.
+Activating -[#red]-> Fault : <color:red>Component crashed</color>\nor <color:red>Ready Condition timeout</color>.
 Ready -[#red]-> Fault : <color:red>Component crashed</color>\n<color:red>or Supervision failure.</color>
 Fault -[#red]-> Deactivating : <color:red>Recovery action (Restart, Run Target change, etc.)</color>.
 
