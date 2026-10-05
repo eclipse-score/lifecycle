@@ -35,7 +35,7 @@ activate LM
 LM -> LM: analyze transition from "NetworkGroup" to "DemoGroup"
 note right of LM: Current: NetworkGroup (NetworkApp)\nTarget: DemoGroup (DemoApp1, DemoApp2)\nAction: Stop NetworkApp, Start DemoApp1 & DemoApp2
 
-LM -> LM: validate target run target "DemoGroup"
+LM -> LM: validate target Run Target "DemoGroup"
 LM -> LM: check dependencies and resource conflicts
 LM -> LM: create transition plan
 
@@ -68,8 +68,8 @@ alt Start DemoApp2 (depends on DemoApp1)
 end
 
 LM -> LM: verify all "DemoGroup" components are running
-LM -> LM: update current run target to "DemoGroup"
-LM --> SM: run target "DemoGroup" activated successfully
+LM -> LM: update current Run Target to "DemoGroup"
+LM --> SM: Run Target "DemoGroup" activated successfully
 
 note over SM, LM: New Run Target: "DemoGroup" (DemoApp1, DemoApp2 running)
 

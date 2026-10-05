@@ -53,7 +53,7 @@ TEST(FallbackToSameTargetRestarts, ControlClientTestDriver)
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget Startup")
+        TEST_STEP("Callback for Run Target Startup")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
             EXPECT_EQ(target, "Startup");
@@ -67,7 +67,7 @@ TEST(FallbackToSameTargetRestarts, ControlClientTestDriver)
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget run_target_crashing_app_on_runtime")
+        TEST_STEP("Callback for Run Target run_target_crashing_app_on_runtime")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
             EXPECT_EQ(target, "run_target_crashing_app_on_runtime");
@@ -75,7 +75,7 @@ TEST(FallbackToSameTargetRestarts, ControlClientTestDriver)
     });
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget fallback")
+        TEST_STEP("Callback for Run Target fallback")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kRecoveryAction);
             EXPECT_EQ(target, "fallback");
@@ -87,7 +87,7 @@ TEST(FallbackToSameTargetRestarts, ControlClientTestDriver)
         EXPECT_TRUE(std::filesystem::exists(process_file)) << "Process did not restart successfully";
     }
 
-    TEST_STEP("Activate RunTarget Off")
+    TEST_STEP("Activate Run Target Off")
     {
         const auto result = client->activate_run_target("Off", true);
         EXPECT_TRUE(result.has_value()) << result.error().Message();

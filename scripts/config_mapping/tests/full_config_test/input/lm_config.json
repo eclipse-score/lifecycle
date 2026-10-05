@@ -52,7 +52,7 @@
             }
         },
         "run_target": {
-            "description": "Default run target",
+            "description": "Default Run Target",
             "depends_on": [],
             "transition_timeout_ms": 5000,
             "recovery_action": {

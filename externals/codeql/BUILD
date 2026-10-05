@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 # *******************************************************************************
 # Copyright (c) 2026 Contributors to the Eclipse Foundation
 #
@@ -12,5 +10,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+load("@rules_python//python:pip.bzl", "compile_pip_requirements")
 
-bazel run @score_tooling//format_checker:rustfmt_with_policies
+compile_pip_requirements(
+    name = "pip_requirements",
+    src = ":requirements.in",
+    exec_compatible_with = ["@platforms//os:linux"],
+    requirements_txt = "requirements_lock.txt",
+    target_compatible_with = ["@platforms//os:linux"],
+)

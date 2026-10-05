@@ -43,7 +43,7 @@ app1 -> app1: Internal User app initialization.
 app1 -> LM: Signal ready state via Lifecycle API.
 
 LM -> LM: Analyze current state.
-LM -> LM: Update current run target state to active.
+LM -> LM: Update current Run Target state to active.
 
 ...
 @enduml

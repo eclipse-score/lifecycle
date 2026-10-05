@@ -215,7 +215,7 @@ Dynamic Architecture
       * - 001
         - Launch Manager analyzes the current state of the system.
       * - 002
-        - Launch Manager determines the transition plan for switching the run target. In this case all components can be terminated in parallel.
+        - Launch Manager determines the transition plan for switching the Run Target. In this case all components can be terminated in parallel.
       * - 003
         - Launch Manager sends SIGTERM to the well behaving application.
       * - 004
@@ -277,7 +277,7 @@ Dynamic Architecture
       * - 011
         - Launch Manager analyzes the current state of the system.
       * - 012
-        - Launch Manager determines the transition plan for the next transition or run target.
+        - Launch Manager determines the transition plan for the next transition or Run Target.
 
 
 .. feat_arc_dyn:: Launch Manager - Run Components in Parallel

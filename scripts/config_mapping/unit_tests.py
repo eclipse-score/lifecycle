@@ -550,7 +550,7 @@ def test_cyclic_dependencies_no_cycle():
 
 
 def test_cyclic_dependencies_direct_component_cycle():
-    """A -> B -> A in component dependencies should raise (when reachable from a run target)."""
+    """A -> B -> A in component dependencies should raise (when reachable from a Run Target)."""
     config = {
         "schema_version": 1,
         "components": {
@@ -581,7 +581,7 @@ def test_cyclic_dependencies_indirect_component_cycle():
 
 
 def test_cyclic_dependencies_run_target_cycle():
-    """Run target depending on another that depends back should raise."""
+    """Run Target depending on another that depends back should raise."""
     config = {
         "schema_version": 1,
         "components": {},
@@ -621,7 +621,7 @@ def test_cyclic_dependencies_component_depends_on_nonexistent():
 
 
 def test_cyclic_dependencies_run_target_depends_on_unknown():
-    """Run target depending on unknown target/component should raise."""
+    """Run Target depending on unknown target/component should raise."""
     config = {
         "schema_version": 1,
         "components": {},
@@ -645,7 +645,7 @@ def test_cyclic_dependencies_self_referencing_component():
 
 
 def test_cyclic_dependencies_unreachable_components_ignored():
-    """Components not reachable from any run target or fallback should not be checked."""
+    """Components not reachable from any Run Target or fallback should not be checked."""
     config = {
         "schema_version": 1,
         "components": {
@@ -1042,7 +1042,7 @@ def test_gen_config_env_variables_list_format(tmp_path):
 
 
 def test_gen_config_run_target_with_dependencies(tmp_path):
-    """Run targets with depends_on should include that field in output."""
+    """Run Targets with depends_on should include that field in output."""
     config = {
         "schema_version": 1,
         "components": {

@@ -1,0 +1,2 @@
+# CodeQL suite: file/function size and complexity threshold queries.
+- queries: code-complexity-queries

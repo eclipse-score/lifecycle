@@ -100,7 +100,7 @@ score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::ve
     }
     builder.setComponents(std::move(*components));
 
-    // Convert run targets
+    // Convert Run Targets
     auto run_targets = convertRunTargets(config->run_targets());
     if (!run_targets.has_value())
     {
@@ -108,7 +108,7 @@ score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::ve
     }
     builder.setRunTargets(std::move(*run_targets));
 
-    // Convert fallback run target
+    // Convert fallback Run Target
     SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
         config->fallback_run_target(),
         "LaunchManagerConfig::fallback_run_target must never be nullptr as it is required in the schema");

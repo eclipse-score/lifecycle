@@ -38,7 +38,7 @@ std::string signal_file(const std::string_view suffix)
 }  // namespace
 
 // Reports running, then - once the launch manager asks it to terminate (SIGTERM),
-// which happens when the switch away from its run target begins - stalls for a short
+// which happens when the switch away from its Run Target begins - stalls for a short
 // while before exiting. The stall keeps that run-target switch in progress, giving the
 // surrounding test a deterministic window to act (e.g. send a SIGTERM to the launch
 // manager).
