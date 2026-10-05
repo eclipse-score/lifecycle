@@ -181,7 +181,7 @@ Launch Manager Initial Startup
 
    .. uml:: _assets/launch_manager_shutdown.puml
 
-   When the Launch Manager receives a SIGTERM signal, it will initiate transition to Run Target Off which leads to termination of all components.
+   When the Launch Manager receives a SIGTERM signal, it will initiate transition to Run Target `Off` which leads to termination of all components.
    Afterwards, Launch Manager process itself exits.
    
    The transition to the Run Target `Off`, in which the Launch Manager terminates
@@ -205,11 +205,11 @@ Component Dependencies and Ready Conditions
              feat_req__lifecycle__conditional_startup[version==1],
              feat_req__lifecycle__parallel_launch_support[version==1],
 
-    .. uml:: _assets/launch_manager_run_target_running.puml
+   .. uml:: _assets/launch_manager_run_target_running.puml
       :scale: 50
       :align: center
 
-    While `setup_filesystems` and `/bin/random` can be started in parallel,  `/opt/bin/app1` can only be started once both Components are `Ready`.
+   While `setup_filesystems` and `/bin/random` can be started in parallel,  `/opt/bin/app1` can only be started once both Components are `Ready`.
 
 
 Component Termination
@@ -226,13 +226,13 @@ Component Termination
              feat_req__lifecycle__process_ordering[version==1],
              feat_req__lifecycle__terminationn_dependency[version==1]
 
-    .. uml:: _assets/launch_manager_run_target_off.puml
-        :scale: 50
-        :align: center
+   .. uml:: _assets/launch_manager_run_target_off.puml
+      :scale: 50
+      :align: center
 
-    Since `app1` depends on both `setup_filesystems` and `random`, it must be terminated first before the other two components can be safely terminated.
-    Afterwards, `setup_filesystems` and `random` can be terminated in parallel as they do not depend on each other.
-    Note that if a component does not terminate within the configured termination timeout, it is forcefully killed.
+   Since `app1` depends on both `setup_filesystems` and `random`, it must be terminated first before the other two components can be safely terminated.
+   Afterwards, `setup_filesystems` and `random` can be terminated in parallel as they do not depend on each other.
+   Note that if a component does not terminate within the configured termination timeout, it is forcefully killed.
   
 
 Recovery Action
