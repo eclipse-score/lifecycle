@@ -12,6 +12,7 @@
 # *******************************************************************************
 
 import subprocess
+import pytest
 import shutil
 import sys
 import os
@@ -35,6 +36,7 @@ def run(
     schema_file: Path,
     compare_files_only=[],
     exclude_files=[],
+    compare_output=True,
 ):
     """
     Execute the mapping script with the given input file and compare the generated output with the expected output.
@@ -82,20 +84,22 @@ def run(
         print(f"Error: {e.stderr}")
         raise
 
-    if compare_files_only:
-        # Compare only specific files
-        if not compare_files(
-            actual_output_dir, expected_output_dir, compare_files_only
-        ):
-            raise AssertionError(
-                "Actual output files do not match expected output files."
-            )
-    else:
-        # Compare the complete directory content
-        if not compare_directories(
-            actual_output_dir, expected_output_dir, exclude_files
-        ):
-            raise AssertionError("Actual output does not match expected output.")
+    if compare_output:
+        if compare_files_only:
+            # Compare only specific files
+            if not compare_files(
+                actual_output_dir, expected_output_dir, compare_files_only
+            ):
+                raise AssertionError(
+                    "Actual output files do not match expected output files."
+                )
+        else:
+            # Compare the complete directory content
+            if not compare_directories(
+                actual_output_dir, expected_output_dir, exclude_files
+            ):
+                raise AssertionError("Actual output does not match expected output.")
+    return result
 
 
 def compare_directories(dir1: Path, dir2: Path, exclude_files: list) -> bool:
@@ -165,37 +169,73 @@ def test_full_config(schema_file):
     run(input_file, test_name, schema_file)
 
 
-def test_custom_validation_failures(schema_file):
-    """
-    Test that custom validation checks implemented in lifecycle_config.py are correctly identifying invalid configurations.
-    The input configuration contains the following issues:
-    * The Run Target "Minimal" has a recovery action that switches to a Run Target "Fallback" instead of "fallback_run_target"
-    * Reserved name "fallback_run_target" is used for a RunTarget name which is not allowed
-    """
-    test_name = "custom_validation_failures_test"
-    input_file = tests_dir / test_name / "input" / "lm_config.json"
-
-    try:
-        run(input_file, test_name, schema_file)
-        raise AssertionError(
-            "Expected an error due to custom validation failures, but the mapping script executed successfully."
-        )
-    except subprocess.CalledProcessError as e:
-        assert e.returncode == CUSTOM_VALIDATION_FAILURE, (
-            f"Expected exit code {CUSTOM_VALIDATION_FAILURE}, got {e.returncode}"
-        )
-
-        expected_errors = [
+# Define the parameterized test cases
+CUSTOM_VALIDATION_TEST_CASES = [
+    {
+        "config_filename": "fallback_run_target.json",
+        "expected_pass": False,
+        "expected_logs": [
             'recovery RunTarget must be set to "fallback_run_target"',
             'RunTarget name "fallback_run_target" is reserved',
-        ]
-        actual_error_output = e.stderr
-        for expected_error in expected_errors:
-            if expected_error not in actual_error_output:
-                print(f"Expected error message not found: {expected_error}")
-                print(f"Actual error output: {actual_error_output}")
-                raise AssertionError(
-                    f"Expected error message not found: {expected_error}"
+        ],
+        "test_id": "fallback_run_target_name",
+    },
+    {
+        "config_filename": "reporting_and_terminated_ready_condition.json",
+        "expected_pass": False,
+        "expected_logs": [
+            "Error: Component 'reporting_and_kterminated': application_type = 'Reporting' only currently supports a 'Running' process state as a ready condition",
+        ],
+        "test_id": "reporting_terminated_condition",
+    },
+    {
+        "config_filename": "shutdown_timeout_and_terminated_ready_condition.json",
+        "expected_pass": True,
+        "expected_logs": [
+            "Warning: Component 'shutdown_timeout_and_kterminated': 'shutdown_timeout_ms' has been configured with a Terminated ready condition. The configured 'shutdown_timeout_ms' will have no effect.",
+        ],
+        "test_id": "shutdown_timeout_condition",
+    },
+]
+
+
+@pytest.mark.parametrize(
+    "config_filename, expected_pass, expected_logs",
+    [
+        (case["config_filename"], case["expected_pass"], case["expected_logs"])
+        for case in CUSTOM_VALIDATION_TEST_CASES
+    ],
+    ids=[case["test_id"] for case in CUSTOM_VALIDATION_TEST_CASES],
+)
+def test_custom_validation_failures(
+    schema_file, config_filename, expected_pass, expected_logs
+):
+    """Test that custom validation checks correctly identify various invalid configurations."""
+    test_name = "custom_validation_failures_test"
+    input_file = tests_dir / test_name / "input" / config_filename
+    if expected_pass:
+        result = run(input_file, test_name, schema_file, compare_output=False)
+        actual_output = result.stdout + "\n" + result.stderr
+        for expected_log in expected_logs:
+            assert expected_log in actual_output, (
+                f"Expected warning/message not found: {expected_log}\n"
+                f"Actual script output: {actual_output}"
+            )
+    else:
+        try:
+            run(input_file, test_name, schema_file)
+            raise AssertionError(
+                f"Expected validation failure for {config_filename}, but the mapping script executed successfully."
+            )
+        except subprocess.CalledProcessError as e:
+            assert e.returncode == CUSTOM_VALIDATION_FAILURE, (
+                f"Expected exit code {CUSTOM_VALIDATION_FAILURE}, got {e.returncode}"
+            )
+            actual_error_output = e.stderr
+            for expected_log in expected_logs:
+                assert expected_log in actual_error_output, (
+                    f"Expected error message not found: {expected_log}\\n"
+                    f"Actual error output: {actual_error_output}"
                 )
 
 

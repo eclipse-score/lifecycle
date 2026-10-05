@@ -18,11 +18,9 @@ from attribute_plugin import add_test_properties
 
 @add_test_properties(
     fully_verifies=[
-        "feat_req__lifecycle__start_named_run_target",
-        "feat_req__lifecycle__launch_support",
-        "comp_req__launch_man__process_state_comm",
         "comp_req__launch_man__process_launch_args",
     ],
+    partially_verifies=["feat_req__lifecycle__launch_support"],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
 )
@@ -41,5 +39,4 @@ def test_process_launch_args(target, setup_test, assert_test_results, remote_tes
         cwd=str(remote_test_dir),
     )
 
-    # That the process is started and an XML file is produced verifies feat_req__lifecycle__launch_support
     assert_test_results({"process_initial.xml"})

@@ -88,6 +88,10 @@ def report_error(message):
     print(f"Error: {message}", file=sys.stderr)
 
 
+def report_warning(message):
+    print(f"Warning: {message}", file=sys.stderr)
+
+
 # There are various dictionaries in the config where only a single entry is allowed.
 # We do not want to merge the defaults with the user specified values for these dictionaries.
 not_merging_dicts = ["ready_recovery_action", "recovery_action", "ready_condition"]
@@ -528,18 +532,28 @@ def check_cyclic_dependencies(config):
 def custom_validations(config):
     success = True
 
-    # A ready condition is either process state or file state (right now), but
-    # never on both.
     for component_name, component_config in config["components"].items():
-        ready_condition = component_config["component_properties"].get(
-            "ready_condition", {}
-        )
-        has_process_state = "process_state" in ready_condition
-        has_file_state = "file_state" in ready_condition
-        if has_process_state and has_file_state:
+        component_properties = component_config.get("component_properties", {})
+
+        ready_condition = component_properties.get("ready_condition", {})
+        process_state = ready_condition.get("process_state")
+        file_state = ready_condition.get("file_state")
+
+        # Validate that we don't have both conditions configured
+        if process_state and file_state:
             report_error(
                 f"Component '{component_name}': ready_condition must configure either "
                 '"process_state" or "file_state", but not both.'
+            )
+            success = False
+
+        # Validate that reporting components, if using a process state ready condition, only use Running
+        app_type = component_properties.get("application_profile", {}).get(
+            "application_type"
+        )
+        if process_state and app_type == "Reporting" and process_state != "Running":
+            report_error(
+                f"Component '{component_name}': application_type = 'Reporting' only currently supports a 'Running' process state as a ready condition"
             )
             success = False
 
@@ -579,6 +593,32 @@ def custom_validations(config):
         success = False
 
     return success
+
+
+def custom_validations_before_defaults(config):
+    """Apply custom validation of config, before the defaults have been applied"""
+
+    # We can only validate components if they have been provided
+    if config.get("components") is None:
+        return True
+
+    for component_name, component_config in config["components"].items():
+        component_properties = component_config.get("component_properties", {})
+        deployment_config = component_config.get("deployment_config", {})
+        ready_condition = component_properties.get("ready_condition", {})
+        process_state = ready_condition.get("process_state")
+
+        # Warn if shutdown_timeout is set with a Terminated ready condition
+        if (
+            process_state
+            and process_state == "Terminated"
+            and "shutdown_timeout_ms" in deployment_config
+        ):
+            report_warning(
+                f"Component '{component_name}': 'shutdown_timeout_ms' has been configured with a Terminated ready condition. The configured 'shutdown_timeout_ms' will have no effect."
+            )
+
+    return True
 
 
 def check_validation_dependency():
@@ -663,6 +703,9 @@ def main():
         print(
             'No schema provided, skipping validation. Provide the path to the json schema with "--schema <path>" to enable validation.'
         )
+
+    if not custom_validations_before_defaults(input_config):
+        exit(CUSTOM_VALIDATION_FAILURE)
 
     preprocessed_config = preprocess_defaults(score_defaults, input_config)
     if not custom_validations(preprocessed_config):
