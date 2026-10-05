@@ -14,11 +14,11 @@
 @startuml Process State Machine
 
 [*] -d-> Terminated
-Terminated -> Starting : Process started (fork()+execve())
+Terminated -> Starting : Process started (fork())
 Starting --> Running : The process reported Running state\n(non-reporting process transitions\ndirectly to Running)
 Running --> Terminating : Launch Manager sends SIGTERM
-Terminating --> Terminated : Process terminated /\n<color:red>SIGKILL in case of shutdown timeout violation</color>
-Starting -[#red]-> Terminated : <color:red>Process crashed</color>\n<color:red>or is forcefully terminated</color>\n<color:red>due to activation timeout violation</color>
+Terminating --> Terminated : Process terminated /\n<color:red>SIGKILL in case of shutdown timeout</color>
+Starting -[#red]-> Terminated : <color:red>Process crashed</color>\n<color:red>or is forcefully terminated</color>\n<color:red>due to activation timeout</color>
 Running -[#red]-> Terminated : <color:red>Process crashed</color>
 
 legend right
