@@ -222,8 +222,7 @@ Component Termination
    :version: 1
    :safety: ASIL_B
    :belongs_to: feat__lifecycle[version==1]
-   :fulfils: feat_req__lifecycle__launch_support[version==1],
-             feat_req__lifecycle__process_termination[version==1],
+   :fulfils: feat_req__lifecycle__process_termination[version==1],
              feat_req__lifecycle__process_ordering[version==1],
              feat_req__lifecycle__terminationn_dependency[version==1]
 
