@@ -22,51 +22,140 @@ Component::Component(
     const IForceStopAction& force_stop_action,
     const cpp::span<std::reference_wrapper<const IReadyCondition>> ready_conditions,
     IdentifierHash identifier)
-    : handle_(std::nullopt),
-      start_action_(start_action),
+    : start_action_(start_action),
       stop_action_(stop_action),
       force_stop_action_(force_stop_action),
       ready_conditions_(ready_conditions),
-      identifier_(identifier)
+      identifier_(identifier),
+      state_(TerminatedState{})
 {
 }
 
 IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
 {
-    const auto start_result = start_action_.start(stop_token);
+    return std::visit(
+        [&](auto state) {
+            return state.activate(*this, stop_token);
+        },
+        state_);
+}
+
+IComponent::RequestResult Component::TerminatedState::activate(Component& component, cpp::stop_token stop_token)
+{
+    const Result<Handle> start_result = component.start_action_.start(stop_token);
     if (!start_result.has_value())
     {
         return cpp::make_unexpected(ComponentError::kErrorBeforeReady);
     }
-    handle_ = start_result.value();
+    const Handle handle = start_result.value();
 
-    for (const IReadyCondition& ready_condition : ready_conditions_)
+    component.state_ = StartingState{handle};
+
+    for (const IReadyCondition& ready_condition : component.ready_conditions_)
     {
-        if (!ready_condition.wait(stop_token, handle_.value()).has_value())
+        if (!ready_condition.wait(stop_token, handle).has_value())
         {
             return cpp::make_unexpected(ComponentError::kErrorBeforeReady);
         }
     }
 
+    component.state_ = ReadyState{handle};
+
     return RequestState::kSuccess;
+}
+
+IComponent::RequestResult Component::StartingState::activate(
+    [[maybe_unused]] Component& component,
+    [[maybe_unused]] cpp::stop_token stop_token)
+{
+    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Cannot activate component in StartingState");
+}
+
+IComponent::RequestResult Component::ReadyState::activate(
+    [[maybe_unused]] Component& component,
+    [[maybe_unused]] cpp::stop_token stop_token)
+{
+    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Cannot activate component in ReadyState");
+}
+
+IComponent::RequestResult Component::TerminatingState::activate(
+    [[maybe_unused]] Component& component,
+    [[maybe_unused]] cpp::stop_token stop_token)
+{
+    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Cannot activate component in TerminatingState");
+}
+
+IComponent::RequestResult Component::FaultState::activate(
+    [[maybe_unused]] Component& component,
+    [[maybe_unused]] cpp::stop_token stop_token)
+{
+    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Cannot activate component in FaultState");
 }
 
 IComponent::RequestResult Component::deactivate(cpp::stop_token stop_token)
 {
-    if (handle_.has_value())
+    return std::visit(
+        [&](auto state) {
+            return state.deactivate(*this, stop_token);
+        },
+        state_);
+}
+
+IComponent::RequestResult Component::TerminatedState::deactivate(
+    [[maybe_unused]] Component& component,
+    [[maybe_unused]] cpp::stop_token stop_token)
+{
+    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Cannot deactivate component in TerminatedState");
+}
+
+IComponent::RequestResult Component::StartingState::deactivate(Component& component, cpp::stop_token stop_token)
+{
+    if (!component.stop_action_.stop(stop_token, handle_).has_value())
     {
-        if (!stop_action_.stop(stop_token, handle_.value()).has_value())
-        {
-            return cpp::make_unexpected(ComponentError::kErrorAfterReady);
-        }
+        return cpp::make_unexpected(ComponentError::kErrorAfterReady);
     }
-    handle_ = std::nullopt;
-    return RequestState::kSuccess;
+
+    component.state_ = TerminatingState{handle_};
+    return RequestState::kWaiting;
+}
+
+IComponent::RequestResult Component::ReadyState::deactivate(Component& component, cpp::stop_token stop_token)
+{
+    if (!component.stop_action_.stop(stop_token, handle_).has_value())
+    {
+        return cpp::make_unexpected(ComponentError::kErrorAfterReady);
+    }
+
+    component.state_ = TerminatingState{handle_};
+    return RequestState::kWaiting;
+}
+
+IComponent::RequestResult Component::TerminatingState::deactivate(
+    [[maybe_unused]] Component& component,
+    [[maybe_unused]] cpp::stop_token stop_token)
+{
+    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Cannot deactivate component in TerminatingState");
+}
+
+IComponent::RequestResult Component::FaultState::deactivate(
+    [[maybe_unused]] Component& component,
+    [[maybe_unused]] cpp::stop_token stop_token)
+{
+    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Cannot deactivate component in FaultState");
 }
 
 IComponent::RequestResult Component::tryHandleTermination(int32_t status)
 {
-    return RequestState::kWaiting;
+    if (status == 0)
+    {
+        state_ = TerminatedState{};
+    }
+    else
+    {
+        state_ = FaultState{};
+    }
+
+    return RequestState::kSuccess;
 }
 
 IdentifierHash Component::getIdentifier() const
@@ -76,7 +165,7 @@ IdentifierHash Component::getIdentifier() const
 
 bool Component::active() const
 {
-    return handle_.has_value();
+    return std::holds_alternative<ReadyState>(state_);
 }
 
 }  // namespace score::mw::lifecycle::internal
