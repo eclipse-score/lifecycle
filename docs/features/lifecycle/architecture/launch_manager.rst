@@ -37,7 +37,7 @@ managing 9 components. If the user selects e.g. the :term:`Run Target` "debug"
 the :term:`Launch Manager` will start the components in the following order
 defined by the dependencies.
 
-1. flash driver
+1. flash driver & eth driver
 2. filesystem
 3. setup filesystems
 4. networking
@@ -134,10 +134,9 @@ Dynamic Architecture
 Example Dependency Graph
 ------------------------
 
-Consider the following simplified dependency graph for illustration.
-This dependency graph is used in the upcoming sequence diagrams.
+Consider the following simplified dependency graph for the upcoming sequence diagrams.
 
-  .. uml:: _assets/launch_manager_target_tree2.puml
+  .. uml:: _assets/launch_manager_small_example_graph.puml
     :scale: 50
     :align: center
 
@@ -182,13 +181,12 @@ Launch Manager Initial Startup
 
    .. uml:: _assets/launch_manager_shutdown.puml
 
-     # Regular Shutdown
-    Option a)
-    * SM requests RunTarget Off, spawns process that does the termination
-
-    * LM receives SIGTERM, then turns off all components and exits itself
-
-    - What happens in case of error when shutting down? Recovery Actions disabled?
+   When the Launch Manager receives a SIGTERM signal, it will initiate transition to Run Target Off which leads to termination of all components.
+   Afterwards, Launch Manager process itself exits.
+   
+   The transition to the Run Target `Off`, in which the Launch Manager terminates
+   the Components of the currently active Run Target, is depicted in
+   :need:`feat_arc_dyn__lifecycle__lcm_term`.
 
 
 Component Dependencies and Ready Conditions
@@ -207,7 +205,7 @@ Component Dependencies and Ready Conditions
              feat_req__lifecycle__conditional_startup[version==1],
              feat_req__lifecycle__parallel_launch_support[version==1],
 
-    .. uml:: _assets/launch_manager_running_dep.puml
+    .. uml:: _assets/launch_manager_run_target_running.puml
       :scale: 50
       :align: center
 
@@ -229,7 +227,7 @@ Component Termination
              feat_req__lifecycle__process_ordering[version==1],
              feat_req__lifecycle__terminationn_dependency[version==1]
 
-    .. uml:: _assets/launch_manager_terminate_request.puml
+    .. uml:: _assets/launch_manager_run_target_off.puml
         :scale: 50
         :align: center
 
@@ -259,6 +257,4 @@ Component crashes outside an active transition
       :scale: 50
       :align: center
 
-
-Component fails to start during transition
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   Note: If a Restart Recovery Action is configured then only the crashed component is restarted, not dependent components.

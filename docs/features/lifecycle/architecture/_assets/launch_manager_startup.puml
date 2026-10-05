@@ -32,7 +32,7 @@ alt #pink Not enough resources available
     LM ->[ : Launch Manager terminates
 end alt
 
-LM -> LM: Initialize watchdog connection
+LM -> LM: Initialize external monitor connection
 
 alt #pink Failure during watchodog initialization
     LM ->[ : Launch Manager terminates
