@@ -84,7 +84,7 @@ class Component final : public IComponent
     const cpp::span<std::reference_wrapper<const IReadyCondition>> ready_conditions_;
 
     /// @brief Name of the component.
-    IdentifierHash identifier_;
+    const IdentifierHash identifier_;
 
     class TerminatedState final
     {
