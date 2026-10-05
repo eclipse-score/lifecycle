@@ -79,9 +79,3 @@ Dynamic architecture
    .. uml:: _assets/control_interface_switch_sequence.puml
       :scale: 50
       :align: center
-
-
-
-# Error Cases missing
-#
-#

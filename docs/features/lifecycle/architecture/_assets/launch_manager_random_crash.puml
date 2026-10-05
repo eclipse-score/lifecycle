@@ -56,10 +56,12 @@ else App1 has Recovery Action Switch Run Target configured
 LM -> LM: Determine Transition Plan to new RunTarget
 LM -> LM: Switch Run Target.
 
-note over LM
-See the other sequence diagrams for Run Target activation sequence.
-app1 will be restarted if it is configured for the new RunTarget.
-end note
+ref over LM, app1
+  Activation of the new Run Target:
+  Components are terminated and started in dependency order,
+  see other sequence diagrams for the detailed sequence.
+  app1 is restarted if it is configured for the new Run Target.
+end ref
 
 end alt
 

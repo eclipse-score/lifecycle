@@ -163,7 +163,7 @@ Launch Manager Initial Startup
       :align: center
 
    In case of initialization failure, the Launch Manager fails to start.
-   Once initialization is successful, the Launch Manager activated the configured initial Run Target.
+   Once initialization is successful, the Launch Manager activates the configured initial Run Target.
 
    The continuation of this sequence, in which the Launch Manager starts the
    Components of the Run Target `Running`, is depicted in
@@ -232,7 +232,7 @@ Component Termination
         :align: center
 
     Since `app1` depends on both `setup_filesystems` and `random`, it must be terminated first before the other two components can be safely terminated.
-    Afterwards, `setup_filesystems` and `random` can be safely terminated in parallel as they do not depend on each other.
+    Afterwards, `setup_filesystems` and `random` can be terminated in parallel as they do not depend on each other.
     Note that if a component does not terminate within the configured termination timeout, it is forcefully killed.
   
 
