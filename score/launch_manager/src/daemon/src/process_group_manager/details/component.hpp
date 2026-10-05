@@ -71,9 +71,6 @@ class Component final : public IComponent
     [[nodiscard]] bool active() const override;
 
   private:
-    /// @brief The resource being managed.
-    std::optional<Handle> handle_;
-
     /// @brief How to start the resource.
     const IStartAction& start_action_;
 
@@ -88,6 +85,48 @@ class Component final : public IComponent
 
     /// @brief Name of the component.
     IdentifierHash identifier_;
+
+    class TerminatedState final
+    {
+      public:
+        RequestResult activate(Component& component, cpp::stop_token stop_token);
+        RequestResult deactivate(Component& component, cpp::stop_token stop_token);
+    };
+
+    class StartingState final
+    {
+      public:
+        Handle handle_;
+        RequestResult activate(Component& component, cpp::stop_token stop_token);
+        RequestResult deactivate(Component& component, cpp::stop_token stop_token);
+    };
+
+    class ReadyState final
+    {
+      public:
+        Handle handle_;
+        RequestResult activate(Component& component, cpp::stop_token stop_token);
+        RequestResult deactivate(Component& component, cpp::stop_token stop_token);
+    };
+
+    class TerminatingState final
+    {
+      public:
+        Handle handle_;
+        RequestResult activate(Component& component, cpp::stop_token stop_token);
+        RequestResult deactivate(Component& component, cpp::stop_token stop_token);
+    };
+
+    class FaultState final
+    {
+      public:
+        Handle handle_;
+        RequestResult activate(Component& component, cpp::stop_token stop_token);
+        RequestResult deactivate(Component& component, cpp::stop_token stop_token);
+    };
+
+    /// @brief The current state of the component.
+    std::variant<TerminatedState, StartingState, ReadyState, TerminatingState, FaultState> state_;
 };
 
 }  // namespace score::mw::lifecycle::internal

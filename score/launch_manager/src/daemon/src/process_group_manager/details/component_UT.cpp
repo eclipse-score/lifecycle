@@ -150,5 +150,99 @@ TEST(ComponentTest, ForceStopClearsActive)
     EXPECT_FALSE(component.active());
 }
 
+TEST(ComponentTest, CannotDeactivateInTerminatedState)
+{
+    MockStartAction start_action;
+    MockStopAction stop_action;
+    MockForceStopAction force_stop_action;
+    Component component(start_action, stop_action, force_stop_action);
+
+    EXPECT_DEATH(
+        { static_cast<void>(component.deactivate(cpp::stop_token{})); },
+        "Cannot deactivate component in TerminatedState");
+}
+
+TEST(ComponentTest, CannotActivateInReadyState)
+{
+    MockStartAction start_action;
+    MockStopAction stop_action;
+    MockForceStopAction force_stop_action;
+    Component component(start_action, stop_action, force_stop_action);
+
+    ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+
+    static_cast<void>(component.activate(cpp::stop_token{}));
+
+    EXPECT_DEATH(
+        { static_cast<void>(component.activate(cpp::stop_token{})); }, "Cannot activate component in ReadyState");
+}
+
+TEST(ComponentTest, CannotActivateInTerminatingState)
+{
+    MockStartAction start_action;
+    MockStopAction stop_action;
+    MockForceStopAction force_stop_action;
+    Component component(start_action, stop_action, force_stop_action);
+
+    ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+    ON_CALL(stop_action, stop(_, _)).WillByDefault(Return(Result<void>{}));
+
+    static_cast<void>(component.activate(cpp::stop_token{}));
+    static_cast<void>(component.deactivate(cpp::stop_token{}));
+
+    EXPECT_DEATH(
+        { static_cast<void>(component.activate(cpp::stop_token{})); }, "Cannot activate component in TerminatingState");
+}
+
+TEST(ComponentTest, CannotDeactivateInTerminatingState)
+{
+    MockStartAction start_action;
+    MockStopAction stop_action;
+    MockForceStopAction force_stop_action;
+    Component component(start_action, stop_action, force_stop_action);
+
+    ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+    ON_CALL(stop_action, stop(_, _)).WillByDefault(Return(Result<void>{}));
+
+    static_cast<void>(component.activate(cpp::stop_token{}));
+    static_cast<void>(component.deactivate(cpp::stop_token{}));
+
+    EXPECT_DEATH(
+        { static_cast<void>(component.deactivate(cpp::stop_token{})); },
+        "Cannot deactivate component in TerminatingState");
+}
+
+TEST(ComponentTest, CannotActivateInFaultState)
+{
+    MockStartAction start_action;
+    MockStopAction stop_action;
+    MockForceStopAction force_stop_action;
+    Component component(start_action, stop_action, force_stop_action);
+
+    ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+
+    static_cast<void>(component.activate(cpp::stop_token{}));
+    component.tryHandleTermination(1);
+
+    EXPECT_DEATH(
+        { static_cast<void>(component.activate(cpp::stop_token{})); }, "Cannot activate component in FaultState");
+}
+
+TEST(ComponentTest, CannotDeactivateInFaultState)
+{
+    MockStartAction start_action;
+    MockStopAction stop_action;
+    MockForceStopAction force_stop_action;
+    Component component(start_action, stop_action, force_stop_action);
+
+    ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+
+    static_cast<void>(component.activate(cpp::stop_token{}));
+    component.tryHandleTermination(1);
+
+    EXPECT_DEATH(
+        { static_cast<void>(component.deactivate(cpp::stop_token{})); }, "Cannot deactivate component in FaultState");
+}
+
 }  // namespace
 }  // namespace score::mw::lifecycle::internal
