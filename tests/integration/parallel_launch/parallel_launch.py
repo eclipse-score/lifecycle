@@ -20,6 +20,7 @@ from attribute_plugin import add_test_properties
     fully_verifies=[
         "feat_req__lifecycle__parallel_launch_support",
     ],
+    partially_verifies=[],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
 )
@@ -27,7 +28,7 @@ def test_parallel_launch(target, setup_test, assert_test_results, remote_test_di
     """
     Objective: Verifies that the launch manager launches independent processes in parallel.
 
-    One run target depends on three independent components. Each component records a
+    One Run Target depends on three independent components. Each component records a
     timestamp before sleeping and one after reporting running. If launched in parallel,
     all components start before any of them finishes sleeping and reports running.
     Expected Behaviour: The latest start timestamp precedes the earliest running timestamp.

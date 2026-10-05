@@ -18,19 +18,19 @@
 #include <score/mw/lifecycle/report_running.h>
 
 // Given a configuration with the following dependency tree:
-// - Startup - which is the initial run target - depends on component component_initial
+// - Startup - which is the initial Run Target - depends on component component_initial
 //     - component_initial: No dependencies
-// - run_target_a: Depends on run target run_target_c and component component_a
+// - run_target_a: Depends on Run Target run_target_c and component component_a
 //     - component_a: Depends on component_b
 //         - component_b: No dependencies
 //     - run_target_c: Depends on component component_d
 //         - component_d: No dependencies
-// - component_e: No dependencies, not included in any run target
+// - component_e: No dependencies, not included in any Run Target
 
 // The only constraint on process startup order is that A must start after B.
-// This is because, even though run target A depends on run target C (where
+// This is because, even though Run Target A depends on Run Target C (where
 // component D is contained), *component* A only depends on component B.
-// Component E is not included in any run target, so it should never be launched.
+// Component E is not included in any Run Target, so it should never be launched.
 
 using namespace score::mw::lifecycle;
 
@@ -59,27 +59,27 @@ TEST(SwitchRunTarget, ControlClientTestDriver)
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget Startup")
+        TEST_STEP("Callback for Run Target Startup")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
             EXPECT_EQ(target, "Startup");
         }
     });
 
-    // When we switch run to run target A
+    // When we switch run to Run Target A
     // Then
-    // Processes A and B verify that B is started before A and terminated after A when switching run targets
+    // Processes A and B verify that B is started before A and terminated after A when switching Run Targets
     const auto running_processes = {a_started, b_started, d_started};
     const auto terminating_processes = {a_terminating, b_terminating, d_terminating};
 
-    TEST_STEP("Activate run target A")
+    TEST_STEP("Activate Run Target A")
     {
         const auto result = client->activate_run_target("run_target_a", true);
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget A")
+        TEST_STEP("Callback for Run Target A")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
             EXPECT_EQ(target, "run_target_a");
@@ -90,19 +90,19 @@ TEST(SwitchRunTarget, ControlClientTestDriver)
     {
         for (const auto proc : running_processes)
         {
-            EXPECT_TRUE(std::filesystem::exists(proc)) << "A process depended on by run target A was not started!";
+            EXPECT_TRUE(std::filesystem::exists(proc)) << "A process depended on by Run Target A was not started!";
         }
     }
     // Processes A and B verify that they have been shut down in the correct order.
 
-    TEST_STEP("Activate RunTarget Startup")
+    TEST_STEP("Activate Run Target Startup")
     {
         const auto result = client->activate_run_target("Startup", true);
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget Startup")
+        TEST_STEP("Callback for Run Target Startup")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
             EXPECT_EQ(target, "Startup");
@@ -113,7 +113,7 @@ TEST(SwitchRunTarget, ControlClientTestDriver)
     {
         for (const auto proc : terminating_processes)
         {
-            EXPECT_TRUE(std::filesystem::exists(proc)) << "A process depended on by run target A was not terminated!";
+            EXPECT_TRUE(std::filesystem::exists(proc)) << "A process depended on by Run Target A was not terminated!";
         }
     }
 
@@ -122,8 +122,8 @@ TEST(SwitchRunTarget, ControlClientTestDriver)
         EXPECT_FALSE(std::filesystem::exists(e_started)) << "Component E should not have been started!";
     }
 
-    // Regression test for #541: an unrecognized run target used to crash the whole daemon.
-    TEST_STEP("Activate an unrecognized run target")
+    // Regression test for #541: an unrecognized Run Target used to crash the whole daemon.
+    TEST_STEP("Activate an unrecognized Run Target")
     {
         const auto result = client->activate_run_target("not_a_real_run_target", true);
         EXPECT_FALSE(result.has_value()) << "Should be rejected, not silently accepted";

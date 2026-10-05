@@ -19,6 +19,7 @@ from attribute_plugin import add_test_properties
 @add_test_properties(
     fully_verifies=[],
     partially_verifies=[
+        "feat_req__lifecycle__terminationn_dependency",
         "comp_req__launch_man__launcher_exit_shutdown",
     ],
     test_type="requirements-based",
@@ -28,19 +29,19 @@ def test_lm_shutdown(target, setup_test, assert_test_results, remote_test_dir):
     """
     Objective: Verifies that the Launch Manager exits after performing a shutdown
     (stopping all processes it owns) when a SIGTERM arrives while an explicit switch
-    to the "Off" run target is already in progress.
+    to the "Off" Run Target is already in progress.
 
     The control client activates run_target_a and then explicitly requests a switch
-    to the "Off" run target. component_a (part of run_target_a) stalls while it is
+    to the "Off" Run Target. component_a (part of run_target_a) stalls while it is
     being terminated during that switch, keeping the switch to Off in progress. That
     window is signalled by the file `component_a_terminating`, at which point the
     launch manager is sent a SIGTERM.
 
     Expected Behaviour: The launch manager lets the in-progress switch to Off
-    continue, stops all the processes it owns, and exits cleanly. It honours each
-    component's shutdown_timeout_ms, so component_a - which stalls for less than its
-    shutdown_timeout_ms - exits gracefully (producing its XML result) rather than being
-    force-terminated.
+    continue, stops all the processes it owns, and exits cleanly. It honours
+    each component's shutdown_timeout_ms, so component_a - which stalls for
+    less than its shutdown_timeout_ms - exits gracefully (producing its XML
+    result) rather than being force-terminated.
     """
 
     run_test(

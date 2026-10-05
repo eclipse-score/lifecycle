@@ -59,7 +59,7 @@ int main()
     signal(SIGTERM, shutdownSignalHandler);
 
     // Report running so the Launch Manager considers this process ready and the
-    // "Running" run target can be activated.
+    // "Running" Run Target can be activated.
     score::mw::lifecycle::report_running();
 
     while (true)

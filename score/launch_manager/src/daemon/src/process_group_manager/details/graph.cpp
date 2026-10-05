@@ -35,10 +35,10 @@ namespace
 {
 
 /// @brief Creates a dependency graph from the configuration.
-/// @param config The configuration containing components and run targets.
+/// @param config The configuration containing components and Run Targets.
 /// @param process_handling The interfaces used to start, stop and report on the OS processes.
 /// @param run_target_map Map to keep the translation between IDHash to Index
-/// @return A populated dependency graph with all components and run targets.
+/// @return A populated dependency graph with all components and Run Targets.
 void CreateDependencyGraph(
     DependencyGraph<IdentifierHash, Graph::Component>& graph,
     GraphConfig& config,
@@ -69,7 +69,7 @@ void CreateDependencyGraph(
     {
         const auto index = graph.try_emplace(
             IdentifierHash{run_target.name}, std::in_place_type<RunTarget>, IdentifierHash{run_target.name});
-        LM_LOG_DEBUG() << "Created RunTarget node:" << run_target.name << "at index" << index;
+        LM_LOG_DEBUG() << "Creating Run Target node:" << run_target.name << "at index" << index;
 
         if (run_target.name == Graph::off_state_name)
         {
@@ -164,7 +164,7 @@ bool Graph::setState(const GraphState new_state)
     {
         auto request_end_time = std::chrono::steady_clock::now();
         auto timeDiff = std::chrono::duration_cast<std::chrono::milliseconds>(request_end_time - getRequestStartTime());
-        LM_LOG_INFO() << "Completed the request for run target" << getRequestedRunTarget() << "in" << timeDiff.count()
+        LM_LOG_INFO() << "Completed the request for Run Target" << getRequestedRunTarget() << "in" << timeDiff.count()
                       << "ms";
     }
     return target_state == new_state;
@@ -240,7 +240,7 @@ void Graph::finalizeTransitionSuccess()
     {
         is_initial_state_transition_ = false;
 
-        LM_LOG_DEBUG() << "clock() at successful initial state transition:"
+        LM_LOG_DEBUG() << "clock() at successful initial transition:"
                        << (static_cast<double>(clock()) / (static_cast<double>(CLOCKS_PER_SEC) / 1000.0)) << "ms";
     }
 
@@ -289,7 +289,7 @@ bool Graph::startTransition(IdentifierHash pg_state)
     if (!isValidRunTarget(pg_state))
     {
         // Last-resort guard — callers should already reject via isValidRunTarget() (#541).
-        LM_LOG_ERROR() << "startTransition: RunTarget not found for requested process group state" << pg_state;
+        LM_LOG_ERROR() << "Invalid Run Target" << pg_state;
         return false;
     }
 
@@ -327,7 +327,7 @@ bool Graph::startTransitionToOffState()
     {
         // The Off state always has a RunTarget node, so this cannot fail.
         const bool started = startTransition(off_state_);
-        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(started, "Off state RunTarget node missing");
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(started, "Off Run Target missing");
         return true;
     }
     return false;
@@ -413,11 +413,11 @@ void Graph::handleNonTransitionExecution(GraphState current_state)
 
         if (current_state == GraphState::kCancelled)
         {
-            LM_LOG_DEBUG() << "clock() at canceled initial state transition:" << clock_ms << "ms";
+            LM_LOG_DEBUG() << "clock() at cancelled initial transition:" << clock_ms << "ms";
         }
         else
         {
-            LM_LOG_DEBUG() << "clock() at failed initial state transition:" << clock_ms << "ms";
+            LM_LOG_DEBUG() << "clock() at failed initial transition:" << clock_ms << "ms";
         }
     }
 

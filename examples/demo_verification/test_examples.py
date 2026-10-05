@@ -69,8 +69,8 @@ def test_examples(target, setup_test, remote_test_dir):
 
     Starts the launch manager, transitions to Running (all example apps start), back to Startup,
     then back to Running where a process crash and a supervision failure are injected.
-    Expected Behaviour: All run target transitions complete, crash and supervision failure each
-    trigger recovery to the fallback run target, and the launch manager stays alive throughout.
+    Expected Behaviour: All Run Target transitions complete, crash and supervision failure each
+    trigger recovery to the fallback Run Target, and the launch manager stays alive throughout.
     """
     lm_path = str(remote_test_dir / "launch_manager")
     lmcontrol_path = str(remote_test_dir / "lmcontrol")

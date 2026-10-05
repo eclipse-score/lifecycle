@@ -21,12 +21,14 @@ from attribute_plugin import add_test_properties
 
 @add_test_properties(
     fully_verifies=[
-        "comp_req__launch_man__failure_detect",
-        "comp_req__launch_man__retries_configurable",
         "feat_req__lifecycle__recov_run_target_switch",
-        "feat_req__lifecycle__liveliness_detection",
+        "comp_req__launch_man__retries_configurable",
     ],
-    partially_verifies=["feat_req__lifecycle__recovery_action_support"],
+    partially_verifies=[
+        "feat_req__lifecycle__monitor_abnormal_term",
+        "feat_req__lifecycle__recovery_action_support",
+        "comp_req__launch_man__failure_detect",
+    ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
 )
@@ -39,10 +41,10 @@ def test_crash_on_startup(
     Case 1: Process crashes before Running state but eventually starts up successfully before the configured number of restart attempts is exceeded.
     This is verified with two different components: One with the process crashing twice and the other three times before successfully starting up.
     The number of restart attempts is configured to be 2 and 3 respectively for these two components.
-    Expected Behaviour: Process startup successful, run target activation successful
+    Expected Behaviour: Process startup successful, Run Target activation successful
 
     Case 2: Component has no restart attempts configured, but crashes once.
-    Expected Behaviour: Process startup fails and therefore run target activation fails. Launch manager executes recovery action which switches to fallback run target.
+    Expected Behaviour: Process startup fails and therefore Run Target activation fails. Launch manager executes recovery action which switches to fallback Run Target.
     """
 
     run_test(
@@ -53,7 +55,7 @@ def test_crash_on_startup(
     )
 
     # Each crashing process writes its own report file named after the number of times it crashes, so the
-    # reports of the different run targets no longer overwrite each other. The process crashing once is not
+    # reports of the different Run Targets no longer overwrite each other. The process crashing once is not
     # allowed to retry, but still writes its report before crashing.
     crash_report_names = {
         n: f"process_crashing_on_startup_n_times_n_equals_{n}.xml" for n in (1, 2, 3)

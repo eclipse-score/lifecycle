@@ -40,7 +40,7 @@ using ::testing::VariantWith;
 
 const score::filesystem::Path kTestPath{"/tmp/test_config.bin"};
 
-/// Name of the run target the loader appends when the configuration does not provide it.
+/// Name of the Run Target the loader appends when the configuration does not provide it.
 constexpr const char* kOffRunTargetName = "Off";
 
 std::vector<uint8_t> finishBuffer(
@@ -318,7 +318,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSingleComponentWithFileState)
 
 TEST_F(FlatbufferConfigLoaderTest, LoadRunTargets)
 {
-    RecordProperty("Description", "Loads run targets with dependencies and transition timeout.");
+    RecordProperty("Description", "Loads Run Targets with dependencies and transition timeout.");
 
     ::flatbuffers::FlatBufferBuilder fbb;
 
@@ -347,7 +347,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadRunTargets)
 
 TEST_F(FlatbufferConfigLoaderTest, ConfiguredOffRunTargetIsLoadedVerbatim)
 {
-    RecordProperty("Description", "An explicitly configured \"Off\" run target is loaded like any other run target.");
+    RecordProperty("Description", "An explicitly configured \"Off\" Run Target is loaded like any other Run Target.");
 
     ::flatbuffers::FlatBufferBuilder fbb;
 
@@ -370,7 +370,7 @@ TEST_F(FlatbufferConfigLoaderTest, ConfiguredOffRunTargetIsLoadedVerbatim)
 
 TEST_F(FlatbufferConfigLoaderTest, LoadFallbackRunTarget)
 {
-    RecordProperty("Description", "Loads fallback run target with all fields.");
+    RecordProperty("Description", "Loads fallback Run Target with all fields.");
 
     ::flatbuffers::FlatBufferBuilder fbb;
 
