@@ -12,14 +12,15 @@
  ********************************************************************************/
 /*
  * ./wait_for_semaphore --semaphore-name <semaphore_name> --expected-count <expected_count> [--timeout-seconds <timeout
- * in seconds>] [--start-from-zero]
+ * in seconds>] [--start-from-zero] [--succeed-on-timeout]
  *
  * This process will wait for a named semaphore to reach an expected count, with an optional timeout.
  * We will also optionally clear/delete the semaphore on start.
  * This process can be used with the `counting_process` in order to wait for an expected number of processes to start.
  *
  * Exit codes:
- * - Exit code 0: all `expected_count` posts were observed.
+ * - Exit code 0: all `expected_count` posts were observed
+ *   (or --succeed-on-timeout was set, and we timed out).
  * - Exit code 1: usage error.
  * - Exit code 2: timed out before `expected_count` posts were observed; the
  *   number of posts actually observed so far is printed to stderr.
@@ -89,7 +90,8 @@ void add_seconds(timespec* ts, std::uint64_t seconds)
 [[nodiscard]] int wait_for_named_semaphore(
     const std::string& semaphore_name,
     const std::uint64_t expected_count,
-    const std::uint64_t timeout_seconds)
+    const std::uint64_t timeout_seconds,
+    const bool succeed_on_timeout)
 {
     sem_t* const semaphore = ::sem_open(semaphore_name.c_str(), O_CREAT, 0666, 0);
     if (semaphore == SEM_FAILED)
@@ -124,6 +126,12 @@ void add_seconds(timespec* ts, std::uint64_t seconds)
                     static_cast<unsigned long long>(expected_count),
                     static_cast<unsigned long long>(observed));
                 static_cast<void>(::sem_close(semaphore));
+
+                if (succeed_on_timeout)
+                {
+                    return 0;
+                }
+
                 return 2;
             }
             else if (errno == EINTR)
@@ -156,6 +164,7 @@ int main(int argc, char** argv)
     std::uint64_t expected_count = 0U;
     std::uint64_t timeout_seconds = DEFAULT_TIMEOUT_SECONDS;
     bool start_from_zero = false;
+    bool succeed_on_timeout = false;
 
     static struct option long_options[] = {
         {"help", no_argument, nullptr, 'h'},
@@ -163,12 +172,13 @@ int main(int argc, char** argv)
         {"expected-count", required_argument, nullptr, 'c'},
         {"timeout-seconds", required_argument, nullptr, 't'},
         {"start-from-zero", no_argument, nullptr, 'z'},
+        {"succeed-on-timeout", no_argument, nullptr, 's'},
         {nullptr, 0, nullptr, 0}};
 
     int opt;
     int option_index = 0;
 
-    while ((opt = getopt_long(argc, argv, "hn:c:t:z", long_options, &option_index)) != -1)
+    while ((opt = getopt_long(argc, argv, "hn:c:t:zs", long_options, &option_index)) != -1)
     {
         switch (opt)
         {
@@ -214,6 +224,9 @@ int main(int argc, char** argv)
             case 'z':
                 start_from_zero = true;
                 break;
+            case 's':
+                succeed_on_timeout = true;
+                break;
             case '?':
             default:
                 std::fprintf(stderr, "Invalid or missing argument.\n");
@@ -254,7 +267,7 @@ int main(int argc, char** argv)
 
     if (!semaphore_name.empty() && expected_count > 0)
     {
-        return wait_for_named_semaphore(semaphore_name, expected_count, timeout_seconds);
+        return wait_for_named_semaphore(semaphore_name, expected_count, timeout_seconds, succeed_on_timeout);
     }
 
     return 0;

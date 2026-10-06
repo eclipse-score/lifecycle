@@ -24,19 +24,13 @@ cc_binary(
     ],
 )
 
-cc_binary(
-    name = "delayed_termination",
-    srcs = ["delayed_termination.cpp"],
-    deps = [],
-)
-
 integration_test(
     name = "kterminated",
     srcs = ["kterminated.py"],
     binaries = [
         ":control_client_test_driver",
         "//score/launch_manager",
-        ":delayed_termination",
+        "//tests/utils/test_helper:waiting_process",
     ],
     config = ":kterminated.json",
 )

@@ -3,7 +3,7 @@
     "defaults": {
         "deployment_config": {
             "bin_dir": "/tmp/tests/kterminated",
-            "ready_timeout_ms": 1000,
+            "ready_timeout_ms": 1500,
             "recovery_action": {
                 "switch_run_target": {
                     "run_target": "fallback_run_target"
@@ -44,10 +44,15 @@
         },
         "delayed_termination_on_time": {
             "component_properties": {
-                "binary_name": "delayed_termination",
+                "binary_name": "waiting_process",
                 "process_arguments": [
-                    "--timeout-milliseconds",
-                    "10"
+                    "--timeout-seconds",
+                    "1",
+                    "--semaphore-name",
+                    "/delayed_termination_on_time",
+                    "--expected-count",
+                    "1",
+                    "--succeed-on-timeout"
                 ],
                 "ready_condition": {
                     "process_state": "Terminated"
@@ -60,10 +65,15 @@
         },
         "delayed_termination_late": {
             "component_properties": {
-                "binary_name": "delayed_termination",
+                "binary_name": "waiting_process",
                 "process_arguments": [
-                    "--timeout-milliseconds",
-                    "2000"
+                    "--timeout-seconds",
+                    "2",
+                    "--semaphore-name",
+                    "/delayed_termination_late",
+                    "--expected-count",
+                    "1",
+                    "--succeed-on-timeout"
                 ],
                 "ready_condition": {
                     "process_state": "Terminated"
