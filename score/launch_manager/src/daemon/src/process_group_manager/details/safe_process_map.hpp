@@ -16,26 +16,15 @@
 
 #include "score/mw/launch_manager/process_group_manager/details/icomponent_controller.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
-#include <atomic>
+#include <condition_variable>
 #include <cstdint>
+#include <functional>
+#include <mutex>
+#include <optional>
+#include <unordered_map>
 
 namespace score::mw::lifecycle::internal
 {
-
-/// @brief Struct representing data in a map item
-struct ProcessInfoData
-{
-    int32_t status_ = -1;              ///< Exit status for process
-    IComponent* component_ = nullptr;  ///< Pointer to the termination callback associated with this item.
-};
-/// @brief Struct representing an item in the map.
-struct ProcessTreeNode
-{
-    uint32_t pid_left_ = 0xFFFFFFFF;   ///< Odd branch for binary tree of process IDs (left child).
-    uint32_t pid_right_ = 0xFFFFFFFF;  ///< Even branch for binary tree of process IDs (right child).
-    osal::ProcessID pid_ = -1;         ///< Process ID associated with this item.
-    ProcessInfoData data_;
-};
 
 /// @brief Enum type used for public methods retrun value.
 enum class SafeProcessMapReturnType : std::int32_t
@@ -56,161 +45,93 @@ enum class SafeProcessMapReturnType : std::int32_t
     kUndefined = 2,
 };
 
-/// @brief Interface for inserting a process into a process map if it has not already terminated.
+/// @brief Interface for inserting components into SafeProcessMap.
 class SafeProcessMapInserter
 {
   public:
     virtual ~SafeProcessMapInserter() = default;
 
     /// @brief Inserts a process into the map if it has not already terminated.
-    /// This method is called by a worker thread after starting a process. It attempts to insert the given process ID
-    /// (key) and its associated ITerminationCallback pointer into the map, ensuring that the process is not already
-    /// marked as terminated. In the case of a clash due to PID re-use, this method yields until the situation is
-    /// resolved.
-    /// @param key The process ID to insert into the map.
-    /// @param object A pointer to the ITerminationCallback associated with the process.
-    /// @return kOk if the key (Process ID) was not found and a new entry was made,
-    ///         kYield if the key was found (indicating the process has terminated), and updated with the provided
-    ///         object, kInsertionError if an error occurred during insertion (e.g., out of memory), or kInvalidIdError
-    ///         if the provided process ID (`key`) is not valid ( < 0).
-    virtual SafeProcessMapReturnType insertIfNotTerminated(osal::ProcessID key, IComponent* object) = 0;
+    /// @param key The process ID to look for in the map.
+    /// @param component The component to notify with the exit code.
+    /// @return kOk if the process ID was inserted and is waiting for an exit code,
+    ///         kYield if the process ID was found and matched with an exit code,
+    ///         kInsertionError if an error occurred during insertion (e.g., out of memory),
+    ///         or kInvalidIdError if the provided process ID (`key`) is not valid (< 0).
+    virtual SafeProcessMapReturnType insertIfNotTerminated(osal::ProcessID key, IComponent* component) = 0;
 };
 
-/// @brief The SafeProcessMap class provides a thread-safe mapping of unique process IDs (ProcessID) to
-/// ITerminationCallback pointers. It ensures safe concurrent access and modification of the mapping, using atomic
-/// operations.
+/// @brief The SafeProcessMap waits for both a component and exit code to be
+///          registered under the same process ID, then invokes a termination
+///          handler with both values.
 class SafeProcessMap final : public SafeProcessMapInserter
 {
   public:
     /// @brief Constructs a SafeProcessMap.
     /// @param capacity The maximum number of entries the map can hold.
     /// @param termination_handler Called when a terminated process is matched with its component.
-    SafeProcessMap(uint32_t capacity, IComponentController& termination_handler);
+    SafeProcessMap(size_t capacity, IComponentController& termination_handler);
 
     /// @brief Destructor to clean up resources used by the SafeProcessMap object.
     ~SafeProcessMap() = default;
 
     /// @brief Finds a terminated process in the map.
-    /// This method is called from OsHandler when a process terminates. It looks up the given process ID (key)
-    /// in the map and updates the process state accordingly. If the key is not found, it is inserted in the map
-    /// as already terminated.
-    /// In the case of a clash due to PID re-use, this method yields until the situation is resolved.
     /// @param key The process ID to look for in the map.
-    /// @return kOk if the process ID was found and the registered callback was notified with `status`,
-    ///         kYield if the process ID was not found and an already-terminated entry was inserted,
+    /// @param status The exit code to notify the component with.
+    /// @return kOk if the process ID was found and matched with a component,
+    ///         kYield if the process ID was inserted and is waiting for a component,
     ///         kInsertionError if an error occurred during insertion (e.g., out of memory),
     ///         or kInvalidIdError if the provided process ID (`key`) is not valid (< 0).
     SafeProcessMapReturnType findTerminated(osal::ProcessID key, int32_t status);
 
     /// @brief Inserts a process into the map if it has not already terminated.
-    /// @see SafeProcessMapInserter::insertIfNotTerminated() for details
-    SafeProcessMapReturnType insertIfNotTerminated(osal::ProcessID key, IComponent* object) override;
+    /// @param key The process ID to look for in the map.
+    /// @param component The component to notify with the exit code.
+    /// @return kOk if the process ID was inserted and is waiting for an exit code,
+    ///         kYield if the process ID was found and matched with an exit code,
+    ///         kInsertionError if an error occurred during insertion (e.g., out of memory),
+    ///         or kInvalidIdError if the provided process ID (`key`) is not valid (< 0).
+    SafeProcessMapReturnType insertIfNotTerminated(osal::ProcessID key, IComponent* component);
 
   private:
-    /// @brief Searches for a process with the given process ID (key) in the map.
-    /// If found, updates or removes the entry based on provided conditions.
-    /// If the provided process ID (key) is valid (> 0):
-    ///          - If the process ID (key) is found in the map:
-    ///              - If `pin_` (ITerminationCallback pointer) is not nullptr, uses it to set the return status via the
-    ///              callback, removes the key, and returns 0.
-    ///              - If `pin_` is nullptr, uses the provided ITerminationCallback pointer to set the stored status,
-    ///              removes the key, and returns 1.
-    ///              - Behaviour under anomalous conditions (PID re-use where either both data.pin_ and stored pin_ are
-    ///              nullptr or both are not nullptr):
-    ///                 yield() and then repeat the operation.
-    ///          - If the process ID (key) is not found in the map:
-    ///              - Adds the key (`key`), `pin_`, and `status` to the map.
-    ///              - Returns -1 on failure to add (e.g., out of memory).
-    /// @param key The process ID to search for or insert into the map.
-    /// @param data The data to associate with the key
-    ///        data.pin_ A pointer to the ITerminationCallback associated with the process.
-    ///        data.status_ The status to set for the process if inserted.
-    /// @return 0 if the process was found and updated with the provided `pin_`,
-    ///         1 if the process was found and updated with the provided callback pointer in `data.pin_`,
-    ///         -1 if an error occurred during insertion (e.g., out of memory),
-    ///         or -2 if the provided process ID (`key`) is not valid ( < 0).
-    int32_t search(osal::ProcessID key, ProcessInfoData data);
+    /// @brief Removes the stored component for `key`, if any.
+    /// @warning The caller must hold `map_mutex_`.
+    /// @return The removed component, or nullopt if none was stored.
+    std::optional<std::reference_wrapper<IComponent>> matchComponent(osal::ProcessID key);
 
-    /// @brief Finds the node in the process map tree for the given process ID.
-    /// This function searches for a node in the SafeProcessMap whose process ID matches the
-    /// provided key. It uses a rover mechanism to traverse the map in a safe manner.
-    /// @param mask Reference to the bitmask used for traversal.
-    /// @param last Reference to an integer where the index of the last visited node will be stored.
-    /// This parameter is updated during the traversal to keep track of the last node visited.
-    /// @param key The process ID to find in the tree.
-    void findNode(uint32_t& mask, uint32_t& parent, osal::ProcessID key);
+    /// @brief Stores the component for `key`.
+    /// @warning The caller must hold `map_mutex_`.
+    /// @return kOk on success, kInsertionError if full or not inserted.
+    SafeProcessMapReturnType storeComponent(osal::ProcessID key, IComponent& component);
 
-    /// @brief Inserts a node into the SafeProcessMap with the given process ID and associated information.
-    /// This function inserts a node into the SafeProcessMap using a rover mechanism for safe traversal and insertion.
-    /// It updates the map's internal structure based on the process ID's bit pattern and manages memory allocation.
-    /// @param mask Reference to the bitmask used for traversal.
-    /// @param last Reference to an integer storing the index of the last visited node during traversal.
-    /// This parameter is updated with the index where the new node is inserted.
-    /// @param key Reference to the process ID of the node to insert. After insertion, this parameter may be updated
-    /// to reflect any changes necessary in the node's position within the map.
-    /// @param data Reference to the data pair for this key
-    /// After insertion, this parameter may be updated with the status of the newly inserted node.
-    /// @return int32_t Returns an integer indicating the success of the insertion operation:
-    /// - 0 if the node was successfully inserted.
-    /// - 1 if the insertion was successful but the object pointer was null.
-    /// - -1 if the insertion failed due to memory constraints (out of memory).
-    int32_t insertNode(uint32_t& mask, uint32_t& parent, osal::ProcessID& key, ProcessInfoData& data);
+    /// @brief Removes the stored exit code for `key`, if any.
+    /// @warning The caller must hold `map_mutex_`.
+    /// @return The removed exit code, or nullopt if none was stored.
+    std::optional<int32_t> matchExitCode(osal::ProcessID key);
 
-    /// @brief Removes a node from the process map tree.
-    /// This function removes the node currently pointed to by the rover in the SafeProcessMap.
-    /// It updates the target status and target pointer based on the removal operation and sets
-    /// the status according to the success or failure of the removal.
-    /// @param target Reference to the data that will be updated for the removed node.
-    /// It will be updated based on the success or failure of the removal.
-    /// @param data Reference to the data to use.
-    /// @param last Index of the last object
-    /// @param local_root Index of the first object
-    /// @return int32_t Returns 0 if the node was successfully removed and `object` was nullptr,
-    /// 1 if `object` was not nullptr, and -2 if the removal failed due to PID re-use
-    int32_t removeNode(ProcessInfoData& target, ProcessInfoData& data, uint32_t& parent, uint32_t& root);
+    /// @brief Stores the exit code for `key`.
+    /// @warning The caller must hold `map_mutex_`.
+    /// @return kYield on success, kInsertionError if full or not inserted.
+    SafeProcessMapReturnType storeExitCode(osal::ProcessID key, int32_t status);
 
-    /// @brief Finds the leaf node in the SafeProcessMap starting from the given node.
-    /// This function traverses the SafeProcessMap starting from the specified node `leaf`
-    /// to find the first leaf node (a node without left and right children).
-    /// @param leaf Current leaf.Reference to an integer representing the starting node from which to find the leaf
-    /// node. Upon successful execution, this parameter will store the index of the found leaf node.
-    /// @param previous Reference to an integer that will store the index of the parent node of the found leaf node.
-    /// If the `leaf` node itself is the root or a leaf, `previous` will be set to the same as `leaf`.
-    void findLeaf(uint32_t& leaf, uint32_t& leaf_parent);
+    /// @brief Maximum number of processes which can be stored simultaneously.
+    size_t capacity_;
 
-    /// @brief Deletes a node from the SafeProcessMap, handling reorganization and freeing of resources.
-    /// This function deletes a node from the SafeProcessMap structure based on the given parameters,
-    /// reorganizing the map if necessary and returning the deleted node to the free list for reuse.
-    /// @param last Reference to an integer storing the index of the last visited node during traversal.
-    /// This parameter is used to update the link of the parent node after deletion.
-    /// @param leaf Reference to an integer representing the index of the node to be deleted from the map.
-    /// Upon successful deletion, this parameter will be returned to the free list for reuse.
-    /// @param local_root Reference to an integer storing the index of the root node of the current tree structure.
-    /// If the deleted node is the root, this parameter is updated to NULL_INDEX, indicating an empty tree.
-    /// @param previous Reference to an integer storing the index of the parent node of the deleted node.
-    /// This parameter is used to update the link of the parent node after deletion.
-    void deleteNode(uint32_t& parent, uint32_t& leaf, uint32_t& root, uint32_t& leaf_parent);
+    /// @brief Mutex which protects both maps.
+    std::mutex map_mutex_;
 
-    ///@brief Unique pointer managing an array of ProcessTreeNode objects.
-    std::unique_ptr<ProcessTreeNode[]> items_;
+    /// @brief Condition variable which is signalled whenever an entry is removed.
+    std::condition_variable map_cv_;
 
-    /// @brief Value indicating that no node is assigned.
-    static constexpr uint32_t NULL_INDEX = 0xFFFFFFFF;
+    /// @brief Map of process IDs to components.
+    /// @details Used when component registration happens before termination.
+    std::unordered_map<osal::ProcessID, IComponent&> component_map_;
 
-    /// @brief Value indicating that a node is locked.
-    static constexpr uint32_t LOCKED_INDEX = 0xFFFFFFFE;
+    /// @brief Map of process IDs to exit codes.
+    /// @details Used when termination happens before component registration.
+    std::unordered_map<osal::ProcessID, int32_t> exit_code_map_;
 
-    /// @brief Root of the binary tree used to find an entry by process ID (pid).
-    std::atomic_uint32_t tree_root_{NULL_INDEX};
-
-    /// @brief Root of the list of free entries.
-    uint32_t free_list_head_{NULL_INDEX};
-
-    /// @brief Current rover index in the SafeProcessMap.
-    /// This variable represents the current index used for traversal within the SafeProcessMap.
-    /// It initially starts with NULL_INDEX, indicating no valid position.
-    uint32_t current_{NULL_INDEX};
-
+    /// @brief Handler to notify about process terminations.
     IComponentController& termination_handler_;
 };
 
