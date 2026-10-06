@@ -240,17 +240,7 @@ void Graph::finalizeTransitionSuccess()
     {
         is_initial_state_transition_ = false;
 
-        const auto clock_time = clock();
-        if (clock_time == static_cast<clock_t>(-1))
-        {
-            LM_LOG_DEBUG() << "clock() failed at successful initial transition.";
-        }
-        else
-        {
-            LM_LOG_DEBUG() << "clock() at successful initial transition:"
-                           << (static_cast<double>(clock_time) / (static_cast<double>(CLOCKS_PER_SEC) / 1000.0))
-                           << "ms";
-        }
+        LM_LOG_DEBUG() << "successful initial transition at" << TIMESTAMP_MS();
     }
 
     setState(GraphState::kSuccess);
@@ -417,34 +407,13 @@ void Graph::handleNonTransitionExecution(GraphState current_state)
     if (is_initial_state_transition_)
     {
         is_initial_state_transition_ = false;
-        // debug messages.
-        const auto clock_time = clock();
-
         if (current_state == GraphState::kCancelled)
         {
-            if (clock_time == static_cast<clock_t>(-1))
-            {
-                LM_LOG_DEBUG() << "clock() failed at cancelled initial transition.";
-            }
-            else
-            {
-                const auto clock_ms =
-                    static_cast<double>(clock_time) / (static_cast<double>(CLOCKS_PER_SEC) / 1000.0);
-                LM_LOG_DEBUG() << "clock() at cancelled initial transition:" << clock_ms << "ms";
-            }
+            LM_LOG_DEBUG() << "Cancelled initial transition at" << TIMESTAMP_MS();
         }
         else
         {
-            if (clock_time == static_cast<clock_t>(-1))
-            {
-                LM_LOG_DEBUG() << "clock() failed at failed initial transition.";
-            }
-            else
-            {
-                const auto clock_ms =
-                    static_cast<double>(clock_time) / (static_cast<double>(CLOCKS_PER_SEC) / 1000.0);
-                LM_LOG_DEBUG() << "clock() at failed initial transition:" << clock_ms << "ms";
-            }
+            LM_LOG_DEBUG() << "Failed initial transition at" << TIMESTAMP_MS();
         }
     }
 
