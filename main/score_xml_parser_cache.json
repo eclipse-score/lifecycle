@@ -766,5 +766,17 @@
     "repo_name": "local_repo",
     "hash": "",
     "url": ""
+  },
+  {
+    "name": "test_sandbox_options",
+    "file": "tests/integration/sandbox_options/sandbox_options.py",
+    "line": 119,
+    "need": "comp_req__launch_man__runmask_support",
+    "verify_type": "fully",
+    "result": "passed",
+    "result_text": "",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": ""
   }
 ]
