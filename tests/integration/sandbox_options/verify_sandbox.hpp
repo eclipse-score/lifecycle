@@ -175,9 +175,6 @@ inline ::testing::AssertionResult verifyAffinity(const std::uint64_t expected_af
     constexpr int kCores = 64;
 
 #if defined(__QNX__)
-    // ThreadCtl only offers a combined get-and-set: request a run mask covering every CPU (a
-    // no-op given the process is already confined by its actual mask) and read back the mask
-    // that was in effect beforehand, which is the state configured by the launch manager.
     constexpr int kSize = RMSK_SIZE(kCores);
     struct
     {
@@ -185,12 +182,8 @@ inline ::testing::AssertionResult verifyAffinity(const std::uint64_t expected_af
         unsigned runmask[kSize];
         unsigned inherit_mask[kSize];
     } tm{kSize, {}, {}};
-    for (int cpu = 0; cpu < kCores; ++cpu)
-    {
-        RMSK_SET(cpu, tm.runmask);
-        RMSK_SET(cpu, tm.inherit_mask);
-    }
 
+    // Calling ThreadCtl with an empty mask will only retrieve the current run mask without changing it.
     if (ThreadCtl(_NTO_TCTL_RUNMASK_GET_AND_SET_INHERIT, &tm) != 0)
     {
         failures << "Failed to get CPU affinity\n";

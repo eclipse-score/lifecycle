@@ -264,6 +264,29 @@ SCHED_POLICY_MAP = {
 }
 
 
+def parse_affinity_mask(value, component_name):
+    """Convert the user-facing hex string (e.g. "0x3") into the uint64 the flatbuffer expects."""
+    if not isinstance(value, str) or not value.lower().startswith("0x"):
+        raise ValueError(
+            f"Component '{component_name}': affinity_mask must be a hexadecimal string "
+            f'such as "0x3" with the "0x" prefix, but got {value!r}.'
+        )
+    try:
+        mask = int(value, 16)
+    except ValueError:
+        raise ValueError(
+            f"Component '{component_name}': affinity_mask must be a hexadecimal string "
+            f'such as "0x3", but got {value!r}.'
+        )
+
+    if mask < 1 or mask > 0xFFFFFFFFFFFFFFFF:
+        raise ValueError(
+            f"Component '{component_name}': affinity_mask must select at least one core "
+            f"and at most 64 cores, but got {value!r}."
+        )
+    return mask
+
+
 def output_filename(input_filename):
     stem = Path(input_filename).stem
     return f"{stem}_gen.json"
@@ -340,6 +363,10 @@ def gen_config(output_dir, config, input_filename):
             sandbox_out["max_memory_usage"] = sandbox["max_memory_usage"]
         if "max_cpu_usage" in sandbox:
             sandbox_out["max_cpu_usage"] = sandbox["max_cpu_usage"]
+        if "affinity_mask" in sandbox:
+            sandbox_out["affinity_mask"] = parse_affinity_mask(
+                sandbox["affinity_mask"], component_name
+            )
 
         deployment = {
             "ready_timeout_ms": depl_cfg["ready_timeout_ms"],

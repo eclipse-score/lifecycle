@@ -31,6 +31,7 @@ from lifecycle_config import (
     is_supervised,
     load_json_file,
     output_filename,
+    parse_affinity_mask,
     preprocess_defaults,
     schema_validation,
     score_defaults,
@@ -945,7 +946,7 @@ def test_gen_config_watchdog_partial_fields_omitted(tmp_path):
 
 
 def test_gen_config_with_sandbox_limits(tmp_path):
-    """sandbox max_memory_usage and max_cpu_usage should appear in output when present."""
+    """sandbox max_memory_usage, max_cpu_usage and affinity_mask should appear in output when present."""
     config = {
         "schema_version": 1,
         "components": {
@@ -962,6 +963,7 @@ def test_gen_config_with_sandbox_limits(tmp_path):
                         "gid": 1000,
                         "max_memory_usage": 1024,
                         "max_cpu_usage": 50,
+                        "affinity_mask": "0x3",
                     },
                 },
             }
@@ -982,6 +984,72 @@ def test_gen_config_with_sandbox_limits(tmp_path):
     sandbox = output["components"][0]["deployment_config"]["sandbox"]
     assert sandbox["max_memory_usage"] == 1024
     assert sandbox["max_cpu_usage"] == 50
+    assert sandbox["affinity_mask"] == 3
+
+
+def test_gen_config_without_affinity_mask(tmp_path):
+    """affinity_mask should be absent from the output when not configured."""
+    config = {
+        "schema_version": 1,
+        "components": {
+            "app1": {
+                "component_properties": {
+                    "application_profile": {"application_type": "REPORTING"}
+                },
+                "deployment_config": {
+                    "ready_timeout_ms": 1000,
+                    "shutdown_timeout_ms": 2000,
+                    "bin_dir": "/opt",
+                    "sandbox": {
+                        "uid": 1000,
+                        "gid": 1000,
+                    },
+                },
+            }
+        },
+        "run_targets": {"Startup": {}},
+        "initial_run_target": "Startup",
+        "fallback_run_target": {},
+        "alive_supervision": {},
+        "watchdog": {},
+    }
+    gen_config(str(tmp_path), config, "test_input.json")
+
+    with open(tmp_path / "test_input_gen.json") as f:
+        output = json.load(f)
+
+    sandbox = output["components"][0]["deployment_config"]["sandbox"]
+    assert "affinity_mask" not in sandbox
+
+
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        ("0x3", 3),
+        ("0X3", 3),
+        ("0xff", 255),
+        ("0xFF", 255),
+        ("0x00000001", 1),
+        ("0xFFFFFFFFFFFFFFFF", 0xFFFFFFFFFFFFFFFF),
+    ],
+)
+def test_parse_affinity_mask_accepts_valid_values(value, expected):
+    assert parse_affinity_mask(value, "app1") == expected
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "0x0",
+        "3",
+        "0xZZ",
+        3,
+        None,
+    ],
+)
+def test_parse_affinity_mask_rejects_invalid_values(value):
+    with pytest.raises(ValueError):
+        parse_affinity_mask(value, "app1")
 
 
 def test_gen_config_output_filename_matches_spec(tmp_path):
