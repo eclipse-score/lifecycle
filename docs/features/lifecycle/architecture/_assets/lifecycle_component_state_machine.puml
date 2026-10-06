@@ -1,0 +1,31 @@
+' *******************************************************************************
+' Copyright (c) 2026 Contributors to the Eclipse Foundation
+'
+' See the NOTICE file(s) distributed with this work for additional
+' information regarding copyright ownership.
+'
+' This program and the accompanying materials are made available under the
+' terms of the Apache License Version 2.0 which is available at
+' https://www.apache.org/licenses/LICENSE-2.0
+'
+' SPDX-License-Identifier: Apache-2.0
+' *******************************************************************************
+
+@startuml Component State Machine
+
+[*] -d-> Deactivated
+Deactivated -> Activating : Component is started in its configured sandbox.\nAll dependencies are ready and the component is\nconfigured to run in the currently active Run Target.
+Activating --> Ready : The component\nReady Condition is fulfilled.
+Ready --> Deactivating : Component is being deactivated (e.g. due to Run Target change)
+Deactivating --> Deactivated : Component is now deactivated\n(this may have required <color:red>forceful termination</color>\n<color:red>if component violated the shutdown timeout</color>).
+
+state Fault #red
+Activating -[#red]-> Fault : <color:red>Component crashed</color>\nor <color:red>Ready Condition timeout</color>.
+Ready -[#red]-> Fault : <color:red>Component crashed</color>\n<color:red>or Supervision failure.</color>
+Fault -[#red]-> Deactivating : <color:red>Recovery action (Restart, Run Target change, etc.)</color>.
+
+legend right
+	Error cases are highlighted in <color:red>red</color>.
+endlegend
+
+@enduml

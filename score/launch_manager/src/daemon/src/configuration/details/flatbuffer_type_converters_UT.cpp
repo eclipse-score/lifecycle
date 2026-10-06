@@ -661,7 +661,8 @@ TEST_F(ConverterTest, ConvertSandboxValid)
         fb::SchedulingPolicy::FIFO,
         50 /*scheduling_priority*/,
         4096 /*max_memory_usage*/,
-        80 /*max_cpu_usage*/);
+        80 /*max_cpu_usage*/,
+        3 /*affinity_mask*/);
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
@@ -678,6 +679,21 @@ TEST_F(ConverterTest, ConvertSandboxValid)
     EXPECT_THAT(result->max_memory_usage.value(), Eq(4096U));
     ASSERT_THAT(result->max_cpu_usage.has_value(), IsTrue());
     EXPECT_THAT(result->max_cpu_usage.value(), Eq(80U));
+    ASSERT_THAT(result->affinity_mask.has_value(), IsTrue());
+    EXPECT_THAT(result->affinity_mask.value(), Eq(3U));
+}
+
+TEST_F(ConverterTest, ConvertSandboxWithoutAffinityMaskHasNoValue)
+{
+    RecordProperty("Description", "Sandbox without affinity_mask configured leaves it as std::nullopt.");
+    ::flatbuffers::FlatBufferBuilder fbb;
+    auto sandbox = buildDefaultSandbox(fbb);
+    fbb.Finish(sandbox);
+    const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
+
+    auto result = convertSandbox(ptr);
+    ASSERT_THAT(result.has_value(), IsTrue());
+    EXPECT_THAT(result->affinity_mask.has_value(), IsFalse());
 }
 
 TEST_F(ConverterTest, ConvertSandboxMissingUidReturnsError)

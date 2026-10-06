@@ -40,12 +40,14 @@ The liveliness mechanism includes:
 
 The alive interface is defined here: :need:`logic_arc_int__lifecycle__alive_if`
 
+The :term:`Launch Manager` starts the Alive Supervision at the exact time when the Application reports its Running state via the Lifecycle Interface.
+As a consequence the Liveliness Reporting is only available to SCORE applications that also use the Lifecycle Interface.
 
 Dynamic architecture
 ====================
 
-.. feat_arc_dyn:: Alive Monitoring
-   :id: feat_arc_dyn__lifecycle__alive_monitor
+.. feat_arc_dyn:: Alive Monitoring Start
+   :id: feat_arc_dyn__lifecycle__alive_monitor_start
    :security: YES
    :status: valid
    :version: 1
@@ -54,8 +56,21 @@ Dynamic architecture
    :includes:
    :belongs_to: feat__lifecycle[version==1]
 
-   .. uml:: _assets/alive_monitoring_dynamic.puml
+   .. uml:: _assets/alive_monitoring_start.puml
       :scale: 50
       :align: center
 
 
+.. feat_arc_dyn:: Alive Monitoring Stop
+   :id: feat_arc_dyn__lifecycle__alive_monitor_stop
+   :security: YES
+   :status: valid
+   :version: 1
+   :safety: ASIL_B
+   :fulfils: feat_req__lifecycle__liveliness_detection[version==1]
+   :includes:
+   :belongs_to: feat__lifecycle[version==1]
+
+   .. uml:: _assets/alive_monitoring_stop.puml
+      :scale: 50
+      :align: center

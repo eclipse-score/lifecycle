@@ -48,16 +48,26 @@ jobs:
       actions: read
       issues: write
 
+  codeql:
+    name: CodeQL
+    uses: ./.github/workflows/_codeql.yml
+    permissions:
+      contents: read
+      actions: write
+      security-events: write
+
   create-release:
     name: Create release
     needs:
       - pr
       - pr-target
+      - codeql
     runs-on: ubuntu-latest
     permissions:
       contents: write
     env:
       COVERAGE_ARCHIVE: ${{ github.event.repository.name }}-${{ inputs.tag }}-coverage
+      CODEQL_ARCHIVE: ${{ github.event.repository.name }}-${{ inputs.tag }}-codeql
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -112,6 +122,17 @@ jobs:
           tar --sort=name --owner=0 --group=0 --numeric-owner \
             -cJf "$COVERAGE_ARCHIVE.tar.xz" "$COVERAGE_ARCHIVE"
 
+      - name: Download CodeQL results
+        uses: actions/download-artifact@v8
+        with:
+          pattern: codeql-*
+          path: ${{ env.CODEQL_ARCHIVE }}
+
+      - name: Compress CodeQL results
+        run: |
+          tar --sort=name --owner=0 --group=0 --numeric-owner \
+            -cJf "$CODEQL_ARCHIVE.tar.xz" "$CODEQL_ARCHIVE"
+
       - name: Create draft release
         uses: softprops/action-gh-release@v3
         id: draft_release
@@ -123,6 +144,7 @@ jobs:
           target_commitish: ${{ github.sha }}
           files: |
             ${{ env.COVERAGE_ARCHIVE }}.tar.xz
+            ${{ env.CODEQL_ARCHIVE }}.tar.xz
 
       - name: Link to release in workflow summary
         run: |
