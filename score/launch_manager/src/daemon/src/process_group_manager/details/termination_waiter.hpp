@@ -14,9 +14,8 @@
 #ifndef _INCLUDED_TERMINATION_WAITER_
 #define _INCLUDED_TERMINATION_WAITER_
 
-#include "score/concurrency/future/interruptible_future.h"
-#include "score/concurrency/future/interruptible_promise.h"
-#include <memory>
+#include "score/concurrency/condition_variable.h"
+#include <condition_variable>
 #include <mutex>
 
 namespace score::mw::lifecycle::internal
@@ -34,14 +33,14 @@ class TerminationWaiter
     /// @brief Destructor
     ~TerminationWaiter();
 
-    /// @brief Deleted copy constructor (this class is not copyable by design)
+    /// @brief Deleted copy constructor
     /// @note @ref TerminationWaiter is not copyable by design
     TerminationWaiter(const TerminationWaiter&) = delete;
     /// @brief Deleted copy assignment operator
     /// @note @ref TerminationWaiter is not copyable by design
     TerminationWaiter& operator=(const TerminationWaiter&) = delete;
 
-    /// @brief Deleted move constructor (this class is not movable by design)
+    /// @brief Deleted move constructor
     /// @note @ref TerminationWaiter is not movable by design
     TerminationWaiter(TerminationWaiter&& other) = delete;
     /// @brief Deleted move assignment operator
@@ -57,19 +56,14 @@ class TerminationWaiter
     bool wait_with_timeout(const score::cpp::stop_token& stop_token, const std::chrono::milliseconds& rel_timeout_ms);
 
   private:
-    /// @brief A struct containing the state shared between the waiting and notifying threads
-    struct SharedState
-    {
-        std::mutex state_mutex;
-        score::concurrency::InterruptiblePromise<void> promise;
-        score::concurrency::InterruptibleSharedFuture<void> shared_future;
-        bool is_terminated{false};
+    /// @brief Mutex to protect access to is_terminated_
+    std::mutex terminated_mutex_;
 
-        SharedState();
-    };
+    /// @brief True if terminated() has been called, false otherwise
+    bool is_terminated_{false};
 
-    /// @brief A shared state allocated on the heap
-    std::shared_ptr<SharedState> state_;
+    /// @brief Condition variable used to wait for terminated() to be called
+    concurrency::InterruptibleConditionalVariableBasic<std::mutex, std::condition_variable> terminated_cv_;
 };
 
 }  // namespace score::mw::lifecycle::internal
