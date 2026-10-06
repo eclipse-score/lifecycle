@@ -2,7 +2,7 @@
     "schema_version": 1,
     "defaults": {
         "deployment_config": {
-            "bin_dir": "/tmp/tests/run_target_request_handling",
+            "bin_dir": "/tmp/tests/unknown_run_target",
             "ready_timeout_ms": 1000,
             "shutdown_timeout_ms": 1000,
             "ready_recovery_action": {
@@ -59,62 +59,12 @@
                     "PROCESSIDENTIFIER": "control_daemon"
                 }
             }
-        },
-        "gated_a": {
-            "component_properties": {
-                "binary_name": "gated_process",
-                "application_profile": {
-                    "application_type": "Reporting"
-                }
-            },
-            "deployment_config": {
-                "ready_timeout_ms": 5000,
-                "environmental_variables": {
-                    "PROCESSIDENTIFIER": "gated_a"
-                }
-            }
-        },
-        "gated_b": {
-            "component_properties": {
-                "binary_name": "gated_process",
-                "application_profile": {
-                    "application_type": "Reporting"
-                }
-            },
-            "deployment_config": {
-                "ready_timeout_ms": 5000,
-                "environmental_variables": {
-                    "PROCESSIDENTIFIER": "gated_b"
-                }
-            }
         }
     },
     "run_targets": {
         "Startup": {
             "depends_on": [
                 "control_daemon"
-            ],
-            "recovery_action": {
-                "switch_run_target": {
-                    "run_target": "fallback_run_target"
-                }
-            }
-        },
-        "run_target_a": {
-            "depends_on": [
-                "control_daemon",
-                "gated_a"
-            ],
-            "recovery_action": {
-                "switch_run_target": {
-                    "run_target": "fallback_run_target"
-                }
-            }
-        },
-        "run_target_b": {
-            "depends_on": [
-                "control_daemon",
-                "gated_b"
             ],
             "recovery_action": {
                 "switch_run_target": {
