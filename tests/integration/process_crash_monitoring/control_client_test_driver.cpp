@@ -51,7 +51,7 @@ TEST(ProcessCrashMonitoring, ControlClientTestDriver)
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget Startup")
+        TEST_STEP("Callback for Run Target Startup")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
             EXPECT_EQ(target, "Startup");
@@ -65,7 +65,7 @@ TEST(ProcessCrashMonitoring, ControlClientTestDriver)
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget run_target_crashing_app_on_runtime")
+        TEST_STEP("Callback for Run Target run_target_crashing_app_on_runtime")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
             EXPECT_EQ(target, "run_target_crashing_app_on_runtime");
@@ -73,21 +73,21 @@ TEST(ProcessCrashMonitoring, ControlClientTestDriver)
     });
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget fallback")
+        TEST_STEP("Callback for Run Target fallback")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kRecoveryAction);
             EXPECT_EQ(target, "fallback");
         }
     });
 
-    TEST_STEP("Verify state changed to fallback run target")
+    TEST_STEP("Verify state changed to fallback Run Target")
     {
         // This verifies that a fallback process was actually started - the launch manager
         // did not just send an event without taking the action.
-        EXPECT_TRUE(std::filesystem::exists(fallback_file)) << "Fallback run target was not activated";
+        EXPECT_TRUE(std::filesystem::exists(fallback_file)) << "Fallback Run Target was not activated";
     }
 
-    TEST_STEP("Activate RunTarget Off")
+    TEST_STEP("Activate Run Target Off")
     {
         const auto result = client->activate_run_target("Off", true);
         EXPECT_TRUE(result.has_value()) << result.error().Message();

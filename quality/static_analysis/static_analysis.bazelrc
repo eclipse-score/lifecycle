@@ -1,0 +1,35 @@
+# *******************************************************************************
+# Copyright (c) 2026 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+
+# Config shared by all linters. This config is required to generate the correct outputs for our CI workflows.
+build:_lint --extra_toolchains=@sarif_parser_toolchains//:all
+build:_lint --output_groups=+rules_lint_human,+rules_lint_machine
+build:_lint --@aspect_rules_lint//lint:fail_on_violation=true
+build:_lint --keep_going
+
+common:codeql --platform_suffix=codeql
+common:codeql --extra_toolchains=@llvm_toolchain//:cc-toolchain-x86_64-linux
+# Use the LLVM/clang toolchain for C++ compilation (required for CodeQL tracing)
+# and the generic x86_64-linux host platform. Do NOT layer `_score_common` here:
+# it registers the GCC toolchain and a gcc-specific host platform, which makes
+# Bazel compile C++ with GCC and silently produces an empty CodeQL database.
+# Register the Ferrocene miri toolchain so `miri_test` targets resolve under
+# `--config=codeql` (otherwise the traced build aborts on toolchain resolution).
+common:codeql --host_platform=@score_bazel_platforms//:x86_64-linux
+common:codeql --incompatible_strict_action_env
+common:codeql --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_x86_64_unknown_linux_gnu_miri
+common:codeql --sandbox_writable_path=/var/tmp
+common:codeql --nouse_action_cache
+common:codeql --noremote_accept_cached
+common:codeql --noremote_upload_local_results
+common:codeql --disk_cache=

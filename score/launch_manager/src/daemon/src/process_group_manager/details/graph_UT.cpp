@@ -152,7 +152,7 @@ class GraphTest : public ::testing::Test
         ASSERT_FALSE(res.has_value());
     }
 
-    /// @brief Execute a run target activation that activates or deactivates a single node
+    /// @brief Execute a Run Target activation that activates or deactivates a single node
     void completeTransition(IdentifierHash target)
     {
         graph_->startTransition(target);
@@ -237,7 +237,7 @@ TEST_F(GraphOrdinaryTransitionTest, correctJobDetails)
 TEST_F(GraphOrdinaryTransitionTest, simpleActivationTransition)
 {
     RecordProperty(
-        "Description", "Test that a simple transition activates the expected run target and process successfully");
+        "Description", "Test that a simple transition activates the expected Run Target and process successfully");
 
     const auto target = IdentifierHash{run_target_name(0)};
 
@@ -254,7 +254,7 @@ TEST_F(GraphOrdinaryTransitionTest, simpleActivationTransition)
 TEST_F(GraphOrdinaryTransitionTest, simpleDeactivationTransition)
 {
     RecordProperty(
-        "Description", "Test that a simple transition deactivates the expected run target and process successfully");
+        "Description", "Test that a simple transition deactivates the expected Run Target and process successfully");
 
     completeTransition(IdentifierHash{run_target_name(0)});
 
@@ -275,7 +275,7 @@ class GraphInitialTransitionTest : public GraphTest
 
 TEST_F(GraphInitialTransitionTest, nothingToDo)
 {
-    RecordProperty("Description", "Test that the initial transition to an empty run target succeeds immediately");
+    RecordProperty("Description", "Test that the initial transition to an empty Run Target succeeds immediately");
 
     graph_->startInitialTransition(IdentifierHash{startup.name});
 
@@ -354,7 +354,7 @@ TEST_F(GraphOffTransitionTest, shutdownDuringTransition)
     EXPECT_EQ(first_pending_state, second_pending_state);
 }
 
-/// @brief Fixture whose configuration deliberately omits the "Off" run target, so the graph has to
+/// @brief Fixture whose configuration deliberately omits the "Off" Run Target, so the graph has to
 /// create the node itself.
 class GraphImplicitOffTargetTest : public GraphTest
 {
@@ -390,7 +390,7 @@ TEST_F(GraphImplicitOffTargetTest, offRunTargetIsCreatedWhenNotConfigured)
 {
     RecordProperty(
         "Description",
-        "Test that the graph creates an Off run target when the configuration does not define one, so that a "
+        "Test that the graph creates an Off Run Target when the configuration does not define one, so that a "
         "transition to Off still stops the running components");
 
     completeTransition(IdentifierHash{run_target_name(0)});
@@ -414,12 +414,12 @@ TEST_F(GraphImplicitOffTargetTest, offTransitionTimeoutFallsBackToDefault)
     RecordProperty(
         "Description",
         "Test that getOffStateTransitionTimeout returns the built-in default when the configuration does not define an "
-        "Off run target");
+        "Off Run Target");
 
     EXPECT_EQ(graph_->getOffStateTransitionTimeout(), internal::kDefaultOffStateTransitionTimeout);
 }
 
-/// @brief Fixture that configures the "Off" run target with a distinctive transition timeout.
+/// @brief Fixture that configures the "Off" Run Target with a distinctive transition timeout.
 class GraphOffStateTimeoutTest : public GraphTest
 {
   protected:
@@ -428,7 +428,7 @@ class GraphOffStateTimeoutTest : public GraphTest
         auto procs = generateProcessComponents(1);
         auto rts = generateRunTargets(1);
         rts[1].depends_on = {procs[0].name};
-        // The Off run target must be the last entry generateRunTargets() appends.
+        // The Off Run Target must be the last entry generateRunTargets() appends.
         ASSERT_EQ(rts.back().name, "Off");
         rts.back().transition_timeout_ms = kOffTimeoutMs;
         auto config = ConfigBuilder{}
@@ -452,7 +452,7 @@ TEST_F(GraphOffStateTimeoutTest, returnsConfiguredOffTimeout)
 {
     RecordProperty(
         "Description",
-        "Test that getOffStateTransitionTimeout returns the transition_timeout_ms configured for the Off run target");
+        "Test that getOffStateTransitionTimeout returns the transition_timeout_ms configured for the Off Run Target");
 
     EXPECT_EQ(graph_->getOffStateTransitionTimeout(), std::chrono::milliseconds{kOffTimeoutMs});
 }
@@ -652,7 +652,7 @@ TEST_F(GraphUtilitiesTest, isValidRunTarget)
 {
     RecordProperty(
         "Description",
-        "Test that isValidRunTarget() reports true for a run target name that exists in the graph's "
+        "Test that isValidRunTarget() reports true for a Run Target name that exists in the graph's "
         "configuration and false for one that doesn't.");
 
     EXPECT_TRUE(graph_->isValidRunTarget(IdentifierHash{run_target_name(0)}));
@@ -665,7 +665,7 @@ TEST_F(GraphUtilitiesTest, startTransitionWithUnrecognizedTargetDoesNotCrashOrTr
 {
     RecordProperty(
         "Description",
-        "Regression test for #541: startTransition() with a run target name that doesn't exist in the "
+        "Regression test for #541: startTransition() with a Run Target name that doesn't exist in the "
         "graph's configuration must not crash the daemon (via an unrecognized node reaching "
         "TransitionBuilder::createTransition()'s always-on assert). It should simply not start a "
         "transition, leaving the graph in whatever state it was already in.");

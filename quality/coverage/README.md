@@ -13,14 +13,16 @@
 
 # Coverage
 
-Unified C++ + Rust code coverage via the shared LLVM source-based setup from
-`@score_coverage`. The code itself lives in the standalone
-[score_coverage](https://github.com/eclipse-score/coverage_tool) module; this
-directory only holds the repo-specific pieces.
-
+Unified C++ + Rust code coverage via the qualified S-CORE coverage tool,
+[`score_coverage`](https://eclipse-score.github.io/coverage_tool/main/)
+([user manual](https://eclipse-score.github.io/coverage_tool/main/manual/user_manual.html)).
+The code itself lives in that module; this directory only holds the
+repo-specific pieces.
 ## Usage
 
-Run the coverage build and generate the HTML report with the wrapper target:
+Run the coverage build and generate the HTML report with the wrapper target.
+
+For Linux (host) coverage:
 
 ```bash
 bazel run //quality/coverage:run_coverage
@@ -28,6 +30,17 @@ bazel run //quality/coverage:run_coverage
 # Open the report.
 xdg-open coverage_artifacts/coverage_linux/index.html
 ```
+
+For QNX (qemu) coverage:
+
+```bash
+bazel run //quality/coverage:run_coverage -- --platform=qnx
+
+# Open the report.
+xdg-open coverage_qnx/index.functions.html
+```
+
+Note: The QNX coverage is limited to C++ code and therefore includes only //score/launch_manager/...
 
 ## Notes
 

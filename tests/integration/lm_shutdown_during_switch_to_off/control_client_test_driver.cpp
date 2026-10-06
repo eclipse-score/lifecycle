@@ -26,8 +26,8 @@ using namespace score::mw::lifecycle;
 // a SIGTERM).
 //
 // This variant differs from lm_shutdown_during_rt_switch: instead of switching
-// to another (non-Off) run target, the control client explicitly switches to
-// the "Off" run target. component_a (part of run_target_a) stalls while it is
+// to another (non-Off) Run Target, the control client explicitly switches to
+// the "Off" Run Target. component_a (part of run_target_a) stalls while it is
 // being terminated during that switch, so the switch to Off is still in progress
 // when the test sends a SIGTERM to the launch manager from the Python side.
 //
@@ -59,7 +59,7 @@ TEST(LmShutdownDuringSwitchToOff, ControlClient)
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget Startup")
+        TEST_STEP("Callback for Run Target Startup")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
             EXPECT_EQ(target, "Startup");
@@ -73,7 +73,7 @@ TEST(LmShutdownDuringSwitchToOff, ControlClient)
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget run_target_a")
+        TEST_STEP("Callback for Run Target run_target_a")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
             EXPECT_EQ(target, "run_target_a");
@@ -87,7 +87,7 @@ TEST(LmShutdownDuringSwitchToOff, ControlClient)
 
     TEST_STEP("Request switch to Off")
     {
-        // Fire-and-forget: switching to the "Off" run target terminates this
+        // Fire-and-forget: switching to the "Off" Run Target terminates this
         // control client too (it is not part of "Off"), so we must not wait for a
         // result. The launch manager will shut this process down as part of the
         // switch to Off.

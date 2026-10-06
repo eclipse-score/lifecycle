@@ -53,52 +53,52 @@ TEST(RecoveryActionSimpleRepFailure, ControlClientTestDriver)
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget Startup")
+        TEST_STEP("Callback for Run Target Startup")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
             EXPECT_EQ(target, "Startup");
         }
     });
 
-    TEST_STEP("Activate RunTarget run_target_app_does_report_krunning_in_time")
+    TEST_STEP("Activate Run Target run_target_app_does_report_krunning_in_time")
     {
         const auto result = client->activate_run_target("run_target_app_does_report_krunning_in_time", true);
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget run_target_app_does_report_krunning_in_time")
+        TEST_STEP("Callback for Run Target run_target_app_does_report_krunning_in_time")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
             EXPECT_EQ(target, "run_target_app_does_report_krunning_in_time");
         }
     });
 
-    TEST_STEP("Verify fallback run target has not been activated")
+    TEST_STEP("Verify fallback Run Target has not been activated")
     {
-        EXPECT_FALSE(std::filesystem::exists(fallback_file)) << "Fallback run target should have not been activated";
+        EXPECT_FALSE(std::filesystem::exists(fallback_file)) << "Fallback Run Target should have not been activated";
     }
 
-    TEST_STEP("Activate RunTarget run_target_app_does_not_report_krunning_in_time")
+    TEST_STEP("Activate Run Target run_target_app_does_not_report_krunning_in_time")
     {
         const auto result = client->activate_run_target("run_target_app_does_not_report_krunning_in_time", true);
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget fallback")
+        TEST_STEP("Callback for Run Target fallback")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kRecoveryAction);
             EXPECT_EQ(target, "fallback");
         }
     });
 
-    TEST_STEP("Verify fallback run target was activated")
+    TEST_STEP("Verify fallback Run Target was activated")
     {
-        EXPECT_TRUE(std::filesystem::exists(fallback_file)) << "Fallback run target should have been activated";
+        EXPECT_TRUE(std::filesystem::exists(fallback_file)) << "Fallback Run Target should have been activated";
     }
 
-    TEST_STEP("Activate RunTarget Off")
+    TEST_STEP("Activate Run Target Off")
     {
         const auto result = client->activate_run_target("Off", true);
         EXPECT_TRUE(result.has_value()) << result.error().Message();

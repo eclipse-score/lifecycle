@@ -123,8 +123,12 @@ def require_realtime_scheduling(request, target):
         "comp_req__launch_man__scheduling_policy",
         "comp_req__launch_man__cwd_support",
         "comp_req__launch_man__supplementary_groups",
+        "comp_req__launch_man__rc_os_state",
+        "comp_req__launch_man__rt_comp_dep",
     ],
-    partially_verifies=[],
+    partially_verifies=[
+        "comp_req__launch_man__process_launch_args",
+    ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
 )
@@ -132,8 +136,8 @@ def test_sandbox_options(target, setup_test, assert_test_results, remote_test_di
     """
     Objective: Verifies the effectiveness of sandbox-options as gid, uid, supplementary groups, and scheduling policy.
 
-    The launch manager starts with an initial run target. The control daemon activates the "Running" run target (starting the managed process with the sandbox options applied), then transitions back to "Startup", and finally activates "Off".
-    Expected Behaviour: All run target transitions complete successfully and all processes report running.
+    The launch manager starts with an initial Run Target. The control daemon activates the "Running" Run Target (starting the managed process with the sandbox options applied), then transitions back to "Startup", and finally activates "Off".
+    Expected Behaviour: All Run Target transitions complete successfully and all processes report running.
     """
 
     run_test(

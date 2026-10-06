@@ -25,7 +25,7 @@ namespace
 constexpr std::array<std::string_view, 3> kComponentIds{"a", "b", "c"};
 
 // Wait for a file to appear; the running files are touched right after the
-// component reports running, so they may lag the run target activation slightly.
+// component reports running, so they may lag the Run Target activation slightly.
 bool wait_for_file(const std::filesystem::path& file, std::chrono::seconds timeout)
 {
     const auto deadline = std::chrono::steady_clock::now() + timeout;
@@ -71,21 +71,21 @@ TEST(ParallelLaunch, ControlClientTestDriver)
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget Startup")
+        TEST_STEP("Callback for Run Target Startup")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
             EXPECT_EQ(target, "Startup");
         }
     });
 
-    TEST_STEP("Launch parallel run target")
+    TEST_STEP("Launch parallel Run Target")
     {
         const auto result = client->activate_run_target("run_target_parallel_launch", true);
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget run_target_parallel_launch")
+        TEST_STEP("Callback for Run Target run_target_parallel_launch")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
             EXPECT_EQ(target, "run_target_parallel_launch");
@@ -94,14 +94,14 @@ TEST(ParallelLaunch, ControlClientTestDriver)
 
     // Activate Run Target Startup again, to be sure that the termination of all components has been finished and the
     // files and its timestamps can be evaluated in the next test step.
-    TEST_STEP("Activate Startup run target again")
+    TEST_STEP("Activate Startup Run Target again")
     {
         const auto result = client->activate_run_target("Startup", true);
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget Startup")
+        TEST_STEP("Callback for Run Target Startup")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
             EXPECT_EQ(target, "Startup");
@@ -129,7 +129,7 @@ TEST(ParallelLaunch, ControlClientTestDriver)
         EXPECT_LT(max_start, min_running) << "Components were not launched in parallel";
     }
 
-    TEST_STEP("Activate RunTarget Off")
+    TEST_STEP("Activate Run Target Off")
     {
         const auto result = client->activate_run_target("Off", true);
         EXPECT_TRUE(result.has_value()) << result.error().Message();

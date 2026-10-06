@@ -124,7 +124,7 @@ score::cpp::expected<TargetT, IConfigLoader::Error> validateRange(int64_t value,
 [[nodiscard]] score::cpp::expected<std::vector<ComponentConfig>, IConfigLoader::Error> convertComponents(
     const ::flatbuffers::Vector<::flatbuffers::Offset<fb::Component>>* fb_components);
 
-// --- Run target converters ---
+// --- Run Target converters ---
 
 /// @brief Converts a single FlatBuffer RunTarget to a RunTargetConfig.
 [[nodiscard]] score::cpp::expected<RunTargetConfig, IConfigLoader::Error> convertRunTarget(const fb::RunTarget* fb_rt);

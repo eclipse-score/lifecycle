@@ -18,6 +18,9 @@ from attribute_plugin import add_test_properties
 
 @add_test_properties(
     fully_verifies=[],
+    partially_verifies=[
+        "comp_req__launch_man__failure_detect",
+    ],
     test_type="interface-test",
     derivation_technique="design-analysis",
 )
@@ -27,7 +30,7 @@ def test_crash_ignores_dependents(
     """
     Objective: Verifies that the launch manager does not restart a process if a process it depends on crashes.
 
-    A process crashes after run target activation completes and proceeds normally the second time it is launched.
+    A process crashes after Run Target activation completes and proceeds normally the second time it is launched.
     Expected Behaviour: The process that depends on it is not interrupted or restarted.
     """
 

@@ -19,7 +19,7 @@ Control Client
 
 This interface provides control functionality for activating and managing run
 targets.
-It allows users to trigger execution of configured :term:`Run targets <Run
+It allows users to trigger execution of configured :term:`Run Targets <Run
 target>` through a standardized activation mechanism.
 
 The following use cases are supported by the `ControlInterface` provided by the
@@ -27,28 +27,28 @@ The following use cases are supported by the `ControlInterface` provided by the
 
 **Activating a Run Target**
 
-When a request to activate a run target is received via the `ControlInterface`,
+When a request to activate a Run Target is received via the `ControlInterface`,
 the :term:`Launch Manager` shall perform the following operations:
 
-1. **Validation**: Evaluate if the conditions are correct for activating the requested run target:
-   - The run target exists in the configuration
-   - All dependencies for the run target are resolvable
+1. **Validation**: Evaluate if the conditions are correct for activating the requested Run Target:
+   - The Run Target exists in the configuration
+   - All dependencies for the Run Target are resolvable
    - Required resources are available
 
 2. **Transition Logic**: Determine the transition from the current state to the target state:
-   - If a different run target is active, perform a switch operation (stop current, start requested)
-   - If the same run target is already active, verify its state and potentially restart failed components
+   - If a different Run Target is active, perform a switch operation (stop current, start requested)
+   - If the same Run Target is already active, verify its state and potentially restart failed components
 
 3. **Execution**: Execute the transition in the correct dependency order:
-   - Stop components that are not part of the new run target
-   - Start components that are required for the new run target
+   - Stop components that are not part of the new Run Target
+   - Start components that are required for the new Run Target
    - Respect dependency relationships during both stop and start operations
 
 4. **Response**: Return status to the caller:
    - Success if all components transitioned correctly
    - Failure with detailed error information if any component failed to transition
 
-This unified approach allows external state managers to request any run target
+This unified approach allows external state managers to request any Run Target
 activation without needing to know the current system state, as the
 :term:`Launch Manager` handles the transition logic internally.
 
@@ -65,7 +65,7 @@ applications to support dynamic state control.
 Dynamic architecture
 ====================
 
-.. feat_arc_dyn:: Control interface dynamic architecture activate run target
+.. feat_arc_dyn:: Control interface dynamic architecture activate Run Target
    :id: feat_arc_dyn__lifecycle__control_activate
    :status: valid
    :version: 1

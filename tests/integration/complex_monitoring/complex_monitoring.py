@@ -17,9 +17,10 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
+    fully_verifies=[],
     partially_verifies=[
         # Health monitoring requirements not yet ready
-        "comp_req__launch_man__ext_monitor_notify"
+        "comp_req__launch_man__ext_monitor_notify",
     ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
@@ -29,7 +30,7 @@ def test_complex_monitoring(target, setup_test, assert_test_results, remote_test
     Objective: Verifies that the launch manager correctly handles recovery actions triggered by a heartbeat monitor failure.
 
     Process registers a heartbeat monitor, sends heartbeats within the configured time range for 1 second, then stops sending heartbeats.
-    Expected Behaviour: Health monitor detects the missed heartbeats and triggers a recovery action, activating the fallback run target.
+    Expected Behaviour: Health monitor detects the missed heartbeats and triggers a recovery action, activating the fallback Run Target.
     """
 
     run_test(

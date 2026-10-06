@@ -66,7 +66,7 @@ TEST(RtRunningWhenProcessExits, FilesystemReader)
 
 int main()
 {
-    // test_end is signalled by control_client_test_driver, which orchestrates the run target switches.
+    // test_end is signalled by control_client_test_driver, which orchestrates the Run Target switches.
     TestRunner runner{__FILE__, TerminationBehavior::kContinue, TerminationNotification::kNone};
     return runner.RunTests();
 }

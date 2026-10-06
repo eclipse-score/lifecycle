@@ -19,6 +19,7 @@ from attribute_plugin import add_test_properties
 @add_test_properties(
     fully_verifies=[],
     partially_verifies=[
+        "feat_req__lifecycle__terminationn_dependency",
         "comp_req__launch_man__launcher_exit_shutdown",
     ],
     test_type="requirements-based",
@@ -26,10 +27,10 @@ from attribute_plugin import add_test_properties
 )
 def test_lm_shutdown(target, setup_test, assert_test_results, remote_test_dir):
     """
-    Objective: Verifies that the Launch Manager exits after performing a shutdown
-    (stopping all processes it owns) when requested via SIGTERM, and that this
-    shutdown takes priority over an in-progress run-target switch (the switch is
-    cancelled).
+    Objective: Verifies that the Launch Manager exits after performing a
+    shutdown (stopping all processes it owns) when requested via SIGTERM, and
+    that this shutdown takes priority over an in-progress run-target switch
+    (the switch is cancelled).
 
     The control client activates run_target_a and then requests a switch to
     run_target_c. component_a (only part of run_target_a) stalls while it is being
