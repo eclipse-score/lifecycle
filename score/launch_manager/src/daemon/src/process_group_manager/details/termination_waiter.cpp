@@ -16,12 +16,7 @@
 namespace score::mw::lifecycle::internal
 {
 
-TerminationWaiter::SharedState::SharedState()
-    : state_mutex(), promise(), shared_future(promise.GetInterruptibleFuture().value().Share()), is_terminated(false)
-{
-}
-
-TerminationWaiter::TerminationWaiter() : state_(std::make_shared<SharedState>())
+TerminationWaiter::TerminationWaiter()
 {
 }
 
@@ -29,16 +24,11 @@ TerminationWaiter::~TerminationWaiter() = default;
 
 void TerminationWaiter::terminated() noexcept(false)
 {
-    if (!state_)
+    std::lock_guard<std::mutex> lock(this->terminated_mutex_);
+    if (!this->is_terminated_)
     {
-        return;
-    }
-
-    std::lock_guard<std::mutex> lock(state_->state_mutex);
-    if (!state_->is_terminated)
-    {
-        state_->is_terminated = true;
-        state_->promise.SetValue();
+        this->is_terminated_ = true;
+        this->terminated_cv_.notify_all();
     }
 }
 
@@ -46,9 +36,10 @@ bool TerminationWaiter::wait_with_timeout(
     const score::cpp::stop_token& stop_token,
     const std::chrono::milliseconds& rel_timeout_ms)
 {
-    auto status = state_->shared_future.WaitFor(stop_token, rel_timeout_ms);
-
-    return (status.has_value());
+    std::unique_lock<std::mutex> lock(this->terminated_mutex_);
+    return this->terminated_cv_.wait_for(lock, stop_token, rel_timeout_ms, [this] {
+        return this->is_terminated_;
+    });
 }
 
 }  // namespace score::mw::lifecycle::internal
