@@ -305,6 +305,9 @@ TEST_F(GraphInitialTransitionTest, cancel)
 
     graph_->cancel();
 
+    // Job still in flight, so the graph remains in kAborting until it finishes.
+    EXPECT_EQ(graph_->getState(), GraphState::kAborting);
+
     const auto job = job_queue_->pop()->value();
     executeJobSuccessfully(job);
     graph_->handleComponentEvent(ActivationSuccessful{IdentifierHash{process_name(0)}});
@@ -346,6 +349,7 @@ TEST_F(GraphOffTransitionTest, shutdownDuringTransition)
 
     graph_->cancel();
     // Job still in flight, cancellation does not complete.
+    EXPECT_EQ(graph_->getState(), GraphState::kAborting);
 
     const auto start_res = graph_->startTransitionToOffState();
     const auto second_pending_state = graph_->getPendingState();
@@ -519,6 +523,35 @@ TEST_F(GraphHandleComponentEventTest, failureFollowedBySuccessFails)
     EXPECT_EQ(graph_->getState(), GraphState::kUndefinedState);
 }
 
+TEST_F(GraphHandleComponentEventTest, cancelAfterFailureStaysAborting)
+{
+    RecordProperty(
+        "Description",
+        "Test that calling cancel() after a failure already moved the graph to kAborting keeps it in kAborting "
+        "until the remaining in-flight job finishes");
+
+    graph_->startTransition(IdentifierHash{run_target_name(0)});  // Two nodes queued
+
+    // Fail the first job
+    const auto first_job = job_queue_->pop();
+    graph_->handleComponentEvent(
+        ActivationFailed{
+            first_job->value().component.get().getIdentifier(), IComponent::ComponentError::kErrorBeforeReady});
+
+    EXPECT_EQ(graph_->getState(), GraphState::kAborting);
+
+    // A new request supersedes the already-aborting transition; the graph should remain in kAborting
+    // because the second job is still in flight.
+    graph_->cancel();
+    EXPECT_EQ(graph_->getState(), GraphState::kAborting);
+
+    const auto second_job = job_queue_->pop();
+    executeJobSuccessfully(second_job->value());
+    graph_->handleComponentEvent(ActivationSuccessful{second_job->value().component.get().getIdentifier()});
+
+    EXPECT_EQ(graph_->getState(), GraphState::kUndefinedState);
+}
+
 TEST_F(GraphHandleComponentEventTest, unexpectedTerminationDuringSuccess)
 {
     RecordProperty(
@@ -619,6 +652,9 @@ TEST_F(GraphCancelTest, cancelsOngoingTransition)
     graph_->startInitialTransition(IdentifierHash{run_target_name(0)});
 
     graph_->cancel();
+
+    // Job still in flight, so the graph remains in kAborting until it finishes.
+    EXPECT_EQ(graph_->getState(), GraphState::kAborting);
 
     const auto job = job_queue_->pop();
 
