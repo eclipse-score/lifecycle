@@ -53,7 +53,7 @@ std::int32_t AasApplicationContainer::Initialize(const ApplicationContext& conte
 
     for (auto& thread : threads)
     {
-        if (thread.joinable())
+        if (thread.joinable())  // COV_JUSTIFIED thread-always-joinable-defensive
         {
             thread.join();
         }
@@ -102,7 +102,7 @@ std::int32_t AasApplicationContainer::Run(const score::cpp::stop_token& token)
 
         for (auto& thread : threads)
         {
-            if (thread.joinable())
+            if (thread.joinable())  // COV_JUSTIFIED thread-always-joinable-defensive
             {
                 thread.join();
             }
