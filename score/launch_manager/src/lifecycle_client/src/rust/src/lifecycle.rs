@@ -10,11 +10,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
-use libc::c_int;
-
 #[link(name = "report_running")]
 unsafe extern "C" {
-    fn score_mw_lifecycle_report_running() -> c_int;
+    fn score_mw_lifecycle_report_running() -> i8;
 }
 
 pub fn report_running() -> bool {
