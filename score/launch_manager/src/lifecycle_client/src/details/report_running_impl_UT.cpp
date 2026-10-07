@@ -14,7 +14,6 @@
 #include "score/mw/lifecycle/execution_error.h"
 #include "score/mw/lifecycle/lifecycle_client/details/report_running_impl.hpp"
 #include "tests/utils/accessors/accessor_report_running_impl.hpp"
-#include "tests/utils/mocks/mock_semaphore.hpp"
 #include "tests/utils/mocks/mock_syscalls.hpp"
 
 #include <gmock/gmock.h>
@@ -56,11 +55,52 @@ void* CreateFakeIpcComms(CommsType comms_type, pid_t pid)
     return g_fake_ipc_storage;
 }
 
+// Counter for tracking post() calls
+static int g_post_call_count = 0;
+
+// Control Semaphore behavior
+static bool g_first_post_should_fail = false;
+static bool g_second_post_should_fail = false;
+static bool g_timedwait_should_fail = false;
+
 }  // anonymous namespace
 
-// Semaphore::post() / Semaphore::timedWait() are overridden in tests/utils/mocks/mock_semaphore.cpp, controlled via
-// the score::mw::lifecycle::internal::osal::mock state below.
-using namespace score::mw::lifecycle::internal::osal::mock;
+// Mock Semaphore methods
+namespace score::mw::lifecycle::internal::osal
+{
+
+OsalReturnType Semaphore::post()
+{
+    g_post_call_count++;
+
+    // First post is send_sync_.post() at line 95
+    if (g_post_call_count == 1 && g_first_post_should_fail)
+    {
+        return OsalReturnType::kFail;
+    }
+
+    // Second post is final send_sync_.post() at line 110
+    if (g_post_call_count == 2 && g_second_post_should_fail)
+    {
+        return OsalReturnType::kFail;
+    }
+
+    return OsalReturnType::kSuccess;
+}
+
+OsalReturnType Semaphore::timedWait(std::chrono::milliseconds delay)
+{
+    (void)delay;  // Unused in mock
+
+    if (g_timedwait_should_fail)
+    {
+        return OsalReturnType::kFail;
+    }
+
+    return OsalReturnType::kSuccess;
+}
+
+}  // namespace score::mw::lifecycle::internal::osal
 
 namespace score::mw::lifecycle
 {
@@ -81,7 +121,10 @@ class ReportRunningImplTest : public ::testing::Test
     {
         g_syscall_mock = std::make_unique<SyscallMock>();
         ReportRunningImplTestAccessor::SetReportedForTesting(false);
-        ResetSemaphoreMockState();
+        g_post_call_count = 0;
+        g_first_post_should_fail = false;
+        g_second_post_should_fail = false;
+        g_timedwait_should_fail = false;
 
         // Set up default successful behaviors for syscalls
         SetupDefaultSuccessExpectations();
