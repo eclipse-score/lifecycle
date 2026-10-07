@@ -934,8 +934,8 @@
           "line": 19,
           "need": "comp_req__launch_man__ext_monitor_notify",
           "verify_type": "partially",
-          "result": "passed",
-          "result_text": "",
+          "result": "failed",
+          "result_text": "AssertionError: Didn't find the expected files, found: {'control_client_test_driver.xml'} assert {'control_cli...t_driver.xml'} == {'component_c...t_driver.xml'}      Extra items in the right set:   'component_complex_monitoring.xml'      Full diff:     {   -     'component_complex_monitoring.xml',         'control_client_test_driver.xml',     }",
           "repo_name": "local_repo",
           "hash": "",
           "url": ""
