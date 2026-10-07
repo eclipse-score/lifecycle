@@ -92,7 +92,6 @@ lm_cc_test(
     deps = [
         ":report_running_impl",
         "//tests/utils/accessors:accessor_report_running_impl",
-        "//tests/utils/mocks:mock_semaphore",
         "//tests/utils/mocks:mock_syscalls",
         "@googletest//:gtest_main",
     ],

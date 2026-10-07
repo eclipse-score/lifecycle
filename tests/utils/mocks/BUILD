@@ -21,16 +21,3 @@ cc_library(
         "@googletest//:gtest_main",
     ],
 )
-
-cc_library(
-    name = "mock_semaphore",
-    testonly = True,
-    srcs = ["mock_semaphore.cpp"],
-    hdrs = ["mock_semaphore.hpp"],
-    visibility = ["//score:__subpackages__"],
-    deps = [
-        "//score/launch_manager/src/daemon/src/osal:return_types",
-        "//score/launch_manager/src/daemon/src/osal:semaphore",
-        "@googletest//:gtest_main",
-    ],
-)

@@ -18,10 +18,7 @@ cc_library(
     hdrs = ["return_types.hpp"],
     include_prefix = "score/mw/launch_manager/osal",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/osal",
-    visibility = [
-        "//score:__subpackages__",
-        "//tests:__subpackages__",
-    ],
+    visibility = ["//score:__subpackages__"],
 )
 
 cc_library(
@@ -32,10 +29,7 @@ cc_library(
     ],
     include_prefix = "score/mw/launch_manager/osal",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/osal",
-    visibility = [
-        "//score:__subpackages__",
-        "//tests:__subpackages__",
-    ],
+    visibility = ["//score:__subpackages__"],
     deps = [":return_types"],
 )
 
