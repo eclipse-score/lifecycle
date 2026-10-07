@@ -53,11 +53,6 @@ class ReportRunningTest : public ::testing::Test
     ReportRunningImplMock mock_;
 };
 
-/// @brief A test fixture for a parameterized test taking an ExecErrc value
-class ReportRunningErrorTest : public ReportRunningTest, public testing::WithParamInterface<ExecErrc>
-{
-};
-
 TEST_F(ReportRunningTest, GivenAReportingProcess_ExpectReportRunningImplCalled)
 {
     RecordProperty("DerivationTechnique", "explorative-testing");
@@ -70,27 +65,6 @@ TEST_F(ReportRunningTest, GivenAReportingProcess_ExpectReportRunningImplCalled)
 
     // Expect
     EXPECT_CALL(mock_, ReportRunningState()).WillOnce(Return(score::Result<std::monostate>{}));
-
-    // When, Then
-    EXPECT_NO_THROW(report_running());
-}
-
-TEST_P(ReportRunningErrorTest, GivenACommunicationError_ExpectReportRunningImplFails)
-{
-    RecordProperty("DerivationTechnique", "equivalence-classes");
-    RecordProperty(
-        "Description",
-        "Given a communication error. "
-        "Expect ReportRunningImpl{}.ReportRunningState() to fail. "
-        "When report_running() is called. "
-        "Then no exceptions are thrown.");
-
-    // Given
-    const auto ERROR = GetParam();
-
-    // Expect
-    EXPECT_CALL(mock_, ReportRunningState())
-        .WillOnce(Return(score::Result<std::monostate>{score::MakeUnexpected(ERROR)}));
 
     // When, Then
     EXPECT_NO_THROW(report_running());
@@ -115,32 +89,6 @@ TEST_F(ReportRunningTest, GivenAReportingProcessUsingCApi_ExpectReportRunningImp
     // Then
     EXPECT_EQ(result, 0);
 }
-
-TEST_P(ReportRunningErrorTest, GivenAReportingProcessUsingCApiWithError_ExpectReportRunningImplFails)
-{
-    RecordProperty("DerivationTechnique", "equivalence-classes");
-
-    // Given a reporting process using C Api, with a communication error
-    const auto ERROR = ExecErrc::kCommunicationError;
-
-    // Expect ReportRunningImpl{}.ReportRunningState() fails
-    EXPECT_CALL(mock_, ReportRunningState())
-        .WillOnce(Return(score::Result<std::monostate>{score::MakeUnexpected(ERROR)}));
-
-    // When score_mw_lifecycle_report_running() is called
-    const int8_t result = score_mw_lifecycle_report_running();
-
-    // Then score_mw_lifecycle_report_running() should return -1
-    EXPECT_EQ(result, -1);
-}
-
-// All possible error codes are in the same equivalence class, where they cause score_mw_lifecycle_report_running to
-// return -1 We have only included a handful of the possible errors from the equivalence class Strictly speaking we only
-// need to test one value from the equivalence class
-INSTANTIATE_TEST_SUITE_P(
-    FailureEquivalenceClass,
-    ReportRunningErrorTest,
-    testing::Values(ExecErrc::kGeneralError, ExecErrc::kCommunicationError, ExecErrc::kInvalidTransition));
 
 TEST_F(
     ReportRunningTest,
@@ -168,5 +116,57 @@ TEST_F(
     EXPECT_EQ(first_call_result, 0);
     EXPECT_EQ(subsequent_call_result, -1);
 }
+
+/// @brief A test fixture for a parameterized test taking an ExecErrc value
+class ReportRunningErrorTest : public ReportRunningTest, public testing::WithParamInterface<ExecErrc>
+{
+};
+
+TEST_P(ReportRunningErrorTest, GivenAReportingProcessUsingCApiWithError_ExpectReportRunningImplFails)
+{
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+
+    // Given a reporting process using C Api, with a communication error
+    const auto ERROR = ExecErrc::kCommunicationError;
+
+    // Expect ReportRunningImpl{}.ReportRunningState() fails
+    EXPECT_CALL(mock_, ReportRunningState())
+        .WillOnce(Return(score::Result<std::monostate>{score::MakeUnexpected(ERROR)}));
+
+    // When score_mw_lifecycle_report_running() is called
+    const int8_t result = score_mw_lifecycle_report_running();
+
+    // Then score_mw_lifecycle_report_running() should return -1
+    EXPECT_EQ(result, -1);
+}
+
+TEST_P(ReportRunningErrorTest, GivenACommunicationError_ExpectReportRunningImplFails)
+{
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description",
+        "Given a communication error. "
+        "Expect ReportRunningImpl{}.ReportRunningState() to fail. "
+        "When report_running() is called. "
+        "Then no exceptions are thrown.");
+
+    // Given
+    const auto ERROR = GetParam();
+
+    // Expect
+    EXPECT_CALL(mock_, ReportRunningState())
+        .WillOnce(Return(score::Result<std::monostate>{score::MakeUnexpected(ERROR)}));
+
+    // When, Then
+    EXPECT_NO_THROW(report_running());
+}
+
+// All possible error codes are in the same equivalence class, where they cause score_mw_lifecycle_report_running to
+// return -1 We have only included a handful of the possible errors from the equivalence class Strictly speaking we only
+// need to test one value from the equivalence class
+INSTANTIATE_TEST_SUITE_P(
+    FailureEquivalenceClass,
+    ReportRunningErrorTest,
+    testing::Values(ExecErrc::kGeneralError, ExecErrc::kCommunicationError, ExecErrc::kInvalidTransition));
 
 }  // namespace score::mw::lifecycle
