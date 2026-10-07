@@ -79,52 +79,52 @@ HealthMonitorBuilder::HealthMonitorBuilder()
 {
 }
 
-HealthMonitorBuilder HealthMonitorBuilder::add_deadline_monitor(
+HealthMonitorBuilder HealthMonitorBuilder::AddDeadlineMonitor(
     const MonitorTag& monitor_tag,
     DeadlineMonitorBuilder&& monitor) &&
 {
-    auto monitor_handle = monitor.drop_by_rust();
+    auto monitor_handle = monitor.DropByRust();
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(monitor_handle.has_value());
-    SCORE_LANGUAGE_FUTURECPP_PRECONDITION(health_monitor_builder_handle_.as_rust_handle().has_value());
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION(health_monitor_builder_handle_.AsRustHandle().has_value());
 
     auto result{health_monitor_builder_add_deadline_monitor(
-        health_monitor_builder_handle_.as_rust_handle().value(), &monitor_tag, monitor_handle.value())};
+        health_monitor_builder_handle_.AsRustHandle().value(), &monitor_tag, monitor_handle.value())};
     SCORE_LANGUAGE_FUTURECPP_ASSERT(result == kSuccess);
 
     return std::move(*this);
 }
 
-HealthMonitorBuilder HealthMonitorBuilder::add_heartbeat_monitor(
+HealthMonitorBuilder HealthMonitorBuilder::AddHeartbeatMonitor(
     const MonitorTag& monitor_tag,
     HeartbeatMonitorBuilder&& monitor) &&
 {
-    auto monitor_handle = monitor.drop_by_rust();
+    auto monitor_handle = monitor.DropByRust();
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(monitor_handle.has_value());
-    SCORE_LANGUAGE_FUTURECPP_PRECONDITION(health_monitor_builder_handle_.as_rust_handle().has_value());
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION(health_monitor_builder_handle_.AsRustHandle().has_value());
 
     auto result{health_monitor_builder_add_heartbeat_monitor(
-        health_monitor_builder_handle_.as_rust_handle().value(), &monitor_tag, monitor_handle.value())};
+        health_monitor_builder_handle_.AsRustHandle().value(), &monitor_tag, monitor_handle.value())};
     SCORE_LANGUAGE_FUTURECPP_ASSERT(result == kSuccess);
 
     return std::move(*this);
 }
 
-HealthMonitorBuilder HealthMonitorBuilder::add_logic_monitor(
+HealthMonitorBuilder HealthMonitorBuilder::AddLogicMonitor(
     const MonitorTag& monitor_tag,
     LogicMonitorBuilder&& monitor) &&
 {
-    auto monitor_handle = monitor.drop_by_rust();
+    auto monitor_handle = monitor.DropByRust();
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(monitor_handle.has_value());
-    SCORE_LANGUAGE_FUTURECPP_PRECONDITION(health_monitor_builder_handle_.as_rust_handle().has_value());
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION(health_monitor_builder_handle_.AsRustHandle().has_value());
 
     auto result{health_monitor_builder_add_logic_monitor(
-        health_monitor_builder_handle_.as_rust_handle().value(), &monitor_tag, monitor_handle.value())};
+        health_monitor_builder_handle_.AsRustHandle().value(), &monitor_tag, monitor_handle.value())};
     SCORE_LANGUAGE_FUTURECPP_ASSERT(result == kSuccess);
 
     return std::move(*this);
 }
 
-HealthMonitorBuilder HealthMonitorBuilder::with_internal_processing_cycle(std::chrono::milliseconds cycle_duration) &&
+HealthMonitorBuilder HealthMonitorBuilder::WithInternalProcessingCycle(std::chrono::milliseconds cycle_duration) &&
 {
     auto count{cycle_duration.count()};
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(count >= 0, "cycle duration must be positive");
@@ -132,7 +132,7 @@ HealthMonitorBuilder HealthMonitorBuilder::with_internal_processing_cycle(std::c
     return std::move(*this);
 }
 
-HealthMonitorBuilder HealthMonitorBuilder::with_supervisor_api_cycle(std::chrono::milliseconds cycle_duration) &&
+HealthMonitorBuilder HealthMonitorBuilder::WithSupervisorApiCycle(std::chrono::milliseconds cycle_duration) &&
 {
     auto count{cycle_duration.count()};
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(count >= 0, "cycle duration must be positive");
@@ -140,15 +140,16 @@ HealthMonitorBuilder HealthMonitorBuilder::with_supervisor_api_cycle(std::chrono
     return std::move(*this);
 }
 
-HealthMonitorBuilder HealthMonitorBuilder::thread_parameters(score::mw::health::ThreadParameters&& thread_parameters) &&
+HealthMonitorBuilder HealthMonitorBuilder::WithThreadParameters(
+    score::mw::health::ThreadParameters&& thread_parameters) &&
 {
     thread_parameters_ = std::move(thread_parameters);
     return std::move(*this);
 }
 
-score::cpp::expected<HealthMonitor, Error> HealthMonitorBuilder::build() &&
+score::cpp::expected<HealthMonitor, Error> HealthMonitorBuilder::Build() &&
 {
-    auto health_monitor_builder_handle = health_monitor_builder_handle_.drop_by_rust();
+    auto health_monitor_builder_handle = health_monitor_builder_handle_.DropByRust();
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(health_monitor_builder_handle.has_value());
 
     // Handle optional parameters.
@@ -167,7 +168,7 @@ score::cpp::expected<HealthMonitor, Error> HealthMonitorBuilder::build() &&
     FFIHandle thread_parameters_handle{nullptr};
     if (thread_parameters_.has_value())
     {
-        auto rust_handle{thread_parameters_.value().drop_by_rust()};
+        auto rust_handle{thread_parameters_.value().DropByRust()};
         SCORE_LANGUAGE_FUTURECPP_ASSERT(rust_handle.has_value());
         thread_parameters_handle = rust_handle.value();
     }
@@ -198,7 +199,7 @@ HealthMonitor::HealthMonitor(HealthMonitor&& other)
     other.health_monitor_ = nullptr;
 }
 
-score::cpp::expected<DeadlineMonitor, Error> HealthMonitor::get_deadline_monitor(const MonitorTag& monitor_tag)
+score::cpp::expected<DeadlineMonitor, Error> HealthMonitor::GetDeadlineMonitor(const MonitorTag& monitor_tag)
 {
     FFIHandle handle{nullptr};
     auto result{health_monitor_get_deadline_monitor(health_monitor_, &monitor_tag, &handle)};
@@ -210,7 +211,7 @@ score::cpp::expected<DeadlineMonitor, Error> HealthMonitor::get_deadline_monitor
     return score::cpp::expected<DeadlineMonitor, Error>(DeadlineMonitor{handle});
 }
 
-score::cpp::expected<HeartbeatMonitor, Error> HealthMonitor::get_heartbeat_monitor(const MonitorTag& monitor_tag)
+score::cpp::expected<HeartbeatMonitor, Error> HealthMonitor::GetHeartbeatMonitor(const MonitorTag& monitor_tag)
 {
     FFIHandle handle{nullptr};
     auto result{health_monitor_get_heartbeat_monitor(health_monitor_, &monitor_tag, &handle)};
@@ -222,7 +223,7 @@ score::cpp::expected<HeartbeatMonitor, Error> HealthMonitor::get_heartbeat_monit
     return score::cpp::expected<HeartbeatMonitor, Error>(HeartbeatMonitor{handle});
 }
 
-score::cpp::expected<LogicMonitor, Error> HealthMonitor::get_logic_monitor(const MonitorTag& monitor_tag)
+score::cpp::expected<LogicMonitor, Error> HealthMonitor::GetLogicMonitor(const MonitorTag& monitor_tag)
 {
     FFIHandle handle{nullptr};
     auto result{health_monitor_get_logic_monitor(health_monitor_, &monitor_tag, &handle)};
@@ -234,7 +235,7 @@ score::cpp::expected<LogicMonitor, Error> HealthMonitor::get_logic_monitor(const
     return score::cpp::expected<LogicMonitor, Error>(LogicMonitor{handle});
 }
 
-void HealthMonitor::start()
+void HealthMonitor::Start()
 {
     auto result{health_monitor_start(health_monitor_)};
     SCORE_LANGUAGE_FUTURECPP_ASSERT(result == kSuccess);

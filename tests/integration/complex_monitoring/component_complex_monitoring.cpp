@@ -30,20 +30,20 @@ TEST(ComplexMonitoring, ComponentComplexMonitoring)
 
     auto hm_result =
         HealthMonitorBuilder()
-            .add_heartbeat_monitor(
+            .AddHeartbeatMonitor(
                 MonitorTag("complex_monitoring_monitor"), heartbeat::HeartbeatMonitorBuilder(TimeRange(50ms, 150ms)))
-            .with_internal_processing_cycle(50ms)
-            .with_supervisor_api_cycle(50ms)
-            .build();
+            .WithInternalProcessingCycle(50ms)
+            .WithSupervisorApiCycle(50ms)
+            .Build();
     ASSERT_TRUE(hm_result.has_value()) << "Failed to build HealthMonitor";
 
     auto hm = std::move(*hm_result);
 
-    auto heartbeat_monitor_result = hm.get_heartbeat_monitor(MonitorTag("complex_monitoring_monitor"));
+    auto heartbeat_monitor_result = hm.GetHeartbeatMonitor(MonitorTag("complex_monitoring_monitor"));
     ASSERT_TRUE(heartbeat_monitor_result.has_value()) << "Failed to get heartbeat monitor";
     auto heartbeat_monitor = std::move(*heartbeat_monitor_result);
 
-    hm.start();
+    hm.Start();
 
     TEST_STEP("Report running")
     {
@@ -57,7 +57,7 @@ TEST(ComplexMonitoring, ComponentComplexMonitoring)
         while (std::chrono::steady_clock::now() < time_to_report_checkpoints_until)
         {
             std::this_thread::sleep_for(75ms);
-            heartbeat_monitor.heartbeat();
+            heartbeat_monitor.Heartbeat();
         }
         EXPECT_FALSE(TestRunner::exitRequested) << "Process should not be terminated yet";
     }

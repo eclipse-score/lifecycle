@@ -48,11 +48,9 @@ LogicMonitorBuilder::LogicMonitorBuilder(const StateTag& initial_state)
 {
 }
 
-LogicMonitorBuilder LogicMonitorBuilder::add_state(
-    const StateTag& state,
-    const std::vector<StateTag>& allowed_states) &&
+LogicMonitorBuilder LogicMonitorBuilder::AddState(const StateTag& state, const std::vector<StateTag>& allowed_states) &&
 {
-    auto monitor_builder_handle{monitor_builder_handle_.as_rust_handle()};
+    auto monitor_builder_handle{monitor_builder_handle_.AsRustHandle()};
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(monitor_builder_handle.has_value());
 
     auto result{logic_monitor_builder_add_state(
@@ -66,9 +64,9 @@ LogicMonitor::LogicMonitor(FFIHandle monitor_handle) : monitor_handle_{monitor_h
 {
 }
 
-score::cpp::expected<StateTag, Error> LogicMonitor::transition(const StateTag& state)
+score::cpp::expected<StateTag, Error> LogicMonitor::Transition(const StateTag& state)
 {
-    auto monitor_handle{monitor_handle_.as_rust_handle()};
+    auto monitor_handle{monitor_handle_.AsRustHandle()};
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(monitor_handle.has_value());
 
     auto result{logic_monitor_transition(monitor_handle.value(), &state)};
@@ -80,9 +78,9 @@ score::cpp::expected<StateTag, Error> LogicMonitor::transition(const StateTag& s
     return score::cpp::expected<StateTag, Error>(state);
 }
 
-score::cpp::expected<StateTag, Error> LogicMonitor::state()
+score::cpp::expected<StateTag, Error> LogicMonitor::State()
 {
-    auto monitor_handle{monitor_handle_.as_rust_handle()};
+    auto monitor_handle{monitor_handle_.AsRustHandle()};
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(monitor_handle.has_value());
 
     StateTag state_tag{""};
