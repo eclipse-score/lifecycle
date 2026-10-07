@@ -32,6 +32,14 @@ class IReadyCondition
     /// @param handle The resource to wait on.
     /// @return Whether the wait was successful, or failed with an error.
     virtual Result<void> wait(cpp::stop_token stop_token, const Handle handle) const = 0;
+
+    /// @brief Notify the ready condition that a POSIX process has terminated.
+    /// @param status Exit code of the process.
+    /// @return Whether this ready condition accepts the event.
+    bool tryHandleTermination(int32_t status) const
+    {
+        return false;
+    }
 };
 
 }  // namespace score::mw::lifecycle::internal

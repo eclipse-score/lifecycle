@@ -35,6 +35,7 @@ class Component final : public IComponent
     /// @param stop_action How to gracefully stop the resource.
     /// @param force_stop_action How to forcefully stop the resource.
     /// @param ready_conditions How to decide when the resource has finished its startup.
+    /// @param self_terminating Whether the resource is allowed to terminate on its own.
     /// @param identifier Name of the component.
     Component(
         const IStartAction& start_action,
@@ -42,6 +43,7 @@ class Component final : public IComponent
         const IForceStopAction& force_stop_action,
         cpp::span<std::reference_wrapper<const IReadyCondition>> ready_conditions =
             cpp::span<std::reference_wrapper<const IReadyCondition>>{},
+        bool self_terminating = false,
         IdentifierHash identifier = IdentifierHash{});
 
     /// @brief Start the resource and set the component to active.
@@ -83,6 +85,9 @@ class Component final : public IComponent
     /// @brief How to decide when the resource has finished its startup.
     const cpp::span<std::reference_wrapper<const IReadyCondition>> ready_conditions_;
 
+    /// @brief Whether the resource is allowed to terminate on its own.
+    const bool self_terminating_;
+
     /// @brief Name of the component.
     const IdentifierHash identifier_;
 
@@ -91,6 +96,7 @@ class Component final : public IComponent
       public:
         RequestResult activate(Component& component, cpp::stop_token stop_token);
         RequestResult deactivate(Component& component, cpp::stop_token stop_token);
+        RequestResult tryHandleTermination(Component& component, int32_t status);
     };
 
     class StartingState final
@@ -99,6 +105,7 @@ class Component final : public IComponent
         Handle handle_;
         RequestResult activate(Component& component, cpp::stop_token stop_token);
         RequestResult deactivate(Component& component, cpp::stop_token stop_token);
+        RequestResult tryHandleTermination(Component& component, int32_t status);
     };
 
     class ReadyState final
@@ -107,6 +114,7 @@ class Component final : public IComponent
         Handle handle_;
         RequestResult activate(Component& component, cpp::stop_token stop_token);
         RequestResult deactivate(Component& component, cpp::stop_token stop_token);
+        RequestResult tryHandleTermination(Component& component, int32_t status);
     };
 
     class TerminatingState final
@@ -115,6 +123,7 @@ class Component final : public IComponent
         Handle handle_;
         RequestResult activate(Component& component, cpp::stop_token stop_token);
         RequestResult deactivate(Component& component, cpp::stop_token stop_token);
+        RequestResult tryHandleTermination(Component& component, int32_t status);
     };
 
     class FaultState final
@@ -123,6 +132,7 @@ class Component final : public IComponent
         Handle handle_;
         RequestResult activate(Component& component, cpp::stop_token stop_token);
         RequestResult deactivate(Component& component, cpp::stop_token stop_token);
+        RequestResult tryHandleTermination(Component& component, int32_t status);
     };
 
     /// @brief The current state of the component.
