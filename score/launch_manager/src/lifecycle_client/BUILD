@@ -238,6 +238,24 @@ cc_library(
 )
 
 cc_library(
+    name = "fake_application",
+    testonly = True,
+    srcs = [
+        "src/fake_application.cpp",
+    ],
+    hdrs = [
+        "src/fake_application.h",
+    ],
+    features = COMPILER_WARNING_FEATURES,
+    include_prefix = "score/mw/lifecycle",
+    strip_include_prefix = "/score/launch_manager/src/lifecycle_client/src",
+    visibility = ["//score/launch_manager:__subpackages__"],
+    deps = [
+        ":application",
+    ],
+)
+
+cc_library(
     name = "mock_report_running",
     testonly = True,
     srcs = ["src/mock_report_running.cpp"],
@@ -280,6 +298,18 @@ lm_cc_test(
     deps = [
         ":applicationcontext",
         "@googletest//:gtest_main",
+    ],
+)
+
+lm_cc_test(
+    name = "aasapplicationcontainer_UT",
+    srcs = ["src/aasapplicationcontainer_UT.cpp"],
+    deps = [
+        ":aasapplicationcontainer",
+        ":fake_application",
+        ":mock_lifecycle",
+        "@googletest//:gtest_main",
+        "@score_baselibs//score/os/utils:signal",
     ],
 )
 
