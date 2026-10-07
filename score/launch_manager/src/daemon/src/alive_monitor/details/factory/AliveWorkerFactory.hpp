@@ -65,16 +65,9 @@ class AliveWorkerFactory : public IAliveWorkerFactory
         ifexm::ObservableEvent& event) override;
 
     /// Refer to the description of the base class (IAliveWorkerFactory)
-    bool createSupervisionCheckpoint(
-        std::vector<ifappl::Checkpoint>& checkpoints,
-        ifappl::MonitorIfDaemon& interface,
-        const ifexm::ObservableEvent& event,
-        const IdentifierHash component_id) override;
-
-    /// Refer to the description of the base class (IAliveWorkerFactory)
     bool createAliveSupervision(
         std::vector<supervision::Alive>& supervisions,
-        ifappl::Checkpoint& checkpoint,
+        ifappl::MonitorIfDaemon& interface,
         ifexm::ObservableEvent& event,
         const std::shared_ptr<IRecoveryClient> recovery_client,
         const IdentifierHash component_id,

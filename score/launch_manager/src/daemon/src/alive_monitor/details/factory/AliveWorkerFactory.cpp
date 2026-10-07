@@ -21,7 +21,6 @@
 
 #include "score/launch_manager/src/daemon/src/common/log.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/factory/IAliveWorkerFactory.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/ifappl/Checkpoint.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/MonitorIfDaemon.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEvent.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/supervision/Alive.hpp"
@@ -39,6 +38,36 @@ using IdentifierHash = score::mw::lifecycle::IdentifierHash;
 
 AliveWorkerFactory::AliveWorkerFactory() : IAliveWorkerFactory()
 {
+}
+
+/// @brief Helper method to create a new observer object in place and attach it to the given observable
+/// @param [in] result Container to emplace the constructed observer to
+/// @param [in] observable Object the new observer should observe
+/// @param [in] description Short description of the observer class for logging
+/// @param [in] args Arguments to construct the observer with
+/// @returns True if successful, false otherwise. When false, @p result may or may not have been emplaced to.
+template <typename ObserverType, class T, typename... Args>
+bool EmplaceAndAttach(
+    std::vector<ObserverType>& result,
+    common::Observable<T>& observable,
+    std::string_view description,
+    Args&&... args) noexcept
+{
+    static_assert(std::is_base_of_v<common::Observer<T>, ObserverType>, "ObserverType must be an Observer of T");
+
+    try
+    {
+        common::Observer<T>& res = result.emplace_back(std::forward<Args>(args)...);
+        observable.attachObserver(res);
+        LM_LOG_DEBUG() << "Successfully created" << description << ":" << res.getIdentifier();
+        return true;
+    }
+    catch (const std::exception& f_exception_r)
+    {
+        LM_LOG_ERROR() << "Could not emplace" << description
+                       << "due to exception:" << std::string_view{f_exception_r.what()};
+        return false;
+    }
 }
 
 bool AliveWorkerFactory::createObservableEvent(
@@ -119,70 +148,26 @@ bool AliveWorkerFactory::createAliveIf(
     ifappl::CheckpointIpcServer& ipc_server,
     ifexm::ObservableEvent& event)
 {
-    try
-    {
-        auto& interface = interfaces.emplace_back(ipc_server, ipc_server.getPath().data());
-        event.attachObserver(interface);
-
-        LM_LOG_DEBUG() << "Successfully created MonitorInterface:" << interface.getInterfaceName();
-        return true;
-    }
-    catch (const std::exception& f_exception_r)
-    {
-        LM_LOG_ERROR() << "Could not create all necessary Monitor interfaces due to exception:"
-                       << std::string_view{f_exception_r.what()};
-        return false;
-    }
-}
-
-bool AliveWorkerFactory::createSupervisionCheckpoint(
-    std::vector<ifappl::Checkpoint>& checkpoints,
-    ifappl::MonitorIfDaemon& interface,
-    const ifexm::ObservableEvent& event,
-    const IdentifierHash component_id)
-{
-    try
-    {
-        auto& checkpoint = checkpoints.emplace_back(&event);
-        interface.attachCheckpoint(checkpoint);
-
-        LM_LOG_DEBUG() << "Successfully created supervision checkpoint for component:" << component_id;
-
-        return true;
-    }
-    catch (const std::exception& f_exception_r)
-    {
-        LM_LOG_ERROR() << "Could not create supervision worker objects, due to exception:"
-                       << std::string_view{f_exception_r.what()};
-        return false;
-    }
+    return EmplaceAndAttach(interfaces, event, "MonitorInterface", ipc_server, ipc_server.getPath().data());
 }
 
 bool AliveWorkerFactory::createAliveSupervision(
     std::vector<supervision::Alive>& supervisions,
-    ifappl::Checkpoint& checkpoint,
+    ifappl::MonitorIfDaemon& interface,
     ifexm::ObservableEvent& event,
     const std::shared_ptr<IRecoveryClient> recovery_client,
     const IdentifierHash component_id,
     const ComponentAliveSupervision component_config)
 {
-    try
-    {
-        auto& alive = supervisions.emplace_back(
-            component_id, component_config, recovery_client, checkpoint, kDefaultAliveSupCheckpointBufferElements);
-
-        event.attachObserver(alive);
-
-        LM_LOG_DEBUG() << "Successfully created alive supervision worker object:" << alive.getConfigName();
-        return true;
-    }
-    catch (const std::exception& f_exception_r)
-    {
-        LM_LOG_ERROR() << "Could not create all necessary alive supervision "
-                          "worker objects, due to exception:"
-                       << std::string_view{f_exception_r.what()};
-        return false;
-    }
+    return EmplaceAndAttach(
+        supervisions,
+        event,
+        "alive supervision worker object",
+        component_id,
+        component_config,
+        recovery_client,
+        interface,
+        kDefaultAliveSupCheckpointBufferElements);
 }
 
 }  // namespace score::mw::lifecycle::internal::saf::factory

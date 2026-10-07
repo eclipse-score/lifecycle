@@ -115,9 +115,9 @@ int main(int argc, char** argv)
 
     auto builder_mon =
         deadline::DeadlineMonitorBuilder()
-            .add_deadline(
+            .AddDeadline(
                 DeadlineTag("deadline_1"), TimeRange(std::chrono::milliseconds(50), std::chrono::milliseconds(150)))
-            .add_deadline(
+            .AddDeadline(
                 DeadlineTag("deadline_2"),
                 TimeRange(
                     std::chrono::milliseconds(2),
@@ -128,10 +128,10 @@ int main(int argc, char** argv)
 
     {
         auto hm_res = HealthMonitorBuilder()
-                          .add_deadline_monitor(ident, std::move(builder_mon))
-                          .with_internal_processing_cycle(std::chrono::milliseconds(50))
-                          .with_supervisor_api_cycle(std::chrono::milliseconds(50))
-                          .build();
+                          .AddDeadlineMonitor(ident, std::move(builder_mon))
+                          .WithInternalProcessingCycle(std::chrono::milliseconds(50))
+                          .WithSupervisorApiCycle(std::chrono::milliseconds(50))
+                          .Build();
         if (!hm_res.has_value())
         {
             std::cerr << "Failed to build health monitor" << std::endl;
@@ -139,20 +139,20 @@ int main(int argc, char** argv)
         }
         auto hm = std::move(*hm_res);
 
-        auto deadline_monitor_res = hm.get_deadline_monitor(ident);
+        auto deadline_monitor_res = hm.GetDeadlineMonitor(ident);
         if (!deadline_monitor_res.has_value())
         {
             std::cerr << "Failed to get deadline monitor" << std::endl;
             return EXIT_FAILURE;
         }
 
-        hm.start();
+        hm.Start();
 
         score::mw::lifecycle::report_running();
 
         auto deadline_mon = std::move(*deadline_monitor_res);
 
-        auto deadline_res = deadline_mon.get_deadline(DeadlineTag("deadline_1"));
+        auto deadline_res = deadline_mon.GetDeadline(DeadlineTag("deadline_1"));
         while (!exitRequested)
         {
             if (stopReportingCheckpoints.load())
@@ -160,11 +160,11 @@ int main(int argc, char** argv)
                 break;
             }
 
-            auto deadline_guard = deadline_res.value().start();
+            auto deadline_guard = deadline_res.value().Start();
 
             std::this_thread::sleep_for(std::chrono::milliseconds(config->delayInMs));
 
-            // deadline_guard.stop(); // Optional, will be stopped automatically when going out of scope - this way we
+            // deadline_guard.Stop(); // Optional, will be stopped automatically when going out of scope - this way we
             // dont check Result from start() call
         }
     }

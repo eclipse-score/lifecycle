@@ -20,6 +20,9 @@ on:
   push:
     branches:
       - main
+    # Publishing a draft release creates the tag.
+    tags:
+      - "v*"
   workflow_call:
 
 jobs:

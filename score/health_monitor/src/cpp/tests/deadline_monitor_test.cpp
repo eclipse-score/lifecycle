@@ -40,7 +40,7 @@ TEST_F(DeadlineMonitorBuilderFixture, AddDeadline_Succeeds)
     using namespace std::chrono_literals;
     DeadlineTag deadline_tag{"deadline"};
     TimeRange range{50ms, 150ms};
-    auto deadline_monitor_builder{DeadlineMonitorBuilder{}.add_deadline(deadline_tag, range)};
+    auto deadline_monitor_builder{DeadlineMonitorBuilder{}.AddDeadline(deadline_tag, range)};
 }
 
 class DeadlineMonitorFixture : public ::testing::Test
@@ -59,17 +59,17 @@ class DeadlineMonitorFixture : public ::testing::Test
         MonitorTag deadline_monitor_tag{"deadline_monitor"};
         DeadlineTag deadline_tag{"deadline"};
         TimeRange range{50ms, 150ms};
-        auto deadline_monitor_builder{DeadlineMonitorBuilder{}.add_deadline(deadline_tag, range)};
+        auto deadline_monitor_builder{DeadlineMonitorBuilder{}.AddDeadline(deadline_tag, range)};
 
         // Build HMON, including deadline monitor.
         auto hmon_build_result{HealthMonitorBuilder{}
-                                   .add_deadline_monitor(deadline_monitor_tag, std::move(deadline_monitor_builder))
-                                   .build()};
+                                   .AddDeadlineMonitor(deadline_monitor_tag, std::move(deadline_monitor_builder))
+                                   .Build()};
         ASSERT_TRUE(hmon_build_result.has_value());
         auto hmon{std::move(hmon_build_result.value())};
 
         // Get deadline monitor.
-        auto get_deadline_monitor_result{hmon.get_deadline_monitor(deadline_monitor_tag)};
+        auto get_deadline_monitor_result{hmon.GetDeadlineMonitor(deadline_monitor_tag)};
         ASSERT_TRUE(get_deadline_monitor_result.has_value());
         deadline_monitor_ = std::move(get_deadline_monitor_result.value());
     }
@@ -79,7 +79,7 @@ TEST_F(DeadlineMonitorFixture, GetDeadline_Succeeds)
 {
     RecordProperty("Description", "Deadline successfully obtained using known tag.");
     // Get deadline.
-    auto get_deadline_result{deadline_monitor_->get_deadline(DeadlineTag{"deadline"})};
+    auto get_deadline_result{deadline_monitor_->GetDeadline(DeadlineTag{"deadline"})};
     ASSERT_TRUE(get_deadline_result.has_value());
 }
 
@@ -87,7 +87,7 @@ TEST_F(DeadlineMonitorFixture, GetDeadline_Unknown)
 {
     RecordProperty("Description", "Deadline failed to be obtained due to unknown tag.");
     // Get deadline.
-    auto get_deadline_result{deadline_monitor_->get_deadline(DeadlineTag{"unknown"})};
+    auto get_deadline_result{deadline_monitor_->GetDeadline(DeadlineTag{"unknown"})};
     ASSERT_FALSE(get_deadline_result.has_value());
     ASSERT_EQ(get_deadline_result.error(), Error::NotFound);
 }
@@ -101,16 +101,16 @@ TEST_F(DeadlineFixture, Start_Succeeds)
     RecordProperty("Description", "Deadline successfully started and stopped.");
     // Get deadline.
     DeadlineTag deadline_tag{"deadline"};
-    auto get_deadline_result{deadline_monitor_->get_deadline(deadline_tag)};
+    auto get_deadline_result{deadline_monitor_->GetDeadline(deadline_tag)};
     ASSERT_TRUE(get_deadline_result.has_value());
     auto deadline{std::move(get_deadline_result.value())};
 
     // Try to start and stop deadline.
-    auto deadline_start_result{deadline.start()};
+    auto deadline_start_result{deadline.Start()};
     ASSERT_TRUE(deadline_start_result.has_value());
     auto deadline_handle{std::move(deadline_start_result.value())};
 
-    deadline_handle.stop();
+    deadline_handle.Stop();
 }
 
 TEST_F(DeadlineFixture, Start_AlreadyRunning)
@@ -118,13 +118,13 @@ TEST_F(DeadlineFixture, Start_AlreadyRunning)
     RecordProperty("Description", "Deadline failed to start twice.");
     // Get deadline.
     DeadlineTag deadline_tag{"deadline"};
-    auto get_deadline_result{deadline_monitor_->get_deadline(deadline_tag)};
+    auto get_deadline_result{deadline_monitor_->GetDeadline(deadline_tag)};
     ASSERT_TRUE(get_deadline_result.has_value());
     auto deadline{std::move(get_deadline_result.value())};
 
     // Try to start the deadline twice.
-    deadline.start();
-    auto deadline_start_result{deadline.start()};
+    deadline.Start();
+    auto deadline_start_result{deadline.Start()};
     ASSERT_FALSE(deadline_start_result.has_value());
     ASSERT_EQ(deadline_start_result.error(), Error::Failed);
 }

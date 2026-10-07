@@ -57,12 +57,12 @@ DeadlineMonitorBuilder::DeadlineMonitorBuilder()
 {
 }
 
-DeadlineMonitorBuilder DeadlineMonitorBuilder::add_deadline(const DeadlineTag& deadline_tag, const TimeRange& range) &&
+DeadlineMonitorBuilder DeadlineMonitorBuilder::AddDeadline(const DeadlineTag& deadline_tag, const TimeRange& range) &&
 {
-    auto handle = monitor_builder_handler_.as_rust_handle();
+    auto handle = monitor_builder_handler_.AsRustHandle();
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(handle.has_value());
 
-    auto result{deadline_monitor_builder_add_deadline(handle.value(), &deadline_tag, range.min_ms(), range.max_ms())};
+    auto result{deadline_monitor_builder_add_deadline(handle.value(), &deadline_tag, range.MinMs(), range.MaxMs())};
     SCORE_LANGUAGE_FUTURECPP_ASSERT(result == kSuccess);
 
     return std::move(*this);
@@ -72,9 +72,9 @@ DeadlineMonitor::DeadlineMonitor(FFIHandle handle) : monitor_handle_(handle, &de
 {
 }
 
-score::cpp::expected<Deadline, score::mw::health::Error> DeadlineMonitor::get_deadline(const DeadlineTag& deadline_tag)
+score::cpp::expected<Deadline, score::mw::health::Error> DeadlineMonitor::GetDeadline(const DeadlineTag& deadline_tag)
 {
-    auto handle = monitor_handle_.as_rust_handle();
+    auto handle = monitor_handle_.AsRustHandle();
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(handle.has_value());
 
     FFIHandle ret = nullptr;
@@ -96,7 +96,7 @@ Deadline::~Deadline()
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(!has_handle_);
 }
 
-score::cpp::expected<DeadlineHandle, score::mw::health::Error> Deadline::start()
+score::cpp::expected<DeadlineHandle, score::mw::health::Error> Deadline::Start()
 {
     // Cannot start a deadline that is already started
     if (has_handle_)
@@ -104,7 +104,7 @@ score::cpp::expected<DeadlineHandle, score::mw::health::Error> Deadline::start()
         return score::cpp::unexpected(::score::mw::health::Error::WrongState);
     }
 
-    auto handle = deadline_handle_.as_rust_handle();
+    auto handle = deadline_handle_.AsRustHandle();
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(handle.has_value());
 
     auto result = deadline_start(handle.value());
@@ -121,14 +121,14 @@ DeadlineHandle::DeadlineHandle(Deadline& deadline) : was_stopped_(false), deadli
 {
 }
 
-void DeadlineHandle::stop()
+void DeadlineHandle::Stop()
 {
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(deadline_.has_value());
 
     if (!was_stopped_)
     {
         was_stopped_ = true;
-        auto handle = deadline_.value().get().deadline_handle_.as_rust_handle();
+        auto handle = deadline_.value().get().deadline_handle_.AsRustHandle();
         SCORE_LANGUAGE_FUTURECPP_PRECONDITION(handle.has_value());
 
         auto result{deadline_stop(handle.value())};
@@ -150,7 +150,7 @@ DeadlineHandle::~DeadlineHandle()
         return;
     }
 
-    stop();
+    Stop();
     deadline_.value().get().has_handle_ = false;
 }
 
