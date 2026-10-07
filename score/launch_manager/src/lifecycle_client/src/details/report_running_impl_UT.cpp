@@ -55,52 +55,12 @@ void* CreateFakeIpcComms(CommsType comms_type, pid_t pid)
     return g_fake_ipc_storage;
 }
 
-// Counter for tracking post() calls
-static int g_post_call_count = 0;
-
-// Control Semaphore behavior
-static bool g_first_post_should_fail = false;
-static bool g_second_post_should_fail = false;
-static bool g_timedwait_should_fail = false;
-
 }  // anonymous namespace
 
-// Mock Semaphore methods
-namespace score::mw::lifecycle::internal::osal
-{
-
-OsalReturnType Semaphore::post()
-{
-    g_post_call_count++;
-
-    // First post is send_sync_.post() at line 95
-    if (g_post_call_count == 1 && g_first_post_should_fail)
-    {
-        return OsalReturnType::kFail;
-    }
-
-    // Second post is final send_sync_.post() at line 110
-    if (g_post_call_count == 2 && g_second_post_should_fail)
-    {
-        return OsalReturnType::kFail;
-    }
-
-    return OsalReturnType::kSuccess;
-}
-
-OsalReturnType Semaphore::timedWait(std::chrono::milliseconds delay)
-{
-    (void)delay;  // Unused in mock
-
-    if (g_timedwait_should_fail)
-    {
-        return OsalReturnType::kFail;
-    }
-
-    return OsalReturnType::kSuccess;
-}
-
-}  // namespace score::mw::lifecycle::internal::osal
+// Semaphore::post()/timedWait() are the real implementations (score/launch_manager/src/daemon/src/osal/details/posix/
+// semaphore.cpp), which call the POSIX functions sem_post()/sem_trywait(). Those POSIX calls are intercepted via the
+// linker's --wrap mechanism and routed to g_syscall_mock (see tests/utils/mocks/mock_syscalls.hpp), allowing their
+// return values/errno to be controlled with GMock expectations instead of overriding Semaphore itself.
 
 namespace score::mw::lifecycle
 {
@@ -121,10 +81,6 @@ class ReportRunningImplTest : public ::testing::Test
     {
         g_syscall_mock = std::make_unique<SyscallMock>();
         ReportRunningImplTestAccessor::SetReportedForTesting(false);
-        g_post_call_count = 0;
-        g_first_post_should_fail = false;
-        g_second_post_should_fail = false;
-        g_timedwait_should_fail = false;
 
         // Set up default successful behaviors for syscalls
         SetupDefaultSuccessExpectations();
@@ -158,6 +114,12 @@ class ReportRunningImplTest : public ::testing::Test
                 }
                 return MAP_FAILED;
             }));
+
+        // By default, sem_post() (backing Semaphore::post()) succeeds
+        EXPECT_CALL(*g_syscall_mock, sem_post(_)).WillRepeatedly(Return(0));
+
+        // By default, sem_trywait() (backing Semaphore::timedWait()) succeeds immediately
+        EXPECT_CALL(*g_syscall_mock, sem_trywait(_)).WillRepeatedly(Return(0));
     }
 
     static struct stat CreateValidStat()
@@ -450,7 +412,7 @@ TEST_F(ReportRunningImplTest, GivenReportRunningImplInstance_ExpectPostFails_Whe
     ReportRunningImpl impl;
 
     // Expect
-    g_first_post_should_fail = true;
+    EXPECT_CALL(*g_syscall_mock, sem_post(_)).WillOnce(Return(-1));
 
     // When
     auto result = impl.ReportRunningState();
@@ -476,7 +438,8 @@ TEST_F(
     ReportRunningImpl impl;
 
     // Expect
-    g_timedwait_should_fail = true;
+    // sem_trywait() fails with an errno other than EINTR/EAGAIN, so Semaphore::timedWait() returns kFail immediately.
+    EXPECT_CALL(*g_syscall_mock, sem_trywait(_)).WillOnce(SetErrnoAndReturn(EINVAL, -1));
 
     // When
     auto result = impl.ReportRunningState();
@@ -500,7 +463,8 @@ TEST_F(ReportRunningImplTest, GivenFinalPostFails_WhenPostReturnsKFail_ThenRetur
     ReportRunningImpl impl;
 
     // Expect
-    g_second_post_should_fail = true;
+    // First sem_post() call (send_sync_.post()) succeeds; second call (the final synchronization post) fails.
+    EXPECT_CALL(*g_syscall_mock, sem_post(_)).WillOnce(Return(0)).WillOnce(Return(-1));
 
     // When
     auto result = impl.ReportRunningState();
