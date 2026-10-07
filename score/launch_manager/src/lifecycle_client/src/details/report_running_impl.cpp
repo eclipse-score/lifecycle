@@ -85,7 +85,7 @@ score::Result<std::monostate> ReportRunningImpl::reportKRunningtoDaemon() const 
         return comms_error;
     }
 
-    if ((sync->comms_type_ == CommsType::kReporting) && close(sync_fd) < 0)
+    if (close(sync_fd) < 0)
     {
         LM_LOG_ERROR() << "[Lifecycle Client] Closing file descriptor failed.";
 
