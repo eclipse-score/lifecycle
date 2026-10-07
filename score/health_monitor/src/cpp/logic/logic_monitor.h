@@ -16,6 +16,7 @@
 #include "score/mw/health/common.h"
 #include "score/mw/health/tag.h"
 #include <score/expected.hpp>
+#include <utility>
 #include <vector>
 
 namespace score::mw::health
@@ -44,21 +45,28 @@ class LogicMonitorBuilder final : public internal::RustDroppable<LogicMonitorBui
 
     /// Add state along with allowed transitions.
     /// If state already exists - it is overwritten.
-    LogicMonitorBuilder add_state(const StateTag& state, const std::vector<StateTag>& allowed_states) &&;
+    LogicMonitorBuilder AddState(const StateTag& state, const std::vector<StateTag>& allowed_states) &&;
+
+    /// @deprecated Use `AddState()` instead. Removed in the release after v0.10.
+    [[deprecated("Use AddState() instead. The snake_case API is removed in the release after v0.10.")]]
+    LogicMonitorBuilder add_state(const StateTag& state, const std::vector<StateTag>& allowed_states) &&
+    {
+        return std::move(*this).AddState(state, allowed_states);
+    }
 
   protected:
-    std::optional<internal::FFIHandle> _drop_by_rust_impl()
+    std::optional<internal::FFIHandle> DropByRustImpl()
     {
-        return monitor_builder_handle_.drop_by_rust();
+        return monitor_builder_handle_.DropByRust();
     }
 
   private:
     internal::DroppableFFIHandle monitor_builder_handle_;
 
-    // Allow to hide drop_by_rust implementation
+    // Allow to hide DropByRust implementation
     friend class internal::RustDroppable<LogicMonitorBuilder>;
 
-    // Allow HealthMonitorBuilder to access drop_by_rust implementation
+    // Allow HealthMonitorBuilder to access DropByRust implementation
     friend class ::score::mw::health::HealthMonitorBuilder;
 };
 
@@ -73,10 +81,24 @@ class LogicMonitor final
 
     /// Perform transition to a new state.
     /// On success, current state is returned.
-    score::cpp::expected<StateTag, Error> transition(const StateTag& state);
+    score::cpp::expected<StateTag, Error> Transition(const StateTag& state);
 
     /// Current monitor state.
-    score::cpp::expected<StateTag, Error> state();
+    score::cpp::expected<StateTag, Error> State();
+
+    /// @deprecated Use `Transition()` instead. Removed in the release after v0.10.
+    [[deprecated("Use Transition() instead. The snake_case API is removed in the release after v0.10.")]]
+    score::cpp::expected<StateTag, Error> transition(const StateTag& state)
+    {
+        return Transition(state);
+    }
+
+    /// @deprecated Use `State()` instead. Removed in the release after v0.10.
+    [[deprecated("Use State() instead. The snake_case API is removed in the release after v0.10.")]]
+    score::cpp::expected<StateTag, Error> state()
+    {
+        return State();
+    }
 
   private:
     explicit LogicMonitor(internal::FFIHandle monitor_handle);

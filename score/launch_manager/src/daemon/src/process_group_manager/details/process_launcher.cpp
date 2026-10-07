@@ -190,8 +190,10 @@ ProcessLauncher::startProcess(ProcessID& pid, IpcCommsP& block, const configurat
 
         if (comms_result)
         {
-            /// @todo need to recheck after logging framework implementation.
-            static_cast<void>(fflush(stdout));
+            if (fflush(stdout) != 0)
+            {
+                LM_LOG_ERROR() << "Failed to flush stdout before forking.";
+            }
 
             pid = fork();
 

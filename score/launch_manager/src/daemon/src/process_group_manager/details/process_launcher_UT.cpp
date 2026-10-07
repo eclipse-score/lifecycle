@@ -18,8 +18,8 @@
 #include <cstdarg>
 #include <thread>
 
-#include "score/mw/launch_manager/process_group_manager/details/mock_proc_launch_syscalls.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
+#include "tests/utils/mocks/mock_syscalls.hpp"
 
 using namespace testing;
 

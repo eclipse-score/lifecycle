@@ -25,35 +25,39 @@
 #include "score/mw/launch_manager/recovery_client/irecovery_client.h"
 
 using namespace testing;
-
-using EStatus = score::mw::lifecycle::internal::saf::supervision::Alive::EStatus;
-using score::mw::lifecycle::internal::configuration::ComponentAliveSupervision;
-
 using namespace std::chrono_literals;
 
-namespace
+namespace score::mw::lifecycle::internal::saf::supervision
 {
 
-class MockRecoveryClient : public score::mw::lifecycle::IRecoveryClient
+using EStatus = Alive::EStatus;
+using configuration::ComponentAliveSupervision;
+
+class MockRecoveryClient : public IRecoveryClient
 {
   public:
     MOCK_METHOD(
         void,
         setRecoveryRequestCallback,
-        (score::mw::lifecycle::IRecoveryClient::RecoveryRequestCallback callback),
+        (IRecoveryClient::RecoveryRequestCallback callback),
         (noexcept, override));
-    MOCK_METHOD(
-        bool,
-        sendRecoveryRequest,
-        (const score::mw::lifecycle::IdentifierHash& process_group_identifier),
-        (noexcept, override));
+    MOCK_METHOD(bool, sendRecoveryRequest, (const IdentifierHash& process_group_identifier), (noexcept, override));
+};
+
+class MockMonitorIfDaemon : public common::Observable<ifappl::Checkpoint>
+{
+  public:
+    void PushCheckpointToObservers(ifappl::Checkpoint checkpoint)
+    {
+        pushResultToObservers(checkpoint);
+    }
 };
 
 /// Helper: build a minimal Alive under test.
 /// Owns all supporting objects so they outlive the Alive.
 struct AliveFixture
 {
-    inline static const score::mw::lifecycle::IdentifierHash kProcessId{"42U"};
+    inline static const IdentifierHash kProcessId{"42U"};
 
     struct Builder
     {
@@ -89,16 +93,16 @@ struct AliveFixture
         }
     };
 
-    const score::mw::lifecycle::IdentifierHash kProcessIdentifier{"test_proc"};
+    const IdentifierHash kProcessIdentifier{"test_proc"};
 
     std::shared_ptr<MockRecoveryClient> mockClient = std::make_shared<MockRecoveryClient>();
 
-    score::mw::lifecycle::internal::saf::ifexm::ObservableEvent processState;
-    score::mw::lifecycle::internal::saf::ifappl::Checkpoint checkpoint;
+    ifexm::ObservableEvent processState;
+    MockMonitorIfDaemon mock_monitor;
 
-    std::unique_ptr<score::mw::lifecycle::internal::saf::supervision::Alive> alive;
+    std::unique_ptr<Alive> alive;
 
-    explicit AliveFixture(const Builder& bld) : processState(kProcessId), checkpoint(&processState)
+    explicit AliveFixture(const Builder& bld) : processState(kProcessId), mock_monitor()
     {
         ComponentAliveSupervision cfg{};
         cfg.min_indications = bld.minIndications;
@@ -106,12 +110,8 @@ struct AliveFixture
         cfg.failed_cycles_tolerance = bld.failedCyclesTolerance;
         cfg.reporting_cycle_ms = bld.reportingCycleMs;
 
-        alive = std::make_unique<score::mw::lifecycle::internal::saf::supervision::Alive>(
-            kProcessIdentifier,
-            cfg,
-            mockClient,
-            checkpoint,
-            score::mw::lifecycle::internal::kDefaultAliveSupCheckpointBufferElements);
+        alive = std::make_unique<Alive>(
+            kProcessIdentifier, cfg, mockClient, mock_monitor, internal::kDefaultAliveSupCheckpointBufferElements);
         processState.attachObserver(*alive);
     }
 
@@ -119,7 +119,7 @@ struct AliveFixture
     void activateProcess(std::chrono::nanoseconds ts)
     {
         processState.event.systemClockTimestamp.tv_nsec = ts.count();
-        processState.event.eventType = score::mw::lifecycle::SupervisionEventType::kActivation;
+        processState.event.eventType = SupervisionEventType::kActivation;
         processState.pushData();
     }
 
@@ -127,18 +127,16 @@ struct AliveFixture
     void deactivateProcess(std::chrono::nanoseconds ts)
     {
         processState.event.systemClockTimestamp.tv_nsec = ts.count();
-        processState.event.eventType = score::mw::lifecycle::SupervisionEventType::kDeactivation;
+        processState.event.eventType = SupervisionEventType::kDeactivation;
         processState.pushData();
     }
 
     /// Report one alive heartbeat checkpoint at the given timestamp.
     void reportHeartbeat(std::chrono::nanoseconds timestamp)
     {
-        checkpoint.pushData(timestamp);
+        mock_monitor.PushCheckpointToObservers(ifappl::Checkpoint{timestamp});
     }
 };
-
-}  // namespace
 
 class AliveSupervisionTest : public ::testing::Test
 {
@@ -297,3 +295,5 @@ TEST_F(AliveSupervisionTest, MaxIndicationViolationExpires)
     fix.alive->evaluate(1000011ns);
     EXPECT_EQ(fix.alive->getStatus(), EStatus::kExpired);
 }
+
+}  // namespace score::mw::lifecycle::internal::saf::supervision

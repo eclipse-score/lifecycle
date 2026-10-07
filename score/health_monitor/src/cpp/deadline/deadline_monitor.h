@@ -18,6 +18,7 @@
 #include <score/expected.hpp>
 #include <functional>
 #include <optional>
+#include <utility>
 
 namespace score::mw::health
 {
@@ -48,21 +49,25 @@ class DeadlineMonitorBuilder final : public internal::RustDroppable<DeadlineMoni
     DeadlineMonitorBuilder& operator=(DeadlineMonitorBuilder&&) = delete;
 
     /// Adds a deadline with the given tag and duration range to the monitor.
+    DeadlineMonitorBuilder AddDeadline(const DeadlineTag& deadline_tag, const TimeRange& range) &&;
+
+    /// @deprecated Use `AddDeadline()` instead. Removed in the release after v0.10.
+    [[deprecated("Use AddDeadline() instead. The snake_case API is removed in the release after v0.10.")]]
     DeadlineMonitorBuilder add_deadline(const DeadlineTag& deadline_tag, const TimeRange& range) &&;
 
   protected:
-    std::optional<internal::FFIHandle> _drop_by_rust_impl()
+    std::optional<internal::FFIHandle> DropByRustImpl()
     {
-        return monitor_builder_handler_.drop_by_rust();
+        return monitor_builder_handler_.DropByRust();
     }
 
   private:
     internal::DroppableFFIHandle monitor_builder_handler_;
 
-    // Allow to hide drop_by_rust implementation
+    // Allow to hide DropByRust implementation
     friend class internal::RustDroppable<DeadlineMonitorBuilder>;
 
-    // Allow HealthMonitorBuilder to access drop_by_rust implementation
+    // Allow HealthMonitorBuilder to access DropByRust implementation
     friend class ::score::mw::health::HealthMonitorBuilder;
 };
 
@@ -76,6 +81,10 @@ class DeadlineMonitor final
     DeadlineMonitor(DeadlineMonitor&& other) noexcept = default;
     DeadlineMonitor& operator=(DeadlineMonitor&& other) noexcept = default;
 
+    ::score::cpp::expected<Deadline, score::mw::health::Error> GetDeadline(const DeadlineTag& deadline_tag);
+
+    /// @deprecated Use `GetDeadline()` instead. Removed in the release after v0.10.
+    [[deprecated("Use GetDeadline() instead. The snake_case API is removed in the release after v0.10.")]]
     ::score::cpp::expected<Deadline, score::mw::health::Error> get_deadline(const DeadlineTag& deadline_tag);
 
   private:
@@ -100,6 +109,10 @@ class Deadline final
 
     /// Starts the deadline monitoring. Returns a DeadlineHandle to manage the deadline.
     //  After this call the Deadline instance cannot be used until connected DeadlineHandle is destroyed
+    ::score::cpp::expected<DeadlineHandle, Error> Start();
+
+    /// @deprecated Use `Start()` instead. Removed in the release after v0.10.
+    [[deprecated("Use Start() instead. The snake_case API is removed in the release after v0.10.")]]
     ::score::cpp::expected<DeadlineHandle, Error> start();
 
   private:
@@ -119,6 +132,10 @@ class DeadlineHandle final
 {
   public:
     /// Stops the deadline monitoring.
+    void Stop();
+
+    /// @deprecated Use `Stop()` instead. Removed in the release after v0.10.
+    [[deprecated("Use Stop() instead. The snake_case API is removed in the release after v0.10.")]]
     void stop();
 
     /// Destructor that ensures the deadline is stopped if not already done.
@@ -138,6 +155,32 @@ class DeadlineHandle final
     bool was_stopped_;
     std::optional<std::reference_wrapper<Deadline>> deadline_;
 };
+
+// Deprecated snake_case API. Each entry forwards to its CamelCase replacement and is removed in the release after
+// v0.10. Defined out-of-line so the forwarded return types are complete at the point of definition.
+
+inline DeadlineMonitorBuilder DeadlineMonitorBuilder::add_deadline(
+    const DeadlineTag& deadline_tag,
+    const TimeRange& range) &&
+{
+    return std::move(*this).AddDeadline(deadline_tag, range);
+}
+
+inline ::score::cpp::expected<Deadline, score::mw::health::Error> DeadlineMonitor::get_deadline(
+    const DeadlineTag& deadline_tag)
+{
+    return GetDeadline(deadline_tag);
+}
+
+inline ::score::cpp::expected<DeadlineHandle, Error> Deadline::start()
+{
+    return Start();
+}
+
+inline void DeadlineHandle::stop()
+{
+    Stop();
+}
 
 }  // namespace score::mw::health::deadline
 

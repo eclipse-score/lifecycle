@@ -45,7 +45,7 @@ FFIHandle thread_parameters_create_wrapper()
 namespace score::mw::health
 {
 
-int32_t scheduler_policy_priority_min(SchedulerPolicy scheduler_policy)
+int32_t SchedulerPolicyPriorityMin(SchedulerPolicy scheduler_policy)
 {
     int32_t priority{0};
     auto result{::scheduler_policy_priority_min(scheduler_policy, &priority)};
@@ -53,7 +53,7 @@ int32_t scheduler_policy_priority_min(SchedulerPolicy scheduler_policy)
     return priority;
 }
 
-int32_t scheduler_policy_priority_max(SchedulerPolicy scheduler_policy)
+int32_t SchedulerPolicyPriorityMax(SchedulerPolicy scheduler_policy)
 {
     int32_t priority{0};
     auto result{::scheduler_policy_priority_max(scheduler_policy, &priority)};
@@ -64,17 +64,17 @@ int32_t scheduler_policy_priority_max(SchedulerPolicy scheduler_policy)
 SchedulerParameters::SchedulerParameters(SchedulerPolicy policy, int32_t priority)
     : policy_{policy}, priority_{priority}
 {
-    auto min{scheduler_policy_priority_min(policy)};
-    auto max{scheduler_policy_priority_max(policy)};
+    auto min{SchedulerPolicyPriorityMin(policy)};
+    auto max{SchedulerPolicyPriorityMax(policy)};
     SCORE_LANGUAGE_FUTURECPP_ASSERT(priority >= min && priority <= max);
 }
 
-SchedulerPolicy SchedulerParameters::policy() const
+SchedulerPolicy SchedulerParameters::Policy() const
 {
     return policy_;
 }
 
-int32_t SchedulerParameters::priority() const
+int32_t SchedulerParameters::Priority() const
 {
     return priority_;
 }
@@ -84,22 +84,22 @@ ThreadParameters::ThreadParameters()
 {
 }
 
-ThreadParameters ThreadParameters::scheduler_parameters(SchedulerParameters scheduler_parameters) &&
+ThreadParameters ThreadParameters::WithSchedulerParameters(SchedulerParameters scheduler_parameters) &&
 {
-    auto rust_handle{thread_parameters_handle_.as_rust_handle()};
+    auto rust_handle{thread_parameters_handle_.AsRustHandle()};
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(rust_handle.has_value());
 
-    auto policy{scheduler_parameters.policy()};
-    auto priority{scheduler_parameters.priority()};
+    auto policy{scheduler_parameters.Policy()};
+    auto priority{scheduler_parameters.Priority()};
     auto result{thread_parameters_scheduler_parameters(rust_handle.value(), policy, priority)};
     SCORE_LANGUAGE_FUTURECPP_ASSERT(result == kSuccess);
 
     return std::move(*this);
 }
 
-ThreadParameters ThreadParameters::affinity(const std::vector<size_t>& affinity) &&
+ThreadParameters ThreadParameters::Affinity(const std::vector<size_t>& affinity) &&
 {
-    auto rust_handle{thread_parameters_handle_.as_rust_handle()};
+    auto rust_handle{thread_parameters_handle_.AsRustHandle()};
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(rust_handle.has_value());
 
     auto result{thread_parameters_affinity(rust_handle.value(), affinity.data(), affinity.size())};
@@ -108,9 +108,9 @@ ThreadParameters ThreadParameters::affinity(const std::vector<size_t>& affinity)
     return std::move(*this);
 }
 
-ThreadParameters ThreadParameters::stack_size(size_t stack_size) &&
+ThreadParameters ThreadParameters::StackSize(size_t stack_size) &&
 {
-    auto rust_handle{thread_parameters_handle_.as_rust_handle()};
+    auto rust_handle{thread_parameters_handle_.AsRustHandle()};
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(rust_handle.has_value());
 
     auto result{thread_parameters_stack_size(rust_handle.value(), stack_size)};
