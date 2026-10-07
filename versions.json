@@ -74,5 +74,9 @@
   {
     "version": "pr-742",
     "url": "https://eclipse-score.github.io/lifecycle/pr-742/"
+  },
+  {
+    "version": "pr-757",
+    "url": "https://eclipse-score.github.io/lifecycle/pr-757/"
   }
 ]
