@@ -411,6 +411,8 @@ lm_cc_test(
         "-Wl,--wrap=sem_trywait",
         "-Wl,--wrap=sem_post",
         "-Wl,--wrap=msync",
+        "-Wl,--wrap=close",
+        "-Wl,--wrap=fstat",
     ],
     linkstatic = True,
     deps = [
