@@ -19,7 +19,10 @@ cc_library(
     hdrs = ["report_running_impl.hpp"],
     include_prefix = "score/mw/lifecycle/lifecycle_client/details",
     strip_include_prefix = "/score/launch_manager/src/lifecycle_client/src/details",
-    visibility = ["//score/launch_manager/src/lifecycle_client:__pkg__"],
+    visibility = [
+        "//score/launch_manager/src/lifecycle_client:__pkg__",
+        "//tests/utils/accessors:__pkg__",
+    ],
     deps = [
         "//score/launch_manager:error_event",
         "//score/launch_manager/src/daemon/src/common:constants",
