@@ -21,11 +21,13 @@ Component::Component(
     const IStopAction& stop_action,
     const IForceStopAction& force_stop_action,
     const cpp::span<std::reference_wrapper<const IReadyCondition>> ready_conditions,
+    bool self_terminating,
     IdentifierHash identifier)
     : start_action_(start_action),
       stop_action_(stop_action),
       force_stop_action_(force_stop_action),
       ready_conditions_(ready_conditions),
+      self_terminating_(self_terminating),
       identifier_(identifier),
       state_(TerminatedState{})
 {
@@ -146,16 +148,63 @@ IComponent::RequestResult Component::FaultState::deactivate(
 
 IComponent::RequestResult Component::tryHandleTermination(int32_t status)
 {
-    if (status == 0)
+    return std::visit(
+        [&](auto state) {
+            return state.tryHandleTermination(*this, status);
+        },
+        state_);
+}
+
+IComponent::RequestResult Component::TerminatedState::tryHandleTermination(
+    [[maybe_unused]] Component& component,
+    [[maybe_unused]] int32_t status)
+{
+    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Cannot handle termination for a component in TerminatedState");
+}
+
+IComponent::RequestResult Component::StartingState::tryHandleTermination(Component& component, int32_t status)
+{
+    for (const IReadyCondition& ready_condition : component.ready_conditions_)
     {
-        state_ = TerminatedState{};
-    }
-    else
-    {
-        state_ = FaultState{};
+        if (ready_condition.tryHandleTermination(status))
+        {
+            return RequestState::kSuccess;
+        }
     }
 
+    // TODO: We need to interrupt the worker thread which is sitting in the activate() method
+    //       (and prevent it from changing the state to successful)
+
+    component.state_ = FaultState{};
+    return cpp::make_unexpected(ComponentError::kErrorAfterReady);
+}
+
+IComponent::RequestResult Component::ReadyState::tryHandleTermination(Component& component, int32_t status)
+{
+    if (component.self_terminating_ && status == 0)
+    {
+        component.state_ = TerminatedState{};
+        return RequestState::kSuccess;
+    }
+
+    component.state_ = FaultState{};
+    return cpp::make_unexpected(ComponentError::kErrorAfterReady);
+}
+
+IComponent::RequestResult Component::TerminatingState::tryHandleTermination(
+    Component& component,
+    [[maybe_unused]] int32_t status)
+{
+    // Since we requested termination, we do not care about the exit code.
+    component.state_ = TerminatedState{};
     return RequestState::kSuccess;
+}
+
+IComponent::RequestResult Component::FaultState::tryHandleTermination(
+    [[maybe_unused]] Component& component,
+    [[maybe_unused]] int32_t status)
+{
+    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Cannot handle termination for a component in FaultState");
 }
 
 IdentifierHash Component::getIdentifier() const
