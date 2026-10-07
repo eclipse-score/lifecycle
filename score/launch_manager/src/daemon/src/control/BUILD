@@ -11,6 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 load("@rules_cc//cc:defs.bzl", "cc_library")
+load("//config:mw_com_config.bzl", "mw_com_config")
 load("//tests/utils/bazel:unit_test.bzl", "lm_cc_test")
 
 cc_library(
@@ -44,4 +45,11 @@ lm_cc_test(
         "@score_baselibs//score/string_manipulation/arguments",
         "@score_communication//score/mw/com",
     ],
+)
+
+mw_com_config(
+    name = "control_provider_test_mw_com_config_gen",
+    out = "control_provider_test_mw_com_config.json",
+    profile = "provider_test",
+    visibility = ["//visibility:public"],
 )

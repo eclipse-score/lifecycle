@@ -11,13 +11,17 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
+load("//config:mw_com_config.bzl", "mw_com_config")
+
 exports_files(
     ["ecu_logging_config.json"],
     visibility = ["//tests/utils/environments:__subpackages__"],
 )
 
-exports_files(
-    ["mw_com_config.json"],
+mw_com_config(
+    name = "mw_com_config_gen",
+    out = "mw_com_config.json",
+    profile = "integration",
     visibility = [
         "//examples/demo_verification:__subpackages__",
         "//tests/integration:__subpackages__",
