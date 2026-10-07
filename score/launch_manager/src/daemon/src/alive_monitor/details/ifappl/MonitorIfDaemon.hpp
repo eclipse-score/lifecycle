@@ -80,11 +80,11 @@ class MonitorIfDaemon : public common::Observer<ifexm::ObservableEvent>, public 
     /// @brief Move to kInactiveOverflow state and push overflow event to observers
     void handleOverflow(void);
 
-    /// @brief Push new data to checkpoint observer
-    /// @details The checkpoint ring buffer data is pushed to checkpoint specific objects.
+    /// @brief Read checkpoints from the IPC buffer, pushing to observers, while there are entries within the timestamp
+    /// to read.
     /// @param [in]  f_syncTimestamp        Timestamp till data shall be read, newer data will not be considered
-    /// @returns True if reading data from IPC channel and pushing data to observers was successful, else false
-    bool pushNewDataToObservers(const std::chrono::nanoseconds f_syncTimestamp);
+    /// @returns True if successful, false if an error reading from the buffer occurred.
+    bool readIpcUntil(const std::chrono::nanoseconds f_syncTimestamp);
 
     /// Internal states for instances of this class
     enum class EInternalState : std::uint8_t

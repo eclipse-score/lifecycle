@@ -65,7 +65,7 @@ void MonitorIfDaemon::checkForNewData(const std::chrono::nanoseconds f_syncTimes
                 break;
             }
 
-            const auto readingFromIpcSuccessful = pushNewDataToObservers(f_syncTimestamp);
+            const auto readingFromIpcSuccessful = readIpcUntil(f_syncTimestamp);
             if (!readingFromIpcSuccessful)
             {
                 handleOverflow();
@@ -111,7 +111,7 @@ void MonitorIfDaemon::handleOverflow()
     status = EInternalState::kInactiveOverflow;
 }
 
-bool MonitorIfDaemon::pushNewDataToObservers(const std::chrono::nanoseconds f_syncTimestamp)
+bool MonitorIfDaemon::readIpcUntil(const std::chrono::nanoseconds f_syncTimestamp)
 {
     using IpcResult = CheckpointIpcServer::EIpcPeekResult;
     std::uint32_t amountOfReceivedCheckpoints{0U};
