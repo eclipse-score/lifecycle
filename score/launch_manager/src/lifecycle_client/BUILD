@@ -252,6 +252,15 @@ lm_cc_test(
     ],
 )
 
+lm_cc_test(
+    name = "applicationcontext_UT",
+    srcs = ["src/applicationcontext_UT.cpp"],
+    deps = [
+        ":applicationcontext",
+        "@googletest//:gtest_main",
+    ],
+)
+
 docs_bundle(
     name = "docs",
     code_targets = [
