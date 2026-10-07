@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#ifndef MOCK_PROC_LAUNCH_SYSCALLS
-#define MOCK_PROC_LAUNCH_SYSCALLS
+#ifndef MOCK_SYSCALLS
+#define MOCK_SYSCALLS
 
 #include <fcntl.h>
 #include <grp.h>
@@ -403,4 +403,4 @@ std::int32_t setaffinity(std::uint64_t cpumask) noexcept(true)
 
 // NOLINTEND
 
-#endif
+#endif  // MOCK_SYSCALLS
