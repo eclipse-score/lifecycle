@@ -33,15 +33,13 @@ end note
 [-> LM : SIGTERM
 LM -> LM : Determine transition plan to Run Target "Off"
 
-LM -> LM : Turn recovery actions off
-
 ref over LM, app1
   Transition to Run Target "Off":
   all Components are terminated in dependency order.
   See //Launch Manager - Component Termination//.
 end ref
 
-LM -> LM : Run Target Off successfully activated
+LM -> LM : Run Target "Off" successfully activated
 destroy app1
 destroy ran
 
