@@ -40,39 +40,17 @@ alignas(IpcCommsSync) static char g_fake_ipc_storage[sizeof(IpcCommsSync)];
 void* CreateFakeIpcComms(CommsType comms_type, pid_t pid)
 {
     std::memset(g_fake_ipc_storage, 0, sizeof(IpcCommsSync));
-
-    // Set pid_ and comms_type_
-    // Structure layout: reply_sync_, send_sync_, pid_, comms_type_
-    char* base = g_fake_ipc_storage;
-    const size_t semaphore_size = sizeof(Semaphore);
-
-    ProcessID* pid_ptr = reinterpret_cast<ProcessID*>(base + 2 * semaphore_size);
-    CommsType* type_ptr = reinterpret_cast<CommsType*>(base + 2 * semaphore_size + sizeof(ProcessID));
-
-    *pid_ptr = pid;
-    *type_ptr = comms_type;
+    IpcCommsSync* fake_comms = reinterpret_cast<IpcCommsSync*>(g_fake_ipc_storage);
+    fake_comms->pid_ = pid;
+    fake_comms->comms_type_ = comms_type;
 
     return g_fake_ipc_storage;
 }
 
 }  // anonymous namespace
 
-// Semaphore::post()/timedWait() are the real implementations (score/launch_manager/src/daemon/src/osal/details/posix/
-// semaphore.cpp), which call the POSIX functions sem_post()/sem_trywait(). Those POSIX calls are intercepted via the
-// linker's --wrap mechanism and routed to g_syscall_mock (see tests/utils/mocks/mock_syscalls.hpp), allowing their
-// return values/errno to be controlled with GMock expectations instead of overriding Semaphore itself.
-
 namespace score::mw::lifecycle
 {
-
-// Access to the static reported flag for testing
-// This is defined in the real implementation
-namespace
-{
-// Helper to reset static state between tests
-// We'll use fork or process isolation in Phase 3-4
-// For now, we document that tests may have interdependencies
-}
 
 class ReportRunningImplTest : public ::testing::Test
 {
@@ -380,9 +358,6 @@ TEST_F(ReportRunningImplTest, GivenReportRunningImplInstance_ExpectCloseEBadF_Wh
         "Expect close() to fail with errno EBADF."
         "When ReportRunningState() is called."
         "Then ReportRunningState() returns a kCommunicationError error.");
-    // Note: Branch 88:9 (comms_type != kReporting) cannot be covered because
-    // if we reach line 88, we must have passed the check at line 81 which
-    // guarantees comms_type == kReporting. This is defensive/redundant code.
 
     // Given
     ReportRunningImpl impl;
