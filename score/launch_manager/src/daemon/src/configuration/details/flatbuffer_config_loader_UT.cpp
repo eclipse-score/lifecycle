@@ -489,7 +489,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSwitchRunTargetAction)
 
     ::flatbuffers::FlatBufferBuilder fbb;
 
-    auto target_name = fbb.CreateString("Fallback");
+    auto target_name = fbb.CreateString("fallback_run_target");
     auto switch_action = fb::CreateSwitchRunTargetAction(fbb, target_name);
     auto rt_name = fbb.CreateString("Startup");
     auto rt = fb::CreateRunTarget(
@@ -499,7 +499,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSwitchRunTargetAction)
     auto result = loadBuffer(buildConfigWithRunTargets(fbb, rts));
 
     ASSERT_THAT(result.has_value(), IsTrue());
-    EXPECT_THAT(result->runTargets()[0].recovery_action.run_target, Eq("Fallback"));
+    EXPECT_THAT(result->runTargets()[0].recovery_action.run_target, Eq("fallback_run_target"));
 }
 
 TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
