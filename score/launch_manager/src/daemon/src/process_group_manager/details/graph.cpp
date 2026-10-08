@@ -269,7 +269,7 @@ void Graph::tryQueueNode(ComponentTask task)
             setState(GraphState::kAborting);
             // Also, we need to be careful not to recurse or deadlock here. The below function does not lock any mutex
             // nor call this function
-            handleNonTransitionExecution(GraphState::kAborting);
+            handleNonTransitionExecution();
             break;
         }
     }
@@ -365,7 +365,7 @@ void Graph::handleComponentEvent(const ComponentEvent& event)
 
                 if (jobs_in_progress_ == 0)
                 {
-                    handleNonTransitionExecution(getState());
+                    handleNonTransitionExecution();
                 }
             }
             else if constexpr (std::is_same_v<T, JobSkipped>)
@@ -398,23 +398,16 @@ void Graph::nodeExecuted(IdentifierHash node, score::cpp::expected_blank<ICompon
     }
     else if (was_last_in_queue)
     {
-        handleNonTransitionExecution(current_state);
+        handleNonTransitionExecution();
     }
 }
 
-void Graph::handleNonTransitionExecution(GraphState current_state)
+void Graph::handleNonTransitionExecution()
 {
     if (is_initial_state_transition_)
     {
         is_initial_state_transition_ = false;
-        if (current_state == GraphState::kCancelled)
-        {
-            LM_LOG_DEBUG() << "Cancelled initial transition at" << TIMESTAMP_MS();
-        }
-        else
-        {
-            LM_LOG_DEBUG() << "Failed initial transition at" << TIMESTAMP_MS();
-        }
+        LM_LOG_DEBUG() << "Failed initial transition at" << TIMESTAMP_MS();
     }
 
     setState(GraphState::kUndefinedState);
@@ -422,7 +415,7 @@ void Graph::handleNonTransitionExecution(GraphState current_state)
 
 void Graph::cancel()
 {
-    setState(GraphState::kCancelled);
+    setState(GraphState::kAborting);
 
     if (jobs_in_progress_ > 0)
     {
@@ -494,9 +487,6 @@ std::string_view Graph::toString(GraphState state)
     {
         case GraphState::kAborting:
             return "kAborting";
-
-        case GraphState::kCancelled:
-            return "kCancelled";
 
         case GraphState::kInTransition:
             return "kInTransition";
