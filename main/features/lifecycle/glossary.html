@@ -535,7 +535,7 @@ detects abnormal situation it can change the <a class="reference internal" href=
 </dd>
 <dt id="term-Component-failure">Component failure<a class="headerlink" href="#term-Component-failure" title="Link to this term">#</a></dt><dd><p>A state when the component has failed to reach its <a class="reference internal" href="#term-Ready-Condition"><span class="xref std std-term">Ready Condition</span></a>, a running component has terminated abnormally or its supervision failed.</p>
 </dd>
-<dt id="term-Ready-State">Ready State<a class="headerlink" href="#term-Ready-State" title="Link to this term">#</a></dt><dd><p>A state when the component is ready to provide services to other components.</p>
+<dt id="term-Ready-State">Ready State<a class="headerlink" href="#term-Ready-State" title="Link to this term">#</a></dt><dd><p>A state when the component has fulfilled its <a class="reference internal" href="#term-Ready-Condition"><span class="xref std std-term">Ready Condition</span></a>, i.e. is ready to provide services to other components.</p>
 </dd>
 <dt id="term-Dependency-between-components">Dependency (between components)<a class="headerlink" href="#term-Dependency-between-components" title="Link to this term">#</a></dt><dd><p>A configuration parameter indicating that <strong>Component A</strong> can only start
 after <strong>Component B</strong> has reached its <a class="reference internal" href="#term-Ready-State"><span class="xref std std-term">Ready State</span></a>. In this case,
@@ -568,10 +568,10 @@ on <strong>Run Target B</strong>.</p>
 <dt id="term-Ready-Condition">Ready Condition<a class="headerlink" href="#term-Ready-Condition" title="Link to this term">#</a></dt><dd><p>A configurable condition that must be satisfied before a component is considered ready and operational. Ready conditions can include file system checks, network availability, or custom application-specific signals.</p>
 <p>Ready conditions can either be reported by the component itself through the Lifecycle Interface or determined via external state monitoring. External state examples include: process started, file is available, socket was opened, or that the process finished successfully.</p>
 </dd>
-<dt id="term-Liveliness">Liveliness<a class="headerlink" href="#term-Liveliness" title="Link to this term">#</a></dt><dd><p>Term indicating that a <a class="reference internal" href="#term-Component"><span class="xref std std-term">Component</span></a> is periodically sending an
-alive notification (using the
-<a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int_op__lifecycle__report_health">logic_arc_int_op__lifecycle__report_health</a> interface) as
-per configuration.</p>
+<dt id="term-Liveliness">Liveliness<a class="headerlink" href="#term-Liveliness" title="Link to this term">#</a></dt><dd><p>Term indicating that a <a class="reference internal" href="#term-Component"><span class="xref std std-term">Component</span></a> is periodically sending an alive notification (using the
+<a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int_op__lifecycle__report_alive">logic_arc_int_op__lifecycle__report_alive</a> interface) as per configuration.</p>
+</dd>
+<dt id="term-Monitoring-of-Processes">Monitoring of Processes<a class="headerlink" href="#term-Monitoring-of-Processes" title="Link to this term">#</a></dt><dd><p>The activity of observing and checking if a process is running or has been exited with an abnormal status.</p>
 </dd>
 <dt id="term-Watchdog">Watchdog<a class="headerlink" href="#term-Watchdog" title="Link to this term">#</a></dt><dd><p>A monitoring mechanism that detects system failures and can trigger recovery actions.</p>
 </dd>

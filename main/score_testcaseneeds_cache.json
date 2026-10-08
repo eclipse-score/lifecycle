@@ -8732,7 +8732,7 @@
     "TestType": "interface-test",
     "DerivationTechnique": "design-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__failure_detect",
+    "PartiallyVerifies": "comp_req__launch_man__failure_detect_runtime",
     "FullyVerifies": null
   },
   {
@@ -8747,7 +8747,7 @@
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
     "PartiallyVerifies": "comp_req__launch_man__process_launch_args",
-    "FullyVerifies": "feat_req__lifecycle__conditional_startup, feat_req__lifecycle__control_commands, feat_req__lifecycle__process_ordering, feat_req__lifecycle__process_termination, feat_req__lifecycle__request_run_target_start, feat_req__lifecycle__run_target_support, feat_req__lifecycle__switch_run_targets, feat_req__lifecycle__terminationn_dependency, comp_req__launch_man__launch_manager_shutdown, comp_req__launch_man__process_state_comm, comp_req__launch_man__rt_rt_dep, comp_req__launch_man__rt_comp_dep"
+    "FullyVerifies": "feat_req__lifecycle__conditional_startup, feat_req__lifecycle__control_commands, feat_req__lifecycle__process_ordering, feat_req__lifecycle__process_termination, feat_req__lifecycle__run_target_support, feat_req__lifecycle__termination_dependency, comp_req__launch_man__switch_run_targets, comp_req__launch_man__launch_manager_shutdown, comp_req__launch_man__process_state_comm, comp_req__launch_man__rt_rt_dep, comp_req__launch_man__rt_comp_dep"
   },
   {
     "name": "test_recovery_action_simple_rep_failure",
@@ -8761,7 +8761,7 @@
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
     "PartiallyVerifies": "comp_req__launch_man__process_launch_args",
-    "FullyVerifies": "feat_req__lifecycle__recov_run_target_switch, feat_req__lifecycle__recovery_action_support, feat_req__lifecycle__liveliness_detection, comp_req__launch_man__failure_detect, comp_req__launch_man__rc_lifecycle, comp_req__launch_man__rc_os_state, comp_req__launch_man__rt_comp_dep"
+    "FullyVerifies": "feat_req__lifecycle__recovery_action_support, feat_req__lifecycle__liveliness_detection, comp_req__launch_man__recovery_switch_rt, comp_req__launch_man__failure_detect_startup, comp_req__launch_man__rc_lifecycle, comp_req__launch_man__rc_os_state, comp_req__launch_man__rt_comp_dep"
   },
   {
     "name": "test_rt_running_when_process_exits",
@@ -8774,7 +8774,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "feat_req__lifecycle__launch_support, comp_req__launch_man__process_state_comm",
+    "PartiallyVerifies": "feat_req__lifecycle__launch_support, feat_req__lifecycle__process_ordering, comp_req__launch_man__process_state_comm",
     "FullyVerifies": null
   },
   {
@@ -8788,7 +8788,7 @@
     "TestType": "interface-test",
     "DerivationTechnique": "explorative-testing",
     "result_text": "",
-    "PartiallyVerifies": "feat_req__lifecycle__launch_support",
+    "PartiallyVerifies": "feat_req__lifecycle__launch_support, feat_req__lifecycle__run_target_support, comp_req__launch_man__start_named_run_target, comp_req__launch_man__switch_run_targets",
     "FullyVerifies": null
   },
   {
@@ -8816,8 +8816,8 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": null,
-    "FullyVerifies": "feat_req__lifecycle__parallel_launch_support"
+    "PartiallyVerifies": "feat_req__lifecycle__launch_support",
+    "FullyVerifies": "comp_req__launch_man__launch_parallel"
   },
   {
     "name": "test_lm_shutdown",
@@ -8830,7 +8830,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "feat_req__lifecycle__terminationn_dependency, comp_req__launch_man__launcher_exit_shutdown",
+    "PartiallyVerifies": "feat_req__lifecycle__termination_dependency, comp_req__launch_man__launcher_exit_shutdown",
     "FullyVerifies": null
   },
   {
@@ -8844,7 +8844,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__recovery_switch_rt",
+    "PartiallyVerifies": "comp_req__launch_man__recovery_switch_rt, comp_req__launch_man__failure_detect_runtime, feat_req__lifecycle__monitor_processes",
     "FullyVerifies": null
   },
   {
@@ -8872,7 +8872,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__rc_lifecycle, comp_req__launch_man__recovery_switch_rt, feat_req__lifecycle__recov_run_target_switch, feat_req__lifecycle__recovery_action_support",
+    "PartiallyVerifies": "comp_req__launch_man__rc_lifecycle, comp_req__launch_man__recovery_switch_rt, comp_req__launch_man__failure_detect_startup, feat_req__lifecycle__recovery_action_support",
     "FullyVerifies": null
   },
   {
@@ -8914,8 +8914,8 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "feat_req__lifecycle__monitor_abnormal_term, feat_req__lifecycle__recovery_action_support, comp_req__launch_man__failure_detect",
-    "FullyVerifies": "feat_req__lifecycle__recov_run_target_switch, comp_req__launch_man__retries_configurable"
+    "PartiallyVerifies": "feat_req__lifecycle__monitor_processes, feat_req__lifecycle__recovery_action_support, comp_req__launch_man__failure_detect_startup, comp_req__launch_man__recovery_reactivate",
+    "FullyVerifies": "comp_req__launch_man__retries_configurable"
   },
   {
     "name": "test_lm_shutdown",
@@ -8928,7 +8928,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "feat_req__lifecycle__terminationn_dependency, comp_req__launch_man__launcher_exit_shutdown",
+    "PartiallyVerifies": "feat_req__lifecycle__termination_dependency, comp_req__launch_man__launcher_exit_shutdown",
     "FullyVerifies": null
   },
   {
