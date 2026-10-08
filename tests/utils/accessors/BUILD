@@ -15,6 +15,7 @@ load("@rules_cc//cc:cc_library.bzl", "cc_library")
 
 cc_library(
     name = "accessor_report_running_impl",
+    testonly = True,
     hdrs = ["accessor_report_running_impl.hpp"],
     visibility = ["//score:__subpackages__"],
     deps = [
