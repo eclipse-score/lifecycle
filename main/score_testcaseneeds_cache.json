@@ -7658,6 +7658,20 @@
     "FullyVerifies": null
   },
   {
+    "name": "score/launch_manager/src/lifecycle_client/src/rust/test-1444857508/lifecycle_client_rs_test",
+    "file": null,
+    "line": null,
+    "result": "passed",
+    "repo_name": null,
+    "hash": null,
+    "url": null,
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
     "name": "test_smoke_test",
     "file": "scripts/config_mapping/integration_tests.py",
     "line": "138",
