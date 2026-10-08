@@ -33,10 +33,10 @@ Verification Report
 The following additional tables are used for checking traceability completeness.
 
 
-Tracability of Feature Requirements to (valid) Component Requirements
+Tracability of (valid) Feature Requirements to Component Requirements
 ---------------------------------------------------------------------
 
-Feature requirements without any derived component requirements are highlighted in red.
+Valid feature requirements without any derived component requirements are highlighted in red.
 
 .. dropdown:: Show component traceability table
    :animate: fade-in
@@ -53,7 +53,7 @@ Feature requirements without any derived component requirements are highlighted 
 Traceability of (valid) Feature Requirements to Feature Architecture
 --------------------------------------------------------------------
 
-Feature requirements without any linked feature architecture elements are highlighted in red.
+Valid feature requirements without any linked feature architecture element are highlighted in red.
 
 .. dropdown:: Show architecture traceability table
    :animate: fade-in
