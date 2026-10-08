@@ -20,6 +20,7 @@
 #include <gtest/gtest.h>
 #include <score/stop_token.hpp>
 #include <array>
+#include <thread>
 
 namespace score::mw::lifecycle::internal
 {
@@ -36,11 +37,6 @@ const cpp::stop_token mock_stop_token = mock_stop_source.get_token();
 void expect_mock_handle(const Handle handle)
 {
     EXPECT_EQ(std::get<ProcessHandle>(handle).pid, mock_handle.pid);
-}
-
-void expect_mock_stop_token(const cpp::stop_token token)
-{
-    EXPECT_EQ(token, mock_stop_token);
 }
 
 TEST(ComponentTest, StartSucceeds)
@@ -62,8 +58,7 @@ TEST(ComponentTest, StartActionCalled)
     MockForceStopAction force_stop_action;
     Component component(start_action, stop_action, force_stop_action);
 
-    EXPECT_CALL(start_action, start(_))
-        .WillOnce(DoAll(WithArg<0>(Invoke(expect_mock_stop_token)), Return(Result<Handle>{mock_handle})));
+    EXPECT_CALL(start_action, start(_)).WillOnce(Return(Result<Handle>{mock_handle}));
 
     static_cast<void>(component.activate(mock_stop_token));
 }
@@ -77,10 +72,7 @@ TEST(ComponentTest, StopActionCalled)
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
     EXPECT_CALL(stop_action, stop(_, _))
-        .WillOnce(DoAll(
-            WithArg<0>(Invoke(expect_mock_stop_token)),
-            WithArg<1>(Invoke(expect_mock_handle)),
-            Return(Result<void>{})));
+        .WillOnce(DoAll(WithArg<1>(Invoke(expect_mock_handle)), Return(Result<void>{})));
 
     static_cast<void>(component.activate(cpp::stop_token{}));
     component.deactivate(mock_stop_token);
@@ -99,17 +91,39 @@ TEST(ComponentTest, ReadyConditionsCalled)
     InSequence sequence;
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
     EXPECT_CALL(ready_condition_1, wait(_, _))
-        .WillOnce(DoAll(
-            WithArg<0>(Invoke(expect_mock_stop_token)),
-            WithArg<1>(Invoke(expect_mock_handle)),
-            Return(Result<void>{})));
+        .WillOnce(DoAll(WithArg<1>(Invoke(expect_mock_handle)), Return(Result<void>{})));
     EXPECT_CALL(ready_condition_2, wait(_, _))
-        .WillOnce(DoAll(
-            WithArg<0>(Invoke(expect_mock_stop_token)),
-            WithArg<1>(Invoke(expect_mock_handle)),
-            Return(Result<void>{})));
+        .WillOnce(DoAll(WithArg<1>(Invoke(expect_mock_handle)), Return(Result<void>{})));
 
     static_cast<void>(component.activate(mock_stop_token));
+}
+
+TEST(ComponentTest, TerminationDuringStartupInterruptsActivation)
+{
+    MockStartAction start_action;
+    MockStopAction stop_action;
+    MockForceStopAction force_stop_action;
+    MockReadyCondition ready_condition;
+    std::array<std::reference_wrapper<const IReadyCondition>, 1> ready_conditions{ready_condition};
+    Component component(start_action, stop_action, force_stop_action, ready_conditions);
+
+    ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+    EXPECT_CALL(ready_condition, wait(_, _)).WillOnce(Invoke([&component](cpp::stop_token token, const Handle) {
+        // While the ready condition is waiting, a termination comes in from
+        // another thread. We test with a real thread to catch deadlocks.
+        std::thread termination_thread([&component]() {
+            static_cast<void>(component.tryHandleTermination(1));
+        });
+        termination_thread.join();
+
+        // As a result of the termination, the ready condition is stopped.
+        EXPECT_TRUE(token.stop_requested());
+        return Result<void>{};
+    }));
+
+    const auto result = component.activate(cpp::stop_token{});
+
+    EXPECT_FALSE(result.has_value());
 }
 
 TEST(ComponentTest, StartSetsActive)
