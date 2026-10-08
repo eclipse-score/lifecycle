@@ -15,7 +15,6 @@ load("//tests/utils/bazel:unit_test.bzl", "lm_cc_test")
 
 cc_library(
     name = "control_provider",
-    srcs = ["control_provider.cpp"],
     hdrs = ["control_provider.hpp"],
     include_prefix = "score/mw/launch_manager/control",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/control",
