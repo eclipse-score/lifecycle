@@ -39,6 +39,19 @@ void expect_mock_handle(const Handle handle)
     EXPECT_EQ(std::get<ProcessHandle>(handle).pid, mock_handle.pid);
 }
 
+IComponent::RequestResult terminateFromOtherThread(Component& component, const int32_t status)
+{
+    // Termination notifications come from another thread in reality, so
+    // replacate it in the test to catch concurrency problems.
+
+    IComponent::RequestResult result;
+    std::thread termination_thread([&component, &result, status]() {
+        result = component.tryHandleTermination(status);
+    });
+    termination_thread.join();
+    return result;
+}
+
 TEST(ComponentTest, StartSucceeds)
 {
     MockStartAction start_action;
@@ -109,12 +122,7 @@ TEST(ComponentTest, TerminationDuringStartupInterruptsActivation)
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
     EXPECT_CALL(ready_condition, wait(_, _)).WillOnce(Invoke([&component](cpp::stop_token token, const Handle) {
-        // While the ready condition is waiting, a termination comes in from
-        // another thread. We test with a real thread to catch deadlocks.
-        std::thread termination_thread([&component]() {
-            static_cast<void>(component.tryHandleTermination(1));
-        });
-        termination_thread.join();
+        static_cast<void>(terminateFromOtherThread(component, 1));
 
         // As a result of the termination, the ready condition is stopped.
         EXPECT_TRUE(token.stop_requested());
@@ -256,6 +264,158 @@ TEST(ComponentTest, CannotDeactivateInFaultState)
 
     EXPECT_DEATH(
         { static_cast<void>(component.deactivate(cpp::stop_token{})); }, "Cannot deactivate component in FaultState");
+}
+
+TEST(ComponentTest, SelfTerminatingExitZeroInReadyStateIsSuccess)
+{
+    MockStartAction start_action;
+    MockStopAction stop_action;
+    MockForceStopAction force_stop_action;
+    cpp::span<std::reference_wrapper<const IReadyCondition>> ready_conditions;
+    Component component(start_action, stop_action, force_stop_action, ready_conditions, true);
+
+    ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+
+    static_cast<void>(component.activate(cpp::stop_token{}));
+    const auto result = component.tryHandleTermination(0);
+
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ(result.value(), IComponent::RequestState::kSuccess);
+}
+
+TEST(ComponentTest, SelfTerminatingExitZeroInReadyStateIsActive)
+{
+    MockStartAction start_action;
+    MockStopAction stop_action;
+    MockForceStopAction force_stop_action;
+    cpp::span<std::reference_wrapper<const IReadyCondition>> ready_conditions;
+    Component component(start_action, stop_action, force_stop_action, ready_conditions, true);
+
+    ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+
+    static_cast<void>(component.activate(cpp::stop_token{}));
+    static_cast<void>(component.tryHandleTermination(0));
+
+    EXPECT_TRUE(component.active());
+}
+
+TEST(ComponentTest, SelfTerminatingExitNonZeroInReadyStateIsError)
+{
+    MockStartAction start_action;
+    MockStopAction stop_action;
+    MockForceStopAction force_stop_action;
+    cpp::span<std::reference_wrapper<const IReadyCondition>> ready_conditions;
+    Component component(start_action, stop_action, force_stop_action, ready_conditions, true);
+
+    ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+
+    static_cast<void>(component.activate(cpp::stop_token{}));
+    const auto result = component.tryHandleTermination(1);
+
+    ASSERT_FALSE(result.has_value());
+    EXPECT_EQ(result.error(), IComponent::ComponentError::kErrorAfterReady);
+}
+
+TEST(ComponentTest, SelfTerminatingExitNonZeroInReadyStateIsNotActive)
+{
+    MockStartAction start_action;
+    MockStopAction stop_action;
+    MockForceStopAction force_stop_action;
+    cpp::span<std::reference_wrapper<const IReadyCondition>> ready_conditions;
+    Component component(start_action, stop_action, force_stop_action, ready_conditions, true);
+
+    ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+
+    static_cast<void>(component.activate(cpp::stop_token{}));
+    static_cast<void>(component.tryHandleTermination(1));
+
+    EXPECT_FALSE(component.active());
+}
+
+TEST(ComponentTest, SelfTerminatingExitZeroInStartingStateIsSuccess)
+{
+    MockStartAction start_action;
+    MockStopAction stop_action;
+    MockForceStopAction force_stop_action;
+    MockReadyCondition ready_condition;
+    std::array<std::reference_wrapper<const IReadyCondition>, 1> ready_conditions{ready_condition};
+    Component component(start_action, stop_action, force_stop_action, ready_conditions, true);
+
+    ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+
+    IComponent::RequestResult result;
+    EXPECT_CALL(ready_condition, wait(_, _)).WillOnce(Invoke([&](cpp::stop_token, const Handle) {
+        result = terminateFromOtherThread(component, 0);
+        return Result<void>{};
+    }));
+
+    static_cast<void>(component.activate(cpp::stop_token{}));
+
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ(result.value(), IComponent::RequestState::kSuccess);
+}
+
+TEST(ComponentTest, SelfTerminatingExitZeroInStartingStateIsActive)
+{
+    MockStartAction start_action;
+    MockStopAction stop_action;
+    MockForceStopAction force_stop_action;
+    MockReadyCondition ready_condition;
+    std::array<std::reference_wrapper<const IReadyCondition>, 1> ready_conditions{ready_condition};
+    Component component(start_action, stop_action, force_stop_action, ready_conditions, true);
+
+    ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+    EXPECT_CALL(ready_condition, wait(_, _)).WillOnce(Invoke([&](cpp::stop_token, const Handle) {
+        static_cast<void>(terminateFromOtherThread(component, 0));
+        return Result<void>{};
+    }));
+
+    static_cast<void>(component.activate(cpp::stop_token{}));
+
+    EXPECT_TRUE(component.active());
+}
+
+TEST(ComponentTest, SelfTerminatingExitNonZeroInStartingStateIsError)
+{
+    MockStartAction start_action;
+    MockStopAction stop_action;
+    MockForceStopAction force_stop_action;
+    MockReadyCondition ready_condition;
+    std::array<std::reference_wrapper<const IReadyCondition>, 1> ready_conditions{ready_condition};
+    Component component(start_action, stop_action, force_stop_action, ready_conditions, true);
+
+    ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+
+    IComponent::RequestResult result;
+    EXPECT_CALL(ready_condition, wait(_, _)).WillOnce(Invoke([&](cpp::stop_token, const Handle) {
+        result = terminateFromOtherThread(component, 1);
+        return Result<void>{};
+    }));
+
+    static_cast<void>(component.activate(cpp::stop_token{}));
+
+    ASSERT_FALSE(result.has_value());
+    EXPECT_EQ(result.error(), IComponent::ComponentError::kErrorAfterReady);
+}
+
+TEST(ComponentTest, SelfTerminatingExitNonZeroInStartingStateIsNotActive)
+{
+    MockStartAction start_action;
+    MockStopAction stop_action;
+    MockForceStopAction force_stop_action;
+    MockReadyCondition ready_condition;
+    std::array<std::reference_wrapper<const IReadyCondition>, 1> ready_conditions{ready_condition};
+    Component component(start_action, stop_action, force_stop_action, ready_conditions, true);
+
+    ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+    EXPECT_CALL(ready_condition, wait(_, _)).WillOnce(Invoke([&](cpp::stop_token, const Handle) {
+        static_cast<void>(terminateFromOtherThread(component, 1));
+        return Result<void>{};
+    }));
+
+    static_cast<void>(component.activate(cpp::stop_token{}));
+
+    EXPECT_FALSE(component.active());
 }
 
 }  // namespace

@@ -186,6 +186,15 @@ IComponent::RequestResult Component::StartingState::tryHandleTermination(Compone
         }
     }
 
+    if (component.self_terminating_ && status == 0)
+    {
+        // Self-terminating means the component is logically still running
+        // even though the resource has stopped.
+        // Termination by itself does not make the component ready; if this
+        // is desired then a ready condition should handle it above.
+        return RequestState::kSuccess;
+    }
+
     // Interrupt the worker thread waiting in activate().
     static_cast<void>(stop_activation_.request_stop());
 
@@ -197,7 +206,8 @@ IComponent::RequestResult Component::ReadyState::tryHandleTermination(Component&
 {
     if (component.self_terminating_ && status == 0)
     {
-        component.setState(TerminatedState{});
+        // Self-terminating means the component is logically still running
+        // even though the resource has stopped.
         return RequestState::kSuccess;
     }
 
