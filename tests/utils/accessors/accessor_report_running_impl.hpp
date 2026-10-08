@@ -27,13 +27,6 @@ class ReportRunningImplTestAccessor
     {
         ReportRunningImpl::reported = value;
     }
-
-    /// @brief Accessor method to get reported value
-    /// @note For testing purposes only
-    static bool GetReportedForTesting()
-    {
-        return ReportRunningImpl::reported;
-    }
 };
 }  // namespace score::mw::lifecycle
 

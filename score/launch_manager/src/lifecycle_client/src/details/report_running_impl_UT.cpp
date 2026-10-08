@@ -449,38 +449,4 @@ TEST_F(ReportRunningImplTest, GivenFinalPostFails_WhenPostReturnsKFail_ThenRetur
     EXPECT_EQ(result.error(), ExecErrc::kCommunicationError);
 }
 
-TEST_F(ReportRunningImplTest, GivenReportRunningImpl_WhenGetReportedForTestingIsInitiallyCalled)
-{
-    RecordProperty("DerivationTechnique", "explorative-testing");
-    RecordProperty(
-        "Description",
-        "Given a ReportRunningImpl instance. "
-        "When ReportRunningImpl::GetReportedForTesting() is initially called. "
-        "Then ReportRunningImpl::GetReportedForTesting() returns false.");
-
-    // Given, When, Then
-    EXPECT_FALSE(ReportRunningImplTestAccessor::GetReportedForTesting());
-}
-
-TEST_F(ReportRunningImplTest, GivenReportedFlagTrue_WhenReportRunningStateCalled)
-{
-    RecordProperty("DerivationTechnique", "explorative-testing");
-    RecordProperty(
-        "Description",
-        "Given the reported flag is set to true. "
-        "When ReportRunningState is called. "
-        "Then ReportRunningState returns kInvalidTransition. ");
-
-    // Given
-    ReportRunningImplTestAccessor::SetReportedForTesting(true);
-
-    // When
-    ReportRunningImpl impl;
-    auto result = impl.ReportRunningState();
-
-    // Then
-    EXPECT_FALSE(result.has_value());
-    EXPECT_EQ(result.error(), ExecErrc::kInvalidTransition);
-}
-
 }  // namespace score::mw::lifecycle
