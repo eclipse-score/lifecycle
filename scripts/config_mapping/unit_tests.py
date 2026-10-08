@@ -210,7 +210,7 @@ def test_preprocessing_non_merging_dicts():
                 "component_properties": {},
                 "deployment_config": {
                     "ready_recovery_action": {
-                        "switch_run_target": {"run_target": "Fallback"}
+                        "switch_run_target": {"run_target": "fallback_run_target"}
                     },
                     "recovery_action": {"restart": {"number_of_attempts": 5}},
                 },

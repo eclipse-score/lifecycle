@@ -334,8 +334,6 @@ void ProcessGroupManager::handleRecoveryRequest(const IdentifierHash& process_id
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(bool(graph_), "Graph not initialized");
 
     const IdentifierHash old_state = graph_->getRequestedRunTarget();
-    // the fallback state doesn't have a name in the config, so we use
-    // "fallback", it doesn't actually matter...
     const GraphState graph_state = graph_->getState();
 
     LM_LOG_DEBUG() << "handleRecoveryRequest: Processing recovery request for process" << process_identifier

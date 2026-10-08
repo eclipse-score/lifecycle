@@ -347,14 +347,14 @@ TEST_F(ConverterTest, ConvertSwitchRunTargetActionValid)
 {
     RecordProperty("Description", "convertSwitchRunTargetAction returns the Run Target name.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto target = fbb.CreateString("Fallback");
+    auto target = fbb.CreateString("fallback_run_target");
     auto sa = fb::CreateSwitchRunTargetAction(fbb, target);
     fbb.Finish(sa);
     const auto* ptr = ::flatbuffers::GetRoot<fb::SwitchRunTargetAction>(fbb.GetBufferPointer());
 
     auto result = convertSwitchRunTargetAction(ptr);
     ASSERT_THAT(result.has_value(), IsTrue());
-    EXPECT_THAT(result->run_target, Eq("Fallback"));
+    EXPECT_THAT(result->run_target, Eq("fallback_run_target"));
 }
 
 TEST_F(ConverterTest, ConvertComponentAliveSupervisionNullReturnsDefault)
@@ -1034,7 +1034,7 @@ TEST_F(ConverterTest, ConvertRunTargetsValid)
     };
 
     auto rt_a = build_rt("Startup", "SafeState");
-    auto rt_b = build_rt("Running", "Fallback");
+    auto rt_b = build_rt("Running", "fallback_run_target");
     auto rts = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::RunTarget>>{rt_a, rt_b});
     fbb.Finish(rts);
     const auto* ptr =
@@ -1046,7 +1046,7 @@ TEST_F(ConverterTest, ConvertRunTargetsValid)
     EXPECT_THAT((*result)[0].name, Eq("Startup"));
     EXPECT_THAT((*result)[0].recovery_action.run_target, Eq("SafeState"));
     EXPECT_THAT((*result)[1].name, Eq("Running"));
-    EXPECT_THAT((*result)[1].recovery_action.run_target, Eq("Fallback"));
+    EXPECT_THAT((*result)[1].recovery_action.run_target, Eq("fallback_run_target"));
 }
 
 TEST_F(ConverterTest, ConvertRunTargetsWithInvalidRunTargetReturnsError)

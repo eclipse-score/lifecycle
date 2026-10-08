@@ -143,7 +143,7 @@ class Graph final
     using Component = std::variant<ProcessInfoNode, RunTarget>;
 
     static constexpr std::string_view off_state_name{"Off"};
-    static constexpr std::string_view recovery_state_name{"fallback"};
+    static constexpr std::string_view recovery_state_name{"fallback_run_target"};
 
     /// @brief Constructor to initialize a Graph object.
     /// @param max_num_nodes Maximum number of nodes this graph can hold.

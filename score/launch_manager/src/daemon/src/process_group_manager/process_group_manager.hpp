@@ -116,7 +116,7 @@ class ProcessGroupManager final : public IRunTargetControl
 
     void registerActiveRunTargetCallback(ActivationCallbackT callback) noexcept override;
 
-    const IdentifierHash recovery_state_{"fallback"};
+    const IdentifierHash recovery_state_{Graph::recovery_state_name};
 
   private:
     /// @brief Handle a single recovery request emitted by Alive supervision.
