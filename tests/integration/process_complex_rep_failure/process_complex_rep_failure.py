@@ -21,7 +21,7 @@ from attribute_plugin import add_test_properties
     partially_verifies=[
         "comp_req__launch_man__rc_lifecycle",
         "comp_req__launch_man__recovery_switch_rt",
-        "feat_req__lifecycle__recov_run_target_switch",
+        "comp_req__launch_man__failure_detect_startup",
         "feat_req__lifecycle__recovery_action_support",
     ],
     test_type="requirements-based",

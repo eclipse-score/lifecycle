@@ -19,7 +19,7 @@ from attribute_plugin import add_test_properties
 @add_test_properties(
     fully_verifies=[],
     partially_verifies=[
-        "feat_req__lifecycle__terminationn_dependency",
+        "feat_req__lifecycle__termination_dependency",
         "comp_req__launch_man__launcher_exit_shutdown",
     ],
     test_type="requirements-based",

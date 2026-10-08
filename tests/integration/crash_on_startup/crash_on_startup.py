@@ -20,14 +20,12 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    fully_verifies=[
-        "feat_req__lifecycle__recov_run_target_switch",
-        "comp_req__launch_man__retries_configurable",
-    ],
+    fully_verifies=["comp_req__launch_man__retries_configurable"],
     partially_verifies=[
-        "feat_req__lifecycle__monitor_abnormal_term",
+        "feat_req__lifecycle__monitor_processes",
         "feat_req__lifecycle__recovery_action_support",
-        "comp_req__launch_man__failure_detect",
+        "comp_req__launch_man__failure_detect_startup",
+        "comp_req__launch_man__recovery_reactivate",
     ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",

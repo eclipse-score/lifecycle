@@ -35,7 +35,7 @@ Launching Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__custom_cond_support[version==1]
+    :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: invalid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -46,9 +46,6 @@ Launching Processes
     .. note::
         This is a similar concept to piping in shell scripting, where the output of one process can be used as the input to another.
 
-.. 
-    Why does everything map here to feat_req__lifecycle__custom_cond_support? 
-    When looking on this requirement it seems it is related to Control interface API.
 .. comp_req:: Handling process args
     :id: comp_req__launch_man__process_launch_args
     :reqtype: Functional
@@ -67,7 +64,7 @@ Launching Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__custom_cond_support[version==1]
+    :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -80,7 +77,7 @@ Launching Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__custom_cond_support[version==1]
+    :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -94,7 +91,7 @@ Launching Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__custom_cond_support[version==1]
+    :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -107,7 +104,7 @@ Launching Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__custom_cond_support[version==1]
+    :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -120,7 +117,7 @@ Launching Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__custom_cond_support[version==1]
+    :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -133,7 +130,7 @@ Launching Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__custom_cond_support[version==1]
+    :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -141,12 +138,12 @@ Launching Processes
     The :term:`Launch Manager` shall provide support to be started with security
     policy as non-root.
 
-.. comp_req:: Configurable amount of retries
+.. comp_req:: Configurable amount of retries on startup
     :id: comp_req__launch_man__retries_configurable
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__custom_cond_support[version==1]
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -159,7 +156,7 @@ Launching Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__custom_cond_support[version==1]
+    :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -172,7 +169,7 @@ Launching Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__custom_cond_support[version==1]
+    :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -186,7 +183,7 @@ Launching Processes
     :reqtype: Functional
     :security: YES
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__custom_cond_support[version==1]
+    :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -199,7 +196,7 @@ Launching Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__custom_cond_support[version==1]
+    :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -212,7 +209,7 @@ Launching Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__custom_cond_support[version==1]
+    :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -225,7 +222,7 @@ Launching Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__custom_cond_support[version==1]
+    :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -239,7 +236,7 @@ Launching Processes
     :reqtype: Functional
     :security: YES
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__custom_cond_support[version==1]
+    :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -252,13 +249,15 @@ Launching Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__custom_cond_support[version==1]
+    :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall provide support for launching a process with a
-    given set of system resource limits (rlimit).
+    The :term:`Launch Manager` shall provide support for launching a process with 
+    a set of system resource limits (rlimit) which are defined by the 
+    POSIX-Standard (IEEE Std 1003.1). I.e. RLIMIT_CORE, RLIMIT_CPU,
+    RLIMIT_DATA, RLIMIT_FSIZE, RLIMIT_NOFILE, RLIMIT_STACK and RLIMIT_AS.
 
 
 .. comp_req:: Process detach from parent support
@@ -266,7 +265,7 @@ Launching Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__custom_cond_support[version==1]
+    :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: invalid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -278,6 +277,19 @@ Launching Processes
         Detaching from the parent process is also known as creating a daemon process.
         **Use case:** There might be processes which need to continue running independently of the launch manager.
 
+
+.. comp_req:: Launching processes in parallel
+    :id: comp_req__launch_man__launch_parallel
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__launch_support[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall shall provide support for launching :term:`Processes <Process>`
+    in parallel.
 
 Conditional Launching
 =====================
@@ -484,7 +496,7 @@ Process Management
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__running_processes[version==1]
-    :status: valid
+    :status: invalid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -496,7 +508,7 @@ Process Management
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__running_processes[version==1]
+    :derived_from: feat_req__lifecycle__process_ordering[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -509,7 +521,7 @@ Process Management
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__running_processes[version==1]
+    :derived_from: feat_req__lifecycle__termination_dependency[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -522,8 +534,8 @@ Process Management
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__running_processes[version==1]
-    :status: valid
+    :derived_from: feat_req__lifecycle__termination_dependency[version==1]
+    :status: invalid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -533,12 +545,24 @@ Process Management
 Run Targets
 ===========
 
+.. comp_req:: Launching run target
+    :id: comp_req__launch_man__start_named_run_target
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__run_target_support[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall be able to start a named :term:`Run Target`.
+
 .. comp_req:: Process state
     :id: comp_req__launch_man__process_state_comm
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__switch_run_targets[version==1]
+    :derived_from: feat_req__lifecycle__process_ordering[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -546,6 +570,18 @@ Run Targets
     The :term:`Launch Manager` shall have a means for the launched :term:`Processes <Process>`
     to communicate a state, which represents the launched processes' internal state,
     to the launcher.
+
+.. comp_req:: Switch between run targets
+    :id: comp_req__launch_man__switch_run_targets
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__run_target_support[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall be able to switch between different :term:`run targets <Run target>`.
 
 
 Terminating Processes
@@ -556,7 +592,7 @@ Terminating Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__switch_run_targets[version==1]
+    :derived_from: feat_req__lifecycle__process_termination[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -569,7 +605,7 @@ Terminating Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__terminationn_dependency[version==1]
+    :derived_from: feat_req__lifecycle__process_termination[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -582,7 +618,7 @@ Terminating Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__terminationn_dependency[version==1]
+    :derived_from: feat_req__lifecycle__termination_dependency[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -595,7 +631,7 @@ Terminating Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__terminationn_dependency[version==1]
+    :derived_from: feat_req__lifecycle__termination_dependency[version==1]
     :status: invalid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -612,7 +648,7 @@ Terminating Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__terminationn_dependency[version==1]
+    :derived_from: feat_req__lifecycle__termination_dependency[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -625,7 +661,7 @@ Terminating Processes
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__terminationn_dependency[version==1]
+    :derived_from: feat_req__lifecycle__process_termination[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -642,7 +678,7 @@ Monitoring, Notification and Recovery
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__monitor_abnormal_term[version==1]
+    :derived_from: feat_req__lifecycle__monitor_processes[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -668,7 +704,7 @@ Monitoring, Notification and Recovery
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
+    :derived_from: feat_req__lifecycle__monitor_processes[version==1]
     :status: invalid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -681,25 +717,37 @@ Monitoring, Notification and Recovery
         **Use case:** There might be processes which are needed to start very early during bootup and 
         are therefore launched by the system before the :term:`Launch Manager` takes control.
 
-.. comp_req:: Process launch monitoring
-    :id: comp_req__launch_man__failure_detect
+.. comp_req:: Component monitoring during startup
+    :id: comp_req__launch_man__failure_detect_startup
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__switch_run_targets[version==1]
+    :derived_from: feat_req__lifecycle__monitor_processes[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall be able to detect and react to failure of the
-    process launch.
+    The :term:`Launch Manager` shall be able to detect :term:`Component failure` during startup of the :term:`Component`. I.e. before reaching its :term:`Ready State`.
+
+.. comp_req:: Component monitoring during runtime
+    :id: comp_req__launch_man__failure_detect_runtime
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__monitor_processes[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall be able to detect :term:`Component failure` during runtime of the :term:`Component`. I.e. after reaching its :term:`Ready State`.
+
 
 .. comp_req:: Recovery by reactivating the component
     :id: comp_req__launch_man__recovery_reactivate
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -713,7 +761,7 @@ Monitoring, Notification and Recovery
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -727,7 +775,7 @@ Monitoring, Notification and Recovery
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
     :status: invalid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -741,7 +789,7 @@ Monitoring, Notification and Recovery
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
     :status: invalid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -754,7 +802,7 @@ Monitoring, Notification and Recovery
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
     :status: invalid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
@@ -863,7 +911,7 @@ Logging
     :security: NO
     :safety: QM
     :derived_from: feat_req__lifecycle__deps_visualization[version==1]
-    :status: valid
+    :status: invalid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -878,7 +926,7 @@ Configuration file
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__config_file_support[version==1]
-    :status: valid
+    :status: invalid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -890,7 +938,7 @@ Configuration file
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__config_file_support[version==1]
-    :status: valid
+    :status: invalid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -929,7 +977,7 @@ Configuration file
     :security: NO
     :safety: QM
     :derived_from: feat_req__lifecycle__deps_visualization[version==1]
-    :status: valid
+    :status: invalid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 

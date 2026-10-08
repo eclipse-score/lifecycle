@@ -52,7 +52,7 @@ A component maintains the following internal state machine:
    :fulfils: feat_req__lifecycle__process_termination[version==1],
              feat_req__lifecycle__launch_support[version==1],
              feat_req__lifecycle__process_ordering[version==1],
-             feat_req__lifecycle__custom_cond_support[version==1],
+             feat_req__lifecycle__control_commands[version==1],
              feat_req__lifecycle__conditional_startup[version==1],
    :belongs_to: feat__lifecycle[version==1]
 
@@ -73,7 +73,6 @@ This is the case if the component is configured to be ready when the underlying 
    :fulfils: feat_req__lifecycle__process_termination[version==1],
              feat_req__lifecycle__launch_support[version==1],
              feat_req__lifecycle__process_ordering[version==1],
-             feat_req__lifecycle__custom_cond_support[version==1],
              feat_req__lifecycle__conditional_startup[version==1],
    :belongs_to: feat__lifecycle[version==1]
 

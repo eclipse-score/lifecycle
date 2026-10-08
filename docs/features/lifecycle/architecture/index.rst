@@ -86,7 +86,6 @@ Static Architecture
    :status: valid
    :version: 1
    :fulfils: feat_req__lifecycle__component_group_config[version==1],
-             feat_req__lifecycle__config_file_support[version==1],
              feat_req__lifecycle__run_target_support[version==1]
    :belongs_to: feat__lifecycle
    :includes: logic_arc_int__lifecycle__lifecycle_if[version==1],

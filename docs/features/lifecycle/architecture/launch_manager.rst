@@ -156,7 +156,7 @@ Launch Manager Initial Startup
    :belongs_to: feat__lifecycle[version==1]
    :fulfils: feat_req__lifecycle__launch_support[version==1],
              feat_req__lifecycle__process_ordering[version==1],
-             feat_req__lifecycle__start_named_run_target[version==1]
+             feat_req__lifecycle__run_target_support[version==1]
 
    .. uml:: _assets/launch_manager_startup.puml
       :scale: 50
@@ -201,9 +201,8 @@ Component Dependencies and Ready Conditions
    :belongs_to: feat__lifecycle[version==1]
    :fulfils: feat_req__lifecycle__launch_support[version==1],
              feat_req__lifecycle__process_ordering[version==1],
-             feat_req__lifecycle__start_named_run_target[version==1],
-             feat_req__lifecycle__conditional_startup[version==1],
-             feat_req__lifecycle__parallel_launch_support[version==1],
+             feat_req__lifecycle__run_target_support[version==1],
+             feat_req__lifecycle__conditional_startup[version==1]
 
    .. uml:: _assets/launch_manager_run_target_running.puml
       :scale: 50
@@ -224,7 +223,7 @@ Component Termination
    :belongs_to: feat__lifecycle[version==1]
    :fulfils: feat_req__lifecycle__process_termination[version==1],
              feat_req__lifecycle__process_ordering[version==1],
-             feat_req__lifecycle__terminationn_dependency[version==1]
+             feat_req__lifecycle__termination_dependency[version==1]
 
    .. uml:: _assets/launch_manager_run_target_off.puml
       :scale: 50
@@ -248,9 +247,8 @@ Component crashes outside an active transition
    :version: 1
    :safety: ASIL_B
    :belongs_to: feat__lifecycle[version==1]
-   :fulfils: feat_req__lifecycle__monitor_abnormal_term[version==1],
-             feat_req__lifecycle__recovery_action_support[version==1],
-             feat_req__lifecycle__recov_run_target_switch[version==1]
+   :fulfils: feat_req__lifecycle__monitor_processes[version==1],
+             feat_req__lifecycle__recovery_action_support[version==1]
 
    .. uml:: _assets/launch_manager_random_crash.puml
       :scale: 50
