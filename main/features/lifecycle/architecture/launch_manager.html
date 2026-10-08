@@ -476,7 +476,7 @@ managing 9 components. If the user selects e.g. the <a class="reference internal
 the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> will start the components in the following order
 defined by the dependencies.</p>
 <ol class="arabic simple">
-<li><p>flash driver</p></li>
+<li><p>flash driver &amp; eth driver</p></li>
 <li><p>filesystem</p></li>
 <li><p>setup filesystems</p></li>
 <li><p>networking</p></li>
@@ -559,11 +559,26 @@ controlled through POSIX signals:</p>
 </section>
 <section id="dynamic-architecture">
 <h2>Dynamic Architecture<a class="headerlink" href="#dynamic-architecture" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-2c5075f6">
-<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__lcm_start">
+<section id="example-dependency-graph">
+<h3>Example Dependency Graph<a class="headerlink" href="#example-dependency-graph" title="Link to this heading">#</a></h3>
+<p>Consider the following simplified dependency graph for the upcoming sequence diagrams.</p>
+<blockquote>
+<div><figure class="align-center">
+<p class="plantuml">
+<object data="../../../_images/plantuml-e383fde913b3253455b891fd5a96dac9c69281f3.svg" type="image/svg+xml" style="width:529px;height:348px;background:#FFFFFF;"></object></p>
+</figure>
+</div></blockquote>
+<p>The Component <cite>setup_filesystems</cite> starts a shell script <cite>setup_filesystems.sh</cite> and reaches its <cite>Ready</cite> state when the script completed.
+The Component <cite>random</cite> starts a binary <cite>/bin/random</cite> and is considered <cite>Ready</cite> when the file <cite>/dev/random</cite> exists.
+The Component <cite>app1</cite> starts a binary <cite>/opt/bin/app1</cite> and is considered <cite>Ready</cite> when the process signaled its Running state via the Lifecycle API.</p>
+</section>
+<section id="launch-manager-initial-startup">
+<h3>Launch Manager Initial Startup<a class="headerlink" href="#launch-manager-initial-startup" title="Link to this heading">#</a></h3>
+<div class="need_container docutils container" id="SNCB-291d06bb">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__lcm_startup">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
-<div class="line"><span><span class="needs_title"><span class="needs_data">Launch Manager - Components Depends on Each Other</span></span></span></div>
+<div class="line"><span><span class="needs_title"><span class="needs_data">Launch Manager Startup</span></span></span></div>
 </div>
 </td>
 <td class="head_center" colspan="2"><div class="needs_head line-block">
@@ -581,7 +596,7 @@ controlled through POSIX signals:</p>
 <div class="line"><span><span><div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#feat__lifecycle">feat__lifecycle</a></span></span></div>
-<div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__conditional_startup">feat_req__lifecycle__conditional_startup</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__launch_support">feat_req__lifecycle__launch_support</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_ordering">feat_req__lifecycle__process_ordering</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__start_named_run_target">feat_req__lifecycle__start_named_run_target</a></span></span></div>
+<div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__launch_support">feat_req__lifecycle__launch_support</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_ordering">feat_req__lifecycle__process_ordering</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__start_named_run_target">feat_req__lifecycle__start_named_run_target</a></span></span></div>
 </span></div>
 </div>
 </td>
@@ -589,73 +604,116 @@ controlled through POSIX signals:</p>
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-e8435ea2b5ab05cafdfdcac94a2d1e152225dc9d.svg" type="image/svg+xml" style="width:1094px;height:777px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-0a250119e5dc0827b8e930b2a52c3d99d1ff1c44.svg" type="image/svg+xml" style="width:791px;height:625px;background:#FFFFFF;"></object></p>
 </figure>
-<p>Configuration:
-Reporting App 2 depends on Reporting App 1, Reporting App 1 has a ready
-condition of being in state running.</p>
-<div class="pst-scrollable-table-container"><table class="table">
-<colgroup>
-<col style="width: 10.0%" />
-<col style="width: 90.0%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Sequence number</p></th>
-<th class="head"><p>Description</p></th>
+<p>In case of initialization failure, the Launch Manager fails to start.
+Once initialization is successful, the Launch Manager activates the configured initial Run Target.</p>
+<p>The continuation of this sequence, in which the Launch Manager starts the
+Components of the Run Target <cite>Running</cite>, is depicted in
+<a class="reference internal" href="#feat_arc_dyn__lifecycle__lcm_start" title="feat_arc_dyn__lifecycle__lcm_start"><em class="xref need">Launch Manager - Component ... (feat_arc_dyn__lifecycle__lcm_start)</em></a>.</p>
+</td>
 </tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>001</p></td>
-<td><p>Launch Manager analyzes the current state of the system.</p></td>
-</tr>
-<tr class="row-odd"><td><p>002</p></td>
-<td><p>Launch Manager identifies the components that need to be started or stopped based on the current state.</p></td>
-</tr>
-<tr class="row-even"><td><p>003</p></td>
-<td><p>Launch Manager starts the components that need to be started. In this case Reporting App 1.</p></td>
-</tr>
-<tr class="row-odd"><td><p>004</p></td>
-<td><p>Reporting App 1 is started.</p></td>
-</tr>
-<tr class="row-even"><td><p>005</p></td>
-<td><p>Launch Manager waits for the signal from the Lifecycle API.</p></td>
-</tr>
-<tr class="row-odd"><td><p>006</p></td>
-<td><p>Reporting App 1 does its internal initialization.</p></td>
-</tr>
-<tr class="row-even"><td><p>007</p></td>
-<td><p>Reporting App 1 signals to the Launch Manager that it has finished initialization.</p></td>
-</tr>
-<tr class="row-odd"><td><p>008</p></td>
-<td><p>Launch Manager analyzes the current state of the system.</p></td>
-</tr>
-<tr class="row-even"><td><p>009</p></td>
-<td><p>Launch Manager identifies the components that need to be started or stopped based on the current state. In this case Reporting App 2 can be started.</p></td>
-</tr>
-<tr class="row-odd"><td><p>010</p></td>
-<td><p>Launch Manager starts the components that need to be started. In this case Reporting App 2.</p></td>
-</tr>
-<tr class="row-even"><td><p>011</p></td>
-<td><p>Reporting App 2 is started.</p></td>
-</tr>
-<tr class="row-odd"><td><p>012</p></td>
-<td><p>Launch Manager waits for the signal from the Lifecycle API.</p></td>
-</tr>
-<tr class="row-even"><td><p>013</p></td>
-<td><p>Reporting App 2 does its internal initialization.</p></td>
-</tr>
-<tr class="row-odd"><td><p>014</p></td>
-<td><p>Reporting App 2 signals to the Launch Manager that it has finished initialization.</p></td>
-</tr>
-<tr class="row-even"><td><p>015</p></td>
-<td><p>Launch Manager analyzes the current state of the system.</p></td>
-</tr>
-<tr class="row-odd"><td><p>016</p></td>
-<td><p>Launch Manager marks the Run Target as active.</p></td>
+<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#feat_arc_dyn__lifecycle__lcm_startup" title="feat_arc_dyn__lifecycle__lcm_startup">feat_arc_dyn__lifecycle__lcm_startup</a></span></span></div>
+</div>
+</td>
+<td class="footer" colspan="2"><div class="needs_footer line-block">
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Feature Sequence Diagram</span></span></span></div>
+</div>
+</td>
+<td class="footer_right" colspan="2"></td>
 </tr>
 </tbody>
 </table>
 </div>
+</div>
+<div class="need_container docutils container" id="SNCB-35632bf4">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__lcm_shutdown">
+<tbody>
+<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
+<div class="line"><span><span class="needs_title"><span class="needs_data">Launch Manager Shutdown</span></span></span></div>
+</div>
+</td>
+<td class="head_center" colspan="2"><div class="needs_head line-block">
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
+<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">YES</span></span></span></div>
+<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
+</div>
+</td>
+<td class="head_right" colspan="2"><div class="needs_head_right line-block">
+<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
+</div>
+</td>
+</tr>
+<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
+<div class="line"><span><span><div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
+</span></span></div>
+<div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#feat__lifecycle">feat__lifecycle</a></span></span></div>
+<div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_termination">feat_req__lifecycle__process_termination</a></span></span></div>
+</span></div>
+</div>
+</td>
+<td class="meta" colspan="3"></td>
+</tr>
+<tr class="content row-odd"><td class="content" colspan="6"><p class="plantuml">
+<object data="../../../_images/plantuml-396ff9435f9279c72b5aacdd1198c3811be5dbbe.svg" type="image/svg+xml" style="width:859px;height:448px;background:#FFFFFF;"></object></p>
+<p>When the Launch Manager receives a SIGTERM signal, it will initiate transition to Run Target <cite>Off</cite> which leads to termination of all components.
+Afterwards, Launch Manager process itself exits.</p>
+<p>The transition to the Run Target <cite>Off</cite>, in which the Launch Manager terminates
+the Components of the currently active Run Target, is depicted in
+<a class="reference internal" href="#feat_arc_dyn__lifecycle__lcm_term" title="feat_arc_dyn__lifecycle__lcm_term"><em class="xref need">Launch Manager - Component ... (feat_arc_dyn__lifecycle__lcm_term)</em></a>.</p>
+</td>
+</tr>
+<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#feat_arc_dyn__lifecycle__lcm_shutdown" title="feat_arc_dyn__lifecycle__lcm_shutdown">feat_arc_dyn__lifecycle__lcm_shutdown</a></span></span></div>
+</div>
+</td>
+<td class="footer" colspan="2"><div class="needs_footer line-block">
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Feature Sequence Diagram</span></span></span></div>
+</div>
+</td>
+<td class="footer_right" colspan="2"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="component-dependencies-and-ready-conditions">
+<h3>Component Dependencies and Ready Conditions<a class="headerlink" href="#component-dependencies-and-ready-conditions" title="Link to this heading">#</a></h3>
+<div class="need_container docutils container" id="SNCB-63323653">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__lcm_start">
+<tbody>
+<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
+<div class="line"><span><span class="needs_title"><span class="needs_data">Launch Manager - Component Dependencies</span></span></span></div>
+</div>
+</td>
+<td class="head_center" colspan="2"><div class="needs_head line-block">
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
+<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">YES</span></span></span></div>
+<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
+</div>
+</td>
+<td class="head_right" colspan="2"><div class="needs_head_right line-block">
+<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
+</div>
+</td>
+</tr>
+<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
+<div class="line"><span><span><div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
+</span></span></div>
+<div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#feat__lifecycle">feat__lifecycle</a></span></span></div>
+<div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__conditional_startup">feat_req__lifecycle__conditional_startup</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__launch_support">feat_req__lifecycle__launch_support</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__parallel_launch_support">feat_req__lifecycle__parallel_launch_support</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_ordering">feat_req__lifecycle__process_ordering</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__start_named_run_target">feat_req__lifecycle__start_named_run_target</a></span></span></div>
+</span></div>
+</div>
+</td>
+<td class="meta" colspan="3"></td>
+</tr>
+<tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
+<p class="plantuml">
+<object data="../../../_images/plantuml-6e84600381d81185c9958ca39ccaaabc96446004.svg" type="image/svg+xml" style="width:1221px;height:818px;background:#FFFFFF;"></object></p>
+</figure>
+<p>While <cite>setup_filesystems</cite> and <cite>/bin/random</cite> can be started in parallel,  <cite>/opt/bin/app1</cite> can only be started once both Components are <cite>Ready</cite>.</p>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
@@ -672,11 +730,14 @@ condition of being in state running.</p>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-89df8ec5">
+</section>
+<section id="component-termination">
+<h3>Component Termination<a class="headerlink" href="#component-termination" title="Link to this heading">#</a></h3>
+<div class="need_container docutils container" id="SNCB-83fef945">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__lcm_term">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
-<div class="line"><span><span class="needs_title"><span class="needs_data">Launch Manager - Termination Request</span></span></span></div>
+<div class="line"><span><span class="needs_title"><span class="needs_data">Launch Manager - Component Termination</span></span></span></div>
 </div>
 </td>
 <td class="head_center" colspan="2"><div class="needs_head line-block">
@@ -694,7 +755,7 @@ condition of being in state running.</p>
 <div class="line"><span><span><div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#feat__lifecycle">feat__lifecycle</a></span></span></div>
-<div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__launch_support">feat_req__lifecycle__launch_support</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_ordering">feat_req__lifecycle__process_ordering</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_termination">feat_req__lifecycle__process_termination</a></span></span></div>
+<div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_ordering">feat_req__lifecycle__process_ordering</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_termination">feat_req__lifecycle__process_termination</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__terminationn_dependency">feat_req__lifecycle__terminationn_dependency</a></span></span></div>
 </span></div>
 </div>
 </td>
@@ -702,46 +763,11 @@ condition of being in state running.</p>
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-80ad9d48e9198168b1b743e5945bbe70a10d3928.svg" type="image/svg+xml" style="width:807px;height:444px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-2af8ee37102a3667776c36caacb6ddf8c2c65ef8.svg" type="image/svg+xml" style="width:1100px;height:1007px;background:#FFFFFF;"></object></p>
 </figure>
-<div class="pst-scrollable-table-container"><table class="table">
-<colgroup>
-<col style="width: 10.0%" />
-<col style="width: 90.0%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Sequence number</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>001</p></td>
-<td><p>Launch Manager analyzes the current state of the system.</p></td>
-</tr>
-<tr class="row-odd"><td><p>002</p></td>
-<td><p>Launch Manager determines the transition plan for switching the Run Target. In this case all components can be terminated in parallel.</p></td>
-</tr>
-<tr class="row-even"><td><p>003</p></td>
-<td><p>Launch Manager sends SIGTERM to the well behaving application.</p></td>
-</tr>
-<tr class="row-odd"><td><p>004</p></td>
-<td><p>The well behaving application terminates through the operating system.</p></td>
-</tr>
-<tr class="row-even"><td><p>005</p></td>
-<td><p>Launch Manager sends SIGTERM to the badly behaving application.</p></td>
-</tr>
-<tr class="row-odd"><td><p>006</p></td>
-<td><p>The badly behaving application ignores the SIGTERM request.</p></td>
-</tr>
-<tr class="row-even"><td><p>007</p></td>
-<td><p>Launch Manager sends SIGKILL to force termination of the badly behaving application.</p></td>
-</tr>
-<tr class="row-odd"><td><p>008</p></td>
-<td><p>The badly behaving application terminates through the operating system.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
+<p>Since <cite>app1</cite> depends on both <cite>setup_filesystems</cite> and <cite>random</cite>, it must be terminated first before the other two components can be safely terminated.
+Afterwards, <cite>setup_filesystems</cite> and <cite>random</cite> can be terminated in parallel as they do not depend on each other.
+Note that if a component does not terminate within the configured termination timeout, it is forcefully killed.</p>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
@@ -758,201 +784,12 @@ condition of being in state running.</p>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-a2446d3d">
-<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__lcm_term_order">
-<tbody>
-<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
-<div class="line"><span><span class="needs_title"><span class="needs_data">Launch Manager - Termination Order</span></span></span></div>
-</div>
-</td>
-<td class="head_center" colspan="2"><div class="needs_head line-block">
-<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
-<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">YES</span></span></span></div>
-<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
-</div>
-</td>
-<td class="head_right" colspan="2"><div class="needs_head_right line-block">
-<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
-</div>
-</td>
-</tr>
-<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
-<div class="line"><span><span><div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
-</span></span></div>
-<div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#feat__lifecycle">feat__lifecycle</a></span></span></div>
-<div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__launch_support">feat_req__lifecycle__launch_support</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_ordering">feat_req__lifecycle__process_ordering</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_termination">feat_req__lifecycle__process_termination</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__terminationn_dependency">feat_req__lifecycle__terminationn_dependency</a></span></span></div>
-</span></div>
-</div>
-</td>
-<td class="meta" colspan="3"></td>
-</tr>
-<tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
-<p class="plantuml">
-<object data="../../../_images/plantuml-97ec955e27a1bcaeddb85dbe765e93aa0c444dec.svg" type="image/svg+xml" style="width:679px;height:598px;background:#FFFFFF;"></object></p>
-</figure>
-<p>Configuration:
-Reporting App 2 depends on the Running of Reporting App 1.</p>
-<div class="pst-scrollable-table-container"><table class="table">
-<colgroup>
-<col style="width: 10.0%" />
-<col style="width: 90.0%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Sequence number</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>001</p></td>
-<td><p>Launch Manager analyzes the current state of the system.</p></td>
-</tr>
-<tr class="row-odd"><td><p>002</p></td>
-<td><p>Launch Manager determines the transition plan. Reporting App 1 must be terminated first because Reporting App 1 depends on Reporting App 2 running.</p></td>
-</tr>
-<tr class="row-even"><td><p>003</p></td>
-<td><p>Launch Manager sends SIGTERM to Reporting App 1.</p></td>
-</tr>
-<tr class="row-odd"><td><p>004</p></td>
-<td><p>Reporting App 1 terminates through the operating system.</p></td>
-</tr>
-<tr class="row-even"><td><p>005</p></td>
-<td><p>The operating system reports the termination of Reporting App 1 to the Launch Manager.</p></td>
-</tr>
-<tr class="row-odd"><td><p>006</p></td>
-<td><p>Launch Manager analyzes the current state of the system.</p></td>
-</tr>
-<tr class="row-even"><td><p>007</p></td>
-<td><p>Launch Manager determines the transition plan. Reporting App 2 can now be terminated since Reporting App 1 is no longer running.</p></td>
-</tr>
-<tr class="row-odd"><td><p>008</p></td>
-<td><p>Launch Manager sends SIGTERM to Reporting App 2.</p></td>
-</tr>
-<tr class="row-even"><td><p>009</p></td>
-<td><p>Reporting App 2 terminates through the operating system.</p></td>
-</tr>
-<tr class="row-odd"><td><p>010</p></td>
-<td><p>The operating system reports the termination of Reporting App 2 to the Launch Manager.</p></td>
-</tr>
-<tr class="row-even"><td><p>011</p></td>
-<td><p>Launch Manager analyzes the current state of the system.</p></td>
-</tr>
-<tr class="row-odd"><td><p>012</p></td>
-<td><p>Launch Manager determines the transition plan for the next transition or Run Target.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</td>
-</tr>
-<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
-<div class="line"><span><span class="needs-id"><a class="reference internal" href="#feat_arc_dyn__lifecycle__lcm_term_order" title="feat_arc_dyn__lifecycle__lcm_term_order">feat_arc_dyn__lifecycle__lcm_term_order</a></span></span></div>
-</div>
-</td>
-<td class="footer" colspan="2"><div class="needs_footer line-block">
-<div class="line"><span><span class="needs_type_name"><span class="needs_data">Feature Sequence Diagram</span></span></span></div>
-</div>
-</td>
-<td class="footer_right" colspan="2"></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="need_container docutils container" id="SNCB-ba346e5e">
-<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__lcm_parallel">
-<tbody>
-<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
-<div class="line"><span><span class="needs_title"><span class="needs_data">Launch Manager - Run Components in Parallel</span></span></span></div>
-</div>
-</td>
-<td class="head_center" colspan="2"><div class="needs_head line-block">
-<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
-<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">YES</span></span></span></div>
-<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
-</div>
-</td>
-<td class="head_right" colspan="2"><div class="needs_head_right line-block">
-<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
-</div>
-</td>
-</tr>
-<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
-<div class="line"><span><span><div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
-</span></span></div>
-<div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#feat__lifecycle">feat__lifecycle</a></span></span></div>
-<div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__launch_support">feat_req__lifecycle__launch_support</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__parallel_launch_support">feat_req__lifecycle__parallel_launch_support</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_ordering">feat_req__lifecycle__process_ordering</a></span></span></div>
-</span></div>
-</div>
-</td>
-<td class="meta" colspan="3"></td>
-</tr>
-<tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
-<p class="plantuml">
-<object data="../../../_images/plantuml-7a74b2c832f3e64defc909be6490b61e82adde3c.svg" type="image/svg+xml" style="width:988px;height:524px;background:#FFFFFF;"></object></p>
-</figure>
-<p>Configuration:
-Reporting App 1 and Reporting App 2 can be started independently.</p>
-<div class="pst-scrollable-table-container"><table class="table">
-<colgroup>
-<col style="width: 10.0%" />
-<col style="width: 90.0%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Sequence number</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>001</p></td>
-<td><p>Launch Manager analyzes the current state of the system.</p></td>
-</tr>
-<tr class="row-odd"><td><p>002</p></td>
-<td><p>Launch Manager determines the transition plan. In this case both Reporting App 1 and Reporting App 2 can be started in parallel.</p></td>
-</tr>
-<tr class="row-even"><td><p>003</p></td>
-<td><p>Launch Manager starts Reporting App 1.</p></td>
-</tr>
-<tr class="row-odd"><td><p>004</p></td>
-<td><p>Launch Manager starts Reporting App 2.</p></td>
-</tr>
-<tr class="row-even"><td><p>005</p></td>
-<td><p>Reporting App 1 is started.</p></td>
-</tr>
-<tr class="row-odd"><td><p>006</p></td>
-<td><p>Reporting App 2 is started.</p></td>
-</tr>
-<tr class="row-even"><td><p>007</p></td>
-<td><p>Reporting App 1 does its internal initialization.</p></td>
-</tr>
-<tr class="row-odd"><td><p>008</p></td>
-<td><p>Reporting App 1 signals to the Launch Manager that it has finished initialization.</p></td>
-</tr>
-<tr class="row-even"><td><p>009</p></td>
-<td><p>Reporting App 2 does its internal initialization.</p></td>
-</tr>
-<tr class="row-odd"><td><p>010</p></td>
-<td><p>Reporting App 2 signals to the Launch Manager that it has finished initialization.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</td>
-</tr>
-<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
-<div class="line"><span><span class="needs-id"><a class="reference internal" href="#feat_arc_dyn__lifecycle__lcm_parallel" title="feat_arc_dyn__lifecycle__lcm_parallel">feat_arc_dyn__lifecycle__lcm_parallel</a></span></span></div>
-</div>
-</td>
-<td class="footer" colspan="2"><div class="needs_footer line-block">
-<div class="line"><span><span class="needs_type_name"><span class="needs_data">Feature Sequence Diagram</span></span></span></div>
-</div>
-</td>
-<td class="footer_right" colspan="2"></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="need_container docutils container" id="SNCB-9cba4408">
+</section>
+<section id="recovery-action">
+<h3>Recovery Action<a class="headerlink" href="#recovery-action" title="Link to this heading">#</a></h3>
+<section id="component-crashes-outside-an-active-transition">
+<h4>Component crashes outside an active transition<a class="headerlink" href="#component-crashes-outside-an-active-transition" title="Link to this heading">#</a></h4>
+<div class="need_container docutils container" id="SNCB-8016345f">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__crash">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -982,40 +819,9 @@ Reporting App 1 and Reporting App 2 can be started independently.</p>
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-723011698f8c6679c4937689da8dfb4c925b9b81.svg" type="image/svg+xml" style="width:796px;height:441px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-7941a1e7a61dab33428f097110d86c963b2270dd.svg" type="image/svg+xml" style="width:927px;height:849px;background:#FFFFFF;"></object></p>
 </figure>
-<div class="pst-scrollable-table-container"><table class="table">
-<colgroup>
-<col style="width: 10.0%" />
-<col style="width: 90.0%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Sequence number</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>001</p></td>
-<td><p>The monitored process crashes unexpectedly.</p></td>
-</tr>
-<tr class="row-odd"><td><p>002</p></td>
-<td><p>The crashed process terminates through the operating system.</p></td>
-</tr>
-<tr class="row-even"><td><p>003</p></td>
-<td><p>The operating system reports the terminated process to the Launch Manager.</p></td>
-</tr>
-<tr class="row-odd"><td><p>004</p></td>
-<td><p>Launch Manager analyzes the current state of the system.</p></td>
-</tr>
-<tr class="row-even"><td><p>005</p></td>
-<td><p>Launch Manager determines the transition plan.In this case a recovery action needs to be run, and the recovery action is to switch to a different Run Target.</p></td>
-</tr>
-<tr class="row-odd"><td><p>006</p></td>
-<td><p>Launch Manager switches to the configured fallback Run Target.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
+<p>Note: If a Restart Recovery Action is configured then only the crashed component is restarted, not dependent components.</p>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
@@ -1032,6 +838,8 @@ Reporting App 1 and Reporting App 2 can be started independently.</p>
 </table>
 </div>
 </div>
+</section>
+</section>
 </section>
 </section>
 
@@ -1073,7 +881,17 @@ Reporting App 1 and Reporting App 2 can be started independently.</p>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamic-architecture">Dynamic Architecture</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamic-architecture">Dynamic Architecture</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-dependency-graph">Example Dependency Graph</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#launch-manager-initial-startup">Launch Manager Initial Startup</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#component-dependencies-and-ready-conditions">Component Dependencies and Ready Conditions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#component-termination">Component Termination</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#recovery-action">Recovery Action</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#component-crashes-outside-an-active-transition">Component crashes outside an active transition</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
