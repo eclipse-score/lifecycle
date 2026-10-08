@@ -255,7 +255,7 @@ Launching Processes
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support for launching a process with 
-    aset of system resource limits (rlimit) which are defined by the 
+    a set of system resource limits (rlimit) which are defined by the 
     POSIX-Standard (IEEE Std 1003.1). I.e. RLIMIT_CORE, RLIMIT_CPU,
     RLIMIT_DATA, RLIMIT_FSIZE, RLIMIT_NOFILE, RLIMIT_STACK and RLIMIT_AS.
 
