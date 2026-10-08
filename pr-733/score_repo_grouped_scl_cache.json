@@ -27,7 +27,7 @@
           "CodeLinks": [
             {
               "file": "score/launch_manager/src/daemon/src/configuration/component_config.hpp",
-              "line": 98,
+              "line": 99,
               "tag": "// req-Id:",
               "need": "comp_req__launch_man__conf_comp_active_tout",
               "full_line": "// req-Id: comp_req__launch_man__conf_comp_active_tout"
@@ -899,6 +899,23 @@
               "file": "tests/integration/sandbox_options/sandbox_options.py",
               "line": 119,
               "need": "comp_req__launch_man__supplementary_groups",
+              "verify_type": "fully",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
+        }
+      },
+      {
+        "need": "comp_req__launch_man__runmask_support",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
+            {
+              "name": "test_sandbox_options",
+              "file": "tests/integration/sandbox_options/sandbox_options.py",
+              "line": 119,
+              "need": "comp_req__launch_man__runmask_support",
               "verify_type": "fully",
               "result": "passed",
               "result_text": ""

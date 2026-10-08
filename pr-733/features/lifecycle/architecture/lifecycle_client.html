@@ -473,10 +473,14 @@ The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><s
 <li><p>Recovery action decisions</p></li>
 <li><p>Status reporting to external state managers via the Control Interface</p></li>
 </ul>
+<p><strong>Shutdown Signal Handling</strong></p>
+<p>The Launch Manager sends SIGTERM signal to SCORE applications (and any POSIX processes) to request their shutdown.
+The lifecycle interface sets up the necessary signal handler for an SCORE application to properly respond to shutdown requests.</p>
 <section id="dynamic-architecture">
 <h2>Dynamic Architecture<a class="headerlink" href="#dynamic-architecture" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-86d9b7b7">
-<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__state_machine_if">
+<p>A component maintains the following internal state machine:</p>
+<div class="need_container docutils container" id="SNCB-80cf0149">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__comp_sm_if">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
 <div class="line"><span><span class="needs_title"><span class="needs_data">Component State Machine</span></span></span></div>
@@ -497,7 +501,7 @@ The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><s
 <div class="line"><span><span><div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#feat__lifecycle">feat__lifecycle</a></span></span></div>
-<div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__conditional_startup">feat_req__lifecycle__conditional_startup</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__custom_cond_support">feat_req__lifecycle__custom_cond_support</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__launch_support">feat_req__lifecycle__launch_support</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_ordering">feat_req__lifecycle__process_ordering</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_termination">feat_req__lifecycle__process_termination</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__prog_lang">feat_req__lifecycle__prog_lang</a></span></span></div>
+<div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__conditional_startup">feat_req__lifecycle__conditional_startup</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__custom_cond_support">feat_req__lifecycle__custom_cond_support</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__launch_support">feat_req__lifecycle__launch_support</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_ordering">feat_req__lifecycle__process_ordering</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_termination">feat_req__lifecycle__process_termination</a></span></span></div>
 </span></div>
 </div>
 </td>
@@ -505,12 +509,12 @@ The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><s
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-a95e02dfd416d4fecbdbc858ac5aa04807a15c25.svg" type="image/svg+xml" style="width:313px;height:524px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-bbf03047635cb16c484f08d24491f727290ed80d.svg" type="image/svg+xml" style="width:991px;height:626px;background:#FFFFFF;"></object></p>
 </figure>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
-<div class="line"><span><span class="needs-id"><a class="reference internal" href="#feat_arc_dyn__lifecycle__state_machine_if" title="feat_arc_dyn__lifecycle__state_machine_if">feat_arc_dyn__lifecycle__state_machine_if</a></span></span></div>
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#feat_arc_dyn__lifecycle__comp_sm_if" title="feat_arc_dyn__lifecycle__comp_sm_if">feat_arc_dyn__lifecycle__comp_sm_if</a></span></span></div>
 </div>
 </td>
 <td class="footer" colspan="2"><div class="needs_footer line-block">
@@ -523,6 +527,60 @@ The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><s
 </table>
 </div>
 </div>
+<p>Note that the state machine of the underlying process is different from the component state machine.
+For example, the process may be already terminated, but the component is in <cite>Ready</cite> state.
+This is the case if the component is configured to be ready when the underlying process terminated.</p>
+<div class="need_container docutils container" id="SNCB-5e0a7265">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__proc_sm_if">
+<tbody>
+<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
+<div class="line"><span><span class="needs_title"><span class="needs_data">Process State Machine</span></span></span></div>
+</div>
+</td>
+<td class="head_center" colspan="2"><div class="needs_head line-block">
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
+<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">YES</span></span></span></div>
+<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
+</div>
+</td>
+<td class="head_right" colspan="2"><div class="needs_head_right line-block">
+<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
+</div>
+</td>
+</tr>
+<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
+<div class="line"><span><span><div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
+</span></span></div>
+<div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#feat__lifecycle">feat__lifecycle</a></span></span></div>
+<div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__conditional_startup">feat_req__lifecycle__conditional_startup</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__custom_cond_support">feat_req__lifecycle__custom_cond_support</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__launch_support">feat_req__lifecycle__launch_support</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_ordering">feat_req__lifecycle__process_ordering</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_termination">feat_req__lifecycle__process_termination</a></span></span></div>
+</span></div>
+</div>
+</td>
+<td class="meta" colspan="3"></td>
+</tr>
+<tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
+<p class="plantuml">
+<object data="../../../_images/plantuml-39ef7103ae9ad78741471c5cdb5ef7b8240c4d25.svg" type="image/svg+xml" style="width:826px;height:641px;background:#FFFFFF;"></object></p>
+</figure>
+</td>
+</tr>
+<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#feat_arc_dyn__lifecycle__proc_sm_if" title="feat_arc_dyn__lifecycle__proc_sm_if">feat_arc_dyn__lifecycle__proc_sm_if</a></span></span></div>
+</div>
+</td>
+<td class="footer" colspan="2"><div class="needs_footer line-block">
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Feature Sequence Diagram</span></span></span></div>
+</div>
+</td>
+<td class="footer_right" colspan="2"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>SCORE applications use the Lifecycle Interface for reporting the “Running” state to signal they finished their initialization.
+This transitions the process state machine from state <cite>Starting</cite> to state <cite>Running</cite>.
+For Native applications which do not report their state, the process state machine advances directly to <cite>Running</cite> after successful start of the process.</p>
 </section>
 </section>
 

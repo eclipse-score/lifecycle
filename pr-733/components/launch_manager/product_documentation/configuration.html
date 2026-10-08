@@ -743,6 +743,9 @@ Constraint: Must be greater than 0.</p>
 <dt>sandbox.max_cpu_usage (integer, optional)</dt><dd><p>Description: Specifies the maximum CPU usage limit for the component, expressed as a percentage (%) of total CPU capacity.
 Constraint: Must be greater than 0.</p>
 </dd>
+<dt>sandbox.affinity_mask (string, optional)</dt><dd><p>Description: Specifies the affinity mask defining on which CPU cores the component may be scheduled, as a hexadecimal string prefixed with <code class="docutils literal notranslate"><span class="pre">0x</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;0x3&quot;</span></code>). Bit 0 corresponds to core 0, bit 1 to core 1, and so on; up to 64 cores are supported. For example, <code class="docutils literal notranslate"><span class="pre">&quot;0x5&quot;</span></code> selects cores 0 and 2. If not configured, the component inherits the CPU affinity of the <strong>Launch Manager</strong> itself, i.e. no affinity system call is made on its behalf.
+Constraint: Must be a hexadecimal string with the <code class="docutils literal notranslate"><span class="pre">0x</span></code>/<code class="docutils literal notranslate"><span class="pre">0X</span></code> prefix, at most 16 hex digits (64 bits), and at least one bit set.</p>
+</dd>
 </dl>
 </section>
 </section>
