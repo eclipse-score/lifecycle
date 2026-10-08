@@ -20,9 +20,7 @@ from attribute_plugin import add_test_properties
     fully_verifies=[
         "comp_req__launch_man__start_named_run_target",
     ],
-    partially_verifies=[
-        "feat_req__lifecycle__run_target_support"
-    ],
+    partially_verifies=["feat_req__lifecycle__run_target_support"],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
 )
