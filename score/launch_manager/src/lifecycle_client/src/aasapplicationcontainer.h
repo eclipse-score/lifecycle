@@ -39,11 +39,13 @@ class AasApplicationContainer : public Application
      * @param argc The number of command line arguments.
      * @param argv The command line arguments.
      * @param count_expected_applications The expected number of applications.
+     * @throws std::length_error if count_expected_applications exceeds the maximum
+     * number of elements the underlying container can hold.
      */
     AasApplicationContainer(
         const std::int32_t argc,
         const char* const argv[],
-        const std::size_t count_expected_applications) noexcept;
+        const std::size_t count_expected_applications);
 
     AasApplicationContainer(const AasApplicationContainer&) = delete;
     AasApplicationContainer& operator=(const AasApplicationContainer&) = delete;
