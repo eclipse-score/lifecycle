@@ -3250,7 +3250,7 @@
   {
     "name": "GraphOffTransitionTest__normalShutdown",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "319",
+    "line": "322",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3264,7 +3264,7 @@
   {
     "name": "GraphOffTransitionTest__shutdownDuringTransition",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "339",
+    "line": "342",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3278,7 +3278,7 @@
   {
     "name": "GraphImplicitOffTargetTest__offRunTargetIsCreatedWhenNotConfigured",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "389",
+    "line": "393",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3292,7 +3292,7 @@
   {
     "name": "GraphImplicitOffTargetTest__offTransitionTimeoutFallsBackToDefault",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "412",
+    "line": "416",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3306,7 +3306,7 @@
   {
     "name": "GraphOffStateTimeoutTest__returnsConfiguredOffTimeout",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "451",
+    "line": "455",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3320,7 +3320,7 @@
   {
     "name": "GraphHandleComponentEventTest__failedFirstDuringTransition",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "482",
+    "line": "486",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3334,7 +3334,21 @@
   {
     "name": "GraphHandleComponentEventTest__failureFollowedBySuccessFails",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "502",
+    "line": "506",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "equivalence-classes",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "GraphHandleComponentEventTest__cancelAfterFailureStaysAborting",
+    "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
+    "line": "526",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3348,7 +3362,7 @@
   {
     "name": "GraphHandleComponentEventTest__unexpectedTerminationDuringSuccess",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "522",
+    "line": "555",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3362,7 +3376,7 @@
   {
     "name": "GraphHandleComponentEventTest__unexpectedTerminationDuringTransition",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "545",
+    "line": "578",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3376,7 +3390,7 @@
   {
     "name": "GraphTransitionFailuresTest__UnusualOrderOfFailures",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "579",
+    "line": "612",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3390,7 +3404,7 @@
   {
     "name": "GraphCancelTest__notInTransition",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "605",
+    "line": "638",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3404,7 +3418,7 @@
   {
     "name": "GraphCancelTest__cancelsOngoingTransition",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "615",
+    "line": "648",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3418,7 +3432,7 @@
   {
     "name": "GraphUtilitiesTest__getProcessInfoNode",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "635",
+    "line": "671",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3432,7 +3446,7 @@
   {
     "name": "GraphUtilitiesTest__isValidRunTarget",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "651",
+    "line": "687",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3446,7 +3460,7 @@
   {
     "name": "GraphUtilitiesTest__startTransitionWithUnrecognizedTargetDoesNotCrashOrTransition",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "664",
+    "line": "700",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3460,7 +3474,7 @@
   {
     "name": "GraphUtilitiesTest__forceKillProcesses",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "682",
+    "line": "718",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3474,7 +3488,7 @@
   {
     "name": "GraphUtilitiesTest__toString",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "696",
+    "line": "732",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -3488,7 +3502,7 @@
   {
     "name": "GraphUtilitiesTest__gettersSetters",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "710",
+    "line": "746",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
