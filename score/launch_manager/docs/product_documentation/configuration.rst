@@ -322,6 +322,10 @@ sandbox.max_cpu_usage (integer, optional)
     Description: Specifies the maximum CPU usage limit for the component, expressed as a percentage (%) of total CPU capacity.
     Constraint: Must be greater than 0.
 
+sandbox.affinity_mask (string, optional)
+    Description: Specifies the affinity mask defining on which CPU cores the component may be scheduled, as a hexadecimal string prefixed with ``0x`` (e.g. ``"0x3"``). Bit 0 corresponds to core 0, bit 1 to core 1, and so on; up to 64 cores are supported. For example, ``"0x5"`` selects cores 0 and 2. If not configured, the component inherits the CPU affinity of the **Launch Manager** itself, i.e. no affinity system call is made on its behalf.
+    Constraint: Must be a hexadecimal string with the ``0x``/``0X`` prefix, at most 16 hex digits (64 bits), and at least one bit set.
+
 .. _lm_conf_launch_manager_root_properties:
 
 Launch manager root properties

@@ -41,6 +41,10 @@ Glossary
       Interface to monitor the health of a process, e.g. to check if a process is
       alive or if it is running as expected.
 
+    Lifecycle Interface
+      Interface to report :term:`readiness <Ready State>` of a process to the
+      :term:`Launch Manager`.
+
     Alive Monitoring
       Checks if an application reports an alive state in a certain period.
 
@@ -112,7 +116,10 @@ Glossary
       Ready conditions can either be reported by the component itself through the Lifecycle Interface or determined via external state monitoring. External state examples include: process started, file is available, socket was opened, or that the process finished successfully.
 
     Liveliness
-      The state indicating that a process is active and responding as expected.
+      Term indicating that a :term:`Component` is periodically sending an
+      alive notification (using the
+      :need:`logic_arc_int_op__lifecycle__report_health` interface) as
+      per configuration.
 
     Watchdog
       A monitoring mechanism that detects system failures and can trigger recovery actions.

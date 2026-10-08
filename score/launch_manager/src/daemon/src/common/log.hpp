@@ -23,9 +23,14 @@
 #ifdef LC_LOG_SCORE_MW_LOG
 
 #include "score/mw/log/logger.h"
+#include <ctime>
 
 namespace score::mw::lifecycle::internal
 {
+
+struct TIMESTAMP_MS
+{
+};
 
 /// @brief Function to access global logging context, for Launch Manager and its libraries.
 /// Launch Manager (LM) daemon and libraries use a single global logging context.
@@ -36,6 +41,20 @@ inline score::mw::log::Logger& _getLmLogger() noexcept
 {
     static score::mw::log::Logger& log{score::mw::log::CreateLogger("LM", "Launch Manager logging context")};
     return log;
+}
+
+inline score::mw::log::LogStream& operator<<(score::mw::log::LogStream& out, TIMESTAMP_MS /*unused*/)
+{
+    std::clock_t time = std::clock();
+    if (time == static_cast<std::clock_t>(-1))
+    {
+        out << "[Could not get the time!]";
+    }
+    else
+    {
+        out << static_cast<double>(time) / (static_cast<double>(CLOCKS_PER_SEC) / 1000.0) << "ms";
+    }
+    return out;
 }
 
 }  // namespace score::mw::lifecycle::internal
@@ -268,6 +287,20 @@ namespace score::mw::lifecycle::internal
 inline std::string_view errno_message(const int err) noexcept(true)
 {
     return std::string_view{std::strerror(err)};
+}
+
+inline std::ostream& operator<<(std::ostream& out, TIMESTAMP_MS /*unused*/)
+{
+    std::clock_t time = std::clock();
+    if (time == static_cast<std::clock_t>(-1))
+    {
+        out << "[Could not get the time!]";
+    }
+    else
+    {
+        out << static_cast<double>(time) / (static_cast<double>(CLOCKS_PER_SEC) / 1000.0) << "ms";
+    }
+    return out;
 }
 
 }  // namespace score::mw::lifecycle::internal

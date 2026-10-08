@@ -17,7 +17,13 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    fully_verifies=[],
+    fully_verifies=[
+        "comp_req__launch_man__rc_lifecycle",
+        "comp_req__launch_man__rt_comp_dep",
+    ],
+    partially_verifies=[
+        "comp_req__launch_man__process_launch_args",
+    ],
     test_type="interface-test",
     derivation_technique="error-guessing",
 )
@@ -25,7 +31,8 @@ def test_fallback_to_same_target_restarts(
     target, setup_test, assert_test_results, remote_test_dir
 ):
     """
-    Objective: Verifies that the launch manager correctly restarts a crashed process if it is active in the fallback state.
+    Objective: Verifies that the launch manager correctly restarts a crashed
+    process if it is active in the fallback state.
 
     A process crashes after Run Target activation completes and proceeds normally the second time it is launched.
     Expected Behaviour: The process is relaunched and completes normally.

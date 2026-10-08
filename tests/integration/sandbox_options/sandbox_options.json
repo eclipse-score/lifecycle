@@ -46,7 +46,7 @@
             "component_properties": {
                 "binary_name": "sandbox_options_process_a",
                 "application_profile": {
-                    "application_type": "Reporting",
+                    "application_type": "Native",
                     "is_self_terminating": true
                 },
                 "process_arguments": [
@@ -84,14 +84,15 @@
             "component_properties": {
                 "binary_name": "sandbox_options_process_b",
                 "application_profile": {
-                    "application_type": "Reporting",
+                    "application_type": "Native",
                     "is_self_terminating": true
                 },
                 "process_arguments": [
                     "--uid=0",
                     "--gid=0",
                     "--scheduling-policy=SCHED_RR",
-                    "--scheduling-priority=10"
+                    "--scheduling-priority=10",
+                    "--affinity=0x1"
                 ],
                 "ready_condition": {
                     "process_state": "Terminated"
@@ -106,7 +107,8 @@
                     "gid": 0,
                     "supplementary_group_ids": [],
                     "scheduling_policy": "SCHED_RR",
-                    "scheduling_priority": 10
+                    "scheduling_priority": 10,
+                    "affinity_mask": "0x1"
                 }
             }
         },
@@ -114,13 +116,14 @@
             "component_properties": {
                 "binary_name": "sandbox_options_process_c",
                 "application_profile": {
-                    "application_type": "Reporting",
+                    "application_type": "Native",
                     "is_self_terminating": true
                 },
                 "process_arguments": [
                     "--uid=0",
                     "--gid=0",
-                    "--working-dir=/tmp/tests/sandbox_options"
+                    "--working-dir=/tmp/tests/sandbox_options",
+                    "--affinity=0x2"
                 ],
                 "ready_condition": {
                     "process_state": "Terminated"
@@ -129,6 +132,9 @@
             "deployment_config": {
                 "environmental_variables": {
                     "PROCESSIDENTIFIER": "DefaultPG_app2"
+                },
+                "sandbox": {
+                    "affinity_mask": "0x2"
                 }
             }
         },

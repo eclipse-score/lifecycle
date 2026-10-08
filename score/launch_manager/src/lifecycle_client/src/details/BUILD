@@ -11,6 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@score_baselibs//score/language/safecpp:toolchain_features.bzl", "COMPILER_WARNING_FEATURES")
 
 cc_library(
     name = "report_running_impl",
@@ -24,6 +25,27 @@ cc_library(
         "//score/launch_manager/src/daemon/src/common:constants",
         "//score/launch_manager/src/daemon/src/common:log",
         "//score/launch_manager/src/daemon/src/osal:ipc_comms",
+        "@score_baselibs//score/result",
+    ],
+)
+
+cc_library(
+    name = "mock_report_running_impl",
+    testonly = True,
+    srcs = ["mock_report_running_adapter.cpp"],
+    hdrs = [
+        "mock_report_running_impl.h",
+        "report_running_impl.hpp",
+    ],
+    features = COMPILER_WARNING_FEATURES,
+    include_prefix = "score/mw/lifecycle/lifecycle_client/details",
+    strip_include_prefix = "/score/launch_manager/src/lifecycle_client/src/details",
+    visibility = ["//score/launch_manager/src/lifecycle_client:__pkg__"],
+    deps = [
+        "//score/launch_manager:error_event",
+        "//score/launch_manager/src/daemon/src/common:log",
+        "//score/launch_manager/src/daemon/src/osal:ipc_comms",
+        "@googletest//:gtest",
         "@score_baselibs//score/result",
     ],
 )

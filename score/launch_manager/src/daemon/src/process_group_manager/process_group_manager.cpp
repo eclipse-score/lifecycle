@@ -186,8 +186,7 @@ void ProcessGroupManager::createProcessComponentsObjects(std::size_t total_proce
 
 bool ProcessGroupManager::run()
 {
-    LM_LOG_DEBUG() << "clock() at run():"
-                   << (static_cast<double>(clock()) / (static_cast<double>(CLOCKS_PER_SEC) / 1000.0)) << "ms";
+    LM_LOG_DEBUG() << "run() at" << TIMESTAMP_MS();
 
     bool result = startInitialTransition();
     bool overflow_logged = false;

@@ -17,29 +17,40 @@ title Alive Monitoring
 autonumber "<b>[000]"
 
 participant "Launch Manager" as LM
-participant "Application" as App
+participant "SCORE Application" as App
 
 activate LM
-
-LM --> LM: parse configuration
-LM --> App: fork
 activate App
 
-App -> LM: Register for alive notifications (callback)
-LM --> App: Return value
+note over LM, App
+    Application is already running and alive supervision is successful
+end note
 
-note over LM, App: Cyclicly report health state
-loop health_status == ok
-    App --> LM : report_healt_status()
+loop
+    App -> LM : ReportAlive()
 end
 
-note over LM, App: Trigger Error Reaction
-alt health_status != ok
-    LM --> App: initiate Error Reaction
-end
+...
 
-App -> LM: Return value
+[-> LM : Activate Run Target (RunTarget1)
+
+note over LM, App
+    The application is not configured to run as part of the new Run Target and will be shutdown
+end note
+
+LM -> App : SIGTERM
+LM -> LM : Deactivate Alive Supervision, Start shutdown timeout monitoring
+
+...
+
+alt #pink Application did not terminate within the shutdown timeout
+
+LM -> LM : Application shutdown timeout expired
+LM -> App : SIGKILL
+end alt
+
+destroy App
+
 deactivate App
-
 deactivate LM
 @enduml

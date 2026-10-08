@@ -17,12 +17,17 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    partially_verifies=[],
+    partially_verifies=[
+        "comp_req__launch_man__process_launch_args",
+    ],
     fully_verifies=[
         "feat_req__lifecycle__recov_run_target_switch",
         "feat_req__lifecycle__recovery_action_support",
         "feat_req__lifecycle__liveliness_detection",
         "comp_req__launch_man__failure_detect",
+        "comp_req__launch_man__rc_lifecycle",
+        "comp_req__launch_man__rc_os_state",
+        "comp_req__launch_man__rt_comp_dep",
     ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
@@ -31,10 +36,13 @@ def test_recovery_action_simple_rep_failure(
     target, setup_test, assert_test_results, remote_test_dir
 ):
     """
-    Objective: Verifies that recovery action is executed when the reporting of running via report_running() API (named "simple reporting" in the following) is not happening in time and vice versa.
+    Objective: Verifies that recovery action is executed when the reporting of
+    running via report_running() API (named "simple reporting" in the
+    following) is not happening in time and vice versa.
 
-    Case 1: Using simple reporting, the process does report running in time (500ms below boundary)
-    Expected Behaviour: Reporting running is successful, recovery action is not executed.
+    Case 1: Using simple reporting, the process does report running in time
+    (500ms below boundary) Expected Behaviour: Reporting running is successful,
+    recovery action is not executed.
 
     Case 2: Using simple reporting, the process does not report running in time (500ms above boundary)
     Expected Behaviour: Reporting running is not successful, recovery action is executed.

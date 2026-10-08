@@ -519,7 +519,8 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
         fb::SchedulingPolicy::FIFO,
         50 /*scheduling_priority*/,
         4096 /*max_memory_usage*/,
-        80 /*max_cpu_usage*/);
+        80 /*max_cpu_usage*/,
+        3 /*affinity_mask*/);
 
     auto bin_dir = fbb.CreateString("/opt");
     auto work_dir = fbb.CreateString("/tmp");
@@ -554,6 +555,41 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
     EXPECT_THAT(sb.max_memory_usage.value(), Eq(4096U));
     ASSERT_THAT(sb.max_cpu_usage.has_value(), IsTrue());
     EXPECT_THAT(sb.max_cpu_usage.value(), Eq(80U));
+    ASSERT_THAT(sb.affinity_mask.has_value(), IsTrue());
+    EXPECT_THAT(sb.affinity_mask.value(), Eq(3U));
+}
+
+TEST_F(FlatbufferConfigLoaderTest, LoadSandboxWithoutAffinityMaskHasNoValue)
+{
+    RecordProperty("Description", "Sandbox without affinity_mask configured leaves it as std::nullopt.");
+
+    ::flatbuffers::FlatBufferBuilder fbb;
+
+    auto sandbox = buildDefaultSandbox(fbb);
+
+    auto bin_dir = fbb.CreateString("/opt");
+    auto work_dir = fbb.CreateString("/tmp");
+    auto deploy = fb::CreateDeploymentConfig(
+        fbb,
+        500 /*ready_timeout_ms*/,
+        500 /*shutdown_timeout_ms*/,
+        0 /*environmental_variables*/,
+        bin_dir,
+        work_dir,
+        0 /*ready_recovery_action*/,
+        0 /*recovery_action*/,
+        sandbox);
+
+    auto comp = buildDefaultComponent(fbb, "unsandboxed_comp", buildDefaultComponentProperties(fbb), deploy);
+    auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{comp});
+
+    auto result = loadBuffer(buildConfigWithComponents(fbb, comps));
+
+    ASSERT_THAT(result.has_value(), IsTrue());
+    ASSERT_THAT(result->components().size(), Eq(1U));
+
+    const auto& sb = result->components()[0].deployment_config.sandbox;
+    EXPECT_THAT(sb.affinity_mask.has_value(), IsFalse());
 }
 
 TEST_F(FlatbufferConfigLoaderTest, LoadComponentAliveSupervision)

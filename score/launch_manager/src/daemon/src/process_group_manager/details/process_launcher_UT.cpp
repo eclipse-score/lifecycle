@@ -18,8 +18,8 @@
 #include <cstdarg>
 #include <thread>
 
-#include "score/mw/launch_manager/process_group_manager/details/mock_proc_launch_syscalls.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
+#include "tests/utils/mocks/mock_syscalls.hpp"
 
 using namespace testing;
 
@@ -519,6 +519,38 @@ TEST_F(SetSchedulingAndSecurityTest, setgroupsFails)
     EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), SysExitException);
 }
 
+TEST_F(SetSchedulingAndSecurityTest, setaffinityFails)
+{
+    RecordProperty("Description", "Verify that the forked process exits if setting the CPU affinity fails");
+
+    config_.deployment_config.sandbox.affinity_mask = 0x1U;
+
+    EXPECT_CALL(*g_syscall_mock, setpgid).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, sched_setscheduler).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, setaffinity(0x1U)).WillOnce(SetErrnoAndReturn(EINVAL, -1));
+    EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
+
+    EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
+
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), SysExitException);
+}
+
+TEST_F(SetSchedulingAndSecurityTest, setaffinityIgnore)
+{
+    RecordProperty("Description", "Verify that the CPU affinity is not changed if no affinity mask is configured");
+
+    config_.deployment_config.sandbox.affinity_mask = std::nullopt;
+
+    EXPECT_CALL(*g_syscall_mock, setpgid).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, sched_setscheduler).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, setaffinity).Times(0);
+
+    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+}
+
 TEST_F(StartProcessTest, chdirFails)
 {
     RecordProperty("Description", "Verify that the forked process exits if changing the working dir fails");
@@ -635,6 +667,7 @@ TEST_F(StartProcessTest, startProcessChildSuccess)
     const std::vector<gid_t> sgids = {1, 2, 3};
     const std::uint64_t mem_limit = 4096;
     const std::uint32_t cpu_limit = 500;
+    const std::uint64_t affinity_mask = 0x8000000000000005U;
     const std::string security_policy = "security";
     const std::vector<std::string> args_in = {"-c 2", "--argument yes"};
     const std::vector<std::string> expected_launch_args = {
@@ -647,6 +680,7 @@ TEST_F(StartProcessTest, startProcessChildSuccess)
     config_.deployment_config.sandbox.supplementary_group_ids = sgids;
     config_.deployment_config.sandbox.max_memory_usage = mem_limit;
     config_.deployment_config.sandbox.max_cpu_usage = cpu_limit;
+    config_.deployment_config.sandbox.affinity_mask = affinity_mask;
     config_.deployment_config.sandbox.security_policy = security_policy;
     config_.deployment_config.environmental_variables.add("environment", "yes");
     config_.deployment_config.environmental_variables.add("errors", "no");
@@ -661,6 +695,7 @@ TEST_F(StartProcessTest, startProcessChildSuccess)
     EXPECT_CALL(*g_syscall_mock, sem_init).Times(2).WillRepeatedly(Return(0));
     EXPECT_CALL(*g_syscall_mock, setpgid(0, forked_pid));
     EXPECT_CALL(*g_syscall_mock, sched_setscheduler(0, scheduler, _)).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, setaffinity(affinity_mask)).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setuid(uid)).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setgid(gid)).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setgroups(sgids.size(), CArrayMatches(sgids))).WillOnce(Return(0));

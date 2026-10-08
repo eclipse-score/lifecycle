@@ -44,18 +44,18 @@ class HeartbeatMonitorBuilder final : public internal::RustDroppable<HeartbeatMo
     HeartbeatMonitorBuilder& operator=(HeartbeatMonitorBuilder&&) = delete;
 
   protected:
-    std::optional<internal::FFIHandle> _drop_by_rust_impl()
+    std::optional<internal::FFIHandle> DropByRustImpl()
     {
-        return monitor_builder_handle_.drop_by_rust();
+        return monitor_builder_handle_.DropByRust();
     }
 
   private:
     internal::DroppableFFIHandle monitor_builder_handle_;
 
-    // Allow to hide drop_by_rust implementation
+    // Allow to hide DropByRust implementation
     friend class internal::RustDroppable<HeartbeatMonitorBuilder>;
 
-    // Allow HealthMonitorBuilder to access drop_by_rust implementation
+    // Allow HealthMonitorBuilder to access DropByRust implementation
     friend class ::score::mw::health::HealthMonitorBuilder;
 };
 
@@ -69,7 +69,14 @@ class HeartbeatMonitor final
     HeartbeatMonitor(HeartbeatMonitor&& other) noexcept = default;
     HeartbeatMonitor& operator=(HeartbeatMonitor&& other) noexcept = default;
 
-    void heartbeat();
+    void Heartbeat();
+
+    /// @deprecated Use `Heartbeat()` instead. Removed in the release after v0.10.
+    [[deprecated("Use Heartbeat() instead. The snake_case API is removed in the release after v0.10.")]]
+    void heartbeat()
+    {
+        Heartbeat();
+    }
 
   private:
     explicit HeartbeatMonitor(internal::FFIHandle monitor_handle);

@@ -26,6 +26,9 @@
 # nightly-only features. Target-config Rust already resolves to Ferrocene.
 coverage:llvm_cov --config=_score_common
 
+
+# Instrument everything under //score/
+coverage:llvm_cov --instrumentation_filter=^//score[/:]
 coverage:llvm_cov --nocache_test_results
 coverage:llvm_cov --cxxopt=-O0
 coverage:llvm_cov --combined_report=lcov
@@ -50,8 +53,8 @@ coverage:llvm_cov --extra_toolchains=@llvm_toolchain//:cc-toolchain-x86_64-linux
 # demote warnings to non-fatal for the coverage build only. This replaces the
 # previous per-warning cc_args/cc_feature suppressions in the root BUILD file.
 coverage:llvm_cov --copt=-Wno-error
-coverage:llvm_cov --features=-treat_warnings_as_errors
-coverage:llvm_cov --host_features=-treat_warnings_as_errors
+coverage:llvm_cov --features=-treat_warnings_as_errors 
+coverage:llvm_cov --host_features=-treat_warnings_as_errors 
 
 # The merger lives in score_coverage (no consumer-specific wiring needed); the
 # reporter_wrapper is instantiated in //quality/coverage because it carries the
@@ -83,3 +86,30 @@ coverage:llvm_cov --@rules_rust//rust/settings:extra_rustc_flag=-Clink-dead-code
 coverage:llvm_cov --@rules_rust//rust/settings:extra_rustc_flag=-Zcoverage-options=branch
 
 coverage:llvm_cov --remote_download_all
+
+# ============================================================================
+# gcov backend (GCC on Linux; the same collection path QNX/QCC uses on target)
+# ============================================================================
+# Use with: bazel coverage --config=gcov --config=unit-tests-x86_64-qnx //src/... --build_tests_only
+coverage:gcov --nocache_test_results
+# See coverage:llvm_cov. On this backend Bazel's own collector additionally
+# drops the counters of every library outside the filter, even when it was
+# compiled with instrumentation through an instrumented dependency.
+coverage:gcov --instrumentation_filter=^//score[/:]
+coverage:gcov --cxxopt=-O0
+coverage:gcov --combined_report=lcov
+coverage:gcov --dynamic_mode=off
+coverage:gcov --host_platform=@score_bazel_platforms//:x86_64-linux-gcc_12.2.0-posix
+coverage:gcov --platforms=@score_bazel_platforms//:x86_64-linux-gcc_12.2.0-posix
+coverage:gcov --extra_toolchains=@score_gcc_x86_64_toolchain//:x86_64-linux-gcc_12.2.0
+# Bazel's own per-test gcov collector and LCOV merger; score_coverage takes
+# over at the final report step.
+coverage:gcov --coverage_output_generator=@bazel_tools//tools/test:lcov_merger
+coverage:gcov --coverage_report_generator=//quality/coverage:gcov_reporter_wrapper
+coverage:gcov --test_lang_filters=cc
+# Bazel's gcov collector only keeps data of instrumented targets. Instrument
+# the tests too so header-only code that only a test translation unit
+# instantiates is measured (the scope allowlist still drops the test sources).
+coverage:gcov --instrument_test_targets
+coverage:gcov --features=-warnings_as_errors
+coverage:gcov --host_features=-warnings_as_errors

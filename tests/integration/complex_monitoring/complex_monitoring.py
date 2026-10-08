@@ -17,9 +17,10 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
+    fully_verifies=[],
     partially_verifies=[
         # Health monitoring requirements not yet ready
-        "comp_req__launch_man__ext_monitor_notify"
+        "comp_req__launch_man__ext_monitor_notify",
     ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
