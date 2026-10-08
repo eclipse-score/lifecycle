@@ -27,10 +27,14 @@ ReportRunningReadyCondition::ReportRunningReadyCondition(
 
 Result<void> ReportRunningReadyCondition::wait(cpp::stop_token stop_token, const Handle handle) const
 {
-    return std::visit(*this, handle);
+    return std::visit(
+        [this](auto&& handle) {
+            return visitWait(handle);
+        },
+        handle);
 }
 
-Result<void> ReportRunningReadyCondition::operator()(const ProcessHandle process) const
+Result<void> ReportRunningReadyCondition::visitWait(const ProcessHandle process) const
 {
     const osal::OsalReturnType result = launcher_.waitForkRunning(process.sync, timeout_);
 
@@ -42,7 +46,7 @@ Result<void> ReportRunningReadyCondition::operator()(const ProcessHandle process
     return MakeUnexpected(ExecErrc::kGeneralError);
 }
 
-Result<void> ReportRunningReadyCondition::operator()(const Handle handle) const
+Result<void> ReportRunningReadyCondition::visitWait(const Handle handle) const
 {
     SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE(
         "ReportRunningReadyCondition should only be called with a ProcessHandle");

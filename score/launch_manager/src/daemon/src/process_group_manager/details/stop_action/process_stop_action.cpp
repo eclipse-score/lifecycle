@@ -24,10 +24,14 @@ ProcessStopAction::ProcessStopAction(osal::IProcess& launcher) : launcher_(launc
 
 Result<void> ProcessStopAction::stop(cpp::stop_token stop_token, const Handle handle) const
 {
-    return std::visit(*this, handle);
+    return std::visit(
+        [this](auto&& handle) {
+            return visitStop(handle);
+        },
+        handle);
 }
 
-Result<void> ProcessStopAction::operator()(const ProcessHandle process) const
+Result<void> ProcessStopAction::visitStop(const ProcessHandle process) const
 {
     const osal::OsalReturnType result = launcher_.requestTermination(process.pid);
 
@@ -39,7 +43,7 @@ Result<void> ProcessStopAction::operator()(const ProcessHandle process) const
     return MakeUnexpected(ExecErrc::kGeneralError);
 }
 
-Result<void> ProcessStopAction::operator()(const Handle handle) const
+Result<void> ProcessStopAction::visitStop(const Handle handle) const
 {
     SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("ProcessStopAction should only be called with a ProcessHandle");
 }

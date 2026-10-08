@@ -41,17 +41,13 @@ class ReportRunningReadyCondition final : public IReadyCondition
     /// @return Whether the wait was successful, or failed with an error.
     Result<void> wait(cpp::stop_token stop_token, const Handle handle) const override;
 
-    /// @brief Wait until the process represented by the given handle reports running.
-    /// @param process The process to wait on.
-    /// @return Whether the wait was successful, or failed with an error.
-    Result<void> operator()(const ProcessHandle process) const;
-
-    /// @brief Wait until the resource represented by the given handle is ready.
-    /// @param handle The resource to wait on.
-    /// @return Always returns a not-implemented error.
-    Result<void> operator()(const Handle handle) const;
-
   private:
+    /// @brief Visitor method for process handles.
+    Result<void> visitWait(const ProcessHandle process) const;
+
+    /// @brief Visitor method for unsupported handles.
+    Result<void> visitWait(const Handle handle) const;
+
     /// @brief The process launcher used to wait for the process.
     osal::IProcess& launcher_;
 

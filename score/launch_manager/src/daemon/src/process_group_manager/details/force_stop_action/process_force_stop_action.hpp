@@ -37,17 +37,13 @@ class ProcessForceStopAction final : public IForceStopAction
     /// @return Whether the action was successful, or failed with an error.
     Result<void> forceStop(cpp::stop_token stop_token, const Handle handle) const override;
 
-    /// @brief Forcefully stop the process represented by the given handle.
-    /// @param process The process to act upon.
-    /// @return Whether the action was successful, or failed with an error.
-    Result<void> operator()(const ProcessHandle process) const;
-
-    /// @brief Forcefully stop the resource represented by the given handle.
-    /// @param handle The resource to act upon.
-    /// @return Always returns a not-implemented error.
-    Result<void> operator()(const Handle handle) const;
-
   private:
+    /// @brief Visitor method for process handles.
+    Result<void> visitForceStop(const ProcessHandle process) const;
+
+    /// @brief Visitor method for unsupported handles.
+    Result<void> visitForceStop(const Handle handle) const;
+
     /// @brief The process launcher used to stop the process.
     osal::IProcess& launcher_;
 };
