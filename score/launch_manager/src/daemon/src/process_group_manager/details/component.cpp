@@ -39,7 +39,7 @@ IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
         [&](auto state) {
             return state.activate(*this, stop_token);
         },
-        state_);
+        getState());
 }
 
 IComponent::RequestResult Component::TerminatedState::activate(Component& component, cpp::stop_token stop_token)
@@ -51,18 +51,30 @@ IComponent::RequestResult Component::TerminatedState::activate(Component& compon
     }
     const Handle handle = start_result.value();
 
-    component.state_ = StartingState{handle};
+    // Create a child token, which can be stopped from tryHandleTermination
+    // in addition to forwarding requests from the parent.
+    cpp::stop_source stop_activation;
+    const cpp::stop_callback forward_stop{stop_token, [&stop_activation] {
+                                              const bool stopped = stop_activation.request_stop();
+                                              SCORE_LANGUAGE_FUTURECPP_ASSERT(stopped);
+                                          }};
+    component.setState(StartingState{handle, stop_activation});
 
     for (const IReadyCondition& ready_condition : component.ready_conditions_)
     {
-        if (!ready_condition.wait(stop_token, handle).has_value())
+        if (!ready_condition.wait(stop_activation.get_token(), handle).has_value())
         {
             return cpp::make_unexpected(ComponentError::kErrorBeforeReady);
         }
     }
 
-    component.state_ = ReadyState{handle};
+    if (stop_activation.stop_requested())
+    {
+        // Startup was cancelled, either by the caller or by an unexpected termination.
+        return cpp::make_unexpected(ComponentError::kErrorBeforeReady);
+    }
 
+    component.setState(ReadyState{handle});
     return RequestState::kSuccess;
 }
 
@@ -100,7 +112,7 @@ IComponent::RequestResult Component::deactivate(cpp::stop_token stop_token)
         [&](auto state) {
             return state.deactivate(*this, stop_token);
         },
-        state_);
+        getState());
 }
 
 IComponent::RequestResult Component::TerminatedState::deactivate(
@@ -112,12 +124,14 @@ IComponent::RequestResult Component::TerminatedState::deactivate(
 
 IComponent::RequestResult Component::StartingState::deactivate(Component& component, cpp::stop_token stop_token)
 {
+    static_cast<void>(stop_activation_.request_stop());
+
     if (!component.stop_action_.stop(stop_token, handle_).has_value())
     {
         return cpp::make_unexpected(ComponentError::kErrorAfterReady);
     }
 
-    component.state_ = TerminatingState{handle_};
+    component.setState(TerminatingState{handle_});
     return RequestState::kWaiting;
 }
 
@@ -128,7 +142,7 @@ IComponent::RequestResult Component::ReadyState::deactivate(Component& component
         return cpp::make_unexpected(ComponentError::kErrorAfterReady);
     }
 
-    component.state_ = TerminatingState{handle_};
+    component.setState(TerminatingState{handle_});
     return RequestState::kWaiting;
 }
 
@@ -152,7 +166,7 @@ IComponent::RequestResult Component::tryHandleTermination(int32_t status)
         [&](auto state) {
             return state.tryHandleTermination(*this, status);
         },
-        state_);
+        getState());
 }
 
 IComponent::RequestResult Component::TerminatedState::tryHandleTermination(
@@ -172,10 +186,10 @@ IComponent::RequestResult Component::StartingState::tryHandleTermination(Compone
         }
     }
 
-    // TODO: We need to interrupt the worker thread which is sitting in the activate() method
-    //       (and prevent it from changing the state to successful)
+    // Interrupt the worker thread waiting in activate().
+    static_cast<void>(stop_activation_.request_stop());
 
-    component.state_ = FaultState{};
+    component.setState(FaultState{});
     return cpp::make_unexpected(ComponentError::kErrorAfterReady);
 }
 
@@ -183,11 +197,11 @@ IComponent::RequestResult Component::ReadyState::tryHandleTermination(Component&
 {
     if (component.self_terminating_ && status == 0)
     {
-        component.state_ = TerminatedState{};
+        component.setState(TerminatedState{});
         return RequestState::kSuccess;
     }
 
-    component.state_ = FaultState{};
+    component.setState(FaultState{});
     return cpp::make_unexpected(ComponentError::kErrorAfterReady);
 }
 
@@ -196,7 +210,7 @@ IComponent::RequestResult Component::TerminatingState::tryHandleTermination(
     [[maybe_unused]] int32_t status)
 {
     // Since we requested termination, we do not care about the exit code.
-    component.state_ = TerminatedState{};
+    component.setState(TerminatedState{});
     return RequestState::kSuccess;
 }
 
@@ -214,7 +228,7 @@ IdentifierHash Component::getIdentifier() const
 
 bool Component::active() const
 {
-    return std::holds_alternative<ReadyState>(state_);
+    return std::holds_alternative<ReadyState>(getState());
 }
 
 }  // namespace score::mw::lifecycle::internal

@@ -21,6 +21,8 @@
 #include "score/mw/launch_manager/process_group_manager/details/stop_action/istop_action.hpp"
 #include <score/span.hpp>
 #include <functional>
+#include <mutex>
+#include <variant>
 #include <vector>
 
 namespace score::mw::lifecycle::internal
@@ -103,6 +105,7 @@ class Component final : public IComponent
     {
       public:
         Handle handle_;
+        cpp::stop_source stop_activation_;
         RequestResult activate(Component& component, cpp::stop_token stop_token);
         RequestResult deactivate(Component& component, cpp::stop_token stop_token);
         RequestResult tryHandleTermination(Component& component, int32_t status);
@@ -135,8 +138,27 @@ class Component final : public IComponent
         RequestResult tryHandleTermination(Component& component, int32_t status);
     };
 
+    using State = std::variant<TerminatedState, StartingState, ReadyState, TerminatingState, FaultState>;
+
+    /// @brief Protects the state from concurrent modifications.
+    mutable std::mutex state_mutex_;
+
     /// @brief The current state of the component.
-    std::variant<TerminatedState, StartingState, ReadyState, TerminatingState, FaultState> state_;
+    State state_;
+
+    /// @brief Set the current state.
+    void setState(State&& state)
+    {
+        const std::lock_guard<std::mutex> lock{state_mutex_};
+        state_ = state;
+    }
+
+    /// @brief Get the current state.
+    [[nodiscard]] State getState() const
+    {
+        const std::lock_guard<std::mutex> lock{state_mutex_};
+        return state_;
+    }
 };
 
 }  // namespace score::mw::lifecycle::internal
