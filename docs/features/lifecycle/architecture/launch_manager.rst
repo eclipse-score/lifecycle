@@ -156,7 +156,7 @@ Launch Manager Initial Startup
    :belongs_to: feat__lifecycle[version==1]
    :fulfils: feat_req__lifecycle__launch_support[version==1],
              feat_req__lifecycle__process_ordering[version==1],
-             feat_req__lifecycle__start_named_run_target[version==1]
+             feat_req__lifecycle__run_target_support[version==1]
 
    .. uml:: _assets/launch_manager_startup.puml
       :scale: 50

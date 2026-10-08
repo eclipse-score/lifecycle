@@ -116,7 +116,6 @@ Glossary
       Ready conditions can either be reported by the component itself through the Lifecycle Interface or determined via external state monitoring. External state examples include: process started, file is available, socket was opened, or that the process finished successfully.
 
     Liveliness
-      The status of a process, notified by periodic calls to :term:`Health Monitor Interface`, as per configuration.
       Term indicating that a :term:`Component` is periodically sending an alive notification (using the
       :need:`logic_arc_int_op__lifecycle__report_alive` interface) as per configuration.
 

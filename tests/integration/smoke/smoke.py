@@ -19,6 +19,9 @@ from attribute_plugin import add_test_properties
 @add_test_properties(
     partially_verifies=[
         "feat_req__lifecycle__launch_support",
+        "feat_req__lifecycle__run_target_support",
+        "comp_req__launch_man__start_named_run_target",
+        "comp_req__launch_man__switch_run_targets",
     ],
     test_type="interface-test",
     derivation_technique="explorative-testing",
