@@ -186,8 +186,7 @@ void ProcessGroupManager::createProcessComponentsObjects(std::size_t total_proce
 
 bool ProcessGroupManager::run()
 {
-    LM_LOG_DEBUG() << "clock() at run():"
-                   << (static_cast<double>(clock()) / (static_cast<double>(CLOCKS_PER_SEC) / 1000.0)) << "ms";
+    LM_LOG_DEBUG() << "run() at" << TIMESTAMP_MS();
 
     bool result = startInitialTransition();
     bool overflow_logged = false;
@@ -302,7 +301,7 @@ void ProcessGroupManager::allProcessGroupsOff()
         graph_->cancel();
 
         LM_LOG_DEBUG() << "Wait for transition cancellation";
-        if (!waitForStateCompletion(GraphState::kCancelled, 2000))
+        if (!waitForStateCompletion(GraphState::kAborting, 2000))
         {
             LM_LOG_ERROR() << "NOTE: Cancellation timed out";
         }
@@ -395,7 +394,7 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
         if (GraphState::kUndefinedState == pg.getState())
         {
             // at the moment graph is not running...
-            // i.e. it is not in kInTransition, kAborting or kCancelled state
+            // i.e. it is not in kInTransition or kAborting state
             //
             // in short, graph is in an error state (kUndefinedState)
             // and there is no valid request from outside, to change this situation...
@@ -434,7 +433,6 @@ void ProcessGroupManager::handleGetActiveRunTarget(GetActiveRunTarget* event) co
             result = graph_->getRequestedRunTarget();
             break;
         case GraphState::kAborting:
-        case GraphState::kCancelled:
         case GraphState::kInTransition:
         case GraphState::kUndefinedState:
             result = score::MakeUnexpected(ExecErrc::kActivationInProgress);

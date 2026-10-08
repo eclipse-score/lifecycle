@@ -42,9 +42,9 @@ class RustDroppable
 
   protected:
     /// Marks object as no longer managed by C++ side, releasing handle to be passed to Rust side for dropping
-    std::optional<FFIHandle> drop_by_rust()
+    std::optional<FFIHandle> DropByRust()
     {
-        return static_cast<T*>(this)->_drop_by_rust_impl();
+        return static_cast<T*>(this)->DropByRustImpl();
     }
 };
 
@@ -63,10 +63,10 @@ class DroppableFFIHandle
     DroppableFFIHandle& operator=(DroppableFFIHandle&& other) noexcept;
 
     /// Get the underlying FFI handle if it was not dropped before
-    std::optional<FFIHandle> as_rust_handle() const;
+    std::optional<FFIHandle> AsRustHandle() const;
 
     /// Marks object as no longer managed by C++ side, releasing handle to be passed to Rust side for dropping
-    std::optional<FFIHandle> drop_by_rust();
+    std::optional<FFIHandle> DropByRust();
 
     virtual ~DroppableFFIHandle();
 
@@ -98,14 +98,28 @@ class TimeRange
         SCORE_LANGUAGE_FUTURECPP_PRECONDITION(min_ms_ <= max_ms_);
     }
 
-    uint32_t min_ms() const
+    uint32_t MinMs() const
     {
         return min_ms_.count();
     }
 
-    uint32_t max_ms() const
+    uint32_t MaxMs() const
     {
         return max_ms_.count();
+    }
+
+    /// @deprecated Use `MinMs()` instead. Removed in the release after v0.10.
+    [[deprecated("Use MinMs() instead. The snake_case API is removed in the release after v0.10.")]] uint32_t min_ms()
+        const
+    {
+        return MinMs();
+    }
+
+    /// @deprecated Use `MaxMs()` instead. Removed in the release after v0.10.
+    [[deprecated("Use MaxMs() instead. The snake_case API is removed in the release after v0.10.")]] uint32_t max_ms()
+        const
+    {
+        return MaxMs();
     }
 
   private:

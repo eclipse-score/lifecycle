@@ -319,6 +319,11 @@
               "type": "integer",
               "exclusiveMinimum": 0,
               "description": "Specifies the maximum CPU usage limit for the component, expressed as a percentage (%) of total CPU capacity."
+            },
+            "affinity_mask": {
+              "type": "string",
+              "pattern": "^0[xX](?!0{1,16}$)[0-9a-fA-F]{1,16}$",
+              "description": "Specifies the affinity mask defining on which CPU cores the process may be scheduled, as a hexadecimal string (e.g. \"0x3\" for cores 0 and 1). Bit 0 corresponds to core 0; up to 64 cores are supported. At least one bit must be set. If not configured, the component inherits the CPU affinity of the **Launch Manager** itself, i.e. no affinity system call is made on its behalf."
             }
           },
           "additionalProperties": false

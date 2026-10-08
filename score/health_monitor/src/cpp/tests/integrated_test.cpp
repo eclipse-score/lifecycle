@@ -39,15 +39,15 @@ TEST_F(HealthMonitorTest, Integrated)
     // - Affinity set to first core.
     // - Stack size set to common default stack size.
     // - Scheduler not set - avoid additional caps required.
-    auto thread_parameters{ThreadParameters{}.affinity({0}).stack_size(8 * 1024 * 1024)};
+    auto thread_parameters{ThreadParameters{}.Affinity({0}).StackSize(8 * 1024 * 1024)};
 
     // Setup deadline monitor construction.
     const MonitorTag deadline_monitor_tag{"deadline_monitor"};
     auto deadline_monitor_builder =
         deadline::DeadlineMonitorBuilder()
-            .add_deadline(
+            .AddDeadline(
                 DeadlineTag("deadline_1"), TimeRange(std::chrono::milliseconds(100), std::chrono::milliseconds(200)))
-            .add_deadline(
+            .AddDeadline(
                 DeadlineTag("deadline_2"), TimeRange(std::chrono::milliseconds(100), std::chrono::milliseconds(200)));
 
     // Setup heartbeat monitor construction.
@@ -60,77 +60,77 @@ TEST_F(HealthMonitorTest, Integrated)
     StateTag from_state{"from_state"};
     StateTag to_state{"to_state"};
     auto logic_monitor_builder =
-        logic::LogicMonitorBuilder{from_state}.add_state(from_state, std::vector{to_state}).add_state(to_state, {});
+        logic::LogicMonitorBuilder{from_state}.AddState(from_state, std::vector{to_state}).AddState(to_state, {});
 
     auto hmon_result{HealthMonitorBuilder()
-                         .add_deadline_monitor(deadline_monitor_tag, std::move(deadline_monitor_builder))
-                         .add_heartbeat_monitor(heartbeat_monitor_tag, std::move(heartbeat_monitor_builder))
-                         .add_logic_monitor(logic_monitor_tag, std::move(logic_monitor_builder))
-                         .with_internal_processing_cycle(std::chrono::milliseconds(50))
-                         .with_supervisor_api_cycle(std::chrono::milliseconds(50))
-                         .thread_parameters(std::move(thread_parameters))
-                         .build()};
+                         .AddDeadlineMonitor(deadline_monitor_tag, std::move(deadline_monitor_builder))
+                         .AddHeartbeatMonitor(heartbeat_monitor_tag, std::move(heartbeat_monitor_builder))
+                         .AddLogicMonitor(logic_monitor_tag, std::move(logic_monitor_builder))
+                         .WithInternalProcessingCycle(std::chrono::milliseconds(50))
+                         .WithSupervisorApiCycle(std::chrono::milliseconds(50))
+                         .WithThreadParameters(std::move(thread_parameters))
+                         .Build()};
     EXPECT_TRUE(hmon_result.has_value());
     auto hm{std::move(hmon_result.value())};
 
     // Obtain deadline monitor from HMON.
-    auto deadline_monitor_res = hm.get_deadline_monitor(deadline_monitor_tag);
+    auto deadline_monitor_res = hm.GetDeadlineMonitor(deadline_monitor_tag);
     EXPECT_TRUE(deadline_monitor_res.has_value());
 
     {
         // Try again to get the same monitor.
-        auto deadline_monitor_res = hm.get_deadline_monitor(deadline_monitor_tag);
+        auto deadline_monitor_res = hm.GetDeadlineMonitor(deadline_monitor_tag);
         EXPECT_FALSE(deadline_monitor_res.has_value());
     }
 
     auto deadline_mon = std::move(*deadline_monitor_res);
 
     // Obtain heartbeat monitor from HMON.
-    auto heartbeat_monitor_res{hm.get_heartbeat_monitor(heartbeat_monitor_tag)};
+    auto heartbeat_monitor_res{hm.GetHeartbeatMonitor(heartbeat_monitor_tag)};
     EXPECT_TRUE(heartbeat_monitor_res.has_value());
 
     {
         // Try again to get the same monitor.
-        auto heartbeat_monitor_res{hm.get_heartbeat_monitor(heartbeat_monitor_tag)};
+        auto heartbeat_monitor_res{hm.GetHeartbeatMonitor(heartbeat_monitor_tag)};
         EXPECT_FALSE(heartbeat_monitor_res.has_value());
     }
 
     auto heartbeat_monitor{std::move(*heartbeat_monitor_res)};
 
     // Obtain logic monitor from HMON.
-    auto logic_monitor_res{hm.get_logic_monitor(logic_monitor_tag)};
+    auto logic_monitor_res{hm.GetLogicMonitor(logic_monitor_tag)};
     EXPECT_TRUE(logic_monitor_res.has_value());
 
     {
         // Try again to get the same monitor.
-        auto logic_monitor_res{hm.get_logic_monitor(logic_monitor_tag)};
+        auto logic_monitor_res{hm.GetLogicMonitor(logic_monitor_tag)};
         EXPECT_FALSE(logic_monitor_res.has_value());
     }
 
     auto logic_monitor{std::move(*logic_monitor_res)};
 
     // Start HMON.
-    hm.start();
+    hm.Start();
 
-    heartbeat_monitor.heartbeat();
+    heartbeat_monitor.Heartbeat();
 
-    EXPECT_TRUE(logic_monitor.transition(to_state).has_value());
-    auto current_state_res{logic_monitor.state()};
+    EXPECT_TRUE(logic_monitor.Transition(to_state).has_value());
+    auto current_state_res{logic_monitor.State()};
     EXPECT_TRUE(current_state_res.has_value());
     EXPECT_EQ(current_state_res.value(), to_state);
 
-    auto deadline_res = deadline_mon.get_deadline(DeadlineTag("deadline_1"));
+    auto deadline_res = deadline_mon.GetDeadline(DeadlineTag("deadline_1"));
     ASSERT_TRUE(deadline_res.has_value());
     auto& deadline{deadline_res.value()};
 
     {
-        auto first_start_res{deadline.start()};
+        auto first_start_res{deadline.Start()};
         EXPECT_TRUE(first_start_res.has_value());
         auto deadline_guard{std::move(first_start_res.value())};
 
-        auto second_start_res{deadline_res.value().start()};
+        auto second_start_res{deadline_res.value().Start()};
         EXPECT_FALSE(second_start_res.has_value());
         EXPECT_EQ(second_start_res.error(), ::score::mw::health::Error::WrongState);
-        deadline_guard.stop();
+        deadline_guard.Stop();
     }
 }

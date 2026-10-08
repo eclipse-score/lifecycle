@@ -18,7 +18,9 @@ from attribute_plugin import add_test_properties
 
 @add_test_properties(
     fully_verifies=[],
-    partially_verifies=["feat_req__lifecycle__monitor_processes"],
+    partially_verifies=[
+        "comp_req__launch_man__recovery_switch_rt",
+    ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
 )
@@ -26,7 +28,8 @@ def test_process_crash_monitoring(
     target, setup_test, assert_test_results, remote_test_dir
 ):
     """
-    Objective: Verifies that the launch manager correctly detects an abnormal process termination at runtime and executes a recovery action.
+    Objective: Verifies that the launch manager correctly detects an abnormal
+    process termination at runtime and executes a recovery action.
 
     A process reports running successfully and then crashes after Run Target activation completes.
     Expected Behaviour: Launch manager detects the crash and activates the fallback Run Target.

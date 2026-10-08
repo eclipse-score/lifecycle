@@ -384,18 +384,6 @@ cc_library(
     ],
 )
 
-cc_library(
-    name = "mock_proc_launch_syscalls",
-    testonly = True,
-    hdrs = ["mock_proc_launch_syscalls.hpp"],
-    include_prefix = "score/mw/launch_manager/process_group_manager/details",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
-    deps = [
-        "@googletest//:gtest_main",
-    ],
-)
-
 lm_cc_test(
     name = "process_launcher_UT",
     srcs = ["process_launcher_UT.cpp"],
@@ -426,8 +414,8 @@ lm_cc_test(
     ],
     linkstatic = True,
     deps = [
-        ":mock_proc_launch_syscalls",
         ":process_launcher",
+        "//tests/utils/mocks:mock_syscalls",
         "@googletest//:gtest_main",
     ],
 )

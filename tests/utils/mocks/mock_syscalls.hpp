@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#ifndef MOCK_PROC_LAUNCH_SYSCALLS
-#define MOCK_PROC_LAUNCH_SYSCALLS
+#ifndef MOCK_SYSCALLS
+#define MOCK_SYSCALLS
 
 #include <fcntl.h>
 #include <grp.h>
@@ -26,6 +26,7 @@
 #include <climits>
 #include <csignal>
 #include <cstdarg>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -55,6 +56,7 @@ class SyscallMock
     MOCK_METHOD(int, chdir, (const char* __path), ());
     MOCK_METHOD(int, setrlimit, (int __resource, const struct rlimit* __rlimits), ());
     MOCK_METHOD(int, setSecurityPolicy, (const char* policy), ());
+    MOCK_METHOD(std::int32_t, setaffinity, (std::uint64_t cpumask), ());
     MOCK_METHOD(pid_t, getpid, (), ());
     MOCK_METHOD(int, fcntl, (int __fd, int __cmd, void* arg), ());
     MOCK_METHOD(int, setgroups, (size_t n, const gid_t* groups), ());
@@ -392,8 +394,13 @@ int setgroups(size_t n, const gid_t* groups)
     return g_syscall_mock->setgroups(n, groups);
 }
 
+std::int32_t setaffinity(std::uint64_t cpumask) noexcept(true)
+{
+    return g_syscall_mock->setaffinity(cpumask);
+}
+
 }  // namespace score::mw::lifecycle::internal::osal
 
 // NOLINTEND
 
-#endif
+#endif  // MOCK_SYSCALLS

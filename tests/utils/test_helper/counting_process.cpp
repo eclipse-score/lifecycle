@@ -26,9 +26,7 @@
 #include <getopt.h>
 #include <score/mw/lifecycle/report_running.h>
 #include <semaphore.h>
-#include <stdio.h>
 #include <cerrno>
-#include <cstdlib>
 #include <cstring>
 #include <string>
 

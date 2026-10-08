@@ -91,6 +91,7 @@ struct Sandbox
     std::int32_t scheduling_priority{};
     std::optional<std::uint64_t> max_memory_usage;
     std::optional<std::uint32_t> max_cpu_usage;
+    std::optional<std::uint64_t> affinity_mask;
 };
 
 struct DeploymentConfig

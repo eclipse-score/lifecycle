@@ -72,27 +72,18 @@ struct GraphConfig
 /// kSuccess        | kInTransition     | kInTransition
 /// kSuccess        | kAborting         | kUndefinedState
 /// kSuccess        | kUndefinedState   | kUndefinedState
-/// kSuccess        | kCancelled        | kUndefinedState
 /// ----------------+-------------------+----------------
 /// kInTransition   | kSuccess          | kSuccess
 /// kInTransition   | kAborting         | kAborting
 /// kInTransition   | kUndefinedState   | kAborting
-/// kInTransition   | kCancelled        | kCancelled
 /// ----------------+-------------------+----------------
 /// kAborting       | kSuccess          | kUndefinedState
 /// kAborting       | kInTransition     | kAborting
 /// kAborting       | kUndefinedState   | kUndefinedState
-/// kAborting       | kCancelled        | kCancelled
-/// ----------------+-------------------+----------------
-/// kCancelled      | kSuccess          | kUndefinedState
-/// kCancelled      | kInTransition     | kCancelled
-/// kCancelled      | kAborting         | kCancelled
-/// kCancelled      | kUndefinedState   | kUndefinedState
 /// ----------------+-------------------+----------------
 /// kUndefinedState | kSuccess          | kUndefinedState
 /// kUndefinedState | kInTransition     | kInTransition
 /// kUndefinedState | kAborting         | kUndefinedState
-/// kUndefinedState | kCancelled        | kUndefinedState
 /// @endverbatim
 enum class GraphState : std::uint_least8_t
 {
@@ -102,14 +93,12 @@ enum class GraphState : std::uint_least8_t
     ///@brief Graph is running, process group state is in transition
     kInTransition = 1U,
 
-    ///@brief Graph is running but has been aborted due to error, process group state is not known
+    ///@brief Graph is running but the transition has been aborted (error or cancellation because a new
+    /// transition is pending); process group state is not known
     kAborting = 2U,
 
-    ///@brief Graph is running but has been cancelled because a new process group state transition is pending
-    kCancelled = 3U,
-
     ///@brief Graph is not running but process group state is not known
-    kUndefinedState = 4U
+    kUndefinedState = 3U
 };
 
 /// @details Allowed transitions:
@@ -118,7 +107,6 @@ enum class GraphState : std::uint_least8_t
 /// kInTransition   -> kSuccess
 /// kInTransition   -> kAborting
 /// kInTransition   -> kUndefinedState
-/// kInTransition   -> kCancelled
 /// kAborting       -> kUndefinedState
 /// kSuccess        -> kUndefinedState
 /// kUndefinedState -> kInTransition
@@ -133,12 +121,11 @@ enum class GraphState : std::uint_least8_t
 /// kUndefinedState -> kAborting        kUndefinedState
 // clang-format off
 static constexpr GraphState state_results[][static_cast<uint>(GraphState::kUndefinedState) + 1U] = {
-    //from kSuccess                     kInTransition               kAborting                 kCancelled                      kUndefinedState              to new_state
-    {GraphState::kSuccess, GraphState::kSuccess, GraphState::kUndefinedState, GraphState::kUndefinedState,GraphState::kUndefinedState},  // kSuccess
-    {GraphState::kInTransition, GraphState::kInTransition, GraphState::kAborting, GraphState::kCancelled, GraphState::kInTransition},  // kInTransition
-    {GraphState::kUndefinedState, GraphState::kAborting, GraphState::kAborting, GraphState::kCancelled, GraphState::kUndefinedState},  // kAborting
-    {GraphState::kUndefinedState, GraphState::kCancelled, GraphState::kCancelled, GraphState::kCancelled, GraphState::kUndefinedState},  // kCancelled
-    {GraphState::kUndefinedState, GraphState::kAborting, GraphState::kUndefinedState, GraphState::kUndefinedState, GraphState::kUndefinedState}  // kUndefinedState
+    //from kSuccess                     kInTransition               kAborting                    kUndefinedState              to new_state
+    {GraphState::kSuccess, GraphState::kSuccess, GraphState::kUndefinedState, GraphState::kUndefinedState},  // kSuccess
+    {GraphState::kInTransition, GraphState::kInTransition, GraphState::kAborting, GraphState::kInTransition},  // kInTransition
+    {GraphState::kUndefinedState, GraphState::kAborting, GraphState::kAborting, GraphState::kUndefinedState},  // kAborting
+    {GraphState::kUndefinedState, GraphState::kAborting, GraphState::kUndefinedState, GraphState::kUndefinedState}  // kUndefinedState
 };
 // clang-format on
 
@@ -190,7 +177,7 @@ class Graph final
     void handleComponentEvent(const ComponentEvent& event);
 
     /// @brief Cancel the current transition because a new state has been requested.
-    /// Sets the graph state to kCancelled and posts a kSetStateCancelled pending event.
+    /// Sets the graph state to kAborting.
     /// If no jobs are in progress, transitions immediately to kUndefinedState.
     void cancel();
 
@@ -276,11 +263,6 @@ class Graph final
     /// transition has finished.
     void nodeExecuted(IdentifierHash node, score::cpp::expected_blank<IComponent::ComponentError> error);
 
-    /// @brief Abort the current transition due to a process error.
-    /// @deprecated @param code The execution error for the process that caused the abort.
-    /// @param reason The process error that triggered the abort.
-    void abort(uint32_t code, IComponent::ComponentError reason);
-
     /// @brief Sets the current state of the graph.
     /// @param new_state The new state to set for the graph.
     /// @returns False if the requested state was not set
@@ -305,10 +287,9 @@ class Graph final
     /// was the initial transition.
     void finalizeTransitionSuccess();
 
-    /// @brief Finalizes a failed or cancelled transition after the last in-flight job
+    /// @brief Finalizes an aborted transition (error or cancellation) after the last in-flight job
     /// completes. Moves the graph state to kUndefinedState and posts the appropriate event.
-    /// @param current_state The graph state when the last job completed (not kInTransition).
-    void handleNonTransitionExecution(GraphState current_state);
+    void handleNonTransitionExecution();
 
     /// @brief Number of jobs that have been queued but are not yet executed
     int32_t jobs_in_progress_{0};

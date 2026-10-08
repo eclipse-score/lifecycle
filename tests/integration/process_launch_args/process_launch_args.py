@@ -39,5 +39,4 @@ def test_process_launch_args(target, setup_test, assert_test_results, remote_tes
         cwd=str(remote_test_dir),
     )
 
-    # That the process is started and an XML file is produced verifies feat_req__lifecycle__launch_support
     assert_test_results({"process_initial.xml"})

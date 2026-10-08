@@ -44,16 +44,16 @@ TEST(HeartbeatMonitor, Heartbeat_Succeeds)
 
     // Build HMON, including heartbeat monitor.
     auto hmon_build_result{HealthMonitorBuilder{}
-                               .add_heartbeat_monitor(heartbeat_monitor_tag, std::move(heartbeat_monitor_builder))
-                               .build()};
+                               .AddHeartbeatMonitor(heartbeat_monitor_tag, std::move(heartbeat_monitor_builder))
+                               .Build()};
     ASSERT_TRUE(hmon_build_result.has_value());
     auto hmon{std::move(hmon_build_result.value())};
 
     // Get heartbeat monitor.
-    auto get_heartbeat_monitor_result{hmon.get_heartbeat_monitor(heartbeat_monitor_tag)};
+    auto get_heartbeat_monitor_result{hmon.GetHeartbeatMonitor(heartbeat_monitor_tag)};
     ASSERT_TRUE(get_heartbeat_monitor_result.has_value());
     auto heartbeat_monitor{std::move(get_heartbeat_monitor_result.value())};
 
     // Check heartbeat is not failing.
-    heartbeat_monitor.heartbeat();
+    heartbeat_monitor.Heartbeat();
 }

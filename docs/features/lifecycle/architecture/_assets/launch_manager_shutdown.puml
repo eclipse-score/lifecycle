@@ -12,30 +12,39 @@
 ' *******************************************************************************
 
 @startuml
-title Launch Manager - Run Components in Parallel
+title Launch Manager - "Normal" Shutdown
 
 autonumber "<b>[00]"
 
 participant "Launch Manager" as LM
 participant "OS (kernel)" as kernel
-participant "Reporting App 1" as app1
-participant "Reporting App 2" as app2
+participant "setup_filesystems.sh" as fs
+participant "random" as ran
+participant "app1" as app1
+
 activate LM
-
-LM -> LM: Analyze current state.
-LM -> LM: Determine transition plan.
-
-LM -> kernel: Start Reporting App 1.
-LM -> kernel: Start Reporting App 2.
-kernel -> app1 **: Start.
-kernel -> app2 **: Start.
-
 activate app1
-activate app2
+activate ran
 
-app1 -> app1: Internal User app initialization.
-app1 -> LM: Signal ready state via Lifecycle API.
-app2 -> app2: Internal User app initialization.
-app2 -> LM: Signal ready state via Lifecycle API.
+note over LM,app1
+The Run Target "Running" is currently active.
+end note
+
+[-> LM : SIGTERM
+LM -> LM : Determine transition plan to Run Target "Off"
+
+ref over LM, app1
+  Transition to Run Target "Off":
+  all Components are terminated in dependency order.
+  See //Launch Manager - Component Termination//.
+end ref
+
+LM -> LM : Run Target "Off" successfully activated
+destroy app1
+destroy ran
+
+LM -> LM : Deinitialize, free resources
+[<- LM : exit
+destroy LM
 ...
 @enduml

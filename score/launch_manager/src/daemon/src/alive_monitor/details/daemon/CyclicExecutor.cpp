@@ -16,7 +16,6 @@
 #include "score/mw/launch_manager/alive_monitor/details/daemon/CyclicExecutor.hpp"
 
 #include "score/mw/launch_manager/alive_monitor/details/factory/AliveWorkerFactory.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/ifappl/MonitorIfDaemon.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/supervision/Alive.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
 

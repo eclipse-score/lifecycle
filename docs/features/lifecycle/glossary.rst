@@ -41,6 +41,10 @@ Glossary
       Interface to monitor the health of a process, e.g. to check if a process is
       alive or if it is running as expected.
 
+    Lifecycle Interface
+      Interface to report :term:`readiness <Ready State>` of a process to the
+      :term:`Launch Manager`.
+
     Alive Monitoring
       Checks if an application reports an alive state in a certain period.
 
@@ -113,6 +117,8 @@ Glossary
 
     Liveliness
       The status of a process, notified by periodic calls to :term:`Health Monitor Interface`, as per configuration.
+      Term indicating that a :term:`Component` is periodically sending an alive notification (using the
+      :need:`logic_arc_int_op__lifecycle__report_alive` interface) as per configuration.
 
     Monitoring of Processes
       The activity of observing and checking if a process is running or has been exited with an abnormal status.

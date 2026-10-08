@@ -100,21 +100,9 @@ class IAliveWorkerFactory
         ifappl::CheckpointIpcServer& ipc_server,
         ifexm::ObservableEvent& event) = 0;
 
-    /// @brief Create a Supervision Checkpoint
-    /// @param [out] checkpoints Container to emplace the new checkpoint into
-    /// @param [in] interface  Alive Interface required for attaching the checkpoint.
-    /// @param [in] event   ObservableEvents required for constructing the Checkpoint.
-    /// @param [in] component_id Component being supervised
-    /// @return                         Object creation successful (true), otherwise failed (false)
-    virtual bool createSupervisionCheckpoint(
-        std::vector<ifappl::Checkpoint>& checkpoints,
-        ifappl::MonitorIfDaemon& interface,
-        const ifexm::ObservableEvent& event,
-        const IdentifierHash component_id) = 0;
-
     /// @brief Create alive supervision worker objects
     /// @param [out] supervisions Container to emplace the new alive supervision into
-    /// @param [in] checkpoint Checkpoint that is part of the supervision
+    /// @param [in] interface Interface that is part of the supervision
     /// @param [in] event Event to observe
     /// @param [in] recovery_client Recovery interface invoked when a supervision expires
     /// @param [in] component_id ID of the supervised component
@@ -122,7 +110,7 @@ class IAliveWorkerFactory
     /// @return                             Object creation successful (true), otherwise failed (false)
     virtual bool createAliveSupervision(
         std::vector<supervision::Alive>& supervisions,
-        ifappl::Checkpoint& checkpoint,
+        ifappl::MonitorIfDaemon& interface,
         ifexm::ObservableEvent& event,
         const std::shared_ptr<IRecoveryClient> recovery_client,
         const IdentifierHash component_id,

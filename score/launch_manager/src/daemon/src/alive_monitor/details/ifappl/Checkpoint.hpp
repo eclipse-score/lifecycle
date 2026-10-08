@@ -14,78 +14,26 @@
 #ifndef CHECKPOINT_HPP_INCLUDED
 #define CHECKPOINT_HPP_INCLUDED
 
-#include <string>
-#include <string_view>
-
-#include <cstdint>
-
-#include "score/mw/launch_manager/alive_monitor/details/common/Observer.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEvent.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
+#include <chrono>
 
 namespace score::mw::lifecycle::internal::saf::ifappl
 {
 
-/// @brief Checkpoint Observer
-/// @details The checkpoint observer class acts as a distributor between a Monitor interface
-/// and a Supervision. It forwards only those checkpoint informations which are required for the
-/// attached supervisions.
-class Checkpoint : public saf::common::Observable<Checkpoint>
+/// @brief Snapshot of a process at a point in time
+struct Checkpoint
 {
-  public:
-    /// @brief No Default Constructor.
-    Checkpoint() = delete;
-
-    /// @brief No Copy Constructor
-    Checkpoint(const Checkpoint&) = delete;
-    /// @brief No Copy Assignment
-    Checkpoint& operator=(const Checkpoint&) = delete;
-    /// @brief No Move Assignment
-    Checkpoint& operator=(Checkpoint&&) = delete;
-
-    /// @brief Constructor
-    /// @param [in] f_processState_p            The process that is reporting this checkpoint
-    /// @throws std::bad_alloc in case of insufficient memory for string allocation
-    explicit Checkpoint(const ifexm::ObservableEvent* f_processState_p) noexcept(false);
-
-    /// @brief Default Move Constructor
-    /// Cannot be noexcept, since the base class move constructor is not noexcept
-    Checkpoint(Checkpoint&&) = default;
-
-    /// @brief Default Destructor
-    ~Checkpoint() override = default;
-
-    /// @brief Get timestamp
-    /// @return std::chrono::nanoseconds  Timestamp value of the reported checkpoint in [nano seconds]
-    std::chrono::nanoseconds getTimestamp(void) const noexcept(true);
-
-    /// @brief Push data to checkpoint observer
-    /// @details Push the checkpoint timestamp to the checkpoint observer to notify it was reported
-    /// @param [in] f_timestamp     Timestamp value captured when the checkpoint was reported in [nano seconds]
-    void pushData(const std::chrono::nanoseconds f_timestamp) noexcept(true);
-
-    /// @brief Set data loss event
-    /// @details Set data loss event in the checkpoint observer
-    /// @param [in] f_isDataLossEvent   set data loss event marker
-    void setDataLossEvent(const bool f_isDataLossEvent) noexcept(true);
-
-    /// @brief Is Data loss event
-    /// @return     Data loss event occurred (true)
-    bool getDataLossEvent(void) const noexcept(true);
-
-    /// @brief Return the process that is reporting this checkpoint
-    /// @return observable event
-    const ifexm::ObservableEvent* getProcess(void) const noexcept(true);
-
-  private:
-    /// @brief The process that is reporting this checkpoint
-    const ifexm::ObservableEvent* processState;
-
     /// @brief Data loss event marker
     bool isDataLossEvent;
 
     /// @brief Timestamp value in [nano seconds]
     std::chrono::nanoseconds timestamp;
+
+    /// @brief Construct a checkpoint from a timestamp
+    /// @details If the timestamp is zero, this is assumed to be a data loss event
+    explicit Checkpoint(std::chrono::nanoseconds p_timestamp)
+        : isDataLossEvent(p_timestamp.count() == 0), timestamp(p_timestamp)
+    {
+    }
 };
 
 }  // namespace score::mw::lifecycle::internal::saf::ifappl

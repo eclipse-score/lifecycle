@@ -65,7 +65,7 @@ applications to support dynamic state control.
 Dynamic architecture
 ====================
 
-.. feat_arc_dyn:: Control interface dynamic architecture activate Run Target
+.. feat_arc_dyn:: Switch Run Target Scenario - Successful case
    :id: feat_arc_dyn__lifecycle__control_activate
    :status: valid
    :version: 1
@@ -74,9 +74,6 @@ Dynamic architecture
    :fulfils: feat_req__lifecycle__control_commands[version==1]
    :belongs_to: feat__lifecycle[version==1]
 
-   .. uml:: _assets/control_interface_start_sequence.puml
+   .. uml:: _assets/control_interface_switch_sequence.puml
       :scale: 50
       :align: center
-
-
-

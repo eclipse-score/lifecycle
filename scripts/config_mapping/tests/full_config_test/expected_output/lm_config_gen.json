@@ -42,7 +42,8 @@
                     "scheduling_policy": "RR",
                     "scheduling_priority": 75,
                     "max_memory_usage": 268435456,
-                    "max_cpu_usage": 50
+                    "max_cpu_usage": 50,
+                    "affinity_mask": 3
                 },
                 "environmental_variables": [
                     {
@@ -108,7 +109,8 @@
                     "scheduling_policy": "FIFO",
                     "scheduling_priority": 50,
                     "max_memory_usage": 536870912,
-                    "max_cpu_usage": 80
+                    "max_cpu_usage": 80,
+                    "affinity_mask": 3
                 },
                 "environmental_variables": [
                     {
@@ -171,7 +173,8 @@
                     "scheduling_policy": "FIFO",
                     "scheduling_priority": 50,
                     "max_memory_usage": 536870912,
-                    "max_cpu_usage": 80
+                    "max_cpu_usage": 80,
+                    "affinity_mask": 3
                 },
                 "environmental_variables": [
                     {
@@ -234,7 +237,8 @@
                     "scheduling_policy": "FIFO",
                     "scheduling_priority": 50,
                     "max_memory_usage": 536870912,
-                    "max_cpu_usage": 80
+                    "max_cpu_usage": 80,
+                    "affinity_mask": 3
                 },
                 "environmental_variables": [
                     {

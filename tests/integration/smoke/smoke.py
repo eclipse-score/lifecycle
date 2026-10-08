@@ -17,12 +17,11 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    fully_verifies=[
-        "comp_req__launch_man__start_named_run_target",
+    partially_verifies=[
+        "feat_req__lifecycle__launch_support",
     ],
-    partially_verifies=["feat_req__lifecycle__run_target_support"],
-    test_type="requirements-based",
-    derivation_technique="requirements-analysis",
+    test_type="interface-test",
+    derivation_technique="explorative-testing",
 )
 def test_smoke(target, setup_test, assert_test_results, remote_test_dir):
     """

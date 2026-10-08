@@ -13,7 +13,6 @@
 
 #include "score/mw/launch_manager/alive_monitor/details/daemon/SupervisionManager.hpp"
 #include "score/launch_manager/src/daemon/src/common/log.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/ifappl/Checkpoint.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/MonitorIfDaemon.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/supervision/Alive.hpp"
 
@@ -21,12 +20,7 @@ namespace score::mw::lifecycle::internal::saf::daemon
 {
 
 SupervisionManager::SupervisionManager(std::unique_ptr<factory::IAliveWorkerFactory> factory)
-    : processStates{},
-      aliveIfIpcs{},
-      aliveInterfaces{},
-      checkpoints{},
-      aliveSupervisions{},
-      flatCfgFactory{std::move(factory)}
+    : processStates{}, aliveIfIpcs{}, aliveInterfaces{}, aliveSupervisions{}, flatCfgFactory{std::move(factory)}
 {
 }
 
@@ -43,7 +37,6 @@ void SupervisionManager::reserve(std::size_t size)
     processStates.reserve(size);
     aliveIfIpcs.reserve(size);
     aliveInterfaces.reserve(size);
-    checkpoints.reserve(size);
     aliveSupervisions.reserve(size);
 }
 
@@ -66,12 +59,8 @@ bool SupervisionManager::constructWorker(
     {
         return false;
     }
-    if (!flatCfgFactory->createSupervisionCheckpoint(checkpoints, aliveInterfaces.back(), processStates.back(), id))
-    {
-        return false;
-    }
     if (!flatCfgFactory->createAliveSupervision(
-            aliveSupervisions, checkpoints.back(), processStates.back(), f_recoveryClient_r, id, component_config))
+            aliveSupervisions, aliveInterfaces.back(), processStates.back(), f_recoveryClient_r, id, component_config))
     {
         return false;
     }
