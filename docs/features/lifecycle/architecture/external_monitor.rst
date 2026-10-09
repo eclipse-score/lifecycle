@@ -12,10 +12,8 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-:orphan:
-
-External Monitoring
-###################
+External Monitor
+################
 
 
 .. uml:: _assets/external_monitoring_static.puml
@@ -24,7 +22,7 @@ External Monitoring
 The following participants are related to the concept.
 
 Launch Manager
---------------
+==============
 
 As the :term:`Launch Manager` is critical component for the system, it shall
 support alive monitoring of itself.
@@ -33,7 +31,7 @@ thread, that wakes up every N milliseconds, checks if the component is in a
 consistent state, and send a notification to the external monitor.
 
 External monitor
-----------------
+================
 
 The aliveness of the :term:`Launch Manager` shall be monitored by an `external
 monitor, or a watchdog <https://en.wikipedia.org/wiki/Watchdog_timer>`_, to be
@@ -42,7 +40,7 @@ The implementation of the external watchdog is out of scope in S-SCORE, as it
 is ECU and/or project specific.
 
 Watchdog Proxy
---------------
+==============
 
 The component `Watchdog Proxy` is the project specific logical component, which
 has to implement the logical interface `HealthStatus` and translate alive
