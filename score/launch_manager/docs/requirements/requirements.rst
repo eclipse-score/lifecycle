@@ -12,12 +12,6 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-Component Launch Manager Requirements
-#####################################
-
-.. note:: 
-    Requirements which are not planned to be implemented in the version 1.0 of S-CORE are set to status **invalid**.
-
 .. document:: Launch Manager Requirements
    :id: doc__launch_manager_requirements
    :status: valid
@@ -26,9 +20,254 @@ Component Launch Manager Requirements
    :security: YES
    :realizes: wp__requirements_comp[version==1]
 
+.. note:: 
+    Requirements which are not planned to be implemented in the version 1.0 of S-CORE are set to status **invalid**.
 
+
+Component Launch Manager Requirements
+#####################################
+
+Components
+==========
+
+.. note
+   TODO all requirements that are not under the Process heading shall 
+   be reworded to speak in terms of components.
+
+.. comp_req:: Invalid dependency
+    :id: comp_req__launch_man__consistent_dependencies
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__process_ordering[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall reject an inconsistent definition of set of executables dependencies.
+
+
+Activating Components
+---------------------
+
+.. comp_req:: Configuration of component activation timeout
+    :id: comp_req__launch_man__conf_comp_active_tout
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall support configuring a timeout value that
+    defines the maximum time allowed for a component to reach its
+    :term:`Ready State`.
+
+.. comp_req:: Component activation timeout
+    :id: comp_req__launch_man__comp_activate_tout
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    If a component does not reach its :term:`Ready State` within the configured
+    timeout, the :term:`Launch Manager` shall consider the component activation
+    attempt as failed.
+
+
+Deactivating Components
+-----------------------
+
+.. comp_req:: Fast shutdown
+    :id: comp_req__launch_man__fast_shutdown_support
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__termination_dependency[version==1]
+    :status: invalid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall support fast shutdown by terminating itself
+    without considering the started :term:`Processes <Process>`.
+
+    .. note::
+        Fast shutdown allows the :term:`Launch Manager` to terminate its own process **normally**, without waiting for the started :term:`Processes <Process>`.
+        **Use case:** This is relevant when the system needs to restart quickly, so it shuts down the launch manager in ordinary manner, but ignores the child processes.
+
+.. comp_req:: Normal shutdown
+    :id: comp_req__launch_man__launch_manager_shutdown
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__termination_dependency[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall support normal shutdown by terminating all
+    process in the dependency order.
+
+.. comp_req:: Launch Manager shutdown
+    :id: comp_req__launch_man__launcher_exit_shutdown
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__termination_dependency[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall exit after performing shutdown operation by
+    stopping all the :term:`Processes <Process>` it owns in the dependency order when requested.
+
+.. comp_req:: Dropping process responsibility
+    :id: comp_req__launch_man__drop_supervsion
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__running_processes[version==1]
+    :status: invalid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall provide support to dropping all surveillance
+    and failure reaction activities of :term:`Processes <Process>`.
+
+    .. note::
+        **Use case:** When the :term:`Launch Manager` shuts down, selected :term:`Processes <Process>` can be kept alive to continue their execution without interruption.
+
+.. comp_req:: Coordination stop dependency
+    :id: comp_req__launch_man__stop_order_spec
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__termination_dependency[version==1]
+    :status: invalid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall permit the stop order of non-dependent processes to be specified.
+
+
+.. comp_req:: Dangling dependency
+    :id: comp_req__launch_man__stop_process_dependents
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__termination_dependency[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall be able to stop a process when all it's dependents are stopped if specified in the set of executables.
+
+
+Conditional Launching
+---------------------
+
+.. comp_req:: Configuration of component readiness conditions
+    :id: comp_req__launch_man__conf_of_comp_ready_cond
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall support configuration of conditions that
+    shall be met before the component is considered to have reached its
+    :term:`Ready State`.
+
+.. comp_req:: Dependency based startup order
+    :id: comp_req__launch_man__dep_based_startup_order
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall start a component only after all its
+    :term:`dependencies <Dependency (between components)>` have successfully reached their :term:`Ready State`.
+
+
+Ready Conditions
+^^^^^^^^^^^^^^^^
+
+.. comp_req:: Ready Condition - OS Process State
+    :id: comp_req__launch_man__rc_os_state
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall support a :term:`Ready Condition` that is
+    satisfied when the configured binary is launched.
+
+.. comp_req:: Ready Condition - Lifecycle Interface
+    :id: comp_req__launch_man__rc_lifecycle
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall support a :term:`Ready Condition` that is
+    satisfied when :term:`Component` notifies the :term:`Lifecycle Interface`.
+
+.. comp_req:: Ready Condition - File state 
+    :id: comp_req__launch_man__rc_file_state
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall support a :term:`Ready Condition` that is
+    satisfied when a configured file path exists or does not exist.
+
+.. comp_req:: Condition check based on at least one dependency
+    :id: comp_req__launch_man__check_dependency_exec
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall provide a method to check if at least one dependency has been executed.
+
+.. comp_req:: Condition check for each SWC its dependencies
+    :id: comp_req__launch_man__define_swc_dependencies
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall provide a way to define for each :term:`SWC` (Software Components), its dependencies.
+
+Processes
+---------
 Launching Processes
-===================
+^^^^^^^^^^^^^^^^^^^
 
 .. comp_req:: Forward process information
     :id: comp_req__launch_man__process_input_output
@@ -45,6 +284,25 @@ Launching Processes
 
     .. note::
         This is a similar concept to piping in shell scripting, where the output of one process can be used as the input to another.
+
+.. comp_req:: Multiple instance of executable
+    :id: comp_req__launch_man__multi_start_support
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__running_processes[version==1]
+    :status: invalid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall permit an executable to be launched more than once.
+
+
+Process Configuration
+"""""""""""""""""""""
+.. 
+    Why does everything map here to feat_req__lifecycle__custom_cond_support? 
+    When looking on this requirement it seems it is related to Control interface API.
 
 .. comp_req:: Handling process args
     :id: comp_req__launch_man__process_launch_args
@@ -84,7 +342,6 @@ Launching Processes
 
     The :term:`Launch Manager` shall provide support for launching a process with a
     given priority.
-
 
 .. comp_req:: CWD support
     :id: comp_req__launch_man__cwd_support
@@ -230,7 +487,6 @@ Launching Processes
     The :term:`Launch Manager` shall provide support for launching a process with a
     given runmask.
 
-
 .. comp_req:: ASLR support
     :id: comp_req__launch_man__aslr_support
     :reqtype: Functional
@@ -259,7 +515,6 @@ Launching Processes
     POSIX-Standard (IEEE Std 1003.1). I.e. RLIMIT_CORE, RLIMIT_CPU,
     RLIMIT_DATA, RLIMIT_FSIZE, RLIMIT_NOFILE, RLIMIT_STACK and RLIMIT_AS.
 
-
 .. comp_req:: Process detach from parent support
     :id: comp_req__launch_man__detach_parent_process
     :reqtype: Functional
@@ -277,7 +532,6 @@ Launching Processes
         Detaching from the parent process is also known as creating a daemon process.
         **Use case:** There might be processes which need to continue running independently of the launch manager.
 
-
 .. comp_req:: Launching processes in parallel
     :id: comp_req__launch_man__launch_parallel
     :reqtype: Functional
@@ -291,11 +545,83 @@ Launching Processes
     The :term:`Launch Manager` shall shall provide support for launching :term:`Processes <Process>`
     in parallel.
 
-Conditional Launching
-=====================
 
-.. comp_req:: Configuration of component readiness conditions
-    :id: comp_req__launch_man__conf_of_comp_ready_cond
+Terminating Processes
+^^^^^^^^^^^^^^^^^^^^^
+
+.. comp_req:: Stop timeout
+    :id: comp_req__launch_man__configurable_timeout
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__process_termination[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall provide support for configurable timeout
+    :term:`Interval` to wait for the process to be stopped.
+
+.. comp_req:: Configurable delay between SIGTERM and SIGKILL
+    :id: comp_req__launch_man__time_to_wait_config
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__process_termination[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall offer a configuration of the time to wait before
+    SIGKILL is sent. In case "0" is stated, the SIGKILL shall be sent immediately.
+
+.. comp_req:: Shutdown signal handling
+    :id: comp_req__launch_man__shutdown_signal
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__process_termination[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall implement a shutdown by sending a SIGTERM to
+    the process. In case the process does not terminate itself, a SIGKILL shall be sent.
+
+
+Containers
+----------
+
+.. comp_req:: Runtime configuration compliance
+    :id: comp_req__launch_man__runtime_config_compat
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__config_file_support[version==1]
+    :status: invalid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The launch manager shall provide modular configuration files support for configurations coming from `OCI runtime configuration<https://github.com/opencontainers/runtime-spec/blob/v1.2.0/config.md>`.
+
+
+Run Targets
+===========
+
+.. comp_req:: Launching run target
+    :id: comp_req__launch_man__start_named_run_target
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__run_target_support[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall be able to start a named :term:`Run Target`.
+
+.. comp_req:: Run target to component dependencies
+    :id: comp_req__launch_man__rt_comp_dep
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -304,12 +630,12 @@ Conditional Launching
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall support configuration of conditions that
-    shall be met before the component is considered to have reached its
-    :term:`Ready State`.
+    The :term:`Launch Manager` shall provide support to
+    define a :term:`Run Target <Run Target>`
+    :term:`dependency <Dependency (between run targets)>` to :term:`Components <Component>`.
 
-.. comp_req:: Dependency based startup order
-    :id: comp_req__launch_man__dep_based_startup_order
+.. comp_req:: Run target to run target dependencies
+    :id: comp_req__launch_man__rt_rt_dep
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -318,8 +644,10 @@ Conditional Launching
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall start a component only after all its
-    :term:`dependencies <Dependency (between components)>` have successfully reached their :term:`Ready State`.
+    The :term:`Launch Manager` shall provide support to
+    define a :term:`Run Target <Run Target>`
+    :term:`dependency <Dependency (between run targets)>` to another
+    :term:`Run Target`.
 
 .. comp_req:: Configuration of Run Target activation timeout
     :id: comp_req__launch_man__conf_rt_active_tout
@@ -346,216 +674,6 @@ Conditional Launching
 
     If the activation of a Run Target exceeds the maximum configured time, then
     the :term:`Launch Manager` shall consider this activation as failed.
-
-.. comp_req:: Configuration of component activation timeout
-    :id: comp_req__launch_man__conf_comp_active_tout
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall support configuring a timeout value that
-    defines the maximum time allowed for a component to reach its
-    :term:`Ready State`.
-
-.. comp_req:: Component activation timeout
-    :id: comp_req__launch_man__comp_activate_tout
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    If a component does not reach its :term:`Ready State` within the configured
-    timeout, the :term:`Launch Manager` shall consider the component activation
-    attempt as failed.
-
-.. comp_req:: Run target to run target dependencies
-    :id: comp_req__launch_man__rt_rt_dep
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall provide support to
-    define a :term:`Run Target <Run Target>`
-    :term:`dependency <Dependency (between run targets)>` to another
-    :term:`Run Target`.
-
-.. comp_req:: Run target to component dependencies
-    :id: comp_req__launch_man__rt_comp_dep
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall provide support to
-    define a :term:`Run Target <Run Target>`
-    :term:`dependency <Dependency (between run targets)>` to :term:`Components <Component>`.
-
-Ready Conditions
-----------------
-
-.. comp_req:: Ready Condition - OS Process State
-    :id: comp_req__launch_man__rc_os_state
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall support a :term:`Ready Condition` that is
-    satisfied when the configured binary is launched.
-
-.. comp_req:: Ready Condition - Lifecycle Interface
-    :id: comp_req__launch_man__rc_lifecycle
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall support a :term:`Ready Condition` that is
-    satisfied when :term:`Component` notifies the :term:`Lifecycle Interface`.
-
-.. comp_req:: Ready Condition - File state 
-    :id: comp_req__launch_man__rc_file_state
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall support a :term:`Ready Condition` that is
-    satisfied when a configured file path exists or does not exist.
-
-.. comp_req:: Condition check based on at least one dependency
-    :id: comp_req__launch_man__check_dependency_exec
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall provide a method to check if at least one dependency has been executed.
-
-.. comp_req:: Condition check for each SWC its dependencies
-    :id: comp_req__launch_man__define_swc_dependencies
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall provide a way to define for each :term:`SWC` (Software Components), its dependencies.
-
-Process Management
-==================
-
-.. comp_req:: Dropping process responsibility
-    :id: comp_req__launch_man__drop_supervsion
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__running_processes[version==1]
-    :status: invalid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall provide support to dropping all surveillance
-    and failure reaction activities of :term:`Processes <Process>`.
-
-    .. note::
-        **Use case:** When the :term:`Launch Manager` shuts down, selected :term:`Processes <Process>` can be kept alive to continue their execution without interruption.
-
-
-.. comp_req:: Multiple instance of executable
-    :id: comp_req__launch_man__multi_start_support
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__running_processes[version==1]
-    :status: invalid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall permit an executable to be launched more than once.
-
-
-.. comp_req:: Invalid dependency
-    :id: comp_req__launch_man__consistent_dependencies
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__process_ordering[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall reject an inconsistent definition of set of executables dependencies.
-
-
-.. comp_req:: Dangling dependency
-    :id: comp_req__launch_man__stop_process_dependents
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__termination_dependency[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall be able to stop a process when all it's dependents are stopped if specified in the set of executables.
-
-
-.. comp_req:: Coordination stop dependency
-    :id: comp_req__launch_man__stop_order_spec
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__termination_dependency[version==1]
-    :status: invalid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall permit the stop order of non-dependent processes to be specified.
-
-
-Run Targets
-===========
-
-.. comp_req:: Launching run target
-    :id: comp_req__launch_man__start_named_run_target
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__run_target_support[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall be able to start a named :term:`Run Target`.
 
 .. comp_req:: Process state
     :id: comp_req__launch_man__process_state_comm
@@ -584,94 +702,8 @@ Run Targets
     The :term:`Launch Manager` shall be able to switch between different :term:`run targets <Run target>`.
 
 
-Terminating Processes
-=====================
-
-.. comp_req:: Stop timeout
-    :id: comp_req__launch_man__configurable_timeout
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__process_termination[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall provide support for configurable timeout
-    :term:`Interval` to wait for the process to be stopped.
-
-.. comp_req:: Configurable delay between SIGTERM and SIGKILL
-    :id: comp_req__launch_man__time_to_wait_config
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__process_termination[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall offer a configuration of the time to wait before
-    SIGKILL is sent. In case "0" is stated, the SIGKILL shall be sent immediately.
-
-.. comp_req:: Normal shutdown
-    :id: comp_req__launch_man__launch_manager_shutdown
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__termination_dependency[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall support normal shutdown by terminating all
-    process in the dependency order.
-
-.. comp_req:: Fast shutdown
-    :id: comp_req__launch_man__fast_shutdown_support
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__termination_dependency[version==1]
-    :status: invalid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall support fast shutdown by terminating itself
-    without considering the started :term:`Processes <Process>`.
-
-    .. note::
-        Fast shutdown allows the :term:`Launch Manager` to terminate its own process **normally**, without waiting for the started :term:`Processes <Process>`.
-        **Use case:** This is relevant when the system needs to restart quickly, so it shuts down the launch manager in ordinary manner, but ignores the child processes.
-
-.. comp_req:: Launch Manager shutdown
-    :id: comp_req__launch_man__launcher_exit_shutdown
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__termination_dependency[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall exit after performing shutdown operation by
-    stopping all the :term:`Processes <Process>` it owns in the dependency order when requested.
-
-.. comp_req:: Shutdown signal handling
-    :id: comp_req__launch_man__shutdown_signal
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__process_termination[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall implement a shutdown by sending a SIGTERM to
-    the process. In case the process does not terminate itself, a SIGKILL shall be sent.
-
-
-Monitoring, Notification and Recovery
-=====================================
+Alive Monitoring
+================
 
 .. comp_req:: Process state notification
     :id: comp_req__launch_man__ext_monitor_notify
@@ -742,6 +774,9 @@ Monitoring, Notification and Recovery
     The :term:`Launch Manager` shall be able to detect :term:`Component failure` during runtime of the :term:`Component`. I.e. after reaching its :term:`Ready State`.
 
 
+Recovery Actions
+----------------
+
 .. comp_req:: Recovery by reactivating the component
     :id: comp_req__launch_man__recovery_reactivate
     :reqtype: Functional
@@ -810,6 +845,10 @@ Monitoring, Notification and Recovery
     The :term:`Launch Manager` shall be able to react to a :term:`Component failure` by
     stopping the servicing of the :term:`Watchdog`.
 
+
+Watchdog
+========
+
 .. comp_req:: Launch manager external watchdog notification
     :id: comp_req__launch_man__lm_ext_watchdog_notify
     :reqtype: Functional
@@ -848,6 +887,7 @@ Monitoring, Notification and Recovery
 
     The :term:`Launch Manager` shall support configuring the :term:`Interval` of
     the internal health check executions.
+
 
 Logging
 =======
@@ -890,7 +930,6 @@ Logging
 
     The :term:`Launch Manager` logs shall contain timestamp information.
 
-
 .. comp_req:: Logging DAG
     :id: comp_req__launch_man__dag_logging_controlif
     :reqtype: Functional
@@ -903,7 +942,6 @@ Logging
 
     The :term:`Launch Manager` shall provide the possibility to log the :term:`DAG`
     in a human readable format, triggered via :term:`Control Interface`.
-
 
 .. comp_req:: Configuration dependency view
     :id: comp_req__launch_man__dependency_visu
@@ -932,19 +970,6 @@ Configuration file
 
     The launch manager shall provide modular configuration file support to configure process attributes.
 
-.. comp_req:: Runtime configuration compliance
-    :id: comp_req__launch_man__runtime_config_compat
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__config_file_support[version==1]
-    :status: invalid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The launch manager shall provide modular configuration files support for configurations coming from `OCI runtime configuration<https://github.com/opencontainers/runtime-spec/blob/v1.2.0/config.md>`.
-
-
 .. comp_req:: Global process properties
     :id: comp_req__launch_man__central_default_defines
     :reqtype: Functional
@@ -957,7 +982,6 @@ Configuration file
 
     The :term:`Launch Manager` shall be able to centrally define defaults for specific properties for the set of executables.
 
-
 .. comp_req:: Lazy check of configured commands
     :id: comp_req__launch_man__lazy_check
     :reqtype: Functional
@@ -969,7 +993,6 @@ Configuration file
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall check availability of executables in the filesystem only when the executable shall required to be executed.
-
 
 .. comp_req:: Configuration Verification tool
     :id: comp_req__launch_man__offline_config_valid
@@ -985,3 +1008,4 @@ Configuration file
 
 .. needextend:: c.this_doc() and is_external == False and "__launch_manager__" in id
    :+tags: lifecycle, launch_manager
+
