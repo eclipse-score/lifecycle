@@ -91,3 +91,89 @@ These concerns are valid, but can be addressed using the following techniques:
 - Using a safe programming language, which does not allow a raw pointer access
 - Testing the application with Valgrid etc.
 - Redundant monitoring, if the self monitoring with above is not sufficient, an another library in another memory location can detect sporadic corruption of the other.
+
+
+Launch Manager starts processes on a thread pool
+================================================
+
+.. dec_rec:: Thread Pool for process starting and stopping
+   :id: dec_rec__lifecycle__thread_pool_process
+   :status: accepted
+   :version: 1
+   :context: Architecture
+   :decision: The Launch Manager uses a configurable thread pool to start and stop processes concurrently
+   :consequences: Process lifecycle operations are organized around a configurable thread pool
+   :affects: comp__lifecycle_launch_manager
+
+The Launch Manager uses a configurable thread pool to start and stop processes concurrently.
+Projects can adjust the pool size to meet their needs and reduce startup time.
+
+Context
+-------
+
+The Launch Manager is responsible for starting and stopping system processes.
+Large systems may require many processes to be started or stopped, with multiple operations able to run concurrently.
+Fast startup is an important performance goal for the Launch Manager.
+
+Consequences
+------------
+
+The Launch Manager's process lifecycle operations are organized around a configurable thread pool, whose size can be adapted to project requirements.
+
+Launch Manager Alive Monitoring is polling-based
+================================================
+
+.. dec_rec:: Launch Manager Alive Monitoring is polling-based
+   :id: dec_rec__lifecycle__lm_alive_polling
+   :status: accepted
+   :version: 1
+   :context: Architecture
+   :decision: The Launch Manager evaluates alive notifications periodically rather than as they arrive
+   :consequences: Reduced CPU load, with failure detection delayed by up to one polling cycle
+   :affects: comp__lifecycle_launch_manager
+
+The Launch Manager polls IPC channels at a configurable interval, collecting alive notifications and evaluating alive supervisions.
+
+Applications write notifications to an IPC buffer without waiting for the Launch Manager to process them.
+This reduces the Launch Manager's CPU load compared with handling each notification as it arrives.
+
+Context
+-------
+
+The Launch Manager supervises application processes by checking whether they send alive notifications at the expected frequency.
+A system may have many application processes sending notifications at short intervals.
+
+Consequences
+------------
+
+Because the Launch Manager evaluates notifications once per cycle instead of as they arrive, it uses less CPU to process them.
+An alive supervision failure may therefore go undetected until the next polling cycle.
+Configure the cycle time to balance the desired detection time against acceptable CPU load.
+
+
+Flatbuffer Configuration
+========================
+
+.. dec_rec:: Flatbuffer Configuration
+   :id: dec_rec__lifecycle__flatbuffer_config
+   :status: accepted
+   :version: 1
+   :context: Architecture
+   :decision: The Launch Manager uses binary configuration format to reduce startup time
+   :consequences: Fast configuration loading
+   :affects: comp__lifecycle_launch_manager
+
+The Launch Manager uses FlatBuffers as its binary configuration format to reduce startup time.
+
+Context
+-------
+
+At startup, the Launch Manager reads configuration files to determine which processes to start.
+Loading this configuration is on the time-critical startup path.
+
+
+Consequences
+------------
+
+The Launch Manager configuration must first be compiled into a binary format for the target.
+Compared with a textual format such as JSON, the FlatBuffers binary configuration can be loaded faster, particularly for larger configuration files.
