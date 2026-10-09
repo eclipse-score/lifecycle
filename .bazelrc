@@ -36,6 +36,7 @@ build --per_file_copt=external/.*@-w
 # Common test flags for all platforms
 test --test_output=errors
 test --@score_baselibs//score/json:base_library=nlohmann
+test --@score_itf//score/itf/plugins:extract_core_dumps=true
 
 # Code coverage configuration (LLVM source-based). See //quality/coverage.
 import %workspace%/quality/coverage/coverage.bazelrc
