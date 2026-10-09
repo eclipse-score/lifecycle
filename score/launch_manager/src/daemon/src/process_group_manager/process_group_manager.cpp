@@ -344,7 +344,7 @@ void ProcessGroupManager::handleRecoveryRequest(const IdentifierHash& process_id
         if (old_state != recovery_state_)
         {
             // Cancel current transition and start new one
-            (void)graph_->setPendingState(recovery_state_);
+            (void)graph_->setPendingState(recovery_state_, true);
             graph_->setRequestStartTime();
             graph_->cancel();
         }
@@ -362,7 +362,7 @@ void ProcessGroupManager::handleRecoveryRequest(const IdentifierHash& process_id
     else
     {
         // Start new state transition
-        (void)graph_->setPendingState(recovery_state_);
+        (void)graph_->setPendingState(recovery_state_, true);
         graph_->setRequestStartTime();
     }
 }
@@ -376,6 +376,7 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
 
     if (GraphState::kSuccess == graph_state || GraphState::kUndefinedState == graph_state)
     {
+        const bool last_is_recovery = pg.isPendingRecovery();
         IdentifierHash last_state = pg.setPendingState(IdentifierHash(""));
 
         if ((last_state != IdentifierHash("")) &&
@@ -384,7 +385,7 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
             LM_LOG_DEBUG() << "Start transition to" << last_state;
 
             // Already rejected via isValidRunTarget() in processStateTransition() (#541) if invalid.
-            const bool started = pg.startTransition(last_state);
+            const bool started = pg.startTransition(last_state, last_is_recovery);
             SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
                 started, "pending Run Target was not rejected by isValidRunTarget()");
         }
@@ -405,7 +406,7 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
             // nobody requested this transition, so there is nowhere to communicate an error
             // if we failed and there is no external request, we will try again next time
             pg.setRequestStartTime();
-            const bool started = pg.startTransition(IdentifierHash{Graph::recovery_state_name});
+            const bool started = pg.startTransition(IdentifierHash{Graph::recovery_state_name}, true);
             SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(started, "fallback Run Target node missing");
         }
     }

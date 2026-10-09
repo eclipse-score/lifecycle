@@ -185,7 +185,9 @@ class Graph final
     /// @return False if pg_state is not a recognized Run Target in this graph's configuration; the
     /// transition is not started in that case. True otherwise.
     /// @param pg_state The target process group state.
-    bool startTransition(IdentifierHash pg_state);
+    /// @param is_recovery True if Launch Manager started this transition as a recovery action; the activation is
+    /// then reported with RunTargetActivationSource::kRecoveryAction instead of kStateManagerRequest.
+    bool startTransition(IdentifierHash pg_state, bool is_recovery = false);
 
     /// @return True if pg_state is a Run Target known to this graph's configuration.
     /// @param pg_state The process group state to check.
@@ -229,11 +231,15 @@ class Graph final
 
     /// @brief Replaces the pending state with new_state and returns the previous pending state.
     /// @param new_state The new pending state to set.
+    /// @param is_recovery True if the pending transition is a recovery action (see startTransition()).
     /// @return The previous pending state.
-    IdentifierHash setPendingState(IdentifierHash new_state);
+    IdentifierHash setPendingState(IdentifierHash new_state, bool is_recovery = false);
 
     /// @return The pending state, or an empty hash if no state is pending.
     IdentifierHash getPendingState();
+
+    /// @return True if the pending state was set as a recovery action.
+    bool isPendingRecovery() const;
 
     /// @brief A utility function that converts codes to strings for logging purposes
     /// @param state The state to convert
@@ -325,8 +331,14 @@ class Graph final
     /// @brief Set the true if this is the initial state transition
     bool is_initial_state_transition_{false};
 
+    /// @brief True if the current transition was started as a recovery action
+    bool is_recovery_transition_{false};
+
     /// @brief The pending state transition, if any
     IdentifierHash pending_state_{""};
+
+    /// @brief True if pending_state_ was set as a recovery action
+    bool pending_is_recovery_{false};
 
     /// @brief Constant for Off state.
     const IdentifierHash off_state_{"Off"};

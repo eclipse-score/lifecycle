@@ -269,6 +269,60 @@ TEST_F(GraphOrdinaryTransitionTest, simpleDeactivationTransition)
     EXPECT_EQ(graph_->getRequestedRunTarget(), target);
 }
 
+class GraphActivationSourceTest : public GraphTest
+{
+  protected:
+    void SetUp() override
+    {
+        GraphTest::SetUp();
+        graph_->registerActiveRunTargetCallback([this](IdentifierHash target, RunTargetActivationSource source) {
+            activations_.emplace_back(target, source);
+        });
+    }
+
+    std::vector<std::pair<IdentifierHash, RunTargetActivationSource>> activations_{};
+};
+
+TEST_F(GraphActivationSourceTest, explicitRequestForFallbackIsStateManagerRequest)
+{
+    RecordProperty(
+        "Description",
+        "Test that a transition to the fallback Run Target that was not started as a recovery action is "
+        "reported as kStateManagerRequest");
+
+    graph_->startTransition(IdentifierHash{Graph::recovery_state_name});
+
+    ASSERT_EQ(graph_->getState(), GraphState::kSuccess);
+    ASSERT_EQ(activations_.size(), 1U);
+    EXPECT_EQ(activations_[0].first, IdentifierHash{Graph::recovery_state_name});
+    EXPECT_EQ(activations_[0].second, RunTargetActivationSource::kStateManagerRequest);
+}
+
+TEST_F(GraphActivationSourceTest, recoveryTransitionIsRecoveryAction)
+{
+    RecordProperty("Description", "Test that a transition started as a recovery action is reported as kRecoveryAction");
+
+    graph_->startTransition(IdentifierHash{Graph::recovery_state_name}, true);
+
+    ASSERT_EQ(graph_->getState(), GraphState::kSuccess);
+    ASSERT_EQ(activations_.size(), 1U);
+    EXPECT_EQ(activations_[0].second, RunTargetActivationSource::kRecoveryAction);
+}
+
+TEST_F(GraphActivationSourceTest, recoveryFlagDoesNotLeakIntoNextTransition)
+{
+    RecordProperty(
+        "Description", "Test that a transition following a recovery action is reported as kStateManagerRequest again");
+
+    graph_->startTransition(IdentifierHash{Graph::recovery_state_name}, true);
+    graph_->startTransition(IdentifierHash{startup.name});
+
+    ASSERT_EQ(graph_->getState(), GraphState::kSuccess);
+    ASSERT_EQ(activations_.size(), 2U);
+    EXPECT_EQ(activations_[1].first, IdentifierHash{startup.name});
+    EXPECT_EQ(activations_[1].second, RunTargetActivationSource::kStateManagerRequest);
+}
+
 class GraphInitialTransitionTest : public GraphTest
 {
 };
@@ -751,6 +805,12 @@ TEST_F(GraphUtilitiesTest, gettersSetters)
     const auto previous_pending_state = graph_->getPendingState();
     EXPECT_EQ(graph_->setPendingState(pending_state), previous_pending_state);
     EXPECT_EQ(graph_->getPendingState(), pending_state);
+    EXPECT_FALSE(graph_->isPendingRecovery());
+
+    graph_->setPendingState(pending_state, true);
+    EXPECT_TRUE(graph_->isPendingRecovery());
+    graph_->setPendingState(IdentifierHash{""});
+    EXPECT_FALSE(graph_->isPendingRecovery());
 
     const auto before_time = std::chrono::steady_clock::now();
     graph_->setRequestStartTime();

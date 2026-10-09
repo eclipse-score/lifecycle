@@ -224,7 +224,7 @@ void Graph::finalizeTransitionSuccess()
         {
             source = RunTargetActivationSource::kInitialActivation;
         }
-        else if (state == Graph::recovery_state_name)
+        else if (is_recovery_transition_)
         {
             source = RunTargetActivationSource::kRecoveryAction;
         }
@@ -275,9 +275,11 @@ void Graph::tryQueueNode(ComponentTask task)
     }
 }
 
-bool Graph::startTransition(IdentifierHash pg_state)
+bool Graph::startTransition(IdentifierHash pg_state, bool is_recovery)
 {
     LM_LOG_DEBUG() << "Graph starting transition to" << pg_state;
+    // Set before the transition can finish synchronously below, which reports the activation source.
+    is_recovery_transition_ = is_recovery;
     IdentifierHash old_state_name;
     {
         std::lock_guard<std::mutex> lock(requested_state_mutex_);
@@ -462,11 +464,12 @@ IdentifierHash Graph::getRequestedRunTarget()
     return requested_state_;
 }
 
-IdentifierHash Graph::setPendingState(IdentifierHash new_state)
+IdentifierHash Graph::setPendingState(IdentifierHash new_state, bool is_recovery)
 {
     IdentifierHash old_state = pending_state_;
 
     pending_state_ = new_state;
+    pending_is_recovery_ = is_recovery;
 
     if (new_state != old_state)
     {
@@ -479,6 +482,11 @@ IdentifierHash Graph::setPendingState(IdentifierHash new_state)
 IdentifierHash Graph::getPendingState()
 {
     return pending_state_;
+}
+
+bool Graph::isPendingRecovery() const
+{
+    return pending_is_recovery_;
 }
 
 std::string_view Graph::toString(GraphState state)
