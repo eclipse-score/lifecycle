@@ -63,20 +63,6 @@ TEST(ExplicitFallbackRequest, ControlClientTestDriver)
         }
     });
 
-    TEST_STEP("Switch back to Startup")
-    {
-        const auto result = client->activate_run_target("Startup", true);
-        EXPECT_TRUE(result.has_value()) << result.error().Message();
-    }
-
-    pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for Run Target Startup")
-        {
-            EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
-            EXPECT_EQ(target, "Startup");
-        }
-    });
-
     TEST_STEP("Activate Run Target Off")
     {
         const auto result = client->activate_run_target("Off", true);

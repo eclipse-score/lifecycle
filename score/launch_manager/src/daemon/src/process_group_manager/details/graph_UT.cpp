@@ -302,19 +302,19 @@ TEST_F(GraphActivationSourceTest, recoveryTransitionIsRecoveryAction)
 {
     RecordProperty("Description", "Test that a transition started as a recovery action is reported as kRecoveryAction");
 
-    graph_->startTransition(IdentifierHash{Graph::recovery_state_name}, true);
+    graph_->startTransition(IdentifierHash{Graph::recovery_state_name}, RunTargetActivationSource::kRecoveryAction);
 
     ASSERT_EQ(graph_->getState(), GraphState::kSuccess);
     ASSERT_EQ(activations_.size(), 1U);
     EXPECT_EQ(activations_[0].second, RunTargetActivationSource::kRecoveryAction);
 }
 
-TEST_F(GraphActivationSourceTest, recoveryFlagDoesNotLeakIntoNextTransition)
+TEST_F(GraphActivationSourceTest, recoverySourceDoesNotLeakIntoNextTransition)
 {
     RecordProperty(
         "Description", "Test that a transition following a recovery action is reported as kStateManagerRequest again");
 
-    graph_->startTransition(IdentifierHash{Graph::recovery_state_name}, true);
+    graph_->startTransition(IdentifierHash{Graph::recovery_state_name}, RunTargetActivationSource::kRecoveryAction);
     graph_->startTransition(IdentifierHash{startup.name});
 
     ASSERT_EQ(graph_->getState(), GraphState::kSuccess);
@@ -805,12 +805,13 @@ TEST_F(GraphUtilitiesTest, gettersSetters)
     const auto previous_pending_state = graph_->getPendingState();
     EXPECT_EQ(graph_->setPendingState(pending_state), previous_pending_state);
     EXPECT_EQ(graph_->getPendingState(), pending_state);
-    EXPECT_FALSE(graph_->isPendingRecovery());
+    EXPECT_EQ(graph_->getPendingTransition().source, RunTargetActivationSource::kStateManagerRequest);
 
-    graph_->setPendingState(pending_state, true);
-    EXPECT_TRUE(graph_->isPendingRecovery());
+    graph_->setPendingState(pending_state, RunTargetActivationSource::kRecoveryAction);
+    EXPECT_EQ(graph_->getPendingTransition().run_target, pending_state);
+    EXPECT_EQ(graph_->getPendingTransition().source, RunTargetActivationSource::kRecoveryAction);
     graph_->setPendingState(IdentifierHash{""});
-    EXPECT_FALSE(graph_->isPendingRecovery());
+    EXPECT_EQ(graph_->getPendingTransition().source, RunTargetActivationSource::kStateManagerRequest);
 
     const auto before_time = std::chrono::steady_clock::now();
     graph_->setRequestStartTime();

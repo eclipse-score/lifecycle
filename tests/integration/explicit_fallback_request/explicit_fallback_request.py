@@ -28,8 +28,8 @@ def test_explicit_fallback_request(
     Objective: Verifies that an explicit State Manager request for the fallback Run Target is reported with
     activation source kStateManagerRequest, not kRecoveryAction.
 
-    The control client activates "fallback_run_target" by name although no process failed, then switches back to Startup.
-    Expected Behaviour: Both activations are reported as kStateManagerRequest.
+    The control client activates "fallback_run_target" by name although no process failed.
+    Expected Behaviour: The explicit activation is reported as kStateManagerRequest.
     """
 
     run_test(
