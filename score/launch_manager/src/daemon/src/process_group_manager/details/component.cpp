@@ -74,7 +74,12 @@ IComponent::RequestResult Component::TerminatedState::activate(Component& compon
         return cpp::make_unexpected(ComponentError::kErrorBeforeReady);
     }
 
-    component.setState(ReadyState{handle});
+    // The handle may have been invalidated while starting, so don't reuse the local copy.
+    const std::lock_guard<std::mutex> lock{component.state_mutex_};
+    if (const StartingState* const starting = std::get_if<StartingState>(&component.state_))
+    {
+        component.state_ = ReadyState{starting->handle_};
+    }
     return RequestState::kSuccess;
 }
 
@@ -178,6 +183,11 @@ IComponent::RequestResult Component::TerminatedState::tryHandleTermination(
 
 IComponent::RequestResult Component::StartingState::tryHandleTermination(Component& component, int32_t status)
 {
+    if (ProcessHandle* handle = std::get_if<ProcessHandle>(&handle_))
+    {
+        handle->pid = -1;
+    }
+
     for (const IReadyCondition& ready_condition : component.ready_conditions_)
     {
         if (ready_condition.tryHandleTermination(status))
@@ -204,6 +214,11 @@ IComponent::RequestResult Component::StartingState::tryHandleTermination(Compone
 
 IComponent::RequestResult Component::ReadyState::tryHandleTermination(Component& component, int32_t status)
 {
+    if (ProcessHandle* handle = std::get_if<ProcessHandle>(&handle_))
+    {
+        handle->pid = -1;
+    }
+
     if (component.self_terminating_ && status == 0)
     {
         // Self-terminating means the component is logically still running

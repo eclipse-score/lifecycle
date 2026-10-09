@@ -33,6 +33,11 @@ Result<void> ProcessStopAction::stop(cpp::stop_token stop_token, const Handle ha
 
 Result<void> ProcessStopAction::visitStop(const ProcessHandle process) const
 {
+    if (process.pid == -1)
+    {
+        return {};
+    }
+
     const osal::OsalReturnType result = launcher_.requestTermination(process.pid);
 
     if (result == osal::OsalReturnType::kSuccess)
