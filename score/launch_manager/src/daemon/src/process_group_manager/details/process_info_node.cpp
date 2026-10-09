@@ -25,8 +25,7 @@ namespace score::mw::lifecycle::internal
 {
 
 ProcessInfoNode::ProcessInfoNode(configuration::ComponentConfig&& config, ProcessHandling process_handling)
-    : terminator_(),
-      termination_requested_(false),
+    : termination_requested_(false),
       pid_(0),
       exit_code_(0),
       config_(std::move(config)),
@@ -195,7 +194,6 @@ IComponent::RequestResult ProcessInfoNode::tryHandleTermination(int32_t process_
         setState(ProcessState::kTerminated);
 
         unblockSync();
-        static_cast<void>(terminator_.post());
     }
     else if (process_state_.compare_exchange_strong(starting, ProcessState::kTerminated))  // Process still starting
     {
@@ -500,14 +498,13 @@ void ProcessInfoNode::terminateProcess(const score::cpp::stop_token& stop_token)
 
 void ProcessInfoNode::handleTerminationProcess(const score::cpp::stop_token& stop_token)
 {
-    static_cast<void>(terminator_.init(0U, false));
     termination_requested_.store(true);
     LM_LOG_DEBUG() << "Requesting termination of process pid" << pid_ << "(" << identifier_ << ")";
 
     // handle request termination
     if ((process_handling_.process_interface_->requestTermination(pid_) == osal::OsalReturnType::kFail) ||
-        (terminator_.timedWait(std::chrono::milliseconds(config_.deployment_config.shutdown_timeout_ms)) ==
-         osal::OsalReturnType::kSuccess))
+        termination_waiter_->wait_with_timeout(
+            stop_token, std::chrono::milliseconds(config_.deployment_config.shutdown_timeout_ms)))
     {
         LM_LOG_DEBUG() << "Queuing jobs after regular termination of process (" << identifier_ << ")";
     }
@@ -518,7 +515,6 @@ void ProcessInfoNode::handleTerminationProcess(const score::cpp::stop_token& sto
     }
 
     termination_requested_.store(false);
-    static_cast<void>(terminator_.deinit());
 }
 
 void ProcessInfoNode::handleForcedTermination(const score::cpp::stop_token& stop_token)
@@ -528,7 +524,7 @@ void ProcessInfoNode::handleForcedTermination(const score::cpp::stop_token& stop
     LM_LOG_WARN() << "Process (" << identifier_ << ") did not respond to SIGTERM, sending SIGKILL";
 
     while ((osal::OsalReturnType::kSuccess == process_handling_.process_interface_->forceTermination(pid_)) &&
-           (terminator_.timedWait(score::mw::lifecycle::internal::kMaxSigKillDelay) != osal::OsalReturnType::kSuccess))
+           (!termination_waiter_->wait_with_timeout(stop_token, score::mw::lifecycle::internal::kMaxSigKillDelay)))
     {
         LM_LOG_FATAL() << "Process (" << identifier_ << ") did not respond to SIGKILL!!";
     }
