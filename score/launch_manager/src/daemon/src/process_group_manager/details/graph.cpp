@@ -224,13 +224,9 @@ void Graph::finalizeTransitionSuccess()
         {
             source = RunTargetActivationSource::kInitialActivation;
         }
-        else if (state == Graph::recovery_state_name)
-        {
-            source = RunTargetActivationSource::kRecoveryAction;
-        }
         else
         {
-            source = RunTargetActivationSource::kStateManagerRequest;
+            source = transition_source_;
         }
 
         active_run_target_callback_.value()(state, source);
@@ -275,9 +271,11 @@ void Graph::tryQueueNode(ComponentTask task)
     }
 }
 
-bool Graph::startTransition(IdentifierHash pg_state)
+bool Graph::startTransition(IdentifierHash pg_state, RunTargetActivationSource source)
 {
     LM_LOG_DEBUG() << "Graph starting transition to" << pg_state;
+    // Set before the transition can finish synchronously below, which reports the activation source.
+    transition_source_ = source;
     IdentifierHash old_state_name;
     {
         std::lock_guard<std::mutex> lock(requested_state_mutex_);
@@ -462,15 +460,15 @@ IdentifierHash Graph::getRequestedRunTarget()
     return requested_state_;
 }
 
-IdentifierHash Graph::setPendingState(IdentifierHash new_state)
+IdentifierHash Graph::setPendingState(IdentifierHash new_state, RunTargetActivationSource source)
 {
-    IdentifierHash old_state = pending_state_;
+    IdentifierHash old_state = pending_.run_target;
 
-    pending_state_ = new_state;
+    pending_ = PendingTransition{new_state, source};
 
     if (new_state != old_state)
     {
-        LM_LOG_DEBUG() << "Pending transition change from" << old_state << "to" << pending_state_;
+        LM_LOG_DEBUG() << "Pending transition change from" << old_state << "to" << pending_.run_target;
     }
 
     return old_state;
@@ -478,7 +476,12 @@ IdentifierHash Graph::setPendingState(IdentifierHash new_state)
 
 IdentifierHash Graph::getPendingState()
 {
-    return pending_state_;
+    return pending_.run_target;
+}
+
+PendingTransition Graph::getPendingTransition() const
+{
+    return pending_;
 }
 
 std::string_view Graph::toString(GraphState state)
