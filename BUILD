@@ -12,7 +12,8 @@
 # *******************************************************************************
 
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
-load("@score_docs_as_code//:docs.bzl", "docs")
+load("@score_docs_as_code//:bzl/bundle_rules.bzl", "bundle_source_files")
+load("@score_docs_as_code//:docs.bzl", "docs", "docs_bundle")
 load("@score_tooling//:defs.bzl", "copyright_checker", "dash_license_checker", "setup_starpls")
 load("@score_tooling//third_party/format:macros.bzl", "use_format_targets")
 load("//:project_config.bzl", "PROJECT_CONFIG")
@@ -108,6 +109,26 @@ use_format_targets(languages = [
 exports_files(["MODULE.bazel"])
 
 # Docs
+_IS_ROOT_MODULE = repository_name() == "@"
+
+bundle_source_files(
+    name = "platform_docs_sources",
+    bundle = "@score_platform//:docs_bundle",
+)
+
+genrule(
+    name = "platform_glossary_rst",
+    srcs = [":platform_docs_sources"],
+    outs = ["platform_glossary/glossary.rst"],
+    cmd = "cp $$(printf '%s\\n' $(SRCS) | grep '/docs/features/lifecycle/glossary[.]rst$$') $@",
+)
+
+docs_bundle(
+    name = "platform_glossary",
+    srcs = [":platform_glossary_rst"],
+    entry_doc = "glossary",
+)
+
 docs(
     bundles = [
         {
@@ -118,7 +139,15 @@ docs(
             "bundle": "//score/health_monitor:docs",
             "mount_at": "components/health_monitor",
         },
-    ],
+    ] + ([
+        # Glossary is located in score_platform but we also need to
+        # avoid duplication during integration in ref_int repository
+        {
+            "attach_to": "features/lifecycle/index",
+            "bundle": ":platform_glossary",
+            "mount_at": "features/lifecycle",
+        },
+    ] if _IS_ROOT_MODULE else []),
     external_needs = [
         "@score_platform//:needs_json",  # This allows linking to feature requirements.
         "@score_process_description//:needs_json",  # This allows linking to requirements (wp__requirements_comp, etc.) from the process_description repository.

@@ -33,3 +33,4 @@ For the main feature description and requirements, see the belonging Feature in 
    safety_planning/index
    security_planning/index
    glossary
+   glossary_detailed
