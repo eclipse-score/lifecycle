@@ -60,8 +60,6 @@ using ContainerTest = AasApplicationContainerTest;
 TEST_F(ContainerTest, GivenContainerMinSize_WhenInitializeCalled)
 {
     // An empty container represents the lowest boundary for the number of applications
-    // The upper boundary is the maximum value that can be stored in std::size_t, this can be
-    // calculated using MAX_SIZE = (size_t) - 1;
     RecordProperty("DerivationTechnique", "boundary-values");
     RecordProperty(
         "Description",
@@ -83,17 +81,16 @@ TEST_F(ContainerTest, GivenContainerMinSize_WhenInitializeCalled)
 
 TEST_F(ContainerTest, GivenContainerMaxSize_WhenConstructed)
 {
-    // The upper boundary is the maximum value that can be stored in std::size_t, this can be
-    // calculated using MAX_SIZE = (size_t) - 1;
+    // The upper boundary is the maximum value that can be stored in std::size_t
     RecordProperty("DerivationTechnique", "boundary-values");
     RecordProperty(
         "Description",
-        "Given a container of max size ((size_t) - 1). "
+        "Given a container of max size. "
         "When the container is constructed. "
         "Then construction throws a std::length_error.");
 
     // Given
-    const std::size_t MAX_SIZE = (size_t)-1;
+    const std::size_t MAX_SIZE = std::numeric_limits<size_t>::max();
 
     // When, Then
     EXPECT_THROW(
@@ -111,11 +108,10 @@ TEST_F(ContainerTest, GivenOneMoreAppsThanExpected_WhenWithCalled_ThenAssert)
     RecordProperty(
         "Description",
         "Given a single application allocated in a container. "
-        "Expect all applications to Initialize successfully. "
         "When two applications are added to the container using the With() call. "
-        "Then With() asserts");
+        "Then With() asserts, causing termination.");
 
-    // Given, Expect
+    // Given
     constexpr std::size_t CONTAINER_SIZE = 1;
     AasApplicationContainer container{ContainerTest::DEFAULT_NUM_ARGS, ContainerTest::DEFAULT_ARGS, CONTAINER_SIZE};
 
@@ -133,8 +129,7 @@ TEST_F(ContainerTest, GivenMinAllocatableApps_ExpectAppInitSuccess_WhenContainer
     // An equivalence class exists for:
     // - any number of applications in a container that return success,
     // - where the container is allocatable
-    //
-    // This test handles the minimum number of successful applications as a boundary value of this equivalence class
+    // This test handles the minimum number of successful applications as a boundary value of this equivalence class: 1
     RecordProperty("DerivationTechnique", "boundary-values");
     RecordProperty(
         "Description",
@@ -163,8 +158,7 @@ TEST_F(ContainerTest, GivenMaxAllocatableApps_ExpectAppInitSuccess_WhenContainer
     // - where the container is allocatable
     // To ensure the container is allocatable we are restricting the container size to 10 elements for this boundary
     // test
-    //
-    // This test handles the maximum number of successful applications as a boundary value of this equivalence class
+    // This test handles the maximum number of successful applications as a boundary value of this equivalence class: 10
     RecordProperty("DerivationTechnique", "boundary-values");
     RecordProperty(
         "Description",
