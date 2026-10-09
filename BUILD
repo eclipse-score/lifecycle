@@ -132,6 +132,10 @@ docs_bundle(
 docs(
     bundles = [
         {
+            "bundle": "//score/launch_manager:docs",
+            "mount_at": "components/launch_manager",
+        },
+        {
             "bundle": "//score/health_monitor:docs",
             "mount_at": "components/health_monitor",
         },

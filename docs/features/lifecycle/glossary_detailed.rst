@@ -41,12 +41,6 @@ Glossary
     ASLR
       Address Space Layout Randomization - a security technique that randomizes the memory layout of processes.
 
-    Liveliness
-      Term indicating that a :term:`Component` is periodically sending an
-      alive notification (using the
-      :need:`logic_arc_int_op__lifecycle__report_health` interface) as
-      per configuration.
-
     QNX
       A real-time operating system commonly used in embedded systems.
 
