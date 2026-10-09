@@ -110,6 +110,9 @@ Glossary
     Recovery Action
       Actions taken by the Launch Manager as a response to a :term:`Component failure` or :term:`Run Target` activation failure.
 
+    Dormant
+      The state of a :term:`Component` that the :term:`Launch Manager` has stopped as a :term:`Recovery Action` after a :term:`Component failure`. A Dormant Component is not running, but other Components and Run Targets treat it as active.
+
     Ready Condition
       A configurable condition that must be satisfied before a component is considered ready and operational. Ready conditions can include file system checks, network availability, or custom application-specific signals.
 

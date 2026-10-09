@@ -167,6 +167,48 @@ Deactivating Components
     The :term:`Launch Manager` shall be able to stop a process when all it's dependents are stopped if specified in the set of executables.
 
 
+Dormant Components
+------------------
+
+.. comp_req:: Dormant component treated as active
+    :id: comp_req__launch_man__dormant_treated_active
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
+    :status: invalid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall treat a :term:`Dormant` :term:`Component`
+    as active when evaluating the dependencies of other
+    :term:`Components <Component>` and of :term:`Run Targets <Run Target>`.
+
+    .. note::
+        **Safety:** See the note in
+        :need:`comp_req__launch_man__recovery_stop`. Dependents keep running
+        without a dependency they believe to be present, which needs to be
+        confirmed as intended at ASIL_B.
+
+.. comp_req:: Dormant component restart
+    :id: comp_req__launch_man__dormant_restart
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
+    :status: invalid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall restart a :term:`Dormant`
+    :term:`Component` upon activation of a :term:`Run Target` that includes it.
+
+    .. note::
+        It is still open whether this also applies when the currently active
+        :term:`Run Target` is activated again, or only when switching to
+        another :term:`Run Target`.
+
+
 Conditional Launching
 ---------------------
 
@@ -805,7 +847,7 @@ Recovery Actions
     :term:`Component failure` by switching to another 
     :term:`Run Target`.
 
-.. comp_req:: Recovery by stopping the component
+.. comp_req:: Recovery Action - set the component dormant
     :id: comp_req__launch_man__recovery_stop
     :reqtype: Functional
     :security: NO
@@ -815,9 +857,9 @@ Recovery Actions
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall be able to react to a 
-    :term:`Component failure` by stopping the failed 
-    :term:`Component`.
+    The :term:`Launch Manager` shall be able to react to a
+    :term:`Component failure` by setting the failed :term:`Component` to the
+    :term:`Dormant` state.
 
 .. comp_req:: Recovery by stopping the component and starting another component
     :id: comp_req__launch_man__recovery_stop_start
