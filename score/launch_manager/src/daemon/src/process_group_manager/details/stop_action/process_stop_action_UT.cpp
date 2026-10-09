@@ -36,29 +36,30 @@ TEST(ProcessStopActionTest, StopCallsRequestTerminationWithPid)
     static_cast<void>(process_stop_action.stop(cpp::stop_token{}, mock_handle));
 }
 
-TEST(ProcessStopActionTest, StopSucceedsReturnsSuccess)
+TEST(ProcessStopActionTest, StopSucceedsReturnsWaiting)
 {
     NiceMock<osal::MockIProcess> launcher;
     const ProcessStopAction process_stop_action(launcher);
 
     ON_CALL(launcher, requestTermination(_)).WillByDefault(Return(osal::OsalReturnType::kSuccess));
 
-    const Result<void> result = process_stop_action.stop(cpp::stop_token{}, mock_handle);
+    const Result<IComponent::RequestState> result = process_stop_action.stop(cpp::stop_token{}, mock_handle);
 
-    EXPECT_TRUE(result.has_value());
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ(result.value(), IComponent::RequestState::kWaiting);
 }
 
-TEST(ProcessStopActionTest, StopFailsReturnsError)
+TEST(ProcessStopActionTest, StopWithInvalidatedHandleReturnsSuccess)
 {
     NiceMock<osal::MockIProcess> launcher;
     const ProcessStopAction process_stop_action(launcher);
+    ProcessHandle handle = mock_handle;
+    handle.pid = -1;
 
-    ON_CALL(launcher, requestTermination(_)).WillByDefault(Return(osal::OsalReturnType::kFail));
+    const Result<IComponent::RequestState> result = process_stop_action.stop(cpp::stop_token{}, handle);
 
-    const Result<void> result = process_stop_action.stop(cpp::stop_token{}, mock_handle);
-
-    EXPECT_FALSE(result.has_value());
-    EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ(result.value(), IComponent::RequestState::kSuccess);
 }
 
 TEST(ProcessStopActionTest, StopWithInvalidatedHandleDoesNotCallLauncher)
@@ -68,9 +69,20 @@ TEST(ProcessStopActionTest, StopWithInvalidatedHandleDoesNotCallLauncher)
     ProcessHandle handle = mock_handle;
     handle.pid = -1;
 
-    const Result<void> result = process_stop_action.stop(cpp::stop_token{}, handle);
+    static_cast<void>(process_stop_action.stop(cpp::stop_token{}, handle));
+}
 
-    EXPECT_TRUE(result.has_value());
+TEST(ProcessStopActionTest, StopFailsReturnsError)
+{
+    NiceMock<osal::MockIProcess> launcher;
+    const ProcessStopAction process_stop_action(launcher);
+
+    ON_CALL(launcher, requestTermination(_)).WillByDefault(Return(osal::OsalReturnType::kFail));
+
+    const Result<IComponent::RequestState> result = process_stop_action.stop(cpp::stop_token{}, mock_handle);
+
+    EXPECT_FALSE(result.has_value());
+    EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
 }
 
 TEST(ProcessStopActionTest, StopWithEmptyHandleAborts)

@@ -15,6 +15,7 @@
 #define SCORE_LCM_IFORCE_STOP_ACTION_HPP_INCLUDED
 
 #include "score/mw/launch_manager/process_group_manager/details/handle.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
 #include "score/result/result.h"
 #include <score/stop_token.hpp>
 
@@ -31,7 +32,7 @@ class IForceStopAction
     /// @param stop_token Token which can be used to interrupt the action.
     /// @param handle The resource to act upon.
     /// @return Whether the action was successful, or failed with an error.
-    virtual Result<void> forceStop(cpp::stop_token stop_token, const Handle handle) const = 0;
+    virtual Result<IComponent::RequestState> forceStop(cpp::stop_token stop_token, const Handle handle) const = 0;
 };
 
 }  // namespace score::mw::lifecycle::internal

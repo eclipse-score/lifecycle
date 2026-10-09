@@ -36,16 +36,40 @@ TEST(ProcessForceStopActionTest, ForceStopCallsForceTerminationWithPid)
     static_cast<void>(process_force_stop_action.forceStop(cpp::stop_token{}, mock_handle));
 }
 
-TEST(ProcessForceStopActionTest, ForceStopSucceedsReturnsSuccess)
+TEST(ProcessForceStopActionTest, ForceStopSucceedsReturnsWaiting)
 {
     NiceMock<osal::MockIProcess> launcher;
     const ProcessForceStopAction process_force_stop_action(launcher);
 
     ON_CALL(launcher, forceTermination(_)).WillByDefault(Return(osal::OsalReturnType::kSuccess));
 
-    const Result<void> result = process_force_stop_action.forceStop(cpp::stop_token{}, mock_handle);
+    const Result<IComponent::RequestState> result = process_force_stop_action.forceStop(cpp::stop_token{}, mock_handle);
 
-    EXPECT_TRUE(result.has_value());
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ(result.value(), IComponent::RequestState::kWaiting);
+}
+
+TEST(ProcessForceStopActionTest, ForceStopWithInvalidatedHandleReturnsSuccess)
+{
+    NiceMock<osal::MockIProcess> launcher;
+    const ProcessForceStopAction process_force_stop_action(launcher);
+    ProcessHandle handle = mock_handle;
+    handle.pid = -1;
+
+    const Result<IComponent::RequestState> result = process_force_stop_action.forceStop(cpp::stop_token{}, handle);
+
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ(result.value(), IComponent::RequestState::kSuccess);
+}
+
+TEST(ProcessStopActionTest, ForceStopWithInvalidatedHandleDoesNotCallLauncher)
+{
+    StrictMock<osal::MockIProcess> launcher;
+    const ProcessForceStopAction process_force_stop_action(launcher);
+    ProcessHandle handle = mock_handle;
+    handle.pid = -1;
+
+    static_cast<void>(process_force_stop_action.forceStop(cpp::stop_token{}, handle));
 }
 
 TEST(ProcessForceStopActionTest, ForceStopFailsReturnsError)
@@ -55,22 +79,10 @@ TEST(ProcessForceStopActionTest, ForceStopFailsReturnsError)
 
     ON_CALL(launcher, forceTermination(_)).WillByDefault(Return(osal::OsalReturnType::kFail));
 
-    const Result<void> result = process_force_stop_action.forceStop(cpp::stop_token{}, mock_handle);
+    const Result<IComponent::RequestState> result = process_force_stop_action.forceStop(cpp::stop_token{}, mock_handle);
 
     EXPECT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
-}
-
-TEST(ProcessForceStopActionTest, ForceStopWithInvalidatedHandleDoesNotCallLauncher)
-{
-    StrictMock<osal::MockIProcess> launcher;
-    const ProcessForceStopAction process_force_stop_action(launcher);
-    ProcessHandle handle = mock_handle;
-    handle.pid = -1;
-
-    const Result<void> result = process_force_stop_action.forceStop(cpp::stop_token{}, handle);
-
-    EXPECT_TRUE(result.has_value());
 }
 
 TEST(ProcessForceStopActionTest, ForceStopWithEmptyHandleAborts)

@@ -22,7 +22,8 @@ ProcessForceStopAction::ProcessForceStopAction(osal::IProcess& launcher) : launc
 {
 }
 
-Result<void> ProcessForceStopAction::forceStop(cpp::stop_token stop_token, const Handle handle) const
+Result<IComponent::RequestState> ProcessForceStopAction::forceStop(cpp::stop_token stop_token, const Handle handle)
+    const
 {
     return std::visit(
         [this](auto&& handle) {
@@ -31,24 +32,24 @@ Result<void> ProcessForceStopAction::forceStop(cpp::stop_token stop_token, const
         handle);
 }
 
-Result<void> ProcessForceStopAction::visitForceStop(const ProcessHandle process) const
+Result<IComponent::RequestState> ProcessForceStopAction::visitForceStop(const ProcessHandle process) const
 {
     if (process.pid == -1)
     {
-        return {};
+        return IComponent::RequestState::kSuccess;
     }
 
     const osal::OsalReturnType result = launcher_.forceTermination(process.pid);
 
     if (result == osal::OsalReturnType::kSuccess)
     {
-        return {};
+        return IComponent::RequestState::kWaiting;
     }
 
     return MakeUnexpected(ExecErrc::kGeneralError);
 }
 
-Result<void> ProcessForceStopAction::visitForceStop(const Handle handle) const
+Result<IComponent::RequestState> ProcessForceStopAction::visitForceStop(const Handle handle) const
 {
     SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("ProcessForceStopAction should only be called with a ProcessHandle");
 }

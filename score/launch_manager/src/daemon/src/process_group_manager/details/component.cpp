@@ -131,24 +131,31 @@ IComponent::RequestResult Component::StartingState::deactivate(Component& compon
 {
     static_cast<void>(stop_activation_.request_stop());
 
-    if (!component.stop_action_.stop(stop_token, handle_).has_value())
-    {
-        return cpp::make_unexpected(ComponentError::kErrorAfterReady);
-    }
-
-    component.setState(TerminatingState{handle_});
-    return RequestState::kWaiting;
+    // The implementation from here onwards is the same as the ready state.
+    return ReadyState{handle_}.deactivate(component, stop_token);
 }
 
 IComponent::RequestResult Component::ReadyState::deactivate(Component& component, cpp::stop_token stop_token)
 {
-    if (!component.stop_action_.stop(stop_token, handle_).has_value())
+    const Result<RequestResult> result = component.stop_action_.stop(stop_token, handle_);
+
+    if (!result.has_value())
     {
         return cpp::make_unexpected(ComponentError::kErrorAfterReady);
     }
 
-    component.setState(TerminatingState{handle_});
-    return RequestState::kWaiting;
+    switch (*result.value())
+    {
+        case RequestState::kWaiting:
+            component.setState(TerminatingState{handle_});
+            return RequestState::kWaiting;
+
+        case RequestState::kSuccess:
+            component.setState(TerminatedState{});
+            return RequestState::kSuccess;
+    }
+
+    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Every possible RequestState should be handled");
 }
 
 IComponent::RequestResult Component::TerminatingState::deactivate(

@@ -35,14 +35,14 @@ class ProcessStopAction final : public IStopAction
     /// @param stop_token Token which can be used to interrupt the action.
     /// @param handle The resource to act upon.
     /// @return Whether the action was successful, or failed with an error.
-    Result<void> stop(cpp::stop_token stop_token, const Handle handle) const override;
+    Result<IComponent::RequestState> stop(cpp::stop_token stop_token, const Handle handle) const override;
 
   private:
     /// @brief Visitor method for process handles.
-    Result<void> visitStop(const ProcessHandle process) const;
+    Result<IComponent::RequestState> visitStop(const ProcessHandle process) const;
 
     /// @brief Visitor method for unsupported handles.
-    Result<void> visitStop(const Handle handle) const;
+    Result<IComponent::RequestState> visitStop(const Handle handle) const;
 
     /// @brief The process launcher used to stop the process.
     osal::IProcess& launcher_;
