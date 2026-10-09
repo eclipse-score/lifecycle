@@ -59,8 +59,7 @@ class ProcessInfoNode final : public IComponent
 
     /// @brief Explicit move constructor required due to atomics. PIN must be moveable to exist in the graph
     ProcessInfoNode(ProcessInfoNode&& other) noexcept
-        : terminator_(),
-          termination_requested_(other.termination_requested_.load()),
+        : termination_requested_(other.termination_requested_.load()),
           pid_(other.pid_),
           exit_code_(other.exit_code_.load()),
           process_state_(other.process_state_.load()),
@@ -165,9 +164,6 @@ class ProcessInfoNode final : public IComponent
 
     /// @brief Sends SIGKILL repeatedly until the process exits or the stop token is triggered.
     void handleForcedTermination(const score::cpp::stop_token& stop_token);
-
-    /// @brief semaphore used to check termination with timeout
-    osal::Semaphore terminator_{};
 
     /// @brief True if termination is requested
     std::atomic_bool termination_requested_{false};
