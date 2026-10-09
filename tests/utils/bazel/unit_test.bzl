@@ -13,6 +13,7 @@
 """Bazel macros for LCM unit tests."""
 
 load("@rules_cc//cc:defs.bzl", "cc_test")
+load("@rules_rust//rust:defs.bzl", "rust_test")
 
 def lm_cc_test(name, deps = [], **kwargs):
     """Wrapper around cc_test that auto-registers the LCM assertion handler.
@@ -36,6 +37,19 @@ def lm_cc_test(name, deps = [], **kwargs):
         name = name,
         deps = deps + ["//score/launch_manager/src/daemon/src/common:assertion_handler"],
         defines = kwargs.pop("defines", []) + ["SCORE_LANGUAGE_FUTURECPP_ASSERT_LEVEL_DEBUG"],
+        target_compatible_with = kwargs.pop("target_compatible_with", []) + select({
+            "//config:unit_qemu": [],
+            "//config:unit_host": [],
+            "//conditions:default": ["@platforms//:incompatible"],
+        }),
+        **kwargs
+    )
+
+def lm_rust_test(name, **kwargs):
+    """Wrapper around rust_test.
+    """
+    rust_test(
+        name = name,
         target_compatible_with = kwargs.pop("target_compatible_with", []) + select({
             "//config:unit_qemu": [],
             "//config:unit_host": [],
