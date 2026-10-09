@@ -61,6 +61,18 @@ TEST(ProcessForceStopActionTest, ForceStopFailsReturnsError)
     EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
 }
 
+TEST(ProcessForceStopActionTest, ForceStopWithInvalidatedHandleDoesNotCallLauncher)
+{
+    StrictMock<osal::MockIProcess> launcher;
+    const ProcessForceStopAction process_force_stop_action(launcher);
+    ProcessHandle handle = mock_handle;
+    handle.pid = -1;
+
+    const Result<void> result = process_force_stop_action.forceStop(cpp::stop_token{}, handle);
+
+    EXPECT_TRUE(result.has_value());
+}
+
 TEST(ProcessForceStopActionTest, ForceStopWithEmptyHandleAborts)
 {
     NiceMock<osal::MockIProcess> launcher;
