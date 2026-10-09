@@ -12,18 +12,24 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-:orphan:
-
-Control Client
-##############
+Run Target Activation
+#####################
 
 This interface provides control functionality for activating and managing run
 targets.
 It allows users to trigger execution of configured :term:`Run Targets <Run
 target>` through a standardized activation mechanism.
 
-The following use cases are supported by the `ControlInterface` provided by the
+The following use cases are supported by the `Control Interface` provided by the
 :term:`Launch Manager`.
+
+Switching between Run Targets
+=============================
+
+The :term:`Launch Manager` allows switching between different :term:`Run
+Targets <Run Target>`. When a switch is requested, the :term:`Launch Manager`
+evaluates the current state and the target state, determining which components
+need to be started or stopped based on their dependencies.
 
 **Activating a Run Target**
 
@@ -65,6 +71,9 @@ applications to support dynamic state control.
 Dynamic architecture
 ====================
 
+The sequence diagrams below are based on the example dependency graph described
+in :doc:`./components_run_targets`.
+
 .. feat_arc_dyn:: Switch Run Target Scenario - Successful case
    :id: feat_arc_dyn__lifecycle__control_activate
    :status: valid
@@ -77,3 +86,48 @@ Dynamic architecture
    .. uml:: _assets/control_interface_switch_sequence.puml
       :scale: 50
       :align: center
+
+
+Component Dependencies and Ready Conditions
+-------------------------------------------
+
+.. feat_arc_dyn:: Launch Manager - Component Dependencies
+   :id: feat_arc_dyn__lifecycle__lcm_start
+   :security: YES
+   :status: valid
+   :version: 1
+   :safety: ASIL_B
+   :belongs_to: feat__lifecycle[version==1]
+   :fulfils: feat_req__lifecycle__launch_support[version==1],
+             feat_req__lifecycle__process_ordering[version==1],
+             feat_req__lifecycle__run_target_support[version==1],
+             feat_req__lifecycle__conditional_startup[version==1]
+
+   .. uml:: _assets/launch_manager_run_target_running.puml
+      :scale: 50
+      :align: center
+
+   While `setup_filesystems` and `/bin/random` can be started in parallel,  `/opt/bin/app1` can only be started once both Components are `Ready`.
+
+
+Component Termination
+---------------------
+
+.. feat_arc_dyn:: Launch Manager - Component Termination
+   :id: feat_arc_dyn__lifecycle__lcm_term
+   :security: YES
+   :status: valid
+   :version: 1
+   :safety: ASIL_B
+   :belongs_to: feat__lifecycle[version==1]
+   :fulfils: feat_req__lifecycle__process_termination[version==1],
+             feat_req__lifecycle__process_ordering[version==1],
+             feat_req__lifecycle__termination_dependency[version==1]
+
+   .. uml:: _assets/launch_manager_run_target_off.puml
+      :scale: 50
+      :align: center
+
+   Since `app1` depends on both `setup_filesystems` and `random`, it must be terminated first before the other two components can be safely terminated.
+   Afterwards, `setup_filesystems` and `random` can be terminated in parallel as they do not depend on each other.
+   Note that if a component does not terminate within the configured termination timeout, it is forcefully killed.
