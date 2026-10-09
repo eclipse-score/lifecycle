@@ -17,4 +17,11 @@
 # Valid categories: defensive_programming, tool_false_positive,
 # platform_specific, other.
 version: 1
-justifications: []
+justifications:
+  - id: thread-always-joinable-defensive
+    category: defensive_programming
+    platforms: [linux, qnx]
+    reason: >
+      Defensive guard for ensuring safe usage of join(). A started thread will always be joinable() until join() or detach()
+      is called. In this case we are about to call join(), and we defensively check that the thread is joinable, to avoid
+      an exception.

@@ -22,7 +22,7 @@ namespace score::mw::lifecycle
 AasApplicationContainer::AasApplicationContainer(
     const std::int32_t argc,
     const char* const argv[],
-    const std::size_t count_expected_applications) noexcept
+    const std::size_t count_expected_applications)
     : Application{}, context_{argc, argv}, applications_{}, count_expected_applications_{count_expected_applications}
 {
     applications_.reserve(count_expected_applications_);
@@ -53,7 +53,7 @@ std::int32_t AasApplicationContainer::Initialize(const ApplicationContext& conte
 
     for (auto& thread : threads)
     {
-        if (thread.joinable())
+        if (thread.joinable())  // COV_JUSTIFIED thread-always-joinable-defensive
         {
             thread.join();
         }
@@ -102,7 +102,7 @@ std::int32_t AasApplicationContainer::Run(const score::cpp::stop_token& token)
 
         for (auto& thread : threads)
         {
-            if (thread.joinable())
+            if (thread.joinable())  // COV_JUSTIFIED thread-always-joinable-defensive
             {
                 thread.join();
             }
