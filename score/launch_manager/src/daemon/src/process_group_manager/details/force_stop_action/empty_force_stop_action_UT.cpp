@@ -23,9 +23,10 @@ TEST(EmptyForceStopActionTest, ForceStopSucceeds)
 {
     EmptyForceStopAction empty_force_stop_action;
 
-    const auto result = empty_force_stop_action.forceStop(cpp::stop_token{}, EmptyHandle{});
+    const Result<IComponent::RequestState> result = empty_force_stop_action.forceStop(cpp::stop_token{}, EmptyHandle{});
 
-    EXPECT_TRUE(result.has_value());
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ(result.value(), IComponent::RequestState::kSuccess);
 }
 
 }  // namespace

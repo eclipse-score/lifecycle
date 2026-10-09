@@ -27,7 +27,7 @@ class EmptyForceStopAction final : public IForceStopAction
     /// @param stop_token Token which can be used to interrupt the action.
     /// @param handle The resource to act upon.
     /// @return Always successful.
-    Result<void> forceStop(cpp::stop_token stop_token, const Handle) const override;
+    Result<IComponent::RequestState> forceStop(cpp::stop_token stop_token, const Handle) const override;
 };
 
 }  // namespace score::mw::lifecycle::internal

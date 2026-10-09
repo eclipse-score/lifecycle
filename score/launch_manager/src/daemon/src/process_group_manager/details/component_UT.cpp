@@ -85,10 +85,44 @@ TEST(ComponentTest, StopActionCalled)
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
     EXPECT_CALL(stop_action, stop(_, _))
-        .WillOnce(DoAll(WithArg<1>(Invoke(expect_mock_handle)), Return(Result<void>{})));
+        .WillOnce(DoAll(WithArg<1>(Invoke(expect_mock_handle)), Return(IComponent::RequestState::kSuccess)));
 
     static_cast<void>(component.activate(cpp::stop_token{}));
     component.deactivate(mock_stop_token);
+}
+
+TEST(ComponentTest, DeactivateReturnsWaitingWhenStopActionReturnsWaiting)
+{
+    MockStartAction start_action;
+    MockStopAction stop_action;
+    MockForceStopAction force_stop_action;
+    Component component(start_action, stop_action, force_stop_action);
+
+    ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+    ON_CALL(stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestState::kWaiting));
+
+    static_cast<void>(component.activate(cpp::stop_token{}));
+    const auto result = component.deactivate(mock_stop_token);
+
+    ASSERT_TRUE(result.has_value());
+    ASSERT_EQ(result.value(), IComponent::RequestState::kWaiting);
+}
+
+TEST(ComponentTest, DeactivateReturnsSuccessWhenStopActionReturnsSuccess)
+{
+    MockStartAction start_action;
+    MockStopAction stop_action;
+    MockForceStopAction force_stop_action;
+    Component component(start_action, stop_action, force_stop_action);
+
+    ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+    ON_CALL(stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestState::kSuccess));
+
+    static_cast<void>(component.activate(cpp::stop_token{}));
+    const auto result = component.deactivate(mock_stop_token);
+
+    ASSERT_TRUE(result.has_value());
+    ASSERT_EQ(result.value(), IComponent::RequestState::kSuccess);
 }
 
 TEST(ComponentTest, ReadyConditionsCalled)
@@ -207,7 +241,7 @@ TEST(ComponentTest, CannotActivateInTerminatingState)
     Component component(start_action, stop_action, force_stop_action);
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
-    ON_CALL(stop_action, stop(_, _)).WillByDefault(Return(Result<void>{}));
+    ON_CALL(stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestState::kWaiting));
 
     static_cast<void>(component.activate(cpp::stop_token{}));
     static_cast<void>(component.deactivate(cpp::stop_token{}));
@@ -224,7 +258,7 @@ TEST(ComponentTest, CannotDeactivateInTerminatingState)
     Component component(start_action, stop_action, force_stop_action);
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
-    ON_CALL(stop_action, stop(_, _)).WillByDefault(Return(Result<void>{}));
+    ON_CALL(stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestState::kWaiting));
 
     static_cast<void>(component.activate(cpp::stop_token{}));
     static_cast<void>(component.deactivate(cpp::stop_token{}));
@@ -416,41 +450,6 @@ TEST(ComponentTest, SelfTerminatingExitNonZeroInStartingStateIsNotActive)
     static_cast<void>(component.activate(cpp::stop_token{}));
 
     EXPECT_FALSE(component.active());
-}
-
-TEST(ComponentTest, DeactivateAfterSelfTerminationReturnsSuccess)
-{
-    StrictMock<MockStartAction> start_action;
-    StrictMock<MockStopAction> stop_action;
-    MockForceStopAction force_stop_action;
-    cpp::span<std::reference_wrapper<const IReadyCondition>> ready_conditions;
-    Component component(start_action, stop_action, force_stop_action, ready_conditions, true);
-
-    EXPECT_CALL(start_action, start(_)).WillOnce(Return(Result<Handle>{mock_handle}));
-
-    static_cast<void>(component.activate(cpp::stop_token{}));
-    static_cast<void>(component.tryHandleTermination(0));
-    const auto result = component.deactivate(cpp::stop_token{});
-
-    ASSERT_TRUE(result.has_value());
-    EXPECT_EQ(result.value(), IComponent::RequestState::kSuccess);
-}
-
-TEST(ComponentTest, DeactivateWithRunningProcessReturnsWaiting)
-{
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    Component component(start_action, stop_action, force_stop_action);
-
-    ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
-    EXPECT_CALL(stop_action, stop(_, _)).WillOnce(Return(Result<void>{}));
-
-    static_cast<void>(component.activate(cpp::stop_token{}));
-    const auto result = component.deactivate(cpp::stop_token{});
-
-    ASSERT_TRUE(result.has_value());
-    EXPECT_EQ(result.value(), IComponent::RequestState::kWaiting);
 }
 
 }  // namespace
