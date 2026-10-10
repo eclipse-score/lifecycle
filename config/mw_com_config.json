@@ -1,55 +1,22 @@
 {
-  "serviceTypes": [
-    {
-      "serviceTypeName": "/score/mw/lifecycle/LmControlService",
-      "version": {
-        "major": 1,
-        "minor": 0
-      },
-      "bindings": [
-        {
-          "binding": "SHM",
-          "serviceId": 7101,
-          "events": [
-            {
-              "eventName": "ActivationResult",
-              "eventId": 1
-            }
-          ],
-          "methods": [
-            {
-              "methodName": "ActivateRunTarget",
-              "methodId": 2
-            },
-            {
-              "methodName": "GetActiveRunTarget",
-              "methodId": 3
-            }
-          ]
-        }
-      ]
-    }
-  ],
+  "global": {
+    "asil-level": "QM"
+  },
   "serviceInstances": [
     {
       "instanceSpecifier": "LaunchManager/StateManager/Instance",
-      "serviceTypeName": "/score/mw/lifecycle/LmControlService",
-      "version": {
-        "major": 1,
-        "minor": 0
-      },
       "instances": [
         {
-          "instanceId": 1,
           "asil-level": "QM",
           "binding": "SHM",
           "events": [
             {
               "eventName": "ActivationResult",
-              "numberOfSampleSlots": 8,
-              "maxSubscribers": 1
+              "maxSubscribers": 1,
+              "numberOfSampleSlots": 8
             }
           ],
+          "instanceId": 1,
           "methods": [
             {
               "methodName": "ActivateRunTarget",
@@ -61,18 +28,17 @@
             }
           ]
         }
-      ]
-    },
-    {
-      "instanceSpecifier": "StateManager/LaunchManager/Instance",
+      ],
       "serviceTypeName": "/score/mw/lifecycle/LmControlService",
       "version": {
         "major": 1,
         "minor": 0
-      },
+      }
+    },
+    {
+      "instanceSpecifier": "StateManager/LaunchManager/Instance",
       "instances": [
         {
-          "instanceId": 1,
           "asil-level": "QM",
           "binding": "SHM",
           "events": [
@@ -80,6 +46,7 @@
               "eventName": "ActivationResult"
             }
           ],
+          "instanceId": 1,
           "methods": [
             {
               "methodName": "ActivateRunTarget",
@@ -91,10 +58,43 @@
             }
           ]
         }
-      ]
+      ],
+      "serviceTypeName": "/score/mw/lifecycle/LmControlService",
+      "version": {
+        "major": 1,
+        "minor": 0
+      }
     }
   ],
-  "global": {
-    "asil-level": "QM"
-  }
+  "serviceTypes": [
+    {
+      "bindings": [
+        {
+          "binding": "SHM",
+          "events": [
+            {
+              "eventId": 1,
+              "eventName": "ActivationResult"
+            }
+          ],
+          "methods": [
+            {
+              "methodId": 2,
+              "methodName": "ActivateRunTarget"
+            },
+            {
+              "methodId": 3,
+              "methodName": "GetActiveRunTarget"
+            }
+          ],
+          "serviceId": 7101
+        }
+      ],
+      "serviceTypeName": "/score/mw/lifecycle/LmControlService",
+      "version": {
+        "major": 1,
+        "minor": 0
+      }
+    }
+  ]
 }

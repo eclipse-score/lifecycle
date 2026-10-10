@@ -137,3 +137,13 @@ config_setting(
     },
     visibility = ["//visibility:public"],
 )
+
+# Checked-in deployment documents; see README.md for the distinct profiles.
+exports_files(
+    [
+        "mw_com_config.json",
+        "mw_com_config_client_test.json",
+        "mw_com_config_provider_test.json",
+    ],
+    visibility = ["//visibility:public"],
+)
