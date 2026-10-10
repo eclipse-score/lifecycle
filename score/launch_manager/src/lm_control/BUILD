@@ -10,8 +10,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 load("@rules_cc//cc:defs.bzl", "cc_library")
-load("//config:mw_com_config.bzl", "mw_com_config")
 load("//tests/utils/bazel:unit_test.bzl", "lm_cc_test")
 
 cc_library(
@@ -71,9 +71,10 @@ lm_cc_test(
     ],
 )
 
-mw_com_config(
+copy_file(
     name = "test_lmcontrol_mw_com_config_gen",
+    src = "//config:mw_com_config_client_test.json",
     out = "src/details/test_lmcontrol_mw_com_config.json",
-    profile = "client_test",
+    allow_symlink = False,
     visibility = ["//visibility:public"],
 )
