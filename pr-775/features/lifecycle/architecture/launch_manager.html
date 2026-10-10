@@ -1,0 +1,961 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Launch manager &#8212; Lifecycle and Health Management  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/score.css?v=415257cb" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/score_needs.css?v=82a1844f" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/score_design.css?v=8048e6ee" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-data-viewer/jsonview.bundle.css?v=f6ef2277" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-needs/libs/html/datatables.min.css?v=4b4fd840" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-needs/common_css/needstable.css?v=5e1b6797" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-needs/common_css/need_core.css?v=f5b60a78" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-needs/common_css/need_style.css?v=92936fa5" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-needs/common_css/need_toggle.css?v=5c6620df" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-needs/common_css/need_links.css?v=2150a916" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-needs/modern.css?v=803738c0" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../../_static/documentation_options.js?v=7f41d439"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../_static/sphinx-data-viewer/jsonview.bundle.js?v=18cd53c5"></script>
+    <script src="../../../_static/sphinx-data-viewer/jsonview_loader.js?v=f7ff7e7d"></script>
+    <script src="../../../_static/sphinx-needs/libs/html/datatables.min.js?v=8a4aee21"></script>
+    <script src="../../../_static/sphinx-needs/libs/html/datatables_loader.js?v=a2cae175"></script>
+    <script src="../../../_static/sphinx-needs/libs/html/sphinx_needs_collapse.js?v=dca66431"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'features/lifecycle/architecture/launch_manager';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://eclipse-score.github.io/lifecycle/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.0.0" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Eclipse S-CORE</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Features
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../module/index.html">
+    Lifecycle Module
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../verification_report/module_verification_report.html">
+    Verification Report
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../components/index.html">
+    Component documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release/index.html">
+    Release notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/eclipse-score" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Features
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../module/index.html">
+    Lifecycle Module
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../verification_report/module_verification_report.html">
+    Verification Report
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../components/index.html">
+    Component documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release/index.html">
+    Release notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/eclipse-score" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Launch manager</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="launch-manager">
+<h1>Launch manager<a class="headerlink" href="#launch-manager" title="Link to this heading">#</a></h1>
+<p>The following describes the interaction between the
+<a class="reference internal" href="../../../components/launch_manager/architecture/component_architecture.html#comp__lifecycle_launch_manager" title="comp__lifecycle_launch_manager"><em class="xref need">Launch Manager (comp__lifecycle_launch_manager)</em></a> and the user application.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>The functionality of the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> is defined by configuration
+data, which spawns a directed acyclic graph (DAG) of <a class="reference internal" href="../glossary.html#term-Component"><span class="xref std std-term">Components</span></a> and so called <a class="reference internal" href="../glossary.html#term-Run-Target"><span class="xref std std-term">Run Targets</span></a>.
+The <a class="reference internal" href="../glossary.html#term-Run-Target"><span class="xref std std-term">Run Targets</span></a> are virtual nodes in the DAG and represent
+<a class="reference internal" href="../glossary.html#term-Run-State"><span class="xref std std-term">Run States</span></a> of the system.
+The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> is responsible for starting and stopping the
+processes in the correct order, based on the dependencies defined in the
+configuration data.</p>
+<p>E.g. the configuration below consists of three <a class="reference internal" href="../glossary.html#term-Run-Target"><span class="xref std std-term">Run Targets</span></a>
+managing 9 components. If the user selects e.g. the <a class="reference internal" href="../glossary.html#term-Run-Target"><span class="xref std std-term">Run Target</span></a> “debug”
+the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> will start the components in the following order
+defined by the dependencies.</p>
+<ol class="arabic simple">
+<li><p>flash driver &amp; eth driver</p></li>
+<li><p>filesystem</p></li>
+<li><p>setup filesystems</p></li>
+<li><p>networking</p></li>
+<li><p>ssh</p></li>
+</ol>
+<figure class="align-center">
+<p class="plantuml">
+<object data="../../../_images/plantuml-8a854fbc8c202c0b507b252cb61991a5a9d0da90.svg" type="image/svg+xml" style="width:397px;height:933px;background:#FFFFFF;"></object></p>
+</figure>
+<p>The <a class="reference internal" href="../../../components/launch_manager/architecture/component_architecture.html#comp__lifecycle_launch_manager" title="comp__lifecycle_launch_manager"><em class="xref need">Launch Manager (comp__lifecycle_launch_manager)</em></a> implements the following
+interfaces,for the selection of <a class="reference internal" href="../glossary.html#term-Run-Target"><span class="xref std std-term">Run Target</span></a> s, starting and stopping of
+components and monitoring of the processes.</p>
+<section id="switching-between-run-targets">
+<h3>Switching between Run Targets<a class="headerlink" href="#switching-between-run-targets" title="Link to this heading">#</a></h3>
+<p>The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> allows switching between different <a class="reference internal" href="../glossary.html#term-Run-Target"><span class="xref std std-term">Run
+Targets</span></a>. When a switch is requested, the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a>
+evaluates the current state and the target state, determining which components
+need to be started or stopped based on their dependencies.</p>
+<p>When a component is started the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> will start the
+corresponding process and monitor its state via <a class="reference internal" href="../glossary.html#term-Ready-Condition"><span class="xref std std-term">Ready Conditions</span></a>.</p>
+<p><a class="reference internal" href="../glossary.html#term-Ready-Condition"><span class="xref std std-term">Ready Conditions</span></a> are essential mechanisms that
+determine when a component has successfully completed its startup phase and is
+ready to fulfill its intended role in the system.
+These conditions provide flexibility in defining what constitutes a “ready”
+state for different types of components.
+For SCORE applications, components can actively report their readiness through
+the Lifecycle Interface by signaling specific states or custom conditions.
+For native applications, the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> relies on external
+indicators such as process existence, file creation, network socket
+availability, or successful process termination.
+This dual approach ensures that both modern SCORE-aware applications and legacy
+native applications can participate in the dependency management system.</p>
+</section>
+<section id="interacting-with-processes">
+<h3>Interacting with processes<a class="headerlink" href="#interacting-with-processes" title="Link to this heading">#</a></h3>
+<p>The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> provides interfaces for communication with launched
+applications, supporting two distinct application types:</p>
+<ol class="arabic simple">
+<li><p><strong>SCORE Applications</strong>: Implement the full Lifecycle Interface for
+bidirectional communication with state reporting, liveliness indication, and
+conditional signaling</p></li>
+<li><p><strong>Native Applications</strong>: Controlled exclusively via POSIX signals (SIGTERM,
+SIGKILL, etc.) without direct API communication</p></li>
+</ol>
+<p>This dual approach enables the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> to manage both legacy
+native applications and SCORE-aware applications within the same system.</p>
+<p>The Lifecycle Interface serves as the communication channel between
+applications and the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a>.</p>
+<section id="score-applications">
+<h4>SCORE Applications<a class="headerlink" href="#score-applications" title="Link to this heading">#</a></h4>
+<p><strong>For SCORE Applications:</strong>
+- Application state reporting (started, running, stopped)
+- Conditional signaling for application dependencies</p>
+<p>See <a class="reference internal" href="lifecycle_client.html"><span class="doc">Lifecycle Client</span></a> for the full description of the Lifecycle Interface.</p>
+</section>
+<section id="native-applications">
+<h4>Native Applications<a class="headerlink" href="#native-applications" title="Link to this heading">#</a></h4>
+<p>Native applications that do not implement the Lifecycle Interface are
+controlled through POSIX signals:</p>
+<ul class="simple">
+<li><p><strong>SIGTERM</strong>: Graceful shutdown request</p></li>
+<li><p><strong>SIGKILL</strong>: Forced termination (after timeout)</p></li>
+</ul>
+<p>The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> monitors native applications through:</p>
+<ul class="simple">
+<li><p>Process ID (PID) tracking</p></li>
+<li><p>Exit code evaluation</p></li>
+<li><p>Resource usage monitoring via OS facilities</p></li>
+<li><p>Timeout-based failure detection</p></li>
+</ul>
+<p>For native applications, the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> provides:</p>
+<ul class="simple">
+<li><p>Basic lifecycle control (start/stop)</p></li>
+<li><p>Simple dependency management based on process existence</p></li>
+<li><p>Configurable startup/shutdown timeouts</p></li>
+<li><p>Exit code-based success/failure determination</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="dynamic-architecture">
+<h2>Dynamic Architecture<a class="headerlink" href="#dynamic-architecture" title="Link to this heading">#</a></h2>
+<section id="example-dependency-graph">
+<h3>Example Dependency Graph<a class="headerlink" href="#example-dependency-graph" title="Link to this heading">#</a></h3>
+<p>Consider the following simplified dependency graph for the upcoming sequence diagrams.</p>
+<blockquote>
+<div><figure class="align-center">
+<p class="plantuml">
+<object data="../../../_images/plantuml-e383fde913b3253455b891fd5a96dac9c69281f3.svg" type="image/svg+xml" style="width:529px;height:348px;background:#FFFFFF;"></object></p>
+</figure>
+</div></blockquote>
+<p>The Component <cite>setup_filesystems</cite> starts a shell script <cite>setup_filesystems.sh</cite> and reaches its <cite>Ready</cite> state when the script completed.
+The Component <cite>random</cite> starts a binary <cite>/bin/random</cite> and is considered <cite>Ready</cite> when the file <cite>/dev/random</cite> exists.
+The Component <cite>app1</cite> starts a binary <cite>/opt/bin/app1</cite> and is considered <cite>Ready</cite> when the process signaled its Running state via the Lifecycle API.</p>
+</section>
+<section id="launch-manager-initial-startup">
+<h3>Launch Manager Initial Startup<a class="headerlink" href="#launch-manager-initial-startup" title="Link to this heading">#</a></h3>
+<div class="need_container docutils container" id="SNCB-339e2df6">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__lcm_startup">
+<tbody>
+<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
+<div class="line"><span><span class="needs_title"><span class="needs_data">Launch Manager Startup</span></span></span></div>
+</div>
+</td>
+<td class="head_center" colspan="2"><div class="needs_head line-block">
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
+<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">YES</span></span></span></div>
+<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
+</div>
+</td>
+<td class="head_right" colspan="2"><div class="needs_head_right line-block">
+<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
+</div>
+</td>
+</tr>
+<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
+<div class="line"><span><span><div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
+</span></span></div>
+<div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#feat__lifecycle">feat__lifecycle</a></span></span></div>
+<div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__launch_support">feat_req__lifecycle__launch_support</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_ordering">feat_req__lifecycle__process_ordering</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__run_target_support">feat_req__lifecycle__run_target_support</a></span></span></div>
+</span></div>
+</div>
+</td>
+<td class="meta" colspan="3"></td>
+</tr>
+<tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
+<p class="plantuml">
+<object data="../../../_images/plantuml-0a250119e5dc0827b8e930b2a52c3d99d1ff1c44.svg" type="image/svg+xml" style="width:791px;height:625px;background:#FFFFFF;"></object></p>
+</figure>
+<p>In case of initialization failure, the Launch Manager fails to start.
+Once initialization is successful, the Launch Manager activates the configured initial Run Target.</p>
+<p>The continuation of this sequence, in which the Launch Manager starts the
+Components of the Run Target <cite>Running</cite>, is depicted in
+<a class="reference internal" href="#feat_arc_dyn__lifecycle__lcm_start" title="feat_arc_dyn__lifecycle__lcm_start"><em class="xref need">Launch Manager - Component ... (feat_arc_dyn__lifecycle__lcm_start)</em></a>.</p>
+</td>
+</tr>
+<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#feat_arc_dyn__lifecycle__lcm_startup" title="feat_arc_dyn__lifecycle__lcm_startup">feat_arc_dyn__lifecycle__lcm_startup</a></span></span></div>
+</div>
+</td>
+<td class="footer" colspan="2"><div class="needs_footer line-block">
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Feature Sequence Diagram</span></span></span></div>
+</div>
+</td>
+<td class="footer_right" colspan="2"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="need_container docutils container" id="SNCB-10422ad7">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__lcm_shutdown">
+<tbody>
+<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
+<div class="line"><span><span class="needs_title"><span class="needs_data">Launch Manager Shutdown</span></span></span></div>
+</div>
+</td>
+<td class="head_center" colspan="2"><div class="needs_head line-block">
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
+<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">YES</span></span></span></div>
+<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
+</div>
+</td>
+<td class="head_right" colspan="2"><div class="needs_head_right line-block">
+<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
+</div>
+</td>
+</tr>
+<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
+<div class="line"><span><span><div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
+</span></span></div>
+<div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#feat__lifecycle">feat__lifecycle</a></span></span></div>
+<div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_termination">feat_req__lifecycle__process_termination</a></span></span></div>
+</span></div>
+</div>
+</td>
+<td class="meta" colspan="3"></td>
+</tr>
+<tr class="content row-odd"><td class="content" colspan="6"><p class="plantuml">
+<object data="../../../_images/plantuml-396ff9435f9279c72b5aacdd1198c3811be5dbbe.svg" type="image/svg+xml" style="width:859px;height:448px;background:#FFFFFF;"></object></p>
+<p>When the Launch Manager receives a SIGTERM signal, it will initiate transition to Run Target <cite>Off</cite> which leads to termination of all components.
+Afterwards, Launch Manager process itself exits.</p>
+<p>The transition to the Run Target <cite>Off</cite>, in which the Launch Manager terminates
+the Components of the currently active Run Target, is depicted in
+<a class="reference internal" href="#feat_arc_dyn__lifecycle__lcm_term" title="feat_arc_dyn__lifecycle__lcm_term"><em class="xref need">Launch Manager - Component ... (feat_arc_dyn__lifecycle__lcm_term)</em></a>.</p>
+</td>
+</tr>
+<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#feat_arc_dyn__lifecycle__lcm_shutdown" title="feat_arc_dyn__lifecycle__lcm_shutdown">feat_arc_dyn__lifecycle__lcm_shutdown</a></span></span></div>
+</div>
+</td>
+<td class="footer" colspan="2"><div class="needs_footer line-block">
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Feature Sequence Diagram</span></span></span></div>
+</div>
+</td>
+<td class="footer_right" colspan="2"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="component-dependencies-and-ready-conditions">
+<h3>Component Dependencies and Ready Conditions<a class="headerlink" href="#component-dependencies-and-ready-conditions" title="Link to this heading">#</a></h3>
+<div class="need_container docutils container" id="SNCB-e44644bc">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__lcm_start">
+<tbody>
+<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
+<div class="line"><span><span class="needs_title"><span class="needs_data">Launch Manager - Component Dependencies</span></span></span></div>
+</div>
+</td>
+<td class="head_center" colspan="2"><div class="needs_head line-block">
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
+<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">YES</span></span></span></div>
+<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
+</div>
+</td>
+<td class="head_right" colspan="2"><div class="needs_head_right line-block">
+<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
+</div>
+</td>
+</tr>
+<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
+<div class="line"><span><span><div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
+</span></span></div>
+<div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#feat__lifecycle">feat__lifecycle</a></span></span></div>
+<div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__conditional_startup">feat_req__lifecycle__conditional_startup</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__launch_support">feat_req__lifecycle__launch_support</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_ordering">feat_req__lifecycle__process_ordering</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__run_target_support">feat_req__lifecycle__run_target_support</a></span></span></div>
+</span></div>
+</div>
+</td>
+<td class="meta" colspan="3"></td>
+</tr>
+<tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
+<p class="plantuml">
+<object data="../../../_images/plantuml-6e84600381d81185c9958ca39ccaaabc96446004.svg" type="image/svg+xml" style="width:1221px;height:818px;background:#FFFFFF;"></object></p>
+</figure>
+<p>While <cite>setup_filesystems</cite> and <cite>/bin/random</cite> can be started in parallel,  <cite>/opt/bin/app1</cite> can only be started once both Components are <cite>Ready</cite>.</p>
+</td>
+</tr>
+<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#feat_arc_dyn__lifecycle__lcm_start" title="feat_arc_dyn__lifecycle__lcm_start">feat_arc_dyn__lifecycle__lcm_start</a></span></span></div>
+</div>
+</td>
+<td class="footer" colspan="2"><div class="needs_footer line-block">
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Feature Sequence Diagram</span></span></span></div>
+</div>
+</td>
+<td class="footer_right" colspan="2"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="component-termination">
+<h3>Component Termination<a class="headerlink" href="#component-termination" title="Link to this heading">#</a></h3>
+<div class="need_container docutils container" id="SNCB-4912cb68">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__lcm_term">
+<tbody>
+<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
+<div class="line"><span><span class="needs_title"><span class="needs_data">Launch Manager - Component Termination</span></span></span></div>
+</div>
+</td>
+<td class="head_center" colspan="2"><div class="needs_head line-block">
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
+<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">YES</span></span></span></div>
+<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
+</div>
+</td>
+<td class="head_right" colspan="2"><div class="needs_head_right line-block">
+<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
+</div>
+</td>
+</tr>
+<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
+<div class="line"><span><span><div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
+</span></span></div>
+<div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#feat__lifecycle">feat__lifecycle</a></span></span></div>
+<div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_ordering">feat_req__lifecycle__process_ordering</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_termination">feat_req__lifecycle__process_termination</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__termination_dependency">feat_req__lifecycle__termination_dependency</a></span></span></div>
+</span></div>
+</div>
+</td>
+<td class="meta" colspan="3"></td>
+</tr>
+<tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
+<p class="plantuml">
+<object data="../../../_images/plantuml-2af8ee37102a3667776c36caacb6ddf8c2c65ef8.svg" type="image/svg+xml" style="width:1100px;height:1007px;background:#FFFFFF;"></object></p>
+</figure>
+<p>Since <cite>app1</cite> depends on both <cite>setup_filesystems</cite> and <cite>random</cite>, it must be terminated first before the other two components can be safely terminated.
+Afterwards, <cite>setup_filesystems</cite> and <cite>random</cite> can be terminated in parallel as they do not depend on each other.
+Note that if a component does not terminate within the configured termination timeout, it is forcefully killed.</p>
+</td>
+</tr>
+<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#feat_arc_dyn__lifecycle__lcm_term" title="feat_arc_dyn__lifecycle__lcm_term">feat_arc_dyn__lifecycle__lcm_term</a></span></span></div>
+</div>
+</td>
+<td class="footer" colspan="2"><div class="needs_footer line-block">
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Feature Sequence Diagram</span></span></span></div>
+</div>
+</td>
+<td class="footer_right" colspan="2"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="recovery-action">
+<h3>Recovery Action<a class="headerlink" href="#recovery-action" title="Link to this heading">#</a></h3>
+<section id="component-crashes-outside-an-active-transition">
+<h4>Component crashes outside an active transition<a class="headerlink" href="#component-crashes-outside-an-active-transition" title="Link to this heading">#</a></h4>
+<div class="need_container docutils container" id="SNCB-21d1f446">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__crash">
+<tbody>
+<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
+<div class="line"><span><span class="needs_title"><span class="needs_data">Launch Manager - Crash Recovery</span></span></span></div>
+</div>
+</td>
+<td class="head_center" colspan="2"><div class="needs_head line-block">
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
+<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">YES</span></span></span></div>
+<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
+</div>
+</td>
+<td class="head_right" colspan="2"><div class="needs_head_right line-block">
+<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
+</div>
+</td>
+</tr>
+<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
+<div class="line"><span><span><div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
+</span></span></div>
+<div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#feat__lifecycle">feat__lifecycle</a></span></span></div>
+<div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__monitor_processes">feat_req__lifecycle__monitor_processes</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__recovery_action_support">feat_req__lifecycle__recovery_action_support</a></span></span></div>
+</span></div>
+</div>
+</td>
+<td class="meta" colspan="3"></td>
+</tr>
+<tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
+<p class="plantuml">
+<object data="../../../_images/plantuml-7941a1e7a61dab33428f097110d86c963b2270dd.svg" type="image/svg+xml" style="width:927px;height:849px;background:#FFFFFF;"></object></p>
+</figure>
+<p>Note: If a Restart Recovery Action is configured then only the crashed component is restarted, not dependent components.</p>
+</td>
+</tr>
+<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#feat_arc_dyn__lifecycle__crash" title="feat_arc_dyn__lifecycle__crash">feat_arc_dyn__lifecycle__crash</a></span></span></div>
+</div>
+</td>
+<td class="footer" colspan="2"><div class="needs_footer line-block">
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Feature Sequence Diagram</span></span></span></div>
+</div>
+</td>
+<td class="footer_right" colspan="2"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#switching-between-run-targets">Switching between Run Targets</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#interacting-with-processes">Interacting with processes</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#score-applications">SCORE Applications</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#native-applications">Native Applications</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamic-architecture">Dynamic Architecture</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-dependency-graph">Example Dependency Graph</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#launch-manager-initial-startup">Launch Manager Initial Startup</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#component-dependencies-and-ready-conditions">Component Dependencies and Ready Conditions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#component-termination">Component Termination</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#recovery-action">Recovery Action</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#component-crashes-outside-an-active-transition">Component crashes outside an active transition</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/eclipse-score/lifecycle/edit/main/docs/features/lifecycle/architecture/launch_manager.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
