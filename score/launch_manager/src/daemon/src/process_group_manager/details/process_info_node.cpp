@@ -25,13 +25,13 @@ namespace score::mw::lifecycle::internal
 {
 
 ProcessInfoNode::ProcessInfoNode(configuration::ComponentConfig&& config, ProcessHandling process_handling)
-    : terminator_(),
-      has_semaphore_(false),
+    : termination_requested_(false),
       pid_(0),
       exit_code_(0),
       config_(std::move(config)),
       process_handling_(std::move(process_handling)),
-      identifier_(config_.name)
+      identifier_(config_.name),
+      termination_waiter_(std::make_unique<TerminationWaiter>())
 {
     if (config_.deployment_config.ready_recovery_action.has_value())
     {
@@ -188,13 +188,12 @@ IComponent::RequestResult ProcessInfoNode::tryHandleTermination(int32_t process_
         termination_result_ = TeminationResult::kError;
     }
 
-    if (has_semaphore_.exchange(false))  // Termination was requested
+    if (termination_requested_.exchange(false))  // Termination was requested
     {
         // We don't care if the termination was valid, we requested it (e.g. a SIGKILL will set exit code to 9)
         setState(ProcessState::kTerminated);
 
         unblockSync();
-        static_cast<void>(terminator_.post());
     }
     else if (process_state_.compare_exchange_strong(starting, ProcessState::kTerminated))  // Process still starting
     {
@@ -217,6 +216,8 @@ IComponent::RequestResult ProcessInfoNode::tryHandleTermination(int32_t process_
             res = score::cpp::make_unexpected(IComponent::ComponentError::kErrorAfterReady);
         }
     }
+
+    termination_waiter_->terminated();
 
     return res;
 }
@@ -352,15 +353,48 @@ score::cpp::expected_blank<IComponent::ComponentError> ProcessInfoNode::handlePr
 
             if constexpr (std::is_same_v<T, configuration::ProcessState>)
             {
-                if (!isReporting())
+                const auto* ready_state =
+                    std::get_if<configuration::ProcessState>(&config_.component_properties.ready_condition);
+                if (!ready_state)
                 {
-                    // A native process does not report kRunning, so its exit code is the only readiness indication.
+                    LM_LOG_ERROR() << "Failed to read ready condition from config object";
+                    return false;
+                }
+
+                // A native process does not report kRunning, if we're not waiting got termination,
+                // we can return early
+                if (!isReporting() && (*ready_state == configuration::ProcessState::Running))
+                {
                     return exit_code_ == 0;
                 }
 
-                auto wait_res = process_handling_.process_interface_->waitForkRunning(
-                    sync_, std::chrono::milliseconds(config_.deployment_config.ready_timeout_ms));
-                return (wait_res == osal::OsalReturnType::kSuccess) && (exit_code_ == 0);
+                // We only want to wait for kRunning with Reporting processes
+                if (isReporting())
+                {
+                    // If we are a reporting process we should wait for kRunning irrespective of the configured ready
+                    // state
+                    auto wait_res = process_handling_.process_interface_->waitForkRunning(
+                        sync_, std::chrono::milliseconds(config_.deployment_config.ready_timeout_ms));
+                    if (wait_res != osal::OsalReturnType::kSuccess)
+                    {
+                        return false;
+                    }
+                }
+
+                // For ready condition == Terminated, we can now wait for termination using the ready timeout
+                if (*ready_state == configuration::ProcessState::Terminated)
+                {
+                    LM_LOG_DEBUG() << "Waiting for" << identifier_ << "to terminate";
+                    auto process_terminated_in_time = termination_waiter_->wait_with_timeout(
+                        stop_token, std::chrono::milliseconds(config_.deployment_config.ready_timeout_ms));
+                    if (!process_terminated_in_time && !stop_token.stop_requested())
+                    {
+                        LM_LOG_ERROR() << "Did not detect termination of" << identifier_ << "in time";
+                        return false;
+                    }
+                }
+
+                return exit_code_ == 0;
             }
             // req-id: comp_req__launch_man__rc_file_state
             else if constexpr (std::is_same_v<T, configuration::FileState>)
@@ -464,14 +498,13 @@ void ProcessInfoNode::terminateProcess(const score::cpp::stop_token& stop_token)
 
 void ProcessInfoNode::handleTerminationProcess(const score::cpp::stop_token& stop_token)
 {
-    static_cast<void>(terminator_.init(0U, false));
-    has_semaphore_.store(true);
+    termination_requested_.store(true);
     LM_LOG_DEBUG() << "Requesting termination of process pid" << pid_ << "(" << identifier_ << ")";
 
     // handle request termination
     if ((process_handling_.process_interface_->requestTermination(pid_) == osal::OsalReturnType::kFail) ||
-        (terminator_.timedWait(std::chrono::milliseconds(config_.deployment_config.shutdown_timeout_ms)) ==
-         osal::OsalReturnType::kSuccess))
+        termination_waiter_->wait_with_timeout(
+            stop_token, std::chrono::milliseconds(config_.deployment_config.shutdown_timeout_ms)))
     {
         LM_LOG_DEBUG() << "Queuing jobs after regular termination of process (" << identifier_ << ")";
     }
@@ -481,8 +514,7 @@ void ProcessInfoNode::handleTerminationProcess(const score::cpp::stop_token& sto
         handleForcedTermination(stop_token);
     }
 
-    has_semaphore_.store(false);
-    static_cast<void>(terminator_.deinit());
+    termination_requested_.store(false);
 }
 
 void ProcessInfoNode::handleForcedTermination(const score::cpp::stop_token& stop_token)
@@ -492,7 +524,7 @@ void ProcessInfoNode::handleForcedTermination(const score::cpp::stop_token& stop
     LM_LOG_WARN() << "Process (" << identifier_ << ") did not respond to SIGTERM, sending SIGKILL";
 
     while ((osal::OsalReturnType::kSuccess == process_handling_.process_interface_->forceTermination(pid_)) &&
-           (terminator_.timedWait(score::mw::lifecycle::internal::kMaxSigKillDelay) != osal::OsalReturnType::kSuccess))
+           (!termination_waiter_->wait_with_timeout(stop_token, score::mw::lifecycle::internal::kMaxSigKillDelay)))
     {
         LM_LOG_FATAL() << "Process (" << identifier_ << ") did not respond to SIGKILL!!";
     }
