@@ -68,7 +68,7 @@ Glossary
       A state when the component has failed to reach its :term:`Ready Condition`, a running component has terminated abnormally or its supervision failed.
 
     Ready State
-      A state when the component is ready to provide services to other components.
+      A state when the component has fulfilled its :term:`Ready Condition`, i.e. is ready to provide services to other components.
 
     Dependency (between components)
       A configuration parameter indicating that **Component A** can only start
@@ -116,10 +116,11 @@ Glossary
       Ready conditions can either be reported by the component itself through the Lifecycle Interface or determined via external state monitoring. External state examples include: process started, file is available, socket was opened, or that the process finished successfully.
 
     Liveliness
-      Term indicating that a :term:`Component` is periodically sending an
-      alive notification (using the
-      :need:`logic_arc_int_op__lifecycle__report_health` interface) as
-      per configuration.
+      Term indicating that a :term:`Component` is periodically sending an alive notification (using the
+      :need:`logic_arc_int_op__lifecycle__report_alive` interface) as per configuration.
+
+    Monitoring of Processes
+      The activity of observing and checking if a process is running or has been exited with an abnormal status.
 
     Watchdog
       A monitoring mechanism that detects system failures and can trigger recovery actions.

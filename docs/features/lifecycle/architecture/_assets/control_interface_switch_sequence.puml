@@ -47,7 +47,7 @@ LM -> kernel: wait for NetworkApp termination
 kernel --> LM: NetworkApp terminated
 
 == Start Target Run Target Components ==
-alt Start DemoApp1
+group Start DemoApp1
     LM -> kernel: spawn DemoApp1
     kernel -> DemoApp1: spawn
     activate DemoApp1
@@ -55,7 +55,7 @@ alt Start DemoApp1
     DemoApp1 -> LM: signal started via Lifecycle API
 end
 
-alt Start DemoApp2 (depends on DemoApp1)
+group Start DemoApp2 [depends on DemoApp1]
     LM -> LM: wait for DemoApp1 ready condition
     LM -> kernel: spawn DemoApp2
     kernel -> DemoApp2: spawn
@@ -63,7 +63,6 @@ alt Start DemoApp2 (depends on DemoApp1)
     kernel --> LM: spawn result for DemoApp2
     
     DemoApp2 -> DemoApp2: initialize and register device /dev/Demo2
-    DemoApp2 -> LM: signal ready via Lifecycle API
     kernel --> LM: device /dev/Demo2 registered
 end
 

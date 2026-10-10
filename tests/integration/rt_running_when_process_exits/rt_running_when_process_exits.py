@@ -20,6 +20,7 @@ from attribute_plugin import add_test_properties
     fully_verifies=[],
     partially_verifies=[
         "feat_req__lifecycle__launch_support",
+        "feat_req__lifecycle__process_ordering",
         "comp_req__launch_man__process_state_comm",
     ],
     test_type="requirements-based",

@@ -301,7 +301,7 @@ void ProcessGroupManager::allProcessGroupsOff()
         graph_->cancel();
 
         LM_LOG_DEBUG() << "Wait for transition cancellation";
-        if (!waitForStateCompletion(GraphState::kCancelled, 2000))
+        if (!waitForStateCompletion(GraphState::kAborting, 2000))
         {
             LM_LOG_ERROR() << "NOTE: Cancellation timed out";
         }
@@ -334,8 +334,6 @@ void ProcessGroupManager::handleRecoveryRequest(const IdentifierHash& process_id
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(bool(graph_), "Graph not initialized");
 
     const IdentifierHash old_state = graph_->getRequestedRunTarget();
-    // the fallback state doesn't have a name in the config, so we use
-    // "fallback", it doesn't actually matter...
     const GraphState graph_state = graph_->getState();
 
     LM_LOG_DEBUG() << "handleRecoveryRequest: Processing recovery request for process" << process_identifier
@@ -394,7 +392,7 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
         if (GraphState::kUndefinedState == pg.getState())
         {
             // at the moment graph is not running...
-            // i.e. it is not in kInTransition, kAborting or kCancelled state
+            // i.e. it is not in kInTransition or kAborting state
             //
             // in short, graph is in an error state (kUndefinedState)
             // and there is no valid request from outside, to change this situation...
@@ -433,7 +431,6 @@ void ProcessGroupManager::handleGetActiveRunTarget(GetActiveRunTarget* event) co
             result = graph_->getRequestedRunTarget();
             break;
         case GraphState::kAborting:
-        case GraphState::kCancelled:
         case GraphState::kInTransition:
         case GraphState::kUndefinedState:
             result = score::MakeUnexpected(ExecErrc::kActivationInProgress);

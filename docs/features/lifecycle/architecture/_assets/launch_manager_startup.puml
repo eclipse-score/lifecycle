@@ -12,33 +12,38 @@
 ' *******************************************************************************
 
 @startuml
-title Launch Manager - Termination Request
-
+title Launch Manager Startup
 autonumber "<b>[00]"
 
 participant "Launch Manager" as LM
-participant "OS (kernel)" as kernel
-participant "User App 1 (well behaving)" as app1
-participant "User App 2 (badly behaving)" as app2
-
 activate LM
-activate app1
-activate app2
-
-== Switch Run Target ==
-
-LM -> LM: Analyze current state.
-LM -> LM: Determine transition plan.
 
 
-LM -> app1: SIGTERM.
-app1 -> kernel: Terminate.
-destroy app1
+[-> LM: Start Launch Manager
 
-LM -> app2: SIGTERM.
-app2 -> app2: Ignore.
-LM -> app2: SIGKILL.
-app2 -> kernel: Terminate.
-destroy app2
+LM -> LM: Read configuration file
+
+alt #pink Error in configuration file
+    LM ->[ : Launch Manager terminates
+end alt
+LM -> LM: Preallocate internal resources (memory, thread pool, ipc channels, etc.)
+
+alt #pink Not enough resources available
+    LM ->[ : Launch Manager terminates
+end alt
+
+LM -> LM: Initialize external monitor connection
+
+alt #pink Failure during watchodog initialization
+    LM ->[ : Launch Manager terminates
+end alt
+
+LM -> LM: Build dependency graph
+LM -> LM: Start transition to initial Run Target: Running
+
+=== Start Transition to Run Target "Running" ==
+
+...
+
 
 @enduml
