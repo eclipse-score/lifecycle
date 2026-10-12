@@ -12,23 +12,57 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/process_group_manager/details/component.hpp"
+#include "score/mw/launch_manager/common/log.hpp"
 
 namespace score::mw::lifecycle::internal
 {
+
+namespace
+{
+
+std::unique_ptr<IAliveSupervisionHandle> constructSupervision(
+    configuration::ComponentConfig& config,
+    ISupervisionFactory& supervision_factory)
+{
+    if (config.component_properties.application_profile.application_type !=
+        configuration::ApplicationType::ReportingAndSupervised)
+    {
+        return nullptr;
+    }
+
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
+        app_profile.alive_supervision.has_value(), "Supervised component did not have alive supervision config");
+
+    LM_LOG_DEBUG() << "Setting up alive supervision for" << config.name;
+    std::unique_ptr<IAliveSupervisionHandle> handle = supervision_factory.constructSupervision(
+        IdentifierHash{config.name},
+        config.deployment_config.sandbox.uid,
+        config.component_properties.application_profile.alive_supervision.value());
+    if (!handle)
+    {
+        LM_LOG_ERROR() << "Failed to set up alive supervision for" << config.name;
+        return nullptr;
+    }
+
+    config.deployment_config.environmental_variables.add("LCM_ALIVE_INTERFACE_PATH", handle->getConnectionId());
+    return handle;
+}
+
+}  // namespace
 
 Component::Component(
     const IStartAction& start_action,
     const IStopAction& stop_action,
     const IForceStopAction& force_stop_action,
     const cpp::span<std::reference_wrapper<const IReadyCondition>> ready_conditions,
-    bool self_terminating,
-    IdentifierHash identifier)
+    ISupervisionFactory& supervision_factory,
+    configuration::ComponentConfig& config)
     : start_action_(start_action),
       stop_action_(stop_action),
       force_stop_action_(force_stop_action),
       ready_conditions_(ready_conditions),
-      self_terminating_(self_terminating),
-      identifier_(identifier),
+      config_(config),
+      supervision_handle_(constructSupervision(config, supervision_factory)),
       state_(TerminatedState{})
 {
 }
@@ -80,6 +114,9 @@ IComponent::RequestResult Component::TerminatedState::activate(Component& compon
     {
         component.state_ = ReadyState{starting->handle_};
     }
+
+    component.activateSupervision();
+
     return RequestState::kSuccess;
 }
 
@@ -137,6 +174,8 @@ IComponent::RequestResult Component::StartingState::deactivate(Component& compon
 
 IComponent::RequestResult Component::ReadyState::deactivate(Component& component, cpp::stop_token stop_token)
 {
+    component.deactivateSupervision();
+
     const Result<RequestResult> result = component.stop_action_.stop(stop_token, handle_);
 
     if (!result.has_value())
@@ -203,7 +242,7 @@ IComponent::RequestResult Component::StartingState::tryHandleTermination(Compone
         }
     }
 
-    if (component.self_terminating_ && status == 0)
+    if (component.config_.component_properties.application_profile.is_self_terminating && status == 0)
     {
         // Self-terminating means the component is logically still running
         // even though the resource has stopped.
@@ -226,7 +265,7 @@ IComponent::RequestResult Component::ReadyState::tryHandleTermination(Component&
         handle->pid = -1;
     }
 
-    if (component.self_terminating_ && status == 0)
+    if (component.config_.component_properties.application_profile.is_self_terminating && status == 0)
     {
         // Self-terminating means the component is logically still running
         // even though the resource has stopped.
@@ -255,12 +294,56 @@ IComponent::RequestResult Component::FaultState::tryHandleTermination(
 
 IdentifierHash Component::getIdentifier() const
 {
-    return identifier_;
+    return IdentifierHash{config_.name};
 }
 
 bool Component::active() const
 {
     return std::holds_alternative<ReadyState>(getState());
+}
+
+void Component::activateSupervision() const
+{
+    if (!supervision_handle_)
+    {
+        return;
+    }
+
+    timespec timestamp{};
+
+    if (clock_gettime(CLOCK_MONOTONIC, &timestamp) != 0)
+    {
+        LM_LOG_ERROR() << config_.name << ": failed to get timestamp to activate supervision:" << strerror(errno);
+        return;
+    }
+
+    if (!supervision_handle_->activateSupervision(timestamp))
+    {
+        LM_LOG_ERROR() << config_.name << ": failed to activate supervision";
+        return;
+    }
+}
+
+void Component::deactivateSupervision() const
+{
+    if (!supervision_handle_)
+    {
+        return;
+    }
+
+    timespec timestamp{};
+
+    if (clock_gettime(CLOCK_MONOTONIC, &timestamp) != 0)
+    {
+        LM_LOG_ERROR() << config_.name << ": failed to get timestamp to deactivate supervision: " << strerror(errno);
+        return;
+    }
+
+    if (!supervision_handle_->deactivateSupervision(timestamp))
+    {
+        LM_LOG_ERROR() << config_.name << ": failed to deactivate supervision";
+        return;
+    }
 }
 
 }  // namespace score::mw::lifecycle::internal

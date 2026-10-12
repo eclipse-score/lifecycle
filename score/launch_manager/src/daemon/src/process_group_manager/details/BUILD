@@ -23,6 +23,10 @@ cc_library(
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
     deps = [
         ":icomponent",
+        "//score/launch_manager/src/daemon/src/alive_monitor:ialive_supervision_handle",
+        "//score/launch_manager/src/daemon/src/alive_monitor:isupervision_factory",
+        "//score/launch_manager/src/daemon/src/common:log",
+        "//score/launch_manager/src/daemon/src/configuration:component_config",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action:iforce_stop_action",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition:iready_condition",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/start_action:istart_action",
@@ -37,6 +41,9 @@ lm_cc_test(
     deps = [
         ":component",
         ":mock_component",
+        "//score/launch_manager:error",
+        "//score/launch_manager/src/daemon/src/alive_monitor:mock_alive_supervision_handle",
+        "//score/launch_manager/src/daemon/src/alive_monitor:mock_supervision_factory",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action:mock_force_stop_action",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition:mock_ready_condition",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/start_action:mock_start_action",

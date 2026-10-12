@@ -14,6 +14,9 @@
 #ifndef SCORE_LCM_COMPONENT_HPP_INCLUDED
 #define SCORE_LCM_COMPONENT_HPP_INCLUDED
 
+#include "score/mw/launch_manager/alive_monitor/ialive_supervision_handle.hpp"
+#include "score/mw/launch_manager/alive_monitor/isupervision_factory.hpp"
+#include "score/mw/launch_manager/configuration/component_config.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/force_stop_action/iforce_stop_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/iready_condition.hpp"
@@ -32,21 +35,20 @@ namespace score::mw::lifecycle::internal
 class Component final : public IComponent
 {
   public:
-    /// @brief Creates a new component from the given actions.
+    /// @brief Creates a new component from its configuration and the given actions.
     /// @param start_action How to start the resource.
     /// @param stop_action How to gracefully stop the resource.
     /// @param force_stop_action How to forcefully stop the resource.
     /// @param ready_conditions How to decide when the resource has finished its startup.
-    /// @param self_terminating Whether the resource is allowed to terminate on its own.
-    /// @param identifier Name of the component.
+    /// @param supervision_factory Factory used to construct alive supervision.
+    /// @param config Configuration of the component.
     Component(
         const IStartAction& start_action,
         const IStopAction& stop_action,
         const IForceStopAction& force_stop_action,
-        cpp::span<std::reference_wrapper<const IReadyCondition>> ready_conditions =
-            cpp::span<std::reference_wrapper<const IReadyCondition>>{},
-        bool self_terminating = false,
-        IdentifierHash identifier = IdentifierHash{});
+        cpp::span<std::reference_wrapper<const IReadyCondition>> ready_conditions,
+        ISupervisionFactory& supervision_factory,
+        configuration::ComponentConfig& config);
 
     /// @brief Start the resource and set the component to active.
     /// @param stop_token Token which can be used to interrupt the activation.
@@ -87,11 +89,12 @@ class Component final : public IComponent
     /// @brief How to decide when the resource has finished its startup.
     const cpp::span<std::reference_wrapper<const IReadyCondition>> ready_conditions_;
 
-    /// @brief Whether the resource is allowed to terminate on its own.
-    const bool self_terminating_;
+    /// @brief Configuration of the component.
+    const configuration::ComponentConfig& config_;
 
-    /// @brief Name of the component.
-    const IdentifierHash identifier_;
+    /// @brief Alive supervision of the resource, or nullptr if it is not supervised.
+    // TODO: Maybe should be inside the state
+    const std::unique_ptr<IAliveSupervisionHandle> supervision_handle_;
 
     class TerminatedState final
     {
@@ -159,6 +162,12 @@ class Component final : public IComponent
         const std::lock_guard<std::mutex> lock{state_mutex_};
         return state_;
     }
+
+    /// @brief Start alive supervision now, if the component is supervised.
+    void activateSupervision() const;
+
+    /// @brief Stop alive supervision now, if the component is supervised.
+    void deactivateSupervision() const;
 };
 
 }  // namespace score::mw::lifecycle::internal
