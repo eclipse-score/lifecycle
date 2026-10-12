@@ -436,7 +436,7 @@ score::cpp::expected_blank<IComponent::ComponentError> ProcessInfoNode::handlePr
         return score::cpp::make_unexpected(ComponentError::kErrorBeforeReady);
     }
 
-    LM_LOG_WARN() << "Got kRunning timeout for process (" << identifier_ << ")";
+    LM_LOG_WARN() << "Process (" << identifier_ << ") did not meet its ready condition within the ready timeout";
     terminateProcess(stop_token);
     return score::cpp::make_unexpected(ComponentError::kActivationTimedOut);
 }
