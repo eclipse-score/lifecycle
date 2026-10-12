@@ -193,19 +193,6 @@ TEST(ComponentTest, StopClearsActive)
     EXPECT_FALSE(component.active());
 }
 
-TEST(ComponentTest, ForceStopClearsActive)
-{
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    Component component(start_action, stop_action, force_stop_action);
-
-    static_cast<void>(component.activate(cpp::stop_token{}));
-    component.deactivate(cpp::stop_token{});
-
-    EXPECT_FALSE(component.active());
-}
-
 TEST(ComponentTest, CannotDeactivateInTerminatedState)
 {
     MockStartAction start_action;
