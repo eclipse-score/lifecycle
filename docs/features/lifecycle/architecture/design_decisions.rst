@@ -45,9 +45,9 @@ monitoring process.
 Consequences
 ------------
 
-- Inter process communication (IPC) only needed for the alive monitoring between :term:`Health Monitor` and :term:`Launch Manager`
+- Inter process communication (IPC) is only needed for the alive monitoring between :term:`Health Monitor` and :term:`Launch Manager`
 - Easier configuration
-    - The monitoring rules can be configured dynamically on demand basis
+    - The monitoring rules can be configured dynamically on demand
     - The monitoring can be started and stopped dynamically
 - Debugging of problems possibly easier
     - Mapping of the events from a single process vs. the monitored application and the monitor
@@ -58,7 +58,7 @@ Alternatives Considered
 Classical external process monitoring
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In a clasiscal external process monitoring, the application process only reports checkpoints via IPC to a separate monitoring daemon.
+In a classical external process monitoring, the application process only reports checkpoints via IPC to a separate monitoring daemon.
 The monitoring daemon is configured with the supervisions that shall be checked on the reported checkpoints.
 
 In this approach the safety argumentation is clear: The monitoring is completely done in a separate process.
@@ -90,4 +90,4 @@ These concerns are valid, but can be addressed using the following techniques:
      counter (or some more complex mathematical function), further checkpoints for detecting misbehavior can be implemented
 - Using a safe programming language, which does not allow a raw pointer access
 - Testing the application with Valgrid etc.
-- Redundant monitoring, if the self monitoring with above is not sufficient, an another library in another memory location can detect sporadic corruption of the other.
+- Redundant monitoring, if the self monitoring suggested before is not sufficient, a separate library can be implemented in a different memory location to detect sporadic corruption of the :term:`Health Monitors <Health Monitor>` memory location.

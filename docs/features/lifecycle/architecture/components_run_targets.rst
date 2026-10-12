@@ -168,7 +168,7 @@ A component maintains the following internal state machine:
 
 Note that the state machine of the underlying process is different from the component state machine.
 For example, the process may be already terminated, but the component is in `Ready` state.
-This is the case if the component is configured to be ready when the underlying process terminated.
+This is the case if the component is configured to be ready when the underlying process is terminated.
 
 .. feat_arc_dyn:: Process State Machine
    :id: feat_arc_dyn__lifecycle__proc_sm_if
