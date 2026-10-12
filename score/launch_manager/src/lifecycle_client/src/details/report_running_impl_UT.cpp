@@ -58,6 +58,9 @@ class ReportRunningImplTest : public ::testing::Test
     void SetUp() override
     {
         g_syscall_mock = std::make_unique<SyscallMock>();
+
+        // We need to reset the static reported state for each test run,
+        // so each test starts with a consistent state
         ReportRunningImplTestAccessor::SetReportedForTesting(false);
 
         // Set up default successful behaviors for syscalls
