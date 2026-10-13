@@ -387,9 +387,16 @@ score::cpp::expected_blank<IComponent::ComponentError> ProcessInfoNode::handlePr
                     LM_LOG_DEBUG() << "Waiting for" << identifier_ << "to terminate";
                     auto process_terminated_in_time = termination_waiter_->wait_with_timeout(
                         stop_token, std::chrono::milliseconds(config_.deployment_config.ready_timeout_ms));
-                    if (!process_terminated_in_time && !stop_token.stop_requested())
+                    if (!process_terminated_in_time)
                     {
-                        LM_LOG_ERROR() << "Did not detect termination of" << identifier_ << "in time";
+                        if (stop_token.stop_requested())
+                        {
+                            LM_LOG_DEBUG() << "Stop requested during startup of" << identifier_;
+                        }
+                        else
+                        {
+                            LM_LOG_ERROR() << "Did not detect termination of" << identifier_ << "in time";
+                        }
                         return false;
                     }
                 }
