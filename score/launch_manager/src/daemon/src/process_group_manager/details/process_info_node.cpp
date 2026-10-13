@@ -511,7 +511,7 @@ void ProcessInfoNode::handleTerminationProcess(const score::cpp::stop_token& sto
     // handle request termination
     if ((process_handling_.process_interface_->requestTermination(pid_) == osal::OsalReturnType::kFail) ||
         termination_waiter_->wait_with_timeout(
-            stop_token, std::chrono::milliseconds(config_.deployment_config.shutdown_timeout_ms)))
+            std::chrono::milliseconds(config_.deployment_config.shutdown_timeout_ms)))
     {
         LM_LOG_DEBUG() << "Queuing jobs after regular termination of process (" << identifier_ << ")";
     }

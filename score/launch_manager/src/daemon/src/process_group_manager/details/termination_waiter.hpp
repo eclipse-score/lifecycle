@@ -55,6 +55,9 @@ class TerminationWaiter
     /// @brief Wait for termination of the process, timeout, or stop via stop_token.
     bool wait_with_timeout(const score::cpp::stop_token& stop_token, const std::chrono::milliseconds& rel_timeout_ms);
 
+    /// @brief Wait for termination of the process or timeout.
+    bool wait_with_timeout(const std::chrono::milliseconds& rel_timeout_ms);
+
   private:
     /// @brief Mutex to protect access to is_terminated_
     std::mutex terminated_mutex_;

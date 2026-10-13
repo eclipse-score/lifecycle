@@ -42,4 +42,10 @@ bool TerminationWaiter::wait_with_timeout(
     });
 }
 
+bool TerminationWaiter::wait_with_timeout(const std::chrono::milliseconds& rel_timeout_ms)
+{
+    const score::cpp::stop_token disconnected_stop_token;
+    return this->wait_with_timeout(disconnected_stop_token, rel_timeout_ms);
+}
+
 }  // namespace score::mw::lifecycle::internal
