@@ -53,11 +53,52 @@ cc_library(
     }),
 )
 
+cc_library(
+    name = "mockable_i_alive_worker_factory",
+    testonly = True,
+    hdrs = ["IAliveWorkerFactory.hpp"],
+    include_prefix = "score/mw/launch_manager/alive_monitor/details/factory",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/factory",
+    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
+    deps = [
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/injection_mocks:mock_data_structures",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:i_observable_event_reader",
+    ],
+)
+
+cc_library(
+    name = "mockable_alive_worker_factory",
+    testonly = True,
+    srcs = ["AliveWorkerFactory.cpp"],
+    hdrs = ["AliveWorkerFactory.hpp"],
+    include_prefix = "score/mw/launch_manager/alive_monitor/details/factory",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/factory",
+    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
+    deps = [
+        ":mockable_i_alive_worker_factory",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:checkpoint",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:mockable_monitor_if_daemon",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:observable_event",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:observable_event_reader",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/supervision:alive",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:time_conversion",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
+        "//score/launch_manager/src/daemon/src/common:alive_interface_path",
+        "//score/launch_manager/src/daemon/src/common:constants",
+        "//score/launch_manager/src/daemon/src/common:identifier_hash",
+        "//score/launch_manager/src/daemon/src/common:log",
+        "//score/launch_manager/src/daemon/src/configuration:config",
+        "@score_baselibs//score/language/futurecpp",
+    ],
+)
+
 lm_cc_test(
     name = "alive_worker_factory_UT",
-    srcs = ["AliveWorkerFactory_UT.cpp"],
+    srcs = [
+        "AliveWorkerFactory_UT.cpp",
+    ],
     deps = [
-        ":alive_worker_factory",
+        ":mockable_alive_worker_factory",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:mock_observable_event_reader",
         "@googletest//:gtest_main",
     ],

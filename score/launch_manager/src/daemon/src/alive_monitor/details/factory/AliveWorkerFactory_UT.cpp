@@ -19,6 +19,9 @@
 
 using namespace testing;
 
+std::unique_ptr<score::mw::lifecycle::internal::saf::ifappl::MockCheckpointIpcServer>
+    score::mw::lifecycle::internal::saf::ifappl::g_mock_checkpoint_ipc_server;
+
 namespace score::mw::lifecycle::internal::saf::factory
 {
 
@@ -75,6 +78,13 @@ class AliveWorkerFactoryTest : public ::testing::Test
     {
         RecordProperty("TestType", "interface-test");
         RecordProperty("DerivationTechnique", "explorative-testing");
+
+        ifappl::g_mock_checkpoint_ipc_server = std::make_unique<ifappl::MockCheckpointIpcServer>();
+    }
+
+    void TearDown() override
+    {
+        ifappl::g_mock_checkpoint_ipc_server.reset();  // GMock destructor verifies and clears expectations
     }
 
     AliveWorkerFactory factory{};
@@ -107,7 +117,7 @@ TEST_F(AliveWorkerFactoryTest, createObservableEventFails)
     std::vector<ifexm::ObservableEvent> out{};
     bool create_result = true;
 
-    EXPECT_CALL(reader, registerObservableEvent).WillOnce(Throw(FactoryException{"Exception during registration!"}));
+    EXPECT_CALL(reader, registerObservableEvent).WillOnce(Throw(FactoryException{"Exception during registration"}));
 
     EXPECT_NO_THROW(create_result = factory.createObservableEvent(out, event_id, reader));
     EXPECT_FALSE(create_result);
@@ -117,7 +127,7 @@ TEST_F(AliveWorkerFactoryTest, createObservableEventSucceeds)
 {
     RecordProperty(
         "Description",
-        "Verify that createObservableEvent creates an attaches an observable event with the correct information");
+        "Verify that createObservableEvent creates and attaches an observable event with the correct information");
 
     ifexm::MockObservableEventReader reader{};
     IdentifierHash event_id{"Observable"};
@@ -132,6 +142,38 @@ TEST_F(AliveWorkerFactoryTest, createObservableEventSucceeds)
 
     EXPECT_TRUE(create_result);
     EXPECT_THAT(out.back(), event_matcher);
+}
+
+TEST_F(AliveWorkerFactoryTest, createAliveIfIpcThrows)
+{
+    RecordProperty(
+        "Description",
+        "Verify that exceptions thrown while creating an ipc server are caught and a failure is returned");
+
+    std::vector<ifappl::CheckpointIpcServer> out{};
+    bool create_result = true;
+
+    EXPECT_CALL(*ifappl::g_mock_checkpoint_ipc_server, init).WillOnce(Throw(FactoryException{"IPC init error"}));
+
+    EXPECT_NO_THROW(create_result = factory.createAliveIfIpc(out, IdentifierHash{"Component"}, 0));
+    EXPECT_FALSE(create_result);
+}
+
+TEST_F(AliveWorkerFactoryTest, createAliveIfIpcSucceeds)
+{
+    RecordProperty("Description", "Verify that createIfIpc creates an ipc server with the correct information");
+
+    std::vector<ifappl::CheckpointIpcServer> out{};
+    bool create_result = true;
+    const uid_t uid = 151;
+
+    EXPECT_CALL(*ifappl::g_mock_checkpoint_ipc_server, init)
+        .WillOnce(Return(ifappl::CheckpointIpcServer::EIpcInitResult::kOk));
+    EXPECT_CALL(*ifappl::g_mock_checkpoint_ipc_server, setAccessRights(uid)).WillOnce(Return(true));
+
+    create_result = factory.createAliveIfIpc(out, IdentifierHash{"Component"}, uid);
+    EXPECT_TRUE(create_result);
+    EXPECT_EQ(out.size(), 1);
 }
 
 }  // namespace score::mw::lifecycle::internal::saf::factory
