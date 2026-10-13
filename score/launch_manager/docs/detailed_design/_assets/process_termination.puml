@@ -1,0 +1,147 @@
+' *******************************************************************************
+' Copyright (c) 2026 Contributors to the Eclipse Foundation
+'
+' See the NOTICE file(s) distributed with this work for additional
+' information regarding copyright ownership.
+'
+' This program and the accompanying materials are made available under the
+' terms of the Apache License Version 2.0 which is available at
+' https://www.apache.org/licenses/LICENSE-2.0
+'
+' SPDX-License-Identifier: Apache-2.0
+' *******************************************************************************
+
+@startuml process_termination
+
+title Process Termination
+
+box "Main loop thread" #F0F4FA
+participant "ProcessGroupManager" as PGM
+participant "Graph" as Graph
+participant "Transition" as Transition
+end box
+
+queue "Component Event Queue" as EventQueue
+
+box "OsHandler thread" #F4F0FA
+participant "OsHandler" as OsHandler
+participant "SafeProcessMap" as Map
+participant "IComponentController" as Monitor
+participant "IComponent" as Component
+end box
+
+participant "Operating System" as OS
+
+note over Graph: graph is in state kSuccess:\nthe Run Target is active
+
+' --- detection ---------------------------------------------------------------
+OS -> OsHandler ++: a child process has terminated
+note right of OsHandler
+  The OsHandler thread waits for any child of the Launch
+  Manager. It only learns the PID and an exit status,
+  not which component the process belongs to.
+end note
+
+OsHandler -> Map ++: look up the component for the PID
+Map -> Monitor ++: the process has terminated
+note right of Map
+  The lookup removes the entry that was added when the
+  component registered its process - see Component Activation.
+end note
+Monitor -> Component ++: notify the component of the termination
+
+alt #Pink the exit is not an expected completion
+    Component --> Monitor: unexpected termination
+    Monitor -> EventQueue: component terminated unexpectedly
+    note right of Monitor
+      Of a component that has finished starting, only a self
+      terminating one that exits with status 0 is a completion.
+      Every other exit is an unexpected termination.
+    end note
+
+else #White the component is self terminating and exited with status 0
+    alt #F2FAF2 an activation is waiting for exactly this termination
+        Component --> Monitor: nothing to report
+        note right of Monitor
+          The ready condition of the component is its own
+          termination: the exit releases the waiting worker, and
+          that worker reports the successful activation - see
+          Component Activation.
+        end note
+
+    else #FFF8E8 the component became ready before it exited
+        Component --> Monitor: nothing to report
+        note right of Monitor
+          The expected exit of an already ready component is not
+          an event: the graph keeps the component as activated.
+        end note
+    end
+
+else #FFF8E8 the termination was requested or the component is still starting
+    Component --> Monitor: nothing to report
+    note right of Monitor
+      The worker that is waiting inside the activation or the
+      deactivation is released instead, and that worker reports
+      the outcome - see Component Deactivation.
+    end note
+end
+
+deactivate Component
+deactivate Monitor
+deactivate Map
+deactivate OsHandler
+
+' --- reaction ----------------------------------------------------------------
+EventQueue -> PGM ++: component event
+PGM -> Graph ++: apply the component event
+note over Graph
+  An unexpected termination always leaves the active Run Target.
+end note
+
+Graph -> Component ++: clean up the terminated component
+note over Graph
+  The clean up is done in place on the main loop thread, not on
+  a worker, so that supervision and process resources of the
+  terminated component are released immediately.
+end note
+Component --> Graph --: clean up done
+
+alt #White the Run Target was active (kSuccess)
+    note over Graph: the graph moves to kUndefinedState right away
+else #White a transition was running (kInTransition)
+    note over Graph
+      The graph moves to kAborting and stays there until the last
+      component in flight has reported back, then it moves to
+      kUndefinedState.
+    end note
+end
+deactivate Graph
+
+' --- recovery ----------------------------------------------------------------
+PGM -> PGM: handle the graph state
+note over PGM
+  In kUndefinedState and without a pending request from outside,
+  the main loop starts a transition to the fallback Run Target.
+end note
+
+PGM -> Graph ++: start a transition to the fallback Run Target
+Graph -> Transition ++: set up the transition
+Transition --> Graph --: components ready to be stopped
+note over Graph
+  From here the recovery runs as an ordinary transition
+  - see Component Deactivation and Component Activation.
+end note
+
+deactivate Graph
+deactivate PGM
+
+legend bottom
+  The whole notification path runs on the OsHandler thread; the graph only ever
+  reacts to the resulting event on the main loop thread.
+
+  A crash of a component that is currently being started or stopped is not an
+  unexpected termination: it is part of the outcome of that activation or
+  deactivation.
+end legend
+
+@enduml

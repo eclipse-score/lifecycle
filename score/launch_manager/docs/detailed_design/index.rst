@@ -17,20 +17,15 @@
 Detailed Design
 ###############
 
-.. attention::
 
-   The detailed design document is optional and should be created if the design of the component is complex and cannot be easily understood from the architecture documentation and interface documentation alone.
-   But the inspection checklist for the implementation is mandatory.
+Detailed design
+---------------
 
-
-Detail design example
----------------------
-
-An example of documenting detailed design can be found in:
+The detailed design is split by functionality:
 
    .. toctree::
 
-      detailed_design
+      detailed_design_graph
 
 Inspection Checklist
 --------------------

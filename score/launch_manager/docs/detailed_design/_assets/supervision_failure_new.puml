@@ -1,0 +1,158 @@
+' *******************************************************************************
+' Copyright (c) 2026 Contributors to the Eclipse Foundation
+'
+' See the NOTICE file(s) distributed with this work for additional
+' information regarding copyright ownership.
+'
+' This program and the accompanying materials are made available under the
+' terms of the Apache License Version 2.0 which is available at
+' https://www.apache.org/licenses/LICENSE-2.0
+'
+' SPDX-License-Identifier: Apache-2.0
+' *******************************************************************************
+
+@startuml supervision_failure
+
+title Supervision Failure
+
+box "Main loop thread" #F0F4FA
+participant "ProcessGroupManager" as PGM
+participant "Graph" as Graph
+end box
+
+queue "Worker Queue" as WorkerQueue
+queue "Component Event Queue" as EventQueue
+
+box "OsHandler thread" #F4F0FA
+participant "OsHandler" as OsHandler
+participant "IComponentController" as Monitor
+participant "Component" as Component
+end box
+
+box "Alive supervision thread" #FAF0F4
+participant "Alive Supervision" as Supervision
+participant "RecoveryClient" as Recovery
+end box
+
+participant "Supervised Process" as Process
+participant "Operating System" as OS
+
+activate Process
+
+' --- detection ---------------------------------------------------------------
+group #Pink Detect Supervision Failure
+  Process -> Supervision: alive indications
+
+  Supervision -> Supervision ++: check the supervision cycle
+  Supervision -> Recovery ++: request recovery for the component
+  Recovery -> EventQueue: supervision failure of the component
+  deactivate Recovery
+  deactivate Supervision
+end group
+
+' --- reaction ----------------------------------------------------------------
+EventQueue -> PGM ++: component event
+
+PGM -> Graph ++: apply the component event
+deactivate PGM
+
+Graph -> Component ++: getReadyTimestamp()
+return timestamp
+
+alt #Pink Supervision Failure time >= Ready Timestamp
+  Graph -> Component ++: getPid()
+  return pid
+  Graph -> OS : kill(SIGKILL)
+  OS -> Process : kill
+  destroy Process
+  deactivate Graph
+else Supervision Failure time < Ready Timestamp
+  note over Graph
+  Ignore the supervison failure.
+  The process has already been restarted since the failure occured.
+  This may be the case if long evaluation cycle has been configured for supervisions.
+  end note
+end alt
+
+' --- Process crash detection ---------------------------------------------------------------
+OS -> OsHandler ++: a child process has terminated
+OsHandler -> Monitor ++: the process has terminated
+deactivate OsHandler
+
+Monitor -> Component ++: notify the component of the termination
+
+Component -> Supervision: deactivate Supervision
+
+group #Pink Process Crash detected
+  Component --> Monitor: unexpected termination
+  deactivate Component
+  Monitor -> EventQueue: component terminated unexpectedly
+  deactivate Monitor
+end group
+
+' --- reaction ----------------------------------------------------------------
+EventQueue -> PGM ++: component event
+PGM -> Graph ++: apply the component event
+deactivate PGM
+
+Graph -> Component ++: deactivate component
+note over Graph
+  The clean up is done in place on the main loop thread, not on
+  a worker.
+  Can we be 100% that Component is not executed on a worker?
+end note
+Component --> Graph --: clean up done
+
+' --- recovery ----------------------------------------------------------------
+Graph -> Component ++: getRecoveryAction()
+return kRestart
+
+alt Graph State == kAborting || kUndefined
+  note over Graph
+  The component stays deactivated.
+  The subsequent transition will restart it if required for the new Run Target.
+  end note
+else Graph State == kInTransition
+  note over Graph
+  Transition now failed. 
+  Cancel transition and move Graph to kAborting state.
+  end note
+else Graph State == kSuccess
+  group #White Restarting Component (if configured)
+    Graph -> WorkerQueue: Enqueue Restart Task
+    deactivate Graph
+
+    WorkerQueue -> Monitor ++: activation is taken by a free worker
+
+    alt Skip Task (new transition request arrived)
+      Monitor -> EventQueue: TaskSkipped
+    end alt
+
+    Monitor -> Component ++: activate
+
+    alt Activation Successful
+      Monitor -> EventQueue: component restarted successfully
+    else Activation Failed
+      Monitor -> EventQueue: component restart failed
+      note over Monitor
+        Graph will react to this event by starting transition to fallback run target.
+        We need to be careful that we are not sending RestartFailed in case the Task was aborted.
+      end note
+    end alt 
+  end group
+end alt
+
+deactivate Graph
+deactivate PGM
+
+legend bottom
+  Required Implementation changes:
+  * Make restart a configurable recovery action
+  * Extend recovery client to also send the timestamp of supervision failure
+  * Extend IComponent to retrieve the last ready timestamp
+  * Kill process after supervision failure
+  * Add RestartTask and events RestartSuccessful, RestartFailed
+  * Adapt graph state machine. New Transition when in kSuccess needs to go via kAborting now if there are pending restarts (not shown)
+end legend
+
+@enduml

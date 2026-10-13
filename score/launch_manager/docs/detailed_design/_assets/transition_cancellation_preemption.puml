@@ -1,0 +1,204 @@
+' *******************************************************************************
+' Copyright (c) 2026 Contributors to the Eclipse Foundation
+'
+' See the NOTICE file(s) distributed with this work for additional
+' information regarding copyright ownership.
+'
+' This program and the accompanying materials are made available under the
+' terms of the Apache License Version 2.0 which is available at
+' https://www.apache.org/licenses/LICENSE-2.0
+'
+' SPDX-License-Identifier: Apache-2.0
+' *******************************************************************************
+
+@startuml transition_cancellation_preemption
+
+title Transition Cancellation / Preemption
+
+box "Caller thread" #FAFAF0
+participant "State Manager" as Client
+end box
+
+queue "Component Event Queue" as EventQueue
+
+box "Main loop thread" #F0F4FA
+participant "ProcessGroupManager" as PGM
+participant "Graph" as Graph
+participant "Transition" as Transition
+end box
+
+queue "Worker Queue" as WorkerQueue
+
+box "Worker thread" #FAF6F0
+participant "IComponentController" as Monitor
+participant "IComponent" as Component
+end box
+
+participant "Operating System" as OS
+
+note over Graph
+  graph is in state kInTransition: some components are in flight
+  on the workers, others are still waiting in the worker queue
+end note
+
+' --- preemption --------------------------------------------------------------
+Client -> EventQueue: request another Run Target
+EventQueue -> PGM ++: run target request
+note over PGM
+  A supervision failure and the shutdown of the Launch Manager
+  preempt a running transition in exactly the same way.
+end note
+
+PGM -> Graph ++: set new pending Run Target
+PGM -> Graph: cancel the running transition
+note over Graph
+  The graph moves to kInTransition -> kAborting and requests the
+  stop token that was created when the transition started. Every
+  component dispatched by this transition carries that token.
+end note
+PGM --> Client: request accepted
+deactivate Graph
+deactivate PGM
+
+note over Graph
+  From here no further component is dispatched: new components
+  are only taken from the transition while the graph is in
+  kInTransition.
+end note
+
+' --- effect on the components ------------------------------------------------
+WorkerQueue -> Monitor ++: a task of the cancelled transition is executed by a worker
+note over Monitor
+  Where the cancellation finds the task decides what happens to
+  the component.
+end note
+
+alt #F2FAF2 the task had not been started when the cancellation arrived
+    Monitor -> Monitor: the stop token is already stopped
+    Monitor -> EventQueue: job skipped
+    note right of Monitor
+      <b>Cancellation point 1</b>
+      The component is not touched at all and keeps the state it
+      had before the transition.
+    end note
+
+else #FFF8E8 Component Activation is between two startup attempts
+    Monitor -> Component ++: activate
+    Component -> Component: no further attempt is started
+    Component -> Component: deactivate the component
+    Component --> Monitor: activation failed
+    Monitor -> EventQueue: component failed to activate
+    note right of Monitor
+      <b>Cancellation point 2</b>
+      The process of the failed attempt is already gone, so only
+      the component itself has to be deactivated. It is left
+      stopped.
+    end note
+    deactivate Component
+
+else #Pink Component Activation is waiting for its ready condition
+    Monitor -> Component ++: activate
+    Component -> Component: the wait runs until the ready condition is\nsatisfied or the ready timeout expires
+    note right of Component
+      <b>Not abortable</b>
+      The same for every ready condition: the Running report, a
+      configured file, or the termination of the process itself.
+    end note
+    opt the ready timeout expires
+        Component -> OS ++: terminate the process that was started\n(SIGTERM, then SIGKILL after the shutdown timeout)
+        OS --> Component --: process terminated
+    end
+    Component --> Monitor: the ordinary result of the attempt
+    Monitor -> EventQueue: component activated or failed to activate
+    note right of Monitor
+      A component that reaches its ready condition is reported as
+      activated and left running. An attempt that times out ends
+      at cancellation point 2.
+    end note
+    deactivate Component
+
+else #Pink the component is already waiting for a process to terminate
+    Monitor -> Component ++: activate or deactivate
+    Component -> Component: the wait for the process to exit is not interrupted
+    opt the shutdown timeout expires
+        Component -> OS ++: SIGKILL
+        OS --> Component --: process terminated
+    end
+    Component --> Monitor: the ordinary result of the step
+    Monitor -> EventQueue: component deactivated or failed to activate
+    note right of Monitor
+      <b>Not abortable</b>
+      SIGTERM has already been sent and the process may be
+      writing its state to disk, so it is always given its full
+      shutdown timeout before SIGKILL.
+    end note
+    deactivate Component
+end
+deactivate Monitor
+
+' --- settling ----------------------------------------------------------------
+loop until every component in flight has reported back
+    EventQueue -> PGM ++: component event
+    PGM -> Graph ++: apply the component event
+    note over Graph
+      While the graph is kAborting a result is only counted. The
+      transition is not advanced and nothing new is dispatched.
+    end note
+    deactivate Graph
+    deactivate PGM
+end
+
+note over Graph
+  Every component in flight reports back. The longest a
+  cancellation can take is one ready timeout plus the
+  termination of the process that follows it.
+end note
+
+note over Graph
+  With the last component in flight the graph moves to
+  kUndefinedState. Components that were already running are
+  deliberately left running.
+end note
+
+' --- the next transition -----------------------------------------------------
+PGM -> PGM ++: handle the graph state
+PGM -> Graph ++: start the transition to the pending Run Target
+Graph -> Transition ++: set up a transition to the Run Target
+note over Transition
+  The stop set of the new transition is derived from the live
+  state of the components, so everything the cancelled transition
+  left running is picked up and stopped if the new target does
+  not need it.
+end note
+Transition --> Graph --: components ready to be stopped
+deactivate Graph
+deactivate PGM
+
+legend bottom
+  A cancellation is observed at two points, each of which leaves the component
+  in a state the next transition can reason about:
+
+  1. Before the task is executed. A worker that picks up a task whose stop token
+     is already stopped does not run it and reports it as skipped. The component
+     keeps the state it had before the transition.
+  2. Between two startup attempts. The process of the failed attempt is already
+     gone; no further attempt is started, the component is deactivated and the
+     activation returns. The component is left stopped.
+
+  Nothing else is interrupted:
+
+  - The wait for a ready condition - the Running report, a configured file, or
+    the termination of the process itself - runs until the condition is
+    satisfied or the ready timeout expires. On the timeout the process that was
+    started is terminated with SIGTERM and, after the shutdown timeout, SIGKILL.
+  - A termination that has already been requested runs to its end. The process
+    may be writing its state to disk, so it always keeps its full shutdown
+    timeout before SIGKILL follows.
+
+  A component that reaches its ready condition despite the cancellation is
+  reported as activated and left running; the next transition stops it if its
+  target does not need it. The time a cancellation needs is therefore bounded by
+  the ready and shutdown timeouts of the components still in flight.
+end legend
+
+@enduml
