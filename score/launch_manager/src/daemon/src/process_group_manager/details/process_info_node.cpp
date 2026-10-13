@@ -262,6 +262,7 @@ IComponent::RequestResult ProcessInfoNode::startProcess(score::cpp::stop_token s
         exit_code_ = 0;
         error = std::nullopt;
         termination_result_ = TeminationResult::kNone;
+        termination_waiter_->reset();
         static_cast<void>(setState(score::mw::lifecycle::ProcessState::kStarting));  // Cannot fail by design
 
         if (osal::OsalReturnType::kSuccess == process_handling_.process_interface_->startProcess(pid_, sync_, config_))

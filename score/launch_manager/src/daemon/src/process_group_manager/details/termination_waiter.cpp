@@ -32,6 +32,12 @@ void TerminationWaiter::terminated() noexcept(false)
     }
 }
 
+void TerminationWaiter::reset() noexcept(false)
+{
+    std::lock_guard<std::mutex> lock(this->terminated_mutex_);
+    this->is_terminated_ = false;
+}
+
 bool TerminationWaiter::wait_with_timeout(
     const score::cpp::stop_token& stop_token,
     const std::chrono::milliseconds& rel_timeout_ms)

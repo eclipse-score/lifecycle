@@ -77,6 +77,26 @@ TEST_F(TerminationWaiterTest, Given50MillisecondsTimeout_WhenWaitWithTimeoutCall
     EXPECT_GE(end - start, TIMEOUT);
 }
 
+TEST_F(TerminationWaiterTest, GivenATerminatedWaiter_WhenResetCalled)
+{
+    RecordProperty("DerivationTechnique", "explorative-testing");
+    RecordProperty(
+        "Description",
+        "Given a waiter that was notified of termination. "
+        "When reset() is called. "
+        "Then wait_with_timeout() should no longer report termination.");
+
+    // Given
+    TerminationWaiter waiter;
+    waiter.terminated();
+
+    // When
+    waiter.reset();
+
+    // Then
+    EXPECT_FALSE(waiter.wait_with_timeout(0ms));
+}
+
 TEST_F(TerminationWaiterTest, GivenAnyTimeoutAndATerminatedWaiter_WhenWaitWithTimeoutCalled)
 {
     // All timeout values are in the same equivalence class,

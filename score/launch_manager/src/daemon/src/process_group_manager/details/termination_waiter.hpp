@@ -52,10 +52,17 @@ class TerminationWaiter
     /// @note May throw when locking
     void terminated() noexcept(false);
 
+    /// @brief Clears a previous termination notification. Must be called before (re)starting the process,
+    /// otherwise a stale notification makes later waits return immediately.
+    /// @note May throw when locking
+    void reset() noexcept(false);
+
     /// @brief Wait for termination of the process, timeout, or stop via stop_token.
+    /// @return True if terminated, false otherwise.
     bool wait_with_timeout(const score::cpp::stop_token& stop_token, const std::chrono::milliseconds& rel_timeout_ms);
 
     /// @brief Wait for termination of the process or timeout.
+    /// @return True if terminated, false otherwise.
     bool wait_with_timeout(const std::chrono::milliseconds& rel_timeout_ms);
 
   private:
