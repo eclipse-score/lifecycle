@@ -29,9 +29,6 @@ using namespace std::chrono_literals;
 
 class TerminationWaiterTest : public ::testing::Test
 {
-  protected:
-    // Helper to provide a default/inactive stop token
-    score::cpp::stop_token dummy_token{};
 };
 
 TEST_F(TerminationWaiterTest, Given0MillisecondsTimeout_WhenWaitWithTimeoutCalled)
@@ -49,7 +46,7 @@ TEST_F(TerminationWaiterTest, Given0MillisecondsTimeout_WhenWaitWithTimeoutCalle
     constexpr std::chrono::milliseconds ZERO_TIMEOUT{0ms};
 
     // When
-    bool result = waiter.wait_with_timeout(dummy_token, ZERO_TIMEOUT);
+    bool result = waiter.wait_with_timeout(ZERO_TIMEOUT);
 
     // Then
     EXPECT_FALSE(result);
@@ -72,7 +69,7 @@ TEST_F(TerminationWaiterTest, Given50MillisecondsTimeout_WhenWaitWithTimeoutCall
 
     // When
     const auto start = std::chrono::steady_clock::now();
-    bool result = waiter.wait_with_timeout(dummy_token, TIMEOUT);
+    bool result = waiter.wait_with_timeout(TIMEOUT);
     const auto end = std::chrono::steady_clock::now();
 
     // Then
@@ -98,7 +95,7 @@ TEST_F(TerminationWaiterTest, GivenAnyTimeoutAndATerminatedWaiter_WhenWaitWithTi
 
     // When
     const auto start = std::chrono::steady_clock::now();
-    bool result = waiter.wait_with_timeout(dummy_token, TIMEOUT);
+    bool result = waiter.wait_with_timeout(TIMEOUT);
     const auto duration =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start);
 
@@ -129,7 +126,7 @@ TEST_F(TerminationWaiterTest, GivenAWaitingWaiterTerminationWaiter_WhenTerminate
         }
         sync_cv.notify_one();
 
-        return waiter.wait_with_timeout(dummy_token, 2000ms);
+        return waiter.wait_with_timeout(2000ms);
     });
 
     {
@@ -175,7 +172,7 @@ TEST_F(TerminationWaiterTest, GivenMultipleWaitingThreads_WhenTerminatedCalled)
             }
             sync_cv.notify_one();
 
-            return waiter.wait_with_timeout(dummy_token, 3000ms);
+            return waiter.wait_with_timeout(3000ms);
         }));
     }
 
@@ -284,7 +281,7 @@ TEST_F(TerminationWaiterTest, GivenTerminationWaiter_WhenTerminatedCalledMultipl
     EXPECT_NO_THROW(waiter.terminated());
 
     // Then
-    EXPECT_TRUE(waiter.wait_with_timeout(dummy_token, 0ms));
+    EXPECT_TRUE(waiter.wait_with_timeout(0ms));
 }
 
 }  // namespace
