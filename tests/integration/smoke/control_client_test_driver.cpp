@@ -38,7 +38,7 @@ TEST(Smoke, Daemon)
         ASSERT_TRUE(result.has_value());
     }
 
-    TEST_STEP("Validate active run target")
+    TEST_STEP("Validate active Run Target")
     {
         const auto result = client->get_active_run_target();
         EXPECT_FALSE(result.has_value()) << "Should not be active until we report running";
@@ -51,63 +51,63 @@ TEST(Smoke, Daemon)
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget Startup")
+        TEST_STEP("Callback for Run Target Startup")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kInitialActivation);
             EXPECT_EQ(target, "Startup");
         }
     });
 
-    TEST_STEP("Validate active run target")
+    TEST_STEP("Validate active Run Target")
     {
         const auto result = client->get_active_run_target();
         EXPECT_TRUE(result.has_value()) << result.error().Message();
         EXPECT_EQ(result.value(), "Startup");
     }
 
-    TEST_STEP("Activate RunTarget Running")
+    TEST_STEP("Activate Run Target Running")
     {
         const auto result = client->activate_run_target("Running", true);
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget Running")
+        TEST_STEP("Callback for Run Target Running")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
             EXPECT_EQ(target, "Running");
         }
     });
 
-    TEST_STEP("Validate active run target")
+    TEST_STEP("Validate active Run Target")
     {
         const auto result = client->get_active_run_target();
         EXPECT_TRUE(result.has_value()) << result.error().Message();
         EXPECT_EQ(result.value(), "Running");
     }
 
-    TEST_STEP("Activate RunTarget Startup")
+    TEST_STEP("Activate Run Target Startup")
     {
         const auto result = client->activate_run_target("Startup", true);
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
-        TEST_STEP("Callback for RunTarget Startup")
+        TEST_STEP("Callback for Run Target Startup")
         {
             EXPECT_EQ(source, RunTargetActivationSource::kStateManagerRequest);
             EXPECT_EQ(target, "Startup");
         }
     });
 
-    TEST_STEP("Validate active run target")
+    TEST_STEP("Validate active Run Target")
     {
         const auto result = client->get_active_run_target();
         EXPECT_TRUE(result.has_value()) << result.error().Message();
         EXPECT_EQ(result.value(), "Startup");
     }
 
-    TEST_STEP("Activate RunTarget Off")
+    TEST_STEP("Activate Run Target Off")
     {
         const auto result = client->activate_run_target("Off", true);
         EXPECT_TRUE(result.has_value()) << result.error().Message();

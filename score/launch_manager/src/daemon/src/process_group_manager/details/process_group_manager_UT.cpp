@@ -61,7 +61,7 @@ Config makeMinimalConfig()
 
     RunTargetConfig startup;
     startup.name = "Startup";
-    startup.description = "Initial run target";
+    startup.description = "Initial Run Target";
     startup.depends_on = {"comp_a"};
     startup.transition_timeout_ms = 5000U;
     startup.recovery_action.run_target = "fallback_run_target";
@@ -82,7 +82,7 @@ Config makeMinimalConfig()
     std::vector<ComponentConfig> components;
     components.push_back(std::move(component));
 
-    // Shutdown always transitions to the "Off" run target, so the configuration must provide one.
+    // Shutdown always transitions to the "Off" Run Target, so the configuration must provide one.
     RunTargetConfig off;
     off.name = "Off";
     off.description = "All components stopped";

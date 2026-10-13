@@ -127,9 +127,6 @@ class SupervisionManager
     /// Vector of Alive Interfaces
     std::vector<ifappl::MonitorIfDaemon> aliveInterfaces;
 
-    /// Vector of Supervision checkpoints
-    std::vector<ifappl::Checkpoint> checkpoints;
-
     /// Vector of Alive Supervisions
     std::vector<supervision::Alive> aliveSupervisions;
 

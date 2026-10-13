@@ -26,7 +26,6 @@
 
 #include "tests/integration/sandbox_options/verify_sandbox.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
-#include <score/mw/lifecycle/report_running.h>
 
 namespace
 {
@@ -316,8 +315,6 @@ TEST(SandboxOptions, RunAndVerify)
         worker.join();
         EXPECT_TRUE(thread_result);
     }
-
-    score::mw::lifecycle::report_running();
 }
 
 int main(int argc, char** argv)

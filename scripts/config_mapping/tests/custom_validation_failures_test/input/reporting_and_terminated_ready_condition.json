@@ -1,0 +1,29 @@
+{
+    "schema_version": 1,
+    "defaults": {},
+    "components": {
+        "reporting_and_kterminated": {
+            "component_properties": {
+                "binary_name": "/bin/true",
+                "ready_condition": {
+                    "process_state": "Terminated"
+                },
+                "application_profile": {
+                    "application_type": "Reporting",
+                    "is_self_terminating": true
+                }
+            }
+        }
+    },
+    "run_targets": {
+        "Startup": {
+            "depends_on": [
+                "reporting_and_kterminated"
+            ]
+        }
+    },
+    "initial_run_target": "Startup",
+    "fallback_run_target": {
+        "depends_on": []
+    }
+}

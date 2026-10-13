@@ -17,7 +17,10 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    partially_verifies=[],
+    fully_verifies=[],
+    partially_verifies=[
+        "feat_req__lifecycle__launch_support",
+    ],
     test_type="interface-test",
     derivation_technique="error-guessing",
 )
@@ -25,8 +28,8 @@ def test_process_wrong_binary_failure(
     target, setup_test, assert_test_results, remote_test_dir
 ):
     """
-    Objective: Verifies that activating a run target containing a component whose binary does not exist
-    results in a failure and triggers the configured recovery action (switch to fallback run target).
+    Objective: Verifies that activating a Run Target containing a component whose binary does not exist
+    results in a failure and triggers the configured recovery action (switch to fallback Run Target).
     """
 
     run_test(

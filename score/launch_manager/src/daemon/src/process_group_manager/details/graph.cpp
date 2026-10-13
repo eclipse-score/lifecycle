@@ -35,10 +35,10 @@ namespace
 {
 
 /// @brief Creates a dependency graph from the configuration.
-/// @param config The configuration containing components and run targets.
+/// @param config The configuration containing components and Run Targets.
 /// @param process_handling The interfaces used to start, stop and report on the OS processes.
 /// @param run_target_map Map to keep the translation between IDHash to Index
-/// @return A populated dependency graph with all components and run targets.
+/// @return A populated dependency graph with all components and Run Targets.
 void CreateDependencyGraph(
     DependencyGraph<IdentifierHash, Graph::Component>& graph,
     GraphConfig& config,
@@ -69,7 +69,7 @@ void CreateDependencyGraph(
     {
         const auto index = graph.try_emplace(
             IdentifierHash{run_target.name}, std::in_place_type<RunTarget>, IdentifierHash{run_target.name});
-        LM_LOG_DEBUG() << "Created RunTarget node:" << run_target.name << "at index" << index;
+        LM_LOG_DEBUG() << "Creating Run Target node:" << run_target.name << "at index" << index;
 
         if (run_target.name == Graph::off_state_name)
         {
@@ -164,7 +164,7 @@ bool Graph::setState(const GraphState new_state)
     {
         auto request_end_time = std::chrono::steady_clock::now();
         auto timeDiff = std::chrono::duration_cast<std::chrono::milliseconds>(request_end_time - getRequestStartTime());
-        LM_LOG_INFO() << "Completed the request for run target" << getRequestedRunTarget() << "in" << timeDiff.count()
+        LM_LOG_INFO() << "Completed the request for Run Target" << getRequestedRunTarget() << "in" << timeDiff.count()
                       << "ms";
     }
     return target_state == new_state;
@@ -224,13 +224,9 @@ void Graph::finalizeTransitionSuccess()
         {
             source = RunTargetActivationSource::kInitialActivation;
         }
-        else if (state == Graph::recovery_state_name)
-        {
-            source = RunTargetActivationSource::kRecoveryAction;
-        }
         else
         {
-            source = RunTargetActivationSource::kStateManagerRequest;
+            source = transition_source_;
         }
 
         active_run_target_callback_.value()(state, source);
@@ -240,8 +236,7 @@ void Graph::finalizeTransitionSuccess()
     {
         is_initial_state_transition_ = false;
 
-        LM_LOG_DEBUG() << "clock() at successful initial state transition:"
-                       << (static_cast<double>(clock()) / (static_cast<double>(CLOCKS_PER_SEC) / 1000.0)) << "ms";
+        LM_LOG_DEBUG() << "successful initial transition at" << TIMESTAMP_MS();
     }
 
     setState(GraphState::kSuccess);
@@ -270,15 +265,17 @@ void Graph::tryQueueNode(ComponentTask task)
             setState(GraphState::kAborting);
             // Also, we need to be careful not to recurse or deadlock here. The below function does not lock any mutex
             // nor call this function
-            handleNonTransitionExecution(GraphState::kAborting);
+            handleNonTransitionExecution();
             break;
         }
     }
 }
 
-bool Graph::startTransition(IdentifierHash pg_state)
+bool Graph::startTransition(IdentifierHash pg_state, RunTargetActivationSource source)
 {
     LM_LOG_DEBUG() << "Graph starting transition to" << pg_state;
+    // Set before the transition can finish synchronously below, which reports the activation source.
+    transition_source_ = source;
     IdentifierHash old_state_name;
     {
         std::lock_guard<std::mutex> lock(requested_state_mutex_);
@@ -289,7 +286,7 @@ bool Graph::startTransition(IdentifierHash pg_state)
     if (!isValidRunTarget(pg_state))
     {
         // Last-resort guard — callers should already reject via isValidRunTarget() (#541).
-        LM_LOG_ERROR() << "startTransition: RunTarget not found for requested process group state" << pg_state;
+        LM_LOG_ERROR() << "Invalid Run Target" << pg_state;
         return false;
     }
 
@@ -327,7 +324,7 @@ bool Graph::startTransitionToOffState()
     {
         // The Off state always has a RunTarget node, so this cannot fail.
         const bool started = startTransition(off_state_);
-        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(started, "Off state RunTarget node missing");
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(started, "Off Run Target missing");
         return true;
     }
     return false;
@@ -366,7 +363,7 @@ void Graph::handleComponentEvent(const ComponentEvent& event)
 
                 if (jobs_in_progress_ == 0)
                 {
-                    handleNonTransitionExecution(getState());
+                    handleNonTransitionExecution();
                 }
             }
             else if constexpr (std::is_same_v<T, JobSkipped>)
@@ -399,26 +396,16 @@ void Graph::nodeExecuted(IdentifierHash node, score::cpp::expected_blank<ICompon
     }
     else if (was_last_in_queue)
     {
-        handleNonTransitionExecution(current_state);
+        handleNonTransitionExecution();
     }
 }
 
-void Graph::handleNonTransitionExecution(GraphState current_state)
+void Graph::handleNonTransitionExecution()
 {
     if (is_initial_state_transition_)
     {
         is_initial_state_transition_ = false;
-        // debug messages.
-        const auto clock_ms = (static_cast<double>(clock()) / (static_cast<double>(CLOCKS_PER_SEC) / 1000.0));
-
-        if (current_state == GraphState::kCancelled)
-        {
-            LM_LOG_DEBUG() << "clock() at canceled initial state transition:" << clock_ms << "ms";
-        }
-        else
-        {
-            LM_LOG_DEBUG() << "clock() at failed initial state transition:" << clock_ms << "ms";
-        }
+        LM_LOG_DEBUG() << "Failed initial transition at" << TIMESTAMP_MS();
     }
 
     setState(GraphState::kUndefinedState);
@@ -426,7 +413,7 @@ void Graph::handleNonTransitionExecution(GraphState current_state)
 
 void Graph::cancel()
 {
-    setState(GraphState::kCancelled);
+    setState(GraphState::kAborting);
 
     if (jobs_in_progress_ > 0)
     {
@@ -473,15 +460,15 @@ IdentifierHash Graph::getRequestedRunTarget()
     return requested_state_;
 }
 
-IdentifierHash Graph::setPendingState(IdentifierHash new_state)
+IdentifierHash Graph::setPendingState(IdentifierHash new_state, RunTargetActivationSource source)
 {
-    IdentifierHash old_state = pending_state_;
+    IdentifierHash old_state = pending_.run_target;
 
-    pending_state_ = new_state;
+    pending_ = PendingTransition{new_state, source};
 
     if (new_state != old_state)
     {
-        LM_LOG_DEBUG() << "Pending transition change from" << old_state << "to" << pending_state_;
+        LM_LOG_DEBUG() << "Pending transition change from" << old_state << "to" << pending_.run_target;
     }
 
     return old_state;
@@ -489,7 +476,12 @@ IdentifierHash Graph::setPendingState(IdentifierHash new_state)
 
 IdentifierHash Graph::getPendingState()
 {
-    return pending_state_;
+    return pending_.run_target;
+}
+
+PendingTransition Graph::getPendingTransition() const
+{
+    return pending_;
 }
 
 std::string_view Graph::toString(GraphState state)
@@ -498,9 +490,6 @@ std::string_view Graph::toString(GraphState state)
     {
         case GraphState::kAborting:
             return "kAborting";
-
-        case GraphState::kCancelled:
-            return "kCancelled";
 
         case GraphState::kInTransition:
             return "kInTransition";

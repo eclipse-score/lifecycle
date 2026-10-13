@@ -33,7 +33,7 @@ LogicMonitorBuilder def_logic_monitor_builder()
 {
     StateTag state1{"state1"};
     StateTag state2{"state2"};
-    return LogicMonitorBuilder{state1}.add_state(state1, {state2}).add_state(state2, {state1});
+    return LogicMonitorBuilder{state1}.AddState(state1, {state2}).AddState(state2, {state1});
 }
 
 class HealthMonitorBuilderFixture : public ::testing::Test
@@ -64,10 +64,10 @@ TEST_F(HealthMonitorBuilderFixture, Build_Succeeds)
     auto logic_monitor_builder{def_logic_monitor_builder()};
 
     auto result{HealthMonitorBuilder{}
-                    .add_deadline_monitor(deadline_monitor_tag, std::move(deadline_monitor_builder))
-                    .add_heartbeat_monitor(heartbeat_monitor_tag, std::move(heartbeat_monitor_builder))
-                    .add_logic_monitor(logic_monitor_tag, std::move(logic_monitor_builder))
-                    .build()};
+                    .AddDeadlineMonitor(deadline_monitor_tag, std::move(deadline_monitor_builder))
+                    .AddHeartbeatMonitor(heartbeat_monitor_tag, std::move(heartbeat_monitor_builder))
+                    .AddLogicMonitor(logic_monitor_tag, std::move(logic_monitor_builder))
+                    .Build()};
     ASSERT_TRUE(result.has_value());
 }
 
@@ -77,7 +77,7 @@ TEST_F(HealthMonitorBuilderFixture, Build_InvalidCycles)
         "Description",
         "Failed to build monitor with mismatched supervisor API cycle and internal processing cycle values.");
     using namespace std::chrono_literals;
-    auto result{HealthMonitorBuilder{}.with_supervisor_api_cycle(123ms).with_internal_processing_cycle(100ms).build()};
+    auto result{HealthMonitorBuilder{}.WithSupervisorApiCycle(123ms).WithInternalProcessingCycle(100ms).Build()};
     ASSERT_FALSE(result.has_value());
     ASSERT_EQ(result.error(), Error::InvalidArgument);
 }
@@ -85,7 +85,7 @@ TEST_F(HealthMonitorBuilderFixture, Build_InvalidCycles)
 TEST_F(HealthMonitorBuilderFixture, Build_NoMonitors)
 {
     RecordProperty("Description", "Failed to build monitor with no monitors.");
-    auto result{HealthMonitorBuilder{}.build()};
+    auto result{HealthMonitorBuilder{}.Build()};
     ASSERT_FALSE(result.has_value());
     ASSERT_EQ(result.error(), Error::WrongState);
 }
@@ -96,11 +96,11 @@ TEST(HealthMonitor, GetDeadlineMonitor_Available)
     MonitorTag deadline_monitor_tag{"deadline_monitor"};
     DeadlineMonitorBuilder deadline_monitor_builder;
     auto health_monitor{HealthMonitorBuilder{}
-                            .add_deadline_monitor(deadline_monitor_tag, std::move(deadline_monitor_builder))
-                            .build()
+                            .AddDeadlineMonitor(deadline_monitor_tag, std::move(deadline_monitor_builder))
+                            .Build()
                             .value()};
 
-    auto result{health_monitor.get_deadline_monitor(deadline_monitor_tag)};
+    auto result{health_monitor.GetDeadlineMonitor(deadline_monitor_tag)};
     ASSERT_TRUE(result.has_value());
 }
 
@@ -110,12 +110,12 @@ TEST(HealthMonitor, GetDeadlineMonitor_Taken)
     MonitorTag deadline_monitor_tag{"deadline_monitor"};
     DeadlineMonitorBuilder deadline_monitor_builder;
     auto health_monitor{HealthMonitorBuilder{}
-                            .add_deadline_monitor(deadline_monitor_tag, std::move(deadline_monitor_builder))
-                            .build()
+                            .AddDeadlineMonitor(deadline_monitor_tag, std::move(deadline_monitor_builder))
+                            .Build()
                             .value()};
 
-    health_monitor.get_deadline_monitor(deadline_monitor_tag);
-    auto result{health_monitor.get_deadline_monitor(deadline_monitor_tag)};
+    health_monitor.GetDeadlineMonitor(deadline_monitor_tag);
+    auto result{health_monitor.GetDeadlineMonitor(deadline_monitor_tag)};
     ASSERT_FALSE(result.has_value());
 }
 
@@ -125,11 +125,11 @@ TEST(HealthMonitor, GetDeadlineMonitor_Unknown)
     MonitorTag deadline_monitor_tag{"deadline_monitor"};
     DeadlineMonitorBuilder deadline_monitor_builder;
     auto health_monitor{HealthMonitorBuilder{}
-                            .add_deadline_monitor(deadline_monitor_tag, std::move(deadline_monitor_builder))
-                            .build()
+                            .AddDeadlineMonitor(deadline_monitor_tag, std::move(deadline_monitor_builder))
+                            .Build()
                             .value()};
 
-    auto result{health_monitor.get_deadline_monitor(MonitorTag{"undefined_monitor"})};
+    auto result{health_monitor.GetDeadlineMonitor(MonitorTag{"undefined_monitor"})};
     ASSERT_FALSE(result.has_value());
 }
 
@@ -139,11 +139,11 @@ TEST(HealthMonitor, GetHeartbeatMonitor_Available)
     MonitorTag heartbeat_monitor_tag{"heartbeat_monitor"};
     auto heartbeat_monitor_builder{def_heartbeat_monitor_builder()};
     auto health_monitor{HealthMonitorBuilder{}
-                            .add_heartbeat_monitor(heartbeat_monitor_tag, std::move(heartbeat_monitor_builder))
-                            .build()
+                            .AddHeartbeatMonitor(heartbeat_monitor_tag, std::move(heartbeat_monitor_builder))
+                            .Build()
                             .value()};
 
-    auto result{health_monitor.get_heartbeat_monitor(heartbeat_monitor_tag)};
+    auto result{health_monitor.GetHeartbeatMonitor(heartbeat_monitor_tag)};
     ASSERT_TRUE(result.has_value());
 }
 
@@ -153,12 +153,12 @@ TEST(HealthMonitor, GetHeartbeatMonitor_Taken)
     MonitorTag heartbeat_monitor_tag{"heartbeat_monitor"};
     HeartbeatMonitorBuilder heartbeat_monitor_builder{def_heartbeat_monitor_builder()};
     auto health_monitor{HealthMonitorBuilder{}
-                            .add_heartbeat_monitor(heartbeat_monitor_tag, std::move(heartbeat_monitor_builder))
-                            .build()
+                            .AddHeartbeatMonitor(heartbeat_monitor_tag, std::move(heartbeat_monitor_builder))
+                            .Build()
                             .value()};
 
-    health_monitor.get_heartbeat_monitor(heartbeat_monitor_tag);
-    auto result{health_monitor.get_heartbeat_monitor(heartbeat_monitor_tag)};
+    health_monitor.GetHeartbeatMonitor(heartbeat_monitor_tag);
+    auto result{health_monitor.GetHeartbeatMonitor(heartbeat_monitor_tag)};
     ASSERT_FALSE(result.has_value());
 }
 
@@ -168,11 +168,11 @@ TEST(HealthMonitor, GetHeartbeatMonitor_Unknown)
     MonitorTag heartbeat_monitor_tag{"heartbeat_monitor"};
     HeartbeatMonitorBuilder heartbeat_monitor_builder{def_heartbeat_monitor_builder()};
     auto health_monitor{HealthMonitorBuilder{}
-                            .add_heartbeat_monitor(heartbeat_monitor_tag, std::move(heartbeat_monitor_builder))
-                            .build()
+                            .AddHeartbeatMonitor(heartbeat_monitor_tag, std::move(heartbeat_monitor_builder))
+                            .Build()
                             .value()};
 
-    auto result{health_monitor.get_heartbeat_monitor(MonitorTag{"undefined_monitor"})};
+    auto result{health_monitor.GetHeartbeatMonitor(MonitorTag{"undefined_monitor"})};
     ASSERT_FALSE(result.has_value());
 }
 
@@ -182,9 +182,9 @@ TEST(HealthMonitor, GetLogicMonitor_Available)
     MonitorTag logic_monitor_tag{"logic_monitor"};
     auto logic_monitor_builder{def_logic_monitor_builder()};
     auto health_monitor{
-        HealthMonitorBuilder{}.add_logic_monitor(logic_monitor_tag, std::move(logic_monitor_builder)).build().value()};
+        HealthMonitorBuilder{}.AddLogicMonitor(logic_monitor_tag, std::move(logic_monitor_builder)).Build().value()};
 
-    auto result{health_monitor.get_logic_monitor(logic_monitor_tag)};
+    auto result{health_monitor.GetLogicMonitor(logic_monitor_tag)};
     ASSERT_TRUE(result.has_value());
 }
 
@@ -194,10 +194,10 @@ TEST(HealthMonitor, GetLogicMonitor_Taken)
     MonitorTag logic_monitor_tag{"logic_monitor"};
     LogicMonitorBuilder logic_monitor_builder{def_logic_monitor_builder()};
     auto health_monitor{
-        HealthMonitorBuilder{}.add_logic_monitor(logic_monitor_tag, std::move(logic_monitor_builder)).build().value()};
+        HealthMonitorBuilder{}.AddLogicMonitor(logic_monitor_tag, std::move(logic_monitor_builder)).Build().value()};
 
-    health_monitor.get_logic_monitor(logic_monitor_tag);
-    auto result{health_monitor.get_logic_monitor(logic_monitor_tag)};
+    health_monitor.GetLogicMonitor(logic_monitor_tag);
+    auto result{health_monitor.GetLogicMonitor(logic_monitor_tag)};
     ASSERT_FALSE(result.has_value());
 }
 
@@ -207,9 +207,9 @@ TEST(HealthMonitor, GetLogicMonitor_Unknown)
     MonitorTag logic_monitor_tag{"logic_monitor"};
     LogicMonitorBuilder logic_monitor_builder{def_logic_monitor_builder()};
     auto health_monitor{
-        HealthMonitorBuilder{}.add_logic_monitor(logic_monitor_tag, std::move(logic_monitor_builder)).build().value()};
+        HealthMonitorBuilder{}.AddLogicMonitor(logic_monitor_tag, std::move(logic_monitor_builder)).Build().value()};
 
-    auto result{health_monitor.get_logic_monitor(MonitorTag{"undefined_monitor"})};
+    auto result{health_monitor.GetLogicMonitor(MonitorTag{"undefined_monitor"})};
     ASSERT_FALSE(result.has_value());
 }
 
@@ -224,17 +224,17 @@ TEST(HealthMonitor, Start_Succeeds)
     auto logic_monitor_builder{def_logic_monitor_builder()};
 
     auto health_monitor{HealthMonitorBuilder{}
-                            .add_deadline_monitor(deadline_monitor_tag, std::move(deadline_monitor_builder))
-                            .add_heartbeat_monitor(heartbeat_monitor_tag, std::move(heartbeat_monitor_builder))
-                            .add_logic_monitor(logic_monitor_tag, std::move(logic_monitor_builder))
-                            .build()
+                            .AddDeadlineMonitor(deadline_monitor_tag, std::move(deadline_monitor_builder))
+                            .AddHeartbeatMonitor(heartbeat_monitor_tag, std::move(heartbeat_monitor_builder))
+                            .AddLogicMonitor(logic_monitor_tag, std::move(logic_monitor_builder))
+                            .Build()
                             .value()};
 
-    health_monitor.get_deadline_monitor(deadline_monitor_tag);
-    health_monitor.get_heartbeat_monitor(heartbeat_monitor_tag);
-    health_monitor.get_logic_monitor(logic_monitor_tag);
+    health_monitor.GetDeadlineMonitor(deadline_monitor_tag);
+    health_monitor.GetHeartbeatMonitor(heartbeat_monitor_tag);
+    health_monitor.GetLogicMonitor(logic_monitor_tag);
 
-    health_monitor.start();
+    health_monitor.Start();
 }
 
 TEST(HealthMonitor, Start_MonitorsNotTaken)
@@ -248,12 +248,12 @@ TEST(HealthMonitor, Start_MonitorsNotTaken)
     auto logic_monitor_builder{def_logic_monitor_builder()};
 
     auto health_monitor{HealthMonitorBuilder{}
-                            .add_deadline_monitor(deadline_monitor_tag, std::move(deadline_monitor_builder))
-                            .add_heartbeat_monitor(heartbeat_monitor_tag, std::move(heartbeat_monitor_builder))
-                            .add_logic_monitor(logic_monitor_tag, std::move(logic_monitor_builder))
-                            .build()
+                            .AddDeadlineMonitor(deadline_monitor_tag, std::move(deadline_monitor_builder))
+                            .AddHeartbeatMonitor(heartbeat_monitor_tag, std::move(heartbeat_monitor_builder))
+                            .AddLogicMonitor(logic_monitor_tag, std::move(logic_monitor_builder))
+                            .Build()
                             .value()};
 
     // `SIGABRT` is expected.
-    ASSERT_DEATH({ health_monitor.start(); }, "");
+    ASSERT_DEATH({ health_monitor.Start(); }, "");
 }

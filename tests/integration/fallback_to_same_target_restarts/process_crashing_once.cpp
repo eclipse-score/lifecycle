@@ -40,7 +40,7 @@ TEST(FallbackToSameTargetRestarts, CrashingProcess)
             score::mw::lifecycle::report_running();
         }
 
-        // Limitation: we can't wait for run target activation to complete
+        // Limitation: we can't wait for Run Target activation to complete
         sleep(1);
 
         TEST_STEP("Crash")

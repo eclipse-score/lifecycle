@@ -48,7 +48,7 @@ int main()
     const auto register_result = client->register_run_target_activation_callback(
         []([[maybe_unused]] score::mw::lifecycle::RunTargetActivationSource source,
            score::mw::lifecycle::RunTargetName target) {
-            std::cerr << "Successfully activated run target " << target << std::endl;
+            std::cerr << "Successfully activated Run Target " << target << std::endl;
         });
     SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(register_result.has_value(), register_result.error().Message().data());
 

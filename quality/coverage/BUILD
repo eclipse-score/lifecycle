@@ -52,3 +52,13 @@ score_coverage_reporter(
     llvm_cxxfilt = "@llvm_toolchain_llvm//:bin/llvm-cxxfilt",
     llvm_profdata = "@llvm_toolchain//:llvm-profdata",
 )
+
+# GCOV coverage reporter for QNX code coverage
+score_coverage_reporter(
+    name = "gcov_reporter_wrapper",
+    testonly = True,
+    backend = "gcov",
+    coverage_scope = ":coverage_scope",
+    gcov = "@score_qcc_x86_64_toolchain_pkg//:gcov",
+    tags = ["manual"],  # keeps `bazel build //...` on a Linux host from fetching the QNX SDP
+)

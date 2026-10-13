@@ -20,6 +20,9 @@ on:
   push:
     branches:
       - main
+    # Publishing a draft release creates the tag.
+    tags:
+      - "v*"
   workflow_call:
 
 jobs:
@@ -150,7 +153,12 @@ jobs:
       contents: read
     with:
       # the bazel-target depends on your repo specific docs_targets configuration (e.g. "suffix")
-      bazel-target: "--lockfile_mode=error //:docs -- --github_user=${{ github.repository_owner }} --github_repo=${{ github.event.repository.name }}"
+      bazel-target: |
+        --lockfile_mode=error \
+        //:docs \
+        -- \
+        --github_user=${{ github.repository_owner }} \
+        --github_repo=${{ github.event.repository.name }}
       retention-days: 3
       tests-report-artifact: bazel-testlogs-x86_64-linux
 

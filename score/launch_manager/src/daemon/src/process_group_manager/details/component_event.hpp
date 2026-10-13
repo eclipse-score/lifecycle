@@ -70,13 +70,13 @@ struct [[nodiscard]] SupervisionFailure
     IdentifierHash process_identifier;
 };
 
-/// @brief The state manager wants to know which run target is currently active.
+/// @brief The state manager wants to know which Run Target is currently active.
 struct [[nodiscard]] GetActiveRunTarget
 {
     concurrency::InterruptiblePromise<Result<IdentifierHash>> promise;
 };
 
-/// @brief The state manager wants to change to a different run target.
+/// @brief The state manager wants to change to a different Run Target.
 struct [[nodiscard]] SetRequestedRunTarget
 {
     IdentifierHash run_target;

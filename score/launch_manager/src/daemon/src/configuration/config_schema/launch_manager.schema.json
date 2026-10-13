@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "title": "Configuration schema for the S-CORE Launch Manager",
-  "description": "Defines the structure and valid values for the Launch Manager configuration file, which specifies managed components, run targets, and recovery behaviors.",
+  "description": "Defines the structure and valid values for the Launch Manager configuration file, which specifies managed components, Run Targets, and recovery behaviors.",
   "$defs": {
     "rlimit_scalar": {
       "description": "A single rlimit bound: a non-negative integer count of bytes/seconds/items, or the literal \"unlimited\".",
@@ -382,6 +382,11 @@
               },
               "required": [],
               "additionalProperties": false
+            },
+            "affinity_mask": {
+              "type": "string",
+              "pattern": "^0[xX](?!0{1,16}$)[0-9a-fA-F]{1,16}$",
+              "description": "Specifies the affinity mask defining on which CPU cores the process may be scheduled, as a hexadecimal string (e.g. \"0x3\" for cores 0 and 1). Bit 0 corresponds to core 0; up to 64 cores are supported. At least one bit must be set. If not configured, the component inherits the CPU affinity of the **Launch Manager** itself, i.e. no affinity system call is made on its behalf."
             }
           },
           "additionalProperties": false

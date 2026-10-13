@@ -23,7 +23,7 @@ ObservableEvent::ObservableEvent(const IdentifierHash& process_id) noexcept(fals
 
 void ObservableEvent::pushData(void) noexcept
 {
-    pushResultToObservers();
+    pushResultToObservers(*this);
 }
 
 }  // namespace score::mw::lifecycle::internal::saf::ifexm

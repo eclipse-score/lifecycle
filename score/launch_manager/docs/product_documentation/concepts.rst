@@ -116,7 +116,7 @@ continue evaluating the startup procedure.
 
 .. _lm_run_targets:
 
-Run targets
+Run Targets
 -----------
 
 A **Run Target** defines a named collection of components that are

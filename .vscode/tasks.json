@@ -2,32 +2,40 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Refresh compile_commands.json",
+            "label": "Refresh compile commands",
             "type": "shell",
             "isBackground": true,
-            "command": "bazel run //:generate_compile_commands -- --config=x86_64-linux",
+            "command": "bazel-compile-commands --config=x86_64-linux",
             "problemMatcher": [],
-            "group": {
-                "kind": "build",
-                "isDefault": false
-            },
+            "group": "none",
             "presentation": {
-                "reveal": "always",
+                "reveal": "silent",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Refresh Clangd",
+            "dependsOn": [
+                "Refresh compile commands"
+            ],
+            "command": "${command:clangd.restart}",
+            "isBackground": true,
+            "problemMatcher": [],
+            "group": "none",
+            "presentation": {
+                "reveal": "silent",
                 "panel": "shared"
             }
         },
         {
             "label": "Refresh IntelliSense",
             "dependsOn": [
-                "Refresh compile_commands.json"
+                "Refresh compile commands"
             ],
-            "command": "${command:clangd.restart}",
+            "command": "${command:C_Cpp.RescanWorkspace}",
             "isBackground": true,
             "problemMatcher": [],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
+            "group": "none",
             "presentation": {
                 "reveal": "silent",
                 "panel": "shared"

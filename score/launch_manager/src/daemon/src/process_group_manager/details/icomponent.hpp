@@ -71,7 +71,7 @@ class IComponent
     /// @returns the index of the component in the graph.
     [[nodiscard]] virtual IdentifierHash getIdentifier() const = 0;
 
-    /// @returns True if the component is active in the active run target.
+    /// @returns True if the component is active in the active Run Target.
     [[nodiscard]] virtual bool active() const = 0;
 
     virtual ~IComponent() = default;

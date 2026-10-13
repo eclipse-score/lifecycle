@@ -105,7 +105,7 @@ void ControlProvider::handleActivateRunTarget(
     const std::optional<IdentifierHash> new_state = IdentifierHash::if_exists(request.run_target_name.data());
     if (!new_state.has_value())
     {
-        LM_LOG_ERROR() << "Activation request failed: run target" << request.run_target_name << "does not exist";
+        LM_LOG_ERROR() << "Activation request failed: Run Target" << request.run_target_name << "does not exist";
 
         response = ActivateRunTargetResponse{
             status : RequestStatus::kRejected,

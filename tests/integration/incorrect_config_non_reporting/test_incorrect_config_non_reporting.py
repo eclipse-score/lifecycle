@@ -17,9 +17,10 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    partially_verifies=[],
-    test_type="interface-test",
-    derivation_technique="explorative-testing",
+    fully_verifies=[],
+    partially_verifies=["comp_req__launch_man__rc_lifecycle"],
+    test_type="requirements-based",
+    derivation_technique="error-guessing",
 )
 def test_incorrect_config_non_reporting(
     target, setup_test, assert_test_results, remote_test_dir

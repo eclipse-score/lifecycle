@@ -39,20 +39,19 @@ The concept is based on 2 major components:
 * **Health Monitor**: Provides process local monitoring functionalities such as
   deadline monitoring and logical program flow monitoring
 
-<Design Decisions - For the documentation of the decision the :need:`gd_temp__change_decision_record` can be used.>
-
-<Design Constraints>
-
 
 Rationale Behind Architecture Decomposition
 *******************************************
 
-Mandatory: A motivation for the decomposition
-
-.. note:: Common decisions across features / cross cutting concepts is at the high level.
+The decomposition of the monitoring functionality between the :term:`Launch
+Manager` and the :term:`Health Monitor` is documented in
+:need:`dec_rec__lifecycle__in_process_health_monitor`.
 
 Static Architecture
 -------------------
+
+Feature Decomposition
+*********************
 
 .. feat_arc_sta:: Lifecycle Static View
    :id: feat_arc_sta__lifecycle__static_view_arch
@@ -79,6 +78,11 @@ Static Architecture
       comp__lifecycle_launch_manager --> cfg: use
 
 
+.. _lifecycle_configuration_structure:
+
+Configuration Structure
+***********************
+
 .. feat_arc_sta:: Configuration parameters static architecture
    :id: feat_arc_sta__lifecycle__cfg_params_static
    :security: YES
@@ -86,7 +90,6 @@ Static Architecture
    :status: valid
    :version: 1
    :fulfils: feat_req__lifecycle__component_group_config[version==1],
-             feat_req__lifecycle__config_file_support[version==1],
              feat_req__lifecycle__run_target_support[version==1]
    :belongs_to: feat__lifecycle
    :includes: logic_arc_int__lifecycle__lifecycle_if[version==1],
@@ -99,23 +102,29 @@ Static Architecture
       :scale: 50
       :align: center
 
+   The Launch Manager configuration is structured around Run Target and Component configurations.
+   Each Component configuration specifies how the Component is started, monitored, and recovered during system operation.
+   Components can have dependencies on other Components, collectively forming a dependency graph.
+
+   Run Targets are configured through Run Target configurations, which define dependencies on Components and other Run Targets.
+   These dependencies determine which Components are activated when a Run Target is activated.
+
+   The Launch Manager is configured with an *Initial Run Target* and *Fallback Run Target*. The *Initial Run Target* is activated when the Launch Manager is first started.
+   The *Fallback Run Target* specifies the Run Target that is activated if a failure occurs that cannot be recovered.
+
 
 Dynamic Architecture
 --------------------
 
-Interactions between the :term:`Launch Manager` and a User application
-(through it's interfaces):
+.. toctree::
+   :maxdepth: 1
 
-* :doc:`./control_client`
-* :doc:`./lifecycle_client`
-* :doc:`./alive`
-* :doc:`./launch_manager`
-* :doc:`./external_monitoring`
-
-
-Interaction between the :term:`Health Monitor` and :term:`Launch Manager`:
-
-* :doc:`./health_monitor`
+   components_run_targets
+   run_target_activation
+   startup_shutdown
+   health_monitoring
+   recovery_actions
+   external_monitor
 
 
 Logical Interfaces
@@ -124,5 +133,14 @@ Logical Interfaces
 The logical interfaces of the feature are defined in the `interfaces` section
 of the feature documentation in the project repository:
 :need:`doc__lifecycle_architecture`
+
+
+Design Decisions
+----------------
+
+.. toctree::
+   :maxdepth: 1
+
+   design_decisions
 
 

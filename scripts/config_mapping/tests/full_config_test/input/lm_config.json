@@ -32,7 +32,8 @@
                 "rlimits": {
                     "RLIMIT_AS": 536870912,
                     "RLIMIT_CPU": 80
-                }
+                },
+                "affinity_mask": "0x3"
             }
         },
         "component_properties": {
@@ -54,7 +55,7 @@
             }
         },
         "run_target": {
-            "description": "Default run target",
+            "description": "Default Run Target",
             "depends_on": [],
             "transition_timeout_ms": 5000,
             "recovery_action": {

@@ -21,7 +21,7 @@
 namespace score::mw::lifecycle::internal
 {
 
-/// @brief A virtual node in the dependency graph corresponding to a configured run target.
+/// @brief A virtual node in the dependency graph corresponding to a configured Run Target.
 /// A RunTarget does not have any resources and is immediately active once requested, provided
 /// all of its dependencies are active, and immediately inactive once deactivated.
 class RunTarget final : public IComponent
@@ -67,9 +67,9 @@ class RunTarget final : public IComponent
     }
 
   private:
-    /// @brief Unique identifier of this run target.
+    /// @brief Unique identifier of this Run Target.
     IdentifierHash identifier_;
-    /// @brief True if the run target has been activated and has not yet been deactivated.
+    /// @brief True if the Run Target has been activated and has not yet been deactivated.
     std::atomic<bool> active_{false};
 };
 

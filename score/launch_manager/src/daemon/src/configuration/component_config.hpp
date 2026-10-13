@@ -97,8 +97,8 @@ struct Sandbox
     std::int32_t scheduling_policy;
     std::int32_t scheduling_priority{};
     std::vector<ResourceLimit> rlimits;
+    std::optional<std::uint64_t> affinity_mask;
 };
-
 struct DeploymentConfig
 {
     // req-Id: comp_req__launch_man__conf_comp_active_tout

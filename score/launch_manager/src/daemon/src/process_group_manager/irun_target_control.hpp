@@ -26,14 +26,14 @@ using ActivationCallbackT = std::function<void(IdentifierHash, RunTargetActivati
 class IRunTargetControl
 {
   public:
-    /// @brief Get the active run target, or an error if we are currently
+    /// @brief Get the active Run Target, or an error if we are currently
     ///        in transition.
     [[nodiscard]] virtual score::Result<IdentifierHash> getActiveRunTarget() const noexcept = 0;
 
-    /// @brief Set the requested run target.
+    /// @brief Set the requested Run Target.
     [[nodiscard]] virtual score::Result<void> setRequestedRunTarget(IdentifierHash run_target) noexcept = 0;
 
-    /// @brief Register a callback to be fired when the active run target changes.
+    /// @brief Register a callback to be fired when the active Run Target changes.
     virtual void registerActiveRunTargetCallback(ActivationCallbackT callback) noexcept = 0;
 };
 

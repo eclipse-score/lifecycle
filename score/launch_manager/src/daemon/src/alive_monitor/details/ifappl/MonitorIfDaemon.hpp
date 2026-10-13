@@ -16,27 +16,14 @@
 
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/Checkpoint.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/DataStructures.hpp"
-#include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
-#include <string>
-#include <vector>
+#include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEvent.hpp"
+#include "score/mw/launch_manager/common/identifier_hash.hpp"
 
-namespace score::mw::lifecycle::internal::saf
-{
-namespace ifexm
-{
-class ObservableEvent;
-}
-namespace supervision
-{
-class Local;
-class Global;
-}  // namespace supervision
-
-namespace ifappl
+namespace score::mw::lifecycle::internal::saf::ifappl
 {
 
 /// @brief Reads checkpoints from IPC channel and pushes them to attached observers
-class MonitorIfDaemon : public common::Observer<ifexm::ObservableEvent>
+class MonitorIfDaemon : public common::Observer<ifexm::ObservableEvent>, public common::Observable<Checkpoint>
 {
   public:
     /// @brief No Default Constructor
@@ -65,14 +52,7 @@ class MonitorIfDaemon : public common::Observer<ifexm::ObservableEvent>
 
     /// @brief Get interface Name
     /// @return     Interface name as string
-    const std::string& getInterfaceName(void) const noexcept(true);
-
-    /// @brief Attach checkpoint
-    /// @details Attaches a checkpoint observer to the Alive interface
-    /// Note: Attached observers will receive updates in case there is new information
-    /// @param [in] f_checkpoint_r      Checkpoint which is added to the observer array
-    /// @throws std::bad_alloc in case of insufficient memory for vector allocation
-    void attachCheckpoint(Checkpoint& f_checkpoint_r) noexcept(false);
+    IdentifierHash getIdentifier() const noexcept(true) override;
 
     /// @brief Update data received from ObservableEvent
     /// @param [in]  f_observable_r ObservableEvent object which has send the update
@@ -95,20 +75,16 @@ class MonitorIfDaemon : public common::Observer<ifexm::ObservableEvent>
     /// @brief Push overflow event information to all checkpoint observer
     /// @details Every attached checkpoint observer will be informed that a data loss event in the
     /// Alive interface has occurred
-    void pushOverflowInfoToCheckpointObservers(void) const;
+    void pushOverflowInfoToObservers();
 
     /// @brief Move to kInactiveOverflow state and push overflow event to observers
     void handleOverflow(void);
 
-    /// @brief Push new data to checkpoint observer
-    /// @details The checkpoint ring buffer data is pushed to checkpoint specific objects.
+    /// @brief Read checkpoints from the IPC buffer, pushing to observers, while there are entries within the timestamp
+    /// to read.
     /// @param [in]  f_syncTimestamp        Timestamp till data shall be read, newer data will not be considered
-    /// @returns True if reading data from IPC channel and pushing data to observers was successful, else false
-    bool pushNewDataToCheckpointObservers(const std::chrono::nanoseconds f_syncTimestamp);
-
-    /// @brief Push a single checkpoint to observers
-    /// @param[in] f_elem_r The checkpoint to push to observers
-    void pushCheckpointToObservers(const CheckpointBufferElement& f_elem_r);
+    /// @returns True if successful, false if an error reading from the buffer occurred.
+    bool readIpcUntil(const std::chrono::nanoseconds f_syncTimestamp);
 
     /// Internal states for instances of this class
     enum class EInternalState : std::uint8_t
@@ -131,16 +107,12 @@ class MonitorIfDaemon : public common::Observer<ifexm::ObservableEvent>
     bool isProcessRestarted{false};
 
     /// Interface name
-    const std::string k_interfaceName;
-
-    /// Array of checkpoint observers attached to the Alive interface
-    std::vector<Checkpoint*> checkpointObservers{};
+    const IdentifierHash k_interfaceName;
 
     /// @brief IPC connection to application
     CheckpointIpcServer& ipcserver_r;
 };
 
-}  // namespace ifappl
-}  // namespace score::mw::lifecycle::internal::saf
+}  // namespace score::mw::lifecycle::internal::saf::ifappl
 
 #endif

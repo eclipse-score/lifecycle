@@ -1,0 +1,62 @@
+' *******************************************************************************
+' Copyright (c) 2026 Contributors to the Eclipse Foundation
+'
+' See the NOTICE file(s) distributed with this work for additional
+' information regarding copyright ownership.
+'
+' This program and the accompanying materials are made available under the
+' terms of the Apache License Version 2.0 which is available at
+' https://www.apache.org/licenses/LICENSE-2.0
+'
+' SPDX-License-Identifier: Apache-2.0
+' *******************************************************************************
+
+@startuml
+title Launch Manager - Components Depends on Each Other
+
+autonumber "<b>[00]"
+
+participant "Launch Manager" as LM
+participant "OS (kernel)" as kernel
+participant "setup_filesystems.sh" as fs
+participant "random" as ran
+participant "app1" as app1
+
+activate LM
+
+[-> LM : Activate Run Target ("Running")
+
+par Start setup_filesystems.sh
+
+LM -> kernel : Start setup_filesystems.sh
+kernel -> fs ++ : Start setup_filesystems.sh
+
+LM -> LM : Wait for setup_filesystems.sh ready condition
+
+fs -> kernel : exit
+destroy fs
+kernel -> LM : setup_filesystems.sh terminated successfully
+
+LM -> LM : Component setup_filesystems.sh Ready
+
+else Start random
+
+LM -> kernel : Start random
+kernel -> ran ++ : Start random
+
+LM -> LM : Wait for random ready condition
+
+ran -> kernel : register /dev/random
+LM -> LM : Detect /dev/random exists, Component random Ready
+
+end par
+
+LM -> kernel : app1 start
+kernel -> app1 ++ : Start app1
+app1 -> app1 : Initialize
+app1 -> LM : Report Running via Lifecycle API
+LM -> LM : Componetn app1 Ready
+LM -> LM : Run Target Running successfully activated
+
+...
+@enduml

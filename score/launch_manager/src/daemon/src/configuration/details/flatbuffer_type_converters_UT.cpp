@@ -346,16 +346,16 @@ TEST_F(ConverterTest, ConvertSwitchRunTargetActionNullReturnsNullopt)
 
 TEST_F(ConverterTest, ConvertSwitchRunTargetActionValid)
 {
-    RecordProperty("Description", "convertSwitchRunTargetAction returns the run target name.");
+    RecordProperty("Description", "convertSwitchRunTargetAction returns the Run Target name.");
     ::flatbuffers::FlatBufferBuilder fbb;
-    auto target = fbb.CreateString("Fallback");
+    auto target = fbb.CreateString("fallback_run_target");
     auto sa = fb::CreateSwitchRunTargetAction(fbb, target);
     fbb.Finish(sa);
     const auto* ptr = ::flatbuffers::GetRoot<fb::SwitchRunTargetAction>(fbb.GetBufferPointer());
 
     auto result = convertSwitchRunTargetAction(ptr);
     ASSERT_THAT(result.has_value(), IsTrue());
-    EXPECT_THAT(result->run_target, Eq("Fallback"));
+    EXPECT_THAT(result->run_target, Eq("fallback_run_target"));
 }
 
 TEST_F(ConverterTest, ConvertComponentAliveSupervisionNullReturnsDefault)
@@ -665,7 +665,9 @@ TEST_F(ConverterTest, ConvertSandboxValid)
         sec_policy,
         fb::SchedulingPolicy::FIFO,
         50 /*scheduling_priority*/,
-        rlimits);
+        rlimits,
+        3 /*affinity_mask*/);
+
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
@@ -685,6 +687,8 @@ TEST_F(ConverterTest, ConvertSandboxValid)
     EXPECT_THAT(result->rlimits[1].resource, Eq(RLIMIT_CPU));
     EXPECT_THAT(result->rlimits[1].limit.rlim_cur, Eq(80U));
     EXPECT_THAT(result->rlimits[1].limit.rlim_max, Eq(RLIM_INFINITY));
+    ASSERT_THAT(result->affinity_mask.has_value(), IsTrue());
+    EXPECT_THAT(result->affinity_mask.value(), Eq(3U));
 }
 
 TEST_F(ConverterTest, ConvertSandboxNoRlimitsYieldsEmptyVector)
@@ -698,6 +702,19 @@ TEST_F(ConverterTest, ConvertSandboxNoRlimitsYieldsEmptyVector)
     auto result = convertSandbox(ptr);
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(result->rlimits, ::testing::IsEmpty());
+}
+
+TEST_F(ConverterTest, ConvertSandboxWithoutAffinityMaskHasNoValue)
+{
+    RecordProperty("Description", "Sandbox without affinity_mask configured leaves it as std::nullopt.");
+    ::flatbuffers::FlatBufferBuilder fbb;
+    auto sandbox = buildDefaultSandbox(fbb);
+    fbb.Finish(sandbox);
+    const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
+
+    auto result = convertSandbox(ptr);
+    ASSERT_THAT(result.has_value(), IsTrue());
+    EXPECT_THAT(result->affinity_mask.has_value(), IsFalse());
 }
 
 // ============================================================================
@@ -1111,7 +1128,7 @@ TEST_F(ConverterTest, ConvertComponentsWithInvalidComponentReturnsError)
 
 TEST_F(ConverterTest, ConvertRunTargetsValid)
 {
-    RecordProperty("Description", "convertRunTargets maps multiple run targets in order.");
+    RecordProperty("Description", "convertRunTargets maps multiple Run Targets in order.");
     ::flatbuffers::FlatBufferBuilder fbb;
 
     auto build_rt = [&](const char* name, const char* recovery_target) {
@@ -1123,7 +1140,7 @@ TEST_F(ConverterTest, ConvertRunTargetsValid)
     };
 
     auto rt_a = build_rt("Startup", "SafeState");
-    auto rt_b = build_rt("Running", "Fallback");
+    auto rt_b = build_rt("Running", "fallback_run_target");
     auto rts = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::RunTarget>>{rt_a, rt_b});
     fbb.Finish(rts);
     const auto* ptr =
@@ -1135,12 +1152,12 @@ TEST_F(ConverterTest, ConvertRunTargetsValid)
     EXPECT_THAT((*result)[0].name, Eq("Startup"));
     EXPECT_THAT((*result)[0].recovery_action.run_target, Eq("SafeState"));
     EXPECT_THAT((*result)[1].name, Eq("Running"));
-    EXPECT_THAT((*result)[1].recovery_action.run_target, Eq("Fallback"));
+    EXPECT_THAT((*result)[1].recovery_action.run_target, Eq("fallback_run_target"));
 }
 
 TEST_F(ConverterTest, ConvertRunTargetsWithInvalidRunTargetReturnsError)
 {
-    RecordProperty("Description", "convertRunTargets returns error when a run target has invalid fields.");
+    RecordProperty("Description", "convertRunTargets returns error when a Run Target has invalid fields.");
     ::flatbuffers::FlatBufferBuilder fbb;
 
     auto switch_target = fbb.CreateString("SafeState");

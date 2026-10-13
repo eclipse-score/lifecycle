@@ -1,0 +1,56 @@
+' *******************************************************************************
+' Copyright (c) 2026 Contributors to the Eclipse Foundation
+'
+' See the NOTICE file(s) distributed with this work for additional
+' information regarding copyright ownership.
+'
+' This program and the accompanying materials are made available under the
+' terms of the Apache License Version 2.0 which is available at
+' https://www.apache.org/licenses/LICENSE-2.0
+'
+' SPDX-License-Identifier: Apache-2.0
+' *******************************************************************************
+
+@startuml
+title Alive Monitoring
+
+autonumber "<b>[000]"
+
+participant "Launch Manager" as LM
+participant "SCORE Application" as App
+
+activate LM
+
+LM --> App: Start process
+activate App
+
+App -> LM: Report Running state via Lifecycle interface
+
+LM -> LM: Launch Manager starts Alive Supervision
+
+
+alt App health status ok 
+    loop
+        App -> LM : ReportAlive()
+    end
+else #pink App detected failure (e.g. using HealthMonitor)
+    App -> LM : ReportFailure()
+
+    LM -> LM: Set Alive Supervision failure
+
+else #pink Application unresponsive
+    note over LM, App
+    Missing alive notification
+    end note
+
+    LM -> LM: Detect Alive Supervision failure
+end
+
+alt #pink health_status != ok
+    LM --> LM: Initiate Recovery Action (e.g. Restart App, Switching Run Target)
+end
+
+deactivate App
+
+deactivate LM
+@enduml

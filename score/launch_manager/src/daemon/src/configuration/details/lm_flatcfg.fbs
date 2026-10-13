@@ -153,6 +153,8 @@ table Sandbox {
   scheduling_priority:int32 = null; // required
   // Resource limits to apply to the component before exec.
   rlimits:[Rlimit]; // optional
+  // Affinity mask defining on which CPU cores the process may be scheduled.
+  affinity_mask:uint64 = null; // optional
 }
 
 // Deployment configuration for a component.

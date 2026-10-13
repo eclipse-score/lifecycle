@@ -39,6 +39,7 @@
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include "score/mw/launch_manager/process_group_manager/irun_target_control.hpp"
 #include "score/mw/lifecycle/details/lm_control_service.h"
+#include "score/mw/lifecycle/run_target_activation_source.hpp"
 #include <score/stop_token.hpp>
 
 namespace score::mw::lifecycle::internal
@@ -50,13 +51,13 @@ using WorkerQueue =
 /// @brief Config members needed to build the graph
 struct GraphConfig
 {
-    /// @brief Components that run targets may depend on
+    /// @brief Components that Run Targets may depend on
     std::vector<configuration::ComponentConfig> components_;
-    /// @brief Run targets that can be activated
+    /// @brief Run Targets that can be activated
     std::vector<configuration::RunTargetConfig> run_targets_;
-    /// @brief Information about the run target transitioned to in the event of an error
+    /// @brief Information about the Run Target transitioned to in the event of an error
     configuration::FallbackRunTargetConfig fallback_run_target_;
-    /// @brief Name of the first run target to launch
+    /// @brief Name of the first Run Target to launch
     std::string initial_run_target_;
 };
 
@@ -72,27 +73,18 @@ struct GraphConfig
 /// kSuccess        | kInTransition     | kInTransition
 /// kSuccess        | kAborting         | kUndefinedState
 /// kSuccess        | kUndefinedState   | kUndefinedState
-/// kSuccess        | kCancelled        | kUndefinedState
 /// ----------------+-------------------+----------------
 /// kInTransition   | kSuccess          | kSuccess
 /// kInTransition   | kAborting         | kAborting
 /// kInTransition   | kUndefinedState   | kAborting
-/// kInTransition   | kCancelled        | kCancelled
 /// ----------------+-------------------+----------------
 /// kAborting       | kSuccess          | kUndefinedState
 /// kAborting       | kInTransition     | kAborting
 /// kAborting       | kUndefinedState   | kUndefinedState
-/// kAborting       | kCancelled        | kCancelled
-/// ----------------+-------------------+----------------
-/// kCancelled      | kSuccess          | kUndefinedState
-/// kCancelled      | kInTransition     | kCancelled
-/// kCancelled      | kAborting         | kCancelled
-/// kCancelled      | kUndefinedState   | kUndefinedState
 /// ----------------+-------------------+----------------
 /// kUndefinedState | kSuccess          | kUndefinedState
 /// kUndefinedState | kInTransition     | kInTransition
 /// kUndefinedState | kAborting         | kUndefinedState
-/// kUndefinedState | kCancelled        | kUndefinedState
 /// @endverbatim
 enum class GraphState : std::uint_least8_t
 {
@@ -102,14 +94,12 @@ enum class GraphState : std::uint_least8_t
     ///@brief Graph is running, process group state is in transition
     kInTransition = 1U,
 
-    ///@brief Graph is running but has been aborted due to error, process group state is not known
+    ///@brief Graph is running but the transition has been aborted (error or cancellation because a new
+    /// transition is pending); process group state is not known
     kAborting = 2U,
 
-    ///@brief Graph is running but has been cancelled because a new process group state transition is pending
-    kCancelled = 3U,
-
     ///@brief Graph is not running but process group state is not known
-    kUndefinedState = 4U
+    kUndefinedState = 3U
 };
 
 /// @details Allowed transitions:
@@ -118,7 +108,6 @@ enum class GraphState : std::uint_least8_t
 /// kInTransition   -> kSuccess
 /// kInTransition   -> kAborting
 /// kInTransition   -> kUndefinedState
-/// kInTransition   -> kCancelled
 /// kAborting       -> kUndefinedState
 /// kSuccess        -> kUndefinedState
 /// kUndefinedState -> kInTransition
@@ -133,14 +122,20 @@ enum class GraphState : std::uint_least8_t
 /// kUndefinedState -> kAborting        kUndefinedState
 // clang-format off
 static constexpr GraphState state_results[][static_cast<uint>(GraphState::kUndefinedState) + 1U] = {
-    //from kSuccess                     kInTransition               kAborting                 kCancelled                      kUndefinedState              to new_state
-    {GraphState::kSuccess, GraphState::kSuccess, GraphState::kUndefinedState, GraphState::kUndefinedState,GraphState::kUndefinedState},  // kSuccess
-    {GraphState::kInTransition, GraphState::kInTransition, GraphState::kAborting, GraphState::kCancelled, GraphState::kInTransition},  // kInTransition
-    {GraphState::kUndefinedState, GraphState::kAborting, GraphState::kAborting, GraphState::kCancelled, GraphState::kUndefinedState},  // kAborting
-    {GraphState::kUndefinedState, GraphState::kCancelled, GraphState::kCancelled, GraphState::kCancelled, GraphState::kUndefinedState},  // kCancelled
-    {GraphState::kUndefinedState, GraphState::kAborting, GraphState::kUndefinedState, GraphState::kUndefinedState, GraphState::kUndefinedState}  // kUndefinedState
+    //from kSuccess                     kInTransition               kAborting                    kUndefinedState              to new_state
+    {GraphState::kSuccess, GraphState::kSuccess, GraphState::kUndefinedState, GraphState::kUndefinedState},  // kSuccess
+    {GraphState::kInTransition, GraphState::kInTransition, GraphState::kAborting, GraphState::kInTransition},  // kInTransition
+    {GraphState::kUndefinedState, GraphState::kAborting, GraphState::kAborting, GraphState::kUndefinedState},  // kAborting
+    {GraphState::kUndefinedState, GraphState::kAborting, GraphState::kUndefinedState, GraphState::kUndefinedState}  // kUndefinedState
 };
 // clang-format on
+
+/// @brief A Run Target waiting to be activated, and why it was requested.
+struct PendingTransition
+{
+    IdentifierHash run_target{""};
+    RunTargetActivationSource source{RunTargetActivationSource::kStateManagerRequest};
+};
 
 /// @brief Manages the processes and state transitions for a single process group.
 ///
@@ -156,11 +151,11 @@ class Graph final
     using Component = std::variant<ProcessInfoNode, RunTarget>;
 
     static constexpr std::string_view off_state_name{"Off"};
-    static constexpr std::string_view recovery_state_name{"fallback"};
+    static constexpr std::string_view recovery_state_name{"fallback_run_target"};
 
     /// @brief Constructor to initialize a Graph object.
     /// @param max_num_nodes Maximum number of nodes this graph can hold.
-    /// @param configuration Configuration containing run target and component information.
+    /// @param configuration Configuration containing Run Target and component information.
     /// @param job_queue Queue to push component jobs to for multithreaded processing.
     /// @param process_handling The interfaces used to start, stop and report on the OS processes.
     /// @param transition_result_receiver Object to notify when the initial transition is complete.
@@ -190,17 +185,21 @@ class Graph final
     void handleComponentEvent(const ComponentEvent& event);
 
     /// @brief Cancel the current transition because a new state has been requested.
-    /// Sets the graph state to kCancelled and posts a kSetStateCancelled pending event.
+    /// Sets the graph state to kAborting.
     /// If no jobs are in progress, transitions immediately to kUndefinedState.
     void cancel();
 
     /// @brief Begin transitioning this process group to the given state.
-    /// @return False if pg_state is not a recognized run target in this graph's configuration; the
+    /// @return False if pg_state is not a recognized Run Target in this graph's configuration; the
     /// transition is not started in that case. True otherwise.
     /// @param pg_state The target process group state.
-    bool startTransition(IdentifierHash pg_state);
+    /// @param source Why the transition is started; reported to the activation callback unless this is the
+    /// initial transition (always kInitialActivation).
+    bool startTransition(
+        IdentifierHash pg_state,
+        RunTargetActivationSource source = RunTargetActivationSource::kStateManagerRequest);
 
-    /// @return True if pg_state is a run target known to this graph's configuration.
+    /// @return True if pg_state is a Run Target known to this graph's configuration.
     /// @param pg_state The process group state to check.
     bool isValidRunTarget(IdentifierHash pg_state);
 
@@ -226,7 +225,7 @@ class Graph final
     /// at that index is a RunTarget rather than a ProcessInfoNode.
     ProcessInfoNode* getProcessInfoNode(IdentifierHash process_index);
 
-    /// @return The currently requested run target.
+    /// @return The currently requested Run Target.
     /// @note Only meaningful when getState() returns GraphState::kSuccess.
     IdentifierHash getRequestedRunTarget();
 
@@ -242,11 +241,17 @@ class Graph final
 
     /// @brief Replaces the pending state with new_state and returns the previous pending state.
     /// @param new_state The new pending state to set.
+    /// @param source Why the pending transition was requested (see startTransition()).
     /// @return The previous pending state.
-    IdentifierHash setPendingState(IdentifierHash new_state);
+    IdentifierHash setPendingState(
+        IdentifierHash new_state,
+        RunTargetActivationSource source = RunTargetActivationSource::kStateManagerRequest);
 
     /// @return The pending state, or an empty hash if no state is pending.
     IdentifierHash getPendingState();
+
+    /// @return The pending state together with why it was requested.
+    PendingTransition getPendingTransition() const;
 
     /// @brief A utility function that converts codes to strings for logging purposes
     /// @param state The state to convert
@@ -268,18 +273,13 @@ class Graph final
     /// @return The timeout in milliseconds, or zero if there is no configured timeout.
     std::chrono::milliseconds getOffStateTransitionTimeout() const;
 
-    /// @brief Register a callback to be fired when the active run target changes.
+    /// @brief Register a callback to be fired when the active Run Target changes.
     void registerActiveRunTargetCallback(ActivationCallbackT callback) noexcept;
 
   private:
     /// @brief Reports that a node has finished executing, enqueuing successors or updating the graph state if a
     /// transition has finished.
     void nodeExecuted(IdentifierHash node, score::cpp::expected_blank<IComponent::ComponentError> error);
-
-    /// @brief Abort the current transition due to a process error.
-    /// @deprecated @param code The execution error for the process that caused the abort.
-    /// @param reason The process error that triggered the abort.
-    void abort(uint32_t code, IComponent::ComponentError reason);
 
     /// @brief Sets the current state of the graph.
     /// @param new_state The new state to set for the graph.
@@ -305,10 +305,9 @@ class Graph final
     /// was the initial transition.
     void finalizeTransitionSuccess();
 
-    /// @brief Finalizes a failed or cancelled transition after the last in-flight job
+    /// @brief Finalizes an aborted transition (error or cancellation) after the last in-flight job
     /// completes. Moves the graph state to kUndefinedState and posts the appropriate event.
-    /// @param current_state The graph state when the last job completed (not kInTransition).
-    void handleNonTransitionExecution(GraphState current_state);
+    void handleNonTransitionExecution();
 
     /// @brief Number of jobs that have been queued but are not yet executed
     int32_t jobs_in_progress_{0};
@@ -326,7 +325,7 @@ class Graph final
     /// @brief Current state of the graph.
     GraphState state_{GraphState::kSuccess};
 
-    /// @brief the requested run target.
+    /// @brief the requested Run Target.
     IdentifierHash requested_state_{};
 
     /// @brief Mutex protecting concurrent access to requested_state_.
@@ -344,8 +343,11 @@ class Graph final
     /// @brief Set the true if this is the initial state transition
     bool is_initial_state_transition_{false};
 
+    /// @brief Why the current transition was started
+    RunTargetActivationSource transition_source_{RunTargetActivationSource::kStateManagerRequest};
+
     /// @brief The pending state transition, if any
-    IdentifierHash pending_state_{""};
+    PendingTransition pending_{};
 
     /// @brief Constant for Off state.
     const IdentifierHash off_state_{"Off"};

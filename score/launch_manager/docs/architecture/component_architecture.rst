@@ -42,6 +42,9 @@ Overview
           logic_arc_int__os__mman[version==1],
           logic_arc_int__baselibs__result[version==1],
           logic_arc_int__baselibs__flatbuffers[version==1],
+          logic_arc_int__baselibs__filesystem[version==1],
+          logic_arc_int__baselibs__string_view[version==1],
+          logic_arc_int__baselibs__scoped_function[version==1],
           logic_arc_int__communication__user[version==1]
    :security: NO
    :belongs_to: feat__lifecycle[version==1]

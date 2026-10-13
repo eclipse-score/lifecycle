@@ -104,12 +104,12 @@ def is_double(path: Path) -> bool:
     return any([r.search(str(path)) is not None for r in TEST_DOUBLE_SEARCH_PATTERNS])
 
 
-def has_multiple_double_names(path: Path) -> bool:
+def has_multiple_double_names(path: str) -> bool:
     """
     Return true if more than one test double names are present in a file name
     """
     pattern = TestDoubleName.to_regex_alternation()
-    matches = re.findall(pattern, str(path), flags=re.IGNORECASE)
+    matches = re.findall(pattern, path, flags=re.IGNORECASE)
     return len(matches) > 1
 
 
@@ -132,9 +132,9 @@ def define_operations(filenames: list[str]) -> list[RenameOperation]:
             continue
 
         # Error if we find more than one test double name in a file name
-        if has_multiple_double_names(path):
+        if has_multiple_double_names(path.name):
             raise ValueError(
-                f"Invalid file name {path} contains multiple double names."
+                f"Invalid file name {path.name} contains multiple double names."
             )
 
         # Error if there is more than one file extension

@@ -1,0 +1,80 @@
+' *******************************************************************************
+' Copyright (c) 2026 Contributors to the Eclipse Foundation
+'
+' See the NOTICE file(s) distributed with this work for additional
+' information regarding copyright ownership.
+'
+' This program and the accompanying materials are made available under the
+' terms of the Apache License Version 2.0 which is available at
+' https://www.apache.org/licenses/LICENSE-2.0
+'
+' SPDX-License-Identifier: Apache-2.0
+' *******************************************************************************
+
+@startuml
+title Launch Manager - Termination Request
+
+autonumber "<b>[00]"
+
+participant "Launch Manager" as LM
+participant "OS (kernel)" as kernel
+participant "setup_filesystems.sh" as fs
+participant "random" as ran
+participant "app1" as app1
+
+activate LM
+activate app1
+activate ran
+
+note over LM,app1
+Launch Manager has already started Components setup_filesystems.sh, random and app1.
+All components are in state `Ready`.
+end note
+
+[-> LM : Activate Run Target ("Off")
+LM -> LM : Determine transition plan
+LM -> app1 : SIGTERM
+app1 -> app1 : Terminate
+
+alt App1 terminates within the configured shutdown timeout
+    app1 -> kernel : exit
+    kernel -> LM : app1 terminated successfully
+else #pink App1 does not terminate within the configured timeout
+    LM -> app1 : SIGKILL
+    app1 -> kernel : exit
+    kernel -> LM : app1 terminated with error
+end alt
+
+destroy app1
+kernel -> LM : app1 terminated
+
+par Stop setup_filesystems.sh
+
+note over LM
+    The underlying process is already in state terminated.
+    Nothing to do.
+end note
+
+LM -> LM : Mark Component setup_filesystems.sh as Terminated
+
+else Stop random
+
+LM -> ran : SIGTERM
+
+alt Random terminates within the configured shutdown timeout
+    ran -> kernel : exit
+    kernel -> LM : random terminated successfully
+else #pink Random does not terminate within the configured timeout
+    LM -> ran : SIGKILL
+    ran -> kernel : exit
+    kernel -> LM : random terminated with error
+end alt
+
+destroy ran
+
+end par
+
+LM -> LM : Run Target Off successfully activated
+
+...
+@enduml

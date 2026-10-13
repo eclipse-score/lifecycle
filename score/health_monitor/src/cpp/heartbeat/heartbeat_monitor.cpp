@@ -42,7 +42,7 @@ namespace score::mw::health::heartbeat
 {
 HeartbeatMonitorBuilder::HeartbeatMonitorBuilder(const TimeRange& range)
     : monitor_builder_handle_{
-          heartbeat_monitor_builder_create_wrapper(range.min_ms(), range.max_ms()),
+          heartbeat_monitor_builder_create_wrapper(range.MinMs(), range.MaxMs()),
           &heartbeat_monitor_builder_destroy}
 {
 }
@@ -52,9 +52,9 @@ HeartbeatMonitor::HeartbeatMonitor(FFIHandle monitor_handle)
 {
 }
 
-void HeartbeatMonitor::heartbeat()
+void HeartbeatMonitor::Heartbeat()
 {
-    auto monitor_handle{monitor_handle_.as_rust_handle()};
+    auto monitor_handle{monitor_handle_.AsRustHandle()};
     SCORE_LANGUAGE_FUTURECPP_PRECONDITION(monitor_handle.has_value());
     SCORE_LANGUAGE_FUTURECPP_ASSERT(heartbeat_monitor_heartbeat(monitor_handle.value()) == kSuccess);
 }

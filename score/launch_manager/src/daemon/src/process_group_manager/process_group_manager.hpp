@@ -116,7 +116,7 @@ class ProcessGroupManager final : public IRunTargetControl
 
     void registerActiveRunTargetCallback(ActivationCallbackT callback) noexcept override;
 
-    const IdentifierHash recovery_state_{"fallback"};
+    const IdentifierHash recovery_state_{Graph::recovery_state_name};
 
   private:
     /// @brief Handle a single recovery request emitted by Alive supervision.
@@ -170,7 +170,7 @@ class ProcessGroupManager final : public IRunTargetControl
 
     /// @brief Send all process groups to the "Off" state
     /// @details cancel any Graph for a process group not in the "Off" state, wait for up to 2 seconds for all graphs
-    /// to be no longer in the `kCancelled` state, start a transition of remaining process groups to "Off" state,
+    /// to be no longer in the `kAborting` state, start a transition of remaining process groups to "Off" state,
     /// and finally wait for all graphs to complete. The final wait is bounded by the largest configured per-process
     /// shutdown_timeout_ms (plus the SIGKILL grace) so each component's individual shutdown_timeout_ms is respected.
     /// @warning Side effect: Depending if it is needed to forcefully terminate processes, worker jobs might be stopped

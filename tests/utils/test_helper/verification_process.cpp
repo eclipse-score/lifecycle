@@ -17,7 +17,7 @@
 
 /// @file  verification_process.cpp
 /// @brief Test process that touches signal files selected via command line
-///        arguments. Pass "fallback" to touch the fallback file and/or
+///        arguments. Pass "fallback_run_target" to touch the fallback file and/or
 ///        "test_end" to touch the test_end file.
 
 int main(int argc, char** argv)
@@ -28,7 +28,7 @@ int main(int argc, char** argv)
     for (int i = 1; i < argc; ++i)
     {
         const std::string_view arg{argv[i]};
-        if (arg == "fallback")
+        if (arg == "fallback_run_target")
         {
             touch_fallback = true;
         }

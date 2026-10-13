@@ -62,7 +62,8 @@
                             "soft": 1024,
                             "hard": 18446744073709551615
                         }
-                    ]
+                    ],
+                    "affinity_mask": 3
                 },
                 "environmental_variables": [
                     {
@@ -138,7 +139,8 @@
                             "soft": 80,
                             "hard": 80
                         }
-                    ]
+                    ],
+                    "affinity_mask": 3
                 },
                 "environmental_variables": [
                     {
@@ -211,7 +213,8 @@
                             "soft": 80,
                             "hard": 80
                         }
-                    ]
+                    ],
+                    "affinity_mask": 3
                 },
                 "environmental_variables": [
                     {
@@ -284,7 +287,8 @@
                             "soft": 80,
                             "hard": 80
                         }
-                    ]
+                    ],
+                    "affinity_mask": 3
                 },
                 "environmental_variables": [
                     {

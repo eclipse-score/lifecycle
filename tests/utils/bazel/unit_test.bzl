@@ -13,6 +13,7 @@
 """Bazel macros for LCM unit tests."""
 
 load("@rules_cc//cc:defs.bzl", "cc_test")
+load("@rules_rust//rust:defs.bzl", "rust_test")
 
 def lm_cc_test(name, deps = [], **kwargs):
     """Wrapper around cc_test that auto-registers the LCM assertion handler.
@@ -43,3 +44,27 @@ def lm_cc_test(name, deps = [], **kwargs):
         }),
         **kwargs
     )
+
+def lm_rust_test(name, **kwargs):
+    """Wrapper around rust_test.
+    """
+    rust_test(
+        name = name,
+        target_compatible_with = kwargs.pop("target_compatible_with", []) + select({
+            "//config:unit_qemu": [],
+            "//config:unit_host": [],
+            "//conditions:default": ["@platforms//:incompatible"],
+        }),
+        **kwargs
+    )
+
+def linker_wrap_symbols(symbols):
+    """Convert symbol names to linker wrap flags.
+
+    Args:
+        symbols: List of symbol names to wrap.
+
+    Returns:
+        List of "-Wl,--wrap=<symbol>" linker options.
+    """
+    return ["-Wl,--wrap={}".format(s) for s in symbols]

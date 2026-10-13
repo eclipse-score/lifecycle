@@ -10,13 +10,24 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
-use libc::c_int;
-
 #[link(name = "report_running")]
 unsafe extern "C" {
-    fn score_mw_lifecycle_report_running() -> c_int;
+    fn score_mw_lifecycle_report_running() -> i8;
 }
 
 pub fn report_running() -> bool {
     unsafe { score_mw_lifecycle_report_running() == 0 }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn given_no_ipc_when_report_running_called_the_returns_false() {
+        // Given no launch manager IPC setup
+        // When report_running() is called
+        // Then report_running() returns false
+        assert!(!report_running());
+    }
 }

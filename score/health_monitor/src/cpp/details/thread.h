@@ -15,6 +15,7 @@
 
 #include "score/mw/health/common.h"
 #include <cstdint>
+#include <utility>
 #include <vector>
 
 namespace score::mw::health
@@ -31,10 +32,24 @@ enum class SchedulerPolicy : int32_t
 };
 
 /// Get min thread priority for given policy.
-int32_t scheduler_policy_priority_min(SchedulerPolicy scheduler_policy);
+int32_t SchedulerPolicyPriorityMin(SchedulerPolicy scheduler_policy);
 
 /// Get max thread priority for given policy.
-int32_t scheduler_policy_priority_max(SchedulerPolicy scheduler_policy);
+int32_t SchedulerPolicyPriorityMax(SchedulerPolicy scheduler_policy);
+
+/// @deprecated Use `SchedulerPolicyPriorityMin()` instead. Removed in the release after v0.10.
+[[deprecated("Use SchedulerPolicyPriorityMin() instead. The snake_case API is removed in the release after v0.10.")]]
+inline int32_t scheduler_policy_priority_min(SchedulerPolicy scheduler_policy)
+{
+    return SchedulerPolicyPriorityMin(scheduler_policy);
+}
+
+/// @deprecated Use `SchedulerPolicyPriorityMax()` instead. Removed in the release after v0.10.
+[[deprecated("Use SchedulerPolicyPriorityMax() instead. The snake_case API is removed in the release after v0.10.")]]
+inline int32_t scheduler_policy_priority_max(SchedulerPolicy scheduler_policy)
+{
+    return SchedulerPolicyPriorityMax(scheduler_policy);
+}
 
 class SchedulerParameters final
 {
@@ -44,10 +59,24 @@ class SchedulerParameters final
     SchedulerParameters(SchedulerPolicy policy, int32_t priority);
 
     /// Scheduler policy.
-    SchedulerPolicy policy() const;
+    SchedulerPolicy Policy() const;
 
     /// Thread priority.
-    int32_t priority() const;
+    int32_t Priority() const;
+
+    /// @deprecated Use `Policy()` instead. Removed in the release after v0.10.
+    [[deprecated("Use Policy() instead. The snake_case API is removed in the release after v0.10.")]]
+    SchedulerPolicy policy() const
+    {
+        return Policy();
+    }
+
+    /// @deprecated Use `Priority()` instead. Removed in the release after v0.10.
+    [[deprecated("Use Priority() instead. The snake_case API is removed in the release after v0.10.")]]
+    int32_t priority() const
+    {
+        return Priority();
+    }
 
   private:
     SchedulerPolicy policy_;
@@ -62,27 +91,48 @@ class ThreadParameters final : public internal::RustDroppable<ThreadParameters>
     ThreadParameters();
 
     /// Scheduler parameters, including scheduler policy and thread priority.
-    ThreadParameters scheduler_parameters(SchedulerParameters scheduler_parameters) &&;
+    ThreadParameters WithSchedulerParameters(SchedulerParameters scheduler_parameters) &&;
 
     /// Set thread affinity - array of CPU core IDs that the thread can run on.
-    ThreadParameters affinity(const std::vector<size_t>& affinity) &&;
+    ThreadParameters Affinity(const std::vector<size_t>& affinity) &&;
 
     /// Set stack size.
-    ThreadParameters stack_size(size_t stack_size) &&;
+    ThreadParameters StackSize(size_t stack_size) &&;
+
+    /// @deprecated Use `WithSchedulerParameters()` instead. Removed in the release after v0.10.
+    [[deprecated("Use WithSchedulerParameters() instead. The snake_case API is removed in the release after v0.10.")]]
+    ThreadParameters scheduler_parameters(SchedulerParameters scheduler_parameters) &&
+    {
+        return std::move(*this).WithSchedulerParameters(scheduler_parameters);
+    }
+
+    /// @deprecated Use `Affinity()` instead. Removed in the release after v0.10.
+    [[deprecated("Use Affinity() instead. The snake_case API is removed in the release after v0.10.")]]
+    ThreadParameters affinity(const std::vector<size_t>& affinity) &&
+    {
+        return std::move(*this).Affinity(affinity);
+    }
+
+    /// @deprecated Use `StackSize()` instead. Removed in the release after v0.10.
+    [[deprecated("Use StackSize() instead. The snake_case API is removed in the release after v0.10.")]]
+    ThreadParameters stack_size(size_t stack_size) &&
+    {
+        return std::move(*this).StackSize(stack_size);
+    }
 
   protected:
-    std::optional<internal::FFIHandle> _drop_by_rust_impl()
+    std::optional<internal::FFIHandle> DropByRustImpl()
     {
-        return thread_parameters_handle_.drop_by_rust();
+        return thread_parameters_handle_.DropByRust();
     }
 
   private:
     internal::DroppableFFIHandle thread_parameters_handle_;
 
-    // Allow to hide `drop_by_rust` implementation.
+    // Allow to hide `DropByRust` implementation.
     friend class internal::RustDroppable<ThreadParameters>;
 
-    // Allow `HealthMonitorBuilder` to access `drop_by_rust` implementation.
+    // Allow `HealthMonitorBuilder` to access `DropByRust` implementation.
     friend class score::mw::health::HealthMonitorBuilder;
 };
 

@@ -11,6 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 load("@rules_rust//rust:defs.bzl", "rust_library")
+load("//tests/utils/bazel:unit_test.bzl", "lm_rust_test")
 
 rust_library(
     name = "lifecycle_client_rs",
@@ -23,4 +24,9 @@ rust_library(
         "//score/launch_manager/src/lifecycle_client:report_running",
         "@score_crates//:libc",
     ],
+)
+
+lm_rust_test(
+    name = "lifecycle_client_rs_test",
+    crate = ":lifecycle_client_rs",
 )

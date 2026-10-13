@@ -14,11 +14,21 @@
 #ifndef LCM_LOG_HPP_INCLUDED
 #define LCM_LOG_HPP_INCLUDED
 
+#include <chrono>
 #include <cstring>
 
 // Compile time switch to use different logging subsystems.
 // Parts of LM code will be compiled into different binaries, think IPC between Lifecycle client library and LM daemon.
 // In this situation, this code will need to inherit logging mechanism of the binary file.
+
+namespace score::mw::lifecycle::internal
+{
+
+struct TIMESTAMP_MS
+{
+};
+
+}  // namespace score::mw::lifecycle::internal
 
 #ifdef LC_LOG_SCORE_MW_LOG
 
@@ -36,6 +46,13 @@ inline score::mw::log::Logger& _getLmLogger() noexcept
 {
     static score::mw::log::Logger& log{score::mw::log::CreateLogger("LM", "Launch Manager logging context")};
     return log;
+}
+
+inline score::mw::log::LogStream& operator<<(score::mw::log::LogStream& out, TIMESTAMP_MS /*unused*/)
+{
+    const auto time = std::chrono::steady_clock::now();
+    out << std::chrono::duration_cast<std::chrono::milliseconds>(time.time_since_epoch()).count() << "ms";
+    return out;
 }
 
 }  // namespace score::mw::lifecycle::internal
@@ -268,6 +285,13 @@ namespace score::mw::lifecycle::internal
 inline std::string_view errno_message(const int err) noexcept(true)
 {
     return std::string_view{std::strerror(err)};
+}
+
+inline std::ostream& operator<<(std::ostream& out, TIMESTAMP_MS /*unused*/)
+{
+    const auto time = std::chrono::steady_clock::now();
+    out << std::chrono::duration_cast<std::chrono::milliseconds>(time.time_since_epoch()).count() << "ms";
+    return out;
 }
 
 }  // namespace score::mw::lifecycle::internal

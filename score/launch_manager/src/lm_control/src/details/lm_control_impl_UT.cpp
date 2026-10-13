@@ -202,7 +202,7 @@ GetActiveRunTargetResponse Available(RunTargetName name)
     return GetActiveRunTargetResponse{QueryStatus::kAvailable, name};
 }
 
-/// @brief Builds a batch of activation results, one per run target name.
+/// @brief Builds a batch of activation results, one per Run Target name.
 std::vector<ActivationResult> MakeSamples(std::initializer_list<std::string_view> run_target_names)
 {
     std::vector<ActivationResult> samples{};
@@ -522,7 +522,7 @@ TEST_F(LmControlUT, StopFindServiceFailureOnDestructionIsTolerated)
 TEST_F(LmControlUT, ActivateForwardsNameAndQueuedModeByDefault)
 {
     RecordProperty(
-        "Description", "activate_run_target forwards the run target name and defaults to queued activation mode.");
+        "Description", "activate_run_target forwards the Run Target name and defaults to queued activation mode.");
 
     auto sut = MakeConnected();
 
@@ -583,7 +583,7 @@ TEST_F(LmControlUT, ActivateTransportFailureReturnsCommunicationError)
 
 TEST_F(LmControlUT, GetActiveRunTargetReturnsName)
 {
-    RecordProperty("Description", "get_active_run_target returns the currently active run target name.");
+    RecordProperty("Description", "get_active_run_target returns the currently active Run Target name.");
 
     auto sut = MakeConnected();
 
@@ -597,7 +597,7 @@ TEST_F(LmControlUT, GetActiveRunTargetReturnsName)
 TEST_F(LmControlUT, GetActiveRunTargetNotAvailableReturnsActivationInProgress)
 {
     RecordProperty(
-        "Description", "When no active run target is available, get_active_run_target reports kActivationInProgress.");
+        "Description", "When no active Run Target is available, get_active_run_target reports kActivationInProgress.");
 
     auto sut = MakeConnected();
 
@@ -642,7 +642,7 @@ TEST_F(LmControlUT, ActivationResultInvokesRegisteredCallback)
     RecordProperty(
         "Description",
         "A received activation_result sample is forwarded to the registered callback with its source and "
-        "run target.");
+        "Run Target.");
 
     auto sut = MakeConnected();
 

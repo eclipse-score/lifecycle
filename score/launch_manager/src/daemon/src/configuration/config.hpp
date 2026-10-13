@@ -72,11 +72,11 @@ class Config
 
     /// @brief Returns the component configurations.
     [[nodiscard]] const std::vector<ComponentConfig>& components() const;
-    /// @brief Returns the run target configurations.
+    /// @brief Returns the Run Target configurations.
     [[nodiscard]] const std::vector<RunTargetConfig>& runTargets() const;
-    /// @brief Returns the name of the initial run target.
+    /// @brief Returns the name of the initial Run Target.
     [[nodiscard]] std::string_view initialRunTarget() const;
-    /// @brief Returns the fallback run target configuration.
+    /// @brief Returns the fallback Run Target configuration.
     [[nodiscard]] const FallbackRunTargetConfig& fallbackRunTarget() const;
     /// @brief Returns the global alive supervision configuration.
     [[nodiscard]] const AliveSupervisionConfig& aliveSupervision() const;
@@ -85,11 +85,11 @@ class Config
 
     /// @brief Moves out the component configurations. Source is left in a moved-from state.
     [[nodiscard]] std::vector<ComponentConfig> takeComponents();
-    /// @brief Moves out the run target configurations. Source is left in a moved-from state.
+    /// @brief Moves out the Run Target configurations. Source is left in a moved-from state.
     [[nodiscard]] std::vector<RunTargetConfig> takeRunTargets();
-    /// @brief Moves out the initial run target name. Source is left in a moved-from state.
+    /// @brief Moves out the initial Run Target name. Source is left in a moved-from state.
     [[nodiscard]] std::string takeInitialRunTarget();
-    /// @brief Moves out the fallback run target configuration. Source is left in a moved-from state.
+    /// @brief Moves out the fallback Run Target configuration. Source is left in a moved-from state.
     [[nodiscard]] FallbackRunTargetConfig takeFallbackRunTarget();
     /// @brief Moves out the alive supervision configuration. Source is left in a moved-from state.
     [[nodiscard]] AliveSupervisionConfig takeAliveSupervision();
@@ -121,11 +121,11 @@ class ConfigBuilder
   public:
     /// @brief Sets the component configurations.
     ConfigBuilder& setComponents(std::vector<ComponentConfig> components);
-    /// @brief Sets the run target configurations.
+    /// @brief Sets the Run Target configurations.
     ConfigBuilder& setRunTargets(std::vector<RunTargetConfig> run_targets);
-    /// @brief Sets the initial run target name.
+    /// @brief Sets the initial Run Target name.
     ConfigBuilder& setInitialRunTarget(std::string initial_run_target);
-    /// @brief Sets the fallback run target configuration.
+    /// @brief Sets the fallback Run Target configuration.
     ConfigBuilder& setFallbackRunTarget(FallbackRunTargetConfig fallback);
     /// @brief Sets the global alive supervision configuration.
     ConfigBuilder& setAliveSupervision(AliveSupervisionConfig alive_supervision);

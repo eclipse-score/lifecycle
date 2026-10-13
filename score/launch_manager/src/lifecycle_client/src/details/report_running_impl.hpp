@@ -58,6 +58,11 @@ class ReportRunningImpl final
     ///        False if kRunning was not yet reported by the process using this library.
     static std::atomic_bool reported;
 
+    /// @brief Friend class for accessing and mutating private class contents
+    /// @note For testing purposes only
+    friend class ReportRunningImplTestAccessor;
+
+  public:
     /// @brief Helper method to handle the reporting the kRunning to Daemon operation
     /// @returns An instance of score::Result
     score::Result<std::monostate> reportKRunningtoDaemon() const noexcept;

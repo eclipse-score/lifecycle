@@ -144,7 +144,7 @@ def gen_lifecycle_config(
         },
     }
 
-    # --- Run targets ---
+    # --- Run Targets ---
     config["run_targets"]["Startup"] = {
         "depends_on": ["control_daemon"],
         "recovery_action": {"switch_run_target": {"run_target": "Startup"}},
@@ -155,7 +155,7 @@ def gen_lifecycle_config(
         "recovery_action": {"switch_run_target": {"run_target": "Startup"}},
     }
 
-    # Fallback run target: control daemon + verbose app run during recovery
+    # Fallback Run Target: control daemon + verbose app run during recovery
     config["fallback_run_target"] = {"depends_on": ["control_daemon", "fallback_app"]}
 
     return config
