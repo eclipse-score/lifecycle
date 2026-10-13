@@ -319,6 +319,51 @@ TEST_F(ProcessInfoNodeStartupTest, ActivateAlreadyActiveNode_ReturnsSuccess)
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kRunning));
 }
 
+TEST_F(ProcessInfoNodeStartupTest, TerminatedReadyCondition_StopRequestedDuringStartup_ReturnsActivationTimedOut)
+{
+    RecordProperty(
+        "Description",
+        "If a stop is requested while waiting for a process to terminate (ReadyCondition::kTerminated), the wait is "
+        "aborted, the ready condition is not met and the process is terminated.");
+
+    auto node =
+        createProcessInfoNode(configuration::ApplicationType::Native, 0, true, configuration::ProcessState::Terminated);
+
+    EXPECT_CALL(mock_processIf_, startProcess(_, _, _)).WillOnce(Return(osal::OsalReturnType::kSuccess));
+    EXPECT_CALL(*process_map_, insertIfNotTerminated(_, _)).WillOnce(InvokeWithoutArgs([this]() {
+        stop_source_.request_stop();
+        return score::mw::lifecycle::internal::SafeProcessMapReturnType::kOk;
+    }));
+    expectOsAcknowledgesTermination(node.get());
+
+    auto result = node->activate(stop_source_.get_token());
+
+    ASSERT_THAT(result.has_value(), IsFalse());
+    ASSERT_THAT(result.error(), Eq(IComponent::ComponentError::kActivationTimedOut));
+    ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kTerminated));
+}
+
+TEST_F(ProcessInfoNodeStartupTest, TerminatedReadyCondition_NoTerminationInTime_ReturnsActivationTimedOut)
+{
+    RecordProperty(
+        "Description",
+        "If a process with ReadyCondition::kTerminated does not terminate within the ready timeout (and no stop is "
+        "requested), the ready condition is not met and the process is terminated.");
+
+    ready_timeout_ms_ = 10U;
+    auto node =
+        createProcessInfoNode(configuration::ApplicationType::Native, 0, true, configuration::ProcessState::Terminated);
+
+    expectSuccessfulProcessLaunch();
+    expectOsAcknowledgesTermination(node.get());
+
+    auto result = node->activate(score::cpp::stop_token{});
+
+    ASSERT_THAT(result.has_value(), IsFalse());
+    ASSERT_THAT(result.error(), Eq(IComponent::ComponentError::kActivationTimedOut));
+    ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kTerminated));
+}
+
 struct YieldTestCasesData
 {
     configuration::ApplicationType app_type_;
