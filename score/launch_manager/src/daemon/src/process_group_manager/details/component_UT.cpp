@@ -202,7 +202,7 @@ TEST(ComponentTest, CannotDeactivateInTerminatedState)
 
     EXPECT_DEATH(
         { static_cast<void>(component.deactivate(cpp::stop_token{})); },
-        "Cannot deactivate component in TerminatedState");
+        "Cannot deactivate component in a non-running state");
 }
 
 TEST(ComponentTest, CannotActivateInReadyState)
@@ -217,7 +217,7 @@ TEST(ComponentTest, CannotActivateInReadyState)
     static_cast<void>(component.activate(cpp::stop_token{}));
 
     EXPECT_DEATH(
-        { static_cast<void>(component.activate(cpp::stop_token{})); }, "Cannot activate component in ReadyState");
+        { static_cast<void>(component.activate(cpp::stop_token{})); }, "Cannot activate component in a running state");
 }
 
 TEST(ComponentTest, CannotActivateInTerminatingState)
@@ -234,7 +234,7 @@ TEST(ComponentTest, CannotActivateInTerminatingState)
     static_cast<void>(component.deactivate(cpp::stop_token{}));
 
     EXPECT_DEATH(
-        { static_cast<void>(component.activate(cpp::stop_token{})); }, "Cannot activate component in TerminatingState");
+        { static_cast<void>(component.activate(cpp::stop_token{})); }, "Cannot activate component in a running state");
 }
 
 TEST(ComponentTest, CannotDeactivateInTerminatingState)
@@ -252,7 +252,7 @@ TEST(ComponentTest, CannotDeactivateInTerminatingState)
 
     EXPECT_DEATH(
         { static_cast<void>(component.deactivate(cpp::stop_token{})); },
-        "Cannot deactivate component in TerminatingState");
+        "Cannot deactivate component in a non-running state");
 }
 
 TEST(ComponentTest, CannotActivateInFaultState)
@@ -268,7 +268,7 @@ TEST(ComponentTest, CannotActivateInFaultState)
     component.tryHandleTermination(1);
 
     EXPECT_DEATH(
-        { static_cast<void>(component.activate(cpp::stop_token{})); }, "Cannot activate component in FaultState");
+        { static_cast<void>(component.activate(cpp::stop_token{})); }, "Cannot activate component in a running state");
 }
 
 TEST(ComponentTest, CannotDeactivateInFaultState)
@@ -284,7 +284,8 @@ TEST(ComponentTest, CannotDeactivateInFaultState)
     component.tryHandleTermination(1);
 
     EXPECT_DEATH(
-        { static_cast<void>(component.deactivate(cpp::stop_token{})); }, "Cannot deactivate component in FaultState");
+        { static_cast<void>(component.deactivate(cpp::stop_token{})); },
+        "Cannot deactivate component in a non-running state");
 }
 
 TEST(ComponentTest, SelfTerminatingExitZeroInReadyStateIsSuccess)

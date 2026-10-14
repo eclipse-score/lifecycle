@@ -35,110 +35,72 @@ Component::Component(
 
 IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
 {
-    return std::visit(
-        [&](auto state) {
-            return state.activate(*this, stop_token);
-        },
-        getState());
-}
+    std::unique_lock<std::mutex> lock{state_mutex_};
 
-IComponent::RequestResult Component::TerminatedState::activate(Component& component, cpp::stop_token stop_token)
-{
-    const Result<Handle> start_result = component.start_action_.start(stop_token);
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+        std::holds_alternative<TerminatedState>(state_), "Cannot activate component in a running state");
+
+    const Result<Handle> start_result = start_action_.start(stop_token);
     if (!start_result.has_value())
     {
         return cpp::make_unexpected(ComponentError::kErrorBeforeReady);
     }
-    const Handle handle = start_result.value();
+    const Handle& handle = start_result.value();
 
-    // Create a child token, which can be stopped from tryHandleTermination
-    // in addition to forwarding requests from the parent.
-    cpp::stop_source stop_activation;
+    cpp::stop_source stop_activation{};
     const cpp::stop_callback forward_stop{stop_token, [&stop_activation] {
                                               const bool stopped = stop_activation.request_stop();
                                               SCORE_LANGUAGE_FUTURECPP_ASSERT(stopped);
                                           }};
-    component.setState(StartingState{handle, stop_activation});
 
-    for (const IReadyCondition& ready_condition : component.ready_conditions_)
+    state_ = StartingState{handle, stop_activation};
+
+    // Wait for ready conditions. The state is unlocked so that `deactivate` or
+    // `tryHandleTermination` are callable while we are waiting.
+    lock.unlock();
+    for (const IReadyCondition& ready_condition : ready_conditions_)
     {
         if (!ready_condition.wait(stop_activation.get_token(), handle).has_value())
         {
             return cpp::make_unexpected(ComponentError::kErrorBeforeReady);
         }
     }
+    lock.lock();
 
+    // If `deactivate` or `tryHandleTermination` was called during the wait then
+    // activation fails.
     if (stop_activation.stop_requested())
     {
-        // Startup was cancelled, either by the caller or by an unexpected termination.
         return cpp::make_unexpected(ComponentError::kErrorBeforeReady);
     }
 
-    // The handle may have been invalidated while starting, so don't reuse the local copy.
-    const std::lock_guard<std::mutex> lock{component.state_mutex_};
-    if (const StartingState* const starting = std::get_if<StartingState>(&component.state_))
+    // The state could change while the lock was released, so we have to check.
+    if (const StartingState* const starting = std::get_if<StartingState>(&state_))
     {
-        component.state_ = ReadyState{starting->handle_};
+        state_ = ReadyState{starting->handle_};
+        return RequestState::kSuccess;
     }
-    return RequestState::kSuccess;
-}
 
-IComponent::RequestResult Component::StartingState::activate(
-    [[maybe_unused]] Component& component,
-    [[maybe_unused]] cpp::stop_token stop_token)
-{
-    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Cannot activate component in StartingState");
-}
-
-IComponent::RequestResult Component::ReadyState::activate(
-    [[maybe_unused]] Component& component,
-    [[maybe_unused]] cpp::stop_token stop_token)
-{
-    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Cannot activate component in ReadyState");
-}
-
-IComponent::RequestResult Component::TerminatingState::activate(
-    [[maybe_unused]] Component& component,
-    [[maybe_unused]] cpp::stop_token stop_token)
-{
-    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Cannot activate component in TerminatingState");
-}
-
-IComponent::RequestResult Component::FaultState::activate(
-    [[maybe_unused]] Component& component,
-    [[maybe_unused]] cpp::stop_token stop_token)
-{
-    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Cannot activate component in FaultState");
+    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("If stop was not requested, then state must still be StartingState");
 }
 
 IComponent::RequestResult Component::deactivate(cpp::stop_token stop_token)
 {
-    return std::visit(
-        [&](auto state) {
-            return state.deactivate(*this, stop_token);
-        },
-        getState());
-}
+    const std::lock_guard<std::mutex> lock{state_mutex_};
 
-IComponent::RequestResult Component::TerminatedState::deactivate(
-    [[maybe_unused]] Component& component,
-    [[maybe_unused]] cpp::stop_token stop_token)
-{
-    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Cannot deactivate component in TerminatedState");
-}
+    StartingState* const starting = std::get_if<StartingState>(&state_);
+    const ReadyState* const ready = std::get_if<ReadyState>(&state_);
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+        (starting != nullptr) || (ready != nullptr), "Cannot deactivate component in a non-running state");
+    const Handle& handle = (starting != nullptr) ? starting->handle_ : ready->handle_;
 
-IComponent::RequestResult Component::StartingState::deactivate(Component& component, cpp::stop_token stop_token)
-{
-    static_cast<void>(stop_activation_.request_stop());
+    // If the component is still waiting for ready conditions, cancel that.
+    if (starting != nullptr)
+    {
+        static_cast<void>(starting->stop_activation_.request_stop());
+    }
 
-    // The implementation from here onwards is the same as the ready state.
-    return ReadyState{handle_}.deactivate(component, stop_token);
-}
-
-IComponent::RequestResult Component::ReadyState::deactivate(Component& component, cpp::stop_token stop_token)
-{
-    const Result<RequestResult> result = component.stop_action_.stop(stop_token, handle_);
-
+    const Result<RequestResult> result = stop_action_.stop(stop_token, handle);
     if (!result.has_value())
     {
         return cpp::make_unexpected(ComponentError::kErrorAfterReady);
@@ -146,111 +108,72 @@ IComponent::RequestResult Component::ReadyState::deactivate(Component& component
 
     switch (*result.value())
     {
+        // Wait for `tryHandleTermination` to tell us the termination is done.
         case RequestState::kWaiting:
-            component.setState(TerminatingState{handle_});
+            state_ = TerminatingState{handle};
             return RequestState::kWaiting;
 
+        // Already terminated, jump straight to the final state.
         case RequestState::kSuccess:
-            component.setState(TerminatedState{});
+            state_ = TerminatedState{};
             return RequestState::kSuccess;
     }
 
     SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Every possible RequestState should be handled");
 }
 
-IComponent::RequestResult Component::TerminatingState::deactivate(
-    [[maybe_unused]] Component& component,
-    [[maybe_unused]] cpp::stop_token stop_token)
-{
-    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Cannot deactivate component in TerminatingState");
-}
-
-IComponent::RequestResult Component::FaultState::deactivate(
-    [[maybe_unused]] Component& component,
-    [[maybe_unused]] cpp::stop_token stop_token)
-{
-    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Cannot deactivate component in FaultState");
-}
-
 IComponent::RequestResult Component::tryHandleTermination(int32_t status)
 {
-    return std::visit(
-        [&](auto state) {
-            return state.tryHandleTermination(*this, status);
-        },
-        getState());
-}
+    const std::lock_guard<std::mutex> lock{state_mutex_};
 
-IComponent::RequestResult Component::TerminatedState::tryHandleTermination(
-    [[maybe_unused]] Component& component,
-    [[maybe_unused]] int32_t status)
-{
-    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Cannot handle termination for a component in TerminatedState");
-}
-
-IComponent::RequestResult Component::StartingState::tryHandleTermination(Component& component, int32_t status)
-{
-    if (ProcessHandle* handle = std::get_if<ProcessHandle>(&handle_))
+    // If we are waiting for termination, mark it as done. We do not care
+    // about the exit code.
+    if (std::holds_alternative<TerminatingState>(state_))
     {
-        handle->pid = -1;
+        state_ = TerminatedState{};
+        return RequestState::kSuccess;
     }
 
-    for (const IReadyCondition& ready_condition : component.ready_conditions_)
+    StartingState* const starting = std::get_if<StartingState>(&state_);
+    ReadyState* const ready = std::get_if<ReadyState>(&state_);
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+        (starting != nullptr) || (ready != nullptr), "Cannot handle termination in a non-running state");
+    Handle& handle = (starting != nullptr) ? starting->handle_ : ready->handle_;
+
+    // Invalidate the resource to prevent acting on something which is already gone.
+    // TODO: Component should not have code for specific handle types
+    if (ProcessHandle* const process_handle = std::get_if<ProcessHandle>(&handle))
     {
-        if (ready_condition.tryHandleTermination(status))
+        process_handle->pid = -1;
+    }
+
+    // Certain ready conditions can accept terminations.
+    if (starting != nullptr)
+    {
+        for (const IReadyCondition& ready_condition : ready_conditions_)
         {
-            return RequestState::kSuccess;
+            if (ready_condition.tryHandleTermination(status))
+            {
+                return RequestState::kSuccess;
+            }
         }
     }
 
-    if (component.self_terminating_ && status == 0)
+    // Self-terminating components can accept terminations.
+    if (self_terminating_ && status == 0)
     {
-        // Self-terminating means the component is logically still running
-        // even though the resource has stopped.
-        // Termination by itself does not make the component ready; if this
-        // is desired then a ready condition should handle it above.
         return RequestState::kSuccess;
     }
 
-    // Interrupt the worker thread waiting in activate().
-    static_cast<void>(stop_activation_.request_stop());
-
-    component.setState(FaultState{});
-    return cpp::make_unexpected(ComponentError::kErrorAfterReady);
-}
-
-IComponent::RequestResult Component::ReadyState::tryHandleTermination(Component& component, int32_t status)
-{
-    if (ProcessHandle* handle = std::get_if<ProcessHandle>(&handle_))
+    // If none of the above cases apply, then termination is unexpected.
+    if (starting != nullptr)
     {
-        handle->pid = -1;
+        // Interrupt the worker thread waiting in activate().
+        static_cast<void>(starting->stop_activation_.request_stop());
     }
 
-    if (component.self_terminating_ && status == 0)
-    {
-        // Self-terminating means the component is logically still running
-        // even though the resource has stopped.
-        return RequestState::kSuccess;
-    }
-
-    component.setState(FaultState{});
+    state_ = FaultState{};
     return cpp::make_unexpected(ComponentError::kErrorAfterReady);
-}
-
-IComponent::RequestResult Component::TerminatingState::tryHandleTermination(
-    Component& component,
-    [[maybe_unused]] int32_t status)
-{
-    // Since we requested termination, we do not care about the exit code.
-    component.setState(TerminatedState{});
-    return RequestState::kSuccess;
-}
-
-IComponent::RequestResult Component::FaultState::tryHandleTermination(
-    [[maybe_unused]] Component& component,
-    [[maybe_unused]] int32_t status)
-{
-    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Cannot handle termination for a component in FaultState");
 }
 
 IdentifierHash Component::getIdentifier() const
@@ -260,7 +183,8 @@ IdentifierHash Component::getIdentifier() const
 
 bool Component::active() const
 {
-    return std::holds_alternative<ReadyState>(getState());
+    const std::lock_guard<std::mutex> lock{state_mutex_};
+    return std::holds_alternative<ReadyState>(state_);
 }
 
 }  // namespace score::mw::lifecycle::internal

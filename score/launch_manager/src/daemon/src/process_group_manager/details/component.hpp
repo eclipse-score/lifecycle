@@ -93,49 +93,29 @@ class Component final : public IComponent
     /// @brief Name of the component.
     const IdentifierHash identifier_;
 
-    class TerminatedState final
+    struct TerminatedState final
     {
-      public:
-        RequestResult activate(Component& component, cpp::stop_token stop_token);
-        RequestResult deactivate(Component& component, cpp::stop_token stop_token);
-        RequestResult tryHandleTermination(Component& component, int32_t status);
     };
 
-    class StartingState final
+    struct StartingState final
     {
-      public:
         Handle handle_;
         cpp::stop_source stop_activation_;
-        RequestResult activate(Component& component, cpp::stop_token stop_token);
-        RequestResult deactivate(Component& component, cpp::stop_token stop_token);
-        RequestResult tryHandleTermination(Component& component, int32_t status);
     };
 
-    class ReadyState final
+    struct ReadyState final
     {
-      public:
         Handle handle_;
-        RequestResult activate(Component& component, cpp::stop_token stop_token);
-        RequestResult deactivate(Component& component, cpp::stop_token stop_token);
-        RequestResult tryHandleTermination(Component& component, int32_t status);
     };
 
-    class TerminatingState final
+    struct TerminatingState final
     {
-      public:
         Handle handle_;
-        RequestResult activate(Component& component, cpp::stop_token stop_token);
-        RequestResult deactivate(Component& component, cpp::stop_token stop_token);
-        RequestResult tryHandleTermination(Component& component, int32_t status);
     };
 
-    class FaultState final
+    struct FaultState final
     {
-      public:
         Handle handle_;
-        RequestResult activate(Component& component, cpp::stop_token stop_token);
-        RequestResult deactivate(Component& component, cpp::stop_token stop_token);
-        RequestResult tryHandleTermination(Component& component, int32_t status);
     };
 
     using State = std::variant<TerminatedState, StartingState, ReadyState, TerminatingState, FaultState>;
@@ -145,20 +125,6 @@ class Component final : public IComponent
 
     /// @brief The current state of the component.
     State state_;
-
-    /// @brief Set the current state.
-    void setState(State&& state)
-    {
-        const std::lock_guard<std::mutex> lock{state_mutex_};
-        state_ = state;
-    }
-
-    /// @brief Get the current state.
-    [[nodiscard]] State getState() const
-    {
-        const std::lock_guard<std::mutex> lock{state_mutex_};
-        return state_;
-    }
 };
 
 }  // namespace score::mw::lifecycle::internal
