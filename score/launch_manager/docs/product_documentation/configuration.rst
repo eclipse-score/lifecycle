@@ -375,7 +375,7 @@ schema_version (integer, required)
 **Description:**
   Specifies the schema version number that the **Launch Manager** uses to determine how to parse and validate this configuration file.
 **Allowed Value:**
-  ``1``
+  ``2``
 
 .. _lm_conf_defaults_object_optional_:
 
