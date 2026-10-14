@@ -689,6 +689,24 @@ Run Targets
 Alive Monitoring
 ================
 
+.. comp_req:: Alive monitoring failure
+    :id: comp_req__launch_man__alive_failure
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__monitor_processes[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall forcefully deactivate a :term:`Component`
+    when an alive supervision failure is detected for it, without notifying the
+    :term:`Component` and without allowing it to perform any cleanup.
+
+    .. note::
+       For a :term:`Component` that is a process, forceful deactivation is
+       done by sending ``SIGKILL``.
+
 .. comp_req:: Component monitoring during startup
     :id: comp_req__launch_man__failure_detect
     :reqtype: Functional
@@ -701,19 +719,6 @@ Alive Monitoring
 
     The :term:`Launch Manager` shall be able to detect :term:`Component
     failure` throughout the whole lifetime of a :term:`Component`.
-
-.. comp_req:: Process state notification
-    :id: comp_req__launch_man__ext_monitor_notify
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__monitor_processes[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall provide support for external monitors to get
-    notified on process life status.
 
 .. comp_req:: Monitoring and recovery: adopted process monitoring
     :id: comp_req__launch_man__monitoring_processes
@@ -778,7 +783,7 @@ Recovery Actions
 
     The :term:`Launch Manager` shall perform the :term:`Run Target` recovery
     action when a :term:`Component Failure` is detected
-    and there is an ongong :term:`Run Target` transition.
+    and there is an ongoing :term:`Run Target` transition.
 
 .. comp_req:: Component recovery action failure escalation
     :id: comp_req__launch_man__ra_comp_failed_esc
@@ -793,6 +798,46 @@ Recovery Actions
     The :term:`Launch Manager` shall perform the :term:`Run Target` recovery
     action if a :term:`Component` recovery action has failed or is not
     configured.
+
+.. comp_req:: Recovery Action
+    :id: comp_req__launch_man__ra_rt_cancel_transitions
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall cancel all pending :term:`Run Target`
+    transitions before running any :term:`Run Target` recovery action.
+
+.. comp_req:: Recovery Action
+    :id: comp_req__launch_man__ra_rt_cancel_transitions
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall cancel all pending :term:`Run Target`
+    transitions before running any :term:`Run Target` recovery action.
+
+.. comp_req:: Recovery state manager notification
+    :id: comp_req__launch_man__ra_rt_sm_notify
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+   The :term:`Launch Manager` shall notify the State Manger of a recovery
+   action that results in a :term:`Run Target` switch using the 
+   :need:`logic_arc_int_op__lifecycle__reg_callback` interface.
 
 .. comp_req:: Run target recovery action failure escalation
     :id: comp_req__launch_man__ra_rt_failed_esc
@@ -915,20 +960,6 @@ Run Target Recovery Actions
     :term:`Run Target` activation failure
     by switching to a configured :term:`Run Target`.
 
-.. comp_req:: Recovery Action - run target failure switch to fallback run target
-    :id: comp_req__launch_man__ra_rt_fallback
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
-    :status: invalid
-    :tags: not_planned
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall support reacting to a
-    :term:`Run Target` activation failure
-    by switching to the :term:`Fallback Run Target`.
 
 Watchdog
 ========
