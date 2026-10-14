@@ -21,7 +21,10 @@
    :realizes: wp__requirements_comp[version==1]
 
 .. note:: 
-    Requirements which are not planned to be implemented in the version 1.0 of S-CORE are set to status **invalid**.
+    Requirements that are not planned for score release 1.0 are set as
+    ``invalid`` and have the tag ``not_planned``.
+    Requirements that need further clarification are set as ``invalid`` and
+    have the tag ``unclear``.
 
 
 Component Launch Manager Requirements
@@ -30,7 +33,7 @@ Component Launch Manager Requirements
 Components
 ==========
 
-.. note
+.. note::
    TODO all requirements that are not under the Process heading shall 
    be reworded to speak in terms of components.
 
@@ -50,20 +53,6 @@ Components
 Activating Components
 ---------------------
 
-.. comp_req:: Configuration of component activation timeout
-    :id: comp_req__launch_man__conf_comp_active_tout
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall support configuring a timeout value that
-    defines the maximum time allowed for a component to reach its
-    :term:`Ready State`.
-
 .. comp_req:: Component activation timeout
     :id: comp_req__launch_man__comp_activate_tout
     :reqtype: Functional
@@ -74,9 +63,9 @@ Activating Components
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    If a component does not reach its :term:`Ready State` within the configured
-    timeout, the :term:`Launch Manager` shall consider the component activation
-    attempt as failed.
+    The :term:`Launch Manager` shall consider the component activation
+    attempt as failed if a component does not reach its :term:`Ready State`
+    within the configured timeout.
 
 
 Deactivating Components
@@ -89,6 +78,7 @@ Deactivating Components
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__termination_dependency[version==1]
     :status: invalid
+    :tags: not_planned
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -132,6 +122,7 @@ Deactivating Components
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__running_processes[version==1]
     :status: invalid
+    :tags: not_planned
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -148,6 +139,7 @@ Deactivating Components
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__termination_dependency[version==1]
     :status: invalid
+    :tags: unclear
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -276,6 +268,7 @@ Launching Processes
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: invalid
+    :tags: not_planned
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -292,6 +285,7 @@ Launching Processes
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__running_processes[version==1]
     :status: invalid
+    :tags: unclear
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -405,8 +399,9 @@ Process Configuration
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall support a configurable amount of retries in
-    case error occurs during startup of a component (e.g. file not available) occurs.
+    The :term:`Launch Manager` shall support restarting the process 
+    a configurable amount of times if the process fails to reach its
+    :term:`Ready State`.
 
 .. comp_req:: Process capability support
     :id: comp_req__launch_man__capability_support
@@ -522,6 +517,7 @@ Process Configuration
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__sandbox_options[version==1]
     :status: invalid
+    :tags: not_planned
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -542,7 +538,7 @@ Process Configuration
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall shall provide support for launching :term:`Processes <Process>`
+    The :term:`Launch Manager` shall provide support for launching :term:`Processes <Process>`
     in parallel.
 
 
@@ -599,6 +595,7 @@ Containers
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__config_file_support[version==1]
     :status: invalid
+    :tags: not_planned
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -649,19 +646,6 @@ Run Targets
     :term:`dependency <Dependency (between run targets)>` to another
     :term:`Run Target`.
 
-.. comp_req:: Configuration of Run Target activation timeout
-    :id: comp_req__launch_man__conf_rt_active_tout
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall support configuration of the maximum time
-    an activation of a Run Target can take.
-
 .. comp_req:: Run Target activation timeout
     :id: comp_req__launch_man__rt_activate_tout
     :reqtype: Functional
@@ -672,8 +656,8 @@ Run Targets
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    If the activation of a Run Target exceeds the maximum configured time, then
-    the :term:`Launch Manager` shall consider this activation as failed.
+    The :term:`Launch Manager` shall consider a :term:`Run Target` activation
+    as failed if the activation exceeds the maximum configured time.
 
 .. comp_req:: Process state
     :id: comp_req__launch_man__process_state_comm
@@ -705,6 +689,19 @@ Run Targets
 Alive Monitoring
 ================
 
+.. comp_req:: Component monitoring during startup
+    :id: comp_req__launch_man__failure_detect
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__monitor_processes[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall be able to detect :term:`Component
+    failure` throughout the whole lifetime of a :term:`Component`.
+
 .. comp_req:: Process state notification
     :id: comp_req__launch_man__ext_monitor_notify
     :reqtype: Functional
@@ -718,19 +715,6 @@ Alive Monitoring
     The :term:`Launch Manager` shall provide support for external monitors to get
     notified on process life status.
 
-.. comp_req:: Monitoring and recovery: recovery wait time
-    :id: comp_req__launch_man__configurable_wait_time
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__conditional_startup[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall provide support for configurable wait time
-    that shall elapse before repeating :term:`Recovery Action`.
-
 .. comp_req:: Monitoring and recovery: adopted process monitoring
     :id: comp_req__launch_man__monitoring_processes
     :reqtype: Functional
@@ -738,6 +722,7 @@ Alive Monitoring
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__monitor_processes[version==1]
     :status: invalid
+    :tags: not_planned
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -749,6 +734,10 @@ Alive Monitoring
         **Use case:** There might be processes which are needed to start very early during bootup and 
         are therefore launched by the system before the :term:`Launch Manager` takes control.
 
+
+Recovery Actions
+----------------
+
 .. comp_req:: Component monitoring during startup
     :id: comp_req__launch_man__failure_detect_startup
     :reqtype: Functional
@@ -759,7 +748,9 @@ Alive Monitoring
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall be able to detect :term:`Component failure` during startup of the :term:`Component`. I.e. before reaching its :term:`Ready State`.
+    The :term:`Launch Manager` shall be able to detect :term:`Component
+    failure` during startup of the :term:`Component`. I.e. before reaching its
+    :term:`Ready State`.
 
 .. comp_req:: Component monitoring during runtime
     :id: comp_req__launch_man__failure_detect_runtime
@@ -771,14 +762,12 @@ Alive Monitoring
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall be able to detect :term:`Component failure` during runtime of the :term:`Component`. I.e. after reaching its :term:`Ready State`.
+    The :term:`Launch Manager` shall be able to detect :term:`Component
+    failure` during runtime of the :term:`Component`. I.e. after reaching its
+    :term:`Ready State`.
 
-
-Recovery Actions
-----------------
-
-.. comp_req:: Recovery by reactivating the component
-    :id: comp_req__launch_man__recovery_reactivate
+.. comp_req:: Component failure during run target switch
+    :id: comp_req__launch_man__ra_comp_failure_switch
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -787,12 +776,12 @@ Recovery Actions
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall be able to react to a 
-    :term:`Component failure` by reactivating the failed 
-    :term:`Component`.
+    The :term:`Launch Manager` shall perform the :term:`Run Target` recovery
+    action when a :term:`Component Failure` is detected
+    and there is an ongong :term:`Run Target` transition.
 
-.. comp_req:: Recovery by switching the Run Target
-    :id: comp_req__launch_man__recovery_switch_rt
+.. comp_req:: Component recovery action failure escalation
+    :id: comp_req__launch_man__ra_comp_failed_esc
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -801,50 +790,145 @@ Recovery Actions
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall be able to react to a 
-    :term:`Component failure` by switching to another 
-    :term:`Run Target`.
+    The :term:`Launch Manager` shall perform the :term:`Run Target` recovery
+    action if a :term:`Component` recovery action has failed or is not
+    configured.
 
-.. comp_req:: Recovery by stopping the component
-    :id: comp_req__launch_man__recovery_stop
+.. comp_req:: Run target recovery action failure escalation
+    :id: comp_req__launch_man__ra_rt_failed_esc
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall perform a transition to the
+    :term:`Fallback Run Target` if a :term:`Run Target` recovery action fails.
+
+.. comp_req:: Fallback run target recovery action failure escalation
+    :id: comp_req__launch_man__ra_fallback_failed_esc
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
     :status: invalid
+    :tags: not_planned
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall be able to react to a 
-    :term:`Component failure` by stopping the failed 
-    :term:`Component`.
+    The :term:`Launch Manager` shall stop the servicing of the :term:`Watchdog`
+    if the transition to the :term:`Fallback Run Target` fails.
 
-.. comp_req:: Recovery by stopping the component and starting another component
-    :id: comp_req__launch_man__recovery_stop_start
+Component Recovery Actions
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. comp_req:: Recovery Action - component failure reactivate the component
+    :id: comp_req__launch_man__ra_comp_reactivate
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall support reacting to a
+    :term:`Component failure`
+    by reactivating the failed :term:`Component`.
+
+.. comp_req:: Recovery Action - component failure switch Run Target
+    :id: comp_req__launch_man__ra_comp_switch_rt
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall support reacting to a
+    :term:`Component failure`
+    by switching to a configured :term:`Run Target`.
+
+.. comp_req:: Recovery Action - component failure stopping the component
+    :id: comp_req__launch_man__ra_comp_stop
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
     :status: invalid
+    :tags: unclear
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall be able to react to a :term:`Component failure` by
-    stopping the failed :term:`Component` and starting another :term:`Component` instead.
+    The :term:`Launch Manager` shall support reacting to a
+    :term:`Component failure`
+    by stopping the failed :term:`Component`.
 
-.. comp_req:: Recovery by stopping the servicing of the watchdog
-    :id: comp_req__launch_man__recovery_watchdog
+.. comp_req:: Recovery Action - component failure replacing component
+    :id: comp_req__launch_man__ra_comp_replace
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
     :status: invalid
+    :tags: unclear
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall be able to react to a :term:`Component failure` by
-    stopping the servicing of the :term:`Watchdog`.
+    The :term:`Launch Manager` shall support reacting to a
+    :term:`Component failure`
+    by stopping the failed :term:`Component` and then starting a configured
+    :term:`Component` instead.
 
+.. comp_req:: Recovery Action - component failure switch to fallback run target
+    :id: comp_req__launch_man__ra_comp_fallback
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
+    :status: invalid
+    :tags: not_planned
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall support reacting to a
+    :term:`Component failure`
+    by switching to the :term:`Fallback Run Target`.
+
+Run Target Recovery Actions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. comp_req:: Recovery Action - run target failure switch Run Target
+    :id: comp_req__launch_man__ra_rt_switch_rt
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall support reacting to a
+    :term:`Run Target` activation failure
+    by switching to a configured :term:`Run Target`.
+
+.. comp_req:: Recovery Action - run target failure switch to fallback run target
+    :id: comp_req__launch_man__ra_rt_fallback
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
+    :status: invalid
+    :tags: not_planned
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall support reacting to a
+    :term:`Run Target` activation failure
+    by switching to the :term:`Fallback Run Target`.
 
 Watchdog
 ========
@@ -950,6 +1034,7 @@ Logging
     :safety: QM
     :derived_from: feat_req__lifecycle__deps_visualization[version==1]
     :status: invalid
+    :tags: not_planned
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -965,6 +1050,7 @@ Configuration file
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__config_file_support[version==1]
     :status: invalid
+    :tags: not_planned
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -1001,6 +1087,7 @@ Configuration file
     :safety: QM
     :derived_from: feat_req__lifecycle__deps_visualization[version==1]
     :status: invalid
+    :tags: unclear
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
