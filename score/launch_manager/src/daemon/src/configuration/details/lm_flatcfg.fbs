@@ -110,16 +110,11 @@ table EnvironmentalVariable {
   value:string (required);
 }
 
-// Resource-limit selector. These values are defined BY THE LAUNCH MANAGER and
-// deliberately do NOT match the platform's RLIMIT_* constants, which differ
-// between QNX and Linux (e.g. RLIMIT_AS is 6 on QNX and 9 on Linux). The daemon
-// translates this enum to the local constant when loading the config. Do not
-// "fix" these values to match any one OS.
+// Resource-limit selector. These values deliberately do NOT match the platform's 
+// RLIMIT_* constants, because they differ between QNX and Linux.
 //
 // Members are prefixed with POSIX_ because they name the seven resource limits
-// specified by POSIX.1. A future QNX-specific limit (one QNX defines that POSIX
-// does not) gets its own, different prefix, so the two sets stay visually
-// distinct in configs and in the generated C++ bindings.
+// specified by POSIX.1.
 enum RlimitResource : ubyte {
   POSIX_RLIMIT_AS = 0,
   POSIX_RLIMIT_CORE = 1,

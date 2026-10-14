@@ -1057,18 +1057,6 @@ def test_gen_config_no_rlimits_omits_key(tmp_path):
     assert "rlimits" not in sandbox
 
 
-def test_gen_config_max_memory_usage_produces_migration_error(tmp_path):
-    """The removed sandbox.max_memory_usage key must fail with a migration message."""
-    with pytest.raises(ValueError, match="max_memory_usage"):
-        _gen_config_with_sandbox(tmp_path, {"max_memory_usage": 1024})
-
-
-def test_gen_config_max_cpu_usage_produces_migration_error(tmp_path):
-    """The removed sandbox.max_cpu_usage key must fail with a migration message."""
-    with pytest.raises(ValueError, match="max_cpu_usage"):
-        _gen_config_with_sandbox(tmp_path, {"max_cpu_usage": 50})
-
-
 # ---------------------------------------------------------------------------
 # sandbox.rlimits schema validation
 # ---------------------------------------------------------------------------

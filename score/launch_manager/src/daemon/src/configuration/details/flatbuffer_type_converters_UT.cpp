@@ -721,12 +721,12 @@ TEST_F(ConverterTest, ConvertSandboxWithoutAffinityMaskHasNoValue)
 // RlimitResource / Rlimit conversion tests
 // ============================================================================
 
-TEST_F(ConverterTest, ToPlatformResourcePinsPlatformDivergentEnumerator)
+TEST_F(ConverterTest, ToPlatformResourceConvertsRlimitConstants)
 {
     RecordProperty(
         "Description",
-        "Pin POSIX_RLIMIT_AS (0 on the wire) to this platform's RLIMIT_AS: RLIMIT_AS is 6 on QNX and 9 on Linux, so "
-        "this mapping must never be 'corrected' to match either platform's raw RLIMIT_* value.");
+        "Verify that the conversion from flatbuffer RlimitResource to platform-specific RLIMIT_* constants works "
+        "correctly.");
 
     const auto expectResource = [](fb::RlimitResource fb_resource, int expected_platform_value) {
         auto result = toPlatformResource(fb_resource);
@@ -747,8 +747,8 @@ TEST_F(ConverterTest, ToPlatformResourceUnknownEnumeratorReturnsError)
 {
     RecordProperty(
         "Description",
-        "A resource selector this loader does not know (e.g. from a newer generator) is an InvalidFormat config "
-        "load error, not something deferred to the process launcher at runtime.");
+        "A resource selector this loader does not know is an InvalidFormat config "
+        "load error.");
 
     auto result = toPlatformResource(static_cast<fb::RlimitResource>(99));
     ASSERT_THAT(result.has_value(), IsFalse());
@@ -759,7 +759,7 @@ TEST_F(ConverterTest, ConvertRlimitsUnlimitedSentinelResolvedToRlimInfinity)
 {
     RecordProperty(
         "Description",
-        "The wire's 0xFFFFFFFFFFFFFFFF 'unlimited' sentinel is resolved to this platform's RLIM_INFINITY while "
+        "The 0xFFFFFFFFFFFFFFFF 'unlimited' sentinel is resolved to this platform's RLIM_INFINITY while "
         "loading the config, so the result can be passed directly to setrlimit() with no further translation.");
     ::flatbuffers::FlatBufferBuilder fbb;
     constexpr std::uint64_t kSentinel = std::numeric_limits<std::uint64_t>::max();

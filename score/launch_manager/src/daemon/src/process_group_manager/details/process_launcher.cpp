@@ -68,9 +68,7 @@ void applyLimitOrDie(const int resource, const rlimit& limit, const std::string_
 }
 
 /// @brief Returns the RLIMIT_* macro name for the given platform resource constant, for use in
-/// log messages only. Resource selectors are translated from the wire format and validated when
-/// the config is loaded (see convertRlimits() in flatbuffer_type_converters.cpp), so every value
-/// seen here is one of the cases below.
+/// log messages only.
 std::string_view rlimitResourceName(const int resource) noexcept
 {
     switch (resource)

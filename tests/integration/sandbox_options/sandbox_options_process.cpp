@@ -74,9 +74,7 @@ std::vector<gid_t> parse_groups(const std::string& csv)
     return groups;
 }
 
-// Maps the lowercase name used on the CLI (e.g. "as") to this platform's RLIMIT_* constant. This
-// resolution happens on the target itself, at the process' own compile time, so - unlike the
-// Launch Manager's wire format - it never needs translating between QNX and Linux.
+// Maps the lowercase name used on the CLI (e.g. "as") to this platform's RLIMIT_* constant.
 std::optional<int> resource_from_name(const std::string& name)
 {
     if (name == "as")
@@ -111,7 +109,7 @@ std::optional<int> resource_from_name(const std::string& name)
 }
 
 // Parse a single rlimit bound: either a non-negative integer, or the literal "unlimited", which
-// maps to this platform's own RLIM_INFINITY (not the Launch Manager's wire sentinel).
+// maps to RLIM_INFINITY.
 rlim_t parse_rlimit_bound(const std::string& token)
 {
     if (token == "unlimited")

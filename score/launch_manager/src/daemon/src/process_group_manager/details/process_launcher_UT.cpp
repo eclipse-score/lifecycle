@@ -610,10 +610,7 @@ TEST_F(StartProcessTest, noRlimitsConfiguredSkipsSetrlimit)
 
 TEST_F(StartProcessTest, setRLimitZeroIsApplied)
 {
-    RecordProperty(
-        "Description",
-        "Verify that a configured rlimit of 0 is applied via setrlimit, unlike the removed max_* options where 0 "
-        "meant \"skip\"");
+    RecordProperty("Description", "Verify that a configured rlimit of 0 is applied via setrlimit");
 
     config_.deployment_config.sandbox.rlimits = {
         {RLIMIT_CORE, {0, 0}},
@@ -634,9 +631,7 @@ TEST_F(StartProcessTest, setRLimitPassesPreResolvedValuesUnchanged)
 {
     RecordProperty(
         "Description",
-        "Verify that applyResourceLimits() passes the resource and limit through to setrlimit() unchanged. "
-        "Resolving the wire's \"unlimited\" sentinel to the platform's RLIM_INFINITY happens once, when the config "
-        "is loaded (see flatbuffer_type_converters_UT.cpp), not here.");
+        "Verify that applyResourceLimits() passes the resource and limit through to setrlimit() unchanged.");
 
     config_.deployment_config.sandbox.rlimits = {
         {RLIMIT_FSIZE, {1024U, RLIM_INFINITY}},

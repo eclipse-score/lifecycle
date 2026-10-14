@@ -157,7 +157,7 @@ inline ::testing::AssertionResult verifySupplementaryGroups(const std::vector<gi
 
 /// @brief Verify that the process runs with the expected soft and hard resource limit.
 /// @param[in] expected The resource, its human-readable name (for failure messages), and the
-///                     expected soft/hard bounds. RLIM_INFINITY is a valid expected bound.
+///                     expected soft/hard bounds.
 /// @return AssertionSuccess if both bounds match, otherwise AssertionFailure.
 inline ::testing::AssertionResult verifyRlimit(const RlimitExpectation& expected)
 {
