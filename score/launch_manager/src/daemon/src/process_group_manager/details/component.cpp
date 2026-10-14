@@ -141,11 +141,7 @@ IComponent::RequestResult Component::tryHandleTermination(int32_t status)
     Handle& handle = (starting != nullptr) ? starting->handle_ : ready->handle_;
 
     // Invalidate the resource to prevent acting on something which is already gone.
-    // TODO: Component should not have code for specific handle types
-    if (ProcessHandle* const process_handle = std::get_if<ProcessHandle>(&handle))
-    {
-        process_handle->pid = -1;
-    }
+    invalidate(handle);
 
     // Certain ready conditions can accept terminations.
     if (starting != nullptr)
