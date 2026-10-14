@@ -31,7 +31,7 @@ class IReadyCondition
     /// @param stop_token Token which can be used to interrupt the wait.
     /// @param handle The resource to wait on.
     /// @return Whether the wait was successful, or failed with an error.
-    virtual Result<void> wait(cpp::stop_token stop_token, const Handle handle) const = 0;
+    virtual Result<void> wait(cpp::stop_token stop_token, const Handle& handle) const = 0;
 
     /// @brief Notify the ready condition that a POSIX process has terminated.
     /// @param status Exit code of the process.

@@ -23,7 +23,11 @@ namespace score::mw::lifecycle::internal
 class MockForceStopAction : public IForceStopAction
 {
   public:
-    MOCK_METHOD(Result<IComponent::RequestState>, forceStop, (cpp::stop_token, const Handle handle), (override, const));
+    MOCK_METHOD(
+        Result<IComponent::RequestState>,
+        forceStop,
+        (cpp::stop_token, const Handle& handle),
+        (override, const));
 };
 
 }  // namespace score::mw::lifecycle::internal

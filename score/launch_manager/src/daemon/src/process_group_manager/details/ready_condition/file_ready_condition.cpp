@@ -28,7 +28,7 @@ FileReadyCondition::FileReadyCondition(
 {
 }
 
-Result<void> FileReadyCondition::wait(cpp::stop_token stop_token, [[maybe_unused]] const Handle) const
+Result<void> FileReadyCondition::wait(cpp::stop_token stop_token, [[maybe_unused]] const Handle&) const
 {
     const osal::OsalReturnType result = file_waiter_.waitForFile(file_path_, state_, timeout_, interval_, stop_token);
 

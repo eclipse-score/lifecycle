@@ -47,7 +47,7 @@ class FileReadyCondition final : public IReadyCondition
     /// @param stop_token Token which can be used to interrupt the wait.
     /// @param handle The resource to wait on.
     /// @return Whether the wait was successful, or failed with an error.
-    Result<void> wait(cpp::stop_token stop_token, const Handle handle) const override;
+    Result<void> wait(cpp::stop_token stop_token, const Handle& handle) const override;
 
   private:
     /// @brief The waiter used to check file state.

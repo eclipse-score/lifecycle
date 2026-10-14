@@ -39,14 +39,14 @@ class ReportRunningReadyCondition final : public IReadyCondition
     /// @param stop_token Token which can be used to interrupt the wait.
     /// @param handle The resource to wait on.
     /// @return Whether the wait was successful, or failed with an error.
-    Result<void> wait(cpp::stop_token stop_token, const Handle handle) const override;
+    Result<void> wait(cpp::stop_token stop_token, const Handle& handle) const override;
 
   private:
     /// @brief Visitor method for process handles.
-    Result<void> visitWait(const ProcessHandle process) const;
+    Result<void> visitWait(const ProcessHandle& process) const;
 
     /// @brief Visitor method for unsupported handles.
-    Result<void> visitWait(const Handle handle) const;
+    Result<void> visitWait(const Handle& handle) const;
 
     /// @brief The process launcher used to wait for the process.
     osal::IProcess& launcher_;
