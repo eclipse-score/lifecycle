@@ -50,6 +50,11 @@ note right of Map
 end note
 Monitor -> Component ++: notify the component of the termination
 
+alt Component is supervised
+  Component -> Supervision ++: stop supervising the process
+  Supervision --> Component --:
+end alt
+
 alt #Pink the exit is not an expected completion
     Component --> Monitor: unexpected termination
     Monitor -> EventQueue: component terminated unexpectedly

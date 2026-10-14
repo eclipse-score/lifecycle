@@ -12,18 +12,6 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-Example: Detailed Design
-========================
-
-.. document:: Launch Manager Detailed Design
-   :id: doc__launch_manager_detailed_design_graph
-   :status: draft
-   :version: 1
-   :safety: ASIL_B
-   :security: NO
-   :realizes: wp__sw_implementation[version==1]
-
-
 Detailed Design for Component: Launch Manager, Graph Functionality
 ==================================================================
 
@@ -41,76 +29,82 @@ This detailed design focuses on the graph functionality including:
    <TODO>
 
 
-
 Dynamic Diagrams for Unit Interactions
 --------------------------------------
 
 Graph State Machine
 ~~~~~~~~~~~~~~~~~~~
 
-.. uml:: _assets/graph_states.puml
-   :align: center
-
 The graph is the internal state machine of the Launch Manager and tracks
 the process of a Run Target transition.
+The Launch Manager main thread runs a cyclic loop and the state of the graph 
+state machine defines how events are processed. 
+
+.. uml:: _assets/graph_states.puml
+   :align: center
 
 
 Component Activation
 ~~~~~~~~~~~~~~~~~~~~
 
+The Launch Manager main loop does not directly activate any component, but the activation
+is only scheduled on a thread pool.
+
+A component activation consists of:
+* starting the process (possibly multiple times)
+* registering the pid in the SafeProcessMap
+* waiting for the ready condition to be fulfilled or ready timeout
+* posing the activation result to the event queue
+
+The component activation sequence is executed synchronously on a worker thread.
+
 .. uml:: _assets/component_activation.puml
    :align: center
-
-A component is activated on a worker thread: the process is started, registered
-in the SafeProcessMap and then given until the ready timeout to reach its ready
-condition. An attempt that times out is retried as long as startup attempts are
-left, while a failure starting the process is final. The outcome is
-reported to the graph through the component event queue.
-
 
 Component Deactivation
 ~~~~~~~~~~~~~~~~~~~~~~
 
+The Launch Manager main loop does not directly deactivate any component, but the deactivation
+is only scheduled on a thread pool.
+
+A component deactivation consists of:
+* stopping the process
+* waiting for the process to terminate or until shutdown timeout
+* escalating to SIGKILL in case the process did not terminate within the shutdown timeout
+* posing the deactivation result to the event queue. Process crashes during deactivation are ignored.
+
+The component deactivation sequence is executed synchronously on a worker thread.
+
 .. uml:: _assets/component_deactivation.puml
    :align: center
-
-Components are stopped in the reverse order of their start: a component is only
-ready to be stopped once everything that depends on it is gone. The worker stops
-the supervision, asks the process to terminate with SIGTERM and waits for its
-exit, escalating to SIGKILL after the shutdown timeout. A deactivation therefore
-has no failure outcome.
-
 
 Process Termination
 ~~~~~~~~~~~~~~~~~~~
 
+The process termination may happen during component activation or deactivation but also at any
+time after activation in case of a process crash or a self-terminating process.
+The latter is the focus of the diagram below.
+
 .. uml:: _assets/process_termination.puml
    :align: center
 
-Every exit of a child process is picked up by the OsHandler thread, which
-resolves the process id to its component. An expected exit - a termination that
-was requested, or the completion of a self terminating component - only releases
-the worker that is waiting for it. Any other exit is an unexpected termination:
-it leaves the active Run Target and leads to a transition to the fallback Run
-Target.
 
 Supervision Failure
 ~~~~~~~~~~~~~~~~~~~
 
+A component activates the alive supervision once the Running state is reached.
+The supervision failure may be detected at any time and is reported to the component event queue.
+The current failure reaction is to always requesting the fallback Run Target and cancels a running 
+transition if there is one.
+
 .. uml:: _assets/supervision_failure.puml
    :align: center
-
-Alive supervision reports the failing component through the component event queue. 
-The main loop reacts by requesting the fallback Run Target and cancels a running 
-transition if there is one. Stopping and restarting the component is left to the 
-resulting transition.
 
 
 Run Target transition
 ~~~~~~~~~~~~~~~~~~~~~
 
-.. uml:: _assets/run_target_transition.puml
-   :align: center
+A Run Target transition may be initiated either by an external request or as an error reaction (e.g. fallback_run_target).
 
 A transition runs in two phases: first every component that is running and is
 not needed by the target is stopped, then every component of the target that is
@@ -119,20 +113,21 @@ predecessors have finished and never waits for them; each result that arrives in
 the main loop advances the transition. A component that fails ends the
 transition and moves the graph to kAborting.
 
+.. uml:: _assets/run_target_transition.puml
+   :align: center
+
 
 Transition cancellation / preemption
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. uml:: _assets/transition_cancellation_preemption.puml
-   :align: center
-
 When cancelling an ongoing transition it is crucial to leave every component
 in a well-defined state.
 
-A cancellation is observed before a task is executed and between two startup
-attempts. Everything else runs to its end: a wait for a ready condition is
-bounded by the ready timeout and a termination that was already requested by the
-shutdown timeout, so a cancellation settles within a bounded time.
+The diagram below defines the point of time a component activation / deactivation
+may be safely cancelled.
+
+.. uml:: _assets/transition_cancellation_preemption.puml
+   :align: center
 
 
 

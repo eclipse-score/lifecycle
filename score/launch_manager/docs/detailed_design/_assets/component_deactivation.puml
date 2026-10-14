@@ -58,7 +58,7 @@ Monitor -> Component ++: deactivate
 
 opt component is supervised
     Component -> Supervision ++: stop supervising the process
-    Supervision --> Component --: supervision stopped
+    Supervision --> Component --:
     note right of Component
       Supervision is stopped before the process is asked to
       terminate, so the shutdown is not reported as a

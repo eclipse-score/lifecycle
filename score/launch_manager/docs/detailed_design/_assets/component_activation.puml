@@ -113,7 +113,7 @@ loop one iteration per configured startup attempt
             end
             opt component is supervised
                 Component -> Supervision ++: start supervising the process
-                Supervision --> Component --: supervision active
+                Supervision --> Component --:
             end
         end
     end

@@ -45,7 +45,7 @@ kUndefinedState --> kUndefinedState : unexpected termination
 
 legend bottom
   A request is only recorded, never started immediately. The transition begins
-  on a later main loop tick, and only from kSuccess or kUndefinedState.
+  on a later main loop iteration, and only from kSuccess or kUndefinedState.
 
   A transition with no work to do finalizes within the same call, so every edge
   into kInTransition may land in kSuccess instead.
