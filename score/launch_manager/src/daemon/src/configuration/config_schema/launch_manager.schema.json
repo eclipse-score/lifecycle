@@ -368,7 +368,7 @@
                   "$ref": "#/$defs/rlimit_value"
                 },
                 "RLIMIT_FSIZE": {
-                  "description": "Specifies the maximum size, in bytes, of a file the component may create.",
+                  "description": "Specifies the maximum size, in bytes, of a file the component may create. Note: This is currently not supported on QNX8 and always fails.",
                   "$ref": "#/$defs/rlimit_value"
                 },
                 "RLIMIT_NOFILE": {

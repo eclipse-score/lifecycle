@@ -334,7 +334,7 @@ sandbox.rlimits.RLIMIT_DATA (integer or object, optional)
     Description: Specifies the maximum size, in bytes, of the component's data segment.
 
 sandbox.rlimits.RLIMIT_FSIZE (integer or object, optional)
-    Description: Specifies the maximum size, in bytes, of a file the component may create.
+    Description: Specifies the maximum size, in bytes, of a file the component may create. Note: This is currently not supported on QNX8 and always fails.
 
 sandbox.rlimits.RLIMIT_NOFILE (integer or object, optional)
     Description: Specifies the highest file descriptor number the component may use, plus one.
