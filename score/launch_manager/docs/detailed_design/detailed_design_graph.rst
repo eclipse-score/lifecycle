@@ -36,8 +36,9 @@ This detailed design focuses on the graph functionality including:
 * Component activation & deactivation
 
 
-Static Diagrams for Unit Interactions
--------------------------------------
+.. Static Diagrams for Unit Interactions
+   -------------------------------------
+   <TODO>
 
 
 
@@ -50,6 +51,9 @@ Graph State Machine
 .. uml:: _assets/graph_states.puml
    :align: center
 
+The graph is the internal state machine of the Launch Manager and tracks
+the process of a Run Target transition.
+
 
 Component Activation
 ~~~~~~~~~~~~~~~~~~~~
@@ -57,13 +61,24 @@ Component Activation
 .. uml:: _assets/component_activation.puml
    :align: center
 
-* Include activation failure
+A component is activated on a worker thread: the process is started, registered
+in the SafeProcessMap and then given until the ready timeout to reach its ready
+condition. An attempt that times out is retried as long as startup attempts are
+left, while a failure starting the process is final. The outcome is
+reported to the graph through the component event queue.
+
 
 Component Deactivation
 ~~~~~~~~~~~~~~~~~~~~~~
 
 .. uml:: _assets/component_deactivation.puml
    :align: center
+
+Components are stopped in the reverse order of their start: a component is only
+ready to be stopped once everything that depends on it is gone. The worker stops
+the supervision, asks the process to terminate with SIGTERM and waits for its
+exit, escalating to SIGKILL after the shutdown timeout. A deactivation therefore
+has no failure outcome.
 
 
 Process Termination
@@ -72,11 +87,23 @@ Process Termination
 .. uml:: _assets/process_termination.puml
    :align: center
 
+Every exit of a child process is picked up by the OsHandler thread, which
+resolves the process id to its component. An expected exit - a termination that
+was requested, or the completion of a self terminating component - only releases
+the worker that is waiting for it. Any other exit is an unexpected termination:
+it leaves the active Run Target and leads to a transition to the fallback Run
+Target.
+
 Supervision Failure
 ~~~~~~~~~~~~~~~~~~~
 
 .. uml:: _assets/supervision_failure.puml
    :align: center
+
+Alive supervision reports the failing component through the component event queue. 
+The main loop reacts by requesting the fallback Run Target and cancels a running 
+transition if there is one. Stopping and restarting the component is left to the 
+resulting transition.
 
 
 Run Target transition
@@ -84,6 +111,13 @@ Run Target transition
 
 .. uml:: _assets/run_target_transition.puml
    :align: center
+
+A transition runs in two phases: first every component that is running and is
+not needed by the target is stopped, then every component of the target that is
+not active yet is started. The graph dispatches only the components whose
+predecessors have finished and never waits for them; each result that arrives in
+the main loop advances the transition. A component that fails ends the
+transition and moves the graph to kAborting.
 
 
 Transition cancellation / preemption
@@ -95,7 +129,10 @@ Transition cancellation / preemption
 When cancelling an ongoing transition it is crucial to leave every component
 in a well-defined state.
 
-The diagram above highlights the possible cancellation points during component activation / deactivation.
+A cancellation is observed before a task is executed and between two startup
+attempts. Everything else runs to its end: a wait for a ready condition is
+bounded by the ready timeout and a termination that was already requested by the
+shutdown timeout, so a cancellation settles within a bounded time.
 
 
 

@@ -72,25 +72,24 @@ loop one iteration per configured startup attempt
 
         alt #Pink the process cannot be registered
             Map --> Component --: no capacity left
-            Component -> OS: stop the process that was started
+            Component -> OS: stop the process that was started (SIGTERM, then SIGKILL after timeout)
             note right of Component
               Final: a registration failure is not retried.
             end note
 
         else #FFF8E8 the process has already exited
             Map --> Component --: the process has already exited
+            Component -> Component : Check ready condition
             note right of Component
               The OsHandler thread recorded the exit before this
               registration arrived; the map resolves the race in
-              either order. A component that reports its readiness
-              counts this as a failed attempt, one that does not is
-              judged by its exit code.
+              either order.
             end note
 
         else #FFF8E8 the ready condition is not reached in time
             Map --> Component --: process registered
             Component -> Component: wait for the ready condition\nuntil the ready timeout expires
-            Component -> OS ++: stop the process that was started
+            Component -> OS ++: stop the process that was started (SIGTERM, then SIGKILL after timeout)
             OS --> Component --: process stopped
             note right of Component
               A timed out attempt is retried while attempts

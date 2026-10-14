@@ -69,7 +69,7 @@ PGM -> PGM ++: handle the graph state
 note over PGM
   A pending Run Target is only picked up while the graph is in
   kSuccess or kUndefinedState, so a cancelled transition is first
-  allowed to settle.
+  allowed to settle - see Transition Cancellation / Preemption.
 end note
 
 PGM -> Graph ++: start the transition
