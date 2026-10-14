@@ -222,14 +222,7 @@ class BasicControlProvider
         }
 
         ActivationResult* event = allocate_result.value().Get();
-        {
-            const std::lock_guard<std::mutex> lock(IdentifierHash::get_registry_mutex());
-            const auto& registry = IdentifierHash::get_registry();
-            const auto it = registry.find(state.data());
-            SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
-                it != registry.end(), "IdentifierHash does not correspond to an existing name");
-            event->activated_run_target = RunTargetName(it->second);
-        }
+        event->activated_run_target = RunTargetName(state.get_name());
         event->activation_source = source;
 
         const auto send_result = skeleton_.activation_result.Send(std::move(allocate_result.value()));
@@ -261,20 +254,17 @@ class BasicControlProvider
                 case STDIN_FILENO:
                 case STDOUT_FILENO:
                 case STDERR_FILENO:
-                case osal::IpcCommsSync::sync_fd:
                     break;
                 default:
                     int flags = fcntl(fd, F_GETFD);
-                    if (flags == -1)
-                    {
-                        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
-                            errno == EBADF, "fcntl F_GETFD failed with unexpected error");
-                    }
-                    else
+                    if (flags != -1)
                     {
                         flags |= FD_CLOEXEC;
                         const auto result = fcntl(fd, F_SETFD, flags);
-                        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(result != -1, "fcntl F_SETFD failed");
+                        if (result == -1)
+                        {
+                            LM_LOG_ERROR() << "fcntl F_SETFD failed for fd number:" << fd;
+                        }
                     }
                     break;
             }

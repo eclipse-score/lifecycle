@@ -30,17 +30,11 @@ cc_library(
 lm_cc_test(
     name = "control_provider_UT",
     srcs = ["control_provider_UT.cpp"],
-    args = [
-        "--service_instance_manifest",
-        "$(rootpath control_provider_test_mw_com_config.json)",
-    ],
-    data = ["control_provider_test_mw_com_config.json"],
+    linkopts = ["-Wl,--wrap=fcntl"],
     deps = [
         ":control_provider",
         "//score/launch_manager:error",
         "//score/launch_manager/src/daemon/src/process_group_manager:irun_target_control",
-        "@googletest//:gtest",
-        "@score_baselibs//score/string_manipulation/arguments",
-        "@score_communication//score/mw/com",
+        "@googletest//:gtest_main",
     ],
 )
