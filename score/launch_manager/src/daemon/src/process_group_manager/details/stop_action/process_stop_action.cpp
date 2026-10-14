@@ -24,21 +24,16 @@ ProcessStopAction::ProcessStopAction(osal::IProcess& launcher) : launcher_(launc
 
 Result<IComponent::RequestState> ProcessStopAction::stop(cpp::stop_token stop_token, const Handle& handle) const
 {
-    return std::visit(
-        [this](auto&& handle) {
-            return visitStop(handle);
-        },
-        handle);
-}
+    const ProcessHandle* const process = std::get_if<ProcessHandle>(&handle);
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+        process != nullptr, "ProcessStopAction should only be called with a ProcessHandle");
 
-Result<IComponent::RequestState> ProcessStopAction::visitStop(const ProcessHandle& process) const
-{
-    if (process.pid == -1)
+    if (process->pid == -1)
     {
         return IComponent::RequestState::kSuccess;
     }
 
-    const osal::OsalReturnType result = launcher_.requestTermination(process.pid);
+    const osal::OsalReturnType result = launcher_.requestTermination(process->pid);
 
     if (result == osal::OsalReturnType::kSuccess)
     {
@@ -46,11 +41,6 @@ Result<IComponent::RequestState> ProcessStopAction::visitStop(const ProcessHandl
     }
 
     return MakeUnexpected(ExecErrc::kGeneralError);
-}
-
-Result<IComponent::RequestState> ProcessStopAction::visitStop(const Handle& handle) const
-{
-    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("ProcessStopAction should only be called with a ProcessHandle");
 }
 
 }  // namespace score::mw::lifecycle::internal

@@ -27,16 +27,11 @@ ReportRunningReadyCondition::ReportRunningReadyCondition(
 
 Result<void> ReportRunningReadyCondition::wait(cpp::stop_token stop_token, const Handle& handle) const
 {
-    return std::visit(
-        [this](auto&& handle) {
-            return visitWait(handle);
-        },
-        handle);
-}
+    const ProcessHandle* const process = std::get_if<ProcessHandle>(&handle);
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+        process != nullptr, "ReportRunningReadyCondition should only be called with a ProcessHandle");
 
-Result<void> ReportRunningReadyCondition::visitWait(const ProcessHandle& process) const
-{
-    const osal::OsalReturnType result = launcher_.waitForkRunning(process.sync, timeout_);
+    const osal::OsalReturnType result = launcher_.waitForkRunning(process->sync, timeout_);
 
     if (result == osal::OsalReturnType::kSuccess)
     {
@@ -44,12 +39,6 @@ Result<void> ReportRunningReadyCondition::visitWait(const ProcessHandle& process
     }
 
     return MakeUnexpected(ExecErrc::kGeneralError);
-}
-
-Result<void> ReportRunningReadyCondition::visitWait(const Handle& handle) const
-{
-    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE(
-        "ReportRunningReadyCondition should only be called with a ProcessHandle");
 }
 
 }  // namespace score::mw::lifecycle::internal

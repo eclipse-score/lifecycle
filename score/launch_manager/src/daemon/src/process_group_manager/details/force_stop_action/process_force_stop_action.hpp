@@ -38,12 +38,6 @@ class ProcessForceStopAction final : public IForceStopAction
     Result<IComponent::RequestState> forceStop(cpp::stop_token stop_token, const Handle& handle) const override;
 
   private:
-    /// @brief Visitor method for process handles.
-    Result<IComponent::RequestState> visitForceStop(const ProcessHandle& process) const;
-
-    /// @brief Visitor method for unsupported handles.
-    Result<IComponent::RequestState> visitForceStop(const Handle& handle) const;
-
     /// @brief The process launcher used to stop the process.
     osal::IProcess& launcher_;
 };

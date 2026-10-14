@@ -42,12 +42,6 @@ class ReportRunningReadyCondition final : public IReadyCondition
     Result<void> wait(cpp::stop_token stop_token, const Handle& handle) const override;
 
   private:
-    /// @brief Visitor method for process handles.
-    Result<void> visitWait(const ProcessHandle& process) const;
-
-    /// @brief Visitor method for unsupported handles.
-    Result<void> visitWait(const Handle& handle) const;
-
     /// @brief The process launcher used to wait for the process.
     osal::IProcess& launcher_;
 

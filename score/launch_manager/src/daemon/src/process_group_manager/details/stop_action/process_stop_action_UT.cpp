@@ -90,7 +90,9 @@ TEST(ProcessStopActionTest, StopWithEmptyHandleAborts)
     NiceMock<osal::MockIProcess> launcher;
     const ProcessStopAction process_stop_action(launcher);
 
-    EXPECT_DEATH(static_cast<void>(process_stop_action.stop(cpp::stop_token{}, EmptyHandle{})), "Unreachable_Code");
+    EXPECT_DEATH(
+        static_cast<void>(process_stop_action.stop(cpp::stop_token{}, EmptyHandle{})),
+        "ProcessStopAction should only be called with a ProcessHandle");
 }
 
 }  // namespace

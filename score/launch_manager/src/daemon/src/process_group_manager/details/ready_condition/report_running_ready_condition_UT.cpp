@@ -69,7 +69,8 @@ TEST(ReportRunningReadyConditionTest, WaitWithEmptyHandleAborts)
     const ReportRunningReadyCondition report_running_ready_condition(launcher, std::nullopt);
 
     EXPECT_DEATH(
-        static_cast<void>(report_running_ready_condition.wait(cpp::stop_token{}, EmptyHandle{})), "Unreachable_Code");
+        static_cast<void>(report_running_ready_condition.wait(cpp::stop_token{}, EmptyHandle{})),
+        "ReportRunningReadyCondition should only be called with a ProcessHandle");
 }
 
 }  // namespace

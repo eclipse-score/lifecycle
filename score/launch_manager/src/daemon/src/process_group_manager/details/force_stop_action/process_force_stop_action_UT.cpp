@@ -91,7 +91,8 @@ TEST(ProcessForceStopActionTest, ForceStopWithEmptyHandleAborts)
     const ProcessForceStopAction process_force_stop_action(launcher);
 
     EXPECT_DEATH(
-        static_cast<void>(process_force_stop_action.forceStop(cpp::stop_token{}, EmptyHandle{})), "Unreachable_Code");
+        static_cast<void>(process_force_stop_action.forceStop(cpp::stop_token{}, EmptyHandle{})),
+        "ProcessForceStopAction should only be called with a ProcessHandle");
 }
 
 }  // namespace
