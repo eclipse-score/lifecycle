@@ -25,7 +25,7 @@
 #include <string>
 #include <string_view>
 
-#include "ringbuffer.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ipc/ringbuffer.hpp"
 
 namespace ipc_dropin
 {

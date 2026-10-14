@@ -13,7 +13,7 @@
 #include <iostream>
 
 #include "control.hpp"
-#include "ipc_dropin/socket.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ipc/socket.hpp"
 
 int main(int argc, char** argv)
 {

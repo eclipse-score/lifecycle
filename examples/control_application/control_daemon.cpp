@@ -17,7 +17,7 @@
 #include <thread>
 
 #include "control.hpp"
-#include "ipc_dropin/socket.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ipc/socket.hpp"
 #include <score/mw/lifecycle/ilm_control.hpp>
 #include <score/mw/lifecycle/report_running.h>
 

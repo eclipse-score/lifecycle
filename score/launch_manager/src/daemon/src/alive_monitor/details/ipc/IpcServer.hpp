@@ -21,7 +21,7 @@
 
 #include <memory>
 
-#include "ipc_dropin/socket.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ipc/socket.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ipc/IpcBase.hpp"
 #include <unistd.h>
 #include <string>
