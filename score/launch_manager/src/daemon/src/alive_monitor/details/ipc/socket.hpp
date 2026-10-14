@@ -27,7 +27,7 @@
 
 #include "score/mw/launch_manager/alive_monitor/details/ipc/ringbuffer.hpp"
 
-namespace ipc_dropin
+namespace score::mw::lifecycle::internal::saf::ipc
 {
 enum class ReturnCode
 {
@@ -275,6 +275,6 @@ class Socket
     }
 };
 
-}  // namespace ipc_dropin
+}  // namespace score::mw::lifecycle::internal::saf::ipc
 
 #endif

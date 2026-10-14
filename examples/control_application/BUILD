@@ -54,8 +54,8 @@ cc_binary(
     }),
     visibility = ["//visibility:public"],
     deps = [
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/ipc:ipc_impl",
         "//score/launch_manager:control_cc",
         "//score/launch_manager:lifecycle_cc",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/ipc:ipc_impl",
     ],
 )

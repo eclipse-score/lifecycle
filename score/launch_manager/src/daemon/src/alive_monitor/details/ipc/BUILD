@@ -41,7 +41,7 @@ cc_library(
     include_prefix = "score/mw/launch_manager/alive_monitor/details/ipc",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/ipc",
     visibility = [
-        "//examples:__subpackages__",
-        "//score:__subpackages__",
+        "//examples/control_application:__pkg__",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:__pkg__",
     ],
 )

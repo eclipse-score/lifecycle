@@ -23,7 +23,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace ipc_dropin
+namespace score::mw::lifecycle::internal::saf::ipc
 {
 
 template <std::size_t Capacity, std::size_t ElementSize>
@@ -234,6 +234,6 @@ class RingBuffer
     pthread_mutexattr_t mutex_attr_{};
 };
 
-}  // namespace ipc_dropin
+}  // namespace score::mw::lifecycle::internal::saf::ipc
 
 #endif
