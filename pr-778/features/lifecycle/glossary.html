@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Glossary &#8212; Lifecycle and Health Management  documentation</title>
+    <title>Lifecycle Glossary &#8212; Lifecycle and Health Management  documentation</title>
   
   
   
@@ -73,7 +73,7 @@
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Lifecycle Module" href="../../module/index.html" />
+    <link rel="next" title="Glossary" href="glossary_detailed.html" />
     <link rel="prev" title="Feature Security Work Products List" href="security_planning/index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -278,10 +278,6 @@
   
 
   
-    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
-      <span class="fa-solid fa-outdent"></span>
-    </button>
-  
 </div>
 
     </header>
@@ -429,7 +425,8 @@
 <li class="toctree-l2"><a class="reference internal" href="safety_analysis/aou_requirements.html">AoU Feature Requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="safety_planning/index.html">Feature Safety Work Products List</a></li>
 <li class="toctree-l2"><a class="reference internal" href="security_planning/index.html">Feature Security Work Products List</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Glossary</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Lifecycle Glossary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="glossary_detailed.html">Glossary</a></li>
 </ul>
 </details></li>
 </ul>
@@ -478,7 +475,7 @@
     
     <li class="breadcrumb-item"><a href="index.html" class="nav-link">Lifecycle</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Glossary</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Lifecycle Glossary</span></li>
   </ul>
 </nav>
 </div>
@@ -495,8 +492,8 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="glossary">
-<h1>Glossary<a class="headerlink" href="#glossary" title="Link to this heading">#</a></h1>
+  <section id="lifecycle-glossary">
+<h1>Lifecycle Glossary<a class="headerlink" href="#lifecycle-glossary" title="Link to this heading">#</a></h1>
 <dl class="glossary">
 <dt id="term-Lifecycle-Feature">Lifecycle Feature<a class="headerlink" href="#term-Lifecycle-Feature" title="Link to this term">#</a></dt><dd><p>Feature providing support for starting and stopping processes.</p>
 </dd>
@@ -516,9 +513,6 @@ configurations, user and group IDs etc.</p>
 <dt id="term-Health-Monitor-Interface">Health Monitor Interface<a class="headerlink" href="#term-Health-Monitor-Interface" title="Link to this term">#</a></dt><dd><p>Interface to monitor the health of a process, e.g. to check if a process is
 alive or if it is running as expected.</p>
 </dd>
-<dt id="term-Lifecycle-Interface">Lifecycle Interface<a class="headerlink" href="#term-Lifecycle-Interface" title="Link to this term">#</a></dt><dd><p>Interface to report <a class="reference internal" href="#term-Ready-State"><span class="xref std std-term">readiness</span></a> of a process to the
-<a class="reference internal" href="#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a>.</p>
-</dd>
 <dt id="term-Alive-Monitoring">Alive Monitoring<a class="headerlink" href="#term-Alive-Monitoring" title="Link to this term">#</a></dt><dd><p>Checks if an application reports an alive state in a certain period.</p>
 </dd>
 <dt id="term-Deadline-Monitoring">Deadline Monitoring<a class="headerlink" href="#term-Deadline-Monitoring" title="Link to this term">#</a></dt><dd><p>Monitor to detect if a state was reached within a specified time related to
@@ -533,15 +527,13 @@ detects abnormal situation it can change the <a class="reference internal" href=
 </dd>
 <dt id="term-Component">Component<a class="headerlink" href="#term-Component" title="Link to this term">#</a></dt><dd><p>A configurable unit in the Launch Manager that describes an executable and its runtime environment (sandbox). Components can be grouped together in Run Targets to define system operational states.</p>
 </dd>
-<dt id="term-Component-failure">Component failure<a class="headerlink" href="#term-Component-failure" title="Link to this term">#</a></dt><dd><p>A state when the component has failed to reach its <a class="reference internal" href="#term-Ready-Condition"><span class="xref std std-term">Ready Condition</span></a>, a running component has terminated abnormally or its supervision failed.</p>
-</dd>
-<dt id="term-Ready-State">Ready State<a class="headerlink" href="#term-Ready-State" title="Link to this term">#</a></dt><dd><p>A state when the component has fulfilled its <a class="reference internal" href="#term-Ready-Condition"><span class="xref std std-term">Ready Condition</span></a>, i.e. is ready to provide services to other components.</p>
+<dt id="term-Ready-State">Ready State<a class="headerlink" href="#term-Ready-State" title="Link to this term">#</a></dt><dd><p>A state when the component is ready to provide services to other components.</p>
 </dd>
 <dt id="term-Dependency-between-components">Dependency (between components)<a class="headerlink" href="#term-Dependency-between-components" title="Link to this term">#</a></dt><dd><p>A configuration parameter indicating that <strong>Component A</strong> can only start
 after <strong>Component B</strong> has reached its <a class="reference internal" href="#term-Ready-State"><span class="xref std std-term">Ready State</span></a>. In this case,
 <strong>Component A</strong> depends on <strong>Component B</strong>.</p>
 </dd>
-<dt id="term-Dependency-between-Run-Targets">Dependency (between Run Targets)<a class="headerlink" href="#term-Dependency-between-Run-Targets" title="Link to this term">#</a></dt><dd><p>A configuration parameter indicating that <strong>Run Target A</strong> includes all
+<dt id="term-Dependency-between-run-targets">Dependency (between run targets)<a class="headerlink" href="#term-Dependency-between-run-targets" title="Link to this term">#</a></dt><dd><p>A configuration parameter indicating that <strong>Run Target A</strong> includes all
 components from <strong>Run Target B</strong>. In this case, <strong>Run Target A</strong> depends
 on <strong>Run Target B</strong>.</p>
 </dd>
@@ -549,27 +541,14 @@ on <strong>Run Target B</strong>.</p>
 </dd>
 <dt id="term-Process">Process<a class="headerlink" href="#term-Process" title="Link to this term">#</a></dt><dd><p>Instantiation of an Executable programs running on the system that are managed by the Launch Manager.</p>
 </dd>
-<dt id="term-UID">UID<a class="headerlink" href="#term-UID" title="Link to this term">#</a></dt><dd><p>User Identifier - a unique number assigned to each user on a Unix-like operating system.</p>
-</dd>
-<dt id="term-GID">GID<a class="headerlink" href="#term-GID" title="Link to this term">#</a></dt><dd><p>Group Identifier - a unique number assigned to each group on a Unix-like operating system.</p>
-</dd>
 <dt id="term-Polling-Interval">Polling Interval<a class="headerlink" href="#term-Polling-Interval" title="Link to this term">#</a></dt><dd><p>The time interval between successive checks of a condition or status.</p>
 </dd>
-<dt id="term-Working-Directory">Working Directory<a class="headerlink" href="#term-Working-Directory" title="Link to this term">#</a></dt><dd><p>The current directory from which a process is executed, also known as CWD (Current Working Directory).</p>
-</dd>
-<dt id="term-File-Descriptor">File Descriptor<a class="headerlink" href="#term-File-Descriptor" title="Link to this term">#</a></dt><dd><p>A handle used by a process to access files or other input/output resources.</p>
-</dd>
-<dt id="term-Procmgr">Procmgr<a class="headerlink" href="#term-Procmgr" title="Link to this term">#</a></dt><dd><p>Process Manager - a QNX system component that manages process creation and execution.</p>
-</dd>
-<dt id="term-ASLR">ASLR<a class="headerlink" href="#term-ASLR" title="Link to this term">#</a></dt><dd><p>Address Space Layout Randomization - a security technique that randomizes the memory layout of processes.</p>
-</dd>
-<dt id="term-Recovery-Action">Recovery Action<a class="headerlink" href="#term-Recovery-Action" title="Link to this term">#</a></dt><dd><p>Actions taken by the Launch Manager as a response to a <a class="reference internal" href="#term-Component-failure"><span class="xref std std-term">Component failure</span></a> or <a class="reference internal" href="#term-Run-Target"><span class="xref std std-term">Run Target</span></a> activation failure.</p>
+<dt id="term-Recovery-Action">Recovery Action<a class="headerlink" href="#term-Recovery-Action" title="Link to this term">#</a></dt><dd><p>Actions taken by the Launch Manager when a process fails or terminates abnormally.</p>
 </dd>
 <dt id="term-Ready-Condition">Ready Condition<a class="headerlink" href="#term-Ready-Condition" title="Link to this term">#</a></dt><dd><p>A configurable condition that must be satisfied before a component is considered ready and operational. Ready conditions can include file system checks, network availability, or custom application-specific signals.</p>
 <p>Ready conditions can either be reported by the component itself through the Lifecycle Interface or determined via external state monitoring. External state examples include: process started, file is available, socket was opened, or that the process finished successfully.</p>
 </dd>
-<dt id="term-Liveliness">Liveliness<a class="headerlink" href="#term-Liveliness" title="Link to this term">#</a></dt><dd><p>Term indicating that a <a class="reference internal" href="#term-Component"><span class="xref std std-term">Component</span></a> is periodically sending an alive notification (using the
-<a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int_op__lifecycle__report_alive">logic_arc_int_op__lifecycle__report_alive</a> interface) as per configuration.</p>
+<dt id="term-Liveliness">Liveliness<a class="headerlink" href="#term-Liveliness" title="Link to this term">#</a></dt><dd><p>The status of a process, notified by periodic calls to <a class="reference internal" href="#term-Health-Monitor-Interface"><span class="xref std std-term">Health Monitor Interface</span></a>, as per configuration.</p>
 </dd>
 <dt id="term-Monitoring-of-Processes">Monitoring of Processes<a class="headerlink" href="#term-Monitoring-of-Processes" title="Link to this term">#</a></dt><dd><p>The activity of observing and checking if a process is running or has been exited with an abnormal status.</p>
 </dd>
@@ -577,19 +556,9 @@ on <strong>Run Target B</strong>.</p>
 </dd>
 <dt id="term-Interval">Interval<a class="headerlink" href="#term-Interval" title="Link to this term">#</a></dt><dd><p>A period of time between events or measurements.</p>
 </dd>
-<dt id="term-QNX">QNX<a class="headerlink" href="#term-QNX" title="Link to this term">#</a></dt><dd><p>A real-time operating system commonly used in embedded systems.</p>
-</dd>
-<dt id="term-DSS">DSS<a class="headerlink" href="#term-DSS" title="Link to this term">#</a></dt><dd><p>Device Safe State - a safe operational state that a system can enter during failures.</p>
-</dd>
-<dt id="term-DAG">DAG<a class="headerlink" href="#term-DAG" title="Link to this term">#</a></dt><dd><p>Directed Acyclic Graph - a data structure used to represent dependencies between processes.</p>
-</dd>
 <dt id="term-SWC">SWC<a class="headerlink" href="#term-SWC" title="Link to this term">#</a></dt><dd><p>Software Components - modular software units that can be independently managed.</p>
 </dd>
-<dt id="term-Run-Target">Run Target<a class="headerlink" href="#term-Run-Target" title="Link to this term">#</a></dt><dd><p>A named collection of components and their dependencies that can be activated, stopped, or switched as a group to achieve a specific operational mode or configuration.</p>
-</dd>
-<dt id="term-Fallback-Run-Target">Fallback Run Target<a class="headerlink" href="#term-Fallback-Run-Target" title="Link to this term">#</a></dt><dd><p>A designated Run Target that the system can switch to in case the current active Run Target resp. one of its components fails.</p>
-</dd>
-<dt id="term-Operating-System">Operating System<a class="headerlink" href="#term-Operating-System" title="Link to this term">#</a></dt><dd><p>The system software that manages computer hardware and software resources and provides common services for computer programs.</p>
+<dt id="term-Run-target">Run target<a class="headerlink" href="#term-Run-target" title="Link to this term">#</a></dt><dd><p>A named collection of processes and their dependencies that can be launched, stopped, or switched as a group to achieve a specific operational mode or configuration.</p>
 </dd>
 </dl>
 </section>
@@ -614,11 +583,11 @@ on <strong>Run Target B</strong>.</p>
       </div>
     </a>
     <a class="right-next"
-       href="../../module/index.html"
+       href="glossary_detailed.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Lifecycle Module</p>
+        <p class="prev-next-title">Glossary</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -628,28 +597,6 @@ on <strong>Run Target B</strong>.</p>
             </div>
             
             
-              
-                <dialog id="pst-secondary-sidebar-modal"></dialog>
-                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
-
-
-  <div class="sidebar-secondary-item">
-
-  
-  <div class="tocsection editthispage">
-    <a href="https://github.com/eclipse-score/lifecycle/edit/main/docs/features/lifecycle/glossary.rst">
-      <i class="fa-solid fa-pencil"></i>
-      
-      
-        
-          Edit on GitHub
-        
-      
-    </a>
-  </div>
-</div>
-
-</div></div>
               
             
           </div>
