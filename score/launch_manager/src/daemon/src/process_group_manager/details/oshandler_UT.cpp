@@ -215,4 +215,35 @@ TEST_F(OsHandlerTest, WaitReturnsErrorThenProcessId_HandlerRecoversAndInvokesCal
     sut_.reset();
 }
 
+TEST_F(OsHandlerTest, WaitReturnsStoppedOrContinuedStatus_FindTerminatedIsNotCalled)
+{
+    RecordProperty(
+        "Description",
+        "When sys_wait reports a stopped or continued child, OsHandler must not treat the process as terminated.");
+
+    // given
+    StrictMock<MockComponent> callback;
+    process_map_.insertIfNotTerminated(6000, &callback);
+
+    constexpr int32_t kStoppedStatus = 0x7f | (SIGSTOP << 8);
+    constexpr int32_t kContinuedStatus = 0xffff;
+    EXPECT_CALL(*sys_wait_mock_, wait(_))
+        .WillOnce([](std::int32_t* stat_loc) -> score::cpp::expected<pid_t, score::os::Error> {
+            *stat_loc = kStoppedStatus;
+            return 6000;
+        })
+        .WillOnce([](std::int32_t* stat_loc) -> score::cpp::expected<pid_t, score::os::Error> {
+            *stat_loc = kContinuedStatus;
+            return 6000;
+        })
+        .WillRepeatedly(Return(score::cpp::unexpected(score::os::Error::createFromErrno(ECHILD))));
+
+    // when
+    sut_ = std::make_unique<OsHandler>(process_map_, *sys_wait_mock_);
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    sut_.reset();
+
+    // then — StrictMock ensures terminated() was never called
+}
+
 }  // namespace
