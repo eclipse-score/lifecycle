@@ -14,7 +14,20 @@
           "url": ""
         }
       ],
-      "TestLinks": []
+      "TestLinks": [
+        {
+          "name": "test_ready_condition_process_state",
+          "file": "tests/integration/ready_conditions/process_state/kterminated/kterminated.py",
+          "line": 19,
+          "need": "comp_req__launch_man__conf_of_comp_ready_cond",
+          "verify_type": "partially",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        }
+      ]
     }
   },
   {
@@ -123,6 +136,18 @@
         {
           "name": "test_ready_condition_file_not_existing",
           "file": "tests/integration/ready_conditions/file_state/not_existing/ready_condition_file_not_existing.py",
+          "line": 19,
+          "need": "feat_req__lifecycle__conditional_startup",
+          "verify_type": "partially",
+          "result": "passed",
+          "result_text": "",
+          "repo_name": "local_repo",
+          "hash": "",
+          "url": ""
+        },
+        {
+          "name": "test_ready_condition_process_state",
+          "file": "tests/integration/ready_conditions/process_state/kterminated/kterminated.py",
           "line": 19,
           "need": "feat_req__lifecycle__conditional_startup",
           "verify_type": "partially",
