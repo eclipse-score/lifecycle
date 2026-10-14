@@ -390,14 +390,6 @@ score::cpp::expected_blank<IComponent::ComponentError> ProcessInfoNode::handlePr
                         stop_token, std::chrono::milliseconds(config_.deployment_config.ready_timeout_ms));
                     if (!process_terminated_in_time)
                     {
-                        if (stop_token.stop_requested())
-                        {
-                            LM_LOG_DEBUG() << "Stop requested during startup of" << identifier_;
-                        }
-                        else
-                        {
-                            LM_LOG_ERROR() << "Did not detect termination of" << identifier_ << "in time";
-                        }
                         return false;
                     }
                 }
