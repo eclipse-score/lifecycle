@@ -1,0 +1,31 @@
+"serviceTypes": [
+  {
+    "serviceTypeName": "/score/mw/lifecycle/LmControlService",
+    "version": {
+      "major": 1,
+      "minor": 0
+    },
+    "bindings": [
+      {
+        "binding": "SHM",
+        "serviceId": 1,
+        "events": [
+          {
+            "eventName": "ActivationResult",
+            "eventId": 1
+          }
+        ],
+        "methods": [
+          {
+            "methodName": "ActivateRunTarget",
+            "methodId": 2
+          },
+          {
+            "methodName": "GetActiveRunTarget",
+            "methodId": 3
+          }
+        ]
+      }
+    ]
+  }
+]

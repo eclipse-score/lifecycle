@@ -28,9 +28,11 @@ See :ref:`lm_config` and :ref:`lm_config_examples` for details about the **Launc
 Generating flatbuffer file
 --------------------------
 
-The json configuration has to be converted to a flatbuffer file before it can be used by the **Launch Manager**.
+The json configuration has to be converted to a flatbuffer file before it can
+be used by the **Launch Manager**.
 
-The provided bazel function ``launch_manager_config`` handles the compilation of the json configuration to flatbuffer files.
+The provided bazel function ``launch_manager_config`` handles the compilation
+of the json configuration to flatbuffer files.
 
 .. code-block:: python
 
@@ -51,10 +53,147 @@ The provided bazel function ``launch_manager_config`` handles the compilation of
 Location of the configuration file
 ----------------------------------
 
-The **Launch Manager** can be started with a CLI flag defining the absolute or relative path to the configuration file:
+The **Launch Manager** can be started with a CLI flag defining the absolute or
+relative path to the configuration file:
 
 ``launch_manager -c <config path>``
 
 Example: ``launch_manager -c /opt/launch_manager/etc/lm_config.bin``
 
-If ``-c`` is not specified, the **Launch Manager** will attempt to load the configuration from the default path ``etc/launch_manager_config.bin``.
+If ``-c`` is not specified, the **Launch Manager** will attempt to load the
+configuration from the default path ``etc/launch_manager_config.bin``.
+
+State manager mw::com config
+----------------------------
+
+An example ``mw::com`` config is provided with the following target
+``//score/launch_manager:example_com_config``.
+This is a single config that includes both **Launch Manager** and the
+**State Manager** instance definition so they can be used by both.
+
+
+For more information about the ``mw::com`` configuraiton please refer
+to their documentation and tutorial at documentaiton
+https://eclipse-score.github.io/communication/v0.5.0/score/mw/com/doc/tutorial/chapter_2/README.html#separate-configuration-files-for-provider-and-consumer
+
+LmControlService service type
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. dropdown:: LmControlService service type
+
+   .. literalinclude:: examples/com_service_type.json
+      :language: json
+
+
+State Manager Instance
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. dropdown:: State Manager Instance
+
+   .. literalinclude:: examples/com_stm_service_instance.json
+      :language: json
+
+Launch Manager Instance
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. dropdown:: State Manager Instance
+
+   .. literalinclude:: examples/com_lm_service_instance.json
+      :language: json
+
+Implementaiton
+==============
+
+
+Reporting Processes
+-------------------
+
+Starting a process
+^^^^^^^^^^^^^^^^^^
+
+A reporting process must signal to the Launch Manager that it has
+started successfully by calling the lifecycle API for the language it is
+implemented in.
+
+A ``ready_timeout_ms`` can be configured for each component.
+If the process does not report ``Running`` within that timeout, the Launch
+Manager terminates the process and registers an error.
+
+Stopping a process
+^^^^^^^^^^^^^^^^^^
+
+A process can be configured to terminate in 2 ways:
+
+-  **Self-terminating** - The process terminates whenever it wants.
+-  **Non-self-terminating** - The process remains alive until LCM requests the process to end using a ``SIGTERM`` signal.
+
+For a process to support being terminated by LCM, it needs to respond to
+a ``SIGTERM`` signal by ending ongoing tasks, freeing resources and
+exiting.
+
+If a process does not terminate after receiving a ``SIGTERM``, and a
+``shutdown_timeout_ms`` is configured, then after the timeout is fired a
+``SIGKILL`` is sent and the process is forcefully terminated.
+
+Examples
+^^^^^^^^
+
+.. dropdown:: C Reporting Process
+
+   .. literalinclude:: examples/c_reporting_process.c
+      :language: c
+
+.. dropdown:: C++ Reporting Process
+
+   .. literalinclude:: examples/cpp_reporting_process.cpp
+      :language: cpp
+
+.. dropdown:: Rust Reporting Process
+
+   .. literalinclude:: examples/rust_reporting_process.rs
+      :language: rust
+
+
+State management
+----------------
+
+A **State Manager** is an application that dictates which run-targets shall be
+active by communicating with the Launch Manager using the ``ILmControl``
+interface.
+An instance is created with ``ILmControl::Create()``, which takes the
+``mw::com`` instance specifier of the Launch Manager service.
+``mw::com`` must be initialized by the caller before ``Create()`` is called
+(see :ref:`lm_integration`).
+
+``ILmControl`` provides the following operations:
+
+-  ``activate_run_target(name, force)`` - requests the activation of the
+   run-target with the given name.
+   The call returns as soon as the Launch Manager has accepted the request,
+   it does not wait for the transition to finish.
+-  ``register_run_target_activation_callback(callback)`` - registers a callback
+   that is invoked whenever the Launch Manager finishes a run-target
+   activation. The callback receives the source of the activation and the name
+   of the run-target that was activated, which may differ from the requested
+   one (for example when a recovery action activates a different run-target).
+   Only a single callback is supported, a second registration replaces the
+   first.
+-  ``get_active_run_target()`` - returns the name of the currently active
+   run-target, or ``kActivationInProgress`` if a transition is running.
+
+The **State Manager** is itself a managed component and **must** report
+``Running`` to the Launch Manager using the lifecycle API before calling
+``activate_run_target``.
+Failing to do so means the Launch Manager does not consider the **State Manager**
+ready, which blocks the startup procedure from completing.
+The configuration also requires that the component that is the **State Manager** has
+to have the field ``application_profile.application_type`` set to
+``State_Manager``.
+
+Example
+^^^^^^^
+
+.. dropdown:: State Manager example
+
+   .. literalinclude:: examples/example_state_manager.cpp
+      :language: cpp

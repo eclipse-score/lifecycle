@@ -22,5 +22,4 @@ Lifecycle Product Documentation
    configuration
    integration
    examples
-   implementation
    known_limitations
