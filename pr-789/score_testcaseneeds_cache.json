@@ -1388,7 +1388,7 @@
   {
     "name": "ControlProviderUT__OfferService_FSetfdFails_LogsAndContinues",
     "file": "score/launch_manager/src/daemon/src/control/control_provider_UT.cpp",
-    "line": "676",
+    "line": "689",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -1402,7 +1402,7 @@
   {
     "name": "LmControlSpecifierFactoryUT__Create_ReturnsValidSpecifier",
     "file": "score/launch_manager/src/daemon/src/control/control_provider_UT.cpp",
-    "line": "701",
+    "line": "714",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5435,6 +5435,20 @@
     "name": "OsHandlerTest__WaitReturnsErrorThenProcessId_HandlerRecoversAndInvokesCallback",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/oshandler_UT.cpp",
     "line": "192",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "OsHandlerTest__WaitReturnsStoppedOrContinuedStatus_FindTerminatedIsNotCalled",
+    "file": "score/launch_manager/src/daemon/src/process_group_manager/details/oshandler_UT.cpp",
+    "line": "218",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
