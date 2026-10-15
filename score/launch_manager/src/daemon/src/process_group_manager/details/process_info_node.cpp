@@ -33,9 +33,10 @@ ProcessInfoNode::ProcessInfoNode(configuration::ComponentConfig&& config, Proces
       identifier_(config_.name),
       termination_waiter_(std::make_unique<TerminationWaiter>())
 {
+    // number_of_attempts is pre-validated with max value: 254, to avoid integer overflow when incremented
     if (config_.deployment_config.ready_recovery_action.has_value())
     {
-        start_tries_ = config_.deployment_config.ready_recovery_action->number_of_attempts + 1;
+        start_tries_ = config_.deployment_config.ready_recovery_action->number_of_attempts + 1U;
     }
 
     const configuration::ApplicationProfile& app_profile = config_.component_properties.application_profile;

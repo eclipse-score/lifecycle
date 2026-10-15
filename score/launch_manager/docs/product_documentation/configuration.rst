@@ -129,7 +129,7 @@ restart (object, optional)
 
 restart.number_of_attempts (integer, optional)
     Description: Specifies the maximum number of restart attempts before the **Launch Manager** concludes that recovery cannot succeed for the component.
-    Constraint: Must be 0 or greater.
+    Constraint: Must be between 0 and 254 inclusive.
 
 restart.delay_before_restart_ms (integer, optional)
     Description: Specifies the delay duration, in milliseconds, that the **Launch Manager** waits before initiating a restart attempt.
@@ -555,4 +555,3 @@ Given that the **Launch Manager** supports multiple levels of default values, sp
 
 1. If a configuration value is not explicitly specified at a specific location (e.g., within an individual component's definition, a **Run Target's** definition, or a root-level property like ``alive_supervision``), the **Launch Manager** will first attempt to use the corresponding value from the user-defined ``defaults`` section.
 2. If the value is also not specified within the user-defined ``defaults`` section, then the **Launch Manager** will apply the S-CORE standard default value for that option.
-
