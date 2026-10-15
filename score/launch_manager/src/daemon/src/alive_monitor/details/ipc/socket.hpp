@@ -188,7 +188,7 @@ class Socket
         {
             return ReturnCode::kQueueEmpty;
         }
-        if (buffer_->template tryPeek(elem))
+        if (buffer_->template tryPeek<Payload>(elem))
         {
             return ReturnCode::kOk;
         }
