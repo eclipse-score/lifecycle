@@ -743,34 +743,6 @@ Alive Monitoring
 Recovery Actions
 ----------------
 
-.. comp_req:: Component monitoring during startup
-    :id: comp_req__launch_man__failure_detect_startup
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__monitor_processes[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall be able to detect :term:`Component
-    failure` during startup of the :term:`Component`. I.e. before reaching its
-    :term:`Ready State`.
-
-.. comp_req:: Component monitoring during runtime
-    :id: comp_req__launch_man__failure_detect_runtime
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__monitor_processes[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall be able to detect :term:`Component
-    failure` during runtime of the :term:`Component`. I.e. after reaching its
-    :term:`Ready State`.
-
 .. comp_req:: Component failure during run target switch
     :id: comp_req__launch_man__ra_comp_failure_switch
     :reqtype: Functional
@@ -800,20 +772,7 @@ Recovery Actions
     configured.
 
 .. comp_req:: Recovery Action
-    :id: comp_req__launch_man__ra_rt_cancel_transitions
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall cancel all pending :term:`Run Target`
-    transitions before running any :term:`Run Target` recovery action.
-
-.. comp_req:: Recovery Action
-    :id: comp_req__launch_man__ra_rt_cancel_transitions
+    :id: comp_req__launch_man__ra_rt_cancel_trans
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
@@ -835,9 +794,9 @@ Recovery Actions
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-   The :term:`Launch Manager` shall notify the State Manger of a recovery
-   action that results in a :term:`Run Target` switch using the 
-   :need:`logic_arc_int_op__lifecycle__reg_callback` interface.
+    The :term:`Launch Manager` shall notify the State Manger of a recovery
+    action that results in a :term:`Run Target` switch using the 
+    :term:`Control Interface`.
 
 .. comp_req:: Run target recovery action failure escalation
     :id: comp_req__launch_man__ra_rt_failed_esc
