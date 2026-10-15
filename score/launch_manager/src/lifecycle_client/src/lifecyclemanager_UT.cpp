@@ -15,6 +15,7 @@
 #include "score/mw/lifecycle/application.h"
 #include "score/mw/lifecycle/lifecycle_client/details/mock_report_running_impl.h"
 #include "score/mw/lifecycle/lifecyclemanager.h"
+#include "score/mw/lifecycle/mock_application.h"
 #include "score/os/errno.h"
 #include "score/os/mocklib/stdlib_mock.h"
 #include "score/os/utils/mocklib/signalmock.h"
@@ -33,14 +34,6 @@ using ::testing::Return;
 
 namespace
 {
-
-// TODO: This can be removed once mock_application.hpp has merged
-class MockApplication : public score::mw::lifecycle::Application
-{
-  public:
-    MOCK_METHOD(std::int32_t, Initialize, (const score::mw::lifecycle::ApplicationContext&), (override));
-    MOCK_METHOD(std::int32_t, Run, (const score::cpp::stop_token&), (override));
-};
 
 using SigResult = score::cpp::expected<std::int32_t, score::os::Error>;
 
@@ -144,7 +137,7 @@ TEST_F(
     auto signal_mock = CreateSuccessfulSignalMock();
     ExpectSigWaitUntilSigterm(*signal_mock, SigResult{0}, score::cpp::expected<std::int32_t, score::os::Error>{0});
     score::mw::lifecycle::LifeCycleManager manager(std::move(signal_mock));
-    MockApplication app;
+    score::mw::lifecycle::MockApplication app;
     EXPECT_CALL(app, Initialize(_)).WillOnce(Return(0));
     EXPECT_CALL(app, Run(_)).WillOnce(Return(0));
 
@@ -173,7 +166,7 @@ TEST_F(
     auto signal_mock = CreateSuccessfulSignalMock();
     ExpectSigWaitUntilSigterm(*signal_mock, SigResult{0}, score::cpp::expected<std::int32_t, score::os::Error>{0});
     score::mw::lifecycle::LifeCycleManager manager(std::move(signal_mock));
-    MockApplication app;
+    score::mw::lifecycle::MockApplication app;
     EXPECT_CALL(app, Initialize(_)).WillOnce(Return(42));
     EXPECT_CALL(app, Run(_)).Times(0);
     const char* argv[] = {"test_app"};
@@ -206,7 +199,7 @@ TEST_F(LifeCycleManagerTest, GivenAppFailingRun_ExpectRunErrorCode_WhenRunCalled
     auto signal_mock = CreateSuccessfulSignalMock();
     ExpectSigWaitUntilSigterm(*signal_mock, SigResult{0}, score::cpp::expected<std::int32_t, score::os::Error>{0});
     score::mw::lifecycle::LifeCycleManager manager(std::move(signal_mock));
-    MockApplication app;
+    score::mw::lifecycle::MockApplication app;
     EXPECT_CALL(app, Initialize(_)).WillOnce(Return(0));
     EXPECT_CALL(app, Run(_)).WillOnce(Return(99));
 
@@ -234,7 +227,7 @@ TEST_F(LifeCycleManagerTest, GivenAppContextWithArguments_ExpectAppCallSuccess_W
     auto signal_mock = CreateSuccessfulSignalMock();
     ExpectSigWaitUntilSigterm(*signal_mock, SigResult{0}, score::cpp::expected<std::int32_t, score::os::Error>{0});
     score::mw::lifecycle::LifeCycleManager manager(std::move(signal_mock));
-    MockApplication app;
+    score::mw::lifecycle::MockApplication app;
     EXPECT_CALL(app, Initialize(_)).WillOnce(Return(0));
     EXPECT_CALL(app, Run(_)).WillOnce(Return(0));
 
@@ -416,7 +409,7 @@ TEST_F(LifeCycleManagerTest, GivenRunningApplication_ExpectStopNotRequested_When
 
     {
         score::mw::lifecycle::LifeCycleManager manager(std::move(signal_mock));
-        MockApplication app;
+        score::mw::lifecycle::MockApplication app;
         EXPECT_CALL(app, Initialize(_)).WillOnce(Return(0));
         EXPECT_CALL(app, Run(_)).WillOnce(Invoke([&captured_token](const score::cpp::stop_token& token) {
             captured_token = token;
@@ -519,7 +512,7 @@ TEST_F(LifeCycleManagerTest, GivenRunningApplication_ExpectStopRequested_WhenSig
         .WillOnce(Return(score::cpp::expected<std::int32_t, score::os::Error>{0}));
 
     score::mw::lifecycle::LifeCycleManager manager(std::move(signal_mock));
-    MockApplication app;
+    score::mw::lifecycle::MockApplication app;
     EXPECT_CALL(app, Initialize(_)).WillOnce(Return(0));
     EXPECT_CALL(app, Run(_)).WillOnce(Invoke([&app_run_started, &stop_requested](const score::cpp::stop_token& token) {
         app_run_started.Signal();
@@ -561,7 +554,7 @@ TEST_F(
     auto signal_mock = CreateSuccessfulSignalMock();
     ExpectSigWaitUntilSigterm(*signal_mock, SigResult{0}, score::cpp::expected<std::int32_t, score::os::Error>{0});
     score::mw::lifecycle::LifeCycleManager manager(std::move(signal_mock));
-    MockApplication app;
+    score::mw::lifecycle::MockApplication app;
     EXPECT_CALL(app, Initialize(_)).WillOnce(Return(0));
     EXPECT_CALL(app, Run(_)).WillOnce(Return(0));
 

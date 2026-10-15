@@ -341,6 +341,7 @@ lm_cc_test(
     deps = [
         ":lifecyclemanager_test_lib",
         ":report_running_test_lib",
+        "//score/launch_manager/src/lifecycle_client:mock_application",
         "//tests/utils/test_helper:one_shot_event",
         "@googletest//:gtest_main",
         "@score_baselibs//score/os/mocklib:stdlib_mock",
