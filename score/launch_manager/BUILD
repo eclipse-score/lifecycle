@@ -17,6 +17,16 @@ load("//tests/utils/bazel:unit_test.bzl", "lm_cc_test")
 package(default_visibility = ["//visibility:public"])
 
 alias(
+    name = "lcm_schema",
+    actual = "//score/launch_manager/src/daemon/src/configuration/config_schema:launch_manager.schema.json",
+)
+
+alias(
+    name = "example_com_config",
+    actual = "//tests/utils/environments:mw_com_config.json",
+)
+
+alias(
     name = "control_cc",
     actual = "//score/launch_manager/src/lm_control:lm_control",
 )
@@ -157,7 +167,9 @@ docs_bundle(
 
 docs_bundle(
     name = "product_documentation",
-    data = ["//score/launch_manager/src/daemon/src/configuration/config_schema:config_schema_files"],
+    data = [
+        "//score/launch_manager/src/daemon/src/configuration/config_schema:config_schema_files",
+    ],
     source_dir = "docs/product_documentation",
     tags = ["manual"],
     visibility = ["//visibility:public"],
