@@ -655,7 +655,7 @@ TEST_F(ControlProviderUT, OfferService_OpenFd_SetsCloexec)
 {
     RecordProperty(
         "Description",
-        "offerService() sets FD_CLOEXEC on every open file descriptor in [0, 16) "
+        "offerService() sets FD_CLOEXEC on open file descriptors in [0, 16) "
         "except stdin, stdout and stderr, which are explicitly skipped. "
         "A pipe opened before Create() must have the flag set afterwards; "
         "the standard streams must be left completely unchanged.");
