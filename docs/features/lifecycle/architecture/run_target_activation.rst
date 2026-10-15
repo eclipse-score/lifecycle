@@ -61,12 +61,23 @@ activation without needing to know the current system state, as the
 Interface
 =========
 
-The control interface is defined here:
-:need:`logic_arc_int__lifecycle__controlif` The :term:`Launch Manager` provides
-an interface, which allows an external State Manager application to request the
-:term:`Launch Manager` to start, stop or restart applications or groups of
-applications, which allows the implementation of a state management
-applications to support dynamic state control.
+The control interface is defined here: :need:`logic_arc_int__lifecycle__controlif`
+The :term:`Launch Manager` provides an interface, which allows an external State Manager application to request the
+:term:`Launch Manager` to switch the active Run Target (leading to start, stop or restart of applications) 
+which allows the implementation of a state management application to support dynamic state control.
+
+The control interface provides two modes of requesting a Run Target activation:
+
+1. **Queued Activation**
+
+   In this mode, requests to activate a Run Target are placed in a queue and processed sequentially by the Launch Manager.
+   A State Manager can issue multiple Run Target transition requests and they will be executed sequentially by the Launch Manager.
+
+2. **Forced Activation**
+
+   In this mode, requests to activate a Run Target are performed immediately by the Launch Manager, potentially interrupting any ongoing transitions.
+   A forced activation request bypasses the queue and is executed immediately and removes any queued requests.
+
 
 Dynamic architecture
 ====================
@@ -74,7 +85,7 @@ Dynamic architecture
 The sequence diagrams below are based on the example dependency graph described
 in :doc:`./components_run_targets`.
 
-.. feat_arc_dyn:: Switch Run Target Scenario - Successful case
+.. feat_arc_dyn:: Switch Run Target Scenario - Queued Activation
    :id: feat_arc_dyn__lifecycle__control_activate
    :status: valid
    :version: 1
@@ -83,7 +94,20 @@ in :doc:`./components_run_targets`.
    :fulfils: feat_req__lifecycle__control_commands[version==1]
    :belongs_to: feat__lifecycle[version==1]
 
-   .. uml:: _assets/control_interface_switch_sequence.puml
+   .. uml:: _assets/control_interface_queued_activation.puml
+      :scale: 50
+      :align: center
+
+.. feat_arc_dyn:: Switch Run Target Scenario - Forced Activation
+   :id: feat_arc_dyn__lifecycle__control_forced_activate
+   :status: valid
+   :version: 1
+   :safety: ASIL_B
+   :security: YES
+   :fulfils: feat_req__lifecycle__control_commands[version==1]
+   :belongs_to: feat__lifecycle[version==1]
+
+   .. uml:: _assets/control_interface_forced_activation.puml
       :scale: 50
       :align: center
 

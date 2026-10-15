@@ -15,6 +15,7 @@
   title Simple Dependency Graph
 
   state Running #lightblue
+  state Minimal #lightblue
   state Off #lightblue
 
 
@@ -24,6 +25,7 @@
   state random: Binary: /bin/random\nReadyCondition: /dev/random exists
 
   Running --> app1
+  Minimal --> setup_filesystems
   app1 --> setup_filesystems
   app1 --> random
 @enduml

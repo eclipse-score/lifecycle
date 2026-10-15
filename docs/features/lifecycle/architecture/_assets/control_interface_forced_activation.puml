@@ -1,0 +1,91 @@
+' *******************************************************************************
+' Copyright (c) 2026 Contributors to the Eclipse Foundation
+'
+' See the NOTICE file(s) distributed with this work for additional
+' information regarding copyright ownership.
+'
+' This program and the accompanying materials are made available under the
+' terms of the Apache License Version 2.0 which is available at
+' https://www.apache.org/licenses/LICENSE-2.0
+'
+' SPDX-License-Identifier: Apache-2.0
+' *******************************************************************************
+
+@startuml
+title Launch Manager - Forced Run Target Activation
+
+autonumber "<b>[00]"
+
+participant "Launch Manager" as LM
+participant "OS (kernel)" as kernel
+participant "setup_filesystems.sh" as fs
+participant "random" as ran
+participant "app1" as app1
+
+activate LM
+
+note over LM
+Current Run Target: "Off"
+end note
+
+[-> LM : RegisterActivationCallback(callback)
+[<-- LM 
+
+[-> LM : Activate Run Target ("Minimal", forced=False)
+LM -> LM: validate Run Target "Minimal"
+alt #White Run Target "Minimal" is valid
+    LM -> LM: Queue Run Target Activation "Minimal"
+    [<-- LM: Request accepted
+else #Pink Run Target "Minimal" is invalid (Example: Run Target not configured)
+    [<-- LM: Request rejected
+end alt
+
+[-> LM : Activate Run Target ("Running", forced=False)
+LM -> LM: validate Run Target "Running"
+alt #White Run Target "Running" is valid
+    LM -> LM: Queue Run Target Activation "Running"
+    [<-- LM: Request accepted
+else #Pink Run Target "Running" is invalid (Example: Run Target not configured)
+    [<-- LM: Request rejected
+end alt
+
+LM -> LM: Process next queued Run Target Activation: Run Target "Minimal"
+LM -> LM: Determine transition plan from "Off" -> "Minimal"
+
+group #White Start setup_filesystems.sh
+    LM -> kernel : Start setup_filesystems.sh
+    kernel -> fs ++ : Start setup_filesystems.sh
+    LM -> LM : Wait for setup_filesystems.sh ready condition
+
+    group #Yellow Forced Activation
+        [-> LM : Activate Run Target ("Off", forced=True)
+        LM -> LM: validate Run Target "Off"
+        alt  Run Target "Off" is valid
+            [<-- LM: Request accepted
+        else #Pink Run Target "Off" is invalid (Example: Run Target not configured)
+            [<-- LM: Request rejected
+        end alt
+    end group
+
+    LM -> LM : Clear request queue (Removes "Running" from the queue).
+    LM -> LM : Wait for ongoing operations to finish
+
+    fs -> kernel : exit
+    destroy fs
+    kernel -> LM : setup_filesystems.sh terminated successfully
+    LM -> LM : Component setup_filesystems.sh Ready
+end group
+
+LM -> LM : Determine transition plan from current state to "Off"
+group #White Deactivate setup_filesystems.sh
+    note over LM
+        The underlying process is already in state terminated.
+        Nothing to do.
+    end note
+LM -> LM : Mark Component setup_filesystems.sh as Terminated
+
+LM -> LM: Run Target "Off" successfully activated
+[<-- LM: Invoke callback: Run Target "Off" successfully activated due to Request
+
+...
+@enduml

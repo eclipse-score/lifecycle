@@ -1,0 +1,91 @@
+' *******************************************************************************
+' Copyright (c) 2026 Contributors to the Eclipse Foundation
+'
+' See the NOTICE file(s) distributed with this work for additional
+' information regarding copyright ownership.
+'
+' This program and the accompanying materials are made available under the
+' terms of the Apache License Version 2.0 which is available at
+' https://www.apache.org/licenses/LICENSE-2.0
+'
+' SPDX-License-Identifier: Apache-2.0
+' *******************************************************************************
+
+@startuml
+title Launch Manager - Queued Run Target activation
+
+autonumber "<b>[00]"
+
+participant "Launch Manager" as LM
+participant "OS (kernel)" as kernel
+participant "setup_filesystems.sh" as fs
+participant "random" as ran
+participant "app1" as app1
+
+activate LM
+
+note over LM
+Current Run Target: "Off"
+end note
+
+[-> LM : RegisterActivationCallback(callback)
+[<-- LM 
+
+[-> LM : Activate Run Target ("Minimal", forced=False)
+LM -> LM: validate Run Target "Minimal"
+alt #White Run Target "Minimal" is valid
+    LM -> LM: Queue Run Target Activation "Minimal"
+    [<-- LM: Request accepted
+else #Pink Run Target "Minimal" is invalid (Example: Run Target not configured)
+    [<-- LM: Request rejected
+end alt
+
+[-> LM : Activate Run Target ("Running", forced=False)
+LM -> LM: validate Run Target "Running"
+alt #White Run Target "Running" is valid
+    LM -> LM: Queue Run Target Activation "Running"
+    [<-- LM: Request accepted
+else #Pink Run Target "Running" is invalid (Example: Run Target not configured)
+    [<-- LM: Request rejected
+end alt
+
+LM -> LM: Process next queued Run Target Activation: Run Target "Minimal"
+LM -> LM: Determine transition plan from "Off" -> "Minimal"
+
+group #White Start setup_filesystems.sh
+    LM -> kernel : Start setup_filesystems.sh
+    kernel -> fs ++ : Start setup_filesystems.sh
+    LM -> LM : Wait for setup_filesystems.sh ready condition
+    fs -> kernel : exit
+    destroy fs
+    kernel -> LM : setup_filesystems.sh terminated successfully
+    LM -> LM : Component setup_filesystems.sh Ready
+end group
+
+LM -> LM: Run Target "Minimal" successfully activated
+[<-- LM: Invoke callback: Run Target "Minimal" successfully activated due to Request
+
+
+group #White Start random
+LM -> kernel : Start random
+kernel -> ran ++ : Start random
+LM -> LM : Wait for random ready condition
+ran -> kernel : register /dev/random
+LM -> LM : Detect /dev/random exists, Component random Ready
+end group
+
+group #White Start app1
+    LM -> kernel : app1 start
+    kernel -> app1 ++ : Start app1
+    app1 -> app1 : Initialize
+    app1 -> LM : Report Running via Lifecycle API
+    LM -> LM : Componetn app1 Ready
+    LM -> LM : Run Target Running successfully activated
+end group
+
+LM -> LM: Run Target "Running" successfully activated
+[<-- LM: Invoke callback: Run Target "Running" successfully activated due to Request
+
+
+...
+@enduml
