@@ -197,6 +197,8 @@ Simplified Example Dependency Graph
 Consider the following simplified dependency graph for the sequence diagrams
 in the following chapters.
 
+The purpose of the is not to show a real-world setup, but only to showcase different scenarios.
+
   .. uml:: _assets/launch_manager_small_example_graph.puml
     :scale: 50
     :align: center
@@ -204,3 +206,4 @@ in the following chapters.
 The Component `setup_filesystems` starts a shell script `setup_filesystems.sh` and reaches its `Ready` state when the script completed.
 The Component `random` starts a binary `/bin/random` and is considered `Ready` when the file `/dev/random` exists.
 The Component `app1` starts a binary `/opt/bin/app1` and is considered `Ready` when the process signaled its Running state via the Lifecycle API.
+The Component `StateManager` starts a binary `/opt/bin/sm` and is considered `Ready` when the process signaled its Running state via the Lifecycle API.

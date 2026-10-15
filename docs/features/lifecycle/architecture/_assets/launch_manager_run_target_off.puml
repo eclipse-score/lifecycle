@@ -21,18 +21,24 @@ participant "OS (kernel)" as kernel
 participant "setup_filesystems.sh" as fs
 participant "random" as ran
 participant "app1" as app1
+participant "StateManager" as sm
 
 activate LM
 activate app1
 activate ran
+activate sm
 
-note over LM,app1
-Launch Manager has already started Components setup_filesystems.sh, random and app1.
+note over LM,sm
+Run Target "Running" is currently active.
+Launch Manager has already started Components setup_filesystems.sh, random, app1 and StateManager.
 All components are in state `Ready`.
 end note
 
-[-> LM : Activate Run Target ("Off")
+[-> LM : Activate Run Target ("Off", forced=false)
 LM -> LM : Determine transition plan
+
+par Stop app1
+
 LM -> app1 : SIGTERM
 app1 -> app1 : Terminate
 
@@ -46,18 +52,33 @@ else #pink App1 does not terminate within the configured timeout
 end alt
 
 destroy app1
-kernel -> LM : app1 terminated
 
-par Stop setup_filesystems.sh
+else Stop StateManager
+
+LM -> sm : SIGTERM
+sm -> sm : Terminate
+
+alt StateManager terminates within the configured shutdown timeout
+    sm -> kernel : exit
+    kernel -> LM : StateManager terminated successfully
+else #pink StateManager does not terminate within the configured timeout
+    LM -> sm : SIGKILL
+    sm -> kernel : exit
+    kernel -> LM : StateManager terminated with error
+end alt
+
+destroy sm
+
+end par
 
 note over LM
-    The underlying process is already in state terminated.
-    Nothing to do.
+    app1 and StateManager are shut down in parallel, now stop their dependencies
+    random and setup_filesystems.sh.
+    setup_filesystems.sh must only be stopped after both app1 and StateManager,
+    since both depend on it.
 end note
 
-LM -> LM : Mark Component setup_filesystems.sh as Terminated
-
-else Stop random
+par Stop random
 
 LM -> ran : SIGTERM
 
@@ -71,6 +92,14 @@ else #pink Random does not terminate within the configured timeout
 end alt
 
 destroy ran
+
+else Stop setup_filesystems.sh
+
+note over LM
+    The underlying process for setup_filesystems.sh is already in state terminated. No further action required.
+end note
+
+LM -> LM : Mark Component setup_filesystems.sh as Terminated
 
 end par
 

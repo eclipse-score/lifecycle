@@ -19,12 +19,9 @@ autonumber "<b>[00]"
 participant "Launch Manager" as LM
 participant "OS (kernel)" as kernel
 
-participant "setup_filesystems.sh" as fs
-participant "random" as ran
 participant "app1" as app1
 
 activate LM
-activate ran
 activate app1
 
 ...
@@ -38,8 +35,7 @@ app1 -> kernel: Terminate.
 destroy app1
 kernel -> LM: Process terminated.
 
-LM -> LM: Analyze current state.
-LM -> LM: Determine transition plan.\nA recovery action will be executed
+LM -> LM: Determine recovery action
 
 alt App1 has Recovery Action Restart configured
 
@@ -47,21 +43,32 @@ LM -> LM: Start Restart RecoveryAction for app1
 LM -> kernel: start app1
 kernel -> app1 ++ : start
 app1 -> app1 : Initialization
-app1 -> LM : Report Running via Lifecycle API
-LM -> LM: Recovery Action done
+
+alt Restart Successful
+  app1 -> LM : Report Running via Lifecycle API
+  LM -> LM: Recovery Action done
+
+end alt
+
 deactivate app1
 
 else App1 has Recovery Action Switch Run Target configured
 
 LM -> LM: Determine Transition Plan to new RunTarget
-LM -> LM: Switch Run Target.
 
-ref over LM, app1
-  Activation of the new Run Target:
-  Components are terminated and started in dependency order,
-  see other sequence diagrams for the detailed sequence.
-  app1 is restarted if it is configured for the new Run Target.
-end ref
+  alt New Run Target successfully activated
+    ref over LM, app1
+      Activation of the configured Run Target.
+      See Run Target Activation sequence diagrams for details.
+    end ref
+  end alt
+
+
+else App1 has no Recovery Action configured
+
+note over LM, app1
+Execute Run Target recovery action
+end note
 
 end alt
 

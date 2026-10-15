@@ -64,6 +64,8 @@ Dynamic architecture
       :scale: 50
       :align: center
 
+   The Launch Manager reaction to supervision failure is depicted in the Recovery Action chapter, see :need:`feat_arc_dyn__lifecycle__sup_failure`.
+
 
 .. feat_arc_dyn:: Alive Monitoring Stop
    :id: feat_arc_dyn__lifecycle__alive_monitor_stop

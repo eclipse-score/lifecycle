@@ -85,73 +85,65 @@ Dynamic architecture
 The sequence diagrams below are based on the example dependency graph described
 in :doc:`./components_run_targets`.
 
-.. feat_arc_dyn:: Switch Run Target Scenario - Queued Activation
-   :id: feat_arc_dyn__lifecycle__control_activate
+
+.. feat_arc_dyn:: Switch Run Target Scenario - State Manager Startup
+   :id: feat_arc_dyn__lifecycle__ctrl_start
    :status: valid
    :version: 1
    :safety: ASIL_B
    :security: YES
-   :fulfils: feat_req__lifecycle__control_commands[version==1]
+   :fulfils: feat_req__lifecycle__control_commands[version==1],
+   :belongs_to: feat__lifecycle[version==1]
+
+   .. uml:: _assets/control_interface_startup.puml
+      :scale: 50
+      :align: center
+
+   During startup the StateManager registers an activation callback with the Launch Manager to be notified about future Run Target changes.
+   The StateManager can query at any time the currently active Run Target. During an ongoing transition, it will be informed that the system is in transition and no Run Target is active yet.
+   After a transition is completed, the StateManager is notified via the previously registered callback about the new active Run Target.
+   Queries for the currently active Run Target will now return the newly activated Run Target.
+
+.. feat_arc_dyn:: Switch Run Target Scenario - Queued Activation
+   :id: feat_arc_dyn__lifecycle__ctrl_que_act
+   :status: valid
+   :version: 1
+   :safety: ASIL_B
+   :security: YES
+   :fulfils: feat_req__lifecycle__control_commands[version==1],
+             feat_req__lifecycle__launch_support[version==1],
+             feat_req__lifecycle__process_ordering[version==1],
+             feat_req__lifecycle__run_target_support[version==1],
+             feat_req__lifecycle__conditional_startup[version==1]
    :belongs_to: feat__lifecycle[version==1]
 
    .. uml:: _assets/control_interface_queued_activation.puml
       :scale: 50
       :align: center
 
+   The State Manager queues Run Target activations for "Running" and "Full" state.
+   The Launch Manager will process these queued activations in the order they were received.
+   At first the Launch Manager transitions to Run Target "Running" and subsequently to Run Target "Full".
+
 .. feat_arc_dyn:: Switch Run Target Scenario - Forced Activation
-   :id: feat_arc_dyn__lifecycle__control_forced_activate
+   :id: feat_arc_dyn__lifecycle__ctrl_fced_act
    :status: valid
    :version: 1
    :safety: ASIL_B
    :security: YES
-   :fulfils: feat_req__lifecycle__control_commands[version==1]
+   :fulfils: feat_req__lifecycle__control_commands[version==1],
+             feat_req__lifecycle__launch_support[version==1],
+             feat_req__lifecycle__process_ordering[version==1],
+             feat_req__lifecycle__run_target_support[version==1],
+             feat_req__lifecycle__conditional_startup[version==1],
+             feat_req__lifecycle__process_termination[version==1],
+             feat_req__lifecycle__termination_dependency[version==1]
    :belongs_to: feat__lifecycle[version==1]
 
    .. uml:: _assets/control_interface_forced_activation.puml
       :scale: 50
       :align: center
 
-
-Component Dependencies and Ready Conditions
--------------------------------------------
-
-.. feat_arc_dyn:: Launch Manager - Component Dependencies
-   :id: feat_arc_dyn__lifecycle__lcm_start
-   :security: YES
-   :status: valid
-   :version: 1
-   :safety: ASIL_B
-   :belongs_to: feat__lifecycle[version==1]
-   :fulfils: feat_req__lifecycle__launch_support[version==1],
-             feat_req__lifecycle__process_ordering[version==1],
-             feat_req__lifecycle__run_target_support[version==1],
-             feat_req__lifecycle__conditional_startup[version==1]
-
-   .. uml:: _assets/launch_manager_run_target_running.puml
-      :scale: 50
-      :align: center
-
-   While `setup_filesystems` and `/bin/random` can be started in parallel,  `/opt/bin/app1` can only be started once both Components are `Ready`.
-
-
-Component Termination
----------------------
-
-.. feat_arc_dyn:: Launch Manager - Component Termination
-   :id: feat_arc_dyn__lifecycle__lcm_term
-   :security: YES
-   :status: valid
-   :version: 1
-   :safety: ASIL_B
-   :belongs_to: feat__lifecycle[version==1]
-   :fulfils: feat_req__lifecycle__process_termination[version==1],
-             feat_req__lifecycle__process_ordering[version==1],
-             feat_req__lifecycle__termination_dependency[version==1]
-
-   .. uml:: _assets/launch_manager_run_target_off.puml
-      :scale: 50
-      :align: center
-
-   Since `app1` depends on both `setup_filesystems` and `random`, it must be terminated first before the other two components can be safely terminated.
-   Afterwards, `setup_filesystems` and `random` can be terminated in parallel as they do not depend on each other.
-   Note that if a component does not terminate within the configured termination timeout, it is forcefully killed.
+   The State Manager queues Run Target activations for "Running" and "Full" state.
+   During activation of Run Target "Running", the State Manager sends a new forced request for Run Target "Off".
+   The Launch Manager aborts the current transition and initiates the transition to Run Target "Off".

@@ -34,14 +34,14 @@ end alt
 
 LM -> LM: Initialize external monitor connection
 
-alt #pink Failure during watchodog initialization
+alt #pink Failure during external monitor initialization
     LM ->[ : Launch Manager terminates
 end alt
 
 LM -> LM: Build dependency graph
-LM -> LM: Start transition to initial Run Target: Running
+LM -> LM: Start transition to configured initial Run Target
 
-=== Start Transition to Run Target "Running" ==
+=== Start Transition to configured initial Run Target ==
 
 ...
 

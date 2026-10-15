@@ -16,6 +16,7 @@ title Launch Manager - Queued Run Target activation
 
 autonumber "<b>[00]"
 
+participant "StateManager" as sm
 participant "Launch Manager" as LM
 participant "OS (kernel)" as kernel
 participant "setup_filesystems.sh" as fs
@@ -23,24 +24,14 @@ participant "random" as ran
 participant "app1" as app1
 
 activate LM
+activate sm
 
 note over LM
-Current Run Target: "Off"
+Current Run Target: "Minimal"
+Components StateManager and setup_filesystems.sh are Ready.
 end note
 
-[-> LM : RegisterActivationCallback(callback)
-[<-- LM 
-
-[-> LM : Activate Run Target ("Minimal", forced=False)
-LM -> LM: validate Run Target "Minimal"
-alt #White Run Target "Minimal" is valid
-    LM -> LM: Queue Run Target Activation "Minimal"
-    [<-- LM: Request accepted
-else #Pink Run Target "Minimal" is invalid (Example: Run Target not configured)
-    [<-- LM: Request rejected
-end alt
-
-[-> LM : Activate Run Target ("Running", forced=False)
+sm -> LM : Activate Run Target ("Running", forced=False)
 LM -> LM: validate Run Target "Running"
 alt #White Run Target "Running" is valid
     LM -> LM: Queue Run Target Activation "Running"
@@ -49,22 +40,17 @@ else #Pink Run Target "Running" is invalid (Example: Run Target not configured)
     [<-- LM: Request rejected
 end alt
 
-LM -> LM: Process next queued Run Target Activation: Run Target "Minimal"
-LM -> LM: Determine transition plan from "Off" -> "Minimal"
+sm -> LM : Activate Run Target ("Full", forced=False)
+LM -> LM: validate Run Target "Full"
+alt #White Run Target "Full" is valid
+    LM -> LM: Queue Run Target Activation "Full"
+    [<-- LM: Request accepted
+else #Pink Run Target "Full" is invalid (Example: Run Target not configured)
+    [<-- LM: Request rejected
+end alt
 
-group #White Start setup_filesystems.sh
-    LM -> kernel : Start setup_filesystems.sh
-    kernel -> fs ++ : Start setup_filesystems.sh
-    LM -> LM : Wait for setup_filesystems.sh ready condition
-    fs -> kernel : exit
-    destroy fs
-    kernel -> LM : setup_filesystems.sh terminated successfully
-    LM -> LM : Component setup_filesystems.sh Ready
-end group
-
-LM -> LM: Run Target "Minimal" successfully activated
-[<-- LM: Invoke callback: Run Target "Minimal" successfully activated due to Request
-
+LM -> LM: Process next queued Run Target Activation: Run Target "Running"
+LM -> LM: Determine transition plan from "Minimal" -> "Running"
 
 group #White Start random
 LM -> kernel : Start random
@@ -80,11 +66,18 @@ group #White Start app1
     app1 -> app1 : Initialize
     app1 -> LM : Report Running via Lifecycle API
     LM -> LM : Componetn app1 Ready
-    LM -> LM : Run Target Running successfully activated
 end group
 
 LM -> LM: Run Target "Running" successfully activated
 [<-- LM: Invoke callback: Run Target "Running" successfully activated due to Request
+
+LM -> LM: Process next queued Run Target Activation: Run Target "Full"
+LM -> LM: Determine transition plan from "Running" -> "Full"
+
+...
+
+LM -> LM: Run Target "Full" successfully activated
+[<-- LM: Invoke callback: Run Target "Full" successfully activated due to Request
 
 
 ...
