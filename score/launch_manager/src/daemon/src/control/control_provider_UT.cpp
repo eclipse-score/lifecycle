@@ -655,8 +655,17 @@ TEST_F(ControlProviderUT, OfferService_OpenFd_SetsCloexec)
 {
     RecordProperty(
         "Description",
-        "offerService() sets FD_CLOEXEC on every open file descriptor in [0, 16). "
-        "A pipe opened before Create() is called must have the flag set afterwards.");
+        "offerService() sets FD_CLOEXEC on every open file descriptor in [0, 16) "
+        "except stdin, stdout and stderr, which are explicitly skipped. "
+        "A pipe opened before Create() must have the flag set afterwards; "
+        "the standard streams must be left completely unchanged.");
+
+    const int stdin_flags_before  = fcntl(STDIN_FILENO,  F_GETFD);
+    const int stdout_flags_before = fcntl(STDOUT_FILENO, F_GETFD);
+    const int stderr_flags_before = fcntl(STDERR_FILENO, F_GETFD);
+    ASSERT_NE(stdin_flags_before,  -1) << "fcntl F_GETFD failed for stdin";
+    ASSERT_NE(stdout_flags_before, -1) << "fcntl F_GETFD failed for stdout";
+    ASSERT_NE(stderr_flags_before, -1) << "fcntl F_GETFD failed for stderr";
 
     int fds[2]{-1, -1};
     ASSERT_EQ(pipe(fds), 0) << "pipe() failed";
@@ -665,9 +674,14 @@ TEST_F(ControlProviderUT, OfferService_OpenFd_SetsCloexec)
 
     auto provider = MakeProvider();
 
-    EXPECT_TRUE(fcntl(fds[0], F_GETFD) & FD_CLOEXEC) << "read end of pipe (fd " << fds[0] << ") did not get FD_CLOEXEC";
+    EXPECT_TRUE(fcntl(fds[0], F_GETFD) & FD_CLOEXEC)
+        << "read end of pipe (fd " << fds[0] << ") did not get FD_CLOEXEC";
     EXPECT_TRUE(fcntl(fds[1], F_GETFD) & FD_CLOEXEC)
         << "write end of pipe (fd " << fds[1] << ") did not get FD_CLOEXEC";
+
+    EXPECT_EQ(fcntl(STDIN_FILENO,  F_GETFD), stdin_flags_before)  << "offerService() modified stdin flags";
+    EXPECT_EQ(fcntl(STDOUT_FILENO, F_GETFD), stdout_flags_before) << "offerService() modified stdout flags";
+    EXPECT_EQ(fcntl(STDERR_FILENO, F_GETFD), stderr_flags_before) << "offerService() modified stderr flags";
 
     close(fds[0]);
     close(fds[1]);
