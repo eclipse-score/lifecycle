@@ -590,98 +590,12 @@ to their documentation and tutorial at documentaiton
 </div>
 </div>
 </details></section>
-<section id="state-manager-instance">
-<h4>State Manager Instance<a class="headerlink" href="#state-manager-instance" title="Link to this heading">#</a></h4>
-<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
-<summary class="sd-summary-title sd-card-header">
-<span class="sd-summary-text">State Manager Instance</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;serviceInstances&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">  </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;instanceSpecifier&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;LaunchManager/StateManager/Instance&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;serviceTypeName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/score/mw/lifecycle/LmControlService&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;major&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;minor&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;instances&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;instanceId&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0001</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;asil-level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;QM&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;binding&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SHM&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;events&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">          </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;eventName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ActivationResult&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;numberOfSampleSlots&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;maxSubscribers&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
-<span class="w">          </span><span class="p">}</span>
-<span class="w">        </span><span class="p">],</span>
-<span class="w">        </span><span class="nt">&quot;methods&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">          </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;methodName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ActivateRunTarget&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;queueSize&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
-<span class="w">          </span><span class="p">},</span>
-<span class="w">          </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;methodName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;GetActiveRunTarget&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;queueSize&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
-<span class="w">          </span><span class="p">}</span>
-<span class="w">        </span><span class="p">]</span>
-<span class="w">      </span><span class="p">}</span>
-<span class="w">    </span><span class="p">]</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">]</span>
-</pre></div>
-</div>
-</div>
-</details></section>
-<section id="launch-manager-instance">
-<h4>Launch Manager Instance<a class="headerlink" href="#launch-manager-instance" title="Link to this heading">#</a></h4>
-<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
-<summary class="sd-summary-title sd-card-header">
-<span class="sd-summary-text">State Manager Instance</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;serviceInstances&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">  </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;instanceSpecifier&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;StateManager/LaunchManager/Instance&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;serviceTypeName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/score/mw/lifecycle/LmControlService&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;major&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;minor&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;instances&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;instanceId&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;asil-level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;QM&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;binding&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SHM&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;events&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">          </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;eventName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ActivationResult&quot;</span>
-<span class="w">          </span><span class="p">}</span>
-<span class="w">        </span><span class="p">],</span>
-<span class="w">        </span><span class="nt">&quot;methods&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">          </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;methodName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ActivateRunTarget&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;queueSize&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
-<span class="w">          </span><span class="p">},</span>
-<span class="w">          </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;methodName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;GetActiveRunTarget&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;queueSize&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
-<span class="w">          </span><span class="p">}</span>
-<span class="w">        </span><span class="p">]</span>
-<span class="w">      </span><span class="p">}</span>
-<span class="w">    </span><span class="p">]</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">]</span>
-</pre></div>
-</div>
-</div>
-</details></section>
 </section>
 </section>
-<section id="implementaiton">
-<h2>Implementaiton<a class="headerlink" href="#implementaiton" title="Link to this heading">#</a></h2>
-<section id="reporting-processes">
-<h3>Reporting Processes<a class="headerlink" href="#reporting-processes" title="Link to this heading">#</a></h3>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading">#</a></h2>
 <section id="starting-a-process">
-<h4>Starting a process<a class="headerlink" href="#starting-a-process" title="Link to this heading">#</a></h4>
+<h3>Starting a process<a class="headerlink" href="#starting-a-process" title="Link to this heading">#</a></h3>
 <p>A reporting process must signal to the Launch Manager that it has
 started successfully by calling the lifecycle API for the language it is
 implemented in.</p>
@@ -690,7 +604,7 @@ If the process does not report <code class="docutils literal notranslate"><span 
 Manager terminates the process and registers an error.</p>
 </section>
 <section id="stopping-a-process">
-<h4>Stopping a process<a class="headerlink" href="#stopping-a-process" title="Link to this heading">#</a></h4>
+<h3>Stopping a process<a class="headerlink" href="#stopping-a-process" title="Link to this heading">#</a></h3>
 <p>A process can be configured to terminate in 2 ways:</p>
 <ul class="simple">
 <li><p><strong>Self-terminating</strong> - The process terminates whenever it wants.</p></li>
@@ -704,7 +618,7 @@ exiting.</p>
 <code class="docutils literal notranslate"><span class="pre">SIGKILL</span></code> is sent and the process is forcefully terminated.</p>
 </section>
 <section id="examples">
-<h4>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h4>
+<h3>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h3>
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">C Reporting Process</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
@@ -823,38 +737,69 @@ exiting.</p>
 </pre></div>
 </div>
 </div>
+</details><p>C++ also contains an alternative <strong>Lifecycle API</strong> that allows the user to
+create have a layer of abstraction, so in case of replacing lifecycle manager
+there will be no need to change applications.</p>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">C++ Lifecycle Application</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cm">/********************************************************************************</span>
+<span class="cm"> * Copyright (c) 2026 Contributors to the Eclipse Foundation</span>
+<span class="cm"> *</span>
+<span class="cm"> * See the NOTICE file(s) distributed with this work for additional</span>
+<span class="cm"> * information regarding copyright ownership.</span>
+<span class="cm"> *</span>
+<span class="cm"> * This program and the accompanying materials are made available under the</span>
+<span class="cm"> * terms of the Apache License Version 2.0 which is available at</span>
+<span class="cm"> * https://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="cm"> *</span>
+<span class="cm"> * SPDX-License-Identifier: Apache-2.0</span>
+<span class="cm"> ********************************************************************************/</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdlib&gt;</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;score/mw/lifecycle/application.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;score/mw/lifecycle/runapplication.h&gt;</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">LifecycleApp</span><span class="w"> </span><span class="k">final</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">score</span><span class="o">::</span><span class="n">mw</span><span class="o">::</span><span class="n">lifecycle</span><span class="o">::</span><span class="n">Application</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="c1">// called before the process reports Running to the Launch Manager</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">Initialize</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">score</span><span class="o">::</span><span class="n">mw</span><span class="o">::</span><span class="n">lifecycle</span><span class="o">::</span><span class="n">ApplicationContext</span><span class="o">&amp;</span><span class="w"> </span><span class="n">appCtx</span><span class="p">)</span><span class="w"> </span><span class="k">override</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// read arguments and set up resources here</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// called once initialization succeeded, returns when termination is requested</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">Run</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">score</span><span class="o">::</span><span class="n">cpp</span><span class="o">::</span><span class="n">stop_token</span><span class="o">&amp;</span><span class="w"> </span><span class="n">stopToken</span><span class="p">)</span><span class="w"> </span><span class="k">override</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">stopToken</span><span class="p">.</span><span class="n">stop_requested</span><span class="p">())</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// do some work</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="o">**</span><span class="w"> </span><span class="n">argv</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">score</span><span class="o">::</span><span class="n">mw</span><span class="o">::</span><span class="n">lifecycle</span><span class="o">::</span><span class="n">run_application</span><span class="o">&lt;</span><span class="n">LifecycleApp</span><span class="o">&gt;</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
 </details></section>
-</section>
 <section id="state-management">
 <h3>State management<a class="headerlink" href="#state-management" title="Link to this heading">#</a></h3>
 <p>A <strong>State Manager</strong> is an application that dictates which run-targets shall be
 active by communicating with the Launch Manager using the <code class="docutils literal notranslate"><span class="pre">ILmControl</span></code>
 interface.
-An instance is created with <code class="docutils literal notranslate"><span class="pre">ILmControl::Create()</span></code>, which takes the
-<code class="docutils literal notranslate"><span class="pre">mw::com</span></code> instance specifier of the Launch Manager service.
-<code class="docutils literal notranslate"><span class="pre">mw::com</span></code> must be initialized by the caller before <code class="docutils literal notranslate"><span class="pre">Create()</span></code> is called
-(see <a class="reference internal" href="#lm-integration"><span class="std std-ref">Integration</span></a>).</p>
-<p><code class="docutils literal notranslate"><span class="pre">ILmControl</span></code> provides the following operations:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">activate_run_target(name,</span> <span class="pre">force)</span></code> - requests the activation of the
-run-target with the given name.
-The call returns as soon as the Launch Manager has accepted the request,
-it does not wait for the transition to finish.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">register_run_target_activation_callback(callback)</span></code> - registers a callback
-that is invoked whenever the Launch Manager finishes a run-target
-activation. The callback receives the source of the activation and the name
-of the run-target that was activated, which may differ from the requested
-one (for example when a recovery action activates a different run-target).
-Only a single callback is supported, a second registration replaces the
-first.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">get_active_run_target()</span></code> - returns the name of the currently active
-run-target, or <code class="docutils literal notranslate"><span class="pre">kActivationInProgress</span></code> if a transition is running.</p></li>
-</ul>
-<p>The <strong>State Manager</strong> is itself a managed component and <strong>must</strong> report
+The <strong>State Manager</strong> is itself a managed component and <strong>must</strong> report
 <code class="docutils literal notranslate"><span class="pre">Running</span></code> to the Launch Manager using the lifecycle API before calling
-<code class="docutils literal notranslate"><span class="pre">activate_run_target</span></code>.
-Failing to do so means the Launch Manager does not consider the <strong>State Manager</strong>
-ready, which blocks the startup procedure from completing.
+<code class="docutils literal notranslate"><span class="pre">activate_run_target</span></code>, otherwise Launch Manager does not consider the <strong>State
+Manager</strong> ready and will cause errors.
 The configuration also requires that the component that is the <strong>State Manager</strong> has
 to have the field <code class="docutils literal notranslate"><span class="pre">application_profile.application_type</span></code> set to
 <code class="docutils literal notranslate"><span class="pre">State_Manager</span></code>.</p>
@@ -999,19 +944,14 @@ to have the field <code class="docutils literal notranslate"><span class="pre">a
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#location-of-the-configuration-file">Location of the configuration file</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#state-manager-mw-com-config">State manager mw::com config</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#lmcontrolservice-service-type">LmControlService service type</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#state-manager-instance">State Manager Instance</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#launch-manager-instance">Launch Manager Instance</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementaiton">Implementaiton</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reporting-processes">Reporting Processes</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#starting-a-process">Starting a process</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#stopping-a-process">Stopping a process</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation">Implementation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#starting-a-process">Starting a process</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stopping-a-process">Stopping a process</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#state-management">State management</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example</a></li>
 </ul>
