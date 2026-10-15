@@ -14,14 +14,12 @@
 load("@rules_cc//cc:cc_library.bzl", "cc_library")
 
 cc_library(
-    name = "ipc_dropin_internal",
-    hdrs = glob(["include/ipc_dropin/*.hpp"]),
-    includes = ["include"],
-    visibility = ["//visibility:public"],
-)
-
-alias(
-    name = "ipc_dropin",
-    actual = ":ipc_dropin_internal",
-    visibility = ["//visibility:public"],
+    name = "accessor_report_running_impl",
+    testonly = True,
+    hdrs = ["accessor_report_running_impl.hpp"],
+    visibility = ["//score:__subpackages__"],
+    deps = [
+        "//score/launch_manager/src/lifecycle_client/src/details:report_running_impl",
+        "@googletest//:gtest_main",
+    ],
 )

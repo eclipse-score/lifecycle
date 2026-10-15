@@ -1,0 +1,133 @@
+{
+    "schema_version": 1,
+    "defaults": {
+        "deployment_config": {
+            "bin_dir": "/tmp/tests/kterminated",
+            "ready_timeout_ms": 1500,
+            "recovery_action": {
+                "switch_run_target": {
+                    "run_target": "fallback_run_target"
+                }
+            },
+            "sandbox": {
+                "uid": 0,
+                "gid": 0,
+                "scheduling_policy": "SCHED_OTHER",
+                "scheduling_priority": 0
+            }
+        },
+        "component_properties": {
+            "application_profile": {
+                "application_type": "Native",
+                "is_self_terminating": false
+            },
+            "ready_condition": {
+                "process_state": "Running"
+            }
+        }
+    },
+    "components": {
+        "control_client_test_driver": {
+            "component_properties": {
+                "binary_name": "control_client_test_driver",
+                "ready_condition": {
+                    "process_state": "Running"
+                },
+                "application_profile": {
+                    "application_type": "State_Manager",
+                    "is_self_terminating": false,
+                    "alive_supervision": {
+                        "min_indications": 0
+                    }
+                }
+            }
+        },
+        "delayed_termination_on_time": {
+            "component_properties": {
+                "binary_name": "waiting_process",
+                "process_arguments": [
+                    "--timeout-seconds",
+                    "1",
+                    "--semaphore-name",
+                    "/delayed_termination_on_time",
+                    "--expected-count",
+                    "1",
+                    "--succeed-on-timeout"
+                ],
+                "ready_condition": {
+                    "process_state": "Terminated"
+                },
+                "application_profile": {
+                    "application_type": "Native",
+                    "is_self_terminating": true
+                }
+            }
+        },
+        "delayed_termination_late": {
+            "component_properties": {
+                "binary_name": "waiting_process",
+                "process_arguments": [
+                    "--timeout-seconds",
+                    "2",
+                    "--semaphore-name",
+                    "/delayed_termination_late",
+                    "--expected-count",
+                    "1",
+                    "--succeed-on-timeout"
+                ],
+                "ready_condition": {
+                    "process_state": "Terminated"
+                },
+                "application_profile": {
+                    "application_type": "Native",
+                    "is_self_terminating": true
+                }
+            }
+        }
+    },
+    "run_targets": {
+        "Startup": {
+            "depends_on": [
+                "control_client_test_driver"
+            ],
+            "recovery_action": {
+                "switch_run_target": {
+                    "run_target": "fallback_run_target"
+                }
+            }
+        },
+        "working": {
+            "depends_on": [
+                "delayed_termination_on_time",
+                "control_client_test_driver"
+            ],
+            "recovery_action": {
+                "switch_run_target": {
+                    "run_target": "fallback_run_target"
+                }
+            }
+        },
+        "timeout": {
+            "depends_on": [
+                "delayed_termination_late",
+                "control_client_test_driver"
+            ],
+            "recovery_action": {
+                "switch_run_target": {
+                    "run_target": "fallback_run_target"
+                }
+            }
+        },
+        "fallback": {
+            "depends_on": [
+                "control_client_test_driver"
+            ]
+        }
+    },
+    "initial_run_target": "Startup",
+    "fallback_run_target": {
+        "depends_on": [
+            "control_client_test_driver"
+        ]
+    }
+}

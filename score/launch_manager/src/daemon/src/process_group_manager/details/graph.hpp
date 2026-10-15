@@ -39,6 +39,7 @@
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include "score/mw/launch_manager/process_group_manager/irun_target_control.hpp"
 #include "score/mw/lifecycle/details/lm_control_service.h"
+#include "score/mw/lifecycle/run_target_activation_source.hpp"
 #include <score/stop_token.hpp>
 
 namespace score::mw::lifecycle::internal
@@ -129,6 +130,13 @@ static constexpr GraphState state_results[][static_cast<uint>(GraphState::kUndef
 };
 // clang-format on
 
+/// @brief A Run Target waiting to be activated, and why it was requested.
+struct PendingTransition
+{
+    IdentifierHash run_target{""};
+    RunTargetActivationSource source{RunTargetActivationSource::kStateManagerRequest};
+};
+
 /// @brief Manages the processes and state transitions for a single process group.
 ///
 /// Each Graph holds a set of ProcessInfoNode instances (one per process) arranged in a
@@ -185,7 +193,11 @@ class Graph final
     /// @return False if pg_state is not a recognized Run Target in this graph's configuration; the
     /// transition is not started in that case. True otherwise.
     /// @param pg_state The target process group state.
-    bool startTransition(IdentifierHash pg_state);
+    /// @param source Why the transition is started; reported to the activation callback unless this is the
+    /// initial transition (always kInitialActivation).
+    bool startTransition(
+        IdentifierHash pg_state,
+        RunTargetActivationSource source = RunTargetActivationSource::kStateManagerRequest);
 
     /// @return True if pg_state is a Run Target known to this graph's configuration.
     /// @param pg_state The process group state to check.
@@ -229,11 +241,17 @@ class Graph final
 
     /// @brief Replaces the pending state with new_state and returns the previous pending state.
     /// @param new_state The new pending state to set.
+    /// @param source Why the pending transition was requested (see startTransition()).
     /// @return The previous pending state.
-    IdentifierHash setPendingState(IdentifierHash new_state);
+    IdentifierHash setPendingState(
+        IdentifierHash new_state,
+        RunTargetActivationSource source = RunTargetActivationSource::kStateManagerRequest);
 
     /// @return The pending state, or an empty hash if no state is pending.
     IdentifierHash getPendingState();
+
+    /// @return The pending state together with why it was requested.
+    PendingTransition getPendingTransition() const;
 
     /// @brief A utility function that converts codes to strings for logging purposes
     /// @param state The state to convert
@@ -325,8 +343,11 @@ class Graph final
     /// @brief Set the true if this is the initial state transition
     bool is_initial_state_transition_{false};
 
+    /// @brief Why the current transition was started
+    RunTargetActivationSource transition_source_{RunTargetActivationSource::kStateManagerRequest};
+
     /// @brief The pending state transition, if any
-    IdentifierHash pending_state_{""};
+    PendingTransition pending_{};
 
     /// @brief Constant for Off state.
     const IdentifierHash off_state_{"Off"};

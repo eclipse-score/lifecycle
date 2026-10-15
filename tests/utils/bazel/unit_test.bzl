@@ -57,3 +57,14 @@ def lm_rust_test(name, **kwargs):
         }),
         **kwargs
     )
+
+def linker_wrap_symbols(symbols):
+    """Convert symbol names to linker wrap flags.
+
+    Args:
+        symbols: List of symbol names to wrap.
+
+    Returns:
+        List of "-Wl,--wrap=<symbol>" linker options.
+    """
+    return ["-Wl,--wrap={}".format(s) for s in symbols]

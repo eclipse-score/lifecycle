@@ -12,10 +12,76 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-:orphan:
+Health Monitoring
+#################
 
-Health Monitor
-##############
+Alive Supervision
+=================
+
+The Alive Interface provides a basic watchdog functionality interface that
+delivers essential monitoring capabilities for system health and responsiveness
+tracking.
+It implements core watchdog operations including heartbeat signals to ensure
+reliable operation and automatic recovery from unresponsive states.
+
+**SCORE Application Liveliness Reporting**
+
+SCORE applications can periodically signal their liveliness to the
+:term:`Launch Manager` through the Alive Interface.
+This mechanism allows the :term:`Launch Manager` to:
+
+- Detect application failures or hangs
+- Trigger recovery actions when liveliness is lost
+- Maintain accurate process health status
+
+The liveliness mechanism includes:
+
+- Configurable heartbeat intervals per application
+- Timeout detection and failure handling
+
+The corresponding configuration parameters are shown as `AliveSupervision` in
+:ref:`Configuration Structure <lifecycle_configuration_structure>`.
+
+The alive interface is defined here: :need:`logic_arc_int__lifecycle__alive_if`
+
+The :term:`Launch Manager` starts the Alive Supervision at the exact time when the Application reports its Running state via the Lifecycle Interface.
+As a consequence the Liveliness Reporting is only available to SCORE applications that also use the Lifecycle Interface.
+
+Dynamic architecture
+--------------------
+
+.. feat_arc_dyn:: Alive Monitoring Start
+   :id: feat_arc_dyn__lifecycle__alive_monitor_start
+   :security: YES
+   :status: valid
+   :version: 1
+   :safety: ASIL_B
+   :fulfils: feat_req__lifecycle__liveliness_detection[version==1]
+   :includes:
+   :belongs_to: feat__lifecycle[version==1]
+
+   .. uml:: _assets/alive_monitoring_start.puml
+      :scale: 50
+      :align: center
+
+
+.. feat_arc_dyn:: Alive Monitoring Stop
+   :id: feat_arc_dyn__lifecycle__alive_monitor_stop
+   :security: YES
+   :status: valid
+   :version: 1
+   :safety: ASIL_B
+   :fulfils: feat_req__lifecycle__liveliness_detection[version==1]
+   :includes:
+   :belongs_to: feat__lifecycle[version==1]
+
+   .. uml:: _assets/alive_monitoring_stop.puml
+      :scale: 50
+      :align: center
+
+
+In-Process Supervision
+======================
 
 The :term:`Health Monitor` is a library, that together with the :term:`Launch Manager` provide a way to monitor
 the application health in similar fashion as the AUTOSAR `Platform Health Manager` (PHM).
@@ -33,47 +99,6 @@ The main features of the :term:`Health Monitor` are the following monitoring fun
 The :term:`Health Monitor` itself is monitored via the :term:`Launch Manager` with via alive supervision only.
 
 
-Overview
-========
-
-- Inter process communication (IPC) only needed for the alive monitoring between :term:`Health Monitor` and :term:`Launch Manager`
-- Easier configuration
-    - The monitoring rules can be configured dynamically on demand basis
-    - The monitoring can be started and stopped dynamically
-- Debugging of problems possibly easier
-    - Mapping of the events from a single process vs. the monitored application and the monitor
-
-Drawbacks over classical external process monitoring
-----------------------------------------------------
-
-- Harder safety argumentation. The following chapter describes the issues and the possible solutions.
-
-Safety
-------
-
-As the :term:`Health Monitor` is linked as part of the monitored application, it raises the following concerns
-with respect to safety:
-
-- How can it be ensured, that the monitored application does not interfere with the monitoring functionality?
-- How can it be ensured, that the :term:`Health Monitor` does not incorrectly report alive to the :term:`Launch Manager` when it has detected
-  a supervision error?
-
-
-These concerns are valid, but can be addressed using the following techniques:
-
-- Hiding of the internal data from the user:
-    - For example, if the monitoring is implemented in a thread, the thread ID must not be exposed to the calling application.
-    - Hide the implementation for example with the pImpl-approach
-- Protecting the memory of the library by using guard pages where the application memory is located, and protect it with mprotect()
-   - possibly with a help of a custom allocator
-- Protecting the data with a checksum and possibly a sequence counter
-   - The internal data of the library can be checksum'ed every operation cycle, and by adding for example, a sequence
-     counter (or some more complex mathematical function), further checkpoints for detecting misbehavior can be implemented
-- Using a safe programming language, which does not allow a raw pointer access
-- Testing the application with Valgrid etc.
-- Redundant monitoring, if the self monitoring with above is not sufficient, an another library in another memory location can detect sporadic corruption of the other.
-
-
 Error Reactions
 ---------------
 
@@ -84,16 +109,16 @@ Error Reactions
 
 
 Deadline Monitor API
-====================
+--------------------
 
 Interface
----------
+^^^^^^^^^
 
 The deadline monitor interface is defined here: :need:`logic_arc_int__lifecycle__deadline_monitor_if`
 
 
 Dynamic Architecture
---------------------
+^^^^^^^^^^^^^^^^^^^^
 
 .. feat_arc_dyn:: Application health monitoring
    :id: feat_arc_dyn__lifecycle__app_health_mon

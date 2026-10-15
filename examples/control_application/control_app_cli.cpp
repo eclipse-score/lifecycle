@@ -13,7 +13,7 @@
 #include <iostream>
 
 #include "control.hpp"
-#include "ipc_dropin/socket.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ipc/socket.hpp"
 
 int main(int argc, char** argv)
 {
@@ -23,8 +23,10 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    ipc_dropin::Socket<static_cast<size_t>(sizeof(RunTargetInfo)), control_socket_capacity> sm_control_socket{};
-    if (sm_control_socket.connect(control_socket_path) != ipc_dropin::ReturnCode::kOk)
+    score::mw::lifecycle::internal::saf::ipc::
+        Socket<static_cast<size_t>(sizeof(RunTargetInfo)), control_socket_capacity>
+            sm_control_socket{};
+    if (sm_control_socket.connect(control_socket_path) != score::mw::lifecycle::internal::saf::ipc::ReturnCode::kOk)
     {
         std::cerr << "Could not connect to control socket" << std::endl;
         return EXIT_FAILURE;
@@ -32,7 +34,7 @@ int main(int argc, char** argv)
 
     RunTargetInfo info{};
     std::strncpy(info.runTargetName, argv[1], sizeof(info.runTargetName) - 1);
-    if (ipc_dropin::ReturnCode::kOk == sm_control_socket.trySend(info))
+    if (score::mw::lifecycle::internal::saf::ipc::ReturnCode::kOk == sm_control_socket.trySend(info))
     {
         std::cout << "Successfully sent request" << std::endl;
         return EXIT_SUCCESS;

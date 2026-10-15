@@ -20,6 +20,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_handling.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/termination_waiter.hpp"
 #include "score/mw/launch_manager/process_group_manager/process_state.hpp"
 #include <score/stop_token.hpp>
 #include <atomic>
@@ -58,10 +59,9 @@ class ProcessInfoNode final : public IComponent
 
     /// @brief Explicit move constructor required due to atomics. PIN must be moveable to exist in the graph
     ProcessInfoNode(ProcessInfoNode&& other) noexcept
-        : terminator_(),
-          has_semaphore_(other.has_semaphore_.load()),
+        : termination_requested_(other.termination_requested_.load()),
           pid_(other.pid_),
-          exit_code_(other.exit_code_.load()),
+          exit_status_(other.exit_status_.load()),
           process_state_(other.process_state_.load()),
           reached_ready_(other.reached_ready_.load()),
           config_(std::move(other.config_)),
@@ -165,17 +165,14 @@ class ProcessInfoNode final : public IComponent
     /// @brief Sends SIGKILL repeatedly until the process exits or the stop token is triggered.
     void handleForcedTermination(const score::cpp::stop_token& stop_token);
 
-    /// @brief semaphore used to check termination with timeout
-    osal::Semaphore terminator_{};
-
-    /// @brief True if semaphore is being used
-    std::atomic_bool has_semaphore_{false};
+    /// @brief True if termination is requested
+    std::atomic_bool termination_requested_{false};
 
     /// @brief The process id reported by the operating system when the process was started
     osal::ProcessID pid_ = 0;
 
     /// @brief The status reported by the operating system when the process terminated
-    std::atomic<int32_t> exit_code_{0};
+    std::atomic<int32_t> exit_status_{0};
 
     /// @brief The current state of the OS process
     std::atomic<score::mw::lifecycle::ProcessState> process_state_{score::mw::lifecycle::ProcessState::kIdle};
@@ -207,6 +204,9 @@ class ProcessInfoNode final : public IComponent
 
     /// @brief The result of the last termination since the process started.
     TeminationResult termination_result_{};
+
+    /// @brief Waits for a process to terminate for kTerminated ready condition
+    std::unique_ptr<TerminationWaiter> termination_waiter_;
 };
 
 }  // namespace score::mw::lifecycle::internal
