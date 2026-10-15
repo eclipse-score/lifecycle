@@ -15,7 +15,9 @@
 #define IALIVEWORKERFACTORY_HPP_INCLUDED
 
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/DataStructures.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ifappl/MonitorIfDaemon.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/IObservableEventReader.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/supervision/Alive.hpp"
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/configuration/config.hpp"
 
@@ -34,17 +36,6 @@ namespace ifexm
 {
 class ObservableEvent;
 }  // namespace ifexm
-
-namespace ifappl
-{
-class MonitorIfDaemon;
-class Checkpoint;
-}  // namespace ifappl
-
-namespace supervision
-{
-class Alive;
-}  // namespace supervision
 
 namespace factory
 {

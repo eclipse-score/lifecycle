@@ -24,3 +24,21 @@ cc_library(
         "@googletest//:gtest_main",
     ],
 )
+
+cc_library(
+    name = "mock_monitor_if_daemon",
+    testonly = True,
+    hdrs = ["MonitorIfDaemon.hpp"],
+    include_prefix = "score/mw/launch_manager/alive_monitor/details/ifappl/",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/injection_mocks",
+    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
+    deps = [
+        ":mock_data_structures",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/common:observer",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:checkpoint",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:observable_event",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
+        "//score/launch_manager/src/daemon/src/common:log",
+        "@googletest//:gtest_main",
+    ],
+)

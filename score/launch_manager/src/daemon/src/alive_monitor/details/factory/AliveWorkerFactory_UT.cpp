@@ -16,48 +16,21 @@
 
 #include "score/mw/launch_manager/alive_monitor/details/factory/AliveWorkerFactory.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/MockObservableEventReader.hpp"
+#include "score/mw/launch_manager/recovery_client/mock_recovery_client.h"
 
 using namespace testing;
 
-std::unique_ptr<score::mw::lifecycle::internal::saf::ifappl::MockCheckpointIpcServer>
-    score::mw::lifecycle::internal::saf::ifappl::g_mock_checkpoint_ipc_server;
-
-namespace score::mw::lifecycle::internal::saf::factory
+namespace score::mw::lifecycle::internal::saf
 {
 
-// struct ConstructionException
-// {
-//     std::string_view reason;
-// };
+namespace ifappl
+{
+std::unique_ptr<MockCheckpointIpcServer> g_mock_checkpoint_ipc_server;
+std::unique_ptr<MockMonitorIfDaemon> g_mock_monitor_if_daemon;
+}  // namespace ifappl
 
-// class MockObservable : public common::Observable<MockObservable>
-// {
-//   public:
-//     void PushResultToObservers()
-//     {
-//         pushResultToObservers(*this);
-//     }
-
-//     MOCK_METHOD(void, attachObserver, (common::Observer<MockObservable> & f_observer_r), (noexcept(false)));
-//     MOCK_METHOD(void, detachObserver, (common::Observer<MockObservable> & f_observer_r), (noexcept(false)));
-// };
-
-// class MockObserver : public common::Observer<MockObservable>
-// {
-//     MOCK_METHOD(void, updateData, (const MockObservable& f_observable_r), (noexcept));
-//     MOCK_METHOD(IdentifierHash, getIdentifier, (), (const, noexcept));
-
-//   public:
-//     MockObserver(bool throw_something, int data) : data_(data)
-//     {
-//         if (throw_something)
-//         {
-//             Throw(ConstructionException{"Construction error"});
-//         }
-//     }
-
-//     int data_;
-// };
+namespace factory
+{
 
 struct FactoryException : public std::exception
 {
@@ -79,32 +52,33 @@ class AliveWorkerFactoryTest : public ::testing::Test
         RecordProperty("TestType", "interface-test");
         RecordProperty("DerivationTechnique", "explorative-testing");
 
+        config_.reporting_cycle_ms = 100;
+
+        ipc_ = std::make_unique<ifappl::CheckpointIpcServer>();
+        interface_ = std::make_unique<ifappl::MonitorIfDaemon>(*ipc_, "/dev/null");
         ifappl::g_mock_checkpoint_ipc_server = std::make_unique<ifappl::MockCheckpointIpcServer>();
+        ifappl::g_mock_monitor_if_daemon = std::make_unique<ifappl::MockMonitorIfDaemon>();
+
+        EXPECT_CALL(*ifappl::g_mock_checkpoint_ipc_server, getPath)
+            .Times(AnyNumber())
+            .WillRepeatedly(Return("/dev/null"));
     }
 
     void TearDown() override
     {
         ifappl::g_mock_checkpoint_ipc_server.reset();  // GMock destructor verifies and clears expectations
+        ifappl::g_mock_monitor_if_daemon.reset();
     }
 
     AliveWorkerFactory factory{};
+
+    const IdentifierHash component_id_{"Component"};
+    std::unique_ptr<ifappl::CheckpointIpcServer> ipc_;
+    std::unique_ptr<ifappl::MonitorIfDaemon> interface_;
+    ifexm::ObservableEvent event_{component_id_};
+    std::shared_ptr<MockRecoveryClient> mock_recovery_client_ = std::make_shared<MockRecoveryClient>();
+    ComponentAliveSupervision config_{};
 };
-
-// class EmplaceAndAttachTest : public AliveWorkerFactoryTest
-// {
-//   protected:
-//     std::vector<MockObserver> observers{};
-//     MockObservable mock_observable{};
-
-//     const int emplaced_data = 42;
-// };
-
-// TEST_F(EmplaceAndAttachTest, EmplaceAndAttachSuccess)
-// {
-//     RecordProperty("Description", "Test that EmplaceAndAttach emplaces and attaches the correct data on a success");
-
-//     EXPECT_CALL(mock_observable, attachObserver(Field(&MockObserver::data_, emplaced_data)));
-// }
 
 TEST_F(AliveWorkerFactoryTest, createObservableEventFails)
 {
@@ -113,13 +87,12 @@ TEST_F(AliveWorkerFactoryTest, createObservableEventFails)
         "Verify that exceptions thrown while creating an observable event are caught and a failure is returned");
 
     ifexm::MockObservableEventReader reader{};
-    IdentifierHash event_id{"Observable"};
     std::vector<ifexm::ObservableEvent> out{};
     bool create_result = true;
 
     EXPECT_CALL(reader, registerObservableEvent).WillOnce(Throw(FactoryException{"Exception during registration"}));
 
-    EXPECT_NO_THROW(create_result = factory.createObservableEvent(out, event_id, reader));
+    EXPECT_NO_THROW(create_result = factory.createObservableEvent(out, component_id_, reader));
     EXPECT_FALSE(create_result);
 }
 
@@ -130,15 +103,14 @@ TEST_F(AliveWorkerFactoryTest, createObservableEventSucceeds)
         "Verify that createObservableEvent creates and attaches an observable event with the correct information");
 
     ifexm::MockObservableEventReader reader{};
-    IdentifierHash event_id{"Observable"};
     std::vector<ifexm::ObservableEvent> out{};
     bool create_result = false;
     PolymorphicMatcher event_matcher =
-        Field(&ifexm::ObservableEvent::event, Field(&SupervisionEvent::id, Eq(event_id)));
+        Field(&ifexm::ObservableEvent::event, Field(&SupervisionEvent::id, Eq(component_id_)));
 
-    EXPECT_CALL(reader, registerObservableEvent(event_matcher, event_id)).WillOnce(Return(true));
+    EXPECT_CALL(reader, registerObservableEvent(event_matcher, component_id_)).WillOnce(Return(true));
 
-    create_result = factory.createObservableEvent(out, event_id, reader);
+    create_result = factory.createObservableEvent(out, component_id_, reader);
 
     EXPECT_TRUE(create_result);
     EXPECT_THAT(out.back(), event_matcher);
@@ -161,7 +133,7 @@ TEST_F(AliveWorkerFactoryTest, createAliveIfIpcThrows)
 
 TEST_F(AliveWorkerFactoryTest, createAliveIfIpcSucceeds)
 {
-    RecordProperty("Description", "Verify that createIfIpc creates an ipc server with the correct information");
+    RecordProperty("Description", "Verify that createAliveIfIpc creates an ipc server with the correct information");
 
     std::vector<ifappl::CheckpointIpcServer> out{};
     bool create_result = true;
@@ -176,4 +148,67 @@ TEST_F(AliveWorkerFactoryTest, createAliveIfIpcSucceeds)
     EXPECT_EQ(out.size(), 1);
 }
 
-}  // namespace score::mw::lifecycle::internal::saf::factory
+TEST_F(AliveWorkerFactoryTest, createAliveIfFails)
+{
+    RecordProperty(
+        "Description",
+        "Verify that exceptions thrown while creating an alive interface are caught and a failure is returned");
+
+    std::vector<ifappl::MonitorIfDaemon> out{};
+    bool create_result = true;
+
+    EXPECT_CALL(*ifappl::g_mock_monitor_if_daemon, ctor)
+        .WillOnce(Throw(FactoryException{"Exception during construction"}));
+    EXPECT_CALL(*ifappl::g_mock_checkpoint_ipc_server, getPath).WillOnce(Return("/dev/null"));
+
+    EXPECT_NO_THROW(create_result = factory.createAliveIf(out, *ipc_, event_));
+    EXPECT_FALSE(create_result);
+}
+
+TEST_F(AliveWorkerFactoryTest, createAliveIfSucceeds)
+{
+    RecordProperty("Description", "Verify that createAliveIf creates an alive interface with the correct information");
+
+    std::vector<ifappl::MonitorIfDaemon> out{};
+    bool create_result = true;
+
+    EXPECT_CALL(*ifappl::g_mock_monitor_if_daemon, ctor);
+    EXPECT_CALL(*ifappl::g_mock_checkpoint_ipc_server, getPath).WillOnce(Return("/dev/null"));
+
+    create_result = factory.createAliveIf(out, *ipc_, event_);
+    EXPECT_TRUE(create_result);
+    EXPECT_EQ(out.size(), 1);
+}
+
+TEST_F(AliveWorkerFactoryTest, createAliveSupervisionFails)
+{
+    RecordProperty(
+        "Description",
+        "Verify that exceptions thrown while creating an alive supervision are caught and a failure is returned");
+
+    std::vector<supervision::Alive> out{};
+    bool create_result = true;
+
+    EXPECT_NO_THROW(
+        create_result =
+            factory.createAliveSupervision(out, *interface_, event_, mock_recovery_client_, component_id_, config_));
+    EXPECT_FALSE(create_result);
+}
+
+TEST_F(AliveWorkerFactoryTest, createAliveSupervisionSucceeds)
+{
+    RecordProperty(
+        "Description", "Verify that createAliveSupervision creates an alive supervision with the correct information");
+
+    std::vector<supervision::Alive> out{};
+    bool create_result = true;
+
+    create_result =
+        factory.createAliveSupervision(out, *interface_, event_, mock_recovery_client_, component_id_, config_);
+    EXPECT_TRUE(create_result);
+    EXPECT_EQ(out.size(), 1);
+}
+
+}  // namespace factory
+
+}  // namespace score::mw::lifecycle::internal::saf
