@@ -39,11 +39,13 @@ class AasApplicationContainer : public Application
      * @param argc The number of command line arguments.
      * @param argv The command line arguments.
      * @param count_expected_applications The expected number of applications.
+     * @throws std::length_error if count_expected_applications exceeds the maximum
+     * number of elements the underlying container can hold.
      */
     AasApplicationContainer(
         const std::int32_t argc,
         const char* const argv[],
-        const std::size_t count_expected_applications) noexcept;
+        const std::size_t count_expected_applications);
 
     AasApplicationContainer(const AasApplicationContainer&) = delete;
     AasApplicationContainer& operator=(const AasApplicationContainer&) = delete;
@@ -89,7 +91,9 @@ class AasApplicationContainer : public Application
      * It creates a thread for each application and waits for all threads to finish.
      *
      * @param context The application context.
-     * @return 0 on success, non-zero value as a result from any failed application.
+     * @return 0 if all application Initialize calls succeed.
+     *   Otherwise, the error code from the first application to fail is returned.
+     *   Zero indicates success, non-zero indicated failure.
      */
     std::int32_t Initialize(const ApplicationContext& context) override;
 
@@ -98,7 +102,10 @@ class AasApplicationContainer : public Application
      * This method can be used to run the applications in the container in parallel.
      *
      * @param token The stop token used for synchronization.
-     * @return 0 on success, non-zero value as a result from any failed application.
+     * @return 0 if all application Run calls succeed.
+     *   If the last application succeeds, the exit code from the first application to fail is returned.
+     *   If the last application fails, this error is returned.
+     *   Zero indicates success, non-zero indicated failure.
      */
     std::int32_t Run(const score::cpp::stop_token& token) override;
 
