@@ -29,6 +29,11 @@ std::unique_ptr<MockCheckpointIpcServer> g_mock_checkpoint_ipc_server;
 std::unique_ptr<MockMonitorIfDaemon> g_mock_monitor_if_daemon;
 }  // namespace ifappl
 
+namespace supervision
+{
+std::unique_ptr<MockAlive> g_mock_alive_supervision;
+}
+
 namespace factory
 {
 
@@ -58,16 +63,22 @@ class AliveWorkerFactoryTest : public ::testing::Test
         interface_ = std::make_unique<ifappl::MonitorIfDaemon>(*ipc_, "/dev/null");
         ifappl::g_mock_checkpoint_ipc_server = std::make_unique<ifappl::MockCheckpointIpcServer>();
         ifappl::g_mock_monitor_if_daemon = std::make_unique<ifappl::MockMonitorIfDaemon>();
+        supervision::g_mock_alive_supervision = std::make_unique<supervision::MockAlive>();
 
         EXPECT_CALL(*ifappl::g_mock_checkpoint_ipc_server, getPath)
             .Times(AnyNumber())
             .WillRepeatedly(Return("/dev/null"));
+
+        EXPECT_CALL(*supervision::g_mock_alive_supervision, getIdentifier)
+            .Times(AnyNumber())
+            .WillRepeatedly(Return(component_id_));
     }
 
     void TearDown() override
     {
         ifappl::g_mock_checkpoint_ipc_server.reset();  // GMock destructor verifies and clears expectations
         ifappl::g_mock_monitor_if_daemon.reset();
+        supervision::g_mock_alive_supervision.reset();
     }
 
     AliveWorkerFactory factory{};
@@ -127,7 +138,36 @@ TEST_F(AliveWorkerFactoryTest, createAliveIfIpcThrows)
 
     EXPECT_CALL(*ifappl::g_mock_checkpoint_ipc_server, init).WillOnce(Throw(FactoryException{"IPC init error"}));
 
-    EXPECT_NO_THROW(create_result = factory.createAliveIfIpc(out, IdentifierHash{"Component"}, 0));
+    EXPECT_NO_THROW(create_result = factory.createAliveIfIpc(out, component_id_, 0));
+    EXPECT_FALSE(create_result);
+}
+
+TEST_F(AliveWorkerFactoryTest, createAliveIfIpcInitFails)
+{
+    RecordProperty("Description", "Verify that a failure to initialise an ipc server fails the method");
+
+    std::vector<ifappl::CheckpointIpcServer> out{};
+    bool create_result = true;
+
+    EXPECT_CALL(*ifappl::g_mock_checkpoint_ipc_server, init)
+        .WillOnce(Return(ifappl::CheckpointIpcServer::EIpcInitResult::kFailed));
+
+    EXPECT_NO_THROW(create_result = factory.createAliveIfIpc(out, component_id_, 0));
+    EXPECT_FALSE(create_result);
+}
+
+TEST_F(AliveWorkerFactoryTest, createAliveIfIpcSetAccessFails)
+{
+    RecordProperty("Description", "Verify that a failure to set access rights on an ipc server fails the method");
+
+    std::vector<ifappl::CheckpointIpcServer> out{};
+    bool create_result = true;
+
+    EXPECT_CALL(*ifappl::g_mock_checkpoint_ipc_server, init)
+        .WillOnce(Return(ifappl::CheckpointIpcServer::EIpcInitResult::kOk));
+    EXPECT_CALL(*ifappl::g_mock_checkpoint_ipc_server, setAccessRights).WillOnce(Return(false));
+
+    EXPECT_NO_THROW(create_result = factory.createAliveIfIpc(out, component_id_, 0));
     EXPECT_FALSE(create_result);
 }
 
@@ -143,7 +183,7 @@ TEST_F(AliveWorkerFactoryTest, createAliveIfIpcSucceeds)
         .WillOnce(Return(ifappl::CheckpointIpcServer::EIpcInitResult::kOk));
     EXPECT_CALL(*ifappl::g_mock_checkpoint_ipc_server, setAccessRights(uid)).WillOnce(Return(true));
 
-    create_result = factory.createAliveIfIpc(out, IdentifierHash{"Component"}, uid);
+    create_result = factory.createAliveIfIpc(out, component_id_, uid);
     EXPECT_TRUE(create_result);
     EXPECT_EQ(out.size(), 1);
 }
@@ -188,6 +228,8 @@ TEST_F(AliveWorkerFactoryTest, createAliveSupervisionFails)
 
     std::vector<supervision::Alive> out{};
     bool create_result = true;
+    EXPECT_CALL(*supervision::g_mock_alive_supervision, ctor)
+        .WillOnce(Throw(FactoryException{"Exception during construction"}));
 
     EXPECT_NO_THROW(
         create_result =
@@ -202,6 +244,7 @@ TEST_F(AliveWorkerFactoryTest, createAliveSupervisionSucceeds)
 
     std::vector<supervision::Alive> out{};
     bool create_result = true;
+    EXPECT_CALL(*supervision::g_mock_alive_supervision, ctor(component_id_, _, _, _, _));
 
     create_result =
         factory.createAliveSupervision(out, *interface_, event_, mock_recovery_client_, component_id_, config_);
