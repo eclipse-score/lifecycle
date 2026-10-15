@@ -5208,6 +5208,20 @@
     "FullyVerifies": null
   },
   {
+    "name": "OsHandlerTest__WaitReturnsStoppedOrContinuedStatus_FindTerminatedIsNotCalled",
+    "file": "score/launch_manager/src/daemon/src/process_group_manager/details/oshandler_UT.cpp",
+    "line": "218",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
     "name": "ProcessMonitorTest__DoWorkNormalActivation",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_monitor_UT.cpp",
     "line": "42",
