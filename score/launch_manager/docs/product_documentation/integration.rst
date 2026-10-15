@@ -85,31 +85,11 @@ LmControlService service type
       :language: json
 
 
-State Manager Instance
-^^^^^^^^^^^^^^^^^^^^^^
-
-.. dropdown:: State Manager Instance
-
-   .. literalinclude:: examples/com_stm_service_instance.json
-      :language: json
-
-Launch Manager Instance
-^^^^^^^^^^^^^^^^^^^^^^^
-
-.. dropdown:: State Manager Instance
-
-   .. literalinclude:: examples/com_lm_service_instance.json
-      :language: json
-
-Implementaiton
+Implementation
 ==============
 
-
-Reporting Processes
--------------------
-
 Starting a process
-^^^^^^^^^^^^^^^^^^
+------------------
 
 A reporting process must signal to the Launch Manager that it has
 started successfully by calling the lifecycle API for the language it is
@@ -120,7 +100,7 @@ If the process does not report ``Running`` within that timeout, the Launch
 Manager terminates the process and registers an error.
 
 Stopping a process
-^^^^^^^^^^^^^^^^^^
+------------------
 
 A process can be configured to terminate in 2 ways:
 
@@ -136,7 +116,7 @@ If a process does not terminate after receiving a ``SIGTERM``, and a
 ``SIGKILL`` is sent and the process is forcefully terminated.
 
 Examples
-^^^^^^^^
+--------
 
 .. dropdown:: C Reporting Process
 
@@ -154,38 +134,26 @@ Examples
       :language: rust
 
 
+C++ also contains an alternative **Lifecycle API** that allows the user to
+create have a layer of abstraction, so in case of replacing lifecycle manager
+there will be no need to change applications.
+
+.. dropdown:: C++ Lifecycle Application
+
+   .. literalinclude:: examples/cpp_lifecycle_application.cpp
+      :language: cpp
+
+
 State management
 ----------------
 
 A **State Manager** is an application that dictates which run-targets shall be
 active by communicating with the Launch Manager using the ``ILmControl``
 interface.
-An instance is created with ``ILmControl::Create()``, which takes the
-``mw::com`` instance specifier of the Launch Manager service.
-``mw::com`` must be initialized by the caller before ``Create()`` is called
-(see :ref:`lm_integration`).
-
-``ILmControl`` provides the following operations:
-
--  ``activate_run_target(name, force)`` - requests the activation of the
-   run-target with the given name.
-   The call returns as soon as the Launch Manager has accepted the request,
-   it does not wait for the transition to finish.
--  ``register_run_target_activation_callback(callback)`` - registers a callback
-   that is invoked whenever the Launch Manager finishes a run-target
-   activation. The callback receives the source of the activation and the name
-   of the run-target that was activated, which may differ from the requested
-   one (for example when a recovery action activates a different run-target).
-   Only a single callback is supported, a second registration replaces the
-   first.
--  ``get_active_run_target()`` - returns the name of the currently active
-   run-target, or ``kActivationInProgress`` if a transition is running.
-
 The **State Manager** is itself a managed component and **must** report
 ``Running`` to the Launch Manager using the lifecycle API before calling
-``activate_run_target``.
-Failing to do so means the Launch Manager does not consider the **State Manager**
-ready, which blocks the startup procedure from completing.
+``activate_run_target``, otherwise Launch Manager does not consider the **State
+Manager** ready and will cause errors.
 The configuration also requires that the component that is the **State Manager** has
 to have the field ``application_profile.application_type`` set to
 ``State_Manager``.

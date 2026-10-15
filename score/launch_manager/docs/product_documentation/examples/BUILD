@@ -10,6 +10,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
 load("@rules_cc//cc:defs.bzl", "cc_binary")
 load("@rules_rust//rust:defs.bzl", "rust_binary")
 
@@ -20,7 +21,7 @@ cc_binary(
     srcs = [
         "example_state_manager.cpp",
     ],
-    visibility = ["//visibility:public"],
+    visibility = ["//visibility:private"],
     deps = [
         "//score/launch_manager:control_cc",
         "//score/launch_manager:lifecycle_cc",
@@ -32,7 +33,7 @@ cc_binary(
     srcs = [
         "c_reporting_process.c",
     ],
-    visibility = ["//visibility:public"],
+    visibility = ["//visibility:private"],
     deps = [
         "//score/launch_manager:lifecycle_cc",
     ],
@@ -43,7 +44,26 @@ cc_binary(
     srcs = [
         "cpp_reporting_process.cpp",
     ],
-    visibility = ["//visibility:public"],
+    visibility = ["//visibility:private"],
+    deps = [
+        "//score/launch_manager:lifecycle_cc",
+    ],
+)
+
+cc_binary(
+    name = "example_cpp_lifecycle_app",
+    srcs = [
+        "cpp_lifecycle_application.cpp",
+    ],
+    copts = select({
+        "@platforms//os:qnx": [],
+        "@platforms//os:linux": ["-pthread"],
+    }),
+    linkopts = select({
+        "@platforms//os:qnx": [],
+        "@platforms//os:linux": ["-lpthread"],
+    }),
+    visibility = ["//visibility:private"],
     deps = [
         "//score/launch_manager:lifecycle_cc",
     ],
@@ -54,7 +74,7 @@ rust_binary(
     srcs = [
         "rust_reporting_process.rs",
     ],
-    visibility = ["//visibility:public"],
+    visibility = ["//visibility:private"],
     deps = [
         "//score/launch_manager:lifecycle_rust",
     ],
