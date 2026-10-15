@@ -65,7 +65,7 @@ cc_library(
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/injection_mocks:mock_data_structures",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/injection_mocks:mock_monitor_if_daemon",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:i_observable_event_reader",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/supervision:alive",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/supervision/injection_mocks:mock_alive",
     ],
 )
 
