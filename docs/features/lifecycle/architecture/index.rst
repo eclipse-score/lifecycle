@@ -90,13 +90,12 @@ Configuration Structure
    :status: valid
    :version: 1
    :fulfils: feat_req__lifecycle__component_group_config[version==1],
-             feat_req__lifecycle__run_target_support[version==1]
+             feat_req__lifecycle__run_target_support[version==1],
+             feat_req__lifecycle__sandbox_options[version==1]
    :belongs_to: feat__lifecycle
    :includes: logic_arc_int__lifecycle__lifecycle_if[version==1],
               logic_arc_int__lifecycle__alive_if[version==1],
-              logic_arc_int__lifecycle__controlif[version==1],
-              logic_arc_int__lifecycle__deadline_monitor_if[version==1],
-              logic_arc_int__lifecycle__logical_monitor_if[version==1]
+              logic_arc_int__lifecycle__controlif[version==1]
 
    .. uml:: _assets/config_params_static.puml
       :scale: 50
