@@ -246,16 +246,6 @@ class MockRunTargetControl : public IRunTargetControl
 using TestControlProvider = BasicControlProvider<FakeLmControlSkeleton, FakeSpecifierFactory>;
 
 // ============================================================================
-// Static assertions — compile-time contract: no copy, no move.
-// Regression here would silently reintroduce dangling callbacks.
-// ============================================================================
-
-static_assert(!std::is_move_constructible_v<TestControlProvider>);
-static_assert(!std::is_move_assignable_v<TestControlProvider>);
-static_assert(!std::is_copy_constructible_v<TestControlProvider>);
-static_assert(!std::is_copy_assignable_v<TestControlProvider>);
-
-// ============================================================================
 // Fixture
 // ============================================================================
 
@@ -322,7 +312,7 @@ class ControlProviderUT : public ::testing::Test
 };
 
 // ============================================================================
-// Static assertions placeholder
+// Static assertions — compile-time contract: no copy, no move.
 // ============================================================================
 
 TEST_F(ControlProviderUT, StaticAssertionsCompiled)
@@ -333,7 +323,10 @@ TEST_F(ControlProviderUT, StaticAssertionsCompiled)
         "and the object must never relocate. A compile-time regression here would "
         "silently reintroduce a dangling-callback bug.");
 
-    // Dummy test to cover static asserts above.
+    static_assert(!std::is_move_constructible_v<TestControlProvider>);
+    static_assert(!std::is_move_assignable_v<TestControlProvider>);
+    static_assert(!std::is_copy_constructible_v<TestControlProvider>);
+    static_assert(!std::is_copy_assignable_v<TestControlProvider>);
 
     SUCCEED();
 }
