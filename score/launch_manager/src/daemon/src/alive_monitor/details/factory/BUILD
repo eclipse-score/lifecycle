@@ -21,7 +21,9 @@ cc_library(
     visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
     deps = [
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:data_structures",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:monitor_if_daemon",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:i_observable_event_reader",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/supervision:alive",
     ],
 )
 
@@ -35,7 +37,6 @@ cc_library(
     deps = [
         ":i_alive_worker_factory",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:checkpoint",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:monitor_if_daemon",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:observable_event",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:observable_event_reader",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/supervision:alive",
@@ -62,7 +63,9 @@ cc_library(
     visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
     deps = [
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/injection_mocks:mock_data_structures",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/injection_mocks:mock_monitor_if_daemon",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:i_observable_event_reader",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/supervision:alive",
     ],
 )
 
@@ -77,10 +80,8 @@ cc_library(
     deps = [
         ":mockable_i_alive_worker_factory",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:checkpoint",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifappl:mockable_monitor_if_daemon",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:observable_event",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:observable_event_reader",
-        "//score/launch_manager/src/daemon/src/alive_monitor/details/supervision:alive",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:time_conversion",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
         "//score/launch_manager/src/daemon/src/common:alive_interface_path",
@@ -100,6 +101,7 @@ lm_cc_test(
     deps = [
         ":mockable_alive_worker_factory",
         "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:mock_observable_event_reader",
+        "//score/launch_manager/src/daemon/src/recovery_client:mock_recovery_client",
         "@googletest//:gtest_main",
     ],
 )
