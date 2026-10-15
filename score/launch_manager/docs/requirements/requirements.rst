@@ -657,7 +657,8 @@ Run Targets
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall consider a :term:`Run Target` activation
-    as failed if the activation exceeds the maximum configured time.
+    as failed if the activation of all configured  :term:`Components` exceeds
+    the maximum configured time. 
 
 .. comp_req:: Process state
     :id: comp_req__launch_man__process_state_comm
