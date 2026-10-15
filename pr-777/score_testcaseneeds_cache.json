@@ -7912,7 +7912,7 @@
   {
     "name": "LifeCycleManagerTest__GivenValidApplication_ExpectSigWaitUntilTerm_WhenRunCalledWithSucceedingInitAndRun_ThenReturnsZero",
     "file": "score/launch_manager/src/lifecycle_client/src/lifecyclemanager_UT.cpp",
-    "line": "125",
+    "line": "118",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -7926,7 +7926,7 @@
   {
     "name": "LifeCycleManagerTest__GivenAppFailingInitialize_ExpectInitErrorCodeAndRunNotCalled_WhenRunCalled_ThenReturnsErrorCode",
     "file": "score/launch_manager/src/lifecycle_client/src/lifecyclemanager_UT.cpp",
-    "line": "158",
+    "line": "151",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -7940,7 +7940,7 @@
   {
     "name": "LifeCycleManagerTest__GivenAppFailingRun_ExpectRunErrorCode_WhenRunCalled_ThenReturnsErrorCode",
     "file": "score/launch_manager/src/lifecycle_client/src/lifecyclemanager_UT.cpp",
-    "line": "189",
+    "line": "182",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -7954,7 +7954,7 @@
   {
     "name": "LifeCycleManagerTest__GivenAppContextWithArguments_ExpectAppCallSuccess_WhenRunCalled_ThenRunsSuccessfully",
     "file": "score/launch_manager/src/lifecycle_client/src/lifecyclemanager_UT.cpp",
-    "line": "220",
+    "line": "213",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -7968,7 +7968,7 @@
   {
     "name": "LifeCycleManagerTest__GivenRunningSignalHandlerThread_ExpectSignalHandled_WhenDestructorCalled_ThenExitsCleanly",
     "file": "score/launch_manager/src/lifecycle_client/src/lifecyclemanager_UT.cpp",
-    "line": "248",
+    "line": "241",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -7982,7 +7982,7 @@
   {
     "name": "LifeCycleManagerTest__GivenLifeCycleManager_ExpectSigEmptySetFailure_WhenLifecycleManagerConstructed_ThenExits",
     "file": "score/launch_manager/src/lifecycle_client/src/lifecyclemanager_UT.cpp",
-    "line": "291",
+    "line": "284",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -7996,7 +7996,7 @@
   {
     "name": "LifeCycleManagerTest__GivenLifecycleManager_ExpectAddTerminationSignalFailure_WhenLifecycleManagerConstructed_ThenExits",
     "file": "score/launch_manager/src/lifecycle_client/src/lifecyclemanager_UT.cpp",
-    "line": "324",
+    "line": "317",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -8010,7 +8010,7 @@
   {
     "name": "LifeCycleManagerTest__GivenLifecycleManager_ExpectPthreadSigMaskFailure_WhenLifecycleManagerConstructed_ThenExits",
     "file": "score/launch_manager/src/lifecycle_client/src/lifecyclemanager_UT.cpp",
-    "line": "360",
+    "line": "353",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -8024,7 +8024,7 @@
   {
     "name": "LifeCycleManagerTest__GivenRunningApplication_ExpectStopNotRequested_WhenSigWaitFails_ThenExitsWithFailure",
     "file": "score/launch_manager/src/lifecycle_client/src/lifecyclemanager_UT.cpp",
-    "line": "397",
+    "line": "390",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -8038,7 +8038,7 @@
   {
     "name": "LifeCycleManagerTest__GivenNoApplication_ExpectQuickExitCalled_WhenSigWaitReturnsNonZero_ThenExitsWithFailure",
     "file": "score/launch_manager/src/lifecycle_client/src/lifecyclemanager_UT.cpp",
-    "line": "437",
+    "line": "430",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -8052,7 +8052,7 @@
   {
     "name": "LifeCycleManagerTest__GivenRunningSignalHandlerThread_ExpectThreadJoined_WhenSendSelfSigtermFailsInDestructor_ThenExitsCleanly",
     "file": "score/launch_manager/src/lifecycle_client/src/lifecyclemanager_UT.cpp",
-    "line": "464",
+    "line": "457",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -8066,7 +8066,7 @@
   {
     "name": "LifeCycleManagerTest__GivenRunningApplication_ExpectStopRequested_WhenSigtermReceived_ThenStopsApplication",
     "file": "score/launch_manager/src/lifecycle_client/src/lifecyclemanager_UT.cpp",
-    "line": "495",
+    "line": "488",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -8080,7 +8080,7 @@
   {
     "name": "LifeCycleManagerTest__GivenEmptyApplicationContext_ExpectSuccessfulRunWithoutArguments_WhenRunCalled_ThenReturnsZero",
     "file": "score/launch_manager/src/lifecycle_client/src/lifecyclemanager_UT.cpp",
-    "line": "547",
+    "line": "540",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
