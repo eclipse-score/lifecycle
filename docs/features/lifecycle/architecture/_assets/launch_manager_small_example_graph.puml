@@ -16,6 +16,7 @@
 
   state Off #lightblue
   state Minimal #lightblue
+  state Fallback #lightblue
   state Running #lightblue
   state Full #lightblue
 
@@ -31,6 +32,7 @@
   Running --> app1
   Running --> Minimal
   Minimal --> StateManager
+  Fallback --> StateManager
   app1 --> setup_filesystems
   app1 --> random
   StateManager --> setup_filesystems
