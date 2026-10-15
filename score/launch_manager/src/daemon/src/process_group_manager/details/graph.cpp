@@ -175,11 +175,13 @@ void Graph::updateRunTargetInPlace(RunTarget& run_target, ComponentTaskType task
     // RunTargets are updated in place, no need to queue them on the thread pool.
     if (task_type == ComponentTaskType::kActivate)
     {
-        run_target.activate(stop_source_.get_token());
+        const IComponent::RequestResult result = run_target.activate(stop_source_.get_token());
+        SCORE_LANGUAGE_FUTURECPP_ASSERT(result == IComponent::RequestResult::kSuccess);
     }
     else
     {
-        run_target.deactivate(stop_source_.get_token());
+        const IComponent::RequestResult result = run_target.deactivate(stop_source_.get_token());
+        SCORE_LANGUAGE_FUTURECPP_ASSERT(result == IComponent::RequestResult::kSuccess);
     }
     current_transition_->onNodeFinished(run_target.getIdentifier());
 }

@@ -31,7 +31,7 @@ namespace score::mw::lifecycle::internal
 class IComponent
 {
   public:
-    enum class RequestResult
+    enum class [[nodiscard]] RequestResult
     {
         /// @brief The operation succeeded.
         kSuccess,
@@ -46,7 +46,7 @@ class IComponent
         kFailure
     };
 
-    enum class TerminationResult
+    enum class [[nodiscard]] TerminationResult
     {
         /// @brief The pending operation succeeded.
         /// @details Corresponds to @ref RequestResult::kWaitForTermination.
@@ -62,14 +62,14 @@ class IComponent
 
     /// @brief Begin activation of the component.
     /// @p stop_token Token that can be stopped to exit the activation early.
-    [[nodiscard]] virtual RequestResult activate(score::cpp::stop_token stop_token) = 0;
+    virtual RequestResult activate(score::cpp::stop_token stop_token) = 0;
 
     /// @brief Begin deactivation of the component.
     /// @p stop_token Token that can be stopped to exit the deactivation early.
-    [[nodiscard]] virtual RequestResult deactivate(score::cpp::stop_token stop_token) = 0;
+    virtual RequestResult deactivate(score::cpp::stop_token stop_token) = 0;
 
     /// @brief Notify the component that it has terminated with status @p status
-    [[nodiscard]] virtual TerminationResult tryHandleTermination(int32_t status) = 0;
+    virtual TerminationResult tryHandleTermination(int32_t status) = 0;
 
     /// @returns the index of the component in the graph.
     [[nodiscard]] virtual IdentifierHash getIdentifier() const = 0;
