@@ -11,6 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 load("@rules_cc//cc:defs.bzl", "cc_library")
+load("//tests/utils/bazel:unit_test.bzl", "lm_cc_test")
 
 cc_library(
     name = "i_alive_worker_factory",
@@ -49,4 +50,14 @@ cc_library(
         "@platforms//os:qnx": [],
         "@platforms//os:linux": ["//externals/acl"],
     }),
+)
+
+lm_cc_test(
+    name = "AliveWorkerFactory_UT",
+    srcs = ["AliveWorkerFactory_UT.cpp"],
+    deps = [
+        ":alive_worker_factory",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:observable_event",
+        "@googletest//:gtest_main",
+    ],
 )
