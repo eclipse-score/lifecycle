@@ -1,0 +1,61 @@
+' *******************************************************************************
+' Copyright (c) 2026 Contributors to the Eclipse Foundation
+'
+' See the NOTICE file(s) distributed with this work for additional
+' information regarding copyright ownership.
+'
+' This program and the accompanying materials are made available under the
+' terms of the Apache License Version 2.0 which is available at
+' https://www.apache.org/licenses/LICENSE-2.0
+'
+' SPDX-License-Identifier: Apache-2.0
+' *******************************************************************************
+
+@startuml graph_states
+
+title Graph State Machine
+
+kSuccess : the requested Run Target is active
+kInTransition : Run Target transition is in progress
+kAborting : Wait for ongoing jobs to finish after\na failure or transition cancellation
+kUndefinedState : No ongoing jobs, graph is in\nan undefined but consistent state
+
+[*] --> kSuccess : construction
+
+' --- starting a transition ---------------------------------------------------
+kSuccess --> kInTransition : main loop tick\n[request recorded,\ndiffers from active]\n\nstart initial transition\n\nstart transition to Off
+kUndefinedState --> kInTransition : main loop tick\n[request recorded]\n\nmain loop tick\n[nothing recorded]\nself-heal to fallback
+
+' --- running a transition ----------------------------------------------------
+kInTransition --> kInTransition : job finished\n[transition has work left]
+kInTransition --> kSuccess : Last job finished\n[transition complete]
+
+' --- leaving a transition ----------------------------------------------------
+kInTransition --> kAborting : activation failed, unexpected termination,\nnew Run Target requested, supervision failure or shutdown\n[jobs still running]
+kInTransition --> kUndefinedState : same as transition to kAborting\nbut with no jobs running
+
+' --- aborting ----------------------------------------------------------------
+kAborting --> kAborting : job finished\n[not the last job]
+kAborting --> kUndefinedState : job finished\n[last job]
+kAborting --> kAborting : cancel or new request
+
+' --- failures outside a transition -------------------------------------------
+kSuccess --> kUndefinedState : unexpected termination\n\nlate completion\n[last outstanding job]
+kUndefinedState --> kUndefinedState : unexpected termination
+
+legend bottom
+  A request is only recorded, never started immediately. The transition begins
+  on a later main loop iteration, and only from kSuccess or kUndefinedState.
+
+  A transition with no work to do finalizes within the same call, so every edge
+  into kInTransition may land in kSuccess instead.
+
+  kUndefinedState is not terminal. Every main loop tick leaves it, towards a
+  recorded request if there is one and towards the fallback Run Target otherwise.
+
+  kAborting is the single drain state for failures and cancellations. It is left
+  when the completion that brings the in-flight job count to zero moves the graph
+  to kUndefinedState. Requests made while in kAborting do not change the state.
+end legend
+
+@enduml

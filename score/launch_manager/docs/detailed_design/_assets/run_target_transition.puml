@@ -1,0 +1,183 @@
+' *******************************************************************************
+' Copyright (c) 2026 Contributors to the Eclipse Foundation
+'
+' See the NOTICE file(s) distributed with this work for additional
+' information regarding copyright ownership.
+'
+' This program and the accompanying materials are made available under the
+' terms of the Apache License Version 2.0 which is available at
+' https://www.apache.org/licenses/LICENSE-2.0
+'
+' SPDX-License-Identifier: Apache-2.0
+' *******************************************************************************
+
+@startuml run_target_transition
+
+title Run Target Transition
+
+box "Caller thread" #FAFAF0
+participant "State Manager" as Client
+end box
+
+queue "Component Event Queue" as EventQueue
+
+box "Main loop thread" #F0F4FA
+participant "ProcessGroupManager" as PGM
+participant "Graph" as Graph
+participant "Transition" as Transition
+end box
+
+queue "Worker Queue" as WorkerQueue
+
+note over EventQueue
+  Requests from outside and results from the workers travel
+  through the same queue, which is what serializes them into
+  the main loop.
+end note
+
+' --- request -----------------------------------------------------------------
+Client -> EventQueue: request a Run Target
+EventQueue -> PGM ++: run target request
+
+alt #Pink the Run Target does not exist, or it is already active or being transitioned to
+    PGM --> Client: request rejected
+
+else #White a transition to another Run Target is running
+    PGM -> Graph ++: set new pending Run Target
+    PGM -> Graph: cancel the running transition
+    note over Graph
+      kInTransition becomes kAborting and the stop token of the
+      running transition is requested.
+    end note
+    deactivate Graph
+    PGM --> Client: request accepted
+
+else #White the graph is not in a transition
+    PGM -> Graph ++: set new pending Run Target
+    deactivate Graph
+    PGM --> Client: request accepted
+end
+deactivate PGM
+
+note over PGM
+  The caller is only told whether the request was accepted. It is
+  not blocked until the Run Target is reached.
+end note
+
+' --- start -------------------------------------------------------------------
+PGM -> PGM ++: handle the graph state
+note over PGM
+  A pending Run Target is only picked up while the graph is in
+  kSuccess or kUndefinedState, so a cancelled transition is first
+  allowed to settle - see Transition Cancellation / Preemption.
+end note
+
+PGM -> Graph ++: start the transition
+note over Graph
+  The graph moves to kInTransition
+end note
+
+Graph -> Transition ++: set up a transition to the Run Target
+note over Transition
+  The transition works in two phases:
+  1. Stopping phase: every component that is running and is not
+  needed by the target has to be stopped. This includes components left
+  running by an aborted transition before.
+  2. Starting phase: every component that is deactivated but is needed
+  by the target has to be activated.
+end note
+
+' --- dispatch ----------------------------------------------------------------
+loop while the transition reports components that are ready to be started/stopped
+    Transition --> Graph: a component is ready to be activated/stopped
+
+    alt #White the component is a Run Target node
+        Graph -> Graph: activate or deactivate in place
+        Graph -> Transition: component has finished
+        note over Graph
+          Run Target nodes are virtual and have no process, so
+          they finish immediately and can make further components
+          ready within the same dispatch loop.
+        end note
+
+    else #White the component is a process
+        Graph -> WorkerQueue: activation or deactivation of the component
+        note over WorkerQueue
+          What a worker does with it is shown in Component
+          Activation and Component Deactivation.
+        end note
+    end
+end
+deactivate Transition
+deactivate Graph
+deactivate PGM
+note over Graph
+  Only components without unfinished predecessors are dispatched;
+  the rest follow as their predecessors report back. Several
+  components are therefore in flight at the same time.
+end note
+
+' --- progress ----------------------------------------------------------------
+loop one iteration per component result
+    EventQueue -> PGM ++: component event
+    PGM -> Graph ++: apply the component event
+
+    alt #Pink the component failed
+        note over Graph
+          The graph moves to kAborting and the stop token is
+          requested: components that have not been taken by a
+          worker report as skipped, components in flight finish
+          their current step - see Transition Cancellation /
+          Preemption.
+        end note
+
+    else #White the component finished and the phase is not complete
+        Graph -> Transition ++: component has finished
+        Transition --> Graph --: the components this one has unblocked
+        Graph -> WorkerQueue: activation or deactivation of those components
+        note over Transition
+          Activation: a component is ready once all of its
+          dependencies are active. Deactivation: once all of its
+          dependents are stopped.
+        end note
+
+    else #White the stopping phase is complete
+        Graph -> Transition ++: component has finished
+        note over Transition
+          Starting phase: the components of the target subgraph
+          that are not active yet, starting with those that have
+          no dependencies left to wait for.
+        end note
+        Transition --> Graph --: the components ready to be started
+        Graph -> WorkerQueue: activation of those components
+
+    else #F2FAF2 the starting phase is complete
+        Graph -> Transition ++: component has finished
+        Transition --> Graph --: the transition is finished
+        note over Graph
+          The graph moves to kSuccess: the requested Run Target
+          is the active one.
+        end note
+        Graph -> Client: the Run Target is active
+    end
+
+    deactivate Graph
+    deactivate PGM
+end
+
+note over Graph
+  An aborted transition ends differently: once the last component
+  in flight has reported back, the graph moves to kUndefinedState
+  and the main loop starts a transition to the fallback Run Target
+  - see Process Termination and Supervision Failure.
+end note
+
+legend bottom
+  The graph never waits for a component. It dispatches what is ready, returns to
+  the main loop, and advances the transition whenever a result arrives.
+
+  Only processes are given to the workers; Run Target nodes are resolved on the
+  main loop thread.
+end legend
+
+@enduml
