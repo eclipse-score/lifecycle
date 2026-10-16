@@ -809,5 +809,78 @@ TEST_F(FlatbufferConfigLoaderTest, MissingSchemaVersionReturnsInvalidFormat)
     EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
 }
 
+// ============================================================================
+// Boundary tests
+// ============================================================================
+
+struct NumberOfAttemptsParameterizedTestParams
+{
+    // Using uint_16_t to we can represent values > 255,
+    // so we can test overflow of uint8_t
+    std::uint16_t input;
+    std::uint16_t expected;
+};
+
+class NumberOfAttemptsParameterizedTest : public FlatbufferConfigLoaderTest,
+                                          public ::testing::WithParamInterface<NumberOfAttemptsParameterizedTestParams>
+{
+};
+
+TEST_P(
+    NumberOfAttemptsParameterizedTest,
+    GivenNumberOfAttemptsBoundaryValues_WhenFlatbufferLoaded_ThenNumberOfAttemptsIsValid)
+{
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty(
+        "Description",
+        "Given upper and lower boundary values for number_of_attempts: [0, 1, 254, 255, 256]. "
+        "And a valid boundary of 0 to 255 inclusive. "
+        "When the flatbuffer is loaded. "
+        "Then values within the boundary are preserved. "
+        "And values outside the boundary overflow. ");
+
+    // Given
+    ::flatbuffers::FlatBufferBuilder fbb;
+    const std::uint16_t NUMBER_OF_ATTEMPTS = GetParam().input;
+    auto restart = fb::CreateRestartAction(fbb, NUMBER_OF_ATTEMPTS, 1500);
+    auto bin_dir = fbb.CreateString("/opt");
+    auto work_dir = fbb.CreateString("/tmp");
+    auto sandbox = buildDefaultSandbox(fbb);
+    auto deploy = fb::CreateDeploymentConfig(
+        fbb,
+        1000 /*ready_timeout_ms*/,
+        1000 /*shutdown_timeout_ms*/,
+        0 /*environmental_variables*/,
+        bin_dir,
+        work_dir,
+        restart,
+        0 /*recovery_action*/,
+        sandbox);
+
+    auto comp = buildDefaultComponent(fbb, "restart_comp", buildDefaultComponentProperties(fbb), deploy);
+    auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{comp});
+
+    // When
+    auto result = loadBuffer(buildConfigWithComponents(fbb, comps));
+
+    // Then
+    ASSERT_THAT(result.has_value(), IsTrue());
+    ASSERT_THAT(result->components().size(), Eq(1U));
+    ASSERT_THAT(result->components()[0].deployment_config.ready_recovery_action.has_value(), IsTrue());
+
+    const auto& ra = result->components()[0].deployment_config.ready_recovery_action.value();
+    EXPECT_THAT(ra.number_of_attempts, Eq(GetParam().expected));
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    NumberOfAttemptsBoundaryValues,
+    NumberOfAttemptsParameterizedTest,
+    ::testing::Values(
+        NumberOfAttemptsParameterizedTestParams{0U, 0U},
+        NumberOfAttemptsParameterizedTestParams{1U, 1U},
+        NumberOfAttemptsParameterizedTestParams{254U, 254U},
+        NumberOfAttemptsParameterizedTestParams{255U, 255U},
+        NumberOfAttemptsParameterizedTestParams{256U, 0U}));
+
 }  // namespace
 }  // namespace score::mw::lifecycle::internal::configuration

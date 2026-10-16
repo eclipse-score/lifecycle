@@ -21,7 +21,7 @@ namespace score::mw::lifecycle::internal::configuration
 
 struct RestartAction
 {
-    std::uint32_t number_of_attempts{};
+    std::uint8_t number_of_attempts{};
     std::uint32_t delay_before_restart_ms{};
 };
 

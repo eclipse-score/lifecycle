@@ -93,7 +93,7 @@ table ComponentProperties {
 // Recovery action that restarts the POSIX process associated with a component.
 table RestartAction {
   // Maximum number of restart attempts before recovery is considered failed.
-  number_of_attempts:uint32 = null; // required
+  number_of_attempts:uint8 = null; // required
   // Delay in milliseconds before initiating a restart attempt.
   delay_before_restart_ms:uint32 = null; // required
 }
