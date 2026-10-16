@@ -65,7 +65,7 @@ Activating Components
 
     The :term:`Launch Manager` shall consider the component activation
     attempt as failed if a component does not reach its :term:`Ready State`
-    within the configured timeout.
+    within the configured timeout in ``deployment_config.ready_timeout_ms``.
 
 
 Deactivating Components
@@ -400,8 +400,10 @@ Process Configuration
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall support restarting the process 
-    a configurable amount of times if the process fails to reach its
+    a configurable amount of times, if the process fails to reach its
     :term:`Ready State`.
+    If no retry attempts are successful this shall be considered an
+    :term:`Componet Failure`.
 
 .. comp_req:: Process capability support
     :id: comp_req__launch_man__capability_support
@@ -657,8 +659,8 @@ Run Targets
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall consider a :term:`Run Target` activation
-    as failed if the activation of all configured  :term:`Components <Component>` exceeds
-    the maximum configured time. 
+    as failed if the activation exceed the time configured in
+    ``run_target.transition_timeout_ms``.
 
 .. comp_req:: Process state
     :id: comp_req__launch_man__process_state_comm
@@ -703,10 +705,7 @@ Alive Monitoring
     The :term:`Launch Manager` shall forcefully deactivate a :term:`Component`
     when an alive supervision failure is detected for it, without notifying the
     :term:`Component` and without allowing it to perform any cleanup.
-
-    .. note::
-       For a :term:`Component` that is a process, forceful deactivation is
-       done by sending ``SIGKILL``.
+    This is then considered as a :term:`Component Failure`.
 
 .. comp_req:: Component monitoring during startup
     :id: comp_req__launch_man__failure_detect
