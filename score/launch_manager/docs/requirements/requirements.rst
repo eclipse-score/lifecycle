@@ -403,7 +403,7 @@ Process Configuration
     a configurable amount of times, if the process fails to reach its
     :term:`Ready State`.
     If no retry attempts are successful this shall be considered an
-    :term:`Componet Failure`.
+    :term:`Component Failure`.
 
 .. comp_req:: Process capability support
     :id: comp_req__launch_man__capability_support
