@@ -20,7 +20,7 @@
    :security: YES
    :realizes: wp__requirements_comp[version==1]
 
-.. note:: 
+.. note::
     Requirements which are not planned to be implemented in the version 1.0 of S-CORE are set to status **invalid**.
 
 
@@ -31,7 +31,7 @@ Components
 ==========
 
 .. note
-   TODO all requirements that are not under the Process heading shall 
+   TODO all requirements that are not under the Process heading shall
    be reworded to speak in terms of components.
 
 .. comp_req:: Invalid dependency
@@ -227,7 +227,7 @@ Ready Conditions
     The :term:`Launch Manager` shall support a :term:`Ready Condition` that is
     satisfied when :term:`Component` notifies the :term:`Lifecycle Interface`.
 
-.. comp_req:: Ready Condition - File state 
+.. comp_req:: Ready Condition - File state
     :id: comp_req__launch_man__rc_file_state
     :reqtype: Functional
     :security: NO
@@ -300,8 +300,8 @@ Launching Processes
 
 Process Configuration
 """""""""""""""""""""
-.. 
-    Why does everything map here to feat_req__lifecycle__custom_cond_support? 
+..
+    Why does everything map here to feat_req__lifecycle__custom_cond_support?
     When looking on this requirement it seems it is related to Control interface API.
 
 .. comp_req:: Handling process args
@@ -510,8 +510,8 @@ Process Configuration
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall provide support for launching a process with 
-    a set of system resource limits (rlimit) which are defined by the 
+    The :term:`Launch Manager` shall provide support for launching a process with
+    a set of system resource limits (rlimit) which are defined by the
     POSIX-Standard (IEEE Std 1003.1). I.e. RLIMIT_CORE, RLIMIT_CPU,
     RLIMIT_DATA, RLIMIT_FSIZE, RLIMIT_NOFILE, RLIMIT_STACK and RLIMIT_AS.
 
@@ -746,7 +746,7 @@ Alive Monitoring
 
     .. note::
         An adopted process is a process that was not originally launched by the :term:`Launch Manager`.
-        **Use case:** There might be processes which are needed to start very early during bootup and 
+        **Use case:** There might be processes which are needed to start very early during bootup and
         are therefore launched by the system before the :term:`Launch Manager` takes control.
 
 .. comp_req:: Component monitoring during startup
@@ -787,8 +787,8 @@ Recovery Actions
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall be able to react to a 
-    :term:`Component failure` by reactivating the failed 
+    The :term:`Launch Manager` shall be able to react to a
+    :term:`Component failure` by reactivating the failed
     :term:`Component`.
 
 .. comp_req:: Recovery by switching the Run Target
@@ -801,8 +801,8 @@ Recovery Actions
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall be able to react to a 
-    :term:`Component failure` by switching to another 
+    The :term:`Launch Manager` shall be able to react to a
+    :term:`Component failure` by switching to another
     :term:`Run Target`.
 
 .. comp_req:: Recovery by stopping the component
@@ -815,8 +815,8 @@ Recovery Actions
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall be able to react to a 
-    :term:`Component failure` by stopping the failed 
+    The :term:`Launch Manager` shall be able to react to a
+    :term:`Component failure` by stopping the failed
     :term:`Component`.
 
 .. comp_req:: Recovery by stopping the component and starting another component
@@ -1006,6 +1006,6 @@ Configuration file
 
     The :term:`Launch Manager` shall have a means to validate the configuration offline.
 
-.. needextend:: c.this_doc() and is_external == False and "__launch_manager__" in id
+.. needextend:: c.this_doc() and is_external == False
    :+tags: lifecycle, launch_manager
 
