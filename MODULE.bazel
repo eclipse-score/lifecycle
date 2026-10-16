@@ -48,7 +48,7 @@ bazel_dep(name = "score_coverage", version = "0.4.1", dev_dependency = True)
 # an untested main.cpp shows at 0 %), see coverage_tool#40.
 git_override(
     module_name = "score_coverage",
-    commit = "754b117830cc3c0be642e21c0c14ebf240c755e7",
+    commit = "919455e97fe523b354244e029a2dccb5b5ec7a10",
     remote = "https://github.com/eclipse-score/coverage_tool.git",
 )
 
