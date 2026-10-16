@@ -19,6 +19,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 #include <score/assert.hpp>
 #include <unistd.h>
+#include <cstdint>
 #include <cstring>
 
 namespace score::mw::lifecycle::internal
@@ -33,10 +34,21 @@ ProcessInfoNode::ProcessInfoNode(configuration::ComponentConfig&& config, Proces
       identifier_(config_.name),
       termination_waiter_(std::make_unique<TerminationWaiter>())
 {
-    // number_of_attempts is pre-validated with max value: 254, to avoid integer overflow when incremented
+    // number_of_attempts is pre-validated with max value: 254
+    // Warn user and prevent overflow on the below increment if 255 is passed
     if (config_.deployment_config.ready_recovery_action.has_value())
     {
-        start_tries_ = config_.deployment_config.ready_recovery_action->number_of_attempts + 1U;
+        auto number_of_attempts = config_.deployment_config.ready_recovery_action->number_of_attempts;
+        start_tries_ = number_of_attempts;
+        if (number_of_attempts < UINT8_MAX)
+        {
+            start_tries_ += 1U;
+        }
+        else
+        {
+            LM_LOG_WARN() << "Configured number_of_attempts (" << number_of_attempts << ") is too large, using "
+                          << (number_of_attempts - 1U) << " instead.";
+        }
     }
 
     const configuration::ApplicationProfile& app_profile = config_.component_properties.application_profile;
