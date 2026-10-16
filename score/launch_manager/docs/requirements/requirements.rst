@@ -781,8 +781,8 @@ Recovery Actions
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall cancel all pending :term:`Run Target`
-    transitions before running any :term:`Run Target` recovery action.
+    The :term:`Launch Manager` shall cancel all pending and ongoing :term:`Run Target`
+    activations before running any :term:`Run Target` recovery action.
 
 .. comp_req:: Recovery state manager notification
     :id: comp_req__launch_man__ra_rt_sm_notify
@@ -795,7 +795,7 @@ Recovery Actions
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall notify the State Manger of a recovery
-    action that results in a :term:`Run Target` switch using the 
+    action that results in a :term:`Run Target` activation using the 
     :term:`Control Interface`.
 
 .. comp_req:: Run target recovery action failure escalation
@@ -822,7 +822,7 @@ Recovery Actions
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall stop the servicing of the :term:`Watchdog`
+    The :term:`Launch Manager` shall stop servicing the :term:`Watchdog`
     if the transition to the :term:`Fallback Run Target` fails.
 
 Component Recovery Actions
