@@ -510,11 +510,10 @@
                   
   <section id="run-target-activation">
 <h1>Run Target Activation<a class="headerlink" href="#run-target-activation" title="Link to this heading">#</a></h1>
-<p>This interface provides control functionality for activating and managing run
+<p>The Control interface (<a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int__lifecycle__controlif">logic_arc_int__lifecycle__controlif</a>), provided by the
+<a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a>, offers control functionality for activating and managing run
 targets.
 It allows users to trigger execution of configured <a class="reference internal" href="../glossary.html#term-Run-target"><span class="xref std std-term">Run Targets</span></a> through a standardized activation mechanism.</p>
-<p>The following use cases are supported by the <cite>Control Interface</cite> provided by the
-<a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a>.</p>
 <section id="switching-between-run-targets">
 <h2>Switching between Run Targets<a class="headerlink" href="#switching-between-run-targets" title="Link to this heading">#</a></h2>
 <p>The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> allows switching between different <a class="reference internal" href="../glossary.html#term-Run-target"><span class="xref std std-term">Run
@@ -522,23 +521,36 @@ Targets</span></a>. When a switch is requested, the <a class="reference internal
 evaluates the current state and the target state, determining which components
 need to be started or stopped based on their dependencies.</p>
 <p><strong>Activating a Run Target</strong></p>
-<p>When a request to activate a Run Target is received via the <cite>ControlInterface</cite>,
+<p>When a request to activate a Run Target is received via the Control interface
+(<a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int__lifecycle__controlif">logic_arc_int__lifecycle__controlif</a>),
 the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> shall perform the following operations:</p>
 <ol class="arabic simple">
-<li><p><strong>Validation</strong>: Evaluate if the conditions are correct for activating the requested Run Target:
-- The Run Target exists in the configuration
-- All dependencies for the Run Target are resolvable
-- Required resources are available</p></li>
-<li><p><strong>Transition Logic</strong>: Determine the transition from the current state to the target state:
-- If a different Run Target is active, perform a switch operation (stop current, start requested)
-- If the same Run Target is already active, verify its state and potentially restart failed components</p></li>
-<li><p><strong>Execution</strong>: Execute the transition in the correct dependency order:
-- Stop components that are not part of the new Run Target
-- Start components that are required for the new Run Target
-- Respect dependency relationships during both stop and start operations</p></li>
-<li><p><strong>Response</strong>: Return status to the caller:
-- Success if all components transitioned correctly
-- Failure with detailed error information if any component failed to transition</p></li>
+<li><p><strong>Validation</strong>: Evaluate if the conditions are correct for activating the requested Run Target:</p>
+<ul class="simple">
+<li><p>The Run Target exists in the configuration</p></li>
+<li><p>All dependencies for the Run Target are resolvable</p></li>
+<li><p>Required resources are available</p></li>
+</ul>
+</li>
+<li><p><strong>Transition Logic</strong>: Determine the transition from the current state to the target state:</p>
+<ul class="simple">
+<li><p>If a different Run Target is active, perform a switch operation (stop current, start requested)</p></li>
+<li><p>If the same Run Target is already active, verify its state and potentially restart failed components</p></li>
+</ul>
+</li>
+<li><p><strong>Execution</strong>: Execute the transition in the correct dependency order:</p>
+<ul class="simple">
+<li><p>Stop components that are not part of the new Run Target</p></li>
+<li><p>Start components that are required for the new Run Target</p></li>
+<li><p>Respect dependency relationships during both stop and start operations</p></li>
+</ul>
+</li>
+<li><p><strong>Response</strong>: Return status to the caller:</p>
+<ul class="simple">
+<li><p>Success if all components transitioned correctly</p></li>
+<li><p>Failure with detailed error information if any component failed to transition</p></li>
+</ul>
+</li>
 </ol>
 <p>This unified approach allows external state managers to request any Run Target
 activation without needing to know the current system state, as the
@@ -550,7 +562,7 @@ activation without needing to know the current system state, as the
 The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> provides an interface, which allows an external State Manager application to request the
 <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> to switch the active Run Target (leading to start, stop or restart of applications)
 which allows the implementation of a state management application to support dynamic state control.</p>
-<p>The control interface provides two modes of requesting a Run Target activation:</p>
+<p>The Control interface (<a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int__lifecycle__controlif">logic_arc_int__lifecycle__controlif</a>) provides two modes of requesting a Run Target activation:</p>
 <ol class="arabic">
 <li><p><strong>Queued Activation</strong></p>
 <p>In this mode, requests to activate a Run Target are placed in a queue and processed sequentially by the Launch Manager.
@@ -566,7 +578,7 @@ A forced activation request bypasses the queue and is executed immediately and r
 <h2>Dynamic architecture<a class="headerlink" href="#dynamic-architecture" title="Link to this heading">#</a></h2>
 <p>The sequence diagrams below are based on the example dependency graph described
 in <a class="reference internal" href="components_run_targets.html"><span class="doc">Components &amp; Run Targets</span></a>.</p>
-<div class="need_container docutils container" id="SNCB-a32eed16">
+<div class="need_container docutils container" id="SNCB-665b2b7a">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__ctrl_start">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -598,9 +610,9 @@ in <a class="reference internal" href="components_run_targets.html"><span class=
 <p class="plantuml">
 <object data="../../../_images/plantuml-dfe9dce18b723b62dfdf9660a1af1be57fa96ef4.svg" type="image/svg+xml" style="width:1355px;height:827px;background:#FFFFFF;"></object></p>
 </figure>
-<p>During startup the StateManager registers an activation callback with the Launch Manager to be notified about future Run Target changes.
-The StateManager can query at any time the currently active Run Target. During an ongoing transition, it will be informed that the system is in transition and no Run Target is active yet.
-After a transition is completed, the StateManager is notified via the previously registered callback about the new active Run Target.
+<p>During startup the State Manager registers an activation callback with the Launch Manager to be notified about future Run Target changes.
+The State Manager can query at any time the currently active Run Target. During an ongoing transition, it will be informed that the system is in transition and no Run Target is active yet.
+After a transition is completed, the State Manager is notified via the previously registered callback about the new active Run Target.
 Queries for the currently active Run Target will now return the newly activated Run Target.</p>
 </td>
 </tr>
@@ -618,7 +630,7 @@ Queries for the currently active Run Target will now return the newly activated 
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-65c5bdb0">
+<div class="need_container docutils container" id="SNCB-37fcaf6e">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__ctrl_que_act">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -669,7 +681,7 @@ At first the Launch Manager transitions to Run Target “Running” and subseque
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-a83946c1">
+<div class="need_container docutils container" id="SNCB-6a0fe4d6">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__ctrl_fced_act">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
