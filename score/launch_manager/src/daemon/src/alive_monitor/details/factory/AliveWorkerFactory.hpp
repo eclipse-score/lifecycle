@@ -50,7 +50,7 @@ class AliveWorkerFactory : public IAliveWorkerFactory
     bool createObservableEvent(
         std::vector<ifexm::ObservableEvent>& events,
         const IdentifierHash component_id,
-        ifexm::ObservableEventReader& event_reader_) override;
+        ifexm::IObservableEventReader& event_reader_) override;
 
     /// Refer to the description of the base class (IAliveWorkerFactory)
     bool createAliveIfIpc(
