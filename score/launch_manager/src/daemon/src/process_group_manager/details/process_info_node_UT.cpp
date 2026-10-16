@@ -84,7 +84,7 @@ class ProcessInfoNodeFixture : public ::testing::Test
     /// @note ComponentConfig is move-only, so a fresh one is built for every node.
     std::unique_ptr<ProcessInfoNode> createProcessInfoNode(
         configuration::ApplicationType application_type = configuration::ApplicationType::Reporting,
-        std::uint32_t restart_attempts = 0U,
+        std::uint8_t restart_attempts = 0U,
         bool self_terminating = false,
         configuration::ProcessState ready_state = configuration::ProcessState::Running)
     {
@@ -135,7 +135,7 @@ class ProcessInfoNodeFixture : public ::testing::Test
     /// @brief Helper method to create a ProcessInfoNode that is self-terminating.
     std::unique_ptr<ProcessInfoNode> createSelfTerminatingProcessInfoNode(
         configuration::ApplicationType application_type = configuration::ApplicationType::Reporting,
-        std::uint32_t restart_attempts = 0U)
+        std::uint8_t restart_attempts = 0U)
     {
         return createProcessInfoNode(application_type, restart_attempts, true);
     }
@@ -653,6 +653,73 @@ TEST_F(ProcessInfoNodeStartupCrashTest, TimeoutThenSuccess_WithRestarts)
     ASSERT_THAT(result.value(), Eq(IComponent::RequestState::kSuccess));
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kRunning));
 }
+
+struct NumberOfAttemptsParameterizedTestParams
+{
+    // Using uint_16_t to we can represent values > 255,
+    // so we can test overflow of uint8_t
+    std::uint16_t input;
+    std::uint16_t expected_attempts;
+};
+
+class NumberOfAttemptsParameterizedTest : public ProcessInfoNodeStartupCrashTest,
+                                          public ::testing::WithParamInterface<NumberOfAttemptsParameterizedTestParams>
+{
+};
+
+TEST_P(
+    NumberOfAttemptsParameterizedTest,
+    GivenBoundaryValuesForNumberOfAttempts_ExpectCrashBeforeReady_WhenActivateCalled)
+{
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty(
+        "Description",
+        "Given boundary values for number_of_attempts: [0, 1, 254, 255]. "
+        "And a valid boundary of 0 to 254 inclusive. "
+        "Expect that the OS handler detects a crash on every attempt. "
+        "Expect that the number of start attempts equals the expected values: [1, 2, 255, 255]. "
+        "When activate() is called. "
+        "Then kErrorBeforeReady is returned for all number_of_attempts values. ");
+
+    // Expect
+    expectActivationReport(0);
+    const std::uint16_t kRestartAttempts = GetParam().input;
+    const std::uint16_t kExpectedTotalAttempts = GetParam().expected_attempts;
+    auto node = createProcessInfoNode(configuration::ApplicationType::ReportingAndSupervised, kRestartAttempts);
+
+    EXPECT_CALL(mock_processIf_, startProcess(_, _, _))
+        .Times(kExpectedTotalAttempts)
+        .WillRepeatedly(Return(osal::OsalReturnType::kSuccess));
+    EXPECT_CALL(*process_map_, insertIfNotTerminated(_, _))
+        .Times(kExpectedTotalAttempts)
+        .WillRepeatedly(Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kOk));
+    // Simulate the OS handler detecting the crash on every attempt, while the process is still waiting to reach
+    // kRunning.
+    EXPECT_CALL(mock_processIf_, waitForkRunning(_, _))
+        .Times(kExpectedTotalAttempts)
+        .WillRepeatedly(DoAll(
+            InvokeWithoutArgs([node = node.get()] {
+                static_cast<void>(node->tryHandleTermination(-1));
+            }),
+            Return(osal::OsalReturnType::kFail)));
+
+    // When
+    auto result = node->activate(score::cpp::stop_token{});
+
+    // Then
+    ASSERT_THAT(result.has_value(), IsFalse());
+    ASSERT_THAT(result.error(), Eq(IComponent::ComponentError::kErrorBeforeReady));
+    ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kTerminated));
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    NumberOfAttemptsBoundaryValues,
+    NumberOfAttemptsParameterizedTest,
+    ::testing::Values(
+        NumberOfAttemptsParameterizedTestParams{0U, 1U},
+        NumberOfAttemptsParameterizedTestParams{1U, 2U},
+        NumberOfAttemptsParameterizedTestParams{254U, 255U},
+        NumberOfAttemptsParameterizedTestParams{255U, 255U}));
 
 // Bundles unexpected terminations that occur after the ready condition has been reached.
 class ProcessInfoNodeUnexpectedTerminationTest : public ProcessInfoNodeFixture
