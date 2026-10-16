@@ -260,8 +260,8 @@ class BasicControlProvider
                     if (flags != -1)
                     {
                         flags |= FD_CLOEXEC;
-                        const auto result = fcntl(fd, F_SETFD, flags);
-                        if (result == -1)
+                        const auto fcntl_result = fcntl(fd, F_SETFD, flags);
+                        if (fcntl_result == -1)
                         {
                             LM_LOG_ERROR() << "fcntl F_SETFD failed for fd number:" << fd;
                         }
