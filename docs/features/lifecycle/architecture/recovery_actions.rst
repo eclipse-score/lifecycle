@@ -20,6 +20,11 @@ handled by the Component Recovery Action. A Component Recovery Action may be to 
 restarting the failed component. If no Component Recovery Action is configured or it does
 not succeed, the Run Target Recovery Action activates the Fallback Run Target. If this also fails,
 the Watchdog triggers a Machine Reset.
+Currently, the Run Target Recovery Action is synonymous to activation of the Fallback Run Target.
+
+The Fallback Run Target is a special Run Target defined in the Launch Manager configuration (see :need:`feat_arc_sta__lifecycle__cfg_params_static`) that is suppsed to be
+a minimal system state that allows diagnosis of the failure. The State Manager is expected to transition the system out of the Fallback Run Target to
+retry normal operation.
 
 .. figure:: _assets/recovery_actions-v1.0.drawio.svg
    :align: center
@@ -40,8 +45,7 @@ the Watchdog triggers a Machine Reset.
                Component Recovery Action and the Fallback Run Target
 
          Planned recovery action escalation chain. In contrast to the diagram above, the
-         Run Target Recovery Action is configurable and the Fallback Run Target is only one
-         of its possible outcomes.
+         Run Target Recovery Action is now a separate step in the escalation chain.
 
 
 The sequence diagram below is based on the example dependency graph described

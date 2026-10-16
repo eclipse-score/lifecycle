@@ -23,7 +23,7 @@ activate LM
 
 LM -> LM: Read configuration file
 
-alt #pink Error in configuration file
+alt #pink Configuration file not found or unsupported format
     LM ->[ : Launch Manager terminates
 end alt
 LM -> LM: Preallocate internal resources (memory, thread pool, ipc channels, etc.)

@@ -118,7 +118,6 @@ group #White Deactivate setup_filesystems.sh
 end group
 
 LM -> LM: Run Target "Off" successfully activated
-[<-- LM: Invoke callback: Run Target "Off" successfully activated due to Request
 
 ...
 @enduml
