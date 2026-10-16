@@ -81,9 +81,146 @@ LmControlService service type
 
 .. dropdown:: LmControlService service type
 
-   .. literalinclude:: examples/com_service_type.json
+   .. literalinclude:: examples/mw_com_config.json
       :language: json
 
+Service types
+"""""""""""""
+
+* **serviceTypeName**
+
+  ``.serviceTypes[].serviceTypeName: "/score/mw/lifecycle/LmControlService"`` - 
+  This is the name of the **Launch Manager** service.
+
+* **version**
+
+  ``.serviceTypes[].version: { "major": 1, "minor": 0 }`` - 
+  This is the version of the service interface.
+
+* **binding**
+
+  ``.serviceTypes[].bindings[].binding: "SHM"`` - 
+  This is the communication mechanism.
+
+  ``.serviceTypes[].bindings[].serviceId: 7101`` - 
+  This is the numeric identifier of the service for this binding.
+  Note this can be changed to any number, however has to be unique to any
+  other service used by this application.
+
+* **events**
+
+  ``.serviceTypes[].bindings[].events[]`` - 
+  Events offered by the service. Each event has a name and a numeric id.
+  Note the ID can be changed to any number, however has to be unique to any
+  other binding used by this application.
+
+  .. code-block:: json
+
+    {
+      "eventName": "ActivationResult",
+      "eventId": 1
+    }
+
+* **methods**
+
+  ``.serviceTypes[].bindings[].methods[]`` - 
+  Methods offered by the service. Each method has a name and a numeric id.
+  Note the ID can be changed to any number, however has to be unique to any
+  other binding used by this application.
+
+  .. code-block:: json
+
+    {
+      "methodName": "ActivateRunTarget",
+      "methodId": 2
+    },
+    {
+      "methodName": "GetActiveRunTarget",
+      "methodId": 3
+    }
+
+Service instances
+"""""""""""""""""
+
+The ``serviceInstances`` array defines the concrete instances of a service type.
+Wwo instances of ``LmControlService`` are required, one used by the
+**Launch Manager** (``LaunchManager/StateManager/Instance``) and one used by the
+**State Manager** (``StateManager/LaunchManager/Instance``).
+
+* **instanceSpecifier**
+
+  ``.serviceInstances[].instanceSpecifier: "LaunchManager/StateManager/Instance"`` - 
+  This is the name an application uses to look up the instance.
+
+* **serviceTypeName**
+
+  ``.serviceInstances[].serviceTypeName: "/score/mw/lifecycle/LmControlService"`` - 
+  This is the service type the instance is created from. It must match a
+  ``serviceTypeName`` in ``serviceTypes``.
+
+* **version**
+
+  ``.serviceInstances[].version: { "major": 1, "minor": 0 }``  -
+  This is the version of the service type and must match the one in ``serviceTypes``.
+
+* **instances**
+
+  ``.serviceInstances[].instances[].instanceId`` - 
+  Numeric identifier of the instance.
+  Note the ID can be changed to any number, however has to be unique to any
+  other instance used by this application.
+
+  ``.serviceInstances[].instances[].asil-level`` - 
+  Safety integrity level of the instance, Either ``QM`` or ``ASIL-B``.
+
+  ``.serviceInstances[].instances[].binding`` - 
+  Communication mechanism, shall be ``SHM``.
+
+  ``.serviceInstances[].instances[].events[]`` - 
+  Per-method settings, for each method ``methodName``.
+
+  ``.serviceInstances[].instances[].numberOfSampleSlots`` - 
+  Number of sample slots allocated for the event.
+  **This is only configured on the server instance** i.e.
+  ``LaunchManager/StateManager/Instance``.
+
+  ``.serviceInstances[].instances[].maxSubscribers`` - 
+  Maximum number of simultaneous subscribers.
+  **This is only configured on the server instance** i.e.
+  ``LaunchManager/StateManager/Instance``.
+
+  ``.serviceInstances[].instances[].methods[]`` - 
+  Per-method settings, for each method ``methodName``.
+
+  ``.serviceInstances[].instances[].queueSize`` - 
+  Number of calls that can be queued for the method.
+
+  .. code-block:: json
+
+    {
+      "instanceId": 1,
+      "asil-level": "QM",
+      "binding": "SHM",
+      "events": [
+        {
+          "eventName": "ActivationResult",
+          "numberOfSampleSlots": 8,
+          "maxSubscribers": 1
+        }
+      ],
+      "methods": [
+        {
+          "methodName": "ActivateRunTarget",
+          "queueSize": 1
+        }
+      ]
+    }
+
+* **global**
+
+  ``.global.asil-level: "QM"``
+
+  This is the default safety integrity level for the whole configuration.
 
 Implementation
 ==============
@@ -110,6 +247,8 @@ A process can be configured to terminate in 2 ways:
 For a process to support being terminated by LCM, it needs to respond to
 a ``SIGTERM`` signal by ending ongoing tasks, freeing resources and
 exiting.
+Note that a **Self-terminating** also recieves the ``SIGTERM`` signal when LCM
+decides to deactivate it.
 
 If a process does not terminate after receiving a ``SIGTERM``, and a
 ``shutdown_timeout_ms`` is configured, then after the timeout is fired a
@@ -134,9 +273,11 @@ Examples
       :language: rust
 
 
-C++ also contains an alternative **Lifecycle API** that allows the user to
-create have a layer of abstraction, so in case of replacing lifecycle manager
-there will be no need to change applications.
+The **Lifecycle Interface** also offers the ``run_application`` API, which lets
+a user application delegate its initialization specific code to a replaceable
+class.
+This means that the user application can run under any initialization system
+without being rebuilt.
 
 .. dropdown:: C++ Lifecycle Application
 
@@ -147,16 +288,17 @@ there will be no need to change applications.
 State management
 ----------------
 
-A **State Manager** is an application that dictates which run-targets shall be
+A **State Manager** is an application that decides which run-targets shall be
 active by communicating with the Launch Manager using the ``ILmControl``
 interface.
-The **State Manager** is itself a managed component and **must** report
-``Running`` to the Launch Manager using the lifecycle API before calling
-``activate_run_target``, otherwise Launch Manager does not consider the **State
-Manager** ready and will cause errors.
-The configuration also requires that the component that is the **State Manager** has
-to have the field ``application_profile.application_type`` set to
-``State_Manager``.
+The **State Manager** is itself a managed component.
+Before calling ``activate_run_target``, it must report the Running state to the
+Launch Manager via the **Lifecycle API**.
+Otherwise, the Launch Manager does not consider the State
+Manager ready, which can lead to errors.
+
+Additionally, the State Manager component must have
+``application_profile.application_type`` set to ``State_Manager``.
 
 Example
 ^^^^^^^
