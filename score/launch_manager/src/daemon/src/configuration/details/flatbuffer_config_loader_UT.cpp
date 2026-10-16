@@ -833,10 +833,10 @@ TEST_P(
     RecordProperty("DerivationTechnique", "boundary-values");
     RecordProperty(
         "Description",
-        "Given upper and lower boundary values for number_of_attempts: [0, 254, 255, 256]. "
+        "Given upper and lower boundary values for number_of_attempts: [0, 1, 254, 255, 256]. "
         "And a valid boundary of 0 to 255 inclusive. "
         "When the flatbuffer is loaded. "
-        "Then values with the boundary are preserved. "
+        "Then values within the boundary are preserved. "
         "And values outside the boundary overflow. ");
 
     // Given
