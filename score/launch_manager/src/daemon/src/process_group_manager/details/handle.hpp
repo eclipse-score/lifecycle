@@ -41,13 +41,7 @@ using Handle = std::variant<EmptyHandle, ProcessHandle>;
 
 /// @brief Changes a handle to indicate that the resource it pointed to is gone.
 /// @param handle The handle to invalidate.
-void invalidate(Handle& handle)
-{
-    if (ProcessHandle* const process_handle = std::get_if<ProcessHandle>(&handle))
-    {
-        process_handle->pid = -1;
-    }
-}
+void invalidate(Handle& handle);
 
 }  // namespace score::mw::lifecycle::internal
 

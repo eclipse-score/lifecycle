@@ -82,6 +82,7 @@ cc_library(
 
 cc_library(
     name = "handle",
+    srcs = ["handle.cpp"],
     hdrs = ["handle.hpp"],
     include_prefix = "score/mw/launch_manager/process_group_manager/details",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
