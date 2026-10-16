@@ -113,11 +113,11 @@ The :term:`Launch Manager` uses this state information for:
 
 - Dependency resolution for other applications
 - Recovery action decisions
-- Status reporting to external state managers via the Control Interface
+- Status reporting to external state managers via the Control interface (:need:`logic_arc_int__lifecycle__controlif`)
 
 **Shutdown Signal Handling**
 
-The Launch Manager sends SIGTERM signal to SCORE applications (and any POSIX processes) to request their shutdown.
+The :term:`Launch Manager` sends SIGTERM signal to SCORE applications (and any POSIX processes) to request their shutdown.
 The lifecycle interface sets up the necessary signal handler for an SCORE application to properly respond to shutdown requests.
 
 Native Applications

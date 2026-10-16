@@ -15,13 +15,12 @@
 Run Target Activation
 #####################
 
-This interface provides control functionality for activating and managing run
+The Control interface (:need:`logic_arc_int__lifecycle__controlif`), provided by the
+:term:`Launch Manager`, offers control functionality for activating and managing run
 targets.
 It allows users to trigger execution of configured :term:`Run Targets <Run
 target>` through a standardized activation mechanism.
 
-The following use cases are supported by the `Control Interface` provided by the
-:term:`Launch Manager`.
 
 Switching between Run Targets
 =============================
@@ -33,24 +32,29 @@ need to be started or stopped based on their dependencies.
 
 **Activating a Run Target**
 
-When a request to activate a Run Target is received via the `ControlInterface`,
+When a request to activate a Run Target is received via the Control interface
+(:need:`logic_arc_int__lifecycle__controlif`),
 the :term:`Launch Manager` shall perform the following operations:
 
 1. **Validation**: Evaluate if the conditions are correct for activating the requested Run Target:
+
    - The Run Target exists in the configuration
    - All dependencies for the Run Target are resolvable
    - Required resources are available
 
 2. **Transition Logic**: Determine the transition from the current state to the target state:
+
    - If a different Run Target is active, perform a switch operation (stop current, start requested)
    - If the same Run Target is already active, verify its state and potentially restart failed components
 
 3. **Execution**: Execute the transition in the correct dependency order:
+
    - Stop components that are not part of the new Run Target
    - Start components that are required for the new Run Target
    - Respect dependency relationships during both stop and start operations
 
 4. **Response**: Return status to the caller:
+
    - Success if all components transitioned correctly
    - Failure with detailed error information if any component failed to transition
 
@@ -66,7 +70,7 @@ The :term:`Launch Manager` provides an interface, which allows an external State
 :term:`Launch Manager` to switch the active Run Target (leading to start, stop or restart of applications) 
 which allows the implementation of a state management application to support dynamic state control.
 
-The control interface provides two modes of requesting a Run Target activation:
+The Control interface (:need:`logic_arc_int__lifecycle__controlif`) provides two modes of requesting a Run Target activation:
 
 1. **Queued Activation**
 
@@ -99,9 +103,9 @@ in :doc:`./components_run_targets`.
       :scale: 50
       :align: center
 
-   During startup the StateManager registers an activation callback with the Launch Manager to be notified about future Run Target changes.
-   The StateManager can query at any time the currently active Run Target. During an ongoing transition, it will be informed that the system is in transition and no Run Target is active yet.
-   After a transition is completed, the StateManager is notified via the previously registered callback about the new active Run Target.
+   During startup the State Manager registers an activation callback with the Launch Manager to be notified about future Run Target changes.
+   The State Manager can query at any time the currently active Run Target. During an ongoing transition, it will be informed that the system is in transition and no Run Target is active yet.
+   After a transition is completed, the State Manager is notified via the previously registered callback about the new active Run Target.
    Queries for the currently active Run Target will now return the newly activated Run Target.
 
 .. feat_arc_dyn:: Switch Run Target Scenario - Queued Activation

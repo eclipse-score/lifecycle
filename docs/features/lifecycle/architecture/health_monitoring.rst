@@ -18,7 +18,7 @@ Health Monitoring
 Alive Supervision
 =================
 
-The Alive Interface provides a basic watchdog functionality interface that
+The Alive interface (:need:`logic_arc_int__lifecycle__alive_if`) provides a basic watchdog functionality interface that
 delivers essential monitoring capabilities for system health and responsiveness
 tracking.
 It implements core watchdog operations including heartbeat signals to ensure
@@ -27,7 +27,7 @@ reliable operation and automatic recovery from unresponsive states.
 **SCORE Application Liveliness Reporting**
 
 SCORE applications can periodically signal their liveliness to the
-:term:`Launch Manager` through the Alive Interface.
+:term:`Launch Manager` through the  Alive interface (:need:`logic_arc_int__lifecycle__alive_if`).
 This mechanism allows the :term:`Launch Manager` to:
 
 - Detect application failures or hangs
@@ -41,8 +41,6 @@ The liveliness mechanism includes:
 
 The corresponding configuration parameters are shown as `AliveSupervision` in
 :ref:`Configuration Structure <lifecycle_configuration_structure>`.
-
-The alive interface is defined here: :need:`logic_arc_int__lifecycle__alive_if`
 
 The :term:`Launch Manager` starts the Alive Supervision at the exact time when the Application reports its Running state via the Lifecycle Interface.
 As a consequence the Liveliness Reporting is only available to SCORE applications that also use the Lifecycle Interface.
