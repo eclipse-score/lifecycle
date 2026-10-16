@@ -1,0 +1,123 @@
+' *******************************************************************************
+' Copyright (c) 2026 Contributors to the Eclipse Foundation
+'
+' See the NOTICE file(s) distributed with this work for additional
+' information regarding copyright ownership.
+'
+' This program and the accompanying materials are made available under the
+' terms of the Apache License Version 2.0 which is available at
+' https://www.apache.org/licenses/LICENSE-2.0
+'
+' SPDX-License-Identifier: Apache-2.0
+' *******************************************************************************
+
+@startuml
+title Launch Manager - Forced Run Target Activation
+
+autonumber "<b>[00]"
+
+participant "StateManager" as sm
+participant "Launch Manager" as LM
+participant "OS (kernel)" as kernel
+participant "setup_filesystems.sh" as fs
+participant "random" as ran
+participant "app1" as app1
+
+activate LM
+activate sm
+
+note over LM
+Current Run Target: "Minimal"
+Components StateManager and setup_filesystems.sh are Ready.
+end note
+
+sm -> LM : Activate Run Target ("Running", forced=False)
+LM -> LM: validate Run Target "Running"
+alt #White Run Target "Running" is valid
+    LM -> LM: Queue Run Target Activation "Running"
+    [<-- LM: Request accepted
+else #Pink Run Target "Running" is invalid (Example: Run Target not configured)
+    [<-- LM: Request rejected
+end alt
+
+sm -> LM : Activate Run Target ("Full", forced=False)
+LM -> LM: validate Run Target "Full"
+alt #White Run Target "Full" is valid
+    LM -> LM: Queue Run Target Activation "Full"
+    [<-- LM: Request accepted
+else #Pink Run Target "Full" is invalid (Example: Run Target not configured)
+    [<-- LM: Request rejected
+end alt
+
+note over LM
+The following sequence assumes that both requests have been accepted.
+end note
+
+LM -> LM: Process next queued Run Target Activation: Run Target "Running"
+LM -> LM: Determine transition plan from "Minimal" -> "Running"
+
+group #White Start random
+    LM -> kernel : Start random
+    kernel -> ran ++ : Start random
+    LM -> LM : Wait for random ready condition
+
+    group #Yellow Forced Activation
+        sm -> LM : Activate Run Target ("Off", forced=True)
+        LM -> LM: validate Run Target "Off"
+        alt  Run Target "Off" is valid
+            [<-- LM: Request accepted
+        else #Pink Run Target "Off" is invalid (Example: Run Target not configured)
+            [<-- LM: Request rejected
+        end alt
+    end group
+
+    note over LM
+    The following sequence assumes that the "Off" request has been accepted.
+    end note
+
+    LM -> LM : Clear request queue (Removes "Full" from the queue).
+    LM -> LM : Wait for ongoing operations to finish
+
+    ran -> kernel : register /dev/random
+    LM -> LM : Detect /dev/random exists, Component random Ready
+end group
+
+LM -> LM : Determine transition plan from current state to "Off"
+
+note over LM
+StateManager and random can be stopped in parallel as they do not depend on each other.
+Component setup_filesystems must only be stopped after StateManager is stopped due to the dependency relationship.
+end note
+
+par Stop StateManager
+    LM -> sm : SIGTERM
+    alt StateManager terminates within the configured shutdown timeout
+        sm -> sm : Terminate
+        sm -> kernel : exit
+        destroy sm
+        kernel -> LM : StateManager terminated successfully
+    else #pink StateManager does not terminate within the configured timeout
+        LM -> sm : SIGKILL
+        sm -> kernel : exit
+        destroy sm
+        kernel -> LM : StateManager terminated with error
+    end alt
+else Stop random
+    LM -> ran : SIGTERM
+    ran -> kernel : exit
+    destroy ran
+    kernel -> LM : random terminated successfully
+end par
+
+group #White Deactivate setup_filesystems.sh
+    note over LM
+        The underlying process is already in state terminated.
+        Nothing to do.
+    end note
+    LM -> LM : Mark Component setup_filesystems.sh as Terminated
+end group
+
+LM -> LM: Run Target "Off" successfully activated
+
+...
+@enduml

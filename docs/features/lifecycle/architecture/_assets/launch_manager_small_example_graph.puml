@@ -14,16 +14,26 @@
 @startuml
   title Simple Dependency Graph
 
-  state Running #lightblue
   state Off #lightblue
+  state Minimal #lightblue
+  state Fallback #lightblue
+  state Running #lightblue
+  state Full #lightblue
 
-
-  state app1: Binary: /opt/bin/app1\nReadyCondition: Process Running
+  state app1: Binary: /opt/bin/app1\nReadyCondition: Process reported 'Running'
+  state "..." as more
+  state StateManager: Binary: /opt/bin/sm\nReadyCondition: Process reported 'Running'
 
   state setup_filesystems: Binary: /etc/setup_filesystems.sh\nReadyCondition: Process Terminated
   state random: Binary: /bin/random\nReadyCondition: /dev/random exists
 
+  Full -d-> more
+  Full -d-> Running
   Running --> app1
+  Running --> Minimal
+  Minimal --> StateManager
+  Fallback --> StateManager
   app1 --> setup_filesystems
   app1 --> random
+  StateManager --> setup_filesystems
 @enduml

@@ -46,6 +46,7 @@ class ComponentConfig {
   + {field} ready timeout
   + {field} shutdown timeout
   + {field} environment variables
+  + {field} activation retry count
 }
 
 class RunTargetConfig {
