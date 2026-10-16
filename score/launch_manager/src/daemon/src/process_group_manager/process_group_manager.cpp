@@ -17,9 +17,8 @@
 #include <algorithm>
 #include <csignal>
 
-#include "score/concurrency/future/interruptible_future.h"
-#include "score/concurrency/future/interruptible_promise.h"
 #include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/completion_slot.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_event.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_monitor.hpp"
 #include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
@@ -367,7 +366,7 @@ void ProcessGroupManager::handleRecoveryRequest(const IdentifierHash& process_id
     }
 }
 
-void ProcessGroupManager::processGroupHandler(Graph& pg)
+void ProcessGroupManager::processGroupHandler(Graph& pg)https://github.com/eclipse-score/lifecycle/pull/699/conflict?name=score%252Flaunch_manager%252Fsrc%252Fdaemon%252Fsrc%252Fprocess_group_manager%252Fprocess_group_manager.cpp&ancestor_oid=0bee172ea8f0c45eda2a3090705779797b94238a&base_oid=b758bd00dca5d9e90c4306fedc0863b7fdd2295b&head_oid=073cf90aa6453927f3ac2268507a342f9db358b3
 {
     // check to see if there is a state change request to process
     // If current pg not in transition and there is a pending request state
@@ -439,24 +438,23 @@ void ProcessGroupManager::handleGetActiveRunTarget(GetActiveRunTarget* event) co
             break;
     }
 
-    const auto set_result = event->promise.SetValue(result);
-    SCORE_LANGUAGE_FUTURECPP_ASSERT(set_result.has_value());
+    if (event->completion != nullptr)
+    {
+        event->completion->complete(result);
+    }
 }
 
 Result<IdentifierHash> ProcessGroupManager::getActiveRunTarget() const noexcept
 {
-    auto promise = concurrency::InterruptiblePromise<Result<IdentifierHash>>{};
+    CompletionSlot<Result<IdentifierHash>> slot;
 
-    auto future_result = promise.GetInterruptibleFuture();
-    SCORE_LANGUAGE_FUTURECPP_ASSERT(future_result.has_value());
-    auto future = std::move(future_result).value();
+    const bool push_result = event_queue_->push(GetActiveRunTarget{completion : &slot});
+    if (!push_result)
+    {
+        return score::MakeUnexpected(ExecErrc::kFailed);
+    }
 
-    const bool push_result = event_queue_->push(GetActiveRunTarget{std::move(promise)});
-    SCORE_LANGUAGE_FUTURECPP_ASSERT(push_result);
-
-    const auto get_result = future.Get(cpp::stop_token{});
-    SCORE_LANGUAGE_FUTURECPP_ASSERT(get_result.has_value());
-    return get_result.value();
+    return slot.wait();
 }
 
 void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* event) noexcept
@@ -495,24 +493,23 @@ void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* eve
         graph_->setRequestStartTime();
     }
 
-    const auto set_result = event->promise.SetValue(response);
-    SCORE_LANGUAGE_FUTURECPP_ASSERT(set_result.has_value());
+    if (event->completion != nullptr)
+    {
+        event->completion->complete(response);
+    }
 }
 
 Result<void> ProcessGroupManager::setRequestedRunTarget(IdentifierHash run_target) noexcept
 {
-    auto promise = concurrency::InterruptiblePromise<Result<void>>{};
+    CompletionSlot<Result<void>> slot;
 
-    auto future_result = promise.GetInterruptibleFuture();
-    SCORE_LANGUAGE_FUTURECPP_ASSERT(future_result.has_value());
-    auto future = std::move(future_result).value();
+    const bool push_result = event_queue_->push(SetRequestedRunTarget{run_target, completion : &slot});
+    if (!push_result)
+    {
+        return score::MakeUnexpected(ExecErrc::kFailed);
+    }
 
-    const bool push_result = event_queue_->push(SetRequestedRunTarget{run_target, std::move(promise)});
-    SCORE_LANGUAGE_FUTURECPP_ASSERT(push_result);
-
-    const auto get_result = future.Get(cpp::stop_token{});
-    SCORE_LANGUAGE_FUTURECPP_ASSERT(get_result.has_value());
-    return get_result.value();
+    return slot.wait();
 }
 
 void ProcessGroupManager::registerActiveRunTargetCallback(ActivationCallbackT callback) noexcept

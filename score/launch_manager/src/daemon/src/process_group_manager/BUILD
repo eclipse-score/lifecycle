@@ -55,6 +55,7 @@ cc_library(
         "//score/launch_manager/src/daemon/src/configuration:config",
         "//score/launch_manager/src/daemon/src/osal:ipc_comms",
         "//score/launch_manager/src/daemon/src/osal:wait_for_file",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details:completion_slot",
         "//score/launch_manager/src/daemon/src/process_group_manager/details:component_event",
         "//score/launch_manager/src/daemon/src/process_group_manager/details:graph",
         "//score/launch_manager/src/daemon/src/process_group_manager/details:os_handler",
@@ -65,7 +66,6 @@ cc_library(
         "//score/launch_manager/src/daemon/src/recovery_client",
         "//score/launch_manager/src/daemon/src/watchdog:i_watchdog_if",
         "//score/launch_manager/src/lm_control",
-        "@score_baselibs//score/concurrency/future",
         "@score_baselibs//score/language/futurecpp",
     ],
 )
