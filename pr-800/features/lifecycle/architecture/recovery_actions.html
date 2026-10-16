@@ -511,9 +511,14 @@
   <section id="recovery-actions">
 <h1>Recovery Actions<a class="headerlink" href="#recovery-actions" title="Link to this heading">#</a></h1>
 <p>The following diagram gives an overview of the recovery escalation: a Component Failure is first
-handled by the Component Recovery Action. If no Component Recovery Action is configured or it does
+handled by the Component Recovery Action. A Component Recovery Action may be to simply try
+restarting the failed component. If no Component Recovery Action is configured or it does
 not succeed, the Run Target Recovery Action activates the Fallback Run Target. If this also fails,
-the Watchdog triggers a Machine Reset.</p>
+the Watchdog triggers a Machine Reset.
+Currently, the Run Target Recovery Action is synonymous to activation of the Fallback Run Target.</p>
+<p>The Fallback Run Target is a special Run Target defined in the Launch Manager configuration (see <a class="reference internal" href="index.html#feat_arc_sta__lifecycle__cfg_params_static" title="feat_arc_sta__lifecycle__cfg_params_static"><em class="xref need">Configuration parameters st... (feat_arc_sta__lifecycle__cfg_params_static)</em></a>) that is suppsed to be
+a minimal system state that allows diagnosis of the failure. The State Manager is expected to transition the system out of the Fallback Run Target to
+retry normal operation.</p>
 <figure class="align-center" id="id1">
 <img alt="Escalation from Component Recovery Action over Fallback Run Target to Watchdog Machine Reset" src="../../../_images/recovery_actions-v1.0.drawio.svg" />
 <figcaption>
@@ -531,8 +536,7 @@ Run Target than the Fallback Run Target.</p>
 <img alt="Planned escalation with a configurable Run Target Recovery Action between the Component Recovery Action and the Fallback Run Target" src="../../../_images/recovery_actions.drawio.svg" />
 <figcaption>
 <p><span class="caption-number">Fig. 2 </span><span class="caption-text">Planned recovery action escalation chain. In contrast to the diagram above, the
-Run Target Recovery Action is configurable and the Fallback Run Target is only one
-of its possible outcomes.</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+Run Target Recovery Action is now a separate step in the escalation chain.</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 </div>
@@ -551,7 +555,7 @@ in <a class="reference internal" href="components_run_targets.html"><span class=
 </ul>
 <section id="component-crash">
 <h3>Component crash<a class="headerlink" href="#component-crash" title="Link to this heading">#</a></h3>
-<div class="need_container docutils container" id="SNCB-284e2ecf">
+<div class="need_container docutils container" id="SNCB-92ac4902">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__crash">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -581,7 +585,7 @@ in <a class="reference internal" href="components_run_targets.html"><span class=
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-8bccb23dc4caa878e22bfa86de6b118f4b3bb1af.svg" type="image/svg+xml" style="width:741px;height:834px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-d8447cfd58deeb0a49a0be4339c6fc1263ac105e.svg" type="image/svg+xml" style="width:741px;height:934px;background:#FFFFFF;"></object></p>
 </figure>
 <p>The diagram shows a component crash during an active Run Target (outside of a Run Target transition).
 The component can be configured with a recovery action that defines the reaction to a crash.
@@ -607,7 +611,7 @@ See <a class="reference internal" href="#feat_arc_dyn__lifecycle__run_target_fai
 </section>
 <section id="component-supervision-failure">
 <h3>Component supervision failure<a class="headerlink" href="#component-supervision-failure" title="Link to this heading">#</a></h3>
-<div class="need_container docutils container" id="SNCB-8621b286">
+<div class="need_container docutils container" id="SNCB-acdaec03">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__sup_failure">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -670,7 +674,7 @@ The subsequent recovery behavior is identical to the process crash scenario in <
 </ul>
 <p>If a Run Target transition fails, the Launch Manager executes the Run Target Recovery Action as configured for the affected Run Target.
 The currently only supported Run Target Recovery Action is the activation of the <cite>fallback Run Target</cite>.</p>
-<div class="need_container docutils container" id="SNCB-6c657400">
+<div class="need_container docutils container" id="SNCB-a684fb9d">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__run_target_failure">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
