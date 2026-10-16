@@ -33,12 +33,28 @@ Result<void> ReportRunningReadyCondition::wait(cpp::stop_token stop_token, const
 
     const osal::OsalReturnType result = launcher_.waitForkRunning(process->sync, timeout_);
 
-    if (result == osal::OsalReturnType::kSuccess)
+    // If the PID is invalid, the process died and the notification was sent
+    // from tryHandleTermination rather than the process itself.
+    if (result == osal::OsalReturnType::kSuccess && process->pid > 0)
     {
         return {};
     }
 
     return MakeUnexpected(ExecErrc::kGeneralError);
+}
+
+bool ReportRunningReadyCondition::tryHandleTermination(const Handle& handle, int32_t status) const
+{
+    const ProcessHandle* const process = std::get_if<ProcessHandle>(&handle);
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+        process != nullptr, "ReportRunningReadyCondition should only be called with a ProcessHandle");
+
+    // FIXME: This static_cast was copied from the old code at
+    // https://github.com/eclipse-score/lifecycle/blob/876c5df184ee0008017334303c12f1c2ee75e42e/score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node.cpp#L171
+    // Should errors be handled here?
+    static_cast<void>(process->sync->send_sync_.post());
+
+    return true;
 }
 
 }  // namespace score::mw::lifecycle::internal

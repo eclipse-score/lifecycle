@@ -41,6 +41,12 @@ class ReportRunningReadyCondition final : public IReadyCondition
     /// @return Whether the wait was successful, or failed with an error.
     Result<void> wait(cpp::stop_token stop_token, const Handle& handle) const override;
 
+    /// @brief Notify the ready condition that a POSIX process has terminated.
+    /// @param handle The process that terminated.
+    /// @param status Exit code of the process.
+    /// @return Whether this ready condition accepts the event.
+    bool tryHandleTermination(const Handle& handle, int32_t status) const;
+
   private:
     /// @brief The process launcher used to wait for the process.
     osal::IProcess& launcher_;

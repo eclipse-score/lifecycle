@@ -148,7 +148,7 @@ IComponent::RequestResult Component::tryHandleTermination(int32_t status)
     {
         for (const IReadyCondition& ready_condition : ready_conditions_)
         {
-            if (ready_condition.tryHandleTermination(status))
+            if (ready_condition.tryHandleTermination(handle, status))
             {
                 return RequestState::kWaiting;
             }

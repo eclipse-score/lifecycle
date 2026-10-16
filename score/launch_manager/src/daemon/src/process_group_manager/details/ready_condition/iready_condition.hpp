@@ -34,9 +34,12 @@ class IReadyCondition
     virtual Result<void> wait(cpp::stop_token stop_token, const Handle& handle) const = 0;
 
     /// @brief Notify the ready condition that a POSIX process has terminated.
+    /// @param handle The process that terminated.
     /// @param status Exit code of the process.
     /// @return Whether this ready condition accepts the event.
-    bool tryHandleTermination(int32_t status) const
+    // FIXME: This should be a more generic event which makes sense for any
+    //        handle type.
+    bool tryHandleTermination(const Handle& handle, int32_t status) const
     {
         return false;
     }
