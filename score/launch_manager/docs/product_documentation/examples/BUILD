@@ -25,6 +25,8 @@ cc_binary(
     deps = [
         "//score/launch_manager:control_cc",
         "//score/launch_manager:lifecycle_cc",
+        "@score_communication//score/mw/com",
+        "@score_baselibs//score/string_manipulation/arguments",
     ],
 )
 

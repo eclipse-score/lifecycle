@@ -17,7 +17,7 @@ load("//tests/utils/bazel:unit_test.bzl", "lm_cc_test")
 package(default_visibility = ["//visibility:public"])
 
 alias(
-    name = "lcm_schema",
+    name = "launch_manager_schema",
     actual = "//score/launch_manager/src/daemon/src/configuration/config_schema:launch_manager.schema.json",
 )
 

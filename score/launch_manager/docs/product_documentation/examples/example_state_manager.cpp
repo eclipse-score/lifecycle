@@ -13,21 +13,35 @@
 
 #include <atomic>
 #include <cassert>
+#include <chrono>
 #include <csignal>
 #include <iostream>
 #include <unistd.h>
 
+#include "score/mw/com/runtime.h"
+#include "score/string_manipulation/arguments/arguments.h"
 #include <score/mw/lifecycle/ilm_control.hpp>
 #include <score/mw/lifecycle/report_running.h>
 
+using namespace std::literals::chrono_literals;
+
+/// Used to signal if the startup run target switch was succesfull.
+std::atomic<bool> startup_finished{false};
+
+/// Used if a termination was requested from a signal.
 std::atomic<bool> exitRequested{false};
+
 void signalHandler(int signal)
 {
     exitRequested = true;
 }
 
-int main()
+int main(int argc, const char* argv[])
 {
+    // initialize com, needed if you are giving the mw_conf.json as an argument
+    score::mw::com::runtime::InitializeRuntime(
+        score::string_manipulation::GetArguments(argc, argv));
+
     // register signal handler and assert success
     assert(signal(SIGTERM, signalHandler));
 
@@ -49,12 +63,26 @@ int main()
     const auto register_result = client->register_run_target_activation_callback(
         []([[maybe_unused]] score::mw::lifecycle::RunTargetActivationSource source,
            score::mw::lifecycle::RunTargetName target) {
-            std::cout << "Successfully activated Run Target " << target << std::endl;
+
+            // signal that the startup was completed
+            if (source == score::mw::lifecycle::RunTargetActivationSource::kInitialActivation)
+            {
+                std::cout << "Initial activation succesfull! activated run target " << target << std::endl;
+                startup_finished.store(true);
+            }
+            else{
+                std::cout << "Successfully activated Run Target " << target << std::endl;
+            }
         });
     if (!register_result.has_value())
     {
         std::cerr << "Failed to register activation callback " << register_result.error() << std::endl;
         return EXIT_FAILURE;
+    }
+
+    while(startup_finished.load())
+    {
+        std::this_thread::sleep_for(100ms);
     }
 
     // activate a different run target
@@ -73,6 +101,7 @@ int main()
     while (exitRequested == 0)
     {
         pause();
+        std::this_thread::sleep_for(100ms);
     }
 
     return EXIT_SUCCESS;
