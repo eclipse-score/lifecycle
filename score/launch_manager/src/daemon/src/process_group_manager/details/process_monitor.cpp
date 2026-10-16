@@ -94,8 +94,6 @@ void ProcessMonitor::doWork(ComponentTask&& task)
         case IComponent::RequestResult::kSuccess:
             handle_success();
             break;
-        case IComponent::RequestResult::kWaitForTermination:
-            break;
         case IComponent::RequestResult::kTimeout:
         case IComponent::RequestResult::kFailure:
             handle_failure(result);
@@ -108,9 +106,6 @@ void ProcessMonitor::terminated(IComponent& component, int32_t status)
     bool push_res = true;
     switch (component.tryHandleTermination(status))
     {
-        case IComponent::TerminationResult::kSuccess:
-            push_res = event_queue_.push(ActivationSuccessful{component.getIdentifier()});
-            break;
         case IComponent::TerminationResult::kFailure:
             push_res = event_queue_.push(UnexpectedTermination{component.getIdentifier()});
             break;

@@ -102,7 +102,7 @@ IComponent::RequestResult ProcessInfoNode::tryReportCompletion(score::mw::lifecy
     {
         return tryReportSuccess();
     }
-    return RequestResult::kWaitForTermination;
+    return RequestResult::kFailure;
 }
 
 IComponent::RequestResult ProcessInfoNode::tryReportSuccess()
@@ -113,7 +113,7 @@ IComponent::RequestResult ProcessInfoNode::tryReportSuccess()
 
         return RequestResult::kSuccess;
     }
-    return RequestResult::kWaitForTermination;
+    return RequestResult::kFailure;
 }
 
 std::optional<timespec> ProcessInfoNode::getTimeForAliveState() const
@@ -135,7 +135,7 @@ IComponent::RequestResult ProcessInfoNode::tryReportError(RequestResult error)
         // Activation failed to reach its ready condition.
         return error;
     }
-    return RequestResult::kWaitForTermination;
+    return RequestResult::kFailure;
 }
 
 bool ProcessInfoNode::setState(score::mw::lifecycle::ProcessState new_state)
@@ -181,7 +181,7 @@ IComponent::TerminationResult ProcessInfoNode::tryHandleTermination(int32_t proc
 
     if (config_.component_properties.application_profile.is_self_terminating && process_status == 0)
     {
-        termination_result_ = TerminationResult::kSuccess;
+        termination_result_ = TerminationResult::kIgnore;
     }
     else
     {
@@ -205,11 +205,11 @@ IComponent::TerminationResult ProcessInfoNode::tryHandleTermination(int32_t proc
     {
         setState(ProcessState::kTerminated);
 
-        if (termination_result_ == TerminationResult::kSuccess)
+        if (termination_result_ == TerminationResult::kIgnore)
         {
             if (tryReportCompletion(ProcessState::kTerminated) == RequestResult::kSuccess)
             {
-                res = TerminationResult::kSuccess;
+                res = TerminationResult::kIgnore;
             }
         }
         else
@@ -321,7 +321,7 @@ IComponent::RequestResult ProcessInfoNode::startProcess(score::cpp::stop_token s
     // Assuming we have already waited for all ready conditions that require waiting, we have now started up and
     // terminated. Therefore, as long as the termination was valid, we have satisfied any running or terminated
     // condition.
-    if (termination_result_ == TerminationResult::kSuccess)
+    if (termination_result_ == TerminationResult::kIgnore)
     {
         return tryReportSuccess();
     }
@@ -525,7 +525,7 @@ IComponent::RequestResult ProcessInfoNode::activate(score::cpp::stop_token stop_
         return tryReportSuccess();
     }
     auto res = startProcess(std::move(stop_token));
-    if (res == RequestResult::kSuccess || res == RequestResult::kWaitForTermination)
+    if (res == RequestResult::kSuccess)
     {
         if (auto time = getTimeForAliveState())
         {

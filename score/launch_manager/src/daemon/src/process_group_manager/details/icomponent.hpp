@@ -36,9 +36,6 @@ class IComponent
         /// @brief The operation succeeded.
         kSuccess,
 
-        /// @brief The operation will complete when @ref tryHandleTermination is called.
-        kWaitForTermination,
-
         /// @brief The operation timed out.
         kTimeout,
 
@@ -48,16 +45,11 @@ class IComponent
 
     enum class [[nodiscard]] TerminationResult
     {
-        /// @brief The pending operation succeeded.
-        /// @details Corresponds to @ref RequestResult::kWaitForTermination.
-        kSuccess,
-
-        /// @brief The pending operation failed, or the component crashed.
-        /// @details Corresponds to @ref RequestResult::kWaitForTermination.
-        kFailure,
-
         /// @brief The termination does not affect the state of the component.
-        kIgnore
+        kIgnore,
+
+        /// @brief The component failed.
+        kFailure
     };
 
     /// @brief Begin activation of the component.

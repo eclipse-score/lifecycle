@@ -67,25 +67,6 @@ TEST_F(ProcessMonitorTest, DoWorkNormalDeactivation)
     process_monitor.doWork(ComponentTask{ComponentTaskType::kDeactivate, mock_component, stop_source.get_token()});
 }
 
-TEST_F(ProcessMonitorTest, DoWorkOnTerminationDepProcess)
-{
-    RecordProperty(
-        "Description", "Verify that a process activated by its own termination recieves the correct instructions");
-    // Given a task for starting a component that only reaches active when it terminates
-    // Then
-    // The component is neither complete nor failed
-    EXPECT_CALL(mock_component, activate).WillOnce(Return(IComponent::RequestResult::kWaitForTermination));
-    EXPECT_CALL(mock_component, tryHandleTermination).WillOnce(Return(IComponent::TerminationResult::kSuccess));
-    EXPECT_CALL(
-        mock_queue,
-        push(VariantWith<ActivationSuccessful>(Field(&ActivationSuccessful::node_identifier, kDefaultIdentifier))))
-        .Times(1);
-    // When
-    process_monitor.doWork(ComponentTask{ComponentTaskType::kActivate, mock_component, stop_source.get_token()});
-    // The OS thread detects the termination:
-    process_monitor.terminated(mock_component, 0);
-}
-
 TEST_F(ProcessMonitorTest, TerminatedUnexpectedly)
 {
     RecordProperty(
