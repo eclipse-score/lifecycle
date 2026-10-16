@@ -96,13 +96,13 @@ IComponent::RequestResult ProcessInfoNode::tryReportCompletion(score::mw::lifecy
     if (new_state == ProcessState::kFailed)
     {
         // Didn't reach running or startup
-        return tryReportError(ComponentError::kErrorBeforeReady);
+        return tryReportError(RequestResult::kFailure);
     }
     if (new_state == desired_state)
     {
         return tryReportSuccess();
     }
-    return {IComponent::RequestState::kWaiting};
+    return RequestResult::kFailure;
 }
 
 IComponent::RequestResult ProcessInfoNode::tryReportSuccess()
@@ -111,9 +111,9 @@ IComponent::RequestResult ProcessInfoNode::tryReportSuccess()
     {
         reached_ready_.store(true);
 
-        return {RequestState::kSuccess};
+        return RequestResult::kSuccess;
     }
-    return {IComponent::RequestState::kWaiting};
+    return RequestResult::kFailure;
 }
 
 std::optional<timespec> ProcessInfoNode::getTimeForAliveState() const
@@ -128,14 +128,14 @@ std::optional<timespec> ProcessInfoNode::getTimeForAliveState() const
     return std::nullopt;
 }
 
-IComponent::RequestResult ProcessInfoNode::tryReportError(ComponentError error)
+IComponent::RequestResult ProcessInfoNode::tryReportError(RequestResult error)
 {
     if (!success_returned_.test_and_set())
     {
         // Activation failed to reach its ready condition.
-        return score::cpp::make_unexpected(error);
+        return error;
     }
-    return {IComponent::RequestState::kWaiting};
+    return RequestResult::kFailure;
 }
 
 bool ProcessInfoNode::setState(score::mw::lifecycle::ProcessState new_state)
@@ -172,20 +172,20 @@ void ProcessInfoNode::unblockSync()
     }
 }
 
-IComponent::RequestResult ProcessInfoNode::tryHandleTermination(int32_t process_status)
+IComponent::TerminationResult ProcessInfoNode::tryHandleTermination(int32_t process_status)
 {
     LM_LOG_DEBUG() << "Process" << identifier_ << "( pid" << pid_ << ") terminated with status" << process_status;
     exit_status_ = process_status;
-    IComponent::RequestResult res = {IComponent::RequestState::kWaiting};
+    TerminationResult res = TerminationResult::kIgnore;
     ProcessState starting = ProcessState::kStarting;
 
     if (config_.component_properties.application_profile.is_self_terminating && process_status == 0)
     {
-        termination_result_ = TeminationResult::kOk;
+        termination_result_ = TerminationResult::kIgnore;
     }
     else
     {
-        termination_result_ = TeminationResult::kError;
+        termination_result_ = TerminationResult::kFailure;
     }
 
     if (termination_requested_.exchange(false))  // Termination was requested
@@ -205,15 +205,18 @@ IComponent::RequestResult ProcessInfoNode::tryHandleTermination(int32_t process_
     {
         setState(ProcessState::kTerminated);
 
-        if (termination_result_ == TeminationResult::kOk)
+        if (termination_result_ == TerminationResult::kIgnore)
         {
-            res = tryReportCompletion(ProcessState::kTerminated);
+            if (tryReportCompletion(ProcessState::kTerminated) == RequestResult::kSuccess)
+            {
+                res = TerminationResult::kIgnore;
+            }
         }
         else
         {
             LM_LOG_WARN() << "unexpected termination of process" << identifier_ << "( pid" << pid_ << "status"
                           << exit_status_ << ")";
-            res = score::cpp::make_unexpected(IComponent::ComponentError::kErrorAfterReady);
+            res = TerminationResult::kFailure;
         }
     }
 
@@ -239,7 +242,7 @@ IComponent::RequestResult ProcessInfoNode::startProcess(score::cpp::stop_token s
     LM_LOG_DEBUG() << "Starting process (" << identifier_ << ") from executable"
                    << config_.deployment_config.executable_path;
 
-    std::optional<ComponentError> error;
+    std::optional<RequestResult> error;
     const std::chrono::time_point initial_time = std::chrono::steady_clock::now();
 
     for (std::uint8_t attempts = start_tries_; attempts != 0U; attempts--)
@@ -254,14 +257,14 @@ IComponent::RequestResult ProcessInfoNode::startProcess(score::cpp::stop_token s
         if (!setState(score::mw::lifecycle::ProcessState::kIdle))
         {
             LM_LOG_WARN() << "Starting process" << this << "failed: termination in progress";
-            error = ComponentError::kErrorBeforeReady;
+            error = RequestResult::kFailure;
             break;
         }
 
         pid_ = 0;
         exit_status_ = 0;
         error = std::nullopt;
-        termination_result_ = TeminationResult::kNone;
+        termination_result_ = std::nullopt;
         termination_waiter_->reset();
         static_cast<void>(setState(score::mw::lifecycle::ProcessState::kStarting));  // Cannot fail by design
 
@@ -292,7 +295,7 @@ IComponent::RequestResult ProcessInfoNode::startProcess(score::cpp::stop_token s
         else
         {
             setState(score::mw::lifecycle::ProcessState::kFailed);
-            error = ComponentError::kErrorBeforeReady;
+            error = RequestResult::kFailure;
             break;
         }
 
@@ -314,38 +317,20 @@ IComponent::RequestResult ProcessInfoNode::startProcess(score::cpp::stop_token s
 
     // We have terminated after starting up
     SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
-        termination_result_ != TerminationResult::kNone, "setState(kRunning) failed without a termination result");
+        termination_result_.has_value(), "setState(kRunning) failed without a termination result");
     // Assuming we have already waited for all ready conditions that require waiting, we have now started up and
     // terminated. Therefore, as long as the termination was valid, we have satisfied any running or terminated
     // condition.
-    if (termination_result_ == TeminationResult::kOk)
+    if (termination_result_ == TerminationResult::kIgnore)
     {
         return tryReportSuccess();
     }
 
-    // We successfully reached kRunning, but reached kTerminated in error. This affects whether the error
-    // occurred before or after reaching the ready state
-    return tryReportError(getErrorAfterState(ProcessState::kRunning));
+    // We successfully reached kRunning, but reached kTerminated in error.
+    return tryReportError(RequestResult::kFailure);
 }
 
-IComponent::ComponentError ProcessInfoNode::getErrorAfterState(ProcessState state_reached) const
-{
-    if (const configuration::ProcessState* state_condition =
-            std::get_if<configuration::ProcessState>(&config_.component_properties.ready_condition))
-    {
-        if (*state_condition == configuration::ProcessState::Terminated && state_reached == ProcessState::kRunning)
-        {
-            return IComponent::ComponentError::kErrorBeforeReady;
-        }
-    }
-    if (state_reached < ProcessState::kRunning)
-    {
-        return IComponent::ComponentError::kErrorBeforeReady;
-    }
-    return IComponent::ComponentError::kErrorAfterReady;
-}
-
-score::cpp::expected_blank<IComponent::ComponentError> ProcessInfoNode::handleProcessStillStarting(
+score::cpp::expected_blank<IComponent::RequestResult> ProcessInfoNode::handleProcessStillStarting(
     const score::cpp::stop_token& stop_token)
 {
     const bool startup_condition_met = std::visit(
@@ -433,26 +418,26 @@ score::cpp::expected_blank<IComponent::ComponentError> ProcessInfoNode::handlePr
 
     if (getState() == ProcessState::kTerminated)
     {
-        return score::cpp::make_unexpected(ComponentError::kErrorBeforeReady);
+        return score::cpp::make_unexpected(RequestResult::kFailure);
     }
 
     LM_LOG_WARN() << "Process (" << identifier_ << ") did not meet its ready condition within the ready timeout";
     terminateProcess(stop_token);
-    return score::cpp::make_unexpected(ComponentError::kActivationTimedOut);
+    return score::cpp::make_unexpected(RequestResult::kTimeout);
 }
 
-score::cpp::expected_blank<IComponent::ComponentError> ProcessInfoNode::handleProcessAlreadyTerminated()
+score::cpp::expected_blank<IComponent::RequestResult> ProcessInfoNode::handleProcessAlreadyTerminated()
 {
     // The process did start successfully, but didn't report properly.
     if (isReporting())
     {
-        return score::cpp::make_unexpected(IComponent::ComponentError::kErrorBeforeReady);
+        return score::cpp::make_unexpected(IComponent::RequestResult::kFailure);
     }
     // In all other cases, the process did successfully reach the running state (because pid_ was set).
     return {};
 }
 
-score::cpp::expected<score::cpp::expected_blank<IComponent::ComponentError>, IComponent::ComponentError>
+score::cpp::expected<score::cpp::expected_blank<IComponent::RequestResult>, IComponent::RequestResult>
 ProcessInfoNode::handleProcessStarted(const score::cpp::stop_token& stop_token)
 {
     switch (process_handling_.process_map_->insertIfNotTerminated(pid_, this))
@@ -469,7 +454,7 @@ ProcessInfoNode::handleProcessStarted(const score::cpp::stop_token& stop_token)
             // really bad fatal error, should not happen, treat as a failure to set the state & kill the process
             LM_LOG_ERROR() << "Could not add PID to map!";
             terminateProcess(stop_token);
-            return score::cpp::make_unexpected(ComponentError::kErrorBeforeReady);
+            return score::cpp::make_unexpected(RequestResult::kFailure);
     }
 }
 
@@ -540,7 +525,7 @@ IComponent::RequestResult ProcessInfoNode::activate(score::cpp::stop_token stop_
         return tryReportSuccess();
     }
     auto res = startProcess(std::move(stop_token));
-    if (res.has_value())
+    if (res == RequestResult::kSuccess)
     {
         if (auto time = getTimeForAliveState())
         {
@@ -560,7 +545,7 @@ IComponent::RequestResult ProcessInfoNode::deactivate(score::cpp::stop_token sto
     }
     terminateProcess(stop_token);
     setState(ProcessState::kIdle);
-    return IComponent::RequestState::kSuccess;
+    return RequestResult::kSuccess;
 }
 
 bool ProcessInfoNode::active() const

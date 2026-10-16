@@ -42,18 +42,18 @@ class RunTarget final : public IComponent
     RequestResult activate(score::cpp::stop_token) override
     {
         active_ = true;
-        return RequestState::kSuccess;
+        return RequestResult::kSuccess;
     }
 
     RequestResult deactivate(score::cpp::stop_token) override
     {
         active_ = false;
-        return RequestState::kSuccess;
+        return RequestResult::kSuccess;
     }
 
-    RequestResult tryHandleTermination(int32_t) override
+    TerminationResult tryHandleTermination(int32_t) override
     {
-        return RequestState::kSuccess;
+        return TerminationResult::kIgnore;
     }
 
     IdentifierHash getIdentifier() const override
