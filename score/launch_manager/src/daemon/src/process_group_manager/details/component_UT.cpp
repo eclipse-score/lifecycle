@@ -288,7 +288,7 @@ TEST(ComponentTest, CannotDeactivateInFaultState)
         "Cannot deactivate component in a non-running state");
 }
 
-TEST(ComponentTest, SelfTerminatingExitZeroInReadyStateIsSuccess)
+TEST(ComponentTest, SelfTerminatingExitZeroInReadyStateIsWaiting)
 {
     MockStartAction start_action;
     MockStopAction stop_action;
@@ -302,7 +302,7 @@ TEST(ComponentTest, SelfTerminatingExitZeroInReadyStateIsSuccess)
     const auto result = component.tryHandleTermination(0);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ(result.value(), IComponent::RequestState::kSuccess);
+    EXPECT_EQ(result.value(), IComponent::RequestState::kWaiting);
 }
 
 TEST(ComponentTest, SelfTerminatingExitZeroInReadyStateIsActive)
@@ -354,7 +354,7 @@ TEST(ComponentTest, SelfTerminatingExitNonZeroInReadyStateIsNotActive)
     EXPECT_FALSE(component.active());
 }
 
-TEST(ComponentTest, SelfTerminatingExitZeroInStartingStateIsSuccess)
+TEST(ComponentTest, SelfTerminatingExitZeroInStartingStateIsWaiting)
 {
     MockStartAction start_action;
     MockStopAction stop_action;
@@ -374,7 +374,7 @@ TEST(ComponentTest, SelfTerminatingExitZeroInStartingStateIsSuccess)
     static_cast<void>(component.activate(cpp::stop_token{}));
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ(result.value(), IComponent::RequestState::kSuccess);
+    EXPECT_EQ(result.value(), IComponent::RequestState::kWaiting);
 }
 
 TEST(ComponentTest, SelfTerminatingExitZeroInStartingStateIsActive)

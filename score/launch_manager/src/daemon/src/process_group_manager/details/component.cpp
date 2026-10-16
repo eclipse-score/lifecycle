@@ -131,7 +131,7 @@ IComponent::RequestResult Component::tryHandleTermination(int32_t status)
     if (std::holds_alternative<TerminatingState>(state_))
     {
         state_ = TerminatedState{};
-        return RequestState::kSuccess;
+        return RequestState::kWaiting;
     }
 
     StartingState* const starting = std::get_if<StartingState>(&state_);
@@ -150,7 +150,7 @@ IComponent::RequestResult Component::tryHandleTermination(int32_t status)
         {
             if (ready_condition.tryHandleTermination(status))
             {
-                return RequestState::kSuccess;
+                return RequestState::kWaiting;
             }
         }
     }
@@ -158,7 +158,7 @@ IComponent::RequestResult Component::tryHandleTermination(int32_t status)
     // Self-terminating components can accept terminations.
     if (self_terminating_ && status == 0)
     {
-        return RequestState::kSuccess;
+        return RequestState::kWaiting;
     }
 
     // If none of the above cases apply, then termination is unexpected.
