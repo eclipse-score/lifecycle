@@ -273,11 +273,13 @@ Examples
       :language: rust
 
 
-The **Lifecycle Interface** also offers the ``run_application`` API, which lets
-a user application delegate its initialization specific code to a replaceable
-class.
-This means that the user application can run under any initialization system
-without being rebuilt.
+The **Lifecycle Interface** also offers the ``run_application`` API, which
+removes the boilerplate from a reporting process.
+
+It:
+-  Handles the ``SIGTERM`` signal.
+-  Structures the application into an initialization phase and a running phase.
+-  Reports the ``Running`` state in the background once initialization is done.
 
 .. dropdown:: C++ Lifecycle Application
 
@@ -293,7 +295,7 @@ active by communicating with the Launch Manager using the ``ILmControl``
 interface.
 The **State Manager** is itself a managed component.
 Before calling ``activate_run_target``, it must report the Running state to the
-Launch Manager via the **Lifecycle API**.
+Launch Manager via any of the **Lifecycle Interfaces**.
 Otherwise, the Launch Manager does not consider the State
 Manager ready, which can lead to errors.
 

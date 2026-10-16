@@ -11,12 +11,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
+#include <unistd.h>
 #include <atomic>
 #include <cassert>
 #include <chrono>
 #include <csignal>
 #include <iostream>
-#include <unistd.h>
 
 #include "score/mw/com/runtime.h"
 #include "score/string_manipulation/arguments/arguments.h"
@@ -39,8 +39,7 @@ void signalHandler(int signal)
 int main(int argc, const char* argv[])
 {
     // initialize com, needed if you are giving the mw_conf.json as an argument
-    score::mw::com::runtime::InitializeRuntime(
-        score::string_manipulation::GetArguments(argc, argv));
+    score::mw::com::runtime::InitializeRuntime(score::string_manipulation::GetArguments(argc, argv));
 
     // register signal handler and assert success
     assert(signal(SIGTERM, signalHandler));
@@ -63,14 +62,14 @@ int main(int argc, const char* argv[])
     const auto register_result = client->register_run_target_activation_callback(
         []([[maybe_unused]] score::mw::lifecycle::RunTargetActivationSource source,
            score::mw::lifecycle::RunTargetName target) {
-
             // signal that the startup was completed
             if (source == score::mw::lifecycle::RunTargetActivationSource::kInitialActivation)
             {
                 std::cout << "Initial activation succesfull! activated run target " << target << std::endl;
                 startup_finished.store(true);
             }
-            else{
+            else
+            {
                 std::cout << "Successfully activated Run Target " << target << std::endl;
             }
         });
@@ -80,7 +79,7 @@ int main(int argc, const char* argv[])
         return EXIT_FAILURE;
     }
 
-    while(startup_finished.load())
+    while (startup_finished.load())
     {
         std::this_thread::sleep_for(100ms);
     }
