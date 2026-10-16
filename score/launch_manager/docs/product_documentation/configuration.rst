@@ -314,13 +314,33 @@ sandbox.scheduling_policy (string, optional)
 sandbox.scheduling_priority (integer, optional)
     Description: Specifies the scheduling priority applied to the component's initial thread, influencing its allocation of CPU time.
 
-sandbox.max_memory_usage (integer, optional)
-    Description: Specifies the maximum amount of memory, in bytes, that the component is permitted to use during runtime.
-    Constraint: Must be greater than 0.
+sandbox.rlimits (object, optional)
+    Description: Defines the POSIX resource limits (rlimits) applied to the component before it is executed.
 
-sandbox.max_cpu_usage (integer, optional)
-    Description: Specifies the maximum CPU usage limit for the component, expressed as a percentage (%) of total CPU capacity.
-    Constraint: Must be greater than 0.
+    Each key names a resource limit specified by POSIX.1 (XSI). For the meaning of a limit and the behaviour when it is exceeded, see ``setrlimit(2)`` and IEEE Std 1003.1 ``<sys/resource.h>``.
+
+    A value is either a single integer, which is shorthand for an equal soft and hard limit, or an object with explicit ``soft`` and ``hard`` members. Either bound may be the literal string ``"unlimited"`` instead of an integer. Units are documented for each value separately.
+
+sandbox.rlimits.RLIMIT_AS (integer or object, optional)
+    Description: Specifies the maximum size, in bytes, of the component's total virtual address space.
+
+sandbox.rlimits.RLIMIT_CORE (integer or object, optional)
+    Description: Specifies the maximum size, in bytes, of a core dump file the component may produce; 0 disables core dumps.
+
+sandbox.rlimits.RLIMIT_CPU (integer or object, optional)
+    Description: Specifies the maximum amount of CPU time, in seconds, the component may accumulate over its entire lifetime.
+
+sandbox.rlimits.RLIMIT_DATA (integer or object, optional)
+    Description: Specifies the maximum size, in bytes, of the component's data segment.
+
+sandbox.rlimits.RLIMIT_FSIZE (integer or object, optional)
+    Description: Specifies the maximum size, in bytes, of a file the component may create. Note: This is currently not supported on QNX8 and always fails.
+
+sandbox.rlimits.RLIMIT_NOFILE (integer or object, optional)
+    Description: Specifies the highest file descriptor number the component may use, plus one.
+
+sandbox.rlimits.RLIMIT_STACK (integer or object, optional)
+    Description: Specifies the maximum size, in bytes, of the component's process stack; applied before the component's executable image is loaded.
 
 sandbox.affinity_mask (string, optional)
     Description: Specifies the affinity mask defining on which CPU cores the component may be scheduled, as a hexadecimal string prefixed with ``0x`` (e.g. ``"0x3"``). Bit 0 corresponds to core 0, bit 1 to core 1, and so on; up to 64 cores are supported. For example, ``"0x5"`` selects cores 0 and 2. If not configured, the component inherits the CPU affinity of the **Launch Manager** itself, i.e. no affinity system call is made on its behalf.
@@ -355,7 +375,7 @@ schema_version (integer, required)
 **Description:**
   Specifies the schema version number that the **Launch Manager** uses to determine how to parse and validate this configuration file.
 **Allowed Value:**
-  ``1``
+  ``2``
 
 .. _lm_conf_defaults_object_optional_:
 

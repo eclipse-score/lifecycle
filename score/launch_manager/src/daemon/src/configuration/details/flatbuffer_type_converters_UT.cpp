@@ -17,6 +17,7 @@
 #include <gtest/gtest.h>
 
 #include <sched.h>
+#include <sys/resource.h>
 #include <sys/types.h>
 #include <cstdint>
 #include <limits>
@@ -652,6 +653,10 @@ TEST_F(ConverterTest, ConvertSandboxValid)
     ::flatbuffers::FlatBufferBuilder fbb;
     auto sec_policy = fbb.CreateString("strict");
     auto supp_gids = fbb.CreateVector(std::vector<int64_t>{100, 200});
+    auto rlimit_as = fb::CreateRlimit(fbb, fb::RlimitResource::POSIX_RLIMIT_AS, 4096U, 4096U);
+    auto rlimit_cpu =
+        fb::CreateRlimit(fbb, fb::RlimitResource::POSIX_RLIMIT_CPU, 80U, std::numeric_limits<uint64_t>::max());
+    auto rlimits = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Rlimit>>{rlimit_as, rlimit_cpu});
     auto sandbox = fb::CreateSandbox(
         fbb,
         1000 /*uid*/,
@@ -660,9 +665,9 @@ TEST_F(ConverterTest, ConvertSandboxValid)
         sec_policy,
         fb::SchedulingPolicy::FIFO,
         50 /*scheduling_priority*/,
-        4096 /*max_memory_usage*/,
-        80 /*max_cpu_usage*/,
+        rlimits,
         3 /*affinity_mask*/);
+
     fbb.Finish(sandbox);
     const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
 
@@ -675,12 +680,28 @@ TEST_F(ConverterTest, ConvertSandboxValid)
     EXPECT_THAT(result->security_policy.value(), Eq("strict"));
     EXPECT_THAT(result->scheduling_policy, Eq(SCHED_FIFO));
     EXPECT_THAT(result->scheduling_priority, Eq(50));
-    ASSERT_THAT(result->max_memory_usage.has_value(), IsTrue());
-    EXPECT_THAT(result->max_memory_usage.value(), Eq(4096U));
-    ASSERT_THAT(result->max_cpu_usage.has_value(), IsTrue());
-    EXPECT_THAT(result->max_cpu_usage.value(), Eq(80U));
+    ASSERT_THAT(result->rlimits.size(), Eq(2U));
+    EXPECT_THAT(result->rlimits[0].resource, Eq(RLIMIT_AS));
+    EXPECT_THAT(result->rlimits[0].limit.rlim_cur, Eq(4096U));
+    EXPECT_THAT(result->rlimits[0].limit.rlim_max, Eq(4096U));
+    EXPECT_THAT(result->rlimits[1].resource, Eq(RLIMIT_CPU));
+    EXPECT_THAT(result->rlimits[1].limit.rlim_cur, Eq(80U));
+    EXPECT_THAT(result->rlimits[1].limit.rlim_max, Eq(RLIM_INFINITY));
     ASSERT_THAT(result->affinity_mask.has_value(), IsTrue());
     EXPECT_THAT(result->affinity_mask.value(), Eq(3U));
+}
+
+TEST_F(ConverterTest, ConvertSandboxNoRlimitsYieldsEmptyVector)
+{
+    RecordProperty("Description", "A Sandbox without a configured rlimits vector converts to an empty vector.");
+    ::flatbuffers::FlatBufferBuilder fbb;
+    auto sandbox = buildDefaultSandbox(fbb);
+    fbb.Finish(sandbox);
+    const auto* ptr = ::flatbuffers::GetRoot<fb::Sandbox>(fbb.GetBufferPointer());
+
+    auto result = convertSandbox(ptr);
+    ASSERT_THAT(result.has_value(), IsTrue());
+    EXPECT_THAT(result->rlimits, ::testing::IsEmpty());
 }
 
 TEST_F(ConverterTest, ConvertSandboxWithoutAffinityMaskHasNoValue)
@@ -694,6 +715,91 @@ TEST_F(ConverterTest, ConvertSandboxWithoutAffinityMaskHasNoValue)
     auto result = convertSandbox(ptr);
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(result->affinity_mask.has_value(), IsFalse());
+}
+
+// ============================================================================
+// RlimitResource / Rlimit conversion tests
+// ============================================================================
+
+TEST_F(ConverterTest, ToPlatformResourceConvertsRlimitConstants)
+{
+    RecordProperty(
+        "Description",
+        "Verify that the conversion from flatbuffer RlimitResource to platform-specific RLIMIT_* constants works "
+        "correctly.");
+
+    const auto expectResource = [](fb::RlimitResource fb_resource, int expected_platform_value) {
+        auto result = toPlatformResource(fb_resource);
+        ASSERT_THAT(result.has_value(), IsTrue());
+        EXPECT_THAT(*result, Eq(expected_platform_value));
+    };
+
+    expectResource(fb::RlimitResource::POSIX_RLIMIT_AS, RLIMIT_AS);
+    expectResource(fb::RlimitResource::POSIX_RLIMIT_CORE, RLIMIT_CORE);
+    expectResource(fb::RlimitResource::POSIX_RLIMIT_CPU, RLIMIT_CPU);
+    expectResource(fb::RlimitResource::POSIX_RLIMIT_DATA, RLIMIT_DATA);
+    expectResource(fb::RlimitResource::POSIX_RLIMIT_FSIZE, RLIMIT_FSIZE);
+    expectResource(fb::RlimitResource::POSIX_RLIMIT_NOFILE, RLIMIT_NOFILE);
+    expectResource(fb::RlimitResource::POSIX_RLIMIT_STACK, RLIMIT_STACK);
+}
+
+TEST_F(ConverterTest, ToPlatformResourceUnknownEnumeratorReturnsError)
+{
+    RecordProperty(
+        "Description",
+        "A resource selector this loader does not know is an InvalidFormat config "
+        "load error.");
+
+    auto result = toPlatformResource(static_cast<fb::RlimitResource>(99));
+    ASSERT_THAT(result.has_value(), IsFalse());
+    EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
+}
+
+TEST_F(ConverterTest, ConvertRlimitsUnlimitedSentinelResolvedToRlimInfinity)
+{
+    RecordProperty(
+        "Description",
+        "The 0xFFFFFFFFFFFFFFFF 'unlimited' sentinel is resolved to this platform's RLIM_INFINITY while "
+        "loading the config, so the result can be passed directly to setrlimit() with no further translation.");
+    ::flatbuffers::FlatBufferBuilder fbb;
+    constexpr std::uint64_t kSentinel = std::numeric_limits<std::uint64_t>::max();
+    auto rlimit = fb::CreateRlimit(fbb, fb::RlimitResource::POSIX_RLIMIT_STACK, kSentinel, kSentinel);
+    auto vec = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Rlimit>>{rlimit});
+    fbb.Finish(vec);
+    const auto* ptr =
+        ::flatbuffers::GetRoot<::flatbuffers::Vector<::flatbuffers::Offset<fb::Rlimit>>>(fbb.GetBufferPointer());
+
+    auto result = convertRlimits(ptr);
+    ASSERT_THAT(result.has_value(), IsTrue());
+    ASSERT_THAT(result->size(), Eq(1U));
+    EXPECT_THAT((*result)[0].resource, Eq(RLIMIT_STACK));
+    EXPECT_THAT((*result)[0].limit.rlim_cur, Eq(RLIM_INFINITY));
+    EXPECT_THAT((*result)[0].limit.rlim_max, Eq(RLIM_INFINITY));
+}
+
+TEST_F(ConverterTest, ConvertRlimitsNullVectorYieldsEmptyVector)
+{
+    RecordProperty("Description", "convertRlimits(nullptr) returns an empty vector.");
+    auto result = convertRlimits(nullptr);
+    ASSERT_THAT(result.has_value(), IsTrue());
+    EXPECT_THAT(*result, ::testing::IsEmpty());
+}
+
+TEST_F(ConverterTest, ConvertRlimitsUnknownResourceReturnsError)
+{
+    RecordProperty(
+        "Description",
+        "convertSandbox/convertRlimits surfaces an unknown rlimit resource selector as a config load error.");
+    ::flatbuffers::FlatBufferBuilder fbb;
+    auto rlimit = fb::CreateRlimit(fbb, static_cast<fb::RlimitResource>(99), 0U, 0U);
+    auto vec = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Rlimit>>{rlimit});
+    fbb.Finish(vec);
+    const auto* ptr =
+        ::flatbuffers::GetRoot<::flatbuffers::Vector<::flatbuffers::Offset<fb::Rlimit>>>(fbb.GetBufferPointer());
+
+    auto result = convertRlimits(ptr);
+    ASSERT_THAT(result.has_value(), IsFalse());
+    EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
 }
 
 TEST_F(ConverterTest, ConvertSandboxMissingUidReturnsError)

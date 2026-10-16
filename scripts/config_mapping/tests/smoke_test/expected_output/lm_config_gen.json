@@ -1,5 +1,5 @@
 {
-    "schema_version": 1,
+    "schema_version": 2,
     "components": [
         {
             "name": "setup_filesystem_sh",
@@ -35,8 +35,18 @@
                     "security_policy": "policy_name",
                     "scheduling_policy": "OTHER",
                     "scheduling_priority": 0,
-                    "max_memory_usage": 1024,
-                    "max_cpu_usage": 75
+                    "rlimits": [
+                        {
+                            "resource": "POSIX_RLIMIT_AS",
+                            "soft": 1024,
+                            "hard": 1024
+                        },
+                        {
+                            "resource": "POSIX_RLIMIT_CPU",
+                            "soft": 75,
+                            "hard": 18446744073709551615
+                        }
+                    ]
                 },
                 "environmental_variables": [
                     {
@@ -98,8 +108,18 @@
                     "security_policy": "policy_name",
                     "scheduling_policy": "OTHER",
                     "scheduling_priority": 0,
-                    "max_memory_usage": 1024,
-                    "max_cpu_usage": 75
+                    "rlimits": [
+                        {
+                            "resource": "POSIX_RLIMIT_AS",
+                            "soft": 1024,
+                            "hard": 1024
+                        },
+                        {
+                            "resource": "POSIX_RLIMIT_CPU",
+                            "soft": 75,
+                            "hard": 18446744073709551615
+                        }
+                    ]
                 },
                 "environmental_variables": [
                     {
@@ -165,8 +185,18 @@
                     "security_policy": "policy_name",
                     "scheduling_policy": "OTHER",
                     "scheduling_priority": 0,
-                    "max_memory_usage": 1024,
-                    "max_cpu_usage": 75
+                    "rlimits": [
+                        {
+                            "resource": "POSIX_RLIMIT_AS",
+                            "soft": 1024,
+                            "hard": 1024
+                        },
+                        {
+                            "resource": "POSIX_RLIMIT_CPU",
+                            "soft": 75,
+                            "hard": 18446744073709551615
+                        }
+                    ]
                 },
                 "environmental_variables": [
                     {
@@ -235,8 +265,18 @@
                     "security_policy": "policy_name",
                     "scheduling_policy": "OTHER",
                     "scheduling_priority": 0,
-                    "max_memory_usage": 1024,
-                    "max_cpu_usage": 75
+                    "rlimits": [
+                        {
+                            "resource": "POSIX_RLIMIT_AS",
+                            "soft": 1024,
+                            "hard": 1024
+                        },
+                        {
+                            "resource": "POSIX_RLIMIT_CPU",
+                            "soft": 75,
+                            "hard": 18446744073709551615
+                        }
+                    ]
                 },
                 "environmental_variables": [
                     {
@@ -304,8 +344,18 @@
                     "security_policy": "policy_name",
                     "scheduling_policy": "OTHER",
                     "scheduling_priority": 0,
-                    "max_memory_usage": 1024,
-                    "max_cpu_usage": 75
+                    "rlimits": [
+                        {
+                            "resource": "POSIX_RLIMIT_AS",
+                            "soft": 1024,
+                            "hard": 1024
+                        },
+                        {
+                            "resource": "POSIX_RLIMIT_CPU",
+                            "soft": 75,
+                            "hard": 18446744073709551615
+                        }
+                    ]
                 },
                 "environmental_variables": [
                     {
