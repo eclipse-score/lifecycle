@@ -11,11 +11,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include <unistd.h>
 #include <atomic>
+#include <cassert>
 #include <csignal>
 #include <cstdlib>
 #include <iostream>
+#include <unistd.h>
 
 #include <score/mw/lifecycle/report_running.h>
 
@@ -30,7 +31,7 @@ int main(int argc, char* argv[])
 {
 
     // register signal handler so that lcm can request a termination
-    signal(SIGTERM, sigTermHandler);
+    assert(signal(SIGTERM, sigTermHandler));
 
     // report running state
     score::mw::lifecycle::report_running();

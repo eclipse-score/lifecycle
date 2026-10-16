@@ -11,13 +11,23 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
+use signal_hook::consts::SIGTERM;
+use signal_hook::iterator::Signals;
+
 fn main() -> Result<(), &'static str> {
+    // register signal handler so that lcm can request a termination
+    let mut signals =
+        Signals::new([SIGTERM]).map_err(|_| "Failed to register signal handler")?;
+
     // report running and check result
     if !lifecycle_client_rs::report_running() {
         return Err("Failed to report execution state");
     }
 
     // do work
+
+    // wait until lm wants to terminate
+    signals.forever().next();
 
     Ok(())
 }

@@ -11,13 +11,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include <score/mw/lifecycle/ilm_control.hpp>
-#include <score/mw/lifecycle/report_running.h>
-#include <unistd.h>
 #include <atomic>
 #include <cassert>
 #include <csignal>
 #include <iostream>
+#include <unistd.h>
+
+#include <score/mw/lifecycle/ilm_control.hpp>
+#include <score/mw/lifecycle/report_running.h>
 
 std::atomic<bool> exitRequested{false};
 void signalHandler(int signal)
@@ -28,7 +29,6 @@ void signalHandler(int signal)
 int main()
 {
     // register signal handler and assert success
-    assert(signal(SIGINT, signalHandler));
     assert(signal(SIGTERM, signalHandler));
 
     // report running to LM
@@ -69,8 +69,11 @@ int main()
                   << " failed with error: " << result.error().Message() << std::endl;
     }
 
-    // pause until LM tells us to terminate
-    ::pause();
+    // wait until lm wants to terminate
+    while (exitRequested == 0)
+    {
+        pause();
+    }
 
     return EXIT_SUCCESS;
 }
