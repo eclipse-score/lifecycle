@@ -47,7 +47,7 @@ app1 -> app1 : Initialization
 alt Restart Successful
   app1 -> LM : Report Running via Lifecycle API
   LM -> LM: Recovery Action done
-else Restart Failed (Process crash during activation or activation timeout)
+else #Pink Restart Failed (Process crash during activation or activation timeout)
   note over LM, app1
   Execute Run Target recovery action
   end note
@@ -64,7 +64,7 @@ LM -> LM: Determine Transition Plan to new RunTarget
       Activation of the configured Run Target.
       See Run Target Activation sequence diagrams for details.
     end ref
-  else Mew Run Target activation failed
+  else #Pink New Run Target activation failed
     note over LM, app1
     Execute Run Target recovery action
     end note
