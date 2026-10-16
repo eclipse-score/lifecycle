@@ -556,6 +556,64 @@ def check_cyclic_dependencies(config):
         get_process_dependencies(fallback)
 
 
+# Portable hash function FNV-1a (RFC 9923), 64-bit variant, as used for run-target
+# identifiers in score/launch_manager/src/daemon/src/common/identifier_hash.cpp.
+# std::size_t is 64-bit on all supported targets, so the 64-bit constants are the
+# ones that must be mirrored here.
+FNV1A_64_OFFSET_BASIS = 14695981039346656037
+FNV1A_64_PRIME = 1099511628211
+FNV1A_64_MASK = 0xFFFFFFFFFFFFFFFF
+
+# Run targets that always exist as hashed run-target identifiers in the Launch
+# Manager dependency graph, even when they are not configured explicitly (see
+# process_group_manager/details/graph.cpp: "Off" is added when not defined,
+# "fallback_run_target" is always added).
+IMPLICIT_RUN_TARGET_NAMES = ("Off", "fallback_run_target")
+
+
+def fnv1a_hash(name: str) -> int:
+    """Return the portable 64-bit FNV-1a hash of a run-target name.
+
+    This mirrors Fnv1aHash() in identifier_hash.cpp: the UTF-8 bytes of the
+    name are hashed with FNV-1a using 64-bit arithmetic.
+    """
+    hash_value = FNV1A_64_OFFSET_BASIS
+    for byte in name.encode("utf-8"):
+        hash_value ^= byte
+        hash_value = (hash_value * FNV1A_64_PRIME) & FNV1A_64_MASK
+    return hash_value
+
+
+def check_run_target_hash_collisions(config):
+    """Reject configurations where two distinct run-target names hash identically.
+
+    The Launch Manager daemon identifies run targets by the hash of their name,
+    so two distinct names with the same hash cannot be told apart at runtime.
+    Such a configuration is reported and rejected; the names themselves are
+    never modified, renamed or silently deduplicated (issue #545).
+    """
+    run_targets = config.get("run_targets", {})
+    names = list(run_targets)
+    names.extend(name for name in IMPLICIT_RUN_TARGET_NAMES if name not in run_targets)
+
+    hash_to_name = {}
+    success = True
+    for name in names:
+        name_hash = fnv1a_hash(name)
+        colliding_name = hash_to_name.get(name_hash)
+        if colliding_name is not None:
+            report_error(
+                f"Run-target hash collision detected: the distinct names "
+                f"'{colliding_name}' and '{name}' both hash to {name_hash}. "
+                "Run-target names must map to unique hashes, "
+                "please choose different names."
+            )
+            success = False
+        else:
+            hash_to_name[name_hash] = name
+    return success
+
+
 def custom_validations(config):
     success = True
 
@@ -683,6 +741,9 @@ SUCCESS = 0
 SCHEMA_VALIDATION_DEPENDENCY_ERROR = 1
 SCHEMA_VALIDATION_FAILURE = 2
 CUSTOM_VALIDATION_FAILURE = 3
+# A run-target hash collision is rejected with exit status 1, as required by
+# the definition of done of issue #545 ("exits 1 if a hash collision is detected").
+HASH_COLLISION_FAILURE = 1
 
 
 def main():
@@ -735,6 +796,13 @@ def main():
         exit(CUSTOM_VALIDATION_FAILURE)
 
     preprocessed_config = preprocess_defaults(score_defaults, input_config)
+
+    # Reject run-target hash collisions before the other custom validations so
+    # that a detected collision is always reported. Unrelated validation errors
+    # keep their existing exit codes.
+    if not check_run_target_hash_collisions(preprocessed_config):
+        exit(HASH_COLLISION_FAILURE)
+
     if not custom_validations(preprocessed_config):
         exit(CUSTOM_VALIDATION_FAILURE)
 
