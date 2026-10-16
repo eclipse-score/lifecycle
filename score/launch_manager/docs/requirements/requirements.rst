@@ -219,6 +219,19 @@ Ready Conditions
     The :term:`Launch Manager` shall support a :term:`Ready Condition` that is
     satisfied when :term:`Component` notifies the :term:`Lifecycle Interface`.
 
+.. comp_req:: Lifecycle Interface programming languages
+    :id: comp_req__launch_man__lifecycle_lang_support
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__prog_lang[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall support Rust and C++ applications to 
+    report their :term:`readiness <Ready State>` via the :term:`Lifecycle Interface`.
+
 .. comp_req:: Ready Condition - File state
     :id: comp_req__launch_man__rc_file_state
     :reqtype: Functional
@@ -688,6 +701,32 @@ Run Targets
 
     The :term:`Launch Manager` shall be able to switch between different :term:`run targets <Run target>`.
 
+.. comp_req:: Queue a run target selection
+    :id: comp_req__launch_man__queue_rt_selection
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__control_commands[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall provide support for queueing a
+    :term:`run target selection <Run target>` via the :term:`Control Interface`.
+
+.. comp_req:: Force a run target selection
+    :id: comp_req__launch_man__force_rt_selection
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__control_commands[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall provide support for forcefully initiating a
+    :term:`run target selection <Run target>` via the :term:`Control Interface`.
+
 
 Alive Monitoring
 ================
@@ -783,6 +822,48 @@ Recovery Actions
 
     The :term:`Launch Manager` shall cancel all pending and ongoing :term:`Run Target`
     activations before running any :term:`Run Target` recovery action.
+    The :term:`Launch Manager` shall be able to detect :term:`Component failure` during runtime of the :term:`Component`. I.e. after reaching its :term:`Ready State`.
+
+.. comp_req:: Report process liveliness
+    :id: comp_req__launch_man__report_liveliness
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall support reporting the liveliness of :term:`components <Component>` via the :need:`logic_arc_int_op__lifecycle__report_alive` interface.
+
+.. comp_req:: Report failed process liveliness 
+    :id: comp_req__launch_man__report_failed_liveliness
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
+    :status: invalid
+    :tags: not_planned
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall support reporting the failed liveliness of :term:`components <Component>` via the :need:`logic_arc_int_op__lifecycle__report_failure` interface.
+
+.. comp_req:: Alive reporting programming language support 
+    :id: comp_req__launch_man__report_lang_support
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__prog_lang[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall support Rust and C++ applications to report their liveliness.
+
+
+Recovery Actions
+----------------
 
 .. comp_req:: Recovery state manager notification
     :id: comp_req__launch_man__ra_rt_sm_notify
