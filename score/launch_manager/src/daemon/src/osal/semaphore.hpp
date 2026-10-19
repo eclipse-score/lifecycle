@@ -73,8 +73,8 @@ class Semaphore final
     OsalReturnType deinit();
 
     /// @brief Decrement the semaphore, blocking until the semaphore can be decremented or the timeout expires.
-    /// This method does not use `sem_timedwait` to attempt to decrement the semaphore because that does not use a
-    /// monotonic clock. Instead, we use sem_trywait() in a loop with a delay of two milliseconds
+    /// This method uses `sem_timedwait_monotonic` (via score::os::Semaphore), which measures the timeout against
+    /// CLOCK_MONOTONIC so the wait is not affected by changes to the system clock.
     /// @param delay The maximum time to wait before timing out.
     ///        This parameter specifies the duration for which the method will block while waiting for the semaphore
     ///        to become available. If the semaphore is not available within the specified time, the method will

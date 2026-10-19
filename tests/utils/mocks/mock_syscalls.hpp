@@ -60,10 +60,7 @@ class SyscallMock
     MOCK_METHOD(pid_t, getpid, (), ());
     MOCK_METHOD(int, fcntl, (int __fd, int __cmd, void* arg), ());
     MOCK_METHOD(int, setgroups, (size_t n, const gid_t* groups), ());
-    MOCK_METHOD(int, sem_init, (sem_t * __sem, int __pshared, unsigned int __value), ());
     MOCK_METHOD(int, sem_destroy, (sem_t * __sem), ());
-    MOCK_METHOD(int, sem_trywait, (sem_t * __sem), ());
-    MOCK_METHOD(int, sem_post, (sem_t * __sem), ());
     MOCK_METHOD(int, msync, (void* __addr, size_t __len, int __flags), ());
     MOCK_METHOD(int, close, (int __fd), ());
     MOCK_METHOD(int, fstat, (int __fd, struct stat* __buf), ());
@@ -313,19 +310,6 @@ int __wrap_fcntl(int __fd, int __cmd, ...)
     return __real_fcntl(__fd, __cmd, arg);
 }
 
-// wrap for sem_init
-extern int __real_sem_init(sem_t* __sem, int __pshared, unsigned int __value);
-
-int __wrap_sem_init(sem_t* __sem, int __pshared, unsigned int __value)
-{
-    if (g_syscall_mock)
-    {
-        return g_syscall_mock->sem_init(__sem, __pshared, __value);
-    }
-
-    return __real_sem_init(__sem, __pshared, __value);
-}
-
 // wrap for sem_destroy
 extern int __real_sem_destroy(sem_t* __sem);
 
@@ -337,32 +321,6 @@ int __wrap_sem_destroy(sem_t* __sem)
     }
 
     return __real_sem_destroy(__sem);
-}
-
-// wrap for sem_trywait
-extern int __real_sem_trywait(sem_t* __sem);
-
-int __wrap_sem_trywait(sem_t* __sem)
-{
-    if (g_syscall_mock)
-    {
-        return g_syscall_mock->sem_trywait(__sem);
-    }
-
-    return __real_sem_trywait(__sem);
-}
-
-// wrap for sem_post
-extern int __real_sem_post(sem_t* __sem);
-
-int __wrap_sem_post(sem_t* __sem)
-{
-    if (g_syscall_mock)
-    {
-        return g_syscall_mock->sem_post(__sem);
-    }
-
-    return __real_sem_post(__sem);
 }
 
 // wrap for msync

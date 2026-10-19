@@ -428,10 +428,7 @@ lm_cc_test(
         "-Wl,--wrap=setrlimit",
         "-Wl,--wrap=getpid",
         "-Wl,--wrap=fcntl",
-        "-Wl,--wrap=sem_init",
         "-Wl,--wrap=sem_destroy",
-        "-Wl,--wrap=sem_trywait",
-        "-Wl,--wrap=sem_post",
         "-Wl,--wrap=msync",
         "-Wl,--wrap=close",
         "-Wl,--wrap=fstat",
@@ -441,6 +438,7 @@ lm_cc_test(
         ":process_launcher",
         "//tests/utils/mocks:mock_syscalls",
         "@googletest//:gtest_main",
+        "@score_baselibs//score/os/mocklib:semaphore_mock",
     ],
 )
 
