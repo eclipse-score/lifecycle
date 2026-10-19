@@ -129,7 +129,7 @@ restart (object, optional)
 
 restart.number_of_attempts (integer, optional)
     Description: Specifies the maximum number of restart attempts before the **Launch Manager** concludes that recovery cannot succeed for the component.
-    Constraint: Must be between 0 and 254 inclusive.
+    Constraint: Must be between 0 and 255 inclusive.
 
 restart.delay_before_restart_ms (integer, optional)
     Description: Specifies the delay duration, in milliseconds, that the **Launch Manager** waits before initiating a restart attempt.

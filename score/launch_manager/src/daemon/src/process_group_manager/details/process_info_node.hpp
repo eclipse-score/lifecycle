@@ -205,8 +205,8 @@ class ProcessInfoNode final : public IComponent
     /// @brief Interface for managing the process's alive supervision.
     std::unique_ptr<IAliveSupervisionHandle> supervision_handle_;
 
-    /// @brief Number ot times to try run the process.
-    std::uint8_t start_tries_{1U};
+    /// @brief Number of times to retry starting the process.
+    std::uint8_t start_retries_{0U};
 
     /// @brief Unique hash to identify this node.
     IdentifierHash identifier_;

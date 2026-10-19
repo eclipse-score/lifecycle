@@ -150,7 +150,7 @@
             "number_of_attempts": {
               "type": "integer",
               "minimum": 0,
-              "maximum": 254,
+              "maximum": 255,
               "description": "Specifies the maximum number of restart attempts before the Launch Manager concludes that recovery cannot succeed."
             },
             "delay_before_restart_ms": {

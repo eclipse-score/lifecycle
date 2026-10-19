@@ -38,17 +38,7 @@ ProcessInfoNode::ProcessInfoNode(configuration::ComponentConfig&& config, Proces
     // Warn user and prevent overflow on the below increment if 255 is passed
     if (config_.deployment_config.ready_recovery_action.has_value())
     {
-        auto number_of_attempts = config_.deployment_config.ready_recovery_action->number_of_attempts;
-        start_tries_ = number_of_attempts;
-        if (number_of_attempts < UINT8_MAX)
-        {
-            start_tries_ += 1U;
-        }
-        else
-        {
-            LM_LOG_WARN() << "Configured number_of_attempts (" << number_of_attempts << ") is too large, using "
-                          << (number_of_attempts - 1U) << " instead.";
-        }
+        start_retries_ = config_.deployment_config.ready_recovery_action->number_of_attempts;
     }
 
     const configuration::ApplicationProfile& app_profile = config_.component_properties.application_profile;
@@ -255,7 +245,7 @@ IComponent::RequestResult ProcessInfoNode::startProcess(score::cpp::stop_token s
     std::optional<ComponentError> error;
     const std::chrono::time_point initial_time = std::chrono::steady_clock::now();
 
-    for (std::uint8_t attempts = start_tries_; attempts != 0U; attempts--)
+    for (std::uint16_t attempts = 0U; attempts <= start_retries_; attempts++)
     {
         // setState(kIdle) will fail if the state is:
         // - Starting: this would mean we did not set state to kFailed on failure or exit when we successfully launched

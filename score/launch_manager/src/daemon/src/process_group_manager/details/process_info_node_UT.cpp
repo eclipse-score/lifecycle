@@ -677,7 +677,7 @@ TEST_P(
         "Given boundary values for number_of_attempts: [0, 1, 254, 255]. "
         "And a valid boundary of 0 to 254 inclusive. "
         "Expect that the OS handler detects a crash on every attempt. "
-        "Expect that the number of start attempts equals the expected values: [1, 2, 255, 255]. "
+        "Expect that the number of start attempts equals the expected values: [1, 2, 255, 256]. "
         "When activate() is called. "
         "Then kErrorBeforeReady is returned for all number_of_attempts values. ");
 
@@ -719,7 +719,7 @@ INSTANTIATE_TEST_SUITE_P(
         NumberOfAttemptsParameterizedTestParams{0U, 1U},
         NumberOfAttemptsParameterizedTestParams{1U, 2U},
         NumberOfAttemptsParameterizedTestParams{254U, 255U},
-        NumberOfAttemptsParameterizedTestParams{255U, 255U}));
+        NumberOfAttemptsParameterizedTestParams{255U, 256U}));
 
 // Bundles unexpected terminations that occur after the ready condition has been reached.
 class ProcessInfoNodeUnexpectedTerminationTest : public ProcessInfoNodeFixture
