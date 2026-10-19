@@ -199,6 +199,8 @@ in the following chapters.
 
 The purpose of the is not to show a real-world setup, but only to showcase different scenarios.
 
+.. _lifecycle_simplified_example_graph:
+
   .. uml:: _assets/launch_manager_small_example_graph.puml
     :scale: 50
     :align: center

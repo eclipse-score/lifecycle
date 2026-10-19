@@ -68,6 +68,7 @@ group #Pink Start app1
 end group
 
 LM -> LM : Transition to Run Target "Running" failed
+LM -> LM : Remove any queued requests (here: none are queued)
 LM -> LM : Determine Run Target Recovery Action configured for Run Target "Running"
 
 

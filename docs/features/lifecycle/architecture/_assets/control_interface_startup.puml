@@ -33,7 +33,7 @@ group #White Start setup_filesystems.sh
     kernel -> fs ++ : Start setup_filesystems.sh
     LM -> LM : Wait for setup_filesystems.sh ready condition
     fs -> kernel : exit
-    destroy fs
+    deactivate fs
     kernel -> LM : setup_filesystems.sh terminated successfully
     LM -> LM : Component setup_filesystems.sh Ready
 end group
@@ -43,10 +43,7 @@ LM -> kernel : start StateManager
 kernel -> sm : start
 activate sm
 
-...
-
 sm -> LM: RegisterActivationCallback(callback)
-
 
 note over sm,LM
 The transition to Run Target "Minimal" is still ongoing, no Run Target is active yet.

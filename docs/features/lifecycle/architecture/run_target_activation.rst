@@ -76,19 +76,18 @@ The Control interface (:need:`logic_arc_int__lifecycle__controlif`) provides two
 
    In this mode, requests to activate a Run Target are placed in a queue and processed sequentially by the Launch Manager.
    A State Manager can issue multiple Run Target transition requests and they will be executed sequentially by the Launch Manager.
+   If any Run Target activation fails, the queue is cleared.
 
 2. **Forced Activation**
 
-   In this mode, requests to activate a Run Target are performed immediately by the Launch Manager, potentially interrupting any ongoing transitions.
-   A forced activation request bypasses the queue and is executed immediately and removes any queued requests.
+   In this mode, any in-progress Run Target activation is cancelled, any queued requests are removed and the newly request Run Target
+   activation is executed immediately.
 
 
 Dynamic architecture
 ====================
 
-The sequence diagrams below are based on the example dependency graph described
-in :doc:`./components_run_targets`.
-
+The sequence diagrams below are based on :ref:`the example dependency graph <lifecycle_simplified_example_graph>`.
 
 .. feat_arc_dyn:: Switch Run Target Scenario - State Manager Startup
    :id: feat_arc_dyn__lifecycle__ctrl_start

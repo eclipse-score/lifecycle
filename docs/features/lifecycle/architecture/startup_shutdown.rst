@@ -15,8 +15,7 @@
 Startup & Shutdown
 ##################
 
-The sequence diagrams below are based on the example dependency graph described
-in :doc:`./components_run_targets`.
+The sequence diagrams below are based on :ref:`the example dependency graph <lifecycle_simplified_example_graph>`.
 
 Launch Manager initial startup
 ==============================
