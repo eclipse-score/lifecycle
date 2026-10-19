@@ -9908,7 +9908,7 @@
     "TestType": "interface-test",
     "DerivationTechnique": "design-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__failure_detect_runtime",
+    "PartiallyVerifies": "comp_req__launch_man__failure_detect",
     "FullyVerifies": null
   },
   {
@@ -9936,8 +9936,8 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__process_launch_args",
-    "FullyVerifies": "feat_req__lifecycle__recovery_action_support, feat_req__lifecycle__liveliness_detection, comp_req__launch_man__recovery_switch_rt, comp_req__launch_man__failure_detect_startup, comp_req__launch_man__rc_lifecycle, comp_req__launch_man__rc_os_state, comp_req__launch_man__rt_comp_dep"
+    "PartiallyVerifies": "comp_req__launch_man__process_launch_args, comp_req__launch_man__failure_detect",
+    "FullyVerifies": "feat_req__lifecycle__recovery_action_support, feat_req__lifecycle__liveliness_detection, comp_req__launch_man__ra_comp_switch_rt, comp_req__launch_man__rc_lifecycle, comp_req__launch_man__rc_os_state, comp_req__launch_man__rt_comp_dep"
   },
   {
     "name": "test_rt_running_when_process_exits",
@@ -10020,7 +10020,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__recovery_switch_rt, comp_req__launch_man__failure_detect_runtime, feat_req__lifecycle__monitor_processes",
+    "PartiallyVerifies": "comp_req__launch_man__ra_comp_switch_rt, comp_req__launch_man__failure_detect, feat_req__lifecycle__monitor_processes",
     "FullyVerifies": null
   },
   {
@@ -10048,7 +10048,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__rc_lifecycle, comp_req__launch_man__recovery_switch_rt, comp_req__launch_man__failure_detect_startup, feat_req__lifecycle__recovery_action_support",
+    "PartiallyVerifies": "comp_req__launch_man__rc_lifecycle, comp_req__launch_man__ra_comp_switch_rt, comp_req__launch_man__failure_detect, feat_req__lifecycle__recovery_action_support",
     "FullyVerifies": null
   },
   {
@@ -10090,7 +10090,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "comp_req__launch_man__ext_monitor_notify",
+    "PartiallyVerifies": null,
     "FullyVerifies": null
   },
   {
@@ -10104,7 +10104,7 @@
     "TestType": "requirements-based",
     "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": "feat_req__lifecycle__monitor_processes, feat_req__lifecycle__recovery_action_support, comp_req__launch_man__failure_detect_startup, comp_req__launch_man__recovery_reactivate",
+    "PartiallyVerifies": "feat_req__lifecycle__monitor_processes, feat_req__lifecycle__recovery_action_support, comp_req__launch_man__failure_detect, comp_req__launch_man__ra_comp_reactivate",
     "FullyVerifies": "comp_req__launch_man__retries_configurable"
   },
   {
