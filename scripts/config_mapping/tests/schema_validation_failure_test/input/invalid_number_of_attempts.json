@@ -16,7 +16,7 @@
             "deployment_config": {
                 "ready_recovery_action": {
                     "restart": {
-                        "number_of_attempts": 255
+                        "number_of_attempts": 256
                     }
                 }
             }
