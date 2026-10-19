@@ -85,7 +85,7 @@ TEST_F(ComponentEventQueueTest, GetNextEventReturnsGetActiveRunTargetWithComplet
     RecordProperty(
         "Description", "Verify a pushed GetActiveRunTarget event is returned with its CompletionSlot pointer intact.");
     CompletionSlot<Result<IdentifierHash>> slot;
-    EXPECT_TRUE(queue_.push(GetActiveRunTarget{completion : &slot}));
+    EXPECT_TRUE(queue_.push(GetActiveRunTarget{&slot}));
 
     auto event = queue_.getNextEvent();
     ASSERT_TRUE(event.has_value());
@@ -102,7 +102,7 @@ TEST_F(ComponentEventQueueTest, GetNextEventReturnsSetRequestedRunTargetWithPayl
         "intact.");
     CompletionSlot<Result<void>> slot;
     const IdentifierHash target{"RunTargetA"};
-    EXPECT_TRUE(queue_.push(SetRequestedRunTarget{run_target : target, completion : &slot}));
+    EXPECT_TRUE(queue_.push(SetRequestedRunTarget{target, &slot}));
 
     auto event = queue_.getNextEvent();
     ASSERT_TRUE(event.has_value());

@@ -448,7 +448,7 @@ Result<IdentifierHash> ProcessGroupManager::getActiveRunTarget() const noexcept
 {
     CompletionSlot<Result<IdentifierHash>> slot;
 
-    const bool push_result = event_queue_->push(GetActiveRunTarget{completion : &slot});
+    const bool push_result = event_queue_->push(GetActiveRunTarget{&slot});
     if (!push_result)
     {
         return score::MakeUnexpected(ExecErrc::kFailed);
@@ -503,7 +503,7 @@ Result<void> ProcessGroupManager::setRequestedRunTarget(IdentifierHash run_targe
 {
     CompletionSlot<Result<void>> slot;
 
-    const bool push_result = event_queue_->push(SetRequestedRunTarget{run_target, completion : &slot});
+    const bool push_result = event_queue_->push(SetRequestedRunTarget{run_target, &slot});
     if (!push_result)
     {
         return score::MakeUnexpected(ExecErrc::kFailed);
