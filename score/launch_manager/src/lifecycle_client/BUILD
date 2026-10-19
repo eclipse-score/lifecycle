@@ -311,6 +311,44 @@ lm_cc_test(
     ],
 )
 
+# lifecyclemanager built against the mocked report_running, to avoid duplicate
+# ReportRunningImpl symbols (real vs. mock) when linking statically (e.g. coverage).
+cc_library(
+    name = "lifecyclemanager_test_lib",
+    testonly = True,
+    srcs = ["src/lifecyclemanager.cpp"],
+    hdrs = [
+        "src/application.h",
+        "src/lifecyclemanager.h",
+    ],
+    features = COMPILER_WARNING_FEATURES,
+    include_prefix = "score/mw/lifecycle",
+    strip_include_prefix = "/score/launch_manager/src/lifecycle_client/src",
+    deps = [
+        ":application",
+        ":report_running_test_lib",
+        "@score_baselibs//score/language/futurecpp",
+        "@score_baselibs//score/mw/log",
+        "@score_baselibs//score/os:stdlib",
+        "@score_baselibs//score/os/utils:signal",
+        "@score_baselibs//score/os/utils:thread",
+    ],
+)
+
+lm_cc_test(
+    name = "lifecyclemanager_UT",
+    srcs = ["src/lifecyclemanager_UT.cpp"],
+    deps = [
+        ":lifecyclemanager_test_lib",
+        ":report_running_test_lib",
+        "//score/launch_manager/src/lifecycle_client:mock_application",
+        "//tests/utils/test_helper:one_shot_event",
+        "@googletest//:gtest_main",
+        "@score_baselibs//score/os/mocklib:stdlib_mock",
+        "@score_baselibs//score/os/utils/mocklib:signal_mock",
+    ],
+)
+
 docs_bundle(
     name = "docs",
     code_targets = [
