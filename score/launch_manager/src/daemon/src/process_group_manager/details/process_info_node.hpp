@@ -68,7 +68,7 @@ class ProcessInfoNode final : public IComponent
           sync_(std::move(other.sync_)),
           process_handling_(std::move(other.process_handling_)),
           supervision_handle_(std::move(other.supervision_handle_)),
-          start_tries_(other.start_tries_),
+          start_retries_(other.start_retries_),
           identifier_(other.identifier_),
           termination_result_(other.termination_result_),
           termination_waiter_(std::move(other.termination_waiter_))
