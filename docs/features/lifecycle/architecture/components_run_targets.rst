@@ -92,7 +92,7 @@ native applications and SCORE-aware applications within the same system.
 The Lifecycle Interface serves as the communication channel between
 applications and the :term:`Launch Manager`.
 
-SCORE Applications
+SCORE applications
 ------------------
 
 **For SCORE Applications:**
@@ -144,7 +144,7 @@ For native applications, the :term:`Launch Manager` provides:
 - Exit code-based success/failure determination
 
 
-State Machines
+State machines
 ==============
 
 A component maintains the following internal state machine:
@@ -191,7 +191,7 @@ This transitions the process state machine from state `Starting` to state `Runni
 For Native applications which do not report their state, the process state machine advances directly to `Running` after successful start of the process.
 
 
-Simplified Example Dependency Graph
+Simplified example dependency graph
 ===================================
 
 Consider the following simplified dependency graph for the sequence diagrams

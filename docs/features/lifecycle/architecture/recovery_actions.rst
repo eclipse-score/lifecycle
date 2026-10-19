@@ -15,16 +15,7 @@
 Recovery Actions
 ################
 
-The following diagram gives an overview of the recovery escalation: a Component Failure is first
-handled by the Component Recovery Action. A Component Recovery Action may be to simply try
-restarting the failed component. If no Component Recovery Action is configured or it does
-not succeed, the Run Target Recovery Action activates the Fallback Run Target. If this also fails,
-the Watchdog triggers a Machine Reset.
-Currently, the Run Target Recovery Action is synonymous to activation of the Fallback Run Target.
-
-The Fallback Run Target is a special Run Target defined in the Launch Manager configuration (see :need:`feat_arc_sta__lifecycle__cfg_params_static`) that is suppsed to be
-a minimal system state that allows diagnosis of the failure. The State Manager is expected to transition the system out of the Fallback Run Target to
-retry normal operation.
+The following diagram gives an overview of the recovery escalation.
 
 .. figure:: _assets/recovery_actions-v1.0.drawio.svg
    :align: center
@@ -47,15 +38,25 @@ retry normal operation.
          Planned recovery action escalation chain. In contrast to the diagram above, the
          Run Target Recovery Action is now a separate step in the escalation chain.
 
+A Component Failure is first handled by the Component Recovery Action. A Component Recovery Action may be to simply try
+restarting the failed component. If no Component Recovery Action is configured or it does
+not succeed, the Run Target Recovery Action activates the Fallback Run Target. If this also fails,
+the Watchdog triggers a Machine Reset.
+Currently, the Run Target Recovery Action is synonymous to activation of the Fallback Run Target.
 
-The sequence diagram below is based on the example dependency graph described
+The Fallback Run Target is a special Run Target defined in the Launch Manager configuration (see :need:`feat_arc_sta__lifecycle__cfg_params_static`), this shall be used as
+a minimal system state that allows diagnosis of the failure. The State Manager is expected to transition the system out of the Fallback Run Target to
+retry normal operation.
+
+
+The following sequence diagrams are based on the example dependency graph described
 in :doc:`./components_run_targets`.
 
 The configurable recovery actions are shown as `ComponentRecoveryAction` and
 `RunTargetRecoveryAction` in
 :ref:`Configuration Structure <lifecycle_configuration_structure>`.
 
-Component Failure
+Component failure
 =================
 
 A component may fail outside of a Run Target transition for one of the following reasons:
@@ -107,7 +108,7 @@ Component supervision failure
    For details of detection supervision failures, see :need:`feat_arc_dyn__lifecycle__alive_monitor_start`.
    The subsequent recovery behavior is identical to the process crash scenario in :need:`feat_arc_dyn__lifecycle__crash`.
 
-Run Target Transition Failure
+Run Target transition failure
 =============================
 
 A Run Target transition might fail for the following reasons:

@@ -18,7 +18,7 @@ Startup & Shutdown
 The sequence diagrams below are based on the example dependency graph described
 in :doc:`./components_run_targets`.
 
-Launch Manager Initial Startup
+Launch Manager initial startup
 ==============================
 
 The *Initial Run Target* configuration is shown in
@@ -45,7 +45,7 @@ The *Initial Run Target* configuration is shown in
    For detailed Run Target activation sequence refer to :doc:`./run_target_activation`.
 
 
-Launch Manager Shutdown
+Launch Manager shutdown
 =======================
 
 .. feat_arc_dyn:: Launch Manager Shutdown

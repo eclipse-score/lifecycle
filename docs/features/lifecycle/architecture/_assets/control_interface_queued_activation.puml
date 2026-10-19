@@ -35,16 +35,16 @@ sm -> LM : Activate Run Target ("Running", forced=False)
 LM -> LM: validate Run Target "Running"
 alt #White Run Target "Running" is valid
     LM -> LM: Queue Run Target Activation "Running"
-    [<-- LM: Request accepted
+    sm <-- LM: Request accepted
 else #Pink Run Target "Running" is invalid (Example: Run Target not configured)
-    [<-- LM: Request rejected
+    sm <-- LM: Request rejected
 end alt
 
 sm -> LM : Activate Run Target ("Full", forced=False)
 LM -> LM: validate Run Target "Full"
 alt #White Run Target "Full" is valid
     LM -> LM: Queue Run Target Activation "Full"
-    [<-- LM: Request accepted
+    sm <-- LM: Request accepted
 else #Pink Run Target "Full" is invalid (Example: Run Target not configured)
     [<-- LM: Request rejected
 end alt
@@ -69,11 +69,11 @@ group #White Start app1
     kernel -> app1 ++ : Start app1
     app1 -> app1 : Initialize
     app1 -> LM : Report Running via Lifecycle API
-    LM -> LM : Componetn app1 Ready
+    LM -> LM : Component app1 Ready
 end group
 
 LM -> LM: Run Target "Running" successfully activated
-[<-- LM: Invoke callback: Run Target "Running" successfully activated due to Request
+sm <-- LM: Invoke callback: Run Target "Running" successfully activated due to Request
 
 LM -> LM: Process next queued Run Target Activation: Run Target "Full"
 LM -> LM: Determine transition plan from "Running" -> "Full"
@@ -81,7 +81,7 @@ LM -> LM: Determine transition plan from "Running" -> "Full"
 ...
 
 LM -> LM: Run Target "Full" successfully activated
-[<-- LM: Invoke callback: Run Target "Full" successfully activated due to Request
+sm <-- LM: Invoke callback: Run Target "Full" successfully activated due to Request
 
 
 ...

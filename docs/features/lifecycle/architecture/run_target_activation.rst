@@ -12,7 +12,7 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-Run Target Activation
+Run Target activation
 #####################
 
 The Control interface (:need:`logic_arc_int__lifecycle__controlif`), provided by the

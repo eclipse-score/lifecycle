@@ -35,18 +35,18 @@ sm -> LM : Activate Run Target ("Running", forced=False)
 LM -> LM: validate Run Target "Running"
 alt #White Run Target "Running" is valid
     LM -> LM: Queue Run Target Activation "Running"
-    [<-- LM: Request accepted
+    sm <-- LM: Request accepted
 else #Pink Run Target "Running" is invalid (Example: Run Target not configured)
-    [<-- LM: Request rejected
+    sm <-- LM: Request rejected
 end alt
 
 sm -> LM : Activate Run Target ("Full", forced=False)
 LM -> LM: validate Run Target "Full"
 alt #White Run Target "Full" is valid
     LM -> LM: Queue Run Target Activation "Full"
-    [<-- LM: Request accepted
+    sm <-- LM: Request accepted
 else #Pink Run Target "Full" is invalid (Example: Run Target not configured)
-    [<-- LM: Request rejected
+    sm <-- LM: Request rejected
 end alt
 
 note over LM
@@ -65,9 +65,9 @@ group #White Start random
         sm -> LM : Activate Run Target ("Off", forced=True)
         LM -> LM: validate Run Target "Off"
         alt  Run Target "Off" is valid
-            [<-- LM: Request accepted
+            sm <-- LM: Request accepted
         else #Pink Run Target "Off" is invalid (Example: Run Target not configured)
-            [<-- LM: Request rejected
+            sm <-- LM: Request rejected
         end alt
     end group
 
