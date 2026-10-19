@@ -100,7 +100,6 @@ int main(int argc, const char* argv[])
     while (!exitRequested)
     {
         pause();
-        std::this_thread::sleep_for(100ms);
     }
 
     return EXIT_SUCCESS;
