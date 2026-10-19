@@ -48,6 +48,14 @@ enum class ProcessLimits : std::uint32_t
     kNumWorkerThreads = 16U,  ///< Size of the used thread pool
 };
 
+/// @brief Stack size of each worker thread in the thread pool, in bytes.
+/// Sanitizer builds need much more stack, so they use the platform default (a stack size hint of 0 is ignored).
+#if defined(__SANITIZE_ADDRESS__) || defined(__SANITIZE_THREAD__)
+constexpr std::size_t kWorkerThreadStackSize{0U};
+#else
+constexpr std::size_t kWorkerThreadStackSize{32UL * 1024UL};
+#endif
+
 /// @brief Default size of Alive Supervision checkpoint buffer
 constexpr uint16_t kDefaultAliveSupCheckpointBufferElements{100U};
 

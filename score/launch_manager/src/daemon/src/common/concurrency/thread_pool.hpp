@@ -19,8 +19,8 @@
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent_controller.hpp"
 #include "score/os/utils/thread.h"
+#include <score/jthread.hpp>
 #include <memory>
-#include <thread>
 #include <vector>
 
 namespace score::mw::lifecycle::internal
@@ -48,8 +48,9 @@ class ThreadPool final
         for (uint32_t i = 0U; i < num_threads; ++i)
         {
             static_cast<void>(i);
-            auto& worker = worker_threads_.emplace_back(std::make_unique<std::thread>(&ThreadPool::run, this));
-            score::os::set_thread_name(*worker, "worker");
+            auto& worker = worker_threads_.emplace_back(
+                score::cpp::jthread::stack_size_hint{kWorkerThreadStackSize}, &ThreadPool::run, this);
+            score::os::set_thread_name(worker, "worker");
         }
     }
 
@@ -60,9 +61,9 @@ class ThreadPool final
         stop();
         for (auto& thread : worker_threads_)
         {
-            if (thread->joinable())
+            if (thread.joinable())
             {
-                thread->join();
+                thread.join();
             }
         }
     }
@@ -114,7 +115,7 @@ class ThreadPool final
     IComponentController& component_controller_;
 
     /// @brief Vector of worker threads.
-    std::vector<std::unique_ptr<std::thread>> worker_threads_{};
+    std::vector<score::cpp::jthread> worker_threads_{};
 };
 
 }  // namespace score::mw::lifecycle::internal
