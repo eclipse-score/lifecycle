@@ -34,8 +34,6 @@ ProcessInfoNode::ProcessInfoNode(configuration::ComponentConfig&& config, Proces
       identifier_(config_.name),
       termination_waiter_(std::make_unique<TerminationWaiter>())
 {
-    // number_of_attempts is pre-validated with max value: 254
-    // Warn user and prevent overflow on the below increment if 255 is passed
     if (config_.deployment_config.ready_recovery_action.has_value())
     {
         start_retries_ = config_.deployment_config.ready_recovery_action->number_of_attempts;
