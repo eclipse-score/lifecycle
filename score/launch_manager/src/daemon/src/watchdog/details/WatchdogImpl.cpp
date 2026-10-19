@@ -240,7 +240,8 @@ bool WatchdogImpl::setTimeout(std::int32_t f_fd, std::uint16_t f_timeoutInMs) co
 bool WatchdogImpl::enableDevice(WatchdogDevice& f_state_r) const noexcept
 {
     SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD(f_state_r.fileDescriptor == -1);  // this should always be true
-    const auto openResult{fcntl_.open(f_state_r.config.fileName.c_str(), score::os::Fcntl::Open::kWriteOnly)};
+    const auto openResult{fcntl_.open(
+        f_state_r.config.fileName.c_str(), score::os::Fcntl::Open::kWriteOnly | score::os::Fcntl::Open::kCloseOnExec)};
     f_state_r.fileDescriptor = openResult.has_value() ? openResult.value() : -1;
     bool isSuccess{true};
 

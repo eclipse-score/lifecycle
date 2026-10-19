@@ -16,7 +16,7 @@
 .. document:: Launch Manager Requirements Inspection Checklist
   :id: doc__launch_manager_req_inspection
   :status: draft
-  :version: 1
+  :version: 2
   :safety: ASIL_B
   :security: YES
   :realizes: wp__requirements_inspect[version==1]
@@ -159,29 +159,24 @@ See also :need:`doc_concept__wp_inspections` for further information about revie
 
 Note: If a Review ID is not applicable for your requirement, then state ""n/a" in status and comment accordingly in remarks.
 
-The following requirements in "valid" state and with "inspected" tag set are in the scope of this inspection:
+The following requirements in "valid_inspected" state are in the scope of this inspection:
 
 .. needtable::
-   :filter: "component_name" in docname and "requirements" in docname and docname is not None and status == "valid"
+   :filter: "launch_manager" in docname and "requirements" in docname and docname is not None
    :style: table
    :types: comp_req
-   :tags: component_name
+   :tags: launch_manager
    :columns: id;status;tags
    :colwidths: 25,25,25
    :sort: title
 
-And also the following AoUs in "valid" state and with "inspected" tag set (for these please answer the questions above as if the AoUs are requirements, except question REQ_03_01):
+And also the following AoUs in "valid_inspected" state (for these please answer the questions above as if the AoUs are requirements, except question REQ_03_01):
 
 .. needtable::
-   :filter: "component_name" in docname and "requirements" in docname and docname is not None and status == "valid"
+   :filter: "launch_manager" in docname and "requirements" in docname and docname is not None
    :style: table
    :types: aou_req
-   :tags: component_name
+   :tags: launch_manager
    :columns: id;status;tags
    :colwidths: 25,25,25
    :sort: title
-
-.. attention::
-    The above tables filtering must be updated according to your Component.
-
-    - Modify ``component_name`` to be your Component Name in lower snake case

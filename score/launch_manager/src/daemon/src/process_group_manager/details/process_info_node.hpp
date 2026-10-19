@@ -68,8 +68,17 @@ class ProcessInfoNode final : public IComponent
           sync_(std::move(other.sync_)),
           process_handling_(std::move(other.process_handling_)),
           supervision_handle_(std::move(other.supervision_handle_)),
-          identifier_(other.identifier_)
+          start_tries_(other.start_tries_),
+          identifier_(other.identifier_),
+          termination_result_(other.termination_result_),
+          termination_waiter_(std::move(other.termination_waiter_))
     {
+        // std::atomic_flag is not copyable, so transfer its state via test_and_set.
+        if (other.success_returned_.test_and_set())
+        {
+            success_returned_.test_and_set();
+        }
+        other.success_returned_.clear();
     }
 
     ProcessInfoNode(ProcessInfoNode& other) = delete;
