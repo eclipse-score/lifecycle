@@ -27,7 +27,7 @@ namespace score::mw::lifecycle::internal
 ProcessInfoNode::ProcessInfoNode(configuration::ComponentConfig&& config, ProcessHandling process_handling)
     : termination_requested_(false),
       pid_(0),
-      exit_code_(0),
+      exit_status_(0),
       config_(std::move(config)),
       process_handling_(std::move(process_handling)),
       identifier_(config_.name),
@@ -174,8 +174,8 @@ void ProcessInfoNode::unblockSync()
 
 IComponent::RequestResult ProcessInfoNode::tryHandleTermination(int32_t process_status)
 {
-    LM_LOG_DEBUG() << "Process" << identifier_ << "( pid" << pid_ << ") terminated with exit code" << process_status;
-    exit_code_ = process_status;
+    LM_LOG_DEBUG() << "Process" << identifier_ << "( pid" << pid_ << ") terminated with status" << process_status;
+    exit_status_ = process_status;
     IComponent::RequestResult res = {IComponent::RequestState::kWaiting};
     ProcessState starting = ProcessState::kStarting;
 
@@ -211,8 +211,8 @@ IComponent::RequestResult ProcessInfoNode::tryHandleTermination(int32_t process_
         }
         else
         {
-            LM_LOG_WARN() << "unexpected termination of process" << identifier_ << "( pid" << pid_ << "exit code"
-                          << exit_code_ << ")";
+            LM_LOG_WARN() << "unexpected termination of process" << identifier_ << "( pid" << pid_ << "status"
+                          << exit_status_ << ")";
             res = score::cpp::make_unexpected(IComponent::ComponentError::kErrorAfterReady);
         }
     }
@@ -259,7 +259,7 @@ IComponent::RequestResult ProcessInfoNode::startProcess(score::cpp::stop_token s
         }
 
         pid_ = 0;
-        exit_code_ = 0;
+        exit_status_ = 0;
         error = std::nullopt;
         termination_result_ = TeminationResult::kNone;
         termination_waiter_->reset();
@@ -366,7 +366,7 @@ score::cpp::expected_blank<IComponent::ComponentError> ProcessInfoNode::handlePr
                 // we can return early
                 if (!isReporting() && (*ready_state == configuration::ProcessState::Running))
                 {
-                    return exit_code_ == 0;
+                    return exit_status_ == 0;
                 }
 
                 // We only want to wait for kRunning with Reporting processes
@@ -394,7 +394,7 @@ score::cpp::expected_blank<IComponent::ComponentError> ProcessInfoNode::handlePr
                     }
                 }
 
-                return exit_code_ == 0;
+                return exit_status_ == 0;
             }
             // req-id: comp_req__launch_man__rc_file_state
             else if constexpr (std::is_same_v<T, configuration::FileState>)
@@ -420,7 +420,7 @@ score::cpp::expected_blank<IComponent::ComponentError> ProcessInfoNode::handlePr
                     LM_LOG_ERROR() << "Error Waiting for file";
                 }
 
-                return (wait_res == osal::OsalReturnType::kSuccess) && (exit_code_ == 0);
+                return (wait_res == osal::OsalReturnType::kSuccess) && (exit_status_ == 0);
             }
         },
         config_.component_properties.ready_condition);

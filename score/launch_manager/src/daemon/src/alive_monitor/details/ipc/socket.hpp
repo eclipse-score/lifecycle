@@ -25,9 +25,9 @@
 #include <string>
 #include <string_view>
 
-#include "ringbuffer.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ipc/ringbuffer.hpp"
 
-namespace ipc_dropin
+namespace score::mw::lifecycle::internal::saf::ipc
 {
 enum class ReturnCode
 {
@@ -188,7 +188,7 @@ class Socket
         {
             return ReturnCode::kQueueEmpty;
         }
-        if (buffer_->template tryPeek(elem))
+        if (buffer_->template tryPeek<Payload>(elem))
         {
             return ReturnCode::kOk;
         }
@@ -275,6 +275,6 @@ class Socket
     }
 };
 
-}  // namespace ipc_dropin
+}  // namespace score::mw::lifecycle::internal::saf::ipc
 
 #endif

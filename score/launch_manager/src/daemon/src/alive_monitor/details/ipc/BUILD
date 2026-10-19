@@ -25,9 +25,23 @@ cc_library(
         "//score/launch_manager/src/alive:__subpackages__",
         "//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__",
     ],
-    deps = ["//externals/ipc_dropin"] + select({
+    deps = [":ipc_impl"] + select({
         "@platforms//os:qnx": [],
         "@platforms//os:linux": ["//externals/acl"],
     }),
     alwayslink = True,
+)
+
+cc_library(
+    name = "ipc_impl",
+    hdrs = [
+        "ringbuffer.hpp",
+        "socket.hpp",
+    ],
+    include_prefix = "score/mw/launch_manager/alive_monitor/details/ipc",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/ipc",
+    visibility = [
+        "//examples/control_application:__pkg__",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/ifexm:__pkg__",
+    ],
 )

@@ -51,7 +51,7 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/ifexm",
     visibility = ["//score:__subpackages__"],
     deps = [
-        "//externals/ipc_dropin",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/ipc:ipc_impl",
         "//score/launch_manager/src/daemon/src/common:identifier_hash",
     ],
 )

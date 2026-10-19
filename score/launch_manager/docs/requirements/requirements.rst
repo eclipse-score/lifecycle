@@ -219,7 +219,7 @@ Ready Conditions
     The :term:`Launch Manager` shall support a :term:`Ready Condition` that is
     satisfied when :term:`Component` notifies the :term:`Lifecycle Interface`.
 
-.. comp_req:: Ready Condition - File state 
+.. comp_req:: Ready Condition - File state
     :id: comp_req__launch_man__rc_file_state
     :reqtype: Functional
     :security: NO
@@ -294,8 +294,8 @@ Launching Processes
 
 Process Configuration
 """""""""""""""""""""
-.. 
-    Why does everything map here to feat_req__lifecycle__custom_cond_support? 
+..
+    Why does everything map here to feat_req__lifecycle__custom_cond_support?
     When looking on this requirement it seems it is related to Control interface API.
 
 .. comp_req:: Handling process args
@@ -507,8 +507,8 @@ Process Configuration
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall provide support for launching a process with 
-    a set of system resource limits (rlimit) which are defined by the 
+    The :term:`Launch Manager` shall provide support for launching a process with
+    a set of system resource limits (rlimit) which are defined by the
     POSIX-Standard (IEEE Std 1003.1). I.e. RLIMIT_CORE, RLIMIT_CPU,
     RLIMIT_DATA, RLIMIT_FSIZE, RLIMIT_NOFILE, RLIMIT_STACK and RLIMIT_AS.
 
@@ -736,7 +736,7 @@ Alive Monitoring
 
     .. note::
         An adopted process is a process that was not originally launched by the :term:`Launch Manager`.
-        **Use case:** There might be processes which are needed to start very early during bootup and 
+        **Use case:** There might be processes which are needed to start very early during bootup and
         are therefore launched by the system before the :term:`Launch Manager` takes control.
 
 
@@ -1083,6 +1083,6 @@ Configuration file
 
     The :term:`Launch Manager` shall have a means to validate the configuration offline.
 
-.. needextend:: c.this_doc() and is_external == False and "__launch_manager__" in id
+.. needextend:: c.this_doc() and is_external == False
    :+tags: lifecycle, launch_manager
 

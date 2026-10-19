@@ -16,7 +16,7 @@
 
 #include <memory>
 
-#include "ipc_dropin/socket.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ipc/socket.hpp"
 #include <string_view>
 
 namespace score::mw::lifecycle::internal::saf::ipc
@@ -30,10 +30,7 @@ namespace score::mw::lifecycle::internal::saf::ipc
 /// Valid interval is [4, 32768]. Only numbers divisible by 2 are valid.
 /// @tparam Socket The socket type (templated for dependency injection)
 
-template <
-    class Payload,
-    std::uint16_t MaxNumberElements,
-    class Socket = ipc_dropin::Socket<sizeof(Payload), MaxNumberElements>>
+template <class Payload, std::uint16_t MaxNumberElements, class Socket = Socket<sizeof(Payload), MaxNumberElements>>
 class IpcBase
 {
     // Payload must have a trivial memory layout, so that it will be the exactly same object
@@ -89,7 +86,7 @@ class IpcBase
         {
             return false;
         }
-        return (socket->template trySendEmplace<Payload>(std::forward<Args>(f_args)...)) == ipc_dropin::ReturnCode::kOk;
+        return (socket->template trySendEmplace<Payload>(std::forward<Args>(f_args)...)) == ReturnCode::kOk;
     }
 
     /// @brief The peek() operation can have multiple outcomes, that
@@ -111,12 +108,12 @@ class IpcBase
             return EIpcPeekResult::kNoDataToRead;
         }
 
-        const ipc_dropin::ReturnCode result{socket->tryPeek(f_elem_p)};
-        if (result == ipc_dropin::ReturnCode::kOk)
+        const ReturnCode result{socket->tryPeek(f_elem_p)};
+        if (result == ReturnCode::kOk)
         {
             return EIpcPeekResult::kOk;
         }
-        if (result == ipc_dropin::ReturnCode::kQueueEmpty)
+        if (result == ReturnCode::kQueueEmpty)
         {
             return EIpcPeekResult::kNoDataToRead;
         }
@@ -133,7 +130,7 @@ class IpcBase
         {
             return false;
         }
-        return (socket->tryPop() == ipc_dropin::ReturnCode::kOk);
+        return (socket->tryPop() == ReturnCode::kOk);
     }
 
     /// @brief Close the IPC channel

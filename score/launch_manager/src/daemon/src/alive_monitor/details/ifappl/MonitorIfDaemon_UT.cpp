@@ -35,7 +35,7 @@ std::atomic<int> g_ipcCounter{0};
 
 std::string makeUniqueIpcName()
 {
-    // The ipc_dropin::Socket prepends '/' when the name doesn't start with it.
+    // The ipc::Socket prepends '/' when the name doesn't start with it.
     return "test_monifd_ipc_" + std::to_string(g_ipcCounter.fetch_add(1));
 }
 

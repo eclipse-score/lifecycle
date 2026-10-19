@@ -21,8 +21,8 @@
 
 #include <memory>
 
-#include "ipc_dropin/socket.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ipc/IpcBase.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ipc/socket.hpp"
 #include <unistd.h>
 #include <string>
 
@@ -36,10 +36,7 @@ namespace score::mw::lifecycle::internal::saf::ipc
 /// @tparam MaxNumberElements The maximum number of elements that can be stored at once in IPC channel.
 /// Valid interval is [4, 32768]. Only numbers divisible by 2 are valid.
 /// @tparam Socket The socket type (default: pipc socket, templated for dependency injection)
-template <
-    class Payload,
-    std::uint16_t MaxNumberElements,
-    class Socket = ipc_dropin::Socket<sizeof(Payload), MaxNumberElements>>
+template <class Payload, std::uint16_t MaxNumberElements, class Socket = Socket<sizeof(Payload), MaxNumberElements>>
 class IpcServer final : public IpcBase<Payload, MaxNumberElements, Socket>
 {
     /// @brief Take over definitions from base class
@@ -86,13 +83,13 @@ class IpcServer final : public IpcBase<Payload, MaxNumberElements, Socket>
     /// @return kOk if initialization of ipc channel successful, else kPermissionDenied or kFailed
     EIpcInitResult init(const std::string& f_ipcName_r, mode_t f_mode = kOwnerReadWrite) noexcept(false)
     {
-        ipc_dropin::ReturnCode result{socket->create(f_ipcName_r.c_str(), f_mode)};
-        if (result == ipc_dropin::ReturnCode::kOk)
+        ReturnCode result{socket->create(f_ipcName_r.c_str(), f_mode)};
+        if (result == ReturnCode::kOk)
         {
             isInitialized = true;
             return EIpcInitResult::kOk;
         }
-        else if (result == ipc_dropin::ReturnCode::kPermissionDenied)
+        else if (result == ReturnCode::kPermissionDenied)
         {
             isInitialized = false;
             return EIpcInitResult::kPermissionDenied;
