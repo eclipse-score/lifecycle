@@ -88,7 +88,7 @@ int main(int argc, const char* argv[])
     const auto result = client->activate_run_target(score::mw::lifecycle::RunTargetName{"Running"}, true);
     if (result.has_value())
     {
-        std::cerr << "Successfully requested Run Target " << std::endl;
+        std::cout << "Successfully requested Run Target " << std::endl;
     }
     else
     {
@@ -97,7 +97,7 @@ int main(int argc, const char* argv[])
     }
 
     // wait until lm wants to terminate
-    while (exitRequested == 0)
+    while (!exitRequested)
     {
         pause();
         std::this_thread::sleep_for(100ms);
