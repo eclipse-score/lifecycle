@@ -63,7 +63,7 @@ class ProcessLauncherTest : public ::testing::Test
         ON_CALL(*g_syscall_mock, msync(sync, _, _)).WillByDefault(Return(0));
         EXPECT_CALL(*g_syscall_mock, msync).Times(AnyNumber());
 
-        std::shared_ptr<IpcCommsSync> shared{sync, [](IpcCommsSync* ptr) {
+        std::shared_ptr<IpcCommsSync> shared{sync, [](IpcCommsSync*) {
                                              }};
 
         return shared;
