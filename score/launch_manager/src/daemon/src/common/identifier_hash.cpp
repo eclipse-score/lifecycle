@@ -55,6 +55,10 @@ namespace
 {
 
 // Portable hash function FNV-1a https://www.rfc-editor.org/info/rfc9923/
+// This algorithm and its constants are mirrored in Python by
+// scripts/config_mapping/lifecycle_config.py (check_run_target_hash_collisions),
+// which rejects configurations whose run-target names would collide here. Keep
+// the two implementations in sync.
 
 #if SIZE_MAX == UINT32_MAX
 constexpr std::size_t kFnvOffsetBasis = 2166136261U;

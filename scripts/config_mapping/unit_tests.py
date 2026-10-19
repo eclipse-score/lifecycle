@@ -23,18 +23,24 @@ _scripts_dir = Path(__file__).resolve().parent
 if str(_scripts_dir) not in sys.path:
     sys.path.insert(0, str(_scripts_dir))
 
+import lifecycle_config
 from lifecycle_config import (
     custom_validations,
     check_cyclic_dependencies,
+    check_run_target_hash_collisions,
+    fnv1a_hash,
     gen_config,
     get_working_dir,
     is_supervised,
     load_json_file,
+    main,
     output_filename,
     parse_affinity_mask,
     preprocess_defaults,
     schema_validation,
     score_defaults,
+    CUSTOM_VALIDATION_FAILURE,
+    HASH_COLLISION_FAILURE,
     SCHED_POLICY_MAP,
 )
 
@@ -762,6 +768,104 @@ def test_custom_validations_multiple_errors(full_valid_config):
     full_valid_config["run_targets"]["fallback_run_target"] = {"depends_on": []}
     full_valid_config["run_targets"]["app1"] = {"depends_on": []}
     assert custom_validations(full_valid_config) is False
+
+
+# ---------------------------------------------------------------------------
+# fnv1a_hash / check_run_target_hash_collisions (issue #545)
+# ---------------------------------------------------------------------------
+
+
+def test_fnv1a_hash_matches_identifier_hash_cpp_values():
+    """The Python hash must reproduce the pinned FNV-1a values from identifier_hash_UT.cpp."""
+    assert fnv1a_hash("ProcessGroup1/Startup") == 8274850808357109446
+    assert fnv1a_hash("MachineFG__Startup") == 15176715858869822476
+    assert fnv1a_hash("") == 14695981039346656037
+
+
+def test_check_run_target_hash_collisions_accepts_distinct_names():
+    """Distinct run-target names with distinct hashes must pass the check."""
+    config = {"run_targets": {"Startup": {}, "Running": {}, "Off": {}}}
+    assert check_run_target_hash_collisions(config) is True
+
+
+def test_check_run_target_hash_collisions_detects_collision(monkeypatch, capsys):
+    """Two distinct names with the same hash must be reported and rejected (issue #545).
+
+    A naturally occurring collision is not searched for by brute force; the hash
+    function is monkeypatched to force a deterministic collision instead.
+    """
+    real_hash = fnv1a_hash
+    monkeypatch.setattr(
+        lifecycle_config,
+        "fnv1a_hash",
+        lambda name: real_hash("Startup")
+        if name in ("Alpha", "Beta")
+        else real_hash(name),
+    )
+    config = {"run_targets": {"Alpha": {}, "Beta": {}}}
+    assert check_run_target_hash_collisions(config) is False
+    error_output = capsys.readouterr().err
+    assert "collision" in error_output
+    assert "'Alpha'" in error_output and "'Beta'" in error_output
+    assert str(real_hash("Startup")) in error_output
+    # The colliding names must not be mutated, renamed or deduplicated
+    assert list(config["run_targets"]) == ["Alpha", "Beta"]
+
+
+def test_check_run_target_hash_collisions_implicit_run_target_names(
+    monkeypatch, capsys
+):
+    """A name colliding with the implicit 'Off' run-target identifier is rejected."""
+    real_hash = fnv1a_hash
+    monkeypatch.setattr(
+        lifecycle_config,
+        "fnv1a_hash",
+        lambda name: real_hash("Off") if name == "Ghost" else real_hash(name),
+    )
+    config = {"run_targets": {"Ghost": {}}}
+    assert check_run_target_hash_collisions(config) is False
+    error_output = capsys.readouterr().err
+    assert "'Ghost'" in error_output and "'Off'" in error_output
+
+
+def test_main_exits_1_on_run_target_hash_collision(monkeypatch, tmp_path):
+    """A hash collision must exit the script with status 1 (issue #545 DoD)."""
+    config_file = tmp_path / "lm_config.json"
+    config_file.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "run_targets": {
+                    "Alpha": {"depends_on": []},
+                    "Beta": {"depends_on": []},
+                },
+                "initial_run_target": "Alpha",
+            }
+        )
+    )
+    monkeypatch.setattr(lifecycle_config, "fnv1a_hash", lambda name: 42)
+    monkeypatch.setattr(sys, "argv", ["lifecycle_config.py", str(config_file)])
+    with pytest.raises(SystemExit) as excinfo:
+        main()
+    assert excinfo.value.code == HASH_COLLISION_FAILURE == 1
+
+
+def test_main_unrelated_validation_errors_keep_exit_code(monkeypatch, tmp_path):
+    """Unrelated validation errors must keep their current exit code."""
+    config_file = tmp_path / "lm_config.json"
+    config_file.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "run_targets": {"fallback_run_target": {"depends_on": []}},
+                "initial_run_target": "fallback_run_target",
+            }
+        )
+    )
+    monkeypatch.setattr(sys, "argv", ["lifecycle_config.py", str(config_file)])
+    with pytest.raises(SystemExit) as excinfo:
+        main()
+    assert excinfo.value.code == CUSTOM_VALIDATION_FAILURE
 
 
 # ---------------------------------------------------------------------------
