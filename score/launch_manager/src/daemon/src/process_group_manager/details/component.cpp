@@ -20,13 +20,13 @@ Component::Component(
     const IStartAction& start_action,
     const IStopAction& stop_action,
     const IForceStopAction& force_stop_action,
-    const cpp::span<std::reference_wrapper<const IReadyCondition>> ready_conditions,
+    const IReadyCondition& ready_condition,
     bool self_terminating,
     IdentifierHash identifier)
     : start_action_(start_action),
       stop_action_(stop_action),
       force_stop_action_(force_stop_action),
-      ready_conditions_(ready_conditions),
+      ready_condition_(ready_condition),
       self_terminating_(self_terminating),
       identifier_(identifier),
       state_(TerminatedState{})
@@ -55,15 +55,12 @@ IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
 
     state_ = StartingState{handle, stop_activation};
 
-    // Wait for ready conditions. The state is unlocked so that `deactivate` or
+    // Wait for the ready condition. The state is unlocked so that `deactivate` or
     // `tryHandleTermination` are callable while we are waiting.
     lock.unlock();
-    for (const IReadyCondition& ready_condition : ready_conditions_)
+    if (!ready_condition_.wait(stop_activation.get_token(), handle).has_value())
     {
-        if (!ready_condition.wait(stop_activation.get_token(), handle).has_value())
-        {
-            return cpp::make_unexpected(ComponentError::kErrorBeforeReady);
-        }
+        return cpp::make_unexpected(ComponentError::kErrorBeforeReady);
     }
     lock.lock();
 
@@ -144,15 +141,9 @@ IComponent::RequestResult Component::tryHandleTermination(int32_t status)
     invalidate(handle);
 
     // Certain ready conditions can accept terminations.
-    if (starting != nullptr)
+    if (starting != nullptr && ready_condition_.tryHandleTermination(handle, status))
     {
-        for (const IReadyCondition& ready_condition : ready_conditions_)
-        {
-            if (ready_condition.tryHandleTermination(handle, status))
-            {
-                return RequestState::kWaiting;
-            }
-        }
+        return RequestState::kWaiting;
     }
 
     // Self-terminating components can accept terminations.

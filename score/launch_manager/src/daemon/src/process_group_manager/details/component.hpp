@@ -19,11 +19,8 @@
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/iready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/start_action/istart_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/stop_action/istop_action.hpp"
-#include <score/span.hpp>
-#include <functional>
 #include <mutex>
 #include <variant>
-#include <vector>
 
 namespace score::mw::lifecycle::internal
 {
@@ -36,15 +33,14 @@ class Component final : public IComponent
     /// @param start_action How to start the resource.
     /// @param stop_action How to gracefully stop the resource.
     /// @param force_stop_action How to forcefully stop the resource.
-    /// @param ready_conditions How to decide when the resource has finished its startup.
+    /// @param ready_condition How to decide when the resource has finished its startup.
     /// @param self_terminating Whether the resource is allowed to terminate on its own.
     /// @param identifier Name of the component.
     Component(
         const IStartAction& start_action,
         const IStopAction& stop_action,
         const IForceStopAction& force_stop_action,
-        cpp::span<std::reference_wrapper<const IReadyCondition>> ready_conditions =
-            cpp::span<std::reference_wrapper<const IReadyCondition>>{},
+        const IReadyCondition& ready_condition,
         bool self_terminating = false,
         IdentifierHash identifier = IdentifierHash{});
 
@@ -85,7 +81,7 @@ class Component final : public IComponent
     const IForceStopAction& force_stop_action_;
 
     /// @brief How to decide when the resource has finished its startup.
-    const cpp::span<std::reference_wrapper<const IReadyCondition>> ready_conditions_;
+    const IReadyCondition& ready_condition_;
 
     /// @brief Whether the resource is allowed to terminate on its own.
     const bool self_terminating_;
