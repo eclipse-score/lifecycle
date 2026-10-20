@@ -13,6 +13,7 @@
 
 #include "score/mw/health/common.h"
 #include <gtest/gtest.h>
+#include <cstdint>
 
 using namespace score::mw::health;
 
@@ -48,4 +49,43 @@ TEST_F(TimeRangeFixture, MinMax)
     TimeRange range{123ms, 456ms};
     ASSERT_EQ(range.MinMs(), 123);
     ASSERT_EQ(range.MaxMs(), 456);
+}
+
+TEST_F(TimeRangeFixture, GivenMinOutOfBounds_WhenConstructorCalled_ThenError)
+{
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty(
+        "Description",
+        "Given a minimum time that is out of uint32_t lower bounds (-1). "
+        "When constructor is called. "
+        "Then the out of bounds values cause a crash.");
+
+    // Given
+    constexpr std::chrono::milliseconds::rep OUT_OF_BOUNDS_MIN_COUNT = static_cast<std::chrono::milliseconds::rep>(-1);
+    constexpr std::chrono::milliseconds::rep VALID_MAX_COUNT = 1;
+    constexpr auto OUT_OF_BOUNDS_MIN_MS = std::chrono::milliseconds(OUT_OF_BOUNDS_MIN_COUNT);
+    constexpr auto VALID_MAX_MS = std::chrono::milliseconds(VALID_MAX_COUNT);
+
+    // When, Then
+    ASSERT_DEATH({ TimeRange range(OUT_OF_BOUNDS_MIN_MS, VALID_MAX_MS); }, "");
+}
+
+TEST_F(TimeRangeFixture, GivenMaxOutOfBounds_WhenConstructorCalled_ThenError)
+{
+    RecordProperty("DerivationTechnique", "boundary-values");
+    RecordProperty(
+        "Description",
+        "Given a maximum time that is out of uint32_t upper bounds (UINT32_MAX + 1). "
+        "When constructor is called. "
+        "Then the out of bounds values cause a crash.");
+
+    // Given
+    constexpr std::chrono::milliseconds::rep VALID_MIN_COUNT = 0;
+    constexpr std::chrono::milliseconds::rep OUT_OF_BOUNDS_MAX_COUNT =
+        static_cast<std::chrono::milliseconds::rep>(UINT32_MAX) + 1;
+    constexpr auto VALID_MIN_MS = std::chrono::milliseconds(VALID_MIN_COUNT);
+    constexpr auto OUT_OF_BOUNDS_MAX_MS = std::chrono::milliseconds(OUT_OF_BOUNDS_MAX_COUNT);
+
+    // When, Then
+    ASSERT_DEATH({ TimeRange range(VALID_MIN_MS, OUT_OF_BOUNDS_MAX_MS); }, "");
 }
