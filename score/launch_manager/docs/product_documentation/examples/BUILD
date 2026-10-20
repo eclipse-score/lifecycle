@@ -35,6 +35,7 @@ cc_binary(
     srcs = [
         "c_reporting_process.c",
     ],
+    copts = ["-std=gnu11"],
     visibility = ["//visibility:private"],
     deps = [
         "//score/launch_manager:lifecycle_cc",

@@ -15,8 +15,14 @@
 #include <signal.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "score/mw/lifecycle/report_running.h"
+
+const struct timespec interval = {
+    .tv_sec = 0,
+    .tv_nsec = 50000000,
+};
 
 volatile sig_atomic_t exitRequested = 0;
 
@@ -40,7 +46,7 @@ int main(int argc, char* argv[]){
 
     // wait until lm wants to terminate
     while(exitRequested == 0){
-        pause();
+        nanosleep(&interval, NULL);
     }
 
     return 0;
