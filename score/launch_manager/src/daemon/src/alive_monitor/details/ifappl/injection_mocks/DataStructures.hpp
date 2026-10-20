@@ -65,6 +65,7 @@ class MockCheckpointIpcServer
     MOCK_METHOD(bool, pop, (), (noexcept(true)));
 };
 
+/// @brief @see tests/utils/mocks/README.md#Header%20replacement for explanation and usage
 extern std::unique_ptr<MockCheckpointIpcServer> g_mock_checkpoint_ipc_server;
 
 class CheckpointIpcServer

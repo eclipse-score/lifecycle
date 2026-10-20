@@ -33,6 +33,7 @@ struct MockMonitorIfDaemon
     MOCK_METHOD(void, ctor, (CheckpointIpcServer & f_ipcServer_r, const char* f_interfaceName_p), (noexcept(false)));
 };
 
+/// @brief @see tests/utils/mocks/README.md#Header%20replacement for explanation and usage
 extern std::unique_ptr<MockMonitorIfDaemon> g_mock_monitor_if_daemon;
 
 class MonitorIfDaemon : public common::Observer<ifexm::ObservableEvent>, public common::Observable<Checkpoint>

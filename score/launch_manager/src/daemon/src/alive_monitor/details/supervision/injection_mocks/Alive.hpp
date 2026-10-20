@@ -60,6 +60,7 @@ class MockAlive
     MOCK_METHOD(IdentifierHash, getIdentifier, (), (const, noexcept));
 };
 
+/// @brief @see tests/utils/mocks/README.md#Header%20replacement for explanation and usage
 extern std::unique_ptr<MockAlive> g_mock_alive_supervision;
 
 class Alive : public ISupervision,
