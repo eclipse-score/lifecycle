@@ -31,6 +31,8 @@ Current Run Target: "Minimal"
 Components StateManager and setup_filesystems.sh are Ready.
 end note
 
+=== Receiving multiple queued Run Target activation requests ==
+
 sm -> LM : Activate Run Target ("Running", forced=False)
 LM -> LM: validate Run Target "Running"
 alt #White Run Target "Running" is valid
@@ -46,12 +48,14 @@ alt #White Run Target "Full" is valid
     LM -> LM: Queue Run Target Activation "Full"
     sm <-- LM: Request accepted
 else #Pink Run Target "Full" is invalid (Example: Run Target not configured)
-    [<-- LM: Request rejected
+    sm <-- LM: Request rejected
 end alt
 
 note over LM
 The following sequence assumes that both requests have been accepted.
 end note
+
+=== Transition from Run Target "Minimal" to "Running" ==
 
 LM -> LM: Process next queued Run Target Activation: Run Target "Running"
 LM -> LM: Determine transition plan from "Minimal" -> "Running"
@@ -74,6 +78,8 @@ end group
 
 LM -> LM: Run Target "Running" successfully activated
 sm <-- LM: Invoke callback: Run Target "Running" successfully activated due to Request
+
+=== Transition from Run Target "Running" to "Full" ==
 
 LM -> LM: Process next queued Run Target Activation: Run Target "Full"
 LM -> LM: Determine transition plan from "Running" -> "Full"

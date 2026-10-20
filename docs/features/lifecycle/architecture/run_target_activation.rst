@@ -45,7 +45,7 @@ the :term:`Launch Manager` shall perform the following operations:
 2. **Transition Logic**: Determine the transition from the current state to the target state:
 
    - If a different Run Target is active, perform a switch operation (stop current, start requested)
-   - If the same Run Target is already active, verify its state and potentially restart failed components
+   - If the same Run Target is already active, no further actions are required
 
 3. **Execution**: Execute the transition in the correct dependency order:
 
