@@ -95,15 +95,46 @@ class SafeProcessMap final : public SafeProcessMapInserter
     SafeProcessMapReturnType insertIfNotTerminated(osal::ProcessID key, IComponent* component);
 
   private:
-    /// @brief Stores the component for `key`.
-    /// @warning The caller must hold `map_mutex_`.
-    /// @return kOk on success, kInsertionError if full or not inserted.
-    SafeProcessMapReturnType storeComponent(osal::ProcessID key, IComponent& component);
+    template <typename InsertType, typename MatchType, typename OnMatch>
+    SafeProcessMapReturnType
+    tryInsert(osal::ProcessID key, InsertType value, OnMatch on_match, SafeProcessMapReturnType on_insert)
+    {
+        if (key < 0)
+        {
+            return SafeProcessMapReturnType::kInvalidIdError;
+        }
 
-    /// @brief Stores the exit code for `key`.
-    /// @warning The caller must hold `map_mutex_`.
-    /// @return kYield on success, kInsertionError if full or not inserted.
-    SafeProcessMapReturnType storeExitCode(osal::ProcessID key, int32_t status);
+        std::unique_lock map_lock(map_mutex_);
+
+        while (true)
+        {
+            const auto it = process_map_.find(key);
+
+            if (it == process_map_.end())
+            {
+                if (process_map_.size() == capacity_)
+                {
+                    return SafeProcessMapReturnType::kInsertionError;
+                }
+
+                const bool inserted = process_map_.try_emplace(key, value).second;
+
+                return inserted ? on_insert : SafeProcessMapReturnType::kInsertionError;
+            }
+
+            if (const MatchType* match = std::get_if<MatchType>(&it->second))
+            {
+                process_map_.erase(it);
+                map_cv_.notify_all();
+                return on_match(*match);
+            }
+
+            // If there is no match, and there is already a value stored, then
+            // we are dealing with a reused key. This is handled by blocking
+            // until the previous entry is removed.
+            map_cv_.wait(map_lock);
+        }
+    }
 
     /// @brief Maximum number of processes which can be stored simultaneously.
     size_t capacity_;

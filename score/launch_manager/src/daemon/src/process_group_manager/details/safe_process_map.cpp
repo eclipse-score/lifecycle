@@ -24,98 +24,28 @@ SafeProcessMap::SafeProcessMap(size_t capacity, IComponentController& terminatio
 
 SafeProcessMapReturnType SafeProcessMap::findTerminated(osal::ProcessID key, int32_t status)
 {
-    if (key < 0)
-    {
-        return SafeProcessMapReturnType::kInvalidIdError;
-    }
-
-    std::unique_lock map_lock(map_mutex_);
-
-    while (true)
-    {
-        const auto it = process_map_.find(key);
-
-        if (it != process_map_.end())
-        {
-            if (auto* component = std::get_if<std::reference_wrapper<IComponent>>(&it->second))
-            {
-                IComponent& matched_component = component->get();
-                process_map_.erase(it);
-                map_cv_.notify_all();
-                termination_handler_.terminated(matched_component, status);
-                return SafeProcessMapReturnType::kOk;
-            }
-        }
-        else
-        {
-            return storeExitCode(key, status);
-        }
-
-        // If there is no match, and there is already an exit code in the map, then we
-        // are dealing with a reused ID. This is handled by blocking until the previous
-        // entry is removed.
-        map_cv_.wait(map_lock);
-    }
+    return tryInsert<int32_t, std::reference_wrapper<IComponent>>(
+        key,
+        status,
+        [this, status](std::reference_wrapper<IComponent> component) {
+            termination_handler_.terminated(component.get(), status);
+            return SafeProcessMapReturnType::kOk;
+        },
+        SafeProcessMapReturnType::kYield);
 }
 
 SafeProcessMapReturnType SafeProcessMap::insertIfNotTerminated(osal::ProcessID key, IComponent* component)
 {
     SCORE_LANGUAGE_FUTURECPP_ASSERT(component != nullptr);
 
-    if (key < 0)
-    {
-        return SafeProcessMapReturnType::kInvalidIdError;
-    }
-
-    std::unique_lock map_lock(map_mutex_);
-
-    while (true)
-    {
-        const auto it = process_map_.find(key);
-
-        if (it != process_map_.end())
-        {
-            if (const auto* exit_code = std::get_if<int32_t>(&it->second))
-            {
-                const int32_t matched_exit_code = *exit_code;
-                process_map_.erase(it);
-                map_cv_.notify_all();
-                termination_handler_.terminated(*component, matched_exit_code);
-                return SafeProcessMapReturnType::kYield;
-            }
-        }
-        else
-        {
-            return storeComponent(key, *component);
-        }
-
-        // If there is no match, and there is already a component in the map, then we
-        // are dealing with a reused ID. This is handled by blocking until the previous
-        // entry is removed.
-        map_cv_.wait(map_lock);
-    }
-}
-
-SafeProcessMapReturnType SafeProcessMap::storeComponent(osal::ProcessID key, IComponent& component)
-{
-    if (process_map_.size() == capacity_)
-    {
-        return SafeProcessMapReturnType::kInsertionError;
-    }
-
-    const bool inserted = process_map_.try_emplace(key, std::ref(component)).second;
-    return inserted ? SafeProcessMapReturnType::kOk : SafeProcessMapReturnType::kInsertionError;
-}
-
-SafeProcessMapReturnType SafeProcessMap::storeExitCode(osal::ProcessID key, int32_t status)
-{
-    if (process_map_.size() == capacity_)
-    {
-        return SafeProcessMapReturnType::kInsertionError;
-    }
-
-    const bool inserted = process_map_.try_emplace(key, status).second;
-    return inserted ? SafeProcessMapReturnType::kYield : SafeProcessMapReturnType::kInsertionError;
+    return tryInsert<std::reference_wrapper<IComponent>, int32_t>(
+        key,
+        std::ref(*component),
+        [this, component](int32_t exit_code) {
+            termination_handler_.terminated(*component, exit_code);
+            return SafeProcessMapReturnType::kYield;
+        },
+        SafeProcessMapReturnType::kOk);
 }
 
 }  // namespace score::mw::lifecycle::internal
