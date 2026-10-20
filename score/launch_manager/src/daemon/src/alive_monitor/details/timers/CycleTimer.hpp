@@ -93,15 +93,17 @@ class CycleTimer
         }
 
         int result{EINTR};  // means that the sleep was interrupted by a signal
+
+        // QNX defines TIMER_ABSTIME as 0x80000000U, which is negative in signed form,
+        // so we need an explicit cast
+#if defined(__QNX__)
+        constexpr int NANOSLEEP_FLAGS = static_cast<std::int32_t>(TIMER_ABSTIME);
+#else
+        constexpr int NANOSLEEP_FLAGS = TIMER_ABSTIME;
+#endif
+
         while ((EINTR == result) && (!f_exitRequested_r.load()))
         {
-            // QNX defines TIMER_ABSTIME as 0x80000000U, which is negative in signed form,
-            // so we need an explicit cast
-#if defined(__QNX__)
-            constexpr int NANOSLEEP_FLAGS = static_cast<std::int32_t>(TIMER_ABSTIME);
-#else
-            constexpr int NANOSLEEP_FLAGS = TIMER_ABSTIME;
-#endif
             result = osInterface->clockNanosleep(NANOSLEEP_FLAGS, &deadline, NULL);
         }
         return result;
