@@ -111,7 +111,7 @@ class IProcess
     /// @brief This method wait for kRunning to be received from the process that was started
     /// @param sync     The valid pointer returned from startProcess. Must not be NULL
     /// @param timeout  How long to wait for kRunning. If nullopt is provided, kRunning notifications are ignored
-    /// @return kFail if sync is NULL or a timeout occurs, kSuccess otherwise
+    /// @return kFail if sync is NULL or waiting fails, kTimeout on timeout, kSuccess otherwise
     virtual OsalReturnType waitForkRunning(IpcCommsP sync, std::optional<std::chrono::milliseconds> timeout) = 0;
 };
 
