@@ -19,8 +19,7 @@ namespace score::mw::lifecycle::internal
 SafeProcessMap::SafeProcessMap(size_t capacity, IComponentController& termination_handler)
     : capacity_(capacity), termination_handler_(termination_handler)
 {
-    component_map_.reserve(capacity_);
-    exit_code_map_.reserve(capacity_);
+    process_map_.reserve(capacity_);
 }
 
 SafeProcessMapReturnType SafeProcessMap::findTerminated(osal::ProcessID key, int32_t status)
@@ -34,13 +33,20 @@ SafeProcessMapReturnType SafeProcessMap::findTerminated(osal::ProcessID key, int
 
     while (true)
     {
-        if (const std::optional<std::reference_wrapper<IComponent>> matched = matchComponent(key))
-        {
-            termination_handler_.terminated(matched->get(), status);
-            return SafeProcessMapReturnType::kOk;
-        }
+        const auto it = process_map_.find(key);
 
-        if (exit_code_map_.count(key) == 0)
+        if (it != process_map_.end())
+        {
+            if (auto* component = std::get_if<std::reference_wrapper<IComponent>>(&it->second))
+            {
+                IComponent& matched_component = component->get();
+                process_map_.erase(it);
+                map_cv_.notify_all();
+                termination_handler_.terminated(matched_component, status);
+                return SafeProcessMapReturnType::kOk;
+            }
+        }
+        else
         {
             return storeExitCode(key, status);
         }
@@ -65,13 +71,20 @@ SafeProcessMapReturnType SafeProcessMap::insertIfNotTerminated(osal::ProcessID k
 
     while (true)
     {
-        if (const std::optional<int32_t> exit_code = matchExitCode(key))
-        {
-            termination_handler_.terminated(*component, *exit_code);
-            return SafeProcessMapReturnType::kYield;
-        }
+        const auto it = process_map_.find(key);
 
-        if (component_map_.count(key) == 0)
+        if (it != process_map_.end())
+        {
+            if (const auto* exit_code = std::get_if<int32_t>(&it->second))
+            {
+                const int32_t matched_exit_code = *exit_code;
+                process_map_.erase(it);
+                map_cv_.notify_all();
+                termination_handler_.terminated(*component, matched_exit_code);
+                return SafeProcessMapReturnType::kYield;
+            }
+        }
+        else
         {
             return storeComponent(key, *component);
         }
@@ -83,55 +96,25 @@ SafeProcessMapReturnType SafeProcessMap::insertIfNotTerminated(osal::ProcessID k
     }
 }
 
-std::optional<std::reference_wrapper<IComponent>> SafeProcessMap::matchComponent(osal::ProcessID key)
-{
-    const auto it = component_map_.find(key);
-
-    if (it == component_map_.end())
-    {
-        return std::nullopt;
-    }
-
-    const std::reference_wrapper<IComponent> component = it->second;
-    component_map_.erase(it);
-    map_cv_.notify_all();
-    return component;
-}
-
 SafeProcessMapReturnType SafeProcessMap::storeComponent(osal::ProcessID key, IComponent& component)
 {
-    if (component_map_.size() == capacity_)
+    if (process_map_.size() == capacity_)
     {
         return SafeProcessMapReturnType::kInsertionError;
     }
 
-    const bool inserted = component_map_.try_emplace(key, component).second;
+    const bool inserted = process_map_.try_emplace(key, std::ref(component)).second;
     return inserted ? SafeProcessMapReturnType::kOk : SafeProcessMapReturnType::kInsertionError;
-}
-
-std::optional<int32_t> SafeProcessMap::matchExitCode(osal::ProcessID key)
-{
-    const auto it = exit_code_map_.find(key);
-
-    if (it == exit_code_map_.end())
-    {
-        return std::nullopt;
-    }
-
-    const int32_t exit_code = it->second;
-    exit_code_map_.erase(it);
-    map_cv_.notify_all();
-    return exit_code;
 }
 
 SafeProcessMapReturnType SafeProcessMap::storeExitCode(osal::ProcessID key, int32_t status)
 {
-    if (exit_code_map_.size() == capacity_)
+    if (process_map_.size() == capacity_)
     {
         return SafeProcessMapReturnType::kInsertionError;
     }
 
-    const bool inserted = exit_code_map_.try_emplace(key, status).second;
+    const bool inserted = process_map_.try_emplace(key, status).second;
     return inserted ? SafeProcessMapReturnType::kYield : SafeProcessMapReturnType::kInsertionError;
 }
 

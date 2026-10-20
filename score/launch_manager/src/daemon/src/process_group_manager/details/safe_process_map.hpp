@@ -22,6 +22,7 @@
 #include <mutex>
 #include <optional>
 #include <unordered_map>
+#include <variant>
 
 namespace score::mw::lifecycle::internal
 {
@@ -94,20 +95,10 @@ class SafeProcessMap final : public SafeProcessMapInserter
     SafeProcessMapReturnType insertIfNotTerminated(osal::ProcessID key, IComponent* component);
 
   private:
-    /// @brief Removes the stored component for `key`, if any.
-    /// @warning The caller must hold `map_mutex_`.
-    /// @return The removed component, or nullopt if none was stored.
-    std::optional<std::reference_wrapper<IComponent>> matchComponent(osal::ProcessID key);
-
     /// @brief Stores the component for `key`.
     /// @warning The caller must hold `map_mutex_`.
     /// @return kOk on success, kInsertionError if full or not inserted.
     SafeProcessMapReturnType storeComponent(osal::ProcessID key, IComponent& component);
-
-    /// @brief Removes the stored exit code for `key`, if any.
-    /// @warning The caller must hold `map_mutex_`.
-    /// @return The removed exit code, or nullopt if none was stored.
-    std::optional<int32_t> matchExitCode(osal::ProcessID key);
 
     /// @brief Stores the exit code for `key`.
     /// @warning The caller must hold `map_mutex_`.
@@ -123,13 +114,8 @@ class SafeProcessMap final : public SafeProcessMapInserter
     /// @brief Condition variable which is signalled whenever an entry is removed.
     std::condition_variable map_cv_;
 
-    /// @brief Map of process IDs to components.
-    /// @details Used when component registration happens before termination.
-    std::unordered_map<osal::ProcessID, IComponent&> component_map_;
-
-    /// @brief Map of process IDs to exit codes.
-    /// @details Used when termination happens before component registration.
-    std::unordered_map<osal::ProcessID, int32_t> exit_code_map_;
+    /// @brief Map of process IDs to components or exit codes.
+    std::unordered_map<osal::ProcessID, std::variant<int32_t, std::reference_wrapper<IComponent>>> process_map_;
 
     /// @brief Handler to notify about process terminations.
     IComponentController& termination_handler_;
