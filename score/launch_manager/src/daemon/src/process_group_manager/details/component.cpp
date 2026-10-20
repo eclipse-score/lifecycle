@@ -49,8 +49,8 @@ IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
 
     cpp::stop_source stop_activation{};
     const cpp::stop_callback forward_stop{stop_token, [&stop_activation] {
-                                              const bool stopped = stop_activation.request_stop();
-                                              SCORE_LANGUAGE_FUTURECPP_ASSERT(stopped);
+                                              // This can fail if stop is requested from both places.
+                                              static_cast<void>(stop_activation.request_stop());
                                           }};
 
     state_ = StartingState{handle, stop_activation};

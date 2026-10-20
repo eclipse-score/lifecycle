@@ -442,5 +442,30 @@ TEST(ComponentTest, SelfTerminatingExitNonZeroInStartingStateIsNotActive)
     EXPECT_FALSE(component.active());
 }
 
+TEST(ComponentTest, SettingBothStopTokens)
+{
+    MockStartAction start_action;
+    MockStopAction stop_action;
+    MockForceStopAction force_stop_action;
+    MockReadyCondition ready_condition;
+    Component component(start_action, stop_action, force_stop_action, ready_condition);
+    cpp::stop_source stop_source{};
+
+    ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+    EXPECT_CALL(ready_condition, wait(_, _)).WillOnce(Invoke([&](cpp::stop_token token, const Handle) {
+        static_cast<void>(terminateFromOtherThread(component, 1));
+        EXPECT_TRUE(token.stop_requested());
+
+        static_cast<void>(stop_source.request_stop());
+        EXPECT_TRUE(token.stop_requested());
+
+        return Result<void>{};
+    }));
+
+    const auto result = component.activate(stop_source.get_token());
+
+    EXPECT_FALSE(result.has_value());
+}
+
 }  // namespace
 }  // namespace score::mw::lifecycle::internal
