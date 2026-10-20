@@ -55,8 +55,8 @@ Config makeMinimalConfig()
     component.deployment_config.shutdown_timeout_ms = 500U;
     component.deployment_config.executable_path = "/bin/true";
     component.deployment_config.working_dir = "/workspaces/lifecycle";
-    component.deployment_config.sandbox.uid = 1000U;
-    component.deployment_config.sandbox.gid = 1000U;
+    component.deployment_config.sandbox.uid = getuid();
+    component.deployment_config.sandbox.gid = getgid();
     component.deployment_config.sandbox.scheduling_policy = SCHED_OTHER;
     component.deployment_config.sandbox.scheduling_priority = 0;
 
