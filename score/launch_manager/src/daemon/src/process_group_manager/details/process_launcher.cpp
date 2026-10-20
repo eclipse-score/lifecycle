@@ -49,7 +49,6 @@ namespace
 
 using score::mw::lifecycle::internal::signal_safe_log;
 using score::mw::lifecycle::internal::signal_safe_log_errno;
-using score::mw::lifecycle::internal::osal::CommsType;
 using score::mw::lifecycle::internal::osal::IpcCommsSync;
 using score::mw::lifecycle::internal::osal::sysexit;
 
@@ -85,24 +84,14 @@ void handleComms(score::mw::lifecycle::internal::osal::ChildProcessConfig& param
 {
     if (!param.shared_block)
     {
-        // kNoComms, fds are CLOEXEC
+        // Native process without comms, fds are CLOEXEC
         return;
     }
 
-    param.fd = dup2(param.fd, param.shared_block->sync_fd);  // always make sure we are using fd=3
-    param.shared_block->pid_ = getpid();                     // Store pid for check at client end
+    param.fd = dup2(param.fd, param.shared_block->sync_fd);
+    param.shared_block->pid_ = getpid();  // Store pid for check at client end
 
-    // It must be ensured that sync_fd (f3) remains open depending on
-    // the communication type. Flag FD_CLOEXEC is cleared conditionally to ensure that the
-    // respective file descriptor remains open after the execve call.
-    assert(
-        param.shared_block->comms_type_ != CommsType::kNoComms &&
-        "Invalid comms type, kNoComms is expected to be handled above");
-
-    assert(
-        param.shared_block->comms_type_ == CommsType::kReporting &&
-        "Invalid comms type, a communicating process must be kReporting");
-
+    // Flag FD_CLOEXEC is cleared to ensure that sync_fd remains open after the execve call.
     if (-1 == fcntl(IpcCommsSync::sync_fd, F_SETFD, 0))
     {
         static_cast<void>(signal_safe_log_errno(errno, "fcntl at line ", __LINE__, " failed"));
@@ -278,25 +267,16 @@ bool ProcessLauncher::setupComms(IpcCommsP& block, int& fd, const configuration:
         return false;
     }
 
-    block = IpcCommsSync::getCommsObject(fd);
+    block = IpcCommsSync::createCommsObject(fd);
     if (!block)
     {
+        LM_LOG_ERROR() << "Creating comms object failed:" << config.name;
         return false;
     }
 
-    // Map application type to CommsType for backward compatibility
     SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
         config.component_properties.application_profile.application_type != configuration::ApplicationType::Native,
-        "We should not set up the comms object if the application type is native. This used to be the kNoComms case");
-
-    block->comms_type_ = CommsType::kReporting;
-
-    if (!IpcCommsSync::initializeSemaphores(block))
-    {
-        LM_LOG_ERROR() << "Semaphore init failed:" << config.name
-                       << "Unable to initialize send_sync or reply_sync semaphore.";
-        return false;
-    }
+        "We should not set up the comms object if the application type is native");
 
     return true;
 }
@@ -499,38 +479,22 @@ OsalReturnType ProcessLauncher::waitForTermination(osal::ProcessID& pid, int32_t
 
 OsalReturnType ProcessLauncher::waitForkRunning(IpcCommsP sync, std::optional<std::chrono::milliseconds> timeout)
 {
-    OsalReturnType result = OsalReturnType::kSuccess;
-
     if (!sync)
     {
         LM_LOG_ERROR() << "Invalid shared memory pointer: The shared memory pointer is null.";
         return OsalReturnType::kFail;
     }
 
-    if (timeout.has_value())
+    if (!timeout.has_value())
     {
-        result = sync->send_sync_.timedWait(timeout.value());
+        return OsalReturnType::kSuccess;
     }
 
-    const auto post_res = sync->reply_sync_.post();
-
-    if (post_res == OsalReturnType::kFail)
+    const auto result = sync->send_sync_.timedWait(timeout.value());
+    if (result != OsalReturnType::kSuccess)
     {
-        LM_LOG_ERROR() << "Semaphore post failed";
-        result = OsalReturnType::kFail;
+        LM_LOG_ERROR() << "Semaphore timedWait failed: Did not receive kRunning within the specified timeout.";
     }
-
-    if (result == OsalReturnType::kFail)
-    {
-        LM_LOG_ERROR() << "Semaphore timedWait or post failed: Unable to wait or post on semaphores within the "
-                          "specified timeout.";
-    }
-    else if (timeout.has_value())
-    {
-        result = sync->send_sync_.timedWait(std::chrono::milliseconds(100));
-    }
-
-    IpcCommsSync::deinit(sync);
 
     return result;
 }
