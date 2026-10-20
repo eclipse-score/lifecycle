@@ -78,10 +78,9 @@ score::Result<std::monostate> ReportRunningImpl::reportKRunningtoDaemon() const 
     }
 
     // This is our best safeguard against incorrect data treated as an IPCCommsSync
-    if (sync->comms_type_ != CommsType::kReporting || sync->pid_ != getpid())
+    if (sync->pid_ != getpid())
     {
-        LM_LOG_ERROR() << "[Lifecycle client] Cannot report kRunning from a non-reporting process or a process not "
-                          "started by Launch Manager";
+        LM_LOG_ERROR() << "[Lifecycle client] Cannot report kRunning from a process not started by Launch Manager";
         return comms_error;
     }
 
@@ -99,20 +98,6 @@ score::Result<std::monostate> ReportRunningImpl::reportKRunningtoDaemon() const 
         return comms_error;
     }
 
-    if (sync->reply_sync_.timedWait(score::mw::lifecycle::internal::kMaxRunningDelay) == OsalReturnType::kFail)
-    {
-        LM_LOG_ERROR() << "[Lifecycle Client] Launch Manager failed to acknowledge kRunning report.";
-
-        return comms_error;
-    }
-
-    // Final post to semaphore, so LM know that communication channel can be closed now
-    if (sync->send_sync_.post() == OsalReturnType::kFail)
-    {
-        LM_LOG_ERROR() << "[Lifecycle Client] Final synchronization post failed.";
-
-        return comms_error;
-    }
     // Mark as reported if successful
     reported = true;
     // Set return value to success
