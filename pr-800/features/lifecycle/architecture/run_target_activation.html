@@ -535,7 +535,7 @@ the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><s
 <li><p><strong>Transition Logic</strong>: Determine the transition from the current state to the target state:</p>
 <ul class="simple">
 <li><p>If a different Run Target is active, perform a switch operation (stop current, start requested)</p></li>
-<li><p>If the same Run Target is already active, verify its state and potentially restart failed components</p></li>
+<li><p>If the same Run Target is already active, no further actions are required</p></li>
 </ul>
 </li>
 <li><p><strong>Execution</strong>: Execute the transition in the correct dependency order:</p>
@@ -566,19 +566,19 @@ which allows the implementation of a state management application to support dyn
 <ol class="arabic">
 <li><p><strong>Queued Activation</strong></p>
 <p>In this mode, requests to activate a Run Target are placed in a queue and processed sequentially by the Launch Manager.
-A State Manager can issue multiple Run Target transition requests and they will be executed sequentially by the Launch Manager.</p>
+A State Manager can issue multiple Run Target transition requests and they will be executed sequentially by the Launch Manager.
+If any Run Target activation fails, the queue is cleared.</p>
 </li>
 <li><p><strong>Forced Activation</strong></p>
-<p>In this mode, requests to activate a Run Target are performed immediately by the Launch Manager, potentially interrupting any ongoing transitions.
-A forced activation request bypasses the queue and is executed immediately and removes any queued requests.</p>
+<p>In this mode, any in-progress Run Target activation is cancelled, any queued requests are removed and the newly request Run Target
+activation is executed immediately.</p>
 </li>
 </ol>
 </section>
 <section id="dynamic-architecture">
 <h2>Dynamic architecture<a class="headerlink" href="#dynamic-architecture" title="Link to this heading">#</a></h2>
-<p>The sequence diagrams below are based on the example dependency graph described
-in <a class="reference internal" href="components_run_targets.html"><span class="doc">Components &amp; Run Targets</span></a>.</p>
-<div class="need_container docutils container" id="SNCB-0349d29c">
+<p>The sequence diagrams below are based on <a class="reference internal" href="components_run_targets.html#lifecycle-simplified-example-graph"><span class="std std-ref">the example dependency graph</span></a>.</p>
+<div class="need_container docutils container" id="SNCB-7f615fc8">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__ctrl_start">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -608,7 +608,7 @@ in <a class="reference internal" href="components_run_targets.html"><span class=
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-dfe9dce18b723b62dfdf9660a1af1be57fa96ef4.svg" type="image/svg+xml" style="width:1355px;height:827px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-6016461ce35492ae44aed52c00cb5f4feedea30b.svg" type="image/svg+xml" style="width:1355px;height:799px;background:#FFFFFF;"></object></p>
 </figure>
 <p>During startup the State Manager registers an activation callback with the Launch Manager to be notified about future Run Target changes.
 The State Manager can query at any time the currently active Run Target. During an ongoing transition, it will be informed that the system is in transition and no Run Target is active yet.
@@ -630,7 +630,7 @@ Queries for the currently active Run Target will now return the newly activated 
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-3e27a959">
+<div class="need_container docutils container" id="SNCB-5832440a">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__ctrl_que_act">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -660,7 +660,7 @@ Queries for the currently active Run Target will now return the newly activated 
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-4e42eace02db39809a45d7facf6a82b6452ae760.svg" type="image/svg+xml" style="width:1604px;height:1422px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-3f7f4dfa31caa68353f1dd9f3b7a96a116a195d4.svg" type="image/svg+xml" style="width:1615px;height:1565px;background:#FFFFFF;"></object></p>
 </figure>
 <p>The State Manager queues Run Target activations for “Running” and “Full” state.
 The Launch Manager will process these queued activations in the order they were received.
@@ -681,7 +681,7 @@ At first the Launch Manager transitions to Run Target “Running” and subseque
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-ce6aab6b">
+<div class="need_container docutils container" id="SNCB-4d54d796">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__ctrl_fced_act">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -711,7 +711,7 @@ At first the Launch Manager transitions to Run Target “Running” and subseque
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-de7e1add475ccda07542343a640e445734d34356.svg" type="image/svg+xml" style="width:1329px;height:1944px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-86d44ad8ad75298f595b723208451f43f2bc4f36.svg" type="image/svg+xml" style="width:1335px;height:2088px;background:#FFFFFF;"></object></p>
 </figure>
 <p>The State Manager queues Run Target activations for “Running” and “Full” state.
 During activation of Run Target “Running”, the State Manager sends a new forced request for Run Target “Off”.
