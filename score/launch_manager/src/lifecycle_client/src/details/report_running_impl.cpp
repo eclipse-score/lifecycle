@@ -78,9 +78,18 @@ score::Result<std::monostate> ReportRunningImpl::reportKRunningtoDaemon() const 
     }
 
     // This is our best safeguard against incorrect data treated as an IPCCommsSync
-    if (sync->pid_ != getpid())
+    if (sync->magic_ != IpcCommsSync::kMagic)
     {
-        LM_LOG_ERROR() << "[Lifecycle client] Cannot report kRunning from a process not started by Launch Manager";
+        LM_LOG_ERROR() << "[Lifecycle client] FD " << sync_fd
+                       << " is not a Launch Manager comms object, cannot report kRunning";
+        return comms_error;
+    }
+
+    if (sync->version_ != IpcCommsSync::kLayoutVersion)
+    {
+        LM_LOG_ERROR() << "[Lifecycle client] Comms object version " << sync->version_
+                       << " does not match expected version " << IpcCommsSync::kLayoutVersion
+                       << ", Launch Manager and client are incompatible";
         return comms_error;
     }
 
