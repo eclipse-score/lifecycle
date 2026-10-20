@@ -62,7 +62,11 @@ class signal_safe_buffer
 
         if (error == std::errc{})
         {
-            end_ = pointer - &buffer_.front();
+            const std::ptrdiff_t offset = pointer - &buffer_.front();
+            if (offset >= 0)
+            {
+                end_ = static_cast<std::size_t>(offset);
+            }
         }
     }
 
@@ -77,7 +81,7 @@ class signal_safe_buffer
 
             if (written >= 0)
             {
-                start_ += written;
+                start_ += static_cast<std::size_t>(written);
             }
             else if (errno != EINTR)
             {
