@@ -43,6 +43,7 @@ IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
     const Result<Handle> start_result = start_action_.start(stop_token);
     if (!start_result.has_value())
     {
+        state_ = FaultState{};
         return cpp::make_unexpected(ComponentError::kErrorBeforeReady);
     }
     const Handle& handle = start_result.value();
@@ -100,6 +101,7 @@ IComponent::RequestResult Component::deactivate(cpp::stop_token stop_token)
     const Result<RequestResult> result = stop_action_.stop(stop_token, handle);
     if (!result.has_value())
     {
+        state_ = FaultState{handle};
         return cpp::make_unexpected(ComponentError::kErrorAfterReady);
     }
 
