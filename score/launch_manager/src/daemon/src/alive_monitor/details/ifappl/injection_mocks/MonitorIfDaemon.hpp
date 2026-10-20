@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2025 Contributors to the Eclipse Foundation
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#ifndef MOCK_MonitorIfDaemon_HPP_INCLUDED
-#define MOCK_MonitorIfDaemon_HPP_INCLUDED
+#ifndef MOCK_MONITORIFDAEMON_HPP_INCLUDED
+#define MOCK_MONITORIFDAEMON_HPP_INCLUDED
 
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/Checkpoint.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/DataStructures.hpp"
