@@ -30,6 +30,9 @@ Result<void> ReportRunningReadyCondition::wait(cpp::stop_token stop_token, const
     const ProcessHandle* const process = std::get_if<ProcessHandle>(&handle);
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
         process != nullptr, "ReportRunningReadyCondition should only be called with a ProcessHandle");
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+        process->sync != nullptr,
+        "ReportRunningReadyCondition should only be called with a ProcessHandle containing IPCCommsSync");
 
     const osal::OsalReturnType result = launcher_.waitForkRunning(process->sync, timeout_);
 
@@ -48,6 +51,9 @@ bool ReportRunningReadyCondition::tryHandleTermination(const Handle& handle, int
     const ProcessHandle* const process = std::get_if<ProcessHandle>(&handle);
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
         process != nullptr, "ReportRunningReadyCondition should only be called with a ProcessHandle");
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+        process->sync != nullptr,
+        "ReportRunningReadyCondition should only be called with a ProcessHandle containing IPCCommsSync");
 
     // FIXME: This static_cast was copied from the old code at
     // https://github.com/eclipse-score/lifecycle/blob/876c5df184ee0008017334303c12f1c2ee75e42e/score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node.cpp#L171

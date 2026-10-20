@@ -25,7 +25,13 @@ namespace
 using namespace ::testing;
 using namespace std::chrono_literals;
 
-const ProcessHandle mock_handle = ProcessHandle{42};
+alignas(osal::IpcCommsSync) std::array<std::byte, sizeof(osal::IpcCommsSync)> sync_buffer;
+
+// The semaphores are never touched, since the launcher is mocked.
+const ProcessHandle mock_handle = ProcessHandle{
+    42,
+    osal::IpcCommsP{reinterpret_cast<osal::IpcCommsSync*>(sync_buffer.data()), [](osal::IpcCommsSync*) {
+                    }}};
 
 TEST(ReportRunningReadyConditionTest, WaitCallsWaitForkRunningWithSyncAndTimeout)
 {
@@ -71,6 +77,36 @@ TEST(ReportRunningReadyConditionTest, WaitWithEmptyHandleAborts)
     EXPECT_DEATH(
         static_cast<void>(report_running_ready_condition.wait(cpp::stop_token{}, EmptyHandle{})),
         "ReportRunningReadyCondition should only be called with a ProcessHandle");
+}
+
+TEST(ReportRunningReadyConditionTest, WaitWithNullSyncAborts)
+{
+    NiceMock<osal::MockIProcess> launcher;
+    const ReportRunningReadyCondition report_running_ready_condition(launcher, std::nullopt);
+
+    EXPECT_DEATH(
+        static_cast<void>(report_running_ready_condition.wait(cpp::stop_token{}, ProcessHandle{42, nullptr})),
+        "ReportRunningReadyCondition should only be called with a ProcessHandle containing IPCCommsSync");
+}
+
+TEST(ReportRunningReadyConditionTest, TryHandleTerminationWithEmptyHandleAborts)
+{
+    NiceMock<osal::MockIProcess> launcher;
+    const ReportRunningReadyCondition report_running_ready_condition(launcher, std::nullopt);
+
+    EXPECT_DEATH(
+        static_cast<void>(report_running_ready_condition.tryHandleTermination(EmptyHandle{}, 0)),
+        "ReportRunningReadyCondition should only be called with a ProcessHandle");
+}
+
+TEST(ReportRunningReadyConditionTest, TryHandleTerminationWithNullSyncAborts)
+{
+    NiceMock<osal::MockIProcess> launcher;
+    const ReportRunningReadyCondition report_running_ready_condition(launcher, std::nullopt);
+
+    EXPECT_DEATH(
+        static_cast<void>(report_running_ready_condition.tryHandleTermination(ProcessHandle{42, nullptr}, 0)),
+        "ReportRunningReadyCondition should only be called with a ProcessHandle containing IPCCommsSync");
 }
 
 }  // namespace
