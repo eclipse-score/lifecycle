@@ -45,7 +45,7 @@ class ReportRunningReadyCondition final : public IReadyCondition
     /// @param handle The process that terminated.
     /// @param status Exit code of the process.
     /// @return Whether this ready condition accepts the event.
-    bool tryHandleTermination(const Handle& handle, int32_t status) const;
+    bool tryHandleTermination(const Handle& handle, int32_t status) const override;
 
   private:
     /// @brief The process launcher used to wait for the process.

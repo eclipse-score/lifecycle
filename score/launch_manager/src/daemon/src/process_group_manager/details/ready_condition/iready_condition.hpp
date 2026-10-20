@@ -39,7 +39,7 @@ class IReadyCondition
     /// @return Whether this ready condition accepts the event.
     // FIXME: This should be a more generic event which makes sense for any
     //        handle type.
-    bool tryHandleTermination(const Handle& handle, int32_t status) const
+    virtual bool tryHandleTermination(const Handle& handle, int32_t status) const
     {
         return false;
     }
