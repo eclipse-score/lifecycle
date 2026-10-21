@@ -73,7 +73,7 @@
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Architecture Inspection Checklist" href="chklst_arc_inspection.html" />
+    <link rel="next" title="Components &amp; Run Targets" href="components_run_targets.html" />
     <link rel="prev" title="Lifecycle" href="../index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -421,7 +421,16 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Lifecycle</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Feature Architecture</a></li>
+<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">Feature Architecture</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="components_run_targets.html">Components &amp; Run Targets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="run_target_activation.html">Run Target Activation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="startup_shutdown.html">Startup &amp; Shutdown</a></li>
+<li class="toctree-l3"><a class="reference internal" href="health_monitoring.html">Health Monitoring</a></li>
+<li class="toctree-l3"><a class="reference internal" href="recovery_actions.html">Recovery Actions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="external_monitor.html">External Monitor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="design_decisions.html">Design Decisions</a></li>
+</ul>
+</details></li>
 <li class="toctree-l2"><a class="reference internal" href="chklst_arc_inspection.html">Architecture Inspection Checklist</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../safety_analysis/fmea.html">FMEA (Failure Modes and Effects Analysis)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../safety_analysis/dfa.html">DFA (Dependent Failure Analysis)</a></li>
@@ -429,7 +438,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../safety_analysis/aou_requirements.html">AoU Feature Requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../safety_planning/index.html">Feature Safety Work Products List</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../security_planning/index.html">Feature Security Work Products List</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../glossary.html">Lifecycle Glossary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../glossary_detailed.html">Glossary</a></li>
 </ul>
 </details></li>
 </ul>
@@ -497,7 +507,7 @@
                   
   <section id="feature-architecture">
 <h1>Feature Architecture<a class="headerlink" href="#feature-architecture" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-edd6d977">
+<div class="need_container docutils container" id="SNCB-46449121">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__lifecycle_module_architecture">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -519,6 +529,7 @@
 <div class="line"><span><span><div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">realizes: <span class="realizes"><span><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/architecture_design/architecture_workproducts.html#wp__feature_arch">wp__feature_arch</a></span></span></div>
+<div class="line">affected by: <span class="affects"><span><a class="reference internal" href="design_decisions.html#dec_rec__lifecycle__in_process_health_monitor" title="doc__lifecycle_module_architecture">dec_rec__lifecycle__in_process_health_monitor</a></span></span></div>
 </span></div>
 </div>
 </td>
@@ -553,20 +564,18 @@ the defined Run States and alive supervision of the started components</p></li>
 <li><p><strong>Health Monitor</strong>: Provides process local monitoring functionalities such as
 deadline monitoring and logical program flow monitoring</p></li>
 </ul>
-<p>&lt;Design Decisions - For the documentation of the decision the <a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/change_management/guidance/change_management_decision_record_template.html#gd_temp__change_decision_record">gd_temp__change_decision_record</a> can be used.&gt;</p>
-<p>&lt;Design Constraints&gt;</p>
 <section id="rationale-behind-architecture-decomposition">
 <h3>Rationale Behind Architecture Decomposition<a class="headerlink" href="#rationale-behind-architecture-decomposition" title="Link to this heading">#</a></h3>
-<p>Mandatory: A motivation for the decomposition</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Common decisions across features / cross cutting concepts is at the high level.</p>
-</div>
+<p>The decomposition of the monitoring functionality between the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch
+Manager</span></a> and the <a class="reference internal" href="../glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> is documented in
+<a class="reference internal" href="design_decisions.html#dec_rec__lifecycle__in_process_health_monitor" title="dec_rec__lifecycle__in_process_health_monitor"><em class="xref need">In-Process Health Monitor (dec_rec__lifecycle__in_process_health_monitor)</em></a>.</p>
 </section>
 </section>
 <section id="static-architecture">
 <h2>Static Architecture<a class="headerlink" href="#static-architecture" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-249742dc">
+<section id="feature-decomposition">
+<h3>Feature Decomposition<a class="headerlink" href="#feature-decomposition" title="Link to this heading">#</a></h3>
+<div class="need_container docutils container" id="SNCB-bc218ea2">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_sta table" id="feat_arc_sta__lifecycle__static_view_arch">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -596,7 +605,7 @@ deadline monitoring and logical program flow monitoring</p></li>
 <td class="meta" colspan="3"></td>
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><p class="plantuml" id="needarch-features/lifecycle/architecture/index-0">
-<object data="../../../_images/plantuml-e31198f7756cab3312d8bc00fb4f09e289927ad0.svg" type="image/svg+xml" style="width:1514px;height:905px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-8bab2c12b34e95a8ed0784d6c7c6dabb8149f517.svg" type="image/svg+xml" style="width:1920px;height:905px;background:#FFFFFF;"></object></p>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
@@ -613,7 +622,10 @@ deadline monitoring and logical program flow monitoring</p></li>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-01438f22">
+</section>
+<section id="configuration-structure">
+<span id="lifecycle-configuration-structure"></span><h3>Configuration Structure<a class="headerlink" href="#configuration-structure" title="Link to this heading">#</a></h3>
+<div class="need_container docutils container" id="SNCB-cde4106d">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_sta table" id="feat_arc_sta__lifecycle__cfg_params_static">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -635,8 +647,8 @@ deadline monitoring and logical program flow monitoring</p></li>
 <div class="line"><span><span><div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#feat__lifecycle">feat__lifecycle</a></span></span></div>
-<div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__component_group_config">feat_req__lifecycle__component_group_config</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__config_file_support">feat_req__lifecycle__config_file_support</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__run_target_support">feat_req__lifecycle__run_target_support</a></span></span></div>
-<div class="line">includes: <span class="includes"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int__lifecycle__alive_if">logic_arc_int__lifecycle__alive_if</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int__lifecycle__controlif">logic_arc_int__lifecycle__controlif</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int__lifecycle__deadline_monitor_if">logic_arc_int__lifecycle__deadline_monitor_if</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int__lifecycle__lifecycle_if">logic_arc_int__lifecycle__lifecycle_if</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int__lifecycle__logical_monitor_if">logic_arc_int__lifecycle__logical_monitor_if</a></span></span></div>
+<div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__component_group_config">feat_req__lifecycle__component_group_config</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__run_target_support">feat_req__lifecycle__run_target_support</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__sandbox_options">feat_req__lifecycle__sandbox_options</a></span></span></div>
+<div class="line">includes: <span class="includes"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int__lifecycle__alive_if">logic_arc_int__lifecycle__alive_if</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int__lifecycle__controlif">logic_arc_int__lifecycle__controlif</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int__lifecycle__lifecycle_if">logic_arc_int__lifecycle__lifecycle_if</a></span></span></div>
 </span></div>
 </div>
 </td>
@@ -646,6 +658,13 @@ deadline monitoring and logical program flow monitoring</p></li>
 <p class="plantuml">
 <object data="../../../_images/plantuml-a9996ce6cad9e562a1d90bd8f1bd2f7f87065ccf.svg" type="image/svg+xml" style="width:1344px;height:1009px;background:#FFFFFF;"></object></p>
 </figure>
+<p>The Launch Manager configuration is structured around Run Target and Component configurations.
+Each Component configuration specifies how the Component is started, monitored, and recovered during system operation.
+Components can have dependencies on other Components, collectively forming a dependency graph.</p>
+<p>Run Targets are configured through Run Target configurations, which define dependencies on Components and other Run Targets.
+These dependencies determine which Components are activated when a Run Target is activated.</p>
+<p>The Launch Manager is configured with an <em>Initial Run Target</em> and <em>Fallback Run Target</em>. The <em>Initial Run Target</em> is activated when the Launch Manager is first started.
+The <em>Fallback Run Target</em> specifies the Run Target that is activated if a failure occurs that cannot be recovered.</p>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
@@ -662,35 +681,34 @@ deadline monitoring and logical program flow monitoring</p></li>
 </table>
 </div>
 </div>
-<p>The Launch Manager configuration is structured around Run Target and Component configurations.
-Each Component configuration specifies how the Component is started, monitored, and recovered during system operation.
-Components can have dependencies on other Components, collectively forming a dependency graph.</p>
-<p>Run Targets are configured through Run Target configurations, which define dependencies on Components and other Run Targets.
-These dependencies determine which Components are activated when a Run Target is activated.</p>
-<p>The Launch Manager is configured with an <em>Initial Run Target</em> and <em>Fallback Run Target</em>. The <em>Initial Run Target</em> is activated when the Launch Manager is first started.
-The <em>Fallback Run Target</em> specifies the Run Target that is activated if a failure occurs that cannot be recovered.</p>
+</section>
 </section>
 <section id="dynamic-architecture">
 <h2>Dynamic Architecture<a class="headerlink" href="#dynamic-architecture" title="Link to this heading">#</a></h2>
-<p>Interactions between the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> and a User application
-(through it’s interfaces):</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="control_client.html"><span class="doc">Control Client</span></a></p></li>
-<li><p><a class="reference internal" href="lifecycle_client.html"><span class="doc">Lifecycle Client</span></a></p></li>
-<li><p><a class="reference internal" href="alive.html"><span class="doc">Alive</span></a></p></li>
-<li><p><a class="reference internal" href="launch_manager.html"><span class="doc">Launch manager</span></a></p></li>
-<li><p><a class="reference internal" href="external_monitoring.html"><span class="doc">External Monitoring</span></a></p></li>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="components_run_targets.html">Components &amp; Run Targets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="run_target_activation.html">Run Target Activation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="startup_shutdown.html">Startup &amp; Shutdown</a></li>
+<li class="toctree-l1"><a class="reference internal" href="health_monitoring.html">Health Monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="recovery_actions.html">Recovery Actions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="external_monitor.html">External Monitor</a></li>
 </ul>
-<p>Interaction between the <a class="reference internal" href="../glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> and <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a>:</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="health_monitor.html"><span class="doc">Health Monitor</span></a></p></li>
-</ul>
+</div>
 </section>
 <section id="logical-interfaces">
 <h2>Logical Interfaces<a class="headerlink" href="#logical-interfaces" title="Link to this heading">#</a></h2>
 <p>The logical interfaces of the feature are defined in the <cite>interfaces</cite> section
 of the feature documentation in the project repository:
 <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#doc__lifecycle_architecture">doc__lifecycle_architecture</a></p>
+</section>
+<section id="design-decisions">
+<h2>Design Decisions<a class="headerlink" href="#design-decisions" title="Link to this heading">#</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="design_decisions.html">Design Decisions</a></li>
+</ul>
+</div>
 </section>
 </section>
 
@@ -714,11 +732,11 @@ of the feature documentation in the project repository:
       </div>
     </a>
     <a class="right-next"
-       href="chklst_arc_inspection.html"
+       href="components_run_targets.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Architecture Inspection Checklist</p>
+        <p class="prev-next-title">Components &amp; Run Targets</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -746,9 +764,14 @@ of the feature documentation in the project repository:
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#rationale-behind-architecture-decomposition">Rationale Behind Architecture Decomposition</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#static-architecture">Static Architecture</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#static-architecture">Static Architecture</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#feature-decomposition">Feature Decomposition</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-structure">Configuration Structure</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamic-architecture">Dynamic Architecture</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#logical-interfaces">Logical Interfaces</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#design-decisions">Design Decisions</a></li>
 </ul>
   </nav></div>
 
