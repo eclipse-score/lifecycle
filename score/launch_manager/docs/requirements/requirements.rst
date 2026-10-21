@@ -714,6 +714,10 @@ Run Targets
     The :term:`Launch Manager` shall provide support for queueing a
     :term:`run target selection <Run target>` via the :term:`Control Interface`.
 
+    .. note::
+        **Use case:** Queueing a run target selection allows an ongoing transition and all previously queued and unprocessed selections to complete, 
+        ensuring that the system transitions in an orderly manner without abruptly interrupting ongoing processes.
+
 .. comp_req:: Force a run target selection
     :id: comp_req__launch_man__force_rt_selection
     :reqtype: Functional
@@ -725,7 +729,12 @@ Run Targets
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support for forcefully initiating a
-    :term:`run target selection <Run target>` via the :term:`Control Interface`.
+    :term:`run target selection <Run target>` via the :term:`Control Interface` by aborting any ongoing transition and removing any queued selections.
+
+    .. note::
+        **Use case:** In emergency cases, transitioning to another run target should happen as fast as possible. E.g., transitioning to the 
+        :term:`fallback run target <Fallback Run Target>` should not wait for the ongoing transition to complete or even for queued selections 
+        to be processed.
 
 
 Alive Monitoring
