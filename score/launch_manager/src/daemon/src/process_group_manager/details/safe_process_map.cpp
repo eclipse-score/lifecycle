@@ -25,13 +25,9 @@ SafeProcessMap::SafeProcessMap(size_t capacity, IComponentController& terminatio
 SafeProcessMapReturnType SafeProcessMap::findTerminated(osal::ProcessID key, int32_t status)
 {
     return tryInsert<int32_t, std::reference_wrapper<IComponent>>(
-        key,
-        status,
-        [this, status](std::reference_wrapper<IComponent> component) {
+        key, status, [this, status](std::reference_wrapper<IComponent> component) {
             termination_handler_.terminated(component.get(), status);
-            return SafeProcessMapReturnType::kOk;
-        },
-        SafeProcessMapReturnType::kYield);
+        });
 }
 
 SafeProcessMapReturnType SafeProcessMap::insertIfNotTerminated(osal::ProcessID key, IComponent* component)
@@ -39,13 +35,9 @@ SafeProcessMapReturnType SafeProcessMap::insertIfNotTerminated(osal::ProcessID k
     SCORE_LANGUAGE_FUTURECPP_ASSERT(component != nullptr);
 
     return tryInsert<std::reference_wrapper<IComponent>, int32_t>(
-        key,
-        std::ref(*component),
-        [this, component](int32_t exit_code) {
+        key, std::ref(*component), [this, component](int32_t exit_code) {
             termination_handler_.terminated(*component, exit_code);
-            return SafeProcessMapReturnType::kYield;
-        },
-        SafeProcessMapReturnType::kOk);
+        });
 }
 
 }  // namespace score::mw::lifecycle::internal

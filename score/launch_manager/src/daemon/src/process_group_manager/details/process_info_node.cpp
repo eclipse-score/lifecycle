@@ -458,10 +458,10 @@ ProcessInfoNode::handleProcessStarted(const score::cpp::stop_token& stop_token)
 {
     switch (process_handling_.process_map_->insertIfNotTerminated(pid_, this))
     {
-        case score::mw::lifecycle::internal::SafeProcessMapReturnType::kOk:  // Normal case, entry was put in
-                                                                             // the map, process still running
+        case score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted:  // Entry was inserted; process is
+                                                                                   // still running
             return handleProcessStillStarting(stop_token);
-        case score::mw::lifecycle::internal::SafeProcessMapReturnType::kYield:
+        case score::mw::lifecycle::internal::SafeProcessMapReturnType::kMatched:
             // Process has already exited and tryHandleTermination has completed.
             // tryHandleTermination is called by insertIfNotTerminated() and therefore executes in sequence in this
             // case.
