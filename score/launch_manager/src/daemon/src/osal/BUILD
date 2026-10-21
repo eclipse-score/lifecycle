@@ -109,6 +109,18 @@ cc_library(
 )
 
 cc_library(
+    name = "shm_open_anon",
+    srcs = select({
+        "@platforms//os:linux": ["details/linux/shm_open_anon.cpp"],
+        "@platforms//os:qnx": ["details/qnx/shm_open_anon.cpp"],
+    }),
+    hdrs = ["shm_open_anon.hpp"],
+    include_prefix = "score/mw/launch_manager/osal",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/osal",
+    visibility = ["//score:__subpackages__"],
+)
+
+cc_library(
     name = "num_cores",
     srcs = select({
         "@platforms//os:linux": ["details/linux/num_cores.cpp"],

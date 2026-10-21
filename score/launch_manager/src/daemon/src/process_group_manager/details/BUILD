@@ -474,6 +474,7 @@ cc_library(
         "//score/launch_manager/src/daemon/src/osal:security_policy",
         "//score/launch_manager/src/daemon/src/osal:set_affinity",
         "//score/launch_manager/src/daemon/src/osal:set_groups",
+        "//score/launch_manager/src/daemon/src/osal:shm_open_anon",
         "//score/launch_manager/src/daemon/src/osal:sys_exit",
         "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
     ],

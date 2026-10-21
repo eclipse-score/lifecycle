@@ -29,6 +29,7 @@
 #include "score/mw/launch_manager/osal/security_policy.hpp"
 #include "score/mw/launch_manager/osal/set_affinity.hpp"
 #include "score/mw/launch_manager/osal/set_groups.hpp"
+#include "score/mw/launch_manager/osal/shm_open_anon.hpp"
 #include "score/mw/launch_manager/osal/sys_exit.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
@@ -263,7 +264,7 @@ bool ProcessLauncher::setupComms(IpcCommsP& block, int& fd, const configuration:
     }
     *conversion.ptr = '\0';
 
-    fd = shm_open(shm_name.data(), O_CREAT | O_EXCL | O_RDWR, 0U);
+    fd = shm_open_anon(shm_name.data());
     if (fd < 0)
     {
         LM_LOG_ERROR() << "shm_open failed:" << config.deployment_config.executable_path
