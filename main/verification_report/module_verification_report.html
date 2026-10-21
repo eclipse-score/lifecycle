@@ -521,15 +521,15 @@ html[data-theme="dark"] .score-testcase-result--disabled {
 </style>
 <section id="verification-report">
 <span id="life-statistics"></span><h1>Verification Report<a class="headerlink" href="#verification-report" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-6b473298">
-<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__lifecycle_verification_report">
+<div class="need_container docutils container" id="SNCB-da5da1d8">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_mod_ver_report table" id="mod_vrep__lifecycle__report">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
 <div class="line"><span><span class="needs_title"><span class="needs_data">Lifecycle Verification Report</span></span></span></div>
 </div>
 </td>
 <td class="head_center" colspan="2"><div class="needs_head line-block">
-<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">draft</span></span></span></div>
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
 <div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">YES</span></span></span></div>
 <div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
 </div>
@@ -540,9 +540,11 @@ html[data-theme="dark"] .score-testcase-result--disabled {
 </td>
 </tr>
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
-<div class="line"><span><span><div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
+<div class="line"><span><span><div class="line"><span class="needs_verification_method"><span class="needs_label">verification_method: </span><span class="needs_data">test_and_inspection</span></span></div>
+<div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">realizes: <span class="realizes"><span><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/verification/verification_workproducts.html#wp__verification_module_ver_report">wp__verification_module_ver_report</a></span></span></div>
+<div class="line">belongs to: <span class="belongs_to"><span><a class="reference internal" href="../module/index.html#mod__lifecycle" title="mod_vrep__lifecycle__report">mod__lifecycle</a></span></span></div>
 </span></div>
 </div>
 </td>
@@ -551,11 +553,11 @@ html[data-theme="dark"] .score-testcase-result--disabled {
 <tr class="content row-odd"><td class="content" colspan="6"><p>Verification report for the Lifecycle module. This report is generated based on the module verification plan and the module verification work product (<a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/verification/verification_workproducts.html#wp__verification_module_ver_report">wp__verification_module_ver_report</a>), and covers all components of the module.</p></td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
-<div class="line"><span><span class="needs-id"><a class="reference internal" href="#doc__lifecycle_verification_report" title="doc__lifecycle_verification_report">doc__lifecycle_verification_report</a></span></span></div>
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#mod_vrep__lifecycle__report" title="mod_vrep__lifecycle__report">mod_vrep__lifecycle__report</a></span></span></div>
 </div>
 </td>
 <td class="footer" colspan="2"><div class="needs_footer line-block">
-<div class="line"><span><span class="needs_type_name"><span class="needs_data">Generic Document</span></span></span></div>
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Module Verification Report</span></span></span></div>
 </div>
 </td>
 <td class="footer_right" colspan="2"></td>
@@ -586,7 +588,66 @@ html[data-theme="dark"] .score-testcase-result--disabled {
 .wp-doc-table td .dataTables_wrapper .dataTables_filter,
 .wp-doc-table td .dataTables_wrapper .dataTables_info,
 .wp-doc-table td .dataTables_wrapper .dataTables_paginate { display: none; }
-</style><section id="components">
+
+/* Scales every chart to its column; together with the fixed three-column
+   raster this gives every chart the same size as in the platform report. */
+.score-pie-row img.score-report-pie {
+    width: 100%;
+    height: auto;
+}
+/* ``.sd-row`` is a flex container without a justification of its own, so
+   this centres the two pies in the three-column raster. */
+.score-pie-row { justify-content: center; }
+
+p.rubric.safety-class-heading {
+    display: inline-block; margin: 1.4em 0 0.5em 0;
+    padding: 0.15em 0.9em; border-radius: 1em;
+    font-size: 0.95em; font-weight: 600; color: #ffffff;
+}
+p.rubric.safety-class-heading.safety-asil-b { background: #1f4e79; }
+p.rubric.safety-class-heading.safety-qm { background: #6c757d; }
+
+/* Stands in for a whole pie row of a safety class without any Need. */
+.empty-pie {
+    padding: 0.2em 0.8em; margin-bottom: 0.5em;
+    border: 2px dashed #b0b0b0; border-radius: 6px;
+    color: #6c757d; font-style: italic;
+}
+
+.chart-legend { display: flex; flex-wrap: wrap; gap: 1.2em 2.5em; }
+.chart-legend-group {
+    display: flex; flex-direction: column; gap: 0.3em;
+    flex: 1 1 20em; font-size: 0.9em;
+}
+.chart-legend-head { font-weight: 600; }
+.chart-legend-dot {
+    display: inline-block; width: 0.8em; height: 0.8em;
+    margin-right: 0.5em; border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+}
+</style><details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-fade-in" open="open">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">Legend — status values and chart colours</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<div class="chart-legend">
+  <div class="chart-legend-group">
+    <span class="chart-legend-head">Status — ASIL B</span>
+    <span><span class="chart-legend-dot" style="background: #37a12d;"></span><code>valid_inspected</code> — agreed and formally inspected</span>
+    <span><span class="chart-legend-dot" style="background: #f5c518;"></span><code>valid</code> — agreed, formal inspection still outstanding</span>
+    <span><span class="chart-legend-dot" style="background: #ca2828;"></span><code>invalid</code> — not agreed; metamodel checks are skipped</span>
+  </div>
+  <div class="chart-legend-group">
+    <span class="chart-legend-head">Status — QM</span>
+    <span><span class="chart-legend-dot" style="background: #37a12d;"></span><code>valid</code> — agreed; QM needs are not formally inspected, so this is their final state (<code>valid_inspected</code> counts here too)</span>
+    <span><span class="chart-legend-dot" style="background: #ca2828;"></span><code>invalid</code> — not agreed; metamodel checks are skipped</span>
+  </div>
+  <div class="chart-legend-group">
+    <span class="chart-legend-head">Test coverage — both classes</span>
+    <span><span class="chart-legend-dot" style="background: #37a12d;"></span>fully covered — at least one test fully verifies the need</span>
+    <span><span class="chart-legend-dot" style="background: #f0a500;"></span>partially covered — only partially verifying tests</span>
+    <span><span class="chart-legend-dot" style="background: #ca2828;"></span>not covered — no verifying test at all</span>
+  </div>
+</div></div>
+</details><section id="components">
 <h2>Components<a class="headerlink" href="#components" title="Link to this heading">#</a></h2>
 <section id="component-overview">
 <h3>Component Overview<a class="headerlink" href="#component-overview" title="Link to this heading">#</a></h3>
@@ -625,30 +686,34 @@ html[data-theme="dark"] .score-testcase-result--disabled {
 <span id="comp-health-monitor"></span><h3>Health Monitor<a class="headerlink" href="#health-monitor" title="Link to this heading">#</a></h3>
 <hr style="border-top: 2px solid #333333; margin: 0.5em 0 1.5em 0;"><section id="component-requirements-statistics">
 <h4>Component Requirements Statistics<a class="headerlink" href="#component-requirements-statistics" title="Link to this heading">#</a></h4>
+<p class="safety-class-heading safety-asil-b rubric">ASIL B — Requirements</p>
 <div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
-<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
+<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-2 sd-row-cols-md-3 sd-row-cols-lg-3 sd-g-2 sd-g-xs-2 sd-g-sm-2 sd-g-md-2 sd-g-lg-2 score-pie-row docutils">
 <div class="sd-col sd-d-flex-column docutils">
-<img alt="Health Monitor Requirements Status" id="needpie-verification_report/module_verification_report-0" src="../_images/need_pie_198f4.svg" />
+<img alt="Health Monitor Requirements Status (ASIL B): valid_inspected 0, valid 1, invalid 0" class="score-report-pie" src="../_images/score_report_pie_7c5558cb85.svg" />
 </div>
 <div class="sd-col sd-d-flex-column docutils">
-<img alt="Health Monitor Requirements Test Coverage" id="needpie-verification_report/module_verification_report-1" src="../_images/need_pie_44efa.svg" />
+<img alt="Health Monitor Requirements Test Coverage (ASIL B): fully covered 0, partially covered 0, not covered 1" class="score-report-pie" src="../_images/score_report_pie_1f79271cad.svg" />
 </div>
 </div>
 </div>
-</section>
+<p class="safety-class-heading safety-qm rubric">QM — Requirements</p>
+<div class="empty-pie">no QM requirements</div></section>
 <section id="component-architecture-statistics">
 <h4>Component Architecture Statistics<a class="headerlink" href="#component-architecture-statistics" title="Link to this heading">#</a></h4>
+<p class="safety-class-heading safety-asil-b rubric">ASIL B — Architecture Elements</p>
 <div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
-<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
+<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-2 sd-row-cols-md-3 sd-row-cols-lg-3 sd-g-2 sd-g-xs-2 sd-g-sm-2 sd-g-md-2 sd-g-lg-2 score-pie-row docutils">
 <div class="sd-col sd-d-flex-column docutils">
-<img alt="Health Monitor Architecture Elements Status" id="needpie-verification_report/module_verification_report-2" src="../_images/need_pie_a1005.svg" />
+<img alt="Health Monitor Architecture Elements Status (ASIL B): valid_inspected 0, valid 11, invalid 0" class="score-report-pie" src="../_images/score_report_pie_85100bffcf.svg" />
 </div>
 <div class="sd-col sd-d-flex-column docutils">
-<img alt="Health Monitor Architecture Elements Test Coverage" id="needpie-verification_report/module_verification_report-3" src="../_images/need_pie_30257.svg" />
+<img alt="Health Monitor Architecture Elements Test Coverage (ASIL B): fully covered 0, partially covered 0, not covered 11" class="score-report-pie" src="../_images/score_report_pie_6c75f299cf.svg" />
 </div>
 </div>
 </div>
-</section>
+<p class="safety-class-heading safety-qm rubric">QM — Architecture Elements</p>
+<div class="empty-pie">no QM architecture elements</div></section>
 <section id="requirements-traceability">
 <h4>Requirements Traceability<a class="headerlink" href="#requirements-traceability" title="Link to this heading">#</a></h4>
 <p>The following table lists all requirements of this component together with their
@@ -728,44 +793,8 @@ status have not yet been inspected.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/architecture/index.html#comp_arc_dyn__deadline_monitor__dynamic_view">comp_arc_dyn__deadline_monitor__dynamic_view</a></p></td>
-<td class="needs_title"><p>DeadlineMonitor Usage</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_tags"><p></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/architecture/index.html#comp_arc_dyn__health_lib_thread__dynamic_view">comp_arc_dyn__health_lib_thread__dynamic_view</a></p></td>
-<td class="needs_title"><p>HealthMonitor background thread</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_tags"><p></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/architecture/index.html#comp_arc_dyn__health_monitor__dynamic_view">comp_arc_dyn__health_monitor__dynamic_view</a></p></td>
-<td class="needs_title"><p>HealthMonitor Creation</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_tags"><p></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/architecture/index.html#comp_arc_dyn__health_monitor__shutdown_view">comp_arc_dyn__health_monitor__shutdown_view</a></p></td>
-<td class="needs_title"><p>Health Monitoring Shutdown Interaction</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_tags"><p></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/architecture/index.html#comp_arc_dyn__health_monitor__startup_view">comp_arc_dyn__health_monitor__startup_view</a></p></td>
-<td class="needs_title"><p>Health Monitoring Startup Interaction</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_tags"><p></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/architecture/index.html#comp_arc_dyn__heartbeat_monitor__dynamic_view">comp_arc_dyn__heartbeat_monitor__dynamic_view</a></p></td>
-<td class="needs_title"><p>HeartbeatMonitor Usage</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_tags"><p></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/architecture/index.html#comp_arc_dyn__logic_monitor__dynamic_view">comp_arc_dyn__logic_monitor__dynamic_view</a></p></td>
-<td class="needs_title"><p>LogicMonitor Usage</p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/architecture/index.html#comp_arc_sta__health_mon__hm">comp_arc_sta__health_mon__hm</a></p></td>
+<td class="needs_title"><p>Health Monitor Static View</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p></p></td>
@@ -776,8 +805,8 @@ status have not yet been inspected.</p>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p></p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/architecture/index.html#comp_arc_sta__health_mon__hm">comp_arc_sta__health_mon__hm</a></p></td>
-<td class="needs_title"><p>Health Monitor Static View</p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/architecture/index.html#comp_arc_sta__logic_monitor__static_view">comp_arc_sta__logic_monitor__static_view</a></p></td>
+<td class="needs_title"><p>Logic Monitor</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p></p></td>
@@ -788,8 +817,44 @@ status have not yet been inspected.</p>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p></p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/architecture/index.html#comp_arc_sta__logic_monitor__static_view">comp_arc_sta__logic_monitor__static_view</a></p></td>
-<td class="needs_title"><p>Logic Monitor</p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/architecture/index.html#comp_arc_dyn__health_monitor__dynamic_view">comp_arc_dyn__health_monitor__dynamic_view</a></p></td>
+<td class="needs_title"><p>HealthMonitor Creation</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/architecture/index.html#comp_arc_dyn__health_lib_thread__dynamic_view">comp_arc_dyn__health_lib_thread__dynamic_view</a></p></td>
+<td class="needs_title"><p>HealthMonitor background thread</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/architecture/index.html#comp_arc_dyn__deadline_monitor__dynamic_view">comp_arc_dyn__deadline_monitor__dynamic_view</a></p></td>
+<td class="needs_title"><p>DeadlineMonitor Usage</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/architecture/index.html#comp_arc_dyn__logic_monitor__dynamic_view">comp_arc_dyn__logic_monitor__dynamic_view</a></p></td>
+<td class="needs_title"><p>LogicMonitor Usage</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/architecture/index.html#comp_arc_dyn__heartbeat_monitor__dynamic_view">comp_arc_dyn__heartbeat_monitor__dynamic_view</a></p></td>
+<td class="needs_title"><p>HeartbeatMonitor Usage</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/architecture/index.html#comp_arc_dyn__health_monitor__startup_view">comp_arc_dyn__health_monitor__startup_view</a></p></td>
+<td class="needs_title"><p>Health Monitoring Startup Interaction</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/architecture/index.html#comp_arc_dyn__health_monitor__shutdown_view">comp_arc_dyn__health_monitor__shutdown_view</a></p></td>
+<td class="needs_title"><p>Health Monitoring Shutdown Interaction</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_tags"><p></p></td>
@@ -1017,30 +1082,44 @@ this component. A dash (<code class="docutils literal notranslate"><span class="
 <span id="comp-launch-manager"></span><h3>Launch Manager<a class="headerlink" href="#launch-manager" title="Link to this heading">#</a></h3>
 <hr style="border-top: 2px solid #333333; margin: 0.5em 0 1.5em 0;"><section id="id1">
 <h4>Component Requirements Statistics<a class="headerlink" href="#id1" title="Link to this heading">#</a></h4>
+<p class="safety-class-heading safety-asil-b rubric">ASIL B — Requirements</p>
 <div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
-<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
+<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-2 sd-row-cols-md-3 sd-row-cols-lg-3 sd-g-2 sd-g-xs-2 sd-g-sm-2 sd-g-md-2 sd-g-lg-2 score-pie-row docutils">
 <div class="sd-col sd-d-flex-column docutils">
-<img alt="Launch Manager Requirements Status" id="needpie-verification_report/module_verification_report-4" src="../_images/need_pie_988fb.svg" />
+<img alt="Launch Manager Requirements Status (ASIL B): valid_inspected 0, valid 57, invalid 13" class="score-report-pie" src="../_images/score_report_pie_a75176f8e6.svg" />
 </div>
 <div class="sd-col sd-d-flex-column docutils">
-<img alt="Launch Manager Requirements Test Coverage" id="needpie-verification_report/module_verification_report-5" src="../_images/need_pie_ce8e2.svg" />
+<img alt="Launch Manager Requirements Test Coverage (ASIL B): fully covered 18, partially covered 6, not covered 46" class="score-report-pie" src="../_images/score_report_pie_050673295b.svg" />
+</div>
+</div>
+</div>
+<p class="safety-class-heading safety-qm rubric">QM — Requirements</p>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-2 sd-row-cols-md-3 sd-row-cols-lg-3 sd-g-2 sd-g-xs-2 sd-g-sm-2 sd-g-md-2 sd-g-lg-2 score-pie-row docutils">
+<div class="sd-col sd-d-flex-column docutils">
+<img alt="Launch Manager Requirements Status (QM): valid 0, invalid 2" class="score-report-pie" src="../_images/score_report_pie_bcc9c01966.svg" />
+</div>
+<div class="sd-col sd-d-flex-column docutils">
+<img alt="Launch Manager Requirements Test Coverage (QM): fully covered 0, partially covered 0, not covered 2" class="score-report-pie" src="../_images/score_report_pie_eec969ef52.svg" />
 </div>
 </div>
 </div>
 </section>
 <section id="id2">
 <h4>Component Architecture Statistics<a class="headerlink" href="#id2" title="Link to this heading">#</a></h4>
+<p class="safety-class-heading safety-asil-b rubric">ASIL B — Architecture Elements</p>
 <div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
-<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
+<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-2 sd-row-cols-md-3 sd-row-cols-lg-3 sd-g-2 sd-g-xs-2 sd-g-sm-2 sd-g-md-2 sd-g-lg-2 score-pie-row docutils">
 <div class="sd-col sd-d-flex-column docutils">
-<img alt="Launch Manager Architecture Elements Status" id="needpie-verification_report/module_verification_report-6" src="../_images/need_pie_05369.svg" />
+<img alt="Launch Manager Architecture Elements Status (ASIL B): valid_inspected 0, valid 1, invalid 0" class="score-report-pie" src="../_images/score_report_pie_9b6f5024b2.svg" />
 </div>
 <div class="sd-col sd-d-flex-column docutils">
-<img alt="Launch Manager Architecture Elements Test Coverage" id="needpie-verification_report/module_verification_report-7" src="../_images/need_pie_ebc9c.svg" />
+<img alt="Launch Manager Architecture Elements Test Coverage (ASIL B): fully covered 0, partially covered 0, not covered 1" class="score-report-pie" src="../_images/score_report_pie_218cdca0e4.svg" />
 </div>
 </div>
 </div>
-</section>
+<p class="safety-class-heading safety-qm rubric">QM — Architecture Elements</p>
+<div class="empty-pie">no QM architecture elements</div></section>
 <section id="id3">
 <h4>Requirements Traceability<a class="headerlink" href="#id3" title="Link to this heading">#</a></h4>
 <p>The following table lists all requirements of this component together with their
@@ -1066,32 +1145,8 @@ verification status and the tests that (fully or partially) verify them:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__alive_failure">comp_req__launch_man__alive_failure</a></p></td>
-<td class="needs_title"><p>Alive monitoring failure</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__aslr_support">comp_req__launch_man__aslr_support</a></p></td>
-<td class="needs_title"><p>ASLR support</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__capability_support">comp_req__launch_man__capability_support</a></p></td>
-<td class="needs_title"><p>Process capability support</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__central_default_defines">comp_req__launch_man__central_default_defines</a></p></td>
-<td class="needs_title"><p>Global process properties</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__check_dependency_exec">comp_req__launch_man__check_dependency_exec</a></p></td>
-<td class="needs_title"><p>Condition check based on at least one dependency</p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__consistent_dependencies">comp_req__launch_man__consistent_dependencies</a></p></td>
+<td class="needs_title"><p>Invalid dependency</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
@@ -1102,56 +1157,8 @@ verification status and the tests that (fully or partially) verify them:</p>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__conf_of_comp_ready_cond">comp_req__launch_man__conf_of_comp_ready_cond</a></p></td>
-<td class="needs_title"><p>Configuration of component readiness conditions</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/ready_conditions/process_state/kterminated/kterminated.py#L19">test_ready_condition_process_state<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__configurable_timeout">comp_req__launch_man__configurable_timeout</a></p></td>
-<td class="needs_title"><p>Stop timeout</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__consistent_dependencies">comp_req__launch_man__consistent_dependencies</a></p></td>
-<td class="needs_title"><p>Invalid dependency</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__cwd_support">comp_req__launch_man__cwd_support</a></p></td>
-<td class="needs_title"><p>CWD support</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__dag_logging_controlif">comp_req__launch_man__dag_logging_controlif</a></p></td>
-<td class="needs_title"><p>Logging DAG</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__define_swc_dependencies">comp_req__launch_man__define_swc_dependencies</a></p></td>
-<td class="needs_title"><p>Condition check for each SWC its dependencies</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__dep_based_startup_order">comp_req__launch_man__dep_based_startup_order</a></p></td>
-<td class="needs_title"><p>Dependency based startup order</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__dependency_visu">comp_req__launch_man__dependency_visu</a></p></td>
-<td class="needs_title"><p>Configuration dependency view</p></td>
-<td class="needs_safety"><p>QM</p></td>
-<td class="needs_status"><p>invalid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__detach_parent_process">comp_req__launch_man__detach_parent_process</a></p></td>
-<td class="needs_title"><p>Process detach from parent support</p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__fast_shutdown_support">comp_req__launch_man__fast_shutdown_support</a></p></td>
+<td class="needs_title"><p>Fast shutdown</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>invalid</p></td>
 <td class="needs_testlink"><p></p></td>
@@ -1162,16 +1169,64 @@ verification status and the tests that (fully or partially) verify them:</p>
 <td class="needs_status"><p>invalid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__failure_detect">comp_req__launch_man__failure_detect</a></p></td>
-<td class="needs_title"><p>Component monitoring during startup</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/crash_on_startup/crash_on_startup.py#L22">test_crash_on_startup<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/process_complex_rep_failure/process_complex_rep_failure.py#L19">test_recovery_action_complex_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/process_crash_monitoring/process_crash_monitoring.py#L19">test_process_crash_monitoring<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/crash_ignores_dependents/crash_ignores_dependents.py#L19">test_crash_ignores_dependents<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__fast_shutdown_support">comp_req__launch_man__fast_shutdown_support</a></p></td>
-<td class="needs_title"><p>Fast shutdown</p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__stop_order_spec">comp_req__launch_man__stop_order_spec</a></p></td>
+<td class="needs_title"><p>Coordination stop dependency</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>invalid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__stop_process_dependents">comp_req__launch_man__stop_process_dependents</a></p></td>
+<td class="needs_title"><p>Dangling dependency</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__check_dependency_exec">comp_req__launch_man__check_dependency_exec</a></p></td>
+<td class="needs_title"><p>Condition check based on at least one dependency</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__define_swc_dependencies">comp_req__launch_man__define_swc_dependencies</a></p></td>
+<td class="needs_title"><p>Condition check for each SWC its dependencies</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_input_output">comp_req__launch_man__process_input_output</a></p></td>
+<td class="needs_title"><p>Forward process information</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>invalid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__multi_start_support">comp_req__launch_man__multi_start_support</a></p></td>
+<td class="needs_title"><p>Multiple instance of executable</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>invalid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__terminal_support">comp_req__launch_man__terminal_support</a></p></td>
+<td class="needs_title"><p>Launching terminal</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__std_handle_redir">comp_req__launch_man__std_handle_redir</a></p></td>
+<td class="needs_title"><p>Standard handle redirection</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__secpol_non_root">comp_req__launch_man__secpol_non_root</a></p></td>
+<td class="needs_title"><p>Non-root support</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__capability_support">comp_req__launch_man__capability_support</a></p></td>
+<td class="needs_title"><p>Process capability support</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
 <tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__fd_inheritance">comp_req__launch_man__fd_inheritance</a></p></td>
@@ -1180,38 +1235,122 @@ verification status and the tests that (fully or partially) verify them:</p>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__launch_manager_shutdown">comp_req__launch_man__launch_manager_shutdown</a></p></td>
-<td class="needs_title"><p>Normal shutdown</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__launch_parallel">comp_req__launch_man__launch_parallel</a></p></td>
-<td class="needs_title"><p>Launching processes in parallel</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/parallel_launch/parallel_launch.py#L19">test_parallel_launch<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__launch_priority_support">comp_req__launch_man__launch_priority_support</a></p></td>
-<td class="needs_title"><p>Process priority support</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__launcher_exit_shutdown">comp_req__launch_man__launcher_exit_shutdown</a></p></td>
-<td class="needs_title"><p>Launch Manager shutdown</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/lm_shutdown_during_switch_to_off/lm_shutdown_during_switch_to_off.py#L19">test_lm_shutdown<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/lm_shutdown_during_rt_switch/lm_shutdown_during_rt_switch.py#L19">test_lm_shutdown<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__lazy_check">comp_req__launch_man__lazy_check</a></p></td>
-<td class="needs_title"><p>Lazy check of configured commands</p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__support_secpol_type">comp_req__launch_man__support_secpol_type</a></p></td>
+<td class="needs_title"><p>Security policy support</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__lm_ext_watchdog_cfg">comp_req__launch_man__lm_ext_watchdog_cfg</a></p></td>
-<td class="needs_title"><p>Launch manager external monitoring configuration</p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__aslr_support">comp_req__launch_man__aslr_support</a></p></td>
+<td class="needs_title"><p>ASLR support</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_rlimit_support">comp_req__launch_man__process_rlimit_support</a></p></td>
+<td class="needs_title"><p>Resource limit support</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__detach_parent_process">comp_req__launch_man__detach_parent_process</a></p></td>
+<td class="needs_title"><p>Process detach from parent support</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>invalid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__configurable_timeout">comp_req__launch_man__configurable_timeout</a></p></td>
+<td class="needs_title"><p>Stop timeout</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__time_to_wait_config">comp_req__launch_man__time_to_wait_config</a></p></td>
+<td class="needs_title"><p>Configurable delay between SIGTERM and SIGKILL</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__runtime_config_compat">comp_req__launch_man__runtime_config_compat</a></p></td>
+<td class="needs_title"><p>Runtime configuration compliance</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>invalid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rt_activate_tout">comp_req__launch_man__rt_activate_tout</a></p></td>
+<td class="needs_title"><p>Run Target activation timeout</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__alive_failure">comp_req__launch_man__alive_failure</a></p></td>
+<td class="needs_title"><p>Alive monitoring failure</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__monitoring_processes">comp_req__launch_man__monitoring_processes</a></p></td>
+<td class="needs_title"><p>Monitoring and recovery: adopted process monitoring</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>invalid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_comp_failure_switch">comp_req__launch_man__ra_comp_failure_switch</a></p></td>
+<td class="needs_title"><p>Component failure during run target switch</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_comp_failed_esc">comp_req__launch_man__ra_comp_failed_esc</a></p></td>
+<td class="needs_title"><p>Component recovery action failure escalation</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_rt_cancel_trans">comp_req__launch_man__ra_rt_cancel_trans</a></p></td>
+<td class="needs_title"><p>Recovery Action</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_rt_sm_notify">comp_req__launch_man__ra_rt_sm_notify</a></p></td>
+<td class="needs_title"><p>Recovery state manager notification</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_rt_failed_esc">comp_req__launch_man__ra_rt_failed_esc</a></p></td>
+<td class="needs_title"><p>Run target recovery action failure escalation</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_fallback_failed_esc">comp_req__launch_man__ra_fallback_failed_esc</a></p></td>
+<td class="needs_title"><p>Fallback run target recovery action failure escalation</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>invalid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_comp_stop">comp_req__launch_man__ra_comp_stop</a></p></td>
+<td class="needs_title"><p>Recovery Action - component failure stopping the component</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>invalid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_comp_replace">comp_req__launch_man__ra_comp_replace</a></p></td>
+<td class="needs_title"><p>Recovery Action - component failure replacing component</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>invalid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_comp_fallback">comp_req__launch_man__ra_comp_fallback</a></p></td>
+<td class="needs_title"><p>Recovery Action - component failure switch to fallback run target</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>invalid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_rt_switch_rt">comp_req__launch_man__ra_rt_switch_rt</a></p></td>
+<td class="needs_title"><p>Recovery Action - run target failure switch Run Target</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
@@ -1228,8 +1367,32 @@ verification status and the tests that (fully or partially) verify them:</p>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__log_timestamp">comp_req__launch_man__log_timestamp</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__lm_ext_watchdog_cfg">comp_req__launch_man__lm_ext_watchdog_cfg</a></p></td>
+<td class="needs_title"><p>Launch manager external monitoring configuration</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__slog2_logging">comp_req__launch_man__slog2_logging</a></p></td>
+<td class="needs_title"><p>Logging slog2 and file support</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_logging_support">comp_req__launch_man__process_logging_support</a></p></td>
+<td class="needs_title"><p>Logging state transitions</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__log_timestamp">comp_req__launch_man__log_timestamp</a></p></td>
 <td class="needs_title"><p>Logging timestamp</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__dag_logging_controlif">comp_req__launch_man__dag_logging_controlif</a></p></td>
+<td class="needs_title"><p>Logging DAG</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
@@ -1240,15 +1403,171 @@ verification status and the tests that (fully or partially) verify them:</p>
 <td class="needs_status"><p>invalid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__monitoring_processes">comp_req__launch_man__monitoring_processes</a></p></td>
-<td class="needs_title"><p>Monitoring and recovery: adopted process monitoring</p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__central_default_defines">comp_req__launch_man__central_default_defines</a></p></td>
+<td class="needs_title"><p>Global process properties</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>invalid</p></td>
+<td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__multi_start_support">comp_req__launch_man__multi_start_support</a></p></td>
-<td class="needs_title"><p>Multiple instance of executable</p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__lazy_check">comp_req__launch_man__lazy_check</a></p></td>
+<td class="needs_title"><p>Lazy check of configured commands</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__dep_based_startup_order">comp_req__launch_man__dep_based_startup_order</a></p></td>
+<td class="needs_title"><p>Dependency based startup order</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rc_file_state">comp_req__launch_man__rc_file_state</a></p></td>
+<td class="needs_title"><p>Ready Condition - File state</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/ready_conditions/file_state/exists/ready_condition_file.py#L19">test_ready_condition_file<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/ready_conditions/file_state/not_existing/ready_condition_file_not_existing.py#L19">test_ready_condition_file_not_existing<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__conf_of_comp_ready_cond">comp_req__launch_man__conf_of_comp_ready_cond</a></p></td>
+<td class="needs_title"><p>Configuration of component readiness conditions</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/ready_conditions/process_state/kterminated/kterminated.py#L19">test_ready_condition_process_state<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_launch_args">comp_req__launch_man__process_launch_args</a></p></td>
+<td class="needs_title"><p>Handling process args</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/fallback_to_same_target_restarts/fallback_to_same_target_restarts.py#L19">test_fallback_to_same_target_restarts<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/process_launch_args/process_launch_args.py#L19">test_process_launch_args<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rc_lifecycle">comp_req__launch_man__rc_lifecycle</a></p></td>
+<td class="needs_title"><p>Ready Condition - Lifecycle Interface</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/fallback_to_same_target_restarts/fallback_to_same_target_restarts.py#L19">test_fallback_to_same_target_restarts<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/incorrect_config_non_reporting/test_incorrect_config_non_reporting.py#L19">test_incorrect_config_non_reporting<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/process_complex_rep_failure/process_complex_rep_failure.py#L19">test_recovery_action_complex_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/process_fd_leak/process_fd_leak.py#L19">test_process_fd_leak<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rt_comp_dep">comp_req__launch_man__rt_comp_dep</a></p></td>
+<td class="needs_title"><p>Run target to component dependencies</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/fallback_to_same_target_restarts/fallback_to_same_target_restarts.py#L19">test_fallback_to_same_target_restarts<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__failure_detect">comp_req__launch_man__failure_detect</a></p></td>
+<td class="needs_title"><p>Component monitoring during startup</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/crash_ignores_dependents/crash_ignores_dependents.py#L19">test_crash_ignores_dependents<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/process_crash_monitoring/process_crash_monitoring.py#L19">test_process_crash_monitoring<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/process_complex_rep_failure/process_complex_rep_failure.py#L19">test_recovery_action_complex_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/crash_on_startup/crash_on_startup.py#L22">test_crash_on_startup<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__switch_run_targets">comp_req__launch_man__switch_run_targets</a></p></td>
+<td class="needs_title"><p>Switch between run targets</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/smoke/smoke.py#L19">test_smoke<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__launch_manager_shutdown">comp_req__launch_man__launch_manager_shutdown</a></p></td>
+<td class="needs_title"><p>Normal shutdown</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_state_comm">comp_req__launch_man__process_state_comm</a></p></td>
+<td class="needs_title"><p>Process state</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/rt_running_when_process_exits/rt_running_when_process_exits.py#L19">test_rt_running_when_process_exits<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rt_rt_dep">comp_req__launch_man__rt_rt_dep</a></p></td>
+<td class="needs_title"><p>Run target to run target dependencies</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_comp_switch_rt">comp_req__launch_man__ra_comp_switch_rt</a></p></td>
+<td class="needs_title"><p>Recovery Action - component failure switch Run Target</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/process_crash_monitoring/process_crash_monitoring.py#L19">test_process_crash_monitoring<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/process_complex_rep_failure/process_complex_rep_failure.py#L19">test_recovery_action_complex_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rc_os_state">comp_req__launch_man__rc_os_state</a></p></td>
+<td class="needs_title"><p>Ready Condition - OS Process State</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/process_fd_leak/process_fd_leak.py#L19">test_process_fd_leak<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__start_named_run_target">comp_req__launch_man__start_named_run_target</a></p></td>
+<td class="needs_title"><p>Launching run target</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/smoke/smoke.py#L19">test_smoke<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__launch_parallel">comp_req__launch_man__launch_parallel</a></p></td>
+<td class="needs_title"><p>Launching processes in parallel</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/parallel_launch/parallel_launch.py#L19">test_parallel_launch<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__launcher_exit_shutdown">comp_req__launch_man__launcher_exit_shutdown</a></p></td>
+<td class="needs_title"><p>Launch Manager shutdown</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/lm_shutdown_during_rt_switch/lm_shutdown_during_rt_switch.py#L19">test_lm_shutdown<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/lm_shutdown_during_switch_to_off/lm_shutdown_during_switch_to_off.py#L19">test_lm_shutdown<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_comp_reactivate">comp_req__launch_man__ra_comp_reactivate</a></p></td>
+<td class="needs_title"><p>Recovery Action - component failure reactivate the component</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/crash_on_startup/crash_on_startup.py#L22">test_crash_on_startup<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__retries_configurable">comp_req__launch_man__retries_configurable</a></p></td>
+<td class="needs_title"><p>Configurable amount of retries on startup</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/crash_on_startup/crash_on_startup.py#L22">test_crash_on_startup<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__shutdown_signal">comp_req__launch_man__shutdown_signal</a></p></td>
+<td class="needs_title"><p>Shutdown signal handling</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/shutdown_signal/shutdown_signal.py#L19">test_shutdown_signal<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__uid_gid_support">comp_req__launch_man__uid_gid_support</a></p></td>
+<td class="needs_title"><p>Process user, group IDs support</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__launch_priority_support">comp_req__launch_man__launch_priority_support</a></p></td>
+<td class="needs_title"><p>Process priority support</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__scheduling_policy">comp_req__launch_man__scheduling_policy</a></p></td>
+<td class="needs_title"><p>Scheduling support</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__cwd_support">comp_req__launch_man__cwd_support</a></p></td>
+<td class="needs_title"><p>CWD support</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__supplementary_groups">comp_req__launch_man__supplementary_groups</a></p></td>
+<td class="needs_title"><p>Supplementary group support</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__runmask_support">comp_req__launch_man__runmask_support</a></p></td>
+<td class="needs_title"><p>CPU runmask support</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/9fdb316b6cd8460dd0168e37974917d77e703856/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__dependency_visu">comp_req__launch_man__dependency_visu</a></p></td>
+<td class="needs_title"><p>Configuration dependency view</p></td>
+<td class="needs_safety"><p>QM</p></td>
 <td class="needs_status"><p>invalid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
@@ -1257,246 +1576,6 @@ verification status and the tests that (fully or partially) verify them:</p>
 <td class="needs_safety"><p>QM</p></td>
 <td class="needs_status"><p>invalid</p></td>
 <td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_input_output">comp_req__launch_man__process_input_output</a></p></td>
-<td class="needs_title"><p>Forward process information</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>invalid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_launch_args">comp_req__launch_man__process_launch_args</a></p></td>
-<td class="needs_title"><p>Handling process args</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/fallback_to_same_target_restarts/fallback_to_same_target_restarts.py#L19">test_fallback_to_same_target_restarts<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/process_launch_args/process_launch_args.py#L19">test_process_launch_args<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_logging_support">comp_req__launch_man__process_logging_support</a></p></td>
-<td class="needs_title"><p>Logging state transitions</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_rlimit_support">comp_req__launch_man__process_rlimit_support</a></p></td>
-<td class="needs_title"><p>Resource limit support</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_state_comm">comp_req__launch_man__process_state_comm</a></p></td>
-<td class="needs_title"><p>Process state</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/rt_running_when_process_exits/rt_running_when_process_exits.py#L19">test_rt_running_when_process_exits<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_comp_failed_esc">comp_req__launch_man__ra_comp_failed_esc</a></p></td>
-<td class="needs_title"><p>Component recovery action failure escalation</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_comp_failure_switch">comp_req__launch_man__ra_comp_failure_switch</a></p></td>
-<td class="needs_title"><p>Component failure during run target switch</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_comp_fallback">comp_req__launch_man__ra_comp_fallback</a></p></td>
-<td class="needs_title"><p>Recovery Action - component failure switch to fallback run target</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>invalid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_comp_reactivate">comp_req__launch_man__ra_comp_reactivate</a></p></td>
-<td class="needs_title"><p>Recovery Action - component failure reactivate the component</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/crash_on_startup/crash_on_startup.py#L22">test_crash_on_startup<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_comp_replace">comp_req__launch_man__ra_comp_replace</a></p></td>
-<td class="needs_title"><p>Recovery Action - component failure replacing component</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>invalid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_comp_stop">comp_req__launch_man__ra_comp_stop</a></p></td>
-<td class="needs_title"><p>Recovery Action - component failure stopping the component</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>invalid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_comp_switch_rt">comp_req__launch_man__ra_comp_switch_rt</a></p></td>
-<td class="needs_title"><p>Recovery Action - component failure switch Run Target</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/process_complex_rep_failure/process_complex_rep_failure.py#L19">test_recovery_action_complex_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/process_crash_monitoring/process_crash_monitoring.py#L19">test_process_crash_monitoring<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_fallback_failed_esc">comp_req__launch_man__ra_fallback_failed_esc</a></p></td>
-<td class="needs_title"><p>Fallback run target recovery action failure escalation</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>invalid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_rt_cancel_trans">comp_req__launch_man__ra_rt_cancel_trans</a></p></td>
-<td class="needs_title"><p>Recovery Action</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_rt_failed_esc">comp_req__launch_man__ra_rt_failed_esc</a></p></td>
-<td class="needs_title"><p>Run target recovery action failure escalation</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_rt_sm_notify">comp_req__launch_man__ra_rt_sm_notify</a></p></td>
-<td class="needs_title"><p>Recovery state manager notification</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_rt_switch_rt">comp_req__launch_man__ra_rt_switch_rt</a></p></td>
-<td class="needs_title"><p>Recovery Action - run target failure switch Run Target</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rc_file_state">comp_req__launch_man__rc_file_state</a></p></td>
-<td class="needs_title"><p>Ready Condition - File state</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/ready_conditions/file_state/exists/ready_condition_file.py#L19">test_ready_condition_file<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/ready_conditions/file_state/not_existing/ready_condition_file_not_existing.py#L19">test_ready_condition_file_not_existing<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rc_lifecycle">comp_req__launch_man__rc_lifecycle</a></p></td>
-<td class="needs_title"><p>Ready Condition - Lifecycle Interface</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/incorrect_config_non_reporting/test_incorrect_config_non_reporting.py#L19">test_incorrect_config_non_reporting<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/process_fd_leak/process_fd_leak.py#L19">test_process_fd_leak<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/fallback_to_same_target_restarts/fallback_to_same_target_restarts.py#L19">test_fallback_to_same_target_restarts<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/process_complex_rep_failure/process_complex_rep_failure.py#L19">test_recovery_action_complex_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rc_os_state">comp_req__launch_man__rc_os_state</a></p></td>
-<td class="needs_title"><p>Ready Condition - OS Process State</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/process_fd_leak/process_fd_leak.py#L19">test_process_fd_leak<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__retries_configurable">comp_req__launch_man__retries_configurable</a></p></td>
-<td class="needs_title"><p>Configurable amount of retries on startup</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/crash_on_startup/crash_on_startup.py#L22">test_crash_on_startup<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rt_activate_tout">comp_req__launch_man__rt_activate_tout</a></p></td>
-<td class="needs_title"><p>Run Target activation timeout</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rt_comp_dep">comp_req__launch_man__rt_comp_dep</a></p></td>
-<td class="needs_title"><p>Run target to component dependencies</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/fallback_to_same_target_restarts/fallback_to_same_target_restarts.py#L19">test_fallback_to_same_target_restarts<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rt_rt_dep">comp_req__launch_man__rt_rt_dep</a></p></td>
-<td class="needs_title"><p>Run target to run target dependencies</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__runmask_support">comp_req__launch_man__runmask_support</a></p></td>
-<td class="needs_title"><p>CPU runmask support</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__runtime_config_compat">comp_req__launch_man__runtime_config_compat</a></p></td>
-<td class="needs_title"><p>Runtime configuration compliance</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>invalid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__scheduling_policy">comp_req__launch_man__scheduling_policy</a></p></td>
-<td class="needs_title"><p>Scheduling support</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__secpol_non_root">comp_req__launch_man__secpol_non_root</a></p></td>
-<td class="needs_title"><p>Non-root support</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__shutdown_signal">comp_req__launch_man__shutdown_signal</a></p></td>
-<td class="needs_title"><p>Shutdown signal handling</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/shutdown_signal/shutdown_signal.py#L19">test_shutdown_signal<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__slog2_logging">comp_req__launch_man__slog2_logging</a></p></td>
-<td class="needs_title"><p>Logging slog2 and file support</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__start_named_run_target">comp_req__launch_man__start_named_run_target</a></p></td>
-<td class="needs_title"><p>Launching run target</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/smoke/smoke.py#L19">test_smoke<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__std_handle_redir">comp_req__launch_man__std_handle_redir</a></p></td>
-<td class="needs_title"><p>Standard handle redirection</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__stop_order_spec">comp_req__launch_man__stop_order_spec</a></p></td>
-<td class="needs_title"><p>Coordination stop dependency</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>invalid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__stop_process_dependents">comp_req__launch_man__stop_process_dependents</a></p></td>
-<td class="needs_title"><p>Dangling dependency</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__supplementary_groups">comp_req__launch_man__supplementary_groups</a></p></td>
-<td class="needs_title"><p>Supplementary group support</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__support_secpol_type">comp_req__launch_man__support_secpol_type</a></p></td>
-<td class="needs_title"><p>Security policy support</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__switch_run_targets">comp_req__launch_man__switch_run_targets</a></p></td>
-<td class="needs_title"><p>Switch between run targets</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/smoke/smoke.py#L19">test_smoke<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__terminal_support">comp_req__launch_man__terminal_support</a></p></td>
-<td class="needs_title"><p>Launching terminal</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__time_to_wait_config">comp_req__launch_man__time_to_wait_config</a></p></td>
-<td class="needs_title"><p>Configurable delay between SIGTERM and SIGKILL</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p></p></td>
-</tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__uid_gid_support">comp_req__launch_man__uid_gid_support</a></p></td>
-<td class="needs_title"><p>Process user, group IDs support</p></td>
-<td class="needs_safety"><p>ASIL_B</p></td>
-<td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/3028a05529d7b75027875b11d00d6683994df9a5/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
 </tr>
 </tbody>
 </table>
