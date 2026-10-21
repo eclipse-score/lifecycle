@@ -280,6 +280,7 @@ class StartProcessTest : public ProcessLauncherTest
         EXPECT_CALL(*g_syscall_mock, sched_setscheduler).Times(AnyNumber()).WillRepeatedly(Return(0));
         EXPECT_CALL(*g_syscall_mock, setgid).Times(AnyNumber()).WillRepeatedly(Return(0));
         EXPECT_CALL(*g_syscall_mock, setuid).Times(AnyNumber()).WillRepeatedly(Return(0));
+        EXPECT_CALL(*g_syscall_mock, setgroups).Times(AnyNumber()).WillRepeatedly(Return(0));
     }
 
     void ExpectSuccessfulChdir()
@@ -433,6 +434,7 @@ TEST_F(SetSchedulingAndSecurityTest, setpgidFails)
     EXPECT_CALL(*g_syscall_mock, sched_setscheduler).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, setgroups).WillOnce(Return(0));
 
     EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
@@ -447,6 +449,7 @@ TEST_F(SetSchedulingAndSecurityTest, setgidFails)
     EXPECT_CALL(*g_syscall_mock, sched_setscheduler).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(-1));
     EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, setgroups).WillOnce(Return(0));
 
     EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
@@ -461,6 +464,7 @@ TEST_F(SetSchedulingAndSecurityTest, setuidFails)
     EXPECT_CALL(*g_syscall_mock, sched_setscheduler).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(-1));
+    EXPECT_CALL(*g_syscall_mock, setgroups).WillOnce(Return(0));
 
     EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
@@ -475,6 +479,7 @@ TEST_F(SetSchedulingAndSecurityTest, setschedFails)
     EXPECT_CALL(*g_syscall_mock, sched_setscheduler).WillOnce(Return(-1));
     EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, setgroups).WillOnce(Return(0));
 
     EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
@@ -493,6 +498,7 @@ TEST_F(SetSchedulingAndSecurityTest, setschedClampedUpper)
     EXPECT_CALL(*g_syscall_mock, setpgid).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, setgroups).WillOnce(Return(0));
 
     EXPECT_CALL(*g_syscall_mock, sched_setscheduler(_, _, Field(&sched_param::sched_priority, Lt(too_high))))
         .WillOnce(Return(0));
@@ -512,6 +518,7 @@ TEST_F(SetSchedulingAndSecurityTest, setschedClampedLower)
     EXPECT_CALL(*g_syscall_mock, setpgid).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, setgroups).WillOnce(Return(0));
 
     EXPECT_CALL(*g_syscall_mock, sched_setscheduler(_, _, Field(&sched_param::sched_priority, Gt(too_low))))
         .WillOnce(Return(0));
@@ -547,6 +554,7 @@ TEST_F(SetSchedulingAndSecurityTest, setaffinityFails)
     EXPECT_CALL(*g_syscall_mock, setaffinity(0x1U)).WillOnce(SetErrnoAndReturn(EINVAL, -1));
     EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, setgroups).WillOnce(Return(0));
 
     EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
@@ -564,8 +572,22 @@ TEST_F(SetSchedulingAndSecurityTest, setaffinityIgnore)
     EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setaffinity).Times(0);
+    EXPECT_CALL(*g_syscall_mock, setgroups).WillOnce(Return(0));
 
     static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+}
+
+TEST_F(SetSchedulingAndSecurityTest, supplementaryGroupsAreCleared)
+{
+    RecordProperty(
+        "Description", "Verify that supplementary group IDs are explicitly cleared when none are configured");
+
+    config_.deployment_config.sandbox.supplementary_group_ids = {};
+
+    ExpectSuccessfulSchedulingAndSecurity();
+    EXPECT_CALL(*g_syscall_mock, setgroups(0, _)).WillOnce(Return(0));
+
+    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));
 }
 
 TEST_F(StartProcessTest, chdirFails)
