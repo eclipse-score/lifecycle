@@ -28,10 +28,7 @@ TEST(ComponentB, RunAndVerify)
         EXPECT_TRUE(touch_file(b_started)) << "failed to deploy file";
         score::mw::lifecycle::report_running();
     }
-    while (!TestRunner::exitRequested)
-    {
-        pause();
-    }
+    TestRunner::WaitForTermination();
     TEST_STEP("Verify termination order")
     {
         EXPECT_TRUE(std::filesystem::exists(a_terminating)) << "B was terminated before A terminated!";
@@ -41,5 +38,6 @@ TEST(ComponentB, RunAndVerify)
 
 int main()
 {
-    return TestRunner{__FILE__}.RunTests();
+    TestRunner::Init();
+    return TestRunner::RunTests();
 }

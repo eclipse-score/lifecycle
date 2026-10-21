@@ -14,9 +14,19 @@
 #define TESTS_UTILS_TEST_HELPER_HPP
 
 #include <gtest/gtest.h>
+#include <unistd.h>
 #include <atomic>
+#include <cassert>
+#include <cerrno>
 #include <chrono>
+#include <condition_variable>
+#include <csignal>
+#include <cstdio>
+#include <cstring>
 #include <filesystem>
+#include <functional>
+#include <mutex>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <thread>
@@ -33,7 +43,7 @@ inline std::string xmlPath(const std::string_view file)
 /// @return AssertionSuccess if the file is correctly created.
 inline testing::AssertionResult touch_file(const std::string_view file_path)
 {
-    auto openRes = fopen(file_path.data(), "w+");
+    auto openRes = fopen(file_path.begin(), "w+");
     if (!openRes)
     {
         return testing::AssertionFailure()
@@ -95,97 +105,122 @@ inline testing::AssertionResult check_clean(
     return testing::AssertionSuccess();
 }
 
-#define TEST_STEP(message)                                                                 \
+/// @brief Waits until all of `files` exist. The timeout applies to all files together, not to each one.
+/// @return AssertionSuccess if every file appeared within the timeout, otherwise a failure naming the missing files.
+[[nodiscard]]
+inline testing::AssertionResult wait_for_files(
+    const std::initializer_list<std::string_view> files,
+    const std::chrono::milliseconds timeout = std::chrono::seconds(3))
+{
+    constexpr auto kPollInterval = std::chrono::milliseconds(10);
+    const auto deadline = std::chrono::steady_clock::now() + timeout;
+
+    while (true)
+    {
+        std::stringstream missing{};
+        for (const auto file : files)
+        {
+            if (!std::filesystem::exists(file))
+            {
+                missing << "'" << file << "' ";
+            }
+        }
+
+        if (missing.tellp() == 0)
+        {
+            return testing::AssertionSuccess();
+        }
+        if (std::chrono::steady_clock::now() >= deadline)
+        {
+            return testing::AssertionFailure() << "Not created within " << timeout.count() << " ms: " << missing.str();
+        }
+        std::this_thread::sleep_for(kPollInterval);
+    }
+}
+
+/// @brief Waits until `file` exists.
+/// @return AssertionSuccess if the file appeared within the timeout.
+[[nodiscard]]
+inline testing::AssertionResult wait_for_file(
+    const std::string_view file,
+    const std::chrono::milliseconds timeout = std::chrono::seconds(3))
+{
+    return wait_for_files({file}, timeout);
+}
+
+#define TEST_STEP(message)                                                                \
     for (bool once = (std::cout << "[ STEP     ] " << (message) << std::endl, true); once; \
          (std::cout << "[ END STEP ] " << (message) << std::endl), once = false)
 
-enum class TerminationBehavior : std::uint8_t
-{
-    kWait = 0,  // Wait for a signal before terminating
-    kContinue,  // Terminate immediately
-};
 
-enum class TerminationNotification : std::uint8_t
-{
-    kNone = 0,  // Terminate without any notification
-    kTestEnd,   // Signal that the test has completed
-};
-
-/// @brief Helper class to setup, run, and clean up GTEST tests
+/// @brief Helper to setup, run, and clean up GTEST tests. All members are static; call Init() first in main().
 class TestRunner
 {
-    static void signalHandler(int)
+    static_assert(std::atomic<bool>::is_always_lock_free, "g_exit_requested is written from a signal handler");
+
+    static void signalHandler([[maybe_unused]] int signal)
     {
-        exitRequested = true;
+        g_exit_requested = true;
     }
 
-    TerminationNotification m_termination_notification;
-    TerminationBehavior m_termination_behavior;
-
-    std::string_view m_test_path;
+    static void installHandler(const int signal_number)
+    {
+        [[maybe_unused]] const auto previous = std::signal(signal_number, signalHandler);
+        assert(previous != SIG_ERR);
+    }
 
   public:
-    /// @brief TestRunner constructor
-    /// @param[in] test_path location to write the GTEST xml file (usually __FILE__)
-    /// @param[in] termination_behavior what to do when running tests has completed
-    /// @param[in] termination_notification what notification to send (if any) when running tests has completed.
-    ///            Usually the control daemon should signal test end.
-    TestRunner(
-        std::string_view test_path,
-        TerminationBehavior termination_behavior = TerminationBehavior::kWait,
-        TerminationNotification termination_notification = TerminationNotification::kNone)
-        : m_termination_notification(termination_notification),
-          m_termination_behavior(termination_behavior),
-          m_test_path(test_path)
-    {
-        signal(SIGINT, signalHandler);
-        signal(SIGTERM, signalHandler);
-    }
-
-    TestRunner(const TestRunner&) = delete;
-    TestRunner(TestRunner&&) = delete;
-    TestRunner& operator=(const TestRunner&) = delete;
-    TestRunner& operator=(TestRunner&&) = delete;
-
-    ~TestRunner()
-    {
-        if (m_termination_behavior == TerminationBehavior::kWait && !exitRequested)
-        {
-            pause();
-        }
-
-        if (m_termination_notification == TerminationNotification::kTestEnd)
-        {
-            assert(kill(getppid(), SIGTERM) == 0);
-        }
-    }
+    TestRunner() = delete;
 
     /// @brief True if the test process has received SIGINT or SIGTERM
-    inline static std::atomic<bool> exitRequested = false;
+    inline static std::atomic<bool> g_exit_requested = false;
 
-    /// @brief Use this function in main() to run all tests. It returns 0 if all tests are successful, or 1 otherwise.
-    int RunTests()
+    /// @brief Installs signal handlers and initializes GTEST.
+    /// @param[in] test_path location to write the GTEST xml file (__FILE__)
+    static void Init(const char* test_path = __builtin_FILE())
     {
-        ::testing::GTEST_FLAG(output) = "xml:" + xmlPath(m_test_path);
+        installHandler(SIGINT);
+        installHandler(SIGTERM);
+
+        ::testing::GTEST_FLAG(output) = "xml:" + xmlPath(test_path);
         ::testing::GTEST_FLAG(brief) = true;
-        testing::InitGoogleTest();
+        ::testing::InitGoogleTest();
+    }
 
-        auto res = RUN_ALL_TESTS();
+    /// @brief Run all tests.
+    static int RunTests()
+    {
+        return RUN_ALL_TESTS();
+    }
 
-        return res;
+    /// @brief Signals LM that the test has completed.
+    static void EndTest()
+    {
+        [[maybe_unused]] const int result = kill(getppid(), SIGTERM);
+        assert(result == 0);
+    }
+
+    /// @brief Blocks until SIGINT or SIGTERM is received.
+    /// @details Using polling instead of atomics to reduce test flakiness.
+    static void WaitForTermination()
+    {
+        while (!g_exit_requested)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
     }
 };
 
 using score::mw::lifecycle::RunTargetActivationSource;
 using score::mw::lifecycle::RunTargetName;
 
-bool event_received = false;
-RunTargetActivationSource event_source;
-RunTargetName event_target;
-std::mutex event_mutex;
-std::condition_variable event_condition;
+inline bool event_received = false;
+inline RunTargetActivationSource event_source;
+inline RunTargetName event_target;
+inline std::mutex event_mutex;
+inline std::condition_variable event_condition;
 
-void push_event(RunTargetActivationSource source, RunTargetName target)
+inline void push_event(RunTargetActivationSource source, RunTargetName target)
 {
     {
         std::unique_lock event_lock(event_mutex);
@@ -197,9 +232,9 @@ void push_event(RunTargetActivationSource source, RunTargetName target)
         event_target = target;
     }
     event_condition.notify_one();
-};
+}
 
-void pop_event(std::function<void(RunTargetActivationSource source, RunTargetName target)> callback)
+inline void pop_event(std::function<void(RunTargetActivationSource source, RunTargetName target)> callback)
 {
     {
         std::unique_lock event_lock(event_mutex);
@@ -210,6 +245,39 @@ void pop_event(std::function<void(RunTargetActivationSource source, RunTargetNam
         event_received = false;
     }
     event_condition.notify_one();
-};
+}
+
+/// @brief Waits until the control client is connected to the Launch Manager and subscribed to activation results.
+/// ILmControl::Create() only starts an asynchronous discovery, so the client may not be connected when it returns.
+/// Call this after registering the activation callback and before report_running(), which triggers the initial
+/// activation result. A result sent before the client has subscribed is never delivered.
+/// @param[in] timeout How long to wait for the connection
+[[nodiscard]]
+inline testing::AssertionResult wait_for_connection(
+    score::mw::lifecycle::ILmControl& client,
+    const std::chrono::milliseconds timeout = std::chrono::seconds(5))
+{
+    using score::mw::lifecycle::ExecErrc;
+
+    const auto deadline = std::chrono::steady_clock::now() + timeout;
+    while (true)
+    {
+        // Until the client is connected this fails with kCommunicationError. Once connected, the query is answered by
+        // the Launch Manager: either with the active Run Target or, while the initial activation is pending (it
+        // completes only after report_running()), with kActivationInProgress.
+        const auto result = client.get_active_run_target();
+        if (result.has_value() || static_cast<ExecErrc>(*result.error()) != ExecErrc::kCommunicationError)
+        {
+            return testing::AssertionSuccess();
+        }
+
+        if (std::chrono::steady_clock::now() >= deadline)
+        {
+            return testing::AssertionFailure() << "Control client did not connect to the Launch Manager within "
+                                               << timeout.count() << " ms";
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+}
 
 #endif  // TESTS_UTILS_TEST_HELPER_HPP

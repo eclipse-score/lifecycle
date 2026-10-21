@@ -55,5 +55,8 @@ int main()
     const char* process_id = std::getenv("PROCESSIDENTIFIER");
     g_id = process_id ? process_id : "unknown";
     // Distinct xml name per component so results do not collide
-    return TestRunner("component_parallel_launch_" + g_id).RunTests();
+    TestRunner::Init(("component_parallel_launch_" + g_id).c_str());
+    const auto result = TestRunner::RunTests();
+    TestRunner::WaitForTermination();
+    return result;
 }

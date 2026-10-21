@@ -29,7 +29,6 @@ namespace
 {
 std::string_view g_started;
 std::string_view g_terminating;
-std::string g_xml_name;
 }  // namespace
 
 TEST(Component, RunAndVerify)
@@ -39,10 +38,7 @@ TEST(Component, RunAndVerify)
         EXPECT_TRUE(touch_file(g_started)) << "failed to deploy file";
         score::mw::lifecycle::report_running();
     }
-    while (!TestRunner::exitRequested)
-    {
-        pause();
-    }
+    TestRunner::WaitForTermination();
     EXPECT_TRUE(touch_file(g_terminating)) << "Failed to deploy file";
 }
 
@@ -73,6 +69,7 @@ int main(int argc, char** argv)
 
     // Name the GTest XML result file per component so the two binaries built from
     // this source write distinct results.
-    g_xml_name = "component_" + std::string{component};
-    return TestRunner(g_xml_name).RunTests();
+    const std::string xml_name = "component_" + std::string{component};
+    TestRunner::Init(xml_name.c_str());
+    return TestRunner::RunTests();
 }

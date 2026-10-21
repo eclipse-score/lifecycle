@@ -26,5 +26,6 @@ TEST(Smoke, Process)
 
 int main()
 {
-    return TestRunner(__FILE__).RunTests();
+    TestRunner::Init();
+    return TestRunner::RunTests();
 }

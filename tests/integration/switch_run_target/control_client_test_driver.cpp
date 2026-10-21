@@ -53,6 +53,11 @@ TEST(SwitchRunTarget, ControlClientTestDriver)
         ASSERT_TRUE(result.has_value());
     }
 
+    TEST_STEP("Wait for client connection")
+    {
+        ASSERT_TRUE(wait_for_connection(*client));
+    }
+
     TEST_STEP("Report running")
     {
         report_running();
@@ -141,5 +146,8 @@ TEST(SwitchRunTarget, ControlClientTestDriver)
 
 int main()
 {
-    return TestRunner(__FILE__, TerminationBehavior::kContinue, TerminationNotification::kTestEnd).RunTests();
+    TestRunner::Init();
+    const auto result = TestRunner::RunTests();
+    TestRunner::EndTest();
+    return result;
 }
