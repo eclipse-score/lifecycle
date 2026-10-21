@@ -57,5 +57,6 @@ TEST(FallbackToSameTargetRestarts, CrashingProcess)
 
 int main()
 {
-    TestRunner(__FILE__, TerminationBehavior::kContinue).RunTests();
+    TestRunner::Init();
+    TestRunner::RunTests();
 }

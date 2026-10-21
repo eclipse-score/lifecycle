@@ -36,7 +36,7 @@ int main(int argc, char** argv)
     g_argc = argc;
     g_argv = argv;
 
-    TestRunner runner{__FILE__, TerminationBehavior::kContinue, TerminationNotification::kNone};
+    TestRunner::Init();
 
-    return runner.RunTests();
+    return TestRunner::RunTests();
 }

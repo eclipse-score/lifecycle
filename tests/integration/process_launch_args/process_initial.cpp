@@ -48,6 +48,8 @@ int main(int argc, char** argv)
 {
     g_argc = argc;
     g_argv = argv;
-    TestRunner runner{__FILE__, TerminationBehavior::kContinue, TerminationNotification::kTestEnd};
-    return runner.RunTests();
+    TestRunner::Init();
+    const auto result = TestRunner::RunTests();
+    TestRunner::EndTest();
+    return result;
 }

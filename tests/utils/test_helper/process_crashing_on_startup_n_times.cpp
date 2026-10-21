@@ -106,11 +106,15 @@ int main(int argc, char** argv)
         write_crash_count(g_crash_count_path, crash_count + 1);
         // Write the report before crashing, so that even a process that is never allowed to start up
         // successfully (e.g. no retries) still produces its report.
-        TestRunner(report_path, TerminationBehavior::kContinue).RunTests();
+        TestRunner::Init(report_path.c_str());
+        TestRunner::RunTests();
         std::abort();
     }
 
     std::cout << "Process starting successfully..." << std::endl;
     g_startup_successful = true;
-    return TestRunner(report_path).RunTests();
+    TestRunner::Init(report_path.c_str());
+    const auto result = TestRunner::RunTests();
+    TestRunner::WaitForTermination();
+    return result;
 }

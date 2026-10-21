@@ -47,5 +47,8 @@ TEST(NonReporting, Process)
 
 int main()
 {
-    return TestRunner(__FILE__, TerminationBehavior::kContinue, TerminationNotification::kTestEnd).RunTests();
+    TestRunner::Init();
+    const auto result = TestRunner::RunTests();
+    TestRunner::EndTest();
+    return result;
 }

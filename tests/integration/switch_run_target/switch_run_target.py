@@ -42,7 +42,7 @@ def test_switch_run_target(target, setup_test, assert_test_results, remote_test_
 
     The control client activates run_target_a, which depends on run_target_c
     (containing component_d) and component_a (which depends on component_b).
-    After activation it switches back to Startup, and then Off.
+    After activation it switches back to Startup.
     Expected Behaviour: During activation resp. deactivation of run_target_a,
     component B starts before component A, component D is started, component A
     terminates before component B, and component E (not in the dependency

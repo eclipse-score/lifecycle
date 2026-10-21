@@ -34,13 +34,11 @@ TEST(LmShutdownDuringRtSwitch, ComponentC)
         score::mw::lifecycle::report_running();
     }
 
-    while (!TestRunner::exitRequested)
-    {
-        pause();
-    }
+    TestRunner::WaitForTermination();
 }
 
 int main()
 {
-    return TestRunner(__FILE__).RunTests();
+    TestRunner::Init();
+    return TestRunner::RunTests();
 }

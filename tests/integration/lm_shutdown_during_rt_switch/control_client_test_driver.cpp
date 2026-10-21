@@ -93,10 +93,7 @@ TEST(LmShutdownDuringRtSwitch, ControlClient)
     }
 
     // Block until the launch manager terminates us as part of its own shutdown.
-    while (!TestRunner::exitRequested)
-    {
-        pause();
-    }
+    TestRunner::WaitForTermination();
 
     TEST_STEP("Verify run_target_c was never activated")
     {
@@ -107,5 +104,9 @@ TEST(LmShutdownDuringRtSwitch, ControlClient)
 
 int main()
 {
-    return TestRunner(__FILE__, TerminationBehavior::kWait, TerminationNotification::kTestEnd).RunTests();
+    TestRunner::Init();
+    const auto result = TestRunner::RunTests();
+    TestRunner::EndTest();
+    TestRunner::WaitForTermination();
+    return result;
 }

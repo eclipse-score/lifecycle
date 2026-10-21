@@ -93,5 +93,8 @@ int main(int argc, char** argv)
         xml_result.append("_reporting");
     }
 
-    return TestRunner(xml_result).RunTests();
+    TestRunner::Init(xml_result.c_str());
+    const auto result = TestRunner::RunTests();
+    TestRunner::WaitForTermination();
+    return result;
 }

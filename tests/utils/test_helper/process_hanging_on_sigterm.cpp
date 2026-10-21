@@ -50,10 +50,7 @@ TEST(ProcessHangingOnSigterm, StallsDuringTermination)
         score::mw::lifecycle::report_running();
     }
 
-    while (!TestRunner::exitRequested)
-    {
-        pause();
-    }
+    TestRunner::WaitForTermination();
 
     TEST_STEP("Stall during termination to keep the run-target switch in progress")
     {
@@ -68,5 +65,6 @@ int main()
     // shared binary don't collide.
     const char* process_id = std::getenv("PROCESSIDENTIFIER");
     const std::string xml_name = process_id ? std::string{process_id} : __FILE__;
-    return TestRunner(xml_name).RunTests();
+    TestRunner::Init(xml_name.c_str());
+    return TestRunner::RunTests();
 }

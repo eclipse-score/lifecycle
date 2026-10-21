@@ -148,10 +148,9 @@ inline testing::AssertionResult wait_for_file(
     return wait_for_files({file}, timeout);
 }
 
-#define TEST_STEP(message)                                                                \
+#define TEST_STEP(message)                                                                 \
     for (bool once = (std::cout << "[ STEP     ] " << (message) << std::endl, true); once; \
          (std::cout << "[ END STEP ] " << (message) << std::endl), once = false)
-
 
 /// @brief Helper to setup, run, and clean up GTEST tests. All members are static; call Init() first in main().
 class TestRunner
@@ -247,11 +246,8 @@ inline void pop_event(std::function<void(RunTargetActivationSource source, RunTa
     event_condition.notify_one();
 }
 
-/// @brief Waits until the control client is connected to the Launch Manager and subscribed to activation results.
-/// ILmControl::Create() only starts an asynchronous discovery, so the client may not be connected when it returns.
-/// Call this after registering the activation callback and before report_running(), which triggers the initial
-/// activation result. A result sent before the client has subscribed is never delivered.
-/// @param[in] timeout How long to wait for the connection
+/// @brief Waits until the control client is connected to the Launch Manager.
+/// @details Calls `get_active_run_target` until you don't get `kCommunicationError`.
 [[nodiscard]]
 inline testing::AssertionResult wait_for_connection(
     score::mw::lifecycle::ILmControl& client,
@@ -262,9 +258,7 @@ inline testing::AssertionResult wait_for_connection(
     const auto deadline = std::chrono::steady_clock::now() + timeout;
     while (true)
     {
-        // Until the client is connected this fails with kCommunicationError. Once connected, the query is answered by
-        // the Launch Manager: either with the active Run Target or, while the initial activation is pending (it
-        // completes only after report_running()), with kActivationInProgress.
+        // Until the client is connected this fails with kCommunicationError.
         const auto result = client.get_active_run_target();
         if (result.has_value() || static_cast<ExecErrc>(*result.error()) != ExecErrc::kCommunicationError)
         {
@@ -273,8 +267,8 @@ inline testing::AssertionResult wait_for_connection(
 
         if (std::chrono::steady_clock::now() >= deadline)
         {
-            return testing::AssertionFailure() << "Control client did not connect to the Launch Manager within "
-                                               << timeout.count() << " ms";
+            return testing::AssertionFailure()
+                   << "Control client did not connect to the Launch Manager within " << timeout.count() << " ms";
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }

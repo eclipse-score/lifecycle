@@ -106,7 +106,6 @@ TEST(Smoke, Daemon)
         EXPECT_TRUE(result.has_value()) << result.error().Message();
         EXPECT_EQ(result.value(), "Startup");
     }
-
 }
 
 int main()

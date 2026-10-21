@@ -131,7 +131,6 @@ TEST(ParallelLaunch, ControlClientTestDriver)
         // one is already running.
         EXPECT_LT(max_start, min_running) << "Components were not launched in parallel";
     }
-
 }
 
 int main()

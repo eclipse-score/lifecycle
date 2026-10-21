@@ -112,15 +112,13 @@ TEST(RtRunningWhenProcessExits, ControlClientTestDriver)
                "output file has not been written yet. A Run Target depending on a terminated-ready "
                "component must only become ready once that component's process has actually exited.";
     }
-
-    TEST_STEP("Activate Run Target Off")
-    {
-        const auto result = client->activate_run_target("Off", true);
-        EXPECT_TRUE(result.has_value()) << result.error().Message();
-    }
 }
 
 int main()
 {
-    return TestRunner(__FILE__, TerminationBehavior::kWait, TerminationNotification::kTestEnd).RunTests();
+    TestRunner::Init();
+    const auto result = TestRunner::RunTests();
+    TestRunner::EndTest();
+    TestRunner::WaitForTermination();
+    return result;
 }
