@@ -58,11 +58,16 @@ class signal_safe_buffer
     template <typename T, std::enable_if_t<std::is_integral_v<T>, bool> = true>
     void append(const T& value)
     {
-        const auto [pointer, error] = std::to_chars(&buffer_[end_], &buffer_.back(), value);
+        if (end_ >= buffer_.size())
+        {
+            return;
+        }
+
+        const auto [pointer, error] = std::to_chars(buffer_.data() + end_, buffer_.data() + buffer_.size(), value);
 
         if (error == std::errc{})
         {
-            const std::ptrdiff_t offset = pointer - &buffer_.front();
+            const std::ptrdiff_t offset = pointer - buffer_.data();
             if (offset >= 0)
             {
                 end_ = static_cast<std::size_t>(offset);
