@@ -50,7 +50,7 @@ TEST(ParallelLaunch, ControlClientTestDriver)
 
     TEST_STEP("Wait for client connection")
     {
-        ASSERT_TRUE(wait_for_connection(*client));
+        ASSERT_TRUE(client->wait_for_connection().has_value());
     }
 
     TEST_STEP("Report running")

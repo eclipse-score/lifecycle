@@ -246,32 +246,4 @@ inline void pop_event(std::function<void(RunTargetActivationSource source, RunTa
     event_condition.notify_one();
 }
 
-/// @brief Waits until the control client is connected to the Launch Manager.
-/// @details Calls `get_active_run_target` until you don't get `kCommunicationError`.
-[[nodiscard]]
-inline testing::AssertionResult wait_for_connection(
-    score::mw::lifecycle::ILmControl& client,
-    const std::chrono::milliseconds timeout = std::chrono::seconds(5))
-{
-    using score::mw::lifecycle::ExecErrc;
-
-    const auto deadline = std::chrono::steady_clock::now() + timeout;
-    while (true)
-    {
-        // Until the client is connected this fails with kCommunicationError.
-        const auto result = client.get_active_run_target();
-        if (result.has_value() || static_cast<ExecErrc>(*result.error()) != ExecErrc::kCommunicationError)
-        {
-            return testing::AssertionSuccess();
-        }
-
-        if (std::chrono::steady_clock::now() >= deadline)
-        {
-            return testing::AssertionFailure()
-                   << "Control client did not connect to the Launch Manager within " << timeout.count() << " ms";
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
-}
-
 #endif  // TESTS_UTILS_TEST_HELPER_HPP

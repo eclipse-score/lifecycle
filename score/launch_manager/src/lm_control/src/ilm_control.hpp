@@ -13,6 +13,7 @@
 #ifndef SCORE_MW_LIFECYCLE_ILM_CONTROL_H_
 #define SCORE_MW_LIFECYCLE_ILM_CONTROL_H_
 
+#include <chrono>
 #include <functional>
 #include <memory>
 
@@ -160,6 +161,18 @@ class ILmControl
     /// @error kCommunicationError   Connection with Launch Manager could not be established
     ///                              and information about active Run Target cannot be retrieved.
     virtual score::Result<RunTargetName> get_active_run_target() = 0;
+
+    /// @brief Blocks until the client is connected to the Launch Manager.
+    ///
+    /// Polls get_active_run_target() until it no longer fails with kCommunicationError.
+    /// Any other outcome means the connection is up.
+    ///
+    /// @param[in] timeout  Maximum time to wait for the connection.
+    ///
+    /// @returns void once connected.
+    ///
+    /// @error kCommunicationError The connection was not established within the timeout.
+    virtual score::Result<void> wait_for_connection(std::chrono::milliseconds timeout = std::chrono::seconds(5)) = 0;
 
   protected:
     ILmControl() = default;

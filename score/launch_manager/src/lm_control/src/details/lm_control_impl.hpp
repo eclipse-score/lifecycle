@@ -13,6 +13,7 @@
 #ifndef SCORE_MW_LIFECYCLE_LM_CONTROL_IMPL_HPP
 #define SCORE_MW_LIFECYCLE_LM_CONTROL_IMPL_HPP
 
+#include <chrono>
 #include <cstddef>
 #include <exception>
 #include <memory>
@@ -20,6 +21,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <thread>
 #include <utility>
 
 #include "score/language/safecpp/scoped_function/copyable_scoped_function.h"
@@ -243,6 +245,26 @@ class BasicLmControlImpl final : public ILmControl
 
         LM_LOG_DEBUG() << "LmControl: get_active_run_target:" << response.run_target;
         return response.run_target;
+    }
+
+    score::Result<void> wait_for_connection(std::chrono::milliseconds timeout) override
+    {
+        const auto deadline = std::chrono::steady_clock::now() + timeout;
+        while (true)
+        {
+            // Until the client is connected this fails with kCommunicationError.
+            const auto result = get_active_run_target();
+            if (result.has_value() || static_cast<ExecErrc>(*result.error()) != ExecErrc::kCommunicationError)
+            {
+                return {};
+            }
+
+            if (std::chrono::steady_clock::now() >= deadline)
+            {
+                return score::MakeUnexpected(ExecErrc::kCommunicationError);
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
     }
 
   private:
