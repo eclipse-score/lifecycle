@@ -14,49 +14,17 @@
 #define TESTS_UTILS_TEST_HELPER_HPP
 
 #include <gtest/gtest.h>
-#include <unistd.h>
-#include <atomic>
-#include <cassert>
-#include <cerrno>
 #include <chrono>
-#include <condition_variable>
-#include <csignal>
-#include <cstdio>
-#include <cstring>
-#include <filesystem>
 #include <functional>
-#include <mutex>
-#include <sstream>
+#include <initializer_list>
 #include <string>
 #include <string_view>
-#include <thread>
 
 #include <score/mw/lifecycle/ilm_control.hpp>
 
-/// @return File path to an xml adjacent to the input file path
-inline std::string xmlPath(const std::string_view file)
-{
-    return std::filesystem::path{file}.filename().stem().string() + ".xml";
-}
-
 /// @brief Creates an empty file.
 /// @return AssertionSuccess if the file is correctly created.
-inline testing::AssertionResult touch_file(const std::string_view file_path)
-{
-    auto openRes = fopen(file_path.begin(), "w+");
-    if (!openRes)
-    {
-        return testing::AssertionFailure()
-               << "Could not touch file " << file_path << " errno: " << errno << " message: " << strerror(errno);
-    }
-
-    if (fclose(openRes) != 0)
-    {
-        return testing::AssertionFailure()
-               << "Couldn't close opened file " << file_path << " errno: " << errno << " message: " << strerror(errno);
-    }
-    return testing::AssertionSuccess();
-}
+testing::AssertionResult touch_file(std::string_view file_path);
 
 /// @brief Location to store a file signalling that the fallback state has been reached.
 constexpr std::string_view fallback_file = "fallback_reached";
@@ -77,173 +45,30 @@ inline std::string crashCountPath(const int crashes_until_success)
 /// @param[in] files Files to check
 /// @param[in] strict If true, return a failure if any files exist. Otherwise attempt to remove them.
 [[nodiscard]]
-inline testing::AssertionResult check_clean(
-    const std::initializer_list<std::string_view> files,
-    const bool strict = true)
-{
-    std::stringstream failures{};
-    for (const auto file : files)
-    {
-        if (!std::filesystem::exists(file))
-        {
-            continue;
-        }
-
-        if (strict)
-        {
-            failures << "'" << file << "' already exists!\n";
-        }
-        else if (!std::filesystem::remove(file))
-        {
-            failures << "Failed to remove '" << file << "'!\n";
-        }
-    }
-    if (failures.tellp() > 0)
-    {
-        return testing::AssertionFailure() << failures.str();
-    }
-    return testing::AssertionSuccess();
-}
+testing::AssertionResult check_clean(std::initializer_list<std::string_view> files, bool strict = true);
 
 /// @brief Waits until all of `files` exist. The timeout applies to all files together, not to each one.
 /// @return AssertionSuccess if every file appeared within the timeout, otherwise a failure naming the missing files.
 [[nodiscard]]
-inline testing::AssertionResult wait_for_files(
-    const std::initializer_list<std::string_view> files,
-    const std::chrono::milliseconds timeout = std::chrono::seconds(3))
-{
-    constexpr auto kPollInterval = std::chrono::milliseconds(10);
-    const auto deadline = std::chrono::steady_clock::now() + timeout;
-
-    while (true)
-    {
-        std::stringstream missing{};
-        for (const auto file : files)
-        {
-            if (!std::filesystem::exists(file))
-            {
-                missing << "'" << file << "' ";
-            }
-        }
-
-        if (missing.tellp() == 0)
-        {
-            return testing::AssertionSuccess();
-        }
-        if (std::chrono::steady_clock::now() >= deadline)
-        {
-            return testing::AssertionFailure() << "Not created within " << timeout.count() << " ms: " << missing.str();
-        }
-        std::this_thread::sleep_for(kPollInterval);
-    }
-}
+testing::AssertionResult wait_for_files(
+    std::initializer_list<std::string_view> files,
+    std::chrono::milliseconds timeout = std::chrono::seconds(3));
 
 /// @brief Waits until `file` exists.
 /// @return AssertionSuccess if the file appeared within the timeout.
 [[nodiscard]]
-inline testing::AssertionResult wait_for_file(
-    const std::string_view file,
-    const std::chrono::milliseconds timeout = std::chrono::seconds(3))
-{
-    return wait_for_files({file}, timeout);
-}
-
-#define TEST_STEP(message)                                                                 \
-    for (bool once = (std::cout << "[ STEP     ] " << (message) << std::endl, true); once; \
-         (std::cout << "[ END STEP ] " << (message) << std::endl), once = false)
-
-/// @brief Helper to setup, run, and clean up GTEST tests. All members are static; call Init() first in main().
-class TestRunner
-{
-    static_assert(std::atomic<bool>::is_always_lock_free, "g_exit_requested is written from a signal handler");
-
-    static void signalHandler([[maybe_unused]] int signal)
-    {
-        g_exit_requested = true;
-    }
-
-    static void installHandler(const int signal_number)
-    {
-        [[maybe_unused]] const auto previous = std::signal(signal_number, signalHandler);
-        assert(previous != SIG_ERR);
-    }
-
-  public:
-    TestRunner() = delete;
-
-    /// @brief True if the test process has received SIGINT or SIGTERM
-    inline static std::atomic<bool> g_exit_requested = false;
-
-    /// @brief Installs signal handlers and initializes GTEST.
-    /// @param[in] test_path location to write the GTEST xml file (__FILE__)
-    static void Init(const char* test_path = __builtin_FILE())
-    {
-        installHandler(SIGINT);
-        installHandler(SIGTERM);
-
-        ::testing::GTEST_FLAG(output) = "xml:" + xmlPath(test_path);
-        ::testing::GTEST_FLAG(brief) = true;
-        ::testing::InitGoogleTest();
-    }
-
-    /// @brief Run all tests.
-    static int RunTests()
-    {
-        return RUN_ALL_TESTS();
-    }
-
-    /// @brief Signals LM that the test has completed.
-    static void EndTest()
-    {
-        [[maybe_unused]] const int result = kill(getppid(), SIGTERM);
-        assert(result == 0);
-    }
-
-    /// @brief Blocks until SIGINT or SIGTERM is received.
-    /// @details Using polling instead of atomics to reduce test flakiness.
-    static void WaitForTermination()
-    {
-        while (!g_exit_requested)
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        }
-    }
-};
+testing::AssertionResult wait_for_file(
+    std::string_view file,
+    std::chrono::milliseconds timeout = std::chrono::seconds(3));
 
 using score::mw::lifecycle::RunTargetActivationSource;
 using score::mw::lifecycle::RunTargetName;
 
-inline bool event_received = false;
-inline RunTargetActivationSource event_source;
-inline RunTargetName event_target;
-inline std::mutex event_mutex;
-inline std::condition_variable event_condition;
+/// @brief Hands one activation event over from the activation callback to the test thread (single-slot queue).
+/// Blocks while the previous event has not been popped yet.
+void push_event(RunTargetActivationSource source, RunTargetName target);
 
-inline void push_event(RunTargetActivationSource source, RunTargetName target)
-{
-    {
-        std::unique_lock event_lock(event_mutex);
-        event_condition.wait(event_lock, [&] {
-            return !event_received;
-        });
-        event_received = true;
-        event_source = source;
-        event_target = target;
-    }
-    event_condition.notify_one();
-}
-
-inline void pop_event(std::function<void(RunTargetActivationSource source, RunTargetName target)> callback)
-{
-    {
-        std::unique_lock event_lock(event_mutex);
-        event_condition.wait(event_lock, [&] {
-            return event_received;
-        });
-        callback(event_source, event_target);
-        event_received = false;
-    }
-    event_condition.notify_one();
-}
+/// @brief Blocks until an event is available, then passes it to `callback` and frees the slot.
+void pop_event(std::function<void(RunTargetActivationSource source, RunTargetName target)> callback);
 
 #endif  // TESTS_UTILS_TEST_HELPER_HPP

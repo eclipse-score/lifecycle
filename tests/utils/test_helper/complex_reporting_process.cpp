@@ -17,7 +17,7 @@
 
 #include "score/mw/lifecycle/application.h"
 #include "score/mw/lifecycle/runapplication.h"
-#include "tests/utils/test_helper/test_helper.hpp"
+#include "tests/utils/test_helper/test_runner.hpp"
 
 /// @file  complex_reporting_process.cpp
 /// @brief Monitored test process using mw::lifecycle (score::mw::lifecycle::Application /

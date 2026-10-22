@@ -15,6 +15,7 @@
 #include "tests/utils/test_helper/test_helper.hpp"
 #include <fcntl.h>
 #include <gtest/gtest.h>
+#include <thread>
 #include <score/mw/lifecycle/report_running.h>
 #include <unistd.h>
 #include <csignal>

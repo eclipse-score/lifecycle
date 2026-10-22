@@ -15,7 +15,7 @@
 
 #include "score/mw/lifecycle/report_running.h"
 #include "score/mw/log/rust/stdout_logger_init.h"
-#include "tests/utils/test_helper/test_helper.hpp"
+#include "tests/utils/test_helper/test_runner.hpp"
 #include <score/mw/health/common.h>
 #include <score/mw/health/health_monitor.h>
 

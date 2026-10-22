@@ -12,6 +12,7 @@
  ********************************************************************************/
 #include <gtest/gtest.h>
 
+#include "tests/utils/test_helper/test_runner.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
 #include <fcntl.h>
 #include <score/mw/lifecycle/report_running.h>

@@ -15,7 +15,7 @@
 #include <unistd.h>
 #include <csignal>
 
-#include "tests/utils/test_helper/test_helper.hpp"
+#include "tests/utils/test_helper/test_runner.hpp"
 #include <score/mw/lifecycle/report_running.h>
 
 TEST(Smoke, Process)

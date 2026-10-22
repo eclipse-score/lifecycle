@@ -22,7 +22,7 @@
 #include <vector>
 
 #include "tests/integration/sandbox_options/verify_sandbox.hpp"
-#include "tests/utils/test_helper/test_helper.hpp"
+#include "tests/utils/test_helper/test_runner.hpp"
 
 namespace
 {
