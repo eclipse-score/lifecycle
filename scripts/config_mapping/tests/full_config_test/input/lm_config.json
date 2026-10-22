@@ -11,12 +11,7 @@
             },
             "bin_dir": "/opt/apps",
             "working_dir": "/var/run/apps",
-            "ready_recovery_action": {
-                "restart": {
-                    "number_of_attempts": 3,
-                    "delay_before_restart_ms": 1000
-                }
-            },
+            "activation_retries": 3,
             "recovery_action": {
                 "switch_run_target": {
                     "run_target": "fallback_run_target"
@@ -97,12 +92,7 @@
                 },
                 "bin_dir": "/opt/apps/a",
                 "working_dir": "/var/run/a",
-                "ready_recovery_action": {
-                    "restart": {
-                        "number_of_attempts": 254,
-                        "delay_before_restart_ms": 500
-                    }
-                },
+                "activation_retries": 254,
                 "recovery_action": {
                     "switch_run_target": {
                         "run_target": "fallback_run_target"

@@ -99,8 +99,8 @@ struct DeploymentConfig
     Environment environmental_variables;
     std::string executable_path;
     std::string working_dir;
-    std::optional<RestartAction> ready_recovery_action;
-    // Currently only SwitchRunTargetAction is supported here, RestartAction to be added in the future
+    std::uint8_t activation_retries{};
+    // Currently only SwitchRunTargetAction is supported here
     std::optional<SwitchRunTargetAction> recovery_action;
     Sandbox sandbox{};
 };
