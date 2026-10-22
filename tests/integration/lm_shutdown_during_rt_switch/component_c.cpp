@@ -14,8 +14,8 @@
 #include <unistd.h>
 
 #include "common.hpp"
-#include "tests/utils/test_helper/test_runner.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
+#include "tests/utils/test_helper/test_runner.hpp"
 #include <score/mw/lifecycle/report_running.h>
 
 // component_c belongs only to run_target_c. Because the switch to run_target_c

@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "tests/utils/test_helper/test_runner.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
+#include "tests/utils/test_helper/test_runner.hpp"
 #include <gtest/gtest.h>
 #include <score/mw/lifecycle/report_running.h>
 #include <unistd.h>

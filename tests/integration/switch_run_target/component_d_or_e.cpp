@@ -16,8 +16,8 @@
 #include <string_view>
 
 #include "common.hpp"
-#include "tests/utils/test_helper/test_runner.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
+#include "tests/utils/test_helper/test_runner.hpp"
 #include <score/mw/lifecycle/report_running.h>
 
 /// @file  component_d_or_e.cpp

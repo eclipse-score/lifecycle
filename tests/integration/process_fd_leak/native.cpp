@@ -16,8 +16,8 @@
 
 #include "common.hpp"
 #include "get_fds.hpp"
-#include "tests/utils/test_helper/test_runner.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
+#include "tests/utils/test_helper/test_runner.hpp"
 
 int g_argc;
 char** g_argv;

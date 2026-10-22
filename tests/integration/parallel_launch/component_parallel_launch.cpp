@@ -16,8 +16,8 @@
 #include <string>
 #include <thread>
 
-#include "tests/utils/test_helper/test_runner.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
+#include "tests/utils/test_helper/test_runner.hpp"
 #include <score/mw/lifecycle/report_running.h>
 
 // Shared by the three independent components a, b, c. Each is distinguished by
