@@ -102,9 +102,8 @@ Upgrade Instructions
   for instruction
   - Extended the `execution_error.h` with new errors to support this.
 - Config changes:
-  - The top level `fallback_run_target` object is now mandatory.
+  - The top level `fallback_run_target` object is now mandatory through the schema.
   - `number_of_attempts` has a maxium of `255`.
-  - Configurations that combine `application_type: Reporting` with any
-    process-state ready condition other than `Running` is now rejected.
+  - Configurations that combine `application_type: Reporting` with any process-state ready condition other than `Running` is now rejected.
  
 *For any questions or support, please contact the* `Project Team <https://github.com/orgs/eclipse-score/projects/33>`_ *or raise an issue/discussion.*
