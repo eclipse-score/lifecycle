@@ -88,9 +88,6 @@ score::cpp::expected<TargetT, IConfigLoader::Error> validateRange(int64_t value,
 
 // --- Recovery action converters ---
 
-/// @brief Converts a FlatBuffer RestartAction to a config RestartAction, or nullopt if absent.
-[[nodiscard]] score::cpp::expected<std::optional<RestartAction>, IConfigLoader::Error> convertRestartAction(
-    const fb::RestartAction* ra);
 /// @brief Converts a FlatBuffer SwitchRunTargetAction to a config SwitchRunTargetAction, or nullopt if absent.
 [[nodiscard]] std::optional<SwitchRunTargetAction> convertSwitchRunTargetAction(const fb::SwitchRunTargetAction* sa);
 /// @brief Converts a required FlatBuffer SwitchRunTargetAction; asserts if null.

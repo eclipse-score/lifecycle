@@ -31,6 +31,7 @@
                 "shutdown_timeout_ms": 3000,
                 "bin_dir": "/opt/apps/a",
                 "working_dir": "/var/run/a",
+                "activation_retries": 254,
                 "sandbox": {
                     "uid": 1001,
                     "gid": 1001,
@@ -63,10 +64,6 @@
                         "value": "a_value"
                     }
                 ],
-                "ready_recovery_action": {
-                    "number_of_attempts": 254,
-                    "delay_before_restart_ms": 500
-                },
                 "recovery_action": {
                     "run_target": "fallback_run_target"
                 }
@@ -99,6 +96,7 @@
                 "shutdown_timeout_ms": 2000,
                 "bin_dir": "/opt/apps/b",
                 "working_dir": "/var/run/apps",
+                "activation_retries": 3,
                 "sandbox": {
                     "uid": 1002,
                     "gid": 1002,
@@ -126,10 +124,6 @@
                         "value": "value123"
                     }
                 ],
-                "ready_recovery_action": {
-                    "number_of_attempts": 3,
-                    "delay_before_restart_ms": 1000
-                },
                 "recovery_action": {
                     "run_target": "fallback_run_target"
                 }
@@ -161,6 +155,7 @@
                 "shutdown_timeout_ms": 2000,
                 "bin_dir": "/opt/apps/c",
                 "working_dir": "/var/run/apps",
+                "activation_retries": 3,
                 "sandbox": {
                     "uid": 1003,
                     "gid": 1003,
@@ -190,10 +185,6 @@
                         "value": "value123"
                     }
                 ],
-                "ready_recovery_action": {
-                    "number_of_attempts": 3,
-                    "delay_before_restart_ms": 1000
-                },
                 "recovery_action": {
                     "run_target": "fallback_run_target"
                 }
@@ -225,6 +216,7 @@
                 "shutdown_timeout_ms": 2000,
                 "bin_dir": "/opt/apps/sm",
                 "working_dir": "/var/run/apps",
+                "activation_retries": 3,
                 "sandbox": {
                     "uid": 0,
                     "gid": 0,
@@ -254,10 +246,6 @@
                         "value": "value123"
                     }
                 ],
-                "ready_recovery_action": {
-                    "number_of_attempts": 3,
-                    "delay_before_restart_ms": 1000
-                },
                 "recovery_action": {
                     "run_target": "fallback_run_target"
                 }

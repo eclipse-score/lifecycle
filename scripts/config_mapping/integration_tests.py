@@ -249,6 +249,14 @@ SCHEMA_VALIDATION_TEST_CASES = [
         "config_filename": "invalid_number_of_attempts.json",
         "test_id": "invalid_number_of_attempts",
     },
+    {
+        "config_filename": "invalid_activation_retries.json",
+        "test_id": "invalid_activation_retries",
+    },
+    {
+        "config_filename": "negative_activation_retries.json",
+        "test_id": "negative_activation_retries",
+    },
 ]
 
 

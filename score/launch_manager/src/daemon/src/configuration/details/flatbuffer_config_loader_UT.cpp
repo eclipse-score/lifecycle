@@ -89,7 +89,7 @@ std::vector<uint8_t> finishBuffer(
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        0 /*ready_recovery_action*/,
+        0 /*activation_retries*/,
         0 /*recovery_action*/,
         sandbox);
 }
@@ -232,7 +232,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSingleComponent)
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        0 /*ready_recovery_action*/,
+        0 /*activation_retries*/,
         0 /*recovery_action*/,
         sandbox);
 
@@ -295,7 +295,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSingleComponentWithFileState)
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        0 /*ready_recovery_action*/,
+        0 /*activation_retries*/,
         0 /*recovery_action*/,
         sandbox);
 
@@ -448,13 +448,12 @@ TEST_F(FlatbufferConfigLoaderTest, LoadWatchdog)
     EXPECT_THAT(wd.require_magic_close, IsFalse());
 }
 
-TEST_F(FlatbufferConfigLoaderTest, LoadRestartRecoveryAction)
+TEST_F(FlatbufferConfigLoaderTest, LoadActivationRetries)
 {
-    RecordProperty("Description", "Recovery action variant holds RestartAction with correct fields on a component.");
+    RecordProperty("Description", "activation_retries is carried through to the deployment config of a component.");
 
     ::flatbuffers::FlatBufferBuilder fbb;
 
-    auto restart = fb::CreateRestartAction(fbb, 3 /*number_of_attempts*/, 1500 /*delay_before_restart_ms*/);
     auto bin_dir = fbb.CreateString("/opt");
     auto work_dir = fbb.CreateString("/tmp");
     auto sandbox = buildDefaultSandbox(fbb);
@@ -465,7 +464,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadRestartRecoveryAction)
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        restart,
+        3 /*activation_retries*/,
         0 /*recovery_action*/,
         sandbox);
 
@@ -476,11 +475,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadRestartRecoveryAction)
 
     ASSERT_THAT(result.has_value(), IsTrue());
     ASSERT_THAT(result->components().size(), Eq(1U));
-    ASSERT_THAT(result->components()[0].deployment_config.ready_recovery_action.has_value(), IsTrue());
-
-    const auto& ra = result->components()[0].deployment_config.ready_recovery_action.value();
-    EXPECT_THAT(ra.number_of_attempts, Eq(3U));
-    EXPECT_THAT(ra.delay_before_restart_ms, Eq(1500U));
+    EXPECT_THAT(result->components()[0].deployment_config.activation_retries, Eq(3U));
 }
 
 TEST_F(FlatbufferConfigLoaderTest, LoadSwitchRunTargetAction)
@@ -531,7 +526,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        0 /*ready_recovery_action*/,
+        0 /*activation_retries*/,
         0 /*recovery_action*/,
         sandbox);
 
@@ -576,7 +571,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandboxWithoutAffinityMaskHasNoValue)
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        0 /*ready_recovery_action*/,
+        0 /*activation_retries*/,
         0 /*recovery_action*/,
         sandbox);
 
@@ -647,7 +642,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadEnvironmentalVariables)
         env_vars,
         bin_dir,
         work_dir,
-        0 /*ready_recovery_action*/,
+        0 /*activation_retries*/,
         0 /*recovery_action*/,
         sandbox);
 
@@ -842,7 +837,6 @@ TEST_P(
     // Given
     ::flatbuffers::FlatBufferBuilder fbb;
     const std::uint16_t NUMBER_OF_ATTEMPTS = GetParam().input;
-    auto restart = fb::CreateRestartAction(fbb, NUMBER_OF_ATTEMPTS, 1500);
     auto bin_dir = fbb.CreateString("/opt");
     auto work_dir = fbb.CreateString("/tmp");
     auto sandbox = buildDefaultSandbox(fbb);
@@ -853,7 +847,7 @@ TEST_P(
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        restart,
+        NUMBER_OF_ATTEMPTS /*activation_retries*/,
         0 /*recovery_action*/,
         sandbox);
 
@@ -866,10 +860,7 @@ TEST_P(
     // Then
     ASSERT_THAT(result.has_value(), IsTrue());
     ASSERT_THAT(result->components().size(), Eq(1U));
-    ASSERT_THAT(result->components()[0].deployment_config.ready_recovery_action.has_value(), IsTrue());
-
-    const auto& ra = result->components()[0].deployment_config.ready_recovery_action.value();
-    EXPECT_THAT(ra.number_of_attempts, Eq(GetParam().expected));
+    EXPECT_THAT(result->components()[0].deployment_config.activation_retries, Eq(GetParam().expected));
 }
 
 INSTANTIATE_TEST_SUITE_P(

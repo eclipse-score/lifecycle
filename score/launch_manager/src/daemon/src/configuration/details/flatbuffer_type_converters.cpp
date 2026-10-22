@@ -172,27 +172,6 @@ Environment convertEnvironmentalVariables(
     return result;
 }
 
-score::cpp::expected<std::optional<RestartAction>, IConfigLoader::Error> convertRestartAction(
-    const fb::RestartAction* ra)
-{
-    if (ra == nullptr)
-    {
-        return std::optional<RestartAction>{std::nullopt};
-    }
-    auto number_of_attempts = requireScalarValue(ra->number_of_attempts(), "RestartAction::number_of_attempts");
-    if (!number_of_attempts.has_value())
-    {
-        return score::cpp::make_unexpected(number_of_attempts.error());
-    }
-    auto delay_before_restart =
-        requireScalarValue(ra->delay_before_restart_ms(), "RestartAction::delay_before_restart_ms");
-    if (!delay_before_restart.has_value())
-    {
-        return score::cpp::make_unexpected(delay_before_restart.error());
-    }
-    return std::optional<RestartAction>{RestartAction{*number_of_attempts, *delay_before_restart}};
-}
-
 std::optional<SwitchRunTargetAction> convertSwitchRunTargetAction(const fb::SwitchRunTargetAction* sa)
 {
     if (sa == nullptr)
@@ -444,17 +423,18 @@ score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentCo
         {
             return score::cpp::make_unexpected(shutdown_timeout.error());
         }
+        auto activation_retries =
+            requireScalarValue(fb_dc->activation_retries(), "DeploymentConfig::activation_retries");
+        if (!activation_retries.has_value())
+        {
+            return score::cpp::make_unexpected(activation_retries.error());
+        }
         result.ready_timeout_ms = *ready_timeout;
         result.shutdown_timeout_ms = *shutdown_timeout;
         result.environmental_variables = convertEnvironmentalVariables(fb_dc->environmental_variables());
         result.executable_path = fb_dc->bin_dir()->str() + "/" + std::string{binary_name};
         result.working_dir = fb_dc->working_dir()->str();
-        auto ready_recovery = convertRestartAction(fb_dc->ready_recovery_action());
-        if (!ready_recovery.has_value())
-        {
-            return score::cpp::make_unexpected(ready_recovery.error());
-        }
-        result.ready_recovery_action = std::move(*ready_recovery);
+        result.activation_retries = *activation_retries;
         result.recovery_action = convertSwitchRunTargetAction(fb_dc->recovery_action());
         auto sandbox = convertSandbox(fb_dc->sandbox());
         if (!sandbox.has_value())

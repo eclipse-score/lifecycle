@@ -40,7 +40,6 @@ def gen_lifecycle_config(
                 "bin_dir": "/opt",
                 "ready_timeout_ms": 2000,
                 "shutdown_timeout_ms": 2000,
-                "ready_recovery_action": {"restart": {"number_of_attempts": 0}},
                 "recovery_action": {"switch_run_target": {"run_target": "Startup"}},
                 "environmental_variables": {"LD_LIBRARY_PATH": "/opt/lib"},
                 "sandbox": {

@@ -125,7 +125,7 @@ recovery_action (object)
 **Properties:**
 
 restart (object, optional)
-    Description: Defines a recovery action that restarts the POSIX process associated with this component.
+    Description: Defines a recovery action that restarts the POSIX process associated with this component. This option is reserved: it is currently not referenced by any property.
 
 restart.number_of_attempts (integer, optional)
     Description: Specifies the maximum number of restart attempts before the **Launch Manager** concludes that recovery cannot succeed for the component.
@@ -281,7 +281,14 @@ bin_dir (string, optional)
 working_dir (string, optional)
     Description: Specifies the directory to be used as the working directory for the component during execution. If not defined, the binary's directory (``bin_dir``) is used as the working directory by default.
 
+activation_retries (integer, optional)
+    Description: Specifies the number of additional attempts the **Launch Manager** makes to activate the component when it fails to reach its **Ready State** during a **Run Target** transition. A value of 0 means the component is started once and a failure is treated as a **Run Target** transition failure.
+    Constraint: Must be between 0 and 255 inclusive.
+    Default: 0
+
 ready_recovery_action (object, optional)
+    **Deprecated.** Use ``activation_retries`` instead. ``restart.number_of_attempts`` is converted to ``activation_retries`` automatically (a warning is printed) and ``restart.delay_before_restart_ms`` is dropped.
+
     Description: Specifies the recovery action to execute when the component fails to reach its **Ready State** within the configured ``ready_timeout_ms``. This action is limited to ``restart`` operations.
     Reference: This property refers to the ``recovery_action`` reusable type defined in this schema, specifically enforcing the ``restart`` option.
 

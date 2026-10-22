@@ -90,14 +90,6 @@ table ComponentProperties {
   ready_condition:ReadyCondition; // optional
 }
 
-// Recovery action that restarts the POSIX process associated with a component.
-table RestartAction {
-  // Maximum number of restart attempts before recovery is considered failed.
-  number_of_attempts:uint8 = null; // required
-  // Delay in milliseconds before initiating a restart attempt.
-  delay_before_restart_ms:uint32 = null; // required
-}
-
 // Recovery action that switches to a specified Run Target.
 table SwitchRunTargetAction {
   // Name of the Run Target to switch to.
@@ -144,9 +136,9 @@ table DeploymentConfig {
   bin_dir:string (required); // required
   // Working directory for the component during execution.
   working_dir:string (required); // required
-  // Recovery action when the component fails to reach ready state.
-  // Can only be a RestartAction per the JSON schema constraint.
-  ready_recovery_action:RestartAction; // optional
+  // Number of additional attempts to activate the component when it fails to reach
+  // its Ready State during a Run Target transition. 0 means a single attempt.
+  activation_retries:uint8 = null; // required
   // Recovery action when the component malfunctions after reaching ready state.
   recovery_action:SwitchRunTargetAction; // optional
   sandbox:Sandbox (required); // required
