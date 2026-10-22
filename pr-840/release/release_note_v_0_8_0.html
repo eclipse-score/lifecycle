@@ -489,7 +489,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <div class="need_container docutils container" id="SNCB-0c71c316">
+  <div class="need_container docutils container" id="SNCB-74fae900">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__lifecycle_release_note_v0_8_0">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -550,7 +550,8 @@ being a non-profit and open source organization, can not take over any liability
 <section id="new-features">
 <h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p>None</p></li>
+<li><p>New <cite>ILmControl</cite> API that allows State Managers to communicate with Launch
+Manger using <cite>mw::com</cite>.</p></li>
 </ul>
 </section>
 <section id="improvements">
@@ -560,6 +561,9 @@ being a non-profit and open source organization, can not take over any liability
 - A component with <cite>application_type</cite> <cite>Reporting</cite> only supports <cite>Running</cite> as the process state ready condition.</p></li>
 <li><p>A warning is produced during build for the following scenarios:
 - If a ready condition is configured with the <cite>Terminated</cite> process state and a <cite>shutdown_timeout_ms</cite> is configured in <cite>deployment_config</cite>. The <cite>shutdown_timeout_ms</cite> will not have an effect.</p></li>
+<li><p>Documentation with integration hints.
+- Added code examples.
+- Explanations of the <cite>mw::config</cite> config.</p></li>
 </ul>
 </section>
 <section id="bug-fixes">
@@ -609,7 +613,14 @@ being a non-profit and open source organization, can not take over any liability
 <section id="upgrade-instructions">
 <h3>Upgrade Instructions<a class="headerlink" href="#upgrade-instructions" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p>None</p></li>
+<li><p>New <cite>ILmControl</cite> API is replacing the <cite>ControlClient</cite> please look at
+<a class="reference external" href="https://eclipse-score.github.io/lifecycle/main/components/launch_manager/product_documentation/integration.html#integration">https://eclipse-score.github.io/lifecycle/main/components/launch_manager/product_documentation/integration.html#integration</a>
+for instruction
+- Extended the <cite>execution_error.h</cite> with new errors to support this.</p></li>
+<li><p>Config changes:
+- The top level <cite>fallback_run_target</cite> object is now mandatory through the schema.
+- <cite>number_of_attempts</cite> has a maxium of <cite>255</cite>.
+- Configurations that combine <cite>application_type: Reporting</cite> with any process-state ready condition other than <cite>Running</cite> is now rejected.</p></li>
 </ul>
 <p><em>For any questions or support, please contact the</em> <a class="reference external" href="https://github.com/orgs/eclipse-score/projects/33">Project Team</a> <em>or raise an issue/discussion.</em></p>
 </section>
