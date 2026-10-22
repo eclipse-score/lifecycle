@@ -44,8 +44,9 @@ Changes to the Module
 New Features
 ~~~~~~~~~~~~
 
-- None
-
+- New `ILmControl` API that allows State Managers to communicate with Launch
+  Manger using `mw::com`.
+ 
 Improvements
 ~~~~~~~~~~~~
 
@@ -53,6 +54,9 @@ Improvements
   - A component with `application_type` `Reporting` only supports `Running` as the process state ready condition.
 - A warning is produced during build for the following scenarios:
   - If a ready condition is configured with the `Terminated` process state and a `shutdown_timeout_ms` is configured in `deployment_config`. The `shutdown_timeout_ms` will not have an effect.
+- Documentation with integration hints.
+  - Added code examples.
+  - Explanations of the `mw::config` config.
 
 Bug Fixes
 ~~~~~~~~~
@@ -93,6 +97,14 @@ Known Vulnerabilities
 Upgrade Instructions
 ~~~~~~~~~~~~~~~~~~~~
 
-- None
-
+- New `ILmControl` API is replacing the `ControlClient` please look at
+  https://eclipse-score.github.io/lifecycle/main/components/launch_manager/product_documentation/integration.html#integration
+  for instruction
+  - Extended the `execution_error.h` with new errors to support this.
+- Config changes:
+  - The top level `fallback_run_target` object is now mandatory.
+  - `number_of_attempts` has a maxium of `255`.
+  - Configurations that combine `application_type: Reporting` with any
+    process-state ready condition other than `Running` is now rejected.
+ 
 *For any questions or support, please contact the* `Project Team <https://github.com/orgs/eclipse-score/projects/33>`_ *or raise an issue/discussion.*
