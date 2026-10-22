@@ -16,6 +16,7 @@
 #include "score/mw/launch_manager/alive_monitor/mock_alive_monitor.hpp"
 #include "score/mw/launch_manager/alive_monitor/mock_alive_supervision_handle.hpp"
 #include "score/mw/launch_manager/alive_monitor/mock_supervision_factory.hpp"
+#include "score/mw/launch_manager/process_group_manager/mock_iprocess.hpp"
 #include "score/mw/launch_manager/recovery_client/mock_irecovery_client.h"
 #include "score/mw/launch_manager/watchdog/mock_IWatchdogIf.hpp"
 
@@ -115,6 +116,8 @@ GraphConfig takeGraphConfig(Config& config)
 class ProcessGroupManagerWatchdogTest : public Test
 {
   protected:
+    static constexpr osal::ProcessID kMockPid = 100;
+
     void expectNormalStartup()
     {
         EXPECT_CALL(*alive_monitor_, init()).WillOnce(Return(true));
@@ -149,6 +152,15 @@ class ProcessGroupManagerWatchdogTest : public Test
         auto watchdog = std::make_unique<StrictMock<MockWatchdogIf>>();
         watchdog_ = watchdog.get();
 
+        // Mock the proc launcher calls
+        auto process_interface = std::make_unique<NiceMock<osal::MockIProcess>>();
+        process_interface_ = process_interface.get();
+        ON_CALL(*process_interface_, startProcess)
+            .WillByDefault(DoAll(SetArgReferee<0>(kMockPid), Return(osal::OsalReturnType::kSuccess)));
+        ON_CALL(*process_interface_, waitForkRunning).WillByDefault(Return(osal::OsalReturnType::kSuccess));
+        ON_CALL(*process_interface_, requestTermination).WillByDefault(Return(osal::OsalReturnType::kSuccess));
+        ON_CALL(*process_interface_, forceTermination).WillByDefault(Return(osal::OsalReturnType::kFail));
+
         auto config = makeMinimalConfig();
 
         process_group_manager_ = std::make_unique<ProcessGroupManager>(
@@ -156,7 +168,8 @@ class ProcessGroupManagerWatchdogTest : public Test
             std::move(alive_monitor),
             std::move(recovery_client),
             std::move(watchdog),
-            config.takeWatchdog());
+            config.takeWatchdog(),
+            std::move(process_interface));
     }
 
     void TearDown() override
@@ -168,6 +181,7 @@ class ProcessGroupManagerWatchdogTest : public Test
     MockRecoveryClient* recovery_client_{};
     IRecoveryClient::RecoveryRequestCallback recovery_callback_{};
     MockWatchdogIf* watchdog_{};
+    osal::MockIProcess* process_interface_{};
     NiceMock<MockSupervisionFactory> factory_{};
     std::unique_ptr<ProcessGroupManager> process_group_manager_;
 };
