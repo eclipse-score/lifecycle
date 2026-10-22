@@ -77,10 +77,7 @@ class RingBuffer
             return false;
         }
         Node& n = nodes_[write_head_];
-        if (std::memcpy(n.storage, &value, sizeof(T)) != n.storage)
-        {
-            return false;
-        }
+        static_cast<void>(std::memcpy(n.storage, &value, sizeof(T)));
         n.size_ = sizeof(T);
         advanceWriteHead();
         return true;
@@ -126,7 +123,7 @@ class RingBuffer
         {
             return false;
         }
-        std::memcpy(&out, n.storage, n.size_);
+        static_cast<void>(std::memcpy(&out, n.storage, sizeof(T)));
         advanceReadHead();
         return true;
     }
