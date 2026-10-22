@@ -667,6 +667,36 @@ TEST(ComponentTest, SupervisionNotActivatedWhenStartFails)
     static_cast<void>(component.activate(cpp::stop_token{}));
 }
 
+TEST(ComponentTest, SupervisionDeactivatedImmediatelyOnTermination)
+{
+    MockStartAction start_action;
+    MockStopAction stop_action;
+    MockForceStopAction force_stop_action;
+    MockReadyCondition ready_condition;
+    NiceMock<MockSupervisionFactory> factory;
+    configuration::ComponentConfig config;
+    config.component_properties.application_profile.application_type =
+        configuration::ApplicationType::ReportingAndSupervised;
+    config.component_properties.application_profile.alive_supervision = configuration::ComponentAliveSupervision{};
+
+    auto handle = std::make_unique<NiceMock<MockAliveSupervisionHandle>>();
+    auto* supervision = handle.get();
+    ON_CALL(*supervision, getConnectionId()).WillByDefault(Return(std::string_view{"/test_path"}));
+    ON_CALL(factory, constructSupervision(_, _, _))
+        .WillByDefault(Return(ByMove(std::unique_ptr<IAliveSupervisionHandle>{std::move(handle)})));
+    ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+
+    InSequence sequence;
+    EXPECT_CALL(*supervision, activateSupervision(_)).WillOnce(Return(true));
+    EXPECT_CALL(*supervision, deactivateSupervision(_)).WillOnce(Return(true));
+
+    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    static_cast<void>(component.activate(cpp::stop_token{}));
+    static_cast<void>(component.tryHandleTermination(1));
+
+    // deactivate() is never called because there is nothing reading the event queue
+}
+
 TEST(ComponentTest, SupervisionDeactivatedBeforeStopAction)
 {
     MockStartAction start_action;

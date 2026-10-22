@@ -178,6 +178,11 @@ IComponent::RequestResult Component::tryHandleTermination(int32_t status)
         (starting != nullptr) || (ready != nullptr), "Cannot handle termination in a non-running state");
     Handle& handle = (starting != nullptr) ? starting->handle_ : ready->handle_;
 
+    if (ready != nullptr)
+    {
+        deactivateSupervision();
+    }
+
     // Invalidate the resource to prevent acting on something which is already gone.
     invalidate(handle);
 
