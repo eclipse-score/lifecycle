@@ -127,10 +127,10 @@ class Component final : public IComponent
     State state_;
 
     /// @brief Start alive supervision now, if the component is supervised.
-    void activateSupervision() const;
+    [[nodiscard]] bool activateSupervision() const;
 
     /// @brief Stop alive supervision now, if the component is supervised.
-    void deactivateSupervision() const;
+    [[nodiscard]] bool deactivateSupervision() const;
 };
 
 }  // namespace score::mw::lifecycle::internal

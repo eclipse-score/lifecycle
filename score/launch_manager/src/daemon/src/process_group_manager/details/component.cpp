@@ -111,7 +111,11 @@ IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
     {
         state_ = ReadyState{starting->handle_};
 
-        activateSupervision();
+        if (!activateSupervision())
+        {
+            state_ = FaultState{};
+            return cpp::make_unexpected(ComponentError::kErrorAfterReady);
+        }
 
         return RequestState::kSuccess;
     }
@@ -129,7 +133,11 @@ IComponent::RequestResult Component::deactivate(cpp::stop_token stop_token)
         (starting != nullptr) || (ready != nullptr), "Cannot deactivate component in a non-running state");
     const Handle& handle = (starting != nullptr) ? starting->handle_ : ready->handle_;
 
-    deactivateSupervision();
+    if (!deactivateSupervision())
+    {
+        state_ = FaultState{};
+        return cpp::make_unexpected(ComponentError::kErrorAfterReady);
+    }
 
     // If the component is still waiting for ready conditions, cancel that.
     if (starting != nullptr)
@@ -178,13 +186,14 @@ IComponent::RequestResult Component::tryHandleTermination(int32_t status)
         (starting != nullptr) || (ready != nullptr), "Cannot handle termination in a non-running state");
     Handle& handle = (starting != nullptr) ? starting->handle_ : ready->handle_;
 
-    if (ready != nullptr)
-    {
-        deactivateSupervision();
-    }
-
     // Invalidate the resource to prevent acting on something which is already gone.
     invalidate(handle);
+
+    if (ready != nullptr && !deactivateSupervision())
+    {
+        state_ = FaultState{};
+        return cpp::make_unexpected(ComponentError::kErrorAfterReady);
+    }
 
     // Certain ready conditions can accept terminations.
     if (starting != nullptr && ready_condition_.tryHandleTermination(handle, status))
@@ -219,11 +228,11 @@ bool Component::active() const
     return std::holds_alternative<ReadyState>(state_);
 }
 
-void Component::activateSupervision() const
+bool Component::activateSupervision() const
 {
     if (!supervision_handle_)
     {
-        return;
+        return true;
     }
 
     timespec timestamp{};
@@ -231,21 +240,23 @@ void Component::activateSupervision() const
     if (clock_gettime(CLOCK_MONOTONIC, &timestamp) != 0)
     {
         LM_LOG_ERROR() << config_.name << ": failed to get timestamp to activate supervision:" << strerror(errno);
-        return;
+        return false;
     }
 
     if (!supervision_handle_->activateSupervision(timestamp))
     {
         LM_LOG_ERROR() << config_.name << ": failed to activate supervision";
-        return;
+        return false;
     }
+
+    return true;
 }
 
-void Component::deactivateSupervision() const
+bool Component::deactivateSupervision() const
 {
     if (!supervision_handle_)
     {
-        return;
+        return true;
     }
 
     timespec timestamp{};
@@ -253,14 +264,16 @@ void Component::deactivateSupervision() const
     if (clock_gettime(CLOCK_MONOTONIC, &timestamp) != 0)
     {
         LM_LOG_ERROR() << config_.name << ": failed to get timestamp to deactivate supervision: " << strerror(errno);
-        return;
+        return false;
     }
 
     if (!supervision_handle_->deactivateSupervision(timestamp))
     {
         LM_LOG_ERROR() << config_.name << ": failed to deactivate supervision";
-        return;
+        return false;
     }
+
+    return true;
 }
 
 }  // namespace score::mw::lifecycle::internal

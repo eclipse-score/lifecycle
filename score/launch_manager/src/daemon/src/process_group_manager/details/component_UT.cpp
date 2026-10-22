@@ -641,6 +641,37 @@ TEST(ComponentTest, SupervisionActivatedWhenReady)
     static_cast<void>(component.activate(cpp::stop_token{}));
 }
 
+TEST(ComponentTest, SupervisionActivationFailureFaultsComponent)
+{
+    MockStartAction start_action;
+    MockStopAction stop_action;
+    MockForceStopAction force_stop_action;
+    MockReadyCondition ready_condition;
+    NiceMock<MockSupervisionFactory> factory;
+    configuration::ComponentConfig config;
+    config.component_properties.application_profile.application_type =
+        configuration::ApplicationType::ReportingAndSupervised;
+    config.component_properties.application_profile.alive_supervision = configuration::ComponentAliveSupervision{};
+
+    auto handle = std::make_unique<NiceMock<MockAliveSupervisionHandle>>();
+    auto* supervision = handle.get();
+    ON_CALL(*supervision, getConnectionId()).WillByDefault(Return(std::string_view{"/test_path"}));
+    ON_CALL(factory, constructSupervision(_, _, _))
+        .WillByDefault(Return(ByMove(std::unique_ptr<IAliveSupervisionHandle>{std::move(handle)})));
+
+    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+    EXPECT_CALL(*supervision, activateSupervision(_)).WillOnce(Return(false));
+
+    const auto result = component.activate(cpp::stop_token{});
+    ASSERT_FALSE(result.has_value());
+    EXPECT_EQ(result.error(), IComponent::ComponentError::kErrorAfterReady);
+    EXPECT_FALSE(component.active());
+    EXPECT_DEATH(
+        { static_cast<void>(component.deactivate(cpp::stop_token{})); },
+        "Cannot deactivate component in a non-running state");
+}
+
 TEST(ComponentTest, SupervisionNotActivatedWhenStartFails)
 {
     MockStartAction start_action;
@@ -718,6 +749,7 @@ TEST(ComponentTest, SupervisionDeactivatedBeforeStopAction)
     Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+    ON_CALL(*supervision, activateSupervision(_)).WillByDefault(Return(true));
 
     static_cast<void>(component.activate(cpp::stop_token{}));
 
@@ -726,6 +758,40 @@ TEST(ComponentTest, SupervisionDeactivatedBeforeStopAction)
     EXPECT_CALL(stop_action, stop(_, _)).WillOnce(Return(IComponent::RequestState::kSuccess));
 
     static_cast<void>(component.deactivate(cpp::stop_token{}));
+}
+
+TEST(ComponentTest, SupervisionDeactivationFailureFaultsComponent)
+{
+    MockStartAction start_action;
+    MockStopAction stop_action;
+    MockForceStopAction force_stop_action;
+    MockReadyCondition ready_condition;
+    NiceMock<MockSupervisionFactory> factory;
+    configuration::ComponentConfig config;
+    config.component_properties.application_profile.application_type =
+        configuration::ApplicationType::ReportingAndSupervised;
+    config.component_properties.application_profile.alive_supervision = configuration::ComponentAliveSupervision{};
+
+    auto handle = std::make_unique<NiceMock<MockAliveSupervisionHandle>>();
+    auto* supervision = handle.get();
+    ON_CALL(*supervision, getConnectionId()).WillByDefault(Return(std::string_view{"/test_path"}));
+    ON_CALL(factory, constructSupervision(_, _, _))
+        .WillByDefault(Return(ByMove(std::unique_ptr<IAliveSupervisionHandle>{std::move(handle)})));
+
+    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+    EXPECT_CALL(*supervision, activateSupervision(_)).WillOnce(Return(true));
+    static_cast<void>(component.activate(cpp::stop_token{}));
+    EXPECT_CALL(*supervision, deactivateSupervision(_)).WillOnce(Return(false));
+    EXPECT_CALL(stop_action, stop(_, _)).Times(0);
+
+    const auto result = component.deactivate(cpp::stop_token{});
+    ASSERT_FALSE(result.has_value());
+    EXPECT_EQ(result.error(), IComponent::ComponentError::kErrorAfterReady);
+    EXPECT_FALSE(component.active());
+    EXPECT_DEATH(
+        { static_cast<void>(component.deactivate(cpp::stop_token{})); },
+        "Cannot deactivate component in a non-running state");
 }
 
 }  // namespace
