@@ -51,6 +51,7 @@ The Launch Manager main loop does not directly activate any component, but the a
 is only scheduled on a thread pool.
 
 A component activation consists of:
+
 * starting the process (possibly multiple times)
 * registering the pid in the SafeProcessMap
 * waiting for the ready condition to be fulfilled or ready timeout
@@ -68,7 +69,8 @@ The Launch Manager main loop does not directly deactivate any component, but the
 is only scheduled on a thread pool.
 
 A component deactivation consists of:
-* stopping the process
+
+* stopping the process (if running)
 * waiting for the process to terminate or until shutdown timeout
 * escalating to SIGKILL in case the process did not terminate within the shutdown timeout
 * posing the deactivation result to the event queue. Process crashes during deactivation are ignored.
@@ -141,7 +143,7 @@ This detailed design focuses on the central dependency graph logic and its inter
 * Graph: Implements the state machine for the Run Target transition logic
 * OSHandler: Waits for any child process to terminate, then forwards the process termination to process monitor
 * ComponentEventQueue: Synchronizes the component events
-* SafeProcessMap: Maintains a thread-safe mapping PID to component
+* SafeProcessMap: Maintains a thread-safe mapping PID to component. Mapping is used to forward process termination event to the right component.
 * IComponentController: Executes Component Tasks and enqueues the result to an Event Queue
 * IComponent: The component interface
 * Transition: Manages a RunTarget transition by determining which components are ready to start/stop

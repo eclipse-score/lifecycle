@@ -23,8 +23,8 @@ kUndefinedState : No ongoing jobs, graph is in\nan undefined but consistent stat
 [*] --> kSuccess : construction
 
 ' --- starting a transition ---------------------------------------------------
-kSuccess --> kInTransition : main loop tick\n[request recorded,\ndiffers from active]\n\nstart initial transition\n\nstart transition to Off
-kUndefinedState --> kInTransition : main loop tick\n[request recorded]\n\nmain loop tick\n[nothing recorded]\nself-heal to fallback
+kSuccess --> kInTransition : main loop iteration\n[a pending Run Target has been set,\ndiffers from active]\n\nstart initial transition\n\nstart transition to Off
+kUndefinedState --> kInTransition : main loop iteration\n[a pending Run Target has been set]\n\nmain loop iteration\n[no pending Run Target]\nself-heal to fallback
 
 ' --- running a transition ----------------------------------------------------
 kInTransition --> kInTransition : job finished\n[transition has work left]
@@ -44,18 +44,21 @@ kSuccess --> kUndefinedState : unexpected termination\n\nlate completion\n[last 
 kUndefinedState --> kUndefinedState : unexpected termination
 
 legend bottom
-  A request is only recorded, never started immediately. The transition begins
-  on a later main loop iteration, and only from kSuccess or kUndefinedState.
+  A Run Target request will record the "pending Run Target".
+  The cyclic main loop will check in each iteration for a recorded pending Run Target
+  and initiates the Run Target transition when in kSuccess or kUndefinedState state.
 
-  A transition with no work to do finalizes within the same call, so every edge
-  into kInTransition may land in kSuccess instead.
+  kUndefinedState is not terminal. Every main loop iteration leaves it, towards a
+  recorded pending Run Target request if there is one and towards the fallback Run 
+  Target otherwise.
 
-  kUndefinedState is not terminal. Every main loop tick leaves it, towards a
-  recorded request if there is one and towards the fallback Run Target otherwise.
-
-  kAborting is the single drain state for failures and cancellations. It is left
-  when the completion that brings the in-flight job count to zero moves the graph
-  to kUndefinedState. Requests made while in kAborting do not change the state.
+  Before a new transition can be started any currently ongoing jobs need to finish.
+  kAborting is the state that is waiting for jobs to finish. No new jobs will be started
+  in this state. When the in-flight job count reaches zero (no more jobs in process),
+  the graph moves to kUndefinedState.
+  
+  Requests made while in kAborting do not change the state immediately, but only change the
+  target for the transition that will be started in kUndefinedState.
 end legend
 
 @enduml

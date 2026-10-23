@@ -70,7 +70,7 @@ loop one iteration per configured startup attempt
           this component - see Component Deactivation.
         end note
 
-        alt #Pink the process cannot be registered
+        alt #Pink the process pid cannot be entered into the map
             Map --> Component --: no capacity left
             Component -> OS: stop the process that was started (SIGTERM, then SIGKILL after timeout)
             note right of Component

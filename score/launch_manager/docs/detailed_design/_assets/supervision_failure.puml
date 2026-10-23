@@ -63,9 +63,10 @@ note over PGM
   to request the fallback Run Target.
 end note
 
-alt #White the graph is in a transition to another Run Target
-    PGM -> Graph ++: request the fallback Run Target
+alt #White the graph is in state kInTransition and target is not the fallback Run Target
+    PGM -> Graph ++: Set fallback Run Target as pending Run Taret
     PGM -> Graph: cancel the running transition
+    PGM -> Graph: set graph state to kAborting
     note over Graph
       kInTransition becomes kAborting: the components still in
       flight finish their current step and report back,
@@ -73,30 +74,35 @@ alt #White the graph is in a transition to another Run Target
     end note
     deactivate Graph
 
-else #White the graph is already in or heading for the fallback Run Target
+else #White the graph is in state kInTransition and target is the fallback Run Target
     note over PGM: nothing to do, the recovery is already underway
 
-else #White the graph is not in a transition
-    PGM -> Graph ++: request the fallback Run Target
+else #White the graph is not in state kInTransition
+    PGM -> Graph ++: Set fallback Run Target as pending Run Target
     deactivate Graph
 end
 
 ' --- recovery ----------------------------------------------------------------
 PGM -> PGM: handle the graph state
-note over PGM
-  The requested Run Target is only picked up once the graph has
-  left kInTransition and kAborting, so a cancelled transition is
-  first allowed to settle.
-end note
 
-PGM -> Graph ++: start a transition to the fallback Run Target
-Graph -> Transition ++: set up the transition
-Transition --> Graph --: components ready to be stopped
-note over Graph
-  The failing component and everything that depends on it are
-  stopped, then the fallback Run Target is started - see
-  Component Deactivation and Component Activation.
-end note
+alt the graph reaches kUndefinedState
+
+  note over PGM
+    The requested Run Target is only picked up once the graph has
+    entered kUndefinedState, so a cancelled transition is
+    first allowed to settle.
+  end note
+
+  PGM -> Graph ++: start a transition to the fallback Run Target
+  Graph -> Transition ++: set up the transition
+  Transition --> Graph --: components ready to be stopped
+  note over Graph
+    The failing component and everything that depends on it are
+    stopped, then the fallback Run Target is started - see
+    Component Deactivation and Component Activation.
+  end note
+
+end alt
 
 deactivate Graph
 deactivate PGM

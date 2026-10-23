@@ -45,8 +45,8 @@ activate Graph
 Graph -> Transition ++: get components ready to be stopped
 Transition --> Graph --: component is ready to be stopped
 note over Graph
-  A component is only ready once every component that
-  depends on it has been stopped, so a transition stops
+  A component is only ready to be stopped once every component
+  that depends on it has been stopped. So a transition stops
   the components in the reverse of their start order.
 end note
 Graph -> WorkerQueue: deactivation of the component
@@ -66,24 +66,33 @@ opt component is supervised
     end note
 end
 
-Component -> OS: Send SIGTERM signal
-Component -> Component: wait for the process to exit\nuntil the shutdown timeout expires
+alt component has a running process
 
-alt #F2FAF2 the process exits within the shutdown timeout
-    OS -> OsHandler ++: child process has terminated
-    OsHandler -> Map ++: look up the component for the process id
-    Map --> Component: the process has exited
-    deactivate Map
-    deactivate OsHandler
+  Component -> OS: Send SIGTERM signal
+  Component -> Component: wait for the process to exit\nuntil the shutdown timeout expires
 
-else #Pink the shutdown timeout expires
-    Component -> OS: Send SIGKILL signal
-    OS -> OsHandler ++: child process has terminated
-    OsHandler -> Map ++: look up the component for the process id
-    Map --> Component: the process has exited
-    deactivate Map
-    deactivate OsHandler
-end
+  alt #F2FAF2 the process exits within the shutdown timeout
+      OS -> OsHandler ++: child process has terminated
+      OsHandler -> Map ++: look up the component for the process id
+      Map --> Component: the process has exited
+      deactivate Map
+      deactivate OsHandler
+
+  else #Pink the shutdown timeout expires
+      Component -> OS: Send SIGKILL signal
+      OS -> OsHandler ++: child process has terminated
+      OsHandler -> Map ++: look up the component for the process id
+      Map --> Component: the process has exited
+      deactivate Map
+      deactivate OsHandler
+  end
+
+else component has no running process
+  note over Component
+  This may be the case for self-terminating processes.
+  In this case there is nothing further todo.
+  end note
+end alt
 
 ' --- result ------------------------------------------------------------------
 Component --> Monitor: deactivation complete
