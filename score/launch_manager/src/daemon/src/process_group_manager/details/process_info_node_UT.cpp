@@ -220,8 +220,7 @@ TEST_F(ProcessInfoNodeStartupTest, CanStartNonReportingProcess)
 
     auto result = node->activate(score::cpp::stop_token{});
 
-    ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result.value(), Eq(IComponent::RequestState::kSuccess));
+    ASSERT_THAT(result, Eq(IComponent::RequestResult::kSuccess));
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kRunning));
 }
 
@@ -236,32 +235,30 @@ TEST_F(ProcessInfoNodeStartupTest, CanStartReportingProcess_ReportsRunningInTime
 
     auto result = node->activate(score::cpp::stop_token{});
 
-    ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result.value(), Eq(IComponent::RequestState::kSuccess));
+    ASSERT_THAT(result, Eq(IComponent::RequestResult::kSuccess));
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kRunning));
 }
 
-TEST_F(ProcessInfoNodeStartupTest, OsForkFails_ReturnsErrorBeforeReady)
+TEST_F(ProcessInfoNodeStartupTest, OsForkFails_ReturnsFailure)
 {
     RecordProperty(
         "Description",
-        "If the OS fails to fork the process, activate() returns kErrorBeforeReady and the node ends up in kFailed.");
+        "If the OS fails to fork the process, activate() returns kFailure and the node ends up in kFailed.");
 
     auto node = createProcessInfoNode(configuration::ApplicationType::Native);
     EXPECT_CALL(mock_processIf_, startProcess(_, _, _)).WillOnce(Return(osal::OsalReturnType::kFail));
 
     auto result = node->activate(score::cpp::stop_token{});
 
-    ASSERT_THAT(result.has_value(), IsFalse());
-    ASSERT_THAT(result.error(), Eq(IComponent::ComponentError::kErrorBeforeReady));
+    ASSERT_THAT(result, Eq(IComponent::RequestResult::kFailure));
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kFailed));
 }
 
-TEST_F(ProcessInfoNodeStartupTest, MapInsertError_ReturnsErrorBeforeReady)
+TEST_F(ProcessInfoNodeStartupTest, MapInsertError_ReturnsFailure)
 {
     RecordProperty(
         "Description",
-        "If the process map insertion fails with an error, activate() returns kErrorBeforeReady and the "
+        "If the process map insertion fails with an error, activate() returns kFailure and the "
         "node ends up in kFailed.");
 
     auto node = createProcessInfoNode(configuration::ApplicationType::Native);
@@ -273,8 +270,7 @@ TEST_F(ProcessInfoNodeStartupTest, MapInsertError_ReturnsErrorBeforeReady)
 
     auto result = node->activate(score::cpp::stop_token{});
 
-    ASSERT_THAT(result.has_value(), IsFalse());
-    ASSERT_THAT(result.error(), Eq(IComponent::ComponentError::kErrorBeforeReady));
+    ASSERT_THAT(result, Eq(IComponent::RequestResult::kFailure));
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kFailed));
 }
 
@@ -298,8 +294,7 @@ TEST_F(ProcessInfoNodeStartupTest, SelfTerminating_ExitsBeforeMapInsert_ReturnsS
 
     auto result = node->activate(score::cpp::stop_token{});
 
-    ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result.value(), Eq(IComponent::RequestState::kSuccess));
+    ASSERT_THAT(result, Eq(IComponent::RequestResult::kSuccess));
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kTerminated));
 }
 
@@ -313,13 +308,12 @@ TEST_F(ProcessInfoNodeStartupTest, ActivateAlreadyActiveNode_ReturnsSuccess)
 
     auto result = node->activate(score::cpp::stop_token{});
 
-    ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result.value(), Eq(IComponent::RequestState::kSuccess));
+    ASSERT_THAT(result, Eq(IComponent::RequestResult::kSuccess));
     ASSERT_THAT(node->active(), IsTrue());
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kRunning));
 }
 
-TEST_F(ProcessInfoNodeStartupTest, TerminatedReadyCondition_StopRequestedDuringStartup_ReturnsActivationTimedOut)
+TEST_F(ProcessInfoNodeStartupTest, TerminatedReadyCondition_StopRequestedDuringStartup_ReturnsTimeout)
 {
     RecordProperty(
         "Description",
@@ -338,12 +332,11 @@ TEST_F(ProcessInfoNodeStartupTest, TerminatedReadyCondition_StopRequestedDuringS
 
     auto result = node->activate(stop_source_.get_token());
 
-    ASSERT_THAT(result.has_value(), IsFalse());
-    ASSERT_THAT(result.error(), Eq(IComponent::ComponentError::kActivationTimedOut));
+    ASSERT_THAT(result, Eq(IComponent::RequestResult::kTimeout));
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kTerminated));
 }
 
-TEST_F(ProcessInfoNodeStartupTest, TerminatedReadyCondition_NoTerminationInTime_ReturnsActivationTimedOut)
+TEST_F(ProcessInfoNodeStartupTest, TerminatedReadyCondition_NoTerminationInTime_ReturnsTimeout)
 {
     RecordProperty(
         "Description",
@@ -359,8 +352,7 @@ TEST_F(ProcessInfoNodeStartupTest, TerminatedReadyCondition_NoTerminationInTime_
 
     auto result = node->activate(score::cpp::stop_token{});
 
-    ASSERT_THAT(result.has_value(), IsFalse());
-    ASSERT_THAT(result.error(), Eq(IComponent::ComponentError::kActivationTimedOut));
+    ASSERT_THAT(result, Eq(IComponent::RequestResult::kTimeout));
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kTerminated));
 }
 
@@ -391,7 +383,7 @@ TEST_P(ProcessInfoNodeMapYieldTest, InsertReturnsYield)
     RecordProperty("Description", GetParam().description_);
 
     auto node = createProcessInfoNode(GetParam().app_type_, 0, GetParam().is_self_terminating_, GetParam().condition_);
-    IComponent::RequestResult tryHandleTerminationResult;
+    IComponent::TerminationResult tryHandleTerminationResult{};
     auto status = GetParam().status_to_exit_with_;
 
     EXPECT_CALL(mock_processIf_, startProcess).WillOnce(Return(osal::OsalReturnType::kSuccess));
@@ -406,18 +398,8 @@ TEST_P(ProcessInfoNodeMapYieldTest, InsertReturnsYield)
 
     auto activation_result_ = node->activate(score::cpp::stop_token{});
 
-    ASSERT_EQ(activation_result_.has_value(), GetParam().expected_activation_result_.has_value());
-    if (GetParam().expected_activation_result_.has_value())
-    {
-        EXPECT_EQ(activation_result_.value(), GetParam().expected_activation_result_.value());
-    }
-    else
-    {
-        EXPECT_EQ(activation_result_.error(), GetParam().expected_activation_result_.error());
-    }
-
-    ASSERT_TRUE(tryHandleTerminationResult.has_value());
-    EXPECT_EQ(tryHandleTerminationResult.value(), IComponent::RequestState::kWaiting)
+    EXPECT_EQ(activation_result_, GetParam().expected_activation_result_);
+    EXPECT_EQ(tryHandleTerminationResult, IComponent::TerminationResult::kIgnore)
         << "An error occurring during startup should never be reported by tryHandleTermination";
     EXPECT_EQ(node->getState(), ProcessState::kTerminated);  // Not kFailed, the posix process did start successfully
 }
@@ -431,14 +413,14 @@ INSTANTIATE_TEST_SUITE_P(
             configuration::ProcessState::Running,
             0,
             true,
-            {IComponent::RequestState::kSuccess},
+            IComponent::RequestResult::kSuccess,
             "A native, self-terminating process exiting quickly with status 0 should report a successful activation"},
         YieldTestCasesData{
             configuration::ApplicationType::Native,
             configuration::ProcessState::Running,
             111,
             true,
-            score::cpp::make_unexpected(IComponent::ComponentError::kErrorAfterReady),
+            IComponent::RequestResult::kFailure,
             "A native, self-terminating process exiting quickly with a non-zero status should report a failure to "
             "activate"},
         YieldTestCasesData{
@@ -446,14 +428,14 @@ INSTANTIATE_TEST_SUITE_P(
             configuration::ProcessState::Running,
             0,
             false,
-            score::cpp::make_unexpected(IComponent::ComponentError::kErrorAfterReady),
+            IComponent::RequestResult::kFailure,
             "A native, non-self-terminating process exiting quickly should report a failure to activate"},
         YieldTestCasesData{
             configuration::ApplicationType::Reporting,
             configuration::ProcessState::Running,
             0,
             true,
-            score::cpp::make_unexpected(IComponent::ComponentError::kErrorBeforeReady),
+            IComponent::RequestResult::kFailure,
             "A reporting process exiting quickly (i.e. without waiting for a response from launch manager) should "
             "report a failure to activate"},
 
@@ -462,14 +444,14 @@ INSTANTIATE_TEST_SUITE_P(
             configuration::ProcessState::Terminated,
             0,
             true,
-            {IComponent::RequestState::kSuccess},
+            IComponent::RequestResult::kSuccess,
             "A native, self-terminating process exiting quickly with status 0 should report a successful activation"},
         YieldTestCasesData{
             configuration::ApplicationType::Native,
             configuration::ProcessState::Terminated,
             111,
             true,
-            score::cpp::make_unexpected(IComponent::ComponentError::kErrorBeforeReady),
+            IComponent::RequestResult::kFailure,
             "A native, self-terminating process exiting quickly with a non-zero status should report a failure to "
             "activate"},
         YieldTestCasesData{
@@ -477,14 +459,14 @@ INSTANTIATE_TEST_SUITE_P(
             configuration::ProcessState::Terminated,
             0,
             false,
-            score::cpp::make_unexpected(IComponent::ComponentError::kErrorBeforeReady),
+            IComponent::RequestResult::kFailure,
             "A native, non-self-terminating process exiting quickly should report a failure to activate"},
         YieldTestCasesData{
             configuration::ApplicationType::Reporting,
             configuration::ProcessState::Terminated,
             0,
             true,
-            score::cpp::make_unexpected(IComponent::ComponentError::kErrorBeforeReady),
+            IComponent::RequestResult::kFailure,
             "A reporting process exiting quickly (i.e. without waiting for a response from launch manager) should "
             "report a failure to activate"}));
 
@@ -496,8 +478,7 @@ class ProcessInfoNodeStartupCrashTest : public ProcessInfoNodeFixture
 TEST_F(ProcessInfoNodeStartupCrashTest, ProcesssTerminated_OnWaitForkRunningTimeout)
 {
     RecordProperty(
-        "Description",
-        "If waitForkRunning times out, the process reports kActivationTimedOut and ends up in state kTerminated.");
+        "Description", "If waitForkRunning times out, the process reports kTimeout and ends up in state kTerminated.");
 
     expectActivationReport(0);
     auto node = createProcessInfoNode(configuration::ApplicationType::ReportingAndSupervised);
@@ -508,8 +489,7 @@ TEST_F(ProcessInfoNodeStartupCrashTest, ProcesssTerminated_OnWaitForkRunningTime
 
     auto result = node->activate(score::cpp::stop_token{});
 
-    ASSERT_THAT(result.has_value(), IsFalse());
-    ASSERT_THAT(result.error(), Eq(IComponent::ComponentError::kActivationTimedOut));
+    ASSERT_THAT(result, Eq(IComponent::RequestResult::kTimeout));
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kTerminated));
 }
 
@@ -517,7 +497,7 @@ TEST_F(ProcessInfoNodeStartupCrashTest, ReportingProcess_CrashesBeforeReady_NoRe
 {
     RecordProperty(
         "Description",
-        "Process returns kErrorBeforeReady when crashing before reaching its ready condition (kRunning) with 0 restart "
+        "Process returns kFailure when crashing before reaching its ready condition (kRunning) with 0 restart "
         "attempts");
 
     expectActivationReport(0);
@@ -533,8 +513,7 @@ TEST_F(ProcessInfoNodeStartupCrashTest, ReportingProcess_CrashesBeforeReady_NoRe
 
     auto result = node->activate(score::cpp::stop_token{});
 
-    ASSERT_THAT(result.has_value(), IsFalse());
-    ASSERT_THAT(result.error(), Eq(IComponent::ComponentError::kErrorBeforeReady));
+    ASSERT_THAT(result, Eq(IComponent::RequestResult::kFailure));
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kTerminated));
 }
 
@@ -542,7 +521,7 @@ TEST_F(ProcessInfoNodeStartupCrashTest, ReportingProcess_CrashesBeforeReady_With
 {
     RecordProperty(
         "Description",
-        "Process returns kErrorBeforeReady when crashing before reaching its ready condition (kRunning) with 3 restart "
+        "Process returns kFailure when crashing before reaching its ready condition (kRunning) with 3 restart "
         "attempts");
 
     expectActivationReport(0);
@@ -568,8 +547,7 @@ TEST_F(ProcessInfoNodeStartupCrashTest, ReportingProcess_CrashesBeforeReady_With
 
     auto result = node->activate(score::cpp::stop_token{});
 
-    ASSERT_THAT(result.has_value(), IsFalse());
-    ASSERT_THAT(result.error(), Eq(IComponent::ComponentError::kErrorBeforeReady));
+    ASSERT_THAT(result, Eq(IComponent::RequestResult::kFailure));
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kTerminated));
 }
 
@@ -578,7 +556,7 @@ TEST_F(ProcessInfoNodeStartupCrashTest, NonReportingProcess_CrashesBeforeReady_N
     RecordProperty(
         "Description",
         "A non-reporting process that crashes (non-zero status) between map insertion and the startup thread's status "
-        "check returns kErrorBeforeReady.");
+        "check returns kFailure.");
 
     auto node = createProcessInfoNode(configuration::ApplicationType::Native);
     EXPECT_CALL(mock_processIf_, startProcess(_, _, _)).WillOnce(Return(osal::OsalReturnType::kSuccess));
@@ -592,8 +570,7 @@ TEST_F(ProcessInfoNodeStartupCrashTest, NonReportingProcess_CrashesBeforeReady_N
 
     auto result = node->activate(score::cpp::stop_token{});
 
-    ASSERT_THAT(result.has_value(), IsFalse());
-    ASSERT_THAT(result.error(), Eq(IComponent::ComponentError::kErrorBeforeReady));
+    ASSERT_THAT(result, Eq(IComponent::RequestResult::kFailure));
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kTerminated));
 }
 
@@ -602,7 +579,7 @@ TEST_F(ProcessInfoNodeStartupCrashTest, NonReportingProcess_CrashesBeforeReady_W
     RecordProperty(
         "Description",
         "A non-reporting process that crashes before ready on every attempt exhausts all restart attempts and returns "
-        "kErrorBeforeReady.");
+        "kFailure.");
 
     constexpr uint32_t kRestartAttempts = 2;
     constexpr uint32_t kTotalAttempts = kRestartAttempts + 1;
@@ -621,8 +598,7 @@ TEST_F(ProcessInfoNodeStartupCrashTest, NonReportingProcess_CrashesBeforeReady_W
 
     auto result = node->activate(score::cpp::stop_token{});
 
-    ASSERT_THAT(result.has_value(), IsFalse());
-    ASSERT_THAT(result.error(), Eq(IComponent::ComponentError::kErrorBeforeReady));
+    ASSERT_THAT(result, Eq(IComponent::RequestResult::kFailure));
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kTerminated));
 }
 
@@ -649,8 +625,7 @@ TEST_F(ProcessInfoNodeStartupCrashTest, TimeoutThenSuccess_WithRestarts)
 
     auto result = node->activate(score::cpp::stop_token{});
 
-    ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result.value(), Eq(IComponent::RequestState::kSuccess));
+    ASSERT_THAT(result, Eq(IComponent::RequestResult::kSuccess));
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kRunning));
 }
 
@@ -679,7 +654,7 @@ TEST_P(
         "Expect that the OS handler detects a crash on every attempt. "
         "Expect that the number of start attempts equals the expected values: [1, 2, 255, 256]. "
         "When activate() is called. "
-        "Then kErrorBeforeReady is returned for all number_of_attempts values. ");
+        "Then kFailure is returned for all number_of_attempts values. ");
 
     // Expect
     expectActivationReport(0);
@@ -707,8 +682,7 @@ TEST_P(
     auto result = node->activate(score::cpp::stop_token{});
 
     // Then
-    ASSERT_THAT(result.has_value(), IsFalse());
-    ASSERT_THAT(result.error(), Eq(IComponent::ComponentError::kErrorBeforeReady));
+    ASSERT_THAT(result, Eq(IComponent::RequestResult::kFailure));
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kTerminated));
 }
 
@@ -728,14 +702,13 @@ class ProcessInfoNodeUnexpectedTerminationTest : public ProcessInfoNodeFixture
 TEST_F(ProcessInfoNodeUnexpectedTerminationTest, ProcesssCrashed_AfterReadyCondition)
 {
     RecordProperty(
-        "Description", "Process returns kErrorAfterReady when crashing after reaching its ready condition (kRunning).");
+        "Description", "Process returns kFailure when crashing after reaching its ready condition (kRunning).");
 
     auto node = createRunningProcessInfoNode(configuration::ApplicationType::Native);
 
     auto result = node->tryHandleTermination(-1);
 
-    ASSERT_THAT(result.has_value(), IsFalse());
-    ASSERT_THAT(result.error(), Eq(IComponent::ComponentError::kErrorAfterReady));
+    ASSERT_THAT(result, Eq(IComponent::TerminationResult::kFailure));
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kTerminated));
 }
 
@@ -751,8 +724,7 @@ TEST_F(ProcessInfoNodeUnexpectedTerminationTest, SelfTerminatingProcess_ExitsWit
 
     auto result = node->tryHandleTermination(0);
 
-    ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result.value(), Eq(IComponent::RequestState::kWaiting));
+    ASSERT_THAT(result, Eq(IComponent::TerminationResult::kIgnore));
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kTerminated));
 }
 
@@ -760,8 +732,8 @@ TEST_F(ProcessInfoNodeUnexpectedTerminationTest, SelfTerminating_TerminatedReady
 {
     RecordProperty(
         "Description",
-        "A self-terminating process with ReadyCondition::kTerminated returns kSuccess from tryHandleTermination() when "
-        "it exits cleanly, since its exit is the event that satisfies the ready condition.");
+        "A self-terminating process with ReadyCondition::kTerminated exits cleanly while activate() is waiting for "
+        "it, so activate() returns kSuccess and tryHandleTermination() returns kIgnore.");
 
     auto node = createProcessInfoNode(
         configuration::ApplicationType::Native,
@@ -770,7 +742,7 @@ TEST_F(ProcessInfoNodeUnexpectedTerminationTest, SelfTerminating_TerminatedReady
         configuration::ProcessState::Terminated /*ready condition*/);
 
     // std::future to hold the asynchronous termination handler execution
-    std::future<IComponent::RequestResult> termination_future;
+    std::future<IComponent::TerminationResult> termination_future;
 
     EXPECT_CALL(mock_processIf_, startProcess(_, _, _)).WillOnce(Return(osal::OsalReturnType::kSuccess));
 
@@ -785,21 +757,19 @@ TEST_F(ProcessInfoNodeUnexpectedTerminationTest, SelfTerminating_TerminatedReady
 
     // activate() returns kSuccess because kTerminated (the ready condition) is reached within the timeout
     auto activate_result = node->activate(score::cpp::stop_token{});
-    ASSERT_THAT(activate_result.has_value(), IsTrue());
-    ASSERT_THAT(activate_result.value(), Eq(IComponent::RequestState::kSuccess));
+    ASSERT_THAT(activate_result, Eq(IComponent::RequestResult::kSuccess));
 
     auto termination_result = termination_future.get();
-    ASSERT_THAT(termination_result.has_value(), IsTrue());
-    ASSERT_THAT(termination_result.value(), Eq(IComponent::RequestState::kWaiting));
+    ASSERT_THAT(termination_result, Eq(IComponent::TerminationResult::kIgnore));
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kTerminated));
 }
 
-TEST_F(ProcessInfoNodeUnexpectedTerminationTest, SelfTerminating_CrashAfterReady_ReturnsErrorAfterReady)
+TEST_F(ProcessInfoNodeUnexpectedTerminationTest, SelfTerminating_CrashAfterReady_ReturnsFailure)
 {
     RecordProperty(
         "Description",
         "A self-terminating process that crashes (non-zero exit status) after reaching its ready condition returns "
-        "kErrorAfterReady, just like a non-self-terminating process crash.");
+        "kFailure, just like a non-self-terminating process crash.");
 
     auto node = createSelfTerminatingProcessInfoNode(configuration::ApplicationType::Native);
     expectSuccessfulProcessLaunch();
@@ -807,8 +777,7 @@ TEST_F(ProcessInfoNodeUnexpectedTerminationTest, SelfTerminating_CrashAfterReady
 
     auto result = node->tryHandleTermination(-1);
 
-    ASSERT_THAT(result.has_value(), IsFalse());
-    ASSERT_THAT(result.error(), Eq(IComponent::ComponentError::kErrorAfterReady));
+    ASSERT_THAT(result, Eq(IComponent::TerminationResult::kFailure));
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kTerminated));
 }
 
@@ -833,8 +802,7 @@ TEST_F(ProcessInfoNodeDeactivationTest, CanTerminateNonSelfTerminatingProcess)
 
     auto result = node->deactivate(score::cpp::stop_token{});
 
-    ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result.value(), Eq(IComponent::RequestState::kSuccess));
+    ASSERT_THAT(result, Eq(IComponent::RequestResult::kSuccess));
     ASSERT_THAT(node->active(), IsFalse());
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kIdle));
 }
@@ -900,8 +868,7 @@ TEST_F(ProcessInfoNodeDeactivationTest, ProcessIgnoresSigterm_ForcedWithSigkill)
 
     auto result = node->deactivate(score::cpp::stop_token{});
 
-    ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result.value(), Eq(IComponent::RequestState::kSuccess));
+    ASSERT_THAT(result, Eq(IComponent::RequestResult::kSuccess));
     ASSERT_THAT(node->active(), IsFalse());
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kIdle));
 }
@@ -937,8 +904,7 @@ TEST_F(ProcessInfoNodeFileStateTest, ConditionAlreadyMet_ReturnsSuccess)
 
     auto result = node->activate(score::cpp::stop_token{});
 
-    ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result.value(), Eq(IComponent::RequestState::kSuccess));
+    ASSERT_THAT(result, Eq(IComponent::RequestResult::kSuccess));
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kRunning));
 }
 
@@ -957,8 +923,7 @@ TEST_F(ProcessInfoNodeFileStateTest, NotExistingCondition_ReturnsSuccess)
 
     auto result = node->activate(score::cpp::stop_token{});
 
-    ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result.value(), Eq(IComponent::RequestState::kSuccess));
+    ASSERT_THAT(result, Eq(IComponent::RequestResult::kSuccess));
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kRunning));
 }
 
@@ -973,16 +938,14 @@ TEST_F(ProcessInfoNodeFileStateTest, NativeApplication_DoesNotIgnoreRunning_Retu
 
     auto result = node->activate(score::cpp::stop_token{});
 
-    ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result.value(), Eq(IComponent::RequestState::kSuccess));
+    ASSERT_THAT(result, Eq(IComponent::RequestResult::kSuccess));
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kRunning));
 }
 
-TEST_F(ProcessInfoNodeFileStateTest, WaitForFileTimesOut_ReturnsActivationTimedOut)
+TEST_F(ProcessInfoNodeFileStateTest, WaitForFileTimesOut_ReturnsTimeout)
 {
     RecordProperty(
-        "Description",
-        "If waitForFile() times out, activate() returns kActivationTimedOut and the process ends up terminated.");
+        "Description", "If waitForFile() times out, activate() returns kTimeout and the process ends up terminated.");
 
     auto node = createFileStateProcessInfoNode("/var/run/ready", configuration::FileExistenceState::Exists);
     expectSuccessfulProcessLaunch();
@@ -993,8 +956,7 @@ TEST_F(ProcessInfoNodeFileStateTest, WaitForFileTimesOut_ReturnsActivationTimedO
 
     auto result = node->activate(score::cpp::stop_token{});
 
-    ASSERT_THAT(result.has_value(), IsFalse());
-    ASSERT_THAT(result.error(), Eq(IComponent::ComponentError::kActivationTimedOut));
+    ASSERT_THAT(result, Eq(IComponent::RequestResult::kTimeout));
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kTerminated));
 }
 

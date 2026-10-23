@@ -32,7 +32,7 @@ class IStopAction
     /// @param stop_token Token which can be used to interrupt the action.
     /// @param handle The resource to act upon.
     /// @return Whether the action was successful, or failed with an error.
-    virtual Result<IComponent::RequestState> stop(cpp::stop_token stop_token, const Handle& handle) const = 0;
+    virtual Result<IComponent::RequestResult> stop(cpp::stop_token stop_token, const Handle& handle) const = 0;
 };
 
 }  // namespace score::mw::lifecycle::internal

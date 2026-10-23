@@ -36,17 +36,18 @@ TEST(ProcessForceStopActionTest, ForceStopCallsForceTerminationWithPid)
     static_cast<void>(process_force_stop_action.forceStop(cpp::stop_token{}, mock_handle));
 }
 
-TEST(ProcessForceStopActionTest, ForceStopSucceedsReturnsWaiting)
+TEST(ProcessForceStopActionTest, ForceStopSucceedsReturnsSuccess)
 {
     NiceMock<osal::MockIProcess> launcher;
     const ProcessForceStopAction process_force_stop_action(launcher);
 
     ON_CALL(launcher, forceTermination(_)).WillByDefault(Return(osal::OsalReturnType::kSuccess));
 
-    const Result<IComponent::RequestState> result = process_force_stop_action.forceStop(cpp::stop_token{}, mock_handle);
+    const Result<IComponent::RequestResult> result =
+        process_force_stop_action.forceStop(cpp::stop_token{}, mock_handle);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ(result.value(), IComponent::RequestState::kWaiting);
+    EXPECT_EQ(result.value(), IComponent::RequestResult::kSuccess);
 }
 
 TEST(ProcessForceStopActionTest, ForceStopWithInvalidatedHandleReturnsSuccess)
@@ -56,10 +57,10 @@ TEST(ProcessForceStopActionTest, ForceStopWithInvalidatedHandleReturnsSuccess)
     ProcessHandle handle = mock_handle;
     handle.pid = -1;
 
-    const Result<IComponent::RequestState> result = process_force_stop_action.forceStop(cpp::stop_token{}, handle);
+    const Result<IComponent::RequestResult> result = process_force_stop_action.forceStop(cpp::stop_token{}, handle);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ(result.value(), IComponent::RequestState::kSuccess);
+    EXPECT_EQ(result.value(), IComponent::RequestResult::kSuccess);
 }
 
 TEST(ProcessStopActionTest, ForceStopWithInvalidatedHandleDoesNotCallLauncher)
@@ -79,7 +80,8 @@ TEST(ProcessForceStopActionTest, ForceStopFailsReturnsError)
 
     ON_CALL(launcher, forceTermination(_)).WillByDefault(Return(osal::OsalReturnType::kFail));
 
-    const Result<IComponent::RequestState> result = process_force_stop_action.forceStop(cpp::stop_token{}, mock_handle);
+    const Result<IComponent::RequestResult> result =
+        process_force_stop_action.forceStop(cpp::stop_token{}, mock_handle);
 
     EXPECT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kGeneralError);

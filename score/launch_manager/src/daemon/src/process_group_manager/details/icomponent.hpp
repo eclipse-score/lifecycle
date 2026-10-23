@@ -31,42 +31,37 @@ namespace score::mw::lifecycle::internal
 class IComponent
 {
   public:
-    enum class ComponentError : uint8_t
+    enum class [[nodiscard]] RequestResult : std::uint8_t
     {
-        /// @brief An error occurred during startup, before the component was considered ready.
-        kErrorBeforeReady,
-        /// @brief An error occurred any time after the component was considered ready.
-        kErrorAfterReady,
-        /// @brief An error occurred during startup. Specifically, a timeout was reached.
-        kActivationTimedOut,
-    };
-
-    enum class RequestState : uint8_t
-    {
-        /// @brief Activation was successful and the component is now ready.
+        /// @brief The operation succeeded.
         kSuccess,
-        /// @brief Activation is waiting on a notification from another thread. The component may not be ready.
-        kWaiting
+
+        /// @brief The operation timed out.
+        kTimeout,
+
+        /// @brief The operation failed.
+        kFailure
     };
 
-    using RequestResult = score::cpp::expected<RequestState, ComponentError>;
+    enum class [[nodiscard]] TerminationResult : std::uint8_t
+    {
+        /// @brief The termination does not affect the state of the component.
+        kIgnore,
+
+        /// @brief The component failed.
+        kFailure
+    };
 
     /// @brief Begin activation of the component.
     /// @p stop_token Token that can be stopped to exit the activation early.
-    /// @returns kSuccess if the component is now ready, kWaiting if the component is waiting for a notification, or an
-    /// error.
-    [[nodiscard]] virtual RequestResult activate(score::cpp::stop_token stop_token) = 0;
+    virtual RequestResult activate(score::cpp::stop_token stop_token) = 0;
 
     /// @brief Begin deactivation of the component.
     /// @p stop_token Token that can be stopped to exit the deactivation early.
-    /// @returns kSuccess if the component is now ready, kWaiting if the component is waiting for a notification, or an
-    /// error.
-    [[nodiscard]] virtual RequestResult deactivate(score::cpp::stop_token stop_token) = 0;
+    virtual RequestResult deactivate(score::cpp::stop_token stop_token) = 0;
 
     /// @brief Notify the component that it has terminated with status @p status
-    /// @returns kSuccess if the component is now ready, kWaiting if the component is waiting for a notification, or an
-    /// error if the termination was not expected.
-    [[nodiscard]] virtual RequestResult tryHandleTermination(int32_t status) = 0;
+    virtual TerminationResult tryHandleTermination(int32_t status) = 0;
 
     /// @returns the index of the component in the graph.
     [[nodiscard]] virtual IdentifierHash getIdentifier() const = 0;

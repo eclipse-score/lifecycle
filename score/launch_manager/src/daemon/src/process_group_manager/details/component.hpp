@@ -46,21 +46,18 @@ class Component final : public IComponent
 
     /// @brief Start the resource and set the component to active.
     /// @param stop_token Token which can be used to interrupt the activation.
-    /// @return Whether the component activation was successful, is waiting for another
-    ///         thread, or an error was encountered.
+    /// @return Whether the component activation succeeded or failed.
     RequestResult activate(cpp::stop_token stop_token) override;
 
     /// @brief Stop the resource and set the component to inactive.
     /// @param stop_token Token which can be used to interrupt the deactivation.
-    /// @return Whether the component deactivation was successful, is waiting for another
-    ///         thread, or an error was encountered.
+    /// @return Whether the component deactivation succeeded or failed.
     RequestResult deactivate(cpp::stop_token stop_token) override;
 
     /// @brief Notify the component that a POSIX process has terminated.
     /// @param status Exit code of the process.
-    /// @return Whether the component activation was successful, is waiting for another
-    ///         thread, or an error was encountered.
-    RequestResult tryHandleTermination(int32_t status) override;
+    /// @return Whether the termination is ignored or means the component failed.
+    TerminationResult tryHandleTermination(int32_t status) override;
 
     /// @brief Return the name of the component.
     /// @return The name of the component.
