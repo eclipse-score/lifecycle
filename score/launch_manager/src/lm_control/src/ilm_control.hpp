@@ -22,6 +22,8 @@
 #include "score/mw/lifecycle/run_target_activation_source.hpp"
 #include "score/result/result.h"
 
+#include <score/stop_token.hpp>
+
 namespace score::mw::lifecycle
 {
 
@@ -96,6 +98,23 @@ class ILmControl
     /// @error kCommunicationError The service discovery could not be started.
     static score::Result<std::unique_ptr<ILmControl>> Create(std::string_view instance_specifier);
 
+    /// @brief Blocks until the client is connected to the Launch Manager.
+    ///
+    /// Sleeps on a condition variable until service discovery has produced a connected
+    /// proxy, the timeout expires, or a stop is requested via the stop token.
+    ///
+    /// @param[in] timeout     Maximum time to wait for the connection.
+    /// @param[in] stop_token  Allows another thread to abort the wait early. A default
+    ///                        constructed token can never be stopped.
+    ///
+    /// @returns void once connected.
+    ///
+    /// @error kCommunicationError The connection was not established within the timeout,
+    ///                            or the wait was stopped via the stop token.
+    virtual score::Result<void> wait_for_connection(
+        std::chrono::milliseconds timeout = std::chrono::milliseconds(500),
+        const score::cpp::stop_token& stop_token = score::cpp::stop_token{}) = 0;
+
     /// @brief Virtual destructor for safe deletion through this interface.
     virtual ~ILmControl() noexcept = default;
 
@@ -161,18 +180,6 @@ class ILmControl
     /// @error kCommunicationError   Connection with Launch Manager could not be established
     ///                              and information about active Run Target cannot be retrieved.
     virtual score::Result<RunTargetName> get_active_run_target() = 0;
-
-    /// @brief Blocks until the client is connected to the Launch Manager.
-    ///
-    /// Polls get_active_run_target() until it no longer fails with kCommunicationError.
-    /// Any other outcome means the connection is up.
-    ///
-    /// @param[in] timeout  Maximum time to wait for the connection.
-    ///
-    /// @returns void once connected.
-    ///
-    /// @error kCommunicationError The connection was not established within the timeout.
-    virtual score::Result<void> wait_for_connection(std::chrono::milliseconds timeout = std::chrono::seconds(5)) = 0;
 
   protected:
     ILmControl() = default;

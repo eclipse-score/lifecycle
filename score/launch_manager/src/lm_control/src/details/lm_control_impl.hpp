@@ -14,6 +14,7 @@
 #define SCORE_MW_LIFECYCLE_LM_CONTROL_IMPL_HPP
 
 #include <chrono>
+#include <condition_variable>
 #include <cstddef>
 #include <exception>
 #include <memory>
@@ -21,9 +22,9 @@
 #include <optional>
 #include <string>
 #include <string_view>
-#include <thread>
 #include <utility>
 
+#include "score/concurrency/condition_variable.h"
 #include "score/language/safecpp/scoped_function/copyable_scoped_function.h"
 #include "score/language/safecpp/scoped_function/scope.h"
 #include "score/mw/launch_manager/common/log.hpp"
@@ -247,24 +248,18 @@ class BasicLmControlImpl final : public ILmControl
         return response.run_target;
     }
 
-    score::Result<void> wait_for_connection(std::chrono::milliseconds timeout) override
+    score::Result<void> wait_for_connection(std::chrono::milliseconds timeout, const score::cpp::stop_token& stop_token)
+        override
     {
-        const auto deadline = std::chrono::steady_clock::now() + timeout;
-        while (true)
+        std::unique_lock<std::mutex> lock{mutex_};
+        const bool connected = connection_cv_.wait_for(lock, stop_token, timeout, [this] {
+            return proxy_.has_value();
+        });
+        if (!connected)
         {
-            // Until the client is connected this fails with kCommunicationError.
-            const auto result = get_active_run_target();
-            if (result.has_value() || static_cast<ExecErrc>(*result.error()) != ExecErrc::kCommunicationError)
-            {
-                return {};
-            }
-
-            if (std::chrono::steady_clock::now() >= deadline)
-            {
-                return score::MakeUnexpected(ExecErrc::kCommunicationError);
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            return score::MakeUnexpected(ExecErrc::kCommunicationError);
         }
+        return {};
     }
 
   private:
@@ -304,9 +299,9 @@ class BasicLmControlImpl final : public ILmControl
             return;
         }
 
-        if (createProxy(handles.front()))
+        if (createProxy(handles.front()) && subscribeToActivationResults())
         {
-            static_cast<void>(subscribeToActivationResults());
+            connection_cv_.notify_all();
         }
     }
 
@@ -452,6 +447,8 @@ class BasicLmControlImpl final : public ILmControl
 
     // Guards proxy_
     std::mutex mutex_;
+    // Signalled (under mutex_) once proxy_ is set up, wakes wait_for_connection()
+    concurrency::InterruptibleConditionalVariableBasic<std::mutex, std::condition_variable> connection_cv_;
     std::optional<ProxyType> proxy_;
 
     // Handle of the running discovery search, stopped by the destructor. Written once by init()
