@@ -27,12 +27,7 @@ score_defaults = json.loads("""
         "shutdown_timeout_ms": 500,
         "environmental_variables": {},
         "bin_dir": "/opt",
-        "ready_recovery_action": {
-            "restart": {
-                "number_of_attempts": 0,
-                "delay_before_restart_ms": 0
-            }
-        },
+        "activation_retries": 0,
         "recovery_action": {
             "switch_run_target": {
                 "run_target": "fallback_run_target"

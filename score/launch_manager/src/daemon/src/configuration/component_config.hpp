@@ -100,7 +100,7 @@ struct DeploymentConfig
     std::string executable_path;
     std::string working_dir;
     std::uint8_t activation_retries{};
-    // Currently only SwitchRunTargetAction is supported here
+    // Currently only SwitchRunTargetAction is supported here, RestartAction to be added in the future
     std::optional<SwitchRunTargetAction> recovery_action;
     Sandbox sandbox{};
 };
