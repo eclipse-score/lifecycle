@@ -14,7 +14,7 @@
                 }
             },
             "deployment_config": {
-                "activation_retries": 256
+                "activation_retry_attempts": -1
             }
         }
     },

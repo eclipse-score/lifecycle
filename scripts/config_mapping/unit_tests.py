@@ -1209,15 +1209,15 @@ def test_gen_config_scheduling_policy_mapping(tmp_path):
         tmp_path.joinpath("test_gen.json").unlink()
 
 
-def _activation_retries_config(defaults_retries=None, component_retries=None):
+def _activation_retry_config(key, defaults_value=None, component_value=None):
     depl = {
         "ready_timeout_ms": 1000,
         "shutdown_timeout_ms": 2000,
         "bin_dir": "/opt",
         "sandbox": {"uid": 1000, "gid": 1000},
     }
-    if component_retries is not None:
-        depl["activation_retries"] = component_retries
+    if component_value is not None:
+        depl[key] = component_value
     config = {
         "schema_version": 1,
         "components": {
@@ -1235,48 +1235,76 @@ def _activation_retries_config(defaults_retries=None, component_retries=None):
         "alive_supervision": {},
         "watchdog": {},
     }
-    if defaults_retries is not None:
-        config["defaults"] = {
-            "deployment_config": {"activation_retries": defaults_retries}
-        }
+    if defaults_value is not None:
+        config["defaults"] = {"deployment_config": {key: defaults_value}}
         config["components"]["c2"] = {
             "component_properties": {
                 "application_profile": {"application_type": "REPORTING"}
             },
-            "deployment_config": {
-                k: v for k, v in depl.items() if k != "activation_retries"
-            },
+            "deployment_config": {k: v for k, v in depl.items() if k != key},
         }
     return config
 
 
-def _generated_activation_retries(tmp_path, config):
+def _generated_activation_retry(tmp_path, config, key):
     gen_config(str(tmp_path), config, "test.json")
     with open(tmp_path / "test_gen.json") as f:
         output = json.load(f)
-    return {
-        c["name"]: c["deployment_config"]["activation_retries"]
-        for c in output["components"]
-    }
+    return {c["name"]: c["deployment_config"][key] for c in output["components"]}
 
 
-def test_gen_config_activation_retries(tmp_path):
-    """activation_retries set on a component is passed through to the output."""
-    config = _activation_retries_config(component_retries=3)
-    assert _generated_activation_retries(tmp_path, config) == {"c1": 3}
+@pytest.mark.parametrize(
+    "key", ["activation_retry_attempts", "activation_retry_delay_ms"]
+)
+def test_gen_config_activation_retry_passed_through(tmp_path, key):
+    """An activation_retry_* value set on a component is passed through to the output."""
+    config = _activation_retry_config(key, component_value=3)
+    assert _generated_activation_retry(tmp_path, config, key) == {"c1": 3}
 
 
-def test_gen_config_activation_retries_default_zero(tmp_path):
-    """activation_retries absent everywhere results in 0."""
-    config = preprocess_defaults(score_defaults, _activation_retries_config())
-    assert _generated_activation_retries(tmp_path, config) == {"c1": 0}
+@pytest.mark.parametrize(
+    "key", ["activation_retry_attempts", "activation_retry_delay_ms"]
+)
+def test_gen_config_activation_retry_default_zero(tmp_path, key):
+    """An activation_retry_* value absent everywhere results in 0."""
+    config = preprocess_defaults(score_defaults, _activation_retry_config(key))
+    assert _generated_activation_retry(tmp_path, config, key) == {"c1": 0}
 
 
-def test_gen_config_activation_retries_inherited_and_overridden(tmp_path):
-    """activation_retries from defaults is inherited, a component value overrides it."""
-    config = _activation_retries_config(defaults_retries=4, component_retries=1)
+@pytest.mark.parametrize(
+    "key", ["activation_retry_attempts", "activation_retry_delay_ms"]
+)
+def test_gen_config_activation_retry_inherited_and_overridden(tmp_path, key):
+    """An activation_retry_* value from defaults is inherited, a component value overrides it."""
+    config = _activation_retry_config(key, defaults_value=4, component_value=1)
     config = preprocess_defaults(score_defaults, config)
-    assert _generated_activation_retries(tmp_path, config) == {"c1": 1, "c2": 4}
+    assert _generated_activation_retry(tmp_path, config, key) == {"c1": 1, "c2": 4}
+
+
+def test_ready_recovery_action_converted_to_activation_retry(tmp_path):
+    """The deprecated ready_recovery_action is converted to both activation_retry_* values."""
+    config = _activation_retry_config("activation_retry_attempts")
+    config["components"]["c1"]["deployment_config"]["ready_recovery_action"] = {
+        "restart": {"number_of_attempts": 5, "delay_before_restart_ms": 250}
+    }
+    config = preprocess_defaults(score_defaults, config)
+    depl = config["components"]["c1"]["deployment_config"]
+    assert "ready_recovery_action" not in depl
+    assert depl["activation_retry_attempts"] == 5
+    assert depl["activation_retry_delay_ms"] == 250
+
+
+def test_ready_recovery_action_does_not_override_activation_retry(tmp_path):
+    """Explicit activation_retry_* values take precedence over ready_recovery_action."""
+    config = _activation_retry_config("activation_retry_attempts", component_value=2)
+    depl = config["components"]["c1"]["deployment_config"]
+    depl["ready_recovery_action"] = {
+        "restart": {"number_of_attempts": 5, "delay_before_restart_ms": 250}
+    }
+    config = preprocess_defaults(score_defaults, config)
+    depl = config["components"]["c1"]["deployment_config"]
+    assert depl["activation_retry_attempts"] == 2
+    assert depl["activation_retry_delay_ms"] == 250
 
 
 ## TODO

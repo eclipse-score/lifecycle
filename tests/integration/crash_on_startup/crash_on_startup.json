@@ -3,7 +3,7 @@
     "defaults": {
         "deployment_config": {
             "bin_dir": "/tmp/tests/crash_on_startup",
-            "activation_retries": 0,
+            "activation_retry_attempts": 0,
             "recovery_action": {
                 "switch_run_target": {
                     "run_target": "fallback_run_target"
@@ -50,7 +50,7 @@
                 ]
             },
             "deployment_config": {
-                "activation_retries": 2
+                "activation_retry_attempts": 2
             }
         },
         "process_crashing_on_startup_three_times": {
@@ -64,7 +64,7 @@
                 ]
             },
             "deployment_config": {
-                "activation_retries": 3
+                "activation_retry_attempts": 3
             }
         },
         "process_crashing_on_startup_no_retries": {

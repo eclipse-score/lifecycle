@@ -9,7 +9,8 @@
             },
             "bin_dir": "/opt",
             "working_dir": "/tmp",
-            "activation_retries": 0,
+            "activation_retry_attempts": 0,
+            "activation_retry_delay_ms": 0,
             "recovery_action": {
                 "switch_run_target": {
                     "run_target": "Off"

@@ -250,12 +250,20 @@ SCHEMA_VALIDATION_TEST_CASES = [
         "test_id": "invalid_number_of_attempts",
     },
     {
-        "config_filename": "invalid_activation_retries.json",
-        "test_id": "invalid_activation_retries",
+        "config_filename": "invalid_activation_retry_attempts.json",
+        "test_id": "invalid_activation_retry_attempts",
     },
     {
-        "config_filename": "negative_activation_retries.json",
-        "test_id": "negative_activation_retries",
+        "config_filename": "negative_activation_retry_attempts.json",
+        "test_id": "negative_activation_retry_attempts",
+    },
+    {
+        "config_filename": "invalid_activation_retry_delay_ms.json",
+        "test_id": "invalid_activation_retry_delay_ms",
+    },
+    {
+        "config_filename": "negative_activation_retry_delay_ms.json",
+        "test_id": "negative_activation_retry_delay_ms",
     },
 ]
 

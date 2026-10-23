@@ -34,7 +34,7 @@ ProcessInfoNode::ProcessInfoNode(configuration::ComponentConfig&& config, Proces
       identifier_(config_.name),
       termination_waiter_(std::make_unique<TerminationWaiter>())
 {
-    start_retries_ = config_.deployment_config.activation_retries;
+    start_retries_ = config_.deployment_config.activation_retry_attempts;
 
     const configuration::ApplicationProfile& app_profile = config_.component_properties.application_profile;
 
