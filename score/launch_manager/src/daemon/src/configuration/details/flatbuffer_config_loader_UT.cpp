@@ -89,7 +89,8 @@ std::vector<uint8_t> finishBuffer(
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        0 /*activation_retries*/,
+        0 /*activation_retry_attempts*/,
+        0 /*activation_retry_delay_ms*/,
         0 /*recovery_action*/,
         sandbox);
 }
@@ -232,7 +233,8 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSingleComponent)
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        0 /*activation_retries*/,
+        0 /*activation_retry_attempts*/,
+        0 /*activation_retry_delay_ms*/,
         0 /*recovery_action*/,
         sandbox);
 
@@ -295,7 +297,8 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSingleComponentWithFileState)
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        0 /*activation_retries*/,
+        0 /*activation_retry_attempts*/,
+        0 /*activation_retry_delay_ms*/,
         0 /*recovery_action*/,
         sandbox);
 
@@ -448,9 +451,10 @@ TEST_F(FlatbufferConfigLoaderTest, LoadWatchdog)
     EXPECT_THAT(wd.require_magic_close, IsFalse());
 }
 
-TEST_F(FlatbufferConfigLoaderTest, LoadActivationRetries)
+TEST_F(FlatbufferConfigLoaderTest, LoadActivationRetryAttempts)
 {
-    RecordProperty("Description", "activation_retries is carried through to the deployment config of a component.");
+    RecordProperty(
+        "Description", "activation_retry_attempts is carried through to the deployment config of a component.");
 
     ::flatbuffers::FlatBufferBuilder fbb;
 
@@ -464,7 +468,8 @@ TEST_F(FlatbufferConfigLoaderTest, LoadActivationRetries)
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        3 /*activation_retries*/,
+        3 /*activation_retry_attempts*/,
+        0 /*activation_retry_delay_ms*/,
         0 /*recovery_action*/,
         sandbox);
 
@@ -475,7 +480,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadActivationRetries)
 
     ASSERT_THAT(result.has_value(), IsTrue());
     ASSERT_THAT(result->components().size(), Eq(1U));
-    EXPECT_THAT(result->components()[0].deployment_config.activation_retries, Eq(3U));
+    EXPECT_THAT(result->components()[0].deployment_config.activation_retry_attempts, Eq(3U));
 }
 
 TEST_F(FlatbufferConfigLoaderTest, LoadSwitchRunTargetAction)
@@ -526,7 +531,8 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        0 /*activation_retries*/,
+        0 /*activation_retry_attempts*/,
+        0 /*activation_retry_delay_ms*/,
         0 /*recovery_action*/,
         sandbox);
 
@@ -571,7 +577,8 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandboxWithoutAffinityMaskHasNoValue)
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        0 /*activation_retries*/,
+        0 /*activation_retry_attempts*/,
+        0 /*activation_retry_delay_ms*/,
         0 /*recovery_action*/,
         sandbox);
 
@@ -642,7 +649,8 @@ TEST_F(FlatbufferConfigLoaderTest, LoadEnvironmentalVariables)
         env_vars,
         bin_dir,
         work_dir,
-        0 /*activation_retries*/,
+        0 /*activation_retry_attempts*/,
+        0 /*activation_retry_delay_ms*/,
         0 /*recovery_action*/,
         sandbox);
 
@@ -847,7 +855,8 @@ TEST_P(
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        NUMBER_OF_ATTEMPTS /*activation_retries*/,
+        NUMBER_OF_ATTEMPTS /*activation_retry_attempts*/,
+        0 /*activation_retry_delay_ms*/,
         0 /*recovery_action*/,
         sandbox);
 
@@ -860,7 +869,7 @@ TEST_P(
     // Then
     ASSERT_THAT(result.has_value(), IsTrue());
     ASSERT_THAT(result->components().size(), Eq(1U));
-    EXPECT_THAT(result->components()[0].deployment_config.activation_retries, Eq(GetParam().expected));
+    EXPECT_THAT(result->components()[0].deployment_config.activation_retry_attempts, Eq(GetParam().expected));
 }
 
 INSTANTIATE_TEST_SUITE_P(

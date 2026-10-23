@@ -11,7 +11,8 @@
             },
             "bin_dir": "/opt/apps",
             "working_dir": "/var/run/apps",
-            "activation_retries": 3,
+            "activation_retry_attempts": 3,
+            "activation_retry_delay_ms": 100,
             "recovery_action": {
                 "switch_run_target": {
                     "run_target": "fallback_run_target"
@@ -92,7 +93,8 @@
                 },
                 "bin_dir": "/opt/apps/a",
                 "working_dir": "/var/run/a",
-                "activation_retries": 254,
+                "activation_retry_attempts": 254,
+                "activation_retry_delay_ms": 500,
                 "recovery_action": {
                     "switch_run_target": {
                         "run_target": "fallback_run_target"

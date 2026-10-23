@@ -31,7 +31,8 @@
                 "shutdown_timeout_ms": 3000,
                 "bin_dir": "/opt/apps/a",
                 "working_dir": "/var/run/a",
-                "activation_retries": 254,
+                "activation_retry_attempts": 254,
+                "activation_retry_delay_ms": 500,
                 "sandbox": {
                     "uid": 1001,
                     "gid": 1001,
@@ -96,7 +97,8 @@
                 "shutdown_timeout_ms": 2000,
                 "bin_dir": "/opt/apps/b",
                 "working_dir": "/var/run/apps",
-                "activation_retries": 3,
+                "activation_retry_attempts": 3,
+                "activation_retry_delay_ms": 100,
                 "sandbox": {
                     "uid": 1002,
                     "gid": 1002,
@@ -155,7 +157,8 @@
                 "shutdown_timeout_ms": 2000,
                 "bin_dir": "/opt/apps/c",
                 "working_dir": "/var/run/apps",
-                "activation_retries": 3,
+                "activation_retry_attempts": 3,
+                "activation_retry_delay_ms": 100,
                 "sandbox": {
                     "uid": 1003,
                     "gid": 1003,
@@ -216,7 +219,8 @@
                 "shutdown_timeout_ms": 2000,
                 "bin_dir": "/opt/apps/sm",
                 "working_dir": "/var/run/apps",
-                "activation_retries": 3,
+                "activation_retry_attempts": 3,
+                "activation_retry_delay_ms": 100,
                 "sandbox": {
                     "uid": 0,
                     "gid": 0,

@@ -138,7 +138,9 @@ table DeploymentConfig {
   working_dir:string (required); // required
   // Number of additional attempts to activate the component when it fails to reach
   // its Ready State during a Run Target transition. 0 means a single attempt.
-  activation_retries:uint8 = null; // required
+  activation_retry_attempts:uint8 = null; // required
+  // Delay in milliseconds before each activation retry. Currently not evaluated.
+  activation_retry_delay_ms:uint32 = null; // required
   // Recovery action when the component malfunctions after reaching ready state.
   recovery_action:SwitchRunTargetAction; // optional
   sandbox:Sandbox (required); // required

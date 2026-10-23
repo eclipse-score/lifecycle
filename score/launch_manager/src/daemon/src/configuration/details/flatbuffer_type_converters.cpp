@@ -423,18 +423,25 @@ score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentCo
         {
             return score::cpp::make_unexpected(shutdown_timeout.error());
         }
-        auto activation_retries =
-            requireScalarValue(fb_dc->activation_retries(), "DeploymentConfig::activation_retries");
-        if (!activation_retries.has_value())
+        auto activation_retry_attempts =
+            requireScalarValue(fb_dc->activation_retry_attempts(), "DeploymentConfig::activation_retry_attempts");
+        if (!activation_retry_attempts.has_value())
         {
-            return score::cpp::make_unexpected(activation_retries.error());
+            return score::cpp::make_unexpected(activation_retry_attempts.error());
+        }
+        auto activation_retry_delay_ms =
+            requireScalarValue(fb_dc->activation_retry_delay_ms(), "DeploymentConfig::activation_retry_delay_ms");
+        if (!activation_retry_delay_ms.has_value())
+        {
+            return score::cpp::make_unexpected(activation_retry_delay_ms.error());
         }
         result.ready_timeout_ms = *ready_timeout;
         result.shutdown_timeout_ms = *shutdown_timeout;
         result.environmental_variables = convertEnvironmentalVariables(fb_dc->environmental_variables());
         result.executable_path = fb_dc->bin_dir()->str() + "/" + std::string{binary_name};
         result.working_dir = fb_dc->working_dir()->str();
-        result.activation_retries = *activation_retries;
+        result.activation_retry_attempts = *activation_retry_attempts;
+        result.activation_retry_delay_ms = *activation_retry_delay_ms;
         result.recovery_action = convertSwitchRunTargetAction(fb_dc->recovery_action());
         auto sandbox = convertSandbox(fb_dc->sandbox());
         if (!sandbox.has_value())

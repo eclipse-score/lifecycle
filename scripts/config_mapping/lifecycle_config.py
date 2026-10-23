@@ -27,7 +27,8 @@ score_defaults = json.loads("""
         "shutdown_timeout_ms": 500,
         "environmental_variables": {},
         "bin_dir": "/opt",
-        "activation_retries": 0,
+        "activation_retry_attempts": 0,
+        "activation_retry_delay_ms": 0,
         "recovery_action": {
             "switch_run_target": {
                 "run_target": "fallback_run_target"
@@ -130,7 +131,8 @@ def apply_file_state_defaults(ready_condition):
 
 
 def migrate_ready_recovery_action(deployment_config, context):
-    """Convert the deprecated 'ready_recovery_action' into 'activation_retries'.
+    """Convert the deprecated 'ready_recovery_action' into 'activation_retry_attempts'
+    and 'activation_retry_delay_ms'.
 
     'context' is a human readable location (e.g. "Component 'foo'") used in warnings.
     Mutates deployment_config in place and removes the deprecated key.
@@ -140,26 +142,31 @@ def migrate_ready_recovery_action(deployment_config, context):
 
     rra = deployment_config.pop("ready_recovery_action")
     restart = rra.get("restart", {})
-    attempts = restart.get("number_of_attempts", 0)
 
     report_warning(
         f"{context}: 'ready_recovery_action' is deprecated. "
-        f"Use 'deployment_config.activation_retries' instead."
+        f"Use 'deployment_config.activation_retry_attempts' and "
+        f"'deployment_config.activation_retry_delay_ms' instead."
     )
 
-    if "activation_retries" in deployment_config:
+    for old_key, new_key in [
+        ("number_of_attempts", "activation_retry_attempts"),
+        ("delay_before_restart_ms", "activation_retry_delay_ms"),
+    ]:
+        if new_key in deployment_config:
+            report_warning(
+                f"{context}: both '{new_key}' and the deprecated "
+                f"'ready_recovery_action' are configured; '{new_key}' "
+                f"({deployment_config[new_key]}) takes precedence."
+            )
+            continue
+
+        value = restart.get(old_key, 0)
         report_warning(
-            f"{context}: both 'activation_retries' and the deprecated "
-            f"'ready_recovery_action' are configured; 'activation_retries' "
-            f"({deployment_config['activation_retries']}) takes precedence."
+            f"{context}: converted 'ready_recovery_action.restart.{old_key}' "
+            f"({value}) to '{new_key}'."
         )
-        return
-
-    report_warning(
-        f"{context}: converted 'ready_recovery_action.restart.number_of_attempts' "
-        f"({attempts}) to 'activation_retries'."
-    )
-    deployment_config["activation_retries"] = attempts
+        deployment_config[new_key] = value
 
 
 def preprocess_defaults(global_defaults, config):
@@ -170,7 +177,7 @@ def preprocess_defaults(global_defaults, config):
     config = deepcopy(config)
 
     # Convert the deprecated ready_recovery_action before merging, so the normal
-    # default inheritance rules apply to the resulting activation_retries scalar.
+    # default inheritance rules apply to the resulting activation_retry_* scalars.
     config_defaults = config.get("defaults", {})
     if "deployment_config" in config_defaults:
         migrate_ready_recovery_action(
@@ -417,7 +424,8 @@ def gen_config(output_dir, config, input_filename):
             # Default the working directory to bin_dir (the directory the
             # executable lives in) when not set explicitly.
             "working_dir": get_working_dir(depl_cfg),
-            "activation_retries": depl_cfg.get("activation_retries", 0),
+            "activation_retry_attempts": depl_cfg.get("activation_retry_attempts", 0),
+            "activation_retry_delay_ms": depl_cfg.get("activation_retry_delay_ms", 0),
             "sandbox": sandbox_out,
         }
 

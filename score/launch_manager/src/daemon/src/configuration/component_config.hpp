@@ -99,7 +99,9 @@ struct DeploymentConfig
     Environment environmental_variables;
     std::string executable_path;
     std::string working_dir;
-    std::uint8_t activation_retries{};
+    std::uint8_t activation_retry_attempts{};
+    // Currently not evaluated by the Launch Manager
+    std::uint32_t activation_retry_delay_ms{};
     // Currently only SwitchRunTargetAction is supported here, RestartAction to be added in the future
     std::optional<SwitchRunTargetAction> recovery_action;
     Sandbox sandbox{};

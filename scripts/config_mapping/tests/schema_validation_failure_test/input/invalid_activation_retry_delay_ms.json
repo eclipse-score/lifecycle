@@ -14,7 +14,7 @@
                 }
             },
             "deployment_config": {
-                "activation_retries": -1
+                "activation_retry_delay_ms": 4294967296
             }
         }
     },

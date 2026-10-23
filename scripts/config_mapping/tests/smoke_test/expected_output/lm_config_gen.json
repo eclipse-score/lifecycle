@@ -24,7 +24,8 @@
                 "shutdown_timeout_ms": 500,
                 "bin_dir": "/opt/scripts",
                 "working_dir": "/opt/scripts",
-                "activation_retries": 1,
+                "activation_retry_attempts": 1,
+                "activation_retry_delay_ms": 0,
                 "sandbox": {
                     "uid": 1000,
                     "gid": 1000,
@@ -84,7 +85,8 @@
                 "shutdown_timeout_ms": 500,
                 "bin_dir": "/opt/apps/dlt-daemon",
                 "working_dir": "/opt/apps/dlt-daemon",
-                "activation_retries": 1,
+                "activation_retry_attempts": 1,
+                "activation_retry_delay_ms": 0,
                 "sandbox": {
                     "uid": 1000,
                     "gid": 1000,
@@ -148,7 +150,8 @@
                 "shutdown_timeout_ms": 500,
                 "bin_dir": "/opt/apps/someip",
                 "working_dir": "/opt/apps/someip",
-                "activation_retries": 1,
+                "activation_retry_attempts": 1,
+                "activation_retry_delay_ms": 0,
                 "sandbox": {
                     "uid": 1000,
                     "gid": 1000,
@@ -215,7 +218,8 @@
                 "shutdown_timeout_ms": 500,
                 "bin_dir": "/opt/apps/test_app1",
                 "working_dir": "/opt/apps/test_app1",
-                "activation_retries": 1,
+                "activation_retry_attempts": 1,
+                "activation_retry_delay_ms": 0,
                 "sandbox": {
                     "uid": 1000,
                     "gid": 1000,
@@ -281,7 +285,8 @@
                 "shutdown_timeout_ms": 500,
                 "bin_dir": "/opt/apps/state_manager",
                 "working_dir": "/opt/apps/state_manager",
-                "activation_retries": 1,
+                "activation_retry_attempts": 1,
+                "activation_retry_delay_ms": 0,
                 "sandbox": {
                     "uid": 1000,
                     "gid": 1000,
