@@ -33,9 +33,6 @@ constexpr std::chrono::milliseconds kMaxQueueDelay{
 constexpr std::chrono::milliseconds kGraphTimeout{10000};   ///< Timeout duration for graph operations.
 constexpr std::chrono::milliseconds kMaxSigKillDelay{500};  ///< The maximum time to wait for a process termination
 
-constexpr std::chrono::milliseconds kMaxRunningDelay{
-    1000};  ///< report_running() API will wait for Launch Manager to respond
-
 constexpr std::chrono::milliseconds kDefaultOffStateTransitionTimeout{
     3000};  ///< Default timeout for Off state transition
 
