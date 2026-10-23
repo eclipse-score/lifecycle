@@ -95,17 +95,23 @@ class TimeRange
   public:
     TimeRange(std::chrono::milliseconds min_ms, std::chrono::milliseconds max_ms) : min_ms_(min_ms), max_ms_(max_ms)
     {
+        // Enforce 32-bit unsigned boundaries
+        SCORE_LANGUAGE_FUTURECPP_PRECONDITION(min_ms_.count() >= 0);
+        SCORE_LANGUAGE_FUTURECPP_PRECONDITION(max_ms_.count() <= std::numeric_limits<uint32_t>::max());
+
         SCORE_LANGUAGE_FUTURECPP_PRECONDITION(min_ms_ <= max_ms_);
     }
 
     uint32_t MinMs() const
     {
-        return min_ms_.count();
+        // Bounds of min_ms_ is checked in constructor, so it's safe to narrow the type
+        return static_cast<std::uint32_t>(min_ms_.count());
     }
 
     uint32_t MaxMs() const
     {
-        return max_ms_.count();
+        // Bounds of max_ms_ is checked in constructor, so it's safe to narrow the type
+        return static_cast<std::uint32_t>(max_ms_.count());
     }
 
     /// @deprecated Use `MinMs()` instead. Removed in the release after v0.10.
