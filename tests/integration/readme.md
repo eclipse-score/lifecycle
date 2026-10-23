@@ -24,3 +24,12 @@ Currently the following configs are supported:
 ## Debugging
 
 Using `config=host`, `--sandbox_add_mount_pair=/tmp`, and `--compilation_mode=dbg` tests and their binaries will be written to `/tmp/tests/`. From the test name directory, launch manager can be started with gdb using the following command: `sudo gdb --args ./launch_manager -c etc/<config-name>.bin`. This should load debug symbols and allow breakpoints to be set. If `layout src` fails to load source files, use `dir <path-to-repo>` to point gdb to the correct location
+
+## Core Dumps
+
+For QNX, the core dump setup is part of the `init.build` script.
+Core Dumps will automatically be downloaded from the qemu machine. Check the logs for the exact path.
+
+For Linux, you'll have to set the core pattern on your **host** machine as this is shared to the docker container:
+
+`sudo sysctl -w kernel.core_pattern="/tmp/core.%e.%p"`
