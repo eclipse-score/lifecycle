@@ -19,8 +19,10 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <sys/resource.h>
 #include <cerrno>
 #include <cstdint>
+#include <limits>
 #include <vector>
 
 namespace score::mw::lifecycle::internal::configuration
@@ -510,6 +512,10 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
 
     auto sec_policy = fbb.CreateString("strict");
     auto supp_gids = fbb.CreateVector(std::vector<int64_t>{100, 200});
+    auto rlimit_as = fb::CreateRlimit(fbb, fb::RlimitResource::POSIX_RLIMIT_AS, 4096U, 4096U);
+    auto rlimit_cpu =
+        fb::CreateRlimit(fbb, fb::RlimitResource::POSIX_RLIMIT_CPU, 80U, std::numeric_limits<uint64_t>::max());
+    auto rlimits = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Rlimit>>{rlimit_as, rlimit_cpu});
     auto sandbox = fb::CreateSandbox(
         fbb,
         1000 /*uid*/,
@@ -518,8 +524,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
         sec_policy,
         fb::SchedulingPolicy::FIFO,
         50 /*scheduling_priority*/,
-        4096 /*max_memory_usage*/,
-        80 /*max_cpu_usage*/,
+        rlimits,
         3 /*affinity_mask*/);
 
     auto bin_dir = fbb.CreateString("/opt");
@@ -551,10 +556,13 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
     EXPECT_THAT(sb.security_policy.value(), Eq("strict"));
     EXPECT_THAT(sb.scheduling_policy, Eq(SCHED_FIFO));
     EXPECT_THAT(sb.scheduling_priority, Eq(50));
-    ASSERT_THAT(sb.max_memory_usage.has_value(), IsTrue());
-    EXPECT_THAT(sb.max_memory_usage.value(), Eq(4096U));
-    ASSERT_THAT(sb.max_cpu_usage.has_value(), IsTrue());
-    EXPECT_THAT(sb.max_cpu_usage.value(), Eq(80U));
+    ASSERT_THAT(sb.rlimits.size(), Eq(2U));
+    EXPECT_THAT(sb.rlimits[0].resource, Eq(RLIMIT_AS));
+    EXPECT_THAT(sb.rlimits[0].limit.rlim_cur, Eq(4096U));
+    EXPECT_THAT(sb.rlimits[0].limit.rlim_max, Eq(4096U));
+    EXPECT_THAT(sb.rlimits[1].resource, Eq(RLIMIT_CPU));
+    EXPECT_THAT(sb.rlimits[1].limit.rlim_cur, Eq(80U));
+    EXPECT_THAT(sb.rlimits[1].limit.rlim_max, Eq(RLIM_INFINITY));
     ASSERT_THAT(sb.affinity_mask.has_value(), IsTrue());
     EXPECT_THAT(sb.affinity_mask.value(), Eq(3U));
 }

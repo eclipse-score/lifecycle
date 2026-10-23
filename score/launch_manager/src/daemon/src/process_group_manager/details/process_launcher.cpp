@@ -17,6 +17,7 @@
 #include <grp.h>
 #include <libgen.h>
 #include <sys/mman.h>
+#include <sys/resource.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <limits.h>
@@ -40,6 +41,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iterator>
+#include <optional>
 
 constexpr int kPidZero = 0;  // This value is used to check if the process ID (uses pid_t) is valid or not.
 constexpr int kPosixSuccess = 0;
@@ -65,19 +67,29 @@ void applyLimitOrDie(const int resource, const rlimit& limit, const std::string_
     }
 }
 
-/// @brief Sets the limit if given a non-zero value, otherwise skips.
-/// @details The implementation should be async signal safe.
-/// @warning This will sysexit if the set is not succesful.
-void setLimit(const int resource, const std::size_t amount, const std::string_view rlimit_name) noexcept(false)
+/// @brief Returns the RLIMIT_* macro name for the given platform resource constant, for use in
+/// log messages only.
+std::string_view rlimitResourceName(const int resource) noexcept
 {
-    if (amount == 0U)
+    switch (resource)
     {
-        return;
+        case RLIMIT_AS:
+            return "RLIMIT_AS";
+        case RLIMIT_CORE:
+            return "RLIMIT_CORE";
+        case RLIMIT_CPU:
+            return "RLIMIT_CPU";
+        case RLIMIT_DATA:
+            return "RLIMIT_DATA";
+        case RLIMIT_FSIZE:
+            return "RLIMIT_FSIZE";
+        case RLIMIT_NOFILE:
+            return "RLIMIT_NOFILE";
+        case RLIMIT_STACK:
+            return "RLIMIT_STACK";
+        default:
+            return "RLIMIT_<unknown>";
     }
-
-    const struct rlimit limit{amount, amount};
-
-    applyLimitOrDie(resource, limit, rlimit_name);
 }
 
 /// @details The implementation should be async signal safe.
@@ -122,25 +134,15 @@ void changeCurrentWorkingDirectory(const score::mw::lifecycle::internal::configu
     }
 }
 
-/// @details The implementation should be async signal safe.
-void implementMemoryResourceLimits(const score::mw::lifecycle::internal::configuration::Sandbox& config)
+// req-Id: comp_req__launch_man__process_rlimit_support
+/// @brief Applies every configured resource limit.
+/// @details The implementation should be async signal safe. Must run before the potential privilege drop in
+/// setSchedulingAndSecurity().
+void applyResourceLimits(const score::mw::lifecycle::internal::configuration::Sandbox& config)
 {
-    if (config.max_memory_usage.has_value())
+    for (const auto& rlimit_config : config.rlimits)
     {
-        setLimit(RLIMIT_DATA, config.max_memory_usage.value(), "RLIMIT_DATA");
-        setLimit(RLIMIT_AS, config.max_memory_usage.value(), "RLIMIT_AS");
-    }
-
-    // Stack limit - not in new config, skip
-    // setLimit(RLIMIT_STACK, 0, "RLIMIT_STACK");
-
-    // Note about cpu limit:
-    // Using setrlimit, this imposes a maximum time that a process will run for, which might not be
-    // what you intend? Probably you'll want a maximum time in a time-slice, but you don't get that
-    // with limits set by setrlimit...
-    if (config.max_cpu_usage.has_value())
-    {
-        setLimit(RLIMIT_CPU, config.max_cpu_usage.value(), "RLIMIT_CPU");
+        applyLimitOrDie(rlimit_config.resource, rlimit_config.limit, rlimitResourceName(rlimit_config.resource));
     }
 }
 
@@ -385,13 +387,14 @@ void ProcessLauncher::handleChildProcess(ChildProcessConfig& param)
 {
     handleComms(param);
 
+    applyResourceLimits(param.config.deployment_config.sandbox);
+
     if (OsalReturnType::kSuccess != setSchedulingAndSecurity(param.config.deployment_config.sandbox))
     {
         sysexit(EXIT_FAILURE);
     }
 
     changeCurrentWorkingDirectory(param.config.deployment_config);
-    implementMemoryResourceLimits(param.config.deployment_config.sandbox);
     changeSecurityPolicy(param.config.deployment_config.sandbox);
 
     // Build argv array - note: must be null-terminated

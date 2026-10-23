@@ -72,7 +72,7 @@ def _daemon_supports_cpu_rt_runtime(request) -> bool:
 @pytest.fixture(scope=determine_target_scope)
 def docker_configuration(request):
     """Grant the container CAP_SYS_NICE so the launch manager can apply the
-    SCHED_FIFO real-time scheduling policy configured in sandbox_options.json.
+    SCHED_FIFO real-time scheduling policy configured in sandbox_options.in.json.
     Without it, sched_setscheduler() fails with 'Operation not permitted'.
 
     On kernels built with CONFIG_RT_GROUP_SCHED (e.g. the WSL2 kernel) running
@@ -123,6 +123,7 @@ def require_realtime_scheduling(request, target):
         "comp_req__launch_man__scheduling_policy",
         "comp_req__launch_man__cwd_support",
         "comp_req__launch_man__supplementary_groups",
+        "comp_req__launch_man__process_rlimit_support",
         "comp_req__launch_man__rc_os_state",
         "comp_req__launch_man__rt_comp_dep",
         "comp_req__launch_man__runmask_support",
@@ -149,7 +150,7 @@ def test_sandbox_options(target, setup_test, assert_test_results, remote_test_di
     )
 
     # sandbox_options_process_a is configured with a custom working directory ("working_dir": "/tmp"
-    # in sandbox_options.json), so its XML result file is written there rather than into
+    # in sandbox_options.in.json), so its XML result file is written there rather than into
     # remote_test_dir. sandbox_options_process_b has no working directory configured and therefore
     # writes into remote_test_dir. Search all relevant directories.
     assert_test_results(
