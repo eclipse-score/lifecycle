@@ -175,11 +175,13 @@ void Graph::updateRunTargetInPlace(RunTarget& run_target, ComponentTaskType task
     // RunTargets are updated in place, no need to queue them on the thread pool.
     if (task_type == ComponentTaskType::kActivate)
     {
-        run_target.activate(stop_source_.get_token());
+        const IComponent::RequestResult result = run_target.activate(stop_source_.get_token());
+        SCORE_LANGUAGE_FUTURECPP_ASSERT(result == IComponent::RequestResult::kSuccess);
     }
     else
     {
-        run_target.deactivate(stop_source_.get_token());
+        const IComponent::RequestResult result = run_target.deactivate(stop_source_.get_token());
+        SCORE_LANGUAGE_FUTURECPP_ASSERT(result == IComponent::RequestResult::kSuccess);
     }
     current_transition_->onNodeFinished(run_target.getIdentifier());
 }
@@ -347,11 +349,11 @@ void Graph::handleComponentEvent(const ComponentEvent& event)
                                << (std::is_same_v<T, ActivationSuccessful> ? std::string_view("activation")
                                                                            : std::string_view("deactivation"))
                                << "successfully";
-                nodeExecuted(data.node_identifier, {});
+                nodeExecuted(data.node_identifier, IComponent::RequestResult::kSuccess);
             }
             else if constexpr (std::is_same_v<T, ActivationFailed>)
             {
-                nodeExecuted(data.node_identifier, score::cpp::make_unexpected(data.reason));
+                nodeExecuted(data.node_identifier, data.reason);
             }
             else if constexpr (std::is_same_v<T, UnexpectedTermination>)
             {
@@ -368,17 +370,17 @@ void Graph::handleComponentEvent(const ComponentEvent& event)
             }
             else if constexpr (std::is_same_v<T, JobSkipped>)
             {
-                nodeExecuted(data.node_identifier, {});
+                nodeExecuted(data.node_identifier, IComponent::RequestResult::kSuccess);
             }
         },
         event);
 }
 
-void Graph::nodeExecuted(IdentifierHash node, score::cpp::expected_blank<IComponent::ComponentError> error)
+void Graph::nodeExecuted(IdentifierHash node, IComponent::RequestResult result)
 {
     bool was_last_in_queue = --jobs_in_progress_ == 0;
 
-    if (!error.has_value())
+    if (result != IComponent::RequestResult::kSuccess)
     {
         setState(GraphState::kAborting);
     }
