@@ -300,42 +300,6 @@ class ConverterTest : public TypeConverterTestBase
 {
 };
 
-TEST_F(ConverterTest, ConvertRestartActionNullReturnsNullopt)
-{
-    RecordProperty("Description", "convertRestartAction with nullptr returns nullopt.");
-    auto result = convertRestartAction(nullptr);
-    ASSERT_THAT(result.has_value(), IsTrue());
-    EXPECT_THAT(result->has_value(), IsFalse());
-}
-
-TEST_F(ConverterTest, ConvertRestartActionValid)
-{
-    RecordProperty("Description", "convertRestartAction with valid fields returns correct values.");
-    ::flatbuffers::FlatBufferBuilder fbb;
-    auto ra = fb::CreateRestartAction(fbb, 3 /*number_of_attempts*/, 1500 /*delay_before_restart_ms*/);
-    fbb.Finish(ra);
-    const auto* ptr = ::flatbuffers::GetRoot<fb::RestartAction>(fbb.GetBufferPointer());
-
-    auto result = convertRestartAction(ptr);
-    ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result->has_value(), IsTrue());
-    EXPECT_THAT(result->value().number_of_attempts, Eq(3U));
-    EXPECT_THAT(result->value().delay_before_restart_ms, Eq(1500U));
-}
-
-TEST_F(ConverterTest, ConvertRestartActionMissingFieldsReturnsError)
-{
-    RecordProperty("Description", "convertRestartAction without required fields returns InvalidFormat.");
-    ::flatbuffers::FlatBufferBuilder fbb;
-    auto ra = fb::CreateRestartAction(fbb);
-    fbb.Finish(ra);
-    const auto* ptr = ::flatbuffers::GetRoot<fb::RestartAction>(fbb.GetBufferPointer());
-
-    auto result = convertRestartAction(ptr);
-    ASSERT_THAT(result.has_value(), IsFalse());
-    EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
-}
-
 TEST_F(ConverterTest, ConvertSwitchRunTargetActionNullReturnsNullopt)
 {
     RecordProperty("Description", "convertSwitchRunTargetAction with nullptr returns nullopt.");
@@ -833,7 +797,8 @@ TEST_F(ConverterTest, ConvertDeploymentConfigValid)
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        0 /*ready_recovery_action*/,
+        0 /*activation_retry_attempts*/,
+        0 /*activation_retry_delay_ms*/,
         0 /*recovery_action*/,
         sandbox);
     fbb.Finish(deploy);
@@ -845,8 +810,112 @@ TEST_F(ConverterTest, ConvertDeploymentConfigValid)
     EXPECT_THAT(result->shutdown_timeout_ms, Eq(2500U));
     EXPECT_THAT(result->executable_path, Eq("/opt/bin/my_binary"));
     EXPECT_THAT(result->working_dir, Eq("/tmp"));
-    EXPECT_THAT(result->ready_recovery_action.has_value(), IsFalse());
+    EXPECT_THAT(result->activation_retry_attempts, Eq(0U));
     EXPECT_THAT(result->recovery_action.has_value(), IsFalse());
+}
+
+TEST_F(ConverterTest, ConvertDeploymentConfigActivationRetryAttemptsCarriedThrough)
+{
+    RecordProperty("Description", "convertDeploymentConfig carries a non-zero activation_retry_attempts through.");
+    ::flatbuffers::FlatBufferBuilder fbb;
+    auto bin_dir = fbb.CreateString("/opt");
+    auto work_dir = fbb.CreateString("/tmp");
+    auto sandbox = buildDefaultSandbox(fbb);
+    auto deploy = fb::CreateDeploymentConfig(
+        fbb,
+        1000 /*ready_timeout_ms*/,
+        1000 /*shutdown_timeout_ms*/,
+        0 /*environmental_variables*/,
+        bin_dir,
+        work_dir,
+        3 /*activation_retry_attempts*/,
+        0 /*activation_retry_delay_ms*/,
+        0 /*recovery_action*/,
+        sandbox);
+    fbb.Finish(deploy);
+    const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
+
+    auto result = convertDeploymentConfig(ptr, "my_binary");
+    ASSERT_THAT(result.has_value(), IsTrue());
+    EXPECT_THAT(result->activation_retry_attempts, Eq(3U));
+}
+
+TEST_F(ConverterTest, ConvertDeploymentConfigMissingActivationRetryAttemptsReturnsError)
+{
+    RecordProperty("Description", "Missing activation_retry_attempts returns InvalidFormat.");
+    ::flatbuffers::FlatBufferBuilder fbb;
+    auto bin_dir = fbb.CreateString("/opt");
+    auto work_dir = fbb.CreateString("/tmp");
+    auto sandbox = buildDefaultSandbox(fbb);
+    auto deploy = fb::CreateDeploymentConfig(
+        fbb,
+        1000 /*ready_timeout_ms*/,
+        1000 /*shutdown_timeout_ms*/,
+        0 /*environmental_variables*/,
+        bin_dir,
+        work_dir,
+        ::flatbuffers::nullopt /*activation_retry_attempts*/,
+        0 /*activation_retry_delay_ms*/,
+        0 /*recovery_action*/,
+        sandbox);
+    fbb.Finish(deploy);
+    const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
+
+    auto result = convertDeploymentConfig(ptr, "my_binary");
+    ASSERT_THAT(result.has_value(), IsFalse());
+    EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
+}
+
+TEST_F(ConverterTest, ConvertDeploymentConfigActivationRetryDelayCarriedThrough)
+{
+    RecordProperty("Description", "convertDeploymentConfig carries a non-zero activation_retry_delay_ms through.");
+    ::flatbuffers::FlatBufferBuilder fbb;
+    auto bin_dir = fbb.CreateString("/opt");
+    auto work_dir = fbb.CreateString("/tmp");
+    auto sandbox = buildDefaultSandbox(fbb);
+    auto deploy = fb::CreateDeploymentConfig(
+        fbb,
+        1000 /*ready_timeout_ms*/,
+        1000 /*shutdown_timeout_ms*/,
+        0 /*environmental_variables*/,
+        bin_dir,
+        work_dir,
+        0 /*activation_retry_attempts*/,
+        250 /*activation_retry_delay_ms*/,
+        0 /*recovery_action*/,
+        sandbox);
+    fbb.Finish(deploy);
+    const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
+
+    auto result = convertDeploymentConfig(ptr, "my_binary");
+    ASSERT_THAT(result.has_value(), IsTrue());
+    EXPECT_THAT(result->activation_retry_delay_ms, Eq(250U));
+}
+
+TEST_F(ConverterTest, ConvertDeploymentConfigMissingActivationRetryDelayReturnsError)
+{
+    RecordProperty("Description", "Missing activation_retry_delay_ms returns InvalidFormat.");
+    ::flatbuffers::FlatBufferBuilder fbb;
+    auto bin_dir = fbb.CreateString("/opt");
+    auto work_dir = fbb.CreateString("/tmp");
+    auto sandbox = buildDefaultSandbox(fbb);
+    auto deploy = fb::CreateDeploymentConfig(
+        fbb,
+        1000 /*ready_timeout_ms*/,
+        1000 /*shutdown_timeout_ms*/,
+        0 /*environmental_variables*/,
+        bin_dir,
+        work_dir,
+        0 /*activation_retry_attempts*/,
+        ::flatbuffers::nullopt /*activation_retry_delay_ms*/,
+        0 /*recovery_action*/,
+        sandbox);
+    fbb.Finish(deploy);
+    const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
+
+    auto result = convertDeploymentConfig(ptr, "my_binary");
+    ASSERT_THAT(result.has_value(), IsFalse());
+    EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
 }
 
 TEST_F(ConverterTest, ConvertDeploymentConfigMissingReadyTimeoutReturnsError)
@@ -863,7 +932,8 @@ TEST_F(ConverterTest, ConvertDeploymentConfigMissingReadyTimeoutReturnsError)
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        0 /*ready_recovery_action*/,
+        0 /*activation_retry_attempts*/,
+        0 /*activation_retry_delay_ms*/,
         0 /*recovery_action*/,
         sandbox);
     fbb.Finish(deploy);
@@ -888,7 +958,8 @@ TEST_F(ConverterTest, ConvertDeploymentConfigMissingShutdownTimeoutReturnsError)
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        0 /*ready_recovery_action*/,
+        0 /*activation_retry_attempts*/,
+        0 /*activation_retry_delay_ms*/,
         0 /*recovery_action*/,
         sandbox);
     fbb.Finish(deploy);
@@ -920,7 +991,8 @@ TEST_F(ConverterTest, ConvertComponentValid)
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        0 /*ready_recovery_action*/,
+        0 /*activation_retry_attempts*/,
+        0 /*activation_retry_delay_ms*/,
         0 /*recovery_action*/,
         sandbox);
 
@@ -961,7 +1033,8 @@ TEST_F(ConverterTest, ConvertComponentsValid)
             0 /*environmental_variables*/,
             bin_dir,
             work_dir,
-            0 /*ready_recovery_action*/,
+            0 /*activation_retry_attempts*/,
+            0 /*activation_retry_delay_ms*/,
             0 /*recovery_action*/,
             sandbox);
         auto comp_name = fbb.CreateString(name);
@@ -1005,7 +1078,8 @@ TEST_F(ConverterTest, ConvertComponentsWithInvalidComponentReturnsError)
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        0 /*ready_recovery_action*/,
+        0 /*activation_retry_attempts*/,
+        0 /*activation_retry_delay_ms*/,
         0 /*recovery_action*/,
         sandbox);
     auto comp_name = fbb.CreateString("BadComp");

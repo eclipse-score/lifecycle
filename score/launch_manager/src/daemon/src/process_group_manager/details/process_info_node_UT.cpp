@@ -96,7 +96,7 @@ class ProcessInfoNodeFixture : public ::testing::Test
         profile.application_type = application_type;
         profile.is_self_terminating = self_terminating;
         config.component_properties.ready_condition = configuration::ReadyCondition{ready_state};
-        config.deployment_config.ready_recovery_action = configuration::RestartAction{restart_attempts, 0U};
+        config.deployment_config.activation_retry_attempts = restart_attempts;
         config.deployment_config.shutdown_timeout_ms = shutdown_timeout_ms_;
         config.deployment_config.ready_timeout_ms = ready_timeout_ms_;
 

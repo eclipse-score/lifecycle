@@ -184,19 +184,13 @@ def test_preprocessing_basic():
 
 def test_preprocessing_non_merging_dicts():
     """
-    Keys like 'ready_recovery_action' and 'recovery_action' must NOT merge defaults
-    with user values -- the user value should completely replace the default.
+    Keys like 'recovery_action' must NOT merge defaults with user values --
+    the user value should completely replace the default.
     """
     config = {
         "schema_version": 1,
         "defaults": {
             "deployment_config": {
-                "ready_recovery_action": {
-                    "restart": {
-                        "number_of_attempts": 100,
-                        "delay_before_restart_ms": 999,
-                    }
-                },
                 "recovery_action": {
                     "restart": {
                         "number_of_attempts": 200,
@@ -209,24 +203,18 @@ def test_preprocessing_non_merging_dicts():
             "c1": {
                 "component_properties": {},
                 "deployment_config": {
-                    "ready_recovery_action": {
-                        "switch_run_target": {"run_target": "fallback_run_target"}
-                    },
                     "recovery_action": {"restart": {"number_of_attempts": 5}},
                 },
             }
         },
     }
     result = preprocess_defaults(score_defaults, config)
-    # ready_recovery_action should NOT contain restart keys -- user replaced it entirely
+    # recovery_action should NOT contain delay_before_restart_ms -- user replaced it entirely
     assert (
-        "restart"
-        not in result["components"]["c1"]["deployment_config"]["ready_recovery_action"]
-    )
-    # recovery_action should NOT contain switch_run_target -- user replaced with restart
-    assert (
-        "switch_run_target"
-        not in result["components"]["c1"]["deployment_config"]["recovery_action"]
+        "delay_before_restart_ms"
+        not in result["components"]["c1"]["deployment_config"]["recovery_action"][
+            "restart"
+        ]
     )
     assert (
         result["components"]["c1"]["deployment_config"]["recovery_action"]["restart"][
@@ -1221,28 +1209,25 @@ def test_gen_config_scheduling_policy_mapping(tmp_path):
         tmp_path.joinpath("test_gen.json").unlink()
 
 
-def test_gen_config_ready_recovery_action(tmp_path):
-    """ready_recovery_action with restart sub-keys should output number_of_attempts and delay_before_restart_ms."""
+def _activation_retry_config(key, defaults_value=None, component_value=None):
+    depl = {
+        "ready_timeout_ms": 1000,
+        "shutdown_timeout_ms": 2000,
+        "bin_dir": "/opt",
+        "sandbox": {"uid": 1000, "gid": 1000},
+    }
+    if component_value is not None:
+        depl[key] = component_value
     config = {
         "schema_version": 1,
         "components": {
-            "c1": {
+            name: {
                 "component_properties": {
                     "application_profile": {"application_type": "REPORTING"}
                 },
-                "deployment_config": {
-                    "ready_timeout_ms": 1000,
-                    "shutdown_timeout_ms": 2000,
-                    "bin_dir": "/opt",
-                    "sandbox": {"uid": 1000, "gid": 1000},
-                    "ready_recovery_action": {
-                        "restart": {
-                            "number_of_attempts": 3,
-                            "delay_before_restart_ms": 5000,
-                        }
-                    },
-                },
+                "deployment_config": dict(depl),
             }
+            for name in ["c1"]
         },
         "run_targets": {"Startup": {}},
         "initial_run_target": "Startup",
@@ -1250,16 +1235,76 @@ def test_gen_config_ready_recovery_action(tmp_path):
         "alive_supervision": {},
         "watchdog": {},
     }
-    gen_config(str(tmp_path), config, "test.json")
+    if defaults_value is not None:
+        config["defaults"] = {"deployment_config": {key: defaults_value}}
+        config["components"]["c2"] = {
+            "component_properties": {
+                "application_profile": {"application_type": "REPORTING"}
+            },
+            "deployment_config": {k: v for k, v in depl.items() if k != key},
+        }
+    return config
 
+
+def _generated_activation_retry(tmp_path, config, key):
+    gen_config(str(tmp_path), config, "test.json")
     with open(tmp_path / "test_gen.json") as f:
         output = json.load(f)
+    return {c["name"]: c["deployment_config"][key] for c in output["components"]}
 
-    assert output["schema_version"] == 1
 
-    rra = output["components"][0]["deployment_config"]["ready_recovery_action"]
-    assert rra["number_of_attempts"] == 3
-    assert rra["delay_before_restart_ms"] == 5000
+@pytest.mark.parametrize(
+    "key", ["activation_retry_attempts", "activation_retry_delay_ms"]
+)
+def test_gen_config_activation_retry_passed_through(tmp_path, key):
+    """An activation_retry_* value set on a component is passed through to the output."""
+    config = _activation_retry_config(key, component_value=3)
+    assert _generated_activation_retry(tmp_path, config, key) == {"c1": 3}
+
+
+@pytest.mark.parametrize(
+    "key", ["activation_retry_attempts", "activation_retry_delay_ms"]
+)
+def test_gen_config_activation_retry_default_zero(tmp_path, key):
+    """An activation_retry_* value absent everywhere results in 0."""
+    config = preprocess_defaults(score_defaults, _activation_retry_config(key))
+    assert _generated_activation_retry(tmp_path, config, key) == {"c1": 0}
+
+
+@pytest.mark.parametrize(
+    "key", ["activation_retry_attempts", "activation_retry_delay_ms"]
+)
+def test_gen_config_activation_retry_inherited_and_overridden(tmp_path, key):
+    """An activation_retry_* value from defaults is inherited, a component value overrides it."""
+    config = _activation_retry_config(key, defaults_value=4, component_value=1)
+    config = preprocess_defaults(score_defaults, config)
+    assert _generated_activation_retry(tmp_path, config, key) == {"c1": 1, "c2": 4}
+
+
+def test_ready_recovery_action_converted_to_activation_retry(tmp_path):
+    """The deprecated ready_recovery_action is converted to both activation_retry_* values."""
+    config = _activation_retry_config("activation_retry_attempts")
+    config["components"]["c1"]["deployment_config"]["ready_recovery_action"] = {
+        "restart": {"number_of_attempts": 5, "delay_before_restart_ms": 250}
+    }
+    config = preprocess_defaults(score_defaults, config)
+    depl = config["components"]["c1"]["deployment_config"]
+    assert "ready_recovery_action" not in depl
+    assert depl["activation_retry_attempts"] == 5
+    assert depl["activation_retry_delay_ms"] == 250
+
+
+def test_ready_recovery_action_does_not_override_activation_retry(tmp_path):
+    """Explicit activation_retry_* values take precedence over ready_recovery_action."""
+    config = _activation_retry_config("activation_retry_attempts", component_value=2)
+    depl = config["components"]["c1"]["deployment_config"]
+    depl["ready_recovery_action"] = {
+        "restart": {"number_of_attempts": 5, "delay_before_restart_ms": 250}
+    }
+    config = preprocess_defaults(score_defaults, config)
+    depl = config["components"]["c1"]["deployment_config"]
+    assert depl["activation_retry_attempts"] == 2
+    assert depl["activation_retry_delay_ms"] == 250
 
 
 ## TODO

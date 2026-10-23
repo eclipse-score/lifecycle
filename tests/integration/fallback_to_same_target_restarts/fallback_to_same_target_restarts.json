@@ -5,11 +5,7 @@
             "bin_dir": "/tmp/tests/fallback_to_same_target_restarts",
             "ready_timeout_ms": 1000,
             "shutdown_timeout_ms": 1000,
-            "ready_recovery_action": {
-                "restart": {
-                    "number_of_attempts": 0
-                }
-            },
+            "activation_retry_attempts": 0,
             "recovery_action": {
                 "switch_run_target": {
                     "run_target": "fallback_run_target"

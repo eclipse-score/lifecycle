@@ -27,12 +27,8 @@ score_defaults = json.loads("""
         "shutdown_timeout_ms": 500,
         "environmental_variables": {},
         "bin_dir": "/opt",
-        "ready_recovery_action": {
-            "restart": {
-                "number_of_attempts": 0,
-                "delay_before_restart_ms": 0
-            }
-        },
+        "activation_retry_attempts": 0,
+        "activation_retry_delay_ms": 0,
         "recovery_action": {
             "switch_run_target": {
                 "run_target": "fallback_run_target"
@@ -94,7 +90,7 @@ def report_warning(message):
 
 # There are various dictionaries in the config where only a single entry is allowed.
 # We do not want to merge the defaults with the user specified values for these dictionaries.
-not_merging_dicts = ["ready_recovery_action", "recovery_action", "ready_condition"]
+not_merging_dicts = ["recovery_action", "ready_condition"]
 
 
 # Defaults for the optional fields of a "file_state" ready condition.
@@ -134,11 +130,64 @@ def apply_file_state_defaults(ready_condition):
     ready_condition["file_state"] = {**merged}
 
 
+def migrate_ready_recovery_action(deployment_config, context):
+    """Convert the deprecated 'ready_recovery_action' into 'activation_retry_attempts'
+    and 'activation_retry_delay_ms'.
+
+    'context' is a human readable location (e.g. "Component 'foo'") used in warnings.
+    Mutates deployment_config in place and removes the deprecated key.
+    """
+    if "ready_recovery_action" not in deployment_config:
+        return
+
+    rra = deployment_config.pop("ready_recovery_action")
+    restart = rra.get("restart", {})
+
+    report_warning(
+        f"{context}: 'ready_recovery_action' is deprecated. "
+        f"Use 'deployment_config.activation_retry_attempts' and "
+        f"'deployment_config.activation_retry_delay_ms' instead."
+    )
+
+    for old_key, new_key in [
+        ("number_of_attempts", "activation_retry_attempts"),
+        ("delay_before_restart_ms", "activation_retry_delay_ms"),
+    ]:
+        if new_key in deployment_config:
+            report_warning(
+                f"{context}: both '{new_key}' and the deprecated "
+                f"'ready_recovery_action' are configured; '{new_key}' "
+                f"({deployment_config[new_key]}) takes precedence."
+            )
+            continue
+
+        value = restart.get(old_key, 0)
+        report_warning(
+            f"{context}: converted 'ready_recovery_action.restart.{old_key}' "
+            f"({value}) to '{new_key}'."
+        )
+        deployment_config[new_key] = value
+
+
 def preprocess_defaults(global_defaults, config):
     """
     This function takes the input configuration and fills in any missing fields with default values.
     The resulting file with have no "defaults" entry anymore, but looks like if the user had specified all the fields explicitly.
     """
+    config = deepcopy(config)
+
+    # Convert the deprecated ready_recovery_action before merging, so the normal
+    # default inheritance rules apply to the resulting activation_retry_* scalars.
+    config_defaults = config.get("defaults", {})
+    if "deployment_config" in config_defaults:
+        migrate_ready_recovery_action(
+            config_defaults["deployment_config"], "defaults.deployment_config"
+        )
+    for component_name, component_config in config.get("components", {}).items():
+        if "deployment_config" in component_config:
+            migrate_ready_recovery_action(
+                component_config["deployment_config"], f"Component '{component_name}'"
+            )
 
     def dict_merge(dict_a, dict_b):
         """
@@ -375,6 +424,8 @@ def gen_config(output_dir, config, input_filename):
             # Default the working directory to bin_dir (the directory the
             # executable lives in) when not set explicitly.
             "working_dir": get_working_dir(depl_cfg),
+            "activation_retry_attempts": depl_cfg.get("activation_retry_attempts", 0),
+            "activation_retry_delay_ms": depl_cfg.get("activation_retry_delay_ms", 0),
             "sandbox": sandbox_out,
         }
 
@@ -383,14 +434,6 @@ def gen_config(output_dir, config, input_filename):
             deployment["environmental_variables"] = [
                 {"key": k, "value": v} for k, v in env_vars.items()
             ]
-
-        if "ready_recovery_action" in depl_cfg:
-            rra = depl_cfg["ready_recovery_action"]
-            restart = rra.get("restart", rra)
-            deployment["ready_recovery_action"] = {
-                "number_of_attempts": restart.get("number_of_attempts", 0),
-                "delay_before_restart_ms": restart.get("delay_before_restart_ms", 0),
-            }
 
         if "recovery_action" in depl_cfg:
             ra = depl_cfg["recovery_action"]
