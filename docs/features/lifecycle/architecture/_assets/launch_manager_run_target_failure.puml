@@ -1,0 +1,115 @@
+' *******************************************************************************
+' Copyright (c) 2026 Contributors to the Eclipse Foundation
+'
+' See the NOTICE file(s) distributed with this work for additional
+' information regarding copyright ownership.
+'
+' This program and the accompanying materials are made available under the
+' terms of the Apache License Version 2.0 which is available at
+' https://www.apache.org/licenses/LICENSE-2.0
+'
+' SPDX-License-Identifier: Apache-2.0
+' *******************************************************************************
+
+@startuml
+title Launch Manager - Run Target Transition Failure
+
+autonumber "<b>[00]"
+
+participant "StateManager" as sm
+participant "Launch Manager" as LM
+participant "OS (kernel)" as kernel
+participant "random" as ran
+participant "app1" as app1
+
+activate LM
+activate sm
+
+note over LM
+Current Run Target: "Minimal"
+Components StateManager and setup_filesystems.sh are Ready.
+end note
+
+=== Transition from "Minimal" to "Running" ==
+
+sm -> LM : Activate Run Target ("Running", forced=False)
+LM --> sm : Request accepted
+LM -> LM : Determine transition plan from "Minimal" -> "Running"
+
+group #White Start random
+    ref over LM, ran
+        Activation of Component random.
+        See Run Target Activation sequence diagrams for details.
+    end ref
+    activate ran
+    LM -> LM : Component random Ready
+end group
+
+group #Pink Start app1
+    loop up to the configured activation attempts for app1
+        LM -> kernel : Start app1
+        kernel -> app1 ++ : Start app1
+        app1 -> app1 : Initialization
+        LM -> LM : Wait for app1 ready condition\n(Process reported 'Running')
+
+        alt #Pink app1 crashes during initialization
+            app1 -> kernel : exit
+        else #Pink app1 does not report Running within the configured ready timeout
+            LM -> app1 : SIGTERM (escalation to SIGKILL after shutdown timeout)
+            app1 -> kernel : exit
+        end alt
+
+        deactivate app1
+        kernel -> LM : app1 terminated with error
+        LM -> LM : Activation attempt for app1 failed
+    end loop
+
+    LM -> LM : All configured activation attempts for app1 exhausted,\nComponent app1 activation failed
+end group
+
+LM -> LM : Transition to Run Target "Running" failed
+LM -> LM : Remove any queued requests (here: none are queued)
+LM -> LM : Determine Run Target Recovery Action configured for Run Target "Running"
+
+
+note over LM
+The only supported Run Target Recovery Action is the activation
+of the Fallback Run Target, here Run Target "Fallback".
+end note
+
+=== Transition to "Fallback" Run Target ==
+
+LM -> LM : Determine transition plan from current state -> "Fallback"
+
+note over LM, app1
+Run Target "Fallback" only depends on Component StateManager, which is already Ready.
+app1 was never activated and therefore stays deactivated.
+random is not part of Run Target "Fallback" and is therefore terminated.
+end note
+
+group #White Deactivate app1
+    note over LM
+        The underlying process for app1 is already in state terminated. No further action required.
+    end note
+    LM -> LM : Mark Component app1 as Terminated
+end group
+
+group #White Stop random
+    LM -> ran : SIGTERM
+    alt random terminates within the configured shutdown timeout
+        ran -> kernel : exit
+        destroy ran
+        kernel -> LM : random terminated successfully
+    else #pink random does not terminate within the configured timeout
+        LM -> ran : SIGKILL
+        ran -> kernel : exit
+        destroy ran
+        kernel -> LM : random terminated with error
+    end alt
+end group
+
+LM -> LM : Run Target "Fallback" successfully activated
+LM -> sm : Invoke callback: Run Target "Fallback" activated\ndue to Run Target Recovery Action
+
+...
+@enduml
