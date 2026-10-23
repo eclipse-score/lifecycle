@@ -17,7 +17,7 @@
 
 #include "score/mw/lifecycle/application.h"
 #include "score/mw/lifecycle/runapplication.h"
-#include "tests/utils/test_helper/test_helper.hpp"
+#include "tests/utils/test_helper/test_runner.hpp"
 
 /// @file  complex_reporting_process.cpp
 /// @brief Monitored test process using mw::lifecycle (score::mw::lifecycle::Application /
@@ -65,5 +65,6 @@ int main(int argc, char** argv)
     g_argc = argc;
     g_argv = argv;
 
-    return TestRunner(__FILE__, TerminationBehavior::kContinue).RunTests();
+    TestRunner::Init();
+    return TestRunner::RunTests();
 }

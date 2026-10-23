@@ -14,6 +14,7 @@
 
 #include "common.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
+#include "tests/utils/test_helper/test_runner.hpp"
 #include <score/mw/lifecycle/report_running.h>
 
 TEST(ComponentA, RunAndVerify)
@@ -27,10 +28,7 @@ TEST(ComponentA, RunAndVerify)
     {
         EXPECT_TRUE(std::filesystem::exists(b_started)) << "Process B, depended on by process A, was not started!";
     }
-    while (!TestRunner::exitRequested)
-    {
-        pause();
-    }
+    TestRunner::WaitForTermination();
     TEST_STEP("Verify termination order")
     {
         EXPECT_FALSE(std::filesystem::exists(b_terminating))
@@ -41,5 +39,6 @@ TEST(ComponentA, RunAndVerify)
 
 int main()
 {
-    return TestRunner(__FILE__).RunTests();
+    TestRunner::Init();
+    return TestRunner::RunTests();
 }

@@ -14,7 +14,7 @@
 #include <cstdlib>
 #include <string>
 
-#include "tests/utils/test_helper/test_helper.hpp"
+#include "tests/utils/test_helper/test_runner.hpp"
 #include <score/mw/lifecycle/report_running.h>
 
 TEST(ReportingProcess, ReportsRunning)
@@ -27,5 +27,8 @@ int main()
     // Prevent XML file naming collisions of different components running this binary
     const char* process_id = std::getenv("PROCESSIDENTIFIER");
     const std::string xml_name = process_id ? (std::string{"reporting_process_"} + process_id) : __FILE__;
-    return TestRunner(xml_name).RunTests();
+    TestRunner::Init(xml_name.c_str());
+    const auto result = TestRunner::RunTests();
+    TestRunner::WaitForTermination();
+    return result;
 }

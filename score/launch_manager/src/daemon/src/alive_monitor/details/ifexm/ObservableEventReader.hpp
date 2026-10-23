@@ -16,6 +16,7 @@
 
 #include <map>
 
+#include "score/mw/launch_manager/alive_monitor/details/ifexm/IObservableEventReader.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/ObservableEvent.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ifexm/supervision_event.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/timers/Timers_OsClock.hpp"
@@ -28,7 +29,7 @@ namespace score::mw::lifecycle::internal::saf::ifexm
 /// @brief Observable Event reader
 /// @details The Observable Event reader fetches supervision events via the lcm library and distributes
 /// the information to the Observable Event classes.
-class ObservableEventReader
+class ObservableEventReader final : public IObservableEventReader
 {
   public:
     /// @brief Constructor
@@ -51,17 +52,18 @@ class ObservableEventReader
     /// @param [in]  f_processState_r   Process state to be registered
     /// @param [in]  f_processId        Process ID
     /// @return     true (registered), false (not registered)
-    bool registerObservableEvent(ObservableEvent& f_processState_r, const IdentifierHash f_processId) noexcept(false);
+    bool registerObservableEvent(ObservableEvent& f_processState_r, const IdentifierHash f_processId) noexcept(
+        false) override;
 
     /// @brief Deregister observable events from reader
     /// @param [in]  f_processId        Process ID to deregister the particular process
-    void deregisterObservableEvent(const IdentifierHash f_processId) noexcept;
+    void deregisterObservableEvent(const IdentifierHash f_processId) noexcept override;
 
     /// @brief Distribute changes
     /// @details Distribute supervision events to the registered Observable Event classes
     /// @param [in] f_syncTimestamp   Timestamp for cyclic synchronization
     /// @return     true (successful distribution), false (failed distribution)
-    bool distributeChanges(const std::chrono::nanoseconds f_syncTimestamp) noexcept;
+    bool distributeChanges(const std::chrono::nanoseconds f_syncTimestamp) noexcept override;
 
   private:
     /// @brief Push update for changed registered process
