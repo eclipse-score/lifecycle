@@ -446,6 +446,7 @@ lm_cc_test(
         "//score/launch_manager/src/daemon/src/alive_monitor:mock_supervision_factory",
         "//score/launch_manager/src/daemon/src/configuration:config",
         "//score/launch_manager/src/daemon/src/process_group_manager",
+        "//score/launch_manager/src/daemon/src/process_group_manager:mock_iprocess",
         "//score/launch_manager/src/daemon/src/recovery_client:mock_recovery_client",
         "//score/launch_manager/src/daemon/src/watchdog:mock_i_watchdog_if",
         "@googletest//:gtest_main",
