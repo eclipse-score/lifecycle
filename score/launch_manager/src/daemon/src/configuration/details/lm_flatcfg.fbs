@@ -110,6 +110,28 @@ table EnvironmentalVariable {
   value:string (required);
 }
 
+// Resource-limit selector. These values deliberately do NOT match the platform's 
+// RLIMIT_* constants, because they differ between QNX and Linux.
+//
+// Members are prefixed with POSIX_ because they name the seven resource limits
+// specified by POSIX.1.
+enum RlimitResource : ubyte {
+  POSIX_RLIMIT_AS = 0,
+  POSIX_RLIMIT_CORE = 1,
+  POSIX_RLIMIT_CPU = 2,
+  POSIX_RLIMIT_DATA = 3,
+  POSIX_RLIMIT_FSIZE = 4,
+  POSIX_RLIMIT_NOFILE = 5,
+  POSIX_RLIMIT_STACK = 6,
+}
+
+// A soft/hard pair for one rlimit resource
+table Rlimit {
+  resource:RlimitResource = null; // required
+  soft:uint64 = null; // required
+  hard:uint64 = null; // required
+}
+
 // Defines sandbox configuration parameters that isolate and constrain component execution.
 table Sandbox {
   // POSIX user ID (UID) under which the component executes.
@@ -124,10 +146,16 @@ table Sandbox {
   scheduling_policy:SchedulingPolicy = null; // required
   // Scheduling priority for the component's initial thread.
   scheduling_priority:int32 = null; // required
+
+  // to be removed - only here for compatibility but values will be ignored
   // Maximum memory in bytes the component is permitted to use.
   max_memory_usage:uint64 = null; // optional
   // Maximum CPU usage as a percentage of total CPU capacity.
   max_cpu_usage:uint32 = null; // optional
+  // ----
+
+  // Resource limits to apply to the component before exec.
+  rlimits:[Rlimit]; // optional
   // Affinity mask defining on which CPU cores the process may be scheduled.
   affinity_mask:uint64 = null; // optional
 }
