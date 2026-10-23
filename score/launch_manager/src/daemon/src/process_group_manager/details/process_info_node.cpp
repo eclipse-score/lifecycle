@@ -19,6 +19,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 #include <score/assert.hpp>
 #include <unistd.h>
+#include <cstdint>
 #include <cstring>
 
 namespace score::mw::lifecycle::internal
@@ -35,7 +36,7 @@ ProcessInfoNode::ProcessInfoNode(configuration::ComponentConfig&& config, Proces
 {
     if (config_.deployment_config.ready_recovery_action.has_value())
     {
-        start_tries_ = config_.deployment_config.ready_recovery_action->number_of_attempts + 1;
+        start_retries_ = config_.deployment_config.ready_recovery_action->number_of_attempts;
     }
 
     const configuration::ApplicationProfile& app_profile = config_.component_properties.application_profile;
@@ -242,7 +243,7 @@ IComponent::RequestResult ProcessInfoNode::startProcess(score::cpp::stop_token s
     std::optional<ComponentError> error;
     const std::chrono::time_point initial_time = std::chrono::steady_clock::now();
 
-    for (std::uint8_t attempts = start_tries_; attempts != 0U; attempts--)
+    for (std::uint16_t attempts = 0U; attempts <= start_retries_; attempts++)
     {
         // setState(kIdle) will fail if the state is:
         // - Starting: this would mean we did not set state to kFailed on failure or exit when we successfully launched

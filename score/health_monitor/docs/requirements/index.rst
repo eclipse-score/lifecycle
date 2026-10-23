@@ -1,6 +1,6 @@
 ..
    # *******************************************************************************
-   # Copyright (c) 2025 Contributors to the Eclipse Foundation
+   # Copyright (c) 2026 Contributors to the Eclipse Foundation
    #
    # See the NOTICE file(s) distributed with this work for additional
    # information regarding copyright ownership.
@@ -12,62 +12,10 @@
    # SPDX-License-Identifier: Apache-2.0
    # *******************************************************************************
 
-.. _component_health_monitor_requirements:
-
 Requirements
 ############
 
-.. document:: HealthMonitor Requirements
-   :id: doc__health_monitor_requirements
-   :status: draft
-   :version: 1
-   :safety: ASIL_B
-   :security: NO
-   :realizes: wp__requirements_feat[version==1]
-   :tags: template
+.. toctree::
 
-.. attention::
-    The above directive must be updated according to your Feature.
-
-    - Modify ``Your Feature Name`` to be your Feature Name
-    - Modify ``id`` to be your Feature Name in upper snake case preceded by ``doc__`` and followed by ``_requirements``
-    - Adjust ``status`` to be ``valid``
-    - Adjust ``safety`` and ``tags`` according to your needs
-
-<Headlines (for the list of requirements if structuring is needed)>
-===================================================================
-
-.. comp_req:: Dummy Component
-   :id: comp_req__health_monitor__dummy
-   :reqtype: Process
-   :security: YES
-   :safety: ASIL_B
-   :derived_from: feat_req__lifecycle__launch_support
-   :satisfied_by: comp__health_monitor
-   :status: valid
-   :version: 1
-
-    .. note:: This is a dummy component requirement. See https://github.com/eclipse-score/lifecycle/issues/366 for more information.
-
-    .. note:: This is linked to an arbitrary feature requirement to avoid metamodel errors. Fix link when writing down component requirements.
-
-
-.. aou_req:: Dummy AoU
-   :id: aou_req__health_monitor__dummy
-   :reqtype: Process
-   :security: YES
-   :safety: ASIL_B
-   :status: valid
-   :version: 1
-
-    .. note:: This is a dummy AoU requirement. See https://github.com/eclipse-score/lifecycle/issues/366 for more information.
-
-.. attention::
-    The above directives must be updated according to your feature requirements.
-
-    - Replace the example content by the real content for your first requirement (according to :need:`gd_guidl__req_engineering`)
-    - Set the status to valid and start the review/merge process
-    - Add other needed requirements for your feature
-
-.. needextend:: c.this_doc() and is_external == False and "__health_monitor__" in id
-   :+tags: lifecycle, health_monitor
+   requirements
+   chklst_req_inspection

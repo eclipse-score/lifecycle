@@ -35,6 +35,7 @@ cc_library(
     include_prefix = "score/mw/launch_manager/common",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/common",
     visibility = ["//score:__subpackages__"],
+    deps = ["@score_baselibs//score/language/futurecpp"],
 )
 
 lm_cc_test(

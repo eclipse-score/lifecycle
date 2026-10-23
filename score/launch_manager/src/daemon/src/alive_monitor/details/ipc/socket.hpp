@@ -65,7 +65,7 @@ class Socket
             }
         }
 
-        fd_ = shm_open(name_.c_str(), O_CREAT | O_RDWR | O_CLOEXEC, mode);
+        fd_ = shm_open(name_.c_str(), O_CREAT | O_EXCL | O_RDWR | O_CLOEXEC, mode);
         if (fd_ < 0)
         {
             if (errno == EACCES)

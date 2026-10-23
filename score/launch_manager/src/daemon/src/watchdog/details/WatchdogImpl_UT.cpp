@@ -456,8 +456,8 @@ INSTANTIATE_TEST_SUITE_P(
             "EnablecardFails",
             "enable() fails when the WDIOS_ENABLECARD ioctl fails.",
             EnableStep::kSetOptions}),
-    [](const ::testing::TestParamInfo<EnableFailureCase>& info) {
-        return info.param.name;
+    [](const ::testing::TestParamInfo<EnableFailureCase>& param_info) {
+        return param_info.param.name;
     });
 
 TEST_F(WatchdogImplTest, WdgEnable_FailsIfTimeoutValueIsAltered)

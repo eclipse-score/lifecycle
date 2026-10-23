@@ -103,8 +103,8 @@ INSTANTIATE_TEST_SUITE_P(
             fb::ApplicationType::State_Manager,
             ApplicationType::ReportingAndSupervised,
             "StateManager"}),
-    [](const ::testing::TestParamInfo<ApplicationTypeTestParam>& info) {
-        return info.param.name;
+    [](const ::testing::TestParamInfo<ApplicationTypeTestParam>& param_info) {
+        return param_info.param.name;
     });
 
 struct ProcessStateTestParam
@@ -131,8 +131,8 @@ INSTANTIATE_TEST_SUITE_P(
     ::testing::Values(
         ProcessStateTestParam{fb::ProcessState::Running, ProcessState::Running, "Running"},
         ProcessStateTestParam{fb::ProcessState::Terminated, ProcessState::Terminated, "Terminated"}),
-    [](const ::testing::TestParamInfo<ProcessStateTestParam>& info) {
-        return info.param.name;
+    [](const ::testing::TestParamInfo<ProcessStateTestParam>& param_info) {
+        return param_info.param.name;
     });
 
 struct SchedulingPolicyTestParam
@@ -163,8 +163,8 @@ INSTANTIATE_TEST_SUITE_P(
         SchedulingPolicyTestParam{fb::SchedulingPolicy::OTHER, SCHED_OTHER, "SCHED_OTHER"},
         SchedulingPolicyTestParam{fb::SchedulingPolicy::FIFO, SCHED_FIFO, "SCHED_FIFO"},
         SchedulingPolicyTestParam{fb::SchedulingPolicy::RR, SCHED_RR, "SCHED_RR"}),
-    [](const ::testing::TestParamInfo<SchedulingPolicyTestParam>& info) {
-        return info.param.name;
+    [](const ::testing::TestParamInfo<SchedulingPolicyTestParam>& param_info) {
+        return param_info.param.name;
     });
 
 TEST_F(EnumConversionTest, ConvertSchedulingPolicyUnsupported)

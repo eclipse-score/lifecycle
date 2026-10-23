@@ -34,6 +34,7 @@ cc_library(
     deps = [
         "//score/launch_manager:error",
         "//score/launch_manager/src/daemon/src/common:log",
+        "@score_baselibs//score/concurrency:condition_variable",
         "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/language/safecpp/scoped_function:copyable_scoped_function",
         "@score_baselibs//score/language/safecpp/scoped_function:scope",

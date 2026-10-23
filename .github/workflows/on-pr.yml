@@ -144,6 +144,15 @@ jobs:
     with:
       bazel-docs-verify-target: "--lockfile_mode=error //:docs_check"
 
+  docs-link-check:
+    name: Check links in documentation
+    uses: eclipse-score/cicd-workflows/.github/workflows/docs-verify.yml@8d80e8df150cae21d53cbc8031d0f970648f7a67 # v0.0.3
+    permissions:
+      pull-requests: write
+      contents: read
+    with:
+      bazel-docs-verify-target: "--lockfile_mode=error //:docs_link_check"
+
   docs-build:
     name: Build documentation
     needs:
@@ -185,6 +194,7 @@ jobs:
       - common
       - build
       - docs-check
+      - docs-link-check
       - docs-build
       - clippy
       - coverage

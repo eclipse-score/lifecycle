@@ -134,8 +134,7 @@ class BasicControlProvider
         {
             LM_LOG_ERROR() << "Activation request failed: queued activation is not yet implemented";
 
-            response =
-            ActivateRunTargetResponse{status : RequestStatus::kRejected, rejection_reason : ExecErrc::kNotImplemented};
+            response = ActivateRunTargetResponse{RequestStatus::kRejected, ExecErrc::kNotImplemented};
             return;
         }
 
@@ -144,10 +143,7 @@ class BasicControlProvider
         {
             LM_LOG_ERROR() << "Activation request failed: Run Target" << request.run_target_name << "does not exist";
 
-            response = ActivateRunTargetResponse{
-                status : RequestStatus::kRejected,
-                rejection_reason : ExecErrc::kRunTargetDoesntExist
-            };
+            response = ActivateRunTargetResponse{RequestStatus::kRejected, ExecErrc::kRunTargetDoesntExist};
             return;
         }
 
@@ -156,14 +152,11 @@ class BasicControlProvider
         {
             LM_LOG_ERROR() << "Activation request failed:" << result.error().Message();
 
-            response = ActivateRunTargetResponse{
-                status : RequestStatus::kRejected,
-                rejection_reason : static_cast<ExecErrc>(*result.error())
-            };
+            response = ActivateRunTargetResponse{RequestStatus::kRejected, static_cast<ExecErrc>(*result.error())};
             return;
         }
 
-        response = ActivateRunTargetResponse{status : RequestStatus::kAccepted};
+        response = ActivateRunTargetResponse{RequestStatus::kAccepted};
     }
 
     /// @brief Register the handler for get_active_run_target.
@@ -193,13 +186,13 @@ class BasicControlProvider
                 static_cast<ExecErrc>(*result.error()) == ExecErrc::kActivationInProgress,
                 "Impossible to communicate errors other than ExecErrc::kActivationInProgress to the client");
 
-            response = GetActiveRunTargetResponse{status : QueryStatus::kNotAvailable, run_target : RunTargetName("")};
+            response = GetActiveRunTargetResponse{QueryStatus::kNotAvailable, RunTargetName("")};
             return;
         }
 
         const RunTargetName run_target{result.value().get_name()};
 
-        response = GetActiveRunTargetResponse{status : QueryStatus::kAvailable, run_target};
+        response = GetActiveRunTargetResponse{QueryStatus::kAvailable, run_target};
     }
 
     /// @brief Register the handler for activation_result.
@@ -260,8 +253,8 @@ class BasicControlProvider
                     if (flags != -1)
                     {
                         flags |= FD_CLOEXEC;
-                        const auto result = fcntl(fd, F_SETFD, flags);
-                        if (result == -1)
+                        const auto fcntl_result = fcntl(fd, F_SETFD, flags);
+                        if (fcntl_result == -1)
                         {
                             LM_LOG_ERROR() << "fcntl F_SETFD failed for fd number:" << fd;
                         }

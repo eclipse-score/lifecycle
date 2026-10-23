@@ -11,21 +11,27 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include <cerrno>
 #include <chrono>
-#include <thread>
+#include <ctime>
 
 #include "score/mw/launch_manager/osal/semaphore.hpp"
+#include "score/os/errno.h"
+#include "score/os/semaphore.h"
 
 namespace score::mw::lifecycle::internal::osal
 {
 
+namespace
+{
+constexpr long kNanosecondsPerSecond = 1000000000L;
+}  // namespace
+
 OsalReturnType Semaphore::init(uint32_t value, bool shared)
 {
     OsalReturnType result = OsalReturnType::kFail;
-    int pshared = shared ? 1 : 0;
+    const std::int32_t pshared = shared ? 1 : 0;
 
-    if (sem_init(&sem_, pshared, value) == 0)
+    if (score::os::Semaphore::instance().sem_init(&sem_, pshared, value).has_value())
     {
         result = OsalReturnType::kSuccess;
     }
@@ -37,6 +43,7 @@ OsalReturnType Semaphore::deinit()
 {
     OsalReturnType result = OsalReturnType::kFail;
 
+    // score::os::Semaphore does not provide a wrapper for sem_destroy
     if (sem_destroy(&sem_) == 0)
     {
         result = OsalReturnType::kSuccess;
@@ -47,45 +54,52 @@ OsalReturnType Semaphore::deinit()
 
 OsalReturnType Semaphore::timedWait(std::chrono::milliseconds delay)
 {
-    // Cannot use sem_timedwait because it relies on the absolute time of
-    // the system clock, which is not monotonic and could be changed
-    // by another thread.
+    // sem_timedwait_monotonic measures the absolute timeout against CLOCK_MONOTONIC,
+    // so the wait is not affected by changes to the system clock.
+    struct timespec deadline{};
+    if (clock_gettime(CLOCK_MONOTONIC, &deadline) != 0)
+    {
+        return OsalReturnType::kFail;
+    }
 
-    // To minimise busy time, the resolution of the timer is set at 2 ms.
-    const auto resolution = std::chrono::milliseconds(2U);
-
-    // Calculate when the timeout will be reached. This avoids accumulating
-    // errors because `sleep_for` may block for longer than requested.
-    const auto deadline = std::chrono::steady_clock::now() + delay;
+    const auto secs = std::chrono::duration_cast<std::chrono::seconds>(delay);
+    const auto nsecs = std::chrono::duration_cast<std::chrono::nanoseconds>(delay - secs);
+    deadline.tv_sec += static_cast<time_t>(secs.count());
+    deadline.tv_nsec += static_cast<long>(nsecs.count());
+    if (deadline.tv_nsec >= kNanosecondsPerSecond)
+    {
+        deadline.tv_sec += 1;
+        deadline.tv_nsec -= kNanosecondsPerSecond;
+    }
 
     while (true)
     {
-        if (sem_trywait(&sem_) == 0)
-            return OsalReturnType::kSuccess;
-
-        switch (errno)
+        const auto wait_result = score::os::Semaphore::instance().sem_timedwait_monotonic(&sem_, &deadline);
+        if (wait_result.has_value())
         {
-            case (EINTR):
-                continue;
-
-            case (EAGAIN):
-                if (std::chrono::steady_clock::now() >= deadline)
-                    return OsalReturnType::kTimeout;
-
-                std::this_thread::sleep_for(resolution);
-                continue;
-
-            default:
-                return osal::OsalReturnType::kFail;
+            return OsalReturnType::kSuccess;
         }
-    };
+
+        // The deadline is absolute, so retrying after a signal does not extend the wait.
+        if (wait_result.error() == score::os::Error::Code::kOperationWasInterruptedBySignal)
+        {
+            continue;
+        }
+
+        if (wait_result.error() == score::os::Error::Code::kKernelTimeout)
+        {
+            return OsalReturnType::kTimeout;
+        }
+
+        return OsalReturnType::kFail;
+    }
 }
 
 OsalReturnType Semaphore::post()
 {
     OsalReturnType result = OsalReturnType::kFail;
 
-    if (sem_post(&sem_) == 0)
+    if (score::os::Semaphore::instance().sem_post(&sem_).has_value())
     {
         result = OsalReturnType::kSuccess;
     }
@@ -97,7 +111,7 @@ OsalReturnType Semaphore::wait()
 {
     OsalReturnType result = OsalReturnType::kFail;
 
-    if (sem_wait(&sem_) == 0)
+    if (score::os::Semaphore::instance().sem_wait(&sem_).has_value())
     {
         result = OsalReturnType::kSuccess;
     }
