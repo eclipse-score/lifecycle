@@ -35,13 +35,7 @@ bazel_dep(name = "google_benchmark", version = "1.9.5", dev_dependency = True)
 
 # S-CORE process rules
 
-bazel_dep(name = "score_docs_as_code", version = "8.4.0")
-git_override(
-    module_name = "score_docs_as_code",
-    commit = "49bb453d8c4f35759d22ebe0390a01a4d5c62f27",
-    remote = "https://github.com/eclipse-score/docs-as-code.git",
-)
-
+bazel_dep(name = "score_docs_as_code", version = "8.5.1")
 bazel_dep(name = "score_tooling", version = "2.2.1")
 
 bazel_dep(name = "score_rust_policies", version = "0.0.5", dev_dependency = True)
