@@ -1,0 +1,77 @@
+{
+  "global": {
+    "asil-level": "B",
+    "queue-size": {
+      "B-receiver": 10
+    }
+  },
+  "serviceInstances": [
+    {
+      "instanceSpecifier": "StateManager/LaunchManager/Instance",
+      "instances": [
+        {
+          "allowedProvider": {
+            "B": [
+              3020
+            ]
+          },
+          "asil-level": "B",
+          "binding": "SHM",
+          "events": [
+            {
+              "eventName": "ActivationResult"
+            }
+          ],
+          "instanceId": 1,
+          "methods": [
+            {
+              "methodName": "ActivateRunTarget",
+              "queueSize": 1
+            },
+            {
+              "methodName": "GetActiveRunTarget",
+              "queueSize": 1
+            }
+          ],
+          "permission-checks": "strict"
+        }
+      ],
+      "serviceTypeName": "/score/mw/lifecycle/LmControlService",
+      "version": {
+        "major": 1,
+        "minor": 0
+      }
+    }
+  ],
+  "serviceTypes": [
+    {
+      "bindings": [
+        {
+          "binding": "SHM",
+          "events": [
+            {
+              "eventId": 1,
+              "eventName": "ActivationResult"
+            }
+          ],
+          "methods": [
+            {
+              "methodId": 2,
+              "methodName": "ActivateRunTarget"
+            },
+            {
+              "methodId": 3,
+              "methodName": "GetActiveRunTarget"
+            }
+          ],
+          "serviceId": 7101
+        }
+      ],
+      "serviceTypeName": "/score/mw/lifecycle/LmControlService",
+      "version": {
+        "major": 1,
+        "minor": 0
+      }
+    }
+  ]
+}

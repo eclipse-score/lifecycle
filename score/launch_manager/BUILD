@@ -16,6 +16,13 @@ load("//tests/utils/bazel:unit_test.bzl", "lm_cc_test")
 
 package(default_visibility = ["//visibility:public"])
 
+# Both QM endpoints: a starting point, not a production deployment decision.
+alias(
+    name = "mw_com_config",
+    actual = "//config:mw_com_config.json",
+    visibility = ["//visibility:public"],
+)
+
 alias(
     name = "launch_manager_schema",
     actual = "//score/launch_manager/src/daemon/src/configuration/config_schema:launch_manager.schema.json",
