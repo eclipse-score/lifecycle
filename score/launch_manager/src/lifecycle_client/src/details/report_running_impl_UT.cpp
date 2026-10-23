@@ -13,6 +13,7 @@
 
 #include "score/mw/lifecycle/execution_error.h"
 #include "score/mw/lifecycle/lifecycle_client/details/report_running_impl.hpp"
+#include "score/os/mocklib/semaphoremock.h"
 #include "tests/utils/accessors/accessor_report_running_impl.hpp"
 #include "tests/utils/mocks/mock_syscalls.hpp"
 
@@ -45,6 +46,13 @@ void* CreateFakeIpcComms(CommsType comms_type, pid_t pid)
     fake_comms->comms_type_ = comms_type;
 
     return g_fake_ipc_storage;
+}
+
+const score::cpp::expected_blank<score::os::Error> kSemSuccess{};
+
+score::cpp::expected_blank<score::os::Error> SemError(std::int32_t err)
+{
+    return score::cpp::make_unexpected(score::os::Error::createFromErrno(err));
 }
 
 }  // anonymous namespace
@@ -97,10 +105,10 @@ class ReportRunningImplTest : public ::testing::Test
             }));
 
         // By default, sem_post() (backing Semaphore::post()) succeeds
-        EXPECT_CALL(*g_syscall_mock, sem_post(_)).WillRepeatedly(Return(0));
+        EXPECT_CALL(*semaphore_mock_, sem_post(_)).WillRepeatedly(Return(kSemSuccess));
 
-        // By default, sem_trywait() (backing Semaphore::timedWait()) succeeds immediately
-        EXPECT_CALL(*g_syscall_mock, sem_trywait(_)).WillRepeatedly(Return(0));
+        // By default, sem_timedwait_monotonic() (backing Semaphore::timedWait()) succeeds immediately
+        EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic(_, _)).WillRepeatedly(Return(kSemSuccess));
     }
 
     static struct stat CreateValidStat()
@@ -110,6 +118,8 @@ class ReportRunningImplTest : public ::testing::Test
         st.st_size = sizeof(IpcCommsSync);
         return st;
     }
+
+    score::os::MockGuard<score::os::SemaphoreMock, score::os::Semaphore> semaphore_mock_;
 };
 
 /****************************************
@@ -390,7 +400,7 @@ TEST_F(ReportRunningImplTest, GivenReportRunningImplInstance_ExpectPostFails_Whe
     ReportRunningImpl impl;
 
     // Expect
-    EXPECT_CALL(*g_syscall_mock, sem_post(_)).WillOnce(Return(-1));
+    EXPECT_CALL(*semaphore_mock_, sem_post(_)).WillOnce(Return(SemError(EINVAL)));
 
     // When
     auto result = impl.ReportRunningState();
@@ -416,8 +426,9 @@ TEST_F(
     ReportRunningImpl impl;
 
     // Expect
-    // sem_trywait() fails with an errno other than EINTR/EAGAIN, so Semaphore::timedWait() returns kFail immediately.
-    EXPECT_CALL(*g_syscall_mock, sem_trywait(_)).WillOnce(SetErrnoAndReturn(EINVAL, -1));
+    // sem_timedwait_monotonic() fails with an error other than EINTR/ETIMEDOUT, so Semaphore::timedWait() returns
+    // kFail immediately.
+    EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic(_, _)).WillOnce(Return(SemError(EINVAL)));
 
     // When
     auto result = impl.ReportRunningState();
@@ -442,7 +453,7 @@ TEST_F(ReportRunningImplTest, GivenFinalPostFails_WhenPostReturnsKFail_ThenRetur
 
     // Expect
     // First sem_post() call (send_sync_.post()) succeeds; second call (the final synchronization post) fails.
-    EXPECT_CALL(*g_syscall_mock, sem_post(_)).WillOnce(Return(0)).WillOnce(Return(-1));
+    EXPECT_CALL(*semaphore_mock_, sem_post(_)).WillOnce(Return(kSemSuccess)).WillOnce(Return(SemError(EINVAL)));
 
     // When
     auto result = impl.ReportRunningState();

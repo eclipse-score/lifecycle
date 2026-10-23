@@ -13,6 +13,8 @@
 
 #include "score/mw/launch_manager/process_group_manager/details/os_handler.hpp"
 
+#include <sys/wait.h>
+
 namespace score::mw::lifecycle::internal
 {
 
@@ -21,23 +23,37 @@ void OsHandler::run(void)
     while (is_running_)
     {
         int32_t wait_status = 0;
-        auto result = sys_wait_.wait(&wait_status);
+        const auto result = sys_wait_.wait(&wait_status);
 
-        if (result.has_value() && result.value() > 0)
-        {
-            if (score::mw::lifecycle::internal::SafeProcessMapReturnType::kInsertionError ==
-                safe_process_map_.findTerminated(result.value(), wait_status))
-            {
-                LM_LOG_ERROR() << "No more resources available to track process with PID" << result.value()
-                               << "(SafeProcessMap capacity exceeded).";
-            }
-        }
-        else
+        if (!result.has_value() || (result.value() <= 0))
         {
             // This process has no children to wait for at present,
             // or the wait was interrupted by a signal.
             // Wait a while to stop this thread from hogging cpu time
             std::this_thread::sleep_for(OS_HANDLER_LOOP_DELAY);
+            continue;
+        }
+
+        if (WIFSTOPPED(wait_status) || WIFCONTINUED(wait_status))
+        {
+            // Child was stopped or continues, not terminated. Nothing to do.
+            continue;
+        }
+
+        if (WIFEXITED(wait_status))
+        {
+            LM_LOG_DEBUG() << "PID" << result.value() << "exited with exit code" << WEXITSTATUS(wait_status);
+        }
+        else if (WIFSIGNALED(wait_status))
+        {
+            LM_LOG_DEBUG() << "PID" << result.value() << "was killed by signal" << WTERMSIG(wait_status);
+        }
+
+        if (score::mw::lifecycle::internal::SafeProcessMapReturnType::kInsertionError ==
+            safe_process_map_.findTerminated(result.value(), wait_status))
+        {
+            LM_LOG_ERROR() << "No more resources available to track process with PID" << result.value()
+                           << "(SafeProcessMap capacity exceeded).";
         }
     }
 }

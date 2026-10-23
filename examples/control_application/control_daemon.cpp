@@ -17,7 +17,7 @@
 #include <thread>
 
 #include "control.hpp"
-#include "ipc_dropin/socket.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ipc/socket.hpp"
 #include <score/mw/lifecycle/ilm_control.hpp>
 #include <score/mw/lifecycle/report_running.h>
 
@@ -34,8 +34,10 @@ int main()
 
     score::mw::lifecycle::report_running();
 
-    ipc_dropin::Socket<static_cast<size_t>(sizeof(RunTargetInfo)), control_socket_capacity> sm_control_socket{};
-    if (sm_control_socket.create(control_socket_path, 600) != ipc_dropin::ReturnCode::kOk)
+    score::mw::lifecycle::internal::saf::ipc::
+        Socket<static_cast<size_t>(sizeof(RunTargetInfo)), control_socket_capacity>
+            sm_control_socket{};
+    if (sm_control_socket.create(control_socket_path, 600) != score::mw::lifecycle::internal::saf::ipc::ReturnCode::kOk)
     {
         std::cerr << "Could not create control socket" << std::endl;
         return EXIT_FAILURE;
@@ -55,7 +57,7 @@ int main()
     while (!exitRequested)
     {
         RunTargetInfo info{};
-        if (ipc_dropin::ReturnCode::kOk == sm_control_socket.tryReceive(info))
+        if (score::mw::lifecycle::internal::saf::ipc::ReturnCode::kOk == sm_control_socket.tryReceive(info))
         {
 
             std::string runTargetName{info.runTargetName};

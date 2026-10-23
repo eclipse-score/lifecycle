@@ -231,6 +231,12 @@ bool parse_arguments(int argc, char** argv, ExpectedValues& out)
         }
     }
 
+    // Ensure that, if we configure a process without any supplementary groups, it is launched without any
+    if (!out.supplementary_groups.has_value())
+    {
+        out.supplementary_groups = std::vector<gid_t>{};
+    }
+
     return all_recognized;
 }
 

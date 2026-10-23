@@ -84,7 +84,7 @@
                     }
                 ],
                 "ready_recovery_action": {
-                    "number_of_attempts": 5,
+                    "number_of_attempts": 254,
                     "delay_before_restart_ms": 500
                 },
                 "recovery_action": {

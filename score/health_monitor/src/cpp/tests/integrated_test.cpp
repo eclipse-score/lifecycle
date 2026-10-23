@@ -79,8 +79,8 @@ TEST_F(HealthMonitorTest, Integrated)
 
     {
         // Try again to get the same monitor.
-        auto deadline_monitor_res = hm.GetDeadlineMonitor(deadline_monitor_tag);
-        EXPECT_FALSE(deadline_monitor_res.has_value());
+        auto deadline_monitor_res_again = hm.GetDeadlineMonitor(deadline_monitor_tag);
+        EXPECT_FALSE(deadline_monitor_res_again.has_value());
     }
 
     auto deadline_mon = std::move(*deadline_monitor_res);
@@ -91,8 +91,8 @@ TEST_F(HealthMonitorTest, Integrated)
 
     {
         // Try again to get the same monitor.
-        auto heartbeat_monitor_res{hm.GetHeartbeatMonitor(heartbeat_monitor_tag)};
-        EXPECT_FALSE(heartbeat_monitor_res.has_value());
+        auto heartbeat_monitor_res_again{hm.GetHeartbeatMonitor(heartbeat_monitor_tag)};
+        EXPECT_FALSE(heartbeat_monitor_res_again.has_value());
     }
 
     auto heartbeat_monitor{std::move(*heartbeat_monitor_res)};
@@ -103,8 +103,8 @@ TEST_F(HealthMonitorTest, Integrated)
 
     {
         // Try again to get the same monitor.
-        auto logic_monitor_res{hm.GetLogicMonitor(logic_monitor_tag)};
-        EXPECT_FALSE(logic_monitor_res.has_value());
+        auto logic_monitor_res_again{hm.GetLogicMonitor(logic_monitor_tag)};
+        EXPECT_FALSE(logic_monitor_res_again.has_value());
     }
 
     auto logic_monitor{std::move(*logic_monitor_res)};

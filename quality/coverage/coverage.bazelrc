@@ -97,6 +97,10 @@ coverage:gcov --nocache_test_results
 # compiled with instrumentation through an instrumented dependency.
 coverage:gcov --instrumentation_filter=^//score[/:]
 coverage:gcov --cxxopt=-O0
+# The scope's baseline .gcno notes of untested files are built in the exec
+# configuration and take the HOST options; without this GCC optimises them and
+# their line tables differ from the -O0 test builds (coverage_tool#44).
+coverage:gcov --host_cxxopt=-O0
 coverage:gcov --combined_report=lcov
 coverage:gcov --dynamic_mode=off
 coverage:gcov --host_platform=@score_bazel_platforms//:x86_64-linux-gcc_12.2.0-posix

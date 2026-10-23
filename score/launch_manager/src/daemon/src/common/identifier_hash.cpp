@@ -12,6 +12,7 @@
  ********************************************************************************/
 
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
+#include <score/hash.hpp>
 #include <cstdint>
 #include <mutex>
 #include <unordered_map>
@@ -51,39 +52,11 @@ namespace score::mw::lifecycle
 // - The probability of h(a) == h(b) for a != b should approach 1.0 / std::numeric_limits<std::size_t>::max().
 //     - This is small enough for initial implementation.
 
-namespace
-{
-
-// Portable hash function FNV-1a https://www.rfc-editor.org/info/rfc9923/
-
-#if SIZE_MAX == UINT32_MAX
-constexpr std::size_t kFnvOffsetBasis = 2166136261U;
-constexpr std::size_t kFnvPrime = 16777619U;
-#elif SIZE_MAX == UINT64_MAX
-constexpr std::size_t kFnvOffsetBasis = 14695981039346656037ULL;
-constexpr std::size_t kFnvPrime = 1099511628211ULL;
-#else
-#error "FNV-1a constants are only defined here for 32-bit or 64-bit std::size_t"
-#endif
-
-std::size_t Fnv1aHash(std::string_view data) noexcept
-{
-    std::size_t hash = kFnvOffsetBasis;
-    for (const unsigned char byte : data)
-    {
-        hash ^= static_cast<std::size_t>(byte);
-        hash *= kFnvPrime;
-    }
-    return hash;
-}
-
-}  // namespace
-
 IdentifierHash::IdentifierHash(std::string_view id)
 {
-    hash_id_ = Fnv1aHash(id);
+    hash_id_ = score::cpp::hash_bytes_fnv1a<std::size_t>(id.data(), id.size());
     const std::lock_guard<std::mutex> lock(get_registry_mutex());
-    get_registry()[hash_id_] = id;
+    get_registry().try_emplace(hash_id_, id);
 }
 
 IdentifierHash::IdentifierHash(std::size_t hash_id)
@@ -93,7 +66,7 @@ IdentifierHash::IdentifierHash(std::size_t hash_id)
 
 std::optional<IdentifierHash> IdentifierHash::if_exists(std::string_view id)
 {
-    const std::size_t hash_id = Fnv1aHash(id);
+    const std::size_t hash_id = score::cpp::hash_bytes_fnv1a<std::size_t>(id.data(), id.size());
 
     const std::lock_guard<std::mutex> lock(get_registry_mutex());
     const std::unordered_map<std::size_t, std::string>& registry = get_registry();
@@ -135,9 +108,9 @@ bool IdentifierHash::operator<(const IdentifierHash& other) const
 
 IdentifierHash::IdentifierHash()
 {
-    hash_id_ = Fnv1aHash(std::string_view(""));
+    hash_id_ = score::cpp::hash_bytes_fnv1a<std::size_t>("", 0U);
     const std::lock_guard<std::mutex> lock(get_registry_mutex());
-    get_registry()[hash_id_] = "";
+    get_registry().try_emplace(hash_id_, "");
 }
 
 std::size_t IdentifierHash::data() const

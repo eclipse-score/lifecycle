@@ -138,6 +138,11 @@ inline ::testing::AssertionResult verifySupplementaryGroups(const std::vector<gi
     {
         failures << "Failed to get supplementary groups\n";
     }
+    else if (static_cast<size_t>(count) > expected_groups.size())
+    {
+        failures << "More supplementary groups than expected! Expected: " << expected_groups.size()
+                 << ", have: " << count;
+    }
     else
     {
         groups.resize(static_cast<size_t>(count));

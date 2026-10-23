@@ -31,10 +31,10 @@
 }
 
 #   * MPMCConcurrentQueueTest_Timeout.PushWithTimeoutReturnsFalseWhenFull
-#       Fills the queue so sem_trywait() inside Semaphore::timedWait()
-#       returns -1 / EAGAIN until the timeout expires.
+#       Fills the queue so sem_clockwait() inside Semaphore::timedWait()
+#       returns -1 / ETIMEDOUT when the timeout expires.
 {
-   mpmc_queue_sem_trywait_eagain_intentional
+   mpmc_queue_sem_clockwait_etimedout_intentional
    Helgrind:PthAPIerror
    obj:*/vgpreload_helgrind-*.so
    fun:_ZN5score3lcm8internal4osal9Semaphore9timedWaitENSt6chrono8durationIlSt5ratioILl1ELl1000EEEE

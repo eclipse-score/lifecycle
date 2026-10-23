@@ -19,12 +19,12 @@ from attribute_plugin import add_test_properties
 @add_test_properties(
     partially_verifies=[
         "comp_req__launch_man__process_launch_args",
+        "comp_req__launch_man__failure_detect",
     ],
     fully_verifies=[
         "feat_req__lifecycle__recovery_action_support",
         "feat_req__lifecycle__liveliness_detection",
-        "comp_req__launch_man__recovery_switch_rt",
-        "comp_req__launch_man__failure_detect_startup",
+        "comp_req__launch_man__ra_comp_switch_rt",
         "comp_req__launch_man__rc_lifecycle",
         "comp_req__launch_man__rc_os_state",
         "comp_req__launch_man__rt_comp_dep",

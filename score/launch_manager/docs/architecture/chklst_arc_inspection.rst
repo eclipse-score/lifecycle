@@ -180,10 +180,10 @@ See also :need:`doc_concept__wp_inspections` for further information about revie
 
 Note: If a Review ID is not applicable for your architecture, then state ""n/a" in status and comment accordingly in remarks.
 
-The following static views in "valid" state and with "inspected" tag set are in the scope of this inspection:
+The following static views in "valid_inspected" state are in the scope of this inspection:
 
 .. needtable::
-   :filter: "launch_manager" in docname and "architecture" in docname and docname is not None and status == "valid"
+   :filter: "launch_manager" in docname and "architecture" in docname and docname is not None
    :style: table
    :types: comp_arc_sta
    :tags: launch_manager
@@ -194,7 +194,7 @@ The following static views in "valid" state and with "inspected" tag set are in 
 and the following dynamic views:
 
 .. needtable::
-   :filter: "launch_manager" in docname and "architecture" in docname and docname is not None and status == "valid"
+   :filter: "launch_manager" in docname and "architecture" in docname and docname is not None
    :style: table
    :types: comp_arc_dyn
    :tags: launch_manager

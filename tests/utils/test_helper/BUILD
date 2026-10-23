@@ -135,3 +135,11 @@ cc_binary(
         ":test_helper",
     ],
 )
+
+cc_library(
+    name = "one_shot_event",
+    hdrs = ["one_shot_event.hpp"],
+    visibility = [
+        "//score:__subpackages__",
+    ],
+)
