@@ -13,6 +13,7 @@
 #include <gtest/gtest.h>
 
 #include "tests/utils/test_helper/test_helper.hpp"
+#include "tests/utils/test_helper/test_runner.hpp"
 #include <fcntl.h>
 #include <score/mw/lifecycle/report_running.h>
 #include <chrono>
@@ -52,5 +53,8 @@ TEST(CrashIgnoresDependents, TestProcess)
 
 int main()
 {
-    return TestRunner(__FILE__, TerminationBehavior::kContinue, TerminationNotification::kTestEnd).RunTests();
+    TestRunner::Init();
+    const auto result = TestRunner::RunTests();
+    TestRunner::EndTest();
+    return result;
 }

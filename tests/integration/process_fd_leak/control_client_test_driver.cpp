@@ -19,7 +19,7 @@
 
 #include "common.hpp"
 #include "get_fds.hpp"
-#include "tests/utils/test_helper/test_helper.hpp"
+#include "tests/utils/test_helper/test_runner.hpp"
 #include <score/mw/lifecycle/ilm_control.hpp>
 #include <score/mw/lifecycle/report_running.h>
 
@@ -77,9 +77,10 @@ int main(int argc, char** argv)
 
     // test end is signalled in the test so that we block to wait for other
     // procs to finish
-    TestRunner runner{__FILE__, TerminationBehavior::kWait, TerminationNotification::kNone};
+    TestRunner::Init();
 
-    const auto result = runner.RunTests();
+    const auto result = TestRunner::RunTests();
+    TestRunner::WaitForTermination();
 
     return result;
 }

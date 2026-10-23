@@ -14,6 +14,7 @@
 #include <gtest/gtest.h>
 
 #include "tests/utils/test_helper/test_helper.hpp"
+#include "tests/utils/test_helper/test_runner.hpp"
 #include <score/mw/lifecycle/ilm_control.hpp>
 #include <score/mw/lifecycle/report_running.h>
 
@@ -51,6 +52,11 @@ TEST(SwitchRunTarget, ControlClientTestDriver)
     {
         const auto result = client->register_run_target_activation_callback(push_event);
         ASSERT_TRUE(result.has_value());
+    }
+
+    TEST_STEP("Wait for client connection")
+    {
+        ASSERT_TRUE(client->wait_for_connection().has_value());
     }
 
     TEST_STEP("Report running")
@@ -141,5 +147,8 @@ TEST(SwitchRunTarget, ControlClientTestDriver)
 
 int main()
 {
-    return TestRunner(__FILE__, TerminationBehavior::kContinue, TerminationNotification::kTestEnd).RunTests();
+    TestRunner::Init();
+    const auto result = TestRunner::RunTests();
+    TestRunner::EndTest();
+    return result;
 }

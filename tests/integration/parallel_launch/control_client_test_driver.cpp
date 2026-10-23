@@ -14,31 +14,15 @@
 #include <array>
 #include <chrono>
 #include <filesystem>
-#include <thread>
 
 #include "tests/utils/test_helper/test_helper.hpp"
+#include "tests/utils/test_helper/test_runner.hpp"
 #include <score/mw/lifecycle/ilm_control.hpp>
 #include <score/mw/lifecycle/report_running.h>
 
 namespace
 {
 constexpr std::array<std::string_view, 3> kComponentIds{"a", "b", "c"};
-
-// Wait for a file to appear; the running files are touched right after the
-// component reports running, so they may lag the Run Target activation slightly.
-bool wait_for_file(const std::filesystem::path& file, std::chrono::seconds timeout)
-{
-    const auto deadline = std::chrono::steady_clock::now() + timeout;
-    while (std::chrono::steady_clock::now() < deadline)
-    {
-        if (std::filesystem::exists(file))
-        {
-            return true;
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    }
-    return std::filesystem::exists(file);
-}
 }  // namespace
 
 using namespace score::mw::lifecycle;
@@ -47,7 +31,7 @@ TEST(ParallelLaunch, ControlClientTestDriver)
 {
     for (const auto id : kComponentIds)
     {
-        ASSERT_TRUE(check_clean({"start_" + std::string{id}, "running_" + std::string{id}}));
+        ASSERT_TRUE(check_clean({"start_" + std::string{id}, "running_" + std::string{id}}, false));
     }
 
     std::unique_ptr<ILmControl> client;
@@ -63,6 +47,11 @@ TEST(ParallelLaunch, ControlClientTestDriver)
     {
         const auto result = client->register_run_target_activation_callback(push_event);
         ASSERT_TRUE(result.has_value());
+    }
+
+    TEST_STEP("Wait for client connection")
+    {
+        ASSERT_TRUE(client->wait_for_connection().has_value());
     }
 
     TEST_STEP("Report running")
@@ -92,6 +81,24 @@ TEST(ParallelLaunch, ControlClientTestDriver)
         }
     });
 
+    // The Run Target is active as soon as every component has reported running, so a component can still be in the
+    // middle of its test. Terminating it then can exceed the shutdown timeout and get it killed before it has written
+    // its result. Wait until each component has finished its test (it writes its xml last) before terminating them.
+    TEST_STEP("Wait for components to finish their tests")
+    {
+        ASSERT_TRUE(wait_for_files(
+            {"start_a",
+             "start_b",
+             "start_c",
+             "running_a",
+             "running_b",
+             "running_c",
+             "component_parallel_launch_a.xml",
+             "component_parallel_launch_b.xml",
+             "component_parallel_launch_c.xml"},
+            std::chrono::seconds(5)));
+    }
+
     // Activate Run Target Startup again, to be sure that the termination of all components has been finished and the
     // files and its timestamps can be evaluated in the next test step.
     TEST_STEP("Activate Startup Run Target again")
@@ -116,9 +123,6 @@ TEST(ParallelLaunch, ControlClientTestDriver)
         {
             const std::filesystem::path start_file{"start_" + std::string{id}};
             const std::filesystem::path running_file{"running_" + std::string{id}};
-            ASSERT_TRUE(wait_for_file(start_file, std::chrono::seconds(1))) << "Missing " << start_file;
-            ASSERT_TRUE(wait_for_file(running_file, std::chrono::seconds(2))) << "Missing " << running_file;
-
             max_start = std::max(max_start, std::filesystem::last_write_time(start_file));
             min_running = std::min(min_running, std::filesystem::last_write_time(running_file));
         }
@@ -128,15 +132,12 @@ TEST(ParallelLaunch, ControlClientTestDriver)
         // one is already running.
         EXPECT_LT(max_start, min_running) << "Components were not launched in parallel";
     }
-
-    TEST_STEP("Activate Run Target Off")
-    {
-        const auto result = client->activate_run_target("Off", true);
-        EXPECT_TRUE(result.has_value()) << result.error().Message();
-    }
 }
 
 int main()
 {
-    return TestRunner(__FILE__, TerminationBehavior::kContinue, TerminationNotification::kTestEnd).RunTests();
+    TestRunner::Init();
+    const auto result = TestRunner::RunTests();
+    TestRunner::EndTest();
+    return result;
 }
