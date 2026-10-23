@@ -90,7 +90,6 @@ class Component final : public IComponent
     const configuration::ComponentConfig& config_;
 
     /// @brief Alive supervision of the resource, or nullptr if it is not supervised.
-    // TODO: Maybe should be inside the state
     const std::unique_ptr<IAliveSupervisionHandle> supervision_handle_;
 
     struct TerminatedState final
