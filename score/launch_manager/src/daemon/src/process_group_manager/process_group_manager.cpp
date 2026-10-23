@@ -149,7 +149,8 @@ bool ProcessGroupManager::initializeProcessGroups()
         configuration_.components_.size() + configuration_.run_targets_.size() + 2,
         configuration_,
         worker_jobs_,
-        ProcessHandling{process_interface_.get(), process_map_, &file_waiter_, alive_monitor_->getSupervisionFactory()});
+        ProcessHandling{
+            process_interface_.get(), process_map_, &file_waiter_, alive_monitor_->getSupervisionFactory()});
 
     LM_LOG_DEBUG() << "Graph initialized successfully";
     return true;
