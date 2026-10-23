@@ -192,7 +192,7 @@ ProcessLauncher::startProcess(ProcessID& pid, IpcCommsP& block, const configurat
 
         if (comms_result)
         {
-            if (fflush(stdout) < 0)
+            if (fflush(stdout) == EOF) 
             {
                 LM_LOG_ERROR() << "Failed to flush stdout before forking.";
             }

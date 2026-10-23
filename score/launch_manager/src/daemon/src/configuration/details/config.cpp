@@ -32,7 +32,7 @@ Config::Config(
       run_targets_{std::move(run_targets)},
       initial_run_target_{std::move(initial_run_target)},
       fallback_run_target_{std::move(fallback_run_target)},
-      alive_supervision_{std::move(alive_supervision)},
+      alive_supervision_{alive_supervision},
       watchdog_{std::move(watchdog)}
 {
 }

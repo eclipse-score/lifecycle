@@ -7071,6 +7071,31 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/recovery_client/mock_recovery_client.h",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
                       "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/component_task.hpp",
                       "uriBaseId": "%SRCROOT%"
                     }
@@ -7171,6 +7196,31 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
+                      "uri": "score/launch_manager/docs/product_documentation/examples/c_reporting_process.c",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
                       "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/SupervisionManager.hpp",
                       "uriBaseId": "%SRCROOT%"
                     }
@@ -7197,31 +7247,6 @@
                   "physicalLocation": {
                     "artifactLocation": {
                       "uri": "score/launch_manager/src/lifecycle_client/src/runapplication.cpp",
-                      "uriBaseId": "%SRCROOT%"
-                    }
-                  }
-                }
-              ],
-              "message": {
-                "text": ""
-              },
-              "level": "none",
-              "descriptor": {
-                "id": "cpp/baseline/expected-extracted-files",
-                "index": 0
-              },
-              "properties": {
-                "formattedMessage": {
-                  "text": ""
-                }
-              }
-            },
-            {
-              "locations": [
-                {
-                  "physicalLocation": {
-                    "artifactLocation": {
-                      "uri": "score/launch_manager/src/daemon/src/recovery_client/mock_irecovery_client.h",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -7446,6 +7471,56 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/start_action/empty_start_action.hpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/handle.cpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
                       "uri": "tests/integration/process_crash_monitoring/process_crashing_on_runtime.cpp",
                       "uriBaseId": "%SRCROOT%"
                     }
@@ -7572,6 +7647,31 @@
                   "physicalLocation": {
                     "artifactLocation": {
                       "uri": "score/launch_manager/src/daemon/src/common/concurrency/mpsc_bounded_queue.hpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action/process_force_stop_action.hpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -7846,6 +7946,31 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/IObservableEventReader.hpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
                       "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/MonitorIfDaemon_UT.cpp",
                       "uriBaseId": "%SRCROOT%"
                     }
@@ -7921,7 +8046,57 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/stop_action/process_stop_action_UT.cpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
                       "uri": "score/launch_manager/src/daemon/src/watchdog/IWatchdogIf.hpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/start_action/istart_action.hpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -8671,6 +8846,31 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/stop_action/istop_action.hpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
                       "uri": "score/health_monitor/src/cpp/deadline/deadline_monitor.cpp",
                       "uriBaseId": "%SRCROOT%"
                     }
@@ -8921,7 +9121,82 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action/process_force_stop_action_UT.cpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
                       "uri": "score/launch_manager/src/daemon/src/common/assertion_handler.hpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/file_ready_condition.hpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/stop_action/process_stop_action.hpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -9196,6 +9471,31 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/report_running_ready_condition.cpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
                       "uri": "score/launch_manager/src/daemon/src/alive_monitor/mock_alive_supervision_handle.hpp",
                       "uriBaseId": "%SRCROOT%"
                     }
@@ -9221,7 +9521,57 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
                       "uri": "tests/integration/run_target_requests/already_active_run_target/control_client_test_driver.cpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "score/launch_manager/docs/product_documentation/examples/example_state_manager.cpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -9346,6 +9696,31 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/factory/AliveWorkerFactory_UT.cpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
                       "uri": "tests/integration/shutdown_signal/shutdown_signal_process.cpp",
                       "uriBaseId": "%SRCROOT%"
                     }
@@ -9371,7 +9746,7 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
-                      "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/common/FixedSizeVector.hpp",
+                      "uri": "score/launch_manager/src/daemon/src/alive_monitor/mock_alive_monitor.hpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -9396,7 +9771,7 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
-                      "uri": "score/launch_manager/src/daemon/src/alive_monitor/mock_alive_monitor.hpp",
+                      "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/common/FixedSizeVector.hpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -9771,6 +10146,31 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action/empty_force_stop_action.cpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
                       "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/os_handler.cpp",
                       "uriBaseId": "%SRCROOT%"
                     }
@@ -9996,7 +10396,57 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/MockObservableEventReader.hpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
                       "uri": "score/launch_manager/src/daemon/src/osal/wait_for_file.hpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/stop_action/empty_stop_action_UT.cpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -10096,6 +10546,31 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/start_action/process_start_action.cpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
                       "uri": "examples/control_application/control.hpp",
                       "uriBaseId": "%SRCROOT%"
                     }
@@ -10147,6 +10622,31 @@
                   "physicalLocation": {
                     "artifactLocation": {
                       "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher.hpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "score/launch_manager/docs/product_documentation/examples/cpp_reporting_process.cpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -10372,6 +10872,31 @@
                   "physicalLocation": {
                     "artifactLocation": {
                       "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/process_group_manager_UT.cpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/injection_mocks/DataStructures.hpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -10647,6 +11172,31 @@
                   "physicalLocation": {
                     "artifactLocation": {
                       "uri": "score/launch_manager/src/execution_error.h",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/component.hpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -10971,6 +11521,31 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/start_action/empty_start_action.cpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
                       "uri": "tests/integration/ready_conditions/file_state/exists/control_client_test_driver.cpp",
                       "uriBaseId": "%SRCROOT%"
                     }
@@ -11096,7 +11671,7 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
-                      "uri": "score/launch_manager/src/daemon/src/common/signal_safe_log_UT.cpp",
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/start_action/mock_start_action.hpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -11121,7 +11696,7 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
-                      "uri": "tests/integration/parallel_launch/control_client_test_driver.cpp",
+                      "uri": "score/launch_manager/src/daemon/src/common/signal_safe_log_UT.cpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -11171,7 +11746,57 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
+                      "uri": "tests/integration/parallel_launch/control_client_test_driver.cpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
                       "uri": "score/launch_manager/src/lm_control/src/details/ilm_control_UT.cpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/injection_mocks/MonitorIfDaemon.hpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -11447,6 +12072,31 @@
                   "physicalLocation": {
                     "artifactLocation": {
                       "uri": "score/launch_manager/src/daemon/src/alive_monitor/mock_supervision_factory.hpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action/mock_force_stop_action.hpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -11771,6 +12421,31 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/stop_action/process_stop_action.cpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
                       "uri": "tests/integration/crash_on_startup/control_client_test_driver.cpp",
                       "uriBaseId": "%SRCROOT%"
                     }
@@ -11847,6 +12522,31 @@
                   "physicalLocation": {
                     "artifactLocation": {
                       "uri": "score/launch_manager/src/lifecycle_client/src/runapplication.h",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action/process_force_stop_action.cpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -12146,6 +12846,31 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/stop_action/empty_stop_action.cpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
                       "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ipc/socket.hpp",
                       "uriBaseId": "%SRCROOT%"
                     }
@@ -12196,6 +12921,31 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/handle.hpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
                       "uri": "tests/integration/incorrect_config_non_reporting/non_reporting_process.cpp",
                       "uriBaseId": "%SRCROOT%"
                     }
@@ -12222,6 +12972,31 @@
                   "physicalLocation": {
                     "artifactLocation": {
                       "uri": "tests/utils/test_helper/test_helper.hpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "score/launch_manager/docs/product_documentation/examples/cpp_lifecycle_application.cpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -12321,7 +13096,7 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
-                      "uri": "tests/integration/lm_shutdown_during_rt_switch/control_client_test_driver.cpp",
+                      "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/AliveMonitorImpl.cpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -12346,7 +13121,7 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
-                      "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/AliveMonitorImpl.cpp",
+                      "uri": "tests/integration/lm_shutdown_during_rt_switch/control_client_test_driver.cpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -12596,31 +13371,6 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
-                      "uri": "score/launch_manager/src/lifecycle_client/src/mock_report_running.h",
-                      "uriBaseId": "%SRCROOT%"
-                    }
-                  }
-                }
-              ],
-              "message": {
-                "text": ""
-              },
-              "level": "none",
-              "descriptor": {
-                "id": "cpp/baseline/expected-extracted-files",
-                "index": 0
-              },
-              "properties": {
-                "formattedMessage": {
-                  "text": ""
-                }
-              }
-            },
-            {
-              "locations": [
-                {
-                  "physicalLocation": {
-                    "artifactLocation": {
                       "uri": "score/launch_manager/src/lifecycle_client/src/mock_lifecycle_manager.h",
                       "uriBaseId": "%SRCROOT%"
                     }
@@ -12646,7 +13396,57 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
+                      "uri": "score/launch_manager/src/lifecycle_client/src/mock_report_running.h",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
                       "uri": "tests/integration/process_fd_leak/native.cpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/supervision/injection_mocks/Alive.hpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -12747,6 +13547,56 @@
                   "physicalLocation": {
                     "artifactLocation": {
                       "uri": "score/health_monitor/src/cpp/common.cpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/stop_action/mock_stop_action.hpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action/iforce_stop_action.hpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -12921,6 +13771,31 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/mock_ready_condition.hpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
                       "uri": "tests/utils/test_helper/gated_process.cpp",
                       "uriBaseId": "%SRCROOT%"
                     }
@@ -12947,6 +13822,31 @@
                   "physicalLocation": {
                     "artifactLocation": {
                       "uri": "score/launch_manager/src/daemon/src/recovery_client/irecovery_client.h",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action/empty_force_stop_action.hpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -13321,7 +14221,57 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/report_running_ready_condition_UT.cpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
                       "uri": "tests/integration/smoke/control_client_test_driver.cpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/file_ready_condition_UT.cpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -13371,7 +14321,82 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/start_action/process_start_action.hpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
                       "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/TimeConversion.cpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/iready_condition.hpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/stop_action/empty_stop_action.hpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -13571,6 +14596,31 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/start_action/process_start_action_UT.cpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
                       "uri": "score/launch_manager/src/daemon/src/configuration/details/flatbuffer_type_converters.cpp",
                       "uriBaseId": "%SRCROOT%"
                     }
@@ -13672,6 +14722,31 @@
                   "physicalLocation": {
                     "artifactLocation": {
                       "uri": "score/launch_manager/src/daemon/src/configuration/flatbuffer_config_loader.hpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/component.cpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -13921,6 +14996,31 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/file_ready_condition.cpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
                       "uri": "score/launch_manager/src/daemon/src/osal/details/linux/set_groups.cpp",
                       "uriBaseId": "%SRCROOT%"
                     }
@@ -14121,6 +15221,31 @@
                 {
                   "physicalLocation": {
                     "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/report_running_ready_condition.hpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
                       "uri": "tests/integration/shutdown_signal/control_client_test_driver.cpp",
                       "uriBaseId": "%SRCROOT%"
                     }
@@ -14147,6 +15272,31 @@
                   "physicalLocation": {
                     "artifactLocation": {
                       "uri": "score/health_monitor/src/cpp/logic/logic_monitor.h",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action/empty_force_stop_action_UT.cpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -14472,6 +15622,31 @@
                   "physicalLocation": {
                     "artifactLocation": {
                       "uri": "score/launch_manager/src/alive/src/details/AliveImpl_UT.cpp",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ],
+              "message": {
+                "text": ""
+              },
+              "level": "none",
+              "descriptor": {
+                "id": "cpp/baseline/expected-extracted-files",
+                "index": 0
+              },
+              "properties": {
+                "formattedMessage": {
+                  "text": ""
+                }
+              }
+            },
+            {
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/start_action/empty_start_action_UT.cpp",
                       "uriBaseId": "%SRCROOT%"
                     }
                   }
@@ -15597,7 +16772,7 @@
                 "markdown": "Internal telemetry for the C++ extractor.\n\nNo action needed."
               },
               "level": "note",
-              "timeUtc": "2026-10-22T14:25:51.960704Z",
+              "timeUtc": "2026-10-23T10:14:58.901760Z",
               "descriptor": {
                 "id": "cpp/extractor/summary",
                 "index": 2
@@ -15626,133 +16801,133 @@
           "location": {
             "uri": "examples/c_supervised_app/main.c",
             "uriBaseId": "%SRCROOT%",
-            "index": 228
+            "index": 259
           }
         },
         {
           "location": {
             "uri": "examples/control_application/control.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 140
+            "index": 159
           }
         },
         {
           "location": {
             "uri": "examples/control_application/control_app_cli.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 109
+            "index": 123
           }
         },
         {
           "location": {
             "uri": "examples/control_application/control_daemon.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 139
+            "index": 157
           }
         },
         {
           "location": {
             "uri": "examples/cpp_lifecycle_app/main.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 75
+            "index": 82
           }
         },
         {
           "location": {
             "uri": "examples/cpp_supervised_app/main.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 150
+            "index": 170
           }
         },
         {
           "location": {
             "uri": "examples/demo_verification/test_examples.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 317
+            "index": 364
           }
         },
         {
           "location": {
             "uri": "quality/static_analysis/codeql_lint.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 322
+            "index": 369
           }
         },
         {
           "location": {
             "uri": "score/health_monitor/src/cpp/common.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 246
+            "index": 278
           }
         },
         {
           "location": {
             "uri": "score/health_monitor/src/cpp/common.h",
             "uriBaseId": "%SRCROOT%",
-            "index": 20
+            "index": 21
           }
         },
         {
           "location": {
             "uri": "score/health_monitor/src/cpp/deadline/deadline_monitor.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 83
+            "index": 91
           }
         },
         {
           "location": {
             "uri": "score/health_monitor/src/cpp/deadline/deadline_monitor.h",
             "uriBaseId": "%SRCROOT%",
-            "index": 54
+            "index": 61
           }
         },
         {
           "location": {
             "uri": "score/health_monitor/src/cpp/details/log_init.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 193
+            "index": 218
           }
         },
         {
           "location": {
             "uri": "score/health_monitor/src/cpp/details/thread.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 250
+            "index": 284
           }
         },
         {
           "location": {
             "uri": "score/health_monitor/src/cpp/details/thread.h",
             "uriBaseId": "%SRCROOT%",
-            "index": 56
+            "index": 63
           }
         },
         {
           "location": {
             "uri": "score/health_monitor/src/cpp/health_monitor.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 202
+            "index": 228
           }
         },
         {
           "location": {
             "uri": "score/health_monitor/src/cpp/health_monitor.h",
             "uriBaseId": "%SRCROOT%",
-            "index": 28
+            "index": 29
           }
         },
         {
           "location": {
             "uri": "score/health_monitor/src/cpp/heartbeat/heartbeat_monitor.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 234
+            "index": 265
           }
         },
         {
           "location": {
             "uri": "score/health_monitor/src/cpp/heartbeat/heartbeat_monitor.h",
             "uriBaseId": "%SRCROOT%",
-            "index": 144
+            "index": 164
           }
         },
         {
@@ -15766,140 +16941,168 @@
           "location": {
             "uri": "score/health_monitor/src/cpp/logic/logic_monitor.h",
             "uriBaseId": "%SRCROOT%",
-            "index": 302
+            "index": 347
           }
         },
         {
           "location": {
             "uri": "score/health_monitor/src/cpp/tag.h",
             "uriBaseId": "%SRCROOT%",
-            "index": 89
+            "index": 97
           }
         },
         {
           "location": {
             "uri": "score/health_monitor/src/cpp/tests/deadline_monitor_test.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 264
+            "index": 300
           }
         },
         {
           "location": {
             "uri": "score/health_monitor/src/cpp/tests/health_monitor_test.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 217
+            "index": 245
           }
         },
         {
           "location": {
             "uri": "score/health_monitor/src/cpp/tests/heartbeat_monitor_test.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 36
+            "index": 39
           }
         },
         {
           "location": {
             "uri": "score/health_monitor/src/cpp/tests/integrated_test.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 107
+            "index": 121
           }
         },
         {
           "location": {
             "uri": "score/health_monitor/src/cpp/tests/logic_monitor_test.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 52
+            "index": 57
           }
         },
         {
           "location": {
             "uri": "score/health_monitor/src/cpp/tests/time_range_test.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 51
+            "index": 56
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/docs/product_documentation/examples/c_reporting_process.c",
+            "uriBaseId": "%SRCROOT%",
+            "index": 24
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/docs/product_documentation/examples/cpp_lifecycle_application.cpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 256
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/docs/product_documentation/examples/cpp_reporting_process.cpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 162
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/docs/product_documentation/examples/example_state_manager.cpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 119
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/alive/src/alive.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 186
+            "index": 211
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/alive/src/alive.h",
             "uriBaseId": "%SRCROOT%",
-            "index": 295
+            "index": 339
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/alive/src/details/AliveImpl.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 290
+            "index": 333
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/alive/src/details/AliveImpl.h",
             "uriBaseId": "%SRCROOT%",
-            "index": 71
+            "index": 78
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/alive/src/details/AliveImpl_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 315
+            "index": 361
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/IAliveMonitor.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 261
+            "index": 297
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/common/EInitCode.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 146
+            "index": 166
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/common/FixedSizeVector.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 111
+            "index": 127
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/common/LockedVector.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 40
+            "index": 44
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/common/Observer.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 227
+            "index": 258
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/common/TimeSortingBuffer.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 172
+            "index": 194
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/AliveMonitorImpl.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 230
+            "index": 260
           }
         },
         {
@@ -15913,28 +17116,28 @@
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/CyclicExecutor.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 88
+            "index": 96
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/CyclicExecutor.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 282
+            "index": 324
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/SupervisionManager.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 307
+            "index": 353
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/daemon/SupervisionManager.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 23
+            "index": 25
           }
         },
         {
@@ -15948,98 +17151,133 @@
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/factory/AliveWorkerFactory.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 216
+            "index": 244
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/factory/AliveWorkerFactory_UT.cpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 124
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/factory/IAliveWorkerFactory.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 252
+            "index": 286
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/Checkpoint.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 126
+            "index": 141
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/DataStructures.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 309
+            "index": 355
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/MonitorIfDaemon.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 100
+            "index": 111
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/MonitorIfDaemon.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 299
+            "index": 343
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/MonitorIfDaemon_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 50
+            "index": 55
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/injection_mocks/DataStructures.hpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 172
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ifappl/injection_mocks/MonitorIfDaemon.hpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 208
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/IObservableEventReader.hpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 54
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/MockObservableEventReader.hpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 152
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/ObservableEvent.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 65
+            "index": 72
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/ObservableEvent.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 168
+            "index": 190
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/ObservableEventReader.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 26
+            "index": 27
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/ObservableEventReader.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 243
+            "index": 275
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/supervision_control_client_ut.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 58
+            "index": 65
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/supervision_event.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 141
+            "index": 160
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ifexm/supervision_handle.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 44
+            "index": 48
           }
         },
         {
@@ -16053,224 +17291,231 @@
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ipc/IpcClient.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 308
+            "index": 354
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ipc/IpcServer.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 30
+            "index": 31
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ipc/ringbuffer.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 119
+            "index": 134
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/ipc/socket.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 222
+            "index": 251
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/supervision/Alive.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 84
+            "index": 92
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/supervision/Alive.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 286
+            "index": 329
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/supervision/Alive_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 204
+            "index": 230
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/supervision/ISupervision.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 163
+            "index": 185
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/supervision/ISupervision.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 288
+            "index": 331
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/supervision/injection_mocks/Alive.hpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 274
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/CycleTimeValidator.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 41
+            "index": 45
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/CycleTimeValidator.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 237
+            "index": 268
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/CycleTimer.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 182
+            "index": 205
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/CycleTimer.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 137
+            "index": 155
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/OsClockInterface.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 95
+            "index": 106
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/TimeConversion.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 271
+            "index": 310
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/TimeConversion.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 161
+            "index": 182
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/TimeConversion_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 117
+            "index": 132
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/Timers_OsClock.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 158
+            "index": 179
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/details/timers/Timers_OsClock.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 49
+            "index": 53
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/ialive_supervision_handle.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 256
+            "index": 292
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/isupervision_factory.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 303
+            "index": 349
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/mock_alive_monitor.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 112
+            "index": 126
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/mock_alive_supervision_handle.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 104
+            "index": 116
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/mock_supervision_event_publisher.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 60
+            "index": 67
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/alive_monitor/mock_supervision_factory.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 194
+            "index": 219
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/common/alive_interface_path.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 258
+            "index": 294
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/common/assertion_handler.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 59
+            "index": 66
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/common/assertion_handler.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 93
+            "index": 102
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/common/concurrency/concurrency_error_domain.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 76
+            "index": 83
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/common/concurrency/details/helgrind_annotations.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 185
+            "index": 210
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/common/concurrency/fixed_size_queue.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 29
+            "index": 30
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/common/concurrency/fixed_size_queue_test.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 262
+            "index": 298
           }
         },
         {
@@ -16284,21 +17529,21 @@
           "location": {
             "uri": "score/launch_manager/src/daemon/src/common/concurrency/mpmc_concurrent_queue_benchmark.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 87
+            "index": 95
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/common/concurrency/mpmc_concurrent_queue_test.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 257
+            "index": 293
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/common/concurrency/mpsc_bounded_queue.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 39
+            "index": 42
           }
         },
         {
@@ -16312,28 +17557,28 @@
           "location": {
             "uri": "score/launch_manager/src/daemon/src/common/concurrency/thread_pool.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 274
+            "index": 315
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/common/constants.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 27
+            "index": 28
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/common/identifier_hash.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 135
+            "index": 151
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/common/identifier_hash.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 267
+            "index": 303
           }
         },
         {
@@ -16347,21 +17592,21 @@
           "location": {
             "uri": "score/launch_manager/src/daemon/src/common/log.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 178
+            "index": 201
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/common/signal_safe_log.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 129
+            "index": 145
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/common/signal_safe_log_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 180
+            "index": 204
           }
         },
         {
@@ -16375,308 +17620,329 @@
           "location": {
             "uri": "score/launch_manager/src/daemon/src/configuration/config.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 280
+            "index": 322
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/configuration/config_loader.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 197
+            "index": 223
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/configuration/config_schema/scripts/validate.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 356
+            "index": 403
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/configuration/details/config.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 285
+            "index": 328
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/configuration/details/config_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 138
+            "index": 156
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/configuration/details/flatbuffer_config_loader.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 248
+            "index": 282
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/configuration/details/flatbuffer_config_loader_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 152
+            "index": 173
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/configuration/details/flatbuffer_type_converters.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 279
+            "index": 321
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/configuration/details/flatbuffer_type_converters.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 251
+            "index": 285
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/configuration/details/flatbuffer_type_converters_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 159
+            "index": 180
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/configuration/environment_config.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 57
+            "index": 64
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/configuration/environment_config.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 166
+            "index": 188
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/configuration/flatbuffer_config_loader.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 283
+            "index": 325
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/configuration/recovery_action_config.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 37
+            "index": 40
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/configuration/watchdog_config.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 171
+            "index": 193
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/control/control_provider.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 291
+            "index": 334
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/control/control_provider_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 203
+            "index": 229
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/main.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 86
+            "index": 94
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/osal/details/linux/num_cores.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 134
+            "index": 150
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/osal/details/linux/security_policy.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 189
+            "index": 214
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/osal/details/linux/set_affinity.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 165
+            "index": 187
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/osal/details/linux/set_groups.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 293
+            "index": 337
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/osal/details/posix/semaphore.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 115
+            "index": 130
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/osal/details/posix/sys_exit.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 128
+            "index": 144
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/osal/details/posix/wait_for_file.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 74
+            "index": 81
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/osal/details/posix/wait_for_file_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 79
+            "index": 86
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/osal/details/qnx/num_cores.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 99
+            "index": 110
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/osal/details/qnx/security_policy.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 131
+            "index": 147
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/osal/details/qnx/set_affinity.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 35
+            "index": 38
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/osal/details/qnx/set_groups.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 278
+            "index": 319
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/osal/ifile_waiter.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 123
+            "index": 138
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/osal/ipc_comms.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 21
+            "index": 22
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/osal/mock_ifile_waiter.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 153
+            "index": 174
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/osal/num_cores.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 85
+            "index": 93
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/osal/return_types.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 149
+            "index": 169
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/osal/security_policy.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 311
+            "index": 357
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/osal/semaphore.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 90
+            "index": 98
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/osal/set_affinity.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 64
+            "index": 71
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/osal/set_groups.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 77
+            "index": 84
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/osal/sys_exit.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 31
+            "index": 32
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/osal/wait_for_file.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 136
+            "index": 153
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/completion_slot.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 300
+            "index": 344
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/completion_slot_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 164
+            "index": 186
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/component.cpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 326
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/component.hpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 184
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 117
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/component_event.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 114
+            "index": 129
           }
         },
         {
@@ -16690,112 +17956,182 @@
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/component_event_queue_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 270
+            "index": 308
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/component_of.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 187
+            "index": 212
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/component_task.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 19
+            "index": 20
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/dependency_graph.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 177
+            "index": 200
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/dependency_graph_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 208
+            "index": 235
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action/empty_force_stop_action.cpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 142
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action/empty_force_stop_action.hpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 290
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action/empty_force_stop_action_UT.cpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 348
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action/iforce_stop_action.hpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 280
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action/mock_force_stop_action.hpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 220
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action/process_force_stop_action.cpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 238
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action/process_force_stop_action.hpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 43
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action/process_force_stop_action_UT.cpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 101
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/graph.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 314
+            "index": 360
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/graph.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 113
+            "index": 128
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 184
+            "index": 209
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/handle.cpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 36
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/handle.hpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 253
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/icomponent.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 156
+            "index": 177
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/icomponent_controller.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 265
+            "index": 301
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/icomponent_event_publisher_consumer.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 268
+            "index": 304
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/mock_component.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 32
+            "index": 33
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/mock_component_controller.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 160
+            "index": 181
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/mock_component_event_queue.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 81
+            "index": 88
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/os_handler.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 127
+            "index": 143
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/os_handler.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 316
+            "index": 363
           }
         },
         {
@@ -16809,105 +18145,273 @@
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/process_group_manager_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 151
+            "index": 171
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/process_handling.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 121
+            "index": 136
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 173
+            "index": 195
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 155
+            "index": 176
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 106
+            "index": 120
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 306
+            "index": 352
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 142
+            "index": 161
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 281
+            "index": 323
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/process_monitor.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 66
+            "index": 73
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/process_monitor.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 174
+            "index": 196
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/process_monitor_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 133
+            "index": 149
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/file_ready_condition.cpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 336
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/file_ready_condition.hpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 103
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/file_ready_condition_UT.cpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 307
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/iready_condition.hpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 311
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/mock_ready_condition.hpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 287
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/report_running_ready_condition.cpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 115
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/report_running_ready_condition.hpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 345
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition/report_running_ready_condition_UT.cpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 305
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/run_target.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 42
+            "index": 46
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/safe_process_map.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 48
+            "index": 52
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/safe_process_map.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 244
+            "index": 276
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/safeprocessmap_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 78
+            "index": 85
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/start_action/empty_start_action.cpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 197
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/start_action/empty_start_action.hpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 35
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/start_action/empty_start_action_UT.cpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 362
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/start_action/istart_action.hpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 60
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/start_action/mock_start_action.hpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 203
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/start_action/process_start_action.cpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 158
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/start_action/process_start_action.hpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 309
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/start_action/process_start_action_UT.cpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 320
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/stop_action/empty_stop_action.cpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 250
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/stop_action/empty_stop_action.hpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 312
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/stop_action/empty_stop_action_UT.cpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 154
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/stop_action/istop_action.hpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 90
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/stop_action/mock_stop_action.hpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 279
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/stop_action/process_stop_action.cpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 233
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/stop_action/process_stop_action.hpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 104
+          }
+        },
+        {
+          "location": {
+            "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/stop_action/process_stop_action_UT.cpp",
+            "uriBaseId": "%SRCROOT%",
+            "index": 58
           }
         },
         {
@@ -16921,49 +18425,49 @@
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/termination_waiter.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 214
+            "index": 242
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/termination_waiter_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 255
+            "index": 291
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/transition.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 312
+            "index": 358
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/details/transition_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 201
+            "index": 227
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/iprocess.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 118
+            "index": 133
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/irun_target_control.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 47
+            "index": 51
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/mock_iprocess.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 296
+            "index": 340
           }
         },
         {
@@ -16977,42 +18481,42 @@
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/process_group_manager.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 292
+            "index": 335
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/process_group_manager/process_state.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 55
+            "index": 62
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/recovery_client/irecovery_client.h",
             "uriBaseId": "%SRCROOT%",
-            "index": 254
+            "index": 289
           }
         },
         {
           "location": {
-            "uri": "score/launch_manager/src/daemon/src/recovery_client/mock_irecovery_client.h",
+            "uri": "score/launch_manager/src/daemon/src/recovery_client/mock_recovery_client.h",
             "uriBaseId": "%SRCROOT%",
-            "index": 25
+            "index": 19
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/recovery_client/recovery_client.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 276
+            "index": 317
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/recovery_client/recovery_client.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 145
+            "index": 165
           }
         },
         {
@@ -17026,49 +18530,49 @@
           "location": {
             "uri": "score/launch_manager/src/daemon/src/run.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 147
+            "index": 167
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/run.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 196
+            "index": 222
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/watchdog/IWatchdogIf.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 53
+            "index": 59
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/watchdog/WatchdogFactory.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 259
+            "index": 295
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/watchdog/WatchdogFactory.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 132
+            "index": 148
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/watchdog/WatchdogFactory_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 170
+            "index": 192
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/watchdog/details/DeviceIf.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 154
+            "index": 175
           }
         },
         {
@@ -17082,21 +18586,21 @@
           "location": {
             "uri": "score/launch_manager/src/daemon/src/watchdog/details/Watchdog.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 179
+            "index": 202
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 232
+            "index": 263
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 45
+            "index": 49
           }
         },
         {
@@ -17110,63 +18614,63 @@
           "location": {
             "uri": "score/launch_manager/src/daemon/src/watchdog/details/mock_DeviceIf.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 68
+            "index": 75
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/daemon/src/watchdog/mock_IWatchdogIf.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 148
+            "index": 168
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/exec_error_domain_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 157
+            "index": 178
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/execution_error.h",
             "uriBaseId": "%SRCROOT%",
-            "index": 162
+            "index": 183
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/aasapplicationcontainer.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 97
+            "index": 108
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/aasapplicationcontainer.h",
             "uriBaseId": "%SRCROOT%",
-            "index": 82
+            "index": 89
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/aasapplicationcontainer_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 198
+            "index": 224
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/application.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 305
+            "index": 351
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/application.h",
             "uriBaseId": "%SRCROOT%",
-            "index": 273
+            "index": 314
           }
         },
         {
@@ -17180,392 +18684,392 @@
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/applicationcontext.h",
             "uriBaseId": "%SRCROOT%",
-            "index": 249
+            "index": 283
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/applicationcontext_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 287
+            "index": 330
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/details/mock_report_running_adapter.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 310
+            "index": 356
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/details/mock_report_running_impl.h",
             "uriBaseId": "%SRCROOT%",
-            "index": 96
+            "index": 107
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/details/report_running_impl.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 169
+            "index": 191
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/details/report_running_impl.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 125
+            "index": 140
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/details/report_running_impl_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 98
+            "index": 109
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/lifecycle_mocks_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 116
+            "index": 131
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/lifecyclemanager.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 124
+            "index": 139
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/lifecyclemanager.h",
             "uriBaseId": "%SRCROOT%",
-            "index": 263
+            "index": 299
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/lifecyclemanager_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 67
+            "index": 74
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/mock_application.h",
             "uriBaseId": "%SRCROOT%",
-            "index": 298
+            "index": 342
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/mock_application_context.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 122
+            "index": 137
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/mock_application_context.h",
             "uriBaseId": "%SRCROOT%",
-            "index": 218
+            "index": 246
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/mock_lifecycle_manager.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 297
+            "index": 341
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/mock_lifecycle_manager.h",
             "uriBaseId": "%SRCROOT%",
-            "index": 241
+            "index": 271
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/mock_mw_lifecycle_manager.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 236
+            "index": 267
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/mock_mw_lifecycle_manager.h",
             "uriBaseId": "%SRCROOT%",
-            "index": 190
+            "index": 215
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/mock_report_running.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 211
+            "index": 239
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/mock_report_running.h",
             "uriBaseId": "%SRCROOT%",
-            "index": 240
+            "index": 272
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/report_running.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 247
+            "index": 281
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/report_running.h",
             "uriBaseId": "%SRCROOT%",
-            "index": 220
+            "index": 248
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/report_running_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 221
+            "index": 249
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/runapplication.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 24
+            "index": 26
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/runapplication.h",
             "uriBaseId": "%SRCROOT%",
-            "index": 210
+            "index": 237
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lifecycle_client/src/runapplication_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 130
+            "index": 146
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lm_control/src/details/ilm_control.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 69
+            "index": 76
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lm_control/src/details/ilm_control_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 183
+            "index": 207
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lm_control/src/details/lm_control_impl.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 260
+            "index": 296
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lm_control/src/details/lm_control_impl_UT.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 277
+            "index": 318
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lm_control/src/details/lm_control_service.h",
             "uriBaseId": "%SRCROOT%",
-            "index": 275
+            "index": 316
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lm_control/src/fixed_string.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 199
+            "index": 225
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lm_control/src/ilm_control.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 239
+            "index": 270
           }
         },
         {
           "location": {
             "uri": "score/launch_manager/src/lm_control/src/run_target_activation_source.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 70
+            "index": 77
           }
         },
         {
           "location": {
             "uri": "scripts/config_mapping/integration_tests.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 339
+            "index": 386
           }
         },
         {
           "location": {
             "uri": "scripts/config_mapping/lifecycle_config.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 327
+            "index": 374
           }
         },
         {
           "location": {
             "uri": "scripts/config_mapping/tests/conftest.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 323
+            "index": 370
           }
         },
         {
           "location": {
             "uri": "scripts/config_mapping/unit_tests.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 353
+            "index": 400
           }
         },
         {
           "location": {
             "uri": "scripts/fix_test_doubles_naming_precommit.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 330
+            "index": 377
           }
         },
         {
           "location": {
             "uri": "scripts/internal/qnx_creds.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 342
+            "index": 389
           }
         },
         {
           "location": {
             "uri": "scripts/run_clang_tidy_precommit.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 321
+            "index": 368
           }
         },
         {
           "location": {
             "uri": "tests/integration/complex_monitoring/complex_monitoring.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 332
+            "index": 379
           }
         },
         {
           "location": {
             "uri": "tests/integration/complex_monitoring/component_complex_monitoring.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 33
+            "index": 34
           }
         },
         {
           "location": {
             "uri": "tests/integration/complex_monitoring/control_client_test_driver.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 223
+            "index": 252
           }
         },
         {
           "location": {
             "uri": "tests/integration/crash_ignores_dependents/crash_ignores_dependents.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 341
+            "index": 388
           }
         },
         {
           "location": {
             "uri": "tests/integration/crash_ignores_dependents/process_crashing_once.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 266
+            "index": 302
           }
         },
         {
           "location": {
             "uri": "tests/integration/crash_ignores_dependents/test_process.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 284
+            "index": 327
           }
         },
         {
           "location": {
             "uri": "tests/integration/crash_on_startup/control_client_test_driver.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 207
+            "index": 234
           }
         },
         {
           "location": {
             "uri": "tests/integration/crash_on_startup/crash_on_startup.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 340
+            "index": 387
           }
         },
         {
           "location": {
             "uri": "tests/integration/explicit_fallback_request/control_client_test_driver.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 167
+            "index": 189
           }
         },
         {
           "location": {
             "uri": "tests/integration/explicit_fallback_request/explicit_fallback_request.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 358
+            "index": 405
           }
         },
         {
           "location": {
             "uri": "tests/integration/fallback_to_same_target_restarts/control_client_test_driver.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 272
+            "index": 313
           }
         },
         {
           "location": {
             "uri": "tests/integration/fallback_to_same_target_restarts/fallback_to_same_target_restarts.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 337
+            "index": 384
           }
         },
         {
           "location": {
             "uri": "tests/integration/fallback_to_same_target_restarts/process_crashing_once.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 61
+            "index": 68
           }
         },
         {
           "location": {
             "uri": "tests/integration/incorrect_config_non_reporting/non_reporting_process.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 224
+            "index": 254
           }
         },
         {
           "location": {
             "uri": "tests/integration/incorrect_config_non_reporting/test_incorrect_config_non_reporting.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 334
+            "index": 381
           }
         },
         {
@@ -17579,392 +19083,392 @@
           "location": {
             "uri": "tests/integration/lm_shutdown_during_rt_switch/component_c.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 209
+            "index": 236
           }
         },
         {
           "location": {
             "uri": "tests/integration/lm_shutdown_during_rt_switch/control_client_test_driver.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 229
+            "index": 261
           }
         },
         {
           "location": {
             "uri": "tests/integration/lm_shutdown_during_rt_switch/lm_shutdown_during_rt_switch.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 329
+            "index": 376
           }
         },
         {
           "location": {
             "uri": "tests/integration/lm_shutdown_during_switch_to_off/common.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 43
+            "index": 47
           }
         },
         {
           "location": {
             "uri": "tests/integration/lm_shutdown_during_switch_to_off/control_client_test_driver.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 245
+            "index": 277
           }
         },
         {
           "location": {
             "uri": "tests/integration/lm_shutdown_during_switch_to_off/lm_shutdown_during_switch_to_off.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 347
+            "index": 394
           }
         },
         {
           "location": {
             "uri": "tests/integration/parallel_launch/component_parallel_launch.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 108
+            "index": 122
           }
         },
         {
           "location": {
             "uri": "tests/integration/parallel_launch/control_client_test_driver.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 181
+            "index": 206
           }
         },
         {
           "location": {
             "uri": "tests/integration/parallel_launch/parallel_launch.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 345
+            "index": 392
           }
         },
         {
           "location": {
             "uri": "tests/integration/process_complex_rep_failure/control_client_test_driver.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 219
+            "index": 247
           }
         },
         {
           "location": {
             "uri": "tests/integration/process_complex_rep_failure/process_complex_rep_failure.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 348
+            "index": 395
           }
         },
         {
           "location": {
             "uri": "tests/integration/process_crash_monitoring/control_client_test_driver.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 231
+            "index": 262
           }
         },
         {
           "location": {
             "uri": "tests/integration/process_crash_monitoring/process_crash_monitoring.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 354
+            "index": 401
           }
         },
         {
           "location": {
             "uri": "tests/integration/process_crash_monitoring/process_crashing_on_runtime.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 34
+            "index": 37
           }
         },
         {
           "location": {
             "uri": "tests/integration/process_fd_leak/common.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 62
+            "index": 69
           }
         },
         {
           "location": {
             "uri": "tests/integration/process_fd_leak/control_client_test_driver.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 46
+            "index": 50
           }
         },
         {
           "location": {
             "uri": "tests/integration/process_fd_leak/get_fds.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 238
+            "index": 269
           }
         },
         {
           "location": {
             "uri": "tests/integration/process_fd_leak/native.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 242
+            "index": 273
           }
         },
         {
           "location": {
             "uri": "tests/integration/process_fd_leak/process_fd_leak.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 352
+            "index": 399
           }
         },
         {
           "location": {
             "uri": "tests/integration/process_fd_leak/reporting.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 176
+            "index": 199
           }
         },
         {
           "location": {
             "uri": "tests/integration/process_launch_args/process_initial.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 200
+            "index": 226
           }
         },
         {
           "location": {
             "uri": "tests/integration/process_launch_args/process_launch_args.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 350
+            "index": 397
           }
         },
         {
           "location": {
             "uri": "tests/integration/process_simple_rep_failure/control_client_test_driver.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 289
+            "index": 332
           }
         },
         {
           "location": {
             "uri": "tests/integration/process_simple_rep_failure/process_simple_rep_failure.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 324
+            "index": 371
           }
         },
         {
           "location": {
             "uri": "tests/integration/process_simple_rep_failure/process_simple_reporting.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 92
+            "index": 100
           }
         },
         {
           "location": {
             "uri": "tests/integration/process_wrong_binary_failure/control_client_test_driver.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 213
+            "index": 241
           }
         },
         {
           "location": {
             "uri": "tests/integration/process_wrong_binary_failure/process_wrong_binary_failure.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 326
+            "index": 373
           }
         },
         {
           "location": {
             "uri": "tests/integration/ready_conditions/file_state/common/file_modifier.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 191
+            "index": 216
           }
         },
         {
           "location": {
             "uri": "tests/integration/ready_conditions/file_state/exists/control_client_test_driver.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 175
+            "index": 198
           }
         },
         {
           "location": {
             "uri": "tests/integration/ready_conditions/file_state/exists/ready_condition_file.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 331
+            "index": 378
           }
         },
         {
           "location": {
             "uri": "tests/integration/ready_conditions/file_state/not_existing/control_client_test_driver.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 101
+            "index": 112
           }
         },
         {
           "location": {
             "uri": "tests/integration/ready_conditions/file_state/not_existing/ready_condition_file_not_existing.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 343
+            "index": 390
           }
         },
         {
           "location": {
             "uri": "tests/integration/ready_conditions/process_state/kterminated/control_client_test_driver.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 63
+            "index": 70
           }
         },
         {
           "location": {
             "uri": "tests/integration/ready_conditions/process_state/kterminated/kterminated.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 351
+            "index": 398
           }
         },
         {
           "location": {
             "uri": "tests/integration/rt_running_when_process_exits/control_client_test_driver.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 143
+            "index": 163
           }
         },
         {
           "location": {
             "uri": "tests/integration/rt_running_when_process_exits/filesystem_reader.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 192
+            "index": 217
           }
         },
         {
           "location": {
             "uri": "tests/integration/rt_running_when_process_exits/rt_running_when_process_exits.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 319
+            "index": 366
           }
         },
         {
           "location": {
             "uri": "tests/integration/run_target_requests/already_active_run_target/already_active_run_target.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 357
+            "index": 404
           }
         },
         {
           "location": {
             "uri": "tests/integration/run_target_requests/already_active_run_target/control_client_test_driver.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 105
+            "index": 118
           }
         },
         {
           "location": {
             "uri": "tests/integration/run_target_requests/replaced_activation/control_client_test_driver.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 304
+            "index": 350
           }
         },
         {
           "location": {
             "uri": "tests/integration/run_target_requests/replaced_activation/replaced_activation.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 355
+            "index": 402
           }
         },
         {
           "location": {
             "uri": "tests/integration/run_target_requests/same_run_target_in_transition/control_client_test_driver.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 215
+            "index": 243
           }
         },
         {
           "location": {
             "uri": "tests/integration/run_target_requests/same_run_target_in_transition/same_run_target_in_transition.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 359
+            "index": 406
           }
         },
         {
           "location": {
             "uri": "tests/integration/run_target_requests/unknown_run_target/control_client_test_driver.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 195
+            "index": 221
           }
         },
         {
           "location": {
             "uri": "tests/integration/run_target_requests/unknown_run_target/unknown_run_target.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 344
+            "index": 391
           }
         },
         {
           "location": {
             "uri": "tests/integration/sandbox_options/sandbox_options.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 325
+            "index": 372
           }
         },
         {
           "location": {
             "uri": "tests/integration/sandbox_options/sandbox_options_process.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 212
+            "index": 240
           }
         },
         {
           "location": {
             "uri": "tests/integration/sandbox_options/verify_sandbox.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 313
+            "index": 359
           }
         },
         {
           "location": {
             "uri": "tests/integration/shutdown_signal/common.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 205
+            "index": 231
           }
         },
         {
           "location": {
             "uri": "tests/integration/shutdown_signal/control_client_test_driver.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 301
+            "index": 346
           }
         },
         {
           "location": {
             "uri": "tests/integration/shutdown_signal/shutdown_signal.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 346
+            "index": 393
           }
         },
         {
           "location": {
             "uri": "tests/integration/shutdown_signal/shutdown_signal_process.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 110
+            "index": 125
           }
         },
         {
           "location": {
             "uri": "tests/integration/smoke/control_client_test_driver.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 269
+            "index": 306
           }
         },
         {
           "location": {
             "uri": "tests/integration/smoke/gtest_process.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 294
+            "index": 338
           }
         },
         {
           "location": {
             "uri": "tests/integration/smoke/smoke.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 333
+            "index": 380
           }
         },
         {
           "location": {
             "uri": "tests/integration/switch_run_target/common.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 72
+            "index": 79
           }
         },
         {
@@ -17978,98 +19482,98 @@
           "location": {
             "uri": "tests/integration/switch_run_target/component_b.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 103
+            "index": 114
           }
         },
         {
           "location": {
             "uri": "tests/integration/switch_run_target/component_d_or_e.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 226
+            "index": 257
           }
         },
         {
           "location": {
             "uri": "tests/integration/switch_run_target/control_client_test_driver.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 233
+            "index": 264
           }
         },
         {
           "location": {
             "uri": "tests/integration/switch_run_target/switch_run_target.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 328
+            "index": 375
           }
         },
         {
           "location": {
             "uri": "tests/scripts/gen_lifecycle_config.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 336
+            "index": 383
           }
         },
         {
           "location": {
             "uri": "tests/utils/accessors/accessor_report_running_impl.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 22
+            "index": 23
           }
         },
         {
           "location": {
             "uri": "tests/utils/mocks/mock_syscalls.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 73
+            "index": 80
           }
         },
         {
           "location": {
             "uri": "tests/utils/plugins/integration.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 349
+            "index": 396
           }
         },
         {
           "location": {
             "uri": "tests/utils/plugins/localhost.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 320
+            "index": 367
           }
         },
         {
           "location": {
             "uri": "tests/utils/test_helper/complex_reporting_process.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 91
+            "index": 99
           }
         },
         {
           "location": {
             "uri": "tests/utils/test_helper/counting_process.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 235
+            "index": 266
           }
         },
         {
           "location": {
             "uri": "tests/utils/test_helper/gated_process.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 253
+            "index": 288
           }
         },
         {
           "location": {
             "uri": "tests/utils/test_helper/gated_process.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 120
+            "index": 135
           }
         },
         {
           "location": {
             "uri": "tests/utils/test_helper/one_shot_event.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 80
+            "index": 87
           }
         },
         {
@@ -18083,63 +19587,63 @@
           "location": {
             "uri": "tests/utils/test_helper/process_hanging_on_sigterm.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 188
+            "index": 213
           }
         },
         {
           "location": {
             "uri": "tests/utils/test_helper/process_utils.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 94
+            "index": 105
           }
         },
         {
           "location": {
             "uri": "tests/utils/test_helper/reporting_process.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 206
+            "index": 232
           }
         },
         {
           "location": {
             "uri": "tests/utils/test_helper/test_helper.hpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 225
+            "index": 255
           }
         },
         {
           "location": {
             "uri": "tests/utils/test_helper/verification_process.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 102
+            "index": 113
           }
         },
         {
           "location": {
             "uri": "tests/utils/test_helper/waiting_process.cpp",
             "uriBaseId": "%SRCROOT%",
-            "index": 38
+            "index": 41
           }
         },
         {
           "location": {
             "uri": "tests/utils/testing_utils/run_test.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 318
+            "index": 365
           }
         },
         {
           "location": {
             "uri": "tests/utils/testing_utils/setup_test.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 335
+            "index": 382
           }
         },
         {
           "location": {
             "uri": "tests/utils/testing_utils/test_results.py",
             "uriBaseId": "%SRCROOT%",
-            "index": 338
+            "index": 385
           }
         }
       ],

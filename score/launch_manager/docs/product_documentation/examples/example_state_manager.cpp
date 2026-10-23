@@ -13,10 +13,11 @@
 
 #include <unistd.h>
 #include <atomic>
-#include <cassert>
 #include <chrono>
 #include <csignal>
 #include <iostream>
+#include <memory>
+#include <thread>
 
 #include "score/mw/com/runtime.h"
 #include "score/string_manipulation/arguments/arguments.h"
@@ -29,11 +30,11 @@ using namespace std::literals::chrono_literals;
 std::atomic<bool> startup_finished{false};
 
 /// Used if a termination was requested from a signal.
-std::atomic<bool> exitRequested{false};
+volatile std::sig_atomic_t exitRequested{0};
 
 void signalHandler(int /*signal*/)
 {
-    exitRequested = true;
+    exitRequested = 1;
 }
 
 int main(int argc, const char* argv[])
@@ -41,8 +42,12 @@ int main(int argc, const char* argv[])
     // initialize com, needed if you are giving the mw_conf.json as an argument
     score::mw::com::runtime::InitializeRuntime(score::string_manipulation::GetArguments(argc, argv));
 
-    // register signal handler and assert success
-    assert(signal(SIGTERM, signalHandler));
+    // register signal handler and check success (not inside assert, as it would be removed with NDEBUG)
+    if (std::signal(SIGTERM, signalHandler) == SIG_ERR)
+    {
+        std::cerr << "Failed to register SIGTERM handler" << std::endl;
+        return EXIT_FAILURE;
+    }
 
     // report running to LM
     score::mw::lifecycle::report_running();
@@ -79,7 +84,8 @@ int main(int argc, const char* argv[])
         return EXIT_FAILURE;
     }
 
-    while (startup_finished.load())
+    // wait until the initial run target activation has completed
+    while (!startup_finished.load())
     {
         std::this_thread::sleep_for(100ms);
     }
@@ -97,7 +103,7 @@ int main(int argc, const char* argv[])
     }
 
     // wait until lm wants to terminate
-    while (!exitRequested)
+    while (exitRequested == 0)
     {
         pause();
     }

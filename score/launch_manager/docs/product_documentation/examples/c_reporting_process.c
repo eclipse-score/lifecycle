@@ -11,10 +11,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include <assert.h>
 #include <signal.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <time.h>
 
 #include "score/mw/lifecycle/report_running.h"
@@ -32,12 +33,13 @@ static void sigTermHandler(int signal)
     exitRequested = 1;
 }
 
-int main(int argc, char* argv[]){
-
-    (void)argc;
-    (void)argv;
-
-    assert(signal(SIGTERM, sigTermHandler));
+int main(void)
+{
+    // register SIGTERM handler (not inside assert, as it would be removed with NDEBUG)
+    if(signal(SIGTERM, sigTermHandler) == SIG_ERR){
+        (void) printf("Failed to register SIGTERM handler! Terminating");
+        return EXIT_FAILURE;
+    }
 
     // report running
     int8_t result = score_mw_lifecycle_report_running();

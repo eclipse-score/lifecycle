@@ -12,8 +12,6 @@
  ********************************************************************************/
 
 #include <unistd.h>
-#include <atomic>
-#include <cassert>
 #include <csignal>
 #include <cstdlib>
 #include <iostream>
@@ -29,9 +27,13 @@ void sigTermHandler(int)
 
 int main()
 {
-
     // register signal handler so that lcm can request a termination
-    assert(signal(SIGTERM, sigTermHandler));
+    // (not inside assert, as it would be removed with NDEBUG)
+    if (std::signal(SIGTERM, sigTermHandler) == SIG_ERR)
+    {
+        std::cerr << "Failed to register SIGTERM handler! Terminating" << std::endl;
+        return EXIT_FAILURE;
+    }
 
     // report running state
     score::mw::lifecycle::report_running();

@@ -83,6 +83,7 @@ class IpcServer final : public IpcBase<Payload, MaxNumberElements, Socket>
     /// @return kOk if initialization of ipc channel successful, else kPermissionDenied or kFailed
     EIpcInitResult init(const std::string& f_ipcName_r, mode_t f_mode = kOwnerReadWrite) noexcept(false)
     {
+        // codeql[cpp/cert/missing-constructor-call-for-manually-managed-object] False positive: the object is constructed by std::vector::emplace_back in AliveWorkerFactory::createAliveIfIpc before init() is called
         ReturnCode result{socket->create(f_ipcName_r.c_str(), f_mode)};
         if (result == ReturnCode::kOk)
         {
@@ -103,6 +104,7 @@ class IpcServer final : public IpcBase<Payload, MaxNumberElements, Socket>
     /// @return True if setting access rights was successful, else false
     bool setAccessRights(uid_t f_uid) noexcept(false)
     {
+        // codeql[cpp/cert/missing-constructor-call-for-manually-managed-object] False positive: the object is constructed by std::vector::emplace_back in AliveWorkerFactory::createAliveIfIpc before this call
         int fd = shm_open(Base::getPath().data(), O_RDWR, kOwnerReadWrite);
         if (fd < 0)
         {

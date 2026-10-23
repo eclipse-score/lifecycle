@@ -60,13 +60,14 @@ class ConfigBuilder;
 /// @note As of now, everything is expected in a single config file.
 /// Even though some fields appear as optional in the json schema, they are only optional if the configuration would be
 /// split across multiple files. As only a single file is supported, the single config will contain all fields.
-class Config
+struct Config
 {
-  public:
     Config(const Config&) = delete;
+    Config(Config&&) noexcept = default;
+
     Config& operator=(const Config&) = delete;
-    Config(Config&&) = default;
-    Config& operator=(Config&&) = default;
+    Config& operator=(Config&&) noexcept = default;
+    ~Config() noexcept = default;
 
     /// @brief Returns the component configurations.
     [[nodiscard]] const std::vector<ComponentConfig>& components() const;

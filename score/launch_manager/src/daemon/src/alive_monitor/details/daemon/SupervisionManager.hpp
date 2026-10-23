@@ -35,7 +35,7 @@ namespace internal::saf
 namespace ifappl
 {
 class MonitorIfDaemon;
-class Checkpoint;
+struct Checkpoint;
 }  // namespace ifappl
 
 namespace supervision
