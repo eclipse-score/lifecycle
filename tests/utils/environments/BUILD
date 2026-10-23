@@ -20,6 +20,7 @@ exports_files(
     ["mw_com_config.json"],
     visibility = [
         "//examples/demo_verification:__subpackages__",
+        "//score/launch_manager:__subpackages__",
         "//tests/integration:__subpackages__",
     ],
 )
