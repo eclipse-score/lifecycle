@@ -427,7 +427,6 @@
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">Configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="integration.html">Integration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples.html">Configuration examples</a></li>
-<li class="toctree-l3"><a class="reference internal" href="implementation.html">Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="known_limitations.html">Known Limitations</a></li>
 </ul>
 </details></li>
@@ -588,7 +587,7 @@ recovery actions.</p>
 <dt>restart (object, optional)</dt><dd><p>Description: Defines a recovery action that restarts the POSIX process associated with this component.</p>
 </dd>
 <dt>restart.number_of_attempts (integer, optional)</dt><dd><p>Description: Specifies the maximum number of restart attempts before the <strong>Launch Manager</strong> concludes that recovery cannot succeed for the component.
-Constraint: Must be 0 or greater.</p>
+Constraint: Must be between 0 and 255 inclusive.</p>
 </dd>
 <dt>restart.delay_before_restart_ms (integer, optional)</dt><dd><p>Description: Specifies the delay duration, in milliseconds, that the <strong>Launch Manager</strong> waits before initiating a restart attempt.
 Constraint: Must be 0 or greater.</p>

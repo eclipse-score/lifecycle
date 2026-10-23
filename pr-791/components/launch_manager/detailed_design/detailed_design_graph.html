@@ -522,37 +522,41 @@ The Launch Manager main thread runs a cyclic loop and the state of the graph
 state machine defines how events are processed.</p>
 <figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-690cdfd42dd2c65be7b2c2dd2202aafd1265acfd.svg" type="image/svg+xml" style="width:1262px;height:1020px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-d506c335bb3448573775170d90879f2658129dea.svg" type="image/svg+xml" style="width:1430px;height:1068px;background:#FFFFFF;"></object></p>
 </figure>
 </section>
 <section id="component-activation">
 <h3>Component Activation<a class="headerlink" href="#component-activation" title="Link to this heading">#</a></h3>
 <p>The Launch Manager main loop does not directly activate any component, but the activation
 is only scheduled on a thread pool.</p>
-<p>A component activation consists of:
-* starting the process (possibly multiple times)
-* registering the pid in the SafeProcessMap
-* waiting for the ready condition to be fulfilled or ready timeout
-* posing the activation result to the event queue</p>
+<p>A component activation consists of:</p>
+<ul class="simple">
+<li><p>starting the process (possibly multiple times)</p></li>
+<li><p>registering the pid in the SafeProcessMap</p></li>
+<li><p>waiting for the ready condition to be fulfilled or ready timeout</p></li>
+<li><p>posing the activation result to the event queue</p></li>
+</ul>
 <p>The component activation sequence is executed synchronously on a worker thread.</p>
 <figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-eae1d05f6121165dbd149aaaef9c63394cd5d0e3.svg" type="image/svg+xml" style="width:2180px;height:2175px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-617ea8c86961e0955aa9c13c6e62ddc93f8d21d8.svg" type="image/svg+xml" style="width:2180px;height:2175px;background:#FFFFFF;"></object></p>
 </figure>
 </section>
 <section id="component-deactivation">
 <h3>Component Deactivation<a class="headerlink" href="#component-deactivation" title="Link to this heading">#</a></h3>
 <p>The Launch Manager main loop does not directly deactivate any component, but the deactivation
 is only scheduled on a thread pool.</p>
-<p>A component deactivation consists of:
-* stopping the process
-* waiting for the process to terminate or until shutdown timeout
-* escalating to SIGKILL in case the process did not terminate within the shutdown timeout
-* posing the deactivation result to the event queue. Process crashes during deactivation are ignored.</p>
+<p>A component deactivation consists of:</p>
+<ul class="simple">
+<li><p>stopping the process (if running)</p></li>
+<li><p>waiting for the process to terminate or until shutdown timeout</p></li>
+<li><p>escalating to SIGKILL in case the process did not terminate within the shutdown timeout</p></li>
+<li><p>posing the deactivation result to the event queue. Process crashes during deactivation are ignored.</p></li>
+</ul>
 <p>The component deactivation sequence is executed synchronously on a worker thread.</p>
 <figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-a7ee69c7e7ada75b349d32034b1a2e4d23c2cc5d.svg" type="image/svg+xml" style="width:2149px;height:1412px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-3ee6c3e1d1b5f3aad4384751496a9859e2d634f3.svg" type="image/svg+xml" style="width:2159px;height:1508px;background:#FFFFFF;"></object></p>
 </figure>
 </section>
 <section id="process-termination">
@@ -573,7 +577,7 @@ The current failure reaction is to always requesting the fallback Run Target and
 transition if there is one.</p>
 <figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-7651d966d63fd48f55ab0da91438269c931566d7.svg" type="image/svg+xml" style="width:1599px;height:1267px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-b0b432a7f8f2e4853b5cec8b3b110853ca97862f.svg" type="image/svg+xml" style="width:1637px;height:1327px;background:#FFFFFF;"></object></p>
 </figure>
 </section>
 <section id="run-target-transition">
@@ -611,7 +615,7 @@ This detailed design focuses on the central dependency graph logic and its inter
 <li><p>Graph: Implements the state machine for the Run Target transition logic</p></li>
 <li><p>OSHandler: Waits for any child process to terminate, then forwards the process termination to process monitor</p></li>
 <li><p>ComponentEventQueue: Synchronizes the component events</p></li>
-<li><p>SafeProcessMap: Maintains a thread-safe mapping PID to component</p></li>
+<li><p>SafeProcessMap: Maintains a thread-safe mapping PID to component. Mapping is used to forward process termination event to the right component.</p></li>
 <li><p>IComponentController: Executes Component Tasks and enqueues the result to an Event Queue</p></li>
 <li><p>IComponent: The component interface</p></li>
 <li><p>Transition: Manages a RunTarget transition by determining which components are ready to start/stop</p></li>
