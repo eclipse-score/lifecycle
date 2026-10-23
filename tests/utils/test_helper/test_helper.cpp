@@ -111,10 +111,12 @@ testing::AssertionResult wait_for_file(const std::string_view file, const std::c
 void push_event(RunTargetActivationSource source, RunTargetName target)
 {
     {
+        std::cout << __FUNCTION__ << "Locking" << std::endl;
         std::unique_lock event_lock(event_mutex);
         event_condition.wait(event_lock, [&] {
             return !event_received;
         });
+        std::cout << __FUNCTION__ << "Got event" << std::endl;
         event_received = true;
         event_source = source;
         event_target = target;
@@ -125,10 +127,12 @@ void push_event(RunTargetActivationSource source, RunTargetName target)
 void pop_event(std::function<void(RunTargetActivationSource source, RunTargetName target)> callback)
 {
     {
+        std::cout << __FUNCTION__ << "Locking" << std::endl;
         std::unique_lock event_lock(event_mutex);
         event_condition.wait(event_lock, [&] {
             return event_received;
         });
+        std::cout << __FUNCTION__ << "Got event" << std::endl;
         callback(event_source, event_target);
         event_received = false;
     }
