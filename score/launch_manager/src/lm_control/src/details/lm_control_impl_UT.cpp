@@ -674,6 +674,36 @@ TEST_F(LmControlUT, RegisterEmptyCallbackRejected)
     EXPECT_EQ(result.error(), ExecErrc::kInvalidArguments);
 }
 
+TEST_F(LmControlUT, CallbackRegisteredBeforeConnectionIsUsedOnceConnected)
+{
+    RecordProperty(
+        "Description",
+        "Registering an activation callback before the service is discovered succeeds without reading samples, "
+        "and the callback receives activation results once connected.");
+
+    auto sut = MakeLmControl();
+
+    std::optional<RunTargetName> name{};
+    EXPECT_CALL(mock_, GetNewSamples(_)).Times(0);
+    ASSERT_TRUE(sut->register_run_target_activation_callback([&](RunTargetActivationSource, RunTargetName n) {
+                       name = n;
+                   })
+                    .has_value());
+    ::testing::Mock::VerifyAndClearExpectations(&mock_);
+
+    ConnectService();
+
+    EXPECT_CALL(mock_, GetNewSamples(_)).WillOnce(Invoke([](std::size_t) {
+        return score::Result<std::vector<ActivationResult>>{MakeSamples({"Running"})};
+    }));
+
+    ASSERT_TRUE(receive_handler_);
+    receive_handler_();
+
+    ASSERT_TRUE(name.has_value());
+    EXPECT_EQ(name.value(), "Running");
+}
+
 TEST_F(LmControlUT, ActivationResultInvokesRegisteredCallback)
 {
     RecordProperty(
