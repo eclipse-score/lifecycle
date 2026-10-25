@@ -471,6 +471,19 @@ class BasicLmControlImpl final : public ILmControl
 /// @brief Production alias: BasicLmControlImpl wired to the real mw::com proxy.
 using LmControlImpl = BasicLmControlImpl<MwComProxyTraits>;
 
+/// @brief Factory body behind ILmControl::Create; Impl is a test seam.
+template <typename Impl = LmControlImpl>
+score::Result<std::unique_ptr<ILmControl>> CreateLmControl(std::string_view instance_specifier)
+{
+    auto instance = std::make_unique<Impl>();
+    const auto init_result = instance->init(instance_specifier);
+    if (!init_result.has_value())
+    {
+        return score::MakeUnexpected<std::unique_ptr<ILmControl>>(init_result.error());
+    }
+    return instance;
+}
+
 }  // namespace score::mw::lifecycle::internal
 
 #endif  // SCORE_MW_LIFECYCLE_LM_CONTROL_IMPL_HPP
