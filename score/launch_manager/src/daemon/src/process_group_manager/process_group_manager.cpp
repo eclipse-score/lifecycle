@@ -232,7 +232,7 @@ bool ProcessGroupManager::run()
 
 void ProcessGroupManager::processComponentEvents()
 {
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(bool(graph_), "Graph not initialized");
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(bool(graph_), "Graph not initialized");
 
     while (auto event = event_queue_->getNextEvent())
     {
@@ -257,14 +257,14 @@ void ProcessGroupManager::processComponentEvents()
 
 bool ProcessGroupManager::startInitialTransition()
 {
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(bool(graph_), "Graph not initialized");
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(bool(graph_), "Graph not initialized");
     graph_->startInitialTransition(IdentifierHash{configuration_.initial_run_target_});
     return true;
 }
 
 void ProcessGroupManager::allProcessGroupsOff()
 {
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(bool(graph_), "Graph not initialized");
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(bool(graph_), "Graph not initialized");
 
     // Wait for process group state to change while actively draining shutdown events.
     // SupervisionFailure is intentionally ignored here so recovery transitions do not
@@ -332,7 +332,7 @@ void ProcessGroupManager::allProcessGroupsOff()
 
 void ProcessGroupManager::handleRecoveryRequest(const IdentifierHash& process_identifier)
 {
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(bool(graph_), "Graph not initialized");
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(bool(graph_), "Graph not initialized");
 
     const IdentifierHash old_state = graph_->getRequestedRunTarget();
     const GraphState graph_state = graph_->getState();
@@ -387,7 +387,7 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
 
             // Already rejected via isValidRunTarget() in processStateTransition() (#541) if invalid.
             const bool started = pg.startTransition(last_state, last_source);
-            SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+            SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
                 started, "pending Run Target was not rejected by isValidRunTarget()");
         }
 
@@ -409,7 +409,7 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
             pg.setRequestStartTime();
             const bool started = pg.startTransition(
                 IdentifierHash{Graph::recovery_state_name}, RunTargetActivationSource::kRecoveryAction);
-            SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(started, "fallback Run Target node missing");
+            SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(started, "fallback Run Target node missing");
         }
     }
 }

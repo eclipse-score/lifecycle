@@ -26,7 +26,7 @@ Result<IComponent::RequestState> ProcessForceStopAction::forceStop(cpp::stop_tok
     const
 {
     const ProcessHandle* const process = std::get_if<ProcessHandle>(&handle);
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
         process != nullptr, "ProcessForceStopAction should only be called with a ProcessHandle");
 
     if (process->pid == -1)
