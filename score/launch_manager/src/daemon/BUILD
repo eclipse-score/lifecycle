@@ -11,6 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 load("@rules_cc//cc:defs.bzl", "cc_binary")
+load(":daemon.bzl", "debug_asserts_binary")
 
 cc_library(
     name = "run",
@@ -49,4 +50,16 @@ cc_binary(
     deps = [
         "//score/launch_manager/src/daemon:run",
     ],
+)
+
+# Integration-test variant of :launch_manager - the same binary rebuilt with
+# SCORE_LANGUAGE_FUTURECPP_ASSERT_LEVEL_DEBUG applied to every translation
+# unit (see daemon.bzl), so the integration suite exercises DBG-level asserts
+# while the production :launch_manager target stays untouched (lifecycle#843;
+# lifecycle#579 did the same for unit tests via lm_cc_test).
+debug_asserts_binary(
+    name = "launch_manager_debug_asserts",
+    binary = ":launch_manager",
+    out = "debug_asserts/launch_manager",
+    visibility = ["//score/launch_manager:__subpackages__"],
 )

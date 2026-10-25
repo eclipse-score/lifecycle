@@ -56,6 +56,11 @@ alias(
     actual = "//score/launch_manager/src/daemon:launch_manager",
 )
 
+alias(
+    name = "launch_manager_debug_asserts",
+    actual = "//score/launch_manager/src/daemon:launch_manager_debug_asserts",
+)
+
 cc_library(
     name = "error",
     hdrs = ["src/execution_error.h"],

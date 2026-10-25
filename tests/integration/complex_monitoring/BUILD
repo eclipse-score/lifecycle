@@ -52,7 +52,7 @@ integration_test(
     binaries = [
         ":component_complex_monitoring",
         ":control_client_test_driver",
-        "//score/launch_manager",
+        "//score/launch_manager:launch_manager_debug_asserts",
         "//tests/utils/test_helper:verification_process",
     ],
     config = ":complex_monitoring.json",

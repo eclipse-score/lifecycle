@@ -48,7 +48,7 @@ integration_test(
     binaries = [
         ":control_client_test_driver",
         ":shutdown_signal_process",
-        "//score/launch_manager",
+        "//score/launch_manager:launch_manager_debug_asserts",
     ],
     config = ":shutdown_signal.json",
 )

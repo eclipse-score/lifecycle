@@ -40,7 +40,7 @@ integration_test(
     binaries = [
         ":control_client_test_driver",
         ":process_simple_reporting",
-        "//score/launch_manager",
+        "//score/launch_manager:launch_manager_debug_asserts",
         "//tests/utils/test_helper:verification_process",
     ],
     config = ":process_simple_rep_failure.json",

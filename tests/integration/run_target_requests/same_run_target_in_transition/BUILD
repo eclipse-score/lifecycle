@@ -32,7 +32,7 @@ integration_test(
     binaries = [
         ":control_client_test_driver",
         "//tests/utils/test_helper:gated_process",
-        "//score/launch_manager",
+        "//score/launch_manager:launch_manager_debug_asserts",
     ],
     config = ":same_run_target_in_transition.json",
 )
