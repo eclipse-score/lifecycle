@@ -32,6 +32,7 @@ import %workspace%/score.bazelrc/score_toolchain.bazelrc
 
 # Disable warnings for external code
 build --per_file_copt=external/.*@-w
+build --host_per_file_copt=external/.*@-w
 
 # Common test flags for all platforms
 test --test_output=errors
