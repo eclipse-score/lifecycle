@@ -42,7 +42,7 @@ int main(int argc, const char* argv[])
     // initialize com, needed if you are giving the mw_conf.json as an argument
     score::mw::com::runtime::InitializeRuntime(score::string_manipulation::GetArguments(argc, argv));
 
-    // register signal handler and check success (not inside assert, as it would be removed with NDEBUG)
+    // register signal handler
     if (std::signal(SIGTERM, signalHandler) == SIG_ERR)
     {
         std::cerr << "Failed to register SIGTERM handler" << std::endl;

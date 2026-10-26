@@ -35,7 +35,7 @@ static void sigTermHandler(int signal)
 
 int main(void)
 {
-    // register SIGTERM handler (not inside assert, as it would be removed with NDEBUG)
+    // register SIGTERM handler
     if(signal(SIGTERM, sigTermHandler) == SIG_ERR){
         (void) printf("Failed to register SIGTERM handler! Terminating");
         return EXIT_FAILURE;

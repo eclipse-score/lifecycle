@@ -28,7 +28,6 @@ void sigTermHandler(int)
 int main()
 {
     // register signal handler so that lcm can request a termination
-    // (not inside assert, as it would be removed with NDEBUG)
     if (std::signal(SIGTERM, sigTermHandler) == SIG_ERR)
     {
         std::cerr << "Failed to register SIGTERM handler! Terminating" << std::endl;
