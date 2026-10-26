@@ -17,9 +17,21 @@ namespace score::mw::lifecycle::internal
 {
 
 SafeProcessMap::SafeProcessMap(size_t capacity, IComponentController& termination_handler)
-    : capacity_(capacity), termination_handler_(termination_handler)
+    : capacity_(capacity),
+      pool_resource_(&init_resource_),
+      process_map_(&pool_resource_),
+      termination_handler_(termination_handler)
 {
+    // Reserve enough memory to store the full capacity.
     process_map_.reserve(capacity_);
+    for (size_t i = 0; i < capacity_; ++i)
+    {
+        process_map_.emplace(static_cast<osal::ProcessID>(i), int32_t{});
+    }
+    process_map_.clear();
+
+    // Guarantee no further allocations happen at runtime.
+    init_resource_.lock();
 }
 
 SafeProcessMapReturnType SafeProcessMap::findTerminated(osal::ProcessID key, int32_t status)

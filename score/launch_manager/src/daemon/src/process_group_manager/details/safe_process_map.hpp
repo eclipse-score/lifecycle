@@ -14,11 +14,13 @@
 #ifndef SAFE_PROCESS_MAP_HPP_INCLUDED
 #define SAFE_PROCESS_MAP_HPP_INCLUDED
 
+#include "score/mw/launch_manager/common/init_only_resource.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent_controller.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include <condition_variable>
 #include <cstdint>
 #include <functional>
+#include <memory_resource>
 #include <mutex>
 #include <optional>
 #include <unordered_map>
@@ -124,6 +126,12 @@ class SafeProcessMap final : public SafeProcessMapInserter
     /// @brief Maximum number of processes which can be stored simultaneously.
     size_t capacity_;
 
+    /// @brief Resource which pre-allocates memory.
+    InitOnlyResource init_resource_;
+
+    /// @brief Resource which allows the pre-allocated memory to be reused.
+    std::pmr::unsynchronized_pool_resource pool_resource_;
+
     /// @brief Mutex which protects both maps.
     std::mutex map_mutex_;
 
@@ -131,7 +139,7 @@ class SafeProcessMap final : public SafeProcessMapInserter
     std::condition_variable map_cv_;
 
     /// @brief Map of process IDs to components or exit codes.
-    std::unordered_map<osal::ProcessID, std::variant<int32_t, std::reference_wrapper<IComponent>>> process_map_;
+    std::pmr::unordered_map<osal::ProcessID, std::variant<int32_t, std::reference_wrapper<IComponent>>> process_map_;
 
     /// @brief Handler to notify about process terminations.
     IComponentController& termination_handler_;
