@@ -562,7 +562,7 @@
   {
     "name": "ILmControlUT__ReturnsValidInstanceAndForwardsSpecifier",
     "file": "score/launch_manager/src/lm_control/src/details/ilm_control_UT.cpp",
-    "line": "115",
+    "line": "105",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -576,7 +576,7 @@
   {
     "name": "ILmControlUT__PropagatesInitError",
     "file": "score/launch_manager/src/lm_control/src/details/ilm_control_UT.cpp",
-    "line": "130",
+    "line": "120",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -590,7 +590,7 @@
   {
     "name": "ILmControlUT__ReturnsInitErrorForInvalidSpecifier",
     "file": "score/launch_manager/src/lm_control/src/details/ilm_control_UT.cpp",
-    "line": "142",
+    "line": "132",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
