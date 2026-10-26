@@ -586,7 +586,7 @@ TEST(ComponentTest, AliveInterfacePathAddedToEnvironment)
     EXPECT_EQ(variable.value(), "/test_path");
 }
 
-TEST(ComponentTest, FailedSupervisionConstructionLeavesComponentUnsupervised)
+TEST(ComponentTest, FailedSupervisionConstructionFailsActivation)
 {
     MockStartAction start_action;
     MockStopAction stop_action;
@@ -605,7 +605,7 @@ TEST(ComponentTest, FailedSupervisionConstructionLeavesComponentUnsupervised)
 
     const auto result = component.activate(cpp::stop_token{});
 
-    EXPECT_EQ(result, IComponent::RequestResult::kSuccess);
+    EXPECT_EQ(result, IComponent::RequestResult::kFailure);
     EXPECT_EQ(config.deployment_config.environmental_variables.size(), 0U);
 }
 

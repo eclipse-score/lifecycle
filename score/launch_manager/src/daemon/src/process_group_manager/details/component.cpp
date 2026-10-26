@@ -90,6 +90,13 @@ IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
         std::holds_alternative<TerminatedState>(state_), "Cannot activate component in a running state");
 
+    if (isSupervised(config_.component_properties.application_profile.application_type) && !supervision_handle_)
+    {
+        LM_LOG_ERROR() << config_.name << ": alive supervision is not set up";
+        state_ = FaultState{};
+        return RequestResult::kFailure;
+    }
+
     const Result<Handle> start_result = start_action_.start(stop_token);
     if (!start_result.has_value())
     {
