@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Implementation &#8212; Lifecycle and Health Management  documentation</title>
+    <title>Detailed Design &#8212; Lifecycle and Health Management  documentation</title>
   
   
   
@@ -62,7 +62,7 @@
     <script src="../../../_static/sphinx-needs/libs/html/datatables.min.js?v=8a4aee21"></script>
     <script src="../../../_static/sphinx-needs/libs/html/datatables_loader.js?v=a2cae175"></script>
     <script src="../../../_static/sphinx-needs/libs/html/sphinx_needs_collapse.js?v=dca66431"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'components/launch_manager/product_documentation/implementation';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'components/health_monitor/detailed_design/detailed_design';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://eclipse-score.github.io/lifecycle/versions.json';
@@ -73,8 +73,8 @@
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Known Limitations" href="known_limitations.html" />
-    <link rel="prev" title="Configuration examples" href="examples.html" />
+    <link rel="next" title="Implementation Inspection Checklist" href="chklst_impl_inspection.html" />
+    <link rel="prev" title="Detailed Design" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -420,27 +420,22 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Launch Manager</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Lifecycle Product Documentation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="concepts.html">Overview</a></li>
-<li class="toctree-l3"><a class="reference internal" href="ready_state.html">Ready Conditions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="configuration.html">Configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="integration.html">Integration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples.html">Configuration examples</a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="#">Implementation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="known_limitations.html">Known Limitations</a></li>
-</ul>
-</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../launch_manager/index.html">Launch Manager</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">HealthMonitor</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../requirements/index.html">Requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../architecture/index.html">Component Architecture</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../detailed_design/index.html">Detailed Design</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../safety_analysis/fmea.html">FMEA (Failure Modes and Effects Analysis)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../safety_analysis/dfa.html">DFA (Dependent Failure Analysis)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../safety_analysis/aou_requirements.html">AoU Component Requirements Template</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../interfaces/index.html">Interfaces documentation</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Detailed Design</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Detailed Design</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chklst_impl_inspection.html">Implementation Inspection Checklist</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="../../health_monitor/index.html">HealthMonitor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../safety_analysis/fmea.html">FMEA (Failure Modes and Effects Analysis)</a></li>
+
+
+<li class="toctree-l2"><a class="reference internal" href="../safety_analysis/dfa.html">DFA (Dependent Failure Analysis)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../safety_analysis/aou_requirements.html">AoU Component Requirements</a></li>
+</ul>
+</details></li>
 </ul>
 </div>
 </nav></div>
@@ -485,12 +480,12 @@
     <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Component documentation</a></li>
     
     
-    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Launch Manager</a></li>
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">HealthMonitor</a></li>
     
     
-    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Lifecycle Product Documentation</a></li>
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Detailed Design</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Implementation</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Detailed Design</span></li>
   </ul>
 </nav>
 </div>
@@ -507,59 +502,128 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="implementation">
-<h1>Implementation<a class="headerlink" href="#implementation" title="Link to this heading">#</a></h1>
-<section id="starting-a-process">
-<h2>Starting a process<a class="headerlink" href="#starting-a-process" title="Link to this heading">#</a></h2>
-<p>A reporting process must signal to the Launch Manager that it has
-started successfully by calling the lifecycle API for the language it is
-implemented in. This is done by reporting the <code class="docutils literal notranslate"><span class="pre">kRunning</span></code> execution
-state.</p>
-<p>A <code class="docutils literal notranslate"><span class="pre">ready_timeout_ms</span></code> can be configured for each component. If the
-process does not report <code class="docutils literal notranslate"><span class="pre">kRunning</span></code> within that timeout, the Launch
-Manager terminates the process and registers an error.</p>
-</section>
-<section id="stopping-a-process">
-<h2>Stopping a process<a class="headerlink" href="#stopping-a-process" title="Link to this heading">#</a></h2>
-<p>A process can be configured to terminate in 2 ways:</p>
+  <section id="detailed-design">
+<span id="component-detailed-design-hm"></span><h1>Detailed Design<a class="headerlink" href="#detailed-design" title="Link to this heading">#</a></h1>
+<div class="need_container docutils container" id="SNCB-087701ae">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__health_monitor_detailed_design">
+<tbody>
+<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
+<div class="line"><span><span class="needs_title"><span class="needs_data">HealthMonitor Detailed Design</span></span></span></div>
+</div>
+</td>
+<td class="head_center" colspan="2"><div class="needs_head line-block">
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">draft</span></span></span></div>
+<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">NO</span></span></span></div>
+<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
+</div>
+</td>
+<td class="head_right" colspan="2"><div class="needs_head_right line-block">
+<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
+</div>
+</td>
+</tr>
+<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
+<div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">template</span></span></span></div>
+<div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
+</span></span></div>
+<div class="line"><span><div class="line">realizes: <span class="realizes"><span><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/implementation/implementation_workproducts.html#wp__sw_implementation">wp__sw_implementation</a></span></span></div>
+</span></div>
+</div>
+</td>
+<td class="meta" colspan="3"></td>
+</tr>
+<tr class="content row-odd"><td class="content" colspan="6"></td>
+</tr>
+<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#doc__health_monitor_detailed_design" title="doc__health_monitor_detailed_design">doc__health_monitor_detailed_design</a></span></span></div>
+</div>
+</td>
+<td class="footer" colspan="2"><div class="needs_footer line-block">
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Generic Document</span></span></span></div>
+</div>
+</td>
+<td class="footer_right" colspan="2"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>The above directive must be updated according to your Component.</p>
 <ul class="simple">
-<li><p><strong>Self-terminating</strong> - The process terminates whenever it wants.</p></li>
-<li><p><strong>Non-self-terminating</strong> - The process remains alive until LCM requests the process to end using a <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code> signal.</p></li>
+<li><p>Modify <code class="docutils literal notranslate"><span class="pre">Your</span> <span class="pre">Component</span> <span class="pre">Name</span></code> to be your Component Name</p></li>
+<li><p>Modify <code class="docutils literal notranslate"><span class="pre">id</span></code> to be your Component Name in upper snake case preceded by <code class="docutils literal notranslate"><span class="pre">doc__</span></code> and followed by <code class="docutils literal notranslate"><span class="pre">_detailed_design</span></code></p></li>
+<li><p>Adjust <code class="docutils literal notranslate"><span class="pre">status</span></code> to be <code class="docutils literal notranslate"><span class="pre">valid</span></code></p></li>
+<li><p>Adjust <code class="docutils literal notranslate"><span class="pre">safety</span></code> and <code class="docutils literal notranslate"><span class="pre">tags</span></code> according to your needs</p></li>
 </ul>
-<p>For a process to support being terminated by LCM, it needs to respond to
-a <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code> signal by ending ongoing tasks, freeing resources and
-exiting.</p>
-<p>If a process does not terminate after receiving a <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code>, and a
-<code class="docutils literal notranslate"><span class="pre">shutdown_timeout_ms</span></code> is configured, then after the timeout is fired a
-<code class="docutils literal notranslate"><span class="pre">SIGKILL</span></code> is sent and the process is forcefully terminated.</p>
+</div>
+<section id="detailed-design-for-component-healthmonitor">
+<h2>Detailed Design for Component: HealthMonitor<a class="headerlink" href="#detailed-design-for-component-healthmonitor" title="Link to this heading">#</a></h2>
+<section id="description">
+<h3>Description<a class="headerlink" href="#description" title="Link to this heading">#</a></h3>
+<p>HealthMonitor component consists of these units:</p>
+<ul class="simple">
+<li><p><cite>deadline_monitor</cite></p></li>
+<li><p><cite>logic_monitor</cite></p></li>
+<li><p><cite>health_monitor</cite></p></li>
+</ul>
+<div class="line-block">
+<div class="line">Design Decisions - For the documentation of the decision the <a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/change_management/guidance/change_management_decision_record_template.html#gd_temp__change_decision_record">gd_temp__change_decision_record</a> can be used.</div>
+<div class="line">Design Constraints</div>
+</div>
 </section>
-<section id="state-management">
-<h2>State management<a class="headerlink" href="#state-management" title="Link to this heading">#</a></h2>
-<p>A <strong>state manager</strong> is an application that dictates which run-targets shall be
-active by communicating with the launch manager using the <code class="docutils literal notranslate"><span class="pre">ControlClient</span></code>.
-The <strong>control client</strong> exposes a single API <code class="docutils literal notranslate"><span class="pre">ActivateRunTarget</span></code> which allows
-the user to provide the name of the run-target to activate.
-<code class="docutils literal notranslate"><span class="pre">ActivateRunTarget</span></code> returns a future that resolves once the transition
-is complete.
-Whether to <code class="docutils literal notranslate"><span class="pre">.wait()</span></code> on it is up to the implementation, a state manager may
-choose to wait before issuing the next transition, or fire and continue without
-blocking.</p>
-<p>The <strong>state manager</strong> is itself a managed component and <strong>must</strong> report
-<code class="docutils literal notranslate"><span class="pre">kRunning</span></code> to the Launch Manager using the lifecycle API before calling
-<code class="docutils literal notranslate"><span class="pre">ActivateRunTarget</span></code>.
-Failing to do so means the Launch Manager does not consider the <strong>state
-manager</strong> ready, which blocks the startup procedure from completing.
-The configuration also requires that the component that is the <strong>state manager</strong> has
-to have the field <code class="docutils literal notranslate"><span class="pre">application_profile.application_type</span></code> set to
-<code class="docutils literal notranslate"><span class="pre">State_Manager</span></code>.</p>
+<section id="implementation-structure">
+<h3>Implementation structure<a class="headerlink" href="#implementation-structure" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>src
+└──<span class="w"> </span>health_monitoring_lib
+<span class="w">    </span>├──<span class="w"> </span>cpp<span class="w">             </span><span class="c1"># C++ API using Rust FFI</span>
+<span class="w">    </span>│<span class="w">   </span>├──<span class="w"> </span>include<span class="w">     </span><span class="c1"># C++ public header files.</span>
+<span class="w">    </span>│<span class="w">   </span>│<span class="w">   </span>└──<span class="w"> </span>...
+<span class="w">    </span>│<span class="w">   </span>└──<span class="w"> </span>tests
+<span class="w">    </span>└──<span class="w"> </span>rust<span class="w">            </span><span class="c1"># Rust implementation + FFI for C++</span>
+<span class="w">        </span>└──<span class="w"> </span>deadline
+</pre></div>
+</div>
+<section id="implementation-approach-for-multi-language">
+<h4>Implementation approach for multi language<a class="headerlink" href="#implementation-approach-for-multi-language" title="Link to this heading">#</a></h4>
+<p>The implementation is done primarily in <cite>Rust</cite> language to leverage its memory safety features and concurrency model.
+Due to a need to interface with existing C++ codebases, a C-compatible Foreign Function Interface (FFI) is provided by this <cite>Rust</cite> implementation.
+<cite>C++</cite> API is designed to be idiomatic wrapping around the <cite>Rust</cite> FFI, ensuring ease of use for C++ developers while maintaining the safe usage.</p>
+</section>
+<section id="rationale-behind-decomposition-into-units">
+<h4>Rationale Behind Decomposition into Units<a class="headerlink" href="#rationale-behind-decomposition-into-units" title="Link to this heading">#</a></h4>
+<div class="line-block">
+<div class="line">mandatory: a motivation for the decomposition into one or more units.</div>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">ActivateRunTarget</span></code> is called while a transition is already in
-progress, the in-flight transition is cancelled, its returned future will
-resolve with a <code class="docutils literal notranslate"><span class="pre">kCancelled</span></code> error, and the new transition will be served
-instead. Always check the result of each <code class="docutils literal notranslate"><span class="pre">ActivateRunTarget</span></code> call to
-detect cancellation.</p>
+<p>Reason for split into multiple units could be-
+- Based on design principles like SOLID,DRY etc
+- Based on design pattern’s etc.</p>
 </div>
+</section>
+</section>
+<section id="static-diagrams-for-unit-interactions">
+<h3>Static Diagrams for Unit Interactions<a class="headerlink" href="#static-diagrams-for-unit-interactions" title="Link to this heading">#</a></h3>
+<p class="plantuml">
+<object data="../../../_images/plantuml-994efe6fbed3dd3d21b4d4dd4b3ee944abb713d3.svg" type="image/svg+xml" style="width:2569px;height:1034px;background:#FFFFFF;"></object></p>
+</section>
+<section id="dynamic-diagrams-for-unit-interactions">
+<h3>Dynamic Diagrams for Unit Interactions<a class="headerlink" href="#dynamic-diagrams-for-unit-interactions" title="Link to this heading">#</a></h3>
+<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="p">..</span> <span class="ow">dd_dyn</span><span class="p">::</span> <span class="nt">&lt;Title&gt;</span>
+   <span class="nc">:id:</span> dd_dyn__&lt;Feature&gt;__&lt;Title&gt;
+   <span class="nc">:security:</span> <span class="nt">&lt;YES|NO&gt;</span>
+   <span class="nc">:safety:</span> <span class="nt">&lt;QM|ASIL_B&gt;</span>
+   <span class="nc">:status:</span> <span class="nt">&lt;valid|invalid&gt;</span>
+   <span class="nc">:version:</span> 1
+   <span class="nc">:implements:</span> <span class="nt">&lt;link to component requirement id&gt;</span>
+   <span class="nc">:satisfies:</span> <span class="nt">&lt;link to component architecture id&gt;</span>
+
+<span class="p">     ..</span> <span class="ow">image</span><span class="p">::</span> <span class="nt">&lt;link to drawio image&gt;</span> or .. uml::  assets/&lt;link to plantuml&gt;
+</pre></div>
+</div>
+</section>
 </section>
 </section>
 
@@ -574,20 +638,20 @@ detect cancellation.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="examples.html"
+       href="index.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Configuration examples</p>
+        <p class="prev-next-title">Detailed Design</p>
       </div>
     </a>
     <a class="right-next"
-       href="known_limitations.html"
+       href="chklst_impl_inspection.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Known Limitations</p>
+        <p class="prev-next-title">Implementation Inspection Checklist</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -610,9 +674,17 @@ detect cancellation.</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#starting-a-process">Starting a process</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stopping-a-process">Stopping a process</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#state-management">State management</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#detailed-design-for-component-healthmonitor">Detailed Design for Component: HealthMonitor</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#description">Description</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation-structure">Implementation structure</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation-approach-for-multi-language">Implementation approach for multi language</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#rationale-behind-decomposition-into-units">Rationale Behind Decomposition into Units</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#static-diagrams-for-unit-interactions">Static Diagrams for Unit Interactions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamic-diagrams-for-unit-interactions">Dynamic Diagrams for Unit Interactions</a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -620,7 +692,7 @@ detect cancellation.</p>
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/eclipse-score/lifecycle/edit/main/score/launch_manager/docs/product_documentation/implementation.rst">
+    <a href="https://github.com/eclipse-score/lifecycle/edit/main/score/health_monitor/docs/detailed_design/detailed_design.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
