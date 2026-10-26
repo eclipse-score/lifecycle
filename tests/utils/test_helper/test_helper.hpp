@@ -69,6 +69,9 @@ using score::mw::lifecycle::RunTargetName;
 void push_event(RunTargetActivationSource source, RunTargetName target);
 
 /// @brief Blocks until an event is available, then passes it to `callback` and frees the slot.
-void pop_event(std::function<void(RunTargetActivationSource source, RunTargetName target)> callback);
+/// If no event arrives within `timeout`, a non-fatal test failure is recorded and `callback` is not invoked.
+void pop_event(
+    std::function<void(RunTargetActivationSource source, RunTargetName target)> callback,
+    std::chrono::milliseconds timeout = std::chrono::seconds(10));
 
 #endif  // TESTS_UTILS_TEST_HELPER_HPP

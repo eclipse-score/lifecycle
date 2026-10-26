@@ -124,16 +124,22 @@ void push_event(RunTargetActivationSource source, RunTargetName target)
     event_condition.notify_one();
 }
 
-void pop_event(std::function<void(RunTargetActivationSource source, RunTargetName target)> callback)
+void pop_event(
+    std::function<void(RunTargetActivationSource source, RunTargetName target)> callback,
+    const std::chrono::milliseconds timeout)
 {
     RunTargetActivationSource source;
     RunTargetName target;
     {
         std::cout << __FUNCTION__ << "Locking" << std::endl;
         std::unique_lock event_lock(event_mutex);
-        event_condition.wait(event_lock, [&] {
-            return event_received;
-        });
+        if (!event_condition.wait_for(event_lock, timeout, [&] {
+                return event_received;
+            }))
+        {
+            ADD_FAILURE() << "No Run Target activation event received within " << timeout.count() << " ms";
+            return;
+        }
         std::cout << __FUNCTION__ << "Got event" << std::endl;
         source = event_source;
         target = event_target;
