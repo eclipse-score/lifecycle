@@ -6650,7 +6650,7 @@
     "FullyVerifies": null
   },
   {
-    "name": "ComponentTest__FailedSupervisionConstructionLeavesComponentUnsupervised",
+    "name": "ComponentTest__FailedSupervisionConstructionFailsActivation",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
     "line": "589",
     "result": "passed",
