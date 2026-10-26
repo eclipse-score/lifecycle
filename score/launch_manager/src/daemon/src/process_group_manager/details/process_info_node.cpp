@@ -176,6 +176,7 @@ void ProcessInfoNode::unblockSync()
 IComponent::TerminationResult ProcessInfoNode::tryHandleTermination(int32_t process_status)
 {
     LM_LOG_DEBUG() << "Process" << identifier_ << "( pid" << pid_ << ") terminated with status" << process_status;
+    pid_ = 0;
     exit_status_ = process_status;
     TerminationResult res = TerminationResult::kIgnore;
     ProcessState starting = ProcessState::kStarting;
@@ -530,6 +531,8 @@ IComponent::RequestResult ProcessInfoNode::activate(score::cpp::stop_token stop_
     {
         if (auto time = getTimeForAliveState())
         {
+            supervision_start_timestamp_.store(
+                std::chrono::seconds{time->tv_sec} + std::chrono::nanoseconds{time->tv_nsec});
             supervision_handle_->activateSupervision(time.value());
         }
     }
@@ -542,6 +545,7 @@ IComponent::RequestResult ProcessInfoNode::deactivate(score::cpp::stop_token sto
     reached_ready_.store(false);
     if (auto time = getTimeForAliveState())
     {
+        supervision_start_timestamp_.store(std::chrono::nanoseconds::max());
         supervision_handle_->deactivateSupervision(time.value());
     }
     terminateProcess(stop_token);
@@ -552,6 +556,38 @@ IComponent::RequestResult ProcessInfoNode::deactivate(score::cpp::stop_token sto
 bool ProcessInfoNode::active() const
 {
     return reached_ready_.load();
+}
+
+void ProcessInfoNode::handleSupervisionFailure(std::chrono::nanoseconds failure_timestamp)
+{
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
+        isSupervised(), "Non supervised process received a supervision failure event");
+
+    // Take a copy, pid_ is reset to zero by tryHandleTermination() on another thread.
+    const osal::ProcessID pid = pid_;
+
+    if (!reached_ready_.load())
+    {
+        // The component is not ready, it may be already deactivated or currently deactivating or re-activating.
+        return;
+    }
+
+    if (supervision_start_timestamp_.load() >= failure_timestamp)
+    {
+        // The component is ready, but the supervision failure is from a previous run.
+        // The supervision got deactivated and activated again in the meantime.
+        return;
+    }
+
+    if (pid <= 0)
+    {
+        // process is no longer alive
+        return;
+    }
+
+    LM_LOG_WARN() << "Alive supervision failed for component" << identifier_ << "( pid" << pid
+                  << "), killing the process";
+    static_cast<void>(process_handling_.process_interface_->forceTermination(pid));
 }
 
 osal::ProcessID ProcessInfoNode::getPid() const

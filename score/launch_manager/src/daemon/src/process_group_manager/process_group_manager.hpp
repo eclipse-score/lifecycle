@@ -119,18 +119,13 @@ class ProcessGroupManager final : public IRunTargetControl
 
     void registerActiveRunTargetCallback(ActivationCallbackT callback) noexcept override;
 
-    const IdentifierHash recovery_state_{Graph::recovery_state_name};
-
   private:
-    /// @brief Handle a single recovery request emitted by Alive supervision.
-    void handleRecoveryRequest(const IdentifierHash& process_identifier);
-
     /// @brief Drains every ComponentEvent currently queued to the (single) graph managed by this
     /// ProcessGroupManager.
     /// @details Single-graph assumption: PGM creates one ProcessMonitor bound to the first (only)
-    /// graph. SupervisionFailure is routed by process identifier through handleRecoveryRequest(),
-    /// while all other events are forwarded to Graph::handleComponentEvent(). Multi-graph routing
-    /// is deferred to a future revision.
+    /// graph. GetActiveRunTarget and SetRequestedRunTarget are handled here,
+    /// while all other events (including SupervisionFailure) are forwarded to Graph::handleComponentEvent().
+    /// Multi-graph routing is deferred to a future revision.
     void processComponentEvents();
 
     /// @brief Manage the process group by starting any pending transitions that were requested

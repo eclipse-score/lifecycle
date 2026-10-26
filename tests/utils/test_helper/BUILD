@@ -22,6 +22,7 @@ exports_files(
         "complex_reporting_process.cpp",
         "counting_process.cpp",
         "waiting_process.cpp",
+        "simple_supervised_app.cpp",
     ],
     visibility = ["//tests:__subpackages__"],
 )
@@ -134,6 +135,16 @@ cc_binary(
     visibility = ["//tests:__subpackages__"],
     deps = [
         ":test_helper",
+        "//score/launch_manager:lifecycle_cc",
+    ],
+)
+
+cc_binary(
+    name = "simple_supervised_app",
+    srcs = ["simple_supervised_app.cpp"],
+    visibility = ["//tests:__subpackages__"],
+    deps = [
+        "//score/launch_manager:alive_cc",
         "//score/launch_manager:lifecycle_cc",
     ],
 )

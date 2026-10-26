@@ -73,6 +73,20 @@
                     "PROCESSIDENTIFIER": "component_crashing_once"
                 }
             }
+        },
+        "component_supervised": {
+            "component_properties": {
+                "binary_name": "simple_supervised_app",
+                "process_arguments": [
+                    "--checkpointIntervalMs",
+                    "50",
+                    "--pidfile",
+                    "supervised_app.pid"
+                ],
+                "application_profile": {
+                    "application_type": "Reporting_And_Supervised"
+                }
+            }
         }
     },
     "run_targets": {
@@ -92,6 +106,17 @@
                 }
             }
         },
+        "supervision_failure": {
+            "depends_on": [
+                "control_client_test_driver",
+                "component_supervised"
+            ],
+            "recovery_action": {
+                "switch_run_target": {
+                    "run_target": "fallback_run_target"
+                }
+            }
+        },
         "Off": {
             "depends_on": []
         }
@@ -103,7 +128,8 @@
     "fallback_run_target": {
         "depends_on": [
             "control_client_test_driver",
-            "component_crashing_once"
+            "component_crashing_once",
+            "component_supervised"
         ]
     }
 }
