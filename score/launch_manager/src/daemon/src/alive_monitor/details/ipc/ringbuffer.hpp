@@ -77,9 +77,10 @@ class RingBuffer
             return false;
         }
         Node& n = nodes_[write_head_];
-        // codeql[c/cert/library-function-argument-out-of-bounds] False positive: &value is a const T& and the copy size
-        // is sizeof(T); CodeQL sizes the source as the first member only (e.g. the 8-byte IdentifierHash of
-        // SupervisionEvent). The destination is guaranteed to hold sizeof(T) by the static_assert on ElementSize
+        // CodeQL sizes &value as its first member only (e.g. the 8-byte IdentifierHash of SupervisionEvent), not as a
+        // whole T.
+        // The destination holds sizeof(T) by the static_assert on ElementSize.
+        // codeql[c/cert/library-function-argument-out-of-bounds] False positive: &value is a whole T
         static_cast<void>(std::memcpy(n.storage, &value, sizeof(T)));
         n.size_ = sizeof(T);
         advanceWriteHead();
@@ -126,9 +127,10 @@ class RingBuffer
         {
             return false;
         }
-        // codeql[c/cert/library-function-argument-out-of-bounds] False positive: &out is a T& and the copy size is
-        // sizeof(T); CodeQL sizes the destination as the first member only (e.g. the 8-byte IdentifierHash of
-        // SupervisionEvent). The source holds sizeof(T) by the static_assert on ElementSize and the n.size_ check
+        // CodeQL sizes &out as its first member only (e.g. the 8-byte IdentifierHash of SupervisionEvent), not as a
+        // whole T.
+        // The source holds sizeof(T) by the static_assert on ElementSize and the n.size_ check.
+        // codeql[c/cert/library-function-argument-out-of-bounds] False positive: &out is a whole T
         static_cast<void>(std::memcpy(&out, n.storage, sizeof(T)));
         advanceReadHead();
         return true;

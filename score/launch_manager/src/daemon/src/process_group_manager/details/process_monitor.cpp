@@ -27,19 +27,17 @@ void ProcessMonitor::doWork(ComponentTask&& task)
 {
     auto run_task = [&]() {
         auto& component = task.component.get();
-        IComponent::RequestResult result;
 
         switch (task.type)
         {
             case ComponentTaskType::kActivate:
-                result = component.activate(task.stop_token);
+                return component.activate(task.stop_token);
                 break;
             case ComponentTaskType::kDeactivate:
-                result = component.deactivate(task.stop_token);
+                return component.deactivate(task.stop_token);
                 break;
         }
-
-        return result;
+        SCORE_LANGUAGE_FUTURECPP_UNREACHABLE();
     };
 
     auto handle_success = [&]() {

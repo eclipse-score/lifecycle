@@ -83,20 +83,23 @@ class IpcServer final : public IpcBase<Payload, MaxNumberElements, Socket>
     /// @return kOk if initialization of ipc channel successful, else kPermissionDenied or kFailed
     EIpcInitResult init(const std::string& f_ipcName_r, mode_t f_mode = kOwnerReadWrite) noexcept(false)
     {
-        // codeql[cpp/cert/missing-constructor-call-for-manually-managed-object] False positive: the object is
-        // constructed by std::vector::emplace_back in AliveWorkerFactory::createAliveIfIpc before init() is called
+        // The object is constructed by std::vector::emplace_back in AliveWorkerFactory::createAliveIfIpc before init()
+        // is called.
+        // codeql[cpp/cert/missing-constructor-call-for-manually-managed-object] Constructed by emplace_back
         ReturnCode result{socket->create(f_ipcName_r.c_str(), f_mode)};
         if (result == ReturnCode::kOk)
         {
-            // codeql[cpp/cert/missing-constructor-call-for-manually-managed-object] False positive: the object is
-            // constructed by std::vector::emplace_back in AliveWorkerFactory::createAliveIfIpc before init() is called
+            // The object is constructed by std::vector::emplace_back in AliveWorkerFactory::createAliveIfIpc before
+            // init() is called.
+            // codeql[cpp/cert/missing-constructor-call-for-manually-managed-object] Constructed by emplace_back
             isInitialized = true;
             return EIpcInitResult::kOk;
         }
         else if (result == ReturnCode::kPermissionDenied)
         {
-            // codeql[cpp/cert/missing-constructor-call-for-manually-managed-object] False positive: the object is
-            // constructed by std::vector::emplace_back in AliveWorkerFactory::createAliveIfIpc before init() is called
+            // The object is constructed by std::vector::emplace_back in AliveWorkerFactory::createAliveIfIpc before
+            // init() is called.
+            // codeql[cpp/cert/missing-constructor-call-for-manually-managed-object] Constructed by emplace_back
             isInitialized = false;
             return EIpcInitResult::kPermissionDenied;
         }
@@ -109,8 +112,9 @@ class IpcServer final : public IpcBase<Payload, MaxNumberElements, Socket>
     /// @return True if setting access rights was successful, else false
     bool setAccessRights(uid_t f_uid) noexcept(false)
     {
-        // codeql[cpp/cert/missing-constructor-call-for-manually-managed-object] False positive: the object is
-        // constructed by std::vector::emplace_back in AliveWorkerFactory::createAliveIfIpc before this call
+        // The object is constructed by std::vector::emplace_back in AliveWorkerFactory::createAliveIfIpc before this
+        // call.
+        // codeql[cpp/cert/missing-constructor-call-for-manually-managed-object] Constructed by emplace_back
         int fd = shm_open(Base::getPath().data(), O_RDWR, kOwnerReadWrite);
         if (fd < 0)
         {

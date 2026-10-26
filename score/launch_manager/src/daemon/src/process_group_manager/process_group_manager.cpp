@@ -39,6 +39,8 @@ void ProcessGroupManager::cancel()
     my_signal_handler(SIGTERM);
 }
 
+// The parameters are injected dependencies, each stored in its own member.
+// codeql[cpp/number-of-parameters-per-function] Constructor injection, one dependency per parameter
 ProcessGroupManager::ProcessGroupManager(
     GraphConfig&& config,
     std::unique_ptr<saf::daemon::IAliveMonitor> alive_monitor,

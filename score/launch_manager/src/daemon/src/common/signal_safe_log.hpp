@@ -113,8 +113,8 @@ namespace score::mw::lifecycle::internal
 {
 
 template <typename... T>
-// codeql[cpp/number-of-parameters-per-function] Variadic template: the parameter count is the number of values the
-// caller wants to log.
+// Variadic template: the parameter count is the number of values the caller wants to log.
+// codeql[cpp/number-of-parameters-per-function] Variadic template, count depends on the call
 [[nodiscard]] bool signal_safe_log(const T&... values)
 {
     const int original_errno = errno;  // For reentrancy
