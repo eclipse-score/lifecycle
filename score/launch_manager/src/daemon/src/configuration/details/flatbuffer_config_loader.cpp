@@ -61,6 +61,26 @@ std::optional<IConfigLoader::Error> validateSchemaVersion(const fb::LaunchManage
     return std::nullopt;
 }
 
+/// @brief Checks if all required fields are present.
+/// @warning This method asserts if a config field is missing.
+void validateRequiredFields(const fb::LaunchManagerConfig* config)
+{
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+        config->initial_run_target(),
+        "LaunchManagerConfig::initial_run_target must never be nullptr as it is required in the schema");
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+        config->components(), "LaunchManagerConfig::components must never be nullptr as it is required in the schema");
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+        config->run_targets(),
+        "LaunchManagerConfig::run_targets must never be nullptr as it is required in the schema");
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+        config->fallback_run_target(),
+        "LaunchManagerConfig::fallback_run_target must never be nullptr as it is required in the schema");
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+        config->alive_supervision(),
+        "LaunchManagerConfig::alive_supervision must never be nullptr as it is required in the schema");
+}
+
 score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::vector<uint8_t>& buffer)
 {
     ::flatbuffers::Verifier verifier(buffer.data(), buffer.size());
@@ -80,16 +100,9 @@ score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::ve
         return score::cpp::make_unexpected(*error);
     }
 
-    ConfigBuilder builder;
+    validateRequiredFields(config);
 
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
-        config->initial_run_target(),
-        "LaunchManagerConfig::initial_run_target must never be nullptr as it is required in the schema");
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
-        config->components(), "LaunchManagerConfig::components must never be nullptr as it is required in the schema");
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
-        config->run_targets(),
-        "LaunchManagerConfig::run_targets must never be nullptr as it is required in the schema");
+    ConfigBuilder builder;
     builder.setInitialRunTarget(config->initial_run_target()->str());
 
     // Convert components
@@ -109,9 +122,6 @@ score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::ve
     builder.setRunTargets(std::move(*run_targets));
 
     // Convert fallback Run Target
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
-        config->fallback_run_target(),
-        "LaunchManagerConfig::fallback_run_target must never be nullptr as it is required in the schema");
     auto fallback = convertFallbackRunTarget(config->fallback_run_target());
     if (!fallback.has_value())
     {
@@ -121,9 +131,6 @@ score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::ve
     builder.setFallbackRunTarget(std::move(*fallback));
 
     // Convert alive supervision
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
-        config->alive_supervision(),
-        "LaunchManagerConfig::alive_supervision must never be nullptr as it is required in the schema");
     auto alive_sup = convertAliveSupervision(config->alive_supervision());
     if (!alive_sup.has_value())
     {

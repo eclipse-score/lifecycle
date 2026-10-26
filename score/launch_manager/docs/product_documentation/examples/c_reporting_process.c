@@ -46,7 +46,7 @@ int main(void)
 
     // check report was successful
     if(result != 0){
-        printf("Failed to report kRunning to LCM! Terminating");
+        (void) printf("Failed to report kRunning to LCM! Terminating");
         return 1;
     }
 

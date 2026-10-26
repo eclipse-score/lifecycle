@@ -87,11 +87,13 @@ class IpcServer final : public IpcBase<Payload, MaxNumberElements, Socket>
         ReturnCode result{socket->create(f_ipcName_r.c_str(), f_mode)};
         if (result == ReturnCode::kOk)
         {
+            // codeql[cpp/cert/missing-constructor-call-for-manually-managed-object] False positive: the object is constructed by std::vector::emplace_back in AliveWorkerFactory::createAliveIfIpc before init() is called
             isInitialized = true;
             return EIpcInitResult::kOk;
         }
         else if (result == ReturnCode::kPermissionDenied)
         {
+            // codeql[cpp/cert/missing-constructor-call-for-manually-managed-object] False positive: the object is constructed by std::vector::emplace_back in AliveWorkerFactory::createAliveIfIpc before init() is called
             isInitialized = false;
             return EIpcInitResult::kPermissionDenied;
         }
