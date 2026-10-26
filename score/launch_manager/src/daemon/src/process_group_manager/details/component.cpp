@@ -20,12 +20,28 @@ namespace score::mw::lifecycle::internal
 namespace
 {
 
+using score::mw::lifecycle::internal::configuration::ApplicationType;
+
+bool isSupervised(const ApplicationType& application_type) noexcept
+{
+    switch (application_type)
+    {
+        case ApplicationType::Native:
+        case ApplicationType::Reporting:
+            return false;
+        case ApplicationType::ReportingAndSupervised:
+        case ApplicationType::StateManager:
+            return true;
+    }
+
+    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("All possible cases are covered");
+}
+
 std::unique_ptr<IAliveSupervisionHandle> constructSupervision(
     configuration::ComponentConfig& config,
     ISupervisionFactory& supervision_factory)
 {
-    if (config.component_properties.application_profile.application_type !=
-        configuration::ApplicationType::ReportingAndSupervised)
+    if (!isSupervised(config.component_properties.application_profile.application_type))
     {
         return nullptr;
     }
