@@ -18,6 +18,7 @@
 #include <score/mw/lifecycle/report_running.h>
 #include <unistd.h>
 #include <csignal>
+#include <thread>
 
 namespace
 {

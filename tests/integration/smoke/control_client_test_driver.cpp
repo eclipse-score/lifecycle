@@ -16,6 +16,7 @@
 #include <iostream>
 
 #include "tests/utils/test_helper/test_helper.hpp"
+#include "tests/utils/test_helper/test_runner.hpp"
 #include <score/mw/lifecycle/ilm_control.hpp>
 #include <score/mw/lifecycle/report_running.h>
 
@@ -106,15 +107,13 @@ TEST(Smoke, Daemon)
         EXPECT_TRUE(result.has_value()) << result.error().Message();
         EXPECT_EQ(result.value(), "Startup");
     }
-
-    TEST_STEP("Activate Run Target Off")
-    {
-        const auto result = client->activate_run_target("Off", true);
-        EXPECT_TRUE(result.has_value()) << result.error().Message();
-    }
 }
 
 int main()
 {
-    return TestRunner(__FILE__, TerminationBehavior::kWait, TerminationNotification::kTestEnd).RunTests();
+    TestRunner::Init();
+    const auto test_result = TestRunner::RunTests();
+    TestRunner::EndTest();
+    TestRunner::WaitForTermination();
+    return test_result;
 }

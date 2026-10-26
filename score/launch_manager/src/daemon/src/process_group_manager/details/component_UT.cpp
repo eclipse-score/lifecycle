@@ -41,12 +41,12 @@ void expect_mock_handle(const Handle handle)
     EXPECT_EQ(std::get<ProcessHandle>(handle).pid, mock_handle.pid);
 }
 
-IComponent::RequestResult terminateFromOtherThread(Component& component, const int32_t status)
+IComponent::TerminationResult terminateFromOtherThread(Component& component, const int32_t status)
 {
     // Termination notifications come from another thread in reality, so
     // replacate it in the test to catch concurrency problems.
 
-    IComponent::RequestResult result;
+    IComponent::TerminationResult result;
     std::thread termination_thread([&component, &result, status]() {
         result = component.tryHandleTermination(status);
     });
@@ -66,7 +66,7 @@ TEST(ComponentTest, StartSucceeds)
 
     const auto result = component.activate(cpp::stop_token{});
 
-    EXPECT_TRUE(result.has_value());
+    EXPECT_EQ(result, IComponent::RequestResult::kSuccess);
 }
 
 TEST(ComponentTest, StartActionCalled)
@@ -96,30 +96,10 @@ TEST(ComponentTest, StopActionCalled)
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
     EXPECT_CALL(stop_action, stop(_, _))
-        .WillOnce(DoAll(WithArg<1>(Invoke(expect_mock_handle)), Return(IComponent::RequestState::kSuccess)));
+        .WillOnce(DoAll(WithArg<1>(Invoke(expect_mock_handle)), Return(IComponent::RequestResult::kSuccess)));
 
     static_cast<void>(component.activate(cpp::stop_token{}));
-    component.deactivate(mock_stop_token);
-}
-
-TEST(ComponentTest, DeactivateReturnsWaitingWhenStopActionReturnsWaiting)
-{
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
-    NiceMock<MockSupervisionFactory> factory;
-    configuration::ComponentConfig config;
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
-
-    ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
-    ON_CALL(stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestState::kWaiting));
-
-    static_cast<void>(component.activate(cpp::stop_token{}));
-    const auto result = component.deactivate(mock_stop_token);
-
-    ASSERT_TRUE(result.has_value());
-    ASSERT_EQ(result.value(), IComponent::RequestState::kWaiting);
+    static_cast<void>(component.deactivate(mock_stop_token));
 }
 
 TEST(ComponentTest, DeactivateReturnsSuccessWhenStopActionReturnsSuccess)
@@ -133,13 +113,31 @@ TEST(ComponentTest, DeactivateReturnsSuccessWhenStopActionReturnsSuccess)
     Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
-    ON_CALL(stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestState::kSuccess));
+    ON_CALL(stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestResult::kSuccess));
 
     static_cast<void>(component.activate(cpp::stop_token{}));
     const auto result = component.deactivate(mock_stop_token);
 
-    ASSERT_TRUE(result.has_value());
-    ASSERT_EQ(result.value(), IComponent::RequestState::kSuccess);
+    ASSERT_EQ(result, IComponent::RequestResult::kSuccess);
+}
+
+TEST(ComponentTest, DeactivateReturnsFailureWhenStopActionFails)
+{
+    MockStartAction start_action;
+    MockStopAction stop_action;
+    MockForceStopAction force_stop_action;
+    MockReadyCondition ready_condition;
+    NiceMock<MockSupervisionFactory> factory;
+    configuration::ComponentConfig config;
+    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+
+    ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+    ON_CALL(stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestResult::kFailure));
+
+    static_cast<void>(component.activate(cpp::stop_token{}));
+    const auto result = component.deactivate(mock_stop_token);
+
+    ASSERT_EQ(result, IComponent::RequestResult::kFailure);
 }
 
 TEST(ComponentTest, ReadyConditionCalled)
@@ -180,7 +178,7 @@ TEST(ComponentTest, TerminationDuringStartupInterruptsActivation)
 
     const auto result = component.activate(cpp::stop_token{});
 
-    EXPECT_FALSE(result.has_value());
+    EXPECT_EQ(result, IComponent::RequestResult::kFailure);
 }
 
 TEST(ComponentTest, StartSetsActive)
@@ -209,7 +207,7 @@ TEST(ComponentTest, StopClearsActive)
     Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
 
     static_cast<void>(component.activate(cpp::stop_token{}));
-    component.deactivate(cpp::stop_token{});
+    static_cast<void>(component.deactivate(cpp::stop_token{}));
 
     EXPECT_FALSE(component.active());
 }
@@ -258,7 +256,7 @@ TEST(ComponentTest, CannotActivateInTerminatingState)
     Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
-    ON_CALL(stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestState::kWaiting));
+    ON_CALL(stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestResult::kSuccess));
 
     static_cast<void>(component.activate(cpp::stop_token{}));
     static_cast<void>(component.deactivate(cpp::stop_token{}));
@@ -278,7 +276,7 @@ TEST(ComponentTest, CannotDeactivateInTerminatingState)
     Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
-    ON_CALL(stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestState::kWaiting));
+    ON_CALL(stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestResult::kSuccess));
 
     static_cast<void>(component.activate(cpp::stop_token{}));
     static_cast<void>(component.deactivate(cpp::stop_token{}));
@@ -301,7 +299,7 @@ TEST(ComponentTest, CannotActivateInFaultState)
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
 
     static_cast<void>(component.activate(cpp::stop_token{}));
-    component.tryHandleTermination(1);
+    static_cast<void>(component.tryHandleTermination(1));
 
     EXPECT_DEATH(
         { static_cast<void>(component.activate(cpp::stop_token{})); }, "Cannot activate component in a running state");
@@ -320,14 +318,14 @@ TEST(ComponentTest, CannotDeactivateInFaultState)
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
 
     static_cast<void>(component.activate(cpp::stop_token{}));
-    component.tryHandleTermination(1);
+    static_cast<void>(component.tryHandleTermination(1));
 
     EXPECT_DEATH(
         { static_cast<void>(component.deactivate(cpp::stop_token{})); },
         "Cannot deactivate component in a non-running state");
 }
 
-TEST(ComponentTest, SelfTerminatingExitZeroInReadyStateIsWaiting)
+TEST(ComponentTest, SelfTerminatingExitZeroInReadyStateIsIgnored)
 {
     MockStartAction start_action;
     MockStopAction stop_action;
@@ -343,8 +341,7 @@ TEST(ComponentTest, SelfTerminatingExitZeroInReadyStateIsWaiting)
     static_cast<void>(component.activate(cpp::stop_token{}));
     const auto result = component.tryHandleTermination(0);
 
-    ASSERT_TRUE(result.has_value());
-    EXPECT_EQ(result.value(), IComponent::RequestState::kWaiting);
+    EXPECT_EQ(result, IComponent::TerminationResult::kIgnore);
 }
 
 TEST(ComponentTest, SelfTerminatingExitZeroInReadyStateIsActive)
@@ -366,7 +363,7 @@ TEST(ComponentTest, SelfTerminatingExitZeroInReadyStateIsActive)
     EXPECT_TRUE(component.active());
 }
 
-TEST(ComponentTest, SelfTerminatingExitNonZeroInReadyStateIsError)
+TEST(ComponentTest, SelfTerminatingExitNonZeroInReadyStateIsFailure)
 {
     MockStartAction start_action;
     MockStopAction stop_action;
@@ -382,8 +379,7 @@ TEST(ComponentTest, SelfTerminatingExitNonZeroInReadyStateIsError)
     static_cast<void>(component.activate(cpp::stop_token{}));
     const auto result = component.tryHandleTermination(1);
 
-    ASSERT_FALSE(result.has_value());
-    EXPECT_EQ(result.error(), IComponent::ComponentError::kErrorAfterReady);
+    EXPECT_EQ(result, IComponent::TerminationResult::kFailure);
 }
 
 TEST(ComponentTest, SelfTerminatingExitNonZeroInReadyStateIsNotActive)
@@ -405,7 +401,7 @@ TEST(ComponentTest, SelfTerminatingExitNonZeroInReadyStateIsNotActive)
     EXPECT_FALSE(component.active());
 }
 
-TEST(ComponentTest, SelfTerminatingExitZeroInStartingStateIsWaiting)
+TEST(ComponentTest, SelfTerminatingExitZeroInStartingStateIsIgnored)
 {
     MockStartAction start_action;
     MockStopAction stop_action;
@@ -418,7 +414,7 @@ TEST(ComponentTest, SelfTerminatingExitZeroInStartingStateIsWaiting)
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
 
-    IComponent::RequestResult result;
+    IComponent::TerminationResult result;
     EXPECT_CALL(ready_condition, wait(_, _)).WillOnce(Invoke([&](cpp::stop_token, const Handle) {
         result = terminateFromOtherThread(component, 0);
         return Result<void>{};
@@ -426,8 +422,7 @@ TEST(ComponentTest, SelfTerminatingExitZeroInStartingStateIsWaiting)
 
     static_cast<void>(component.activate(cpp::stop_token{}));
 
-    ASSERT_TRUE(result.has_value());
-    EXPECT_EQ(result.value(), IComponent::RequestState::kWaiting);
+    EXPECT_EQ(result, IComponent::TerminationResult::kIgnore);
 }
 
 TEST(ComponentTest, SelfTerminatingExitZeroInStartingStateIsActive)
@@ -452,7 +447,7 @@ TEST(ComponentTest, SelfTerminatingExitZeroInStartingStateIsActive)
     EXPECT_TRUE(component.active());
 }
 
-TEST(ComponentTest, SelfTerminatingExitNonZeroInStartingStateIsError)
+TEST(ComponentTest, SelfTerminatingExitNonZeroInStartingStateIsFailure)
 {
     MockStartAction start_action;
     MockStopAction stop_action;
@@ -465,7 +460,7 @@ TEST(ComponentTest, SelfTerminatingExitNonZeroInStartingStateIsError)
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
 
-    IComponent::RequestResult result;
+    IComponent::TerminationResult result;
     EXPECT_CALL(ready_condition, wait(_, _)).WillOnce(Invoke([&](cpp::stop_token, const Handle) {
         result = terminateFromOtherThread(component, 1);
         return Result<void>{};
@@ -473,8 +468,7 @@ TEST(ComponentTest, SelfTerminatingExitNonZeroInStartingStateIsError)
 
     static_cast<void>(component.activate(cpp::stop_token{}));
 
-    ASSERT_FALSE(result.has_value());
-    EXPECT_EQ(result.error(), IComponent::ComponentError::kErrorAfterReady);
+    EXPECT_EQ(result, IComponent::TerminationResult::kFailure);
 }
 
 TEST(ComponentTest, SelfTerminatingExitNonZeroInStartingStateIsNotActive)
@@ -523,7 +517,7 @@ TEST(ComponentTest, SettingBothStopTokens)
 
     const auto result = component.activate(stop_source.get_token());
 
-    EXPECT_FALSE(result.has_value());
+    EXPECT_EQ(result, IComponent::RequestResult::kFailure);
 }
 
 TEST(ComponentTest, SupervisionConstructedFromConfig)
@@ -611,7 +605,7 @@ TEST(ComponentTest, FailedSupervisionConstructionLeavesComponentUnsupervised)
 
     const auto result = component.activate(cpp::stop_token{});
 
-    EXPECT_TRUE(result.has_value());
+    EXPECT_EQ(result, IComponent::RequestResult::kSuccess);
     EXPECT_EQ(config.deployment_config.environmental_variables.size(), 0U);
 }
 
@@ -664,8 +658,7 @@ TEST(ComponentTest, SupervisionActivationFailureFaultsComponent)
     EXPECT_CALL(*supervision, activateSupervision(_)).WillOnce(Return(false));
 
     const auto result = component.activate(cpp::stop_token{});
-    ASSERT_FALSE(result.has_value());
-    EXPECT_EQ(result.error(), IComponent::ComponentError::kErrorAfterReady);
+    EXPECT_EQ(result, IComponent::RequestResult::kFailure);
     EXPECT_FALSE(component.active());
     EXPECT_DEATH(
         { static_cast<void>(component.deactivate(cpp::stop_token{})); },
@@ -755,7 +748,7 @@ TEST(ComponentTest, SupervisionDeactivatedBeforeStopAction)
 
     InSequence sequence;
     EXPECT_CALL(*supervision, deactivateSupervision(_)).WillOnce(Return(true));
-    EXPECT_CALL(stop_action, stop(_, _)).WillOnce(Return(IComponent::RequestState::kSuccess));
+    EXPECT_CALL(stop_action, stop(_, _)).WillOnce(Return(IComponent::RequestResult::kSuccess));
 
     static_cast<void>(component.deactivate(cpp::stop_token{}));
 }
@@ -786,8 +779,7 @@ TEST(ComponentTest, SupervisionDeactivationFailureFaultsComponent)
     EXPECT_CALL(stop_action, stop(_, _)).Times(0);
 
     const auto result = component.deactivate(cpp::stop_token{});
-    ASSERT_FALSE(result.has_value());
-    EXPECT_EQ(result.error(), IComponent::ComponentError::kErrorAfterReady);
+    EXPECT_EQ(result, IComponent::RequestResult::kFailure);
     EXPECT_FALSE(component.active());
     EXPECT_DEATH(
         { static_cast<void>(component.deactivate(cpp::stop_token{})); },

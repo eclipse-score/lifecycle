@@ -20,15 +20,15 @@ using namespace score::mw::health::internal;
 using namespace score::mw::health::heartbeat;
 
 FFICode heartbeat_monitor_builder_create(
-    uint32_t range_min_ms,
-    uint32_t range_max_ms,
+    uint64_t range_min_ms,
+    uint64_t range_max_ms,
     FFIHandle* heartbeat_monitor_builder_handle_out);
 FFICode heartbeat_monitor_builder_destroy(FFIHandle heartbeat_monitor_builder_handle);
 FFICode heartbeat_monitor_destroy(FFIHandle heartbeat_monitor_builder_handle);
 FFICode heartbeat_monitor_heartbeat(FFIHandle heartbeat_monitor_builder_handle);
 }
 
-FFIHandle heartbeat_monitor_builder_create_wrapper(uint32_t range_min_ms, uint32_t range_max_ms)
+FFIHandle heartbeat_monitor_builder_create_wrapper(uint64_t range_min_ms, uint64_t range_max_ms)
 {
     FFIHandle handle{nullptr};
     auto result{heartbeat_monitor_builder_create(range_min_ms, range_max_ms, &handle)};

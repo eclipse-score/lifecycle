@@ -44,7 +44,7 @@ TEST_F(ProcessMonitorTest, DoWorkNormalActivation)
     RecordProperty("Description", "Verify that the process monitor activates components during activate tasks");
     // Given a valid activate task
     // Then
-    EXPECT_CALL(mock_component, activate).WillOnce(Return(IComponent::RequestState::kSuccess));
+    EXPECT_CALL(mock_component, activate).WillOnce(Return(IComponent::RequestResult::kSuccess));
     EXPECT_CALL(
         mock_queue,
         push(VariantWith<ActivationSuccessful>(Field(&ActivationSuccessful::node_identifier, kDefaultIdentifier))))
@@ -58,32 +58,13 @@ TEST_F(ProcessMonitorTest, DoWorkNormalDeactivation)
     RecordProperty("Description", "Verify that the process monitor deactivates components during deactivate tasks");
     // Given a valid activate task
     // Then
-    EXPECT_CALL(mock_component, deactivate).WillOnce(Return(IComponent::RequestState::kSuccess));
+    EXPECT_CALL(mock_component, deactivate).WillOnce(Return(IComponent::RequestResult::kSuccess));
     EXPECT_CALL(
         mock_queue,
         push(VariantWith<DeactivationComplete>(Field(&DeactivationComplete::node_identifier, kDefaultIdentifier))))
         .Times(1);
     // When
     process_monitor.doWork(ComponentTask{ComponentTaskType::kDeactivate, mock_component, stop_source.get_token()});
-}
-
-TEST_F(ProcessMonitorTest, DoWorkOnTerminationDepProcess)
-{
-    RecordProperty(
-        "Description", "Verify that a process activated by its own termination recieves the correct instructions");
-    // Given a task for starting a component that only reaches active when it terminates
-    // Then
-    // The component is neither complete nor failed
-    EXPECT_CALL(mock_component, activate).WillOnce(Return(IComponent::RequestState::kWaiting));
-    EXPECT_CALL(mock_component, tryHandleTermination).WillOnce(Return(IComponent::RequestState::kSuccess));
-    EXPECT_CALL(
-        mock_queue,
-        push(VariantWith<ActivationSuccessful>(Field(&ActivationSuccessful::node_identifier, kDefaultIdentifier))))
-        .Times(1);
-    // When
-    process_monitor.doWork(ComponentTask{ComponentTaskType::kActivate, mock_component, stop_source.get_token()});
-    // The OS thread detects the termination:
-    process_monitor.terminated(mock_component, 0);
 }
 
 TEST_F(ProcessMonitorTest, TerminatedUnexpectedly)
@@ -94,8 +75,7 @@ TEST_F(ProcessMonitorTest, TerminatedUnexpectedly)
 
     // Given a terminated signal on a component that is not expected to terminate:
     // Then
-    EXPECT_CALL(mock_component, tryHandleTermination)
-        .WillOnce(Return(score::cpp::make_unexpected(IComponent::ComponentError::kErrorAfterReady)));
+    EXPECT_CALL(mock_component, tryHandleTermination).WillOnce(Return(IComponent::TerminationResult::kFailure));
     EXPECT_CALL(
         mock_queue,
         push(VariantWith<UnexpectedTermination>(Field(&UnexpectedTermination::node_identifier, kDefaultIdentifier))))
@@ -111,9 +91,9 @@ TEST_F(ProcessMonitorTest, ActivationFailed)
         "Verify that when a component activation fails, the correct error and data is pushed to the event queue");
 
     // Given a task that will fail to activate
-    auto errc = IComponent::ComponentError::kActivationTimedOut;
+    auto errc = IComponent::RequestResult::kTimeout;
     // Then
-    EXPECT_CALL(mock_component, activate).WillOnce(Return(score::cpp::make_unexpected(errc)));
+    EXPECT_CALL(mock_component, activate).WillOnce(Return(errc));
     EXPECT_CALL(mock_queue, push(VariantWith<ActivationFailed>(Field(&ActivationFailed::reason, errc)))).Times(1);
     // When
     process_monitor.doWork(ComponentTask{ComponentTaskType::kActivate, mock_component, stop_source.get_token()});

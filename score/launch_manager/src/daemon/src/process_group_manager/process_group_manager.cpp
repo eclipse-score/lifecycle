@@ -44,10 +44,11 @@ ProcessGroupManager::ProcessGroupManager(
     std::unique_ptr<saf::daemon::IAliveMonitor> alive_monitor,
     std::shared_ptr<IRecoveryClient> recovery_client,
     std::unique_ptr<score::mw::lifecycle::internal::watchdog::IWatchdogIf> watchdog,
-    std::optional<configuration::WatchdogConfig>&& watchdog_config)
+    std::optional<configuration::WatchdogConfig>&& watchdog_config,
+    std::unique_ptr<osal::IProcess> process_interface)
     : configuration_(std::move(config)),
       watchdog_config_(watchdog_config),
-      process_interface_(),
+      process_interface_(std::move(process_interface)),
       file_waiter_(),
       process_map_(nullptr),
       thread_pool_(nullptr),
@@ -148,7 +149,8 @@ bool ProcessGroupManager::initializeProcessGroups()
         configuration_.components_.size() + configuration_.run_targets_.size() + 2,
         configuration_,
         worker_jobs_,
-        ProcessHandling{&process_interface_, process_map_, &file_waiter_, alive_monitor_->getSupervisionFactory()});
+        ProcessHandling{
+            process_interface_.get(), process_map_, &file_waiter_, alive_monitor_->getSupervisionFactory()});
 
     LM_LOG_DEBUG() << "Graph initialized successfully";
     return true;

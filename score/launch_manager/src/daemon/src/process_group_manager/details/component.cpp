@@ -78,7 +78,7 @@ IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
     if (!start_result.has_value())
     {
         state_ = FaultState{};
-        return cpp::make_unexpected(ComponentError::kErrorBeforeReady);
+        return RequestResult::kFailure;
     }
     const Handle& handle = start_result.value();
 
@@ -95,7 +95,7 @@ IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
     lock.unlock();
     if (!ready_condition_.wait(stop_activation.get_token(), handle).has_value())
     {
-        return cpp::make_unexpected(ComponentError::kErrorBeforeReady);
+        return RequestResult::kFailure;
     }
     lock.lock();
 
@@ -103,7 +103,7 @@ IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
     // activation fails.
     if (stop_activation.stop_requested())
     {
-        return cpp::make_unexpected(ComponentError::kErrorBeforeReady);
+        return RequestResult::kFailure;
     }
 
     // The state could change while the lock was released, so we have to check.
@@ -114,10 +114,10 @@ IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
         if (!activateSupervision())
         {
             state_ = FaultState{};
-            return cpp::make_unexpected(ComponentError::kErrorAfterReady);
+            return RequestResult::kFailure;
         }
 
-        return RequestState::kSuccess;
+        return RequestResult::kSuccess;
     }
 
     SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("If stop was not requested, then state must still be StartingState");
@@ -136,7 +136,7 @@ IComponent::RequestResult Component::deactivate(cpp::stop_token stop_token)
     if (!deactivateSupervision())
     {
         state_ = FaultState{};
-        return cpp::make_unexpected(ComponentError::kErrorAfterReady);
+        return RequestResult::kFailure;
     }
 
     // If the component is still waiting for ready conditions, cancel that.
@@ -146,29 +146,18 @@ IComponent::RequestResult Component::deactivate(cpp::stop_token stop_token)
     }
 
     const Result<RequestResult> result = stop_action_.stop(stop_token, handle);
-    if (!result.has_value())
+    if (!result.has_value() || result.value() != RequestResult::kSuccess)
     {
         state_ = FaultState{handle};
-        return cpp::make_unexpected(ComponentError::kErrorAfterReady);
+        return RequestResult::kFailure;
     }
 
-    switch (*result.value())
-    {
-        // Wait for `tryHandleTermination` to tell us the termination is done.
-        case RequestState::kWaiting:
-            state_ = TerminatingState{handle};
-            return RequestState::kWaiting;
-
-        // Already terminated, jump straight to the final state.
-        case RequestState::kSuccess:
-            state_ = TerminatedState{};
-            return RequestState::kSuccess;
-    }
-
-    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Every possible RequestState should be handled");
+    // `tryHandleTermination` tells us when the termination is done.
+    state_ = TerminatingState{handle};
+    return RequestResult::kSuccess;
 }
 
-IComponent::RequestResult Component::tryHandleTermination(int32_t status)
+IComponent::TerminationResult Component::tryHandleTermination(int32_t status)
 {
     const std::lock_guard<std::mutex> lock{state_mutex_};
 
@@ -177,7 +166,7 @@ IComponent::RequestResult Component::tryHandleTermination(int32_t status)
     if (std::holds_alternative<TerminatingState>(state_))
     {
         state_ = TerminatedState{};
-        return RequestState::kWaiting;
+        return TerminationResult::kIgnore;
     }
 
     StartingState* const starting = std::get_if<StartingState>(&state_);
@@ -192,18 +181,18 @@ IComponent::RequestResult Component::tryHandleTermination(int32_t status)
     if (ready != nullptr && !deactivateSupervision())
     {
         state_ = FaultState{};
-        return cpp::make_unexpected(ComponentError::kErrorAfterReady);
+        return TerminationResult::kFailure;
     }
 
     // Certain ready conditions can accept terminations.
     if (starting != nullptr && ready_condition_.tryHandleTermination(handle, status))
     {
-        return RequestState::kWaiting;
+        return TerminationResult::kIgnore;
     }
 
     if (config_.component_properties.application_profile.is_self_terminating && status == 0)
     {
-        return RequestState::kWaiting;
+        return TerminationResult::kIgnore;
     }
 
     // If none of the above cases apply, then termination is unexpected.
@@ -214,7 +203,7 @@ IComponent::RequestResult Component::tryHandleTermination(int32_t status)
     }
 
     state_ = FaultState{};
-    return cpp::make_unexpected(ComponentError::kErrorAfterReady);
+    return TerminationResult::kFailure;
 }
 
 IdentifierHash Component::getIdentifier() const

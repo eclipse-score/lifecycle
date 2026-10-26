@@ -15,8 +15,12 @@
 #define IALIVEWORKERFACTORY_HPP_INCLUDED
 
 #include "score/mw/launch_manager/alive_monitor/details/ifappl/DataStructures.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ifappl/MonitorIfDaemon.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/ifexm/IObservableEventReader.hpp"
+#include "score/mw/launch_manager/alive_monitor/details/supervision/Alive.hpp"
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/configuration/config.hpp"
+
 #include <vector>
 
 namespace score::mw::lifecycle
@@ -31,19 +35,7 @@ namespace score::mw::lifecycle::internal::saf
 namespace ifexm
 {
 class ObservableEvent;
-class ObservableEventReader;
 }  // namespace ifexm
-
-namespace ifappl
-{
-class MonitorIfDaemon;
-class Checkpoint;
-}  // namespace ifappl
-
-namespace supervision
-{
-class Alive;
-}  // namespace supervision
 
 namespace factory
 {
@@ -78,7 +70,7 @@ class IAliveWorkerFactory
     virtual bool createObservableEvent(
         std::vector<ifexm::ObservableEvent>& events,
         const IdentifierHash component_id,
-        ifexm::ObservableEventReader& event_reader_) = 0;
+        ifexm::IObservableEventReader& event_reader_) = 0;
 
     /// @brief Create IPC for Alive Interface
     /// @param [out] servers  Container to emplace the new server into

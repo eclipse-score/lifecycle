@@ -72,12 +72,15 @@ class ProcessGroupManager final : public IRunTargetControl
     /// the Alive Monitor thread of process state changes.
     /// @param watchdog A unique pointer to an IWatchdogIf instance serviced during the main loop. May be nullptr in
     /// legacy configuration where no watchdog is wired.
+    /// @param process_interface The interface used to launch and terminate processes. Defaults to the POSIX
+    /// ProcessLauncher.
     ProcessGroupManager(
         GraphConfig&& config,
         std::unique_ptr<saf::daemon::IAliveMonitor> alive_monitor,
         std::shared_ptr<IRecoveryClient> recovery_client,
         std::unique_ptr<score::mw::lifecycle::internal::watchdog::IWatchdogIf> watchdog,
-        std::optional<configuration::WatchdogConfig>&& watchdog_config);
+        std::optional<configuration::WatchdogConfig>&& watchdog_config,
+        std::unique_ptr<osal::IProcess> process_interface = std::make_unique<osal::ProcessLauncher>());
 
     /// @brief Initializes the process group manager.
     /// Sets up a signal handler for SIGINT and SIGTERM so that the main loop of
@@ -197,7 +200,7 @@ class ProcessGroupManager final : public IRunTargetControl
     std::optional<configuration::WatchdogConfig> watchdog_config_;
 
     /// @brief The process interface object associated with the ProcessGroupManager.
-    osal::ProcessLauncher process_interface_;
+    std::unique_ptr<osal::IProcess> process_interface_;
 
     /// @brief Waits for FileState ready conditions; injected into ProcessInfoNode via ProcessHandling.
     osal::FileWaiter file_waiter_;

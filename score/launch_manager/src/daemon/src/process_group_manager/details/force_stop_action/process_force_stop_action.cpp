@@ -22,7 +22,7 @@ ProcessForceStopAction::ProcessForceStopAction(osal::IProcess& launcher) : launc
 {
 }
 
-Result<IComponent::RequestState> ProcessForceStopAction::forceStop(cpp::stop_token stop_token, const Handle& handle)
+Result<IComponent::RequestResult> ProcessForceStopAction::forceStop(cpp::stop_token stop_token, const Handle& handle)
     const
 {
     const ProcessHandle* const process = std::get_if<ProcessHandle>(&handle);
@@ -31,14 +31,14 @@ Result<IComponent::RequestState> ProcessForceStopAction::forceStop(cpp::stop_tok
 
     if (process->pid == -1)
     {
-        return IComponent::RequestState::kSuccess;
+        return IComponent::RequestResult::kSuccess;
     }
 
     const osal::OsalReturnType result = launcher_.forceTermination(process->pid);
 
     if (result == osal::OsalReturnType::kSuccess)
     {
-        return IComponent::RequestState::kWaiting;
+        return IComponent::RequestResult::kSuccess;
     }
 
     return MakeUnexpected(ExecErrc::kGeneralError);

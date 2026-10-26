@@ -28,6 +28,30 @@ cc_library(
 )
 
 cc_library(
+    name = "i_observable_event_reader",
+    hdrs = ["IObservableEventReader.hpp"],
+    include_prefix = "score/mw/launch_manager/alive_monitor/details/ifexm",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/ifexm",
+    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
+    deps = [
+        ":observable_event",
+        "//score/launch_manager/src/daemon/src/common:identifier_hash",
+    ],
+)
+
+cc_library(
+    name = "mock_observable_event_reader",
+    testonly = True,
+    hdrs = ["MockObservableEventReader.hpp"],
+    include_prefix = "score/mw/launch_manager/alive_monitor/details/ifexm",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/ifexm",
+    visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
+    deps = [
+        ":i_observable_event_reader",
+    ],
+)
+
+cc_library(
     name = "observable_event_reader",
     srcs = ["ObservableEventReader.cpp"],
     hdrs = ["ObservableEventReader.hpp"],
@@ -35,6 +59,7 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/daemon/src/alive_monitor/details/ifexm",
     visibility = ["//score/launch_manager/src/daemon/src/alive_monitor:__subpackages__"],
     deps = [
+        ":i_observable_event_reader",
         ":observable_event",
         ":supervision_event",
         "//score/launch_manager:error_event",
