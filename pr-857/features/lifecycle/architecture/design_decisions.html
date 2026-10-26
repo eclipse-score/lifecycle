@@ -423,7 +423,7 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Lifecycle</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Feature Architecture</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="components_run_targets.html">Components &amp; Run Targets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="run_target_activation.html">Run Target Activation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="run_target_activation.html">Run Target activation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="startup_shutdown.html">Startup &amp; Shutdown</a></li>
 <li class="toctree-l3"><a class="reference internal" href="health_monitoring.html">Health Monitoring</a></li>
 <li class="toctree-l3"><a class="reference internal" href="recovery_actions.html">Recovery Actions</a></li>
@@ -512,7 +512,7 @@
 <span id="lifecycle-design-decisions"></span><h1>Design Decisions<a class="headerlink" href="#design-decisions" title="Link to this heading">#</a></h1>
 <section id="in-process-health-monitor">
 <h2>In-Process Health Monitor<a class="headerlink" href="#in-process-health-monitor" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-6d82beb9">
+<div class="need_container docutils container" id="SNCB-030c1065">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_dec_rec table" id="dec_rec__lifecycle__in_process_health_monitor">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -604,7 +604,7 @@ The monitoring daemon is configured with the supervisions that shall be checked 
 </section>
 </section>
 <section id="justification-for-the-decision">
-<h3>Justification for the Decision<a class="headerlink" href="#justification-for-the-decision" title="Link to this heading">#</a></h3>
+<h3>Justification for the decision<a class="headerlink" href="#justification-for-the-decision" title="Link to this heading">#</a></h3>
 <p>As the <a class="reference internal" href="../glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> is linked as part of the monitored application, it raises the following concerns
 with respect to safety:</p>
 <ul class="simple">
@@ -645,7 +645,7 @@ counter (or some more complex mathematical function), further checkpoints for de
 </section>
 <section id="launch-manager-starts-processes-on-a-thread-pool">
 <h2>Launch Manager starts processes on a thread pool<a class="headerlink" href="#launch-manager-starts-processes-on-a-thread-pool" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-fab27aac">
+<div class="need_container docutils container" id="SNCB-2b4347cd">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_dec_rec table" id="dec_rec__lifecycle__thread_pool_process">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -706,7 +706,7 @@ Fast startup is an important performance goal for the Launch Manager.</p>
 </section>
 <section id="launch-manager-alive-monitoring-is-polling-based">
 <h2>Launch Manager Alive Monitoring is polling-based<a class="headerlink" href="#launch-manager-alive-monitoring-is-polling-based" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-1523c1bd">
+<div class="need_container docutils container" id="SNCB-fd88a14c">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_dec_rec table" id="dec_rec__lifecycle__lm_alive_polling">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -768,8 +768,8 @@ Configure the cycle time to balance the desired detection time against acceptabl
 </section>
 </section>
 <section id="flatbuffer-configuration">
-<h2>Flatbuffer Configuration<a class="headerlink" href="#flatbuffer-configuration" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-4dc762e2">
+<h2>Flatbuffer configuration<a class="headerlink" href="#flatbuffer-configuration" title="Link to this heading">#</a></h2>
+<div class="need_container docutils container" id="SNCB-b51af1e3">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_dec_rec table" id="dec_rec__lifecycle__flatbuffer_config">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -883,7 +883,7 @@ Compared with a textual format such as JSON, the FlatBuffers binary configuratio
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#classical-external-process-monitoring">Classical external process monitoring</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#justification-for-the-decision">Justification for the Decision</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#justification-for-the-decision">Justification for the decision</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#launch-manager-starts-processes-on-a-thread-pool">Launch Manager starts processes on a thread pool</a><ul class="nav section-nav flex-column">
@@ -896,7 +896,7 @@ Compared with a textual format such as JSON, the FlatBuffers binary configuratio
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Consequences</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#flatbuffer-configuration">Flatbuffer Configuration</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#flatbuffer-configuration">Flatbuffer configuration</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Context</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Consequences</a></li>
 </ul>
