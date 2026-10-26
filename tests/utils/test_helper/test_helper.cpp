@@ -126,6 +126,8 @@ void push_event(RunTargetActivationSource source, RunTargetName target)
 
 void pop_event(std::function<void(RunTargetActivationSource source, RunTargetName target)> callback)
 {
+    RunTargetActivationSource source;
+    RunTargetName target;
     {
         std::cout << __FUNCTION__ << "Locking" << std::endl;
         std::unique_lock event_lock(event_mutex);
@@ -133,8 +135,11 @@ void pop_event(std::function<void(RunTargetActivationSource source, RunTargetNam
             return event_received;
         });
         std::cout << __FUNCTION__ << "Got event" << std::endl;
-        callback(event_source, event_target);
+        source = event_source;
+        target = event_target;
         event_received = false;
     }
     event_condition.notify_one();
+    // Invoked without holding the mutex so the callback may block or call push_event/pop_event.
+    callback(source, target);
 }
