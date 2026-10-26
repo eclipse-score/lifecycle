@@ -132,15 +132,16 @@ IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
     // The state could change while the lock was released, so we have to check.
     if (const StartingState* const starting = std::get_if<StartingState>(&state_))
     {
-        state_ = ReadyState{starting->handle_};
-
-        if (!activateSupervision())
+        if (activateSupervision())
         {
-            state_ = FaultState{};
+            state_ = ReadyState{starting->handle_};
+            return RequestResult::kSuccess;
+        }
+        else
+        {
+            state_ = FaultState{starting->handle_};
             return RequestResult::kFailure;
         }
-
-        return RequestResult::kSuccess;
     }
 
     SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("If stop was not requested, then state must still be StartingState");
@@ -158,7 +159,7 @@ IComponent::RequestResult Component::deactivate(cpp::stop_token stop_token)
 
     if (!deactivateSupervision())
     {
-        state_ = FaultState{};
+        state_ = FaultState{handle};
         return RequestResult::kFailure;
     }
 
@@ -203,7 +204,7 @@ IComponent::TerminationResult Component::tryHandleTermination(int32_t status)
 
     if (ready != nullptr && !deactivateSupervision())
     {
-        state_ = FaultState{};
+        state_ = FaultState{handle};
         return TerminationResult::kFailure;
     }
 
