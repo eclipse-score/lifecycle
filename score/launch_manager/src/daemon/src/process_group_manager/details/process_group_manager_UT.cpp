@@ -140,7 +140,7 @@ class ProcessGroupManagerWatchdogTest : public Test
         // Capture the callback the ProcessGroupManager registers so tests can inject recovery
         // requests as if they came from the Alive Monitor.
         ON_CALL(*recovery_client_, setRecoveryRequestCallback(_)).WillByDefault(SaveArg<0>(&recovery_callback_));
-        ON_CALL(*recovery_client_, sendRecoveryRequest(_)).WillByDefault(Return(true));
+        ON_CALL(*recovery_client_, sendRecoveryRequest(_, _)).WillByDefault(Return(true));
 
         ON_CALL(factory_, constructSupervision).WillByDefault(InvokeWithoutArgs([]() {
             auto publisher = std::make_unique<NiceMock<MockAliveSupervisionHandle>>();
@@ -249,7 +249,7 @@ TEST_F(ProcessGroupManagerWatchdogTest, GivenMinimalConfig_ExpectWatchdogFired_W
     ASSERT_TRUE(recovery_callback_);
     for (int i = 0; i < kNumRecoveryRequests; ++i)
     {
-        recovery_callback_(IdentifierHash{"overflow_probe"});
+        recovery_callback_(IdentifierHash{"overflow_probe"}, std::chrono::nanoseconds{0});
     }
 
     auto run_result = process_group_manager_->run();

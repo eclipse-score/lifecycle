@@ -23,14 +23,16 @@ void RecoveryClient::setRecoveryRequestCallback(RecoveryRequestCallback callback
     callback_ = std::move(callback);
 }
 
-bool RecoveryClient::sendRecoveryRequest(const score::mw::lifecycle::IdentifierHash& process_identifier) noexcept
+bool RecoveryClient::sendRecoveryRequest(
+    const score::mw::lifecycle::IdentifierHash& process_identifier,
+    std::chrono::nanoseconds failure_timestamp) noexcept
 {
     std::lock_guard<std::mutex> lock(callback_mutex_);
     if (!callback_)
     {
         return false;
     }
-    callback_(process_identifier);
+    callback_(process_identifier, failure_timestamp);
     return true;
 }
 }  // namespace score::mw::lifecycle

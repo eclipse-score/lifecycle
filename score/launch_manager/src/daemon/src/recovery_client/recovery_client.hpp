@@ -31,7 +31,9 @@ class RecoveryClient final : public IRecoveryClient
     RecoveryClient& operator=(RecoveryClient&&) = delete;
 
     void setRecoveryRequestCallback(RecoveryRequestCallback callback) noexcept override;
-    bool sendRecoveryRequest(const score::mw::lifecycle::IdentifierHash& process_identifier) noexcept override;
+    bool sendRecoveryRequest(
+        const score::mw::lifecycle::IdentifierHash& process_identifier,
+        std::chrono::nanoseconds failure_timestamp) noexcept override;
 
   private:
     mutable std::mutex callback_mutex_;

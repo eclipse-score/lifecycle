@@ -163,9 +163,10 @@ void ProcessGroupManager::createProcessComponentsObjects(std::size_t total_proce
 
     if (recovery_client_)
     {
-        recovery_client_->setRecoveryRequestCallback([this](const IdentifierHash& process_identifier) {
-            static_cast<void>(event_queue_->push(SupervisionFailure{process_identifier}));
-        });
+        recovery_client_->setRecoveryRequestCallback(
+            [this](const IdentifierHash& process_identifier, std::chrono::nanoseconds /* failure_timestamp */) {
+                static_cast<void>(event_queue_->push(SupervisionFailure{process_identifier}));
+            });
     }
 
     LM_LOG_DEBUG() << "Creating process monitor...";
