@@ -34,8 +34,7 @@ def test_shutdown_signal(target, setup_test, assert_test_results, remote_test_di
     The control daemon activates the "Running" Run Target (starting the managed
     shutdown_signal_process), then switches back to "Startup". The shutdown_signal_process installs a
     SIGTERM handler that records its PID and then deliberately blocks instead of
-    terminating, forcing the Launch Manager to send SIGKILL. Finally the control
-    daemon activates "Off".
+    terminating, forcing the Launch Manager to send SIGKILL.
 
     Expected Behaviour: shutdown_signal_process receives a SIGTERM (proven by the
     `sigterm_received` file, which holds the PID it wrote before blocking and

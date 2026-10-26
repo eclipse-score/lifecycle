@@ -15,6 +15,7 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <chrono>
 #include <cstddef>
 #include <functional>
 #include <memory>
@@ -389,6 +390,42 @@ TEST_F(LmControlUT, DiscoveryCreatesProxySubscribesAndSetsHandler)
 
     auto sut = MakeConnected();
     EXPECT_TRUE(receive_handler_);
+}
+
+TEST_F(LmControlUT, WaitForConnectionTimesOut)
+{
+    RecordProperty(
+        "Description",
+        "wait_for_connection returns kCommunicationError on timeout and when stopped via the stop token, and "
+        "succeeds once the service has been discovered.");
+
+    auto impl = MakeLmControl();
+    ILmControl* const sut = impl.get();
+
+    auto timed_out = sut->wait_for_connection(std::chrono::milliseconds(1));
+    ASSERT_FALSE(timed_out.has_value());
+    EXPECT_EQ(timed_out.error(), ExecErrc::kCommunicationError);
+}
+
+TEST_F(LmControlUT, WaitForConnectionStops)
+{
+    auto impl = MakeLmControl();
+    ILmControl* const sut = impl.get();
+
+    score::cpp::stop_source stop_source;
+    stop_source.request_stop();
+    auto stopped = sut->wait_for_connection(std::chrono::hours(1), stop_source.get_token());
+    ASSERT_FALSE(stopped.has_value());
+    EXPECT_EQ(stopped.error(), ExecErrc::kCommunicationError);
+}
+
+TEST_F(LmControlUT, WaitForConnectionWorks)
+{
+    auto impl = MakeLmControl();
+    ILmControl* const sut = impl.get();
+
+    ConnectService();
+    EXPECT_TRUE(sut->wait_for_connection(std::chrono::milliseconds(1)).has_value());
 }
 
 TEST_F(LmControlUT, EmptyHandlesAreIgnored)

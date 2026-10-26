@@ -19,6 +19,7 @@
 
 #include "tests/utils/test_helper/process_utils.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
+#include "tests/utils/test_helper/test_runner.hpp"
 #include <score/mw/lifecycle/report_running.h>
 
 namespace
@@ -67,6 +68,6 @@ TEST(RtRunningWhenProcessExits, FilesystemReader)
 int main()
 {
     // test_end is signalled by control_client_test_driver, which orchestrates the Run Target switches.
-    TestRunner runner{__FILE__, TerminationBehavior::kContinue, TerminationNotification::kNone};
-    return runner.RunTests();
+    TestRunner::Init();
+    return TestRunner::RunTests();
 }

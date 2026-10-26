@@ -12,6 +12,7 @@
  ********************************************************************************/
 
 #include "tests/utils/test_helper/test_helper.hpp"
+#include "tests/utils/test_helper/test_runner.hpp"
 #include <gtest/gtest.h>
 #include <score/mw/lifecycle/report_running.h>
 #include <unistd.h>
@@ -93,5 +94,8 @@ int main(int argc, char** argv)
         xml_result.append("_reporting");
     }
 
-    return TestRunner(xml_result).RunTests();
+    TestRunner::Init(xml_result.c_str());
+    const auto result = TestRunner::RunTests();
+    TestRunner::WaitForTermination();
+    return result;
 }

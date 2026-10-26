@@ -21,6 +21,7 @@
 
 #include "tests/utils/test_helper/gated_process.hpp"
 #include "tests/utils/test_helper/test_helper.hpp"
+#include "tests/utils/test_helper/test_runner.hpp"
 #include <score/mw/lifecycle/report_running.h>
 
 namespace
@@ -48,13 +49,13 @@ TEST(GatedProcess, ReportsRunningOnRelease)
 
     TEST_STEP("Wait for release")
     {
-        while (!TestRunner::exitRequested && !std::filesystem::exists(gatedReleasePath(name)))
+        while (!TestRunner::g_exit_requested && !std::filesystem::exists(gatedReleasePath(name)))
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     }
 
-    if (TestRunner::exitRequested)
+    if (TestRunner::g_exit_requested)
     {
         return;
     }
@@ -64,15 +65,13 @@ TEST(GatedProcess, ReportsRunningOnRelease)
         score::mw::lifecycle::report_running();
     }
 
-    while (!TestRunner::exitRequested)
-    {
-        pause();
-    }
+    TestRunner::WaitForTermination();
 }
 
 int main()
 {
     // Name the XML result after the deployed component so multiple deployments of this
     // shared binary don't collide.
-    return TestRunner(component_name()).RunTests();
+    TestRunner::Init(component_name().c_str());
+    return TestRunner::RunTests();
 }

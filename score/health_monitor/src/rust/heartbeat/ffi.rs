@@ -17,16 +17,16 @@ use core::time::Duration;
 
 #[unsafe(no_mangle)]
 pub extern "C" fn heartbeat_monitor_builder_create(
-    range_min_ms: u32,
-    range_max_ms: u32,
+    range_min_ms: u64,
+    range_max_ms: u64,
     heartbeat_monitor_builder_handle_out: *mut FFIHandle,
 ) -> FFICode {
     if heartbeat_monitor_builder_handle_out.is_null() {
         return FFICode::NullParameter;
     }
 
-    let range_min = Duration::from_millis(range_min_ms as u64);
-    let range_max = Duration::from_millis(range_max_ms as u64);
+    let range_min = Duration::from_millis(range_min_ms);
+    let range_max = Duration::from_millis(range_max_ms);
     let range = match TimeRange::new_internal(range_min, range_max) {
         Some(range) => range,
         None => return FFICode::InvalidArgument,

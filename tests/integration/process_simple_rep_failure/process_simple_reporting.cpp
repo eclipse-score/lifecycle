@@ -15,7 +15,7 @@
 
 #include <gtest/gtest.h>
 
-#include "tests/utils/test_helper/test_helper.hpp"
+#include "tests/utils/test_helper/test_runner.hpp"
 #include <score/mw/lifecycle/report_running.h>
 
 int g_argc;
@@ -43,5 +43,6 @@ int main(int argc, char** argv)
     g_argc = argc;
     g_argv = argv;
 
-    return TestRunner(__FILE__, TerminationBehavior::kContinue).RunTests();
+    TestRunner::Init();
+    return TestRunner::RunTests();
 }

@@ -140,8 +140,7 @@ class GraphTest : public ::testing::Test
             res = job.component.get().deactivate(job.stop_token);
         }
 
-        ASSERT_TRUE(res.has_value());
-        ASSERT_EQ(res.value(), IComponent::RequestState::kSuccess);
+        ASSERT_EQ(res, IComponent::RequestResult::kSuccess);
     }
 
     void failActivationJob(const ComponentTask& job)
@@ -149,7 +148,7 @@ class GraphTest : public ::testing::Test
         EXPECT_CALL(process_interface_, startProcess).WillOnce(Return(osal::OsalReturnType::kFail));
         const auto res = job.component.get().activate(job.stop_token);
 
-        ASSERT_FALSE(res.has_value());
+        ASSERT_EQ(res, IComponent::RequestResult::kFailure);
     }
 
     /// @brief Execute a Run Target activation that activates or deactivates a single node
@@ -345,7 +344,7 @@ TEST_F(GraphInitialTransitionTest, jobFailure)
     const auto job = job_queue_->pop()->value();
     failActivationJob(job);
     graph_->handleComponentEvent(
-        ActivationFailed{IdentifierHash{process_name(0)}, IComponent::ComponentError::kErrorBeforeReady});
+        ActivationFailed{IdentifierHash{process_name(0)}, IComponent::RequestResult::kFailure});
 
     EXPECT_EQ(graph_->getState(), GraphState::kUndefinedState);
 }
@@ -548,8 +547,7 @@ TEST_F(GraphHandleComponentEventTest, failedFirstDuringTransition)
     // Fail the first job
     const auto first_job = job_queue_->pop();
     graph_->handleComponentEvent(
-        ActivationFailed{
-            first_job->value().component.get().getIdentifier(), IComponent::ComponentError::kErrorBeforeReady});
+        ActivationFailed{first_job->value().component.get().getIdentifier(), IComponent::RequestResult::kFailure});
 
     const auto second_job = job_queue_->pop();
 
@@ -567,8 +565,7 @@ TEST_F(GraphHandleComponentEventTest, failureFollowedBySuccessFails)
     // Fail the first job
     const auto first_job = job_queue_->pop();
     graph_->handleComponentEvent(
-        ActivationFailed{
-            first_job->value().component.get().getIdentifier(), IComponent::ComponentError::kErrorBeforeReady});
+        ActivationFailed{first_job->value().component.get().getIdentifier(), IComponent::RequestResult::kFailure});
 
     const auto second_job = job_queue_->pop();
     executeJobSuccessfully(second_job->value());
@@ -589,8 +586,7 @@ TEST_F(GraphHandleComponentEventTest, cancelAfterFailureStaysAborting)
     // Fail the first job
     const auto first_job = job_queue_->pop();
     graph_->handleComponentEvent(
-        ActivationFailed{
-            first_job->value().component.get().getIdentifier(), IComponent::ComponentError::kErrorBeforeReady});
+        ActivationFailed{first_job->value().component.get().getIdentifier(), IComponent::RequestResult::kFailure});
 
     EXPECT_EQ(graph_->getState(), GraphState::kAborting);
 
@@ -623,8 +619,7 @@ TEST_F(GraphHandleComponentEventTest, unexpectedTerminationDuringSuccess)
             }),
             Return(osal::OsalReturnType::kSuccess)));
 
-    graph_->handleComponentEvent(
-        UnexpectedTermination{component->getIdentifier(), IComponent::ComponentError::kErrorAfterReady});
+    graph_->handleComponentEvent(UnexpectedTermination{component->getIdentifier()});
 
     EXPECT_EQ(graph_->getState(), GraphState::kUndefinedState);
 }
@@ -652,7 +647,7 @@ TEST_F(GraphHandleComponentEventTest, unexpectedTerminationDuringTransition)
             Return(osal::OsalReturnType::kSuccess)));
 
     // The active component then crashes
-    graph_->handleComponentEvent(UnexpectedTermination{component_index, IComponent::ComponentError::kErrorAfterReady});
+    graph_->handleComponentEvent(UnexpectedTermination{component_index});
 
     const auto second_job = job_queue_->pop();
     executeJobSuccessfully(second_job->value());
@@ -679,7 +674,7 @@ TEST_F(GraphTransitionFailuresTest, UnusualOrderOfFailures)
         .WillOnce(Return(osal::OsalReturnType::kSuccess));  // Process is already gone, semaphore will time out
     EXPECT_CALL(process_interface_, forceTermination).WillOnce(Return(osal::OsalReturnType::kFail));
 
-    graph_->handleComponentEvent(UnexpectedTermination{component_id, IComponent::ComponentError::kErrorAfterReady});
+    graph_->handleComponentEvent(UnexpectedTermination{component_id});
     graph_->handleComponentEvent(ActivationSuccessful{component_id});
 
     EXPECT_EQ(graph_->getState(), GraphState::kUndefinedState) << "Graph should be in a final state";

@@ -54,14 +54,14 @@ TEST_F(ComponentEventQueueTest, GetNextEventReturnsPushedEventWithPayloadIntact)
 {
     RecordProperty("Description", "Verify a pushed event is returned by getNextEvent with its payload preserved.");
     const IdentifierHash process_identifier{"payload"};
-    EXPECT_TRUE(queue_.push(ActivationFailed{process_identifier, IComponent::ComponentError::kErrorBeforeReady}));
+    EXPECT_TRUE(queue_.push(ActivationFailed{process_identifier, IComponent::RequestResult::kFailure}));
 
     auto event = queue_.getNextEvent();
     ASSERT_TRUE(event.has_value());
     ASSERT_TRUE(std::holds_alternative<ActivationFailed>(*event));
     const auto& failed = std::get<ActivationFailed>(*event);
     EXPECT_EQ(failed.node_identifier, process_identifier);
-    EXPECT_EQ(failed.reason, IComponent::ComponentError::kErrorBeforeReady);
+    EXPECT_EQ(failed.reason, IComponent::RequestResult::kFailure);
 }
 
 TEST_F(ComponentEventQueueTest, GetNextEventReturnsSupervisionFailureWithPayloadIntact)
@@ -85,7 +85,7 @@ TEST_F(ComponentEventQueueTest, GetNextEventReturnsGetActiveRunTargetWithComplet
     RecordProperty(
         "Description", "Verify a pushed GetActiveRunTarget event is returned with its CompletionSlot pointer intact.");
     CompletionSlot<Result<IdentifierHash>> slot;
-    EXPECT_TRUE(queue_.push(GetActiveRunTarget{completion : &slot}));
+    EXPECT_TRUE(queue_.push(GetActiveRunTarget{&slot}));
 
     auto event = queue_.getNextEvent();
     ASSERT_TRUE(event.has_value());
@@ -102,7 +102,7 @@ TEST_F(ComponentEventQueueTest, GetNextEventReturnsSetRequestedRunTargetWithPayl
         "intact.");
     CompletionSlot<Result<void>> slot;
     const IdentifierHash target{"RunTargetA"};
-    EXPECT_TRUE(queue_.push(SetRequestedRunTarget{run_target : target, completion : &slot}));
+    EXPECT_TRUE(queue_.push(SetRequestedRunTarget{target, &slot}));
 
     auto event = queue_.getNextEvent();
     ASSERT_TRUE(event.has_value());

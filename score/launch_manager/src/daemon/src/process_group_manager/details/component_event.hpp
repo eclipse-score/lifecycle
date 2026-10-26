@@ -37,8 +37,8 @@ struct [[nodiscard]] ActivationFailed
 {
     /// @brief The identifier of the node that failed.
     IdentifierHash node_identifier;
-    /// @brief Description of the error.
-    IComponent::ComponentError reason;
+    /// @brief Why the activation failed, either kFailure or kTimeout.
+    IComponent::RequestResult reason;
 };
 
 /// @brief A node finished deactivating.
@@ -53,8 +53,6 @@ struct [[nodiscard]] UnexpectedTermination
 {
     /// @brief The identifier of the node that terminated.
     IdentifierHash node_identifier;
-    /// @brief Description of the error.
-    IComponent::ComponentError reason;
 };
 
 /// @brief A job was queued but cancelled by the time it was processed
