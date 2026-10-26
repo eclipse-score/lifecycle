@@ -32,10 +32,10 @@ namespace score::mw::lifecycle::internal
 /// @brief Enum type used for public methods return value.
 enum class SafeProcessMapReturnType : std::uint_fast8_t
 {
-    /// @brief The termination handler was called for a matched process and component.
+    /// @brief A pair of values were matched, and the callback was invoked.
     kMatched,
 
-    /// @brief An entry was inserted and is waiting for the other insertion.
+    /// @brief An entry was inserted and is waiting for another insertion.
     kInserted,
 
     /// @brief An error occurred during insertion (e.g., out of memory).
@@ -51,34 +51,38 @@ class SafeProcessMapInserter
   public:
     virtual ~SafeProcessMapInserter() = default;
 
-    /// @brief Inserts a process into the map if it has not already terminated.
-    /// @param key The process ID to look for in the map.
-    /// @param component The component to notify with the exit code.
+    /// @brief Insert a component into the map. If it matches with an already-
+    ///        inserted exit status, remove them both and call the termination
+    ///        handler.
+    /// @param key The key to insert under.
+    /// @param component The component to insert.
     virtual SafeProcessMapReturnType insertIfNotTerminated(osal::ProcessID key, IComponent* component) = 0;
 };
 
-/// @brief The SafeProcessMap waits for both a component and exit code to be
-///          registered under the same process ID, then invokes a termination
-///          handler with both values.
+/// @brief The SafeProcessMap waits for both a component and exit status to be
+///        registered under the same key, then invokes a callback with both
+///        values.
 class SafeProcessMap final : public SafeProcessMapInserter
 {
   public:
     /// @brief Constructs a SafeProcessMap.
     /// @param capacity The maximum number of entries the map can hold.
-    /// @param termination_handler Called when a terminated process is matched with its component.
+    /// @param termination_handler Called when an exit status and component are matched.
     SafeProcessMap(size_t capacity, IComponentController& termination_handler);
 
     /// @brief Destructor to clean up resources used by the SafeProcessMap object.
     ~SafeProcessMap() = default;
 
-    /// @brief Finds a terminated process in the map.
-    /// @param key The process ID to look for in the map.
-    /// @param status The exit code to notify the component with.
+    /// @brief Insert an exit status into the map. If it matches with an already-
+    ///        inserted component, remove them both and invoke the callback.
+    /// @param key The key to insert under.
+    /// @param status The exit status to insert.
     SafeProcessMapReturnType findTerminated(osal::ProcessID key, int32_t status);
 
-    /// @brief Inserts a process into the map if it has not already terminated.
-    /// @param key The process ID to look for in the map.
-    /// @param component The component to notify with the exit code.
+    /// @brief Insert a component into the map. If it matches with an already-
+    ///        inserted exit status, remove them both and invoke the callback.
+    /// @param key The key to insert under.
+    /// @param component The component to insert.
     SafeProcessMapReturnType insertIfNotTerminated(osal::ProcessID key, IComponent* component);
 
   private:
@@ -138,7 +142,7 @@ class SafeProcessMap final : public SafeProcessMapInserter
     /// @brief Condition variable which is signalled whenever an entry is removed.
     std::condition_variable map_cv_;
 
-    /// @brief Map of process IDs to components or exit codes.
+    /// @brief Map of process IDs to components or exit statuses.
     std::pmr::unordered_map<osal::ProcessID, std::variant<int32_t, std::reference_wrapper<IComponent>>> process_map_;
 
     /// @brief Handler to notify about process terminations.
