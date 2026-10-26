@@ -21,7 +21,8 @@ namespace score::mw::lifecycle::internal::configuration
 
 // --- Config ---
 
-// codeql[cpp/number-of-parameters-per-function] This is a struct of these elements. The params are just used to move instead of copy.
+// codeql[cpp/number-of-parameters-per-function] This is a struct of these elements. The params are just used to move
+// instead of copy.
 Config::Config(
     std::vector<ComponentConfig> components,
     std::vector<RunTargetConfig> run_targets,

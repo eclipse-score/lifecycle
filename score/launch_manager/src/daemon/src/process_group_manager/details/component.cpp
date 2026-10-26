@@ -66,7 +66,8 @@ std::unique_ptr<IAliveSupervisionHandle> constructSupervision(
 
 }  // namespace
 
-// codeql[cpp/number-of-parameters-per-function] Constructor initialises one member per parameter, using a struct wouldn't make it easier to read.
+// codeql[cpp/number-of-parameters-per-function] Constructor initialises one member per parameter, using a struct
+// wouldn't make it easier to read.
 Component::Component(
     const IStartAction& start_action,
     const IStopAction& stop_action,

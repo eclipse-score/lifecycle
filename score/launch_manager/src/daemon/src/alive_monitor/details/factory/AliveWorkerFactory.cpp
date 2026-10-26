@@ -149,7 +149,8 @@ bool AliveWorkerFactory::createAliveIf(
     return EmplaceAndAttach(interfaces, event, "MonitorInterface", ipc_server, ipc_server.getPath().data());
 }
 
-// codeql[cpp/number-of-parameters-per-function] Each parameter is an independent input needed to build one alive supervision, using a struct wouldn't make it any easier.
+// codeql[cpp/number-of-parameters-per-function] Each parameter is an independent input needed to build one alive
+// supervision, using a struct wouldn't make it any easier.
 bool AliveWorkerFactory::createAliveSupervision(
     std::vector<supervision::Alive>& supervisions,
     ifappl::MonitorIfDaemon& interface,
