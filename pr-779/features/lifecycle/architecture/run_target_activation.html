@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Run Target Activation &#8212; Lifecycle and Health Management  documentation</title>
+    <title>Run Target activation &#8212; Lifecycle and Health Management  documentation</title>
   
   
   
@@ -423,7 +423,7 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Lifecycle</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Feature Architecture</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="components_run_targets.html">Components &amp; Run Targets</a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="#">Run Target Activation</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Run Target activation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="startup_shutdown.html">Startup &amp; Shutdown</a></li>
 <li class="toctree-l3"><a class="reference internal" href="health_monitoring.html">Health Monitoring</a></li>
 <li class="toctree-l3"><a class="reference internal" href="recovery_actions.html">Recovery Actions</a></li>
@@ -491,7 +491,7 @@
     
     <li class="breadcrumb-item"><a href="index.html" class="nav-link">Feature Architecture</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Run Target Activation</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Run Target activation</span></li>
   </ul>
 </nav>
 </div>
@@ -509,12 +509,11 @@
                 <article class="bd-article">
                   
   <section id="run-target-activation">
-<h1>Run Target Activation<a class="headerlink" href="#run-target-activation" title="Link to this heading">#</a></h1>
-<p>This interface provides control functionality for activating and managing run
+<h1>Run Target activation<a class="headerlink" href="#run-target-activation" title="Link to this heading">#</a></h1>
+<p>The Control interface (<a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int__lifecycle__controlif">logic_arc_int__lifecycle__controlif</a>), provided by the
+<a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a>, offers control functionality for activating and managing run
 targets.
 It allows users to trigger execution of configured <a class="reference internal" href="../glossary.html#term-Run-target"><span class="xref std std-term">Run Targets</span></a> through a standardized activation mechanism.</p>
-<p>The following use cases are supported by the <cite>Control Interface</cite> provided by the
-<a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a>.</p>
 <section id="switching-between-run-targets">
 <h2>Switching between Run Targets<a class="headerlink" href="#switching-between-run-targets" title="Link to this heading">#</a></h2>
 <p>The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> allows switching between different <a class="reference internal" href="../glossary.html#term-Run-target"><span class="xref std std-term">Run
@@ -522,23 +521,36 @@ Targets</span></a>. When a switch is requested, the <a class="reference internal
 evaluates the current state and the target state, determining which components
 need to be started or stopped based on their dependencies.</p>
 <p><strong>Activating a Run Target</strong></p>
-<p>When a request to activate a Run Target is received via the <cite>ControlInterface</cite>,
+<p>When a request to activate a Run Target is received via the Control interface
+(<a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int__lifecycle__controlif">logic_arc_int__lifecycle__controlif</a>),
 the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> shall perform the following operations:</p>
 <ol class="arabic simple">
-<li><p><strong>Validation</strong>: Evaluate if the conditions are correct for activating the requested Run Target:
-- The Run Target exists in the configuration
-- All dependencies for the Run Target are resolvable
-- Required resources are available</p></li>
-<li><p><strong>Transition Logic</strong>: Determine the transition from the current state to the target state:
-- If a different Run Target is active, perform a switch operation (stop current, start requested)
-- If the same Run Target is already active, verify its state and potentially restart failed components</p></li>
-<li><p><strong>Execution</strong>: Execute the transition in the correct dependency order:
-- Stop components that are not part of the new Run Target
-- Start components that are required for the new Run Target
-- Respect dependency relationships during both stop and start operations</p></li>
-<li><p><strong>Response</strong>: Return status to the caller:
-- Success if all components transitioned correctly
-- Failure with detailed error information if any component failed to transition</p></li>
+<li><p><strong>Validation</strong>: Evaluate if the conditions are correct for activating the requested Run Target:</p>
+<ul class="simple">
+<li><p>The Run Target exists in the configuration</p></li>
+<li><p>All dependencies for the Run Target are resolvable</p></li>
+<li><p>Required resources are available</p></li>
+</ul>
+</li>
+<li><p><strong>Transition Logic</strong>: Determine the transition from the current state to the target state:</p>
+<ul class="simple">
+<li><p>If a different Run Target is active, perform a switch operation (stop current, start requested)</p></li>
+<li><p>If the same Run Target is already active, no further actions are required</p></li>
+</ul>
+</li>
+<li><p><strong>Execution</strong>: Execute the transition in the correct dependency order:</p>
+<ul class="simple">
+<li><p>Stop components that are not part of the new Run Target</p></li>
+<li><p>Start components that are required for the new Run Target</p></li>
+<li><p>Respect dependency relationships during both stop and start operations</p></li>
+</ul>
+</li>
+<li><p><strong>Response</strong>: Return status to the caller:</p>
+<ul class="simple">
+<li><p>Success if all components transitioned correctly</p></li>
+<li><p>Failure with detailed error information if any component failed to transition</p></li>
+</ul>
+</li>
 </ol>
 <p>This unified approach allows external state managers to request any Run Target
 activation without needing to know the current system state, as the
@@ -546,22 +558,31 @@ activation without needing to know the current system state, as the
 </section>
 <section id="interface">
 <h2>Interface<a class="headerlink" href="#interface" title="Link to this heading">#</a></h2>
-<p>The control interface is defined here:
-<a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int__lifecycle__controlif">logic_arc_int__lifecycle__controlif</a> The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> provides
-an interface, which allows an external State Manager application to request the
-<a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> to start, stop or restart applications or groups of
-applications, which allows the implementation of a state management
-applications to support dynamic state control.</p>
+<p>The control interface is defined here: <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int__lifecycle__controlif">logic_arc_int__lifecycle__controlif</a>
+The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> provides an interface, which allows an external State Manager application to request the
+<a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> to switch the active Run Target (leading to start, stop or restart of applications)
+which allows the implementation of a state management application to support dynamic state control.</p>
+<p>The Control interface (<a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int__lifecycle__controlif">logic_arc_int__lifecycle__controlif</a>) provides two modes of requesting a Run Target activation:</p>
+<ol class="arabic">
+<li><p><strong>Queued Activation</strong></p>
+<p>In this mode, requests to activate a Run Target are placed in a queue and processed sequentially by the Launch Manager.
+A State Manager can issue multiple Run Target transition requests and they will be executed sequentially by the Launch Manager.
+If any Run Target activation fails, the queue is cleared.</p>
+</li>
+<li><p><strong>Forced Activation</strong></p>
+<p>In this mode, any in-progress Run Target activation is cancelled, any queued requests are removed and the newly request Run Target
+activation is executed immediately.</p>
+</li>
+</ol>
 </section>
 <section id="dynamic-architecture">
 <h2>Dynamic architecture<a class="headerlink" href="#dynamic-architecture" title="Link to this heading">#</a></h2>
-<p>The sequence diagrams below are based on the example dependency graph described
-in <a class="reference internal" href="components_run_targets.html"><span class="doc">Components &amp; Run Targets</span></a>.</p>
-<div class="need_container docutils container" id="SNCB-e81a6462">
-<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__control_activate">
+<p>The sequence diagrams below are based on <a class="reference internal" href="components_run_targets.html#lifecycle-simplified-example-graph"><span class="std std-ref">the example dependency graph</span></a>.</p>
+<div class="need_container docutils container" id="SNCB-1dab9e3c">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__ctrl_start">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
-<div class="line"><span><span class="needs_title"><span class="needs_data">Switch Run Target Scenario - Successful case</span></span></span></div>
+<div class="line"><span><span class="needs_title"><span class="needs_data">Switch Run Target Scenario - State Manager Startup</span></span></span></div>
 </div>
 </td>
 <td class="head_center" colspan="2"><div class="needs_head line-block">
@@ -587,12 +608,16 @@ in <a class="reference internal" href="components_run_targets.html"><span class=
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-9d4e62c0e38987a0e9f7ab3cf8084e58036b25b5.svg" type="image/svg+xml" style="width:1877px;height:1306px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-6016461ce35492ae44aed52c00cb5f4feedea30b.svg" type="image/svg+xml" style="width:1355px;height:799px;background:#FFFFFF;"></object></p>
 </figure>
+<p>During startup the State Manager registers an activation callback with the Launch Manager to be notified about future Run Target changes.
+The State Manager can query at any time the currently active Run Target. During an ongoing transition, it will be informed that the system is in transition and no Run Target is active yet.
+After a transition is completed, the State Manager is notified via the previously registered callback about the new active Run Target.
+Queries for the currently active Run Target will now return the newly activated Run Target.</p>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
-<div class="line"><span><span class="needs-id"><a class="reference internal" href="#feat_arc_dyn__lifecycle__control_activate" title="feat_arc_dyn__lifecycle__control_activate">feat_arc_dyn__lifecycle__control_activate</a></span></span></div>
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#feat_arc_dyn__lifecycle__ctrl_start" title="feat_arc_dyn__lifecycle__ctrl_start">feat_arc_dyn__lifecycle__ctrl_start</a></span></span></div>
 </div>
 </td>
 <td class="footer" colspan="2"><div class="needs_footer line-block">
@@ -605,13 +630,11 @@ in <a class="reference internal" href="components_run_targets.html"><span class=
 </table>
 </div>
 </div>
-<section id="component-dependencies-and-ready-conditions">
-<h3>Component Dependencies and Ready Conditions<a class="headerlink" href="#component-dependencies-and-ready-conditions" title="Link to this heading">#</a></h3>
-<div class="need_container docutils container" id="SNCB-0e60b7ac">
-<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__lcm_start">
+<div class="need_container docutils container" id="SNCB-541f6d9e">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__ctrl_que_act">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
-<div class="line"><span><span class="needs_title"><span class="needs_data">Launch Manager - Component Dependencies</span></span></span></div>
+<div class="line"><span><span class="needs_title"><span class="needs_data">Switch Run Target Scenario - Queued Activation</span></span></span></div>
 </div>
 </td>
 <td class="head_center" colspan="2"><div class="needs_head line-block">
@@ -629,7 +652,7 @@ in <a class="reference internal" href="components_run_targets.html"><span class=
 <div class="line"><span><span><div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#feat__lifecycle">feat__lifecycle</a></span></span></div>
-<div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__conditional_startup">feat_req__lifecycle__conditional_startup</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__launch_support">feat_req__lifecycle__launch_support</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_ordering">feat_req__lifecycle__process_ordering</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__run_target_support">feat_req__lifecycle__run_target_support</a></span></span></div>
+<div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__conditional_startup">feat_req__lifecycle__conditional_startup</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__control_commands">feat_req__lifecycle__control_commands</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__launch_support">feat_req__lifecycle__launch_support</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_ordering">feat_req__lifecycle__process_ordering</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__run_target_support">feat_req__lifecycle__run_target_support</a></span></span></div>
 </span></div>
 </div>
 </td>
@@ -637,13 +660,15 @@ in <a class="reference internal" href="components_run_targets.html"><span class=
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-6e84600381d81185c9958ca39ccaaabc96446004.svg" type="image/svg+xml" style="width:1221px;height:818px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-3f7f4dfa31caa68353f1dd9f3b7a96a116a195d4.svg" type="image/svg+xml" style="width:1615px;height:1565px;background:#FFFFFF;"></object></p>
 </figure>
-<p>While <cite>setup_filesystems</cite> and <cite>/bin/random</cite> can be started in parallel,  <cite>/opt/bin/app1</cite> can only be started once both Components are <cite>Ready</cite>.</p>
+<p>The State Manager queues Run Target activations for “Running” and “Full” state.
+The Launch Manager will process these queued activations in the order they were received.
+At first the Launch Manager transitions to Run Target “Running” and subsequently to Run Target “Full”.</p>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
-<div class="line"><span><span class="needs-id"><a class="reference internal" href="#feat_arc_dyn__lifecycle__lcm_start" title="feat_arc_dyn__lifecycle__lcm_start">feat_arc_dyn__lifecycle__lcm_start</a></span></span></div>
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#feat_arc_dyn__lifecycle__ctrl_que_act" title="feat_arc_dyn__lifecycle__ctrl_que_act">feat_arc_dyn__lifecycle__ctrl_que_act</a></span></span></div>
 </div>
 </td>
 <td class="footer" colspan="2"><div class="needs_footer line-block">
@@ -656,14 +681,11 @@ in <a class="reference internal" href="components_run_targets.html"><span class=
 </table>
 </div>
 </div>
-</section>
-<section id="component-termination">
-<h3>Component Termination<a class="headerlink" href="#component-termination" title="Link to this heading">#</a></h3>
-<div class="need_container docutils container" id="SNCB-f4226527">
-<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__lcm_term">
+<div class="need_container docutils container" id="SNCB-dbd67ee2">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__ctrl_fced_act">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
-<div class="line"><span><span class="needs_title"><span class="needs_data">Launch Manager - Component Termination</span></span></span></div>
+<div class="line"><span><span class="needs_title"><span class="needs_data">Switch Run Target Scenario - Forced Activation</span></span></span></div>
 </div>
 </td>
 <td class="head_center" colspan="2"><div class="needs_head line-block">
@@ -681,7 +703,7 @@ in <a class="reference internal" href="components_run_targets.html"><span class=
 <div class="line"><span><span><div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#feat__lifecycle">feat__lifecycle</a></span></span></div>
-<div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_ordering">feat_req__lifecycle__process_ordering</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_termination">feat_req__lifecycle__process_termination</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__termination_dependency">feat_req__lifecycle__termination_dependency</a></span></span></div>
+<div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__conditional_startup">feat_req__lifecycle__conditional_startup</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__control_commands">feat_req__lifecycle__control_commands</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__launch_support">feat_req__lifecycle__launch_support</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_ordering">feat_req__lifecycle__process_ordering</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__process_termination">feat_req__lifecycle__process_termination</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__run_target_support">feat_req__lifecycle__run_target_support</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__termination_dependency">feat_req__lifecycle__termination_dependency</a></span></span></div>
 </span></div>
 </div>
 </td>
@@ -689,15 +711,15 @@ in <a class="reference internal" href="components_run_targets.html"><span class=
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-2af8ee37102a3667776c36caacb6ddf8c2c65ef8.svg" type="image/svg+xml" style="width:1100px;height:1007px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-86d44ad8ad75298f595b723208451f43f2bc4f36.svg" type="image/svg+xml" style="width:1335px;height:2088px;background:#FFFFFF;"></object></p>
 </figure>
-<p>Since <cite>app1</cite> depends on both <cite>setup_filesystems</cite> and <cite>random</cite>, it must be terminated first before the other two components can be safely terminated.
-Afterwards, <cite>setup_filesystems</cite> and <cite>random</cite> can be terminated in parallel as they do not depend on each other.
-Note that if a component does not terminate within the configured termination timeout, it is forcefully killed.</p>
+<p>The State Manager queues Run Target activations for “Running” and “Full” state.
+During activation of Run Target “Running”, the State Manager sends a new forced request for Run Target “Off”.
+The Launch Manager aborts the current transition and initiates the transition to Run Target “Off”.</p>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
-<div class="line"><span><span class="needs-id"><a class="reference internal" href="#feat_arc_dyn__lifecycle__lcm_term" title="feat_arc_dyn__lifecycle__lcm_term">feat_arc_dyn__lifecycle__lcm_term</a></span></span></div>
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#feat_arc_dyn__lifecycle__ctrl_fced_act" title="feat_arc_dyn__lifecycle__ctrl_fced_act">feat_arc_dyn__lifecycle__ctrl_fced_act</a></span></span></div>
 </div>
 </td>
 <td class="footer" colspan="2"><div class="needs_footer line-block">
@@ -710,7 +732,6 @@ Note that if a component does not terminate within the configured termination ti
 </table>
 </div>
 </div>
-</section>
 </section>
 </section>
 
@@ -763,11 +784,7 @@ Note that if a component does not terminate within the configured termination ti
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#switching-between-run-targets">Switching between Run Targets</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interface">Interface</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamic-architecture">Dynamic architecture</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#component-dependencies-and-ready-conditions">Component Dependencies and Ready Conditions</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#component-termination">Component Termination</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamic-architecture">Dynamic architecture</a></li>
 </ul>
   </nav></div>
 
