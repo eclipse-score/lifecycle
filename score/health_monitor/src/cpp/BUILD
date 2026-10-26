@@ -76,6 +76,7 @@ cc_gtest_unit_test(
         "tests/logic_monitor_test.cpp",
         "tests/time_range_test.cpp",
     ],
+    features = ["-warnings_as_errors"],
     linkopts = select({
         "@platforms//os:qnx": ["-lsocket"],
         "@platforms//os:linux": [],
@@ -96,6 +97,7 @@ cc_gtest_unit_test(
     srcs = [
         "tests/integrated_test.cpp",
     ],
+    features = ["-warnings_as_errors"],
     linkopts = select({
         "@platforms//os:qnx": ["-lsocket"],
         "@platforms//os:linux": [],
