@@ -30,8 +30,9 @@ TEST(ComplexMonitoring, ComponentComplexMonitoring)
 
     auto hm_result =
         HealthMonitorBuilder()
+            // Min must be more than half of the processing cycle. The first window is measured from monitor creation.
             .AddHeartbeatMonitor(
-                MonitorTag("complex_monitoring_monitor"), heartbeat::HeartbeatMonitorBuilder(TimeRange(0ms, 500ms)))
+                MonitorTag("complex_monitoring_monitor"), heartbeat::HeartbeatMonitorBuilder(TimeRange(30ms, 500ms)))
             .WithInternalProcessingCycle(50ms)
             .WithSupervisorApiCycle(50ms)
             .Build();
@@ -44,8 +45,6 @@ TEST(ComplexMonitoring, ComponentComplexMonitoring)
     auto heartbeat_monitor = std::move(*heartbeat_monitor_result);
 
     hm.Start();
-
-    heartbeat_monitor.Heartbeat();
 
     TEST_STEP("Report running")
     {
