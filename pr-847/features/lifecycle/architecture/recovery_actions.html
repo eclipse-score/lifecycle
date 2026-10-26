@@ -423,7 +423,7 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Lifecycle</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Feature Architecture</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="components_run_targets.html">Components &amp; Run Targets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="run_target_activation.html">Run Target Activation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="run_target_activation.html">Run Target activation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="startup_shutdown.html">Startup &amp; Shutdown</a></li>
 <li class="toctree-l3"><a class="reference internal" href="health_monitoring.html">Health Monitoring</a></li>
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">Recovery Actions</a></li>
@@ -510,14 +510,52 @@
                   
   <section id="recovery-actions">
 <h1>Recovery Actions<a class="headerlink" href="#recovery-actions" title="Link to this heading">#</a></h1>
-<p>The sequence diagram below is based on the example dependency graph described
+<p>The following diagram gives an overview of the recovery escalation.</p>
+<figure class="align-center" id="id1">
+<img alt="Escalation from Component Recovery Action over Fallback Run Target to Watchdog Machine Reset" src="../../../_images/recovery_actions-v1.0.drawio.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 1 </span><span class="caption-text">Recovery action escalation chain</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is planned to support more Run Target Recovery Actions in the future, e.g. switching to a different
+Run Target than the Fallback Run Target.</p>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-fade-in-slide-down">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">Show the planned escalation chain</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<figure class="align-center" id="id2">
+<img alt="Planned escalation with a configurable Run Target Recovery Action between the Component Recovery Action and the Fallback Run Target" src="../../../_images/recovery_actions.drawio.svg" />
+<figcaption>
+<p><span class="caption-number">Fig. 2 </span><span class="caption-text">Planned recovery action escalation chain. In contrast to the diagram above, the
+Run Target Recovery Action is now a separate step in the escalation chain.</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</div>
+</details></div>
+<p>A Component Failure is first handled by the Component Recovery Action. A Component Recovery Action may be to simply try
+restarting the failed component. If no Component Recovery Action is configured or it does
+not succeed, the Run Target Recovery Action activates the Fallback Run Target. If this also fails,
+the Watchdog triggers a Machine Reset.
+Currently, the Run Target Recovery Action is synonymous to activation of the Fallback Run Target.</p>
+<p>The Fallback Run Target is a special Run Target defined in the Launch Manager configuration (see <a class="reference internal" href="index.html#feat_arc_sta__lifecycle__cfg_params_static" title="feat_arc_sta__lifecycle__cfg_params_static"><em class="xref need">Configuration parameters st... (feat_arc_sta__lifecycle__cfg_params_static)</em></a>), this shall be used as
+a minimal system state that allows diagnosis of the failure. The State Manager is expected to transition the system out of the Fallback Run Target to
+retry normal operation.</p>
+<p>The following sequence diagrams are based on the example dependency graph described
 in <a class="reference internal" href="components_run_targets.html"><span class="doc">Components &amp; Run Targets</span></a>.</p>
 <p>The configurable recovery actions are shown as <cite>ComponentRecoveryAction</cite> and
 <cite>RunTargetRecoveryAction</cite> in
 <a class="reference internal" href="index.html#lifecycle-configuration-structure"><span class="std std-ref">Configuration Structure</span></a>.</p>
-<section id="component-crashes-outside-an-active-transition">
-<h2>Component crashes outside an active transition<a class="headerlink" href="#component-crashes-outside-an-active-transition" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-623b97ae">
+<section id="component-failure">
+<h2>Component failure<a class="headerlink" href="#component-failure" title="Link to this heading">#</a></h2>
+<p>A component may fail outside of a Run Target transition for one of the following reasons:</p>
+<ul class="simple">
+<li><p>The components underlying process crashes</p></li>
+<li><p>The component supervision fails (e.g. the component does not send alive notification in the expected frequency)</p></li>
+</ul>
+<section id="component-crash">
+<h3>Component crash<a class="headerlink" href="#component-crash" title="Link to this heading">#</a></h3>
+<div class="need_container docutils container" id="SNCB-8e8d06c1">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__crash">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -547,13 +585,137 @@ in <a class="reference internal" href="components_run_targets.html"><span class=
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-7941a1e7a61dab33428f097110d86c963b2270dd.svg" type="image/svg+xml" style="width:927px;height:849px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-8806b12717ecb92e2959e65088210b0b2dec854c.svg" type="image/svg+xml" style="width:741px;height:934px;background:#FFFFFF;"></object></p>
 </figure>
-<p>Note: If a Restart Recovery Action is configured then only the crashed component is restarted, not dependent components.</p>
+<p>The diagram shows a component crash during an active Run Target (outside of a Run Target transition).
+The component can be configured with a recovery action that defines the reaction to a crash.
+If a Restart Recovery Action is configured then only the crashed component is restarted, not dependent components.
+If the restart fails, the next recovery stage is to execute the Run Target Recovery Action, i.e. activating the Fallback Run Target.
+See <a class="reference internal" href="#feat_arc_dyn__lifecycle__run_target_failure" title="feat_arc_dyn__lifecycle__run_target_failure"><em class="xref need">Launch Manager - Run Target... (feat_arc_dyn__lifecycle__run_target_failure)</em></a> for reference.</p>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
 <div class="line"><span><span class="needs-id"><a class="reference internal" href="#feat_arc_dyn__lifecycle__crash" title="feat_arc_dyn__lifecycle__crash">feat_arc_dyn__lifecycle__crash</a></span></span></div>
+</div>
+</td>
+<td class="footer" colspan="2"><div class="needs_footer line-block">
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Feature Sequence Diagram</span></span></span></div>
+</div>
+</td>
+<td class="footer_right" colspan="2"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="component-supervision-failure">
+<h3>Component supervision failure<a class="headerlink" href="#component-supervision-failure" title="Link to this heading">#</a></h3>
+<div class="need_container docutils container" id="SNCB-06ec00d8">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__sup_failure">
+<tbody>
+<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
+<div class="line"><span><span class="needs_title"><span class="needs_data">Launch Manager - Supervision Failure</span></span></span></div>
+</div>
+</td>
+<td class="head_center" colspan="2"><div class="needs_head line-block">
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
+<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">YES</span></span></span></div>
+<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
+</div>
+</td>
+<td class="head_right" colspan="2"><div class="needs_head_right line-block">
+<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
+</div>
+</td>
+</tr>
+<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
+<div class="line"><span><span><div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
+</span></span></div>
+<div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#feat__lifecycle">feat__lifecycle</a></span></span></div>
+<div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__monitor_processes">feat_req__lifecycle__monitor_processes</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__recovery_action_support">feat_req__lifecycle__recovery_action_support</a></span></span></div>
+</span></div>
+</div>
+</td>
+<td class="meta" colspan="3"></td>
+</tr>
+<tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
+<p class="plantuml">
+<object data="../../../_images/plantuml-47fe55850ae6e98741dca7593f3ad5191c276f65.svg" type="image/svg+xml" style="width:551px;height:407px;background:#FFFFFF;"></object></p>
+</figure>
+<p>The diagram shows a component supervision failure during an active Run Target (outside of a Run Target transition).
+For details of detection supervision failures, see <a class="reference internal" href="health_monitoring.html#feat_arc_dyn__lifecycle__alive_monitor_start" title="feat_arc_dyn__lifecycle__alive_monitor_start"><em class="xref need">Alive Monitoring Start (feat_arc_dyn__lifecycle__alive_monitor_start)</em></a>.
+The subsequent recovery behavior is identical to the process crash scenario in <a class="reference internal" href="#feat_arc_dyn__lifecycle__crash" title="feat_arc_dyn__lifecycle__crash"><em class="xref need">Launch Manager - Crash Reco... (feat_arc_dyn__lifecycle__crash)</em></a>.</p>
+</td>
+</tr>
+<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#feat_arc_dyn__lifecycle__sup_failure" title="feat_arc_dyn__lifecycle__sup_failure">feat_arc_dyn__lifecycle__sup_failure</a></span></span></div>
+</div>
+</td>
+<td class="footer" colspan="2"><div class="needs_footer line-block">
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Feature Sequence Diagram</span></span></span></div>
+</div>
+</td>
+<td class="footer_right" colspan="2"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</section>
+<section id="run-target-transition-failure">
+<h2>Run Target transition failure<a class="headerlink" href="#run-target-transition-failure" title="Link to this heading">#</a></h2>
+<p>A Run Target transition might fail for the following reasons:</p>
+<ul class="simple">
+<li><p>A component failed to activate within its timeout (exceeding its configured activation retries)</p></li>
+<li><p>A Run Target transition exceeds its configured transition timeout</p></li>
+<li><p>A component that is already active fails while the transition is still ongoing</p></li>
+</ul>
+<p>If a Run Target transition fails, the Launch Manager executes the Run Target Recovery Action as configured for the affected Run Target.
+The currently only supported Run Target Recovery Action is the activation of the <cite>fallback Run Target</cite>.</p>
+<div class="need_container docutils container" id="SNCB-e0dc8dee">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__run_target_failure">
+<tbody>
+<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
+<div class="line"><span><span class="needs_title"><span class="needs_data">Launch Manager - Run Target Transition Failure</span></span></span></div>
+</div>
+</td>
+<td class="head_center" colspan="2"><div class="needs_head line-block">
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
+<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">YES</span></span></span></div>
+<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
+</div>
+</td>
+<td class="head_right" colspan="2"><div class="needs_head_right line-block">
+<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
+</div>
+</td>
+</tr>
+<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
+<div class="line"><span><span><div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
+</span></span></div>
+<div class="line"><span><div class="line">belongs to: <span class="belongs_to"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#feat__lifecycle">feat__lifecycle</a></span></span></div>
+<div class="line">fulfils: <span class="fulfils"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__recovery_action_support">feat_req__lifecycle__recovery_action_support</a></span></span></div>
+</span></div>
+</div>
+</td>
+<td class="meta" colspan="3"></td>
+</tr>
+<tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
+<p class="plantuml">
+<object data="../../../_images/plantuml-d24369d89ee3a46ae321d59d8176e30c51570fbf.svg" type="image/svg+xml" style="width:1344px;height:1747px;background:#FFFFFF;"></object></p>
+</figure>
+<p>The diagram shows a failing Run Target transition from Run Target “Minimal” to Run Target “Running”.
+Component app1 does not reach its ready condition, even after all configured activation attempts have been
+exhausted, which makes the whole transition fail.
+The Launch Manager then executes the Run Target Recovery Action of Run Target “Running” and activates the
+Fallback Run Target. Components that are not part of the Fallback Run Target are deactivated, components
+that were never activated stay deactivated.</p>
+</td>
+</tr>
+<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#feat_arc_dyn__lifecycle__run_target_failure" title="feat_arc_dyn__lifecycle__run_target_failure">feat_arc_dyn__lifecycle__run_target_failure</a></span></span></div>
 </div>
 </td>
 <td class="footer" colspan="2"><div class="needs_footer line-block">
@@ -616,7 +778,12 @@ in <a class="reference internal" href="components_run_targets.html"><span class=
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#component-crashes-outside-an-active-transition">Component crashes outside an active transition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#component-failure">Component failure</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#component-crash">Component crash</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#component-supervision-failure">Component supervision failure</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-target-transition-failure">Run Target transition failure</a></li>
 </ul>
   </nav></div>
 
