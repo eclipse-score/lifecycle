@@ -12,7 +12,7 @@
           "CodeLinks": [
             {
               "file": "score/launch_manager/src/daemon/src/process_group_manager/details/transition.hpp",
-              "line": 254,
+              "line": 255,
               "tag": "// req-Id:",
               "need": "comp_req__launch_man__dep_based_startup_order",
               "full_line": "// req-Id: comp_req__launch_man__dep_based_startup_order"
