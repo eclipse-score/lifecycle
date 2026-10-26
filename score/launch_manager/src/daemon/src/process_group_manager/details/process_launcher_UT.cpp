@@ -711,6 +711,7 @@ TEST_F(StartProcessTest, rlimitsAppliedBeforePrivilegeDrop)
         InSequence seq;
         EXPECT_CALL(*g_syscall_mock, setrlimit(RLIMIT_NOFILE, _)).WillOnce(Return(0));
         EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(0));
+        EXPECT_CALL(*g_syscall_mock, setgroups(_, _)).WillOnce(Return(0));
         EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
     }
 
