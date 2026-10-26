@@ -27,7 +27,7 @@ void sigTermHandler(int)
     exitRequested = 1;
 }
 
-int main(int argc, char* argv[])
+int main()
 {
 
     // register signal handler so that lcm can request a termination

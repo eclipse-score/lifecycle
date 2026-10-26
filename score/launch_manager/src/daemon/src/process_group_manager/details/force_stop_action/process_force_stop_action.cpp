@@ -22,7 +22,7 @@ ProcessForceStopAction::ProcessForceStopAction(osal::IProcess& launcher) : launc
 {
 }
 
-Result<IComponent::RequestResult> ProcessForceStopAction::forceStop(cpp::stop_token stop_token, const Handle& handle)
+Result<IComponent::RequestResult> ProcessForceStopAction::forceStop(cpp::stop_token /*stop_token*/, const Handle& handle)
     const
 {
     const ProcessHandle* const process = std::get_if<ProcessHandle>(&handle);

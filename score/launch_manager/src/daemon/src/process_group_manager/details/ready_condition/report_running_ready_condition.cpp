@@ -25,7 +25,7 @@ ReportRunningReadyCondition::ReportRunningReadyCondition(
 {
 }
 
-Result<void> ReportRunningReadyCondition::wait(cpp::stop_token stop_token, const Handle& handle) const
+Result<void> ReportRunningReadyCondition::wait(cpp::stop_token /*stop_token*/, const Handle& handle) const
 {
     const ProcessHandle* const process = std::get_if<ProcessHandle>(&handle);
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
@@ -46,7 +46,7 @@ Result<void> ReportRunningReadyCondition::wait(cpp::stop_token stop_token, const
     return MakeUnexpected(ExecErrc::kGeneralError);
 }
 
-bool ReportRunningReadyCondition::tryHandleTermination(const Handle& handle, int32_t status) const
+bool ReportRunningReadyCondition::tryHandleTermination(const Handle& handle, int32_t /*status*/) const
 {
     const ProcessHandle* const process = std::get_if<ProcessHandle>(&handle);
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
