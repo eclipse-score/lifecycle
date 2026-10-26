@@ -226,7 +226,7 @@
           "type": "integer",
           "minimum": 0,
           "maximum": 255,
-          "description": "Specifies the number of additional attempts the Launch Manager makes to activate the component when it fails to reach its Ready State during a Run Target transition. A value of 0 means the component is started once and a failure is treated as a Run Target transition failure."
+          "description": "Specifies the number of additional attempts the Launch Manager makes to activate the component when it fails to reach its Ready State during a Run Target transition. A number of failures greater than this is treated as a Run Target transition failure."
         },
         "activation_retry_delay_ms": {
           "type": "integer",
