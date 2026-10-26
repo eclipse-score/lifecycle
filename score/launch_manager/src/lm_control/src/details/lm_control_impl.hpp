@@ -215,6 +215,8 @@ class BasicLmControlImpl final : public ILmControl
             callback_ = std::move(callback);
         }
 
+        awaitNotificationRegistration();
+
         // Check for any pending events from before the handler was installed.
         onActivationResult();
 
@@ -279,6 +281,33 @@ class BasicLmControlImpl final : public ILmControl
 
     /// @brief Allow to read small number of samples at once
     static constexpr std::size_t kActivationResultSampleCount = 4U;
+
+    /// @brief Waits until the Launch Manager (LM) has processed our receive handler registration.
+    /// @details SetReceiveHandler() only queues a registration message to the LM and returns without waiting for it
+    ///          to be handled.
+    ///          An event the LM sends before it handles that message is stored, but no
+    ///          notification is sent for it, so the receive handler never runs for it and it stays unread until the
+    ///          next event. The LM handles the messages of one client connection in the order they were sent, and
+    ///          method calls use the same connection, so the reply to a method call proves that the earlier
+    ///          registration has been handled. Anything sent after that is notified, anything sent before is
+    ///          picked up by the drain that must follow this call.
+    /// @note The result of the method call is irrelevant. This is best effort: on failure we fall back to
+    ///       relying on notifications alone.
+    void awaitNotificationRegistration() noexcept
+    {
+        auto* const proxy = connectedProxy();
+        if (proxy == nullptr)
+        {
+            return;
+        }
+
+        const auto result = proxy->get_active_run_target();
+        if (!result.has_value())
+        {
+            LM_LOG_WARN() << "LmControl: could not confirm the activation_result notification registration:"
+                          << result.error();
+        }
+    }
 
     /// @brief Returns the proxy instance or nullptr if not connected
     ProxyType* connectedProxy() noexcept

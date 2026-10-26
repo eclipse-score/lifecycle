@@ -895,6 +895,55 @@ TEST_F(LmControlUT, LatestRegisteredCallbackWins)
     EXPECT_EQ(second_calls, 1);
 }
 
+TEST_F(LmControlUT, RegisteringCallbackConfirmsNotificationRegistrationBeforeDraining)
+{
+    RecordProperty(
+        "Description",
+        "Registering the callback first makes a round trip to the LM, so that the receive handler registration has "
+        "been processed, and only then reads the pending activation results. A sample sent before the registration "
+        "took effect (no notification) is therefore still delivered.");
+
+    auto sut = MakeConnected();
+
+    // A sample the LM sent before it processed our registration: stored, but never notified.
+    ::testing::InSequence in_sequence;
+    EXPECT_CALL(mock_, GetActiveRunTarget()).WillOnce(Return(score::Result<GetActiveRunTargetResponse>{
+        Available(RunTargetName{"Startup"})}));
+    EXPECT_CALL(mock_, GetNewSamples(_)).WillOnce(Invoke([](std::size_t) {
+        std::vector<ActivationResult> samples;
+        samples.push_back(ActivationResult{RunTargetName{"Startup"}, RunTargetActivationSource::kInitialActivation});
+        return score::Result<std::vector<ActivationResult>>{std::move(samples)};
+    }));
+
+    std::optional<RunTargetActivationSource> source{};
+    std::optional<RunTargetName> name{};
+    ASSERT_TRUE(sut->register_run_target_activation_callback([&](RunTargetActivationSource s, RunTargetName n) {
+                       source = s;
+                       name = n;
+                   })
+                    .has_value());
+
+    ASSERT_TRUE(name.has_value());
+    EXPECT_EQ(name.value(), "Startup");
+    EXPECT_EQ(source.value(), RunTargetActivationSource::kInitialActivation);
+}
+
+TEST_F(LmControlUT, FailedRegistrationRoundTripDoesNotFailCallbackRegistration)
+{
+    RecordProperty(
+        "Description",
+        "If the round trip that confirms the notification registration fails, registering the callback still "
+        "succeeds and the pending activation results are still read.");
+
+    auto sut = MakeConnected();
+
+    EXPECT_CALL(mock_, GetActiveRunTarget()).WillOnce(Return(score::MakeUnexpected(ExecErrc::kCommunicationError)));
+    EXPECT_CALL(mock_, GetNewSamples(_)).Times(1);
+
+    EXPECT_TRUE(sut->register_run_target_activation_callback([](RunTargetActivationSource, RunTargetName) {})
+                    .has_value());
+}
+
 // ---------------------------------------------------------------------------
 // Destruction
 // ---------------------------------------------------------------------------
