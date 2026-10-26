@@ -64,6 +64,14 @@
     "url": "https://eclipse-score.github.io/lifecycle/pr-850/"
   },
   {
+    "version": "pr-851",
+    "url": "https://eclipse-score.github.io/lifecycle/pr-851/"
+  },
+  {
+    "version": "pr-854",
+    "url": "https://eclipse-score.github.io/lifecycle/pr-854/"
+  },
+  {
     "version": "v0.1.0",
     "url": "https://eclipse-score.github.io/lifecycle/v0.1.0/"
   },
@@ -82,13 +90,5 @@
   {
     "version": "v0.8.0",
     "url": "https://eclipse-score.github.io/lifecycle/v0.8.0/"
-  },
-  {
-    "version": "pr-851",
-    "url": "https://eclipse-score.github.io/lifecycle/pr-851/"
-  },
-  {
-    "version": "pr-854",
-    "url": "https://eclipse-score.github.io/lifecycle/pr-854/"
   }
 ]
