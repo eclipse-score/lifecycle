@@ -93,6 +93,9 @@ TEST(Smoke, Daemon)
         EXPECT_TRUE(result.has_value()) << result.error().Message();
     }
 
+    // crashing STM on purpose to see the impact on sending mw::com event
+    std::abort();
+
     pop_event([](RunTargetActivationSource source, RunTargetName target) {
         TEST_STEP("Callback for Run Target Startup")
         {
