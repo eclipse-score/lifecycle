@@ -42,6 +42,7 @@
 #include <cstring>
 #include <iterator>
 #include <optional>
+#include <thread>
 
 constexpr int kPidZero = 0;  // This value is used to check if the process ID (uses pid_t) is valid or not.
 constexpr int kPosixSuccess = 0;
@@ -412,6 +413,10 @@ void ProcessLauncher::handleChildProcess(ChildProcessConfig& param)
 
     // Get envp from Environment - it already provides a null-terminated array
     char* const* envp = param.config.deployment_config.environmental_variables.envp();
+
+    static_cast<void>(signal_safe_log("delaying execve..."));
+    std::this_thread::sleep_for(std::chrono::milliseconds{500});
+    static_cast<void>(signal_safe_log("calling execve..."));
 
     // Finally, execute the process, passing all the arguments and environment variables
     if (-1 == execve(argv[0], const_cast<char* const*>(argv.data()), envp))

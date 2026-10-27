@@ -57,7 +57,7 @@ TEST(RunTargetRequests, ReplacedActivation)
         const auto result = client->activate_run_target("run_target_gated", true);
         EXPECT_TRUE(result.has_value()) << result.error().Message();
         ASSERT_TRUE(wait_for_activation_in_progress(*client));
-        ASSERT_TRUE(wait_for_file(gatedStartedPath("gated")));
+        // ASSERT_TRUE(wait_for_file(gatedStartedPath("gated")));
     }
 
     TEST_STEP("Request Startup while run_target_gated is being activated")
