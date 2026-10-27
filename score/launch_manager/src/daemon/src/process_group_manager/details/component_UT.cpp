@@ -56,13 +56,14 @@ IComponent::TerminationResult terminateFromOtherThread(Component& component, con
 
 TEST(ComponentTest, StartSucceeds)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
-    configuration::ComponentConfig config;
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        configuration::ComponentConfig{});
 
     const auto result = component.activate(cpp::stop_token{});
 
@@ -71,13 +72,15 @@ TEST(ComponentTest, StartSucceeds)
 
 TEST(ComponentTest, StartActionCalled)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
-    configuration::ComponentConfig config;
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        configuration::ComponentConfig{});
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
 
     EXPECT_CALL(start_action, start(_)).WillOnce(Return(Result<Handle>{mock_handle}));
 
@@ -86,13 +89,16 @@ TEST(ComponentTest, StartActionCalled)
 
 TEST(ComponentTest, StopActionCalled)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
-    configuration::ComponentConfig config;
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        configuration::ComponentConfig{});
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
+    const MockStopAction& stop_action = static_cast<const MockStopAction&>(component.stopAction());
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
     EXPECT_CALL(stop_action, stop(_, _))
@@ -104,13 +110,16 @@ TEST(ComponentTest, StopActionCalled)
 
 TEST(ComponentTest, DeactivateReturnsSuccessWhenStopActionReturnsSuccess)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
-    configuration::ComponentConfig config;
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        configuration::ComponentConfig{});
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
+    const MockStopAction& stop_action = static_cast<const MockStopAction&>(component.stopAction());
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
     ON_CALL(stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestResult::kSuccess));
@@ -123,13 +132,16 @@ TEST(ComponentTest, DeactivateReturnsSuccessWhenStopActionReturnsSuccess)
 
 TEST(ComponentTest, DeactivateReturnsFailureWhenStopActionFails)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
-    configuration::ComponentConfig config;
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        configuration::ComponentConfig{});
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
+    const MockStopAction& stop_action = static_cast<const MockStopAction&>(component.stopAction());
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
     ON_CALL(stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestResult::kFailure));
@@ -142,13 +154,16 @@ TEST(ComponentTest, DeactivateReturnsFailureWhenStopActionFails)
 
 TEST(ComponentTest, ReadyConditionCalled)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
-    configuration::ComponentConfig config;
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        configuration::ComponentConfig{});
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
+    const MockReadyCondition& ready_condition = static_cast<const MockReadyCondition&>(component.readyCondition());
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
     EXPECT_CALL(ready_condition, wait(_, _))
@@ -159,13 +174,16 @@ TEST(ComponentTest, ReadyConditionCalled)
 
 TEST(ComponentTest, TerminationDuringStartupInterruptsActivation)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
-    configuration::ComponentConfig config;
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        configuration::ComponentConfig{});
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
+    const MockReadyCondition& ready_condition = static_cast<const MockReadyCondition&>(component.readyCondition());
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
     EXPECT_CALL(ready_condition, wait(_, _)).WillOnce(Invoke([&component](cpp::stop_token token, const Handle) {
@@ -183,13 +201,14 @@ TEST(ComponentTest, TerminationDuringStartupInterruptsActivation)
 
 TEST(ComponentTest, StartSetsActive)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
-    configuration::ComponentConfig config;
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        configuration::ComponentConfig{});
 
     static_cast<void>(component.activate(cpp::stop_token{}));
 
@@ -198,13 +217,14 @@ TEST(ComponentTest, StartSetsActive)
 
 TEST(ComponentTest, StopClearsActive)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
-    configuration::ComponentConfig config;
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        configuration::ComponentConfig{});
 
     static_cast<void>(component.activate(cpp::stop_token{}));
     static_cast<void>(component.deactivate(cpp::stop_token{}));
@@ -214,13 +234,14 @@ TEST(ComponentTest, StopClearsActive)
 
 TEST(ComponentTest, CannotDeactivateInTerminatedState)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
-    configuration::ComponentConfig config;
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        configuration::ComponentConfig{});
 
     EXPECT_DEATH(
         { static_cast<void>(component.deactivate(cpp::stop_token{})); },
@@ -229,13 +250,15 @@ TEST(ComponentTest, CannotDeactivateInTerminatedState)
 
 TEST(ComponentTest, CannotActivateInReadyState)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
-    configuration::ComponentConfig config;
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        configuration::ComponentConfig{});
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
 
@@ -247,13 +270,16 @@ TEST(ComponentTest, CannotActivateInReadyState)
 
 TEST(ComponentTest, CannotActivateInTerminatingState)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
-    configuration::ComponentConfig config;
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        configuration::ComponentConfig{});
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
+    const MockStopAction& stop_action = static_cast<const MockStopAction&>(component.stopAction());
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
     ON_CALL(stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestResult::kSuccess));
@@ -267,13 +293,16 @@ TEST(ComponentTest, CannotActivateInTerminatingState)
 
 TEST(ComponentTest, CannotDeactivateInTerminatingState)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
-    configuration::ComponentConfig config;
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        configuration::ComponentConfig{});
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
+    const MockStopAction& stop_action = static_cast<const MockStopAction&>(component.stopAction());
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
     ON_CALL(stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestResult::kSuccess));
@@ -288,13 +317,15 @@ TEST(ComponentTest, CannotDeactivateInTerminatingState)
 
 TEST(ComponentTest, CannotActivateInFaultState)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
-    configuration::ComponentConfig config;
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        configuration::ComponentConfig{});
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
 
@@ -307,13 +338,15 @@ TEST(ComponentTest, CannotActivateInFaultState)
 
 TEST(ComponentTest, CannotDeactivateInFaultState)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
-    configuration::ComponentConfig config;
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        configuration::ComponentConfig{});
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
 
@@ -327,14 +360,17 @@ TEST(ComponentTest, CannotDeactivateInFaultState)
 
 TEST(ComponentTest, SelfTerminatingExitZeroInReadyStateIsIgnored)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
     configuration::ComponentConfig config;
     config.component_properties.application_profile.is_self_terminating = true;
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::move(config));
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
 
@@ -346,14 +382,17 @@ TEST(ComponentTest, SelfTerminatingExitZeroInReadyStateIsIgnored)
 
 TEST(ComponentTest, SelfTerminatingExitZeroInReadyStateIsActive)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
     configuration::ComponentConfig config;
     config.component_properties.application_profile.is_self_terminating = true;
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::move(config));
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
 
@@ -365,14 +404,17 @@ TEST(ComponentTest, SelfTerminatingExitZeroInReadyStateIsActive)
 
 TEST(ComponentTest, SelfTerminatingExitNonZeroInReadyStateIsFailure)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
     configuration::ComponentConfig config;
     config.component_properties.application_profile.is_self_terminating = true;
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::move(config));
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
 
@@ -384,14 +426,17 @@ TEST(ComponentTest, SelfTerminatingExitNonZeroInReadyStateIsFailure)
 
 TEST(ComponentTest, SelfTerminatingExitNonZeroInReadyStateIsNotActive)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
     configuration::ComponentConfig config;
     config.component_properties.application_profile.is_self_terminating = true;
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::move(config));
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
 
@@ -403,14 +448,18 @@ TEST(ComponentTest, SelfTerminatingExitNonZeroInReadyStateIsNotActive)
 
 TEST(ComponentTest, SelfTerminatingExitZeroInStartingStateIsIgnored)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
     configuration::ComponentConfig config;
     config.component_properties.application_profile.is_self_terminating = true;
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::move(config));
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
+    const MockReadyCondition& ready_condition = static_cast<const MockReadyCondition&>(component.readyCondition());
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
 
@@ -427,14 +476,18 @@ TEST(ComponentTest, SelfTerminatingExitZeroInStartingStateIsIgnored)
 
 TEST(ComponentTest, SelfTerminatingExitZeroInStartingStateIsActive)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
     configuration::ComponentConfig config;
     config.component_properties.application_profile.is_self_terminating = true;
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::move(config));
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
+    const MockReadyCondition& ready_condition = static_cast<const MockReadyCondition&>(component.readyCondition());
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
     EXPECT_CALL(ready_condition, wait(_, _)).WillOnce(Invoke([&](cpp::stop_token, const Handle) {
@@ -449,14 +502,18 @@ TEST(ComponentTest, SelfTerminatingExitZeroInStartingStateIsActive)
 
 TEST(ComponentTest, SelfTerminatingExitNonZeroInStartingStateIsFailure)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
     configuration::ComponentConfig config;
     config.component_properties.application_profile.is_self_terminating = true;
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::move(config));
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
+    const MockReadyCondition& ready_condition = static_cast<const MockReadyCondition&>(component.readyCondition());
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
 
@@ -473,14 +530,18 @@ TEST(ComponentTest, SelfTerminatingExitNonZeroInStartingStateIsFailure)
 
 TEST(ComponentTest, SelfTerminatingExitNonZeroInStartingStateIsNotActive)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
     configuration::ComponentConfig config;
     config.component_properties.application_profile.is_self_terminating = true;
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::move(config));
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
+    const MockReadyCondition& ready_condition = static_cast<const MockReadyCondition&>(component.readyCondition());
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
     EXPECT_CALL(ready_condition, wait(_, _)).WillOnce(Invoke([&](cpp::stop_token, const Handle) {
@@ -495,13 +556,16 @@ TEST(ComponentTest, SelfTerminatingExitNonZeroInStartingStateIsNotActive)
 
 TEST(ComponentTest, SettingBothStopTokens)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
-    configuration::ComponentConfig config;
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        configuration::ComponentConfig{});
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
+    const MockReadyCondition& ready_condition = static_cast<const MockReadyCondition&>(component.readyCondition());
     cpp::stop_source stop_source{};
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
@@ -522,10 +586,6 @@ TEST(ComponentTest, SettingBothStopTokens)
 
 TEST(ComponentTest, SupervisionConstructedFromConfig)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
     configuration::ComponentConfig config;
     config.name = "comp";
@@ -541,32 +601,36 @@ TEST(ComponentTest, SupervisionConstructedFromConfig)
             IdentifierHash{"comp"}, 1000U, Field(&configuration::ComponentAliveSupervision::reporting_cycle_ms, 50U)))
         .WillOnce(Return(ByMove(std::unique_ptr<IAliveSupervisionHandle>{})));
 
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::move(config));
 }
 
 TEST(ComponentTest, NoSupervisionConstructedWhenUnsupervised)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
     configuration::ComponentConfig config;
     config.component_properties.application_profile.application_type = configuration::ApplicationType::Reporting;
 
     EXPECT_CALL(factory, constructSupervision(_, _, _)).Times(0);
 
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::move(config));
 
-    EXPECT_EQ(config.deployment_config.environmental_variables.size(), 0U);
+    EXPECT_EQ(component.config().deployment_config.environmental_variables.size(), 0U);
 }
 
 TEST(ComponentTest, AliveInterfacePathAddedToEnvironment)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
     configuration::ComponentConfig config;
     config.component_properties.application_profile.application_type =
@@ -578,20 +642,22 @@ TEST(ComponentTest, AliveInterfacePathAddedToEnvironment)
     ON_CALL(factory, constructSupervision(_, _, _))
         .WillByDefault(Return(ByMove(std::unique_ptr<IAliveSupervisionHandle>{std::move(handle)})));
 
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::move(config));
 
-    ASSERT_EQ(config.deployment_config.environmental_variables.size(), 1U);
-    const auto& variable = *config.deployment_config.environmental_variables.begin();
+    ASSERT_EQ(component.config().deployment_config.environmental_variables.size(), 1U);
+    const auto& variable = *component.config().deployment_config.environmental_variables.begin();
     EXPECT_EQ(variable.key(), "LCM_ALIVE_INTERFACE_PATH");
     EXPECT_EQ(variable.value(), "/test_path");
 }
 
 TEST(ComponentTest, FailedSupervisionConstructionFailsActivation)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
     configuration::ComponentConfig config;
     config.component_properties.application_profile.application_type =
@@ -601,20 +667,22 @@ TEST(ComponentTest, FailedSupervisionConstructionFailsActivation)
     ON_CALL(factory, constructSupervision(_, _, _))
         .WillByDefault(Return(ByMove(std::unique_ptr<IAliveSupervisionHandle>{})));
 
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::move(config));
 
     const auto result = component.activate(cpp::stop_token{});
 
     EXPECT_EQ(result, IComponent::RequestResult::kFailure);
-    EXPECT_EQ(config.deployment_config.environmental_variables.size(), 0U);
+    EXPECT_EQ(component.config().deployment_config.environmental_variables.size(), 0U);
 }
 
 TEST(ComponentTest, SupervisionActivatedWhenReady)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
     configuration::ComponentConfig config;
     config.component_properties.application_profile.application_type =
@@ -627,7 +695,14 @@ TEST(ComponentTest, SupervisionActivatedWhenReady)
     ON_CALL(factory, constructSupervision(_, _, _))
         .WillByDefault(Return(ByMove(std::unique_ptr<IAliveSupervisionHandle>{std::move(handle)})));
 
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::move(config));
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
     EXPECT_CALL(*supervision, activateSupervision(_)).WillOnce(Return(true));
@@ -637,10 +712,6 @@ TEST(ComponentTest, SupervisionActivatedWhenReady)
 
 TEST(ComponentTest, SupervisionActivationFailureFaultsComponent)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
     configuration::ComponentConfig config;
     config.component_properties.application_profile.application_type =
@@ -653,7 +724,14 @@ TEST(ComponentTest, SupervisionActivationFailureFaultsComponent)
     ON_CALL(factory, constructSupervision(_, _, _))
         .WillByDefault(Return(ByMove(std::unique_ptr<IAliveSupervisionHandle>{std::move(handle)})));
 
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::move(config));
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
     EXPECT_CALL(*supervision, activateSupervision(_)).WillOnce(Return(false));
 
@@ -667,10 +745,6 @@ TEST(ComponentTest, SupervisionActivationFailureFaultsComponent)
 
 TEST(ComponentTest, SupervisionNotActivatedWhenStartFails)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
     configuration::ComponentConfig config;
     config.component_properties.application_profile.application_type =
@@ -683,7 +757,14 @@ TEST(ComponentTest, SupervisionNotActivatedWhenStartFails)
     ON_CALL(factory, constructSupervision(_, _, _))
         .WillByDefault(Return(ByMove(std::unique_ptr<IAliveSupervisionHandle>{std::move(handle)})));
 
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::move(config));
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{MakeUnexpected(ExecErrc::kGeneralError)}));
     EXPECT_CALL(*supervision, activateSupervision(_)).Times(0);
@@ -693,10 +774,6 @@ TEST(ComponentTest, SupervisionNotActivatedWhenStartFails)
 
 TEST(ComponentTest, SupervisionDeactivatedImmediatelyOnTermination)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
     configuration::ComponentConfig config;
     config.component_properties.application_profile.application_type =
@@ -708,13 +785,20 @@ TEST(ComponentTest, SupervisionDeactivatedImmediatelyOnTermination)
     ON_CALL(*supervision, getConnectionId()).WillByDefault(Return(std::string_view{"/test_path"}));
     ON_CALL(factory, constructSupervision(_, _, _))
         .WillByDefault(Return(ByMove(std::unique_ptr<IAliveSupervisionHandle>{std::move(handle)})));
-    ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
 
     InSequence sequence;
     EXPECT_CALL(*supervision, activateSupervision(_)).WillOnce(Return(true));
     EXPECT_CALL(*supervision, deactivateSupervision(_)).WillOnce(Return(true));
 
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::move(config));
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
+    ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
     static_cast<void>(component.activate(cpp::stop_token{}));
     static_cast<void>(component.tryHandleTermination(1));
 
@@ -723,10 +807,6 @@ TEST(ComponentTest, SupervisionDeactivatedImmediatelyOnTermination)
 
 TEST(ComponentTest, SupervisionDeactivatedBeforeStopAction)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
     configuration::ComponentConfig config;
     config.component_properties.application_profile.application_type =
@@ -739,7 +819,15 @@ TEST(ComponentTest, SupervisionDeactivatedBeforeStopAction)
     ON_CALL(factory, constructSupervision(_, _, _))
         .WillByDefault(Return(ByMove(std::unique_ptr<IAliveSupervisionHandle>{std::move(handle)})));
 
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::move(config));
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
+    const MockStopAction& stop_action = static_cast<const MockStopAction&>(component.stopAction());
 
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
     ON_CALL(*supervision, activateSupervision(_)).WillByDefault(Return(true));
@@ -755,10 +843,6 @@ TEST(ComponentTest, SupervisionDeactivatedBeforeStopAction)
 
 TEST(ComponentTest, SupervisionDeactivationFailureFaultsComponent)
 {
-    MockStartAction start_action;
-    MockStopAction stop_action;
-    MockForceStopAction force_stop_action;
-    MockReadyCondition ready_condition;
     NiceMock<MockSupervisionFactory> factory;
     configuration::ComponentConfig config;
     config.component_properties.application_profile.application_type =
@@ -771,7 +855,15 @@ TEST(ComponentTest, SupervisionDeactivationFailureFaultsComponent)
     ON_CALL(factory, constructSupervision(_, _, _))
         .WillByDefault(Return(ByMove(std::unique_ptr<IAliveSupervisionHandle>{std::move(handle)})));
 
-    Component component(start_action, stop_action, force_stop_action, ready_condition, factory, config);
+    Component component(
+        std::make_unique<MockStartAction>(),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::move(config));
+    const MockStartAction& start_action = static_cast<const MockStartAction&>(component.startAction());
+    const MockStopAction& stop_action = static_cast<const MockStopAction&>(component.stopAction());
     ON_CALL(start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
     EXPECT_CALL(*supervision, activateSupervision(_)).WillOnce(Return(true));
     static_cast<void>(component.activate(cpp::stop_token{}));

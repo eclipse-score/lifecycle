@@ -22,6 +22,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/iready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/start_action/istart_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/stop_action/istop_action.hpp"
+#include <memory>
 #include <mutex>
 #include <variant>
 
@@ -40,12 +41,12 @@ class Component final : public IComponent
     /// @param supervision_factory Factory used to construct alive supervision.
     /// @param config Configuration of the component.
     Component(
-        const IStartAction& start_action,
-        const IStopAction& stop_action,
-        const IForceStopAction& force_stop_action,
-        const IReadyCondition& ready_condition,
+        std::unique_ptr<IStartAction>&& start_action,
+        std::unique_ptr<IStopAction>&& stop_action,
+        std::unique_ptr<IForceStopAction>&& force_stop_action,
+        std::unique_ptr<IReadyCondition>&& ready_condition,
         ISupervisionFactory& supervision_factory,
-        configuration::ComponentConfig& config);
+        configuration::ComponentConfig&& config);
 
     /// @brief Start the resource and set the component to active.
     /// @param stop_token Token which can be used to interrupt the activation.
@@ -70,21 +71,36 @@ class Component final : public IComponent
     /// @return Whether the component is active.
     [[nodiscard]] bool active() const override;
 
+    /// @brief Return the component's start action.
+    [[nodiscard]] const IStartAction& startAction() const;
+
+    /// @brief Return the component's stop action.
+    [[nodiscard]] const IStopAction& stopAction() const;
+
+    /// @brief Return the component's force-stop action.
+    [[nodiscard]] const IForceStopAction& forceStopAction() const;
+
+    /// @brief Return the component's ready condition.
+    [[nodiscard]] const IReadyCondition& readyCondition() const;
+
+    /// @brief Return the component's configuration.
+    [[nodiscard]] const configuration::ComponentConfig& config() const;
+
   private:
     /// @brief How to start the resource.
-    const IStartAction& start_action_;
+    const std::unique_ptr<IStartAction> start_action_;
 
     /// @brief How to gracefully stop the resource.
-    const IStopAction& stop_action_;
+    const std::unique_ptr<IStopAction> stop_action_;
 
     /// @brief How to forcefully stop the resource.
-    const IForceStopAction& force_stop_action_;
+    const std::unique_ptr<IForceStopAction> force_stop_action_;
 
     /// @brief How to decide when the resource has finished its startup.
-    const IReadyCondition& ready_condition_;
+    const std::unique_ptr<IReadyCondition> ready_condition_;
 
     /// @brief Configuration of the component.
-    const configuration::ComponentConfig& config_;
+    configuration::ComponentConfig config_;
 
     /// @brief Alive supervision of the resource, or nullptr if it is not supervised.
     const std::unique_ptr<IAliveSupervisionHandle> supervision_handle_;
