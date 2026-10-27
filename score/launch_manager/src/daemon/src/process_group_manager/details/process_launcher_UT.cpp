@@ -290,7 +290,6 @@ class StartProcessTest : public ProcessLauncherTest
         const int fd = 123;
         void* data = static_cast<void*>(test_buffer.data());
         EXPECT_CALL(*g_syscall_mock, shm_open_anon).WillOnce(Return(fd));
-        EXPECT_CALL(*g_syscall_mock, shm_unlink).WillOnce(Return(0));
         EXPECT_CALL(*g_syscall_mock, mmap(_, _, _, _, fd, _)).WillOnce(Return(data));
         EXPECT_CALL(*g_syscall_mock, ftruncate(fd, _)).WillOnce(Return(0));
         EXPECT_CALL(*g_syscall_mock, munmap(data, sizeof(IpcCommsSync))).WillOnce(Return(0));
@@ -382,7 +381,6 @@ TEST_F(SetupCommsTest, ftruncateFails)
     RecordProperty("Description", "Verify that if truncating shared memory fails, startProcess fails");
 
     EXPECT_CALL(*g_syscall_mock, shm_open_anon).WillOnce(Return(123));
-    EXPECT_CALL(*g_syscall_mock, shm_unlink).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, ftruncate).WillOnce(Return(-1));
 
     EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
@@ -393,7 +391,6 @@ TEST_F(SetupCommsTest, getCommsFails)
     RecordProperty("Description", "Verify that if truncating shared memory fails, startProcess fails");
 
     EXPECT_CALL(*g_syscall_mock, shm_open_anon).WillOnce(Return(123));
-    EXPECT_CALL(*g_syscall_mock, shm_unlink).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, ftruncate).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, mmap).WillOnce(Return(MAP_FAILED));
 

@@ -277,8 +277,6 @@ bool ProcessLauncher::setupComms(IpcCommsP& block, int& fd, const configuration:
         return false;
     }
 
-    shm_unlink(shm_name.data());
-
     if (-1 == ftruncate(fd, static_cast<int>(length)))
     {
         LM_LOG_ERROR() << "ftruncate failed:" << config.deployment_config.executable_path
