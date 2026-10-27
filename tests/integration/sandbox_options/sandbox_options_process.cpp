@@ -34,7 +34,7 @@ using sandbox_options::ExpectedValues;
 
 // Expected sandbox option values, supplied to this process on the command line.
 //
-// The launch manager applies the sandbox options from sandbox_options.json and passes the same
+// The launch manager applies the sandbox options from sandbox_options.in.json and passes the same
 // values to the managed process via 'process_arguments', so the test verifies the applied state
 // against the configured expectation without duplicating any literals here.
 //
