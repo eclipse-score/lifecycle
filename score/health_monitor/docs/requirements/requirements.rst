@@ -83,6 +83,39 @@ General
    The :term:`Health Monitor` shall not accept a time range whose minimum is
    greater than its maximum.
 
+.. comp_req:: Time granularity
+   :id: comp_req__health_monitor__time_granularity
+   :reqtype: Non-Functional
+   :security: NO
+   :safety: ASIL_B
+   :derived_from: feat_req__lifecycle__hm_checkpoint[version==1],
+                  feat_req__lifecycle__hm_deadline[version==1]
+   :satisfied_by: comp__health_monitor
+   :status: valid
+   :version: 1
+
+   The :term:`Health Monitor` shall handle time ranges and cycle durations with
+   a granularity of one millisecond.
+
+.. comp_req:: Unique identification
+   :id: comp_req__health_monitor__unique_id
+   :reqtype: Interface
+   :security: NO
+   :safety: ASIL_B
+   :derived_from: feat_req__lifecycle__hm_checkpoint[version==1],
+                  feat_req__lifecycle__hm_deadline[version==1],
+                  feat_req__lifecycle__hm_logical[version==1]
+   :satisfied_by: comp__health_monitor
+   :status: valid
+   :version: 1
+
+   The :term:`Health Monitor` shall identify each configured element by an
+   identifier that is unique within its scope:
+
+   - a monitor within the :term:`Health Monitor` instance,
+   - a deadline within its deadline monitor,
+   - a state within its logic monitor.
+
 .. comp_req:: Complete monitor activation
    :id: comp_req__health_monitor__complete_activation
    :reqtype: Functional
@@ -146,7 +179,7 @@ General
    The :term:`Health Monitor` shall base all time supervision on a monotonic
    clock that is not affected by wall-clock adjustments.
 
-Checkpoint (Heartbeat) Supervision
+Heartbeat (Checkpoint) Supervision
 ==================================
 
 .. comp_req:: Heartbeat configuration validation
@@ -160,8 +193,8 @@ Checkpoint (Heartbeat) Supervision
    :version: 1
 
    The :term:`Health Monitor` shall reject a heartbeat monitor configuration if
-   the internal evaluation cycle is not shorter than twice the minimum of the
-   heartbeat time range.
+   the internal evaluation cycle is greater than or equal to twice the minimum
+   of the heartbeat time range.
 
    .. note:: Ensures that a correctly behaving application never reports more
       than one heartbeat within one internal evaluation cycle. See
@@ -215,6 +248,19 @@ Checkpoint (Heartbeat) Supervision
 
 Deadline Supervision
 ====================
+
+.. comp_req:: Deadline configuration validation
+   :id: comp_req__health_monitor__dl_cfg
+   :reqtype: Functional
+   :security: NO
+   :safety: ASIL_B
+   :derived_from: feat_req__lifecycle__hm_deadline[version==1]
+   :satisfied_by: comp__health_monitor
+   :status: valid
+   :version: 1
+
+   The :term:`Health Monitor` shall reject a deadline monitor configuration
+   that contains no deadline.
 
 .. comp_req:: Deadline missed
    :id: comp_req__health_monitor__dl_missed
@@ -375,9 +421,10 @@ Error Reaction
    :version: 1
 
    On any internal error, the :term:`Health Monitor` shall stop sending alive
-   notifications to the :term:`Launch Manager`. Internal errors include an
-   inconsistent monitor state, a time calculation overflow, and abnormal
-   termination of the evaluation thread.
+   notifications to the :term:`Launch Manager`. 
+   
+   .. note:: Internal errors include an inconsistent monitor state, a time 
+      calculation overflow, and abnormal termination of the evaluation thread.
 
 .. comp_req:: Detection latency
    :id: comp_req__health_monitor__detect_latency
@@ -400,7 +447,8 @@ Error Reaction
    :id: comp_req__health_monitor__failure_log
    :reqtype: Functional
    :security: NO
-   :safety: QM
+   :safety: ASIL_B
+   :derived_from: feat_req__lifecycle__logging_support[version==1]
    :satisfied_by: comp__health_monitor
    :status: valid
    :version: 1
@@ -473,25 +521,8 @@ Robustness and Freedom from Interference
       Targeted corruption of the monitoring data is covered by
       :need:`aou_req__health_monitor__host_integrity`.
 
-   .. note:: Further measure like MTA will be investigated in the future.
-
-Language Bindings
-=================
-
-.. comp_req:: Rust and C++ API
-   :id: comp_req__health_monitor__lang_api
-   :reqtype: Interface
-   :security: NO
-   :safety: ASIL_B
-   :derived_from: feat_req__lifecycle__hm_checkpoint[version==1],
-                  feat_req__lifecycle__hm_deadline[version==1],
-                  feat_req__lifecycle__hm_logical[version==1]
-   :satisfied_by: comp__health_monitor
-   :status: valid
-   :version: 1
-
-   The :term:`Health Monitor` shall provide a Rust API and a C++ API with
-   equivalent supervision semantics.
+   .. note:: Further measure like Arm Memory Tagging Extension will be 
+      investigated in the future.
 
 Placeholder
 ===========
