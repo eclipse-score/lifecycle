@@ -25,8 +25,10 @@
                 "security_policy": "apparmor_profile",
                 "scheduling_policy": "SCHED_FIFO",
                 "scheduling_priority": 50,
-                "max_memory_usage": 536870912,
-                "max_cpu_usage": 80,
+                "rlimits": {
+                    "RLIMIT_AS": 536870912,
+                    "RLIMIT_CPU": 80
+                },
                 "affinity_mask": "0x3"
             }
         },
@@ -107,8 +109,17 @@
                     "security_policy": "apparmor_a",
                     "scheduling_policy": "SCHED_RR",
                     "scheduling_priority": 75,
-                    "max_memory_usage": 268435456,
-                    "max_cpu_usage": 50
+                    "rlimits": {
+                        "RLIMIT_AS": {
+                            "soft": 268435456,
+                            "hard": 268435456
+                        },
+                        "RLIMIT_CORE": 0,
+                        "RLIMIT_NOFILE": {
+                            "soft": 1024,
+                            "hard": "unlimited"
+                        }
+                    }
                 }
             }
         },

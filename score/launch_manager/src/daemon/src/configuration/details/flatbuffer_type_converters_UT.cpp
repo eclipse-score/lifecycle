@@ -629,8 +629,6 @@ TEST_F(ConverterTest, ConvertSandboxValid)
         sec_policy,
         fb::SchedulingPolicy::FIFO,
         50 /*scheduling_priority*/,
-        4096 /*max_memory_usage*/,
-        80 /*max_cpu_usage*/,
         rlimits,
         3 /*affinity_mask*/);
 

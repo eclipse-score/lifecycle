@@ -36,6 +36,7 @@ from lifecycle_config import (
     schema_validation,
     score_defaults,
     SCHED_POLICY_MAP,
+    RLIMIT_UNLIMITED_SENTINEL,
 )
 
 # ---------------------------------------------------------------------------
@@ -933,8 +934,9 @@ def test_gen_config_watchdog_partial_fields_omitted(tmp_path):
     assert "watchdog" not in output
 
 
-def test_gen_config_with_sandbox_limits(tmp_path):
-    """sandbox max_memory_usage, max_cpu_usage and affinity_mask should appear in output when present."""
+def _gen_config_with_sandbox(tmp_path, sandbox, input_filename="test_input.json"):
+    """Helper: run gen_config for a single component with the given sandbox dict, and return
+    the generated sandbox output dict."""
     config = {
         "schema_version": 1,
         "components": {
@@ -946,13 +948,7 @@ def test_gen_config_with_sandbox_limits(tmp_path):
                     "ready_timeout_ms": 1000,
                     "shutdown_timeout_ms": 2000,
                     "bin_dir": "/opt",
-                    "sandbox": {
-                        "uid": 1000,
-                        "gid": 1000,
-                        "max_memory_usage": 1024,
-                        "max_cpu_usage": 50,
-                        "affinity_mask": "0x3",
-                    },
+                    "sandbox": {"uid": 1000, "gid": 1000, **sandbox},
                 },
             }
         },
@@ -962,17 +958,161 @@ def test_gen_config_with_sandbox_limits(tmp_path):
         "alive_supervision": {},
         "watchdog": {},
     }
-    gen_config(str(tmp_path), config, "test_input.json")
+    gen_config(str(tmp_path), config, input_filename)
 
-    with open(tmp_path / "test_input_gen.json") as f:
+    with open(tmp_path / output_filename(input_filename)) as f:
         output = json.load(f)
 
-    assert output["schema_version"] == 1
+    return output["components"][0]["deployment_config"]["sandbox"]
 
-    sandbox = output["components"][0]["deployment_config"]["sandbox"]
-    assert sandbox["max_memory_usage"] == 1024
-    assert sandbox["max_cpu_usage"] == 50
-    assert sandbox["affinity_mask"] == 3
+
+def test_gen_config_rlimit_scalar_shorthand(tmp_path):
+    """A scalar rlimit value expands to an equal soft/hard pair."""
+    sandbox = _gen_config_with_sandbox(tmp_path, {"rlimits": {"RLIMIT_NOFILE": 1024}})
+    assert sandbox["rlimits"] == [
+        {"resource": "POSIX_RLIMIT_NOFILE", "soft": 1024, "hard": 1024}
+    ]
+
+
+def test_gen_config_rlimit_explicit_pair(tmp_path):
+    """An explicit {soft, hard} pair is passed through unchanged."""
+    sandbox = _gen_config_with_sandbox(
+        tmp_path, {"rlimits": {"RLIMIT_AS": {"soft": 1024, "hard": 2048}}}
+    )
+    assert sandbox["rlimits"] == [
+        {"resource": "POSIX_RLIMIT_AS", "soft": 1024, "hard": 2048}
+    ]
+
+
+def test_gen_config_rlimit_unlimited_soft(tmp_path):
+    """ "unlimited" in the soft position resolves to the sentinel."""
+    sandbox = _gen_config_with_sandbox(
+        tmp_path,
+        {"rlimits": {"RLIMIT_CPU": {"soft": "unlimited", "hard": "unlimited"}}},
+    )
+    assert sandbox["rlimits"] == [
+        {
+            "resource": "POSIX_RLIMIT_CPU",
+            "soft": RLIMIT_UNLIMITED_SENTINEL,
+            "hard": RLIMIT_UNLIMITED_SENTINEL,
+        }
+    ]
+
+
+def test_gen_config_rlimit_unlimited_hard_only(tmp_path):
+    """ "unlimited" in the hard position resolves to the sentinel while soft stays numeric."""
+    sandbox = _gen_config_with_sandbox(
+        tmp_path, {"rlimits": {"RLIMIT_CPU": {"soft": 10, "hard": "unlimited"}}}
+    )
+    assert sandbox["rlimits"] == [
+        {"resource": "POSIX_RLIMIT_CPU", "soft": 10, "hard": RLIMIT_UNLIMITED_SENTINEL}
+    ]
+
+
+def test_gen_config_rlimit_scalar_unlimited(tmp_path):
+    """The scalar shorthand also accepts "unlimited"."""
+    sandbox = _gen_config_with_sandbox(
+        tmp_path, {"rlimits": {"RLIMIT_FSIZE": "unlimited"}}
+    )
+    assert sandbox["rlimits"] == [
+        {
+            "resource": "POSIX_RLIMIT_FSIZE",
+            "soft": RLIMIT_UNLIMITED_SENTINEL,
+            "hard": RLIMIT_UNLIMITED_SENTINEL,
+        }
+    ]
+
+
+def test_gen_config_rlimit_soft_greater_than_hard_rejected(tmp_path):
+    """soft > hard must be rejected with a message naming the component and the limit."""
+    with pytest.raises(ValueError, match="app1.*RLIMIT_AS"):
+        _gen_config_with_sandbox(
+            tmp_path, {"rlimits": {"RLIMIT_AS": {"soft": 2048, "hard": 1024}}}
+        )
+
+
+def test_gen_config_rlimit_core_zero_accepted(tmp_path):
+    """RLIMIT_CORE: 0 is a legitimate value (disables core dumps), not "skip"."""
+    sandbox = _gen_config_with_sandbox(tmp_path, {"rlimits": {"RLIMIT_CORE": 0}})
+    assert sandbox["rlimits"] == [
+        {"resource": "POSIX_RLIMIT_CORE", "soft": 0, "hard": 0}
+    ]
+
+
+def test_gen_config_no_rlimits_omits_key(tmp_path):
+    """When no rlimits are configured, the 'rlimits' key is omitted entirely."""
+    sandbox = _gen_config_with_sandbox(tmp_path, {})
+    assert "rlimits" not in sandbox
+
+
+# ---------------------------------------------------------------------------
+# sandbox.rlimits schema validation
+# ---------------------------------------------------------------------------
+
+
+def _config_with_rlimits(rlimits):
+    config = _minimal_config_with_ready_timeout_ms(500)
+    config["components"] = {
+        "app1": {
+            "component_properties": {
+                "binary_name": "app1",
+                "application_profile": {"application_type": "Native"},
+            },
+            "deployment_config": {"sandbox": {"uid": 0, "gid": 0, "rlimits": rlimits}},
+        }
+    }
+    return config
+
+
+def test_schema_rejects_unknown_rlimit_key(schema_file):
+    """Any limit outside the POSIX seven is rejected at config-compile time."""
+    schema = load_json_file(schema_file)
+    assert (
+        schema_validation(_config_with_rlimits({"RLIMIT_MEMLOCK": 1}), schema) is False
+    )
+
+
+@pytest.mark.parametrize("bad_key", ["as", "rlimit_as", "RLIMIT_as"])
+def test_schema_rejects_non_exact_rlimit_key_spelling(schema_file, bad_key):
+    """Keys are matched exactly and case-sensitively; no spelling is normalised."""
+    schema = load_json_file(schema_file)
+    assert schema_validation(_config_with_rlimits({bad_key: 1}), schema) is False
+
+
+def test_schema_rejects_negative_rlimit_value(schema_file):
+    schema = load_json_file(schema_file)
+    assert (
+        schema_validation(_config_with_rlimits({"RLIMIT_NOFILE": -1}), schema) is False
+    )
+
+
+def test_schema_rejects_non_integer_rlimit_value(schema_file):
+    schema = load_json_file(schema_file)
+    assert (
+        schema_validation(_config_with_rlimits({"RLIMIT_NOFILE": 1.5}), schema) is False
+    )
+
+
+def test_schema_rejects_arbitrary_string_rlimit_value(schema_file):
+    """Only the literal "unlimited" is accepted as a string value."""
+    schema = load_json_file(schema_file)
+    assert (
+        schema_validation(_config_with_rlimits({"RLIMIT_NOFILE": "max"}), schema)
+        is False
+    )
+
+
+def test_schema_accepts_rlimit_core_zero(schema_file):
+    """Regression guard: the schema must not copy the outgoing max_* options'
+    exclusiveMinimum: 0, which would reject the meaningful value 0."""
+    schema = load_json_file(schema_file)
+    assert schema_validation(_config_with_rlimits({"RLIMIT_CORE": 0}), schema) is True
+
+
+def test_schema_accepts_unlimited_in_both_positions(schema_file):
+    schema = load_json_file(schema_file)
+    rlimits = {"RLIMIT_CPU": {"soft": "unlimited", "hard": "unlimited"}}
+    assert schema_validation(_config_with_rlimits(rlimits), schema) is True
 
 
 def test_gen_config_without_affinity_mask(tmp_path):
@@ -1008,6 +1148,12 @@ def test_gen_config_without_affinity_mask(tmp_path):
 
     sandbox = output["components"][0]["deployment_config"]["sandbox"]
     assert "affinity_mask" not in sandbox
+
+
+def test_gen_config_affinity_mask(tmp_path):
+    """A configured affinity mask is converted from hexadecimal to an integer."""
+    sandbox = _gen_config_with_sandbox(tmp_path, {"affinity_mask": "0x3"})
+    assert sandbox["affinity_mask"] == 3
 
 
 @pytest.mark.parametrize(

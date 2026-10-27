@@ -524,8 +524,6 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
         sec_policy,
         fb::SchedulingPolicy::FIFO,
         50 /*scheduling_priority*/,
-        0 /*max_memory_usage*/,
-        0 /*max_cpu_usage*/,
         rlimits,
         3 /*affinity_mask*/);
 
