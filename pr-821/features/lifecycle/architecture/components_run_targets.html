@@ -431,7 +431,7 @@
 <li class="toctree-l3"><a class="reference internal" href="design_decisions.html">Design Decisions</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="chklst_arc_inspection.html">Architecture Inspection Checklist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="arc_inspection.html">Lifecycle Architecture Inspection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../safety_analysis/fmea.html">FMEA (Failure Modes and Effects Analysis)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../safety_analysis/dfa.html">DFA (Dependent Failure Analysis)</a></li>
 
@@ -623,7 +623,7 @@ controlled through POSIX signals:</p>
 <section id="state-machines">
 <h2>State machines<a class="headerlink" href="#state-machines" title="Link to this heading">#</a></h2>
 <p>A component maintains the following internal state machine:</p>
-<div class="need_container docutils container" id="SNCB-861d76e8">
+<div class="need_container docutils container" id="SNCB-208162ab">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__comp_sm_if">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -674,7 +674,7 @@ controlled through POSIX signals:</p>
 <p>Note that the state machine of the underlying process is different from the component state machine.
 For example, the process may be already terminated, but the component is in <cite>Ready</cite> state.
 This is the case if the component is configured to be ready when the underlying process is terminated.</p>
-<div class="need_container docutils container" id="SNCB-0dee6dda">
+<div class="need_container docutils container" id="SNCB-402e8f6f">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__proc_sm_if">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
