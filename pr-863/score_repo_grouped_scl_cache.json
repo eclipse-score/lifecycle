@@ -22,6 +22,21 @@
         }
       },
       {
+        "need": "comp_req__launch_man__process_rlimit_support",
+        "links": {
+          "CodeLinks": [
+            {
+              "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher.cpp",
+              "line": 137,
+              "tag": "// req-Id:",
+              "need": "comp_req__launch_man__process_rlimit_support",
+              "full_line": "// req-Id: comp_req__launch_man__process_rlimit_support"
+            }
+          ],
+          "TestLinks": []
+        }
+      },
+      {
         "need": "comp_req__launch_man__rc_file_state",
         "links": {
           "CodeLinks": [],
