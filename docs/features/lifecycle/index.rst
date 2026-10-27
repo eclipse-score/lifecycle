@@ -26,7 +26,7 @@ For the main feature description and requirements, see the belonging Feature in 
    :hidden:
 
    architecture/index
-   architecture/chklst_arc_inspection
+   architecture/arc_inspection
    safety_analysis/fmea
    safety_analysis/dfa
    safety_analysis/aou_requirements
