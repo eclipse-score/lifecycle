@@ -258,11 +258,16 @@ bool ProcessLauncher::setupComms(IpcCommsP& block, int& fd, const configuration:
     const auto conversion = std::to_chars(counter_first, counter_last, shm_name_counter++);
     if (conversion.ec != std::errc{})
     {
-        LM_LOG_ERROR() << "Shared memory name truncated: the local buffer is too small for the shared memory "
-                          "object name.";
-        return false;
+        // Anonymous shared mem name is only used for debugging (or discarded on QNX). It does not need to be unique
+        LM_LOG_INFO() << "Shared memory name truncated: the local buffer is too small for the shared memory "
+                         "object name. Proceeding with generic name";
+
+        shm_name = {"/ipc_shared_mem_OUTOFNUMBERS\0"};
     }
-    *conversion.ptr = '\0';
+    else
+    {
+        *conversion.ptr = '\0';
+    }
 
     fd = shm_open_anon(shm_name.data());
     if (fd < 0)

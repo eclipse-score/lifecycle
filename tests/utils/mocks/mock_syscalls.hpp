@@ -64,6 +64,7 @@ class SyscallMock
     MOCK_METHOD(int, msync, (void* __addr, size_t __len, int __flags), ());
     MOCK_METHOD(int, close, (int __fd), ());
     MOCK_METHOD(int, fstat, (int __fd, struct stat* __buf), ());
+    MOCK_METHOD(int, shm_open_anon, (const char* name), ());
 };
 
 std::unique_ptr<SyscallMock> g_syscall_mock = nullptr;
@@ -361,6 +362,12 @@ int __wrap_fstat(int __fd, struct stat* __buf)
 
 namespace score::mw::lifecycle::internal::osal
 {
+
+int shm_open_anon(const char* name)
+{
+    return g_syscall_mock->shm_open_anon(name);
+}
+
 void sysexit(int status)
 {
     g_syscall_mock->sysexit(status);
