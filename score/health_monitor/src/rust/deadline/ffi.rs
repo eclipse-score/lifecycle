@@ -74,8 +74,8 @@ pub extern "C" fn deadline_monitor_builder_destroy(deadline_monitor_builder_hand
 pub extern "C" fn deadline_monitor_builder_add_deadline(
     deadline_monitor_builder_handle: FFIHandle,
     deadline_tag: *const DeadlineTag,
-    min_ms: u32,
-    max_ms: u32,
+    min_ms: u64,
+    max_ms: u64,
 ) -> FFICode {
     if deadline_monitor_builder_handle.is_null() || deadline_tag.is_null() {
         return FFICode::NullParameter;
@@ -93,8 +93,8 @@ pub extern "C" fn deadline_monitor_builder_add_deadline(
     let mut deadline_monitor_builder =
         FFIBorrowed::new(unsafe { Box::from_raw(deadline_monitor_builder_handle as *mut DeadlineMonitorBuilder) });
 
-    let range_min = Duration::from_millis(min_ms as u64);
-    let range_max = Duration::from_millis(max_ms as u64);
+    let range_min = Duration::from_millis(min_ms);
+    let range_max = Duration::from_millis(max_ms);
     let range = match TimeRange::new_internal(range_min, range_max) {
         Some(range) => range,
         None => return FFICode::InvalidArgument,

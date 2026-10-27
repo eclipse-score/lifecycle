@@ -92,7 +92,7 @@ native applications and SCORE-aware applications within the same system.
 The Lifecycle Interface serves as the communication channel between
 applications and the :term:`Launch Manager`.
 
-SCORE Applications
+SCORE applications
 ------------------
 
 **For SCORE Applications:**
@@ -113,11 +113,11 @@ The :term:`Launch Manager` uses this state information for:
 
 - Dependency resolution for other applications
 - Recovery action decisions
-- Status reporting to external state managers via the Control Interface
+- Status reporting to external state managers via the Control interface (:need:`logic_arc_int__lifecycle__controlif`)
 
 **Shutdown Signal Handling**
 
-The Launch Manager sends SIGTERM signal to SCORE applications (and any POSIX processes) to request their shutdown.
+The :term:`Launch Manager` sends SIGTERM signal to SCORE applications (and any POSIX processes) to request their shutdown.
 The lifecycle interface sets up the necessary signal handler for an SCORE application to properly respond to shutdown requests.
 
 Native Applications
@@ -144,7 +144,7 @@ For native applications, the :term:`Launch Manager` provides:
 - Exit code-based success/failure determination
 
 
-State Machines
+State machines
 ==============
 
 A component maintains the following internal state machine:
@@ -191,11 +191,15 @@ This transitions the process state machine from state `Starting` to state `Runni
 For Native applications which do not report their state, the process state machine advances directly to `Running` after successful start of the process.
 
 
-Simplified Example Dependency Graph
+Simplified example dependency graph
 ===================================
 
 Consider the following simplified dependency graph for the sequence diagrams
 in the following chapters.
+
+The purpose of the is not to show a real-world setup, but only to showcase different scenarios.
+
+.. _lifecycle_simplified_example_graph:
 
   .. uml:: _assets/launch_manager_small_example_graph.puml
     :scale: 50
@@ -204,3 +208,4 @@ in the following chapters.
 The Component `setup_filesystems` starts a shell script `setup_filesystems.sh` and reaches its `Ready` state when the script completed.
 The Component `random` starts a binary `/bin/random` and is considered `Ready` when the file `/dev/random` exists.
 The Component `app1` starts a binary `/opt/bin/app1` and is considered `Ready` when the process signaled its Running state via the Lifecycle API.
+The Component `StateManager` starts a binary `/opt/bin/sm` and is considered `Ready` when the process signaled its Running state via the Lifecycle API.
