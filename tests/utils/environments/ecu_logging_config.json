@@ -1,17 +1,17 @@
 {
     "ecuId": "ECU1",
     "appId": "LM",
-    "logLevel": "kDebug",
-    "logLevelThresholdConsole": "kDebug",
+    "logLevel": "kWarn",
+    "logLevelThresholdConsole": "kWarn",
     "logMode": "kConsole",
     "contextConfigs":[
         {
             "name": "LM",
-            "logLevel": "kDebug"
+            "logLevel": "kWarn"
         },
         {
             "name": "Sprv",
-            "logLevel": "kDebug"
+            "logLevel": "kWarn"
         }
     ]
 }
