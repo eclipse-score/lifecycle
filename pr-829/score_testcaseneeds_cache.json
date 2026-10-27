@@ -5000,7 +5000,7 @@
   {
     "name": "ProcessGroupManagerWatchdogTest__GivenMinimalConfig_ExpectWatchdogMethodsCalledInSequence_WhenInitializeCalled",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_group_manager_UT.cpp",
-    "line": "175",
+    "line": "189",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5014,7 +5014,7 @@
   {
     "name": "ProcessGroupManagerWatchdogTest__GivenMinimalConfig_ExpectWatchdogServicePerCycle_WhenRunCalled",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_group_manager_UT.cpp",
-    "line": "193",
+    "line": "207",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5028,7 +5028,7 @@
   {
     "name": "ProcessGroupManagerWatchdogTest__GivenMinimalConfig_ExpectWatchdogFired_WhenRecoveryClientOverflowsDuringRunCall",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_group_manager_UT.cpp",
-    "line": "213",
+    "line": "227",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5042,7 +5042,7 @@
   {
     "name": "ProcessGroupManagerWatchdogTest__GivenMinimalConfig_ExpectWatchdogDisabled_WhenDeinitializeCalled",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_group_manager_UT.cpp",
-    "line": "247",
+    "line": "261",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5056,7 +5056,7 @@
   {
     "name": "ProcessGroupManagerWatchdogTest__GetActiveRunTargetAndSetRequestedRunTargetDuringRun",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_group_manager_UT.cpp",
-    "line": "261",
+    "line": "275",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5070,7 +5070,7 @@
   {
     "name": "ProcessGroupManagerWatchdogTest__GetActiveRunTargetWhenStoppedReturnsFailedErrorPromptly",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_group_manager_UT.cpp",
-    "line": "289",
+    "line": "303",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
