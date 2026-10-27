@@ -423,7 +423,7 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Lifecycle</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Feature Architecture</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="components_run_targets.html">Components &amp; Run Targets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="run_target_activation.html">Run Target activation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="run_target_activation.html">Run Target Activation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="startup_shutdown.html">Startup &amp; Shutdown</a></li>
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">Health Monitoring</a></li>
 <li class="toctree-l3"><a class="reference internal" href="recovery_actions.html">Recovery Actions</a></li>
@@ -512,14 +512,14 @@
 <h1>Health Monitoring<a class="headerlink" href="#health-monitoring" title="Link to this heading">#</a></h1>
 <section id="alive-supervision">
 <h2>Alive Supervision<a class="headerlink" href="#alive-supervision" title="Link to this heading">#</a></h2>
-<p>The Alive interface (<a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int__lifecycle__alive_if">logic_arc_int__lifecycle__alive_if</a>) provides a basic watchdog functionality interface that
+<p>The Alive Interface provides a basic watchdog functionality interface that
 delivers essential monitoring capabilities for system health and responsiveness
 tracking.
 It implements core watchdog operations including heartbeat signals to ensure
 reliable operation and automatic recovery from unresponsive states.</p>
 <p><strong>SCORE Application Liveliness Reporting</strong></p>
 <p>SCORE applications can periodically signal their liveliness to the
-<a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> through the  Alive interface (<a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int__lifecycle__alive_if">logic_arc_int__lifecycle__alive_if</a>).
+<a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> through the Alive Interface.
 This mechanism allows the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> to:</p>
 <ul class="simple">
 <li><p>Detect application failures or hangs</p></li>
@@ -533,11 +533,12 @@ This mechanism allows the <a class="reference internal" href="../glossary.html#t
 </ul>
 <p>The corresponding configuration parameters are shown as <cite>AliveSupervision</cite> in
 <a class="reference internal" href="index.html#lifecycle-configuration-structure"><span class="std std-ref">Configuration Structure</span></a>.</p>
+<p>The alive interface is defined here: <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int__lifecycle__alive_if">logic_arc_int__lifecycle__alive_if</a></p>
 <p>The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> starts the Alive Supervision at the exact time when the Application reports its Running state via the Lifecycle Interface.
 As a consequence the Liveliness Reporting is only available to SCORE applications that also use the Lifecycle Interface.</p>
 <section id="dynamic-architecture">
 <h3>Dynamic architecture<a class="headerlink" href="#dynamic-architecture" title="Link to this heading">#</a></h3>
-<div class="need_container docutils container" id="SNCB-a2c839c9">
+<div class="need_container docutils container" id="SNCB-68e1c92e">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__alive_monitor_start">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -567,9 +568,8 @@ As a consequence the Liveliness Reporting is only available to SCORE application
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-bd07cdf6f20bb553d71c0f5ae2aabdfac73e762f.svg" type="image/svg+xml" style="width:778px;height:677px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-3a71e9de29b22d810da59c16bf471e4b357782ec.svg" type="image/svg+xml" style="width:694px;height:572px;background:#FFFFFF;"></object></p>
 </figure>
-<p>The Launch Manager reaction to supervision failure is depicted in the Recovery Action chapter, see <a class="reference internal" href="recovery_actions.html#feat_arc_dyn__lifecycle__sup_failure" title="feat_arc_dyn__lifecycle__sup_failure"><em class="xref need">Launch Manager - Supervisio... (feat_arc_dyn__lifecycle__sup_failure)</em></a>.</p>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
@@ -586,7 +586,7 @@ As a consequence the Liveliness Reporting is only available to SCORE application
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-3a8740d6">
+<div class="need_container docutils container" id="SNCB-9deae355">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__alive_monitor_stop">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -668,7 +668,7 @@ worst case reaction time calculations must be made on the monitoring rules speci
 </section>
 <section id="id1">
 <h4>Dynamic Architecture<a class="headerlink" href="#id1" title="Link to this heading">#</a></h4>
-<div class="need_container docutils container" id="SNCB-9510b1ad">
+<div class="need_container docutils container" id="SNCB-5389c052">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__app_health_mon">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -764,7 +764,7 @@ worst case reaction time calculations must be made on the monitoring rules speci
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-5ad5fac5">
+<div class="need_container docutils container" id="SNCB-75ed479d">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__app_ctrl_flow_mon">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">

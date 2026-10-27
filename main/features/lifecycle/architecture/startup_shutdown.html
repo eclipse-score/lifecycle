@@ -74,7 +74,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="Health Monitoring" href="health_monitoring.html" />
-    <link rel="prev" title="Run Target activation" href="run_target_activation.html" />
+    <link rel="prev" title="Run Target Activation" href="run_target_activation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -423,7 +423,7 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Lifecycle</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Feature Architecture</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="components_run_targets.html">Components &amp; Run Targets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="run_target_activation.html">Run Target activation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="run_target_activation.html">Run Target Activation</a></li>
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">Startup &amp; Shutdown</a></li>
 <li class="toctree-l3"><a class="reference internal" href="health_monitoring.html">Health Monitoring</a></li>
 <li class="toctree-l3"><a class="reference internal" href="recovery_actions.html">Recovery Actions</a></li>
@@ -510,12 +510,13 @@
                   
   <section id="startup-shutdown">
 <h1>Startup &amp; Shutdown<a class="headerlink" href="#startup-shutdown" title="Link to this heading">#</a></h1>
-<p>The sequence diagrams below are based on <a class="reference internal" href="components_run_targets.html#lifecycle-simplified-example-graph"><span class="std std-ref">the example dependency graph</span></a>.</p>
+<p>The sequence diagrams below are based on the example dependency graph described
+in <a class="reference internal" href="components_run_targets.html"><span class="doc">Components &amp; Run Targets</span></a>.</p>
 <section id="launch-manager-initial-startup">
-<h2>Launch Manager initial startup<a class="headerlink" href="#launch-manager-initial-startup" title="Link to this heading">#</a></h2>
+<h2>Launch Manager Initial Startup<a class="headerlink" href="#launch-manager-initial-startup" title="Link to this heading">#</a></h2>
 <p>The <em>Initial Run Target</em> configuration is shown in
 <a class="reference internal" href="index.html#lifecycle-configuration-structure"><span class="std std-ref">Configuration Structure</span></a>.</p>
-<div class="need_container docutils container" id="SNCB-a8a8b618">
+<div class="need_container docutils container" id="SNCB-f6d068df">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__lcm_startup">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -545,11 +546,13 @@
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-6a9294f91d3336e89e29cfb51fae4a0c35a0d1c5.svg" type="image/svg+xml" style="width:791px;height:625px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-0a250119e5dc0827b8e930b2a52c3d99d1ff1c44.svg" type="image/svg+xml" style="width:791px;height:625px;background:#FFFFFF;"></object></p>
 </figure>
 <p>In case of initialization failure, the Launch Manager fails to start.
 Once initialization is successful, the Launch Manager activates the configured initial Run Target.</p>
-<p>For detailed Run Target activation sequence refer to <a class="reference internal" href="run_target_activation.html"><span class="doc">Run Target activation</span></a>.</p>
+<p>The continuation of this sequence, in which the Launch Manager starts the
+Components of the Run Target <cite>Running</cite>, is depicted in
+<a class="reference internal" href="run_target_activation.html#feat_arc_dyn__lifecycle__lcm_start" title="feat_arc_dyn__lifecycle__lcm_start"><em class="xref need">Launch Manager - Component ... (feat_arc_dyn__lifecycle__lcm_start)</em></a>.</p>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
@@ -568,8 +571,8 @@ Once initialization is successful, the Launch Manager activates the configured i
 </div>
 </section>
 <section id="launch-manager-shutdown">
-<h2>Launch Manager shutdown<a class="headerlink" href="#launch-manager-shutdown" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-9bf0a92d">
+<h2>Launch Manager Shutdown<a class="headerlink" href="#launch-manager-shutdown" title="Link to this heading">#</a></h2>
+<div class="need_container docutils container" id="SNCB-577deee5">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__lcm_shutdown">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -598,10 +601,12 @@ Once initialization is successful, the Launch Manager activates the configured i
 <td class="meta" colspan="3"></td>
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><p class="plantuml">
-<object data="../../../_images/plantuml-a7039d930f05b6987b4e00016a3cfce16805e48d.svg" type="image/svg+xml" style="width:966px;height:434px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-396ff9435f9279c72b5aacdd1198c3811be5dbbe.svg" type="image/svg+xml" style="width:859px;height:448px;background:#FFFFFF;"></object></p>
 <p>When the Launch Manager receives a SIGTERM signal, it will initiate transition to Run Target <cite>Off</cite> which leads to termination of all components.
 Afterwards, Launch Manager process itself exits.</p>
-<p>For detailed Run Target activation sequence refer to <a class="reference internal" href="run_target_activation.html"><span class="doc">Run Target activation</span></a>.</p>
+<p>The transition to the Run Target <cite>Off</cite>, in which the Launch Manager terminates
+the Components of the currently active Run Target, is depicted in
+<a class="reference internal" href="run_target_activation.html#feat_arc_dyn__lifecycle__lcm_term" title="feat_arc_dyn__lifecycle__lcm_term"><em class="xref need">Launch Manager - Component ... (feat_arc_dyn__lifecycle__lcm_term)</em></a>.</p>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
@@ -637,7 +642,7 @@ Afterwards, Launch Manager process itself exits.</p>
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Run Target activation</p>
+        <p class="prev-next-title">Run Target Activation</p>
       </div>
     </a>
     <a class="right-next"
@@ -668,8 +673,8 @@ Afterwards, Launch Manager process itself exits.</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#launch-manager-initial-startup">Launch Manager initial startup</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#launch-manager-shutdown">Launch Manager shutdown</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#launch-manager-initial-startup">Launch Manager Initial Startup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#launch-manager-shutdown">Launch Manager Shutdown</a></li>
 </ul>
   </nav></div>
 
