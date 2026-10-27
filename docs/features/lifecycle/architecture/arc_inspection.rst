@@ -188,7 +188,7 @@ Architecture Inspection Checklist
       - Provide a rationale for these scheduling policies and priorities, or explain why they are not needed.
       - NO
       - Scheduling concept currently missing on platform level.
-      - TODO: add issue link
+      - `#880 <https://github.com/eclipse-score/lifecycle/issues/880>`_
 
 Summary
 -------
