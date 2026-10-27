@@ -136,8 +136,7 @@ score::cpp::expected<int, IConfigLoader::Error> toPlatformResource(fb::RlimitRes
         case fb::RlimitResource::POSIX_RLIMIT_STACK:
             return RLIMIT_STACK;
     }
-    LM_LOG_ERROR() << "Unknown rlimit resource selector:" << static_cast<int>(fb_resource);
-    return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
+    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Got an unknown rlimit resource selector");
 }
 
 score::cpp::expected<std::vector<ResourceLimit>, IConfigLoader::Error> convertRlimits(
