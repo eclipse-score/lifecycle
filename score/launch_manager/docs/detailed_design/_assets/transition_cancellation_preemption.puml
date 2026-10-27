@@ -44,17 +44,11 @@ end note
 ' --- preemption --------------------------------------------------------------
 Client -> EventQueue: request another Run Target
 EventQueue -> PGM ++: run target request
-note over PGM
-  A supervision failure and the shutdown of the Launch Manager
-  preempt a running transition in exactly the same way.
-end note
-
 PGM -> Graph ++: set new pending Run Target
 PGM -> Graph: cancel the running transition
 note over Graph
-  The graph moves to kInTransition -> kAborting and requests the
-  stop token that was created when the transition started. Every
-  component dispatched by this transition carries that token.
+  The graph moves to kInTransition -> kAborting and requests
+  cancellation of any ongoing component tasks.
 end note
 PGM --> Client: request accepted
 deactivate Graph
@@ -74,7 +68,7 @@ note over Monitor
 end note
 
 alt #F2FAF2 the task had not been started when the cancellation arrived
-    Monitor -> Monitor: the stop token is already stopped
+    Monitor -> Monitor: cancellation already requested
     Monitor -> EventQueue: job skipped
     note right of Monitor
       <b>Cancellation point 1</b>
@@ -178,9 +172,9 @@ legend bottom
   A cancellation is observed at two points, each of which leaves the component
   in a state the next transition can reason about:
 
-  1. Before the task is executed. A worker that picks up a task whose stop token
-     is already stopped does not run it and reports it as skipped. The component
-     keeps the state it had before the transition.
+  1. Before the task is executed. A worker that picks up a task for which
+     cancellation was already requested does not run it and reports it as skipped. 
+     The component keeps the state it had before the transition.
   2. Between two startup attempts. The process of the failed attempt is already
      gone; no further attempt is started, the component is deactivated and the
      activation returns. The component is left stopped.

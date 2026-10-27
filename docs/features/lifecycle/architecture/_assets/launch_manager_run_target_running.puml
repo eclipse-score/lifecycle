@@ -55,7 +55,7 @@ LM -> kernel : app1 start
 kernel -> app1 ++ : Start app1
 app1 -> app1 : Initialize
 app1 -> LM : Report Running via Lifecycle API
-LM -> LM : Componetn app1 Ready
+LM -> LM : Component app1 Ready
 LM -> LM : Run Target Running successfully activated
 
 ...
