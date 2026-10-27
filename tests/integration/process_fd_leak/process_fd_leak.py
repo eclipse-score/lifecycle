@@ -19,6 +19,7 @@ from attribute_plugin import add_test_properties
 @add_test_properties(
     fully_verifies=[],
     partially_verifies=[
+        "feat_req__lifecycle__conditional_startup",
         "comp_req__launch_man__rc_lifecycle",
         "comp_req__launch_man__rc_os_state",
     ],
