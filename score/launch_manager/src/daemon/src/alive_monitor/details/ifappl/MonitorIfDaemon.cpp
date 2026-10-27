@@ -125,13 +125,10 @@ bool MonitorIfDaemon::readIpcUntil(const std::chrono::nanoseconds f_syncTimestam
         isRepeated = false;
         result = ipcserver_r.peek(elem_p);
 
-        if(!elem_p)
-        {
-            success = false;
-            break;
-        }
 
-        if ((result == IpcResult::kOk) && (elem_p->timestamp <= f_syncTimestamp))
+        // the ipc server guarentees that if the result is kOk the element is
+        // valid.
+        if ((result == IpcResult::kOk) && bool(elem_p) && (elem_p->timestamp <= f_syncTimestamp))
         {
             // Checkpoint belongs to this cycle, push it to observers
             Checkpoint checkpoint = Checkpoint{elem_p->timestamp};
@@ -149,7 +146,7 @@ bool MonitorIfDaemon::readIpcUntil(const std::chrono::nanoseconds f_syncTimestam
                 success = false;
             }
         }
-        else if ((result == IpcResult::kOk) && (elem_p->timestamp > f_syncTimestamp))
+        else if ((result == IpcResult::kOk) && bool(elem_p) && (elem_p->timestamp > f_syncTimestamp))
         {
             // Next checkpoint already belongs to next cycle, stop reading
             success = true;
