@@ -320,7 +320,7 @@ oci.pull(
 )
 use_repo(oci, "debian-test-runtime", "debian-test-runtime_linux_amd64")
 
-bazel_dep(name = "score_baselibs", version = "0.2.15")
+bazel_dep(name = "score_baselibs", version = "0.2.16")
 bazel_dep(name = "score_communication", version = "0.5.0")
 
 # Needed to fix bazel mod errors
