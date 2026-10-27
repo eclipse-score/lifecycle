@@ -66,13 +66,13 @@ See also :need:`doc_concept__wp_inspections` for further information about revie
       - All functional feature requirements are linked to feature architecture elements. Exception is feat_req__lifecycle__prog_lang
         See the traceability overview here https://eclipse-score.github.io/lifecycle/main/verification_report/module_verification_report.html#traceability-of-valid-feature-requirements-to-feature-architecture
         All logical interfaces are linked to components.
-        Gap: Hearbeat Monitor interface for HealthMonitor component has no logical interface element.
+        Gap: Hearbeat Monitor interface for HealthMonitor component has no logical interface element. Tracked in `#872 <https://github.com/eclipse-score/lifecycle/issues/872>`_.
       -
     * - ARC_01_02
       - Does the software architecture design consider all the requirements allocated to the architectural element, including functional, non-functional, safety, and security requirements and all related design decisions?
       - Check if all requirements allocated to the architectural element are considered in the design. This includes functional requirements (e.g. functional safety requirements), non-functional requirements (e.g. performance, reliability), and security requirements (e.g. confidentiality, integrity). Additionally, ensure that all related design decisions are taken into account and documented in the architectural design.
       - NO
-      - All functional feature requirements are linked to feature architecture elements. Exception is feat_req__lifecycle__prog_lang
+      - All functional feature requirements are linked to feature architecture elements. Exception is feat_req__lifecycle__prog_lang, tracked in `#871 <https://github.com/eclipse-score/lifecycle/issues/871>`_.
         See the traceability overview here https://eclipse-score.github.io/lifecycle/main/verification_report/module_verification_report.html#traceability-of-valid-feature-requirements-to-feature-architecture
       -
     * - ARC_01_03
@@ -80,11 +80,11 @@ See also :need:`doc_concept__wp_inspections` for further information about revie
       - If the architecture makes use of supplied elements, their manuals (like safety) have to be considered (i.e. its provided functionality matches the expectation and assumptions are fulfilled). Note that in case of safety component this means that assumed Technical Safety Requirements and AoUs of the safety manual are covered.
       - NO
       - QNX safety manual is relevant for lifecycle, but currently out of scope.
-        AoUs from dependent modules are currently not yet considered.
+        AoUs from dependent modules are currently not yet considered, tracked in `#874 <https://github.com/eclipse-score/lifecycle/issues/874>`_ and `#873 <https://github.com/eclipse-score/lifecycle/issues/873>`_.
       -
     * - ARC_01_04
       - Is the architectural element traceable to the lower-level artifacts as defined by the work product traceability?
-      - 
+      -
       - YES
       - All existing logical interface elements are traced to components, see https://eclipse-score.github.io/lifecycle/main/features/lifecycle/architecture/index.html#feat_arc_sta__lifecycle__static_view_arch
       -
@@ -112,7 +112,7 @@ See also :need:`doc_concept__wp_inspections` for further information about revie
       - Are the interfaces between the software architectural element and other architectural elements well defined?
       - Check if the interface handles undefined behaviour or errors; can established protocols be used; are the interfaces for inputs, outputs, and error codes documented; is loose coupling considered and only limited exposure; can unit or integration tests be written against the interface; data amount transferred; ensure no sensitive data is exposed;
       - NO
-      - Interface Operations definitions for Launch Manager interfaces has extended description about possible input and outputs. Health Monitor interfaces currently lack such descriptions.
+      - Interface Operations definitions for Launch Manager interfaces has extended description about possible input and outputs. Health Monitor interfaces currently lack such descriptions, tracked in `#875 <https://github.com/eclipse-score/lifecycle/issues/875>`_.
       -
     * - ARC_02_05
       - Does the software architectural element consider the timing constraints (from the parent requirement)?
@@ -123,8 +123,8 @@ See also :need:`doc_concept__wp_inspections` for further information about revie
     * - ARC_02_06
       - Is the documentation of the software architectural element, including textual and graphical descriptions (e.g., UML diagrams), clear and complete?
       - Use of semi-formal notation is expected for architectural elements with an allocated ASIL level. Is the architecture template correctly filled?
-      - <Add diagram for control interface>, Check arch template
       -
+      - Yes, see UML diagrams in https://eclipse-score.github.io/lifecycle/main/features/lifecycle/architecture/run_target_activation.html
       -
     * - ARC_03_01
       - Is the architectural element modular and encapsulated?
@@ -173,7 +173,7 @@ See also :need:`doc_concept__wp_inspections` for further information about revie
       -
         Check if there are any limits for resource consumption or timing aspects in your project, such as startup time, communication bandwidth, or memory usage. If such limits exist, ensure that your architecture takes these limits into account, especially with respect to scalability. For this, make an estimation of the required resources based on the architectural design and a prototypical implementation or a measurement of an existing implementation, and compare it to the defined limits or planned scalability. Check if any bottlenecks are present in the architecture that could lead to resource overuse or timing violations.
       - YES
-      - There are no concrete resource requirements, though in general concerns like startup time have been considered in the desin. See design decisions `launch-manager-starts-processes-on-a-thread-pool <https://eclipse-score.github.io/lifecycle/main/features/lifecycle/architecture/design_decisions.html#launch-manager-starts-processes-on-a-thread-pool>`_, `launch-manager-alive-monitoring-is-polling-based <https://eclipse-score.github.io/lifecycle/main/features/lifecycle/architecture/design_decisions.html#launch-manager-alive-monitoring-is-polling-based>`_, `dec_rec__lifecycle__flatbuffer_config <https://eclipse-score.github.io/lifecycle/main/features/lifecycle/architecture/design_decisions.html#dec_rec__lifecycle__flatbuffer_config>`_
+      - There are no concrete resource requirements, though in general concerns like startup time have been considered in the design. See design decisions `launch-manager-starts-processes-on-a-thread-pool <https://eclipse-score.github.io/lifecycle/main/features/lifecycle/architecture/design_decisions.html#launch-manager-starts-processes-on-a-thread-pool>`_, `launch-manager-alive-monitoring-is-polling-based <https://eclipse-score.github.io/lifecycle/main/features/lifecycle/architecture/design_decisions.html#launch-manager-alive-monitoring-is-polling-based>`_, `dec_rec__lifecycle__flatbuffer_config <https://eclipse-score.github.io/lifecycle/main/features/lifecycle/architecture/design_decisions.html#dec_rec__lifecycle__flatbuffer_config>`_
       -
     * - ARC_04_03
       - If your software architectural design includes processes and tasks, are their scheduling policies and priorities (at least the necessary relationships between them) defined to ensure that timing requirements are met? Please note that the particular priorities or priority ranges will probably be defined by the project handbook or the software development plan.
