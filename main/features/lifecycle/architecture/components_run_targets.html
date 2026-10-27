@@ -73,7 +73,7 @@
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Run Target Activation" href="run_target_activation.html" />
+    <link rel="next" title="Run Target activation" href="run_target_activation.html" />
     <link rel="prev" title="Feature Architecture" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -423,7 +423,7 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Lifecycle</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Feature Architecture</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">Components &amp; Run Targets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="run_target_activation.html">Run Target Activation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="run_target_activation.html">Run Target activation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="startup_shutdown.html">Startup &amp; Shutdown</a></li>
 <li class="toctree-l3"><a class="reference internal" href="health_monitoring.html">Health Monitoring</a></li>
 <li class="toctree-l3"><a class="reference internal" href="recovery_actions.html">Recovery Actions</a></li>
@@ -575,7 +575,7 @@ native applications and SCORE-aware applications within the same system.</p>
 <p>The Lifecycle Interface serves as the communication channel between
 applications and the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a>.</p>
 <section id="score-applications">
-<h3>SCORE Applications<a class="headerlink" href="#score-applications" title="Link to this heading">#</a></h3>
+<h3>SCORE applications<a class="headerlink" href="#score-applications" title="Link to this heading">#</a></h3>
 <p><strong>For SCORE Applications:</strong>
 - Application state reporting (started, running, stopped)
 - Conditional signaling for application dependencies</p>
@@ -590,10 +590,10 @@ The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><s
 <ul class="simple">
 <li><p>Dependency resolution for other applications</p></li>
 <li><p>Recovery action decisions</p></li>
-<li><p>Status reporting to external state managers via the Control Interface</p></li>
+<li><p>Status reporting to external state managers via the Control interface (<a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int__lifecycle__controlif">logic_arc_int__lifecycle__controlif</a>)</p></li>
 </ul>
 <p><strong>Shutdown Signal Handling</strong></p>
-<p>The Launch Manager sends SIGTERM signal to SCORE applications (and any POSIX processes) to request their shutdown.
+<p>The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> sends SIGTERM signal to SCORE applications (and any POSIX processes) to request their shutdown.
 The lifecycle interface sets up the necessary signal handler for an SCORE application to properly respond to shutdown requests.</p>
 </section>
 <section id="native-applications">
@@ -621,9 +621,9 @@ controlled through POSIX signals:</p>
 </section>
 </section>
 <section id="state-machines">
-<h2>State Machines<a class="headerlink" href="#state-machines" title="Link to this heading">#</a></h2>
+<h2>State machines<a class="headerlink" href="#state-machines" title="Link to this heading">#</a></h2>
 <p>A component maintains the following internal state machine:</p>
-<div class="need_container docutils container" id="SNCB-c05e182a">
+<div class="need_container docutils container" id="SNCB-dcd7d665">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__comp_sm_if">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -674,7 +674,7 @@ controlled through POSIX signals:</p>
 <p>Note that the state machine of the underlying process is different from the component state machine.
 For example, the process may be already terminated, but the component is in <cite>Ready</cite> state.
 This is the case if the component is configured to be ready when the underlying process is terminated.</p>
-<div class="need_container docutils container" id="SNCB-493f9c90">
+<div class="need_container docutils container" id="SNCB-6aaea981">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__proc_sm_if">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -727,18 +727,20 @@ This transitions the process state machine from state <cite>Starting</cite> to s
 For Native applications which do not report their state, the process state machine advances directly to <cite>Running</cite> after successful start of the process.</p>
 </section>
 <section id="simplified-example-dependency-graph">
-<h2>Simplified Example Dependency Graph<a class="headerlink" href="#simplified-example-dependency-graph" title="Link to this heading">#</a></h2>
+<h2>Simplified example dependency graph<a class="headerlink" href="#simplified-example-dependency-graph" title="Link to this heading">#</a></h2>
 <p>Consider the following simplified dependency graph for the sequence diagrams
 in the following chapters.</p>
-<blockquote>
+<p>The purpose of the is not to show a real-world setup, but only to showcase different scenarios.</p>
+<blockquote id="lifecycle-simplified-example-graph">
 <div><figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-e383fde913b3253455b891fd5a96dac9c69281f3.svg" type="image/svg+xml" style="width:529px;height:348px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-780b51bf0fb10469192664d6cf803e71269822aa.svg" type="image/svg+xml" style="width:649px;height:676px;background:#FFFFFF;"></object></p>
 </figure>
 </div></blockquote>
 <p>The Component <cite>setup_filesystems</cite> starts a shell script <cite>setup_filesystems.sh</cite> and reaches its <cite>Ready</cite> state when the script completed.
 The Component <cite>random</cite> starts a binary <cite>/bin/random</cite> and is considered <cite>Ready</cite> when the file <cite>/dev/random</cite> exists.
-The Component <cite>app1</cite> starts a binary <cite>/opt/bin/app1</cite> and is considered <cite>Ready</cite> when the process signaled its Running state via the Lifecycle API.</p>
+The Component <cite>app1</cite> starts a binary <cite>/opt/bin/app1</cite> and is considered <cite>Ready</cite> when the process signaled its Running state via the Lifecycle API.
+The Component <cite>StateManager</cite> starts a binary <cite>/opt/bin/sm</cite> and is considered <cite>Ready</cite> when the process signaled its Running state via the Lifecycle API.</p>
 </section>
 </section>
 
@@ -766,7 +768,7 @@ The Component <cite>app1</cite> starts a binary <cite>/opt/bin/app1</cite> and i
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Run Target Activation</p>
+        <p class="prev-next-title">Run Target activation</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -792,12 +794,12 @@ The Component <cite>app1</cite> starts a binary <cite>/opt/bin/app1</cite> and i
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ready-conditions">Ready Conditions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interacting-with-processes">Interacting with processes</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#score-applications">SCORE Applications</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#score-applications">SCORE applications</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#native-applications">Native Applications</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#state-machines">State Machines</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simplified-example-dependency-graph">Simplified Example Dependency Graph</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#state-machines">State machines</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simplified-example-dependency-graph">Simplified example dependency graph</a></li>
 </ul>
   </nav></div>
 
