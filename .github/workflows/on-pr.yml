@@ -94,6 +94,32 @@ jobs:
           path: bazel-testlogs/
           retention-days: 7
 
+  # Duplicated from on-pr-target.yml. Here, it runs automatically on the merge
+  # queue, the main branch, and the release workflow.
+  qnx-build:
+    if: ${{ github.event_name != 'pull_request' }}
+    name: Build and test ${{ matrix.bazel-config }}
+    strategy:
+      fail-fast: false
+      matrix:
+        bazel-config: [unit-tests-x86_64-qnx, unit-tests-arm64-qnx, x86_64-qnx, arm64-qnx]
+    uses: eclipse-score/cicd-workflows/.github/workflows/qnx-build.yml@0bfa9822cc2df460b2172ec18f5acafa65316e68
+    permissions:
+      contents: read
+      pull-requests: read
+    with:
+      bazel-target: "//score/... //examples/..."
+      bazel-config: ${{ matrix.bazel-config }}
+      bazel-test-target: "//examples/... //score/... //tests/..."
+      test-log-artifact-name: qnx-testlogs-${{ matrix.bazel-disk-cache }}-${{ github.run_attempt }}
+      extra-bazel-test-flags: "--test_timeout=120,600,1800,7200" # Increase test timeout due to QEMU emulation
+      credential-helper: "scripts/internal/qnx_creds.py"
+      bazel-disk-cache: ${{ matrix.bazel-config }}
+    secrets:
+      score-qnx-license: ${{ secrets.SCORE_QNX_LICENSE }}
+      score-qnx-user: ${{ secrets.SCORE_QNX_USER }}
+      score-qnx-password: ${{ secrets.SCORE_QNX_PASSWORD }}
+
   clippy:
     name: Clippy
     runs-on: ubuntu-latest
@@ -193,6 +219,7 @@ jobs:
     needs:
       - common
       - build
+      - qnx-build
       - docs-check
       - docs-link-check
       - docs-build
