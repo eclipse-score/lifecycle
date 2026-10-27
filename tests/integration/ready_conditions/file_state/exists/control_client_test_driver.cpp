@@ -90,5 +90,6 @@ int main()
     TestRunner::Init();
     const auto result = TestRunner::RunTests();
     TestRunner::EndTest();
+    TestRunner::WaitForTermination();
     return result;
 }
