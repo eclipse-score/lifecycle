@@ -17,12 +17,14 @@
 Verification Report
 ===================
 
-.. document:: Lifecycle Verification Report
-   :id: doc__lifecycle_verification_report
-   :status: draft
+.. mod_ver_report:: Lifecycle Verification Report
+   :id: mod_vrep__lifecycle__report
+   :status: valid
    :version: 1
    :safety: ASIL_B
    :security: YES
+   :verification_method: test_and_inspection
+   :belongs_to: mod__lifecycle
    :realizes: wp__verification_module_ver_report
    :post_template: module_verification_report
 

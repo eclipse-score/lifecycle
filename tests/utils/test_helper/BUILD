@@ -27,10 +27,21 @@ exports_files(
 )
 
 cc_library(
+    name = "test_runner",
+    hdrs = ["test_runner.hpp"],
+    visibility = ["//tests:__subpackages__"],
+    deps = [
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
     name = "test_helper",
+    srcs = ["test_helper.cpp"],
     hdrs = ["test_helper.hpp"],
     visibility = ["//tests:__subpackages__"],
     deps = [
+        ":test_runner",
         "//score/launch_manager/src/lm_control",
         "@googletest//:gtest_main",
     ],

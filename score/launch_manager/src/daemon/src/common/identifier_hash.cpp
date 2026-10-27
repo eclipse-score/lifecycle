@@ -56,7 +56,7 @@ IdentifierHash::IdentifierHash(std::string_view id)
 {
     hash_id_ = score::cpp::hash_bytes_fnv1a<std::size_t>(id.data(), id.size());
     const std::lock_guard<std::mutex> lock(get_registry_mutex());
-    get_registry()[hash_id_] = id;
+    get_registry().try_emplace(hash_id_, id);
 }
 
 IdentifierHash::IdentifierHash(std::size_t hash_id)
@@ -110,7 +110,7 @@ IdentifierHash::IdentifierHash()
 {
     hash_id_ = score::cpp::hash_bytes_fnv1a<std::size_t>("", 0U);
     const std::lock_guard<std::mutex> lock(get_registry_mutex());
-    get_registry()[hash_id_] = "";
+    get_registry().try_emplace(hash_id_, "");
 }
 
 std::size_t IdentifierHash::data() const

@@ -33,9 +33,6 @@
 namespace score::mw::lifecycle::internal::saf::factory
 {
 
-using RecoveryClient = score::mw::lifecycle::IRecoveryClient;
-using IdentifierHash = score::mw::lifecycle::IdentifierHash;
-
 AliveWorkerFactory::AliveWorkerFactory() : IAliveWorkerFactory()
 {
 }
@@ -73,7 +70,7 @@ bool EmplaceAndAttach(
 bool AliveWorkerFactory::createObservableEvent(
     std::vector<ifexm::ObservableEvent>& events,
     const IdentifierHash component_id,
-    ifexm::ObservableEventReader& event_reader_)
+    ifexm::IObservableEventReader& event_reader_)
 {
     try
     {

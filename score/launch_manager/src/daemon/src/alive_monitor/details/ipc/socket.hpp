@@ -65,8 +65,8 @@ class Socket
             }
         }
 
-        fd_ = shm_open(name_.c_str(), O_CREAT | O_RDWR | O_CLOEXEC, mode);
-        if (fd_ < 0)
+        const int fd = shm_open(name_.c_str(), O_CREAT | O_EXCL | O_RDWR | O_CLOEXEC, mode);
+        if (fd < 0)
         {
             if (errno == EACCES)
             {
@@ -76,20 +76,26 @@ class Socket
         }
         owns_shared_memory_ = true;
         const std::size_t bytes = sizeof(RingBuffer<Capacity, ElementSize>);
-        if (ftruncate(fd_, bytes) != 0)
+        if (ftruncate(fd, bytes) != 0)
         {
+            const int ftruncate_errno = errno;
+            ::close(fd);
             cleanup();
-            if (errno == EACCES || errno == EPERM)
+            if (ftruncate_errno == EACCES || ftruncate_errno == EPERM)
             {
                 return ReturnCode::kPermissionDenied;
             }
             return ReturnCode::kError;
         }
-        void* ptr = mmap(nullptr, bytes, PROT_READ | PROT_WRITE, MAP_SHARED, fd_, 0);
+        void* ptr = mmap(nullptr, bytes, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+        const int mmap_errno = errno;
+        // The mapping stays valid after closing the fd. Close it right away, as every open fd slows down process
+        // launching on QNX.
+        ::close(fd);
         if (ptr == MAP_FAILED)
         {
             cleanup();
-            if (errno == EACCES || errno == EPERM)
+            if (mmap_errno == EACCES || mmap_errno == EPERM)
             {
                 return ReturnCode::kPermissionDenied;
             }
@@ -108,8 +114,8 @@ class Socket
             name_ = "/" + name_;
         }
 
-        fd_ = shm_open(name_.c_str(), O_RDWR | O_CLOEXEC, 0);
-        if (fd_ < 0)
+        const int fd = shm_open(name_.c_str(), O_RDWR | O_CLOEXEC, 0);
+        if (fd < 0)
         {
             if (errno == EACCES)
             {
@@ -118,11 +124,14 @@ class Socket
             return ReturnCode::kError;
         }
         const std::size_t bytes = sizeof(RingBuffer<Capacity, ElementSize>);
-        void* ptr = mmap(nullptr, bytes, PROT_READ | PROT_WRITE, MAP_SHARED, fd_, 0);
+        void* ptr = mmap(nullptr, bytes, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+        const int mmap_errno = errno;
+        // The mapping stays valid after closing the fd. Close it right away, as every open fd slows down process
+        // launching on QNX.
+        ::close(fd);
         if (ptr == MAP_FAILED)
         {
-            cleanup();
-            if (errno == EACCES || errno == EPERM)
+            if (mmap_errno == EACCES || mmap_errno == EPERM)
             {
                 return ReturnCode::kPermissionDenied;
             }
@@ -235,17 +244,12 @@ class Socket
     }
     Socket(const Socket&) = delete;
     Socket& operator=(const Socket&) = delete;
-    Socket(Socket&&) noexcept = default;
-    Socket& operator=(Socket&&) noexcept = default;
+    Socket(Socket&&) = delete;
+    Socket& operator=(Socket&&) = delete;
 
   private:
     void cleanup() noexcept
     {
-        if (fd_ >= 0)
-        {
-            ::close(fd_);
-            fd_ = -1;
-        }
         if (owns_shared_memory_ && !name_.empty())
         {
             shm_unlink(name_.c_str());
@@ -255,7 +259,6 @@ class Socket
 
     bool owns_shared_memory_{false};
     std::string name_;
-    int fd_{-1};
     RingBuffer<Capacity, ElementSize>* buffer_{nullptr};
 
     /// @brief Check if a shared memory file with given path already exists

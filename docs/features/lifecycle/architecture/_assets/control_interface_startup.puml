@@ -1,0 +1,68 @@
+' *******************************************************************************
+' Copyright (c) 2026 Contributors to the Eclipse Foundation
+'
+' See the NOTICE file(s) distributed with this work for additional
+' information regarding copyright ownership.
+'
+' This program and the accompanying materials are made available under the
+' terms of the Apache License Version 2.0 which is available at
+' https://www.apache.org/licenses/LICENSE-2.0
+'
+' SPDX-License-Identifier: Apache-2.0
+' *******************************************************************************
+
+@startuml
+title Launch Manager - Control Interface Startup
+
+autonumber "<b>[00]"
+
+participant "StateManager" as sm
+participant "Launch Manager" as LM
+participant "OS (kernel)" as kernel
+participant "setup_filesystems.sh" as fs
+
+activate LM
+
+note over sm,LM
+Launch Manager activates its initial Run Target "Minimal", which requires StateManager.
+StateManager depends on setup_filesystems.sh, so it is started first.
+end note
+
+group #White Start setup_filesystems.sh
+    LM -> kernel : Start setup_filesystems.sh
+    kernel -> fs ++ : Start setup_filesystems.sh
+    LM -> LM : Wait for setup_filesystems.sh ready condition
+    fs -> kernel : exit
+    deactivate fs
+    kernel -> LM : setup_filesystems.sh terminated successfully
+    LM -> LM : Component setup_filesystems.sh Ready
+end group
+
+LM -> kernel : start StateManager
+
+kernel -> sm : start
+activate sm
+
+sm -> LM: RegisterActivationCallback(callback)
+
+note over sm,LM
+The transition to Run Target "Minimal" is still ongoing, no Run Target is active yet.
+end note
+sm -> LM : GetActiveRunTarget
+sm <-- LM: In Transition
+
+sm -> LM : Report Running via Lifecycle API
+
+...
+
+sm <-- LM: Invoke callback: Run Target "Minimal" successfully activated due to Initial Startup
+
+note over sm,LM
+The transition to Run Target "Minimal" has finished, and it is now the active Run Target.
+end note
+sm -> LM : GetActiveRunTarget
+sm <-- LM: Minimal
+
+
+...
+@enduml

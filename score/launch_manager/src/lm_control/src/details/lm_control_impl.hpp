@@ -13,6 +13,8 @@
 #ifndef SCORE_MW_LIFECYCLE_LM_CONTROL_IMPL_HPP
 #define SCORE_MW_LIFECYCLE_LM_CONTROL_IMPL_HPP
 
+#include <chrono>
+#include <condition_variable>
 #include <cstddef>
 #include <exception>
 #include <memory>
@@ -22,6 +24,7 @@
 #include <string_view>
 #include <utility>
 
+#include "score/concurrency/condition_variable.h"
 #include "score/language/safecpp/scoped_function/copyable_scoped_function.h"
 #include "score/language/safecpp/scoped_function/scope.h"
 #include "score/mw/launch_manager/common/log.hpp"
@@ -245,6 +248,20 @@ class BasicLmControlImpl final : public ILmControl
         return response.run_target;
     }
 
+    score::Result<void> wait_for_connection(std::chrono::milliseconds timeout, const score::cpp::stop_token& stop_token)
+        override
+    {
+        std::unique_lock<std::mutex> lock{mutex_};
+        const bool connected = connection_cv_.wait_for(lock, stop_token, timeout, [this] {
+            return proxy_.has_value();
+        });
+        if (!connected)
+        {
+            return score::MakeUnexpected(ExecErrc::kCommunicationError);
+        }
+        return {};
+    }
+
   private:
     using ProxyType = typename Traits::Proxy;
     using HandleType = typename Traits::HandleType;
@@ -282,9 +299,9 @@ class BasicLmControlImpl final : public ILmControl
             return;
         }
 
-        if (createProxy(handles.front()))
+        if (createProxy(handles.front()) && subscribeToActivationResults())
         {
-            static_cast<void>(subscribeToActivationResults());
+            connection_cv_.notify_all();
         }
     }
 
@@ -430,6 +447,8 @@ class BasicLmControlImpl final : public ILmControl
 
     // Guards proxy_
     std::mutex mutex_;
+    // Signalled (under mutex_) once proxy_ is set up, wakes wait_for_connection()
+    concurrency::InterruptibleConditionalVariableBasic<std::mutex, std::condition_variable> connection_cv_;
     std::optional<ProxyType> proxy_;
 
     // Handle of the running discovery search, stopped by the destructor. Written once by init()
@@ -451,6 +470,19 @@ class BasicLmControlImpl final : public ILmControl
 
 /// @brief Production alias: BasicLmControlImpl wired to the real mw::com proxy.
 using LmControlImpl = BasicLmControlImpl<MwComProxyTraits>;
+
+/// @brief Factory body behind ILmControl::Create; Impl is a test seam.
+template <typename Impl = LmControlImpl>
+score::Result<std::unique_ptr<ILmControl>> CreateLmControl(std::string_view instance_specifier)
+{
+    auto instance = std::make_unique<Impl>();
+    const auto init_result = instance->init(instance_specifier);
+    if (!init_result.has_value())
+    {
+        return score::MakeUnexpected<std::unique_ptr<ILmControl>>(init_result.error());
+    }
+    return instance;
+}
 
 }  // namespace score::mw::lifecycle::internal
 
