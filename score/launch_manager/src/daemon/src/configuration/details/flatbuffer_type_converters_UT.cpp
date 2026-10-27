@@ -731,9 +731,7 @@ TEST_F(ConverterTest, ToPlatformResourceConvertsRlimitConstants)
         "correctly.");
 
     const auto expectResource = [](fb::RlimitResource fb_resource, int expected_platform_value) {
-        auto result = toPlatformResource(fb_resource);
-        ASSERT_THAT(result.has_value(), IsTrue());
-        EXPECT_THAT(*result, Eq(expected_platform_value));
+        EXPECT_THAT(toPlatformResource(fb_resource), Eq(expected_platform_value));
     };
 
     expectResource(fb::RlimitResource::POSIX_RLIMIT_AS, RLIMIT_AS);
@@ -745,16 +743,13 @@ TEST_F(ConverterTest, ToPlatformResourceConvertsRlimitConstants)
     expectResource(fb::RlimitResource::POSIX_RLIMIT_STACK, RLIMIT_STACK);
 }
 
-TEST_F(ConverterTest, ToPlatformResourceUnknownEnumeratorReturnsError)
+TEST_F(ConverterTest, ToPlatformResourceUnknownEnumeratorDies)
 {
     RecordProperty(
         "Description",
-        "A resource selector this loader does not know is an InvalidFormat config "
-        "load error.");
+        "A resource selector this loader does not know hits an unreachable assert and terminates the process.");
 
-    auto result = toPlatformResource(static_cast<fb::RlimitResource>(99));
-    ASSERT_THAT(result.has_value(), IsFalse());
-    EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
+    EXPECT_DEATH(static_cast<void>(toPlatformResource(static_cast<fb::RlimitResource>(99))), ".*");
 }
 
 TEST_F(ConverterTest, ConvertRlimitsUnlimitedSentinelResolvedToRlimInfinity)
@@ -785,23 +780,6 @@ TEST_F(ConverterTest, ConvertRlimitsNullVectorYieldsEmptyVector)
     auto result = convertRlimits(nullptr);
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(*result, ::testing::IsEmpty());
-}
-
-TEST_F(ConverterTest, ConvertRlimitsUnknownResourceReturnsError)
-{
-    RecordProperty(
-        "Description",
-        "convertSandbox/convertRlimits surfaces an unknown rlimit resource selector as a config load error.");
-    ::flatbuffers::FlatBufferBuilder fbb;
-    auto rlimit = fb::CreateRlimit(fbb, static_cast<fb::RlimitResource>(99), 0U, 0U);
-    auto vec = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Rlimit>>{rlimit});
-    fbb.Finish(vec);
-    const auto* ptr =
-        ::flatbuffers::GetRoot<::flatbuffers::Vector<::flatbuffers::Offset<fb::Rlimit>>>(fbb.GetBufferPointer());
-
-    auto result = convertRlimits(ptr);
-    ASSERT_THAT(result.has_value(), IsFalse());
-    EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
 }
 
 TEST_F(ConverterTest, ConvertSandboxMissingUidReturnsError)

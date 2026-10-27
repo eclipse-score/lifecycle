@@ -117,7 +117,7 @@ score::cpp::expected<int32_t, IConfigLoader::Error> convertSchedulingPolicy(fb::
     }
 }
 
-score::cpp::expected<int, IConfigLoader::Error> toPlatformResource(fb::RlimitResource fb_resource)
+int toPlatformResource(fb::RlimitResource fb_resource)
 {
     switch (fb_resource)
     {
@@ -166,13 +166,9 @@ score::cpp::expected<std::vector<ResourceLimit>, IConfigLoader::Error> convertRl
                     return score::cpp::make_unexpected(hard_limit.error());
                 }
 
-                const auto platform_resource = toPlatformResource(*resource);
-                if (!platform_resource.has_value())
-                {
-                    return score::cpp::make_unexpected(platform_resource.error());
-                }
+                const int platform_resource = toPlatformResource(*resource);
                 const struct ::rlimit limit{resolveRlimitBound(*soft_limit), resolveRlimitBound(*hard_limit)};
-                result.push_back(ResourceLimit{*platform_resource, limit});
+                result.push_back(ResourceLimit{platform_resource, limit});
             }
         }
     }
