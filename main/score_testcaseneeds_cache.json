@@ -602,9 +602,23 @@
     "FullyVerifies": null
   },
   {
-    "name": "ILmControlUT__ReturnsValidInstance",
+    "name": "ILmControlUT__ReturnsValidInstanceAndForwardsSpecifier",
     "file": "score/launch_manager/src/lm_control/src/details/ilm_control_UT.cpp",
-    "line": "45",
+    "line": "105",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "equivalence-classes",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "ILmControlUT__PropagatesInitError",
+    "file": "score/launch_manager/src/lm_control/src/details/ilm_control_UT.cpp",
+    "line": "120",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -618,7 +632,7 @@
   {
     "name": "ILmControlUT__ReturnsInitErrorForInvalidSpecifier",
     "file": "score/launch_manager/src/lm_control/src/details/ilm_control_UT.cpp",
-    "line": "55",
+    "line": "132",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
