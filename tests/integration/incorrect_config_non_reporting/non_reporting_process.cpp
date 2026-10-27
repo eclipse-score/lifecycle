@@ -19,7 +19,7 @@
 #include <csignal>
 
 #include "score/mw/launch_manager/osal/ipc_comms.hpp"
-#include "tests/utils/test_helper/test_helper.hpp"
+#include "tests/utils/test_helper/test_runner.hpp"
 #include <score/mw/lifecycle/report_running.h>
 
 TEST(NonReporting, Process)
@@ -47,5 +47,8 @@ TEST(NonReporting, Process)
 
 int main()
 {
-    return TestRunner(__FILE__, TerminationBehavior::kContinue, TerminationNotification::kTestEnd).RunTests();
+    TestRunner::Init();
+    const auto result = TestRunner::RunTests();
+    TestRunner::EndTest();
+    return result;
 }

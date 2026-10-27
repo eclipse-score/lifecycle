@@ -79,10 +79,7 @@ lm_cc_test(
         "chdir",
         "setrlimit",
         "fcntl",
-        "sem_init",
         "sem_destroy",
-        "sem_trywait",
-        "sem_post",
         "msync",
     ]),
     linkstatic = True,
@@ -91,5 +88,6 @@ lm_cc_test(
         "//tests/utils/accessors:accessor_report_running_impl",
         "//tests/utils/mocks:mock_syscalls",
         "@googletest//:gtest_main",
+        "@score_baselibs//score/os/mocklib:semaphore_mock",
     ],
 )

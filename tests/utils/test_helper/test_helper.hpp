@@ -14,39 +14,17 @@
 #define TESTS_UTILS_TEST_HELPER_HPP
 
 #include <gtest/gtest.h>
-#include <atomic>
 #include <chrono>
-#include <filesystem>
+#include <functional>
+#include <initializer_list>
 #include <string>
 #include <string_view>
-#include <thread>
 
 #include <score/mw/lifecycle/ilm_control.hpp>
 
-/// @return File path to an xml adjacent to the input file path
-inline std::string xmlPath(const std::string_view file)
-{
-    return std::filesystem::path{file}.filename().stem().string() + ".xml";
-}
-
 /// @brief Creates an empty file.
 /// @return AssertionSuccess if the file is correctly created.
-inline testing::AssertionResult touch_file(const std::string_view file_path)
-{
-    auto openRes = fopen(file_path.data(), "w+");
-    if (!openRes)
-    {
-        return testing::AssertionFailure()
-               << "Could not touch file " << file_path << " errno: " << errno << " message: " << strerror(errno);
-    }
-
-    if (fclose(openRes) != 0)
-    {
-        return testing::AssertionFailure()
-               << "Couldn't close opened file " << file_path << " errno: " << errno << " message: " << strerror(errno);
-    }
-    return testing::AssertionSuccess();
-}
+testing::AssertionResult touch_file(std::string_view file_path);
 
 /// @brief Location to store a file signalling that the fallback state has been reached.
 constexpr std::string_view fallback_file = "fallback_reached";
@@ -67,149 +45,30 @@ inline std::string crashCountPath(const int crashes_until_success)
 /// @param[in] files Files to check
 /// @param[in] strict If true, return a failure if any files exist. Otherwise attempt to remove them.
 [[nodiscard]]
-inline testing::AssertionResult check_clean(
-    const std::initializer_list<std::string_view> files,
-    const bool strict = true)
-{
-    std::stringstream failures{};
-    for (const auto file : files)
-    {
-        if (!std::filesystem::exists(file))
-        {
-            continue;
-        }
+testing::AssertionResult check_clean(std::initializer_list<std::string_view> files, bool strict = true);
 
-        if (strict)
-        {
-            failures << "'" << file << "' already exists!\n";
-        }
-        else if (!std::filesystem::remove(file))
-        {
-            failures << "Failed to remove '" << file << "'!\n";
-        }
-    }
-    if (failures.tellp() > 0)
-    {
-        return testing::AssertionFailure() << failures.str();
-    }
-    return testing::AssertionSuccess();
-}
+/// @brief Waits until all of `files` exist. The timeout applies to all files together, not to each one.
+/// @return AssertionSuccess if every file appeared within the timeout, otherwise a failure naming the missing files.
+[[nodiscard]]
+testing::AssertionResult wait_for_files(
+    std::initializer_list<std::string_view> files,
+    std::chrono::milliseconds timeout = std::chrono::seconds(3));
 
-#define TEST_STEP(message)                                                                 \
-    for (bool once = (std::cout << "[ STEP     ] " << (message) << std::endl, true); once; \
-         (std::cout << "[ END STEP ] " << (message) << std::endl), once = false)
-
-enum class TerminationBehavior : std::uint8_t
-{
-    kWait = 0,  // Wait for a signal before terminating
-    kContinue,  // Terminate immediately
-};
-
-enum class TerminationNotification : std::uint8_t
-{
-    kNone = 0,  // Terminate without any notification
-    kTestEnd,   // Signal that the test has completed
-};
-
-/// @brief Helper class to setup, run, and clean up GTEST tests
-class TestRunner
-{
-    static void signalHandler(int)
-    {
-        exitRequested = true;
-    }
-
-    TerminationNotification m_termination_notification;
-    TerminationBehavior m_termination_behavior;
-
-    std::string_view m_test_path;
-
-  public:
-    /// @brief TestRunner constructor
-    /// @param[in] test_path location to write the GTEST xml file (usually __FILE__)
-    /// @param[in] termination_behavior what to do when running tests has completed
-    /// @param[in] termination_notification what notification to send (if any) when running tests has completed.
-    ///            Usually the control daemon should signal test end.
-    TestRunner(
-        std::string_view test_path,
-        TerminationBehavior termination_behavior = TerminationBehavior::kWait,
-        TerminationNotification termination_notification = TerminationNotification::kNone)
-        : m_termination_notification(termination_notification),
-          m_termination_behavior(termination_behavior),
-          m_test_path(test_path)
-    {
-        signal(SIGINT, signalHandler);
-        signal(SIGTERM, signalHandler);
-    }
-
-    TestRunner(const TestRunner&) = delete;
-    TestRunner(TestRunner&&) = delete;
-    TestRunner& operator=(const TestRunner&) = delete;
-    TestRunner& operator=(TestRunner&&) = delete;
-
-    ~TestRunner()
-    {
-        if (m_termination_behavior == TerminationBehavior::kWait && !exitRequested)
-        {
-            pause();
-        }
-
-        if (m_termination_notification == TerminationNotification::kTestEnd)
-        {
-            assert(kill(getppid(), SIGTERM) == 0);
-        }
-    }
-
-    /// @brief True if the test process has received SIGINT or SIGTERM
-    inline static std::atomic<bool> exitRequested = false;
-
-    /// @brief Use this function in main() to run all tests. It returns 0 if all tests are successful, or 1 otherwise.
-    int RunTests()
-    {
-        ::testing::GTEST_FLAG(output) = "xml:" + xmlPath(m_test_path);
-        ::testing::GTEST_FLAG(brief) = true;
-        testing::InitGoogleTest();
-
-        auto res = RUN_ALL_TESTS();
-
-        return res;
-    }
-};
+/// @brief Waits until `file` exists.
+/// @return AssertionSuccess if the file appeared within the timeout.
+[[nodiscard]]
+testing::AssertionResult wait_for_file(
+    std::string_view file,
+    std::chrono::milliseconds timeout = std::chrono::seconds(3));
 
 using score::mw::lifecycle::RunTargetActivationSource;
 using score::mw::lifecycle::RunTargetName;
 
-bool event_received = false;
-RunTargetActivationSource event_source;
-RunTargetName event_target;
-std::mutex event_mutex;
-std::condition_variable event_condition;
+/// @brief Hands one activation event over from the activation callback to the test thread (single-slot queue).
+/// Blocks while the previous event has not been popped yet.
+void push_event(RunTargetActivationSource source, RunTargetName target);
 
-void push_event(RunTargetActivationSource source, RunTargetName target)
-{
-    {
-        std::unique_lock event_lock(event_mutex);
-        event_condition.wait(event_lock, [&] {
-            return !event_received;
-        });
-        event_received = true;
-        event_source = source;
-        event_target = target;
-    }
-    event_condition.notify_one();
-};
-
-void pop_event(std::function<void(RunTargetActivationSource source, RunTargetName target)> callback)
-{
-    {
-        std::unique_lock event_lock(event_mutex);
-        event_condition.wait(event_lock, [&] {
-            return event_received;
-        });
-        callback(event_source, event_target);
-        event_received = false;
-    }
-    event_condition.notify_one();
-};
+/// @brief Blocks until an event is available, then passes it to `callback` and frees the slot.
+void pop_event(std::function<void(RunTargetActivationSource source, RunTargetName target)> callback);
 
 #endif  // TESTS_UTILS_TEST_HELPER_HPP

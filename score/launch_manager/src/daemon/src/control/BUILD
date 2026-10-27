@@ -15,7 +15,6 @@ load("//tests/utils/bazel:unit_test.bzl", "lm_cc_test")
 
 cc_library(
     name = "control_provider",
-    srcs = ["control_provider.cpp"],
     hdrs = ["control_provider.hpp"],
     include_prefix = "score/mw/launch_manager/control",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/control",
@@ -31,17 +30,11 @@ cc_library(
 lm_cc_test(
     name = "control_provider_UT",
     srcs = ["control_provider_UT.cpp"],
-    args = [
-        "--service_instance_manifest",
-        "$(rootpath control_provider_test_mw_com_config.json)",
-    ],
-    data = ["control_provider_test_mw_com_config.json"],
+    linkopts = ["-Wl,--wrap=fcntl"],
     deps = [
         ":control_provider",
         "//score/launch_manager:error",
         "//score/launch_manager/src/daemon/src/process_group_manager:irun_target_control",
-        "@googletest//:gtest",
-        "@score_baselibs//score/string_manipulation/arguments",
-        "@score_communication//score/mw/com",
+        "@googletest//:gtest_main",
     ],
 )

@@ -19,12 +19,23 @@
 #include <thread>
 
 #include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
+#include "score/os/mocklib/semaphoremock.h"
 #include "tests/utils/mocks/mock_syscalls.hpp"
 
 using namespace testing;
 
 using namespace score::mw::lifecycle::internal::osal;
 using namespace score::mw::lifecycle::internal;
+
+namespace
+{
+const score::cpp::expected_blank<score::os::Error> kSemSuccess{};
+
+score::cpp::expected_blank<score::os::Error> SemError(std::int32_t err)
+{
+    return score::cpp::make_unexpected(score::os::Error::createFromErrno(err));
+}
+}  // namespace
 
 class ProcessLauncherTest : public ::testing::Test
 {
@@ -42,6 +53,11 @@ class ProcessLauncherTest : public ::testing::Test
         ON_CALL(*g_syscall_mock, fcntl).WillByDefault(Invoke(__real_fcntl));
         EXPECT_CALL(*g_syscall_mock, access).Times(AnyNumber());
         EXPECT_CALL(*g_syscall_mock, fcntl).Times(AnyNumber());
+
+        ON_CALL(*semaphore_mock_, sem_init).WillByDefault(Return(kSemSuccess));
+        ON_CALL(*semaphore_mock_, sem_post).WillByDefault(Return(kSemSuccess));
+        ON_CALL(*semaphore_mock_, sem_wait).WillByDefault(Return(kSemSuccess));
+        ON_CALL(*semaphore_mock_, sem_timedwait_monotonic).WillByDefault(Return(kSemSuccess));
     }
 
     void TearDown() override
@@ -63,7 +79,7 @@ class ProcessLauncherTest : public ::testing::Test
         ON_CALL(*g_syscall_mock, msync(sync, _, _)).WillByDefault(Return(0));
         EXPECT_CALL(*g_syscall_mock, msync).Times(AnyNumber());
 
-        std::shared_ptr<IpcCommsSync> shared{sync, [](IpcCommsSync* ptr) {
+        std::shared_ptr<IpcCommsSync> shared{sync, [](IpcCommsSync*) {
                                              }};
 
         return shared;
@@ -71,10 +87,11 @@ class ProcessLauncherTest : public ::testing::Test
 
     void ExpectSemaphoreLifecycle()
     {
-        EXPECT_CALL(*g_syscall_mock, sem_init).Times(AtLeast(1)).WillRepeatedly(Return(0));
+        EXPECT_CALL(*semaphore_mock_, sem_init).Times(AtLeast(1)).WillRepeatedly(Return(kSemSuccess));
         EXPECT_CALL(*g_syscall_mock, sem_destroy).Times(AtLeast(1)).WillRepeatedly(Return(0));
     }
 
+    score::os::MockGuard<NiceMock<score::os::SemaphoreMock>, score::os::Semaphore> semaphore_mock_;
     std::unique_ptr<ProcessLauncher> process_launcher;
 
     alignas(IpcCommsSync) std::array<std::byte, sizeof(IpcCommsSync)> test_buffer;
@@ -263,6 +280,7 @@ class StartProcessTest : public ProcessLauncherTest
         EXPECT_CALL(*g_syscall_mock, sched_setscheduler).Times(AnyNumber()).WillRepeatedly(Return(0));
         EXPECT_CALL(*g_syscall_mock, setgid).Times(AnyNumber()).WillRepeatedly(Return(0));
         EXPECT_CALL(*g_syscall_mock, setuid).Times(AnyNumber()).WillRepeatedly(Return(0));
+        EXPECT_CALL(*g_syscall_mock, setgroups).Times(AnyNumber()).WillRepeatedly(Return(0));
     }
 
     void ExpectSuccessfulChdir()
@@ -287,7 +305,7 @@ class StartProcessTest : public ProcessLauncherTest
     {
         StubShmObject();
 
-        EXPECT_CALL(*g_syscall_mock, sem_init).Times(AnyNumber()).WillRepeatedly(Return(0));
+        EXPECT_CALL(*semaphore_mock_, sem_init).Times(AnyNumber()).WillRepeatedly(Return(kSemSuccess));
     }
 
     const pid_t forked_pid = 23;
@@ -390,7 +408,7 @@ TEST_F(SetupCommsTest, initSemaphoresFails)
     RecordProperty("Description", "Verify that if setting up the semaphores fails, startProcess fails");
 
     StubShmObject();
-    EXPECT_CALL(*g_syscall_mock, sem_init).WillRepeatedly(Return(-1));
+    EXPECT_CALL(*semaphore_mock_, sem_init).WillRepeatedly(Return(SemError(EINVAL)));
 
     EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
 }
@@ -416,6 +434,7 @@ TEST_F(SetSchedulingAndSecurityTest, setpgidFails)
     EXPECT_CALL(*g_syscall_mock, sched_setscheduler).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, setgroups).WillOnce(Return(0));
 
     EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
@@ -430,6 +449,7 @@ TEST_F(SetSchedulingAndSecurityTest, setgidFails)
     EXPECT_CALL(*g_syscall_mock, sched_setscheduler).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(-1));
     EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, setgroups).WillOnce(Return(0));
 
     EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
@@ -444,6 +464,7 @@ TEST_F(SetSchedulingAndSecurityTest, setuidFails)
     EXPECT_CALL(*g_syscall_mock, sched_setscheduler).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(-1));
+    EXPECT_CALL(*g_syscall_mock, setgroups).WillOnce(Return(0));
 
     EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
@@ -458,6 +479,7 @@ TEST_F(SetSchedulingAndSecurityTest, setschedFails)
     EXPECT_CALL(*g_syscall_mock, sched_setscheduler).WillOnce(Return(-1));
     EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, setgroups).WillOnce(Return(0));
 
     EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
@@ -476,6 +498,7 @@ TEST_F(SetSchedulingAndSecurityTest, setschedClampedUpper)
     EXPECT_CALL(*g_syscall_mock, setpgid).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, setgroups).WillOnce(Return(0));
 
     EXPECT_CALL(*g_syscall_mock, sched_setscheduler(_, _, Field(&sched_param::sched_priority, Lt(too_high))))
         .WillOnce(Return(0));
@@ -495,6 +518,7 @@ TEST_F(SetSchedulingAndSecurityTest, setschedClampedLower)
     EXPECT_CALL(*g_syscall_mock, setpgid).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, setgroups).WillOnce(Return(0));
 
     EXPECT_CALL(*g_syscall_mock, sched_setscheduler(_, _, Field(&sched_param::sched_priority, Gt(too_low))))
         .WillOnce(Return(0));
@@ -530,6 +554,7 @@ TEST_F(SetSchedulingAndSecurityTest, setaffinityFails)
     EXPECT_CALL(*g_syscall_mock, setaffinity(0x1U)).WillOnce(SetErrnoAndReturn(EINVAL, -1));
     EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, setgroups).WillOnce(Return(0));
 
     EXPECT_CALL(*g_syscall_mock, sysexit(EXIT_FAILURE)).WillOnce(Throw(SysExitException{}));
 
@@ -547,8 +572,22 @@ TEST_F(SetSchedulingAndSecurityTest, setaffinityIgnore)
     EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setaffinity).Times(0);
+    EXPECT_CALL(*g_syscall_mock, setgroups).WillOnce(Return(0));
 
     static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+}
+
+TEST_F(SetSchedulingAndSecurityTest, supplementaryGroupsAreCleared)
+{
+    RecordProperty(
+        "Description", "Verify that supplementary group IDs are explicitly cleared when none are configured");
+
+    config_.deployment_config.sandbox.supplementary_group_ids = {};
+
+    ExpectSuccessfulSchedulingAndSecurity();
+    EXPECT_CALL(*g_syscall_mock, setgroups(0, _)).WillOnce(Return(0));
+
+    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));
 }
 
 TEST_F(StartProcessTest, chdirFails)
@@ -692,7 +731,7 @@ TEST_F(StartProcessTest, startProcessChildSuccess)
     EXPECT_CALL(*g_syscall_mock, fork).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, getpid).WillRepeatedly(Return(forked_pid));
     EXPECT_CALL(*g_syscall_mock, fcntl).WillOnce(Return(0));
-    EXPECT_CALL(*g_syscall_mock, sem_init).Times(2).WillRepeatedly(Return(0));
+    EXPECT_CALL(*semaphore_mock_, sem_init).Times(2).WillRepeatedly(Return(kSemSuccess));
     EXPECT_CALL(*g_syscall_mock, setpgid(0, forked_pid));
     EXPECT_CALL(*g_syscall_mock, sched_setscheduler(0, scheduler, _)).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, setaffinity(affinity_mask)).WillOnce(Return(0));
@@ -736,10 +775,10 @@ TEST_F(ProcessLauncherTest, ignoreRunningNoPost)
 {
     RecordProperty("Description", "Verify that ignoreRunning correctly handles a failed semaphore post");
 
-    EXPECT_CALL(*g_syscall_mock, sem_init).WillRepeatedly(Return(0));
+    EXPECT_CALL(*semaphore_mock_, sem_init).WillRepeatedly(Return(kSemSuccess));
     EXPECT_CALL(*g_syscall_mock, sem_destroy).WillRepeatedly(Return(0));
     std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
-    EXPECT_CALL(*g_syscall_mock, sem_post).WillOnce(SetErrnoAndReturn(EINVAL, -1));
+    EXPECT_CALL(*semaphore_mock_, sem_post).WillOnce(Return(SemError(EINVAL)));
 
     EXPECT_EQ(process_launcher->waitForkRunning(sync, std::nullopt), OsalReturnType::kFail);
 }
@@ -753,7 +792,7 @@ TEST_F(ProcessLauncherTest, ignoreRunningSuccess)
 
     ExpectSemaphoreLifecycle();
     std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
-    EXPECT_CALL(*g_syscall_mock, sem_post).Times(1);
+    EXPECT_CALL(*semaphore_mock_, sem_post).WillOnce(Return(kSemSuccess));
 
     EXPECT_EQ(process_launcher->waitForkRunning(sync, std::nullopt), OsalReturnType::kSuccess);
 }
@@ -777,9 +816,9 @@ TEST_F(ProcessLauncherTest, kRunningSuccess)
     ExpectSemaphoreLifecycle();
     std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
 
-    Expectation waits = EXPECT_CALL(*g_syscall_mock, sem_trywait).WillOnce(Return(0));
-    Expectation posts = EXPECT_CALL(*g_syscall_mock, sem_post).After(waits).WillOnce(Return(0));
-    EXPECT_CALL(*g_syscall_mock, sem_trywait).After(posts).WillOnce(Return(0));
+    Expectation waits = EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic).WillOnce(Return(kSemSuccess));
+    Expectation posts = EXPECT_CALL(*semaphore_mock_, sem_post).After(waits).WillOnce(Return(kSemSuccess));
+    EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic).After(posts).WillOnce(Return(kSemSuccess));
 
     EXPECT_EQ(process_launcher->waitForkRunning(sync, 1ms), OsalReturnType::kSuccess);
 }
@@ -793,8 +832,8 @@ TEST_F(ProcessLauncherTest, kRunningTimeout)
     ExpectSemaphoreLifecycle();
 
     std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
-    EXPECT_CALL(*g_syscall_mock, sem_trywait).WillRepeatedly(SetErrnoAndReturn(EAGAIN, -1));
-    EXPECT_CALL(*g_syscall_mock, sem_post).Times(1);  // Posts even if the wait fails...
+    EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic).WillRepeatedly(Return(SemError(ETIMEDOUT)));
+    EXPECT_CALL(*semaphore_mock_, sem_post).WillOnce(Return(kSemSuccess));  // Posts even if the wait fails...
 
     EXPECT_EQ(process_launcher->waitForkRunning(sync, 1ms), OsalReturnType::kTimeout);
 }

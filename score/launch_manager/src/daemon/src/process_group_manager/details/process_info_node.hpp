@@ -25,6 +25,7 @@
 #include <score/stop_token.hpp>
 #include <atomic>
 #include <chrono>
+#include <optional>
 
 namespace score::mw::lifecycle::internal
 {
@@ -40,17 +41,6 @@ namespace score::mw::lifecycle::internal
 ///       In the future, this class shall be split up to properly separate Component and Process lifecycle.
 class ProcessInfoNode final : public IComponent
 {
-    /// @brief Enum representing different outcomes of a termination.
-    enum class TeminationResult : uint8_t
-    {
-        /// @brief Since the last startup, the process has not terminated.
-        kNone,
-        /// @brief The last termination was acceptable.
-        kOk,
-        /// @brief The last termination was invalid/unexpected.
-        kError,
-    };
-
   public:
     /// @brief Constructs a ProcessInfoNode.
     /// @param config Configuration for the OS process.
@@ -68,8 +58,17 @@ class ProcessInfoNode final : public IComponent
           sync_(std::move(other.sync_)),
           process_handling_(std::move(other.process_handling_)),
           supervision_handle_(std::move(other.supervision_handle_)),
-          identifier_(other.identifier_)
+          start_retries_(other.start_retries_),
+          identifier_(other.identifier_),
+          termination_result_(other.termination_result_),
+          termination_waiter_(std::move(other.termination_waiter_))
     {
+        // std::atomic_flag is not copyable, so transfer its state via test_and_set.
+        if (other.success_returned_.test_and_set())
+        {
+            success_returned_.test_and_set();
+        }
+        other.success_returned_.clear();
     }
 
     ProcessInfoNode(ProcessInfoNode& other) = delete;
@@ -83,7 +82,7 @@ class ProcessInfoNode final : public IComponent
 
     RequestResult deactivate(score::cpp::stop_token stop_token) override;
 
-    RequestResult tryHandleTermination(int32_t process_status) override;
+    TerminationResult tryHandleTermination(int32_t process_status) override;
 
     [[nodiscard]] bool active() const override;
 
@@ -97,10 +96,6 @@ class ProcessInfoNode final : public IComponent
     std::chrono::milliseconds getTerminationTimeout() const;
 
   private:
-    /// @brief Given that an error has occurred after the process has reached state @p state_reached, return an error
-    /// indicating whether this was an error before the ready condition was satisfied, or after.
-    ComponentError getErrorAfterState(ProcessState state_reached) const;
-
     /// @brief Returns true if the process is configured to report kRunning
     bool isReporting() const;
 
@@ -121,14 +116,14 @@ class ProcessInfoNode final : public IComponent
 
     /// @brief Get the request result corresponding to the new state reached. For example, if the ready state is
     /// terminated, the function will only return kSuccess if the new state is kTerminated.
-    /// @return Success if the ready condition is satisfied and completion is not already reported, an error if the
-    /// state is unrecoverable, waiting otherwise.
+    /// @return kSuccess if the ready condition is satisfied and completion is not already reported, kFailure
+    /// otherwise.
     RequestResult tryReportCompletion(score::mw::lifecycle::ProcessState new_state);
 
-    /// @return The provided error if the result has not been reported yet. A waiting result otherwise.
-    RequestResult tryReportError(ComponentError error);
+    /// @return @p error (kFailure or kTimeout) if the result has not been reported yet, kFailure otherwise.
+    RequestResult tryReportError(RequestResult error);
 
-    /// @return Success state if success has not been returned yet, waiting result otherwise.
+    /// @return kSuccess if success has not been returned yet, kFailure otherwise.
     RequestResult tryReportSuccess();
 
     /// @brief Requests the OS to terminate this process and waits for it to exit.
@@ -136,24 +131,24 @@ class ProcessInfoNode final : public IComponent
     void terminateProcess(const score::cpp::stop_token& stop_token);
 
     /// @brief Starts the OS process, retrying up to the configured restart count on failure.
-    /// @return A success if the process reached its ready conditon, an error if startup failed, waiting otherwise.
+    /// @return kSuccess if the process reached its ready conditon, kFailure or kTimeout if startup failed.
     RequestResult startProcess(score::cpp::stop_token stop_token);
 
     /// @brief Handles the result of inserting the process into the process map after the OS
     /// process has been created. Routes to the appropriate handler based on whether the
     /// process is still running or has already terminated.
     /// @returns An error if the process map error is unrecoverable, the result from the relevant handler otherwise.
-    score::cpp::expected<score::cpp::expected_blank<ComponentError>, ComponentError> handleProcessStarted(
+    score::cpp::expected<score::cpp::expected_blank<RequestResult>, RequestResult> handleProcessStarted(
         const score::cpp::stop_token& stop_token);
 
     /// @brief Waits for the process to report kRunning, terminating the process if it times out.
     /// @post Process state is either running or terminated.
     /// @returns an error if the startup times out.
-    score::cpp::expected_blank<ComponentError> handleProcessStillStarting(const score::cpp::stop_token& stop_token);
+    score::cpp::expected_blank<RequestResult> handleProcessStillStarting(const score::cpp::stop_token& stop_token);
 
     /// @brief Handles the case where the process exited before the map insertion completed.
     /// @returns success only for self-terminating, non-reporting processes with exit status 0.
-    score::cpp::expected_blank<ComponentError> handleProcessAlreadyTerminated();
+    score::cpp::expected_blank<RequestResult> handleProcessAlreadyTerminated();
 
     /// @brief Logs that the process has reached the running state.
     void handleProcessRunning();
@@ -196,14 +191,14 @@ class ProcessInfoNode final : public IComponent
     /// @brief Interface for managing the process's alive supervision.
     std::unique_ptr<IAliveSupervisionHandle> supervision_handle_;
 
-    /// @brief Number ot times to try run the process.
-    std::uint8_t start_tries_{1U};
+    /// @brief Number of times to retry starting the process.
+    std::uint8_t start_retries_{0U};
 
     /// @brief Unique hash to identify this node.
     IdentifierHash identifier_;
 
-    /// @brief The result of the last termination since the process started.
-    TeminationResult termination_result_{};
+    /// @brief The result of the last termination since the process started, empty if it has not terminated.
+    std::optional<TerminationResult> termination_result_{};
 
     /// @brief Waits for a process to terminate for kTerminated ready condition
     std::unique_ptr<TerminationWaiter> termination_waiter_;

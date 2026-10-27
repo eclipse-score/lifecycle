@@ -364,8 +364,7 @@ OsalReturnType ProcessLauncher::setSchedulingAndSecurity(const configuration::Sa
     size_t supplementary_gids_number = config.supplementary_group_ids.size();
 
     // Note: the type of the first parameter of setgroups() differs in Linux and QNX, so we use osal
-    if (supplementary_gids_number > 0 &&
-        -1 == osal::setgroups(supplementary_gids_number, config.supplementary_group_ids.data()))
+    if (-1 == osal::setgroups(supplementary_gids_number, config.supplementary_group_ids.data()))
     {
         static_cast<void>(signal_safe_log_errno(errno, "setgroups() failed"));
         retval = OsalReturnType::kFail;

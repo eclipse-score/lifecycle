@@ -17,9 +17,8 @@
 #include <algorithm>
 #include <csignal>
 
-#include "score/concurrency/future/interruptible_future.h"
-#include "score/concurrency/future/interruptible_promise.h"
 #include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/completion_slot.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_event.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_monitor.hpp"
 #include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
@@ -45,10 +44,11 @@ ProcessGroupManager::ProcessGroupManager(
     std::unique_ptr<saf::daemon::IAliveMonitor> alive_monitor,
     std::shared_ptr<IRecoveryClient> recovery_client,
     std::unique_ptr<score::mw::lifecycle::internal::watchdog::IWatchdogIf> watchdog,
-    std::optional<configuration::WatchdogConfig>&& watchdog_config)
+    std::optional<configuration::WatchdogConfig>&& watchdog_config,
+    std::unique_ptr<osal::IProcess> process_interface)
     : configuration_(std::move(config)),
       watchdog_config_(watchdog_config),
-      process_interface_(),
+      process_interface_(std::move(process_interface)),
       file_waiter_(),
       process_map_(nullptr),
       thread_pool_(nullptr),
@@ -149,7 +149,8 @@ bool ProcessGroupManager::initializeProcessGroups()
         configuration_.components_.size() + configuration_.run_targets_.size() + 2,
         configuration_,
         worker_jobs_,
-        ProcessHandling{&process_interface_, process_map_, &file_waiter_, alive_monitor_->getSupervisionFactory()});
+        ProcessHandling{
+            process_interface_.get(), process_map_, &file_waiter_, alive_monitor_->getSupervisionFactory()});
 
     LM_LOG_DEBUG() << "Graph initialized successfully";
     return true;
@@ -439,24 +440,23 @@ void ProcessGroupManager::handleGetActiveRunTarget(GetActiveRunTarget* event) co
             break;
     }
 
-    const auto set_result = event->promise.SetValue(result);
-    SCORE_LANGUAGE_FUTURECPP_ASSERT(set_result.has_value());
+    if (event->completion != nullptr)
+    {
+        event->completion->complete(result);
+    }
 }
 
 Result<IdentifierHash> ProcessGroupManager::getActiveRunTarget() const noexcept
 {
-    auto promise = concurrency::InterruptiblePromise<Result<IdentifierHash>>{};
+    CompletionSlot<Result<IdentifierHash>> slot;
 
-    auto future_result = promise.GetInterruptibleFuture();
-    SCORE_LANGUAGE_FUTURECPP_ASSERT(future_result.has_value());
-    auto future = std::move(future_result).value();
+    const bool push_result = event_queue_->push(GetActiveRunTarget{&slot});
+    if (!push_result)
+    {
+        return score::MakeUnexpected(ExecErrc::kFailed);
+    }
 
-    const bool push_result = event_queue_->push(GetActiveRunTarget{std::move(promise)});
-    SCORE_LANGUAGE_FUTURECPP_ASSERT(push_result);
-
-    const auto get_result = future.Get(cpp::stop_token{});
-    SCORE_LANGUAGE_FUTURECPP_ASSERT(get_result.has_value());
-    return get_result.value();
+    return slot.wait();
 }
 
 void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* event) noexcept
@@ -495,24 +495,23 @@ void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* eve
         graph_->setRequestStartTime();
     }
 
-    const auto set_result = event->promise.SetValue(response);
-    SCORE_LANGUAGE_FUTURECPP_ASSERT(set_result.has_value());
+    if (event->completion != nullptr)
+    {
+        event->completion->complete(response);
+    }
 }
 
 Result<void> ProcessGroupManager::setRequestedRunTarget(IdentifierHash run_target) noexcept
 {
-    auto promise = concurrency::InterruptiblePromise<Result<void>>{};
+    CompletionSlot<Result<void>> slot;
 
-    auto future_result = promise.GetInterruptibleFuture();
-    SCORE_LANGUAGE_FUTURECPP_ASSERT(future_result.has_value());
-    auto future = std::move(future_result).value();
+    const bool push_result = event_queue_->push(SetRequestedRunTarget{run_target, &slot});
+    if (!push_result)
+    {
+        return score::MakeUnexpected(ExecErrc::kFailed);
+    }
 
-    const bool push_result = event_queue_->push(SetRequestedRunTarget{run_target, std::move(promise)});
-    SCORE_LANGUAGE_FUTURECPP_ASSERT(push_result);
-
-    const auto get_result = future.Get(cpp::stop_token{});
-    SCORE_LANGUAGE_FUTURECPP_ASSERT(get_result.has_value());
-    return get_result.value();
+    return slot.wait();
 }
 
 void ProcessGroupManager::registerActiveRunTargetCallback(ActivationCallbackT callback) noexcept

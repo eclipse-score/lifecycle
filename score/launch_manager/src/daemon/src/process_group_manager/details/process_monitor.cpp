@@ -62,7 +62,7 @@ void ProcessMonitor::doWork(ComponentTask&& task)
         }
     };
 
-    auto handle_failure = [&](IComponent::ComponentError& error) {
+    auto handle_failure = [&](IComponent::RequestResult error) {
         const IdentifierHash node_identifier = task.component.get().getIdentifier();
 
         switch (task.type)
@@ -78,17 +78,6 @@ void ProcessMonitor::doWork(ComponentTask&& task)
         }
     };
 
-    auto handle_state = [&](IComponent::RequestState& state) {
-        switch (state)
-        {
-            case IComponent::RequestState::kSuccess:
-                handle_success();
-                break;
-            case IComponent::RequestState::kWaiting:
-                break;
-        }
-    };
-
     if (task.stop_token.stop_requested())
     {
         if (!event_queue_.push(JobSkipped{task.component.get().getIdentifier()}))
@@ -98,29 +87,31 @@ void ProcessMonitor::doWork(ComponentTask&& task)
         return;
     }
 
-    auto result = run_task();
+    const IComponent::RequestResult result = run_task();
 
-    if (result.has_value())
+    switch (result)
     {
-        handle_state(result.value());
-    }
-    else
-    {
-        handle_failure(result.error());
+        case IComponent::RequestResult::kSuccess:
+            handle_success();
+            break;
+        case IComponent::RequestResult::kTimeout:
+        case IComponent::RequestResult::kFailure:
+            handle_failure(result);
+            break;
     }
 }
 
 void ProcessMonitor::terminated(IComponent& component, int32_t status)
 {
-    auto res = component.tryHandleTermination(status);
     bool push_res = true;
-    if (!res.has_value())
+    switch (component.tryHandleTermination(status))
     {
-        push_res = event_queue_.push(UnexpectedTermination{component.getIdentifier(), res.error()});
-    }
-    else if (res.value() != IComponent::RequestState::kWaiting)
-    {
-        push_res = event_queue_.push(ActivationSuccessful{component.getIdentifier()});
+        case IComponent::TerminationResult::kFailure:
+            push_res = event_queue_.push(UnexpectedTermination{component.getIdentifier()});
+            break;
+        case IComponent::TerminationResult::kIgnore:
+            LM_LOG_DEBUG() << "Termination of component" << component.getIdentifier() << "is expected";
+            break;
     }
 
     if (!push_res)

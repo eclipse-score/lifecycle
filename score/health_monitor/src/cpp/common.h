@@ -93,19 +93,20 @@ enum class Error : internal::FFICode
 class TimeRange
 {
   public:
-    TimeRange(std::chrono::milliseconds min_ms, std::chrono::milliseconds max_ms) : min_ms_(min_ms), max_ms_(max_ms)
+    TimeRange(std::chrono::milliseconds min_ms, std::chrono::milliseconds max_ms)
+        : min_ms_(MsToUnsigned(min_ms)), max_ms_(MsToUnsigned(max_ms))
     {
         SCORE_LANGUAGE_FUTURECPP_PRECONDITION(min_ms_ <= max_ms_);
     }
 
-    uint32_t MinMs() const
+    std::uint64_t MinMs() const
     {
-        return min_ms_.count();
+        return min_ms_;
     }
 
-    uint32_t MaxMs() const
+    std::uint64_t MaxMs() const
     {
-        return max_ms_.count();
+        return max_ms_;
     }
 
     /// @deprecated Use `MinMs()` instead. Removed in the release after v0.10.
@@ -123,8 +124,15 @@ class TimeRange
     }
 
   private:
-    const std::chrono::milliseconds min_ms_;
-    const std::chrono::milliseconds max_ms_;
+    static std::uint64_t MsToUnsigned(std::chrono::milliseconds ms)
+    {
+        // Time range can only be positive
+        SCORE_LANGUAGE_FUTURECPP_PRECONDITION(ms.count() >= 0);
+        return static_cast<std::uint64_t>(ms.count());
+    }
+
+    const std::uint64_t min_ms_;
+    const std::uint64_t max_ms_;
 };
 
 }  // namespace score::mw::health

@@ -217,8 +217,9 @@ class Transition
             if (isReady(s) && !state_.node_information.at(s).enqueued_)
             {
                 state_.node_information[s].enqueued_ = true;
+                const bool pushSuccessful = state_.next_nodes.push(s);
                 SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
-                    state_.next_nodes.push(s), "Transition queue should never exceed capacity");
+                    pushSuccessful, "Transition queue should never exceed capacity");
             }
         }
     }

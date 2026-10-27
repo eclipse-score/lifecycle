@@ -30,7 +30,11 @@ cc_library(
     include_prefix = "score/mw/launch_manager/osal",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/osal",
     visibility = ["//score:__subpackages__"],
-    deps = [":return_types"],
+    deps = [
+        ":return_types",
+        "@score_baselibs//score/os:errno",
+        "@score_baselibs//score/os:semaphore",
+    ],
 )
 
 cc_library(

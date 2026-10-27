@@ -239,14 +239,32 @@ def test_custom_validation_failures(
                 )
 
 
-def test_schema_validation_failures(schema_file):
+# Define the parameterized test cases
+SCHEMA_VALIDATION_TEST_CASES = [
+    {
+        "config_filename": "lm_config.json",
+        "test_id": "missing_recovery_action",
+    },
+    {
+        "config_filename": "invalid_number_of_attempts.json",
+        "test_id": "invalid_number_of_attempts",
+    },
+]
+
+
+@pytest.mark.parametrize(
+    "config_filename",
+    [(case["config_filename"]) for case in SCHEMA_VALIDATION_TEST_CASES],
+    ids=[case["test_id"] for case in SCHEMA_VALIDATION_TEST_CASES],
+)
+def test_schema_validation_failures(schema_file, config_filename):
     """
     Test that schema validation errors are correctly raised when the input configuration does not conform to the defined JSON schema.
     The input configuration contains the following issues:
     * Missing required field "initial_run_target"
     """
     test_name = "schema_validation_failure_test"
-    input_file = tests_dir / test_name / "input" / "lm_config.json"
+    input_file = tests_dir / test_name / "input" / config_filename
 
     try:
         run(input_file, test_name, schema_file)

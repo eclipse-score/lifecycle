@@ -16,7 +16,8 @@
 #include "score/mw/launch_manager/alive_monitor/mock_alive_monitor.hpp"
 #include "score/mw/launch_manager/alive_monitor/mock_alive_supervision_handle.hpp"
 #include "score/mw/launch_manager/alive_monitor/mock_supervision_factory.hpp"
-#include "score/mw/launch_manager/recovery_client/mock_irecovery_client.h"
+#include "score/mw/launch_manager/process_group_manager/mock_iprocess.hpp"
+#include "score/mw/launch_manager/recovery_client/mock_recovery_client.h"
 #include "score/mw/launch_manager/watchdog/mock_IWatchdogIf.hpp"
 
 #include <gmock/gmock.h>
@@ -25,6 +26,7 @@
 #include <sched.h>
 #include <cstdint>
 #include <memory>
+#include <thread>
 #include <utility>
 #include <vector>
 
@@ -54,8 +56,8 @@ Config makeMinimalConfig()
     component.deployment_config.shutdown_timeout_ms = 500U;
     component.deployment_config.executable_path = "/bin/true";
     component.deployment_config.working_dir = "/workspaces/lifecycle";
-    component.deployment_config.sandbox.uid = 1000U;
-    component.deployment_config.sandbox.gid = 1000U;
+    component.deployment_config.sandbox.uid = getuid();
+    component.deployment_config.sandbox.gid = getgid();
     component.deployment_config.sandbox.scheduling_policy = SCHED_OTHER;
     component.deployment_config.sandbox.scheduling_priority = 0;
 
@@ -114,6 +116,8 @@ GraphConfig takeGraphConfig(Config& config)
 class ProcessGroupManagerWatchdogTest : public Test
 {
   protected:
+    static constexpr osal::ProcessID kMockPid = 100;
+
     void expectNormalStartup()
     {
         EXPECT_CALL(*alive_monitor_, init()).WillOnce(Return(true));
@@ -148,6 +152,15 @@ class ProcessGroupManagerWatchdogTest : public Test
         auto watchdog = std::make_unique<StrictMock<MockWatchdogIf>>();
         watchdog_ = watchdog.get();
 
+        // Mock the proc launcher calls
+        auto process_interface = std::make_unique<NiceMock<osal::MockIProcess>>();
+        process_interface_ = process_interface.get();
+        ON_CALL(*process_interface_, startProcess)
+            .WillByDefault(DoAll(SetArgReferee<0>(kMockPid), Return(osal::OsalReturnType::kSuccess)));
+        ON_CALL(*process_interface_, waitForkRunning).WillByDefault(Return(osal::OsalReturnType::kSuccess));
+        ON_CALL(*process_interface_, requestTermination).WillByDefault(Return(osal::OsalReturnType::kSuccess));
+        ON_CALL(*process_interface_, forceTermination).WillByDefault(Return(osal::OsalReturnType::kFail));
+
         auto config = makeMinimalConfig();
 
         process_group_manager_ = std::make_unique<ProcessGroupManager>(
@@ -155,7 +168,8 @@ class ProcessGroupManagerWatchdogTest : public Test
             std::move(alive_monitor),
             std::move(recovery_client),
             std::move(watchdog),
-            config.takeWatchdog());
+            config.takeWatchdog(),
+            std::move(process_interface));
     }
 
     void TearDown() override
@@ -167,6 +181,7 @@ class ProcessGroupManagerWatchdogTest : public Test
     MockRecoveryClient* recovery_client_{};
     IRecoveryClient::RecoveryRequestCallback recovery_callback_{};
     MockWatchdogIf* watchdog_{};
+    osal::MockIProcess* process_interface_{};
     NiceMock<MockSupervisionFactory> factory_{};
     std::unique_ptr<ProcessGroupManager> process_group_manager_;
 };
@@ -255,6 +270,55 @@ TEST_F(ProcessGroupManagerWatchdogTest, GivenMinimalConfig_ExpectWatchdogDisable
     // When
     ASSERT_TRUE(process_group_manager_->initialize());
     process_group_manager_->deinitialize();
+}
+
+TEST_F(ProcessGroupManagerWatchdogTest, GetActiveRunTargetAndSetRequestedRunTargetDuringRun)
+{
+    RecordProperty(
+        "Description",
+        "Verify getActiveRunTarget and setRequestedRunTarget complete correctly via event queue during run().");
+    expectNormalStartup();
+    EXPECT_CALL(*watchdog_, serviceWatchdog()).Times(AtLeast(1));
+    EXPECT_CALL(*watchdog_, disable()).Times(1);
+    EXPECT_CALL(*alive_monitor_, stopMonitoring()).Times(1);
+
+    ASSERT_TRUE(process_group_manager_->initialize());
+
+    std::thread run_thread([this]() {
+        process_group_manager_->run();
+    });
+
+    auto active_result = process_group_manager_->getActiveRunTarget();
+    EXPECT_FALSE(active_result.has_value());
+    EXPECT_EQ(active_result.error(), ExecErrc::kActivationInProgress);
+
+    auto set_result = process_group_manager_->setRequestedRunTarget(IdentifierHash{"InvalidTarget"});
+    EXPECT_FALSE(set_result.has_value());
+    EXPECT_EQ(set_result.error(), ExecErrc::kRunTargetDoesntExist);
+
+    process_group_manager_->cancel();
+    run_thread.join();
+}
+
+TEST_F(ProcessGroupManagerWatchdogTest, GetActiveRunTargetWhenStoppedReturnsFailedErrorPromptly)
+{
+    RecordProperty(
+        "Description",
+        "Verify getActiveRunTarget and setRequestedRunTarget return error promptly without deadlock when stopped.");
+    expectNormalStartup();
+    EXPECT_CALL(*watchdog_, disable()).Times(2);
+    EXPECT_CALL(*alive_monitor_, stopMonitoring()).Times(2);
+
+    ASSERT_TRUE(process_group_manager_->initialize());
+    process_group_manager_->deinitialize();
+
+    auto active_result = process_group_manager_->getActiveRunTarget();
+    EXPECT_FALSE(active_result.has_value());
+    EXPECT_EQ(active_result.error(), ExecErrc::kFailed);
+
+    auto set_result = process_group_manager_->setRequestedRunTarget(IdentifierHash{"Startup"});
+    EXPECT_FALSE(set_result.has_value());
+    EXPECT_EQ(set_result.error(), ExecErrc::kFailed);
 }
 
 }  // namespace

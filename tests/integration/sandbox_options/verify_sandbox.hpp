@@ -17,6 +17,7 @@
 #include <gtest/gtest.h>
 #include <pthread.h>
 #include <sched.h>
+#include <sys/resource.h>
 #include <unistd.h>
 #include <algorithm>
 #include <array>
@@ -46,6 +47,15 @@ struct AffinityExpectation
     std::uint64_t mask;
 };
 
+/// @brief One expected POSIX resource limit
+struct RlimitExpectation
+{
+    int resource;
+    std::string name;
+    rlim_t soft;
+    rlim_t hard;
+};
+
 struct ExpectedValues
 {
     std::optional<int> policy;
@@ -55,6 +65,7 @@ struct ExpectedValues
     std::optional<std::vector<gid_t>> supplementary_groups;
     std::optional<std::string> working_dir;
     std::optional<AffinityExpectation> affinity;
+    std::vector<RlimitExpectation> rlimits;
 };
 
 inline const char* policy_name(const int policy)
@@ -127,6 +138,11 @@ inline ::testing::AssertionResult verifySupplementaryGroups(const std::vector<gi
     {
         failures << "Failed to get supplementary groups\n";
     }
+    else if (static_cast<size_t>(count) > expected_groups.size())
+    {
+        failures << "More supplementary groups than expected! Expected: " << expected_groups.size()
+                 << ", have: " << count;
+    }
     else
     {
         groups.resize(static_cast<size_t>(count));
@@ -139,6 +155,33 @@ inline ::testing::AssertionResult verifySupplementaryGroups(const std::vector<gi
                          << " total)]\n";
             }
         }
+    }
+
+    return to_result(failures);
+}
+
+/// @brief Verify that the process runs with the expected soft and hard resource limit.
+/// @param[in] expected The resource, its human-readable name (for failure messages), and the
+///                     expected soft/hard bounds.
+/// @return AssertionSuccess if both bounds match, otherwise AssertionFailure.
+inline ::testing::AssertionResult verifyRlimit(const RlimitExpectation& expected)
+{
+    std::ostringstream failures;
+
+    struct rlimit actual{};
+    if (getrlimit(expected.resource, &actual) != 0)
+    {
+        failures << "Failed to get rlimit for " << expected.name << "\n";
+        return to_result(failures);
+    }
+
+    if (actual.rlim_cur != expected.soft)
+    {
+        failures << expected.name << ": expected soft=" << expected.soft << " but got " << actual.rlim_cur << "\n";
+    }
+    if (actual.rlim_max != expected.hard)
+    {
+        failures << expected.name << ": expected hard=" << expected.hard << " but got " << actual.rlim_max << "\n";
     }
 
     return to_result(failures);

@@ -17,9 +17,10 @@
 #include <cstdint>
 #include <variant>
 
-#include "score/concurrency/future/interruptible_promise.h"
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/completion_slot.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
+#include "score/result/result.h"
 
 namespace score::mw::lifecycle::internal
 {
@@ -36,8 +37,8 @@ struct [[nodiscard]] ActivationFailed
 {
     /// @brief The identifier of the node that failed.
     IdentifierHash node_identifier;
-    /// @brief Description of the error.
-    IComponent::ComponentError reason;
+    /// @brief Why the activation failed, either kFailure or kTimeout.
+    IComponent::RequestResult reason;
 };
 
 /// @brief A node finished deactivating.
@@ -52,8 +53,6 @@ struct [[nodiscard]] UnexpectedTermination
 {
     /// @brief The identifier of the node that terminated.
     IdentifierHash node_identifier;
-    /// @brief Description of the error.
-    IComponent::ComponentError reason;
 };
 
 /// @brief A job was queued but cancelled by the time it was processed
@@ -73,14 +72,14 @@ struct [[nodiscard]] SupervisionFailure
 /// @brief The state manager wants to know which Run Target is currently active.
 struct [[nodiscard]] GetActiveRunTarget
 {
-    concurrency::InterruptiblePromise<Result<IdentifierHash>> promise;
+    CompletionSlot<Result<IdentifierHash>>* completion{nullptr};
 };
 
 /// @brief The state manager wants to change to a different Run Target.
 struct [[nodiscard]] SetRequestedRunTarget
 {
     IdentifierHash run_target;
-    concurrency::InterruptiblePromise<Result<void>> promise;
+    CompletionSlot<Result<void>>* completion{nullptr};
 };
 
 /// @brief A graph-relevant state change. There is only ever a single graph, so no process-group
