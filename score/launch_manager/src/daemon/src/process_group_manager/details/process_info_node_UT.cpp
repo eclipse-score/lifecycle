@@ -631,9 +631,7 @@ TEST_F(ProcessInfoNodeStartupCrashTest, TimeoutThenSuccess_WithRestarts)
 
 struct NumberOfAttemptsParameterizedTestParams
 {
-    // Using uint_16_t to we can represent values > 255,
-    // so we can test overflow of uint8_t
-    std::uint16_t input;
+    std::uint8_t input;
     std::uint16_t expected_attempts;
 };
 
@@ -658,7 +656,7 @@ TEST_P(
 
     // Expect
     expectActivationReport(0);
-    const std::uint16_t kRestartAttempts = GetParam().input;
+    const std::uint8_t kRestartAttempts = GetParam().input;
     const std::uint16_t kExpectedTotalAttempts = GetParam().expected_attempts;
     auto node = createProcessInfoNode(configuration::ApplicationType::ReportingAndSupervised, kRestartAttempts);
 

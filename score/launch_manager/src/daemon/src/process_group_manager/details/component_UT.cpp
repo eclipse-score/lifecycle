@@ -31,7 +31,7 @@ namespace
 
 using namespace ::testing;
 
-const ProcessHandle mock_handle = ProcessHandle{42};
+const ProcessHandle mock_handle = ProcessHandle{42, nullptr};
 
 const cpp::stop_source mock_stop_source;
 const cpp::stop_token mock_stop_token = mock_stop_source.get_token();
