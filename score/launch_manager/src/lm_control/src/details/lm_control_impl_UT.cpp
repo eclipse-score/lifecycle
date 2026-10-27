@@ -907,8 +907,8 @@ TEST_F(LmControlUT, RegisteringCallbackConfirmsNotificationRegistrationBeforeDra
 
     // A sample the LM sent before it processed our registration: stored, but never notified.
     ::testing::InSequence in_sequence;
-    EXPECT_CALL(mock_, GetActiveRunTarget()).WillOnce(Return(score::Result<GetActiveRunTargetResponse>{
-        Available(RunTargetName{"Startup"})}));
+    EXPECT_CALL(mock_, GetActiveRunTarget())
+        .WillOnce(Return(score::Result<GetActiveRunTargetResponse>{Available(RunTargetName{"Startup"})}));
     EXPECT_CALL(mock_, GetNewSamples(_)).WillOnce(Invoke([](std::size_t) {
         std::vector<ActivationResult> samples;
         samples.push_back(ActivationResult{RunTargetName{"Startup"}, RunTargetActivationSource::kInitialActivation});
@@ -940,7 +940,8 @@ TEST_F(LmControlUT, FailedRegistrationRoundTripDoesNotFailCallbackRegistration)
     EXPECT_CALL(mock_, GetActiveRunTarget()).WillOnce(Return(score::MakeUnexpected(ExecErrc::kCommunicationError)));
     EXPECT_CALL(mock_, GetNewSamples(_)).Times(1);
 
-    EXPECT_TRUE(sut->register_run_target_activation_callback([](RunTargetActivationSource, RunTargetName) {})
+    EXPECT_TRUE(sut->register_run_target_activation_callback([](RunTargetActivationSource, RunTargetName) {
+                   })
                     .has_value());
 }
 

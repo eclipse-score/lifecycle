@@ -57,6 +57,6 @@ integration_test(
     ],
     config = ":complex_monitoring.json",
     tags = [
-        "flaky"   # Test uses heartbeat monitoring which on CI will always be flaky.
-    ]
+        "flaky",  # Test uses heartbeat monitoring which on CI will always be flaky.
+    ],
 )
