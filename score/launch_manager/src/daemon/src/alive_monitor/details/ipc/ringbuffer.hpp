@@ -131,7 +131,7 @@ class RingBuffer
         // whole T.
         // The source holds sizeof(T) by the static_assert on ElementSize and the n.size_ check.
         // codeql[c/cert/library-function-argument-out-of-bounds] False positive
-        if(std::memcpy(&out, n.storage, sizeof(T)) != static_cast<void*>(&out))
+        if (std::memcpy(&out, n.storage, sizeof(T)) != static_cast<void*>(&out))
         {
             return false;
         }
