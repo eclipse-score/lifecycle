@@ -31,7 +31,7 @@ std::atomic<bool> startup_finished{false};
 /// Used if a termination was requested from a signal.
 std::atomic<bool> exitRequested{false};
 
-void signalHandler(int signal)
+void signalHandler(int /*signal*/)
 {
     exitRequested = true;
 }

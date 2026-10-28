@@ -24,7 +24,7 @@ namespace
 
 using namespace ::testing;
 
-const ProcessHandle mock_handle = ProcessHandle{42};
+const ProcessHandle mock_handle = ProcessHandle{42, nullptr};
 
 TEST(ProcessStopActionTest, StopCallsRequestTerminationWithPid)
 {
@@ -36,17 +36,17 @@ TEST(ProcessStopActionTest, StopCallsRequestTerminationWithPid)
     static_cast<void>(process_stop_action.stop(cpp::stop_token{}, mock_handle));
 }
 
-TEST(ProcessStopActionTest, StopSucceedsReturnsWaiting)
+TEST(ProcessStopActionTest, StopSucceedsReturnsSuccess)
 {
     NiceMock<osal::MockIProcess> launcher;
     const ProcessStopAction process_stop_action(launcher);
 
     ON_CALL(launcher, requestTermination(_)).WillByDefault(Return(osal::OsalReturnType::kSuccess));
 
-    const Result<IComponent::RequestState> result = process_stop_action.stop(cpp::stop_token{}, mock_handle);
+    const Result<IComponent::RequestResult> result = process_stop_action.stop(cpp::stop_token{}, mock_handle);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ(result.value(), IComponent::RequestState::kWaiting);
+    EXPECT_EQ(result.value(), IComponent::RequestResult::kSuccess);
 }
 
 TEST(ProcessStopActionTest, StopWithInvalidatedHandleReturnsSuccess)
@@ -56,10 +56,10 @@ TEST(ProcessStopActionTest, StopWithInvalidatedHandleReturnsSuccess)
     ProcessHandle handle = mock_handle;
     handle.pid = -1;
 
-    const Result<IComponent::RequestState> result = process_stop_action.stop(cpp::stop_token{}, handle);
+    const Result<IComponent::RequestResult> result = process_stop_action.stop(cpp::stop_token{}, handle);
 
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ(result.value(), IComponent::RequestState::kSuccess);
+    EXPECT_EQ(result.value(), IComponent::RequestResult::kSuccess);
 }
 
 TEST(ProcessStopActionTest, StopWithInvalidatedHandleDoesNotCallLauncher)
@@ -79,7 +79,7 @@ TEST(ProcessStopActionTest, StopFailsReturnsError)
 
     ON_CALL(launcher, requestTermination(_)).WillByDefault(Return(osal::OsalReturnType::kFail));
 
-    const Result<IComponent::RequestState> result = process_stop_action.stop(cpp::stop_token{}, mock_handle);
+    const Result<IComponent::RequestResult> result = process_stop_action.stop(cpp::stop_token{}, mock_handle);
 
     EXPECT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kGeneralError);

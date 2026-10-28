@@ -22,7 +22,7 @@
 
 namespace
 {
-constexpr std::array<std::string_view, 3> kComponentIds{"a", "b", "c"};
+constexpr std::array<std::string_view, 3> kComponentIds{{"a", "b", "c"}};
 }  // namespace
 
 using namespace score::mw::lifecycle;

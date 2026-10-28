@@ -217,8 +217,12 @@ class BasicLmControlImpl final : public ILmControl
 
         awaitNotificationRegistration();
 
-        // Check for any pending events from before the handler was installed.
-        onActivationResult();
+        // Check for any pending events from before the handler was installed. Only possible once connected;
+        // until then the receive handler, installed on connection, takes care of the samples.
+        if (connectedProxy() != nullptr)
+        {
+            onActivationResult();
+        }
 
         return {};
     }
@@ -499,6 +503,19 @@ class BasicLmControlImpl final : public ILmControl
 
 /// @brief Production alias: BasicLmControlImpl wired to the real mw::com proxy.
 using LmControlImpl = BasicLmControlImpl<MwComProxyTraits>;
+
+/// @brief Factory body behind ILmControl::Create; Impl is a test seam.
+template <typename Impl = LmControlImpl>
+score::Result<std::unique_ptr<ILmControl>> CreateLmControl(std::string_view instance_specifier)
+{
+    auto instance = std::make_unique<Impl>();
+    const auto init_result = instance->init(instance_specifier);
+    if (!init_result.has_value())
+    {
+        return score::MakeUnexpected<std::unique_ptr<ILmControl>>(init_result.error());
+    }
+    return instance;
+}
 
 }  // namespace score::mw::lifecycle::internal
 
