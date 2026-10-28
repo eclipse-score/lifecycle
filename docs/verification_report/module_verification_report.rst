@@ -56,10 +56,11 @@ Valid feature requirements without any derived component requirements are highli
 Verification state of (valid) Feature Requirements
 ---------------------------------------------------------------------
 
-Verification state of valid feature requirements: Shows the verification status of any derived component requirement and its test name. Fully verified feature requirements are shown in green, partially verified feature requirements are shown in yellow, unverified feature requirements are shown in red. 
+This table lists all valid feature requirements together with the verification state of each derived component requirement.
+Fully verified feature requirements are highlighted in green, partially verified ones in yellow, and unverified ones in red.
 Feature requirements without any derived component requirements are also highlighted in red.
 
-The list is sorted started with green, then yellow and finally red.
+The table is sorted by verification state: green first, then yellow, then red.
 
 .. dropdown:: Show verification state table
    :animate: fade-in
