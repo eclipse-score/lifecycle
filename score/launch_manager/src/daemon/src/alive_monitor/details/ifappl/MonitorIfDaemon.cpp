@@ -125,7 +125,7 @@ bool MonitorIfDaemon::readIpcUntil(const std::chrono::nanoseconds f_syncTimestam
         isRepeated = false;
         result = ipcserver_r.peek(elem_p);
 
-        // the ipc server guarentees that if the result is kOk the element is
+        // the ipc server guarantees that if the result is kOk the element is
         // valid.
         if ((result == IpcResult::kOk) && bool(elem_p) && (elem_p->timestamp <= f_syncTimestamp))
         {

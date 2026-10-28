@@ -113,7 +113,7 @@ namespace score::mw::lifecycle::internal
 {
 
 template <typename... T>
-// Variadac method the parameter count is the number of values the caller wants to log.
+// Variadic method: the parameter count is the number of values the caller wants to log.
 // codeql[cpp/number-of-parameters-per-function] False positive
 [[nodiscard]] bool signal_safe_log(const T&... values)
 {
