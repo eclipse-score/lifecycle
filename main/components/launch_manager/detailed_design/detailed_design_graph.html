@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Example: Detailed Design &#8212; Lifecycle and Health Management  documentation</title>
+    <title>Detailed Design for Component: Launch Manager, Graph Functionality &#8212; Lifecycle and Health Management  documentation</title>
   
   
   
@@ -61,7 +61,7 @@
     <script src="../../../_static/sphinx-needs/libs/html/datatables.min.js?v=8a4aee21"></script>
     <script src="../../../_static/sphinx-needs/libs/html/datatables_loader.js?v=a2cae175"></script>
     <script src="../../../_static/sphinx-needs/libs/html/sphinx_needs_collapse.js?v=dca66431"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'components/launch_manager/detailed_design/detailed_design';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'components/launch_manager/detailed_design/detailed_design_graph';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://eclipse-score.github.io/lifecycle/versions.json';
@@ -425,8 +425,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../requirements/index.html">Requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../architecture/index.html">Component Architecture</a></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Detailed Design</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3 current active"><a aria-current="page" class="current reference internal" href="#">Example: Detailed Design</a></li>
-
+<li class="toctree-l3 current active"><a aria-current="page" class="current reference internal" href="#">Detailed Design for Component: Launch Manager, Graph Functionality</a></li>
 <li class="toctree-l3"><a class="reference internal" href="chklst_impl_inspection.html">Implementation Inspection Checklist</a></li>
 </ul>
 </details></li>
@@ -486,7 +485,7 @@
     
     <li class="breadcrumb-item"><a href="index.html" class="nav-link">Detailed Design</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Example: Detailed Design</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Detailed Design for Component: Launch Manager, Graph Functionality</span></li>
   </ul>
 </nav>
 </div>
@@ -503,107 +502,123 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="example-detailed-design">
-<h1>Example: Detailed Design<a class="headerlink" href="#example-detailed-design" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-c48f7bb0">
-<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__launch_manager_detailed_design">
-<tbody>
-<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
-<div class="line"><span><span class="needs_title"><span class="needs_data">Launch Manager Detailed Design</span></span></span></div>
-</div>
-</td>
-<td class="head_center" colspan="2"><div class="needs_head line-block">
-<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">draft</span></span></span></div>
-<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">NO</span></span></span></div>
-<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
-</div>
-</td>
-<td class="head_right" colspan="2"><div class="needs_head_right line-block">
-<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
-</div>
-</td>
-</tr>
-<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
-<div class="line"><span><span><div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
-</span></span></div>
-<div class="line"><span><div class="line">realizes: <span class="realizes"><span><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/implementation/implementation_workproducts.html#wp__sw_implementation">wp__sw_implementation</a></span></span></div>
-</span></div>
-</div>
-</td>
-<td class="meta" colspan="3"></td>
-</tr>
-<tr class="content row-odd"><td class="content" colspan="6"></td>
-</tr>
-<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
-<div class="line"><span><span class="needs-id"><a class="reference internal" href="#doc__launch_manager_detailed_design" title="doc__launch_manager_detailed_design">doc__launch_manager_detailed_design</a></span></span></div>
-</div>
-</td>
-<td class="footer" colspan="2"><div class="needs_footer line-block">
-<div class="line"><span><span class="needs_type_name"><span class="needs_data">Generic Document</span></span></span></div>
-</div>
-</td>
-<td class="footer_right" colspan="2"></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</section>
-<section id="detailed-design-for-component-launch-manager">
-<h1>Detailed Design for Component: Launch Manager<a class="headerlink" href="#detailed-design-for-component-launch-manager" title="Link to this heading">#</a></h1>
+  <section id="detailed-design-for-component-launch-manager-graph-functionality">
+<h1>Detailed Design for Component: Launch Manager, Graph Functionality<a class="headerlink" href="#detailed-design-for-component-launch-manager-graph-functionality" title="Link to this heading">#</a></h1>
 <section id="description">
 <h2>Description<a class="headerlink" href="#description" title="Link to this heading">#</a></h2>
-<div class="line-block">
-<div class="line">Design Decisions - For the documentation of the decision the <a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/change_management/guidance/change_management_decision_record_template.html#gd_temp__change_decision_record">gd_temp__change_decision_record</a> can be used.</div>
-<div class="line">Design Constraints</div>
-</div>
-<p>Example:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>component is split into two units unit1 and unit2 based on single responsibility principle.</p></li>
-<li><p>unit2 is injected to unit1 one via dependency injection for testability.</p></li>
+<p>This detailed design focuses on the graph functionality including:</p>
+<ul class="simple">
+<li><p>Run Target Transitions</p></li>
+<li><p>Component activation &amp; deactivation</p></li>
 </ul>
-</div></blockquote>
-<section id="rationale-behind-decomposition-into-units">
-<h3>Rationale Behind Decomposition into Units<a class="headerlink" href="#rationale-behind-decomposition-into-units" title="Link to this heading">#</a></h3>
-<div class="line-block">
-<div class="line">mandatory: a motivation for the decomposition into one or more units.</div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Reason for split into multiple units could be-
-- Based on design principles like SOLID,DRY etc
-- Based on design pattern’s etc.</p>
-</div>
 </section>
+<section id="dynamic-diagrams-for-unit-interactions">
+<h2>Dynamic Diagrams for Unit Interactions<a class="headerlink" href="#dynamic-diagrams-for-unit-interactions" title="Link to this heading">#</a></h2>
+<section id="graph-state-machine">
+<h3>Graph State Machine<a class="headerlink" href="#graph-state-machine" title="Link to this heading">#</a></h3>
+<p>The graph is the internal state machine of the Launch Manager and tracks
+the process of a Run Target transition.
+The Launch Manager main thread runs a cyclic loop and the state of the graph
+state machine defines how events are processed.</p>
+<figure class="align-center">
+<p class="plantuml">
+<object data="../../../_images/plantuml-d506c335bb3448573775170d90879f2658129dea.svg" type="image/svg+xml" style="width:1430px;height:1068px;background:#FFFFFF;"></object></p>
+</figure>
 </section>
-<section id="static-diagrams-for-unit-interactions">
-<h2>Static Diagrams for Unit Interactions<a class="headerlink" href="#static-diagrams-for-unit-interactions" title="Link to this heading">#</a></h2>
-<p>A static view provides an overview of the units and their relationships using
-UML 2.0 notations (e.g. class diagrams, component diagrams). Use <code class="docutils literal notranslate"><span class="pre">..</span> <span class="pre">uml::</span></code>
-or <code class="docutils literal notranslate"><span class="pre">..</span> <span class="pre">image::</span></code> directives to include the diagram.</p>
+<section id="component-activation">
+<h3>Component Activation<a class="headerlink" href="#component-activation" title="Link to this heading">#</a></h3>
+<p>The Launch Manager main loop does not directly activate any component, but the activation
+is only scheduled on a thread pool.</p>
+<p>A component activation consists of:</p>
+<ul class="simple">
+<li><p>starting the process (possibly multiple times)</p></li>
+<li><p>registering the pid in the SafeProcessMap</p></li>
+<li><p>waiting for the ready condition to be fulfilled or ready timeout</p></li>
+<li><p>posing the activation result to the event queue</p></li>
+</ul>
+<p>The component activation sequence is executed synchronously on a worker thread.</p>
+<figure class="align-center">
+<p class="plantuml">
+<object data="../../../_images/plantuml-617ea8c86961e0955aa9c13c6e62ddc93f8d21d8.svg" type="image/svg+xml" style="width:2180px;height:2175px;background:#FFFFFF;"></object></p>
+</figure>
 </section>
-<section id="dynamic-diagrams-for-unit-interactions-optional">
-<h2>Dynamic Diagrams for Unit Interactions (optional)<a class="headerlink" href="#dynamic-diagrams-for-unit-interactions-optional" title="Link to this heading">#</a></h2>
-<p>A dynamic view illustrates how the units within a component interact over their
-interfaces to fulfill a specific use case or functionality. It is optional when the
-component’s behaviour is straightforward and can be understood from the static view
-and interface documentation alone.</p>
-<p>Use standard UML behavioural diagrams (sequence diagrams, state machine diagrams)
-with <code class="docutils literal notranslate"><span class="pre">..</span> <span class="pre">uml::</span></code> or <code class="docutils literal notranslate"><span class="pre">..</span> <span class="pre">image::</span></code> directives.</p>
+<section id="component-deactivation">
+<h3>Component Deactivation<a class="headerlink" href="#component-deactivation" title="Link to this heading">#</a></h3>
+<p>The Launch Manager main loop does not directly deactivate any component, but the deactivation
+is only scheduled on a thread pool.</p>
+<p>A component deactivation consists of:</p>
+<ul class="simple">
+<li><p>stopping the process (if running)</p></li>
+<li><p>waiting for the process to terminate or until shutdown timeout</p></li>
+<li><p>escalating to SIGKILL in case the process did not terminate within the shutdown timeout</p></li>
+<li><p>posing the deactivation result to the event queue. Process crashes during deactivation are ignored.</p></li>
+</ul>
+<p>The component deactivation sequence is executed synchronously on a worker thread.</p>
+<figure class="align-center">
+<p class="plantuml">
+<object data="../../../_images/plantuml-3ee6c3e1d1b5f3aad4384751496a9859e2d634f3.svg" type="image/svg+xml" style="width:2159px;height:1508px;background:#FFFFFF;"></object></p>
+</figure>
+</section>
+<section id="process-termination">
+<h3>Process Termination<a class="headerlink" href="#process-termination" title="Link to this heading">#</a></h3>
+<p>The process termination may happen during component activation or deactivation but also at any
+time after activation in case of a process crash or a self-terminating process.
+The latter is the focus of the diagram below.</p>
+<figure class="align-center">
+<p class="plantuml">
+<object data="../../../_images/plantuml-5cdf30b0a801d580aab5d05854a42c26fa5c84c3.svg" type="image/svg+xml" style="width:2162px;height:1753px;background:#FFFFFF;"></object></p>
+</figure>
+</section>
+<section id="supervision-failure">
+<h3>Supervision Failure<a class="headerlink" href="#supervision-failure" title="Link to this heading">#</a></h3>
+<p>A component activates the alive supervision once the Running state is reached.
+The supervision failure may be detected at any time and is reported to the component event queue.
+The current failure reaction is to always requesting the fallback Run Target and cancels a running
+transition if there is one.</p>
+<figure class="align-center">
+<p class="plantuml">
+<object data="../../../_images/plantuml-b0b432a7f8f2e4853b5cec8b3b110853ca97862f.svg" type="image/svg+xml" style="width:1637px;height:1327px;background:#FFFFFF;"></object></p>
+</figure>
+</section>
+<section id="run-target-transition">
+<h3>Run Target transition<a class="headerlink" href="#run-target-transition" title="Link to this heading">#</a></h3>
+<p>A Run Target transition may be initiated either by an external request or as an error reaction (e.g. fallback_run_target).</p>
+<p>A transition runs in two phases: first every component that is running and is
+not needed by the target is stopped, then every component of the target that is
+not active yet is started. The graph dispatches only the components whose
+predecessors have finished and never waits for them; each result that arrives in
+the main loop advances the transition. A component that fails ends the
+transition and moves the graph to kAborting.</p>
+<figure class="align-center">
+<p class="plantuml">
+<object data="../../../_images/plantuml-0af4ad67b81e8f57d1bd70560b2d986571896f84.svg" type="image/svg+xml" style="width:1319px;height:2246px;background:#FFFFFF;"></object></p>
+</figure>
+</section>
+<section id="transition-cancellation-preemption">
+<h3>Transition cancellation / preemption<a class="headerlink" href="#transition-cancellation-preemption" title="Link to this heading">#</a></h3>
+<p>When cancelling an ongoing transition it is crucial to leave every component
+in a well-defined state.</p>
+<p>The diagram below defines the point of time a component activation / deactivation
+may be safely cancelled.</p>
+<figure class="align-center">
+<p class="plantuml">
+<object data="../../../_images/plantuml-e978d7bbf6e71b3faca246ddd971c51f9da42f9d.svg" type="image/svg+xml" style="width:2288px;height:2627px;background:#FFFFFF;"></object></p>
+</figure>
+</section>
 </section>
 <section id="units-within-the-component">
 <h2>Units within the Component<a class="headerlink" href="#units-within-the-component" title="Link to this heading">#</a></h2>
-<p>The relationship between a unit and its parent component is established implicitly
-through the file path. Each component has its own directory, and units residing
-within that directory belong to it. The unit’s attributes and behaviour are documented
-in the source code itself. A separate static diagram per unit is not required.</p>
-<p>Interface documentation of a software unit is part of the source code (e.g. public
-API headers, trait definitions, or documented function signatures).</p>
-<p>Example:</p>
+<p>The Launch Manager is composed of many units.
+This detailed design focuses on the central dependency graph logic and its interaction with surrounding units.</p>
 <ul class="simple">
-<li><p>unit1: implements the main logic (see source code for details)</p></li>
-<li><p>unit2: injected into unit1 via dependency injection for testability</p></li>
+<li><p>ProcessGroupManager: Implements the main loop of the Launch Manager</p></li>
+<li><p>Graph: Implements the state machine for the Run Target transition logic</p></li>
+<li><p>OSHandler: Waits for any child process to terminate, then forwards the process termination to process monitor</p></li>
+<li><p>ComponentEventQueue: Synchronizes the component events</p></li>
+<li><p>SafeProcessMap: Maintains a thread-safe mapping PID to component. Mapping is used to forward process termination event to the right component.</p></li>
+<li><p>IComponentController: Executes Component Tasks and enqueues the result to an Event Queue</p></li>
+<li><p>IComponent: The component interface</p></li>
+<li><p>Transition: Manages a RunTarget transition by determining which components are ready to start/stop</p></li>
 </ul>
 </section>
 </section>
@@ -655,26 +670,26 @@ API headers, trait definitions, or documented function signatures).</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Example: Detailed Design</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#detailed-design-for-component-launch-manager">Detailed Design for Component: Launch Manager</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#description">Description</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#rationale-behind-decomposition-into-units">Rationale Behind Decomposition into Units</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#description">Description</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamic-diagrams-for-unit-interactions">Dynamic Diagrams for Unit Interactions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#graph-state-machine">Graph State Machine</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#component-activation">Component Activation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#component-deactivation">Component Deactivation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#process-termination">Process Termination</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#supervision-failure">Supervision Failure</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#run-target-transition">Run Target transition</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#transition-cancellation-preemption">Transition cancellation / preemption</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#static-diagrams-for-unit-interactions">Static Diagrams for Unit Interactions</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamic-diagrams-for-unit-interactions-optional">Dynamic Diagrams for Unit Interactions (optional)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#units-within-the-component">Units within the Component</a></li>
 </ul>
-</li>
-</ul>
-
   </nav></div>
 
   <div class="sidebar-secondary-item">
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/eclipse-score/lifecycle/edit/main/score/launch_manager/docs/detailed_design/detailed_design.rst">
+    <a href="https://github.com/eclipse-score/lifecycle/edit/main/score/launch_manager/docs/detailed_design/detailed_design_graph.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
