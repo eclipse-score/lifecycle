@@ -67,7 +67,7 @@ Drawbacks of the selected solution over classical external process monitoring:
 
 - Harder safety argumentation. The following chapter describes the issues and the possible solutions.
 
-Justification for the Decision
+Justification for the decision
 ------------------------------
 
 As the :term:`Health Monitor` is linked as part of the monitored application, it raises the following concerns
@@ -150,7 +150,7 @@ An alive supervision failure may therefore go undetected until the next polling 
 Configure the cycle time to balance the desired detection time against acceptable CPU load.
 
 
-Flatbuffer Configuration
+Flatbuffer configuration
 ========================
 
 .. dec_rec:: Flatbuffer Configuration

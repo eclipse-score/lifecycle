@@ -15,10 +15,9 @@
 Startup & Shutdown
 ##################
 
-The sequence diagrams below are based on the example dependency graph described
-in :doc:`./components_run_targets`.
+The sequence diagrams below are based on :ref:`the example dependency graph <lifecycle_simplified_example_graph>`.
 
-Launch Manager Initial Startup
+Launch Manager initial startup
 ==============================
 
 The *Initial Run Target* configuration is shown in
@@ -42,12 +41,10 @@ The *Initial Run Target* configuration is shown in
    In case of initialization failure, the Launch Manager fails to start.
    Once initialization is successful, the Launch Manager activates the configured initial Run Target.
 
-   The continuation of this sequence, in which the Launch Manager starts the
-   Components of the Run Target `Running`, is depicted in
-   :need:`feat_arc_dyn__lifecycle__lcm_start`.
+   For detailed Run Target activation sequence refer to :doc:`./run_target_activation`.
 
 
-Launch Manager Shutdown
+Launch Manager shutdown
 =======================
 
 .. feat_arc_dyn:: Launch Manager Shutdown
@@ -64,6 +61,5 @@ Launch Manager Shutdown
    When the Launch Manager receives a SIGTERM signal, it will initiate transition to Run Target `Off` which leads to termination of all components.
    Afterwards, Launch Manager process itself exits.
 
-   The transition to the Run Target `Off`, in which the Launch Manager terminates
-   the Components of the currently active Run Target, is depicted in
-   :need:`feat_arc_dyn__lifecycle__lcm_term`.
+   For detailed Run Target activation sequence refer to :doc:`./run_target_activation`.
+

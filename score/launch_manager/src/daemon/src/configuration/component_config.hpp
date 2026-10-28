@@ -13,6 +13,7 @@
 #ifndef COMPONENT_CONFIG_HPP
 #define COMPONENT_CONFIG_HPP
 
+#include <sys/resource.h>
 #include <sys/types.h>
 #include <chrono>
 #include <cstdint>
@@ -71,6 +72,12 @@ enum class ProcessState : std::uint8_t
 
 using ReadyCondition = std::variant<ProcessState, FileState>;
 
+struct ResourceLimit
+{
+    int resource;
+    struct ::rlimit limit;
+};
+
 struct ComponentProperties
 {
     std::string binary_name;
@@ -87,11 +94,9 @@ struct Sandbox
     std::optional<std::string> security_policy;
     std::int32_t scheduling_policy;
     std::int32_t scheduling_priority{};
-    std::optional<std::uint64_t> max_memory_usage;
-    std::optional<std::uint32_t> max_cpu_usage;
+    std::vector<ResourceLimit> rlimits;
     std::optional<std::uint64_t> affinity_mask;
 };
-
 struct DeploymentConfig
 {
     uint32_t ready_timeout_ms{};

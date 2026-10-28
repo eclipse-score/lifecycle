@@ -24,7 +24,7 @@ class MockForceStopAction : public IForceStopAction
 {
   public:
     MOCK_METHOD(
-        Result<IComponent::RequestState>,
+        Result<IComponent::RequestResult>,
         forceStop,
         (cpp::stop_token, const Handle& handle),
         (override, const));
