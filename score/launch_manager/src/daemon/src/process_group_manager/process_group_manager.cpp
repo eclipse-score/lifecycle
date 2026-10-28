@@ -386,7 +386,7 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
             LM_LOG_DEBUG() << "Start transition to" << last_state;
 
             // Already rejected via isValidRunTarget() in processStateTransition() (#541) if invalid.
-            const bool started = pg.startTransition(last_state, last_source);
+            [[maybe_unused]] const bool started = pg.startTransition(last_state, last_source);
             SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
                 started, "pending Run Target was not rejected by isValidRunTarget()");
         }
@@ -407,7 +407,7 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
             // nobody requested this transition, so there is nowhere to communicate an error
             // if we failed and there is no external request, we will try again next time
             pg.setRequestStartTime();
-            const bool started = pg.startTransition(
+            [[maybe_unused]] const bool started = pg.startTransition(
                 IdentifierHash{Graph::recovery_state_name}, RunTargetActivationSource::kRecoveryAction);
             SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(started, "fallback Run Target node missing");
         }

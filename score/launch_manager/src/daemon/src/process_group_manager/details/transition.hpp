@@ -217,7 +217,7 @@ class Transition
             if (isReady(s) && !state_.node_information.at(s).enqueued_)
             {
                 state_.node_information[s].enqueued_ = true;
-                const bool pushSuccessful = state_.next_nodes.push(s);
+                [[maybe_unused]] const bool pushSuccessful = state_.next_nodes.push(s);
                 SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
                     pushSuccessful, "Transition queue should never exceed capacity");
             }
