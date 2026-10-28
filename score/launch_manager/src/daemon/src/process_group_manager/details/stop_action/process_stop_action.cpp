@@ -22,7 +22,7 @@ ProcessStopAction::ProcessStopAction(osal::IProcess& launcher) : launcher_(launc
 {
 }
 
-Result<IComponent::RequestResult> ProcessStopAction::stop(cpp::stop_token stop_token, const Handle& handle) const
+Result<IComponent::RequestResult> ProcessStopAction::stop(cpp::stop_token /*stop_token*/, const Handle& handle) const
 {
     const ProcessHandle* const process = std::get_if<ProcessHandle>(&handle);
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(

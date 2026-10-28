@@ -19,13 +19,7 @@ namespace score::mw::lifecycle
 
 score::Result<std::unique_ptr<ILmControl>> ILmControl::Create(std::string_view instance_specifier)
 {
-    auto instance = std::make_unique<internal::LmControlImpl>();
-    const auto init_result = instance->init(instance_specifier);
-    if (!init_result.has_value())
-    {
-        return score::MakeUnexpected<std::unique_ptr<ILmControl>>(init_result.error());
-    }
-    return instance;
+    return internal::CreateLmControl<>(instance_specifier);
 }
 
 }  // namespace score::mw::lifecycle
