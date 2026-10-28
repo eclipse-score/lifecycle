@@ -13,6 +13,7 @@
 
 #include "score/mw/launch_manager/process_group_manager/details/component.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
+#include <string_view>
 
 namespace score::mw::lifecycle::internal
 {
@@ -252,7 +253,8 @@ bool Component::activateSupervision() const
 
     if (clock_gettime(CLOCK_MONOTONIC, &timestamp) != 0)
     {
-        LM_LOG_ERROR() << config_.name << ": failed to get timestamp to activate supervision:" << strerror(errno);
+        LM_LOG_ERROR() << config_.name
+                       << ": failed to get timestamp to activate supervision:" << std::string_view{strerror(errno)};
         return false;
     }
 
@@ -276,7 +278,8 @@ bool Component::deactivateSupervision() const
 
     if (clock_gettime(CLOCK_MONOTONIC, &timestamp) != 0)
     {
-        LM_LOG_ERROR() << config_.name << ": failed to get timestamp to deactivate supervision: " << strerror(errno);
+        LM_LOG_ERROR() << config_.name
+                       << ": failed to get timestamp to deactivate supervision: " << std::string_view{strerror(errno)};
         return false;
     }
 
