@@ -25,6 +25,7 @@
 
 #include <sched.h>
 #include <cstdint>
+#include <future>
 #include <memory>
 #include <thread>
 #include <utility>
@@ -43,13 +44,13 @@ using namespace configuration;
 using namespace watchdog;
 using saf::daemon::MockAliveMonitor;
 
-Config makeMinimalConfig()
+Config makeMinimalConfig(ApplicationType application_type = ApplicationType::Native)
 {
     ComponentConfig component;
     component.name = "comp_a";
     component.description = "Component A";
     component.component_properties.binary_name = "true";
-    component.component_properties.application_profile.application_type = ApplicationType::Native;
+    component.component_properties.application_profile.application_type = application_type;
     component.component_properties.application_profile.is_self_terminating = true;
     component.component_properties.ready_condition = ReadyCondition{ProcessState::Running};
     component.deployment_config.ready_timeout_ms = 500U;
@@ -118,6 +119,13 @@ class ProcessGroupManagerWatchdogTest : public Test
   protected:
     static constexpr osal::ProcessID kMockPid = 100;
 
+    /// @brief Application type of the single component
+    /// @details can be overriden by inherted test classes.
+    virtual ApplicationType applicationType() const
+    {
+        return ApplicationType::Native;
+    }
+
     void expectNormalStartup()
     {
         EXPECT_CALL(*alive_monitor_, init()).WillOnce(Return(true));
@@ -161,7 +169,7 @@ class ProcessGroupManagerWatchdogTest : public Test
         ON_CALL(*process_interface_, requestTermination).WillByDefault(Return(osal::OsalReturnType::kSuccess));
         ON_CALL(*process_interface_, forceTermination).WillByDefault(Return(osal::OsalReturnType::kFail));
 
-        auto config = makeMinimalConfig();
+        auto config = makeMinimalConfig(applicationType());
 
         process_group_manager_ = std::make_unique<ProcessGroupManager>(
             takeGraphConfig(config),
@@ -272,7 +280,16 @@ TEST_F(ProcessGroupManagerWatchdogTest, GivenMinimalConfig_ExpectWatchdogDisable
     process_group_manager_->deinitialize();
 }
 
-TEST_F(ProcessGroupManagerWatchdogTest, GetActiveRunTargetAndSetRequestedRunTargetDuringRun)
+class ProcessGroupManagerReportingTest : public ProcessGroupManagerWatchdogTest
+{
+  protected:
+    ApplicationType applicationType() const override
+    {
+        return ApplicationType::Reporting;
+    }
+};
+
+TEST_F(ProcessGroupManagerReportingTest, GetActiveRunTargetAndSetRequestedRunTargetDuringRun)
 {
     RecordProperty(
         "Description",
@@ -281,6 +298,15 @@ TEST_F(ProcessGroupManagerWatchdogTest, GetActiveRunTargetAndSetRequestedRunTarg
     EXPECT_CALL(*watchdog_, serviceWatchdog()).Times(AtLeast(1));
     EXPECT_CALL(*watchdog_, disable()).Times(1);
     EXPECT_CALL(*alive_monitor_, stopMonitoring()).Times(1);
+
+    // mocks the waitForkRunning and waits inside so that code while PGM is
+    // in transition can be tested
+    std::promise<void> release_running;
+    auto release_future = release_running.get_future().share();
+    ON_CALL(*process_interface_, waitForkRunning).WillByDefault([release_future](auto&&...) {
+        release_future.wait();
+        return osal::OsalReturnType::kSuccess;
+    });
 
     ASSERT_TRUE(process_group_manager_->initialize());
 
@@ -296,6 +322,7 @@ TEST_F(ProcessGroupManagerWatchdogTest, GetActiveRunTargetAndSetRequestedRunTarg
     EXPECT_FALSE(set_result.has_value());
     EXPECT_EQ(set_result.error(), ExecErrc::kRunTargetDoesntExist);
 
+    release_running.set_value();
     process_group_manager_->cancel();
     run_thread.join();
 }
