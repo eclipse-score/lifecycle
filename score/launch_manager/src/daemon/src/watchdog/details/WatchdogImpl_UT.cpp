@@ -28,6 +28,7 @@
 #include "score/os/errno.h"
 #include "score/os/mocklib/fcntl_mock.h"
 #include "score/os/mocklib/unistdmock.h"
+#include <score/assert.hpp>
 
 using ::testing::_;
 using ::testing::Return;
@@ -109,6 +110,24 @@ enum class EnableStep
     kSetOptions,
 };
 
+std::uint8_t stepPosition(const EnableStep step)
+{
+    switch (step)
+    {
+        case EnableStep::kOpen:
+            return 0U;
+        case EnableStep::kGetTimeout:
+            return 1U;
+        case EnableStep::kGetTimeLeft:
+            return 2U;
+        case EnableStep::kSetTimeout:
+            return 3U;
+        case EnableStep::kSetOptions:
+            return 4U;
+    }
+    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Invalid EnableStep");
+}
+
 /// @brief WatchdogImpl subclass that mocks waitForever() so fireWatchdogReaction() returns for testing.
 class WatchdogImpl_FireWatchdogMock : public WatchdogImpl
 {
@@ -184,7 +203,7 @@ class WatchdogImplTest : public ::testing::Test
         // An ioctl step succeeds before the failure, fails at it, and is never called after it.
         auto ioctlStep = [&](EnableStep step, DeviceIf::IoctlRequestType request, auto successAction) {
             auto& call = EXPECT_CALL(deviceIfMock_, ioctl(fd, request, _));
-            if (step < failingStep)
+            if (stepPosition(step) < stepPosition(failingStep))
             {
                 call.WillOnce(successAction);
             }

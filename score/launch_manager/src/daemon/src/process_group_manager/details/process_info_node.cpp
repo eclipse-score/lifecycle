@@ -25,6 +25,40 @@
 namespace score::mw::lifecycle::internal
 {
 
+namespace
+{
+std::uint8_t lifecyclePosition(const ProcessState state)
+{
+    switch (state)
+    {
+        case ProcessState::kIdle:
+            return 0U;
+        case ProcessState::kStarting:
+            return 1U;
+        case ProcessState::kRunning:
+            return 2U;
+        case ProcessState::kTerminating:
+            return 3U;
+        case ProcessState::kTerminated:
+            return 4U;
+        case ProcessState::kFailed:
+            return 5U;
+    }
+    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Invalid ProcessState");
+}
+
+bool transitionIsValid(const ProcessState old_state, const ProcessState new_state)
+{
+    if ((lifecyclePosition(new_state) > lifecyclePosition(old_state)) ||
+        (new_state == old_state && new_state == ProcessState::kIdle))
+    {
+        return true;
+    }
+    return false;
+}
+
+}  // anonymous namespace
+
 ProcessInfoNode::ProcessInfoNode(configuration::ComponentConfig&& config, ProcessHandling process_handling)
     : termination_requested_(false),
       pid_(0),
@@ -144,7 +178,7 @@ bool ProcessInfoNode::setState(score::mw::lifecycle::ProcessState new_state)
     bool success = true;
     score::mw::lifecycle::ProcessState old_state = getState();
 
-    if (new_state > old_state || (new_state == old_state && new_state == ProcessState::kIdle))
+    if (transitionIsValid(old_state, new_state))
     {
         success = process_state_.compare_exchange_strong(old_state, new_state);
     }
