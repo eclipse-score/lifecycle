@@ -1008,7 +1008,7 @@
     "FullyVerifies": null
   },
   {
-    "name": "LmControlUT__ActivationResultInvokesRegisteredCallback",
+    "name": "LmControlUT__CallbackRegisteredBeforeConnectionIsUsedOnceConnected",
     "file": "score/launch_manager/src/lm_control/src/details/lm_control_impl_UT.cpp",
     "line": "677",
     "result": "passed",
@@ -1022,9 +1022,23 @@
     "FullyVerifies": null
   },
   {
+    "name": "LmControlUT__ActivationResultInvokesRegisteredCallback",
+    "file": "score/launch_manager/src/lm_control/src/details/lm_control_impl_UT.cpp",
+    "line": "707",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "equivalence-classes",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
     "name": "LmControlUT__InitialActivationSourceIsForwardedToCallback",
     "file": "score/launch_manager/src/lm_control/src/details/lm_control_impl_UT.cpp",
-    "line": "708",
+    "line": "738",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -1038,7 +1052,7 @@
   {
     "name": "LmControlUT__ActivationResultBacklogExceedingSubscriptionIsDrainedInSeveralCalls",
     "file": "score/launch_manager/src/lm_control/src/details/lm_control_impl_UT.cpp",
-    "line": "739",
+    "line": "769",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -1052,7 +1066,7 @@
   {
     "name": "LmControlUT__ActivationResultDrainStopsOnEmptyBatch",
     "file": "score/launch_manager/src/lm_control/src/details/lm_control_impl_UT.cpp",
-    "line": "773",
+    "line": "803",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -1066,7 +1080,7 @@
   {
     "name": "LmControlUT__ActivationResultWithoutCallbackIsDroppedSafely",
     "file": "score/launch_manager/src/lm_control/src/details/lm_control_impl_UT.cpp",
-    "line": "789",
+    "line": "819",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -1080,7 +1094,7 @@
   {
     "name": "LmControlUT__ThrowingActivationCallbackIsContainedAndDrainContinues",
     "file": "score/launch_manager/src/lm_control/src/details/lm_control_impl_UT.cpp",
-    "line": "806",
+    "line": "836",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -1094,7 +1108,7 @@
   {
     "name": "LmControlUT__ActivationCallbackThrowingNonStdExceptionIsContained",
     "file": "score/launch_manager/src/lm_control/src/details/lm_control_impl_UT.cpp",
-    "line": "835",
+    "line": "865",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -1108,7 +1122,7 @@
   {
     "name": "LmControlUT__ActivationResultGetNewSamplesFailureIsTolerated",
     "file": "score/launch_manager/src/lm_control/src/details/lm_control_impl_UT.cpp",
-    "line": "855",
+    "line": "885",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -1122,7 +1136,7 @@
   {
     "name": "LmControlUT__LatestRegisteredCallbackWins",
     "file": "score/launch_manager/src/lm_control/src/details/lm_control_impl_UT.cpp",
-    "line": "868",
+    "line": "898",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -1136,7 +1150,7 @@
   {
     "name": "LmControlUT__DestructorStopsDiscoveryWhenNeverConnected",
     "file": "score/launch_manager/src/lm_control/src/details/lm_control_impl_UT.cpp",
-    "line": "902",
+    "line": "932",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -1150,7 +1164,7 @@
   {
     "name": "LmControlUT__DestructorUnsubscribesWhenConnected",
     "file": "score/launch_manager/src/lm_control/src/details/lm_control_impl_UT.cpp",
-    "line": "914",
+    "line": "944",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -1164,7 +1178,7 @@
   {
     "name": "RunTargetActivationSourceUT__StreamInsertionRendersEachSourceAsItsName",
     "file": "score/launch_manager/src/lm_control/src/details/lm_control_impl_UT.cpp",
-    "line": "927",
+    "line": "957",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -1178,7 +1192,7 @@
   {
     "name": "RunTargetActivationSourceUT__StreamInsertionRendersUnknownSourceAsNumericValue",
     "file": "score/launch_manager/src/lm_control/src/details/lm_control_impl_UT.cpp",
-    "line": "942",
+    "line": "972",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
