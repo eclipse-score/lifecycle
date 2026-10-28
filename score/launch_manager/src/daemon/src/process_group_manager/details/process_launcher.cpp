@@ -198,6 +198,13 @@ ProcessLauncher::startProcess(ProcessID& pid, IpcCommsP& block, const configurat
                 LM_LOG_ERROR() << "Failed to flush stdout before forking.";
             }
 
+            sigset_t mask;
+            sigset_t old_mask;
+            sigemptyset(&mask);
+            sigaddset(&mask, SIGINT);
+            sigaddset(&mask, SIGTERM);
+            static_cast<void>(sigprocmask(SIG_BLOCK, &mask, &old_mask));
+
             pid = fork();
 
             if (pid == kPosixSuccess)
@@ -208,12 +215,17 @@ ProcessLauncher::startProcess(ProcessID& pid, IpcCommsP& block, const configurat
                  * which were held at that time will never be released.
                  * See `man 2 fork`.
                  */
+                static_cast<void>(signal(SIGINT, SIG_DFL));
+                static_cast<void>(signal(SIGTERM, SIG_DFL));
+                static_cast<void>(sigprocmask(SIG_SETMASK, &old_mask, NULL));
+
                 ChildProcessConfig param = {config, fd, block};
                 handleChildProcess(param);
                 result = OsalReturnType::kSuccess;
             }
             else if (pid > kPidZero)
             {
+                static_cast<void>(sigprocmask(SIG_SETMASK, &old_mask, NULL));
                 result = OsalReturnType::kSuccess;
             }
             else
