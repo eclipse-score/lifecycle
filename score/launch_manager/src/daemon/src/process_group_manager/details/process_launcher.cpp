@@ -230,6 +230,7 @@ OsalReturnType ProcessLauncher::handleFork(ProcessID& pid, ChildProcessConfig& p
         }
         if (sigprocmask(SIG_SETMASK, &suspendSignalsRes.value(), NULL) != 0)
         {
+            static_cast<void>(signal_safe_log_errno(errno, "Failed to unblock signals! Exiting..."));
             sysexit(EXIT_FAILURE);
         }
 
@@ -280,7 +281,7 @@ ProcessLauncher::startProcess(ProcessID& pid, IpcCommsP& block, const configurat
         if (comms_result)
         {
             ChildProcessConfig param = {config, fd, block};
-            static_cast<void>(handleFork(pid, param));
+            result = handleFork(pid, param);
         }
         else
         {
