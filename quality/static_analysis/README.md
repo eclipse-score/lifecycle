@@ -82,12 +82,17 @@ There are two independent ways to waive a finding. They differ in **where** the 
 A comment placed directly in the source, next to the offending construct:
 
 ```cpp
-// codeql[cpp/misra/no-implicit-bool-conversion] Legacy code, intentional implicit conversion
+// Legacy code, intentional implicit conversion
+// codeql[cpp/misra/no-implicit-bool-conversion] Dismiss
 bool enabled = some_integer;
 ```
 
+- The codeql tool only reads the supressions directly above the offending line.
+  The code also has to be formatted with line breaks so a dismissal might get 
+  removed after runnning the formatter.
+  So any additional comment shall be put before the dismissing line.
 - The `[...]` must contain the exact SARIF `ruleId` (e.g. `cpp/misra/no-implicit-bool-conversion`).
-- Put the comment on the line **above** the finding (or trailing on the same line).
+- Then put the dismissal type such as `Dismiss` or `False positive`.
 - `AlertSuppression.ql` (run automatically) marks the finding `suppressed`; the text **after** the
   `]` is copied by the tool into the SARIF as the suppression `justification`:
 

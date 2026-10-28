@@ -39,8 +39,8 @@ void ProcessGroupManager::cancel()
     my_signal_handler(SIGTERM);
 }
 
-// Using a struct as a param wouldn't make it easer to read and all params
-// are needed.
+// All parameters required for dependency injection, and building them into a
+// parameter struct would add unnecessary indirection without helping visibility.
 // codeql[cpp/number-of-parameters-per-function] Dismiss
 ProcessGroupManager::ProcessGroupManager(
     GraphConfig&& config,
