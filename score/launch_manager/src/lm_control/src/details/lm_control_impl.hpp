@@ -215,8 +215,6 @@ class BasicLmControlImpl final : public ILmControl
             callback_ = std::move(callback);
         }
 
-        awaitNotificationRegistration();
-
         // Check for any pending events from before the handler was installed. Only possible once connected;
         // until then the receive handler, installed on connection, takes care of the samples.
         if (connectedProxy() != nullptr)
@@ -257,14 +255,19 @@ class BasicLmControlImpl final : public ILmControl
     score::Result<void> wait_for_connection(std::chrono::milliseconds timeout, const score::cpp::stop_token& stop_token)
         override
     {
-        std::unique_lock<std::mutex> lock{mutex_};
-        const bool connected = connection_cv_.wait_for(lock, stop_token, timeout, [this] {
-            return proxy_.has_value();
-        });
-        if (!connected)
         {
-            return score::MakeUnexpected(ExecErrc::kCommunicationError);
+            std::unique_lock<std::mutex> lock{mutex_};
+            const bool connected = connection_cv_.wait_for(lock, stop_token, timeout, [this] {
+                return proxy_.has_value();
+            });
+            if (!connected)
+            {
+                return score::MakeUnexpected(ExecErrc::kCommunicationError);
+            }
         }
+
+        // Must run without mutex_ held, it takes the lock itself.
+        awaitNotificationRegistration();
         return {};
     }
 
@@ -478,26 +481,34 @@ class BasicLmControlImpl final : public ILmControl
         LM_LOG_DEBUG() << "LmControl: activation_result: user callback invoked";
     }
 
-    // Guards proxy_
+    /// @brief Guards proxy_
     std::mutex mutex_;
-    // Signalled (under mutex_) once proxy_ is set up, wakes wait_for_connection()
+
+    /// @brief Signalled (under mutex_) once proxy_ is set up, wakes wait_for_connection()
     concurrency::InterruptibleConditionalVariableBasic<std::mutex, std::condition_variable> connection_cv_;
+
+    /// @brief The proxy instance.
     std::optional<ProxyType> proxy_;
 
-    // Handle of the running discovery search, stopped by the destructor. Written once by init()
-    // and never touched again, so it needs no lock.
+    /// @brief Handle of the running discovery search, stopped by the
+    ///        destructor. Written once by init() and never touched again, so
+    ///        it needs no lock.
     std::optional<FindServiceHandle> find_handle_;
 
-    // Lifetime bound of the discovery callback. Expiring it blocks until a running
-    // onServiceFound() has returned and prevents any further invocation.
+    /// @brief Lifetime bound of the discovery callback. Expiring it blocks
+    ///        until a running onServiceFound() has returned and prevents any
+    ///        further invocation.
     safecpp::Scope<> discovery_scope_;
 
+    /// @brief The callback registered by the user.
     ActivationCallback callback_;
+
+    // Guards callback_
     std::mutex callback_mutex_;
 
-    // Serializes onActivationResult() against itself: mw::com may dispatch the
-    // receive handler concurrently, but proxy-event API calls on a single event
-    // must not overlap.
+    /// @brief Serializes onActivationResult() against itself: mw::com may
+    ///        dispatch the receive handler concurrently, but proxy-event API
+    ///        calls on a single event must not overlap.
     std::mutex sample_processing_mutex_;
 };
 
