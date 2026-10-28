@@ -44,8 +44,8 @@ AliveWorkerFactory::AliveWorkerFactory() : IAliveWorkerFactory()
 /// @param [in] args Arguments to construct the observer with
 /// @returns True if successful, false otherwise. When false, @p result may or may not have been emplaced to.
 template <typename ObserverType, class T, typename... Args>
-// Variadic template: the count comes from forwarding the arguments.
-// codeql[cpp/number-of-parameters-per-function] Variadic template, count depends on the call
+// Variadic template the count comes from forwarding the arguments.
+// codeql[cpp/number-of-parameters-per-function] False positive
 bool EmplaceAndAttach(
     std::vector<ObserverType>& result,
     common::Observable<T>& observable,
@@ -150,8 +150,8 @@ bool AliveWorkerFactory::createAliveIf(
     return EmplaceAndAttach(interfaces, event, "MonitorInterface", ipc_server, ipc_server.getPath().data());
 }
 
-// Each parameter is an independent input needed to build one alive supervision; a struct wouldn't make it easier.
-// codeql[cpp/number-of-parameters-per-function] Independent inputs, a struct wouldn't help
+// A struct wouldn't make it easier to read.
+// codeql[cpp/number-of-parameters-per-function] Dismiss
 bool AliveWorkerFactory::createAliveSupervision(
     std::vector<supervision::Alive>& supervisions,
     ifappl::MonitorIfDaemon& interface,

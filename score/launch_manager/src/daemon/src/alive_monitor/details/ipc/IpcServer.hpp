@@ -85,13 +85,13 @@ class IpcServer final : public IpcBase<Payload, MaxNumberElements, Socket>
     {
         // The object is constructed by std::vector::emplace_back in AliveWorkerFactory::createAliveIfIpc before init()
         // is called.
-        // codeql[cpp/cert/missing-constructor-call-for-manually-managed-object] Constructed by emplace_back
+        // codeql[cpp/cert/missing-constructor-call-for-manually-managed-object] False positive
         ReturnCode result{socket->create(f_ipcName_r.c_str(), f_mode)};
         if (result == ReturnCode::kOk)
         {
             // The object is constructed by std::vector::emplace_back in AliveWorkerFactory::createAliveIfIpc before
             // init() is called.
-            // codeql[cpp/cert/missing-constructor-call-for-manually-managed-object] Constructed by emplace_back
+            // codeql[cpp/cert/missing-constructor-call-for-manually-managed-object] False positive
             isInitialized = true;
             return EIpcInitResult::kOk;
         }
@@ -99,7 +99,7 @@ class IpcServer final : public IpcBase<Payload, MaxNumberElements, Socket>
         {
             // The object is constructed by std::vector::emplace_back in AliveWorkerFactory::createAliveIfIpc before
             // init() is called.
-            // codeql[cpp/cert/missing-constructor-call-for-manually-managed-object] Constructed by emplace_back
+            // codeql[cpp/cert/missing-constructor-call-for-manually-managed-object] False positive
             isInitialized = false;
             return EIpcInitResult::kPermissionDenied;
         }
@@ -114,7 +114,7 @@ class IpcServer final : public IpcBase<Payload, MaxNumberElements, Socket>
     {
         // The object is constructed by std::vector::emplace_back in AliveWorkerFactory::createAliveIfIpc before this
         // call.
-        // codeql[cpp/cert/missing-constructor-call-for-manually-managed-object] Constructed by emplace_back
+        // codeql[cpp/cert/missing-constructor-call-for-manually-managed-object] False positive
         int fd = shm_open(Base::getPath().data(), O_RDWR, kOwnerReadWrite);
         if (fd < 0)
         {
