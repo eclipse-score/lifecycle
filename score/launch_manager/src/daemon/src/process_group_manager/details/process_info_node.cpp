@@ -358,12 +358,6 @@ score::cpp::expected_blank<IComponent::RequestResult> ProcessInfoNode::handlePro
                 // We only want to wait for kRunning with Reporting processes
                 if (isReporting())
                 {
-                    std::this_thread::sleep_for(std::chrono::milliseconds{100});
-                    if (stop_token.stop_requested())
-                    {
-                        LM_LOG_DEBUG() << "Stop requested !!";
-                        return false;
-                    }
                     // If we are a reporting process we should wait for kRunning irrespective of the configured ready
                     // state
                     auto wait_res = process_handling_.process_interface_->waitForkRunning(
