@@ -19,6 +19,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <memory>
 #include <new>
 #include <type_traits>
 #include <utility>
@@ -77,11 +78,10 @@ class RingBuffer
             return false;
         }
         Node& n = nodes_[write_head_];
-        // CodeQL sizes &value as its first member only (e.g. the 8-byte IdentifierHash of SupervisionEvent), not as a
-        // whole T.
-        // The destination holds sizeof(T) by the static_assert on ElementSize.
-        // codeql[c/cert/library-function-argument-out-of-bounds] False positive: &value is a whole T
-        static_cast<void>(std::memcpy(n.storage, &value, sizeof(T)));
+        if (std::memcpy(n.storage, std::addressof(value), sizeof(T)) == &value)
+        {
+            return false;
+        }
         n.size_ = sizeof(T);
         advanceWriteHead();
         return true;
@@ -131,7 +131,10 @@ class RingBuffer
         // whole T.
         // The source holds sizeof(T) by the static_assert on ElementSize and the n.size_ check.
         // codeql[c/cert/library-function-argument-out-of-bounds] False positive: &out is a whole T
-        static_cast<void>(std::memcpy(&out, n.storage, sizeof(T)));
+        if(std::memcpy(&out, n.storage, sizeof(T)) != static_cast<void*>(&out))
+        {
+            return false;
+        }
         advanceReadHead();
         return true;
     }
