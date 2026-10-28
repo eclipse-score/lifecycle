@@ -30,9 +30,8 @@ TEST(ComplexMonitoring, ComponentComplexMonitoring)
 
     auto hm_result =
         HealthMonitorBuilder()
-            // Min must be more than half of the processing cycle. The first window is measured from monitor creation.
             .AddHeartbeatMonitor(
-                MonitorTag("complex_monitoring_monitor"), heartbeat::HeartbeatMonitorBuilder(TimeRange(30ms, 500ms)))
+                MonitorTag("complex_monitoring_monitor"), heartbeat::HeartbeatMonitorBuilder(TimeRange(50ms, 150ms)))
             .WithInternalProcessingCycle(50ms)
             .WithSupervisorApiCycle(50ms)
             .Build();
@@ -57,8 +56,7 @@ TEST(ComplexMonitoring, ComponentComplexMonitoring)
     {
         while (std::chrono::steady_clock::now() < time_to_report_checkpoints_until)
         {
-            // Period is well above the 50ms processing cycle so that two heartbeats can't land in the same cycle.
-            std::this_thread::sleep_for(100ms);
+            std::this_thread::sleep_for(75ms);
             heartbeat_monitor.Heartbeat();
         }
         EXPECT_FALSE(TestRunner::g_exit_requested) << "Process should not be terminated yet";
