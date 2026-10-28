@@ -37,7 +37,7 @@ jobs:
   # Also the cache name in the template is not configurable.
   build:
     name: Build and test ${{ matrix.name }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -96,7 +96,7 @@ jobs:
 
   clippy:
     name: Clippy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     steps:
@@ -173,7 +173,7 @@ jobs:
 
   gitlint:
     name: Check commit messages
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: ${{ github.event_name == 'pull_request' }}
     permissions:
       contents: read
