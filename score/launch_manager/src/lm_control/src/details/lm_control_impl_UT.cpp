@@ -925,20 +925,31 @@ TEST_F(LmControlUT, LatestRegisteredCallbackWins)
     EXPECT_EQ(second_calls, 1);
 }
 
-TEST_F(LmControlUT, RegisteringCallbackConfirmsNotificationRegistrationBeforeDraining)
+class LmControlWaitForConnectionTest : public LmControlUT
+{
+};
+
+TEST_F(LmControlWaitForConnectionTest, ConfirmsNotificationRegistrationBeforeCallbackDrains)
 {
     RecordProperty(
         "Description",
-        "Registering the callback first makes a round trip to the LM, so that the receive handler registration has "
-        "been processed, and only then reads the pending activation results. A sample sent before the registration "
-        "took effect (no notification) is therefore still delivered.");
+        "Once connected run wait_for_connection."
+        "Registering the callback afterwards reads the pending activation results."
+        "Sample sent before the registration took effect (no notification) is therefore still delivered.");
 
-    auto sut = MakeConnected();
+    auto sut = MakeLmControl();
+    ConnectService();
 
-    // A sample the LM sent before it processed our registration: stored, but never notified.
-    ::testing::InSequence in_sequence;
     EXPECT_CALL(mock_, GetActiveRunTarget())
         .WillOnce(Return(score::Result<GetActiveRunTargetResponse>{Available(RunTargetName{"Startup"})}));
+    EXPECT_CALL(mock_, GetNewSamples(_)).Times(0);
+
+    ILmControl& lm_control = *sut;
+    ASSERT_TRUE(lm_control.wait_for_connection(std::chrono::milliseconds(1)).has_value());
+    ::testing::Mock::VerifyAndClearExpectations(&mock_);
+
+    // A sample the LM sent before it processed our registration: stored, but never notified.
+    EXPECT_CALL(mock_, GetActiveRunTarget()).Times(0);
     EXPECT_CALL(mock_, GetNewSamples(_)).WillOnce(Invoke([](std::size_t) {
         std::vector<ActivationResult> samples;
         samples.push_back(ActivationResult{RunTargetName{"Startup"}, RunTargetActivationSource::kInitialActivation});
@@ -958,18 +969,36 @@ TEST_F(LmControlUT, RegisteringCallbackConfirmsNotificationRegistrationBeforeDra
     EXPECT_EQ(source.value(), RunTargetActivationSource::kInitialActivation);
 }
 
-TEST_F(LmControlUT, FailedRegistrationRoundTripDoesNotFailCallbackRegistration)
+TEST_F(LmControlWaitForConnectionTest, NoWaitMeansNoGetActive)
 {
     RecordProperty(
         "Description",
-        "If the round trip that confirms the notification registration fails, registering the callback still "
-        "succeeds and the pending activation results are still read.");
+        "Registering the activation callback without waiting for the connection, only drain the pending samples.");
+
+    auto sut = MakeConnected();
+
+    EXPECT_CALL(mock_, GetActiveRunTarget()).Times(0);
+    EXPECT_CALL(mock_, GetNewSamples(_)).Times(1);
+
+    EXPECT_TRUE(sut->register_run_target_activation_callback([](RunTargetActivationSource, RunTargetName) {
+                   })
+                    .has_value());
+}
+
+TEST_F(LmControlWaitForConnectionTest, Failed)
+{
+    RecordProperty(
+        "Description",
+        "If the round trip that confirms the notification registration fails, wait_for_connection still succeeds "
+        "and registering the callback still reads the pending activation results.");
 
     auto sut = MakeConnected();
 
     EXPECT_CALL(mock_, GetActiveRunTarget()).WillOnce(Return(score::MakeUnexpected(ExecErrc::kCommunicationError)));
     EXPECT_CALL(mock_, GetNewSamples(_)).Times(1);
 
+    ILmControl& lm_control = *sut;
+    EXPECT_TRUE(lm_control.wait_for_connection(std::chrono::milliseconds(1)).has_value());
     EXPECT_TRUE(sut->register_run_target_activation_callback([](RunTargetActivationSource, RunTargetName) {
                    })
                     .has_value());

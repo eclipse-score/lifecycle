@@ -298,15 +298,13 @@ class BasicLmControlImpl final : public ILmControl
     ///          method calls use the same connection, so the reply to a method call proves that the earlier
     ///          registration has been handled. Anything sent after that is notified, anything sent before is
     ///          picked up by the drain that must follow this call.
+    /// @pre The proxy has been set up; proxy_ is never reset once wait_for_connection() has observed it.
     /// @note The result of the method call is irrelevant. This is best effort: on failure we fall back to
     ///       relying on notifications alone.
     void awaitNotificationRegistration() noexcept
     {
         auto* const proxy = connectedProxy();
-        if (proxy == nullptr)
-        {
-            return;
-        }
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(proxy != nullptr, "must only be called once connected");
 
         const auto result = proxy->get_active_run_target();
         if (!result.has_value())
