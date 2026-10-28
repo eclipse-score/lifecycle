@@ -161,10 +161,97 @@ void changeSecurityPolicy(const score::mw::lifecycle::internal::configuration::S
     }
 }
 
+/// @brief Blocks select signals.
+/// @returns The previous signal mask on success, error otherwise.
+score::cpp::expected<sigset_t, int> suspendSignals()
+{
+    sigset_t mask;
+    sigset_t old_mask;
+    sigemptyset(&mask);
+    sigaddset(&mask, SIGINT);
+    sigaddset(&mask, SIGTERM);
+    if (sigprocmask(SIG_BLOCK, &mask, &old_mask) == 0)
+    {
+        return old_mask;
+    }
+    return score::cpp::make_unexpected(errno);
+}
+
+/// @brief Resets select signal handlers to their default ones.
+/// @warning Unexpected behaviour may occur if signals are unblocked during this call.
+/// @returns True if all changes succeeded, false otherwise.
+bool clearSignalHandlers()
+{
+    if (signal(SIGINT, SIG_DFL) == SIG_ERR)
+    {
+        static_cast<void>(signal_safe_log_errno(errno, "Failed to reset SIGINT handler"));
+        return false;
+    }
+    if (signal(SIGTERM, SIG_DFL) == SIG_ERR)
+    {
+        static_cast<void>(signal_safe_log_errno(errno, "Failed to reset SIGTERM handler"));
+        return false;
+    }
+    return true;
+}
+
 }  // namespace
 
 namespace score::mw::lifecycle::internal::osal
 {
+
+OsalReturnType ProcessLauncher::handleFork(ProcessID& pid, ChildProcessConfig& param)
+{
+    if (fflush(stdout) != 0)
+    {
+        LM_LOG_ERROR() << "Failed to flush stdout before forking.";
+    }
+
+    score::cpp::expected<sigset_t, int> suspendSignalsRes = suspendSignals();
+    if (!suspendSignalsRes.has_value())
+    {
+        LM_LOG_ERROR() << "Failed to suspend signals before forking: "
+                       << std::string_view{strerror(suspendSignalsRes.error())};
+        return OsalReturnType::kFail;
+    }
+
+    pid = fork();
+
+    if (pid == kPosixSuccess)
+    {
+        /*
+         * From this point on, only async signal safe functions can be
+         * used. `fork` only copies the current thread, so any locks
+         * which were held at that time will never be released.
+         * See `man 2 fork`.
+         */
+        if (!clearSignalHandlers())
+        {
+            sysexit(EXIT_FAILURE);
+        }
+        if (sigprocmask(SIG_SETMASK, &suspendSignalsRes.value(), NULL) != 0)
+        {
+            sysexit(EXIT_FAILURE);
+        }
+
+        handleChildProcess(param);
+    }
+    else if (pid > kPidZero)
+    {
+        if (sigprocmask(SIG_SETMASK, &suspendSignalsRes.value(), NULL) != 0)
+        {
+            LM_LOG_ERROR() << "Failed to unblock signals!";
+            return OsalReturnType::kFail;
+        }
+    }
+    else
+    {
+        LM_LOG_ERROR() << "Fork failed: Unable to create a new process.";
+        return OsalReturnType::kFail;
+    }
+
+    return OsalReturnType::kSuccess;
+}
 
 OsalReturnType
 ProcessLauncher::startProcess(ProcessID& pid, IpcCommsP& block, const configuration::ComponentConfig& config)
@@ -193,45 +280,8 @@ ProcessLauncher::startProcess(ProcessID& pid, IpcCommsP& block, const configurat
 
         if (comms_result)
         {
-            if (fflush(stdout) != 0)
-            {
-                LM_LOG_ERROR() << "Failed to flush stdout before forking.";
-            }
-
-            sigset_t mask;
-            sigset_t old_mask;
-            sigemptyset(&mask);
-            sigaddset(&mask, SIGINT);
-            sigaddset(&mask, SIGTERM);
-            static_cast<void>(sigprocmask(SIG_BLOCK, &mask, &old_mask));
-
-            pid = fork();
-
-            if (pid == kPosixSuccess)
-            {
-                /*
-                 * From this point on, only async signal safe functions can be
-                 * used. `fork` only copies the current thread, so any locks
-                 * which were held at that time will never be released.
-                 * See `man 2 fork`.
-                 */
-                static_cast<void>(signal(SIGINT, SIG_DFL));
-                static_cast<void>(signal(SIGTERM, SIG_DFL));
-                static_cast<void>(sigprocmask(SIG_SETMASK, &old_mask, NULL));
-
-                ChildProcessConfig param = {config, fd, block};
-                handleChildProcess(param);
-                result = OsalReturnType::kSuccess;
-            }
-            else if (pid > kPidZero)
-            {
-                static_cast<void>(sigprocmask(SIG_SETMASK, &old_mask, NULL));
-                result = OsalReturnType::kSuccess;
-            }
-            else
-            {
-                LM_LOG_ERROR() << "Fork failed: Unable to create a new process.";
-            }
+            ChildProcessConfig param = {config, fd, block};
+            static_cast<void>(handleFork(pid, param));
         }
         else
         {

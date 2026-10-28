@@ -63,6 +63,12 @@ class ProcessLauncher final : public IProcess
     static OsalReturnType setSchedulingAndSecurity(
         const score::mw::lifecycle::internal::configuration::Sandbox& config);
 
+    /// @brief Calls fork() and performs required operations (e.g. resetting signal handlers) before and afterwards.
+    /// @param[out] pid Result from fork()
+    /// @param param Configuration to pass to the child process
+    /// @returns Success if the fork and related operations succeeded, failure if any part of the operation failed.
+    OsalReturnType handleFork(ProcessID& pid, ChildProcessConfig& param);
+
     ///@brief Atomic counter for shared memory names
     std::atomic_uint32_t shm_name_counter = {0};
 };
