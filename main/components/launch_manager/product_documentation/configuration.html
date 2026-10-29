@@ -584,7 +584,7 @@ recovery actions.</p>
 </dl>
 <p><strong>Properties:</strong></p>
 <dl class="simple">
-<dt>restart (object, optional)</dt><dd><p>Description: Defines a recovery action that restarts the POSIX process associated with this component.</p>
+<dt>restart (object, optional)</dt><dd><p>Description: Defines a recovery action that restarts the POSIX process associated with this component. This option is reserved: it is currently not referenced by any property.</p>
 </dd>
 <dt>restart.number_of_attempts (integer, optional)</dt><dd><p>Description: Specifies the maximum number of restart attempts before the <strong>Launch Manager</strong> concludes that recovery cannot succeed for the component.
 Constraint: Must be between 0 and 255 inclusive.</p>
@@ -698,7 +698,7 @@ Default: <code class="docutils literal notranslate"><span class="pre">10</span><
 </dd>
 </dl>
 <p><strong>Properties:</strong></p>
-<dl class="simple">
+<dl>
 <dt>ready_timeout_ms (integer, optional)</dt><dd><p>Description: Specifies the maximum time, in milliseconds, allowed for the component to reach its <strong>Ready State</strong>. The timeout is measured from when the component’s process is created until the ready conditions specified in <code class="docutils literal notranslate"><span class="pre">component_properties.ready_condition</span></code> are met.
 Constraint: Must be greater than 0.</p>
 </dd>
@@ -712,7 +712,16 @@ Additional properties: Each key represents an environment variable name, and its
 </dd>
 <dt>working_dir (string, optional)</dt><dd><p>Description: Specifies the directory to be used as the working directory for the component during execution. If not defined, the binary’s directory (<code class="docutils literal notranslate"><span class="pre">bin_dir</span></code>) is used as the working directory by default.</p>
 </dd>
-<dt>ready_recovery_action (object, optional)</dt><dd><p>Description: Specifies the recovery action to execute when the component fails to reach its <strong>Ready State</strong> within the configured <code class="docutils literal notranslate"><span class="pre">ready_timeout_ms</span></code>. This action is limited to <code class="docutils literal notranslate"><span class="pre">restart</span></code> operations.
+<dt>activation_retry_attempts (integer, optional)</dt><dd><p>Description: Specifies the number of additional attempts the <strong>Launch Manager</strong> makes to activate the component when it fails to reach its <strong>Ready State</strong> during a <strong>Run Target</strong> transition. A value of 0 means the component is started once and a failure is treated as a <strong>Run Target</strong> transition failure.
+Constraint: Must be between 0 and 255 inclusive.
+Default: 0</p>
+</dd>
+<dt>activation_retry_delay_ms (integer, optional)</dt><dd><p>Description: Specifies the delay duration, in milliseconds, that the <strong>Launch Manager</strong> waits before each activation retry. This value is currently not evaluated by the <strong>Launch Manager</strong>.
+Constraint: Must be between 0 and 4294967295 inclusive.
+Default: 0</p>
+</dd>
+<dt>ready_recovery_action (object, optional)</dt><dd><p><strong>Deprecated.</strong> Use <code class="docutils literal notranslate"><span class="pre">activation_retry_attempts</span></code> and <code class="docutils literal notranslate"><span class="pre">activation_retry_delay_ms</span></code> instead. <code class="docutils literal notranslate"><span class="pre">restart.number_of_attempts</span></code> is converted to <code class="docutils literal notranslate"><span class="pre">activation_retry_attempts</span></code> and <code class="docutils literal notranslate"><span class="pre">restart.delay_before_restart_ms</span></code> is converted to <code class="docutils literal notranslate"><span class="pre">activation_retry_delay_ms</span></code> automatically (a warning is printed).</p>
+<p>Description: Specifies the recovery action to execute when the component fails to reach its <strong>Ready State</strong> within the configured <code class="docutils literal notranslate"><span class="pre">ready_timeout_ms</span></code>. This action is limited to <code class="docutils literal notranslate"><span class="pre">restart</span></code> operations.
 Reference: This property refers to the <code class="docutils literal notranslate"><span class="pre">recovery_action</span></code> reusable type defined in this schema, specifically enforcing the <code class="docutils literal notranslate"><span class="pre">restart</span></code> option.</p>
 </dd>
 <dt>recovery_action (object, optional)</dt><dd><p>Description: Specifies the recovery action to execute when the component malfunctions after successfully reaching its <strong>Ready State</strong>. This action is limited to <code class="docutils literal notranslate"><span class="pre">switch_run_target</span></code> operations.
@@ -969,12 +978,8 @@ Reference: This property refers to the <code class="docutils literal notranslate
 <span class="w">        </span><span class="nt">"environmental_variables"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
 <span class="w">        </span><span class="nt">"bin_dir"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/opt"</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">"working_dir"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/tmp"</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"ready_recovery_action"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"restart"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"number_of_attempts"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
-<span class="w">                </span><span class="nt">"delay_before_restart_ms"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
-<span class="w">            </span><span class="p">}</span>
-<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">"activation_retry_attempts"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"activation_retry_delay_ms"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">"recovery_action"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="nt">"switch_run_target"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                </span><span class="nt">"run_target"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fallback_run_target"</span>
