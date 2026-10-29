@@ -498,7 +498,7 @@
                   
   <section id="lifecycle-architecture-inspection">
 <h1>Lifecycle Architecture Inspection<a class="headerlink" href="#lifecycle-architecture-inspection" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-1e9bb1d3">
+<div class="need_container docutils container" id="SNCB-c0b3c443">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__lifecycle_arc_inspection">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -552,18 +552,18 @@
 <li><p>moderator: &lt;committer explicitly named here, who is is the safety manager, security manager or quality manager initiating the inspection&gt;</p></li>
 </ul>
 </div>
-<div class="pst-scrollable-table-container"><table class="table" id="id10">
-<caption><span class="caption-number">Table 1 </span><span class="caption-text">Architecture Inspection Participants</span><a class="headerlink" href="#id10" title="Link to this table">#</a></caption>
+<div class="pst-scrollable-table-container"><table class="table" id="id8">
+<caption><span class="caption-number">Table 1 </span><span class="caption-text">Architecture Inspection Participants</span><a class="headerlink" href="#id8" title="Link to this table">#</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>Author(s)</p></th>
 <th class="head"><p>Reviewer(s)</p></th>
-<th class="head"><p>Moderator</p></th>
+<th class="head"><p>Moderator:</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>TODO: <a class="github reference external" href="https://github.com/NN">NN</a></p></td>
-<td><p>TODO: <a class="github reference external" href="https://github.com/NN">NN</a></p></td>
-<td><p>TODO: <a class="github reference external" href="https://github.com/NN">NN</a></p></td>
+<tr class="row-even"><td><p><a class="github reference external" href="https://github.com/ramceb">ramceb</a></p></td>
+<td><p><a class="github reference external" href="https://github.com/NicolasFussberger">NicolasFussberger</a></p></td>
+<td><p><a class="github reference external" href="https://github.com/aschemmel-tech">aschemmel-tech</a></p></td>
 </tr>
 </tbody>
 </table>
@@ -585,8 +585,8 @@ If “no” is entered, add an issue link in the “Issue link” column unless 
 If a Review ID is not applicable to your architecture, enter “n/a” in the “Passed” column and explain why in the “Remarks” column.
 See also <a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/general_concepts/score_review_concept.html#doc_concept__wp_inspections">doc_concept__wp_inspections</a> for further information about reviews in general and inspection in particular.</p>
 </div>
-<div class="pst-scrollable-table-container"><table class="table" id="id11">
-<caption><span class="caption-number">Table 2 </span><span class="caption-text">Architecture Inspection Checklist</span><a class="headerlink" href="#id11" title="Link to this table">#</a></caption>
+<div class="pst-scrollable-table-container"><table class="table" id="id9">
+<caption><span class="caption-number">Table 2 </span><span class="caption-text">Architecture Inspection Checklist</span><a class="headerlink" href="#id9" title="Link to this table">#</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>Review ID</p></th>
 <th class="head"><p>Acceptance criteria</p></th>
@@ -631,7 +631,7 @@ Gap: Heartbeat Monitor interface of the Health Monitor component has no logical 
 <tr class="row-even"><td><p>ARC_02_02</p></td>
 <td><p>Are operations and interfaces named appropriately and comprehensibly in the architectural design?</p></td>
 <td><p>Check <a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/architecture_design/guidance/architecture_guideline.html#gd_guidl__arch_design">gd_guidl__arch_design</a></p></td>
-<td><p>YES</p></td>
+<td><p>NO</p></td>
 <td><p>Interface names and operations are clear. Launch Manager abstract interface elements also have additional description defining the input and output of operations.
 Improvement: Add additional description to Health Monitor interfaces as well.</p></td>
 <td><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/issues/875">#875</a></p></td>
@@ -734,12 +734,114 @@ Identify the shared resources and potential interference paths, and check that t
 <section id="inspected-static-architecture-views">
 <h3>Inspected Static Architecture Views<a class="headerlink" href="#inspected-static-architecture-views" title="Link to this heading">#</a></h3>
 <p>The following static views in “valid_inspected” state are in the scope of this inspection:</p>
-<p class="needs_filter_warning" id="needtable-features/lifecycle/architecture/arc_inspection-0">No needs passed the filters</p>
+<div class="needstable_wrapper docutils container" id="needtable-features/lifecycle/architecture/arc_inspection-0">
+<div class="pst-scrollable-table-container"><table class="NEEDS_TABLE table" id="needtable-features/lifecycle/architecture/arc_inspection-0-table_node">
+<colgroup>
+<col style="width: 33.3%" />
+<col style="width: 33.3%" />
+<col style="width: 33.3%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>ID</p></th>
+<th class="head"><p>Status</p></th>
+<th class="head"><p>Tags</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="index.html#feat_arc_sta__lifecycle__cfg_params_static">feat_arc_sta__lifecycle__cfg_params_static</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="index.html#feat_arc_sta__lifecycle__static_view_arch">feat_arc_sta__lifecycle__static_view_arch</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </section>
 <section id="inspected-dynamic-architecture-views">
 <h3>Inspected Dynamic Architecture Views<a class="headerlink" href="#inspected-dynamic-architecture-views" title="Link to this heading">#</a></h3>
 <p>and the following dynamic views in “valid_inspected” state are in the scope of this inspection:</p>
-<p class="needs_filter_warning" id="needtable-features/lifecycle/architecture/arc_inspection-1">No needs passed the filters</p>
+<div class="needstable_wrapper docutils container" id="needtable-features/lifecycle/architecture/arc_inspection-1">
+<div class="pst-scrollable-table-container"><table class="NEEDS_TABLE table" id="needtable-features/lifecycle/architecture/arc_inspection-1-table_node">
+<colgroup>
+<col style="width: 33.3%" />
+<col style="width: 33.3%" />
+<col style="width: 33.3%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>ID</p></th>
+<th class="head"><p>Status</p></th>
+<th class="head"><p>Tags</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="health_monitoring.html#feat_arc_dyn__lifecycle__alive_monitor_start">feat_arc_dyn__lifecycle__alive_monitor_start</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="health_monitoring.html#feat_arc_dyn__lifecycle__alive_monitor_stop">feat_arc_dyn__lifecycle__alive_monitor_stop</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="health_monitoring.html#feat_arc_dyn__lifecycle__app_health_mon">feat_arc_dyn__lifecycle__app_health_mon</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="components_run_targets.html#feat_arc_dyn__lifecycle__comp_sm_if">feat_arc_dyn__lifecycle__comp_sm_if</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="recovery_actions.html#feat_arc_dyn__lifecycle__crash">feat_arc_dyn__lifecycle__crash</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="recovery_actions.html#feat_arc_dyn__lifecycle__run_target_failure">feat_arc_dyn__lifecycle__run_target_failure</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="recovery_actions.html#feat_arc_dyn__lifecycle__sup_failure">feat_arc_dyn__lifecycle__sup_failure</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="startup_shutdown.html#feat_arc_dyn__lifecycle__lcm_shutdown">feat_arc_dyn__lifecycle__lcm_shutdown</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="startup_shutdown.html#feat_arc_dyn__lifecycle__lcm_startup">feat_arc_dyn__lifecycle__lcm_startup</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="external_monitor.html#feat_arc_dyn__lifecycle__watch">feat_arc_dyn__lifecycle__watch</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="health_monitoring.html#feat_arc_dyn__lifecycle__app_ctrl_flow_mon">feat_arc_dyn__lifecycle__app_ctrl_flow_mon</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="components_run_targets.html#feat_arc_dyn__lifecycle__proc_sm_if">feat_arc_dyn__lifecycle__proc_sm_if</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="run_target_activation.html#feat_arc_dyn__lifecycle__ctrl_fced_act">feat_arc_dyn__lifecycle__ctrl_fced_act</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="run_target_activation.html#feat_arc_dyn__lifecycle__ctrl_que_act">feat_arc_dyn__lifecycle__ctrl_que_act</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="run_target_activation.html#feat_arc_dyn__lifecycle__ctrl_start">feat_arc_dyn__lifecycle__ctrl_start</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For these static and dynamic views the inspected ground truth is documented in the rendered documentation and not in the source read by the drawing tool.</p>
