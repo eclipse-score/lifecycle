@@ -17,7 +17,6 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    fully_verifies=["comp_req__launch_man__consistent_dependencies"],
     partially_verifies=[
         "feat_req__lifecycle__launch_support",
         "feat_req__lifecycle__run_target_support",
