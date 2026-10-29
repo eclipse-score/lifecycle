@@ -39,9 +39,7 @@ void ProcessGroupManager::cancel()
     my_signal_handler(SIGTERM);
 }
 
-// All parameters required for dependency injection, and building them into a
-// parameter struct would add unnecessary indirection without helping visibility.
-// codeql[cpp/number-of-parameters-per-function] Dismiss
+// codeql[cpp/number-of-parameters-per-function] Dismiss: All parameters required for dependency injection, and building them into a parameter struct would add unnecessary indirection without helping visibility.
 ProcessGroupManager::ProcessGroupManager(
     GraphConfig&& config,
     std::unique_ptr<saf::daemon::IAliveMonitor> alive_monitor,
