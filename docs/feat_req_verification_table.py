@@ -147,11 +147,13 @@ def _derived_from_back_entry(cell, comp_reqs):
 def _make_row(cell, state, feat_req, comp_reqs):
     """Render one table row for a feature requirement.
 
-    The row's CSS class (see ``VerificationState.css_class``) colours it
-    green, yellow or red.
+    The ID cell reads ``feat_req_id (state)``, and the row's CSS class (see
+    ``VerificationState.css_class``) colours it green, yellow or red.
     """
+    id_entry = cell(feat_req, "id")
+    id_entry[0] += nodes.Text(f" ({state.label})")
     row = nodes.row(classes=[state.css_class])
-    row += cell(feat_req, "id")
+    row += id_entry
     row += cell(feat_req, "title")
     row += _derived_from_back_entry(cell, comp_reqs)
     return row
