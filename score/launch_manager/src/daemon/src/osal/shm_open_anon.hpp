@@ -17,7 +17,7 @@
 namespace score::mw::lifecycle::internal::osal
 {
 
-/// @brief Open an anonymous shared memory file with (M)FD_CLOEXEC.
+/// @brief Open an anonymous shared memory file with close-on-exec behavior.
 /// @param name to describe the shared memory. Does not affect the behavior of the file descriptor, and as such multiple
 /// files can have the same name without any side effects.
 /// @return On success, returns a new file descriptor. On error, -1 is returned and errno is set to indicate the error.
