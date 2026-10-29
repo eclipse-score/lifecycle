@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Integration &#8212; Lifecycle and Health Management  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/score.css?v=415257cb" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/score_needs.css?v=82a1844f" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/score_design.css?v=8048e6ee" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-data-viewer/jsonview.bundle.css?v=f6ef2277" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-needs/libs/html/datatables.min.css?v=4b4fd840" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-needs/common_css/needstable.css?v=5e1b6797" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-needs/common_css/need_core.css?v=f5b60a78" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-needs/common_css/need_style.css?v=92936fa5" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-needs/common_css/need_toggle.css?v=5c6620df" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-needs/common_css/need_links.css?v=2150a916" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-needs/modern.css?v=803738c0" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
+
+    <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../../_static/documentation_options.js?v=7f41d439"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../_static/sphinx-data-viewer/jsonview.bundle.js?v=18cd53c5"></script>
+    <script src="../../../_static/sphinx-data-viewer/jsonview_loader.js?v=f7ff7e7d"></script>
+    <script src="../../../_static/sphinx-needs/libs/html/datatables.min.js?v=8a4aee21"></script>
+    <script src="../../../_static/sphinx-needs/libs/html/datatables_loader.js?v=a2cae175"></script>
+    <script src="../../../_static/sphinx-needs/libs/html/sphinx_needs_collapse.js?v=dca66431"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'components/launch_manager/product_documentation/integration';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://eclipse-score.github.io/lifecycle/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Configuration examples" href="examples.html" />
+    <link rel="prev" title="Configuration" href="configuration.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.0.0" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Eclipse S-CORE</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../features/index.html">
+    Features
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../module/index.html">
+    Lifecycle Module
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../verification_report/module_verification_report.html">
+    Verification Report
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Component documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release/index.html">
+    Release notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/eclipse-score" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../features/index.html">
+    Features
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../module/index.html">
+    Lifecycle Module
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../verification_report/module_verification_report.html">
+    Verification Report
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Component documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release/index.html">
+    Release notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/eclipse-score" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button type="button" id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Launch Manager</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Lifecycle Product Documentation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="concepts.html">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ready_state.html">Ready Conditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l3 current active"><a aria-current="page" class="current reference internal" href="#">Integration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples.html">Configuration examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="known_limitations.html">Known Limitations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../requirements/index.html">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/index.html">Component Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../detailed_design/index.html">Detailed Design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../safety_analysis/fmea.html">FMEA (Failure Modes and Effects Analysis)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../safety_analysis/dfa.html">DFA (Dependent Failure Analysis)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../safety_analysis/aou_requirements.html">AoU Component Requirements Template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../interfaces/index.html">Interfaces documentation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../health_monitor/index.html">HealthMonitor</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Component documentation</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Launch Manager</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Lifecycle Product Documentation</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Integration</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="integration">
+<span id="lm-integration"></span><h1>Integration<a class="headerlink" href="#integration" title="Link to this heading">#</a></h1>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">#</a></h2>
+<p>The <strong>Launch Manager</strong> is currently configured with a single json file.
+See <a class="reference internal" href="configuration.html#lm-config"><span class="std std-ref">Configuration</span></a> and <a class="reference internal" href="examples.html#lm-config-examples"><span class="std std-ref">Configuration examples</span></a> for details about the <strong>Launch Manager</strong> configuration format.</p>
+<section id="generating-flatbuffer-file">
+<span id="lm-integration-generating-flatbuffer-file"></span><h3>Generating flatbuffer file<a class="headerlink" href="#generating-flatbuffer-file" title="Link to this heading">#</a></h3>
+<p>The json configuration has to be converted to a flatbuffer file before it can
+be used by the <strong>Launch Manager</strong>.</p>
+<p>The provided bazel function <code class="docutils literal notranslate"><span class="pre">launch_manager_config</span></code> handles the compilation
+of the json configuration to flatbuffer files.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">load</span><span class="p">(</span><span class="s2">"@score_lifecycle//:defs.bzl"</span><span class="p">,</span> <span class="s2">"launch_manager_config"</span><span class="p">)</span>
+
+<span class="c1"># This is your launch manager json configuration</span>
+<span class="n">exports_files</span><span class="p">([</span><span class="s2">"lm_config.json"</span><span class="p">])</span>
+
+<span class="c1"># Afterwards, you can refer to the generated flatbuffer files with :example_config_gen</span>
+<span class="c1"># The generated flatbuffer file has identical as the json configuration file, but with ".bin" file ending (example: "lm_config.bin")</span>
+<span class="n">launch_manager_config</span><span class="p">(</span>
+    <span class="n">name</span> <span class="o">=</span><span class="s2">"example_config_gen"</span><span class="p">,</span>
+    <span class="n">config</span><span class="o">=</span><span class="s2">"//scripts/config_mapping:lm_config.json"</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="location-of-the-configuration-file">
+<span id="lm-integration-location-of-configuration-file"></span><h3>Location of the configuration file<a class="headerlink" href="#location-of-the-configuration-file" title="Link to this heading">#</a></h3>
+<p>The <strong>Launch Manager</strong> can be started with a CLI flag defining the absolute or
+relative path to the configuration file:</p>
+<p><code class="docutils literal notranslate"><span class="pre">launch_manager</span> <span class="pre">-c</span> <span class="pre">&lt;config</span> <span class="pre">path&gt;</span></code></p>
+<p>Example: <code class="docutils literal notranslate"><span class="pre">launch_manager</span> <span class="pre">-c</span> <span class="pre">/opt/launch_manager/etc/lm_config.bin</span></code></p>
+<p>If <code class="docutils literal notranslate"><span class="pre">-c</span></code> is not specified, the <strong>Launch Manager</strong> will attempt to load the
+configuration from the default path <code class="docutils literal notranslate"><span class="pre">etc/launch_manager_config.bin</span></code>.</p>
+</section>
+<section id="state-manager-mw-com-config">
+<h3>State manager mw::com config<a class="headerlink" href="#state-manager-mw-com-config" title="Link to this heading">#</a></h3>
+<p>An example <code class="docutils literal notranslate"><span class="pre">mw::com</span></code> config is provided with the following target
+<code class="docutils literal notranslate"><span class="pre">//score/launch_manager:example_com_config</span></code>.
+This is a single config that includes both <strong>Launch Manager</strong> and the
+<strong>State Manager</strong> instance definition so they can be used by both.</p>
+<p>For more information about the <code class="docutils literal notranslate"><span class="pre">mw::com</span></code> configuraiton please refer
+to their documentation and tutorial at documentaiton
+<a class="reference external" href="https://eclipse-score.github.io/communication/v0.5.0/score/mw/com/doc/tutorial/chapter_2/README.html#separate-configuration-files-for-provider-and-consumer">https://eclipse-score.github.io/communication/v0.5.0/score/mw/com/doc/tutorial/chapter_2/README.html#separate-configuration-files-for-provider-and-consumer</a></p>
+<section id="lmcontrolservice-service-type">
+<h4>LmControlService service type<a class="headerlink" href="#lmcontrolservice-service-type" title="Link to this heading">#</a></h4>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">LmControlService service type</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">"serviceTypes"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"serviceTypeName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/score/mw/lifecycle/LmControlService"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"major"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"minor"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">"bindings"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">"binding"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SHM"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"serviceId"</span><span class="p">:</span><span class="w"> </span><span class="mi">7101</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"events"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">"eventName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ActivationResult"</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">"eventId"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">          </span><span class="p">],</span>
+<span class="w">          </span><span class="nt">"methods"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">"methodName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ActivateRunTarget"</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">"methodId"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">"methodName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GetActiveRunTarget"</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">"methodId"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">          </span><span class="p">]</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"serviceInstances"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"instanceSpecifier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"LaunchManager/StateManager/Instance"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"serviceTypeName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/score/mw/lifecycle/LmControlService"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"major"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"minor"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">"instances"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">"instanceId"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"asil-level"</span><span class="p">:</span><span class="w"> </span><span class="s2">"QM"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"binding"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SHM"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"events"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">"eventName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ActivationResult"</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">"numberOfSampleSlots"</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">"maxSubscribers"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">          </span><span class="p">],</span>
+<span class="w">          </span><span class="nt">"methods"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">"methodName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ActivateRunTarget"</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">"queueSize"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">"methodName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GetActiveRunTarget"</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">"queueSize"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">          </span><span class="p">]</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"instanceSpecifier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"StateManager/LaunchManager/Instance"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"serviceTypeName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/score/mw/lifecycle/LmControlService"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"major"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"minor"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">"instances"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">"instanceId"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"asil-level"</span><span class="p">:</span><span class="w"> </span><span class="s2">"QM"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"binding"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SHM"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"events"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">"eventName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ActivationResult"</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">          </span><span class="p">],</span>
+<span class="w">          </span><span class="nt">"methods"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">"methodName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ActivateRunTarget"</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">"queueSize"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">"methodName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GetActiveRunTarget"</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">"queueSize"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">          </span><span class="p">]</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"global"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"asil-level"</span><span class="p">:</span><span class="w"> </span><span class="s2">"QM"</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</details><section id="service-types">
+<h5>Service types<a class="headerlink" href="#service-types" title="Link to this heading">#</a></h5>
+<ul>
+<li><p><strong>serviceTypeName</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">.serviceTypes[].serviceTypeName:</span> <span class="pre">&quot;/score/mw/lifecycle/LmControlService&quot;</span></code> -
+This is the name of the <strong>Launch Manager</strong> service.</p>
+</li>
+<li><p><strong>version</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">.serviceTypes[].version:</span> <span class="pre">{</span> <span class="pre">&quot;major&quot;:</span> <span class="pre">1,</span> <span class="pre">&quot;minor&quot;:</span> <span class="pre">0</span> <span class="pre">}</span></code> -
+This is the version of the service interface.</p>
+</li>
+<li><p><strong>binding</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">.serviceTypes[].bindings[].binding:</span> <span class="pre">&quot;SHM&quot;</span></code> -
+This is the communication mechanism.</p>
+<p><code class="docutils literal notranslate"><span class="pre">.serviceTypes[].bindings[].serviceId:</span> <span class="pre">7101</span></code> -
+This is the numeric identifier of the service for this binding.
+Note this can be changed to any number, however has to be unique to any
+other service used by this application.</p>
+</li>
+<li><p><strong>events</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">.serviceTypes[].bindings[].events[]</span></code> -
+Events offered by the service. Each event has a name and a numeric id.
+Note the ID can be changed to any number, however has to be unique to any
+other binding used by this application.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">"eventName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ActivationResult"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"eventId"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>methods</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">.serviceTypes[].bindings[].methods[]</span></code> -
+Methods offered by the service. Each method has a name and a numeric id.
+Note the ID can be changed to any number, however has to be unique to any
+other binding used by this application.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">"methodName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ActivateRunTarget"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"methodId"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
+<span class="p">},</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="nt">"methodName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GetActiveRunTarget"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"methodId"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="service-instances">
+<h5>Service instances<a class="headerlink" href="#service-instances" title="Link to this heading">#</a></h5>
+<p>The <code class="docutils literal notranslate"><span class="pre">serviceInstances</span></code> array defines the concrete instances of a service type.
+Wwo instances of <code class="docutils literal notranslate"><span class="pre">LmControlService</span></code> are required, one used by the
+<strong>Launch Manager</strong> (<code class="docutils literal notranslate"><span class="pre">LaunchManager/StateManager/Instance</span></code>) and one used by the
+<strong>State Manager</strong> (<code class="docutils literal notranslate"><span class="pre">StateManager/LaunchManager/Instance</span></code>).</p>
+<ul>
+<li><p><strong>instanceSpecifier</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">.serviceInstances[].instanceSpecifier:</span> <span class="pre">&quot;LaunchManager/StateManager/Instance&quot;</span></code> -
+This is the name an application uses to look up the instance.</p>
+</li>
+<li><p><strong>serviceTypeName</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">.serviceInstances[].serviceTypeName:</span> <span class="pre">&quot;/score/mw/lifecycle/LmControlService&quot;</span></code> -
+This is the service type the instance is created from. It must match a
+<code class="docutils literal notranslate"><span class="pre">serviceTypeName</span></code> in <code class="docutils literal notranslate"><span class="pre">serviceTypes</span></code>.</p>
+</li>
+<li><p><strong>version</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">.serviceInstances[].version:</span> <span class="pre">{</span> <span class="pre">&quot;major&quot;:</span> <span class="pre">1,</span> <span class="pre">&quot;minor&quot;:</span> <span class="pre">0</span> <span class="pre">}</span></code>  -
+This is the version of the service type and must match the one in <code class="docutils literal notranslate"><span class="pre">serviceTypes</span></code>.</p>
+</li>
+<li><p><strong>instances</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">.serviceInstances[].instances[].instanceId</span></code> -
+Numeric identifier of the instance.
+Note the ID can be changed to any number, however has to be unique to any
+other instance used by this application.</p>
+<p><code class="docutils literal notranslate"><span class="pre">.serviceInstances[].instances[].asil-level</span></code> -
+Safety integrity level of the instance, Either <code class="docutils literal notranslate"><span class="pre">QM</span></code> or <code class="docutils literal notranslate"><span class="pre">ASIL-B</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">.serviceInstances[].instances[].binding</span></code> -
+Communication mechanism, shall be <code class="docutils literal notranslate"><span class="pre">SHM</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">.serviceInstances[].instances[].events[]</span></code> -
+Per-method settings, for each method <code class="docutils literal notranslate"><span class="pre">methodName</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">.serviceInstances[].instances[].numberOfSampleSlots</span></code> -
+Number of sample slots allocated for the event.
+<strong>This is only configured on the server instance</strong> i.e.
+<code class="docutils literal notranslate"><span class="pre">LaunchManager/StateManager/Instance</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">.serviceInstances[].instances[].maxSubscribers</span></code> -
+Maximum number of simultaneous subscribers.
+<strong>This is only configured on the server instance</strong> i.e.
+<code class="docutils literal notranslate"><span class="pre">LaunchManager/StateManager/Instance</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">.serviceInstances[].instances[].methods[]</span></code> -
+Per-method settings, for each method <code class="docutils literal notranslate"><span class="pre">methodName</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">.serviceInstances[].instances[].queueSize</span></code> -
+Number of calls that can be queued for the method.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">"instanceId"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"asil-level"</span><span class="p">:</span><span class="w"> </span><span class="s2">"QM"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"binding"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SHM"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"events"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"eventName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ActivationResult"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"numberOfSampleSlots"</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"maxSubscribers"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"methods"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"methodName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ActivateRunTarget"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"queueSize"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>global</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">.global.asil-level:</span> <span class="pre">&quot;QM&quot;</span></code></p>
+<p>This is the default safety integrity level for the whole configuration.</p>
+</li>
+</ul>
+</section>
+</section>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading">#</a></h2>
+<section id="starting-a-process">
+<h3>Starting a process<a class="headerlink" href="#starting-a-process" title="Link to this heading">#</a></h3>
+<p>A reporting process must signal to the Launch Manager that it has
+started successfully by calling the lifecycle API for the language it is
+implemented in.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">ready_timeout_ms</span></code> can be configured for each component.
+If the process does not report <code class="docutils literal notranslate"><span class="pre">Running</span></code> within that timeout, the Launch
+Manager terminates the process and registers an error.</p>
+</section>
+<section id="stopping-a-process">
+<h3>Stopping a process<a class="headerlink" href="#stopping-a-process" title="Link to this heading">#</a></h3>
+<p>A process can be configured to terminate in 2 ways:</p>
+<ul class="simple">
+<li><p><strong>Self-terminating</strong> - The process terminates whenever it wants.</p></li>
+<li><p><strong>Non-self-terminating</strong> - The process remains alive until LCM requests the process to end using a <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code> signal.</p></li>
+</ul>
+<p>For a process to support being terminated by LCM, it needs to respond to
+a <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code> signal by ending ongoing tasks, freeing resources and
+exiting.
+Note that a <strong>Self-terminating</strong> also recieves the <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code> signal when LCM
+decides to deactivate it.</p>
+<p>If a process does not terminate after receiving a <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code>, and a
+<code class="docutils literal notranslate"><span class="pre">shutdown_timeout_ms</span></code> is configured, then after the timeout is fired a
+<code class="docutils literal notranslate"><span class="pre">SIGKILL</span></code> is sent and the process is forcefully terminated.</p>
+</section>
+<section id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h3>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">C Reporting Process</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/********************************************************************************</span>
+<span class="cm"> * Copyright (c) 2026 Contributors to the Eclipse Foundation</span>
+<span class="cm"> *</span>
+<span class="cm"> * See the NOTICE file(s) distributed with this work for additional</span>
+<span class="cm"> * information regarding copyright ownership.</span>
+<span class="cm"> *</span>
+<span class="cm"> * This program and the accompanying materials are made available under the</span>
+<span class="cm"> * terms of the Apache License Version 2.0 which is available at</span>
+<span class="cm"> * https://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="cm"> *</span>
+<span class="cm"> * SPDX-License-Identifier: Apache-2.0</span>
+<span class="cm"> ********************************************************************************/</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;signal.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdint.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;time.h&gt;</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"score/mw/lifecycle/report_running.h"</span>
+
+<span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">timespec</span><span class="w"> </span><span class="n">interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="p">.</span><span class="n">tv_sec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">    </span><span class="p">.</span><span class="n">tv_nsec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">50000000</span><span class="p">,</span>
+<span class="p">};</span>
+
+<span class="k">volatile</span><span class="w"> </span><span class="kt">sig_atomic_t</span><span class="w"> </span><span class="n">exitRequested</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">sigTermHandler</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">signal</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">signal</span><span class="p">;</span>
+<span class="w">    </span><span class="n">exitRequested</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// register SIGTERM handler</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">signal</span><span class="p">(</span><span class="n">SIGTERM</span><span class="p">,</span><span class="w"> </span><span class="n">sigTermHandler</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">SIG_ERR</span><span class="p">){</span>
+<span class="w">        </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="n">printf</span><span class="p">(</span><span class="s">"Failed to register SIGTERM handler! Terminating"</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// report running</span>
+<span class="w">    </span><span class="kt">int8_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">score_mw_lifecycle_report_running</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// check report was successful</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">result</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">){</span>
+<span class="w">        </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="n">printf</span><span class="p">(</span><span class="s">"Failed to report kRunning to LCM! Terminating"</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// wait until lm wants to terminate</span>
+<span class="w">    </span><span class="k">while</span><span class="p">(</span><span class="n">exitRequested</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">){</span>
+<span class="w">        </span><span class="n">nanosleep</span><span class="p">(</span><span class="o">&amp;</span><span class="n">interval</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</details><details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">C++ Reporting Process</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cm">/********************************************************************************</span>
+<span class="cm"> * Copyright (c) 2026 Contributors to the Eclipse Foundation</span>
+<span class="cm"> *</span>
+<span class="cm"> * See the NOTICE file(s) distributed with this work for additional</span>
+<span class="cm"> * information regarding copyright ownership.</span>
+<span class="cm"> *</span>
+<span class="cm"> * This program and the accompanying materials are made available under the</span>
+<span class="cm"> * terms of the Apache License Version 2.0 which is available at</span>
+<span class="cm"> * https://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="cm"> *</span>
+<span class="cm"> * SPDX-License-Identifier: Apache-2.0</span>
+<span class="cm"> ********************************************************************************/</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;csignal&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdlib&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;score/mw/lifecycle/report_running.h&gt;</span>
+
+<span class="k">volatile</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">sig_atomic_t</span><span class="w"> </span><span class="n">exitRequested</span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">sigTermHandler</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">exitRequested</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// register signal handler so that lcm can request a termination</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">signal</span><span class="p">(</span><span class="n">SIGTERM</span><span class="p">,</span><span class="w"> </span><span class="n">sigTermHandler</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">SIG_ERR</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Failed to register SIGTERM handler! Terminating"</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// report running state</span>
+<span class="w">    </span><span class="n">score</span><span class="o">::</span><span class="n">mw</span><span class="o">::</span><span class="n">lifecycle</span><span class="o">::</span><span class="n">report_running</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// do some work</span>
+
+<span class="w">    </span><span class="c1">// wait until lm wants to terminate</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">exitRequested</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">pause</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</details><details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">Rust Reporting Process</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="c1">// *******************************************************************************</span>
+<span class="c1">// Copyright (c) 2026 Contributors to the Eclipse Foundation</span>
+<span class="c1">//</span>
+<span class="c1">// See the NOTICE file(s) distributed with this work for additional</span>
+<span class="c1">// information regarding copyright ownership.</span>
+<span class="c1">//</span>
+<span class="c1">// This program and the accompanying materials are made available under the</span>
+<span class="c1">// terms of the Apache License Version 2.0 which is available at</span>
+<span class="c1">// &lt;https://www.apache.org/licenses/LICENSE-2.0&gt;</span>
+<span class="c1">//</span>
+<span class="c1">// SPDX-License-Identifier: Apache-2.0</span>
+<span class="c1">// *******************************************************************************</span>
+
+<span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">sync</span><span class="p">::</span><span class="n">atomic</span><span class="p">::{</span><span class="n">AtomicBool</span><span class="p">,</span><span class="w"> </span><span class="n">Ordering</span><span class="p">};</span>
+
+<span class="k">const</span><span class="w"> </span><span class="n">SIGTERM</span><span class="p">:</span><span class="w"> </span><span class="kt">i32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">15</span><span class="p">;</span>
+
+<span class="k">static</span><span class="w"> </span><span class="n">STOP</span><span class="p">:</span><span class="w"> </span><span class="nc">AtomicBool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AtomicBool</span><span class="p">::</span><span class="n">new</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
+
+<span class="k">extern</span><span class="w"> </span><span class="s">"C"</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">signal</span><span class="p">(</span><span class="n">signum</span><span class="p">:</span><span class="w"> </span><span class="kt">i32</span><span class="p">,</span><span class="w"> </span><span class="n">handler</span><span class="p">:</span><span class="w"> </span><span class="nc">extern</span><span class="w"> </span><span class="s">"C"</span><span class="w"> </span><span class="k">fn</span><span class="p">(</span><span class="kt">i32</span><span class="p">))</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="kt">usize</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">extern</span><span class="w"> </span><span class="s">"C"</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="nf">sigterm_handler</span><span class="p">(</span><span class="n">_</span><span class="p">:</span><span class="w"> </span><span class="kt">i32</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">STOP</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="n">Ordering</span><span class="p">::</span><span class="n">Relaxed</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">fn</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">(),</span><span class="w"> </span><span class="o">&amp;'</span><span class="nb">static</span><span class="w"> </span><span class="kt">str</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// register signal handler so that lcm can request a termination</span>
+<span class="w">    </span><span class="k">unsafe</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">signal</span><span class="p">(</span><span class="n">SIGTERM</span><span class="p">,</span><span class="w"> </span><span class="n">sigterm_handler</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// report running and check result</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">!</span><span class="n">lifecycle_client_rs</span><span class="p">::</span><span class="n">report_running</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">Err</span><span class="p">(</span><span class="s">"Failed to report execution state"</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// do work until lm wants to terminate</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="o">!</span><span class="n">STOP</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">Ordering</span><span class="p">::</span><span class="n">Relaxed</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="p">::</span><span class="n">thread</span><span class="p">::</span><span class="n">sleep</span><span class="p">(</span><span class="n">std</span><span class="p">::</span><span class="n">time</span><span class="p">::</span><span class="n">Duration</span><span class="p">::</span><span class="n">from_millis</span><span class="p">(</span><span class="mi">100</span><span class="p">));</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nb">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</details><p>The <strong>Lifecycle Interface</strong> also offers the <code class="docutils literal notranslate"><span class="pre">run_application</span></code> API, which
+removes the boilerplate from a reporting process.</p>
+<p>It:
+-  Handles the <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code> signal.
+-  Structures the application into an initialization phase and a running phase.
+-  Reports the <code class="docutils literal notranslate"><span class="pre">Running</span></code> state in the background once initialization is done.</p>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">C++ Lifecycle Application</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cm">/********************************************************************************</span>
+<span class="cm"> * Copyright (c) 2026 Contributors to the Eclipse Foundation</span>
+<span class="cm"> *</span>
+<span class="cm"> * See the NOTICE file(s) distributed with this work for additional</span>
+<span class="cm"> * information regarding copyright ownership.</span>
+<span class="cm"> *</span>
+<span class="cm"> * This program and the accompanying materials are made available under the</span>
+<span class="cm"> * terms of the Apache License Version 2.0 which is available at</span>
+<span class="cm"> * https://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="cm"> *</span>
+<span class="cm"> * SPDX-License-Identifier: Apache-2.0</span>
+<span class="cm"> ********************************************************************************/</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdlib&gt;</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;score/mw/lifecycle/application.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;score/mw/lifecycle/runapplication.h&gt;</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">LifecycleApp</span><span class="w"> </span><span class="k">final</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">score</span><span class="o">::</span><span class="n">mw</span><span class="o">::</span><span class="n">lifecycle</span><span class="o">::</span><span class="n">Application</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="c1">// called before the process reports Running to the Launch Manager</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">Initialize</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">score</span><span class="o">::</span><span class="n">mw</span><span class="o">::</span><span class="n">lifecycle</span><span class="o">::</span><span class="n">ApplicationContext</span><span class="o">&amp;</span><span class="w"> </span><span class="cm">/*appCtx*/</span><span class="p">)</span><span class="w"> </span><span class="k">override</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// read arguments and set up resources here</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// called once initialization succeeded, returns when termination is requested</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">Run</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">score</span><span class="o">::</span><span class="n">cpp</span><span class="o">::</span><span class="n">stop_token</span><span class="o">&amp;</span><span class="w"> </span><span class="n">stopToken</span><span class="p">)</span><span class="w"> </span><span class="k">override</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">stopToken</span><span class="p">.</span><span class="n">stop_requested</span><span class="p">())</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// do some work</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="o">**</span><span class="w"> </span><span class="n">argv</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">score</span><span class="o">::</span><span class="n">mw</span><span class="o">::</span><span class="n">lifecycle</span><span class="o">::</span><span class="n">run_application</span><span class="o">&lt;</span><span class="n">LifecycleApp</span><span class="o">&gt;</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</details></section>
+<section id="state-management">
+<h3>State management<a class="headerlink" href="#state-management" title="Link to this heading">#</a></h3>
+<p>A <strong>State Manager</strong> is an application that decides which run-targets shall be
+active by communicating with the Launch Manager using the <code class="docutils literal notranslate"><span class="pre">ILmControl</span></code>
+interface.
+The <strong>State Manager</strong> is itself a managed component.
+Before calling <code class="docutils literal notranslate"><span class="pre">activate_run_target</span></code>, it must report the Running state to the
+Launch Manager via any of the <strong>Lifecycle Interfaces</strong>.
+Otherwise, the Launch Manager does not consider the State
+Manager ready, which can lead to errors.</p>
+<p>Additionally, the State Manager component must have
+<code class="docutils literal notranslate"><span class="pre">application_profile.application_type</span></code> set to <code class="docutils literal notranslate"><span class="pre">State_Manager</span></code>.</p>
+<section id="example">
+<h4>Example<a class="headerlink" href="#example" title="Link to this heading">#</a></h4>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">State Manager example</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cm">/********************************************************************************</span>
+<span class="cm"> * Copyright (c) 2026 Contributors to the Eclipse Foundation</span>
+<span class="cm"> *</span>
+<span class="cm"> * See the NOTICE file(s) distributed with this work for additional</span>
+<span class="cm"> * information regarding copyright ownership.</span>
+<span class="cm"> *</span>
+<span class="cm"> * This program and the accompanying materials are made available under the</span>
+<span class="cm"> * terms of the Apache License Version 2.0 which is available at</span>
+<span class="cm"> * https://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="cm"> *</span>
+<span class="cm"> * SPDX-License-Identifier: Apache-2.0</span>
+<span class="cm"> ********************************************************************************/</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;atomic&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;chrono&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;csignal&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;memory&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;thread&gt;</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"score/mw/com/runtime.h"</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"score/string_manipulation/arguments/arguments.h"</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;score/mw/lifecycle/ilm_control.hpp&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;score/mw/lifecycle/report_running.h&gt;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">std</span><span class="o">::</span><span class="nn">literals</span><span class="o">::</span><span class="nn">chrono_literals</span><span class="p">;</span>
+
+<span class="c1">/// Used to signal if the startup run target switch was succesfull.</span>
+<span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span><span class="w"> </span><span class="n">startup_finished</span><span class="p">{</span><span class="nb">false</span><span class="p">};</span>
+
+<span class="c1">/// Used if a termination was requested from a signal.</span>
+<span class="k">volatile</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">sig_atomic_t</span><span class="w"> </span><span class="n">exitRequested</span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">signalHandler</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="cm">/*signal*/</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">exitRequested</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// initialize com, needed if you are giving the mw_conf.json as an argument</span>
+<span class="w">    </span><span class="n">score</span><span class="o">::</span><span class="n">mw</span><span class="o">::</span><span class="n">com</span><span class="o">::</span><span class="n">runtime</span><span class="o">::</span><span class="n">InitializeRuntime</span><span class="p">(</span><span class="n">score</span><span class="o">::</span><span class="n">string_manipulation</span><span class="o">::</span><span class="n">GetArguments</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">));</span>
+
+<span class="w">    </span><span class="c1">// register signal handler</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">signal</span><span class="p">(</span><span class="n">SIGTERM</span><span class="p">,</span><span class="w"> </span><span class="n">signalHandler</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">SIG_ERR</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Failed to register SIGTERM handler"</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// report running to LM</span>
+<span class="w">    </span><span class="n">score</span><span class="o">::</span><span class="n">mw</span><span class="o">::</span><span class="n">lifecycle</span><span class="o">::</span><span class="n">report_running</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// create a client</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">client_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">score</span><span class="o">::</span><span class="n">mw</span><span class="o">::</span><span class="n">lifecycle</span><span class="o">::</span><span class="n">ILmControl</span><span class="o">::</span><span class="n">Create</span><span class="p">(</span><span class="s">"StateManager/LaunchManager/Instance"</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">client_result</span><span class="p">.</span><span class="n">has_value</span><span class="p">())</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Failed to create client "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">client_result</span><span class="p">.</span><span class="n">error</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// get the client from the result</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">score</span><span class="o">::</span><span class="n">mw</span><span class="o">::</span><span class="n">lifecycle</span><span class="o">::</span><span class="n">ILmControl</span><span class="o">&gt;</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">client_result</span><span class="p">).</span><span class="n">value</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// register a method that gets called when a run target is switched</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">register_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span><span class="o">-&gt;</span><span class="n">register_run_target_activation_callback</span><span class="p">(</span>
+<span class="w">        </span><span class="p">[]([[</span><span class="na">maybe_unused</span><span class="p">]]</span><span class="w"> </span><span class="n">score</span><span class="o">::</span><span class="n">mw</span><span class="o">::</span><span class="n">lifecycle</span><span class="o">::</span><span class="n">RunTargetActivationSource</span><span class="w"> </span><span class="n">source</span><span class="p">,</span>
+<span class="w">           </span><span class="n">score</span><span class="o">::</span><span class="n">mw</span><span class="o">::</span><span class="n">lifecycle</span><span class="o">::</span><span class="n">RunTargetName</span><span class="w"> </span><span class="n">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// signal that the startup was completed</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">source</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">score</span><span class="o">::</span><span class="n">mw</span><span class="o">::</span><span class="n">lifecycle</span><span class="o">::</span><span class="n">RunTargetActivationSource</span><span class="o">::</span><span class="n">kInitialActivation</span><span class="p">)</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Initial activation succesfull! activated run target "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">target</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">                </span><span class="n">startup_finished</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="k">else</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Successfully activated Run Target "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">target</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">});</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">register_result</span><span class="p">.</span><span class="n">has_value</span><span class="p">())</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Failed to register activation callback "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">register_result</span><span class="p">.</span><span class="n">error</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// wait until the initial run target activation has completed</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">startup_finished</span><span class="p">.</span><span class="n">load</span><span class="p">())</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mi">100</span><span class="n">ms</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// activate a different run target</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span><span class="o">-&gt;</span><span class="n">activate_run_target</span><span class="p">(</span><span class="n">score</span><span class="o">::</span><span class="n">mw</span><span class="o">::</span><span class="n">lifecycle</span><span class="o">::</span><span class="n">RunTargetName</span><span class="p">{</span><span class="s">"Running"</span><span class="p">},</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="n">has_value</span><span class="p">())</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Successfully requested Run Target "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Requesting Run Target "</span>
+<span class="w">                  </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">" failed with error: "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">result</span><span class="p">.</span><span class="n">error</span><span class="p">().</span><span class="n">Message</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// wait until lm wants to terminate</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">exitRequested</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">pause</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</details></section>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="configuration.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Configuration</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="examples.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Configuration examples</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration">Configuration</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#generating-flatbuffer-file">Generating flatbuffer file</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#location-of-the-configuration-file">Location of the configuration file</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#state-manager-mw-com-config">State manager mw::com config</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#lmcontrolservice-service-type">LmControlService service type</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#service-types">Service types</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#service-instances">Service instances</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation">Implementation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#starting-a-process">Starting a process</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stopping-a-process">Stopping a process</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#state-management">State management</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/eclipse-score/lifecycle/edit/main/score/launch_manager/docs/product_documentation/integration.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
