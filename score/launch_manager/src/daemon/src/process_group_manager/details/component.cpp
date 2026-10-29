@@ -252,7 +252,7 @@ bool Component::activateSupervision() const
 
     if (clock_gettime(CLOCK_MONOTONIC, &timestamp) != 0)
     {
-        LM_LOG_ERROR() << config_.name << ": failed to get timestamp to activate supervision:" << strerror(errno);
+        LM_LOG_ERROR() << config_.name << ": failed to get timestamp to activate supervision:" << errno_message(errno);
         return false;
     }
 
@@ -276,7 +276,8 @@ bool Component::deactivateSupervision() const
 
     if (clock_gettime(CLOCK_MONOTONIC, &timestamp) != 0)
     {
-        LM_LOG_ERROR() << config_.name << ": failed to get timestamp to deactivate supervision: " << strerror(errno);
+        LM_LOG_ERROR() << config_.name
+                       << ": failed to get timestamp to deactivate supervision: " << errno_message(errno);
         return false;
     }
 

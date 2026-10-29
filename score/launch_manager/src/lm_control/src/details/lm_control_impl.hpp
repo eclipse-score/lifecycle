@@ -215,8 +215,12 @@ class BasicLmControlImpl final : public ILmControl
             callback_ = std::move(callback);
         }
 
-        // Check for any pending events from before the handler was installed.
-        onActivationResult();
+        // Check for any pending events from before the handler was installed. Only possible once connected;
+        // until then the receive handler, installed on connection, takes care of the samples.
+        if (connectedProxy() != nullptr)
+        {
+            onActivationResult();
+        }
 
         return {};
     }

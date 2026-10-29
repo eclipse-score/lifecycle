@@ -14,6 +14,7 @@
 #define SCORE_LCM_IRECOVERYCLIENT_H_
 
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
+#include <chrono>
 #include <functional>
 
 namespace score
@@ -27,7 +28,8 @@ namespace mw::lifecycle
 class IRecoveryClient
 {
   public:
-    using RecoveryRequestCallback = std::function<void(const score::mw::lifecycle::IdentifierHash&)>;
+    using RecoveryRequestCallback =
+        std::function<void(const score::mw::lifecycle::IdentifierHash&, std::chrono::nanoseconds)>;
 
     IRecoveryClient() noexcept = default;
     virtual ~IRecoveryClient() noexcept = default;
@@ -41,10 +43,13 @@ class IRecoveryClient
     virtual void setRecoveryRequestCallback(RecoveryRequestCallback callback) noexcept = 0;
 
     /// @brief Send recovery request for a specific process.
-    /// @details Invokes the registered callback with the provided process identifier.
+    /// @details Invokes the registered callback with the provided process identifier and failure timestamp.
     /// @param process_identifier The process that requires recovery.
+    /// @param failure_timestamp Timestamp that pinpoints the supervision failure.
     /// @return true if a callback was registered and invoked, false otherwise.
-    virtual bool sendRecoveryRequest(const score::mw::lifecycle::IdentifierHash& process_identifier) noexcept = 0;
+    virtual bool sendRecoveryRequest(
+        const score::mw::lifecycle::IdentifierHash& process_identifier,
+        std::chrono::nanoseconds failure_timestamp) noexcept = 0;
 };
 }  // namespace mw::lifecycle
 }  // namespace score

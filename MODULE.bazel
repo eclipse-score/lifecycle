@@ -34,7 +34,7 @@ bazel_dep(name = "googletest", version = "1.17.0.bcr.2")
 bazel_dep(name = "google_benchmark", version = "1.9.5", dev_dependency = True)
 
 # S-CORE process rules
-bazel_dep(name = "score_docs_as_code", version = "8.5.1")
+bazel_dep(name = "score_docs_as_code", version = "8.6.0")
 bazel_dep(name = "score_tooling", version = "3.0.1")
 
 bazel_dep(name = "score_rust_policies", version = "0.0.5", dev_dependency = True)
@@ -42,15 +42,15 @@ bazel_dep(name = "score_cpp_policies", version = "0.1.2", dev_dependency = True)
 bazel_dep(name = "score_devcontainer", version = "1.11.3", dev_dependency = True)
 bazel_dep(name = "score_coverage", version = "0.4.2", dev_dependency = True)
 
-bazel_dep(name = "score_process_description", version = "2.2.1")
-bazel_dep(name = "score_platform", version = "0.7.3")
+bazel_dep(name = "score_process_description", version = "2.2.2")
+bazel_dep(name = "score_platform", version = "0.7.4")
 
 ###############################################################################
 #
 # S-CORE Toolchains (DO NOT MODIFY)
 #
 ###############################################################################
-bazel_dep(name = "score_bazel_cpp_toolchains", version = "1.0.4", dev_dependency = True)
+bazel_dep(name = "score_bazel_cpp_toolchains", version = "1.0.5", dev_dependency = True)
 bazel_dep(name = "score_bazel_platforms", version = "1.1.0", dev_dependency = True)
 
 # GCC Toolchains
@@ -91,7 +91,7 @@ gcc.toolchain(
 gcc.toolchain(
     name = "score_ebclfsa_toolchain",
     runtime_ecosystem = "ebclfsa",
-    sdk_version = "0.1.0",
+    sdk_version = "2.0.0-beta2",
     target_cpu = "aarch64",
     target_os = "linux",
     use_default_package = True,
