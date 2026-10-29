@@ -44,6 +44,20 @@ score::cpp::expected<T, IConfigLoader::Error> requireScalarValue(
     return *field;
 }
 
+/// @brief Reads a required scalar field and checks that it fits into TargetT.
+template <typename TargetT, typename FieldT>
+score::cpp::expected<TargetT, IConfigLoader::Error> requireScalarInRange(
+    const ::flatbuffers::Optional<FieldT>& field,
+    const std::string_view field_name)
+{
+    const auto value = requireScalarValue(field, field_name);
+    if (!value.has_value())
+    {
+        return score::cpp::make_unexpected(value.error());
+    }
+    return validateRange<TargetT>(*value, field_name);
+}
+
 template <typename T>
 std::optional<T> optionalScalarValue(const ::flatbuffers::Optional<T>& field)
 {
@@ -115,6 +129,18 @@ score::cpp::expected<int32_t, IConfigLoader::Error> convertSchedulingPolicy(fb::
             LM_LOG_ERROR() << "Unsupported scheduling policy:" << static_cast<int>(policy);
             return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
     }
+}
+
+score::cpp::expected<int32_t, IConfigLoader::Error> requireSchedulingPolicy(
+    const ::flatbuffers::Optional<fb::SchedulingPolicy>& field,
+    const std::string_view field_name)
+{
+    const auto policy = requireScalarValue(field, field_name);
+    if (!policy.has_value())
+    {
+        return score::cpp::make_unexpected(policy.error());
+    }
+    return convertSchedulingPolicy(*policy);
 }
 
 int toPlatformResource(fb::RlimitResource fb_resource)
@@ -431,32 +457,17 @@ score::cpp::expected<ComponentProperties, IConfigLoader::Error> convertComponent
 score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(const fb::Sandbox* fb_sb)
 {
     SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(fb_sb, "Sandbox must never be nullptr as it is required in the schema");
-    auto fb_uid = requireScalarValue(fb_sb->uid(), "Sandbox::uid");
-    if (!fb_uid.has_value())
-    {
-        return score::cpp::make_unexpected(fb_uid.error());
-    }
-    auto fb_gid = requireScalarValue(fb_sb->gid(), "Sandbox::gid");
-    if (!fb_gid.has_value())
-    {
-        return score::cpp::make_unexpected(fb_gid.error());
-    }
-    auto uid = validateRange<uid_t>(*fb_uid, "Sandbox uid");
+    auto uid = requireScalarInRange<uid_t>(fb_sb->uid(), "Sandbox::uid");
     if (!uid.has_value())
     {
         return score::cpp::make_unexpected(uid.error());
     }
-    auto gid = validateRange<gid_t>(*fb_gid, "Sandbox gid");
+    auto gid = requireScalarInRange<gid_t>(fb_sb->gid(), "Sandbox::gid");
     if (!gid.has_value())
     {
         return score::cpp::make_unexpected(gid.error());
     }
-    auto sched_policy = requireScalarValue(fb_sb->scheduling_policy(), "Sandbox::scheduling_policy");
-    if (!sched_policy.has_value())
-    {
-        return score::cpp::make_unexpected(sched_policy.error());
-    }
-    auto scheduling_policy = convertSchedulingPolicy(*sched_policy);
+    auto scheduling_policy = requireSchedulingPolicy(fb_sb->scheduling_policy(), "Sandbox::scheduling_policy");
     if (!scheduling_policy.has_value())
     {
         return score::cpp::make_unexpected(scheduling_policy.error());
@@ -466,14 +477,14 @@ score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(const fb::San
     {
         return score::cpp::make_unexpected(scheduling_priority.error());
     }
-    Sandbox result{};
-    result.uid = *uid;
-    result.gid = *gid;
     auto supplementary_gids = convertGidVector(fb_sb->supplementary_group_ids());
     if (!supplementary_gids.has_value())
     {
         return score::cpp::make_unexpected(supplementary_gids.error());
     }
+    Sandbox result{};
+    result.uid = *uid;
+    result.gid = *gid;
     result.supplementary_group_ids = std::move(*supplementary_gids);
     result.security_policy = fb_sb->security_policy() != nullptr
                                  ? std::optional<std::string>{fb_sb->security_policy()->str()}
