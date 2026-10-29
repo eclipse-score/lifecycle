@@ -31,7 +31,8 @@ class MockRecoveryClient : public IRecoveryClient
     MOCK_METHOD(
         bool,
         sendRecoveryRequest,
-        (const score::mw::lifecycle::IdentifierHash& process_group_identifier),
+        (const score::mw::lifecycle::IdentifierHash& process_group_identifier,
+         std::chrono::nanoseconds failure_timestamp),
         (noexcept, override));
 };
 

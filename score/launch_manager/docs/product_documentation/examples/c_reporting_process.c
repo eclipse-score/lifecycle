@@ -28,10 +28,14 @@ volatile sig_atomic_t exitRequested = 0;
 
 static void sigTermHandler(int signal)
 {
+    (void)signal;
     exitRequested = 1;
 }
 
 int main(int argc, char* argv[]){
+
+    (void)argc;
+    (void)argv;
 
     assert(signal(SIGTERM, sigTermHandler));
 

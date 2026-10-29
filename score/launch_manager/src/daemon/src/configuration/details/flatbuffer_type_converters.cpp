@@ -19,6 +19,7 @@
 
 #include <sched.h>
 #include <score/assert.hpp>
+#include <sys/resource.h>
 #include <sys/types.h>
 #include <cstdint>
 #include <string>
@@ -47,6 +48,14 @@ template <typename T>
 std::optional<T> optionalScalarValue(const ::flatbuffers::Optional<T>& field)
 {
     return field.has_value() ? std::optional<T>{*field} : std::nullopt;
+}
+
+// Special constant representing "unlimited" for rlimit bounds.
+constexpr std::uint64_t kRlimitUnlimitedSentinel{0xFFFFFFFFFFFFFFFFULL};
+
+rlim_t resolveRlimitBound(const std::uint64_t bound) noexcept
+{
+    return bound == kRlimitUnlimitedSentinel ? RLIM_INFINITY : static_cast<rlim_t>(bound);
 }
 
 }  // anonymous namespace
@@ -106,6 +115,64 @@ score::cpp::expected<int32_t, IConfigLoader::Error> convertSchedulingPolicy(fb::
             LM_LOG_ERROR() << "Unsupported scheduling policy:" << static_cast<int>(policy);
             return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
     }
+}
+
+int toPlatformResource(fb::RlimitResource fb_resource)
+{
+    switch (fb_resource)
+    {
+        case fb::RlimitResource::POSIX_RLIMIT_AS:
+            return RLIMIT_AS;
+        case fb::RlimitResource::POSIX_RLIMIT_CORE:
+            return RLIMIT_CORE;
+        case fb::RlimitResource::POSIX_RLIMIT_CPU:
+            return RLIMIT_CPU;
+        case fb::RlimitResource::POSIX_RLIMIT_DATA:
+            return RLIMIT_DATA;
+        case fb::RlimitResource::POSIX_RLIMIT_FSIZE:
+            return RLIMIT_FSIZE;
+        case fb::RlimitResource::POSIX_RLIMIT_NOFILE:
+            return RLIMIT_NOFILE;
+        case fb::RlimitResource::POSIX_RLIMIT_STACK:
+            return RLIMIT_STACK;
+    }
+    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Got an unknown rlimit resource selector");
+}
+
+score::cpp::expected<std::vector<ResourceLimit>, IConfigLoader::Error> convertRlimits(
+    const ::flatbuffers::Vector<::flatbuffers::Offset<fb::Rlimit>>* vec)
+{
+    std::vector<ResourceLimit> result;
+    if (vec != nullptr)
+    {
+        result.reserve(vec->size());
+        for (const auto* rl : *vec)
+        {
+            if (rl != nullptr)
+            {
+                const auto resource = requireScalarValue(rl->resource(), "RLimit::resource");
+                if (!resource.has_value())
+                {
+                    return score::cpp::make_unexpected(resource.error());
+                }
+                const auto soft_limit = requireScalarValue(rl->soft(), "RLimit::soft");
+                if (!soft_limit.has_value())
+                {
+                    return score::cpp::make_unexpected(soft_limit.error());
+                }
+                const auto hard_limit = requireScalarValue(rl->hard(), "RLimit::hard");
+                if (!hard_limit.has_value())
+                {
+                    return score::cpp::make_unexpected(hard_limit.error());
+                }
+
+                const int platform_resource = toPlatformResource(*resource);
+                const struct ::rlimit limit{resolveRlimitBound(*soft_limit), resolveRlimitBound(*hard_limit)};
+                result.push_back(ResourceLimit{platform_resource, limit});
+            }
+        }
+    }
+    return result;
 }
 
 std::string safeString(const ::flatbuffers::String* s)
@@ -392,8 +459,12 @@ score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(const fb::San
                                  : std::nullopt;
     result.scheduling_policy = *scheduling_policy;
     result.scheduling_priority = *scheduling_priority;
-    result.max_memory_usage = optionalScalarValue(fb_sb->max_memory_usage());
-    result.max_cpu_usage = optionalScalarValue(fb_sb->max_cpu_usage());
+    auto rlimits = convertRlimits(fb_sb->rlimits());
+    if (!rlimits.has_value())
+    {
+        return score::cpp::make_unexpected(rlimits.error());
+    }
+    result.rlimits = std::move(*rlimits);
     result.affinity_mask = optionalScalarValue(fb_sb->affinity_mask());
     return result;
 }

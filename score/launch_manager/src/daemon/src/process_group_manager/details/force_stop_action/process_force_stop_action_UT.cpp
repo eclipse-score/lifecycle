@@ -24,7 +24,7 @@ namespace
 
 using namespace ::testing;
 
-const ProcessHandle mock_handle = ProcessHandle{42};
+const ProcessHandle mock_handle = ProcessHandle{42, nullptr};
 
 TEST(ProcessForceStopActionTest, ForceStopCallsForceTerminationWithPid)
 {

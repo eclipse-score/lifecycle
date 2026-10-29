@@ -27,5 +27,7 @@ TEST(Smoke, Process)
 int main()
 {
     TestRunner::Init();
-    return TestRunner::RunTests();
+    auto res = TestRunner::RunTests();
+    TestRunner::WaitForTermination();
+    return res;
 }

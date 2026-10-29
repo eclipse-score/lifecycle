@@ -1,0 +1,118 @@
+' *******************************************************************************
+' Copyright (c) 2026 Contributors to the Eclipse Foundation
+'
+' See the NOTICE file(s) distributed with this work for additional
+' information regarding copyright ownership.
+'
+' This program and the accompanying materials are made available under the
+' terms of the Apache License Version 2.0 which is available at
+' https://www.apache.org/licenses/LICENSE-2.0
+'
+' SPDX-License-Identifier: Apache-2.0
+' *******************************************************************************
+
+@startuml supervision_failure
+
+title Supervision Failure
+
+box "Main loop thread" #F0F4FA
+participant "ProcessGroupManager" as PGM
+participant "Graph" as Graph
+participant "Transition" as Transition
+end box
+
+queue "Component Event Queue" as EventQueue
+
+box "Alive supervision thread" #FAF0F4
+participant "Alive Supervision" as Supervision
+participant "RecoveryClient" as Recovery
+end box
+
+participant "Supervised Process" as Process
+
+note over Graph: graph is in state kSuccess:\nthe Run Target is active
+
+' --- detection ---------------------------------------------------------------
+Process -> Supervision: alive indications
+note right of Supervision
+  Supervision was started for this process when the component
+  was activated - see Component Activation.
+end note
+
+Supervision -> Supervision ++: check the supervision cycle
+
+alt #F2FAF2 the indications arrive as configured
+    note right of Supervision: nothing is reported, the next cycle is checked
+
+else #Pink the configured tolerance is exceeded
+    Supervision -> Recovery ++: request recovery for the component
+    Recovery -> EventQueue: supervision failure of the component
+    deactivate Recovery
+    note right of Supervision
+      Only the process identifier is reported. The supervision
+      thread never touches the graph and never stops the process
+      itself.
+    end note
+end
+deactivate Supervision
+
+' --- reaction ----------------------------------------------------------------
+EventQueue -> PGM ++: component event
+note over PGM
+  The reaction to a supervision failure is currently always
+  to request the fallback Run Target.
+end note
+
+alt #White the graph is in state kInTransition and target is not the fallback Run Target
+    PGM -> Graph ++: Set fallback Run Target as pending Run Taret
+    PGM -> Graph: cancel the running transition
+    PGM -> Graph: set graph state to kAborting
+    note over Graph
+      kInTransition becomes kAborting: the components still in
+      flight finish their current step and report back,
+      components that are already running stay running.
+    end note
+    deactivate Graph
+
+else #White the graph is in state kInTransition and target is the fallback Run Target
+    note over PGM: nothing to do, the recovery is already underway
+
+else #White the graph is not in state kInTransition
+    PGM -> Graph ++: Set fallback Run Target as pending Run Target
+    deactivate Graph
+end
+
+' --- recovery ----------------------------------------------------------------
+PGM -> PGM: handle the graph state
+
+alt the graph reaches kUndefinedState
+
+  note over PGM
+    The requested Run Target is only picked up once the graph has
+    entered kUndefinedState, so a cancelled transition is
+    first allowed to settle.
+  end note
+
+  PGM -> Graph ++: start a transition to the fallback Run Target
+  Graph -> Transition ++: set up the transition
+  Transition --> Graph --: components ready to be stopped
+  note over Graph
+    The failing component and everything that depends on it are
+    stopped, then the fallback Run Target is started - see
+    Component Deactivation and Component Activation.
+  end note
+
+end alt
+
+deactivate Graph
+deactivate PGM
+
+legend bottom
+  Alive supervision does not act on the process. It only reports, and the
+  resulting Run Target transition is what stops and restarts the component.
+
+  Should the process die as a result of its failure, this is reported
+  independently through the OsHandler thread - see Process Termination.
+end legend
+
+@enduml

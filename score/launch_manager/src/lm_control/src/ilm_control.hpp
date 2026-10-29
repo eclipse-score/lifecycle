@@ -100,8 +100,11 @@ class ILmControl
 
     /// @brief Blocks until the client is connected to the Launch Manager.
     ///
-    /// Sleeps on a condition variable until service discovery has produced a connected
-    /// proxy, the timeout expires, or a stop is requested via the stop token.
+    /// Sleeps on a condition variable until service discovery has produced a
+    /// connected proxy, the timeout expires, or a stop is requested via the
+    /// stop token.
+    ///
+    /// @warning This method might block for longer than the given timeout.
     ///
     /// @param[in] timeout     Maximum time to wait for the connection.
     /// @param[in] stop_token  Allows another thread to abort the wait early. A default

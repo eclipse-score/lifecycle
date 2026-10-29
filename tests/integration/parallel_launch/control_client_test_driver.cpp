@@ -22,7 +22,7 @@
 
 namespace
 {
-constexpr std::array<std::string_view, 3> kComponentIds{"a", "b", "c"};
+constexpr std::array<std::string_view, 3> kComponentIds{{"a", "b", "c"}};
 }  // namespace
 
 using namespace score::mw::lifecycle;
@@ -139,5 +139,6 @@ int main()
     TestRunner::Init();
     const auto result = TestRunner::RunTests();
     TestRunner::EndTest();
+    TestRunner::WaitForTermination();
     return result;
 }

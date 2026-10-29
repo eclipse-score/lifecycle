@@ -36,11 +36,11 @@ TEST_F(RecoveryClientTest, SendRecoveryRequestInvokesRegisteredCallback)
 
     RecoveryClient client;
     IdentifierHash received{""};
-    client.setRecoveryRequestCallback([&received](const IdentifierHash& process_identifier) {
+    client.setRecoveryRequestCallback([&received](const IdentifierHash& process_identifier, std::chrono::nanoseconds) {
         received = process_identifier;
     });
 
-    const bool result = client.sendRecoveryRequest(IdentifierHash("proc_a"));
+    const bool result = client.sendRecoveryRequest(IdentifierHash("proc_a"), std::chrono::nanoseconds{0});
     EXPECT_TRUE(result);
     EXPECT_EQ(received, IdentifierHash("proc_a"));
 }
@@ -50,7 +50,7 @@ TEST_F(RecoveryClientTest, SendRecoveryRequestReturnsFalseWithoutRegisteredCallb
     RecordProperty("Description", "RecoveryClient returns false and does not crash when no callback is registered.");
 
     RecoveryClient client;
-    EXPECT_FALSE(client.sendRecoveryRequest(IdentifierHash("proc_b")));
+    EXPECT_FALSE(client.sendRecoveryRequest(IdentifierHash("proc_b"), std::chrono::nanoseconds{0}));
 }
 
 TEST_F(RecoveryClientTest, MultipleRequestsInvokeCallbackInOrder)
@@ -60,7 +60,7 @@ TEST_F(RecoveryClientTest, MultipleRequestsInvokeCallbackInOrder)
 
     RecoveryClient client;
     std::vector<IdentifierHash> received;
-    client.setRecoveryRequestCallback([&received](const IdentifierHash& process_identifier) {
+    client.setRecoveryRequestCallback([&received](const IdentifierHash& process_identifier, std::chrono::nanoseconds) {
         received.push_back(process_identifier);
     });
 
@@ -68,9 +68,9 @@ TEST_F(RecoveryClientTest, MultipleRequestsInvokeCallbackInOrder)
     const IdentifierHash proc_second("proc_second");
     const IdentifierHash proc_third("proc_third");
 
-    EXPECT_TRUE(client.sendRecoveryRequest(proc_first));
-    EXPECT_TRUE(client.sendRecoveryRequest(proc_second));
-    EXPECT_TRUE(client.sendRecoveryRequest(proc_third));
+    EXPECT_TRUE(client.sendRecoveryRequest(proc_first, std::chrono::nanoseconds{0}));
+    EXPECT_TRUE(client.sendRecoveryRequest(proc_second, std::chrono::nanoseconds{0}));
+    EXPECT_TRUE(client.sendRecoveryRequest(proc_third, std::chrono::nanoseconds{0}));
 
     ASSERT_EQ(received.size(), 3U);
     EXPECT_EQ(received[0], proc_first);
@@ -87,15 +87,15 @@ TEST_F(RecoveryClientTest, ReRegisteringCallbackReplacesPreviousCallback)
     std::size_t callback1_calls = 0U;
     std::size_t callback2_calls = 0U;
 
-    client.setRecoveryRequestCallback([&callback1_calls](const IdentifierHash&) {
+    client.setRecoveryRequestCallback([&callback1_calls](const IdentifierHash&, std::chrono::nanoseconds) {
         ++callback1_calls;
     });
-    ASSERT_TRUE(client.sendRecoveryRequest(IdentifierHash("proc_before_replace")));
+    ASSERT_TRUE(client.sendRecoveryRequest(IdentifierHash("proc_before_replace"), std::chrono::nanoseconds{0}));
 
-    client.setRecoveryRequestCallback([&callback2_calls](const IdentifierHash&) {
+    client.setRecoveryRequestCallback([&callback2_calls](const IdentifierHash&, std::chrono::nanoseconds) {
         ++callback2_calls;
     });
-    ASSERT_TRUE(client.sendRecoveryRequest(IdentifierHash("proc_after_replace")));
+    ASSERT_TRUE(client.sendRecoveryRequest(IdentifierHash("proc_after_replace"), std::chrono::nanoseconds{0}));
 
     EXPECT_EQ(callback1_calls, 1U);
     EXPECT_EQ(callback2_calls, 1U);

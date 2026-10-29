@@ -45,7 +45,7 @@ std::optional<Config> parseOptions(int argc, char* const* argv) noexcept
         {
             case 'd':
                 // std::cout << "Delay between reporting all checkpoints is: " << optarg << "ms" << std::endl;
-                config.delayInMs = std::stoi(optarg);
+                config.delayInMs = static_cast<std::uint32_t>(std::stoi(optarg));
                 break;
 
             case 'h':
