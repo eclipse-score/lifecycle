@@ -19,11 +19,11 @@ Requirements
 
 .. document:: HealthMonitor Requirements
    :id: doc__health_monitor_requirements
-   :status: draft
+   :status: valid
    :version: 1
    :safety: ASIL_B
    :security: NO
-   :realizes: wp__requirements_feat[version==1]
+   :realizes: wp__requirements_comp[version==1]
 
 Safety Concept Summary
 ======================
@@ -33,21 +33,24 @@ application it is linked into. It detects deviations from the configured
 temporal and logical behavior and reacts by withholding the alive
 notification towards the :term:`Launch Manager`.
 
-- **Safe state:** the absence of alive notifications. The :term:`Launch Manager`
-  detects the missing notification via its alive supervision and executes the
-  configured :term:`Recovery Action`.
+- **Safe state:** the state the system reaches through the
+  :term:`Recovery Action` of the :term:`Launch Manager`. The
+  :term:`Health Monitor` triggers it by stopping its alive notifications; the
+  :term:`Launch Manager` detects the missing notifications via its alive
+  supervision.
 - **Fail-silent principle:** any failure, whether detected in the application
   or internal to the :term:`Health Monitor` (crash, hang, panic, starvation),
-  ends in the same safe state. A fault can therefore never make the
-  :term:`Health Monitor` report "alive" for a failed application.
+  stops the alive notifications and thereby leads to the safe state. A fault
+  can therefore never make the :term:`Health Monitor` report "alive" for a
+  failed application.
 - **Detection channel:** the :term:`Launch Manager` alive supervision is the
   independent channel that covers failures of the :term:`Health Monitor` itself.
 
 General
 =======
 
-.. comp_req:: Configuration validation
-   :id: comp_req__health_monitor__cfg_validation
+.. comp_req:: Configuration without monitor
+   :id: comp_req__health_monitor__cfg_no_monitor
    :reqtype: Functional
    :security: NO
    :safety: ASIL_B
@@ -58,16 +61,26 @@ General
    :status: valid
    :version: 1
 
-   The :term:`Health Monitor` shall reject a configuration and not create a
-   monitoring instance if any of the following holds:
-
-   - no monitor is configured,
-   - the supervisor notification cycle is not an integer multiple of the
-     internal evaluation cycle.
+   The :term:`Health Monitor` shall return an error when building a
+   configuration in which no monitor is configured.
 
    .. note:: Monitor specific configuration checks are specified in the
       section of the respective monitor and in
       :need:`comp_req__health_monitor__cfg_time_range`.
+
+.. comp_req:: Notification cycle alignment
+   :id: comp_req__health_monitor__cfg_cycle_multiple
+   :reqtype: Functional
+   :security: NO
+   :safety: ASIL_B
+   :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
+   :satisfied_by: comp__health_monitor
+   :status: valid
+   :version: 1
+
+   The :term:`Health Monitor` shall return an error when building a
+   configuration in which the supervisor notification cycle is not an integer
+   multiple of the internal evaluation cycle.
 
 .. comp_req:: Time range validation
    :id: comp_req__health_monitor__cfg_time_range
@@ -80,8 +93,8 @@ General
    :status: valid
    :version: 1
 
-   The :term:`Health Monitor` shall not accept a time range whose minimum is
-   greater than its maximum.
+   The :term:`Health Monitor` shall return an error when a time range is
+   created whose minimum is greater than its maximum.
 
 .. comp_req:: Time granularity
    :id: comp_req__health_monitor__time_granularity
@@ -97,8 +110,8 @@ General
    The :term:`Health Monitor` shall handle time ranges and cycle durations with
    a granularity of one millisecond.
 
-.. comp_req:: Unique identification
-   :id: comp_req__health_monitor__unique_id
+.. comp_req:: Monitor identification
+   :id: comp_req__health_monitor__monitor_id
    :reqtype: Interface
    :security: NO
    :safety: ASIL_B
@@ -109,12 +122,8 @@ General
    :status: valid
    :version: 1
 
-   The :term:`Health Monitor` shall identify each configured element by an
-   identifier that is unique within its scope:
-
-   - a monitor within the :term:`Health Monitor` instance,
-   - a deadline within its deadline monitor,
-   - a state within its logic monitor.
+   The :term:`Health Monitor` shall identify each monitor by an identifier that
+   is unique within the :term:`Health Monitor` instance.
 
 .. comp_req:: Complete monitor activation
    :id: comp_req__health_monitor__complete_activation
@@ -128,15 +137,16 @@ General
    :status: valid
    :version: 1
 
-   The :term:`Health Monitor` shall refuse to start supervision unless every
-   configured monitor has been acquired by the application.
+   The :term:`Health Monitor` shall treat a start of supervision while a
+   configured monitor has not been acquired as a fatal error and terminate the
+   hosting process.
 
    .. note:: Prevents a monitor that is configured but never fed from
       silently staying unsupervised.
 
-.. comp_req:: Exclusive monitor ownership
-   :id: comp_req__health_monitor__exclusive_owner
-   :reqtype: Interface
+.. comp_req:: Single monitor acquisition
+   :id: comp_req__health_monitor__monitor_once
+   :reqtype: Functional
    :security: NO
    :safety: ASIL_B
    :derived_from: feat_req__lifecycle__hm_checkpoint[version==1],
@@ -146,8 +156,8 @@ General
    :status: valid
    :version: 1
 
-   The :term:`Health Monitor` shall hand out each monitor and each deadline
-   at most once, and shall return an error on any further acquisition attempt.
+   The :term:`Health Monitor` shall return an error when a monitor that has
+   already been handed out is requested again.
 
 .. comp_req:: Cyclic evaluation
    :id: comp_req__health_monitor__cyclic_eval
@@ -161,9 +171,10 @@ General
    :status: valid
    :version: 1
 
-   Once started, the :term:`Health Monitor` shall evaluate all monitors with
-   the configured internal evaluation cycle, independently of the application
-   threads that report to them.
+   Once started, and until a supervision failure has been detected, the
+   :term:`Health Monitor` shall evaluate all monitors with the configured
+   internal evaluation cycle, independently of the application threads that
+   report to them.
 
 .. comp_req:: Monotonic time base
    :id: comp_req__health_monitor__monotonic_time
@@ -192,9 +203,9 @@ Heartbeat (Checkpoint) Supervision
    :status: valid
    :version: 1
 
-   The :term:`Health Monitor` shall reject a heartbeat monitor configuration if
-   the internal evaluation cycle is greater than or equal to twice the minimum
-   of the heartbeat time range.
+   The :term:`Health Monitor` shall return an error when building a heartbeat
+   monitor configuration in which the internal evaluation cycle is greater than
+   or equal to twice the minimum of the heartbeat time range.
 
    .. note:: Ensures that a correctly behaving application never reports more
       than one heartbeat within one internal evaluation cycle. See
@@ -259,11 +270,37 @@ Deadline Supervision
    :status: valid
    :version: 1
 
-   The :term:`Health Monitor` shall reject a deadline monitor configuration
-   that contains no deadline.
+   The :term:`Health Monitor` shall return an error when building a deadline
+   monitor configuration that contains no deadline.
 
-.. comp_req:: Deadline missed
-   :id: comp_req__health_monitor__dl_missed
+.. comp_req:: Deadline identification
+   :id: comp_req__health_monitor__deadline_id
+   :reqtype: Interface
+   :security: NO
+   :safety: ASIL_B
+   :derived_from: feat_req__lifecycle__hm_deadline[version==1]
+   :satisfied_by: comp__health_monitor
+   :status: valid
+   :version: 1
+
+   The :term:`Health Monitor` shall identify each deadline by an identifier
+   that is unique within its deadline monitor.
+
+.. comp_req:: Exclusive deadline acquisition
+   :id: comp_req__health_monitor__deadline_exclusive
+   :reqtype: Functional
+   :security: NO
+   :safety: ASIL_B
+   :derived_from: feat_req__lifecycle__hm_deadline[version==1]
+   :satisfied_by: comp__health_monitor
+   :status: valid
+   :version: 1
+
+   The :term:`Health Monitor` shall return an error when a deadline is
+   requested while the application still holds it.
+
+.. comp_req:: Deadline stopped late
+   :id: comp_req__health_monitor__dl_late_stop
    :reqtype: Functional
    :security: NO
    :safety: ASIL_B
@@ -273,8 +310,20 @@ Deadline Supervision
    :version: 1
 
    The :term:`Health Monitor` shall detect a deadline failure if a started
-   deadline is not stopped before the configured maximum time has elapsed,
-   including the case where it is never stopped.
+   deadline is stopped after the configured maximum time has elapsed.
+
+.. comp_req:: Deadline not stopped
+   :id: comp_req__health_monitor__dl_no_stop
+   :reqtype: Functional
+   :security: NO
+   :safety: ASIL_B
+   :derived_from: feat_req__lifecycle__hm_deadline[version==1]
+   :satisfied_by: comp__health_monitor
+   :status: valid
+   :version: 1
+
+   The :term:`Health Monitor` shall detect a deadline failure if a started
+   deadline is still running when the configured maximum time has elapsed.
 
 .. comp_req:: Deadline too early
    :id: comp_req__health_monitor__dl_too_early
@@ -291,7 +340,7 @@ Deadline Supervision
 
 .. comp_req:: Failed deadline reuse
    :id: comp_req__health_monitor__dl_failed_reuse
-   :reqtype: Interface
+   :reqtype: Functional
    :security: NO
    :safety: ASIL_B
    :derived_from: feat_req__lifecycle__hm_deadline[version==1]
@@ -305,8 +354,21 @@ Deadline Supervision
 Logical Supervision
 ===================
 
-.. comp_req:: Logic configuration validation
-   :id: comp_req__health_monitor__lg_cfg
+.. comp_req:: State identification
+   :id: comp_req__health_monitor__state_id
+   :reqtype: Interface
+   :security: NO
+   :safety: ASIL_B
+   :derived_from: feat_req__lifecycle__hm_logical[version==1]
+   :satisfied_by: comp__health_monitor
+   :status: valid
+   :version: 1
+
+   The :term:`Health Monitor` shall identify each state by an identifier that
+   is unique within its logic monitor.
+
+.. comp_req:: Logic configuration without state
+   :id: comp_req__health_monitor__lg_cfg_no_state
    :reqtype: Functional
    :security: NO
    :safety: ASIL_B
@@ -315,12 +377,35 @@ Logical Supervision
    :status: valid
    :version: 1
 
-   The :term:`Health Monitor` shall reject a logic monitor configuration if any
-   of the following holds:
+   The :term:`Health Monitor` shall return an error when building a logic
+   monitor configuration in which no state is defined.
 
-   - no state is defined,
-   - an allowed transition targets a state that is not defined,
-   - the initial state is not defined.
+.. comp_req:: Undefined transition target
+   :id: comp_req__health_monitor__lg_cfg_undef_target
+   :reqtype: Functional
+   :security: NO
+   :safety: ASIL_B
+   :derived_from: feat_req__lifecycle__hm_logical[version==1]
+   :satisfied_by: comp__health_monitor
+   :status: valid
+   :version: 1
+
+   The :term:`Health Monitor` shall return an error when building a logic
+   monitor configuration in which an allowed transition targets a state that
+   is not defined.
+
+.. comp_req:: Undefined initial state
+   :id: comp_req__health_monitor__lg_cfg_no_initial
+   :reqtype: Functional
+   :security: NO
+   :safety: ASIL_B
+   :derived_from: feat_req__lifecycle__hm_logical[version==1]
+   :satisfied_by: comp__health_monitor
+   :status: valid
+   :version: 1
+
+   The :term:`Health Monitor` shall return an error when building a logic
+   monitor configuration in which the initial state is not defined.
 
 .. comp_req:: Initial logical state
    :id: comp_req__health_monitor__lg_initial
@@ -503,8 +588,8 @@ Robustness and Freedom from Interference
    The :term:`Health Monitor` shall keep the monitor state consistent when
    reporting and cyclic evaluation run concurrently on different threads.
 
-.. comp_req:: Memory corruption detection
-   :id: comp_req__health_monitor__mem_guard
+.. comp_req:: Memory guard pages
+   :id: comp_req__health_monitor__mem_guard_pages
    :reqtype: Non-Functional
    :security: NO
    :safety: ASIL_B
@@ -513,16 +598,31 @@ Robustness and Freedom from Interference
    :status: valid
    :version: 1
 
-   The :term:`Health Monitor` shall place its monitoring data between
-   inaccessible memory pages, so that a write that runs across the boundaries
-   of that data is detected.
+   The :term:`Health Monitor` shall place inaccessible guard pages directly
+   before and after its monitoring data.
 
-   .. note:: Measure for HM_FMEA_003. It detects bulk memory corruption only.
-      Targeted corruption of the monitoring data is covered by
-      :need:`aou_req__health_monitor__host_integrity`.
+   .. note:: Measure for HM_FMEA_003.
 
-   .. note:: Further measure like Arm Memory Tagging Extension will be 
+   .. note:: Further measure like Arm Memory Tagging Extension will be
       investigated in the future.
+
+.. comp_req:: Memory corruption detection
+   :id: comp_req__health_monitor__mem_guard_detect
+   :reqtype: Functional
+   :security: NO
+   :safety: ASIL_B
+   :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
+   :satisfied_by: comp__health_monitor
+   :status: valid
+   :version: 1
+
+   A write access to a guard page of the :term:`Health Monitor` shall
+   terminate the hosting process.
+
+   .. note:: The terminated process stops sending alive notifications, see
+      :need:`comp_req__health_monitor__fail_silent`. Only bulk memory
+      corruption reaches a guard page. Targeted corruption of the monitoring
+      data is covered by :need:`aou_req__health_monitor__host_integrity`.
 
 Placeholder
 ===========
