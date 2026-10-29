@@ -11,13 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
-import sys
-from pathlib import Path
-
-# Make local extensions next to this file importable.
-sys.path.insert(0, str(Path(__file__).parent))
-
-extensions = ["score_sphinx_bundle", "feat_req_verification_table"]
+extensions = ["score_sphinx_bundle"]
 
 project = "Lifecycle and Health Management"
 project_url = "https://eclipse-score.github.io/lifecycle/"
@@ -27,4 +21,3 @@ required_in_id = ["lifecycle"]
 score_metrics_include_external_needs = True
 score_metrics_requirement_types = "feat_req,comp_req,aou_req"
 score_metrics_external_feature_ids = ["feat__lifecycle"]
-

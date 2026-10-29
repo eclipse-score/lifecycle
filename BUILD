@@ -148,7 +148,6 @@ docs(
             "mount_at": "features/lifecycle",
         },
     ] if _IS_ROOT_MODULE else []),
-    data = ["docs/feat_req_verification_table.py"],  # Local Sphinx extension loaded by docs/conf.py
     external_needs = [
         "@score_platform//:needs_json",  # This allows linking to feature requirements.
         "@score_process_description//:needs_json",  # This allows linking to requirements (wp__requirements_comp, etc.) from the process_description repository.
