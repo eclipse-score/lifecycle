@@ -45,10 +45,21 @@ Component AoU
    :status: valid
    :version: 1
 
-   The integrator shall configure the :term:`Launch Manager` alive supervision
-   for every process that uses the :term:`Health Monitor`. The expected alive
-   interval shall be consistent with the supervisor notification cycle of the
-   :term:`Health Monitor`.
+   The integrator shall configure every process that uses the
+   :term:`Health Monitor` in the :term:`Launch Manager` with the application
+   type ``Reporting_And_Supervised`` or ``State_Manager``.
+
+.. aou_req:: Launch Manager alive reporting cycle
+   :id: aou_req__health_monitor__lm_alive_cycle
+   :reqtype: Functional
+   :security: NO
+   :safety: ASIL_B
+   :status: valid
+   :version: 1
+
+   The integrator shall set the ``alive_supervision.reporting_cycle_ms`` of
+   every process that uses the :term:`Health Monitor` to a value greater than
+   or equal to the supervisor notification cycle of the :term:`Health Monitor`.
 
 .. aou_req:: Fault tolerant time budget
    :id: aou_req__health_monitor__ftti_budget
@@ -101,7 +112,7 @@ Component AoU
    ASIL B.
 
    .. note:: The :term:`Health Monitor` shares the address space of the hosting
-      process (see :need:`comp_req__health_monitor__mem_guard`). 
+      process (see :need:`comp_req__health_monitor__mem_guard_pages`).
 
 .. aou_req:: Monotonic clock provision
    :id: aou_req__health_monitor__os_clock
