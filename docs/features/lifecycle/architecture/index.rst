@@ -57,7 +57,7 @@ Feature Decomposition
    :id: feat_arc_sta__lifecycle__static_view_arch
    :security: YES
    :safety: ASIL_B
-   :status: valid
+   :status: valid_inspected
    :version: 1
    :fulfils: feat_req__lifecycle__launch_support[version==1],
              feat_req__lifecycle__logging_support[version==1]
@@ -87,7 +87,7 @@ Configuration Structure
    :id: feat_arc_sta__lifecycle__cfg_params_static
    :security: YES
    :safety: ASIL_B
-   :status: valid
+   :status: valid_inspected
    :version: 1
    :fulfils: feat_req__lifecycle__component_group_config[version==1],
              feat_req__lifecycle__run_target_support[version==1],

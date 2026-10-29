@@ -40,10 +40,10 @@ Participants
 
     * - Author(s)
       - Reviewer(s)
-      - Moderator
-    * - TODO: `<https://github.com/NN>`_
-      - TODO: `<https://github.com/NN>`_
-      - TODO: `<https://github.com/NN>`_
+      - Moderator: 
+    * - `<https://github.com/ramceb>`_
+      - `<https://github.com/NicolasFussberger>`_
+      - `<https://github.com/aschemmel-tech>`_
 
 
 Architecture Inspection Checklist
@@ -105,7 +105,7 @@ Architecture Inspection Checklist
     * - ARC_02_02
       - Are operations and interfaces named appropriately and comprehensibly in the architectural design?
       - Check :need:`gd_guidl__arch_design`
-      - YES
+      - NO
       - Interface names and operations are clear. Launch Manager abstract interface elements also have additional description defining the input and output of operations.
         Improvement: Add additional description to Health Monitor interfaces as well.
       - `#875 <https://github.com/eclipse-score/lifecycle/issues/875>`_
@@ -199,10 +199,9 @@ Inspected Static Architecture Views
 The following static views in "valid_inspected" state are in the scope of this inspection:
 
 .. needtable::
-   :filter: "lifecycle" in docname and "architecture" in docname and docname is not None
+   :filter: docname is not None and "architecture" in docname and "lifecycle" in docname
    :style: table
    :types: feat_arc_sta
-   :tags: lifecycle
    :columns: id;status;tags
    :colwidths: 25,25,25
    :sort: title
@@ -213,10 +212,9 @@ Inspected Dynamic Architecture Views
 and the following dynamic views in "valid_inspected" state are in the scope of this inspection:
 
 .. needtable::
-   :filter: "lifecycle" in docname and "architecture" in docname and docname is not None
+   :filter: docname is not None and "architecture" in docname
    :style: table
    :types: feat_arc_dyn
-   :tags: lifecycle
    :columns: id;status;tags
    :colwidths: 25,25,25
    :sort: title

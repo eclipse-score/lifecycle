@@ -51,7 +51,7 @@ Dynamic architecture
 .. feat_arc_dyn:: Alive Monitoring Start
    :id: feat_arc_dyn__lifecycle__alive_monitor_start
    :security: YES
-   :status: valid
+   :status: valid_inspected
    :version: 1
    :safety: ASIL_B
    :fulfils: feat_req__lifecycle__liveliness_detection[version==1]
@@ -68,7 +68,7 @@ Dynamic architecture
 .. feat_arc_dyn:: Alive Monitoring Stop
    :id: feat_arc_dyn__lifecycle__alive_monitor_stop
    :security: YES
-   :status: valid
+   :status: valid_inspected
    :version: 1
    :safety: ASIL_B
    :fulfils: feat_req__lifecycle__liveliness_detection[version==1]
@@ -123,7 +123,7 @@ Dynamic Architecture
 .. feat_arc_dyn:: Application health monitoring
    :id: feat_arc_dyn__lifecycle__app_health_mon
    :security: YES
-   :status: valid
+   :status: valid_inspected
    :version: 1
    :safety: ASIL_B
    :fulfils: feat_req__lifecycle__liveliness_detection[version==1],
@@ -170,7 +170,7 @@ Dynamic Architecture
 .. feat_arc_dyn:: Logical control flow monitoring
    :id: feat_arc_dyn__lifecycle__app_ctrl_flow_mon
    :security: YES
-   :status: valid
+   :status: valid_inspected
    :version: 1
    :safety: ASIL_B
    :fulfils: feat_req__lifecycle__liveliness_detection[version==1],
