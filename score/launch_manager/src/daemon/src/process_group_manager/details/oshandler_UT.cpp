@@ -148,12 +148,12 @@ TEST_F(OsHandlerTest, WaitReturnsProcessIdBeforeRegistration_LaterRegistrationRe
 
     // then
     // Register the process after the termination has already been observed.
-    // insertIfNotTerminated must detect the previously stored termination, return 1, and invoke the
+    // insertIfNotTerminated must detect the previously stored termination, return kMatched, and invoke the
     // callback immediately with the saved exit status instead of creating a new live entry.
     EXPECT_CALL(ccontroller_, terminated(_, 99)).Times(1);
     EXPECT_EQ(
         process_map_.insertIfNotTerminated(4000, &component_),
-        score::mw::lifecycle::internal::SafeProcessMapReturnType::kYield);
+        score::mw::lifecycle::internal::SafeProcessMapReturnType::kMatched);
 
     sut_.reset();
 }
@@ -171,7 +171,7 @@ TEST_F(OsHandlerTest, WaitReturnsUnknownPidWhenMapIsFull_OutOfResourcesPathDoesN
     {
         ASSERT_EQ(
             process_map_.insertIfNotTerminated(static_cast<int32_t>(i + 1U), &callbacks[i]),
-            score::mw::lifecycle::internal::SafeProcessMapReturnType::kOk);
+            score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted);
     }
 
     EXPECT_CALL(*sys_wait_mock_, wait(_))

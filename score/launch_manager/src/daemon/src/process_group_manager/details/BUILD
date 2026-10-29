@@ -371,6 +371,7 @@ cc_library(
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
     deps = [
         ":icomponent_controller",
+        "//score/launch_manager/src/daemon/src/common:init_only_resource",
         "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
     ],
 )

@@ -126,7 +126,7 @@ class GraphTest : public ::testing::Test
             const osal::ProcessID pid = 100;
             EXPECT_CALL(process_interface_, startProcess)
                 .WillOnce(DoAll(SetArgReferee<0>(pid), Return(osal::OsalReturnType::kSuccess)));
-            EXPECT_CALL(*mock_process_map, insertIfNotTerminated).WillOnce(Return(SafeProcessMapReturnType::kOk));
+            EXPECT_CALL(*mock_process_map, insertIfNotTerminated).WillOnce(Return(SafeProcessMapReturnType::kMatched));
             res = job.component.get().activate(job.stop_token);
         }
         else if (job.type == ComponentTaskType::kDeactivate)
