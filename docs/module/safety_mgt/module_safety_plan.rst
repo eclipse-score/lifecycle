@@ -365,5 +365,52 @@ The following deviations from the module safety plan are present in the module s
 These are deviations from planned processes execution and/or workproduct results,
 safety anomalies in the sense of known bugs in the software are reported in the release notes.
 
-<Describe here the deviations, whether they have an impact on module's safety functions,
-how these can be mitigated or argued and if and when a resolution is planned.>
+.. list-table:: Current Deviations
+        :header-rows: 1
+        :widths: 20,30,30,20
+
+        * - Deviation
+          - Description
+          - Safety Impact / Argumentation
+          - Planned Resolution
+
+        * - DFA not yet performed
+          - The Dependent Failure Analysis (:need:`wp__feature_dfa`, :need:`wp__sw_component_dfa`) is not yet
+            performed for the Lifecycle feature nor for the Health Monitor and Launch Manager components.
+            The documents only contain the unfilled process template.
+          - Freedom from interference between the two components (and towards other platform
+            components sharing resources, e.g. the Health Monitor library running in-process with a
+            monitored application, see :need:`doc__health_monitor_fmea`) is not yet systematically
+            analyzed. Until this is completed, no claim can be made that dependent failures are
+            identified and mitigated.
+          - To be completed as part of the Safety Work Products effort tracked in
+            `eclipse-score/score#3029 <https://github.com/eclipse-score/score/issues/3029>`_, targeting
+            the v1.0 milestone.
+
+        * - Health Monitor component requirements not yet elaborated
+          - :need:`wp__requirements_comp` and :need:`wp__requirements_comp_aou` for the Health Monitor
+            component only contain a placeholder requirement, see
+            :need:`doc__health_monitor_requirements`.
+          - Safety analysis mitigations referencing component requirements
+            (``mitigated_by``) cannot yet be traced to a real, reviewed requirement for this
+            component.
+          - Tracked as part of the requirements rework effort
+            (`eclipse-score/lifecycle#344 <https://github.com/eclipse-score/lifecycle/issues/344>`_).
+
+        * - Formal Document Reviews (FDR) not yet conducted
+          - :need:`doc__lifecycle_safety_plan_fdr`, :need:`doc__lifecycle_safety_analysis_fdr` and
+            :need:`doc__lifecycle_safety_package_fdr` are unfilled checklist templates; no formal
+            review by an external safety manager has taken place yet for this module.
+          - No work product in this safety package has received formal review sign-off; all
+            safety-relevant documents remain in ``draft`` status.
+          - Planned once the underlying work products (requirements, architecture, safety analysis)
+            referenced by the FDR checklists reach a reviewable state.
+
+        * - Module Safety Package not yet compiled
+          - Not all work products referenced in the Module Work products List above have reached
+            ``valid`` status; a formal safety package per :need:`gd_guidl__saf_package` has therefore
+            not yet been assembled.
+          - No safety argumentation is currently provided with module releases, consistent with the
+            disclaimer in the release notes that releases are not "released for production".
+          - To be compiled once the work products above are resolved, ahead of the module's v1.0
+            release.
