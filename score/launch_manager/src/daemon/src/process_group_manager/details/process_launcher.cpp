@@ -246,30 +246,7 @@ bool ProcessLauncher::setupComms(IpcCommsP& block, int& fd, const configuration:
 {
     size_t length = sizeof(IpcCommsSync);
 
-    constexpr std::string_view kShmNamePrefix{"/ipc_shared_mem"};
-    std::array<char, static_cast<std::size_t>(ProcessLimits::maxLocalBuffSize)> shm_name{};
-    static_cast<void>(kShmNamePrefix.copy(shm_name.data(), kShmNamePrefix.size()));
-
-    char* const counter_first = std::next(shm_name.data(), static_cast<std::ptrdiff_t>(kShmNamePrefix.size()));
-    // The last byte is excluded from the conversion range so that it keeps the zero from the value
-    // initialization above, which guarantees a null-terminated name for shm_open().
-    char* const counter_last = std::next(shm_name.data(), static_cast<std::ptrdiff_t>(shm_name.size() - 1U));
-
-    const auto conversion = std::to_chars(counter_first, counter_last, shm_name_counter++);
-    if (conversion.ec != std::errc{})
-    {
-        // Anonymous shared mem name is only used for debugging (or discarded on QNX). It does not need to be unique
-        LM_LOG_WARN() << "Anonymous shared memory name truncated: the local buffer is too small for the shared memory "
-                         "object name. Proceeding with generic name";
-
-        shm_name = {"/ipc_shared_mem_XXXXXXXXXXXXXXX\0"};
-    }
-    else
-    {
-        *conversion.ptr = '\0';
-    }
-
-    fd = shm_open_anon(shm_name.data());
+    fd = shm_open_anon("/lm_running_report_ipc\0");
     if (fd < 0)
     {
         LM_LOG_ERROR() << "shm_open failed:" << config.deployment_config.executable_path
