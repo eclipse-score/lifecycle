@@ -50,6 +50,7 @@ copyright_checker(
         "BUILD",
         "MODULE.bazel",
         "docs",
+        "docs_root_only",
         "examples",
         "externals",
         "quality",
@@ -140,15 +141,21 @@ docs(
             "mount_at": "components/health_monitor",
         },
     ] + ([
-        # Glossary is located in score_platform but we also need to
-        # avoid duplication during integration in ref_int repository
+        # Only for lifecycle's own doc build, not during integration in ref_int repository
         {
+            # Glossary is located in score_platform; avoid duplication in ref_int
             "attach_to": "features/lifecycle/index",
             "bundle": ":platform_glossary",
             "mount_at": "features/lifecycle",
         },
+        {
+            # Needs the local Sphinx extension, which ref_int does not load
+            "attach_to": "verification_report/module_verification_report",
+            "bundle": "//docs_root_only:docs",
+            "mount_at": "verification_report/feat_req_verification_state",
+        },
     ] if _IS_ROOT_MODULE else []),
-    data = ["docs/feat_req_verification_table.py"],  # Local Sphinx extension loaded by docs/conf.py
+    data = ["docs/feat_req_verification_table.py"] if _IS_ROOT_MODULE else [],  # Local Sphinx extension loaded by docs/conf.py
     external_needs = [
         "@score_platform//:needs_json",  # This allows linking to feature requirements.
         "@score_process_description//:needs_json",  # This allows linking to requirements (wp__requirements_comp, etc.) from the process_description repository.
