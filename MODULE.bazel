@@ -301,14 +301,7 @@ pip.parse(
 )
 use_repo(pip, "codeql_coding_standards_pip_hub")
 
-bazel_dep(name = "score_itf", version = "0.5.0", dev_dependency = True)
-
-# Need latest ITF for qemu arm support which is not part latest release
-git_override(
-    module_name = "score_itf",
-    commit = "38ae9a3dd98ccc7434e1f8b57ca4a3d2bac82e2f",
-    remote = "https://github.com/eclipse-score/itf.git",
-)
+bazel_dep(name = "score_itf", version = "0.6.0")
 
 oci = use_extension("@rules_oci//oci:extensions.bzl", "oci", dev_dependency = True)
 oci.pull(
