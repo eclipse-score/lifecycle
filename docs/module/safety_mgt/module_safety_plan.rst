@@ -47,7 +47,9 @@ Functional Safety Management Roles
           - Assignee
 
         * - Safety Manager
-          - <link to Module's Safety Manager assignment or name>
+          - `@aschemmel-tech <https://github.com/aschemmel-tech>`_ (assigned by the S-CORE safety team,
+            see `meeting minutes 2026-06-17
+            <https://github.com/eclipse-score/score/discussions/2386#discussioncomment-17163015>`_)
 
         * - Module Project Manager
           - <link to Module's Project Manager assignment or name>
