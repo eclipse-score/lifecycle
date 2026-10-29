@@ -490,7 +490,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <div class="need_container docutils container" id="SNCB-a308b0a6">
+  <div class="need_container docutils container" id="SNCB-215ff095">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__lifecycle_release_note_v0_9_0">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -562,12 +562,24 @@ being a non-profit and open source organization, can not take over any liability
 <li><p>Configuration option <cite>deployment_config.ready_recovery_action</cite> is now deprecated to avoid confusion btw. <cite>ready_recovery_action</cite> and <cite>recovery_action</cite>.
 Instead use the new configuration parameters <cite>deployment_config.activation_retry_attempts</cite> and <cite>deployment_config.activation_retry_delay_ms</cite>. Note that
 <cite>deployment_config.activation_retry_delay_ms</cite> is not yet implemented and only a placeholder.</p></li>
+<li><p>Improved stability of the feature integration tests
+(<a class="reference external" href="https://github.com/eclipse-score/lifecycle/pull/850">#850</a>).</p></li>
+<li><p>Extended the <cite>ILmControl</cite> API with the new method <cite>wait_for_connection()</cite>, which blocks until the client is connected
+to the Launch Manager, the timeout expires, or a stop is requested via a stop token
+(<a class="reference external" href="https://github.com/eclipse-score/lifecycle/pull/840">#840</a>, <a class="reference external" href="https://github.com/eclipse-score/lifecycle/pull/850">#850</a>).</p></li>
+<li><p>Improved the feature architecture documentation with Control API behavior and Recovery Actions
+(<a class="reference external" href="https://github.com/eclipse-score/lifecycle/pull/800">#800</a>).</p></li>
 </ul>
 </section>
 <section id="bug-fixes">
 <h3>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p>None</p></li>
+<li><p>Fixed a race in <cite>ILmControl</cite>: an activation callback registered before the service was discovered tried to read
+samples immediately. It now waits until the connection is established
+(<a class="reference external" href="https://github.com/eclipse-score/lifecycle/pull/849">#849</a>).</p></li>
+<li><p>Fixed a narrowing bug in the health monitor’s <cite>TimeRange</cite>: <cite>MinMs()</cite> / <cite>MaxMs()</cite> returned <cite>uint32_t</cite> and could
+silently narrow values. They now return <cite>uint64_t</cite>, and negative durations violate a precondition check. Both the C++
+library and the Rust FFI were updated (<a class="reference external" href="https://github.com/eclipse-score/lifecycle/pull/827">#827</a>).</p></li>
 </ul>
 </section>
 <section id="other-changes-by-label">
