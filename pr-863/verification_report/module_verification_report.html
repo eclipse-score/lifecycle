@@ -521,7 +521,7 @@ html[data-theme="dark"] .score-testcase-result--disabled {
 </style>
 <section id="verification-report">
 <span id="life-statistics"></span><h1>Verification Report<a class="headerlink" href="#verification-report" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-1e86db2b">
+<div class="need_container docutils container" id="SNCB-79aed2bb">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_mod_ver_report table" id="mod_vrep__lifecycle__report">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -690,10 +690,10 @@ p.rubric.safety-class-heading.safety-qm { background: #6c757d; }
 <div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
 <div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-2 sd-row-cols-md-3 sd-row-cols-lg-3 sd-g-2 sd-g-xs-2 sd-g-sm-2 sd-g-md-2 sd-g-lg-2 score-pie-row docutils">
 <div class="sd-col sd-d-flex-column docutils">
-<img alt="Health Monitor Requirements Status (ASIL B): valid_inspected 0, valid 31, invalid 0" class="score-report-pie" src="../_images/score_report_pie_7c5558cb85.svg" />
+<img alt="Health Monitor Requirements Status (ASIL B): valid_inspected 0, valid 39, invalid 0" class="score-report-pie" src="../_images/score_report_pie_7c5558cb85.svg" />
 </div>
 <div class="sd-col sd-d-flex-column docutils">
-<img alt="Health Monitor Requirements Test Coverage (ASIL B): fully covered 0, partially covered 0, not covered 31" class="score-report-pie" src="../_images/score_report_pie_1f79271cad.svg" />
+<img alt="Health Monitor Requirements Test Coverage (ASIL B): fully covered 0, partially covered 0, not covered 39" class="score-report-pie" src="../_images/score_report_pie_1f79271cad.svg" />
 </div>
 </div>
 </div>
@@ -739,86 +739,110 @@ verification status and the tests that (fully or partially) verify them:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cfg_validation">comp_req__health_monitor__cfg_validation</a></p></td>
-<td class="needs_title"><p>Configuration validation</p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cfg_no_monitor">comp_req__health_monitor__cfg_no_monitor</a></p></td>
+<td class="needs_title"><p>Configuration without monitor</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cfg_time_range">comp_req__health_monitor__cfg_time_range</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cfg_cycle_multiple">comp_req__health_monitor__cfg_cycle_multiple</a></p></td>
+<td class="needs_title"><p>Notification cycle alignment</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cfg_time_range">comp_req__health_monitor__cfg_time_range</a></p></td>
 <td class="needs_title"><p>Time range validation</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__time_granularity">comp_req__health_monitor__time_granularity</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__time_granularity">comp_req__health_monitor__time_granularity</a></p></td>
 <td class="needs_title"><p>Time granularity</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__unique_id">comp_req__health_monitor__unique_id</a></p></td>
-<td class="needs_title"><p>Unique identification</p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__monitor_id">comp_req__health_monitor__monitor_id</a></p></td>
+<td class="needs_title"><p>Monitor identification</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__complete_activation">comp_req__health_monitor__complete_activation</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__complete_activation">comp_req__health_monitor__complete_activation</a></p></td>
 <td class="needs_title"><p>Complete monitor activation</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__exclusive_owner">comp_req__health_monitor__exclusive_owner</a></p></td>
-<td class="needs_title"><p>Exclusive monitor ownership</p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__monitor_once">comp_req__health_monitor__monitor_once</a></p></td>
+<td class="needs_title"><p>Single monitor acquisition</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cyclic_eval">comp_req__health_monitor__cyclic_eval</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cyclic_eval">comp_req__health_monitor__cyclic_eval</a></p></td>
 <td class="needs_title"><p>Cyclic evaluation</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__monotonic_time">comp_req__health_monitor__monotonic_time</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__monotonic_time">comp_req__health_monitor__monotonic_time</a></p></td>
 <td class="needs_title"><p>Monotonic time base</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__hb_cfg">comp_req__health_monitor__hb_cfg</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__hb_cfg">comp_req__health_monitor__hb_cfg</a></p></td>
 <td class="needs_title"><p>Heartbeat configuration validation</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__hb_too_late">comp_req__health_monitor__hb_too_late</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__hb_too_late">comp_req__health_monitor__hb_too_late</a></p></td>
 <td class="needs_title"><p>Heartbeat too late</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__hb_too_early">comp_req__health_monitor__hb_too_early</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__hb_too_early">comp_req__health_monitor__hb_too_early</a></p></td>
 <td class="needs_title"><p>Heartbeat too early</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__hb_multiple">comp_req__health_monitor__hb_multiple</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__hb_multiple">comp_req__health_monitor__hb_multiple</a></p></td>
 <td class="needs_title"><p>Multiple heartbeats</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__dl_cfg">comp_req__health_monitor__dl_cfg</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__dl_cfg">comp_req__health_monitor__dl_cfg</a></p></td>
 <td class="needs_title"><p>Deadline configuration validation</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__dl_missed">comp_req__health_monitor__dl_missed</a></p></td>
-<td class="needs_title"><p>Deadline missed</p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__deadline_id">comp_req__health_monitor__deadline_id</a></p></td>
+<td class="needs_title"><p>Deadline identification</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__deadline_exclusive">comp_req__health_monitor__deadline_exclusive</a></p></td>
+<td class="needs_title"><p>Exclusive deadline acquisition</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__dl_late_stop">comp_req__health_monitor__dl_late_stop</a></p></td>
+<td class="needs_title"><p>Deadline stopped late</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__dl_no_stop">comp_req__health_monitor__dl_no_stop</a></p></td>
+<td class="needs_title"><p>Deadline not stopped</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
@@ -835,85 +859,109 @@ verification status and the tests that (fully or partially) verify them:</p>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__lg_cfg">comp_req__health_monitor__lg_cfg</a></p></td>
-<td class="needs_title"><p>Logic configuration validation</p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__state_id">comp_req__health_monitor__state_id</a></p></td>
+<td class="needs_title"><p>State identification</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__lg_initial">comp_req__health_monitor__lg_initial</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__lg_cfg_no_state">comp_req__health_monitor__lg_cfg_no_state</a></p></td>
+<td class="needs_title"><p>Logic configuration without state</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__lg_cfg_undef_target">comp_req__health_monitor__lg_cfg_undef_target</a></p></td>
+<td class="needs_title"><p>Undefined transition target</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__lg_cfg_no_initial">comp_req__health_monitor__lg_cfg_no_initial</a></p></td>
+<td class="needs_title"><p>Undefined initial state</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__lg_initial">comp_req__health_monitor__lg_initial</a></p></td>
 <td class="needs_title"><p>Initial logical state</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__lg_invalid_trans">comp_req__health_monitor__lg_invalid_trans</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__lg_invalid_trans">comp_req__health_monitor__lg_invalid_trans</a></p></td>
 <td class="needs_title"><p>Invalid transition</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__lg_unknown_state">comp_req__health_monitor__lg_unknown_state</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__lg_unknown_state">comp_req__health_monitor__lg_unknown_state</a></p></td>
 <td class="needs_title"><p>Unknown state</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__alive_notify">comp_req__health_monitor__alive_notify</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__alive_notify">comp_req__health_monitor__alive_notify</a></p></td>
 <td class="needs_title"><p>Alive notification</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__alive_withhold">comp_req__health_monitor__alive_withhold</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__alive_withhold">comp_req__health_monitor__alive_withhold</a></p></td>
 <td class="needs_title"><p>Withhold alive on failure</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__failure_latch">comp_req__health_monitor__failure_latch</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__failure_latch">comp_req__health_monitor__failure_latch</a></p></td>
 <td class="needs_title"><p>Failure latching</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__fail_silent">comp_req__health_monitor__fail_silent</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__fail_silent">comp_req__health_monitor__fail_silent</a></p></td>
 <td class="needs_title"><p>Fail-silent on internal error</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__detect_latency">comp_req__health_monitor__detect_latency</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__detect_latency">comp_req__health_monitor__detect_latency</a></p></td>
 <td class="needs_title"><p>Detection latency</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__failure_log">comp_req__health_monitor__failure_log</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__failure_log">comp_req__health_monitor__failure_log</a></p></td>
 <td class="needs_title"><p>Failure logging</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__static_memory">comp_req__health_monitor__static_memory</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__static_memory">comp_req__health_monitor__static_memory</a></p></td>
 <td class="needs_title"><p>Static memory after start</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__nonblocking_api">comp_req__health_monitor__nonblocking_api</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__nonblocking_api">comp_req__health_monitor__nonblocking_api</a></p></td>
 <td class="needs_title"><p>Bounded, non-blocking reporting</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__concurrency">comp_req__health_monitor__concurrency</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__concurrency">comp_req__health_monitor__concurrency</a></p></td>
 <td class="needs_title"><p>Concurrent reporting</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
 <td class="needs_testlink"><p></p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__mem_guard">comp_req__health_monitor__mem_guard</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__mem_guard_pages">comp_req__health_monitor__mem_guard_pages</a></p></td>
+<td class="needs_title"><p>Memory guard pages</p></td>
+<td class="needs_safety"><p>ASIL_B</p></td>
+<td class="needs_status"><p>valid</p></td>
+<td class="needs_testlink"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__mem_guard_detect">comp_req__health_monitor__mem_guard_detect</a></p></td>
 <td class="needs_title"><p>Memory corruption detection</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
@@ -933,19 +981,18 @@ verification status and the tests that (fully or partially) verify them:</p>
 </details></section>
 <section id="test-coverage">
 <h4>Test Coverage<a class="headerlink" href="#test-coverage" title="Link to this heading">#</a></h4>
-<p>Per-source-file line and branch coverage aggregated from the LCOV report
-produced by <code class="docutils literal notranslate"><span class="pre">bazel</span> <span class="pre">coverage</span></code>.</p>
-<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-fade-in">
-<summary class="sd-summary-title sd-card-header">
-<span class="sd-summary-text">Show test coverage table</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p class="sd-card-text">No coverage data available for this component. Run <code class="docutils literal notranslate"><span class="pre">bazel</span> <span class="pre">coverage</span></code>
-with the corresponding targets and rebuild the docs to populate this
-table.</p>
+<div class="score-coverage-report docutils container">
+<p>Coverage measurements available for 0/38 selected source files. Green: covered; red: not covered. Percentages describe the available measurements.</p>
+<div class="sd-row sd-row-cols-1 sd-row-cols-md-2 sd-g-3 score-pie-row docutils container">
+<div class="sd-col docutils container">
+<p>Line coverage: no data.</p>
+</div>
+<div class="sd-col docutils container">
+<p>Branch coverage: no data.</p>
 </div>
 </div>
-</details></section>
+</div>
+</section>
 <section id="architectural-elements">
 <h4>Architectural Elements<a class="headerlink" href="#architectural-elements" title="Link to this heading">#</a></h4>
 <p>The following table lists the architectural elements of this component
@@ -1641,145 +1688,145 @@ verification status and the tests that (fully or partially) verify them:</p>
 <td class="needs_title"><p>Launching processes in parallel</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/parallel_launch/parallel_launch.py#L19">test_parallel_launch<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/parallel_launch/parallel_launch.py#L19">test_parallel_launch<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
 </tr>
 <tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__start_named_run_target">comp_req__launch_man__start_named_run_target</a></p></td>
 <td class="needs_title"><p>Launching run target</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/smoke/smoke.py#L19">test_smoke<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/smoke/smoke.py#L19">test_smoke<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
 </tr>
 <tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__switch_run_targets">comp_req__launch_man__switch_run_targets</a></p></td>
 <td class="needs_title"><p>Switch between run targets</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/smoke/smoke.py#L19">test_smoke<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/smoke/smoke.py#L19">test_smoke<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
 </tr>
 <tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_launch_args">comp_req__launch_man__process_launch_args</a></p></td>
 <td class="needs_title"><p>Handling process args</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/fallback_to_same_target_restarts/fallback_to_same_target_restarts.py#L19">test_fallback_to_same_target_restarts<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/process_launch_args/process_launch_args.py#L19">test_process_launch_args<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/fallback_to_same_target_restarts/fallback_to_same_target_restarts.py#L19">test_fallback_to_same_target_restarts<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/process_launch_args/process_launch_args.py#L19">test_process_launch_args<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
 </tr>
 <tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__failure_detect">comp_req__launch_man__failure_detect</a></p></td>
 <td class="needs_title"><p>Component monitoring during startup</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/crash_on_startup/crash_on_startup.py#L22">test_crash_on_startup<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/crash_ignores_dependents/crash_ignores_dependents.py#L19">test_crash_ignores_dependents<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/process_complex_rep_failure/process_complex_rep_failure.py#L19">test_recovery_action_complex_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/process_crash_monitoring/process_crash_monitoring.py#L19">test_process_crash_monitoring<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/crash_on_startup/crash_on_startup.py#L22">test_crash_on_startup<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/crash_ignores_dependents/crash_ignores_dependents.py#L19">test_crash_ignores_dependents<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/process_complex_rep_failure/process_complex_rep_failure.py#L19">test_recovery_action_complex_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/process_crash_monitoring/process_crash_monitoring.py#L19">test_process_crash_monitoring<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
 </tr>
 <tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_comp_switch_rt">comp_req__launch_man__ra_comp_switch_rt</a></p></td>
 <td class="needs_title"><p>Recovery Action - component failure switch Run Target</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/process_complex_rep_failure/process_complex_rep_failure.py#L19">test_recovery_action_complex_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/process_crash_monitoring/process_crash_monitoring.py#L19">test_process_crash_monitoring<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/process_complex_rep_failure/process_complex_rep_failure.py#L19">test_recovery_action_complex_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/process_crash_monitoring/process_crash_monitoring.py#L19">test_process_crash_monitoring<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
 </tr>
 <tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rc_lifecycle">comp_req__launch_man__rc_lifecycle</a></p></td>
 <td class="needs_title"><p>Ready Condition - Lifecycle Interface</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/process_complex_rep_failure/process_complex_rep_failure.py#L19">test_recovery_action_complex_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/fallback_to_same_target_restarts/fallback_to_same_target_restarts.py#L19">test_fallback_to_same_target_restarts<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/incorrect_config_non_reporting/test_incorrect_config_non_reporting.py#L19">test_incorrect_config_non_reporting<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/process_fd_leak/process_fd_leak.py#L19">test_process_fd_leak<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/process_complex_rep_failure/process_complex_rep_failure.py#L19">test_recovery_action_complex_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/fallback_to_same_target_restarts/fallback_to_same_target_restarts.py#L19">test_fallback_to_same_target_restarts<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/incorrect_config_non_reporting/test_incorrect_config_non_reporting.py#L19">test_incorrect_config_non_reporting<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/process_fd_leak/process_fd_leak.py#L19">test_process_fd_leak<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
 </tr>
 <tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rc_os_state">comp_req__launch_man__rc_os_state</a></p></td>
 <td class="needs_title"><p>Ready Condition - OS Process State</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/process_fd_leak/process_fd_leak.py#L19">test_process_fd_leak<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/process_fd_leak/process_fd_leak.py#L19">test_process_fd_leak<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
 </tr>
 <tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rt_comp_dep">comp_req__launch_man__rt_comp_dep</a></p></td>
 <td class="needs_title"><p>Run target to component dependencies</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/fallback_to_same_target_restarts/fallback_to_same_target_restarts.py#L19">test_fallback_to_same_target_restarts<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/process_simple_rep_failure/process_simple_rep_failure.py#L19">test_recovery_action_simple_rep_failure<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/fallback_to_same_target_restarts/fallback_to_same_target_restarts.py#L19">test_fallback_to_same_target_restarts<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
 </tr>
 <tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_comp_reactivate">comp_req__launch_man__ra_comp_reactivate</a></p></td>
 <td class="needs_title"><p>Recovery Action - component failure reactivate the component</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/crash_on_startup/crash_on_startup.py#L22">test_crash_on_startup<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/crash_on_startup/crash_on_startup.py#L22">test_crash_on_startup<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
 </tr>
 <tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__retries_configurable">comp_req__launch_man__retries_configurable</a></p></td>
 <td class="needs_title"><p>Configurable amount of retries on startup</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/crash_on_startup/crash_on_startup.py#L22">test_crash_on_startup<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/crash_on_startup/crash_on_startup.py#L22">test_crash_on_startup<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
 </tr>
 <tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_state_comm">comp_req__launch_man__process_state_comm</a></p></td>
 <td class="needs_title"><p>Process state</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/rt_running_when_process_exits/rt_running_when_process_exits.py#L19">test_rt_running_when_process_exits<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/rt_running_when_process_exits/rt_running_when_process_exits.py#L19">test_rt_running_when_process_exits<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
 </tr>
 <tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__uid_gid_support">comp_req__launch_man__uid_gid_support</a></p></td>
 <td class="needs_title"><p>Process user, group IDs support</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
 </tr>
 <tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__launch_priority_support">comp_req__launch_man__launch_priority_support</a></p></td>
 <td class="needs_title"><p>Process priority support</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
 </tr>
 <tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__scheduling_policy">comp_req__launch_man__scheduling_policy</a></p></td>
 <td class="needs_title"><p>Scheduling support</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
 </tr>
 <tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__cwd_support">comp_req__launch_man__cwd_support</a></p></td>
 <td class="needs_title"><p>CWD support</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
 </tr>
 <tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__supplementary_groups">comp_req__launch_man__supplementary_groups</a></p></td>
 <td class="needs_title"><p>Supplementary group support</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
 </tr>
 <tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__runmask_support">comp_req__launch_man__runmask_support</a></p></td>
 <td class="needs_title"><p>CPU runmask support</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/sandbox_options/sandbox_options.py#L119">test_sandbox_options<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
 </tr>
 <tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__launcher_exit_shutdown">comp_req__launch_man__launcher_exit_shutdown</a></p></td>
 <td class="needs_title"><p>Launch Manager shutdown</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/lm_shutdown_during_switch_to_off/lm_shutdown_during_switch_to_off.py#L19">test_lm_shutdown<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/lm_shutdown_during_rt_switch/lm_shutdown_during_rt_switch.py#L19">test_lm_shutdown<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/lm_shutdown_during_switch_to_off/lm_shutdown_during_switch_to_off.py#L19">test_lm_shutdown<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/lm_shutdown_during_rt_switch/lm_shutdown_during_rt_switch.py#L19">test_lm_shutdown<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
 </tr>
 <tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__shutdown_signal">comp_req__launch_man__shutdown_signal</a></p></td>
 <td class="needs_title"><p>Shutdown signal handling</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/shutdown_signal/shutdown_signal.py#L19">test_shutdown_signal<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/shutdown_signal/shutdown_signal.py#L19">test_shutdown_signal<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
 </tr>
 <tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__conf_of_comp_ready_cond">comp_req__launch_man__conf_of_comp_ready_cond</a></p></td>
 <td class="needs_title"><p>Configuration of component readiness conditions</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/ready_conditions/process_state/kterminated/kterminated.py#L19">test_ready_condition_process_state<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/ready_conditions/process_state/kterminated/kterminated.py#L19">test_ready_condition_process_state<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
 </tr>
 <tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rc_file_state">comp_req__launch_man__rc_file_state</a></p></td>
 <td class="needs_title"><p>Ready Condition - File state</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/ready_conditions/file_state/not_existing/ready_condition_file_not_existing.py#L19">test_ready_condition_file_not_existing<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/ready_conditions/file_state/exists/ready_condition_file.py#L19">test_ready_condition_file<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/ready_conditions/file_state/not_existing/ready_condition_file_not_existing.py#L19">test_ready_condition_file_not_existing<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a><em>; </em><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/ready_conditions/file_state/exists/ready_condition_file.py#L19">test_ready_condition_file<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
 </tr>
 <tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__launch_manager_shutdown">comp_req__launch_man__launch_manager_shutdown</a></p></td>
 <td class="needs_title"><p>Normal shutdown</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
 </tr>
 <tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rt_rt_dep">comp_req__launch_man__rt_rt_dep</a></p></td>
 <td class="needs_title"><p>Run target to run target dependencies</p></td>
 <td class="needs_safety"><p>ASIL_B</p></td>
 <td class="needs_status"><p>valid</p></td>
-<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/17584d45ce3008fb30dc9e390b2c978c4fa292a4/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
+<td class="needs_testlink"><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/blob/0fac5179dc8a0ce14bec4f2c9c34ad4dfccf45b4/tests/integration/switch_run_target/switch_run_target.py#L19">test_switch_run_target<span class="score-testcase-result score-testcase-result--passed"> (passed)</span></a></p></td>
 </tr>
 <tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__dependency_visu">comp_req__launch_man__dependency_visu</a></p></td>
 <td class="needs_title"><p>Configuration dependency view</p></td>
@@ -1801,19 +1848,18 @@ verification status and the tests that (fully or partially) verify them:</p>
 </details></section>
 <section id="id4">
 <h4>Test Coverage<a class="headerlink" href="#id4" title="Link to this heading">#</a></h4>
-<p>Per-source-file line and branch coverage aggregated from the LCOV report
-produced by <code class="docutils literal notranslate"><span class="pre">bazel</span> <span class="pre">coverage</span></code>.</p>
-<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-fade-in">
-<summary class="sd-summary-title sd-card-header">
-<span class="sd-summary-text">Show test coverage table</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p class="sd-card-text">No coverage data available for this component. Run <code class="docutils literal notranslate"><span class="pre">bazel</span> <span class="pre">coverage</span></code>
-with the corresponding targets and rebuild the docs to populate this
-table.</p>
+<div class="score-coverage-report docutils container">
+<p>Coverage measurements available for 0/163 selected source files. Green: covered; red: not covered. Percentages describe the available measurements.</p>
+<div class="sd-row sd-row-cols-1 sd-row-cols-md-2 sd-g-3 score-pie-row docutils container">
+<div class="sd-col docutils container">
+<p>Line coverage: no data.</p>
+</div>
+<div class="sd-col docutils container">
+<p>Branch coverage: no data.</p>
 </div>
 </div>
-</details></section>
+</div>
+</section>
 <section id="id5">
 <h4>Architectural Elements<a class="headerlink" href="#id5" title="Link to this heading">#</a></h4>
 <p>The following table lists the architectural elements of this component
@@ -2113,17 +2159,17 @@ this component. A dash (<code class="docutils literal notranslate"><span class="
 </tr>
 <tr class="need row-even"><td class="needs_id external_link"><p><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__hm_checkpoint">feat_req__lifecycle__hm_checkpoint</a></p></td>
 <td class="needs_title"><p>Health Monitor checkpoint supervision</p></td>
-<td class="needs_derived_from_back"><p><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__alive_withhold">comp_req__health_monitor__alive_withhold</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cfg_time_range">comp_req__health_monitor__cfg_time_range</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cfg_validation">comp_req__health_monitor__cfg_validation</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__complete_activation">comp_req__health_monitor__complete_activation</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__concurrency">comp_req__health_monitor__concurrency</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cyclic_eval">comp_req__health_monitor__cyclic_eval</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__exclusive_owner">comp_req__health_monitor__exclusive_owner</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__hb_cfg">comp_req__health_monitor__hb_cfg</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__hb_multiple">comp_req__health_monitor__hb_multiple</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__hb_too_early">comp_req__health_monitor__hb_too_early</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__hb_too_late">comp_req__health_monitor__hb_too_late</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__monotonic_time">comp_req__health_monitor__monotonic_time</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__nonblocking_api">comp_req__health_monitor__nonblocking_api</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__time_granularity">comp_req__health_monitor__time_granularity</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__unique_id">comp_req__health_monitor__unique_id</a></p></td>
+<td class="needs_derived_from_back"><p><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__alive_withhold">comp_req__health_monitor__alive_withhold</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cfg_no_monitor">comp_req__health_monitor__cfg_no_monitor</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cfg_time_range">comp_req__health_monitor__cfg_time_range</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__complete_activation">comp_req__health_monitor__complete_activation</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__concurrency">comp_req__health_monitor__concurrency</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cyclic_eval">comp_req__health_monitor__cyclic_eval</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__hb_cfg">comp_req__health_monitor__hb_cfg</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__hb_multiple">comp_req__health_monitor__hb_multiple</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__hb_too_early">comp_req__health_monitor__hb_too_early</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__hb_too_late">comp_req__health_monitor__hb_too_late</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__monitor_id">comp_req__health_monitor__monitor_id</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__monitor_once">comp_req__health_monitor__monitor_once</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__monotonic_time">comp_req__health_monitor__monotonic_time</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__nonblocking_api">comp_req__health_monitor__nonblocking_api</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__time_granularity">comp_req__health_monitor__time_granularity</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
 <tr class="need row-odd"><td class="needs_id external_link"><p><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__hm_deadline">feat_req__lifecycle__hm_deadline</a></p></td>
 <td class="needs_title"><p>Health Monitor deadline supervision</p></td>
-<td class="needs_derived_from_back"><p><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__alive_withhold">comp_req__health_monitor__alive_withhold</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cfg_time_range">comp_req__health_monitor__cfg_time_range</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cfg_validation">comp_req__health_monitor__cfg_validation</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__complete_activation">comp_req__health_monitor__complete_activation</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__concurrency">comp_req__health_monitor__concurrency</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cyclic_eval">comp_req__health_monitor__cyclic_eval</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__dl_cfg">comp_req__health_monitor__dl_cfg</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__dl_failed_reuse">comp_req__health_monitor__dl_failed_reuse</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__dl_missed">comp_req__health_monitor__dl_missed</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__dl_too_early">comp_req__health_monitor__dl_too_early</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__exclusive_owner">comp_req__health_monitor__exclusive_owner</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__monotonic_time">comp_req__health_monitor__monotonic_time</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__nonblocking_api">comp_req__health_monitor__nonblocking_api</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__time_granularity">comp_req__health_monitor__time_granularity</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__unique_id">comp_req__health_monitor__unique_id</a></p></td>
+<td class="needs_derived_from_back"><p><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__alive_withhold">comp_req__health_monitor__alive_withhold</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cfg_no_monitor">comp_req__health_monitor__cfg_no_monitor</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cfg_time_range">comp_req__health_monitor__cfg_time_range</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__complete_activation">comp_req__health_monitor__complete_activation</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__concurrency">comp_req__health_monitor__concurrency</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cyclic_eval">comp_req__health_monitor__cyclic_eval</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__deadline_exclusive">comp_req__health_monitor__deadline_exclusive</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__deadline_id">comp_req__health_monitor__deadline_id</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__dl_cfg">comp_req__health_monitor__dl_cfg</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__dl_failed_reuse">comp_req__health_monitor__dl_failed_reuse</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__dl_late_stop">comp_req__health_monitor__dl_late_stop</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__dl_no_stop">comp_req__health_monitor__dl_no_stop</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__dl_too_early">comp_req__health_monitor__dl_too_early</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__monitor_id">comp_req__health_monitor__monitor_id</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__monitor_once">comp_req__health_monitor__monitor_once</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__monotonic_time">comp_req__health_monitor__monotonic_time</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__nonblocking_api">comp_req__health_monitor__nonblocking_api</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__time_granularity">comp_req__health_monitor__time_granularity</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
 <tr class="need row-even"><td class="needs_id external_link"><p><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__hm_logical">feat_req__lifecycle__hm_logical</a></p></td>
 <td class="needs_title"><p>Health Monitor logical supervision</p></td>
-<td class="needs_derived_from_back"><p><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__alive_withhold">comp_req__health_monitor__alive_withhold</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cfg_validation">comp_req__health_monitor__cfg_validation</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__complete_activation">comp_req__health_monitor__complete_activation</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__concurrency">comp_req__health_monitor__concurrency</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cyclic_eval">comp_req__health_monitor__cyclic_eval</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__exclusive_owner">comp_req__health_monitor__exclusive_owner</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__lg_cfg">comp_req__health_monitor__lg_cfg</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__lg_initial">comp_req__health_monitor__lg_initial</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__lg_invalid_trans">comp_req__health_monitor__lg_invalid_trans</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__lg_unknown_state">comp_req__health_monitor__lg_unknown_state</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__nonblocking_api">comp_req__health_monitor__nonblocking_api</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__unique_id">comp_req__health_monitor__unique_id</a></p></td>
+<td class="needs_derived_from_back"><p><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__alive_withhold">comp_req__health_monitor__alive_withhold</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cfg_no_monitor">comp_req__health_monitor__cfg_no_monitor</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__complete_activation">comp_req__health_monitor__complete_activation</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__concurrency">comp_req__health_monitor__concurrency</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cyclic_eval">comp_req__health_monitor__cyclic_eval</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__lg_cfg_no_initial">comp_req__health_monitor__lg_cfg_no_initial</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__lg_cfg_no_state">comp_req__health_monitor__lg_cfg_no_state</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__lg_cfg_undef_target">comp_req__health_monitor__lg_cfg_undef_target</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__lg_initial">comp_req__health_monitor__lg_initial</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__lg_invalid_trans">comp_req__health_monitor__lg_invalid_trans</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__lg_unknown_state">comp_req__health_monitor__lg_unknown_state</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__monitor_id">comp_req__health_monitor__monitor_id</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__monitor_once">comp_req__health_monitor__monitor_once</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__nonblocking_api">comp_req__health_monitor__nonblocking_api</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__state_id">comp_req__health_monitor__state_id</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
 <tr class="need row-odd"><td class="needs_id external_link"><p><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__lm_self_health_check">feat_req__lifecycle__lm_self_health_check</a></p></td>
@@ -2132,7 +2178,7 @@ this component. A dash (<code class="docutils literal notranslate"><span class="
 <td class="needs_status"><p>valid</p></td>
 </tr>
 <tr class="need row-even"><td class="needs_id external_link"><p><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__prog_lang">feat_req__lifecycle__prog_lang</a></p></td>
-<td class="needs_title"><p>Lifecycle programing language support</p></td>
+<td class="needs_title"><p>Lifecycle programming language support</p></td>
 <td class="needs_derived_from_back"><p><a class="reference external" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__lifecycle_lang_support">comp_req__launch_man__lifecycle_lang_support</a><em>; </em><a class="reference external" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__report_lang_support">comp_req__launch_man__report_lang_support</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
@@ -2148,7 +2194,7 @@ this component. A dash (<code class="docutils literal notranslate"><span class="
 </tr>
 <tr class="need row-odd"><td class="needs_id external_link"><p><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__liveliness_detection">feat_req__lifecycle__liveliness_detection</a></p></td>
 <td class="needs_title"><p>Process liveliness detection</p></td>
-<td class="needs_derived_from_back"><p><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__alive_notify">comp_req__health_monitor__alive_notify</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__alive_withhold">comp_req__health_monitor__alive_withhold</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__detect_latency">comp_req__health_monitor__detect_latency</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__fail_silent">comp_req__health_monitor__fail_silent</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__failure_latch">comp_req__health_monitor__failure_latch</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__mem_guard">comp_req__health_monitor__mem_guard</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__static_memory">comp_req__health_monitor__static_memory</a><em>; </em><a class="reference external" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__report_failed_liveliness">comp_req__launch_man__report_failed_liveliness</a><em>; </em><a class="reference external" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__report_liveliness">comp_req__launch_man__report_liveliness</a></p></td>
+<td class="needs_derived_from_back"><p><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__alive_notify">comp_req__health_monitor__alive_notify</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__alive_withhold">comp_req__health_monitor__alive_withhold</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cfg_cycle_multiple">comp_req__health_monitor__cfg_cycle_multiple</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__detect_latency">comp_req__health_monitor__detect_latency</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__fail_silent">comp_req__health_monitor__fail_silent</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__failure_latch">comp_req__health_monitor__failure_latch</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__mem_guard_detect">comp_req__health_monitor__mem_guard_detect</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__mem_guard_pages">comp_req__health_monitor__mem_guard_pages</a><em>; </em><a class="reference external" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__static_memory">comp_req__health_monitor__static_memory</a><em>; </em><a class="reference external" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__report_failed_liveliness">comp_req__launch_man__report_failed_liveliness</a><em>; </em><a class="reference external" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__report_liveliness">comp_req__launch_man__report_liveliness</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
 <tr class="need row-even"><td class="needs_id external_link"><p><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__monitor_processes">feat_req__lifecycle__monitor_processes</a></p></td>
@@ -2251,7 +2297,7 @@ this component. A dash (<code class="docutils literal notranslate"><span class="
 <td class="needs_status"><p>valid</p></td>
 </tr>
 <tr class="need row-even"><td class="needs_id external_link"><p><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__prog_lang">feat_req__lifecycle__prog_lang</a></p></td>
-<td class="needs_title"><p>Lifecycle programing language support</p></td>
+<td class="needs_title"><p>Lifecycle programming language support</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
@@ -2409,8 +2455,8 @@ this component. A dash (<code class="docutils literal notranslate"><span class="
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cfg_validation">comp_req__health_monitor__cfg_validation</a></p></td>
-<td class="needs_title"><p>Configuration validation</p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cfg_no_monitor">comp_req__health_monitor__cfg_no_monitor</a></p></td>
+<td class="needs_title"><p>Configuration without monitor</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
@@ -2439,8 +2485,18 @@ this component. A dash (<code class="docutils literal notranslate"><span class="
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__dl_missed">comp_req__health_monitor__dl_missed</a></p></td>
-<td class="needs_title"><p>Deadline missed</p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__deadline_id">comp_req__health_monitor__deadline_id</a></p></td>
+<td class="needs_title"><p>Deadline identification</p></td>
+<td class="needs_fulfils_back"><p></p></td>
+<td class="needs_status"><p>valid</p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__dl_no_stop">comp_req__health_monitor__dl_no_stop</a></p></td>
+<td class="needs_title"><p>Deadline not stopped</p></td>
+<td class="needs_fulfils_back"><p></p></td>
+<td class="needs_status"><p>valid</p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__dl_late_stop">comp_req__health_monitor__dl_late_stop</a></p></td>
+<td class="needs_title"><p>Deadline stopped late</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
@@ -2464,8 +2520,8 @@ this component. A dash (<code class="docutils literal notranslate"><span class="
 <td class="needs_fulfils_back"><p><a class="reference internal" href="../components/health_monitor/architecture/component_architecture.html#comp_arc_dyn__deadline_monitor__dynamic_view">comp_arc_dyn__deadline_monitor__dynamic_view</a><em>; </em><a class="reference internal" href="../components/health_monitor/architecture/component_architecture.html#comp_arc_dyn__health_lib_thread__dynamic_view">comp_arc_dyn__health_lib_thread__dynamic_view</a><em>; </em><a class="reference internal" href="../components/health_monitor/architecture/component_architecture.html#comp_arc_dyn__health_monitor__dynamic_view">comp_arc_dyn__health_monitor__dynamic_view</a><em>; </em><a class="reference internal" href="../components/health_monitor/architecture/component_architecture.html#comp_arc_dyn__health_monitor__shutdown_view">comp_arc_dyn__health_monitor__shutdown_view</a><em>; </em><a class="reference internal" href="../components/health_monitor/architecture/component_architecture.html#comp_arc_dyn__health_monitor__startup_view">comp_arc_dyn__health_monitor__startup_view</a><em>; </em><a class="reference internal" href="../components/health_monitor/architecture/component_architecture.html#comp_arc_dyn__heartbeat_monitor__dynamic_view">comp_arc_dyn__heartbeat_monitor__dynamic_view</a><em>; </em><a class="reference internal" href="../components/health_monitor/architecture/component_architecture.html#comp_arc_dyn__logic_monitor__dynamic_view">comp_arc_dyn__logic_monitor__dynamic_view</a><em>; </em><a class="reference internal" href="../components/health_monitor/architecture/component_architecture.html#comp_arc_sta__deadline_monitor__static_view">comp_arc_sta__deadline_monitor__static_view</a><em>; </em><a class="reference internal" href="../components/health_monitor/architecture/component_architecture.html#comp_arc_sta__health_mon__hm">comp_arc_sta__health_mon__hm</a><em>; </em><a class="reference internal" href="../components/health_monitor/architecture/component_architecture.html#comp_arc_sta__health_monitor__static_view">comp_arc_sta__health_monitor__static_view</a><em>; </em><a class="reference internal" href="../components/health_monitor/architecture/component_architecture.html#comp_arc_sta__logic_monitor__static_view">comp_arc_sta__logic_monitor__static_view</a><em>; </em><a class="reference internal" href="../components/health_monitor/architecture/component_architecture.html#real_arc_int__deadline_monitor__interface">real_arc_int__deadline_monitor__interface</a><em>; </em><a class="reference internal" href="../components/health_monitor/architecture/component_architecture.html#real_arc_int__health_monitor__interface">real_arc_int__health_monitor__interface</a><em>; </em><a class="reference internal" href="../components/health_monitor/architecture/component_architecture.html#real_arc_int__heartbeat_monitor__interface">real_arc_int__heartbeat_monitor__interface</a><em>; </em><a class="reference internal" href="../components/health_monitor/architecture/component_architecture.html#real_arc_int__logic_monitor__interface">real_arc_int__logic_monitor__interface</a></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__exclusive_owner">comp_req__health_monitor__exclusive_owner</a></p></td>
-<td class="needs_title"><p>Exclusive monitor ownership</p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__deadline_exclusive">comp_req__health_monitor__deadline_exclusive</a></p></td>
+<td class="needs_title"><p>Exclusive deadline acquisition</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
@@ -2604,13 +2660,23 @@ this component. A dash (<code class="docutils literal notranslate"><span class="
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__lg_cfg">comp_req__health_monitor__lg_cfg</a></p></td>
-<td class="needs_title"><p>Logic configuration validation</p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__lg_cfg_no_state">comp_req__health_monitor__lg_cfg_no_state</a></p></td>
+<td class="needs_title"><p>Logic configuration without state</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__mem_guard">comp_req__health_monitor__mem_guard</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__mem_guard_detect">comp_req__health_monitor__mem_guard_detect</a></p></td>
 <td class="needs_title"><p>Memory corruption detection</p></td>
+<td class="needs_fulfils_back"><p></p></td>
+<td class="needs_status"><p>valid</p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__mem_guard_pages">comp_req__health_monitor__mem_guard_pages</a></p></td>
+<td class="needs_title"><p>Memory guard pages</p></td>
+<td class="needs_fulfils_back"><p></p></td>
+<td class="needs_status"><p>valid</p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__monitor_id">comp_req__health_monitor__monitor_id</a></p></td>
+<td class="needs_title"><p>Monitor identification</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
@@ -2634,113 +2700,123 @@ this component. A dash (<code class="docutils literal notranslate"><span class="
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__capability_support">comp_req__launch_man__capability_support</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cfg_cycle_multiple">comp_req__health_monitor__cfg_cycle_multiple</a></p></td>
+<td class="needs_title"><p>Notification cycle alignment</p></td>
+<td class="needs_fulfils_back"><p></p></td>
+<td class="needs_status"><p>valid</p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__capability_support">comp_req__launch_man__capability_support</a></p></td>
 <td class="needs_title"><p>Process capability support</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__launch_priority_support">comp_req__launch_man__launch_priority_support</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__launch_priority_support">comp_req__launch_man__launch_priority_support</a></p></td>
 <td class="needs_title"><p>Process priority support</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_state_comm">comp_req__launch_man__process_state_comm</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_state_comm">comp_req__launch_man__process_state_comm</a></p></td>
 <td class="needs_title"><p>Process state</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__uid_gid_support">comp_req__launch_man__uid_gid_support</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__uid_gid_support">comp_req__launch_man__uid_gid_support</a></p></td>
 <td class="needs_title"><p>Process user, group IDs support</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__queue_rt_selection">comp_req__launch_man__queue_rt_selection</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__queue_rt_selection">comp_req__launch_man__queue_rt_selection</a></p></td>
 <td class="needs_title"><p>Queue a run target selection</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rc_file_state">comp_req__launch_man__rc_file_state</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rc_file_state">comp_req__launch_man__rc_file_state</a></p></td>
 <td class="needs_title"><p>Ready Condition - File state</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rc_lifecycle">comp_req__launch_man__rc_lifecycle</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rc_lifecycle">comp_req__launch_man__rc_lifecycle</a></p></td>
 <td class="needs_title"><p>Ready Condition - Lifecycle Interface</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rc_os_state">comp_req__launch_man__rc_os_state</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rc_os_state">comp_req__launch_man__rc_os_state</a></p></td>
 <td class="needs_title"><p>Ready Condition - OS Process State</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_rt_cancel_trans">comp_req__launch_man__ra_rt_cancel_trans</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_rt_cancel_trans">comp_req__launch_man__ra_rt_cancel_trans</a></p></td>
 <td class="needs_title"><p>Recovery Action</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_comp_reactivate">comp_req__launch_man__ra_comp_reactivate</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_comp_reactivate">comp_req__launch_man__ra_comp_reactivate</a></p></td>
 <td class="needs_title"><p>Recovery Action - component failure reactivate the component</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_comp_switch_rt">comp_req__launch_man__ra_comp_switch_rt</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_comp_switch_rt">comp_req__launch_man__ra_comp_switch_rt</a></p></td>
 <td class="needs_title"><p>Recovery Action - component failure switch Run Target</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_rt_switch_rt">comp_req__launch_man__ra_rt_switch_rt</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_rt_switch_rt">comp_req__launch_man__ra_rt_switch_rt</a></p></td>
 <td class="needs_title"><p>Recovery Action - run target failure switch Run Target</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_rt_sm_notify">comp_req__launch_man__ra_rt_sm_notify</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_rt_sm_notify">comp_req__launch_man__ra_rt_sm_notify</a></p></td>
 <td class="needs_title"><p>Recovery state manager notification</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__report_liveliness">comp_req__launch_man__report_liveliness</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__report_liveliness">comp_req__launch_man__report_liveliness</a></p></td>
 <td class="needs_title"><p>Report process liveliness</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_rlimit_support">comp_req__launch_man__process_rlimit_support</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__process_rlimit_support">comp_req__launch_man__process_rlimit_support</a></p></td>
 <td class="needs_title"><p>Resource limit support</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rt_activate_tout">comp_req__launch_man__rt_activate_tout</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rt_activate_tout">comp_req__launch_man__rt_activate_tout</a></p></td>
 <td class="needs_title"><p>Run Target activation timeout</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_rt_failed_esc">comp_req__launch_man__ra_rt_failed_esc</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__ra_rt_failed_esc">comp_req__launch_man__ra_rt_failed_esc</a></p></td>
 <td class="needs_title"><p>Run target recovery action failure escalation</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rt_comp_dep">comp_req__launch_man__rt_comp_dep</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rt_comp_dep">comp_req__launch_man__rt_comp_dep</a></p></td>
 <td class="needs_title"><p>Run target to component dependencies</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rt_rt_dep">comp_req__launch_man__rt_rt_dep</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__rt_rt_dep">comp_req__launch_man__rt_rt_dep</a></p></td>
 <td class="needs_title"><p>Run target to run target dependencies</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__scheduling_policy">comp_req__launch_man__scheduling_policy</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__scheduling_policy">comp_req__launch_man__scheduling_policy</a></p></td>
 <td class="needs_title"><p>Scheduling support</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__support_secpol_type">comp_req__launch_man__support_secpol_type</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__support_secpol_type">comp_req__launch_man__support_secpol_type</a></p></td>
 <td class="needs_title"><p>Security policy support</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__shutdown_signal">comp_req__launch_man__shutdown_signal</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__shutdown_signal">comp_req__launch_man__shutdown_signal</a></p></td>
 <td class="needs_title"><p>Shutdown signal handling</p></td>
+<td class="needs_fulfils_back"><p></p></td>
+<td class="needs_status"><p>valid</p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__monitor_once">comp_req__health_monitor__monitor_once</a></p></td>
+<td class="needs_title"><p>Single monitor acquisition</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
@@ -2749,38 +2825,48 @@ this component. A dash (<code class="docutils literal notranslate"><span class="
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__static_memory">comp_req__health_monitor__static_memory</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__state_id">comp_req__health_monitor__state_id</a></p></td>
+<td class="needs_title"><p>State identification</p></td>
+<td class="needs_fulfils_back"><p></p></td>
+<td class="needs_status"><p>valid</p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__static_memory">comp_req__health_monitor__static_memory</a></p></td>
 <td class="needs_title"><p>Static memory after start</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__configurable_timeout">comp_req__launch_man__configurable_timeout</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__configurable_timeout">comp_req__launch_man__configurable_timeout</a></p></td>
 <td class="needs_title"><p>Stop timeout</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__supplementary_groups">comp_req__launch_man__supplementary_groups</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__supplementary_groups">comp_req__launch_man__supplementary_groups</a></p></td>
 <td class="needs_title"><p>Supplementary group support</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__switch_run_targets">comp_req__launch_man__switch_run_targets</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/launch_manager/requirements/requirements.html#comp_req__launch_man__switch_run_targets">comp_req__launch_man__switch_run_targets</a></p></td>
 <td class="needs_title"><p>Switch between run targets</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__time_granularity">comp_req__health_monitor__time_granularity</a></p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__time_granularity">comp_req__health_monitor__time_granularity</a></p></td>
 <td class="needs_title"><p>Time granularity</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cfg_time_range">comp_req__health_monitor__cfg_time_range</a></p></td>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__cfg_time_range">comp_req__health_monitor__cfg_time_range</a></p></td>
 <td class="needs_title"><p>Time range validation</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>
-<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__unique_id">comp_req__health_monitor__unique_id</a></p></td>
-<td class="needs_title"><p>Unique identification</p></td>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__lg_cfg_no_initial">comp_req__health_monitor__lg_cfg_no_initial</a></p></td>
+<td class="needs_title"><p>Undefined initial state</p></td>
+<td class="needs_fulfils_back"><p></p></td>
+<td class="needs_status"><p>valid</p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="../components/health_monitor/requirements/requirements.html#comp_req__health_monitor__lg_cfg_undef_target">comp_req__health_monitor__lg_cfg_undef_target</a></p></td>
+<td class="needs_title"><p>Undefined transition target</p></td>
 <td class="needs_fulfils_back"><p></p></td>
 <td class="needs_status"><p>valid</p></td>
 </tr>

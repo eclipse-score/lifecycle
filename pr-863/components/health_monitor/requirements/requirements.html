@@ -504,7 +504,7 @@
                   
   <section id="requirements">
 <span id="component-health-monitor-requirements"></span><h1>Requirements<a class="headerlink" href="#requirements" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-f67041fb">
+<div class="need_container docutils container" id="SNCB-a9784fbe">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__health_monitor_requirements">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -512,7 +512,7 @@
 </div>
 </td>
 <td class="head_center" colspan="2"><div class="needs_head line-block">
-<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">draft</span></span></span></div>
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
 <div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">NO</span></span></span></div>
 <div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
 </div>
@@ -526,7 +526,7 @@
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">health_monitor</span></span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
-<div class="line"><span><div class="line">realizes: <span class="realizes"><span><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/requirements_engineering/requirements_workproducts.html#wp__requirements_feat">wp__requirements_feat</a></span></span></div>
+<div class="line"><span><div class="line">realizes: <span class="realizes"><span><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/requirements_engineering/requirements_workproducts.html#wp__requirements_comp">wp__requirements_comp</a></span></span></div>
 </span></div>
 </div>
 </td>
@@ -555,24 +555,27 @@ application it is linked into. It detects deviations from the configured
 temporal and logical behavior and reacts by withholding the alive
 notification towards the <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a>.</p>
 <ul class="simple">
-<li><p><strong>Safe state:</strong> the absence of alive notifications. The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a>
-detects the missing notification via its alive supervision and executes the
-configured <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Recovery-Action"><span class="xref std std-term">Recovery Action</span></a>.</p></li>
+<li><p><strong>Safe state:</strong> the state the system reaches through the
+<a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Recovery-Action"><span class="xref std std-term">Recovery Action</span></a> of the <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a>. The
+<a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> triggers it by stopping its alive notifications; the
+<a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> detects the missing notifications via its alive
+supervision.</p></li>
 <li><p><strong>Fail-silent principle:</strong> any failure, whether detected in the application
 or internal to the <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> (crash, hang, panic, starvation),
-ends in the same safe state. A fault can therefore never make the
-<a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> report “alive” for a failed application.</p></li>
+stops the alive notifications and thereby leads to the safe state. A fault
+can therefore never make the <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> report “alive” for a
+failed application.</p></li>
 <li><p><strong>Detection channel:</strong> the <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> alive supervision is the
 independent channel that covers failures of the <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> itself.</p></li>
 </ul>
 </section>
 <section id="general">
 <h2>General<a class="headerlink" href="#general" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-0646933e">
-<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__cfg_validation">
+<div class="need_container docutils container" id="SNCB-4859bfa3">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__cfg_no_monitor">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
-<div class="line"><span><span class="needs_title"><span class="needs_data">Configuration validation</span></span></span></div>
+<div class="line"><span><span class="needs_title"><span class="needs_data">Configuration without monitor</span></span></span></div>
 </div>
 </td>
 <td class="head_center" colspan="2"><div class="needs_head line-block">
@@ -592,19 +595,14 @@ independent channel that covers failures of the <a class="reference internal" hr
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__hm_checkpoint">feat_req__lifecycle__hm_checkpoint</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__hm_deadline">feat_req__lifecycle__hm_deadline</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__hm_logical">feat_req__lifecycle__hm_logical</a></span></span></div>
-<div class="line">satisfied by: <span class="satisfied_by"><span><a class="reference internal" href="../architecture/component_architecture.html#comp__health_monitor" title="comp_req__health_monitor__cfg_validation">comp__health_monitor</a></span></span></div>
+<div class="line">satisfied by: <span class="satisfied_by"><span><a class="reference internal" href="../architecture/component_architecture.html#comp__health_monitor" title="comp_req__health_monitor__cfg_no_monitor">comp__health_monitor</a></span></span></div>
 </span></div>
 </div>
 </td>
 <td class="meta" colspan="3"></td>
 </tr>
-<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall reject a configuration and not create a
-monitoring instance if any of the following holds:</p>
-<ul class="simple">
-<li><p>no monitor is configured,</p></li>
-<li><p>the supervisor notification cycle is not an integer multiple of the
-internal evaluation cycle.</p></li>
-</ul>
+<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall return an error when building a
+configuration in which no monitor is configured.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Monitor specific configuration checks are specified in the
@@ -614,7 +612,7 @@ section of the respective monitor and in
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
-<div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__health_monitor__cfg_validation" title="comp_req__health_monitor__cfg_validation">comp_req__health_monitor__cfg_validation</a></span></span></div>
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__health_monitor__cfg_no_monitor" title="comp_req__health_monitor__cfg_no_monitor">comp_req__health_monitor__cfg_no_monitor</a></span></span></div>
 </div>
 </td>
 <td class="footer" colspan="2"><div class="needs_footer line-block">
@@ -627,7 +625,55 @@ section of the respective monitor and in
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-d47ca0ba">
+<div class="need_container docutils container" id="SNCB-7cba087e">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__cfg_cycle_multiple">
+<tbody>
+<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
+<div class="line"><span><span class="needs_title"><span class="needs_data">Notification cycle alignment</span></span></span></div>
+</div>
+</td>
+<td class="head_center" colspan="2"><div class="needs_head line-block">
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
+<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">NO</span></span></span></div>
+<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
+</div>
+</td>
+<td class="head_right" colspan="2"><div class="needs_head_right line-block">
+<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
+</div>
+</td>
+</tr>
+<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
+<div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">health_monitor</span></span></span></div>
+<div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
+<div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
+</span></span></div>
+<div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__liveliness_detection">feat_req__lifecycle__liveliness_detection</a></span></span></div>
+<div class="line">satisfied by: <span class="satisfied_by"><span><a class="reference internal" href="../architecture/component_architecture.html#comp__health_monitor" title="comp_req__health_monitor__cfg_cycle_multiple">comp__health_monitor</a></span></span></div>
+</span></div>
+</div>
+</td>
+<td class="meta" colspan="3"></td>
+</tr>
+<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall return an error when building a
+configuration in which the supervisor notification cycle is not an integer
+multiple of the internal evaluation cycle.</p></td>
+</tr>
+<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__health_monitor__cfg_cycle_multiple" title="comp_req__health_monitor__cfg_cycle_multiple">comp_req__health_monitor__cfg_cycle_multiple</a></span></span></div>
+</div>
+</td>
+<td class="footer" colspan="2"><div class="needs_footer line-block">
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Component Requirement</span></span></span></div>
+</div>
+</td>
+<td class="footer_right" colspan="2"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="need_container docutils container" id="SNCB-b0e70a59">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__cfg_time_range">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -657,8 +703,8 @@ section of the respective monitor and in
 </td>
 <td class="meta" colspan="3"></td>
 </tr>
-<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall not accept a time range whose minimum is
-greater than its maximum.</p></td>
+<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall return an error when a time range is
+created whose minimum is greater than its maximum.</p></td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
 <div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__health_monitor__cfg_time_range" title="comp_req__health_monitor__cfg_time_range">comp_req__health_monitor__cfg_time_range</a></span></span></div>
@@ -674,7 +720,7 @@ greater than its maximum.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-e4d0bd6b">
+<div class="need_container docutils container" id="SNCB-cd55facd">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__time_granularity">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -721,11 +767,11 @@ a granularity of one millisecond.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-ecdc6490">
-<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__unique_id">
+<div class="need_container docutils container" id="SNCB-e9788066">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__monitor_id">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
-<div class="line"><span><span class="needs_title"><span class="needs_data">Unique identification</span></span></span></div>
+<div class="line"><span><span class="needs_title"><span class="needs_data">Monitor identification</span></span></span></div>
 </div>
 </td>
 <td class="head_center" colspan="2"><div class="needs_head line-block">
@@ -745,23 +791,17 @@ a granularity of one millisecond.</p></td>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__hm_checkpoint">feat_req__lifecycle__hm_checkpoint</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__hm_deadline">feat_req__lifecycle__hm_deadline</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__hm_logical">feat_req__lifecycle__hm_logical</a></span></span></div>
-<div class="line">satisfied by: <span class="satisfied_by"><span><a class="reference internal" href="../architecture/component_architecture.html#comp__health_monitor" title="comp_req__health_monitor__unique_id">comp__health_monitor</a></span></span></div>
+<div class="line">satisfied by: <span class="satisfied_by"><span><a class="reference internal" href="../architecture/component_architecture.html#comp__health_monitor" title="comp_req__health_monitor__monitor_id">comp__health_monitor</a></span></span></div>
 </span></div>
 </div>
 </td>
 <td class="meta" colspan="3"></td>
 </tr>
-<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall identify each configured element by an
-identifier that is unique within its scope:</p>
-<ul class="simple">
-<li><p>a monitor within the <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> instance,</p></li>
-<li><p>a deadline within its deadline monitor,</p></li>
-<li><p>a state within its logic monitor.</p></li>
-</ul>
-</td>
+<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall identify each monitor by an identifier that
+is unique within the <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> instance.</p></td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
-<div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__health_monitor__unique_id" title="comp_req__health_monitor__unique_id">comp_req__health_monitor__unique_id</a></span></span></div>
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__health_monitor__monitor_id" title="comp_req__health_monitor__monitor_id">comp_req__health_monitor__monitor_id</a></span></span></div>
 </div>
 </td>
 <td class="footer" colspan="2"><div class="needs_footer line-block">
@@ -774,7 +814,7 @@ identifier that is unique within its scope:</p>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-5cdb6c14">
+<div class="need_container docutils container" id="SNCB-42da6808">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__complete_activation">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -804,8 +844,9 @@ identifier that is unique within its scope:</p>
 </td>
 <td class="meta" colspan="3"></td>
 </tr>
-<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall refuse to start supervision unless every
-configured monitor has been acquired by the application.</p>
+<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall treat a start of supervision while a
+configured monitor has not been acquired as a fatal error and terminate the
+hosting process.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Prevents a monitor that is configured but never fed from
@@ -827,11 +868,11 @@ silently staying unsupervised.</p>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-20320e6f">
-<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__exclusive_owner">
+<div class="need_container docutils container" id="SNCB-f8b90a93">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__monitor_once">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
-<div class="line"><span><span class="needs_title"><span class="needs_data">Exclusive monitor ownership</span></span></span></div>
+<div class="line"><span><span class="needs_title"><span class="needs_data">Single monitor acquisition</span></span></span></div>
 </div>
 </td>
 <td class="head_center" colspan="2"><div class="needs_head line-block">
@@ -847,21 +888,21 @@ silently staying unsupervised.</p>
 </tr>
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">health_monitor</span></span></span></div>
-<div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Interface</span></span></div>
+<div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__hm_checkpoint">feat_req__lifecycle__hm_checkpoint</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__hm_deadline">feat_req__lifecycle__hm_deadline</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__hm_logical">feat_req__lifecycle__hm_logical</a></span></span></div>
-<div class="line">satisfied by: <span class="satisfied_by"><span><a class="reference internal" href="../architecture/component_architecture.html#comp__health_monitor" title="comp_req__health_monitor__exclusive_owner">comp__health_monitor</a></span></span></div>
+<div class="line">satisfied by: <span class="satisfied_by"><span><a class="reference internal" href="../architecture/component_architecture.html#comp__health_monitor" title="comp_req__health_monitor__monitor_once">comp__health_monitor</a></span></span></div>
 </span></div>
 </div>
 </td>
 <td class="meta" colspan="3"></td>
 </tr>
-<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall hand out each monitor and each deadline
-at most once, and shall return an error on any further acquisition attempt.</p></td>
+<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall return an error when a monitor that has
+already been handed out is requested again.</p></td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
-<div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__health_monitor__exclusive_owner" title="comp_req__health_monitor__exclusive_owner">comp_req__health_monitor__exclusive_owner</a></span></span></div>
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__health_monitor__monitor_once" title="comp_req__health_monitor__monitor_once">comp_req__health_monitor__monitor_once</a></span></span></div>
 </div>
 </td>
 <td class="footer" colspan="2"><div class="needs_footer line-block">
@@ -874,7 +915,7 @@ at most once, and shall return an error on any further acquisition attempt.</p><
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-b84bf8c3">
+<div class="need_container docutils container" id="SNCB-6e6c2a45">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__cyclic_eval">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -904,9 +945,10 @@ at most once, and shall return an error on any further acquisition attempt.</p><
 </td>
 <td class="meta" colspan="3"></td>
 </tr>
-<tr class="content row-odd"><td class="content" colspan="6"><p>Once started, the <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall evaluate all monitors with
-the configured internal evaluation cycle, independently of the application
-threads that report to them.</p></td>
+<tr class="content row-odd"><td class="content" colspan="6"><p>Once started, and until a supervision failure has been detected, the
+<a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall evaluate all monitors with the configured
+internal evaluation cycle, independently of the application threads that
+report to them.</p></td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
 <div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__health_monitor__cyclic_eval" title="comp_req__health_monitor__cyclic_eval">comp_req__health_monitor__cyclic_eval</a></span></span></div>
@@ -922,7 +964,7 @@ threads that report to them.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-0c9286a1">
+<div class="need_container docutils container" id="SNCB-848f17bb">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__monotonic_time">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -972,7 +1014,7 @@ clock that is not affected by wall-clock adjustments.</p></td>
 </section>
 <section id="heartbeat-checkpoint-supervision">
 <h2>Heartbeat (Checkpoint) Supervision<a class="headerlink" href="#heartbeat-checkpoint-supervision" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-e0dd513a">
+<div class="need_container docutils container" id="SNCB-7c8f7462">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__hb_cfg">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1002,9 +1044,9 @@ clock that is not affected by wall-clock adjustments.</p></td>
 </td>
 <td class="meta" colspan="3"></td>
 </tr>
-<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall reject a heartbeat monitor configuration if
-the internal evaluation cycle is greater than or equal to twice the minimum
-of the heartbeat time range.</p>
+<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall return an error when building a heartbeat
+monitor configuration in which the internal evaluation cycle is greater than
+or equal to twice the minimum of the heartbeat time range.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Ensures that a correctly behaving application never reports more
@@ -1027,7 +1069,7 @@ than one heartbeat within one internal evaluation cycle. See
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-8ce28082">
+<div class="need_container docutils container" id="SNCB-b8c54d16">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__hb_too_late">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1075,7 +1117,7 @@ elapsed.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-3e4e1a3a">
+<div class="need_container docutils container" id="SNCB-ec537adc">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__hb_too_early">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1123,7 +1165,7 @@ elapsed.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-146359bd">
+<div class="need_container docutils container" id="SNCB-1c268276">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__hb_multiple">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1181,7 +1223,7 @@ one that was reported too early.</p>
 </section>
 <section id="deadline-supervision">
 <h2>Deadline Supervision<a class="headerlink" href="#deadline-supervision" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-10f56edd">
+<div class="need_container docutils container" id="SNCB-9aa92613">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__dl_cfg">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1211,8 +1253,8 @@ one that was reported too early.</p>
 </td>
 <td class="meta" colspan="3"></td>
 </tr>
-<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall reject a deadline monitor configuration
-that contains no deadline.</p></td>
+<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall return an error when building a deadline
+monitor configuration that contains no deadline.</p></td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
 <div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__health_monitor__dl_cfg" title="comp_req__health_monitor__dl_cfg">comp_req__health_monitor__dl_cfg</a></span></span></div>
@@ -1228,11 +1270,58 @@ that contains no deadline.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-356d5317">
-<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__dl_missed">
+<div class="need_container docutils container" id="SNCB-0bf97782">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__deadline_id">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
-<div class="line"><span><span class="needs_title"><span class="needs_data">Deadline missed</span></span></span></div>
+<div class="line"><span><span class="needs_title"><span class="needs_data">Deadline identification</span></span></span></div>
+</div>
+</td>
+<td class="head_center" colspan="2"><div class="needs_head line-block">
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
+<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">NO</span></span></span></div>
+<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
+</div>
+</td>
+<td class="head_right" colspan="2"><div class="needs_head_right line-block">
+<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
+</div>
+</td>
+</tr>
+<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
+<div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">health_monitor</span></span></span></div>
+<div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Interface</span></span></div>
+<div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
+</span></span></div>
+<div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__hm_deadline">feat_req__lifecycle__hm_deadline</a></span></span></div>
+<div class="line">satisfied by: <span class="satisfied_by"><span><a class="reference internal" href="../architecture/component_architecture.html#comp__health_monitor" title="comp_req__health_monitor__deadline_id">comp__health_monitor</a></span></span></div>
+</span></div>
+</div>
+</td>
+<td class="meta" colspan="3"></td>
+</tr>
+<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall identify each deadline by an identifier
+that is unique within its deadline monitor.</p></td>
+</tr>
+<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__health_monitor__deadline_id" title="comp_req__health_monitor__deadline_id">comp_req__health_monitor__deadline_id</a></span></span></div>
+</div>
+</td>
+<td class="footer" colspan="2"><div class="needs_footer line-block">
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Component Requirement</span></span></span></div>
+</div>
+</td>
+<td class="footer_right" colspan="2"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="need_container docutils container" id="SNCB-faf56aa5">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__deadline_exclusive">
+<tbody>
+<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
+<div class="line"><span><span class="needs_title"><span class="needs_data">Exclusive deadline acquisition</span></span></span></div>
 </div>
 </td>
 <td class="head_center" colspan="2"><div class="needs_head line-block">
@@ -1252,18 +1341,17 @@ that contains no deadline.</p></td>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__hm_deadline">feat_req__lifecycle__hm_deadline</a></span></span></div>
-<div class="line">satisfied by: <span class="satisfied_by"><span><a class="reference internal" href="../architecture/component_architecture.html#comp__health_monitor" title="comp_req__health_monitor__dl_missed">comp__health_monitor</a></span></span></div>
+<div class="line">satisfied by: <span class="satisfied_by"><span><a class="reference internal" href="../architecture/component_architecture.html#comp__health_monitor" title="comp_req__health_monitor__deadline_exclusive">comp__health_monitor</a></span></span></div>
 </span></div>
 </div>
 </td>
 <td class="meta" colspan="3"></td>
 </tr>
-<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall detect a deadline failure if a started
-deadline is not stopped before the configured maximum time has elapsed,
-including the case where it is never stopped.</p></td>
+<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall return an error when a deadline is
+requested while the application still holds it.</p></td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
-<div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__health_monitor__dl_missed" title="comp_req__health_monitor__dl_missed">comp_req__health_monitor__dl_missed</a></span></span></div>
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__health_monitor__deadline_exclusive" title="comp_req__health_monitor__deadline_exclusive">comp_req__health_monitor__deadline_exclusive</a></span></span></div>
 </div>
 </td>
 <td class="footer" colspan="2"><div class="needs_footer line-block">
@@ -1276,7 +1364,101 @@ including the case where it is never stopped.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-2c520ad9">
+<div class="need_container docutils container" id="SNCB-ad43d870">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__dl_late_stop">
+<tbody>
+<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
+<div class="line"><span><span class="needs_title"><span class="needs_data">Deadline stopped late</span></span></span></div>
+</div>
+</td>
+<td class="head_center" colspan="2"><div class="needs_head line-block">
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
+<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">NO</span></span></span></div>
+<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
+</div>
+</td>
+<td class="head_right" colspan="2"><div class="needs_head_right line-block">
+<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
+</div>
+</td>
+</tr>
+<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
+<div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">health_monitor</span></span></span></div>
+<div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
+<div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
+</span></span></div>
+<div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__hm_deadline">feat_req__lifecycle__hm_deadline</a></span></span></div>
+<div class="line">satisfied by: <span class="satisfied_by"><span><a class="reference internal" href="../architecture/component_architecture.html#comp__health_monitor" title="comp_req__health_monitor__dl_late_stop">comp__health_monitor</a></span></span></div>
+</span></div>
+</div>
+</td>
+<td class="meta" colspan="3"></td>
+</tr>
+<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall detect a deadline failure if a started
+deadline is stopped after the configured maximum time has elapsed.</p></td>
+</tr>
+<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__health_monitor__dl_late_stop" title="comp_req__health_monitor__dl_late_stop">comp_req__health_monitor__dl_late_stop</a></span></span></div>
+</div>
+</td>
+<td class="footer" colspan="2"><div class="needs_footer line-block">
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Component Requirement</span></span></span></div>
+</div>
+</td>
+<td class="footer_right" colspan="2"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="need_container docutils container" id="SNCB-9f2daced">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__dl_no_stop">
+<tbody>
+<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
+<div class="line"><span><span class="needs_title"><span class="needs_data">Deadline not stopped</span></span></span></div>
+</div>
+</td>
+<td class="head_center" colspan="2"><div class="needs_head line-block">
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
+<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">NO</span></span></span></div>
+<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
+</div>
+</td>
+<td class="head_right" colspan="2"><div class="needs_head_right line-block">
+<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
+</div>
+</td>
+</tr>
+<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
+<div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">health_monitor</span></span></span></div>
+<div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
+<div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
+</span></span></div>
+<div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__hm_deadline">feat_req__lifecycle__hm_deadline</a></span></span></div>
+<div class="line">satisfied by: <span class="satisfied_by"><span><a class="reference internal" href="../architecture/component_architecture.html#comp__health_monitor" title="comp_req__health_monitor__dl_no_stop">comp__health_monitor</a></span></span></div>
+</span></div>
+</div>
+</td>
+<td class="meta" colspan="3"></td>
+</tr>
+<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall detect a deadline failure if a started
+deadline is still running when the configured maximum time has elapsed.</p></td>
+</tr>
+<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__health_monitor__dl_no_stop" title="comp_req__health_monitor__dl_no_stop">comp_req__health_monitor__dl_no_stop</a></span></span></div>
+</div>
+</td>
+<td class="footer" colspan="2"><div class="needs_footer line-block">
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Component Requirement</span></span></span></div>
+</div>
+</td>
+<td class="footer_right" colspan="2"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="need_container docutils container" id="SNCB-33fcaf13">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__dl_too_early">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1323,7 +1505,7 @@ deadline is stopped before the configured minimum time has elapsed.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-2e5c7d76">
+<div class="need_container docutils container" id="SNCB-c348e304">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__dl_failed_reuse">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1343,7 +1525,7 @@ deadline is stopped before the configured minimum time has elapsed.</p></td>
 </tr>
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">health_monitor</span></span></span></div>
-<div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Interface</span></span></div>
+<div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__hm_deadline">feat_req__lifecycle__hm_deadline</a></span></span></div>
@@ -1373,11 +1555,58 @@ deadline that has already failed is started again.</p></td>
 </section>
 <section id="logical-supervision">
 <h2>Logical Supervision<a class="headerlink" href="#logical-supervision" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-ab6bb8cf">
-<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__lg_cfg">
+<div class="need_container docutils container" id="SNCB-158d7712">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__state_id">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
-<div class="line"><span><span class="needs_title"><span class="needs_data">Logic configuration validation</span></span></span></div>
+<div class="line"><span><span class="needs_title"><span class="needs_data">State identification</span></span></span></div>
+</div>
+</td>
+<td class="head_center" colspan="2"><div class="needs_head line-block">
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
+<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">NO</span></span></span></div>
+<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
+</div>
+</td>
+<td class="head_right" colspan="2"><div class="needs_head_right line-block">
+<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
+</div>
+</td>
+</tr>
+<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
+<div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">health_monitor</span></span></span></div>
+<div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Interface</span></span></div>
+<div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
+</span></span></div>
+<div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__hm_logical">feat_req__lifecycle__hm_logical</a></span></span></div>
+<div class="line">satisfied by: <span class="satisfied_by"><span><a class="reference internal" href="../architecture/component_architecture.html#comp__health_monitor" title="comp_req__health_monitor__state_id">comp__health_monitor</a></span></span></div>
+</span></div>
+</div>
+</td>
+<td class="meta" colspan="3"></td>
+</tr>
+<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall identify each state by an identifier that
+is unique within its logic monitor.</p></td>
+</tr>
+<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__health_monitor__state_id" title="comp_req__health_monitor__state_id">comp_req__health_monitor__state_id</a></span></span></div>
+</div>
+</td>
+<td class="footer" colspan="2"><div class="needs_footer line-block">
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Component Requirement</span></span></span></div>
+</div>
+</td>
+<td class="footer_right" colspan="2"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="need_container docutils container" id="SNCB-0f5ba211">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__lg_cfg_no_state">
+<tbody>
+<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
+<div class="line"><span><span class="needs_title"><span class="needs_data">Logic configuration without state</span></span></span></div>
 </div>
 </td>
 <td class="head_center" colspan="2"><div class="needs_head line-block">
@@ -1397,23 +1626,17 @@ deadline that has already failed is started again.</p></td>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__hm_logical">feat_req__lifecycle__hm_logical</a></span></span></div>
-<div class="line">satisfied by: <span class="satisfied_by"><span><a class="reference internal" href="../architecture/component_architecture.html#comp__health_monitor" title="comp_req__health_monitor__lg_cfg">comp__health_monitor</a></span></span></div>
+<div class="line">satisfied by: <span class="satisfied_by"><span><a class="reference internal" href="../architecture/component_architecture.html#comp__health_monitor" title="comp_req__health_monitor__lg_cfg_no_state">comp__health_monitor</a></span></span></div>
 </span></div>
 </div>
 </td>
 <td class="meta" colspan="3"></td>
 </tr>
-<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall reject a logic monitor configuration if any
-of the following holds:</p>
-<ul class="simple">
-<li><p>no state is defined,</p></li>
-<li><p>an allowed transition targets a state that is not defined,</p></li>
-<li><p>the initial state is not defined.</p></li>
-</ul>
-</td>
+<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall return an error when building a logic
+monitor configuration in which no state is defined.</p></td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
-<div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__health_monitor__lg_cfg" title="comp_req__health_monitor__lg_cfg">comp_req__health_monitor__lg_cfg</a></span></span></div>
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__health_monitor__lg_cfg_no_state" title="comp_req__health_monitor__lg_cfg_no_state">comp_req__health_monitor__lg_cfg_no_state</a></span></span></div>
 </div>
 </td>
 <td class="footer" colspan="2"><div class="needs_footer line-block">
@@ -1426,7 +1649,102 @@ of the following holds:</p>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-7066877c">
+<div class="need_container docutils container" id="SNCB-2d709439">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__lg_cfg_undef_target">
+<tbody>
+<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
+<div class="line"><span><span class="needs_title"><span class="needs_data">Undefined transition target</span></span></span></div>
+</div>
+</td>
+<td class="head_center" colspan="2"><div class="needs_head line-block">
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
+<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">NO</span></span></span></div>
+<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
+</div>
+</td>
+<td class="head_right" colspan="2"><div class="needs_head_right line-block">
+<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
+</div>
+</td>
+</tr>
+<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
+<div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">health_monitor</span></span></span></div>
+<div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
+<div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
+</span></span></div>
+<div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__hm_logical">feat_req__lifecycle__hm_logical</a></span></span></div>
+<div class="line">satisfied by: <span class="satisfied_by"><span><a class="reference internal" href="../architecture/component_architecture.html#comp__health_monitor" title="comp_req__health_monitor__lg_cfg_undef_target">comp__health_monitor</a></span></span></div>
+</span></div>
+</div>
+</td>
+<td class="meta" colspan="3"></td>
+</tr>
+<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall return an error when building a logic
+monitor configuration in which an allowed transition targets a state that
+is not defined.</p></td>
+</tr>
+<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__health_monitor__lg_cfg_undef_target" title="comp_req__health_monitor__lg_cfg_undef_target">comp_req__health_monitor__lg_cfg_undef_target</a></span></span></div>
+</div>
+</td>
+<td class="footer" colspan="2"><div class="needs_footer line-block">
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Component Requirement</span></span></span></div>
+</div>
+</td>
+<td class="footer_right" colspan="2"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="need_container docutils container" id="SNCB-5f6f1a9c">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__lg_cfg_no_initial">
+<tbody>
+<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
+<div class="line"><span><span class="needs_title"><span class="needs_data">Undefined initial state</span></span></span></div>
+</div>
+</td>
+<td class="head_center" colspan="2"><div class="needs_head line-block">
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
+<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">NO</span></span></span></div>
+<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
+</div>
+</td>
+<td class="head_right" colspan="2"><div class="needs_head_right line-block">
+<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
+</div>
+</td>
+</tr>
+<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
+<div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">health_monitor</span></span></span></div>
+<div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
+<div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
+</span></span></div>
+<div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__hm_logical">feat_req__lifecycle__hm_logical</a></span></span></div>
+<div class="line">satisfied by: <span class="satisfied_by"><span><a class="reference internal" href="../architecture/component_architecture.html#comp__health_monitor" title="comp_req__health_monitor__lg_cfg_no_initial">comp__health_monitor</a></span></span></div>
+</span></div>
+</div>
+</td>
+<td class="meta" colspan="3"></td>
+</tr>
+<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall return an error when building a logic
+monitor configuration in which the initial state is not defined.</p></td>
+</tr>
+<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__health_monitor__lg_cfg_no_initial" title="comp_req__health_monitor__lg_cfg_no_initial">comp_req__health_monitor__lg_cfg_no_initial</a></span></span></div>
+</div>
+</td>
+<td class="footer" colspan="2"><div class="needs_footer line-block">
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Component Requirement</span></span></span></div>
+</div>
+</td>
+<td class="footer_right" colspan="2"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="need_container docutils container" id="SNCB-38de413f">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__lg_initial">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1473,7 +1791,7 @@ initial state when the monitor is created.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-d59c5ab3">
+<div class="need_container docutils container" id="SNCB-3c5e5ac3">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__lg_invalid_trans">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1521,7 +1839,7 @@ state, and shall return an error to the caller.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-5b607d80">
+<div class="need_container docutils container" id="SNCB-acacff54">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__lg_unknown_state">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1572,7 +1890,7 @@ caller.</p></td>
 </section>
 <section id="error-reaction">
 <h2>Error Reaction<a class="headerlink" href="#error-reaction" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-b67b62b0">
+<div class="need_container docutils container" id="SNCB-5da01cf7">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__alive_notify">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1620,7 +1938,7 @@ supervisor notification cycle.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-868229a3">
+<div class="need_container docutils container" id="SNCB-8b12d823">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__alive_withhold">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1667,7 +1985,7 @@ stop sending alive notifications to the <a class="reference internal" href="../.
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-95382aa2">
+<div class="need_container docutils container" id="SNCB-725bfbe0">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__failure_latch">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1715,7 +2033,7 @@ instance.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-8a24bbb9">
+<div class="need_container docutils container" id="SNCB-62d07345">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__fail_silent">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1768,7 +2086,7 @@ calculation overflow, and abnormal termination of the evaluation thread.</p>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-957597a2">
+<div class="need_container docutils container" id="SNCB-f0ec58f4">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__detect_latency">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1822,7 +2140,7 @@ timeout, this bounds the fault reaction time. See
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-ef9246ff">
+<div class="need_container docutils container" id="SNCB-85c82510">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__failure_log">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1872,7 +2190,7 @@ the monitor tag and the failure type.</p></td>
 </section>
 <section id="robustness-and-freedom-from-interference">
 <h2>Robustness and Freedom from Interference<a class="headerlink" href="#robustness-and-freedom-from-interference" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-11df9525">
+<div class="need_container docutils container" id="SNCB-a832942f">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__static_memory">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1919,7 +2237,7 @@ supervision has been started.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-fb969f51">
+<div class="need_container docutils container" id="SNCB-65ad4667">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__nonblocking_api">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1967,7 +2285,7 @@ shall not block the calling thread.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-da640161">
+<div class="need_container docutils container" id="SNCB-0e30bc49">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__concurrency">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -2014,11 +2332,11 @@ reporting and cyclic evaluation run concurrently on different threads.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-3230dba1">
-<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__mem_guard">
+<div class="need_container docutils container" id="SNCB-93fefd49">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__mem_guard_pages">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
-<div class="line"><span><span class="needs_title"><span class="needs_data">Memory corruption detection</span></span></span></div>
+<div class="line"><span><span class="needs_title"><span class="needs_data">Memory guard pages</span></span></span></div>
 </div>
 </td>
 <td class="head_center" colspan="2"><div class="needs_head line-block">
@@ -2038,20 +2356,17 @@ reporting and cyclic evaluation run concurrently on different threads.</p></td>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__liveliness_detection">feat_req__lifecycle__liveliness_detection</a></span></span></div>
-<div class="line">satisfied by: <span class="satisfied_by"><span><a class="reference internal" href="../architecture/component_architecture.html#comp__health_monitor" title="comp_req__health_monitor__mem_guard">comp__health_monitor</a></span></span></div>
+<div class="line">satisfied by: <span class="satisfied_by"><span><a class="reference internal" href="../architecture/component_architecture.html#comp__health_monitor" title="comp_req__health_monitor__mem_guard_pages">comp__health_monitor</a></span></span></div>
 </span></div>
 </div>
 </td>
 <td class="meta" colspan="3"></td>
 </tr>
-<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall place its monitoring data between
-inaccessible memory pages, so that a write that runs across the boundaries
-of that data is detected.</p>
+<tr class="content row-odd"><td class="content" colspan="6"><p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall place inaccessible guard pages directly
+before and after its monitoring data.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Measure for HM_FMEA_003. It detects bulk memory corruption only.
-Targeted corruption of the monitoring data is covered by
-<a class="reference internal" href="../safety_analysis/aou_requirements.html#aou_req__health_monitor__host_integrity" title="aou_req__health_monitor__host_integrity"><em class="xref need">Host application integrity (aou_req__health_monitor__host_integrity)</em></a>.</p>
+<p>Measure for HM_FMEA_003.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -2061,7 +2376,62 @@ investigated in the future.</p>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
-<div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__health_monitor__mem_guard" title="comp_req__health_monitor__mem_guard">comp_req__health_monitor__mem_guard</a></span></span></div>
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__health_monitor__mem_guard_pages" title="comp_req__health_monitor__mem_guard_pages">comp_req__health_monitor__mem_guard_pages</a></span></span></div>
+</div>
+</td>
+<td class="footer" colspan="2"><div class="needs_footer line-block">
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Component Requirement</span></span></span></div>
+</div>
+</td>
+<td class="footer_right" colspan="2"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="need_container docutils container" id="SNCB-83bb9be8">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__mem_guard_detect">
+<tbody>
+<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
+<div class="line"><span><span class="needs_title"><span class="needs_data">Memory corruption detection</span></span></span></div>
+</div>
+</td>
+<td class="head_center" colspan="2"><div class="needs_head line-block">
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
+<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">NO</span></span></span></div>
+<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
+</div>
+</td>
+<td class="head_right" colspan="2"><div class="needs_head_right line-block">
+<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
+</div>
+</td>
+</tr>
+<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
+<div class="line"><span><span><div class="line"><span class="needs_tags"><span class="needs_label">tags: </span><span class="needs_data_container"><span class="needs_data">lifecycle</span><span class="needs_spacer">, </span><span class="needs_data">health_monitor</span></span></span></div>
+<div class="line"><span class="needs_reqtype"><span class="needs_label">reqtype: </span><span class="needs_data">Functional</span></span></div>
+<div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
+</span></span></div>
+<div class="line"><span><div class="line">derived from: <span class="derived_from"><span><a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/requirements/index.html#feat_req__lifecycle__liveliness_detection">feat_req__lifecycle__liveliness_detection</a></span></span></div>
+<div class="line">satisfied by: <span class="satisfied_by"><span><a class="reference internal" href="../architecture/component_architecture.html#comp__health_monitor" title="comp_req__health_monitor__mem_guard_detect">comp__health_monitor</a></span></span></div>
+</span></div>
+</div>
+</td>
+<td class="meta" colspan="3"></td>
+</tr>
+<tr class="content row-odd"><td class="content" colspan="6"><p>A write access to a guard page of the <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall
+terminate the hosting process.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The terminated process stops sending alive notifications, see
+<a class="reference internal" href="#comp_req__health_monitor__fail_silent" title="comp_req__health_monitor__fail_silent"><em class="xref need">Fail-silent on internal error (comp_req__health_monitor__fail_silent)</em></a>. Only bulk memory
+corruption reaches a guard page. Targeted corruption of the monitoring
+data is covered by <a class="reference internal" href="../safety_analysis/aou_requirements.html#aou_req__health_monitor__host_integrity" title="aou_req__health_monitor__host_integrity"><em class="xref need">Host application integrity (aou_req__health_monitor__host_integrity)</em></a>.</p>
+</div>
+</td>
+</tr>
+<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_req__health_monitor__mem_guard_detect" title="comp_req__health_monitor__mem_guard_detect">comp_req__health_monitor__mem_guard_detect</a></span></span></div>
 </div>
 </td>
 <td class="footer" colspan="2"><div class="needs_footer line-block">
@@ -2077,7 +2447,7 @@ investigated in the future.</p>
 </section>
 <section id="placeholder">
 <h2>Placeholder<a class="headerlink" href="#placeholder" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-53011472">
+<div class="need_container docutils container" id="SNCB-f18dcd84">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_req table" id="comp_req__health_monitor__dummy">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
