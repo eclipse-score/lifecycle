@@ -50,7 +50,7 @@ class VerificationState(IntEnum):
     def css_class(self):
         """CSS class colouring the row, e.g. ``verification-state-partly-verified``.
 
-        The colours are defined in ``module_verification_report.rst``.
+        The colours are defined in ``docs_root_only/index.rst``.
         """
         return "verification-state-" + self.name.lower().replace("_", "-")
 
@@ -167,7 +167,7 @@ def _build_table(app, fromdocname, needs):
         make_ref = field == "id"
         return row_col_maker(app, fromdocname, needs, need, field, make_ref=make_ref)
 
-    tgroup = nodes.tgroup(cols=3) # Table group with 3 columns
+    tgroup = nodes.tgroup(cols=3)  # Table group with 3 columns
     # The HTML writer needs one colspec per column; widths are left to the browser.
     tgroup += [nodes.colspec() for _ in range(3)]
     header = nodes.row()
