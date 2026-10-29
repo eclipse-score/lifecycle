@@ -5,12 +5,12 @@
   "description": "Defines the structure and valid values for the Launch Manager configuration file, which specifies managed components, Run Targets, and recovery behaviors.",
   "$defs": {
     "rlimit_scalar": {
-      "description": "A single rlimit bound: a non-negative integer count of bytes/seconds/items, or the literal \"unlimited\".",
+      "description": "A single rlimit bound: a non-negative integer count of bytes/seconds/items, or the literal \"unlimited\". The values max(uint64)-3, max(uint64)-2, max(uint64)-1 are reserved as they special meanings in Linux/Qnx.",
       "oneOf": [
         {
           "type": "integer",
           "minimum": 0,
-          "maximum": 18446744073709551615
+          "maximum": 18446744073709551612
         },
         {
           "const": "unlimited"
