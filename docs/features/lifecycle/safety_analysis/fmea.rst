@@ -114,6 +114,8 @@ For all identified applicable failure initiators, the FMEA is performed in the f
        :id: feat_saf_fmea__<Feature>__<Element descriptor>
        :fault_id: <ID from fault model :need:`gd_guidl__fault_models`>
        :failure_effect: "description of failure effect of the fault model on the element"
+       :failure_root_cause: "description of the root cause of the failure"
+       :safety_relevant: <yes|no>
        :mitigated_by: <ID from Feature Requirement | ID from AoU Feature Requirement>
        :mitigation_issue: <ID from Issue Tracker>
        :sufficient: <yes|no>

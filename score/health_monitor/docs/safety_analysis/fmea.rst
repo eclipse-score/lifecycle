@@ -149,6 +149,8 @@ Failure Mode List
        :id: comp_saf_fmea__<Component>__<Element descriptor>
        :fault_id: <ID from fault model :need:`gd_guidl__fault_models`>
        :failure_effect: "description of failure effect of the fault model on the element"
+       :failure_root_cause: "description of the root cause of the failure"
+       :safety_relevant: <yes|no>
        :mitigated_by: <ID from Component Requirement | ID from AoU Component Requirement>
        :mitigation_issue: <ID from Issue Tracker>
        :sufficient: <yes|no>

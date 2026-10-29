@@ -14,16 +14,16 @@
 
 .. _user_manual:
 
-User Manual
-###########
+Lifecycle User Manual
+=====================
 
-.. document:: User Manual Lifecycle
-   :id: doc__user_manual_lifecycle
+.. document:: Lifecycle User Manual
+   :id: doc__lifecycle_user_manual
    :status: draft
    :version: 1
    :safety: QM
    :security: NO
-   :realizes: wp__training_path[version==1]
+   :realizes: wp__module_user_manual[version==1]
 
 
 Overview
@@ -33,8 +33,8 @@ This user manual provides comprehensive guidance for using the Lifecycle module 
 It covers installation, configuration, basic usage, and best practices for integrating this module
 into your project.
 
-.. note::
-   This is a template user manual. Replace placeholder text with actual module-specific information.
+The detailed product documentation of the Launch Manager (concepts, configuration, integration, examples and
+known limitations) can be found in the :ref:`Launch Manager user guide <lm_user_guide>`.
 
 For build and test of the module itself, please refer to the :ref:`quick-start-building-testing`.
 
@@ -43,9 +43,9 @@ Environment Needs
 
 Basic needed software environment for the module development and usage:
 
-* **C++**: C++17 or later
-* **Rust**: 1.70 or later (if Rust support is included)
-* **Build System**: Bazel 6.0 or later
+* **C++**: C++17
+* **Rust**: toolchain as defined in ``rust-toolchain.toml``
+* **Build System**: Bazel as defined in ``.bazelversion``
 * **Operating Systems**: Linux, QNX
 
 Dependencies
@@ -63,7 +63,8 @@ See also MODULE.bazel files for more details on dependencies.
 Module Configuration Details
 =============================
 
-<A detailed explanation of the module configuration which can be done by end users, including the purpose and effects of the settings might be explained in the files in the config subdirectory.>
+The configuration of the Launch Manager, including the configuration schema and the default values,
+is described in :ref:`lm_config`.
 
 Configuration Effects
 ---------------------
@@ -74,7 +75,8 @@ Configuration Effects
 Examples
 ========
 
-<Useful examples and tutorials should be provided in the ``examples/`` directory. Link to specific examples here.>
+Configuration examples are described in :ref:`lm_config_examples`.
+Example applications can be found in the ``examples/`` directory of the repository.
 
 API Reference
 =============
@@ -98,18 +100,9 @@ Integrating with Your Project
    .. code-block:: python
 
       # In your MODULE.bazel
-      bazel_dep(name = "module_template", version = "1.0")
+      bazel_dep(name = "score_lifecycle", version = "<version>")
 
-2. Reference in your build files:
-
-   .. code-block:: python
-
-      cc_library(
-          name = "my_target",
-          deps = ["@module_template//score/component_example:component"],
-      )
-
-3. Include headers and compile your code
+2. Generate the Launch Manager configuration and integrate it into your image as described in :ref:`lm_integration`.
 
 
 Version History, Compatibility, and Troubleshooting

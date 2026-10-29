@@ -33,4 +33,5 @@ For the main feature description and requirements, see the belonging Feature in 
    safety_analysis/aou_requirements
    safety_planning/index
    security_planning/index
+   security_analysis/aou_requirements
    glossary*
