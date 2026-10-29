@@ -820,7 +820,7 @@ class ProcessInfoNodeSupervisionFailureTest : public ProcessInfoNodeFixture
             .WillOnce(Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kOk));
         EXPECT_CALL(mock_processIf_, waitForkRunning(_, _)).WillOnce(Return(osal::OsalReturnType::kSuccess));
         const auto result = node->activate(score::cpp::stop_token{});
-        EXPECT_TRUE(result.has_value());
+        EXPECT_THAT(result, Eq(IComponent::RequestResult::kSuccess));
         EXPECT_TRUE(node->active());
         return node;
     }
