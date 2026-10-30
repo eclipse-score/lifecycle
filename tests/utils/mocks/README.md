@@ -17,7 +17,7 @@ Mocks in Lifecycle use GMock injected in a few different ways.
 
 ## Dependency injection
 
-This is the preferred way to mock functionality for unit tests and can be used in any cases where a method or class uses an existing object.
+This is the preferred way to mock functionality for unit tests and can be used in any case where a method or class uses an existing object.
 
 To mock a class `Foo` used in a method `Bar(Foo& param)`
 

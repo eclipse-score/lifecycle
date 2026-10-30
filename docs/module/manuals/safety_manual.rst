@@ -55,20 +55,20 @@ List of AoUs expected from the environment the platform / module runs on:
                 results.append(need)
 
 .. attention::
-    Make sure these AoU are here for a safety reason, i.e. every one "mitigates" a safety analysis entry.
+    Make sure these AoUs are here for a safety reason, i.e. every one "mitigates" a safety analysis entry.
 
 Assumptions on the User
 ^^^^^^^^^^^^^^^^^^^^^^^
 | As there is no assumption on which specific OS and HW is used, the integration testing of the stakeholder and feature requirements is expected to be performed by the user of the platform SEooC. Tests covering all stakeholder and feature requirements performed on a reference platform (tbd link to reference platform specification), reviewed and passed are included in the platform SEooC safety package.
 | Additionally the components of the platform may have additional specific assumptions how they are used. These are part of every module documentation: <link to add>. Assumptions from components to their users can be fulfilled in two ways:
-| 1. There are assumption which need to be fulfilled by all SW components, e.g. "every user of an IPC mechanism needs to make sure that he provides correct data (including appropriate ASIL level)" - in this case the AoU is marked as "platform".
-| 2. There are assumption which can be fulfilled by a safety mechanism realized by some other project platform component and are therefore not relevant for an user who uses the whole platform. But those are relevant if you chose to use the module SEooC stand-alone - in this case the AoU is marked as "module". An example would be the "JSON read" which requires "The user shall provide a string as input which is not corrupted due to HW or QM SW errors." - which is covered when using together with safe project platform persistency feature.
+| 1. There are assumptions which need to be fulfilled by all SW components, e.g. "every user of an IPC mechanism needs to make sure that he provides correct data (including appropriate ASIL level)" - in this case the AoU is marked as "platform".
+| 2. There are assumptions which can be fulfilled by a safety mechanism realized by some other project platform component and are therefore not relevant for a user who uses the whole platform. But those are relevant if you choose to use the module SEooC stand-alone - in this case the AoU is marked as "module". An example would be the "JSON read" which requires "The user shall provide a string as input which is not corrupted due to HW or QM SW errors." - which is covered when using together with safe project platform persistency feature.
 
 List of AoUs on the user of the platform or the module of this safety manual:
 
-Note: Platform safety manual collects all platform wide AoU (have to be fulfilled by the user for any feature).
+Note: Platform safety manual collects all platform-wide AoUs (which have to be fulfilled by the user for any feature).
 Module safety manual collects all AoUs specific to a feature and its realizing components.
-This means for every feature the user selects, the platform safety manual and the related module manual has to be considered.
+This means for every feature the user selects, the platform safety manual and the related module manual have to be considered.
 
 .. needtable::
    :style: table
@@ -83,7 +83,7 @@ This means for every feature the user selects, the platform safety manual and th
                 results.append(need)
 
 .. attention::
-    Make sure these AoU are here for a safety reason, i.e. every one "mitigates" a safety analysis entry.
+    Make sure these AoUs are here for a safety reason, i.e. every one "mitigates" a safety analysis entry.
 
 Safety concept of the SEooC
 ---------------------------

@@ -24,7 +24,7 @@ Component
 * The sandbox parameters ``max_memory_usage`` and ``max_cpu_usage`` are
   currently not supported and are ignored.
 * For ReadyCondition ``process_state:Terminated``, the mapping is only
-  supported for Components that have at least one Component depending on it.
+  supported for Components that have at least one Component depending on them.
 * The ``ready_recovery_action`` is deprecated in favour of
   ``activation_retry_attempts`` and ``activation_retry_delay_ms``.
   Its ``restart.number_of_attempts`` is converted to ``activation_retry_attempts``

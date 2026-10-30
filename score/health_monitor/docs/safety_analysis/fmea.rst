@@ -39,18 +39,18 @@ Failure Mode Evaluation Table
      - sufficient
    * - Missing processing time
      - HM_FMEA_001
-     - Background thread does not receive CPU time slice, leading to miss specified alive notification internal towards Launch Daemon
+     - Background thread does not receive CPU time slice, leading to missing the specified alive notification internal towards Launch Daemon
      - | **Detection:**
        |  - Missing notifications will be detected by Launch Daemon and lead to safety reaction at Launch Daemon.
 
        | **Mitigation:** 
-       |  - Provide `AoU` that integrator has to ensure Health Monitor background thread receives sufficient CPU time slice by configuring it's scheduling parameters accordingly.
+       |  - Provide `AoU` that integrator has to ensure Health Monitor background thread receives sufficient CPU time slice by configuring its scheduling parameters accordingly.
        |  - All code within process is developed according to **ASIL-B** development process
 
      - Yes
    * - Loss of execution
      - HM_FMEA_002
-     - Background thread does not advance in its execution (ie. deadlock, endless loop failure), leading to miss specified alive notification internal towards Launch Daemon
+     - Background thread does not advance in its execution (i.e. deadlock, endless loop failure), leading to missing the specified alive notification internal towards Launch Daemon
      - | **Detection:**
        |  -  Missing notifications will be detected by Launch Daemon and lead to safety reaction at Launch Daemon.
 
@@ -72,13 +72,13 @@ Failure Mode Evaluation Table
 HM_FMEA_003
 ------------
 
-Health Monitoring Library is placed in same process as monitored components. Therefore, any other component that shares same process can corrupt memory of Health Monitoring Library. This can lead to missed detection of failure of monitored components.
+Health Monitoring Library is placed in the same process as monitored components. Therefore, any other component that shares the same process can corrupt memory of Health Monitoring Library. This can lead to missed detection of failure of monitored components.
 Since we are using **Rust** as programming language for Health Monitoring Library implementation, we could rely on Rust memory safety guarantees and avoid memory corruption due to programming errors. However we are also supporting C/C++ components 
-that can introduce memory issues due to programming errors. Therefore, we need to consider additional detection mechanisms. Below description of possible detection mechanisms:
+that can introduce memory issues due to programming errors. Therefore, we need to consider additional detection mechanisms. Below is a description of possible detection mechanisms:
 
 Checksums
 ^^^^^^^^^^
-One of possible detection mechanisms is to use checksums for data structures used for monitors.
+One of the possible detection mechanisms is to use checksums for data structures used for monitors.
 
 **Pros**
 
@@ -94,7 +94,7 @@ One of possible detection mechanisms is to use checksums for data structures use
 Protected pages
 ^^^^^^^^^^^^^^^^
 Another possible detection mechanism is to use protected memory pages. Region before and after data structures used for monitors can be marked as non-accessible. 
-Since other components do not have knowledge where internal structures were allocated, **likelihood** of memory corruption only in data structures used for monitors and not around them is **low**.
+Since other components do not have knowledge of where internal structures were allocated, **likelihood** of memory corruption only in data structures used for monitors and not around them is **low**.
 
 **Pros**
 
@@ -104,13 +104,13 @@ Since other components do not have knowledge where internal structures were allo
 **Cons**
 
 - Increased memory overhead
-- Can detect only `pass through` corruption - ie. bulk write over memory area
-- Protection can be disabled by malicious component however this shall be judged as **extremely low** likelihood because this requires knowledge of internal memory layout of Health Monitoring Library and code review approval.
+- Can detect only `pass through` corruption - i.e. bulk write over memory area
+- Protection can be disabled by a malicious component; however, this shall be judged as **extremely low** likelihood because this requires knowledge of internal memory layout of Health Monitoring Library and code review approval.
 
 Dual banking
 ^^^^^^^^^^^^^
-Another possible detection mechanism is to use dual banking for data structures used for monitors. One bank is actively used, while the other one is kept on side
-as either **mirrored data** or  **inverse byte copy**. During runtime, background checking thread will fetch both banks and compare them. If mismatch is detected, then memory corruption is detected.
+Another possible detection mechanism is to use dual banking for data structures used for monitors. One bank is actively used, while the other one is kept on the side
+as either **mirrored data** or  **inverse byte copy**. During runtime, background checking thread will fetch both banks and compare them. If a mismatch is detected, then memory corruption is detected.
 
 .. note::
    This pattern can be extended to triple banking where voting can be used to **recover** corrupted data if needed.
@@ -130,13 +130,13 @@ Decision
 - Status: Accepted
 - Date: 2026-01-09
    
-After evaluation of above detection mechanisms, it was decided that **Health Monitoring Library** shall be implemented as library within monitored process as FMEA confirms safety goals are met.
+After evaluation of above detection mechanisms, it was decided that **Health Monitoring Library** shall be implemented as a library within the monitored process as FMEA confirms safety goals are met.
 
 Rationale
 ==========
 - All code within process is developed according to **ASIL-B** development process
 - Library will use **protected pages** mechanism to detect `pass through` memory corruption
-- Lifecycle CFT will investigate possibility to harden memory protection using **ARM MTE** extension (`more here <https://learn.arm.com/learning-paths/mobile-graphics-and-gaming/mte/>`_ ) in future releases - https://github.com/eclipse-score/score/issues/2397
+- Lifecycle CFT will investigate the possibility to harden memory protection using **ARM MTE** extension (`more here <https://learn.arm.com/learning-paths/mobile-graphics-and-gaming/mte/>`_ ) in future releases - https://github.com/eclipse-score/score/issues/2397
 
 
 Failure Mode List
@@ -157,7 +157,7 @@ Failure Mode List
        :status: <valid|invalid>
        :version: 1
 
-.. note::   argument is inside the 'content'. Therefore content is mandatory
+.. note::   Argument is inside the 'content'. Therefore content is mandatory
 
 .. attention::
     The above directive must be updated according to your component FMEA.

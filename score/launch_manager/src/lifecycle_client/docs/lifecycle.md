@@ -14,7 +14,7 @@
 # Application Lifecycle
 
 ## Introduction
-Purpose of this component is to have a layer of abstraction, that unifies API, for execution managers and applications so in case of replacing lifecycle manager there will be no need to change applications.
+The purpose of this component is to have a layer of abstraction, that unifies API, for execution managers and applications so in case of replacing lifecycle manager there will be no need to change applications.
 
 > This component has `ASIL-B` safety level.
 
@@ -40,16 +40,16 @@ Input parameter to this method is an instance of `ApplicationContext`, which is 
 
 #### Run
 This method implements the `Run` state of the app (see State `Run`). This could be a long running
-functionality. In case `Run()` returns, this implicitly means, that the app has ended. If
+functionality. In case `Run()` returns, this implicitly means that the app has ended. If
 app implementations do spawn some worker threads in the context of `Run()`, those threads
-are joined again before` Run()` returns.
+are joined again before `Run()` returns.
 To be able to terminate an application `Run()` method from outside asynchronously in a cooperative manner, the `Run()` method
-gets a `stop_token`, where it shall synchronize/listen on (see concepts in https://en.cppreference.com/w/cpp/thread/stop_token)
+gets a `stop_token`, where it shall synchronize/listen on (see concepts in https://en.cppreference.com/w/cpp/thread/stop_token).
 This `stop_token` is controlled by an external `stop_source` owned by the `LifecycleManager`.
 
 ApplicationContext class represents cmd line arguments of an Application that are passed during `Initialize` function call.
 #### get_argument
-Function gets a argument name as a string and returns it's value if it exists, otherwise empty string is returned.
+Function gets an argument name as a string and returns its value if it exists, otherwise empty string is returned.
 #### get_arguments
 Returns list of cmd line arguments represented as a vector.
 Example code:
@@ -71,7 +71,7 @@ Example code:
     }
 
 #### run_application template function  
-`run_application` function abstracts initialization and running of an application with LifeCycleManager. This function should be used to start application, it take command line arguments as input parameters
+`run_application` function abstracts initialization and running of an application with LifeCycleManager. This function should be used to start the application; it takes command line arguments as input parameters
 
 ### Hardware interfaces
 N/A
@@ -107,7 +107,7 @@ has terminated.
 #### State `Initializing`
 
 This state is automatically entered upon start of the executable (fork + exec). It is left towards state `Run`
-if the application decides to do so via an active/explicit reporting to the platform, that it has entered `Run`.
+if the application decides to do so via an active/explicit reporting to the platform that it has entered `Run`.
 
 ##### What shall/can be done in this state
 * Initialize internal variables/memory
@@ -120,7 +120,7 @@ if the application decides to do so via an active/explicit reporting to the plat
 * call to exit. F.i. if initialization can't conclude.
 
 ##### What must not be done in this state
-* Offer any service instance. Reason: If it would offer a service instance, an instant service call to this instance
+* Offer any service instance. Reason: If it offered a service instance, an instant service call to this instance
   could happen and would then be served during state `Initializing`, which isn't acceptable.
 * Generally: Providing/Executing main application logic, which is assigned to `Run` state.
 
@@ -142,4 +142,4 @@ do so, it shall not report `Run` at all.
 * N/A
 
 ### Deployment
-* There is example app available that can help with deploying this library see example application (`examples/cpp_lifecycle_app`) subdirectory
+* There is an example app available that can help with deploying this library see example application (`examples/cpp_lifecycle_app`) subdirectory

@@ -73,8 +73,8 @@ Justification for the decision
 As the :term:`Health Monitor` is linked as part of the monitored application, it raises the following concerns
 with respect to safety:
 
-- How can it be ensured, that the monitored application does not interfere with the monitoring functionality?
-- How can it be ensured, that the :term:`Health Monitor` does not incorrectly report alive to the :term:`Launch Manager` when it has detected
+- How can it be ensured that the monitored application does not interfere with the monitoring functionality?
+- How can it be ensured that the :term:`Health Monitor` does not incorrectly report alive to the :term:`Launch Manager` when it has detected
   a supervision error?
 
 
@@ -83,14 +83,14 @@ These concerns are valid, but can be addressed using the following techniques:
 - Hiding of the internal data from the user:
     - For example, if the monitoring is implemented in a thread, the thread ID must not be exposed to the calling application.
     - Hide the implementation for example with the pImpl-approach
-- Protecting the memory of the library by using guard pages where the application memory is located, and protect it with mprotect()
-   - possibly with a help of a custom allocator
+- Protecting the memory of the library by using guard pages where the application memory is located, and protecting it with mprotect()
+   - possibly with the help of a custom allocator
 - Protecting the data with a checksum and possibly a sequence counter
    - The internal data of the library can be checksum'ed every operation cycle, and by adding for example, a sequence
      counter (or some more complex mathematical function), further checkpoints for detecting misbehavior can be implemented
 - Using a safe programming language, which does not allow a raw pointer access
-- Testing the application with Valgrid etc.
-- Redundant monitoring, if the self monitoring suggested before is not sufficient, a separate library can be implemented in a different memory location to detect sporadic corruption of the :term:`Health Monitors <Health Monitor>` memory location.
+- Testing the application with Valgrind etc.
+- Redundant monitoring, if the self monitoring suggested before is not sufficient, a separate library can be implemented in a different memory location to detect sporadic corruption of the :term:`Health Monitor's <Health Monitor>` memory location.
 
 Launch Manager starts processes on a thread pool
 ================================================
@@ -158,7 +158,7 @@ Flatbuffer configuration
    :status: accepted
    :version: 1
    :context: Architecture
-   :decision: The Launch Manager uses binary configuration format to reduce startup time
+   :decision: The Launch Manager uses a binary configuration format to reduce startup time
    :consequences: Fast configuration loading
    :affects: comp__lifecycle_launch_manager
 

@@ -43,10 +43,10 @@ defined by the dependencies.
    :align: center
 
 The :need:`comp__lifecycle_launch_manager` implements the following
-interfaces,for the selection of :term:`Run Target` s, starting and stopping of
+interfaces for the selection of :term:`Run Target` s, starting and stopping of
 components and monitoring of the processes.
 
-The `ComponentConfig` and `RunTargetConfig` structures defning such a dependency graph are
+The `ComponentConfig` and `RunTargetConfig` structures defining such a dependency graph are
 described in :ref:`Configuration Structure <lifecycle_configuration_structure>`.
 
 
@@ -117,7 +117,7 @@ The :term:`Launch Manager` uses this state information for:
 
 **Shutdown Signal Handling**
 
-The :term:`Launch Manager` sends SIGTERM signal to SCORE applications (and any POSIX processes) to request their shutdown.
+The :term:`Launch Manager` sends a SIGTERM signal to SCORE applications (and any POSIX processes) to request their shutdown.
 The lifecycle interface sets up the necessary signal handler for an SCORE application to properly respond to shutdown requests.
 
 Native Applications
@@ -197,7 +197,7 @@ Simplified example dependency graph
 Consider the following simplified dependency graph for the sequence diagrams
 in the following chapters.
 
-The purpose of the is not to show a real-world setup, but only to showcase different scenarios.
+The purpose of the graph is not to show a real-world setup, but only to showcase different scenarios.
 
 .. _lifecycle_simplified_example_graph:
 

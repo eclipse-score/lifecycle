@@ -27,7 +27,7 @@ High level functionality provided by Lifecycle:
     * **Run Target Management**: Determining which components are active at any given time by activating and deactivating named Run Targets in response to requests from a StateManager.
     * **Dependency Resolution**: Ensuring components start and stop in the correct order based on declared startup and shutdown dependencies.
     * **Failure Recovery**: Detecting unexpected process termination and executing configured recovery actions such as restarting a component or switching to a recovery Run Target.
-    * **External Watchdog Integration**: Compatible with external watchdogs through configurable watchdog device file.
+    * **External Watchdog Integration**: Compatible with external watchdogs through a configurable watchdog device file.
 * **Health Monitor**
     * **Supervision Types**: Supports Heartbeat, Deadline, and Logical supervision to verify the timing and control flow of process execution.
     * **Alive Notifications**: Supervision results are translated into alive notifications sent to the Launch Manager to communicate supervision status and report failures.
@@ -71,7 +71,7 @@ Applications may either use the higher-level *Health Monitoring APIs* or directl
 
 Applications can report the *Running state* to the Launch Manager to signal that initialization is finished and dependent applications can now be started.
 
-Applications may either use the higher-level [``score::mw::lifecycle::Application``](score/launch_manager/src/lifecycle_client/src/application.h) API or the lower level [``score::mw::lifecycle::report_running``](score/launch_manager/src/lifecycle_client/src/report_running.h) function.
+Applications may either use the higher-level [``score::mw::lifecycle::Application``](score/launch_manager/src/lifecycle_client/src/application.h) API or the lower-level [``score::mw::lifecycle::report_running``](score/launch_manager/src/lifecycle_client/src/report_running.h) function.
 
 See examples [Application Example](examples/cpp_lifecycle_app) and [report_running example](examples/cpp_supervised_app).
 
@@ -160,7 +160,7 @@ bazel build --config=arm64-linux //score/...
 
 ### Quality
 
-* For generating code coverage report, see [quality/coverage/README.md](quality/coverage/README.md).
+* For generating a code coverage report, see [quality/coverage/README.md](quality/coverage/README.md).
 * For running tests with sanitizers enabled, see [quality/sanitizer/README.md](quality/sanitizer/README.md).
 
 ### Demo

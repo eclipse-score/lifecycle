@@ -14,7 +14,7 @@
 # Lifecyclemanager class
 
 ## Introduction
-Purpose of `score::mw::lifecycle::LifecycleManager` component is to have a layer of abstraction, that unifies API, for execution managers.
+The purpose of the `score::mw::lifecycle::LifecycleManager` component is to have a layer of abstraction, that unifies API, for execution managers.
 
 > This component has `ASIL-B` safety level.
 
@@ -29,4 +29,4 @@ Hook function for reporting shutdown state in lifecycle manager
 
 ### POSIX signals
 #### SIGTERM 
-Lifecycle manager `handle_signal` function waits for SIGTERM signal, if signal is received it's shuts down application, reports shutdown to execution manager and exits itself.
+Lifecycle manager `handle_signal` function waits for the SIGTERM signal; if the signal is received, it shuts down the application, reports shutdown to execution manager and exits itself.

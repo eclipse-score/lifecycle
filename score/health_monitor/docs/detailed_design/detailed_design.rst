@@ -69,7 +69,7 @@ Implementation approach for multi language
 
 The implementation is done primarily in `Rust` language to leverage its memory safety features and concurrency model.
 Due to a need to interface with existing C++ codebases, a C-compatible Foreign Function Interface (FFI) is provided by this `Rust` implementation.
-`C++` API is designed to be idiomatic wrapping around the `Rust` FFI, ensuring ease of use for C++ developers while maintaining the safe usage.
+`C++` API is designed to be an idiomatic wrapper around the `Rust` FFI, ensuring ease of use for C++ developers while maintaining the safe usage.
 
 Rationale Behind Decomposition into Units
 ******************************************
@@ -77,8 +77,8 @@ Rationale Behind Decomposition into Units
 | mandatory: a motivation for the decomposition into one or more units.
 
 .. note:: Reason for split into multiple units could be-
-	    - Based on design principles like SOLID,DRY etc
-	    - Based on design pattern's etc.
+	    - Based on design principles like SOLID, DRY, etc.
+	    - Based on design patterns, etc.
 
 Static Diagrams for Unit Interactions
 -------------------------------------
