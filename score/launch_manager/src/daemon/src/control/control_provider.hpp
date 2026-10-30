@@ -182,9 +182,11 @@ class BasicControlProvider
         const score::Result<IdentifierHash> result = graph_->getActiveRunTarget();
         if (!result.has_value())
         {
+            // kFailed can be returned on shutdown
             SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
-                static_cast<ExecErrc>(*result.error()) == ExecErrc::kActivationInProgress,
-                "Impossible to communicate errors other than ExecErrc::kActivationInProgress to the client");
+                static_cast<ExecErrc>(*result.error()) == ExecErrc::kActivationInProgress ||
+                    static_cast<ExecErrc>(*result.error()) == ExecErrc::kFailed,
+                "Impossible to communicate errors other than kActivationInProgress & kFailed to the client");
 
             response = GetActiveRunTargetResponse{QueryStatus::kNotAvailable, RunTargetName("")};
             return;
