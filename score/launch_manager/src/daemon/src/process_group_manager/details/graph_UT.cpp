@@ -268,6 +268,52 @@ TEST_F(GraphOrdinaryTransitionTest, simpleDeactivationTransition)
     EXPECT_EQ(graph_->getRequestedRunTarget(), target);
 }
 
+TEST_F(GraphOrdinaryTransitionTest, GivenGetActiveRunTargetEvent_WhenUnblockComponentEventCalled_ThenSlotIsCompleted)
+{
+    RecordProperty(
+        "Description",
+        "Given a GetActiveRunTarget event. "
+        "When the event is passed to unblockComponentEvent(). "
+        "Then the slot is completed with an error. "
+        "And the wait() does not block.");
+
+    // Given
+    constexpr auto COMPLETION_REASON = ExecErrc::kFailed;
+    CompletionSlot<Result<IdentifierHash>> slot;
+    auto event = GetActiveRunTarget{&slot};
+
+    // When
+    graph_->unblockComponentEvent(event, COMPLETION_REASON);
+
+    // Then
+    auto completion = slot.wait();
+    ASSERT_FALSE(completion.has_value());
+    EXPECT_EQ(completion.error(), COMPLETION_REASON);
+}
+
+TEST_F(GraphOrdinaryTransitionTest, GivenSetRequestedRunTarget_WhenUnblockComponentEventCalled_ThenSlotIsCompleted)
+{
+    RecordProperty(
+        "Description",
+        "Given a SetRequestedRunTarget event. "
+        "When the event is passed to unblockComponentEvent(). "
+        "Then the slot is completed with an error. "
+        "And the wait() does not block.");
+
+    // Given
+    constexpr auto COMPLETION_REASON = ExecErrc::kFailed;
+    CompletionSlot<Result<void>> slot;
+    auto event = SetRequestedRunTarget{IdentifierHash{run_target_name(0)}, &slot};
+
+    // When
+    graph_->unblockComponentEvent(event, COMPLETION_REASON);
+
+    // Then
+    auto completion = slot.wait();
+    ASSERT_FALSE(completion.has_value());
+    EXPECT_EQ(completion.error(), COMPLETION_REASON);
+}
+
 class GraphActivationSourceTest : public GraphTest
 {
   protected:
