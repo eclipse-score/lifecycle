@@ -393,6 +393,29 @@ void Graph::handleComponentEvent(const ComponentEvent& event)
         event);
 }
 
+void Graph::unblockComponentEvent(const ComponentEvent& event, const ExecErrc reason)
+{
+    std::visit(
+        [this, reason](const auto& data) {
+            using T = std::decay_t<decltype(data)>;
+            if constexpr (std::is_same_v<T, GetActiveRunTarget>)
+            {
+                if (data.completion != nullptr)
+                {
+                    data.completion->complete(score::MakeUnexpected(reason));
+                }
+            }
+            else if constexpr (std::is_same_v<T, SetRequestedRunTarget>)
+            {
+                if (data.completion != nullptr)
+                {
+                    data.completion->complete(score::MakeUnexpected(reason));
+                }
+            }
+        },
+        event);
+}
+
 void Graph::nodeExecuted(IdentifierHash node, IComponent::RequestResult result)
 {
     bool was_last_in_queue = --jobs_in_progress_ == 0;

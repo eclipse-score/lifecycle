@@ -290,7 +290,16 @@ void ProcessGroupManager::allProcessGroupsOff()
                 {
                     continue;
                 }
-                graph_->handleComponentEvent(*event);
+                else if (
+                    std::holds_alternative<GetActiveRunTarget>(*event) ||
+                    std::holds_alternative<SetRequestedRunTarget>(*event))
+                {
+                    graph_->unblockComponentEvent(*event, ExecErrc::kShuttingDown);
+                }
+                else
+                {
+                    graph_->handleComponentEvent(*event);
+                }
             }
         }
 
