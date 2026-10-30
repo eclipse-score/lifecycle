@@ -101,7 +101,6 @@ void handleComms(score::mw::lifecycle::internal::osal::ChildProcessConfig& param
     }
 
     param.fd = dup2(param.fd, param.shared_block->sync_fd);
-    param.shared_block->pid_ = getpid();  // Store pid for check at client end
 
     // Flag FD_CLOEXEC is cleared to ensure that sync_fd remains open after the execve call.
     if (-1 == fcntl(IpcCommsSync::sync_fd, F_SETFD, 0))

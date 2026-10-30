@@ -71,7 +71,6 @@ class ProcessLauncherTest : public ::testing::Test
         std::memset(test_buffer.data(), 0, test_buffer.size());
         auto* sync = reinterpret_cast<IpcCommsSync*>(test_buffer.data());
 
-        sync->pid_ = 0;
         EXPECT_EQ(sync->send_sync_.init(0, false), OsalReturnType::kSuccess);
         // Real msync calls would treat this fake shared memory as invalid because it isn't page aligned.
         ON_CALL(*g_syscall_mock, msync(sync, _, _)).WillByDefault(Return(0));
@@ -394,12 +393,18 @@ TEST_F(SetupCommsTest, getCommsFails)
 
 TEST_F(SetupCommsTest, initSemaphoresFails)
 {
-    RecordProperty("Description", "Verify that if setting up the semaphores fails, startProcess fails");
+    RecordProperty(
+        "Description",
+        "Verify that if setting up the semaphores fails, startProcess fails, the shared memory is not marked as a "
+        "valid comms object and no semaphore is destroyed");
 
-    StubShmObject();
+    IpcCommsSync* block = StubShmObject();
+    block->magic_ = 0U;
     EXPECT_CALL(*semaphore_mock_, sem_init).WillRepeatedly(Return(SemError(EINVAL)));
+    EXPECT_CALL(*g_syscall_mock, sem_destroy).Times(0);
 
     EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
+    EXPECT_EQ(block->magic_, 0U);
 }
 
 TEST_F(ProcessLauncherTest, releasingCommsObjectDestroysSemaphore)
@@ -416,6 +421,8 @@ TEST_F(ProcessLauncherTest, releasingCommsObjectDestroysSemaphore)
 
     IpcCommsP block = IpcCommsSync::createCommsObject(fd);
     ASSERT_NE(block, nullptr);
+    EXPECT_EQ(block->magic_, IpcCommsSync::kMagic);
+    EXPECT_EQ(block->version_, IpcCommsSync::kLayoutVersion);
 
     EXPECT_CALL(*g_syscall_mock, msync(data, _, _)).WillOnce(Return(0));
     Expectation destroyed = EXPECT_CALL(*g_syscall_mock, sem_destroy).WillOnce(Return(0));
@@ -863,7 +870,8 @@ TEST_F(StartProcessTest, startProcessChildSuccess)
 
     static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
 
-    EXPECT_EQ(block->pid_, forked_pid);
+    EXPECT_EQ(block->magic_, IpcCommsSync::kMagic);
+    EXPECT_EQ(block->version_, IpcCommsSync::kLayoutVersion);
 }
 
 class ClientMethodsTest : public ProcessLauncherTest
