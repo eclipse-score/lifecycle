@@ -73,7 +73,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="DFA (Dependent Failure Analysis)" href="dfa.html" />
-    <link rel="prev" title="Architecture Inspection Checklist" href="../architecture/chklst_arc_inspection.html" />
+    <link rel="prev" title="Lifecycle Architecture Inspection" href="../architecture/chklst_arc_inspection.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
@@ -182,7 +182,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../components/index.html">
-    Component documentation
+    Components
   </a>
 </li>
 
@@ -331,7 +331,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../components/index.html">
-    Component documentation
+    Components
   </a>
 </li>
 
@@ -422,13 +422,14 @@
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Lifecycle</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../architecture/index.html">Feature Architecture</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../architecture/chklst_arc_inspection.html">Architecture Inspection Checklist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/chklst_arc_inspection.html">Lifecycle Architecture Inspection</a></li>
 <li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">FMEA (Failure Modes and Effects Analysis)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dfa.html">DFA (Dependent Failure Analysis)</a></li>
 
 <li class="toctree-l2"><a class="reference internal" href="aou_requirements.html">AoU Feature Requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../safety_planning/index.html">Feature Safety Work Products List</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../security_planning/index.html">Feature Security Work Products List</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../security_analysis/aou_requirements.html">Lifecycle Security Assumptions of Use</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../glossary.html">Lifecycle Glossary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../glossary_detailed.html">Glossary</a></li>
 </ul>
@@ -498,7 +499,7 @@
                   
   <section id="fmea-failure-modes-and-effects-analysis">
 <h1>FMEA (Failure Modes and Effects Analysis)<a class="headerlink" href="#fmea-failure-modes-and-effects-analysis" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-934173bd">
+<div class="need_container docutils container" id="SNCB-e9b84b95">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__lifecycle_fmea">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -550,7 +551,7 @@ following tables. For all applicable failure initiators, the FMEA has to be perf
 <section id="failure-mode-list">
 <h2>Failure Mode List<a class="headerlink" href="#failure-mode-list" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="table" id="id1">
-<caption><span class="caption-number">Table 2 </span><span class="caption-text">Fault Models for sequence diagrams</span><a class="headerlink" href="#id1" title="Link to this table">#</a></caption>
+<caption><span class="caption-number">Table 3 </span><span class="caption-text">Fault Models for sequence diagrams</span><a class="headerlink" href="#id1" title="Link to this table">#</a></caption>
 <colgroup>
 <col style="width: 16.7%" />
 <col style="width: 33.3%" />
@@ -652,6 +653,8 @@ following tables. For all applicable failure initiators, the FMEA has to be perf
    <span class="nc">:id:</span> feat_saf_fmea__&lt;Feature&gt;__&lt;Element descriptor&gt;
    <span class="nc">:fault_id:</span> <span class="nt">&lt;ID from fault model :need:`gd_guidl__fault_models`&gt;</span>
    <span class="nc">:failure_effect:</span> "description of failure effect of the fault model on the element"
+   <span class="nc">:failure_root_cause:</span> "description of the root cause of the failure"
+   <span class="nc">:safety_relevant:</span> <span class="nt">&lt;yes|no&gt;</span>
    <span class="nc">:mitigated_by:</span> <span class="nt">&lt;ID from Feature Requirement | ID from AoU Feature Requirement&gt;</span>
    <span class="nc">:mitigation_issue:</span> <span class="nt">&lt;ID from Issue Tracker&gt;</span>
    <span class="nc">:sufficient:</span> <span class="nt">&lt;yes|no&gt;</span>
@@ -688,7 +691,7 @@ following tables. For all applicable failure initiators, the FMEA has to be perf
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Architecture Inspection Checklist</p>
+        <p class="prev-next-title">Lifecycle Architecture Inspection</p>
       </div>
     </a>
     <a class="right-next"
