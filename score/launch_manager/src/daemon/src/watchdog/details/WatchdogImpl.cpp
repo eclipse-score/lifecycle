@@ -143,7 +143,7 @@ void WatchdogImpl::serviceWatchdog() noexcept
     }
 
     // Cannot be invalid when state_ == ELibState::activated
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
         watchdogDevice_->fileDescriptor >= 0, "Watchdog file descriptor is not valid");
 
     // save to ignore return value here. If keepalive does not work, watchdog will eventually fire
@@ -161,7 +161,7 @@ void WatchdogImpl::fireWatchdogReaction() noexcept
     state_ = ELibState::react;
 
     // Cannot be invalid when state_ was ELibState::activated
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
         watchdogDevice_->fileDescriptor >= 0, "Watchdog file descriptor is not valid");
 
     // This log message is introduced as a result of FMEA
@@ -332,7 +332,7 @@ bool WatchdogImpl::updateTimeout(WatchdogDevice& f_state_r, std::int32_t f_confi
 bool WatchdogImpl::disableDevice(WatchdogDevice& f_watchdogDevice_r) const noexcept
 {
     // Cannot be invalid as this is only called when in state ELibState::activated
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
         watchdogDevice_->fileDescriptor >= 0, "Watchdog file descriptor is not valid");
 
     if (!f_watchdogDevice_r.config.canBeDeactivated)

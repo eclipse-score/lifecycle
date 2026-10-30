@@ -104,7 +104,7 @@ class BasicLmControlImpl final : public ILmControl
     ///       function is noexcept.
     score::Result<void> init(std::string_view instance_specifier) noexcept
     {
-        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(!find_handle_.has_value(), "LmControl::init() called more than once");
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(!find_handle_.has_value(), "LmControl::init() called more than once");
 
         try
         {
@@ -402,7 +402,7 @@ class BasicLmControlImpl final : public ILmControl
     /// @pre The caller holds sample_processing_mutex_ and proxy_ has a value.
     void readActivationEvents()
     {
-        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(proxy_.has_value(), "proxy must not be null");
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(proxy_.has_value(), "proxy must not be null");
 
         const ActivationCallback callback = currentCallback();
         if (!callback)

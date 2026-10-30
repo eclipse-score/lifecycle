@@ -191,7 +191,7 @@ class Transition
     ///   deactivation: every dependent it has is stopped()
     void onNodeFinished(Key node)
     {
-        SCORE_LANGUAGE_FUTURECPP_ASSERT(isValidNode(node));
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG(isValidNode(node));
 
         --state_.pending;  // completion counter; only detects done-ness, never gates order
 
@@ -217,8 +217,8 @@ class Transition
             if (isReady(s) && !state_.node_information.at(s).enqueued_)
             {
                 state_.node_information[s].enqueued_ = true;
-                const bool pushSuccessful = state_.next_nodes.push(s);
-                SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+                [[maybe_unused]] const bool pushSuccessful = state_.next_nodes.push(s);
+                SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
                     pushSuccessful, "Transition queue should never exceed capacity");
             }
         }
@@ -464,7 +464,7 @@ class TransitionBuilder final
     /// live component state, so this recovers correctly even when a previous transition was aborted mid-flight.
     Transition<Key, T>& createTransition(Key target)
     {
-        SCORE_LANGUAGE_FUTURECPP_ASSERT(transition_.isValidNode(target));
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG(transition_.isValidNode(target));
         transition_.setupTransition(target);
         return transition_;
     }
