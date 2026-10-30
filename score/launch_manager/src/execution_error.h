@@ -40,6 +40,7 @@ enum class ExecErrc : score::result::ErrorCode
     kRequestQueueIsFull = 13,    ///< The activation request queue is full; the request was discarded
     kRunTargetDoesntExist = 14,  ///< The requested Run Target does not exist in the current configuration
     kNotImplemented = 15,        ///< The requested functionality is not yet implemented
+    kShuttingDown = 16,          ///< The request could not be completed because launch manager is shutting down
 };
 
 class ExecErrorDomain final : public score::result::ErrorDomain
