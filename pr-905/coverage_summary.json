@@ -1,0 +1,35 @@
+{
+  "coverage_summaries": [
+    {
+      "branches": {
+        "percent": null,
+        "total": null
+      },
+      "files": {
+        "measured": 0,
+        "total": 38
+      },
+      "lines": {
+        "percent": null,
+        "total": null
+      },
+      "primary_need_id": "comp__health_monitor"
+    },
+    {
+      "branches": {
+        "percent": null,
+        "total": null
+      },
+      "files": {
+        "measured": 0,
+        "total": 163
+      },
+      "lines": {
+        "percent": null,
+        "total": null
+      },
+      "primary_need_id": "comp__lifecycle_launch_manager"
+    }
+  ],
+  "version": 1
+}
