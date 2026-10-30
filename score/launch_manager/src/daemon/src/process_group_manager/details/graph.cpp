@@ -231,7 +231,11 @@ void Graph::finalizeTransitionSuccess()
             source = transition_source_;
         }
 
+        const auto beforeEvent = std::chrono::system_clock::now();
         active_run_target_callback_.value()(state, source);
+        const auto afterEvent = std::chrono::system_clock::now();
+        const auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(afterEvent - beforeEvent);
+        LM_LOG_FATAL() << "Sending mw::com event took" << diff.count() << "ms";
     }
 
     if (is_initial_state_transition_)
