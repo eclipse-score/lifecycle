@@ -76,7 +76,7 @@ integration_test(
         ":component_d",
         ":component_e",
         ":control_client_test_driver",
-        "//score/launch_manager",
+        "//score/launch_manager:launch_manager_debug_asserts",
     ],
     config = ":switch_run_target.json",
 )

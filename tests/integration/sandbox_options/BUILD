@@ -41,7 +41,7 @@ integration_test(
         ":sandbox_options_process_a",
         ":sandbox_options_process_b",
         ":sandbox_options_process_c",
-        "//score/launch_manager",
+        "//score/launch_manager:launch_manager_debug_asserts",
         "//tests/utils/test_helper:verification_process",
     ],
     config = ":sandbox_options.json",

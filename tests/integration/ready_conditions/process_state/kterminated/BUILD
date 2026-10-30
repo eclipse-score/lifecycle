@@ -29,7 +29,7 @@ integration_test(
     srcs = ["kterminated.py"],
     binaries = [
         ":control_client_test_driver",
-        "//score/launch_manager",
+        "//score/launch_manager:launch_manager_debug_asserts",
         "//tests/utils/test_helper:waiting_process",
     ],
     config = ":kterminated.json",

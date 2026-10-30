@@ -30,7 +30,7 @@ integration_test(
     srcs = ["unknown_run_target.py"],
     binaries = [
         ":control_client_test_driver",
-        "//score/launch_manager",
+        "//score/launch_manager:launch_manager_debug_asserts",
     ],
     config = ":unknown_run_target.json",
 )

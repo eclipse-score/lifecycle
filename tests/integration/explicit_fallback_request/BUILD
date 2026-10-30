@@ -29,7 +29,7 @@ integration_test(
     srcs = ["explicit_fallback_request.py"],
     binaries = [
         ":control_client_test_driver",
-        "//score/launch_manager",
+        "//score/launch_manager:launch_manager_debug_asserts",
     ],
     config = ":explicit_fallback_request.json",
 )

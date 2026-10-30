@@ -40,7 +40,7 @@ integration_test(
     binaries = [
         ":control_client_test_driver",
         ":process_crashing_once",
-        "//score/launch_manager",
+        "//score/launch_manager:launch_manager_debug_asserts",
     ],
     config = ":fallback_to_same_target_restarts.json",
 )

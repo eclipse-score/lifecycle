@@ -29,7 +29,7 @@ integration_test(
     srcs = ["process_wrong_binary_failure.py"],
     binaries = [
         ":control_client_test_driver",
-        "//score/launch_manager",
+        "//score/launch_manager:launch_manager_debug_asserts",
         "//tests/utils/test_helper:verification_process",
     ],
     config = ":process_wrong_binary_failure.json",
