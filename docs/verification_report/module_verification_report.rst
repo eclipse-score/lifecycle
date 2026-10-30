@@ -95,3 +95,19 @@ Valid component requirements without any linked component architecture elements 
    }
    </style>
 
+
+Verification of valid component requirements by tests
+-------------------------------------------------------------
+
+List of valid component requirements without any linked test.
+
+.. dropdown:: Show component requirement test links
+   :animate: fade-in
+
+   .. needtable:: Valid component requirements without linked tests
+      :filter: type == "comp_req" and ("comp__health_monitor" in satisfied_by or "comp__lifecycle_launch_manager" in satisfied_by) and status != "invalid" and len(fully_verifies_back) == 0 and len(partially_verifies_back) == 0
+      :style: table
+      :types: comp_req
+      :columns: id;title;fully_verifies_back as "Fully verified by";partially_verifies_back as "Partially verified by";status
+      :colwidths: 15,25,25,25,10
+      :sort: title
