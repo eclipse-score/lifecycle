@@ -5616,7 +5616,7 @@
   {
     "name": "ProcessLauncherTest__ignoreRunningNoPost",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "840",
+    "line": "837",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5630,7 +5630,7 @@
   {
     "name": "ProcessLauncherTest__ignoreRunningSuccess",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "852",
+    "line": "849",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5644,7 +5644,7 @@
   {
     "name": "ProcessLauncherTest__kRunningNoSync",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "866",
+    "line": "863",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5658,7 +5658,7 @@
   {
     "name": "ProcessLauncherTest__kRunningSuccess",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "875",
+    "line": "872",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5672,7 +5672,7 @@
   {
     "name": "ProcessLauncherTest__kRunningTimeout",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "892",
+    "line": "889",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5784,7 +5784,7 @@
   {
     "name": "StartProcessTest__startProcessNoFile",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "315",
+    "line": "314",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5798,7 +5798,7 @@
   {
     "name": "StartProcessTest__startProcessNoPath",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "324",
+    "line": "323",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5812,7 +5812,7 @@
   {
     "name": "StartProcessTest__startProcessForkFailed",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "334",
+    "line": "333",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5826,7 +5826,7 @@
   {
     "name": "StartProcessTest__handleCommsFailsFnctl",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "344",
+    "line": "343",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5840,7 +5840,7 @@
   {
     "name": "StartProcessTest__chdirFails",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "590",
+    "line": "587",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5854,7 +5854,7 @@
   {
     "name": "StartProcessTest__changeSecurityPolicyFails",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "603",
+    "line": "600",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5868,7 +5868,7 @@
   {
     "name": "StartProcessTest__setRLimitFails",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "619",
+    "line": "616",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5882,7 +5882,7 @@
   {
     "name": "StartProcessTest__noRlimitsConfiguredSkipsSetrlimit",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "637",
+    "line": "634",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5896,7 +5896,7 @@
   {
     "name": "StartProcessTest__setRLimitZeroIsApplied",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "650",
+    "line": "647",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5910,7 +5910,7 @@
   {
     "name": "StartProcessTest__setRLimitPassesPreResolvedValuesUnchanged",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "669",
+    "line": "666",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5924,7 +5924,7 @@
   {
     "name": "StartProcessTest__rlimitsAppliedBeforePrivilegeDrop",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "693",
+    "line": "690",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5938,7 +5938,7 @@
   {
     "name": "StartProcessTest__execveFails",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "721",
+    "line": "718",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5952,7 +5952,7 @@
   {
     "name": "StartProcessTest__startProcessChildSuccess",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "766",
+    "line": "763",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5966,7 +5966,7 @@
   {
     "name": "SetupCommsTest__shmOpenFails",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "371",
+    "line": "370",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5980,7 +5980,7 @@
   {
     "name": "SetupCommsTest__ftruncateFails",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "380",
+    "line": "379",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5994,7 +5994,7 @@
   {
     "name": "SetupCommsTest__getCommsFails",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "391",
+    "line": "389",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6008,7 +6008,7 @@
   {
     "name": "SetupCommsTest__initSemaphoresFails",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "403",
+    "line": "400",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6022,7 +6022,7 @@
   {
     "name": "SetSchedulingAndSecurityTest__setpgidFails",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "426",
+    "line": "423",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6036,7 +6036,7 @@
   {
     "name": "SetSchedulingAndSecurityTest__setgidFails",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "441",
+    "line": "438",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6050,7 +6050,7 @@
   {
     "name": "SetSchedulingAndSecurityTest__setuidFails",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "456",
+    "line": "453",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6064,7 +6064,7 @@
   {
     "name": "SetSchedulingAndSecurityTest__setschedFails",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "471",
+    "line": "468",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6078,7 +6078,7 @@
   {
     "name": "SetSchedulingAndSecurityTest__setschedClampedUpper",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "486",
+    "line": "483",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6092,7 +6092,7 @@
   {
     "name": "SetSchedulingAndSecurityTest__setschedClampedLower",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "506",
+    "line": "503",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6106,7 +6106,7 @@
   {
     "name": "SetSchedulingAndSecurityTest__setgroupsFails",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "526",
+    "line": "523",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6120,7 +6120,7 @@
   {
     "name": "SetSchedulingAndSecurityTest__setaffinityFails",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "543",
+    "line": "540",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6134,7 +6134,7 @@
   {
     "name": "SetSchedulingAndSecurityTest__setaffinityIgnore",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "561",
+    "line": "558",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6148,7 +6148,7 @@
   {
     "name": "SetSchedulingAndSecurityTest__supplementaryGroupsAreCleared",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher_UT.cpp",
-    "line": "577",
+    "line": "574",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
