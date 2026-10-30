@@ -70,7 +70,7 @@ Component crash
 .. feat_arc_dyn:: Launch Manager - Crash Recovery
    :id: feat_arc_dyn__lifecycle__crash
    :security: YES
-   :status: valid
+   :status: valid_inspected
    :version: 1
    :safety: ASIL_B
    :belongs_to: feat__lifecycle[version==1]
@@ -93,7 +93,7 @@ Component supervision failure
 .. feat_arc_dyn:: Launch Manager - Supervision Failure
    :id: feat_arc_dyn__lifecycle__sup_failure
    :security: YES
-   :status: valid
+   :status: valid_inspected
    :version: 1
    :safety: ASIL_B
    :belongs_to: feat__lifecycle[version==1]
@@ -123,7 +123,7 @@ The currently only supported Run Target Recovery Action is the activation of the
 .. feat_arc_dyn:: Launch Manager - Run Target Transition Failure
    :id: feat_arc_dyn__lifecycle__run_target_failure
    :security: YES
-   :status: valid
+   :status: valid_inspected
    :version: 1
    :safety: ASIL_B
    :belongs_to: feat__lifecycle[version==1]
