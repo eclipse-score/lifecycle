@@ -28,14 +28,14 @@ std::chrono::nanoseconds CycleTimer::init(std::chrono::nanoseconds f_sleepInterv
 {
     if (nullptr == osInterface)
     {
-        sleepIntervalNs = std::chrono::nanoseconds{-2};
+        sleepIntervalNs = kInitNullInterface;
         return sleepIntervalNs;
     }
 
     // check for invalid cycle time
     if (f_sleepIntervalNs.count() <= 0)
     {
-        sleepIntervalNs = std::chrono::nanoseconds{-3};
+        sleepIntervalNs = kInitInvalidInterval;
         return sleepIntervalNs;
     }
 

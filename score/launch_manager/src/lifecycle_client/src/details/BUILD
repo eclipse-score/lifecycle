@@ -81,6 +81,8 @@ lm_cc_test(
         "fcntl",
         "sem_destroy",
         "msync",
+        "clock_gettime",
+        "clock_getres",
     ]),
     linkstatic = True,
     deps = [

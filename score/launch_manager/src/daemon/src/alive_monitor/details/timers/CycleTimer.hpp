@@ -33,6 +33,12 @@ class CycleTimer
     /// @brief sleep() return code in case the deadline was already over before going to sleep
     static constexpr int kDeadlineAlreadyOver{-1};
 
+    /// @brief init() return value if the given system clock interface is a nullptr
+    static constexpr std::chrono::nanoseconds kInitNullInterface{-2};
+
+    /// @brief init() return value if the given sleep interval is invalid (zero or negative)
+    static constexpr std::chrono::nanoseconds kInitInvalidInterval{-3};
+
     /// @brief Sets the interface for performing the OS clock system calls.
     /// @param[in] f_osInterface OS clock interface to access clock_nanosleep() and clock_gettime() via
     /// OsClockInterface. The pointer allows the interface exchange to enhance testability.

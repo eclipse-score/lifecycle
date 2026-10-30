@@ -68,3 +68,31 @@ def linker_wrap_symbols(symbols):
         List of "-Wl,--wrap=<symbol>" linker options.
     """
     return ["-Wl,--wrap={}".format(s) for s in symbols]
+
+# Every symbol wrapped by tests/utils/mocks/mock_syscalls.hpp; tests including it must link with all of them.
+MOCK_SYSCALLS_WRAPPED_SYMBOLS = [
+    "fork",
+    "execve",
+    "kill",
+    "wait",
+    "shm_open",
+    "shm_unlink",
+    "ftruncate",
+    "access",
+    "mmap",
+    "munmap",
+    "setpgid",
+    "setgid",
+    "setuid",
+    "sched_setscheduler",
+    "chdir",
+    "setrlimit",
+    "getpid",
+    "fcntl",
+    "sem_destroy",
+    "msync",
+    "close",
+    "fstat",
+    "clock_gettime",
+    "clock_getres",
+]
