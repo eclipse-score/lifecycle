@@ -372,6 +372,46 @@ void Graph::handleComponentEvent(const ComponentEvent& event)
             {
                 nodeExecuted(data.node_identifier, IComponent::RequestResult::kSuccess);
             }
+            // GetActiveRunTarget & SetRequestedRunTarget are only reached while shutting down,
+            // when the graph is no longer serving run target requests.
+            // The caller blocks on the slot, so it must always be completed.
+            else if constexpr (std::is_same_v<T, GetActiveRunTarget>)
+            {
+                if (data.completion != nullptr)
+                {
+                    data.completion->complete(score::MakeUnexpected(ExecErrc::kFailed));
+                }
+            }
+            else if constexpr (std::is_same_v<T, SetRequestedRunTarget>)
+            {
+                if (data.completion != nullptr)
+                {
+                    data.completion->complete(score::MakeUnexpected(ExecErrc::kFailed));
+                }
+            }
+        },
+        event);
+}
+
+void Graph::unblockComponentEvent(const ComponentEvent& event, const ExecErrc reason)
+{
+    std::visit(
+        [this, reason](const auto& data) {
+            using T = std::decay_t<decltype(data)>;
+            if constexpr (std::is_same_v<T, GetActiveRunTarget>)
+            {
+                if (data.completion != nullptr)
+                {
+                    data.completion->complete(score::MakeUnexpected(reason));
+                }
+            }
+            else if constexpr (std::is_same_v<T, SetRequestedRunTarget>)
+            {
+                if (data.completion != nullptr)
+                {
+                    data.completion->complete(score::MakeUnexpected(reason));
+                }
+            }
         },
         event);
 }

@@ -557,21 +557,21 @@ TEST_F(ControlProviderUT, GetActiveRunTarget_UnexpectedError_Aborts)
 {
     RecordProperty(
         "Description",
-        "If getActiveRunTarget() returns any error other than kActivationInProgress "
+        "If getActiveRunTarget() returns any error other than kActivationInProgress or kShuttingDown "
         "the handler hits an internal assertion and the process terminates, because "
         "no other error code can be communicated to the client.");
 
     auto provider = MakeProvider();
     ASSERT_TRUE(on_get_active_) << "get_active_run_target handler was not registered";
 
-    EXPECT_CALL(graph_, getActiveRunTarget()).WillRepeatedly(Return(MakeUnexpected(ExecErrc::kFailed)));
+    EXPECT_CALL(graph_, getActiveRunTarget()).WillRepeatedly(Return(MakeUnexpected(ExecErrc::kMetaModelError)));
 
     EXPECT_DEATH(
         {
             GetActiveRunTargetResponse response{};
             on_get_active_(response);
         },
-        "Impossible to communicate errors other than ExecErrc::kActivationInProgress to the client");
+        "Impossible to communicate errors other than kActivationInProgress & kShuttingDown to the client");
 }
 
 // ============================================================================
