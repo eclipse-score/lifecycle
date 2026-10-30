@@ -161,11 +161,9 @@ bool ProcessInfoNode::setState(score::mw::lifecycle::ProcessState new_state)
 
 void ProcessInfoNode::unblockSync()
 {
-    auto sync = sync_;  // take a copy as the pointer otherwise may become invalidated
+    auto sync = sync_;  // take a copy so the shared block stays alive during the post
     if (sync)
     {
-        // note that we ignore the return code. The semaphore operation may fail because it could
-        // be destroyed by another thread
         static_cast<void>(sync->send_sync_.post());
     }
 }
