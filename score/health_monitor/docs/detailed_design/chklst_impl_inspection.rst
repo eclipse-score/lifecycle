@@ -40,7 +40,7 @@ As described in the concept :need:`doc_concept__wp_inspections` the following "i
 
 - content responsible (author): <contributor/committer explicitly named here, who is the main author, as can be seen in config mgt tooling>
 - reviewer: <contributor/committer explicitly named here, who is the main content reviewer, must be different from content responsible>
-- moderator: <committer explicitly named here, who is is the safety manager, security manager or quality manager initiating the inspection>
+- moderator: <committer explicitly named here, who is the safety manager, security manager or quality manager initiating the inspection>
 
 Checklist
 ---------
@@ -93,23 +93,23 @@ See also :need:`doc_concept__wp_inspections` for further information about revie
      -
      -
    * - IMPL_02_02
-     - Do manual checks, that are derived from the coding guideline, find no safety critical error?
+     - Do manual checks that are derived from the coding guideline find no safety critical error?
      - Check this for the programming language used (e.g. C++ <link_to_checks_list>, Rust <link_to_checks_list>)
      -
      -
      -
    * - IMPL_03_01
-     - Do the UID of the interface in component documentation match the implemented interface names of the unit?
-     - Compare interface UIDs (which contains the interface name) in component architecture/detailed design documentation
+     - Do the UIDs of the interfaces in component documentation match the implemented interface names of the unit?
+     - Compare interface UIDs (which contain the interface name) in component architecture/detailed design documentation
        with public interfaces in source code (e.g. API headers, traits, public types/functions).
      -
      -
      -
    * - IMPL_03_02
-     - Are detailed design and source code consistent and is the respective traceability established ?
+     - Are detailed design and source code consistent and is the respective traceability established?
      - Check if available static and dynamic design diagrams and the textual descriptions match the code
        (e.g. naming of interfaces, units, functions/operations/messages, data types).
-       Check if the folder/file names of the units and its source code matches the intended functionality.
+       Check if the folder/file names of the units and their source code match the intended functionality.
        For example if a unit is named "communication" it should not contain code for "data processing".
      -
      -

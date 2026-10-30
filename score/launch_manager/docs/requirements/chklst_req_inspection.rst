@@ -37,7 +37,7 @@ As described in the concept :need:`doc_concept__wp_inspections` the following "i
 
 - content responsible (author): <contributor/committer explicitly named here, who is the main author, as can be seen in config mgt tooling>
 - reviewer: <contributor/committer explicitly named here, who is the main content reviewer, must be different from content responsible>
-- moderator: <committer explicitly named here, who is is the safety manager, security manager or quality manager initiating the inspection>
+- moderator: <committer explicitly named here, who is the safety manager, security manager or quality manager initiating the inspection>
 - test expert: <one of the reviewers explicitly named here, to cover REQ_08_01 as described>
 
 Checklist
@@ -157,7 +157,7 @@ See also :need:`doc_concept__wp_inspections` for further information about revie
 .. attention::
     The above checklist entries must be filled according to your component requirements in scope.
 
-Note: If a Review ID is not applicable for your requirement, then state ""n/a" in status and comment accordingly in remarks.
+Note: If a Review ID is not applicable for your requirement, then state "n/a" in status and comment accordingly in remarks.
 
 The following requirements in "valid_inspected" state are in the scope of this inspection:
 

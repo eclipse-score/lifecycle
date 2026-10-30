@@ -21,7 +21,7 @@ Bazel configuration in `sanitizer.bazelrc`, which is imported from the root
 
 ## Usage
 
-The following commands run all unit and integration tests with sanitizer enabled.
+The following commands run all unit and integration tests with sanitizers enabled.
 
 ASan + UBSan + LSan (recommended):
 

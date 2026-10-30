@@ -42,9 +42,9 @@ A Component Failure is first handled by the Component Recovery Action. A Compone
 restarting the failed component. If no Component Recovery Action is configured or it does
 not succeed, the Run Target Recovery Action activates the Fallback Run Target. If this also fails,
 the Watchdog triggers a Machine Reset.
-Currently, the Run Target Recovery Action is synonymous to activation of the Fallback Run Target.
+Currently, the Run Target Recovery Action is synonymous with activation of the Fallback Run Target.
 
-The Fallback Run Target is a special Run Target defined in the Launch Manager configuration (see :need:`feat_arc_sta__lifecycle__cfg_params_static`), this shall be used as
+The Fallback Run Target is a special Run Target defined in the Launch Manager configuration (see :need:`feat_arc_sta__lifecycle__cfg_params_static`); it shall be used as
 a minimal system state that allows diagnosis of the failure. The State Manager is expected to transition the system out of the Fallback Run Target to
 retry normal operation.
 
@@ -61,8 +61,8 @@ Component failure
 
 A component may fail outside of a Run Target transition for one of the following reasons:
 
-* The components underlying process crashes
-* The component supervision fails (e.g. the component does not send alive notification in the expected frequency)
+* The component's underlying process crashes
+* The component supervision fails (e.g. the component does not send alive notifications at the expected frequency)
 
 Component crash
 ---------------
@@ -105,7 +105,7 @@ Component supervision failure
       :align: center
 
    The diagram shows a component supervision failure during an active Run Target (outside of a Run Target transition).
-   For details of detection supervision failures, see :need:`feat_arc_dyn__lifecycle__alive_monitor_start`.
+   For details of detecting supervision failures, see :need:`feat_arc_dyn__lifecycle__alive_monitor_start`.
    The subsequent recovery behavior is identical to the process crash scenario in :need:`feat_arc_dyn__lifecycle__crash`.
 
 Run Target transition failure
@@ -137,6 +137,6 @@ The currently only supported Run Target Recovery Action is the activation of the
    Component app1 does not reach its ready condition, even after all configured activation attempts have been
    exhausted, which makes the whole transition fail.
    The Launch Manager then executes the Run Target Recovery Action of Run Target "Running" and activates the
-   Fallback Run Target. Components that are not part of the Fallback Run Target are deactivated, components
+   Fallback Run Target. Components that are not part of the Fallback Run Target are deactivated; components
    that were never activated stay deactivated.
 

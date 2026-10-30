@@ -24,11 +24,11 @@ The following participants are related to the concept.
 Launch Manager
 ==============
 
-As the :term:`Launch Manager` is critical component for the system, it shall
+As the :term:`Launch Manager` is a critical component for the system, it shall
 support alive monitoring of itself.
 This means it must implement internal health management, such as a worker
 thread, that wakes up every N milliseconds, checks if the component is in a
-consistent state, and send a notification to the external monitor.
+consistent state, and sends a notification to the external monitor.
 
 External monitor
 ================
@@ -36,7 +36,7 @@ External monitor
 The aliveness of the :term:`Launch Manager` shall be monitored by an `external
 monitor, or a watchdog <https://en.wikipedia.org/wiki/Watchdog_timer>`_, to be
 able to detect "hanging" of the `Launch Manager`.
-The implementation of the external watchdog is out of scope in S-SCORE, as it
+The implementation of the external watchdog is out of scope in S-CORE, as it
 is ECU and/or project specific.
 
 Watchdog Proxy
@@ -48,8 +48,8 @@ events from the :term:`Launch Manager` as project specific messages to the
 `External monitor`.
 The channel for sending these notifications is project specific, and can be for
 example `GPIO`, `UART` or `SPI`.
-In a hypervisor based environment, the `external monitor` could also run with
-the same SoC as software only solution.
+In a hypervisor based environment, the `external monitor` could also run on
+the same SoC as a software-only solution.
 
 The `Watchdog Proxy` implementation is not specified in the S-CORE with high
 details, as the realization depends heavily on OS, :term:`Launch Manager` or
@@ -57,7 +57,7 @@ even project specific needs.
 For example, in Linux and `systemd` as the :term:`Launch Manager`, the
 interface can be `/dev/watchdog`, and `systemd` can use the interface directly.
 
-In QNX, one could implement a component listening to the events (or even poll)
+In QNX, one could implement a component listening to the events (or even polling)
 from the :term:`Launch Manager` and translate these events as hardware specific
 notifications.
 
@@ -85,7 +85,7 @@ Dynamic Architecture
       * - Sequence number
         - Description
       * - 001
-        - The configuration. (notification interval, startup grace period, etc.) Additionally, if a watchdog interface is used, the used interface name (eg. /dev/watchdog) must be configurable.
+        - The configuration. (notification interval, startup grace period, etc.) Additionally, if a watchdog interface is used, the used interface name (e.g. /dev/watchdog) must be configurable.
       * - 002
         - If the :term:`Launch Manager` provides a client library implementation, the library must connect and attach to the :term:`Launch Manager`
       * - 006

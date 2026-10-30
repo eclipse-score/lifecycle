@@ -38,7 +38,7 @@ As described in :need:`wf__p_formal_rv`, the formal document review is performed
 
 **Checklist**
 
-Please note that it is mandatory to fill in the "passed" column with "yes" or "no" for each checklist item and additional to add in the remarks why it is passed or not passed. In case of "no" an issue link to the issue tracking system has to be added in the last column. See also :need:`doc_concept__wp_inspections` for further information about reviews in general and inspection in particular.
+Please note that it is mandatory to fill in the "passed" column with "yes" or "no" for each checklist item and additionally to add in the remarks why it is passed or not passed. In case of "no" an issue link to the issue tracking system has to be added in the last column. See also :need:`doc_concept__wp_inspections` for further information about reviews in general and inspection in particular.
 
 
 .. list-table:: General Checklist
@@ -52,19 +52,19 @@ Please note that it is mandatory to fill in the "passed" column with "yes" or "n
         - Comment
 
       * - Gen 1
-        - Are the safety analysis performed according to the defined process and templates? See :need:`gd_req__saf_structure` and also :need:`gd_temp__feat_saf_fmea` and :need:`gd_temp__feat_saf_dfa`
+        - Are the safety analyses performed according to the defined process and templates? See :need:`gd_req__saf_structure` and also :need:`gd_temp__feat_saf_fmea` and :need:`gd_temp__feat_saf_dfa`
         - [YES | NO ]
         - :need:`[[title]] <std_req__iso26262__analysis_841>`, :need:`[[title]] <std_req__iso26262__analysis_849>`, :need:`[[title]] <std_req__iso26262__analysis_8410>`, :need:`[[title]] <std_req__iso26262__analysis_748>`
         - <Rationale for result>
 
       * - Gen 2
-        - Are the safety analysis performed in a systematic way to identify the potential dependent failures / failure modes and their effects? Are the failure effect and the mitigation described?
+        - Are the safety analyses performed in a systematic way to identify the potential dependent failures / failure modes and their effects? Are the failure effect and the mitigation described?
         - [YES | NO ]
         - :need:`[[title]] <std_req__iso26262__analysis_849>`, :need:`[[title]] <std_req__iso26262__analysis_8410>`
         - <Ensured and checked by application of the defined templates and processes>
 
       * - Gen 3
-        - Is the result of the safety analysis indicate if the safety requirements are complied?
+        - Does the result of the safety analysis indicate whether the safety requirements are complied with?
         - [YES | NO ]
         - :need:`[[title]] <std_req__iso26262__analysis_842>`
         - <Rationale for result>
@@ -76,7 +76,7 @@ Please note that it is mandatory to fill in the "passed" column with "yes" or "n
         - <Rationale for result>
 
       * - Gen 5
-        - Are all AoU's that are used as mitigation's created and covered in the safety manual?
+        - Are all AoUs that are used as mitigations created and covered in the safety manual?
         - [YES | NO ]
         - :need:`[[title]] <std_req__iso26262__analysis_845>`
         - <Rationale for result>
@@ -105,7 +105,7 @@ Please note that it is mandatory to fill in the "passed" column with "yes" or "n
         - <Rationale for result>
 
       * - DFA 2
-        - Is it plausible that each potential identified dependent failure that has been identified, will lead to a dependent failure which cause a violation of FFI?
+        - Is it plausible that each potential identified dependent failure that has been identified will lead to a dependent failure which causes a violation of FFI?
         - [YES | NO ]
         - :need:`[[title]] <std_req__iso26262__analysis_742>`
         - <Rationale for result>
@@ -135,7 +135,7 @@ Please note that it is mandatory to fill in the "passed" column with "yes" or "n
         - <Rationale for result>
 
       * - DFA 7
-        - Can be the required level of independence shown for the identified potential dependent failures?
+        - Can the required level of independence be shown for the identified potential dependent failures?
         - [YES | NO ]
         - :need:`[[title]] <std_req__iso26262__analysis_748>`
         - <Rationale for result>

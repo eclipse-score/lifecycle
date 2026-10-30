@@ -41,7 +41,7 @@ The *Initial Run Target* configuration is shown in
    In case of initialization failure, the Launch Manager fails to start.
    Once initialization is successful, the Launch Manager activates the configured initial Run Target.
 
-   For detailed Run Target activation sequence refer to :doc:`./run_target_activation`.
+   For the detailed Run Target activation sequence, refer to :doc:`./run_target_activation`.
 
 
 Launch Manager shutdown
@@ -59,7 +59,7 @@ Launch Manager shutdown
    .. uml:: _assets/launch_manager_shutdown.puml
 
    When the Launch Manager receives a SIGTERM signal, it will initiate transition to Run Target `Off` which leads to termination of all components.
-   Afterwards, Launch Manager process itself exits.
+   Afterwards, the Launch Manager process itself exits.
 
-   For detailed Run Target activation sequence refer to :doc:`./run_target_activation`.
+   For the detailed Run Target activation sequence, refer to :doc:`./run_target_activation`.
 
