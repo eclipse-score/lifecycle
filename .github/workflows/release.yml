@@ -36,18 +36,6 @@ jobs:
       pull-requests: write
       contents: read
 
-  pr-target:
-    name: PR Target
-    uses: ./.github/workflows/on-pr-target.yml
-    secrets: inherit
-    permissions:
-      contents: write
-      pages: write
-      pull-requests: write
-      id-token: write
-      actions: read
-      issues: write
-
   codeql:
     name: CodeQL
     uses: ./.github/workflows/_codeql.yml
@@ -60,7 +48,6 @@ jobs:
     name: Create release
     needs:
       - pr
-      - pr-target
       - codeql
     runs-on: ubuntu-24.04
     permissions:
