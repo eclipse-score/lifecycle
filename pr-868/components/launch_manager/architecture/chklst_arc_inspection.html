@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Architecture Inspection Checklist &#8212; Lifecycle and Health Management  documentation</title>
+    <title>Launch Manager Architecture Inspection &#8212; Lifecycle and Health Management  documentation</title>
   
   
   
@@ -182,7 +182,7 @@
 
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="../../index.html">
-    Component documentation
+    Components
   </a>
 </li>
 
@@ -331,7 +331,7 @@
 
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="../../index.html">
-    Component documentation
+    Components
   </a>
 </li>
 
@@ -425,13 +425,14 @@
 <li class="toctree-l2"><a class="reference internal" href="../requirements/index.html">Requirements</a></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Component Architecture</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="component_architecture.html">Component Architecture Documentation</a></li>
-<li class="toctree-l3 current active"><a aria-current="page" class="current reference internal" href="#">Architecture Inspection Checklist</a></li>
+<li class="toctree-l3 current active"><a aria-current="page" class="current reference internal" href="#">Launch Manager Architecture Inspection</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2"><a class="reference internal" href="../detailed_design/index.html">Detailed Design</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../safety_analysis/fmea.html">FMEA (Failure Modes and Effects Analysis)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../safety_analysis/dfa.html">DFA (Dependent Failure Analysis)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../safety_analysis/aou_requirements.html">AoU Component Requirements Template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../security_analysis/aou_requirements.html">Launch Manager Security Assumptions of Use</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../interfaces/index.html">Interfaces documentation</a></li>
 </ul>
 </details></li>
@@ -477,7 +478,7 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Component documentation</a></li>
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Components</a></li>
     
     
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Launch Manager</a></li>
@@ -485,7 +486,7 @@
     
     <li class="breadcrumb-item"><a href="index.html" class="nav-link">Component Architecture</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Architecture Inspection Checklist</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Launch Manager Architecture Inspection</span></li>
   </ul>
 </nav>
 </div>
@@ -502,11 +503,13 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <div class="need_container docutils container" id="SNCB-0bb3eac5">
+  <section id="launch-manager-architecture-inspection">
+<h1>Launch Manager Architecture Inspection<a class="headerlink" href="#launch-manager-architecture-inspection" title="Link to this heading">#</a></h1>
+<div class="need_container docutils container" id="SNCB-7fbe3f8a">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__launch_manager_arc_inspection">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
-<div class="line"><span><span class="needs_title"><span class="needs_data">Launch Manager Architecture Inspection Checklist</span></span></span></div>
+<div class="line"><span><span class="needs_title"><span class="needs_data">Launch Manager Architecture Inspection</span></span></span></div>
 </div>
 </td>
 <td class="head_center" colspan="2"><div class="needs_head line-block">
@@ -545,162 +548,162 @@
 </table>
 </div>
 </div>
-<section id="architecture-inspection-checklist">
-<h1>Architecture Inspection Checklist<a class="headerlink" href="#architecture-inspection-checklist" title="Link to this heading">#</a></h1>
-<section id="purpose">
-<h2>Purpose<a class="headerlink" href="#purpose" title="Link to this heading">#</a></h2>
-<p>The purpose of the software architecture checklist is to ensure that the design meets the criteria and quality as
-defined per project processes and guidelines for feature and component architectural design elements.
-It helps to check the compliance with requirements, identify errors or inconsistencies, and ensure adherence to best
-practices.
-The checklist guides evaluation of the architecture design, identifies potential problems, and aids in
-communication and documentation of architectural decisions to stakeholders.</p>
-</section>
-<section id="conduct">
-<h2>Conduct<a class="headerlink" href="#conduct" title="Link to this heading">#</a></h2>
+<section id="participants">
+<h2>Participants<a class="headerlink" href="#participants" title="Link to this heading">#</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>As described in the concept <a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/general_concepts/score_review_concept.html#doc_concept__wp_inspections">doc_concept__wp_inspections</a> the following “inspection roles” are expected to be filled:</p>
 <ul class="simple">
 <li><p>content responsible (author): &lt;contributor/committer explicitly named here, who is the main author, as can be seen in config mgt tooling&gt;</p></li>
 <li><p>reviewer: &lt;contributor/committer explicitly named here, who is the main content reviewer, must be different from content responsible&gt;</p></li>
 <li><p>moderator: &lt;committer explicitly named here, who is is the safety manager, security manager or quality manager initiating the inspection&gt;</p></li>
 </ul>
-</section>
-<section id="checklist">
-<h2>Checklist<a class="headerlink" href="#checklist" title="Link to this heading">#</a></h2>
-<p>It is mandatory to fill in the “passed” column with “yes” or “no” for each checklist item and additionally to add in the remarks why it is passed or not passed.
-In case of “no” an issue link to the issue tracking system has to be added in the last column (if not solved in the same issue).
-See also <a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/general_concepts/score_review_concept.html#doc_concept__wp_inspections">doc_concept__wp_inspections</a> for further information about reviews in general and inspection in particular.</p>
-<div class="pst-scrollable-table-container"><table class="table" id="id2">
-<caption><span class="caption-number">Table 22 </span><span class="caption-text">Architecture Design Review Checklist</span><a class="headerlink" href="#id2" title="Link to this table">#</a></caption>
+</div>
+<div class="pst-scrollable-table-container"><table class="table" id="id5">
+<caption><span class="caption-number">Table 23 </span><span class="caption-text">Architecture Inspection Participants</span><a class="headerlink" href="#id5" title="Link to this table">#</a></caption>
 <thead>
-<tr class="row-odd"><th class="head"><p>Review Id</p></th>
+<tr class="row-odd"><th class="head"><p>Author(s)</p></th>
+<th class="head"><p>Reviewer(s)</p></th>
+<th class="head"><p>Moderator</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="github reference external" href="https://github.com/NN">NN</a>, <a class="github reference external" href="https://github.com/NN">NN</a></p></td>
+<td><p><a class="github reference external" href="https://github.com/NN">NN</a>, <a class="github reference external" href="https://github.com/NN">NN</a></p></td>
+<td><p><a class="github reference external" href="https://github.com/NN">NN</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Purpose</strong></p>
+<blockquote>
+<div><p>The purpose of the software architecture checklist is to ensure that the design meets the criteria and quality standards
+defined by project processes and guidelines for feature and component architectural design elements.
+It helps check compliance with requirements, identify errors or inconsistencies, and ensure adherence to best practices.
+The checklist guides the evaluation of the architecture design, identifies potential problems, and aids in communication and
+documentation of architectural decisions to stakeholders.</p>
+</div></blockquote>
+<p><strong>Checklist</strong></p>
+<blockquote>
+<div><p>Enter “yes” or “no” in the “Passed” column for each applicable checklist item, and explain the result in the “Remarks” column.
+If “no” is entered, add an issue link in the “Issue link” column unless the finding is already tracked in the current issue.
+If a Review ID is not applicable to your architecture, enter “n/a” in the “Passed” column and explain why in the “Remarks” column.
+See also <a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/general_concepts/score_review_concept.html#doc_concept__wp_inspections">doc_concept__wp_inspections</a> for further information about reviews in general and inspection in particular.</p>
+</div></blockquote>
+</div>
+<div class="pst-scrollable-table-container"><table class="table" id="id6">
+<caption><span class="caption-number">Table 24 </span><span class="caption-text">Architecture Inspection Checklist</span><a class="headerlink" href="#id6" title="Link to this table">#</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>Review ID</p></th>
 <th class="head"><p>Acceptance criteria</p></th>
 <th class="head"><p>Guidance</p></th>
-<th class="head"><p>passed</p></th>
+<th class="head"><p>Passed</p></th>
 <th class="head"><p>Remarks</p></th>
 <th class="head"><p>Issue link</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>ARC_01_01</p></td>
-<td><p>Is the traceability from software architectural elements to requirements, and other level architectural elements (e.g. component to interface) established according to the “Relations between the architectural elements” as described in <a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/architecture_design/architecture_concept.html#doc_concept__arch_process">doc_concept__arch_process</a>?</p></td>
-<td><p>Trace should be checked automatically by tool support in the future. Will be removed from the checklist once the requirement (<a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/architecture_design/guidance/architecture_process_reqs.html#gd_req__arch_build_blocks_corr">gd_req__arch_build_blocks_corr</a>) is implemented. Refer to <a class="reference external" href="https://eclipse-score.github.io/docs-as-code/main/internals/requirements/requirements.html">Tool Requirements</a> for the current status.</p></td>
+<td><p>Does the software architecture design take into account all requirements allocated to the architectural element, including functional, non-functional, safety, and security requirements, as well as all related design decisions?</p></td>
+<td><p>Check whether all requirements allocated to the architectural element are considered in the design. These include functional requirements (e.g., functional safety requirements), non-functional requirements (e.g., performance and reliability), and security requirements (e.g., confidentiality and integrity). Also ensure that all related design decisions are taken into account and documented in the architectural design. Security-related requirements should also be reviewed through the applicable cybersecurity process; this checklist does not replace cybersecurity activities.</p></td>
 <td></td>
 <td></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p>ARC_01_02</p></td>
-<td><p>Does the software architecture design consider all the requirements allocated or belonging to the architectural element, including functional, non-functional, safety, and security requirements and all related design decisions?</p></td>
-<td><p>Check if all requirements allocated or belonging to the architectural element are considered in the design. This includes functional requirements (e.g. functional safety requirements), non-functional requirements (e.g. performance, reliability), and security requirements (e.g. confidentiality, integrity). Additionally, ensure that all related design decisions are taken into account and documented in the architectural design.</p></td>
+<td><p>If the architectural element is related to any supplier manuals (incl. safety and security)
+are the relevant parts covered?</p></td>
+<td><p>If the architecture makes use of supplied elements, their manuals (e.g., safety manuals) must be considered; their functionality must match expectations, and their assumptions must be fulfilled. For a safety component, this means that the assumed Technical Safety Requirements and assumptions of use (AoUs) in the safety manual are covered.</p></td>
 <td></td>
 <td></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p>ARC_01_03</p></td>
-<td><p>If the architectural element is related to any supplier manuals (incl. safety and security)
-are the relevant parts covered?</p></td>
-<td><p>If the architecture makes use of supplied elements, their manuals (like safety) have to be considered (i.e. its provided functionality matches the expectation and assumptions are fulfilled). Note that in case of safety component this means that assumed Technical Safety Requirements and AoUs of the safety manual are covered.</p></td>
+<td><p>Is the architectural element traceable to lower level artifacts as defined by workproduct traceability?</p></td>
+<td><p>All components defined in the architecture should be traceable to source (folders) and their (executable) build instructions.</p></td>
 <td></td>
 <td></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>ARC_01_04</p></td>
-<td><p>Is the architectural element traceable to the lower level artifacts as defined by the workproduct traceability?</p></td>
-<td><p>Will be removed from checklist once the requirement (<a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/architecture_design/guidance/architecture_process_reqs.html#gd_req__arch_build_blocks_corr">gd_req__arch_build_blocks_corr</a>) is implemented by automated tool check. See <a class="reference external" href="https://eclipse-score.github.io/docs-as-code/main/internals/requirements/requirements.html">Tool Requirements</a>.
-Details of possible linking can be depicted from the traceability concept.</p></td>
+<tr class="row-odd"><td><p>ARC_02_01</p></td>
+<td><p>Is the software architecture design compliant with the overall feature architecture?</p></td>
+<td><p>At the component level, check against the feature architecture. At the feature level, check other features that use common components.</p></td>
 <td></td>
 <td></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>ARC_02_01</p></td>
-<td><p>Is the software architecture design compliant with the (overall) feature architecture?</p></td>
-<td><p>On component level check against the feature architecture, on feature level check other features with common components used.</p></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p>ARC_02_02</p></td>
-<td><p>Is appropriate and comprehensible operation/interface naming present in the architectural design?</p></td>
+<tr class="row-even"><td><p>ARC_02_02</p></td>
+<td><p>Are operations and interfaces named appropriately and comprehensibly in the architectural design?</p></td>
 <td><p>Check <a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/architecture_design/guidance/architecture_guideline.html#gd_guidl__arch_design">gd_guidl__arch_design</a></p></td>
 <td></td>
 <td></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>ARC_02_03</p></td>
-<td><p>Are correctness of data flow and control flow within the architectural elements considered?</p></td>
-<td><p>E.g. examine definitions, transformations, integrity, and interaction of data; check error handling, data
-exchange between elements, correct response to inputs and documented decision making.
-Note: consistency is ensured by the process/tooling, by defining each interface only once.</p></td>
+<tr class="row-odd"><td><p>ARC_02_03</p></td>
+<td><p>Has the correctness of data and control flows within the architectural elements been considered?</p></td>
+<td><p>For example, examine data definitions, transformations, integrity, and interactions; check error handling, data exchange between elements, correct responses to inputs, and documented decision-making.
+Note: Consistency is ensured by the process and tooling, which define each interface only once.</p></td>
 <td></td>
 <td></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>ARC_02_04</p></td>
-<td><p>Are the interfaces between the software architectural element and other architectural elements well-defined?</p></td>
-<td><p>Check if the interface reacts on non-defined behaviour or errors; can established protocols be used; are the
-interfaces for inputs, outputs, error codes documented; is loose coupling considered and only limited exposure;
-can unit or integration test be written against the interface; data amount transferred; no sensitive data
-exposure;</p></td>
+<tr class="row-even"><td><p>ARC_02_04</p></td>
+<td><p>Are the interfaces between the software architectural element and other architectural elements well defined and described?</p></td>
+<td><p>Check whether the interface description specifies expected behaviour for invalid inputs and errors. Could established protocols be used? Does the interface description document inputs, outputs, and error handling? Have loose coupling and limited exposure been considered? Can unit or integration tests be written against the interface? Has the amount of data transferred been considered appropriately? Is sensitive data protected appropriately, with no sensitive data exposed?</p></td>
 <td></td>
 <td></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>ARC_02_05</p></td>
-<td><p>Does the software architectural element consider the timing constraints (from the parent requirement)?</p></td>
-<td><p>If there are hard requirements on the timing a programming time estimation should be performed and also
-deadline supervision considered.</p></td>
+<tr class="row-odd"><td><p>ARC_02_05</p></td>
+<td><p>Does the software architectural element take applicable timing requirements into account?</p></td>
+<td><p>If there are strict timing requirements, execution-time analysis or estimation should be performed, and appropriate deadline monitoring should be considered.</p></td>
 <td></td>
 <td></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>ARC_02_06</p></td>
-<td><p>Is the documentation of the software architectural element, including textual and graphical descriptions
-(e.g., UML diagrams), comprehensible and complete?</p></td>
-<td><p>Use of semi-formal notation is expected for architectural elements with an allocated ASIL level.
-Is the architecture template correctly filled?</p></td>
+<tr class="row-even"><td><p>ARC_02_06</p></td>
+<td><p>Is the documentation of the software architectural element, including textual and graphical descriptions (e.g., UML diagrams), clear and complete?</p></td>
+<td><p>The use of semi-formal notation is expected for architectural elements with an allocated ASIL level. Is the architecture template filled out correctly?</p></td>
 <td></td>
 <td></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>ARC_03_01</p></td>
+<tr class="row-odd"><td><p>ARC_03_01</p></td>
 <td><p>Is the architectural element modular and encapsulated?</p></td>
-<td><p>Check e.g. that only minimal interfaces are used. Design should be object oriented. Interfaces and interactions are clearly defined. Usage of access types (private, protected) properly set. Limited global variables.</p></td>
+<td><p>Check, for example, that only the necessary interfaces are used and that interfaces and interactions are clearly defined. Project-specific design and coding guidelines may additionally require object-oriented design, appropriate use of access controls (e.g., private or protected), and limits on global variables.</p></td>
 <td></td>
 <td></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>ARC_03_02</p></td>
+<tr class="row-even"><td><p>ARC_03_02</p></td>
 <td><p>Is the suitability of the software architecture for future modifications and maintainability considered?</p></td>
-<td><p>Check for e.g. loose coupling, separation of concerns, high cohesion, versioning strategy for interfaces,
-decision records, use of established design patterns.</p></td>
+<td><p>Check for loose coupling, separation of concerns, high cohesion, an interface versioning strategy, decision records, and the use of established design patterns.</p></td>
 <td></td>
 <td></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>ARC_03_03</p></td>
-<td><p>Are simplicity and avoidance of unnecessary complexity present in the software architecture and the component?</p></td>
-<td><p>Indicators for complexity are: number of use cases (corresponding to dynamic diagrams)
-allocated to single design element, number of interfaces and operations in an interface,
-function parameters, global variables, complex types, limited comprehensibility.
-The belonging code metrics should be checked.</p>
+<tr class="row-odd"><td><p>ARC_03_03</p></td>
+<td><p>Does the software architecture demonstrate simplicity and avoid unnecessary complexity?</p></td>
+<td><p>Indicators of complexity include the number of use cases (corresponding to dynamic diagrams) allocated to a single design element; the number of interfaces and operations in an interface; the number of function parameters; global variables; complex types; and limited comprehensibility. The thresholds below are project-defined criteria, not ISO 26262 limits.</p>
 <p>Notes:</p>
-<p>If the “number of use cases” or “number of interfaces” above exceeds “3” or “number of function parameters” exceeds “5” or the “number of operations” exceeds “20” or global variables are used, a design rationale is mandatory.</p>
-<p>See also if component classification <a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/safety_management/guidance/template_component_classification.html#gd_temp__component_classification">gd_temp__component_classification</a> as measure is present.</p>
+<p>A design rationale is mandatory if any of the following applies: the number of use cases or interfaces exceeds “3”; the number of function parameters exceeds “5”; the number of operations exceeds “20”; or global variables are used.</p>
 </td>
 <td></td>
 <td></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>ARC_03_04</p></td>
-<td><p>Is the software architecture design following best practices and design principles?</p></td>
+<tr class="row-even"><td><p>ARC_03_04</p></td>
+<td><p>Does the software architecture design follow best practices and design principles?</p></td>
 <td><p>Refer to architectural guidelines and recommendations within the project documentation.</p></td>
 <td></td>
 <td></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>ARC_04_03</p></td>
-<td><p>If your software architectural design of the component includes processes and tasks, are their scheduling policies and priorities (at least the needed relation one to another) defined to ensure that timing requirements are met? Please note, that the particular priorities or priority ranges will be probably defined by the project handbook or the software development plan.</p>
-<p>Note: see <a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/standards/iso26262/iso26262.html#std_req__iso26262__software_743">std_req__iso26262__software_743</a></p>
+<tr class="row-odd"><td><p>ARC_04_03</p></td>
+<td><p>If your software architectural design of the component includes processes and tasks, are their scheduling policies and priorities (or at least the necessary relationships among them) defined to ensure that timing requirements are met? Please note that the specific priorities or priority ranges will probably be defined in the project handbook or the software development plan.</p>
+<p>Note: See <a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/standards/iso26262/iso26262.html#std_req__iso26262__software_743">std_req__iso26262__software_743</a>.</p>
 </td>
 <td><p>Give a reason for these scheduling policies and priorities or explain why not needed.</p></td>
 <td></td>
@@ -710,15 +713,23 @@ The belonging code metrics should be checked.</p>
 </tbody>
 </table>
 </div>
-<div class="admonition attention">
-<p class="admonition-title">Attention</p>
-<p>The above checklist entries must be filled according to your component architecture in scope.</p>
-</div>
-<p>Note: If a Review ID is not applicable for your architecture, then state “”n/a” in status and comment accordingly in remarks.</p>
+</section>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading">#</a></h2>
+<section id="inspected-static-architecture-views">
+<h3>Inspected Static Architecture Views<a class="headerlink" href="#inspected-static-architecture-views" title="Link to this heading">#</a></h3>
 <p>The following static views in “valid_inspected” state are in the scope of this inspection:</p>
 <p class="needs_filter_warning" id="needtable-components/launch_manager/architecture/chklst_arc_inspection-0">No needs passed the filters</p>
-<p>and the following dynamic views:</p>
+</section>
+<section id="inspected-dynamic-architecture-views">
+<h3>Inspected Dynamic Architecture Views<a class="headerlink" href="#inspected-dynamic-architecture-views" title="Link to this heading">#</a></h3>
+<p>and the following dynamic views in “valid_inspected” state are in the scope of this inspection:</p>
 <p class="needs_filter_warning" id="needtable-components/launch_manager/architecture/chklst_arc_inspection-1">No needs passed the filters</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For these static and dynamic views the inspected ground truth is documented in the rendered documentation and not in the source read by the drawing tool.</p>
+</div>
+</section>
 </section>
 </section>
 
@@ -769,9 +780,12 @@ The belonging code metrics should be checked.</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#purpose">Purpose</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conduct">Conduct</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#checklist">Checklist</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#participants">Participants</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summary">Summary</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inspected-static-architecture-views">Inspected Static Architecture Views</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inspected-dynamic-architecture-views">Inspected Dynamic Architecture Views</a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
