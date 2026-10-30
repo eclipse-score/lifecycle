@@ -204,7 +204,6 @@ TEST_F(FlatbufferConfigLoaderTest, LoadMinimalConfig)
     EXPECT_THAT(result->graph().initial_run_target_, Eq("Startup"));
     EXPECT_THAT(result->graph().components_.empty(), IsTrue());
     EXPECT_THAT(result->graph().run_targets_.empty(), IsTrue());
-    EXPECT_THAT(result->watchdog().has_value(), IsFalse());
 }
 
 TEST_F(FlatbufferConfigLoaderTest, LoadSingleComponent)
@@ -420,37 +419,6 @@ TEST_F(FlatbufferConfigLoaderTest, LoadAliveSupervision)
 
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(result->aliveSupervision().evaluation_cycle_ms, Eq(250U));
-}
-
-TEST_F(FlatbufferConfigLoaderTest, LoadWatchdog)
-{
-    RecordProperty("Description", "Loads watchdog config with all fields.");
-
-    ::flatbuffers::FlatBufferBuilder fbb;
-
-    auto dev_path = fbb.CreateString("/dev/watchdog0");
-    auto watchdog = fb::CreateWatchdog(
-        fbb, dev_path, 30000 /*max_timeout_ms*/, true /*deactivate_on_shutdown*/, false /*require_magic_close*/);
-
-    auto fallback =
-        fb::CreateFallbackRunTarget(fbb, 0 /*description*/, 0 /*depends_on*/, 1000 /*transition_timeout_ms*/);
-    auto alive_sup = fb::CreateAliveSupervision(fbb, 1000 /*evaluation_cycle_ms*/);
-    auto comps = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Component>>{});
-    auto rts = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::RunTarget>>{});
-    auto irt = fbb.CreateString("Startup");
-    auto config = fb::CreateLaunchManagerConfig(
-        fbb, FlatbufferConfigLoader::kExpectedSchemaVersion, comps, rts, irt, fallback, alive_sup, watchdog);
-
-    auto result = loadBuffer(finishBuffer(fbb, config));
-
-    ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result->watchdog().has_value(), IsTrue());
-
-    const auto& wd = result->watchdog().value();
-    EXPECT_THAT(wd.device_file_path, Eq("/dev/watchdog0"));
-    EXPECT_THAT(wd.max_timeout_ms, Eq(30000U));
-    EXPECT_THAT(wd.deactivate_on_shutdown, IsTrue());
-    EXPECT_THAT(wd.require_magic_close, IsFalse());
 }
 
 TEST_F(FlatbufferConfigLoaderTest, LoadActivationRetryAttempts)
@@ -705,16 +673,6 @@ TEST_F(FlatbufferConfigLoaderTest, LoadMultipleComponents)
 // ============================================================================
 // Optional field tests
 // ============================================================================
-
-TEST_F(FlatbufferConfigLoaderTest, OptionalWatchdogAbsent)
-{
-    RecordProperty("Description", "When no watchdog is present, it is nullopt.");
-
-    auto result = loadBuffer(buildMinimalConfig());
-
-    ASSERT_THAT(result.has_value(), IsTrue());
-    EXPECT_THAT(result->watchdog().has_value(), IsFalse());
-}
 
 TEST_F(FlatbufferConfigLoaderTest, OptionalReadyConditionAbsent)
 {

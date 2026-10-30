@@ -14,11 +14,11 @@
 #ifndef IWATCHDOGIFMOCK_HPP_INCLUDED
 #define IWATCHDOGIFMOCK_HPP_INCLUDED
 
-#include "score/mw/launch_manager/watchdog/IWatchdogIf.hpp"
+#include "score/mw/launch_manager/watchdog_old/IWatchdogIf.hpp"
 
 #include <gmock/gmock.h>
 
-namespace score::mw::lifecycle::internal::watchdog
+namespace score::mw::lifecycle::internal::watchdog_old
 {
 
 /// @brief Reusable gmock mock for IWatchdogIf, for use by tests of components that service the watchdog.
@@ -30,7 +30,7 @@ class MockWatchdogIf : public IWatchdogIf
     MOCK_METHOD(
         bool,
         init,
-        (const score::mw::lifecycle::internal::configuration::WatchdogConfig&& watchdog_config,
+        (const score::mw::lifecycle::internal::watchdog_old::WatchdogConfig&& watchdog_config,
          std::int64_t cycle_time_ns),
         (noexcept, override));
     MOCK_METHOD(bool, enable, (), (noexcept, override));
@@ -39,6 +39,6 @@ class MockWatchdogIf : public IWatchdogIf
     MOCK_METHOD(void, fireWatchdogReaction, (), (noexcept, override));
 };
 
-}  // namespace score::mw::lifecycle::internal::watchdog
+}  // namespace score::mw::lifecycle::internal::watchdog_old
 
 #endif  // IWATCHDOGIFMOCK_HPP_INCLUDED

@@ -16,27 +16,27 @@ load("//tests/utils/bazel:unit_test.bzl", "lm_cc_test")
 cc_library(
     name = "watchdog",
     hdrs = ["Watchdog.hpp"],
-    include_prefix = "score/mw/launch_manager/watchdog/details",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/watchdog/details",
-    visibility = ["//score/launch_manager/src/daemon/src/watchdog/details:__subpackages__"],
+    include_prefix = "score/mw/launch_manager/watchdog_old/details",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/watchdog_old/details",
+    visibility = ["//score/launch_manager/src/daemon/src/watchdog_old/details:__subpackages__"],
 )
 
 cc_library(
     name = "device_if",
     srcs = ["DeviceIf.cpp"],
     hdrs = ["DeviceIf.hpp"],
-    include_prefix = "score/mw/launch_manager/watchdog/details",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/watchdog/details",
-    visibility = ["//score/launch_manager/src/daemon/src/watchdog:__subpackages__"],
+    include_prefix = "score/mw/launch_manager/watchdog_old/details",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/watchdog_old/details",
+    visibility = ["//score/launch_manager/src/daemon/src/watchdog_old:__subpackages__"],
 )
 
 cc_library(
     name = "mock_device_if",
     testonly = True,
     hdrs = ["mock_DeviceIf.hpp"],
-    include_prefix = "score/mw/launch_manager/watchdog/details",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/watchdog/details",
-    visibility = ["//score/launch_manager/src/daemon/src/watchdog:__subpackages__"],
+    include_prefix = "score/mw/launch_manager/watchdog_old/details",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/watchdog_old/details",
+    visibility = ["//score/launch_manager/src/daemon/src/watchdog_old:__subpackages__"],
     deps = [
         ":device_if",
         "@googletest//:gtest_main",
@@ -47,15 +47,15 @@ cc_library(
     name = "watchdog_impl",
     srcs = ["WatchdogImpl.cpp"],
     hdrs = ["WatchdogImpl.hpp"],
-    include_prefix = "score/mw/launch_manager/watchdog/details",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/watchdog/details",
-    visibility = ["//score/launch_manager/src/daemon/src/watchdog:__subpackages__"],
+    include_prefix = "score/mw/launch_manager/watchdog_old/details",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/watchdog_old/details",
+    visibility = ["//score/launch_manager/src/daemon/src/watchdog_old:__subpackages__"],
     deps = [
         ":device_if",
         ":watchdog",
         "//score/launch_manager/src/daemon/src/common:log",
-        "//score/launch_manager/src/daemon/src/configuration:config",
-        "//score/launch_manager/src/daemon/src/watchdog:i_watchdog_if",
+        "//score/launch_manager/src/daemon/src/watchdog_old:i_watchdog_if",
+        "//score/launch_manager/src/daemon/src/watchdog_old:watchdog_config",
         "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/os:fcntl",
         "@score_baselibs//score/os:unistd",

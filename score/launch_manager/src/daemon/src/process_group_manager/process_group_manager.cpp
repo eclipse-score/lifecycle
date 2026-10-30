@@ -44,11 +44,9 @@ ProcessGroupManager::ProcessGroupManager(
     configuration::GraphConfig&& config,
     std::unique_ptr<saf::daemon::IAliveMonitor> alive_monitor,
     std::shared_ptr<IRecoveryClient> recovery_client,
-    std::unique_ptr<score::mw::lifecycle::internal::watchdog::IWatchdogIf> watchdog,
-    std::optional<configuration::WatchdogConfig>&& watchdog_config,
+    std::unique_ptr<score::mw::lifecycle::internal::watchdog::IWatchdog> watchdog,
     std::unique_ptr<osal::IProcess> process_interface)
     : configuration_(std::move(config)),
-      watchdog_config_(watchdog_config),
       process_interface_(std::move(process_interface)),
       file_waiter_(),
       process_map_(nullptr),
@@ -107,19 +105,10 @@ bool ProcessGroupManager::initialize()
 
     alive_monitor_->startMonitoring();
 
-    // Watchdog config may not be available if no watchdog is configured
-    if (watchdog_config_.has_value())
+    if (!watchdog_->init())
     {
-        if (!watchdog_->init(std::move(watchdog_config_).value(), score::mw::lifecycle::internal::kMainLoopCycleTimeNs))
-        {
-            LM_LOG_ERROR() << "Watchdog initialization failed";
-            return false;
-        }
-        if (!watchdog_->enable())
-        {
-            LM_LOG_ERROR() << "Watchdog enable failed";
-            return false;
-        }
+        LM_LOG_ERROR() << "Watchdog initialization failed";
+        return false;
     }
 
     return true;
@@ -128,7 +117,7 @@ bool ProcessGroupManager::initialize()
 void ProcessGroupManager::deinitialize()
 {
     // ucm_polling_thread_.stopPolling();
-    watchdog_->disable();
+    watchdog_->deinit();
     if (event_queue_)
     {
         event_queue_->stop();
@@ -193,7 +182,6 @@ bool ProcessGroupManager::run()
     LM_LOG_DEBUG() << "run() at" << TIMESTAMP_MS();
 
     bool result = startInitialTransition();
-    bool overflow_logged = false;
 
     if (result)
     {
@@ -211,11 +199,13 @@ bool ProcessGroupManager::run()
                 processComponentEvents();
             }
 
-            if (event_queue_->getOverflow() && !overflow_logged)
+            if (event_queue_->getOverflow())
             {
                 LM_LOG_FATAL() << "ComponentEventQueue overflow - one or more events were lost";
-                overflow_logged = true;
-                watchdog_->fireWatchdogReaction();
+                watchdog_->fireWatchdog();
+                // The watchdog implementation returned, so it relies on not being serviced anymore.
+                result = false;
+                break;
             }
 
             if (graph_)
@@ -225,7 +215,10 @@ bool ProcessGroupManager::run()
 
             watchdog_->serviceWatchdog();
         }
-        LM_LOG_INFO() << "ProcessGroupManager::run() - received SIGTERM, exiting";
+        if (result)
+        {
+            LM_LOG_INFO() << "ProcessGroupManager::run() - received SIGTERM, exiting";
+        }
     }
 
     allProcessGroupsOff();

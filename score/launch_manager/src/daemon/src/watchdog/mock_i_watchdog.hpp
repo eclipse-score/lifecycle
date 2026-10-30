@@ -11,27 +11,26 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#ifndef DEVICEIFMOCK_HPP_INCLUDED
-#define DEVICEIFMOCK_HPP_INCLUDED
+#ifndef SCORE_MW_LAUNCH_MANAGER_WATCHDOG_MOCK_I_WATCHDOG_HPP_INCLUDED
+#define SCORE_MW_LAUNCH_MANAGER_WATCHDOG_MOCK_I_WATCHDOG_HPP_INCLUDED
 
-#include "score/mw/launch_manager/watchdog/details/DeviceIf.hpp"
+#include "score/mw/launch_manager/watchdog/i_watchdog.hpp"
 
 #include <gmock/gmock.h>
 
 namespace score::mw::lifecycle::internal::watchdog
 {
 
-/// @brief Reusable gmock mock for DeviceIf, for use by tests of components that issue ioctl calls on device files.
-class MockDeviceIf : public DeviceIf
+/// @brief Reusable gmock mock for IWatchdog, for use by tests of components that service the watchdog.
+class MockWatchdog : public IWatchdog
 {
   public:
-    MOCK_METHOD(
-        std::int32_t,
-        ioctl,
-        (std::int32_t f_fd, IoctlRequestType f_request, std::int32_t* f_payload_p),
-        (noexcept, override));
+    MOCK_METHOD(bool, init, (), (noexcept, override));
+    MOCK_METHOD(void, serviceWatchdog, (), (noexcept, override));
+    MOCK_METHOD(void, fireWatchdog, (), (noexcept, override));
+    MOCK_METHOD(void, deinit, (), (noexcept, override));
 };
 
 }  // namespace score::mw::lifecycle::internal::watchdog
 
-#endif  // DEVICEIFMOCK_HPP_INCLUDED
+#endif  // SCORE_MW_LAUNCH_MANAGER_WATCHDOG_MOCK_I_WATCHDOG_HPP_INCLUDED

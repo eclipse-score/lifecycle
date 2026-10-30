@@ -11,11 +11,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "score/mw/launch_manager/watchdog/WatchdogFactory.hpp"
+#include "score/mw/launch_manager/watchdog_old/WatchdogFactory.hpp"
 
-#include "score/mw/launch_manager/watchdog/details/WatchdogImpl.hpp"
+#include "score/mw/launch_manager/watchdog_old/details/WatchdogImpl.hpp"
 
-namespace score::mw::lifecycle::internal::watchdog
+namespace score::mw::lifecycle::internal::watchdog_old
 {
 
 std::unique_ptr<IWatchdogIf> createWatchdog()
@@ -23,4 +23,4 @@ std::unique_ptr<IWatchdogIf> createWatchdog()
     return std::make_unique<WatchdogImpl>();
 }
 
-}  // namespace score::mw::lifecycle::internal::watchdog
+}  // namespace score::mw::lifecycle::internal::watchdog_old

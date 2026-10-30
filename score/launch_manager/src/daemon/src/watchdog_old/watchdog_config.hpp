@@ -10,13 +10,13 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-#ifndef WATCHDOG_CONFIG_HPP
-#define WATCHDOG_CONFIG_HPP
+#ifndef WATCHDOG_OLD_WATCHDOG_CONFIG_HPP
+#define WATCHDOG_OLD_WATCHDOG_CONFIG_HPP
 
 #include <cstdint>
 #include <string>
 
-namespace score::mw::lifecycle::internal::configuration
+namespace score::mw::lifecycle::internal::watchdog_old
 {
 
 struct WatchdogConfig
@@ -27,6 +27,6 @@ struct WatchdogConfig
     bool require_magic_close{};
 };
 
-}  // namespace score::mw::lifecycle::internal::configuration
+}  // namespace score::mw::lifecycle::internal::watchdog_old
 
-#endif  // WATCHDOG_CONFIG_HPP
+#endif  // WATCHDOG_OLD_WATCHDOG_CONFIG_HPP

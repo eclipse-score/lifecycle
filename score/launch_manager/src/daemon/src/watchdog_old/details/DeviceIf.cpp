@@ -11,11 +11,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "score/mw/launch_manager/watchdog/details/DeviceIf.hpp"
+#include "score/mw/launch_manager/watchdog_old/details/DeviceIf.hpp"
 
 #include <sys/ioctl.h>
 
-namespace score::mw::lifecycle::internal::watchdog
+namespace score::mw::lifecycle::internal::watchdog_old
 {
 
 DeviceIf& DeviceIf::instance() noexcept
@@ -31,4 +31,4 @@ std::int32_t DeviceIf::ioctl(std::int32_t f_fd, IoctlRequestType f_request, std:
     return ::ioctl(f_fd, f_request, f_payload_p);
 }
 
-}  // namespace score::mw::lifecycle::internal::watchdog
+}  // namespace score::mw::lifecycle::internal::watchdog_old

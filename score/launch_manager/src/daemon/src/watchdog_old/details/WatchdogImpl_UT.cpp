@@ -22,10 +22,10 @@
 #include <string>
 #include <utility>
 
-#include "score/mw/launch_manager/configuration/config.hpp"
-#include "score/mw/launch_manager/watchdog/details/Watchdog.hpp"
-#include "score/mw/launch_manager/watchdog/details/WatchdogImpl.hpp"
-#include "score/mw/launch_manager/watchdog/details/mock_DeviceIf.hpp"
+#include "score/mw/launch_manager/watchdog_old/details/Watchdog.hpp"
+#include "score/mw/launch_manager/watchdog_old/details/WatchdogImpl.hpp"
+#include "score/mw/launch_manager/watchdog_old/details/mock_DeviceIf.hpp"
+#include "score/mw/launch_manager/watchdog_old/watchdog_config.hpp"
 #include "score/os/errno.h"
 #include "score/os/mocklib/fcntl_mock.h"
 #include "score/os/mocklib/unistdmock.h"
@@ -35,11 +35,11 @@ using ::testing::_;
 using ::testing::Return;
 using ::testing::StrEq;
 
-using score::mw::lifecycle::internal::configuration::WatchdogConfig;
-using score::mw::lifecycle::internal::watchdog::DeviceIf;
-using score::mw::lifecycle::internal::watchdog::IWatchdogIf;
-using score::mw::lifecycle::internal::watchdog::MockDeviceIf;
-using score::mw::lifecycle::internal::watchdog::WatchdogImpl;
+using score::mw::lifecycle::internal::watchdog_old::DeviceIf;
+using score::mw::lifecycle::internal::watchdog_old::IWatchdogIf;
+using score::mw::lifecycle::internal::watchdog_old::MockDeviceIf;
+using score::mw::lifecycle::internal::watchdog_old::WatchdogConfig;
+using score::mw::lifecycle::internal::watchdog_old::WatchdogImpl;
 
 namespace
 {

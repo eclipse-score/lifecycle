@@ -20,6 +20,7 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/daemon/src/",
     visibility = ["//score/launch_manager/src/daemon:__pkg__"],
     deps = [
+        "//config:watchdog_impl",
         "//score/launch_manager/src/daemon/src/alive_monitor",
         "//score/launch_manager/src/daemon/src/common:assertion_handler",
         "//score/launch_manager/src/daemon/src/common:log",
@@ -28,7 +29,7 @@ cc_library(
         "//score/launch_manager/src/daemon/src/osal:ipc_comms",
         "//score/launch_manager/src/daemon/src/process_group_manager",
         "//score/launch_manager/src/daemon/src/recovery_client",
-        "//score/launch_manager/src/daemon/src/watchdog:watchdog_factory",
+        "//score/launch_manager/src/daemon/src/watchdog:i_watchdog",
         "@score_baselibs//score/language/futurecpp",
     ],
 )

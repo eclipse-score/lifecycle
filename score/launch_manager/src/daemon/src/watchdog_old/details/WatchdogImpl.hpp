@@ -16,16 +16,16 @@
 
 #include <cstdint>
 
-#include "score/mw/launch_manager/configuration/config.hpp"
-#include "score/mw/launch_manager/watchdog/IWatchdogIf.hpp"
-#include "score/mw/launch_manager/watchdog/details/DeviceIf.hpp"
+#include "score/mw/launch_manager/watchdog_old/IWatchdogIf.hpp"
+#include "score/mw/launch_manager/watchdog_old/details/DeviceIf.hpp"
+#include "score/mw/launch_manager/watchdog_old/watchdog_config.hpp"
 #include "score/os/fcntl.h"
 #include "score/os/unistd.h"
 #include <optional>
 #include <string>
 #include <vector>
 
-namespace score::mw::lifecycle::internal::watchdog
+namespace score::mw::lifecycle::internal::watchdog_old
 {
 
 constexpr const char* kMagicCloseChar{"V"};
@@ -64,7 +64,7 @@ class WatchdogImpl : public IWatchdogIf
 
     /// @copydoc IWatchdogIf::init()
     bool init(
-        const score::mw::lifecycle::internal::configuration::WatchdogConfig&& watchdog_config,
+        const score::mw::lifecycle::internal::watchdog_old::WatchdogConfig&& watchdog_config,
         std::int64_t cycle_time_ns) noexcept override;
 
     /// @copydoc IWatchdogIf::enable()
@@ -219,6 +219,6 @@ class WatchdogImpl : public IWatchdogIf
     score::os::Unistd& unistd_;
 };
 
-}  // namespace score::mw::lifecycle::internal::watchdog
+}  // namespace score::mw::lifecycle::internal::watchdog_old
 
 #endif

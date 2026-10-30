@@ -16,7 +16,7 @@
 
 #include <cstdint>
 
-namespace score::mw::lifecycle::internal::watchdog
+namespace score::mw::lifecycle::internal::watchdog_old
 {
 /// @brief Wrapper for syscalls used to access a POSIX device
 class DeviceIf
@@ -44,6 +44,6 @@ class DeviceIf
     virtual ~DeviceIf() = default;
 };
 
-}  // namespace score::mw::lifecycle::internal::watchdog
+}  // namespace score::mw::lifecycle::internal::watchdog_old
 
 #endif

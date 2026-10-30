@@ -15,12 +15,12 @@
 
 #include <memory>
 
-#include "score/mw/launch_manager/watchdog/WatchdogFactory.hpp"
-#include "score/mw/launch_manager/watchdog/details/WatchdogImpl.hpp"
+#include "score/mw/launch_manager/watchdog_old/WatchdogFactory.hpp"
+#include "score/mw/launch_manager/watchdog_old/details/WatchdogImpl.hpp"
 
-using score::mw::lifecycle::internal::watchdog::createWatchdog;
-using score::mw::lifecycle::internal::watchdog::IWatchdogIf;
-using score::mw::lifecycle::internal::watchdog::WatchdogImpl;
+using score::mw::lifecycle::internal::watchdog_old::createWatchdog;
+using score::mw::lifecycle::internal::watchdog_old::IWatchdogIf;
+using score::mw::lifecycle::internal::watchdog_old::WatchdogImpl;
 
 class WatchdogFactoryTest : public ::testing::Test
 {

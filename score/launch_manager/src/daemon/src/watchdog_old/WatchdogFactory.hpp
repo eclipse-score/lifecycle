@@ -14,17 +14,17 @@
 #ifndef WATCHDOGFACTORY_HPP_INCLUDED
 #define WATCHDOGFACTORY_HPP_INCLUDED
 
-#include "score/mw/launch_manager/watchdog/IWatchdogIf.hpp"
+#include "score/mw/launch_manager/watchdog_old/IWatchdogIf.hpp"
 
 #include <memory>
 
-namespace score::mw::lifecycle::internal::watchdog
+namespace score::mw::lifecycle::internal::watchdog_old
 {
 
 /// @brief Creates a concrete WatchdogImpl instance behind the IWatchdogIf interface.
 /// @return An owning pointer to a new watchdog implementation.
 std::unique_ptr<IWatchdogIf> createWatchdog();
 
-}  // namespace score::mw::lifecycle::internal::watchdog
+}  // namespace score::mw::lifecycle::internal::watchdog_old
 
 #endif

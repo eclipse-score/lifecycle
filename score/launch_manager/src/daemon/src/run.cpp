@@ -18,6 +18,7 @@
 #include <cstring>
 #include <iostream>
 #include <memory>
+#include <string_view>
 
 #include "score/mw/launch_manager/alive_monitor/details/daemon/AliveMonitorImpl.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
@@ -25,7 +26,7 @@
 #include "score/mw/launch_manager/control/control_provider.hpp"
 #include "score/mw/launch_manager/process_group_manager/process_group_manager.hpp"
 #include "score/mw/launch_manager/recovery_client/recovery_client.hpp"
-#include "score/mw/launch_manager/watchdog/WatchdogFactory.hpp"
+#include "score/mw/launch_manager/watchdog/watchdog_factory.hpp"
 
 namespace score::mw::lifecycle::internal
 {
@@ -108,28 +109,38 @@ void reserveFD(int fd)
 /// @return The exit code. 0 for success, non-zero for failure.
 int run(int argc, const char* argv[])
 {
+    constexpr const char* kUsage = "Usage: launch_manager [-c <config>] [-h]\n";
     const char* config_path = "etc/launch_manager_config.bin";
-    int opt;
-    while ((opt = getopt(argc, const_cast<char**>(argv), "c:h")) != -1)
+    // Only -c and -h are handled here. All other arguments are ignored, they may belong to the watchdog
+    // implementation, which receives the whole command line (see watchdog_factory.hpp). getopt() is not used,
+    // because it would read unknown options like -w/dev/watchdog as a cluster of flags including -c.
+    for (int i = 1; i < argc; ++i)
     {
-        switch (opt)
+        const std::string_view arg{argv[i]};
+        if (arg == "-h")
         {
-            case 'c':
-                config_path = optarg;
-                break;
-            case 'h':
-                std::cout << "Usage: launch_manager [-c <config>] [-h]\n"
-                          << "\n"
-                          << "Options:\n"
-                          << "  -c <config>  Path to the flatbuffer config binary.\n"
-                          << "               Default: etc/launch_manager_config.bin\n"
-                          << "  -h           Print this help and exit.\n";
-                return EXIT_SUCCESS;
-            default:
-                std::cerr << "Usage: launch_manager [-c <config>] [-h]\n";
+            std::cout << kUsage << "\n"
+                      << "Options:\n"
+                      << "  -c <config>  Path to the flatbuffer config binary.\n"
+                      << "               Default: etc/launch_manager_config.bin\n"
+                      << "  -h           Print this help and exit.\n";
+            return EXIT_SUCCESS;
+        }
+        if (arg == "-c")
+        {
+            if (i + 1 >= argc)
+            {
+                std::cerr << kUsage;
                 return EXIT_FAILURE;
+            }
+            config_path = argv[++i];
+        }
+        else if (arg.substr(0, 2) == "-c")
+        {
+            config_path = argv[i] + 2;
         }
     }
+
     // reserve files descriptor osal::IpcCommsSync::sync_fd (fd3)
     // the file descriptors are closed inside the handleComms function.
     reserveFD(osal::IpcCommsSync::sync_fd);
@@ -159,13 +170,14 @@ int run(int argc, const char* argv[])
         std::unique_ptr<saf::daemon::IAliveMonitor> healthMonitor{std::make_unique<saf::daemon::AliveMonitorImpl>(
             recoveryClient, config_result.value().takeAliveSupervision(), supervised_components)};
 
-        auto watchdog = watchdog::createWatchdog();
+        auto watchdog = watchdog::createWatchdog(argc, argv);
+        if (!watchdog)
+        {
+            LM_LOG_FATAL() << "Failed to create watchdog";
+            return EXIT_FAILURE;
+        }
         auto process_group_manager = std::make_unique<ProcessGroupManager>(
-            config_result.value().takeGraph(),
-            std::move(healthMonitor),
-            recoveryClient,
-            std::move(watchdog),
-            config_result.value().takeWatchdog());
+            config_result.value().takeGraph(), std::move(healthMonitor), recoveryClient, std::move(watchdog));
 
         std::unique_ptr<ControlProvider> control_provider;
 

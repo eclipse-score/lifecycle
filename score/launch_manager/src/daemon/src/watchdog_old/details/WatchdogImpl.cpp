@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-#include "score/mw/launch_manager/watchdog/details/WatchdogImpl.hpp"
+#include "score/mw/launch_manager/watchdog_old/details/WatchdogImpl.hpp"
 #include "score/launch_manager/src/daemon/src/common/log.hpp"
 
 #include <score/assert.hpp>
@@ -19,10 +19,10 @@
 #include <chrono>
 #include <thread>
 
-#include "score/mw/launch_manager/configuration/config.hpp"
-#include "score/mw/launch_manager/watchdog/details/Watchdog.hpp"
+#include "score/mw/launch_manager/watchdog_old/details/Watchdog.hpp"
+#include "score/mw/launch_manager/watchdog_old/watchdog_config.hpp"
 
-namespace score::mw::lifecycle::internal::watchdog
+namespace score::mw::lifecycle::internal::watchdog_old
 {
 
 namespace
@@ -48,7 +48,7 @@ WatchdogImpl::WatchdogImpl(DeviceIf& deviceIf, score::os::Fcntl& fcntl, score::o
 }
 
 bool WatchdogImpl::init(
-    const score::mw::lifecycle::internal::configuration::WatchdogConfig&& watchdog_config,
+    const score::mw::lifecycle::internal::watchdog_old::WatchdogConfig&& watchdog_config,
     std::int64_t cycle_time_ns) noexcept
 {
     bool isSuccess{true};
@@ -410,4 +410,4 @@ void WatchdogImpl::waitForever() const noexcept
 #pragma CTC ENDSKIP
 #endif
 
-}  // namespace score::mw::lifecycle::internal::watchdog
+}  // namespace score::mw::lifecycle::internal::watchdog_old
