@@ -128,6 +128,9 @@ def require_realtime_scheduling(request, target):
         "comp_req__launch_man__runmask_support",
     ],
     partially_verifies=[
+        "feat_req__lifecycle__launch_support",
+        "feat_req__lifecycle__sandbox_options",
+        "feat_req__lifecycle__conditional_startup",
         "comp_req__launch_man__process_launch_args",
     ],
     test_type="requirements-based",
