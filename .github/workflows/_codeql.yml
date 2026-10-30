@@ -23,6 +23,10 @@ on:
         description: "When true, runs --nobuild to fetch dependencies only."
         type: string
         default: "false"
+      fail-on-findings:
+        description: "When true, fails if the SARIF contains findings without a suppression."
+        type: string
+        default: "false"
 
 jobs:
   codeql-linux:
@@ -89,6 +93,25 @@ jobs:
           name: codeql-sarif-results
           path: /tmp/codeql-results/publish/codeql-nightly.sarif
           retention-days: 30
+
+      - name: Fail on unsuppressed findings
+        if: ${{ !cancelled() && inputs.fail-on-findings == 'true' && steps.merge-codeql.outcome == 'success' }}
+        run: |
+          set -euo pipefail
+
+          # A finding counts as suppressed if it carries any SARIF suppression
+          # (e.g. in-source `// codeql[...]` comments).
+          jq -r '
+            [.runs[].results[]? | select((.suppressions // []) | length == 0)]
+            | .[]
+            | "\(.ruleId // "unknown-rule"): \(.message.text // "") (\(.locations[0].physicalLocation.artifactLocation.uri // "?"):\(.locations[0].physicalLocation.region.startLine // "?"))"
+          ' /tmp/codeql-results/publish/codeql-nightly.sarif | tee /tmp/codeql-results/unsuppressed.txt
+
+          count=$(wc -l < /tmp/codeql-results/unsuppressed.txt)
+          if [ "${count}" -gt 0 ]; then
+            echo "::error::CodeQL reported ${count} finding(s) without a suppression."
+            exit 1
+          fi
 
       - name: Upload compliance reports
         if: ${{ !cancelled() && inputs.fetch-only != 'true' }}
