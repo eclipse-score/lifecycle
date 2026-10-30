@@ -17,6 +17,8 @@
 #include <cstdint>
 #include <variant>
 
+#include <chrono>
+
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/completion_slot.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
@@ -67,6 +69,8 @@ struct [[nodiscard]] SupervisionFailure
 {
     /// @brief The identifier of the node that failed.
     IdentifierHash process_identifier;
+    /// @brief Timestamp that pinpoints the supervision failure (on the monotonic clock used by Alive supervision).
+    std::chrono::nanoseconds failure_timestamp;
 };
 
 /// @brief The state manager wants to know which Run Target is currently active.
@@ -83,7 +87,7 @@ struct [[nodiscard]] SetRequestedRunTarget
 };
 
 /// @brief A graph-relevant state change. There is only ever a single graph, so no process-group
-/// identifier is needed to route most events. SupervisionFailure is routed by process identifier.
+/// identifier is needed to route most events.
 using ComponentEvent = std::variant<
     ActivationSuccessful,
     ActivationFailed,

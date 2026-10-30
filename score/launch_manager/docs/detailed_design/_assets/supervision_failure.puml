@@ -18,7 +18,10 @@ title Supervision Failure
 box "Main loop thread" #F0F4FA
 participant "ProcessGroupManager" as PGM
 participant "Graph" as Graph
-participant "Transition" as Transition
+end box
+
+box "Worker or Main Thread" #f0faf4
+participant "IComponent" as Component
 end box
 
 queue "Component Event Queue" as EventQueue
@@ -33,6 +36,7 @@ participant "Supervised Process" as Process
 note over Graph: graph is in state kSuccess:\nthe Run Target is active
 
 ' --- detection ---------------------------------------------------------------
+activate Process
 Process -> Supervision: alive indications
 note right of Supervision
   Supervision was started for this process when the component
@@ -49,70 +53,56 @@ else #Pink the configured tolerance is exceeded
     Recovery -> EventQueue: supervision failure of the component
     deactivate Recovery
     note right of Supervision
-      Only the process identifier is reported. The supervision
-      thread never touches the graph and never stops the process
-      itself.
+      The process identifier and the timestamp of the failure are
+      reported. The supervision thread never touches the graph and
+      never stops the process itself.
     end note
 end
 deactivate Supervision
 
 ' --- reaction ----------------------------------------------------------------
 EventQueue -> PGM ++: component event
-note over PGM
-  The reaction to a supervision failure is currently always
-  to request the fallback Run Target.
-end note
+PGM -> Graph ++: apply the component event
+Graph -> Component ++: notify the component of the supervision failure
 
-alt #White the graph is in state kInTransition and target is not the fallback Run Target
-    PGM -> Graph ++: Set fallback Run Target as pending Run Taret
-    PGM -> Graph: cancel the running transition
-    PGM -> Graph: set graph state to kAborting
-    note over Graph
-      kInTransition becomes kAborting: the components still in
-      flight finish their current step and report back,
-      components that are already running stay running.
+alt #White the component is not ready
+    note over Component
+      The component is already deactivated, or currently being
+      deactivated or re-activated: the failure is ignored.
     end note
-    deactivate Graph
 
-else #White the graph is in state kInTransition and target is the fallback Run Target
-    note over PGM: nothing to do, the recovery is already underway
+else #White component was restarted after the failure timestamp
+    note over Component
+      The failure belongs to a previous run of the process:
+      the failure is ignored.
+    end note
 
-else #White the graph is not in state kInTransition
-    PGM -> Graph ++: Set fallback Run Target as pending Run Target
-    deactivate Graph
+else #White the process has already terminated
+    note over Component
+      The termination is already being reported through the
+      OsHandler thread: the failure is ignored.
+    end note
+
+else #Pink the failure belongs to the running process
+    Component -> Process: force termination (SIGKILL)
+    destroy Process
 end
 
-' --- recovery ----------------------------------------------------------------
-PGM -> PGM: handle the graph state
-
-alt the graph reaches kUndefinedState
-
-  note over PGM
-    The requested Run Target is only picked up once the graph has
-    entered kUndefinedState, so a cancelled transition is
-    first allowed to settle.
-  end note
-
-  PGM -> Graph ++: start a transition to the fallback Run Target
-  Graph -> Transition ++: set up the transition
-  Transition --> Graph --: components ready to be stopped
-  note over Graph
-    The failing component and everything that depends on it are
-    stopped, then the fallback Run Target is started - see
-    Component Deactivation and Component Activation.
-  end note
-
-end alt
-
+deactivate Component
 deactivate Graph
 deactivate PGM
 
-legend bottom
-  Alive supervision does not act on the process. It only reports, and the
-  resulting Run Target transition is what stops and restarts the component.
+' --- recovery ----------------------------------------------------------------
+note over PGM
+  The killed process is detected by the OsHandler thread and reported
+  as an unexpected termination. The graph leaves the active Run Target
+  and the main loop starts a transition to the fallback Run Target -
+  see Process Termination.
+end note
 
-  Should the process die as a result of its failure, this is reported
-  independently through the OsHandler thread - see Process Termination.
+legend bottom
+  The reaction to a supervision failure is to kill the process. The recovery
+  itself is the same as for any other unexpected process termination.
 end legend
 
 @enduml

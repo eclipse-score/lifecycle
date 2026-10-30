@@ -257,7 +257,7 @@ TEST_F(ProcessGroupManagerWatchdogTest, GivenMinimalConfig_ExpectWatchdogFired_W
     ASSERT_TRUE(recovery_callback_);
     for (int i = 0; i < kNumRecoveryRequests; ++i)
     {
-        recovery_callback_(IdentifierHash{"overflow_probe"}, std::chrono::nanoseconds{0});
+        recovery_callback_(IdentifierHash{"comp_a"}, std::chrono::nanoseconds{0});
     }
 
     auto run_result = process_group_manager_->run();
