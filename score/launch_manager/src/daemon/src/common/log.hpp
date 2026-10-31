@@ -60,6 +60,8 @@ inline score::mw::log::LogStream& operator<<(score::mw::log::LogStream& out, TIM
 #else  // LC_LOG_SCORE_MW_LOG
 
 // The only other solution supported is console logging.
+#include <score/assert.hpp>
+#include <cstdint>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
@@ -78,8 +80,29 @@ enum class LogLevel
     kVerbose = 5,
 };
 
-inline LogLevel GetLevelFromEnv()
+inline std::uint8_t Verbosity(const LogLevel level)
 {
+    switch (level)
+    {
+        case LogLevel::kFatal:
+            return 0U;
+        case LogLevel::kError:
+            return 1U;
+        case LogLevel::kWarn:
+            return 2U;
+        case LogLevel::kInfo:
+            return 3U;
+        case LogLevel::kDebug:
+            return 4U;
+        case LogLevel::kVerbose:
+            return 5U;
+    }
+    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Invalid LogLevel");
+}
+
+inline std::uint8_t GetVerbosityFromEnv()
+{
+    const std::uint8_t default_verbosity = Verbosity(LogLevel::kInfo);
     if (const char* levelStr = std::getenv("LC_STDOUT_LOG_LEVEL"))
     {
         std::string_view levelSv{levelStr};
@@ -90,28 +113,26 @@ inline LogLevel GetLevelFromEnv()
         }
         catch (...)
         {
-            return LogLevel::kInfo;
+            return default_verbosity;
         }
 
-        if (logLevelTmp >= static_cast<int>(LogLevel::kFatal) && logLevelTmp <= static_cast<int>(LogLevel::kVerbose))
+        if ((logLevelTmp >= Verbosity(LogLevel::kFatal)) && (logLevelTmp <= Verbosity(LogLevel::kVerbose)))
         {
-            return LogLevel(logLevelTmp);
-        }
-        else
-        {
-            return LogLevel::kInfo;
+            return static_cast<std::uint8_t>(logLevelTmp);
         }
     }
-    else
-    {
-        return LogLevel::kInfo;
-    }
+    return default_verbosity;
 }
 
-static LogLevel GetLevel()
+inline std::uint8_t GetConfiguredVerbosity()
 {
-    const static LogLevel logLevel = GetLevelFromEnv();
-    return logLevel;
+    const static std::uint8_t verbosity = GetVerbosityFromEnv();
+    return verbosity;
+}
+
+inline bool IsLevelEnabled(const LogLevel level)
+{
+    return GetConfiguredVerbosity() >= Verbosity(level);
 }
 
 inline std::ostream& operator<<(std::ostream& os, const std::tm* now)
@@ -177,7 +198,7 @@ class Logger
     Stream LogFatal() noexcept
     {
         Stream stream;
-        if (GetLevel() >= LogLevel::kFatal)
+        if (IsLevelEnabled(LogLevel::kFatal))
         {
             stream.SetPrint();
             std::time_t t = std::time(0);
@@ -191,7 +212,7 @@ class Logger
     Stream LogError() noexcept
     {
         Stream stream;
-        if (GetLevel() >= LogLevel::kError)
+        if (IsLevelEnabled(LogLevel::kError))
         {
             stream.SetPrint();
             std::time_t t = std::time(0);
@@ -206,7 +227,7 @@ class Logger
     Stream LogWarn() noexcept
     {
         Stream stream;
-        if (GetLevel() >= LogLevel::kWarn)
+        if (IsLevelEnabled(LogLevel::kWarn))
         {
             stream.SetPrint();
             std::time_t t = std::time(0);
@@ -220,7 +241,7 @@ class Logger
     Stream LogInfo() noexcept
     {
         Stream stream;
-        if (GetLevel() >= LogLevel::kInfo)
+        if (IsLevelEnabled(LogLevel::kInfo))
         {
             stream.SetPrint();
             std::time_t t = std::time(0);
@@ -234,7 +255,7 @@ class Logger
     Stream LogDebug() noexcept
     {
         Stream stream;
-        if (GetLevel() >= LogLevel::kDebug)
+        if (IsLevelEnabled(LogLevel::kDebug))
         {
             stream.SetPrint();
             std::time_t t = std::time(0);
@@ -248,7 +269,7 @@ class Logger
     Stream LogVerbose() noexcept
     {
         Stream stream;
-        if (GetLevel() >= LogLevel::kVerbose)
+        if (IsLevelEnabled(LogLevel::kVerbose))
         {
             stream.SetPrint();
             std::time_t t = std::time(0);
