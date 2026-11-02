@@ -15,6 +15,7 @@
 #define OSAL_IPC_COMMS_HPP_INCLUDED
 
 #include <sys/mman.h>
+#include <cstdint>
 #include <memory>
 #include <utility>
 
@@ -29,20 +30,29 @@ using IpcCommsP = std::shared_ptr<IpcCommsSync>;
 
 /// @brief Structure for managing inter-process communication synchronization.
 /// The `IpcCommsSync` structure is designed to handle synchronization mechanisms required
-/// for inter-process communication. It uses a semaphore to signal kRunning and
-/// a process ID to identify the communicating process.
+/// for inter-process communication. It uses a semaphore to signal kRunning, preceded by a magic number and a
+/// layout version that allow the client to verify that the shared memory really was set up by Launch Manager.
 /// It is only created for processes that are expected to report kRunning.
 struct IpcCommsSync final
 {
+    /// @brief Magic number used as a safeguard by application processes
+    static constexpr std::uint32_t kMagic{0x4C4D5352U};
+
+    /// @brief Expected value of `version_`.
+    static constexpr std::uint32_t kLayoutVersion{1U};
+
+    /// @brief Marks the shared memory as a comms object created by Launch Manager.
+    /// It is the first member, so that checking it does not depend on the layout of the remaining members.
+    /// Launch Manager writes it last, after all other members have been initialized.
+    std::uint32_t magic_;
+
+    /// @brief Layout version of this structure, to detect a Launch Manager and client built from different versions.
+    std::uint32_t version_;
+
     /// @brief Semaphore used by the process to report kRunning.
     /// The communicating process posts this semaphore exactly once to signal that it has finished initialization.
     /// Launch Manager waits on it (and also posts it to wake the waiter up early if the process terminates).
     Semaphore send_sync_;
-
-    /// @brief Process ID of the communicating process.
-    /// The `pid_` is written by the child process right after fork. The client checks it against its own pid.
-    /// The `pid_` is used as an expected bit pattern on the client side.
-    ProcessID pid_;
 
     /// @brief Constant for the synchronization file descriptor.
     /// The `sync_fd` is a constant representing the file descriptor used for synchronization
@@ -108,6 +118,9 @@ struct IpcCommsSync final
             LM_LOG_ERROR() << "Semaphore init failed: Unable to initialize send_sync semaphore.";
             return nullptr;  // Releasing mapping unmaps the memory
         }
+
+        mapping->version_ = kLayoutVersion;
+        mapping->magic_ = kMagic;
 
         IpcCommsSync* const block = mapping.get();
         return IpcCommsP(block, IpcCommsOwnerDeletor{std::move(mapping)});
