@@ -26,11 +26,11 @@ constexpr auto kTimeout = std::chrono::seconds(20);
 constexpr std::uint64_t kMaxFailures = 500;
 }  // namespace
 
-// Keeps sending LmControl requests (get_active_run_target and an "Off" activation) to the
-// Launch Manager once run_target_a is active, until the Launch Manager stops answering.
-// It is not owned by the Launch Manager, so it keeps sending while the Launch Manager shuts
-// down, including after the control client has been terminated and while the
-// ProcessGroupManager is being destroyed.
+/// @brief Keeps sending LmControl requests (get_active_run_target and an "Off" activation) to the
+/// Launch Manager once run_target_a is active, until the Launch Manager stops answering.
+/// It is not owned by the Launch Manager, so it keeps sending while the Launch Manager shuts
+/// down, including after the control client has been terminated and while the
+/// ProcessGroupManager is being destroyed.
 int main()
 {
     while (!std::filesystem::exists(a_started))
@@ -39,33 +39,45 @@ int main()
     }
 
     const auto deadline = std::chrono::steady_clock::now() + kTimeout;
-    std::unique_ptr<ILmControl> client;
-    std::uint64_t failure_count = 0;
-    std::uint64_t request_count = 0;
+    std::uint64_t connect_attempt_count = 0U;
+    std::uint64_t failure_count = 0U;
+    std::uint64_t request_count = 0U;
 
-    while (std::chrono::steady_clock::now() < deadline && failure_count < kMaxFailures)
-    {
-        if (!client)
+    {  // client scope
+        std::unique_ptr<ILmControl> client;
+
+        while (std::chrono::steady_clock::now() < deadline && failure_count < kMaxFailures)
         {
-            auto client_result = ILmControl::Create("StateManager/LaunchManager/Instance");
-            if (!client_result.has_value())
+            if (!client)
             {
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                continue;
+                std::cout << "Connecting client\n";
+                auto client_result = ILmControl::Create("StateManager/LaunchManager/Instance");
+                ++connect_attempt_count;
+
+                if (!client_result.has_value())
+                {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                    continue;
+                }
+
+                std::cout << "Client connected after " << connect_attempt_count << " attempts\n";
+                client = std::move(client_result).value();
             }
-            client = std::move(client_result).value();
+
+            const bool active_ok = client->get_active_run_target().has_value();
+            const bool activation_ok = client->activate_run_target("Off", true).has_value();
+            request_count += 2;
+
+            if (!(active_ok && activation_ok))
+            {
+                failure_count++;
+            }
         }
 
-        const bool active_ok = client->get_active_run_target().has_value();
-        const bool activation_ok = client->activate_run_target("Off", true).has_value();
-        request_count += 2;
-
-        if (!(active_ok && activation_ok))
-        {
-            failure_count++;
-        }
+        std::cout << "sent " << request_count << " requests\n";
+        std::cout << "destroying client\n";
     }
 
-    std::cout << "lm_control_requester sent " << request_count << " requests" << std::endl;
+    std::cout << "client destroyed, exiting\n";
     return 0;
 }
