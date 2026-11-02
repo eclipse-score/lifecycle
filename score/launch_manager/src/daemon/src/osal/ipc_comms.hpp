@@ -41,7 +41,7 @@ struct IpcCommsSync final
 
     /// @brief Process ID of the communicating process.
     /// The `pid_` is written by the child process right after fork. The client checks it against its own pid.
-    /// The `pid_` is used as an expected bit pattern on the client side.
+    /// The `pid_` is used to verify that the data is valid.
     ProcessID pid_;
 
     /// @brief Constant for the synchronization file descriptor.
