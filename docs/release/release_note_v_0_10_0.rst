@@ -50,10 +50,12 @@ New Features
 Improvements
 ~~~~~~~~~~~~
 
+- Updated bazel version to 8.8.2.
 
 Bug Fixes
 ~~~~~~~~~
 
+- None
 
 Other Changes by Label
 ~~~~~~~~~~~~~~~~~~~~~~
