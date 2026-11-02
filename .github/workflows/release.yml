@@ -105,10 +105,19 @@ jobs:
           )
           echo "LATEST_RELEASE_NOTE=${LATEST:--}" >> "$GITHUB_ENV"
 
-      - name: Convert release notes to Markdown
-        # Extracts release note sections from .rst file and converts to .md format
+      - name: Install Pandoc
         if: env.LATEST_RELEASE_NOTE != '-'
-        run: ./scripts/prepare_release_notes.sh release_body.md "${{ env.LATEST_RELEASE_NOTE }}"
+        run: sudo apt-get update && sudo apt-get install -y pandoc
+
+      - name: Convert release notes to Markdown
+        # Converts release note sections from .rst file to Markdown with Pandoc
+        if: env.LATEST_RELEASE_NOTE != '-'
+        run: |
+          printf '\n' >> release_body.md
+          {
+            printf '.. default-role:: code\n\n'
+            sed '1,/^=\{3,\}$/d' "$LATEST_RELEASE_NOTE"
+          } | pandoc --from=rst --to=gfm --shift-heading-level-by=1 --wrap=none >> release_body.md
 
       - name: Download coverage report
         uses: actions/download-artifact@v8
