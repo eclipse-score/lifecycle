@@ -57,6 +57,10 @@ ProcessGroupManager::ProcessGroupManager(
       recovery_client_(recovery_client),
       watchdog_(std::move(watchdog))
 {
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG(alive_monitor != nullptr);
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG(recovery_client_ != nullptr);
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG(watchdog != nullptr);
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG(process_interface != nullptr);
 }
 
 bool ProcessGroupManager::initialize()
@@ -161,13 +165,10 @@ void ProcessGroupManager::createProcessComponentsObjects(std::size_t total_proce
     LM_LOG_DEBUG() << "Creating component event queue...";
     event_queue_ = std::make_unique<ComponentEventQueue>(total_processes);
 
-    if (recovery_client_)
-    {
-        recovery_client_->setRecoveryRequestCallback(
-            [this](const IdentifierHash& process_identifier, std::chrono::nanoseconds failure_timestamp) {
-                static_cast<void>(event_queue_->push(SupervisionFailure{process_identifier, failure_timestamp}));
-            });
-    }
+    recovery_client_->setRecoveryRequestCallback(
+        [this](const IdentifierHash& process_identifier, std::chrono::nanoseconds failure_timestamp) {
+            static_cast<void>(event_queue_->push(SupervisionFailure{process_identifier, failure_timestamp}));
+        });
 
     LM_LOG_DEBUG() << "Creating process monitor...";
     process_monitor_ = std::make_unique<ProcessMonitor>(*event_queue_);

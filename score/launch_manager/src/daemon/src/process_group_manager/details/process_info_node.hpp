@@ -77,16 +77,22 @@ class ProcessInfoNode final : public IComponent
     ProcessInfoNode& operator=(ProcessInfoNode&& other) = delete;
     ~ProcessInfoNode() = default;
 
+    /// @copydoc IComponent::getIdentifier
     [[nodiscard]] IdentifierHash getIdentifier() const override;
 
+    /// @copydoc IComponent::activate
     RequestResult activate(score::cpp::stop_token stop_token) override;
 
+    /// @copydoc IComponent::deactivate
     RequestResult deactivate(score::cpp::stop_token stop_token) override;
 
+    /// @copydoc IComponent::tryHandleTermination
     TerminationResult tryHandleTermination(int32_t process_status) override;
 
+    /// @copydoc IComponent::active
     [[nodiscard]] bool active() const override;
 
+    /// @copydoc IComponent::handleSupervisionFailure
     void handleSupervisionFailure(std::chrono::nanoseconds failure_timestamp) override;
 
     /// @return The OS process ID, or zero if the process has never been started.

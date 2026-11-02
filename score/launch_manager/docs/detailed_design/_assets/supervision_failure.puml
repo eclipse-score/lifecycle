@@ -31,7 +31,9 @@ participant "Alive Supervision" as Supervision
 participant "RecoveryClient" as Recovery
 end box
 
+box "User Application" #FAEEDD
 participant "Supervised Process" as Process
+end box
 
 note over Graph: graph is in state kSuccess:\nthe Run Target is active
 

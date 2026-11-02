@@ -28,6 +28,7 @@ namespace score::mw::lifecycle::internal
 {
 
 /// @brief A node finished activating successfully.
+/// @details Handled by the Graph to update the state of an ongoing transition
 struct [[nodiscard]] ActivationSuccessful
 {
     /// @brief The identifier of the node that activated.
@@ -35,6 +36,7 @@ struct [[nodiscard]] ActivationSuccessful
 };
 
 /// @brief A node failed to activate.
+/// @details Handled by the Graph to update the state of an ongoing transition
 struct [[nodiscard]] ActivationFailed
 {
     /// @brief The identifier of the node that failed.
@@ -44,6 +46,7 @@ struct [[nodiscard]] ActivationFailed
 };
 
 /// @brief A node finished deactivating.
+/// @details Handled by the Graph to update the state of an ongoing transition
 struct [[nodiscard]] DeactivationComplete
 {
     /// @brief The identifier of the node that deactivated.
@@ -51,6 +54,7 @@ struct [[nodiscard]] DeactivationComplete
 };
 
 /// @brief A node terminated without having been requested to.
+/// @details Handled by the Graph to initiate recovery action
 struct [[nodiscard]] UnexpectedTermination
 {
     /// @brief The identifier of the node that terminated.
@@ -58,6 +62,7 @@ struct [[nodiscard]] UnexpectedTermination
 };
 
 /// @brief A job was queued but cancelled by the time it was processed
+/// @details Handled by the Graph to keep track of ongoing jobs on the worker threads
 struct [[nodiscard]] JobSkipped
 {
     /// @brief The identifier of the node that was skipped.
@@ -65,6 +70,7 @@ struct [[nodiscard]] JobSkipped
 };
 
 /// @brief Alive supervision has failed for the given process identifier.
+/// @details Handled by the Graph to initiate recovery action
 struct [[nodiscard]] SupervisionFailure
 {
     /// @brief The identifier of the node that failed.
@@ -74,12 +80,14 @@ struct [[nodiscard]] SupervisionFailure
 };
 
 /// @brief The state manager wants to know which Run Target is currently active.
+/// @details Handled by the ProcessGroupManager to process incoming state manager requests
 struct [[nodiscard]] GetActiveRunTarget
 {
     CompletionSlot<Result<IdentifierHash>>* completion{nullptr};
 };
 
 /// @brief The state manager wants to change to a different Run Target.
+/// @details Handled by the ProcessGroupManager to process incoming state manager requests
 struct [[nodiscard]] SetRequestedRunTarget
 {
     IdentifierHash run_target;
