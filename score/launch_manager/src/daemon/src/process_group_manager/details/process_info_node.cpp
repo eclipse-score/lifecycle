@@ -416,13 +416,7 @@ score::cpp::expected_blank<IComponent::RequestResult> ProcessInfoNode::handlePro
             else if constexpr (std::is_same_v<T, configuration::FileState>)
             {
 
-                if (isReporting())
-                {
-                    // currently we do not support multiple ready conditions so we need
-                    // to ignore the krunning signal.
-                    auto wait_res = process_handling_.process_interface_->waitForkRunning(sync_, std::nullopt);
-                    static_cast<void>(wait_res);
-                }
+                // if the process is reporting, the kRunning signal is currently ignored here
 
                 const auto wait_res = process_handling_.file_waiter_->waitForFile(
                     arg.file_path,

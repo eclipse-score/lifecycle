@@ -460,7 +460,7 @@ OsalReturnType ProcessLauncher::waitForTermination(osal::ProcessID& pid, int32_t
     return result;
 }
 
-OsalReturnType ProcessLauncher::waitForkRunning(IpcCommsP sync, std::optional<std::chrono::milliseconds> timeout)
+OsalReturnType ProcessLauncher::waitForkRunning(IpcCommsP sync, std::chrono::milliseconds timeout)
 {
     if (!sync)
     {
@@ -468,12 +468,7 @@ OsalReturnType ProcessLauncher::waitForkRunning(IpcCommsP sync, std::optional<st
         return OsalReturnType::kFail;
     }
 
-    if (!timeout.has_value())
-    {
-        return OsalReturnType::kSuccess;
-    }
-
-    const auto result = sync->send_sync_.timedWait(timeout.value());
+    const auto result = sync->send_sync_.timedWait(timeout);
     if (result != OsalReturnType::kSuccess)
     {
         LM_LOG_ERROR() << "Semaphore timedWait failed: Did not receive kRunning within the specified timeout.";

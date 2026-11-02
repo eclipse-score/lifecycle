@@ -877,18 +877,6 @@ class ClientMethodsTest : public ProcessLauncherTest
 
 using namespace std::chrono_literals;
 
-TEST_F(ProcessLauncherTest, ignoreRunningSuccess)
-{
-    RecordProperty(
-        "Description", "Verify that waitForkRunning without a timeout neither waits nor posts and returns a success");
-
-    std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
-    EXPECT_CALL(*semaphore_mock_, sem_post).Times(0);
-    EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic).Times(0);
-
-    EXPECT_EQ(process_launcher->waitForkRunning(sync, std::nullopt), OsalReturnType::kSuccess);
-}
-
 TEST_F(ProcessLauncherTest, kRunningNoSync)
 {
     RecordProperty("Description", "Verify that waitForkRunning correctly handles a null pointer");
