@@ -73,7 +73,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Release Note v0.8.0" href="release_note_v_0_8_0.html" />
-    <link rel="prev" title="Release notes" href="index.html" />
+    <link rel="prev" title="Release Note v0.10.0" href="release_note_v_0_10_0.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
@@ -182,7 +182,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../components/index.html">
-    Component documentation
+    Components
   </a>
 </li>
 
@@ -331,7 +331,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../components/index.html">
-    Component documentation
+    Components
   </a>
 </li>
 
@@ -421,6 +421,7 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Content</span></p>
 <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="release_note_v_0_10_0.html">Release Note v0.10.0</a></li>
 <li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Release Note v0.9.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="release_note_v_0_8_0.html">Release Note v0.8.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="release_note_v_0_7_0.html">Release Note v0.7.0</a></li>
@@ -490,7 +491,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <div class="need_container docutils container" id="SNCB-7a766150">
+  <div class="need_container docutils container" id="SNCB-a90a0ac1">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__lifecycle_release_note_v0_9_0">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -562,12 +563,24 @@ being a non-profit and open source organization, can not take over any liability
 <li><p>Configuration option <cite>deployment_config.ready_recovery_action</cite> is now deprecated to avoid confusion btw. <cite>ready_recovery_action</cite> and <cite>recovery_action</cite>.
 Instead use the new configuration parameters <cite>deployment_config.activation_retry_attempts</cite> and <cite>deployment_config.activation_retry_delay_ms</cite>. Note that
 <cite>deployment_config.activation_retry_delay_ms</cite> is not yet implemented and only a placeholder.</p></li>
+<li><p>Improved stability of the feature integration tests
+(<a class="reference external" href="https://github.com/eclipse-score/lifecycle/pull/850">#850</a>).</p></li>
+<li><p>Extended the <cite>ILmControl</cite> API with the new method <cite>wait_for_connection()</cite>, which blocks until the client is connected
+to the Launch Manager, the timeout expires, or a stop is requested via a stop token
+(<a class="reference external" href="https://github.com/eclipse-score/lifecycle/pull/840">#840</a>, <a class="reference external" href="https://github.com/eclipse-score/lifecycle/pull/850">#850</a>).</p></li>
+<li><p>Improved the feature architecture documentation with Control API behavior and Recovery Actions
+(<a class="reference external" href="https://github.com/eclipse-score/lifecycle/pull/800">#800</a>).</p></li>
 </ul>
 </section>
 <section id="bug-fixes">
 <h3>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p>None</p></li>
+<li><p>Fixed a race in <cite>ILmControl</cite>: an activation callback registered before the service was discovered tried to read
+samples immediately. It now waits until the connection is established
+(<a class="reference external" href="https://github.com/eclipse-score/lifecycle/pull/849">#849</a>).</p></li>
+<li><p>Fixed a narrowing bug in the health monitor’s <cite>TimeRange</cite>: <cite>MinMs()</cite> / <cite>MaxMs()</cite> returned <cite>uint32_t</cite> and could
+silently narrow values. They now return <cite>uint64_t</cite>, and negative durations violate a precondition check. Both the C++
+library and the Rust FFI were updated (<a class="reference external" href="https://github.com/eclipse-score/lifecycle/pull/827">#827</a>).</p></li>
 </ul>
 </section>
 <section id="other-changes-by-label">
@@ -629,12 +642,12 @@ Instead use the new configuration parameters <cite>deployment_config.activation_
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="index.html"
+       href="release_note_v_0_10_0.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Release notes</p>
+        <p class="prev-next-title">Release Note v0.10.0</p>
       </div>
     </a>
     <a class="right-next"
