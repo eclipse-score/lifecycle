@@ -74,6 +74,7 @@ class SyscallMock
 
     MOCK_METHOD(int, clock_gettime, (clockid_t clock_id, struct timespec* ts), ());
     MOCK_METHOD(int, clock_getres, (clockid_t clock_id, struct timespec* res), ());
+    MOCK_METHOD(int, shm_open_anon, (const char* name), ());
 };
 
 std::unique_ptr<SyscallMock> g_syscall_mock = nullptr;
@@ -393,6 +394,12 @@ int __wrap_clock_getres(clockid_t clock_id, struct timespec* res)
 
 namespace score::mw::lifecycle::internal::osal
 {
+
+int shm_open_anon(const char* name)
+{
+    return g_syscall_mock->shm_open_anon(name);
+}
+
 void sysexit(int status)
 {
     g_syscall_mock->sysexit(status);

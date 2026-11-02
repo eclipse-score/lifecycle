@@ -52,11 +52,23 @@ Improvements
 - Configuration option `deployment_config.ready_recovery_action` is now deprecated to avoid confusion btw. `ready_recovery_action` and `recovery_action`.
   Instead use the new configuration parameters `deployment_config.activation_retry_attempts` and `deployment_config.activation_retry_delay_ms`. Note that
   `deployment_config.activation_retry_delay_ms` is not yet implemented and only a placeholder.
+- Improved stability of the feature integration tests
+  (`#850 <https://github.com/eclipse-score/lifecycle/pull/850>`_).
+- Extended the `ILmControl` API with the new method `wait_for_connection()`, which blocks until the client is connected
+  to the Launch Manager, the timeout expires, or a stop is requested via a stop token
+  (`#840 <https://github.com/eclipse-score/lifecycle/pull/840>`_, `#850 <https://github.com/eclipse-score/lifecycle/pull/850>`_).
+- Improved the feature architecture documentation with Control API behavior and Recovery Actions
+  (`#800 <https://github.com/eclipse-score/lifecycle/pull/800>`_).
 
 Bug Fixes
 ~~~~~~~~~
 
-- None
+- Fixed a race in `ILmControl`: an activation callback registered before the service was discovered tried to read
+  samples immediately. It now waits until the connection is established
+  (`#849 <https://github.com/eclipse-score/lifecycle/pull/849>`_).
+- Fixed a narrowing bug in the health monitor's `TimeRange`: `MinMs()` / `MaxMs()` returned `uint32_t` and could
+  silently narrow values. They now return `uint64_t`, and negative durations violate a precondition check. Both the C++
+  library and the Rust FFI were updated (`#827 <https://github.com/eclipse-score/lifecycle/pull/827>`_).
 
 Other Changes by Label
 ~~~~~~~~~~~~~~~~~~~~~~
