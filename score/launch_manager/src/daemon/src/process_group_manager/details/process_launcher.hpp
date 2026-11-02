@@ -55,7 +55,7 @@ class ProcessLauncher final : public IProcess
 
     /// @brief Handles the execution of the child process after forking.
     /// @param[in] param Reference to child process configuration.
-    void handleChildProcess(ChildProcessConfig& param);
+    [[noreturn]] void handleChildProcess(ChildProcessConfig& param);
 
     /// @brief Sets up all the scheduling and security parameters described in the config, for the current process.
     /// @param config the configuration to use
