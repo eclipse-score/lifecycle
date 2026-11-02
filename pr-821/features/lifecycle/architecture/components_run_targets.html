@@ -182,7 +182,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../components/index.html">
-    Component documentation
+    Components
   </a>
 </li>
 
@@ -331,7 +331,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../components/index.html">
-    Component documentation
+    Components
   </a>
 </li>
 
@@ -438,6 +438,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../safety_analysis/aou_requirements.html">AoU Feature Requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../safety_planning/index.html">Feature Safety Work Products List</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../security_planning/index.html">Feature Security Work Products List</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../security_analysis/aou_requirements.html">Lifecycle Security Assumptions of Use</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../glossary.html">Lifecycle Glossary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../glossary_detailed.html">Glossary</a></li>
 </ul>
@@ -532,7 +533,7 @@ defined by the dependencies.</p>
 </ol>
 <figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-8a854fbc8c202c0b507b252cb61991a5a9d0da90.svg" type="image/svg+xml" style="width:397px;height:933px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-8a854fbc8c202c0b507b252cb61991a5a9d0da90.svg" type="image/svg+xml" style="width:397px;height:934px;background:#FFFFFF;"></object></p>
 </figure>
 <p>The <a class="reference internal" href="../../../components/launch_manager/architecture/component_architecture.html#comp__lifecycle_launch_manager" title="comp__lifecycle_launch_manager"><em class="xref need">Launch Manager (comp__lifecycle_launch_manager)</em></a> implements the following
 interfaces,for the selection of <a class="reference internal" href="../glossary.html#term-Run-Target"><span class="xref std std-term">Run Target</span></a> s, starting and stopping of
@@ -623,7 +624,7 @@ controlled through POSIX signals:</p>
 <section id="state-machines">
 <h2>State machines<a class="headerlink" href="#state-machines" title="Link to this heading">#</a></h2>
 <p>A component maintains the following internal state machine:</p>
-<div class="need_container docutils container" id="SNCB-7e99c51f">
+<div class="need_container docutils container" id="SNCB-df0e0b90">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__comp_sm_if">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -674,7 +675,7 @@ controlled through POSIX signals:</p>
 <p>Note that the state machine of the underlying process is different from the component state machine.
 For example, the process may be already terminated, but the component is in <cite>Ready</cite> state.
 This is the case if the component is configured to be ready when the underlying process is terminated.</p>
-<div class="need_container docutils container" id="SNCB-5a077721">
+<div class="need_container docutils container" id="SNCB-7ce9b777">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__proc_sm_if">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -704,7 +705,7 @@ This is the case if the component is configured to be ready when the underlying 
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-39ef7103ae9ad78741471c5cdb5ef7b8240c4d25.svg" type="image/svg+xml" style="width:826px;height:641px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-39ef7103ae9ad78741471c5cdb5ef7b8240c4d25.svg" type="image/svg+xml" style="width:827px;height:641px;background:#FFFFFF;"></object></p>
 </figure>
 </td>
 </tr>
@@ -734,7 +735,7 @@ in the following chapters.</p>
 <blockquote id="lifecycle-simplified-example-graph">
 <div><figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-780b51bf0fb10469192664d6cf803e71269822aa.svg" type="image/svg+xml" style="width:649px;height:676px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-780b51bf0fb10469192664d6cf803e71269822aa.svg" type="image/svg+xml" style="width:646px;height:676px;background:#FFFFFF;"></object></p>
 </figure>
 </div></blockquote>
 <p>The Component <cite>setup_filesystems</cite> starts a shell script <cite>setup_filesystems.sh</cite> and reaches its <cite>Ready</cite> state when the script completed.
