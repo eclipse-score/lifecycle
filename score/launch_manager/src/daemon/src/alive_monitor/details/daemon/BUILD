@@ -11,6 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 load("@rules_cc//cc:defs.bzl", "cc_library")
+load("//tests/utils/bazel:unit_test.bzl", "MOCK_SYSCALLS_WRAPPED_SYMBOLS", "linker_wrap_symbols", "lm_cc_test")
 
 cc_library(
     name = "sw_cluster_handler",
@@ -68,5 +69,41 @@ cc_library(
         "//score/launch_manager/src/daemon/src/configuration:config",
         "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/os/utils:thread",
+    ],
+)
+
+lm_cc_test(
+    name = "AliveMonitorImpl_UT",
+    srcs = ["AliveMonitorImpl_UT.cpp"],
+    linkopts = linker_wrap_symbols(MOCK_SYSCALLS_WRAPPED_SYMBOLS),
+    linkstatic = True,
+    deps = [
+        ":health_monitor_impl",
+        "//score/launch_manager/src/daemon/src/configuration:config",
+        "//tests/utils/mocks:mock_syscalls",
+        "@googletest//:gtest_main",
+    ],
+)
+
+lm_cc_test(
+    name = "CyclicExecutor_UT",
+    srcs = ["CyclicExecutor_UT.cpp"],
+    linkopts = linker_wrap_symbols(MOCK_SYSCALLS_WRAPPED_SYMBOLS),
+    linkstatic = True,
+    deps = [
+        ":cyclic_executor",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/timers:timers_os_clock",
+        "//tests/utils/mocks:mock_syscalls",
+        "@googletest//:gtest_main",
+    ],
+)
+
+lm_cc_test(
+    name = "SupervisionManager_UT",
+    srcs = ["SupervisionManager_UT.cpp"],
+    deps = [
+        ":sw_cluster_handler",
+        "//score/launch_manager/src/daemon/src/alive_monitor/details/factory:alive_worker_factory",
+        "@googletest//:gtest_main",
     ],
 )
