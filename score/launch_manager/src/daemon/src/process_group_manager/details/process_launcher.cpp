@@ -29,6 +29,7 @@
 #include "score/mw/launch_manager/osal/security_policy.hpp"
 #include "score/mw/launch_manager/osal/set_affinity.hpp"
 #include "score/mw/launch_manager/osal/set_groups.hpp"
+#include "score/mw/launch_manager/osal/shm_open_anon.hpp"
 #include "score/mw/launch_manager/osal/sys_exit.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
@@ -245,33 +246,13 @@ bool ProcessLauncher::setupComms(IpcCommsP& block, int& fd, const configuration:
 {
     size_t length = sizeof(IpcCommsSync);
 
-    constexpr std::string_view kShmNamePrefix{"/ipc_shared_mem"};
-    std::array<char, static_cast<std::size_t>(ProcessLimits::maxLocalBuffSize)> shm_name{};
-    static_cast<void>(kShmNamePrefix.copy(shm_name.data(), kShmNamePrefix.size()));
-
-    char* const counter_first = std::next(shm_name.data(), static_cast<std::ptrdiff_t>(kShmNamePrefix.size()));
-    // The last byte is excluded from the conversion range so that it keeps the zero from the value
-    // initialization above, which guarantees a null-terminated name for shm_open().
-    char* const counter_last = std::next(shm_name.data(), static_cast<std::ptrdiff_t>(shm_name.size() - 1U));
-
-    const auto conversion = std::to_chars(counter_first, counter_last, shm_name_counter++);
-    if (conversion.ec != std::errc{})
-    {
-        LM_LOG_ERROR() << "Shared memory name truncated: the local buffer is too small for the shared memory "
-                          "object name.";
-        return false;
-    }
-    *conversion.ptr = '\0';
-
-    fd = shm_open(shm_name.data(), O_CREAT | O_EXCL | O_RDWR, 0U);
+    fd = shm_open_anon("/lm_running_report_ipc\0");
     if (fd < 0)
     {
         LM_LOG_ERROR() << "shm_open failed:" << config.deployment_config.executable_path
                        << "Unable to open shared memory object. Error:" << errno_message(errno);
         return false;
     }
-
-    shm_unlink(shm_name.data());
 
     if (-1 == ftruncate(fd, static_cast<int>(length)))
     {
