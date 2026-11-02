@@ -308,8 +308,7 @@ TEST_F(CycleTimerSleepTest, Sleep_WithDeadlineNotReached_SucceedsSleep)
     // Set up next call to be before deadline
     struct timespec ts_before{10, 50000};  // Before the deadline
     EXPECT_CALL(mockClock, clockGetTime).WillOnce(DoAll(SetArgPointee<0>(ts_before), Return(0)));
-    EXPECT_CALL(mockClock, clockNanosleep(TIMER_ABSTIME, _, _)).WillOnce(Return(0));
-
+    EXPECT_CALL(mockClock, clockNanosleep(static_cast<int>(TIMER_ABSTIME), _, _)).WillOnce(Return(0));
     std::atomic_bool terminate{false};
     std::chrono::nanoseconds overDeadline{0};
     int result = timer.sleep(terminate, overDeadline);
