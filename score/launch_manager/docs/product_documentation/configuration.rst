@@ -291,12 +291,6 @@ activation_retry_delay_ms (integer, optional)
     Constraint: Must be between 0 and 4294967295 inclusive.
     Default: 0
 
-ready_recovery_action (object, optional)
-    **Deprecated.** Use ``activation_retry_attempts`` and ``activation_retry_delay_ms`` instead. ``restart.number_of_attempts`` is converted to ``activation_retry_attempts`` and ``restart.delay_before_restart_ms`` is converted to ``activation_retry_delay_ms`` automatically (a warning is printed).
-
-    Description: Specifies the recovery action to execute when the component fails to reach its **Ready State** within the configured ``ready_timeout_ms``. This action is limited to ``restart`` operations.
-    Reference: This property refers to the ``recovery_action`` reusable type defined in this schema, specifically enforcing the ``restart`` option.
-
 recovery_action (object, optional)
     Description: Specifies the recovery action to execute when the component malfunctions after successfully reaching its **Ready State**. This action is limited to ``switch_run_target`` operations.
     Reference: This property refers to the ``recovery_action`` reusable type defined in this schema, specifically enforcing the ``switch_run_target`` option.

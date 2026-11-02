@@ -271,28 +271,6 @@
           "maximum": 4294967295,
           "description": "Specifies the delay duration, in milliseconds, that the Launch Manager waits before each activation retry. Currently not evaluated by the Launch Manager."
         },
-        "ready_recovery_action": {
-          "deprecated": true,
-          "allOf": [
-            {
-              "$ref": "#/$defs/recovery_action"
-            },
-            {
-              "properties": {
-                "restart": true
-              },
-              "required": [
-                "restart"
-              ],
-              "not": {
-                "required": [
-                  "switch_run_target"
-                ]
-              }
-            }
-          ],
-          "description": "Deprecated: use 'activation_retry_attempts' and 'activation_retry_delay_ms' instead. Specifies the recovery action to execute when the component fails to reach its Ready State within the configured timeout. This action is limited to 'restart' operations; 'restart.number_of_attempts' is converted to 'activation_retry_attempts' and 'restart.delay_before_restart_ms' is converted to 'activation_retry_delay_ms'."
-        },
         "recovery_action": {
           "allOf": [
             {
