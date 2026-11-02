@@ -16,7 +16,6 @@
 
 #include <sys/mman.h>
 #include <memory>
-#include <utility>
 
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/osal/semaphore.hpp"
@@ -78,15 +77,8 @@ struct IpcCommsSync final
     /// the process it is creating.
     static IpcCommsP getCommsObject(int fd = IpcCommsSync::sync_fd)
     {
-        IpcCommsP ret = nullptr;
-        void* buf = mmap(nullptr, sizeof(IpcCommsSync), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-
-        if (MAP_FAILED != buf)
-        {
-            ret = IpcCommsP(static_cast<IpcCommsSync*>(buf), IpcCommsDeletor());
-        }
-
-        return ret;
+        IpcCommsSync* const block = map(fd);
+        return (nullptr != block) ? IpcCommsP(block, IpcCommsDeletor{}) : nullptr;
     }
 
     /// @brief Creates the comms object for Launch Manager, which owns the semaphore.
@@ -97,68 +89,74 @@ struct IpcCommsSync final
     /// the process can no longer be inside a post on the semaphore.
     static IpcCommsP createCommsObject(int fd)
     {
-        IpcCommsP mapping = getCommsObject(fd);
-        if (!mapping)
+        IpcCommsSync* const block = map(fd);
+        if (nullptr == block)
         {
             return nullptr;
         }
 
-        if (osal::OsalReturnType::kFail == mapping->send_sync_.init(0U, true))
+        if (osal::OsalReturnType::kFail == block->send_sync_.init(0U, true))
         {
             LM_LOG_ERROR() << "Semaphore init failed: Unable to initialize send_sync semaphore.";
-            return nullptr;  // Releasing mapping unmaps the memory
+            IpcCommsDeletor{}(block);
+            return nullptr;
         }
 
-        IpcCommsSync* const block = mapping.get();
-        return IpcCommsP(block, IpcCommsOwnerDeletor{std::move(mapping)});
+        return IpcCommsP(block, IpcCommsOwnerDeletor{});
     }
 
   private:
-    /// @brief Deleter to destroy the semaphore of an IpcCommsSync object
-    /// This is used by Launch Manager, which owns the semaphore. The memory itself is unmapped afterwards, when the
-    /// shared pointer destroys this deleter and thereby releases the held mapping.
-    struct IpcCommsOwnerDeletor
+    /// @brief Maps the shared memory behind fd as an IpcCommsSync object.
+    /// @return Pointer to the mapped object, or nullptr if mapping failed.
+    static IpcCommsSync* map(int fd)
     {
-        IpcCommsP mapping;
-
-        void operator()(IpcCommsSync* ptr) const
-        {
-            if (nullptr != ptr)
-            {
-                // We are not interested in the result of msync, just whether it worked or not.
-                // If it did not work, the child process has probably crashed and corrupted the shared memory
-                // so we should not try to deinitialize the semaphore.
-                // mincore would be more appropriate here, but is not available on QNX
-                if (msync(ptr, sizeof(IpcCommsSync), MS_ASYNC) == 0)
-                {
-                    if (ptr->send_sync_.deinit() != OsalReturnType::kSuccess)
-                    {
-                        LM_LOG_WARN() << "Failed to deinitialize send_sync semaphore.";
-                    }
-                }
-                else
-                {
-                    LM_LOG_WARN() << "Skipping semaphore deinitialization - shared memory region appears invalid:"
-                                  << errno_message(errno);
-                }
-            }
-        }
-    };
+        void* const buf = mmap(nullptr, sizeof(IpcCommsSync), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+        return (MAP_FAILED != buf) ? static_cast<IpcCommsSync*>(buf) : nullptr;
+    }
 
     /// @brief Deleter to release IpcCommsSync object
-    /// This is used both by Launch Manager and application process
+    /// This is used by the application process, which only maps the memory.
     /// Passed to the constructor of a shared pointer
     struct IpcCommsDeletor
     {
         void operator()(IpcCommsSync* ptr) const
         {
-            if (nullptr != ptr)
+            if ((nullptr != ptr) && (munmap(ptr, sizeof(IpcCommsSync)) == -1))
             {
-                if (munmap(ptr, sizeof(IpcCommsSync)) == -1)
+                LM_LOG_ERROR() << "Unmapping of shared memory failed";
+            }
+        }
+    };
+
+    /// @brief Deleter used by Launch Manager, which owns the semaphore.
+    /// Destroys the semaphore first, then unmaps the memory.
+    struct IpcCommsOwnerDeletor
+    {
+        void operator()(IpcCommsSync* ptr) const
+        {
+            if (nullptr == ptr)
+            {
+                return;
+            }
+
+            // We are not interested in the result of msync, just whether it worked or not.
+            // If it did not work, the child process has probably crashed and corrupted the shared memory
+            // so we should not try to deinitialize the semaphore.
+            // mincore would be more appropriate here, but is not available on QNX
+            if (msync(ptr, sizeof(IpcCommsSync), MS_ASYNC) == 0)
+            {
+                if (ptr->send_sync_.deinit() != OsalReturnType::kSuccess)
                 {
-                    LM_LOG_ERROR() << "Unmapping of shared memory failed";
+                    LM_LOG_WARN() << "Failed to deinitialize send_sync semaphore.";
                 }
             }
+            else
+            {
+                LM_LOG_WARN() << "Skipping semaphore deinitialization - shared memory region appears invalid:"
+                              << errno_message(errno);
+            }
+
+            IpcCommsDeletor{}(ptr);
         }
     };
 };
