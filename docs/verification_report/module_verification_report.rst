@@ -111,3 +111,4 @@ List of valid component requirements without any linked test.
       :columns: id;title;fully_verifies_back as "Fully verified by";partially_verifies_back as "Partially verified by";status
       :colwidths: 15,25,25,25,10
       :sort: title
+      :class: verification-trace-table
