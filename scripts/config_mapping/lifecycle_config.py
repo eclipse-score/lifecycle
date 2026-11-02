@@ -131,64 +131,12 @@ def apply_file_state_defaults(ready_condition):
     ready_condition["file_state"] = {**merged}
 
 
-def migrate_ready_recovery_action(deployment_config, context):
-    """Convert the deprecated 'ready_recovery_action' into 'activation_retry_attempts'
-    and 'activation_retry_delay_ms'.
-
-    'context' is a human readable location (e.g. "Component 'foo'") used in warnings.
-    Mutates deployment_config in place and removes the deprecated key.
-    """
-    if "ready_recovery_action" not in deployment_config:
-        return
-
-    rra = deployment_config.pop("ready_recovery_action")
-    restart = rra.get("restart", {})
-
-    report_warning(
-        f"{context}: 'ready_recovery_action' is deprecated. "
-        f"Use 'deployment_config.activation_retry_attempts' and "
-        f"'deployment_config.activation_retry_delay_ms' instead."
-    )
-
-    for old_key, new_key in [
-        ("number_of_attempts", "activation_retry_attempts"),
-        ("delay_before_restart_ms", "activation_retry_delay_ms"),
-    ]:
-        if new_key in deployment_config:
-            report_warning(
-                f"{context}: both '{new_key}' and the deprecated "
-                f"'ready_recovery_action' are configured; '{new_key}' "
-                f"({deployment_config[new_key]}) takes precedence."
-            )
-            continue
-
-        value = restart.get(old_key, 0)
-        report_warning(
-            f"{context}: converted 'ready_recovery_action.restart.{old_key}' "
-            f"({value}) to '{new_key}'."
-        )
-        deployment_config[new_key] = value
-
-
 def preprocess_defaults(global_defaults, config):
     """
     This function takes the input configuration and fills in any missing fields with default values.
     The resulting file with have no "defaults" entry anymore, but looks like if the user had specified all the fields explicitly.
     """
     config = deepcopy(config)
-
-    # Convert the deprecated ready_recovery_action before merging, so the normal
-    # default inheritance rules apply to the resulting activation_retry_* scalars.
-    config_defaults = config.get("defaults", {})
-    if "deployment_config" in config_defaults:
-        migrate_ready_recovery_action(
-            config_defaults["deployment_config"], "defaults.deployment_config"
-        )
-    for component_name, component_config in config.get("components", {}).items():
-        if "deployment_config" in component_config:
-            migrate_ready_recovery_action(
-                component_config["deployment_config"], f"Component '{component_name}'"
-            )
 
     def dict_merge(dict_a, dict_b):
         """

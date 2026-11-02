@@ -1427,32 +1427,6 @@ def test_gen_config_activation_retry_inherited_and_overridden(tmp_path, key):
     assert _generated_activation_retry(tmp_path, config, key) == {"c1": 1, "c2": 4}
 
 
-def test_ready_recovery_action_converted_to_activation_retry(tmp_path):
-    """The deprecated ready_recovery_action is converted to both activation_retry_* values."""
-    config = _activation_retry_config("activation_retry_attempts")
-    config["components"]["c1"]["deployment_config"]["ready_recovery_action"] = {
-        "restart": {"number_of_attempts": 5, "delay_before_restart_ms": 250}
-    }
-    config = preprocess_defaults(score_defaults, config)
-    depl = config["components"]["c1"]["deployment_config"]
-    assert "ready_recovery_action" not in depl
-    assert depl["activation_retry_attempts"] == 5
-    assert depl["activation_retry_delay_ms"] == 250
-
-
-def test_ready_recovery_action_does_not_override_activation_retry(tmp_path):
-    """Explicit activation_retry_* values take precedence over ready_recovery_action."""
-    config = _activation_retry_config("activation_retry_attempts", component_value=2)
-    depl = config["components"]["c1"]["deployment_config"]
-    depl["ready_recovery_action"] = {
-        "restart": {"number_of_attempts": 5, "delay_before_restart_ms": 250}
-    }
-    config = preprocess_defaults(score_defaults, config)
-    depl = config["components"]["c1"]["deployment_config"]
-    assert depl["activation_retry_attempts"] == 2
-    assert depl["activation_retry_delay_ms"] == 250
-
-
 ## TODO
 def test_gen_config_unmapped_scheduling_policy(tmp_path):
     """An unknown scheduling_policy should pass through unchanged."""
