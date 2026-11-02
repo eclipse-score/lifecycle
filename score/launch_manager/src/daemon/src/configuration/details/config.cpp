@@ -21,6 +21,7 @@ namespace score::mw::lifecycle::internal::configuration
 
 // --- Config ---
 
+// codeql[cpp/number-of-parameters-per-function] Dismiss: Struct-like type, passing a struct to constructor wouldn't make sense. The parameters are only there to be moved into the members instead of copied.
 Config::Config(
     std::vector<ComponentConfig> components,
     std::vector<RunTargetConfig> run_targets,
@@ -32,7 +33,7 @@ Config::Config(
       run_targets_{std::move(run_targets)},
       initial_run_target_{std::move(initial_run_target)},
       fallback_run_target_{std::move(fallback_run_target)},
-      alive_supervision_{std::move(alive_supervision)},
+      alive_supervision_{alive_supervision},
       watchdog_{std::move(watchdog)}
 {
 }

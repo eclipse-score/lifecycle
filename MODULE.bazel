@@ -34,23 +34,23 @@ bazel_dep(name = "googletest", version = "1.17.0.bcr.2")
 bazel_dep(name = "google_benchmark", version = "1.9.5", dev_dependency = True)
 
 # S-CORE process rules
-bazel_dep(name = "score_docs_as_code", version = "8.5.1")
-bazel_dep(name = "score_tooling", version = "3.0.1")
+bazel_dep(name = "score_docs_as_code", version = "8.6.0")
+bazel_dep(name = "score_tooling", version = "3.0.2")
 
 bazel_dep(name = "score_rust_policies", version = "0.0.5", dev_dependency = True)
 bazel_dep(name = "score_cpp_policies", version = "0.1.2", dev_dependency = True)
-bazel_dep(name = "score_devcontainer", version = "1.11.3", dev_dependency = True)
+bazel_dep(name = "score_devcontainer", version = "1.11.4", dev_dependency = True)
 bazel_dep(name = "score_coverage", version = "0.4.2", dev_dependency = True)
 
-bazel_dep(name = "score_process_description", version = "2.2.1")
-bazel_dep(name = "score_platform", version = "0.7.3")
+bazel_dep(name = "score_process_description", version = "2.2.2")
+bazel_dep(name = "score_platform", version = "0.7.4")
 
 ###############################################################################
 #
 # S-CORE Toolchains (DO NOT MODIFY)
 #
 ###############################################################################
-bazel_dep(name = "score_bazel_cpp_toolchains", version = "1.0.4", dev_dependency = True)
+bazel_dep(name = "score_bazel_cpp_toolchains", version = "1.0.5", dev_dependency = True)
 bazel_dep(name = "score_bazel_platforms", version = "1.1.0", dev_dependency = True)
 
 # GCC Toolchains
@@ -58,13 +58,13 @@ gcc = use_extension("@score_bazel_cpp_toolchains//extensions:gcc.bzl", "gcc", de
 
 # Compiler-warning features are owned by score_cpp_policies
 _WARNING_ENABLED_FEATURES = [
-    "@score_cpp_policies//warnings/gcc/features:minimal_warnings",
+    "@score_cpp_policies//warnings/gcc/features:all_wall_warnings",
     "@score_cpp_policies//warnings/gcc/features:warnings_as_errors",
 ]
 
 _WARNING_KNOWN_FEATURES = [
     "@score_cpp_policies//warnings/gcc/features:strict_warnings",
-    "@score_cpp_policies//warnings/gcc/features:all_wall_warnings",
+    "@score_cpp_policies//warnings/gcc/features:minimal_warnings",
 ]
 
 ## Linux Toolchains
@@ -91,7 +91,7 @@ gcc.toolchain(
 gcc.toolchain(
     name = "score_ebclfsa_toolchain",
     runtime_ecosystem = "ebclfsa",
-    sdk_version = "0.1.0",
+    sdk_version = "2.0.0-beta2",
     target_cpu = "aarch64",
     target_os = "linux",
     use_default_package = True,
@@ -301,14 +301,7 @@ pip.parse(
 )
 use_repo(pip, "codeql_coding_standards_pip_hub")
 
-bazel_dep(name = "score_itf", version = "0.5.0", dev_dependency = True)
-
-# Need latest ITF for qemu arm support which is not part latest release
-git_override(
-    module_name = "score_itf",
-    commit = "38ae9a3dd98ccc7434e1f8b57ca4a3d2bac82e2f",
-    remote = "https://github.com/eclipse-score/itf.git",
-)
+bazel_dep(name = "score_itf", version = "0.6.0")
 
 oci = use_extension("@rules_oci//oci:extensions.bzl", "oci", dev_dependency = True)
 oci.pull(
@@ -320,7 +313,7 @@ oci.pull(
 )
 use_repo(oci, "debian-test-runtime", "debian-test-runtime_linux_amd64")
 
-bazel_dep(name = "score_baselibs", version = "0.2.15")
+bazel_dep(name = "score_baselibs", version = "0.2.16")
 bazel_dep(name = "score_communication", version = "0.5.0")
 
 # Needed to fix bazel mod errors

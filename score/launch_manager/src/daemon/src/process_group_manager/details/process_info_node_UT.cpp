@@ -96,7 +96,7 @@ class ProcessInfoNodeFixture : public ::testing::Test
         profile.application_type = application_type;
         profile.is_self_terminating = self_terminating;
         config.component_properties.ready_condition = configuration::ReadyCondition{ready_state};
-        config.deployment_config.ready_recovery_action = configuration::RestartAction{restart_attempts, 0U};
+        config.deployment_config.activation_retry_attempts = restart_attempts;
         config.deployment_config.shutdown_timeout_ms = shutdown_timeout_ms_;
         config.deployment_config.ready_timeout_ms = ready_timeout_ms_;
 
@@ -631,9 +631,7 @@ TEST_F(ProcessInfoNodeStartupCrashTest, TimeoutThenSuccess_WithRestarts)
 
 struct NumberOfAttemptsParameterizedTestParams
 {
-    // Using uint_16_t to we can represent values > 255,
-    // so we can test overflow of uint8_t
-    std::uint16_t input;
+    std::uint8_t input;
     std::uint16_t expected_attempts;
 };
 
@@ -658,7 +656,7 @@ TEST_P(
 
     // Expect
     expectActivationReport(0);
-    const std::uint16_t kRestartAttempts = GetParam().input;
+    const std::uint8_t kRestartAttempts = GetParam().input;
     const std::uint16_t kExpectedTotalAttempts = GetParam().expected_attempts;
     auto node = createProcessInfoNode(configuration::ApplicationType::ReportingAndSupervised, kRestartAttempts);
 

@@ -56,4 +56,7 @@ integration_test(
         "//tests/utils/test_helper:verification_process",
     ],
     config = ":complex_monitoring.json",
+    tags = [
+        "flaky",  # Test uses heartbeat monitoring which on CI will always be flaky.
+    ],
 )

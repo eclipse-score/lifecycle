@@ -41,7 +41,11 @@ class MockRecoveryClient : public IRecoveryClient
         setRecoveryRequestCallback,
         (IRecoveryClient::RecoveryRequestCallback callback),
         (noexcept, override));
-    MOCK_METHOD(bool, sendRecoveryRequest, (const IdentifierHash& process_group_identifier), (noexcept, override));
+    MOCK_METHOD(
+        bool,
+        sendRecoveryRequest,
+        (const IdentifierHash& process_group_identifier, std::chrono::nanoseconds failure_timestamp),
+        (noexcept, override));
 };
 
 class MockMonitorIfDaemon : public common::Observable<ifappl::Checkpoint>
@@ -154,10 +158,12 @@ TEST_F(AliveSupervisionTest, AliveTransitionsOkToExpiredOnMissingHeartbeat)
         "Description",
         "Verify that Alive transitions from deactivated -> ok -> expired when no heartbeats are reported "
         "and failedCyclesTolerance == 0. sendRecoveryRequest must be called exactly once with the "
-        "configured recovery target hash.");
+        "configured recovery target hash and the end of the missed reference cycle as failure timestamp.");
     AliveFixture fix = AliveFixture::Builder{}.build();
 
-    EXPECT_CALL(*fix.mockClient, sendRecoveryRequest(fix.kProcessIdentifier)).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*fix.mockClient, sendRecoveryRequest(fix.kProcessIdentifier, 1000010ns))
+        .Times(1)
+        .WillOnce(Return(true));
 
     EXPECT_EQ(fix.alive->getStatus(), EStatus::kDeactivated);
 
@@ -165,7 +171,7 @@ TEST_F(AliveSupervisionTest, AliveTransitionsOkToExpiredOnMissingHeartbeat)
     fix.alive->evaluate(11ns);
     EXPECT_EQ(fix.alive->getStatus(), EStatus::kOk);
 
-    // No heartbeats; reference cycle ends at 10 + 100000 = 1000010
+    // No heartbeats; reference cycle ends at 10 + 1000000 = 1000010, which is the failure timestamp
     fix.alive->evaluate(1000011ns);
     EXPECT_EQ(fix.alive->getStatus(), EStatus::kExpired);
 }
@@ -176,7 +182,7 @@ TEST_F(AliveSupervisionTest, AliveStaysOkWithCorrectHeartbeats)
         "Description", "Verify that sending at least minIndications heartbeats per cycle keeps Alive in ok.");
     AliveFixture fix = AliveFixture::Builder{}.build();
 
-    EXPECT_CALL(*fix.mockClient, sendRecoveryRequest(_)).Times(0);
+    EXPECT_CALL(*fix.mockClient, sendRecoveryRequest(_, _)).Times(0);
 
     fix.activateProcess(10ns);
     fix.alive->evaluate(11ns);
@@ -197,11 +203,14 @@ TEST_F(AliveSupervisionTest, AliveReportsEnqueueFailureWhenRingBufferFull)
 {
     RecordProperty(
         "Description",
-        "Verify that when sendRecoveryRequest fails (ring buffer full), hasRecoveryEnqueueFailed reports true.");
+        "Verify that when sendRecoveryRequest fails (ring buffer full), hasRecoveryEnqueueFailed reports true. "
+        "The recovery request carries the end of the missed reference cycle as failure timestamp.");
 
     AliveFixture fix = AliveFixture::Builder{}.build();
 
-    EXPECT_CALL(*fix.mockClient, sendRecoveryRequest(fix.kProcessIdentifier)).Times(1).WillOnce(Return(false));
+    EXPECT_CALL(*fix.mockClient, sendRecoveryRequest(fix.kProcessIdentifier, 1000010ns))
+        .Times(1)
+        .WillOnce(Return(false));
 
     fix.activateProcess(10ns);
     fix.alive->evaluate(11ns);
@@ -218,10 +227,11 @@ TEST_F(AliveSupervisionTest, AliveDebouncesThroughFailedBeforeExpired)
     RecordProperty(
         "Description",
         "Verify that failedCyclesTolerance debouncing works: with tolerance=1 the supervision passes "
-        "through failed before reaching expired.");
+        "through failed before reaching expired. The failure timestamp is the end of the second missed reference "
+        "cycle, i.e. the cycle in which the tolerance is exceeded.");
     AliveFixture fix = AliveFixture::Builder{}.withFailedCyclesTolerance(1U).build();
 
-    EXPECT_CALL(*fix.mockClient, sendRecoveryRequest(fix.kProcessIdentifier))
+    EXPECT_CALL(*fix.mockClient, sendRecoveryRequest(fix.kProcessIdentifier, 2000010ns))
         .Times(1)
         .WillOnce(::testing::Return(true));
 
@@ -243,7 +253,7 @@ TEST_F(AliveSupervisionTest, DeactivatesOnSupervisionDeactivation)
     RecordProperty("Description", "Verify that a deactivation event deactivates the supervision from ok.");
     AliveFixture fix = AliveFixture::Builder{}.build();
 
-    EXPECT_CALL(*fix.mockClient, sendRecoveryRequest(_)).Times(0);
+    EXPECT_CALL(*fix.mockClient, sendRecoveryRequest(_, _)).Times(0);
 
     fix.activateProcess(10ns);
     fix.alive->evaluate(11ns);
@@ -262,7 +272,7 @@ TEST_F(AliveSupervisionTest, ReactivatesAfterDeactivation)
         " event is received again.");
     AliveFixture fix = AliveFixture::Builder{}.build();
 
-    EXPECT_CALL(*fix.mockClient, sendRecoveryRequest(_)).Times(0);
+    EXPECT_CALL(*fix.mockClient, sendRecoveryRequest(_, _)).Times(0);
 
     fix.activateProcess(10ns);
     fix.alive->evaluate(11ns);
@@ -279,11 +289,16 @@ TEST_F(AliveSupervisionTest, ReactivatesAfterDeactivation)
 
 TEST_F(AliveSupervisionTest, MaxIndicationViolationExpires)
 {
-    RecordProperty("Description", "Verify that exceeding the maximum allowed heartbeats per cycle leads to failure.");
+    RecordProperty(
+        "Description",
+        "Verify that exceeding the maximum allowed heartbeats per cycle leads to failure. The failure timestamp "
+        "is the end of the reference cycle in which the maximum was exceeded.");
     // max=1, tolerance=0: more than 1 heartbeat per cycle expires immediately
     AliveFixture fix = AliveFixture::Builder{}.withMaxIndications(1U).build();
 
-    EXPECT_CALL(*fix.mockClient, sendRecoveryRequest(fix.kProcessIdentifier)).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*fix.mockClient, sendRecoveryRequest(fix.kProcessIdentifier, 1000010ns))
+        .Times(1)
+        .WillOnce(Return(true));
 
     fix.activateProcess(10ns);
     fix.alive->evaluate(11ns);

@@ -10,12 +10,8 @@
                 "EMPTY_GLOBAL_ENV_VAR": ""
             },
             "bin_dir": "/opt",
-            "ready_recovery_action": {
-                "restart": {
-                    "number_of_attempts": 1,
-                    "delay_before_restart_ms": 500
-                }
-            },
+            "activation_retry_attempts": 1,
+            "activation_retry_delay_ms": 0,
             "recovery_action": {
                 "switch_run_target": {
                     "run_target": "Off"

@@ -39,6 +39,7 @@ void ProcessGroupManager::cancel()
     my_signal_handler(SIGTERM);
 }
 
+// codeql[cpp/number-of-parameters-per-function] Dismiss: All parameters required for dependency injection, and building them into a parameter struct would add unnecessary indirection without helping visibility.
 ProcessGroupManager::ProcessGroupManager(
     GraphConfig&& config,
     std::unique_ptr<saf::daemon::IAliveMonitor> alive_monitor,
@@ -163,9 +164,10 @@ void ProcessGroupManager::createProcessComponentsObjects(std::size_t total_proce
 
     if (recovery_client_)
     {
-        recovery_client_->setRecoveryRequestCallback([this](const IdentifierHash& process_identifier) {
-            static_cast<void>(event_queue_->push(SupervisionFailure{process_identifier}));
-        });
+        recovery_client_->setRecoveryRequestCallback(
+            [this](const IdentifierHash& process_identifier, std::chrono::nanoseconds /* failure_timestamp */) {
+                static_cast<void>(event_queue_->push(SupervisionFailure{process_identifier}));
+            });
     }
 
     LM_LOG_DEBUG() << "Creating process monitor...";

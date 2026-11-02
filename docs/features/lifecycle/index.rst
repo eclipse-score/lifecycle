@@ -24,6 +24,7 @@ For the main feature description and requirements, see the belonging Feature in 
 
 .. toctree::
    :hidden:
+   :glob:
 
    architecture/index
    architecture/arc_inspection
@@ -32,5 +33,5 @@ For the main feature description and requirements, see the belonging Feature in 
    safety_analysis/aou_requirements
    safety_planning/index
    security_planning/index
-   glossary
-   glossary_detailed
+   security_analysis/aou_requirements
+   glossary*

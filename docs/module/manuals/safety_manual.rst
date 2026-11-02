@@ -95,5 +95,5 @@ Safety Anomalies
 
 References
 ----------
-| <link to the user manual>
+| :need:`doc__lifecycle_user_manual`
 | <other links>

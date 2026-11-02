@@ -44,6 +44,20 @@ score::cpp::expected<T, IConfigLoader::Error> requireScalarValue(
     return *field;
 }
 
+/// @brief Reads a required scalar field and checks that it fits into TargetT.
+template <typename TargetT, typename FieldT>
+score::cpp::expected<TargetT, IConfigLoader::Error> requireScalarInRange(
+    const ::flatbuffers::Optional<FieldT>& field,
+    const std::string_view field_name)
+{
+    const auto value = requireScalarValue(field, field_name);
+    if (!value.has_value())
+    {
+        return score::cpp::make_unexpected(value.error());
+    }
+    return validateRange<TargetT>(*value, field_name);
+}
+
 template <typename T>
 std::optional<T> optionalScalarValue(const ::flatbuffers::Optional<T>& field)
 {
@@ -115,6 +129,18 @@ score::cpp::expected<int32_t, IConfigLoader::Error> convertSchedulingPolicy(fb::
             LM_LOG_ERROR() << "Unsupported scheduling policy:" << static_cast<int>(policy);
             return score::cpp::make_unexpected(IConfigLoader::Error::InvalidFormat);
     }
+}
+
+score::cpp::expected<int32_t, IConfigLoader::Error> requireSchedulingPolicy(
+    const ::flatbuffers::Optional<fb::SchedulingPolicy>& field,
+    const std::string_view field_name)
+{
+    const auto policy = requireScalarValue(field, field_name);
+    if (!policy.has_value())
+    {
+        return score::cpp::make_unexpected(policy.error());
+    }
+    return convertSchedulingPolicy(*policy);
 }
 
 int toPlatformResource(fb::RlimitResource fb_resource)
@@ -237,27 +263,6 @@ Environment convertEnvironmentalVariables(
         result.set(std::move(entries));
     }
     return result;
-}
-
-score::cpp::expected<std::optional<RestartAction>, IConfigLoader::Error> convertRestartAction(
-    const fb::RestartAction* ra)
-{
-    if (ra == nullptr)
-    {
-        return std::optional<RestartAction>{std::nullopt};
-    }
-    auto number_of_attempts = requireScalarValue(ra->number_of_attempts(), "RestartAction::number_of_attempts");
-    if (!number_of_attempts.has_value())
-    {
-        return score::cpp::make_unexpected(number_of_attempts.error());
-    }
-    auto delay_before_restart =
-        requireScalarValue(ra->delay_before_restart_ms(), "RestartAction::delay_before_restart_ms");
-    if (!delay_before_restart.has_value())
-    {
-        return score::cpp::make_unexpected(delay_before_restart.error());
-    }
-    return std::optional<RestartAction>{RestartAction{*number_of_attempts, *delay_before_restart}};
 }
 
 std::optional<SwitchRunTargetAction> convertSwitchRunTargetAction(const fb::SwitchRunTargetAction* sa)
@@ -431,32 +436,17 @@ score::cpp::expected<ComponentProperties, IConfigLoader::Error> convertComponent
 score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(const fb::Sandbox* fb_sb)
 {
     SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(fb_sb, "Sandbox must never be nullptr as it is required in the schema");
-    auto fb_uid = requireScalarValue(fb_sb->uid(), "Sandbox::uid");
-    if (!fb_uid.has_value())
-    {
-        return score::cpp::make_unexpected(fb_uid.error());
-    }
-    auto fb_gid = requireScalarValue(fb_sb->gid(), "Sandbox::gid");
-    if (!fb_gid.has_value())
-    {
-        return score::cpp::make_unexpected(fb_gid.error());
-    }
-    auto uid = validateRange<uid_t>(*fb_uid, "Sandbox uid");
+    auto uid = requireScalarInRange<uid_t>(fb_sb->uid(), "Sandbox::uid");
     if (!uid.has_value())
     {
         return score::cpp::make_unexpected(uid.error());
     }
-    auto gid = validateRange<gid_t>(*fb_gid, "Sandbox gid");
+    auto gid = requireScalarInRange<gid_t>(fb_sb->gid(), "Sandbox::gid");
     if (!gid.has_value())
     {
         return score::cpp::make_unexpected(gid.error());
     }
-    auto sched_policy = requireScalarValue(fb_sb->scheduling_policy(), "Sandbox::scheduling_policy");
-    if (!sched_policy.has_value())
-    {
-        return score::cpp::make_unexpected(sched_policy.error());
-    }
-    auto scheduling_policy = convertSchedulingPolicy(*sched_policy);
+    auto scheduling_policy = requireSchedulingPolicy(fb_sb->scheduling_policy(), "Sandbox::scheduling_policy");
     if (!scheduling_policy.has_value())
     {
         return score::cpp::make_unexpected(scheduling_policy.error());
@@ -466,14 +456,14 @@ score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(const fb::San
     {
         return score::cpp::make_unexpected(scheduling_priority.error());
     }
-    Sandbox result{};
-    result.uid = *uid;
-    result.gid = *gid;
     auto supplementary_gids = convertGidVector(fb_sb->supplementary_group_ids());
     if (!supplementary_gids.has_value())
     {
         return score::cpp::make_unexpected(supplementary_gids.error());
     }
+    Sandbox result{};
+    result.uid = *uid;
+    result.gid = *gid;
     result.supplementary_group_ids = std::move(*supplementary_gids);
     result.security_policy = fb_sb->security_policy() != nullptr
                                  ? std::optional<std::string>{fb_sb->security_policy()->str()}
@@ -515,17 +505,25 @@ score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentCo
         {
             return score::cpp::make_unexpected(shutdown_timeout.error());
         }
+        auto activation_retry_attempts =
+            requireScalarValue(fb_dc->activation_retry_attempts(), "DeploymentConfig::activation_retry_attempts");
+        if (!activation_retry_attempts.has_value())
+        {
+            return score::cpp::make_unexpected(activation_retry_attempts.error());
+        }
+        auto activation_retry_delay_ms =
+            requireScalarValue(fb_dc->activation_retry_delay_ms(), "DeploymentConfig::activation_retry_delay_ms");
+        if (!activation_retry_delay_ms.has_value())
+        {
+            return score::cpp::make_unexpected(activation_retry_delay_ms.error());
+        }
         result.ready_timeout_ms = *ready_timeout;
         result.shutdown_timeout_ms = *shutdown_timeout;
         result.environmental_variables = convertEnvironmentalVariables(fb_dc->environmental_variables());
         result.executable_path = fb_dc->bin_dir()->str() + "/" + std::string{binary_name};
         result.working_dir = fb_dc->working_dir()->str();
-        auto ready_recovery = convertRestartAction(fb_dc->ready_recovery_action());
-        if (!ready_recovery.has_value())
-        {
-            return score::cpp::make_unexpected(ready_recovery.error());
-        }
-        result.ready_recovery_action = std::move(*ready_recovery);
+        result.activation_retry_attempts = *activation_retry_attempts;
+        result.activation_retry_delay_ms = *activation_retry_delay_ms;
         result.recovery_action = convertSwitchRunTargetAction(fb_dc->recovery_action());
         auto sandbox = convertSandbox(fb_dc->sandbox());
         if (!sandbox.has_value())
