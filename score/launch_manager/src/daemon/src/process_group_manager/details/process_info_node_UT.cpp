@@ -356,6 +356,29 @@ TEST_F(ProcessInfoNodeStartupTest, TerminatedReadyCondition_NoTerminationInTime_
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kTerminated));
 }
 
+TEST_F(
+    ProcessInfoNodeStartupTest,
+    ExpectSupervisionSetupFails_WhenCreateProcessInfoNodeIsCalled_ThenConstructionDoesNotCrash)
+{
+    RecordProperty(
+        "Description",
+        "Expect constructSupervision() to fail. "
+        "When createProcessInfoNode() is called. "
+        "Then ProcessInfoNode is still constructed safely.");
+
+    // Expect
+    EXPECT_CALL(mock_factory_, constructSupervision).WillOnce(InvokeWithoutArgs([]() {
+        return std::unique_ptr<IAliveSupervisionHandle>{};
+    }));
+
+    // When
+    auto node = createProcessInfoNode(configuration::ApplicationType::ReportingAndSupervised);
+
+    // Then
+    ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kIdle));
+    ASSERT_THAT(node->active(), IsFalse());
+}
+
 struct YieldTestCasesData
 {
     configuration::ApplicationType app_type_;
