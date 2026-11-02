@@ -53,7 +53,7 @@ class MpscBoundedQueue
 
     ~MpscBoundedQueue()
     {
-        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
             is_stopped(),
             "Call stop() and join/shut down all threads"
             "that might still call wait()/tryPop()/push() only then let the queue be destroyed.");
@@ -85,7 +85,7 @@ class MpscBoundedQueue
     [[nodiscard]] score::Result<void> wait(std::chrono::milliseconds timeout)
     {
         std::unique_lock lock(mutex_);
-        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(ensure_single_consumer(), "Only a single consumer thread is allowed.");
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(ensure_single_consumer(), "Only a single consumer thread is allowed.");
 
         const bool has_item = not_empty_cv_.wait_for(lock, timeout, [this] {
             return queue_.size() > 0U || stopped_;
@@ -108,7 +108,7 @@ class MpscBoundedQueue
     std::optional<T> tryPop()
     {
         std::unique_lock lock(mutex_);
-        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(ensure_single_consumer(), "Only a single consumer thread is allowed.");
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(ensure_single_consumer(), "Only a single consumer thread is allowed.");
 
         return queue_.tryPop();
     }

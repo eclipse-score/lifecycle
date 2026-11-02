@@ -88,7 +88,7 @@ IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
 {
     std::unique_lock<std::mutex> lock{state_mutex_};
 
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
         std::holds_alternative<TerminatedState>(state_), "Cannot activate component in a running state");
 
     if (isSupervised(config_.component_properties.application_profile.application_type) && !supervision_handle_)
@@ -154,7 +154,7 @@ IComponent::RequestResult Component::deactivate(cpp::stop_token stop_token)
 
     StartingState* const starting = std::get_if<StartingState>(&state_);
     const ReadyState* const ready = std::get_if<ReadyState>(&state_);
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
         (starting != nullptr) || (ready != nullptr), "Cannot deactivate component in a non-running state");
     const Handle& handle = (starting != nullptr) ? starting->handle_ : ready->handle_;
 
@@ -196,7 +196,7 @@ IComponent::TerminationResult Component::tryHandleTermination(int32_t status)
 
     StartingState* const starting = std::get_if<StartingState>(&state_);
     ReadyState* const ready = std::get_if<ReadyState>(&state_);
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
         (starting != nullptr) || (ready != nullptr), "Cannot handle termination in a non-running state");
     Handle& handle = (starting != nullptr) ? starting->handle_ : ready->handle_;
 

@@ -325,8 +325,8 @@ bool Graph::startTransitionToOffState()
     if (setState(GraphState::kInTransition))
     {
         // The Off state always has a RunTarget node, so this cannot fail.
-        const bool started = startTransition(off_state_);
-        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(started, "Off Run Target missing");
+        [[maybe_unused]] const bool started = startTransition(off_state_);
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(started, "Off Run Target missing");
         return true;
     }
     return false;

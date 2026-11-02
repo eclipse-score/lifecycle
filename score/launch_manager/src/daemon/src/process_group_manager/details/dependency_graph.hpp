@@ -152,7 +152,7 @@ class DependencyGraph
         while (!traversal_queue.empty())
         {
             const auto pop_res = traversal_queue.tryPop();
-            SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(pop_res.has_value(), "Pop failed even though queue was not empty");
+            SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(pop_res.has_value(), "Pop failed even though queue was not empty");
             const auto current = pop_res.value();
 
             const auto& neighbors = per_node(current);

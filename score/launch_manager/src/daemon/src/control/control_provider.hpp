@@ -182,7 +182,7 @@ class BasicControlProvider
         const score::Result<IdentifierHash> result = graph_->getActiveRunTarget();
         if (!result.has_value())
         {
-            SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
+            SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
                 static_cast<ExecErrc>(*result.error()) == ExecErrc::kActivationInProgress,
                 "Impossible to communicate errors other than ExecErrc::kActivationInProgress to the client");
 
