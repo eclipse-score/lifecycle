@@ -56,10 +56,10 @@ ProcessInfoNode::ProcessInfoNode(configuration::ComponentConfig&& config, Proces
         else
         {
             LM_LOG_DEBUG() << "Successfully set up alive supervision for" << identifier_;
-        }
 
-        config_.deployment_config.environmental_variables.add(
-            "LCM_ALIVE_INTERFACE_PATH", supervision_handle_->getConnectionId());
+            config_.deployment_config.environmental_variables.add(
+                "LCM_ALIVE_INTERFACE_PATH", supervision_handle_->getConnectionId());
+        }
     }
 }
 
