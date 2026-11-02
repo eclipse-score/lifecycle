@@ -72,7 +72,7 @@
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Architecture Inspection Checklist" href="chklst_arc_inspection.html" />
+    <link rel="next" title="Health Monitor Architecture Inspection" href="chklst_arc_inspection.html" />
     <link rel="prev" title="Component Architecture" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
@@ -182,7 +182,7 @@
 
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="../../index.html">
-    Component documentation
+    Components
   </a>
 </li>
 
@@ -331,7 +331,7 @@
 
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="../../index.html">
-    Component documentation
+    Components
   </a>
 </li>
 
@@ -425,7 +425,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../requirements/index.html">Requirements</a></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Component Architecture</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3 current active"><a aria-current="page" class="current reference internal" href="#">Component Architecture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="chklst_arc_inspection.html">Architecture Inspection Checklist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chklst_arc_inspection.html">Health Monitor Architecture Inspection</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2"><a class="reference internal" href="../detailed_design/index.html">Detailed Design</a></li>
@@ -434,6 +434,7 @@
 
 <li class="toctree-l2"><a class="reference internal" href="../safety_analysis/dfa.html">DFA (Dependent Failure Analysis)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../safety_analysis/aou_requirements.html">AoU Component Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../security_analysis/aou_requirements.html">Health Monitor Security Assumptions of Use</a></li>
 </ul>
 </details></li>
 </ul>
@@ -477,7 +478,7 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Component documentation</a></li>
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Components</a></li>
     
     
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">HealthMonitor</a></li>
@@ -504,7 +505,7 @@
                   
   <section id="component-architecture">
 <span id="component-architecture-hm"></span><h1>Component Architecture<a class="headerlink" href="#component-architecture" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-173e380e">
+<div class="need_container docutils container" id="SNCB-031a8720">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__health_monitor_architecture">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -560,7 +561,7 @@
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
 <p>Document describes HealthMonitor component architecture.</p>
-<div class="need_container docutils container" id="SNCB-2e962c40">
+<div class="need_container docutils container" id="SNCB-09c1456b">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp table" id="comp__health_monitor">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -626,7 +627,7 @@
 </section>
 <section id="static-architecture">
 <h2>Static Architecture<a class="headerlink" href="#static-architecture" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-b0017a34">
+<div class="need_container docutils container" id="SNCB-dcffefcc">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_sta table" id="comp_arc_sta__health_mon__hm">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -656,7 +657,7 @@
 <td class="meta" colspan="3"></td>
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><p class="plantuml" id="needarch-components/health_monitor/architecture/component_architecture-0">
-<object data="../../../_images/plantuml-5cc3c88613baf759f7315d20e1fa38661e9b71d9.svg" type="image/svg+xml" style="width:474px;height:323px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-5cc3c88613baf759f7315d20e1fa38661e9b71d9.svg" type="image/svg+xml" style="width:474px;height:322px;background:#FFFFFF;"></object></p>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
@@ -673,7 +674,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-b9857a07">
+<div class="need_container docutils container" id="SNCB-6894d1a0">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_sta table" id="comp_arc_sta__deadline_monitor__static_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -719,7 +720,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-ed224d91">
+<div class="need_container docutils container" id="SNCB-52677fe2">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_sta table" id="comp_arc_sta__logic_monitor__static_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -765,7 +766,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-9b1cd6b9">
+<div class="need_container docutils container" id="SNCB-37aa2e63">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_sta table" id="comp_arc_sta__health_monitor__static_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -794,7 +795,7 @@
 <td class="meta" colspan="3"></td>
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><p class="plantuml">
-<object data="../../../_images/plantuml-690b640362b676ae991f38e260797f152ea129af.svg" type="image/svg+xml" style="width:561px;height:305px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-690b640362b676ae991f38e260797f152ea129af.svg" type="image/svg+xml" style="width:560px;height:305px;background:#FFFFFF;"></object></p>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
@@ -814,7 +815,7 @@
 </section>
 <section id="dynamic-architecture">
 <h2>Dynamic Architecture<a class="headerlink" href="#dynamic-architecture" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-58aedda8">
+<div class="need_container docutils container" id="SNCB-c1b402a1">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__health_monitor__dynamic_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -860,7 +861,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-c41ad845">
+<div class="need_container docutils container" id="SNCB-27e6f97a">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__health_lib_thread__dynamic_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -906,7 +907,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-fd88f8ac">
+<div class="need_container docutils container" id="SNCB-b6d85399">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__deadline_monitor__dynamic_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -952,7 +953,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-20fdfe48">
+<div class="need_container docutils container" id="SNCB-11fe846b">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__logic_monitor__dynamic_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -998,7 +999,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-d5ae9972">
+<div class="need_container docutils container" id="SNCB-d7bd200c">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__heartbeat_monitor__dynamic_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1044,7 +1045,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-1f2d3d16">
+<div class="need_container docutils container" id="SNCB-39a75b7e">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__health_monitor__startup_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1090,7 +1091,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-b580321e">
+<div class="need_container docutils container" id="SNCB-c210572c">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__health_monitor__shutdown_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1139,7 +1140,7 @@
 </section>
 <section id="interfaces">
 <h2>Interfaces<a class="headerlink" href="#interfaces" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-9acf410a">
+<div class="need_container docutils container" id="SNCB-60cbaf07">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_real_arc_int table" id="real_arc_int__deadline_monitor__interface">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1185,7 +1186,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-b38dafb0">
+<div class="need_container docutils container" id="SNCB-e5116b75">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_real_arc_int table" id="real_arc_int__logic_monitor__interface">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1231,7 +1232,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-a8c9dd98">
+<div class="need_container docutils container" id="SNCB-b8a6cca8">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_real_arc_int table" id="real_arc_int__heartbeat_monitor__interface">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1260,7 +1261,7 @@
 <td class="meta" colspan="3"></td>
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><p class="plantuml">
-<object data="../../../_images/plantuml-d5b4531fb1f3fde89f5bd0b1e54c4c1c9147f65c.svg" type="image/svg+xml" style="width:411px;height:333px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-d5b4531fb1f3fde89f5bd0b1e54c4c1c9147f65c.svg" type="image/svg+xml" style="width:410px;height:333px;background:#FFFFFF;"></object></p>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
@@ -1277,7 +1278,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-1f7b54fd">
+<div class="need_container docutils container" id="SNCB-937c7426">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_real_arc_int table" id="real_arc_int__health_monitor__interface">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1306,7 +1307,7 @@
 <td class="meta" colspan="3"></td>
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><p class="plantuml">
-<object data="../../../_images/plantuml-a40346413ca7f02f9ac2421f53767ac6a724ec33.svg" type="image/svg+xml" style="width:2693px;height:447px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-a40346413ca7f02f9ac2421f53767ac6a724ec33.svg" type="image/svg+xml" style="width:2692px;height:447px;background:#FFFFFF;"></object></p>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
@@ -1350,7 +1351,7 @@
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Architecture Inspection Checklist</p>
+        <p class="prev-next-title">Health Monitor Architecture Inspection</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
