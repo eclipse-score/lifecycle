@@ -13,12 +13,19 @@
 from os import environ
 from typing import Optional
 
+# File touched if a test has failed.
+TEST_FAILED_FILE = "test_failed"
+
 
 def run_test(
     *, target, binary_path, args: Optional[list[str]] = None, cwd="/", timeout=15
 ):
-    """Run an integration test to completion."""
+    """Run an integration test to completion.
 
+    @details Fails if the process does not exit successfully, or if a component
+             created the `test_failed` file in `cwd` (see the fail_test helper
+             process).
+    """
     local_args = []
     if args:
         local_args = args
@@ -29,4 +36,10 @@ def run_test(
         binary_path = test_runner
 
     process = target.execute_async(binary_path, args=local_args, cwd=cwd)
-    assert process.wait(timeout) == 0
+    exit_code = process.wait(timeout)
+
+    # check fail_test 
+    res, _ = target.execute(f"test -e {cwd}/{TEST_FAILED_FILE}")
+    assert res != 0, f"A component failed the test explicitly (fail_test created '{TEST_FAILED_FILE}')"
+
+    assert exit_code == 0
