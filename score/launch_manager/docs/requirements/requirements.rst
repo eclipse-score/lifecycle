@@ -254,7 +254,8 @@ Ready Conditions
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__conditional_startup[version==1]
-    :status: valid
+    :status: invalid
+    :tags: unclear
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -266,7 +267,8 @@ Ready Conditions
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__conditional_startup[version==1]
-    :status: valid
+    :status: invalid
+    :tags: unclear
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -372,7 +374,8 @@ Process Configuration
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__sandbox_options[version==1]
-    :status: valid
+    :status: invalid
+    :tags: not_planned
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -385,7 +388,8 @@ Process Configuration
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__sandbox_options[version==1]
-    :status: valid
+    :status: invalid
+    :tags: not_planned
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -434,6 +438,9 @@ Process Configuration
     The :term:`Launch Manager` shall provide support for launching :term:`Processes <Process>`
     with configured OS-specific capabilities and privileges.
 
+    .. note::
+       This is security policies on QNX, and capabilities on Linux
+
 .. comp_req:: File descriptor inheritance support
     :id: comp_req__launch_man__fd_inheritance
     :reqtype: Functional
@@ -454,12 +461,18 @@ Process Configuration
     :security: YES
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__sandbox_options[version==1]
-    :status: valid
+    :status: invalid
+    :tags: remove
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support for launching a process with a
     given security policy.
+
+
+    .. note::
+       Propose to remove as :need:`comp_req__launch_man__capability_support`
+       shall be used as a platform agnostic requirement.
 
 .. comp_req:: Supplementary group support
     :id: comp_req__launch_man__supplementary_groups
@@ -506,7 +519,8 @@ Process Configuration
     :security: YES
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__sandbox_options[version==1]
-    :status: valid
+    :status: invalid
+    :tags: not_planned
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
