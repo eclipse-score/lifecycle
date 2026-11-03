@@ -40,7 +40,7 @@ to `asan_ubsan_lsan`.
 
 ## Notes
 
-- Tests can opt out of a sanitizer with the tags `no-asan`, `no-ubsan`,
-  `no-lsan` (ASan/UBSan/LSan run) or `no-tsan` (TSan run).
+- Tests can opt out of a sanitizer with the `target_compatible_with` property: `no_asan`, `no_ubsan`,
+  `no_lsan` (ASan/UBSan/LSan run) or `no_tsan` (TSan run).
 - Sanitizer builds enable minimal debug info (`-g1`) and disable stripping so
   that stack traces resolve to source locations.
