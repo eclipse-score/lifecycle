@@ -232,7 +232,7 @@ llvm.toolchain(
 use_repo(llvm, "llvm_toolchain", "llvm_toolchain_llvm")
 
 # UTs on QNX
-bazel_dep(name = "score_qnx_unit_tests", version = "0.2.0", dev_dependency = True)
+bazel_dep(name = "score_qnx_unit_tests", version = "0.2.0")
 
 # TODO: drop this override once a version > 0.2.0 is published.
 # Latest release (0.2.0) does not support CLI args when running tests on QNX
