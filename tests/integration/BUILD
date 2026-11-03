@@ -38,6 +38,7 @@ test_suite(
         "//tests/integration/run_target_requests/same_run_target_in_transition",
         "//tests/integration/run_target_requests/unknown_run_target",
         "//tests/integration/sandbox_options",
+        "//tests/integration/sandbox_options_non_root",
         "//tests/integration/shutdown_signal",
         "//tests/integration/smoke",
         "//tests/integration/switch_run_target",

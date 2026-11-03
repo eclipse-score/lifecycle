@@ -14,6 +14,11 @@ load("@bazel_skylib//rules:expand_template.bzl", "expand_template")
 load("@rules_cc//cc:defs.bzl", "cc_binary")
 load("//tests/utils/bazel:integration.bzl", "integration_test")
 
+exports_files(
+    ["sandbox_options.in.json"],
+    visibility = ["//tests/integration/sandbox_options_non_root:__pkg__"],
+)
+
 # RLIMIT_FSIZE is not supported on QNX 8, so it is removed from the config.
 # See https://www.qnx.com/developers/docs/8.0/com.qnx.doc.neutrino.utilities/topic/k/ksh.html#ksh__ulimit
 # ulimit -f: "QNX OS currently doesn't support this limit."
@@ -51,6 +56,7 @@ expand_template(
             "//tests/utils/test_helper",
             "@googletest//:gtest_main",
         ],
+        visibility = ["//tests/integration/sandbox_options_non_root:__pkg__"],
     )
     for suffix in ("a", "b", "c")
 ]
