@@ -516,18 +516,18 @@
 <p>The following participants are related to the concept.</p>
 <section id="launch-manager">
 <h2>Launch Manager<a class="headerlink" href="#launch-manager" title="Link to this heading">#</a></h2>
-<p>As the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> is critical component for the system, it shall
+<p>As the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> is a critical component for the system, it shall
 support alive monitoring of itself.
 This means it must implement internal health management, such as a worker
 thread, that wakes up every N milliseconds, checks if the component is in a
-consistent state, and send a notification to the external monitor.</p>
+consistent state, and sends a notification to the external monitor.</p>
 </section>
 <section id="id1">
 <h2>External monitor<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
 <p>The aliveness of the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> shall be monitored by an <a class="reference external" href="https://en.wikipedia.org/wiki/Watchdog_timer">external
 monitor, or a watchdog</a>, to be
 able to detect “hanging” of the <cite>Launch Manager</cite>.
-The implementation of the external watchdog is out of scope in S-SCORE, as it
+The implementation of the external watchdog is out of scope in S-CORE, as it
 is ECU and/or project specific.</p>
 </section>
 <section id="watchdog-proxy">
@@ -538,20 +538,20 @@ events from the <a class="reference internal" href="../glossary.html#term-Launch
 <cite>External monitor</cite>.
 The channel for sending these notifications is project specific, and can be for
 example <cite>GPIO</cite>, <cite>UART</cite> or <cite>SPI</cite>.
-In a hypervisor based environment, the <cite>external monitor</cite> could also run with
-the same SoC as software only solution.</p>
+In a hypervisor based environment, the <cite>external monitor</cite> could also run on
+the same SoC as a software-only solution.</p>
 <p>The <cite>Watchdog Proxy</cite> implementation is not specified in the S-CORE with high
 details, as the realization depends heavily on OS, <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> or
 even project specific needs.
 For example, in Linux and <cite>systemd</cite> as the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a>, the
 interface can be <cite>/dev/watchdog</cite>, and <cite>systemd</cite> can use the interface directly.</p>
-<p>In QNX, one could implement a component listening to the events (or even poll)
+<p>In QNX, one could implement a component listening to the events (or even polling)
 from the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> and translate these events as hardware specific
 notifications.</p>
 </section>
 <section id="dynamic-architecture">
 <h2>Dynamic Architecture<a class="headerlink" href="#dynamic-architecture" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-6c6cd379">
+<div class="need_container docutils container" id="SNCB-2b08d867">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__watch">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -593,7 +593,7 @@ notifications.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>001</p></td>
-<td><p>The configuration. (notification interval, startup grace period, etc.) Additionally, if a watchdog interface is used, the used interface name (eg. /dev/watchdog) must be configurable.</p></td>
+<td><p>The configuration. (notification interval, startup grace period, etc.) Additionally, if a watchdog interface is used, the used interface name (e.g. /dev/watchdog) must be configurable.</p></td>
 </tr>
 <tr class="row-odd"><td><p>002</p></td>
 <td><p>If the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> provides a client library implementation, the library must connect and attach to the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a></p></td>
