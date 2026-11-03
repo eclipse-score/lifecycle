@@ -506,6 +506,8 @@ lm_cc_test(
         "-Wl,--wrap=msync",
         "-Wl,--wrap=close",
         "-Wl,--wrap=fstat",
+        "-Wl,--wrap=clock_gettime",
+        "-Wl,--wrap=clock_getres",
     ],
     linkstatic = True,
     deps = [

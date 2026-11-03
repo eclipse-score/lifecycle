@@ -22,6 +22,8 @@ from attribute_plugin import add_test_properties
         "comp_req__launch_man__rt_comp_dep",
     ],
     partially_verifies=[
+        "feat_req__lifecycle__launch_support",
+        "feat_req__lifecycle__conditional_startup",
         "comp_req__launch_man__process_launch_args",
     ],
     test_type="interface-test",
