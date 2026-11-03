@@ -400,9 +400,10 @@ int shm_open_anon(const char* name)
     return g_syscall_mock->shm_open_anon(name);
 }
 
-void sysexit(int status)
+[[noreturn]] void sysexit(int status)
 {
     g_syscall_mock->sysexit(status);
+    std::abort();
 }
 
 int setSecurityPolicy(const char* policy)

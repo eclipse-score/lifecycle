@@ -395,12 +395,11 @@ void ProcessLauncher::handleChildProcess(ChildProcessConfig& param)
     char* const* envp = param.config.deployment_config.environmental_variables.envp();
 
     // Finally, execute the process, passing all the arguments and environment variables
-    if (-1 == execve(argv[0], const_cast<char* const*>(argv.data()), envp))
-    {
-        static_cast<void>(signal_safe_log_errno(
-            errno, "execve failed: Unable to execute the ", param.config.deployment_config.executable_path, " app."));
-        sysexit(EXIT_FAILURE);
-    }
+    static_cast<void>(execve(argv[0], const_cast<char* const*>(argv.data()), envp));
+    // A successful execve replaces the process image; returning here always means failure.
+    static_cast<void>(signal_safe_log_errno(
+        errno, "execve failed: Unable to execute the ", param.config.deployment_config.executable_path, " app."));
+    sysexit(EXIT_FAILURE);
 }
 
 OsalReturnType ProcessLauncher::requestTermination(ProcessID pid)

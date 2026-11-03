@@ -176,3 +176,70 @@ Consequences
 
 The Launch Manager configuration must first be compiled into a binary format for the target.
 Compared with a textual format such as JSON, the FlatBuffers binary configuration can be loaded faster, particularly for larger configuration files.
+
+
+Kill process after supervision failure
+======================================
+
+.. dec_rec:: Kill process after supervision failure
+   :id: dec_rec__lifecycle__kill_supervision_fail
+   :status: accepted
+   :version: 1
+   :context: Architecture
+   :decision: The Launch Manager terminates a process with SIGKILL when its alive supervision fails
+   :consequences: A process that failed supervision stops immediately, without a chance to clean up
+   :affects: comp__lifecycle_launch_manager
+
+Context
+-------
+
+The Launch Manager can start processes with alive supervision.
+A supervised process must send alive notifications at the configured frequency.
+If it does not, its alive supervision fails and the Launch Manager initiates a recovery action.
+
+Unlike a crashed process, a process that fails alive supervision is still running.
+Its state is unknown: it may be hanging, stuck in a loop, or otherwise malfunctioning.
+It keeps running until the Launch Manager terminates it.
+
+Options Considered
+------------------
+
+Option A: Send SIGTERM, then SIGKILL after the shutdown timeout
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Pros:
+
+* Consistent with the regular shutdown of a process.
+* The process can clean up before it exits.
+
+Cons:
+
+* In the worst case, the process keeps running in an unknown and possibly unsafe state for the full shutdown timeout before it is killed.
+* A process that failed supervision may not be able to handle SIGTERM correctly, so the timeout is likely to expire anyway.
+
+Option B: Send SIGKILL immediately
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Pros:
+
+* The process stops as soon as the supervision failure is detected and cannot continue running in an unsafe state.
+* Recovery can start without waiting for the shutdown timeout.
+
+Cons:
+
+* The process cannot clean up, for example by persisting data or closing communication channels.
+
+Decision
+--------
+
+Option B: Send SIGKILL immediately.
+
+A process that failed supervision cannot be trusted to shut down correctly.
+Stopping it immediately is safer than letting it run for the duration of the shutdown timeout.
+
+Consequences
+------------
+
+The Launch Manager kills a process as soon as it detects a supervision failure.
+Applications must not rely on a graceful shutdown after a supervision failure.
+Data that has to survive such a failure must be persisted during normal operation.

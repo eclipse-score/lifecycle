@@ -84,7 +84,7 @@ class WatchdogImpl : public IWatchdogIf
     /// @brief Waits forever
     /// This is the intended behavior after firing the watchdog.
     /// @note This function is intentionally virtual so we can overwrite it in tests
-    virtual void waitForever() const noexcept;
+    [[noreturn]] virtual void waitForever() const noexcept;
 
   private:
     /// @brief The watchdog device configuration.
