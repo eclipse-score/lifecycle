@@ -40,11 +40,6 @@ plus the OS module and platform AoUs. AoU IDs are given as plain text, because t
 external needs source of this documentation. mw::com AoUs were checked against ``score_communication`` 0.6.0; those
 added in 0.6.0 have no ``aou_req__communication`` ID yet and are listed by their TRLC name.
 
-.. note::
-
-   This is a draft. Verdicts were derived from the Lifecycle sources at the commit this page was added with and still
-   need review by the Lifecycle maintainers.
-
 Summary
 =======
 
