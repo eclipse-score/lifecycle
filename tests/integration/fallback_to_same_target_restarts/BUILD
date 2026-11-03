@@ -41,6 +41,7 @@ integration_test(
         ":control_client_test_driver",
         ":process_crashing_once",
         "//score/launch_manager",
+        "//tests/utils/test_helper:simple_supervised_app",
     ],
     config = ":fallback_to_same_target_restarts.json",
 )

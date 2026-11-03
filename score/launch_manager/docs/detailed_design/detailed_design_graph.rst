@@ -96,8 +96,10 @@ Supervision Failure
 
 A component activates the alive supervision once the Running state is reached.
 The supervision failure may be detected at any time and is reported to the component event queue.
-The current failure reaction is to always requesting the fallback Run Target and cancels a running 
-transition if there is one.
+The graph forwards the failure to the affected component, which kills its process unless the failure
+is outdated (the component is no longer ready, component was restarted since, or the process has
+already terminated). The resulting unexpected termination then triggers the fallback Run Target as
+described in Process Termination.
 
 .. uml:: _assets/supervision_failure.puml
    :align: center
