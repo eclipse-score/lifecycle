@@ -4214,9 +4214,23 @@
     "FullyVerifies": null
   },
   {
+    "name": "GraphSupervisionFailureTest__supervisionFailureKillsActiveComponent",
+    "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
+    "line": "692",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "equivalence-classes",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
     "name": "GraphTransitionFailuresTest__UnusualOrderOfFailures",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "661",
+    "line": "714",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4230,7 +4244,7 @@
   {
     "name": "GraphCancelTest__notInTransition",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "687",
+    "line": "740",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4244,7 +4258,7 @@
   {
     "name": "GraphCancelTest__cancelsOngoingTransition",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "697",
+    "line": "750",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4258,7 +4272,7 @@
   {
     "name": "GraphUtilitiesTest__getProcessInfoNode",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "720",
+    "line": "773",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4272,7 +4286,7 @@
   {
     "name": "GraphUtilitiesTest__isValidRunTarget",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "736",
+    "line": "789",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4286,7 +4300,7 @@
   {
     "name": "GraphUtilitiesTest__startTransitionWithUnrecognizedTargetDoesNotCrashOrTransition",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "749",
+    "line": "802",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4300,7 +4314,7 @@
   {
     "name": "GraphUtilitiesTest__forceKillProcesses",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "767",
+    "line": "820",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4314,7 +4328,7 @@
   {
     "name": "GraphUtilitiesTest__toString",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "781",
+    "line": "834",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4328,7 +4342,7 @@
   {
     "name": "GraphUtilitiesTest__gettersSetters",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/graph_UT.cpp",
-    "line": "795",
+    "line": "848",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4412,7 +4426,7 @@
   {
     "name": "ComponentEventQueueTest__GetNextEventReturnsGetActiveRunTargetWithCompletionSlot",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_event_queue_UT.cpp",
-    "line": "83",
+    "line": "85",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4426,7 +4440,7 @@
   {
     "name": "ComponentEventQueueTest__GetNextEventReturnsSetRequestedRunTargetWithPayloadAndCompletionSlot",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_event_queue_UT.cpp",
-    "line": "97",
+    "line": "99",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4440,7 +4454,7 @@
   {
     "name": "ComponentEventQueueTest__GetOverflowStaysFalseUnderNormalUsage",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_event_queue_UT.cpp",
-    "line": "115",
+    "line": "117",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4454,7 +4468,7 @@
   {
     "name": "ComponentEventQueueTest__GetOverflowBecomesTrueOnceQueueIsFull",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_event_queue_UT.cpp",
-    "line": "123",
+    "line": "125",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4468,7 +4482,7 @@
   {
     "name": "ComponentEventQueueTest__StopFailsWaitForEventsOnEmptyQueue",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_event_queue_UT.cpp",
-    "line": "141",
+    "line": "143",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4482,7 +4496,7 @@
   {
     "name": "ComponentEventQueueTest__GetNextEventStillDrainsQueuedEventsAfterStop",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_event_queue_UT.cpp",
-    "line": "152",
+    "line": "154",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4496,7 +4510,7 @@
   {
     "name": "ComponentEventQueueTest__PushReturnsFalseAfterStop",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_event_queue_UT.cpp",
-    "line": "167",
+    "line": "169",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -4559,6 +4573,34 @@
     "url": "",
     "TestType": "interface-test",
     "DerivationTechnique": "explorative-testing",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "IComponentTest__DefaultHandleSupervisionFailureDoesNothing",
+    "file": "score/launch_manager/src/daemon/src/process_group_manager/details/icomponent_UT.cpp",
+    "line": "28",
+    "result": "passed",
+    "repo_name": null,
+    "hash": null,
+    "url": null,
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "IComponentTest__HandleSupervisionFailureIsForwardedToSubclass",
+    "file": "score/launch_manager/src/daemon/src/process_group_manager/details/icomponent_UT.cpp",
+    "line": "38",
+    "result": "passed",
+    "repo_name": null,
+    "hash": null,
+    "url": null,
+    "TestType": null,
+    "DerivationTechnique": null,
     "result_text": "",
     "PartiallyVerifies": null,
     "FullyVerifies": null
@@ -5980,7 +6022,63 @@
   {
     "name": "ProcessInfoNodeDeactivationTest__ProcessIgnoresSigterm_ForcedWithSigkill",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "848",
+    "line": "922",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "equivalence-classes",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "ProcessInfoNodeSupervisionFailureTest__FailureAfterSupervisionStart_KillsProcess",
+    "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
+    "line": "831",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "equivalence-classes",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "ProcessInfoNodeSupervisionFailureTest__FailureBeforeSupervisionStart_DoesNotKillProcess",
+    "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
+    "line": "844",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "equivalence-classes",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "ProcessInfoNodeSupervisionFailureTest__ProcessNotReady_DoesNotKillProcess",
+    "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
+    "line": "857",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "equivalence-classes",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "ProcessInfoNodeSupervisionFailureTest__ProcessAlreadyTerminated_DoesNotKillProcess",
+    "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
+    "line": "867",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5994,7 +6092,7 @@
   {
     "name": "ProcessInfoNodeMoveTest__MoveConstruct_IdleNode_PreservesObservableState",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "813",
+    "line": "887",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6008,7 +6106,7 @@
   {
     "name": "ProcessInfoNodeMoveTest__MoveConstruct_RunningNode_PreservesAtomicState",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "830",
+    "line": "904",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6022,7 +6120,7 @@
   {
     "name": "ProcessInfoNodeFileStateTest__ConditionAlreadyMet_ReturnsSuccess",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "878",
+    "line": "952",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6036,7 +6134,7 @@
   {
     "name": "ProcessInfoNodeFileStateTest__NotExistingCondition_ReturnsSuccess",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "909",
+    "line": "983",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6050,7 +6148,7 @@
   {
     "name": "ProcessInfoNodeFileStateTest__NativeApplication_DoesNotIgnoreRunning_ReturnsSuccess",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "928",
+    "line": "1002",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6064,7 +6162,7 @@
   {
     "name": "ProcessInfoNodeFileStateTest__WaitForFileTimesOut_ReturnsTimeout",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
-    "line": "943",
+    "line": "1017",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -13380,7 +13478,7 @@
     "TestType": "interface-test",
     "DerivationTechnique": "error-guessing",
     "result_text": "",
-    "PartiallyVerifies": "feat_req__lifecycle__launch_support, feat_req__lifecycle__conditional_startup, comp_req__launch_man__process_launch_args",
+    "PartiallyVerifies": "feat_req__lifecycle__launch_support, feat_req__lifecycle__conditional_startup, comp_req__launch_man__process_launch_args, comp_req__launch_man__alive_failure",
     "FullyVerifies": "comp_req__launch_man__rc_lifecycle, comp_req__launch_man__rt_comp_dep"
   },
   {
