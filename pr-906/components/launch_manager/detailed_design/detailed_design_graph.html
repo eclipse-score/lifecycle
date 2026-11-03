@@ -574,11 +574,13 @@ The latter is the focus of the diagram below.</p>
 <h3>Supervision Failure<a class="headerlink" href="#supervision-failure" title="Link to this heading">#</a></h3>
 <p>A component activates the alive supervision once the Running state is reached.
 The supervision failure may be detected at any time and is reported to the component event queue.
-The current failure reaction is to always request the fallback Run Target and cancel a running
-transition if there is one.</p>
+The graph forwards the failure to the affected component, which kills its process unless the failure
+is outdated (the component is no longer ready, component was restarted since, or the process has
+already terminated). The resulting unexpected termination then triggers the fallback Run Target as
+described in Process Termination.</p>
 <figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-b0b432a7f8f2e4853b5cec8b3b110853ca97862f.svg" type="image/svg+xml" style="width:1637px;height:1327px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-1b4b217b523dfa510bf0526339a05f65d9c45332.svg" type="image/svg+xml" style="width:1694px;height:1023px;background:#FFFFFF;"></object></p>
 </figure>
 </section>
 <section id="run-target-transition">

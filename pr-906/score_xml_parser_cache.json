@@ -963,6 +963,18 @@
     "name": "test_fallback_to_same_target_restarts",
     "file": "tests/integration/fallback_to_same_target_restarts/fallback_to_same_target_restarts.py",
     "line": 19,
+    "need": "comp_req__launch_man__alive_failure",
+    "verify_type": "partially",
+    "result": "passed",
+    "result_text": "",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": ""
+  },
+  {
+    "name": "test_fallback_to_same_target_restarts",
+    "file": "tests/integration/fallback_to_same_target_restarts/fallback_to_same_target_restarts.py",
+    "line": 19,
     "need": "comp_req__launch_man__rc_lifecycle",
     "verify_type": "fully",
     "result": "passed",
