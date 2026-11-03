@@ -535,7 +535,7 @@ is only scheduled on a thread pool.</p>
 <li><p>starting the process (possibly multiple times)</p></li>
 <li><p>registering the pid in the SafeProcessMap</p></li>
 <li><p>waiting for the ready condition to be fulfilled or ready timeout</p></li>
-<li><p>posing the activation result to the event queue</p></li>
+<li><p>posting the activation result to the event queue</p></li>
 </ul>
 <p>The component activation sequence is executed synchronously on a worker thread.</p>
 <figure class="align-center">
@@ -552,7 +552,7 @@ is only scheduled on a thread pool.</p>
 <li><p>stopping the process (if running)</p></li>
 <li><p>waiting for the process to terminate or until shutdown timeout</p></li>
 <li><p>escalating to SIGKILL in case the process did not terminate within the shutdown timeout</p></li>
-<li><p>posing the deactivation result to the event queue. Process crashes during deactivation are ignored.</p></li>
+<li><p>posting the deactivation result to the event queue. Process crashes during deactivation are ignored.</p></li>
 </ul>
 <p>The component deactivation sequence is executed synchronously on a worker thread.</p>
 <figure class="align-center">
@@ -601,7 +601,7 @@ transition and moves the graph to kAborting.</p>
 <h3>Transition cancellation / preemption<a class="headerlink" href="#transition-cancellation-preemption" title="Link to this heading">#</a></h3>
 <p>When cancelling an ongoing transition it is crucial to leave every component
 in a well-defined state.</p>
-<p>The diagram below defines the point of time a component activation / deactivation
+<p>The diagram below defines the point in time a component activation / deactivation
 may be safely cancelled.</p>
 <figure class="align-center">
 <p class="plantuml">
