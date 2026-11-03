@@ -123,17 +123,17 @@ baselibs (concurrency, containers, filesystem, flatbuffers, mw::log)
      - Forwarded
      - Launch Manager
      - Config path comes from the command line (-c) or default 'etc/launch_manager_config.bin' (run.cpp:111-118) and is passed unvalidated to LoadBuffer. Only the integrator controls the start command and filesystem.
-     - The system integrator shall ensure that the configuration path passed to the Launch Manager (-c option or default etc/launch_manager_config.bin) is valid and refers to a trusted location. (Could be merged into aou_req__launch_manager__config_integrity.)
+     - The system integrator shall ensure that the configuration path passed to the Launch Manager (-c option or default etc/launch_manager_config.bin) is valid and refers to a trusted location. Covered by aou_req__launch_manager__config_protection.
    * - ``aou_req__flatbuffers__access_control`` FlatBuffers access control
      - Forwarded
      - Launch Manager
      - LM reads its config binary via score::flatbuffers::LoadBuffer (flatbuffer_config_loader.hpp:45); file protection (permissions, dm-verity) is a system configuration matter LM cannot enforce.
-     - The system integrator shall ensure access control and manipulation prevention for the Launch Manager FlatBuffers configuration file (e.g. read-only/dm-verity protected filesystem). Partially covered by aou_req__launch_manager__config_integrity; consider adding a security AoU. Note: HM (Rust) does not use flatbuffers; alive_impl lists flatbufferscpp in BUILD (alive/src/details/BUILD:37) but has no call sites.
+     - The system integrator shall ensure access control and manipulation prevention for the Launch Manager FlatBuffers configuration file (e.g. read-only/dm-verity protected filesystem). Covered by aou_req__launch_manager__config_protection. Note: HM (Rust) does not use flatbuffers; alive_impl lists flatbufferscpp in BUILD (alive/src/details/BUILD:37) but has no call sites.
    * - ``aou_req__flatbuffers__data_integrity`` FlatBuffers data integrity
      - Forwarded
      - Launch Manager
-     - LM performs only structural Verifier check (flatbuffer_config_loader.cpp:86-90) and no checksum; integrity relies on storage. Matches draft aou_req__launch_manager__config_integrity (certified filesystem).
-     - aou_req__launch_manager__config_integrity
+     - LM performs only structural Verifier check (flatbuffer_config_loader.cpp:86-90) and no checksum; integrity relies on storage. Matches aou_req__launch_manager__config_protection.
+     - aou_req__launch_manager__config_protection
    * - ``aou_req__log__console_logging`` Console Logging
      - Forwarded
      - Launch Manager
@@ -275,7 +275,7 @@ communication (mw::com / LoLa)
    * - ``aou_req__communication__4`` Correctly configured ASIL Level
      - Open
      - Launch Manager
-     - Example/test mw::com config sets asil-level QM for both instances and global (score/launch_manager/docs/product_documentation/examples/mw_com_config.json (= tests/utils/environments/mw_com_config.json)), while LM requirements and aou_req__launch_manager__control_if_access are ASIL_B.
+     - Example/test mw::com config sets asil-level QM for both instances and global (score/launch_manager/docs/product_documentation/examples/mw_com_config.json (= tests/utils/environments/mw_com_config.json)), while LM requirements and aou_req__launch_manager__sec_control_access are ASIL_B.
      - The system integrator shall configure asil-level of the LmControlService instance according to the ASIL of the Launch Manager control interface and its State Manager.
    * - ``aou_req__communication__1`` Monotonic Semi-Dynamic Memory Allocation
      - Forwarded
@@ -285,8 +285,8 @@ communication (mw::com / LoLa)
    * - ``aou_req__communication__10`` Config on a safe filesystem
      - Forwarded
      - Launch Manager
-     - LM daemon and lm_control clients read mw_com_config.json at runtime (LM uses mw::com default path, no explicit InitializeRuntime in daemon). Draft aou_req__launch_manager__config_integrity covers only the LM config (launch_manager_config.bin).
-     - Extend aou_req__launch_manager__config_integrity: the integrator shall also store the mw::com configuration used by the Launch Manager and its control clients on a filesystem certified for the highest safety level. Note: Map to aou_req__launch_manager__config_integrity (extend its scope to mw_com_config.json).
+     - LM daemon and lm_control clients read mw_com_config.json at runtime (LM uses mw::com default path, no explicit InitializeRuntime in daemon). aou_req__launch_manager__config_protection covers only the LM config (launch_manager_config.bin).
+     - aou_req__launch_manager__com_platform
    * - ``aou_req__communication__12`` No guarantee in availability of services
      - Forwarded
      - Launch Manager
@@ -336,7 +336,7 @@ communication (mw::com / LoLa)
      - Forwarded
      - Launch Manager
      - LM applies configured uid/gid per launched process; choice of uids is in the integrator's LM config. LM's own uid is chosen by the integrator.
-     - Extend aou_req__launch_manager__os_privileges or add: the integrator shall configure different user ids for processes of different ASIL (incl. Launch Manager vs. QM State Manager/clients). Note: Map to aou_req__launch_manager__os_privileges (partially).
+     - aou_req__launch_manager__com_platform
    * - ``aou_req__communication__11`` No static context support
      - Fulfilled
      - Launch Manager
@@ -381,7 +381,7 @@ communication (mw::com / LoLa)
      - Fulfilled
      - Launch Manager
      - Skeleton process is the LM daemon (ASIL_B requirements, score/launch_manager/docs/requirements/requirements.rst); request validation (unknown run target, unsupported mode) in score/launch_manager/src/daemon/src/control/control_provider.hpp:130-160; responses/events filled from graph state.
-     - Optionally forward: data quality of requests sent to LM is the responsibility of the State Manager (proxy side) - covered by aou_req__launch_manager__control_if_access for authorization. Note: Conditional on LM being qualified to the ASIL of its consumers; note example mw::com config declares the instance QM (see aou 4).
+     - Optionally forward: data quality of requests sent to LM is the responsibility of the State Manager (proxy side) - covered by aou_req__launch_manager__sec_control_access for authorization. Note: Conditional on LM being qualified to the ASIL of its consumers; note example mw::com config declares the instance QM (see aou 4).
    * - ``aou_req__communication__23`` Validity of pointer on LoLa pointer
      - Fulfilled
      - Launch Manager
@@ -474,12 +474,12 @@ OS module
      - Forwarded
      - Launch Manager
      - LM needs setuid/setgid/setgroups/sched_setscheduler/setrlimit/secpol_transition_type/ThreadCtl runmask (process_launcher.cpp:64,324,341,350,357; osal/details/qnx/security_policy.cpp:22, set_affinity.cpp:41). Own IPC shm restricted via ACL to one uid (alive_monitor/details/ipc/IpcServer.hpp:170-182).
-     - aou_req__launch_manager__os_privileges ("...with no further privileges"); plus aou_req__launch_manager__control_if_access for the control channel. Integrator must also configure minimal sandbox (uid/gid/capabilities/secpol) for every launched component. Note: Privilege grant is a deployment decision; LM partly fulfils for its own IPC (ACL on shm) which could be linked via fulfils from comp__lifecycle_launch_manager. Consider extending the AoU to the sandbox config of launched processes.
+     - aou_req__launch_manager__sec_identity and aou_req__launch_manager__sec_non_root_lm; plus aou_req__launch_manager__sec_control_access for the control channel. Integrator must also configure minimal sandbox (uid/gid/capabilities/secpol) for every launched component. Note: Privilege grant is a deployment decision; LM partly fulfils for its own IPC (ACL on shm) which could be linked via fulfils from comp__lifecycle_launch_manager. Consider extending the AoU to the sandbox config of launched processes.
    * - ``aou_req__os__nonroot`` No Root Privileges
      - Forwarded
      - Launch Manager
      - No privilege drop / procmgr_ability / capability code in LM (grep for root, procmgr_ability, cap_set: none). Config schema allows sandbox.uid minimum 0 (config_schema/launch_manager.schema.json:321-325), so root children are configurable.
-     - Proposed: The system integrator shall start the Launch Manager with only the specific abilities/capabilities listed in aou_req__launch_manager__os_privileges instead of root, and shall not configure uid 0 for any launched component. Note: Could alternatively be strengthened in LM (reject uid 0 in offline validation, drop unused abilities after start). Maintainer should confirm LM can run non-root on QNX/Linux; current draft os_privileges does not exclude root.
+     - Proposed: The system integrator shall start the Launch Manager with only the specific abilities/capabilities listed in aou_req__launch_manager__sec_non_root_lm instead of root, and shall not configure uid 0 for any launched component. Note: Could alternatively be strengthened in LM (reject uid 0 in offline validation, drop unused abilities after start). Maintainer should confirm LM can run non-root on QNX/Linux; sec_non_root_lm does not exclude root.
    * - ``aou_req__os__public_api`` OS Public API Use
      - Fulfilled
      - Launch Manager, Health Monitor
@@ -552,7 +552,7 @@ Platform
      - Forwarded
      - Launch Manager
      - LM depends on the listed OS safety functions: process loading/starting (fork/execve), privilege restriction (setuid/secpol), priorities (sched_setscheduler), IPC shm, monotonic time.
-     - Covered at platform level (integrator selects OS); aou_req__launch_manager__os_privileges and __exec_priority refine it for LM.
+     - Covered at platform level (integrator selects OS); aou_req__launch_manager__sec_non_root_lm and __exec_priority refine it for LM.
    * - ``aou_req__platform__posix_operating_system`` POSIX Operating System
      - Forwarded
      - 
