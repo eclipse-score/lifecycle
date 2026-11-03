@@ -18,9 +18,9 @@ Lifecycle
 Abstract
 ========
 
-The lifecycle feature provides a set of functionalities to manage the lifecycle of components in the S-SCORE platform. The goal is to ensure that components can be started, stopped, and monitored effectively, providing a robust framework for managing the state of the system.
+The lifecycle feature provides a set of functionalities to manage the lifecycle of components in the S-CORE platform. The goal is to ensure that components can be started, stopped, and monitored effectively, providing a robust framework for managing the state of the system.
 
-For the main feature description and requirements, see the belonging Feature in the project repository: :need:`doc__lifecycle`
+For the main feature description and requirements, see the corresponding Feature in the project repository: :need:`doc__lifecycle`
 
 .. toctree::
    :hidden:

@@ -63,7 +63,7 @@ Failure Mode List
       - <yes | no>
       - <Rationale if not applicable, otherwise link to filled out FMEA>
     * - MF_01_07
-      - message is unintended sent
+      - message is unintentionally sent
       - <yes | no>
       - <Rationale if not applicable, otherwise link to filled out FMEA>
     * - CO_01_01

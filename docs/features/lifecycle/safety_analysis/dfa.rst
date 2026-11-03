@@ -103,7 +103,7 @@ Same information input used by multiple functions.
     - <yes | no>
     - <Rationale if not applicable, otherwise link to filled out DFA>
   * - SI_01_04
-    - Basic software passes data (read from hardware register and converted into logical information) to two applications software functions
+    - Basic software passes data (read from hardware register and converted into logical information) to two application software functions
     - <yes | no>
     - <Rationale if not applicable, otherwise link to filled out DFA>
   * - SI_01_05
@@ -125,7 +125,7 @@ Unintended impacts to function due to various failures.
     - Applicability
     - Rationale
   * - UI_01_01
-    - Memory miss-allocation and leaks
+    - Memory misallocation and leaks
     - <yes | no>
     - <Rationale if not applicable, otherwise link to filled out DFA>
   * - UI_01_02
