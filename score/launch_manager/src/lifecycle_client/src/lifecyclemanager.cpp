@@ -21,13 +21,14 @@
 #include <cstdlib>
 
 #include <score/utility.hpp>
+#include <string_view>
 #include <thread>
 
 namespace
 {
-static constexpr auto kFailedBlockSig = "Failed to block all signals.";
-static constexpr auto kFailedCreateSig = "Failed to create signal set.";
-static constexpr auto kFailedAddSigterm = "Failed to add SIGTERM to set.";
+static constexpr std::string_view kFailedBlockSig{"Failed to block all signals."};
+static constexpr std::string_view kFailedCreateSig{"Failed to create signal set."};
+static constexpr std::string_view kFailedAddSigterm{"Failed to add SIGTERM to set."};
 }  // namespace
 
 score::mw::lifecycle::LifeCycleManager::LifeCycleManager(std::unique_ptr<score::os::Signal> signal_interface) noexcept
@@ -113,24 +114,21 @@ bool score::mw::lifecycle::LifeCycleManager::initialize_internal()
     const auto empty_set_status = signal_->SigEmptySet(m_signal_set);
     if (empty_set_status.has_value() == false)
     {
-        mw::log::LogError() << score::mw::log::LogString{kFailedCreateSig, sizeof(kFailedCreateSig)}
-                            << empty_set_status.error().ToString();
+        mw::log::LogError() << kFailedCreateSig << empty_set_status.error().ToString();
         return false;
     }
     /* KW_SUPPRESS_END:UNREACH.GEN */
     const auto add_termination_status = signal_->AddTerminationSignal(m_signal_set);
     if (add_termination_status.has_value() == false)
     {
-        mw::log::LogError() << score::mw::log::LogString{kFailedAddSigterm, sizeof(kFailedAddSigterm)}
-                            << add_termination_status.error().ToString();
+        mw::log::LogError() << kFailedAddSigterm << add_termination_status.error().ToString();
         return false;
     }
     const auto pthread_sig_mask_status =
         signal_->PthreadSigMask(m_signal_set); /* NOLINT(score-banned-function) using PthreadSigMask by desing */
     if (pthread_sig_mask_status.has_value() == false)
     {
-        mw::log::LogError() << score::mw::log::LogString{kFailedBlockSig, sizeof(kFailedBlockSig)}
-                            << pthread_sig_mask_status.error().ToString();
+        mw::log::LogError() << kFailedBlockSig << pthread_sig_mask_status.error().ToString();
         return false;
     }
     // only start thread if everything was ok
