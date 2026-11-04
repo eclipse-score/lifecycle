@@ -135,21 +135,15 @@ bazel build --config=x86_64-qnx //score/...
 bazel build --config=arm64-qnx //score/...
 ```
 
-Integration tests via [QEMU](https://www.qemu.org/):
+Unit and integration tests via [QEMU](https://www.qemu.org/):
 
 ```sh
-bazel test --config=x86_64-qnx //tests/integration/...
+bazel test --config=x86_64-qnx //score/... //tests/integration/...
+bazel test --config=arm64-qnx //score/... //tests/integration/...
 ```
 
-Unit tests via [QEMU](https://www.qemu.org/):
-
-```sh
-bazel test --config=unit-tests-x86_64-qnx //score/...
-```
-
-A different flag is needed for unit tests because the emulation is configured
-using `--run_under`, which applies to all targets, even those that should run
-natively on the host.
+`//score/...` contains the unit tests, `//tests/integration/...` the integration tests.
+The unit and integration tests do not have to run together. Each path can also be tested on its own.
 
 **Linux**
 

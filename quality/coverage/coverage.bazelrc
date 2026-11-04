@@ -90,7 +90,7 @@ coverage:llvm_cov --remote_download_all
 # ============================================================================
 # gcov backend (GCC on Linux; the same collection path QNX/QCC uses on target)
 # ============================================================================
-# Use with: bazel coverage --config=gcov --config=unit-tests-x86_64-qnx //src/... --build_tests_only
+# Use with: bazel coverage --config=gcov --config=x86_64-qnx //src/... --build_tests_only
 coverage:gcov --nocache_test_results
 # See coverage:llvm_cov. On this backend Bazel's own collector additionally
 # drops the counters of every library outside the filter, even when it was
@@ -110,7 +110,7 @@ coverage:gcov --extra_toolchains=@score_gcc_x86_64_toolchain//:x86_64-linux-gcc_
 # over at the final report step.
 coverage:gcov --coverage_output_generator=@bazel_tools//tools/test:lcov_merger
 coverage:gcov --coverage_report_generator=//quality/coverage:gcov_reporter_wrapper
-coverage:gcov --test_lang_filters=cc
+coverage:gcov --test_tag_filters=unit
 # Bazel's gcov collector only keeps data of instrumented targets. Instrument
 # the tests too so header-only code that only a test translation unit
 # instantiates is measured (the scope allowlist still drops the test sources).

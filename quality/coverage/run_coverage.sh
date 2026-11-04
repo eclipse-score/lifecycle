@@ -55,7 +55,9 @@ case "$platform" in
     ;;
   qnx)
     # 1. Collect coverage
-    bazel coverage --config=gcov --config=unit-tests-x86_64-qnx //score/launch_manager/... --build_tests_only
+    bazel coverage --config=gcov --config=x86_64-qnx --build_tests_only -- \
+      //score/launch_manager/... \
+      -//score/launch_manager/src/lifecycle_client/src/rust/...
 
     # 2. Generate the HTML report
     bazel run @score_coverage//:generate_coverage_html -- --platform qnx \

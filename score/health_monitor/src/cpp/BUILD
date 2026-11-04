@@ -12,7 +12,7 @@
 # *******************************************************************************
 
 load("@rules_cc//cc:defs.bzl", "cc_library")
-load("@score_baselibs//:bazel/unit_tests.bzl", "cc_gtest_unit_test")
+load("//tests/utils/bazel:unit_test.bzl", "cc_gtest_unit_test")
 
 cc_library(
     name = "tag",
