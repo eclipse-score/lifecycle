@@ -112,5 +112,3 @@ def require_realtime_scheduling(request, target):
             '{"cpu-rt-period": 1000000, "cpu-rt-runtime": 950000} to /etc/docker/daemon.json and '
             f"restart the Docker daemon. chrt reported: {output}"
         )
-
-

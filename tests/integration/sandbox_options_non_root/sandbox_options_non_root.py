@@ -39,7 +39,9 @@ LAUNCH_MANAGER_CAPS = ["setuid", "setgid", "kill", "sys_nice"]
 def hand_test_dir_to_non_root_user(target, setup_test, remote_test_dir):
     """The test tarball is extracted by root; the unprivileged launch manager must be able to read
     its configuration and write result files into its working directory."""
-    exit_code, output = target.execute(f"chown -R {NON_ROOT_ID}:{NON_ROOT_ID} {remote_test_dir}")
+    exit_code, output = target.execute(
+        f"chown -R {NON_ROOT_ID}:{NON_ROOT_ID} {remote_test_dir}"
+    )
     assert exit_code == 0, f"Couldn't hand over {remote_test_dir}: {output}"
 
 
@@ -53,7 +55,9 @@ def hand_test_dir_to_non_root_user(target, setup_test, remote_test_dir):
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
 )
-def test_sandbox_options_non_root(target, setup_test, assert_test_results, remote_test_dir):
+def test_sandbox_options_non_root(
+    target, setup_test, assert_test_results, remote_test_dir
+):
     """
     Objective: Verifies the launch manager can apply sandbox options when it is not root, holding only
     the capabilities listed in LAUNCH_MANAGER_CAPS.
@@ -64,7 +68,9 @@ def test_sandbox_options_non_root(target, setup_test, assert_test_results, remot
     scheduling policy, resource limits and affinity, and the Run Target transition completes.
     """
     exit_code, output = target.execute("id -u")
-    assert exit_code == 0 and output.decode().strip() == "0", "setpriv needs to start as root"
+    assert exit_code == 0 and output.decode().strip() == "0", (
+        "setpriv needs to start as root"
+    )
 
     run_test_non_root(
         target=target,

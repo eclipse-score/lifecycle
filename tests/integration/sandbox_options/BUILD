@@ -50,13 +50,13 @@ expand_template(
             "sandbox_options_process.cpp",
             "verify_sandbox.hpp",
         ],
+        visibility = ["//tests/integration/sandbox_options_non_root:__pkg__"],
         deps = [
             "//score/launch_manager:control_cc",
             "//score/launch_manager:lifecycle_cc",
             "//tests/utils/test_helper",
             "@googletest//:gtest_main",
         ],
-        visibility = ["//tests/integration/sandbox_options_non_root:__pkg__"],
     )
     for suffix in ("a", "b", "c")
 ]
