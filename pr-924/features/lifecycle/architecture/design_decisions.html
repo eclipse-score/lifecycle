@@ -513,7 +513,7 @@
 <span id="lifecycle-design-decisions"></span><h1>Design Decisions<a class="headerlink" href="#design-decisions" title="Link to this heading">#</a></h1>
 <section id="in-process-health-monitor">
 <h2>In-Process Health Monitor<a class="headerlink" href="#in-process-health-monitor" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-afd445ce">
+<div class="need_container docutils container" id="SNCB-d05c2b08">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_dec_rec table" id="dec_rec__lifecycle__in_process_health_monitor">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -609,8 +609,8 @@ The monitoring daemon is configured with the supervisions that shall be checked 
 <p>As the <a class="reference internal" href="../glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> is linked as part of the monitored application, it raises the following concerns
 with respect to safety:</p>
 <ul class="simple">
-<li><p>How can it be ensured, that the monitored application does not interfere with the monitoring functionality?</p></li>
-<li><p>How can it be ensured, that the <a class="reference internal" href="../glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> does not incorrectly report alive to the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> when it has detected
+<li><p>How can it be ensured that the monitored application does not interfere with the monitoring functionality?</p></li>
+<li><p>How can it be ensured that the <a class="reference internal" href="../glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> does not incorrectly report alive to the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> when it has detected
 a supervision error?</p></li>
 </ul>
 <p>These concerns are valid, but can be addressed using the following techniques:</p>
@@ -624,8 +624,8 @@ a supervision error?</p></li>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>Protecting the memory of the library by using guard pages where the application memory is located, and protect it with mprotect()</dt><dd><ul>
-<li><p>possibly with a help of a custom allocator</p></li>
+<dt>Protecting the memory of the library by using guard pages where the application memory is located, and protecting it with mprotect()</dt><dd><ul>
+<li><p>possibly with the help of a custom allocator</p></li>
 </ul>
 </dd>
 </dl>
@@ -639,14 +639,14 @@ counter (or some more complex mathematical function), further checkpoints for de
 </dl>
 </li>
 <li><p>Using a safe programming language, which does not allow a raw pointer access</p></li>
-<li><p>Testing the application with Valgrid etc.</p></li>
-<li><p>Redundant monitoring, if the self monitoring suggested before is not sufficient, a separate library can be implemented in a different memory location to detect sporadic corruption of the <a class="reference internal" href="../glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitors</span></a> memory location.</p></li>
+<li><p>Testing the application with Valgrind etc.</p></li>
+<li><p>Redundant monitoring, if the self monitoring suggested before is not sufficient, a separate library can be implemented in a different memory location to detect sporadic corruption of the <a class="reference internal" href="../glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor’s</span></a> memory location.</p></li>
 </ul>
 </section>
 </section>
 <section id="launch-manager-starts-processes-on-a-thread-pool">
 <h2>Launch Manager starts processes on a thread pool<a class="headerlink" href="#launch-manager-starts-processes-on-a-thread-pool" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-445ae263">
+<div class="need_container docutils container" id="SNCB-78d0a669">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_dec_rec table" id="dec_rec__lifecycle__thread_pool_process">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -707,7 +707,7 @@ Fast startup is an important performance goal for the Launch Manager.</p>
 </section>
 <section id="launch-manager-alive-monitoring-is-polling-based">
 <h2>Launch Manager Alive Monitoring is polling-based<a class="headerlink" href="#launch-manager-alive-monitoring-is-polling-based" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-52987b8e">
+<div class="need_container docutils container" id="SNCB-694026c5">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_dec_rec table" id="dec_rec__lifecycle__lm_alive_polling">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -770,7 +770,7 @@ Configure the cycle time to balance the desired detection time against acceptabl
 </section>
 <section id="flatbuffer-configuration">
 <h2>Flatbuffer configuration<a class="headerlink" href="#flatbuffer-configuration" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-e8c5cdf8">
+<div class="need_container docutils container" id="SNCB-202d691f">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_dec_rec table" id="dec_rec__lifecycle__flatbuffer_config">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -791,7 +791,7 @@ Configure the cycle time to balance the desired detection time against acceptabl
 <tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
 <div class="line"><span><span><div class="line"><span class="needs_consequences"><span class="needs_label">consequences: </span><span class="needs_data">Fast configuration loading</span></span></div>
 <div class="line"><span class="needs_context"><span class="needs_label">context: </span><span class="needs_data">Architecture</span></span></div>
-<div class="line"><span class="needs_decision"><span class="needs_label">decision: </span><span class="needs_data">The Launch Manager uses binary configuration format to reduce startup time</span></span></div>
+<div class="line"><span class="needs_decision"><span class="needs_label">decision: </span><span class="needs_data">The Launch Manager uses a binary configuration format to reduce startup time</span></span></div>
 <div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
 </span></span></div>
 <div class="line"><span><div class="line">affects: <span class="affects"><span><a class="reference internal" href="../../../components/launch_manager/architecture/component_architecture.html#comp__lifecycle_launch_manager" title="dec_rec__lifecycle__flatbuffer_config">comp__lifecycle_launch_manager</a></span></span></div>
@@ -826,6 +826,104 @@ Loading this configuration is on the time-critical startup path.</p>
 <h3>Consequences<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
 <p>The Launch Manager configuration must first be compiled into a binary format for the target.
 Compared with a textual format such as JSON, the FlatBuffers binary configuration can be loaded faster, particularly for larger configuration files.</p>
+</section>
+</section>
+<section id="kill-process-after-supervision-failure">
+<h2>Kill process after supervision failure<a class="headerlink" href="#kill-process-after-supervision-failure" title="Link to this heading">#</a></h2>
+<div class="need_container docutils container" id="SNCB-5a24f6d1">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_dec_rec table" id="dec_rec__lifecycle__kill_supervision_fail">
+<tbody>
+<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
+<div class="line"><span><span class="needs_title"><span class="needs_data">Kill process after supervision failure</span></span></span></div>
+</div>
+</td>
+<td class="head_center" colspan="2"><div class="needs_head line-block">
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">accepted</span></span></span></div>
+<div class="line"><span></span></div>
+<div class="line"><span></span></div>
+</div>
+</td>
+<td class="head_right" colspan="2"><div class="needs_head_right line-block">
+<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
+</div>
+</td>
+</tr>
+<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
+<div class="line"><span><span><div class="line"><span class="needs_consequences"><span class="needs_label">consequences: </span><span class="needs_data">A process that failed supervision stops immediately, without a chance to clean up</span></span></div>
+<div class="line"><span class="needs_context"><span class="needs_label">context: </span><span class="needs_data">Architecture</span></span></div>
+<div class="line"><span class="needs_decision"><span class="needs_label">decision: </span><span class="needs_data">The Launch Manager terminates a process with SIGKILL when its alive supervision fails</span></span></div>
+<div class="line"><span class="needs_version"><span class="needs_label">version: </span>1</span></div>
+</span></span></div>
+<div class="line"><span><div class="line">affects: <span class="affects"><span><a class="reference internal" href="../../../components/launch_manager/architecture/component_architecture.html#comp__lifecycle_launch_manager" title="dec_rec__lifecycle__kill_supervision_fail">comp__lifecycle_launch_manager</a></span></span></div>
+</span></div>
+</div>
+</td>
+<td class="meta" colspan="3"></td>
+</tr>
+<tr class="content row-odd"><td class="content" colspan="6"></td>
+</tr>
+<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#dec_rec__lifecycle__kill_supervision_fail" title="dec_rec__lifecycle__kill_supervision_fail">dec_rec__lifecycle__kill_supervision_fail</a></span></span></div>
+</div>
+</td>
+<td class="footer" colspan="2"><div class="needs_footer line-block">
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Decision Record</span></span></span></div>
+</div>
+</td>
+<td class="footer_right" colspan="2"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<section id="id7">
+<h3>Context<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<p>The Launch Manager can start processes with alive supervision.
+A supervised process must send alive notifications at the configured frequency.
+If it does not, its alive supervision fails and the Launch Manager initiates a recovery action.</p>
+<p>Unlike a crashed process, a process that fails alive supervision is still running.
+Its state is unknown: it may be hanging, stuck in a loop, or otherwise malfunctioning.
+It keeps running until the Launch Manager terminates it.</p>
+</section>
+<section id="options-considered">
+<h3>Options Considered<a class="headerlink" href="#options-considered" title="Link to this heading">#</a></h3>
+<section id="option-a-send-sigterm-then-sigkill-after-the-shutdown-timeout">
+<h4>Option A: Send SIGTERM, then SIGKILL after the shutdown timeout<a class="headerlink" href="#option-a-send-sigterm-then-sigkill-after-the-shutdown-timeout" title="Link to this heading">#</a></h4>
+<p>Pros:</p>
+<ul class="simple">
+<li><p>Consistent with the regular shutdown of a process.</p></li>
+<li><p>The process can clean up before it exits.</p></li>
+</ul>
+<p>Cons:</p>
+<ul class="simple">
+<li><p>In the worst case, the process keeps running in an unknown and possibly unsafe state for the full shutdown timeout before it is killed.</p></li>
+<li><p>A process that failed supervision may not be able to handle SIGTERM correctly, so the timeout is likely to expire anyway.</p></li>
+</ul>
+</section>
+<section id="option-b-send-sigkill-immediately">
+<h4>Option B: Send SIGKILL immediately<a class="headerlink" href="#option-b-send-sigkill-immediately" title="Link to this heading">#</a></h4>
+<p>Pros:</p>
+<ul class="simple">
+<li><p>The process stops as soon as the supervision failure is detected and cannot continue running in an unsafe state.</p></li>
+<li><p>Recovery can start without waiting for the shutdown timeout.</p></li>
+</ul>
+<p>Cons:</p>
+<ul class="simple">
+<li><p>The process cannot clean up, for example by persisting data or closing communication channels.</p></li>
+</ul>
+</section>
+</section>
+<section id="decision">
+<h3>Decision<a class="headerlink" href="#decision" title="Link to this heading">#</a></h3>
+<p>Option B: Send SIGKILL immediately.</p>
+<p>A process that failed supervision cannot be trusted to shut down correctly.
+Stopping it immediately is safer than letting it run for the duration of the shutdown timeout.</p>
+</section>
+<section id="id8">
+<h3>Consequences<a class="headerlink" href="#id8" title="Link to this heading">#</a></h3>
+<p>The Launch Manager kills a process as soon as it detects a supervision failure.
+Applications must not rely on a graceful shutdown after a supervision failure.
+Data that has to survive such a failure must be persisted during normal operation.</p>
 </section>
 </section>
 </section>
@@ -900,6 +998,17 @@ Compared with a textual format such as JSON, the FlatBuffers binary configuratio
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#flatbuffer-configuration">Flatbuffer configuration</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Context</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Consequences</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kill-process-after-supervision-failure">Kill process after supervision failure</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Context</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#options-considered">Options Considered</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#option-a-send-sigterm-then-sigkill-after-the-shutdown-timeout">Option A: Send SIGTERM, then SIGKILL after the shutdown timeout</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#option-b-send-sigkill-immediately">Option B: Send SIGKILL immediately</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#decision">Decision</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">Consequences</a></li>
 </ul>
 </li>
 </ul>

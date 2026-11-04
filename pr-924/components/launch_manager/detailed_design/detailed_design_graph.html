@@ -535,7 +535,7 @@ is only scheduled on a thread pool.</p>
 <li><p>starting the process (possibly multiple times)</p></li>
 <li><p>registering the pid in the SafeProcessMap</p></li>
 <li><p>waiting for the ready condition to be fulfilled or ready timeout</p></li>
-<li><p>posing the activation result to the event queue</p></li>
+<li><p>posting the activation result to the event queue</p></li>
 </ul>
 <p>The component activation sequence is executed synchronously on a worker thread.</p>
 <figure class="align-center">
@@ -552,7 +552,7 @@ is only scheduled on a thread pool.</p>
 <li><p>stopping the process (if running)</p></li>
 <li><p>waiting for the process to terminate or until shutdown timeout</p></li>
 <li><p>escalating to SIGKILL in case the process did not terminate within the shutdown timeout</p></li>
-<li><p>posing the deactivation result to the event queue. Process crashes during deactivation are ignored.</p></li>
+<li><p>posting the deactivation result to the event queue. Process crashes during deactivation are ignored.</p></li>
 </ul>
 <p>The component deactivation sequence is executed synchronously on a worker thread.</p>
 <figure class="align-center">
@@ -574,11 +574,13 @@ The latter is the focus of the diagram below.</p>
 <h3>Supervision Failure<a class="headerlink" href="#supervision-failure" title="Link to this heading">#</a></h3>
 <p>A component activates the alive supervision once the Running state is reached.
 The supervision failure may be detected at any time and is reported to the component event queue.
-The current failure reaction is to always requesting the fallback Run Target and cancels a running
-transition if there is one.</p>
+The graph forwards the failure to the affected component, which kills its process unless the failure
+is outdated (the component is no longer ready, component was restarted since, or the process has
+already terminated). The resulting unexpected termination then triggers the fallback Run Target as
+described in Process Termination.</p>
 <figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-b0b432a7f8f2e4853b5cec8b3b110853ca97862f.svg" type="image/svg+xml" style="width:1637px;height:1327px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-1b4b217b523dfa510bf0526339a05f65d9c45332.svg" type="image/svg+xml" style="width:1694px;height:1023px;background:#FFFFFF;"></object></p>
 </figure>
 </section>
 <section id="run-target-transition">
@@ -599,7 +601,7 @@ transition and moves the graph to kAborting.</p>
 <h3>Transition cancellation / preemption<a class="headerlink" href="#transition-cancellation-preemption" title="Link to this heading">#</a></h3>
 <p>When cancelling an ongoing transition it is crucial to leave every component
 in a well-defined state.</p>
-<p>The diagram below defines the point of time a component activation / deactivation
+<p>The diagram below defines the point in time a component activation / deactivation
 may be safely cancelled.</p>
 <figure class="align-center">
 <p class="plantuml">
