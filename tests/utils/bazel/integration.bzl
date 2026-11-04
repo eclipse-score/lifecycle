@@ -104,9 +104,6 @@ def integration_test(
 
     pkg_tar(name = test_tar_name, srcs = [":{}".format(bin_pkg_name), ":{}".format(lm_config_pkg_name), ":{}".format(mw_com_config_pkg_name)])
 
-
-
-
     # work out the compatibility targets
     # if the user specified one then use that instead
     extra_target_compatible_with = kwargs.pop("target_compatible_with", [])
