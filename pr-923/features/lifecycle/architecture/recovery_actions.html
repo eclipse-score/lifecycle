@@ -538,8 +538,8 @@ Run Target Recovery Action is now a separate step in the escalation chain.</span
 restarting the failed component. If no Component Recovery Action is configured or it does
 not succeed, the Run Target Recovery Action activates the Fallback Run Target. If this also fails,
 the Watchdog triggers a Machine Reset.
-Currently, the Run Target Recovery Action is synonymous to activation of the Fallback Run Target.</p>
-<p>The Fallback Run Target is a special Run Target defined in the Launch Manager configuration (see <a class="reference internal" href="index.html#feat_arc_sta__lifecycle__cfg_params_static" title="feat_arc_sta__lifecycle__cfg_params_static"><em class="xref need">Configuration parameters st... (feat_arc_sta__lifecycle__cfg_params_static)</em></a>), this shall be used as
+Currently, the Run Target Recovery Action is synonymous with activation of the Fallback Run Target.</p>
+<p>The Fallback Run Target is a special Run Target defined in the Launch Manager configuration (see <a class="reference internal" href="index.html#feat_arc_sta__lifecycle__cfg_params_static" title="feat_arc_sta__lifecycle__cfg_params_static"><em class="xref need">Configuration parameters st... (feat_arc_sta__lifecycle__cfg_params_static)</em></a>); it shall be used as
 a minimal system state that allows diagnosis of the failure. The State Manager is expected to transition the system out of the Fallback Run Target to
 retry normal operation.</p>
 <p>The following sequence diagrams are based on the example dependency graph described
@@ -551,12 +551,12 @@ in <a class="reference internal" href="components_run_targets.html"><span class=
 <h2>Component failure<a class="headerlink" href="#component-failure" title="Link to this heading">#</a></h2>
 <p>A component may fail outside of a Run Target transition for one of the following reasons:</p>
 <ul class="simple">
-<li><p>The components underlying process crashes</p></li>
-<li><p>The component supervision fails (e.g. the component does not send alive notification in the expected frequency)</p></li>
+<li><p>The component’s underlying process crashes</p></li>
+<li><p>The component supervision fails (e.g. the component does not send alive notifications at the expected frequency)</p></li>
 </ul>
 <section id="component-crash">
 <h3>Component crash<a class="headerlink" href="#component-crash" title="Link to this heading">#</a></h3>
-<div class="need_container docutils container" id="SNCB-c4678081">
+<div class="need_container docutils container" id="SNCB-1e7a3696">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__crash">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -612,7 +612,7 @@ See <a class="reference internal" href="#feat_arc_dyn__lifecycle__run_target_fai
 </section>
 <section id="component-supervision-failure">
 <h3>Component supervision failure<a class="headerlink" href="#component-supervision-failure" title="Link to this heading">#</a></h3>
-<div class="need_container docutils container" id="SNCB-b6914b6c">
+<div class="need_container docutils container" id="SNCB-ebca05fa">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__sup_failure">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -645,7 +645,7 @@ See <a class="reference internal" href="#feat_arc_dyn__lifecycle__run_target_fai
 <object data="../../../_images/plantuml-47fe55850ae6e98741dca7593f3ad5191c276f65.svg" type="image/svg+xml" style="width:551px;height:407px;background:#FFFFFF;"></object></p>
 </figure>
 <p>The diagram shows a component supervision failure during an active Run Target (outside of a Run Target transition).
-For details of detection supervision failures, see <a class="reference internal" href="health_monitoring.html#feat_arc_dyn__lifecycle__alive_monitor_start" title="feat_arc_dyn__lifecycle__alive_monitor_start"><em class="xref need">Alive Monitoring Start (feat_arc_dyn__lifecycle__alive_monitor_start)</em></a>.
+For details of detecting supervision failures, see <a class="reference internal" href="health_monitoring.html#feat_arc_dyn__lifecycle__alive_monitor_start" title="feat_arc_dyn__lifecycle__alive_monitor_start"><em class="xref need">Alive Monitoring Start (feat_arc_dyn__lifecycle__alive_monitor_start)</em></a>.
 The subsequent recovery behavior is identical to the process crash scenario in <a class="reference internal" href="#feat_arc_dyn__lifecycle__crash" title="feat_arc_dyn__lifecycle__crash"><em class="xref need">Launch Manager - Crash Reco... (feat_arc_dyn__lifecycle__crash)</em></a>.</p>
 </td>
 </tr>
@@ -675,7 +675,7 @@ The subsequent recovery behavior is identical to the process crash scenario in <
 </ul>
 <p>If a Run Target transition fails, the Launch Manager executes the Run Target Recovery Action as configured for the affected Run Target.
 The currently only supported Run Target Recovery Action is the activation of the <cite>fallback Run Target</cite>.</p>
-<div class="need_container docutils container" id="SNCB-53358e36">
+<div class="need_container docutils container" id="SNCB-d4727c6f">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__run_target_failure">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -711,7 +711,7 @@ The currently only supported Run Target Recovery Action is the activation of the
 Component app1 does not reach its ready condition, even after all configured activation attempts have been
 exhausted, which makes the whole transition fail.
 The Launch Manager then executes the Run Target Recovery Action of Run Target “Running” and activates the
-Fallback Run Target. Components that are not part of the Fallback Run Target are deactivated, components
+Fallback Run Target. Components that are not part of the Fallback Run Target are deactivated; components
 that were never activated stay deactivated.</p>
 </td>
 </tr>

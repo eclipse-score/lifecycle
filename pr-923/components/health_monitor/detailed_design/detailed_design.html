@@ -505,7 +505,7 @@
                   
   <section id="detailed-design">
 <span id="component-detailed-design-hm"></span><h1>Detailed Design<a class="headerlink" href="#detailed-design" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-35a59d19">
+<div class="need_container docutils container" id="SNCB-5dafda50">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__health_monitor_detailed_design">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -590,7 +590,7 @@
 <h4>Implementation approach for multi language<a class="headerlink" href="#implementation-approach-for-multi-language" title="Link to this heading">#</a></h4>
 <p>The implementation is done primarily in <cite>Rust</cite> language to leverage its memory safety features and concurrency model.
 Due to a need to interface with existing C++ codebases, a C-compatible Foreign Function Interface (FFI) is provided by this <cite>Rust</cite> implementation.
-<cite>C++</cite> API is designed to be idiomatic wrapping around the <cite>Rust</cite> FFI, ensuring ease of use for C++ developers while maintaining the safe usage.</p>
+<cite>C++</cite> API is designed to be an idiomatic wrapper around the <cite>Rust</cite> FFI, ensuring ease of use for C++ developers while maintaining the safe usage.</p>
 </section>
 <section id="rationale-behind-decomposition-into-units">
 <h4>Rationale Behind Decomposition into Units<a class="headerlink" href="#rationale-behind-decomposition-into-units" title="Link to this heading">#</a></h4>
@@ -600,8 +600,8 @@ Due to a need to interface with existing C++ codebases, a C-compatible Foreign F
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Reason for split into multiple units could be-
-- Based on design principles like SOLID,DRY etc
-- Based on design pattern’s etc.</p>
+- Based on design principles like SOLID, DRY, etc.
+- Based on design patterns, etc.</p>
 </div>
 </section>
 </section>
