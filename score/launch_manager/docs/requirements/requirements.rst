@@ -841,7 +841,7 @@ Recovery Actions
     via the :need:`logic_arc_int_op__lifecycle__report_alive` interface.
 
 .. comp_req:: Report failed process liveliness 
-    :id: comp_req__launch_man__report_failed_liveliness
+    :id: comp_req__launch_man__report_failed_live
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
