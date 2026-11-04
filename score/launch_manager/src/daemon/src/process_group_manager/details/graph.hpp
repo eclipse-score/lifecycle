@@ -187,7 +187,7 @@ class Graph final
     /// @brief Completes the slot attached to certain events.
     /// Does not follow through on the request, the event is ignored.
     /// @param event The event to complete.
-    /// @param event The error code containing the reason for ignoring the request.
+    /// @param reason The error code containing the reason for ignoring the request.
     void unblockComponentEvent(const ComponentEvent& event, const ExecErrc reason);
 
     /// @brief Cancel the current transition because a new state has been requested.
