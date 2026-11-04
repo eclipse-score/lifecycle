@@ -10346,7 +10346,7 @@
     "FullyVerifies": null
   },
   {
-    "name": "score/launch_manager/src/lifecycle_client/src/rust/test-1444857508/lifecycle_client_rs_test",
+    "name": "score/launch_manager/src/lifecycle_client/src/rust/lifecycle_client_rs_test",
     "file": null,
     "line": null,
     "result": "passed",
