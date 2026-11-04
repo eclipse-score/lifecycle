@@ -43,4 +43,5 @@ integration_test(
         "//score/launch_manager",
     ],
     config = ":crash_ignores_dependents.json",
+    debug_asserts_variant = True,
 )

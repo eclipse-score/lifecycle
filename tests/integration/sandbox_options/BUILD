@@ -67,4 +67,5 @@ integration_test(
         "//tests/utils/test_helper:verification_process",
     ],
     config = ":sandbox_options.json",
+    debug_asserts_variant = True,
 )

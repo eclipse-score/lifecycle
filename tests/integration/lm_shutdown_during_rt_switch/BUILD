@@ -53,4 +53,5 @@ integration_test(
         "//score/launch_manager",
     ],
     config = ":lm_shutdown_during_rt_switch.json",
+    debug_asserts_variant = True,
 )

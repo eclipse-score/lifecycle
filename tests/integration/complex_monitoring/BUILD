@@ -59,4 +59,5 @@ integration_test(
     tags = [
         "flaky",  # Test uses heartbeat monitoring which on CI will always be flaky.
     ],
+    debug_asserts_variant = True,
 )

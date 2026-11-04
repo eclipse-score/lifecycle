@@ -79,4 +79,5 @@ integration_test(
         "//score/launch_manager",
     ],
     config = ":switch_run_target.json",
+    debug_asserts_variant = True,
 )

@@ -43,4 +43,5 @@ integration_test(
         "//score/launch_manager",
     ],
     config = ":parallel_launch.json",
+    debug_asserts_variant = True,
 )

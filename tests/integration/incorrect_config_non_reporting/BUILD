@@ -32,4 +32,5 @@ integration_test(
         "//score/launch_manager",
     ],
     config = ":non_reporting_config.json",
+    debug_asserts_variant = True,
 )

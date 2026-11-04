@@ -35,4 +35,5 @@ integration_test(
         "//score/launch_manager",
     ],
     config = ":replaced_activation.json",
+    debug_asserts_variant = True,
 )

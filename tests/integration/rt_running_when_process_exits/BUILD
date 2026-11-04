@@ -46,4 +46,5 @@ integration_test(
         "//tests/utils/testing_utils:touch_file.sh",
     ],
     config = ":rt_running_when_process_exits.json",
+    debug_asserts_variant = True,
 )

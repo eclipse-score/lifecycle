@@ -70,4 +70,5 @@ integration_test(
         "//score/launch_manager",
     ],
     config = ":process_fd_leak.json",
+    debug_asserts_variant = True,
 )

@@ -31,4 +31,5 @@ integration_test(
         "//score/launch_manager",
     ],
     config = ":process_launch_args.json",
+    debug_asserts_variant = True,
 )

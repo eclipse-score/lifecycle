@@ -44,4 +44,5 @@ integration_test(
         "//tests/utils/test_helper:verification_process",
     ],
     config = ":process_crash_monitoring.json",
+    debug_asserts_variant = True,
 )

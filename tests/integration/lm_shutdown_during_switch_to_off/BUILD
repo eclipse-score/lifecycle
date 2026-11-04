@@ -41,4 +41,5 @@ integration_test(
         "//score/launch_manager",
     ],
     config = ":lm_shutdown_during_switch_to_off.json",
+    debug_asserts_variant = True,
 )

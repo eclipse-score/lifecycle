@@ -33,4 +33,5 @@ integration_test(
         "//tests/utils/test_helper:verification_process",
     ],
     config = ":process_wrong_binary_failure.json",
+    debug_asserts_variant = True,
 )

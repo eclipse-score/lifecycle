@@ -33,4 +33,5 @@ integration_test(
         "//tests/utils/test_helper:waiting_process",
     ],
     config = ":kterminated.json",
+    debug_asserts_variant = True,
 )

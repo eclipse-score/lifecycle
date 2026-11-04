@@ -34,4 +34,5 @@ integration_test(
         "//tests/utils/test_helper:verification_process",
     ],
     config = ":crash_on_startup.json",
+    debug_asserts_variant = True,
 )

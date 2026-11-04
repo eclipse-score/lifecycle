@@ -45,4 +45,5 @@ integration_test(
         "//tests/utils/test_helper:verification_process",
     ],
     config = ":process_complex_rep_failure.json",
+    debug_asserts_variant = True,
 )

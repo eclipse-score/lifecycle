@@ -33,4 +33,5 @@ integration_test(
         "//score/launch_manager",
     ],
     config = ":ready_condition_file.json",
+    debug_asserts_variant = True,
 )

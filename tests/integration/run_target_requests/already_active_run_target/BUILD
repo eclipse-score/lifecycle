@@ -33,4 +33,5 @@ integration_test(
         "//score/launch_manager",
     ],
     config = ":already_active_run_target.json",
+    debug_asserts_variant = True,
 )

@@ -51,4 +51,5 @@ integration_test(
         "//score/launch_manager",
     ],
     config = ":shutdown_signal.json",
+    debug_asserts_variant = True,
 )

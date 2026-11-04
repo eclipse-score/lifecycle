@@ -32,4 +32,5 @@ integration_test(
         "//score/launch_manager",
     ],
     config = ":explicit_fallback_request.json",
+    debug_asserts_variant = True,
 )
