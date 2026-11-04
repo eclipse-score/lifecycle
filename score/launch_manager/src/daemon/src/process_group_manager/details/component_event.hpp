@@ -17,6 +17,8 @@
 #include <cstdint>
 #include <variant>
 
+#include <chrono>
+
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/completion_slot.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
@@ -26,6 +28,7 @@ namespace score::mw::lifecycle::internal
 {
 
 /// @brief A node finished activating successfully.
+/// @details Handled by the Graph to update the state of an ongoing transition
 struct [[nodiscard]] ActivationSuccessful
 {
     /// @brief The identifier of the node that activated.
@@ -33,15 +36,17 @@ struct [[nodiscard]] ActivationSuccessful
 };
 
 /// @brief A node failed to activate.
+/// @details Handled by the Graph to update the state of an ongoing transition
 struct [[nodiscard]] ActivationFailed
 {
     /// @brief The identifier of the node that failed.
     IdentifierHash node_identifier;
-    /// @brief Description of the error.
-    IComponent::ComponentError reason;
+    /// @brief Why the activation failed, either kFailure or kTimeout.
+    IComponent::RequestResult reason;
 };
 
 /// @brief A node finished deactivating.
+/// @details Handled by the Graph to update the state of an ongoing transition
 struct [[nodiscard]] DeactivationComplete
 {
     /// @brief The identifier of the node that deactivated.
@@ -49,15 +54,15 @@ struct [[nodiscard]] DeactivationComplete
 };
 
 /// @brief A node terminated without having been requested to.
+/// @details Handled by the Graph to initiate recovery action
 struct [[nodiscard]] UnexpectedTermination
 {
     /// @brief The identifier of the node that terminated.
     IdentifierHash node_identifier;
-    /// @brief Description of the error.
-    IComponent::ComponentError reason;
 };
 
 /// @brief A job was queued but cancelled by the time it was processed
+/// @details Handled by the Graph to keep track of ongoing jobs on the worker threads
 struct [[nodiscard]] JobSkipped
 {
     /// @brief The identifier of the node that was skipped.
@@ -65,19 +70,24 @@ struct [[nodiscard]] JobSkipped
 };
 
 /// @brief Alive supervision has failed for the given process identifier.
+/// @details Handled by the Graph to initiate recovery action
 struct [[nodiscard]] SupervisionFailure
 {
     /// @brief The identifier of the node that failed.
     IdentifierHash process_identifier;
+    /// @brief Timestamp that pinpoints the supervision failure (on the monotonic clock used by Alive supervision).
+    std::chrono::nanoseconds failure_timestamp;
 };
 
 /// @brief The state manager wants to know which Run Target is currently active.
+/// @details Handled by the ProcessGroupManager to process incoming state manager requests
 struct [[nodiscard]] GetActiveRunTarget
 {
     CompletionSlot<Result<IdentifierHash>>* completion{nullptr};
 };
 
 /// @brief The state manager wants to change to a different Run Target.
+/// @details Handled by the ProcessGroupManager to process incoming state manager requests
 struct [[nodiscard]] SetRequestedRunTarget
 {
     IdentifierHash run_target;
@@ -85,7 +95,7 @@ struct [[nodiscard]] SetRequestedRunTarget
 };
 
 /// @brief A graph-relevant state change. There is only ever a single graph, so no process-group
-/// identifier is needed to route most events. SupervisionFailure is routed by process identifier.
+/// identifier is needed to route most events.
 using ComponentEvent = std::variant<
     ActivationSuccessful,
     ActivationFailed,

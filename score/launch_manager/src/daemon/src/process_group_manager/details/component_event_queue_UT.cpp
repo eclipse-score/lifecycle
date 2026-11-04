@@ -54,14 +54,14 @@ TEST_F(ComponentEventQueueTest, GetNextEventReturnsPushedEventWithPayloadIntact)
 {
     RecordProperty("Description", "Verify a pushed event is returned by getNextEvent with its payload preserved.");
     const IdentifierHash process_identifier{"payload"};
-    EXPECT_TRUE(queue_.push(ActivationFailed{process_identifier, IComponent::ComponentError::kErrorBeforeReady}));
+    EXPECT_TRUE(queue_.push(ActivationFailed{process_identifier, IComponent::RequestResult::kFailure}));
 
     auto event = queue_.getNextEvent();
     ASSERT_TRUE(event.has_value());
     ASSERT_TRUE(std::holds_alternative<ActivationFailed>(*event));
     const auto& failed = std::get<ActivationFailed>(*event);
     EXPECT_EQ(failed.node_identifier, process_identifier);
-    EXPECT_EQ(failed.reason, IComponent::ComponentError::kErrorBeforeReady);
+    EXPECT_EQ(failed.reason, IComponent::RequestResult::kFailure);
 }
 
 TEST_F(ComponentEventQueueTest, GetNextEventReturnsSupervisionFailureWithPayloadIntact)
@@ -69,15 +69,17 @@ TEST_F(ComponentEventQueueTest, GetNextEventReturnsSupervisionFailureWithPayload
     RecordProperty(
         "Description",
         "Verify a pushed SupervisionFailure event is returned by getNextEvent with process identifier "
-        "payload preserved.");
+        "and failure timestamp payload preserved.");
     const IdentifierHash process_identifier{"proc_for_supervision_failure"};
-    EXPECT_TRUE(queue_.push(SupervisionFailure{process_identifier}));
+    const std::chrono::nanoseconds failure_timestamp{123456};
+    EXPECT_TRUE(queue_.push(SupervisionFailure{process_identifier, failure_timestamp}));
 
     auto event = queue_.getNextEvent();
     ASSERT_TRUE(event.has_value());
     ASSERT_TRUE(std::holds_alternative<SupervisionFailure>(*event));
     const auto& failure = std::get<SupervisionFailure>(*event);
     EXPECT_EQ(failure.process_identifier, process_identifier);
+    EXPECT_EQ(failure.failure_timestamp, failure_timestamp);
 }
 
 TEST_F(ComponentEventQueueTest, GetNextEventReturnsGetActiveRunTargetWithCompletionSlot)

@@ -17,6 +17,7 @@
 #include <grp.h>
 #include <libgen.h>
 #include <sys/mman.h>
+#include <sys/resource.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <limits.h>
@@ -28,6 +29,7 @@
 #include "score/mw/launch_manager/osal/security_policy.hpp"
 #include "score/mw/launch_manager/osal/set_affinity.hpp"
 #include "score/mw/launch_manager/osal/set_groups.hpp"
+#include "score/mw/launch_manager/osal/shm_open_anon.hpp"
 #include "score/mw/launch_manager/osal/sys_exit.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
@@ -40,6 +42,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iterator>
+#include <optional>
 
 constexpr int kPidZero = 0;  // This value is used to check if the process ID (uses pid_t) is valid or not.
 constexpr int kPosixSuccess = 0;
@@ -65,19 +68,29 @@ void applyLimitOrDie(const int resource, const rlimit& limit, const std::string_
     }
 }
 
-/// @brief Sets the limit if given a non-zero value, otherwise skips.
-/// @details The implementation should be async signal safe.
-/// @warning This will sysexit if the set is not succesful.
-void setLimit(const int resource, const std::size_t amount, const std::string_view rlimit_name) noexcept(false)
+/// @brief Returns the RLIMIT_* macro name for the given platform resource constant, for use in
+/// log messages only.
+std::string_view rlimitResourceName(const int resource) noexcept
 {
-    if (amount == 0U)
+    switch (resource)
     {
-        return;
+        case RLIMIT_AS:
+            return "RLIMIT_AS";
+        case RLIMIT_CORE:
+            return "RLIMIT_CORE";
+        case RLIMIT_CPU:
+            return "RLIMIT_CPU";
+        case RLIMIT_DATA:
+            return "RLIMIT_DATA";
+        case RLIMIT_FSIZE:
+            return "RLIMIT_FSIZE";
+        case RLIMIT_NOFILE:
+            return "RLIMIT_NOFILE";
+        case RLIMIT_STACK:
+            return "RLIMIT_STACK";
+        default:
+            return "RLIMIT_<unknown>";
     }
-
-    const struct rlimit limit{amount, amount};
-
-    applyLimitOrDie(resource, limit, rlimit_name);
 }
 
 /// @details The implementation should be async signal safe.
@@ -122,25 +135,15 @@ void changeCurrentWorkingDirectory(const score::mw::lifecycle::internal::configu
     }
 }
 
-/// @details The implementation should be async signal safe.
-void implementMemoryResourceLimits(const score::mw::lifecycle::internal::configuration::Sandbox& config)
+// req-Id: comp_req__launch_man__process_rlimit_support
+/// @brief Applies every configured resource limit.
+/// @details The implementation should be async signal safe. Must run before the potential privilege drop in
+/// setSchedulingAndSecurity().
+void applyResourceLimits(const score::mw::lifecycle::internal::configuration::Sandbox& config)
 {
-    if (config.max_memory_usage.has_value())
+    for (const auto& rlimit_config : config.rlimits)
     {
-        setLimit(RLIMIT_DATA, config.max_memory_usage.value(), "RLIMIT_DATA");
-        setLimit(RLIMIT_AS, config.max_memory_usage.value(), "RLIMIT_AS");
-    }
-
-    // Stack limit - not in new config, skip
-    // setLimit(RLIMIT_STACK, 0, "RLIMIT_STACK");
-
-    // Note about cpu limit:
-    // Using setrlimit, this imposes a maximum time that a process will run for, which might not be
-    // what you intend? Probably you'll want a maximum time in a time-slice, but you don't get that
-    // with limits set by setrlimit...
-    if (config.max_cpu_usage.has_value())
-    {
-        setLimit(RLIMIT_CPU, config.max_cpu_usage.value(), "RLIMIT_CPU");
+        applyLimitOrDie(rlimit_config.resource, rlimit_config.limit, rlimitResourceName(rlimit_config.resource));
     }
 }
 
@@ -190,7 +193,7 @@ ProcessLauncher::startProcess(ProcessID& pid, IpcCommsP& block, const configurat
 
         if (comms_result)
         {
-            if (fflush(stdout) != 0)
+            if (fflush(stdout) == EOF)
             {
                 LM_LOG_ERROR() << "Failed to flush stdout before forking.";
             }
@@ -243,33 +246,13 @@ bool ProcessLauncher::setupComms(IpcCommsP& block, int& fd, const configuration:
 {
     size_t length = sizeof(IpcCommsSync);
 
-    constexpr std::string_view kShmNamePrefix{"/ipc_shared_mem"};
-    std::array<char, static_cast<std::size_t>(ProcessLimits::maxLocalBuffSize)> shm_name{};
-    static_cast<void>(kShmNamePrefix.copy(shm_name.data(), kShmNamePrefix.size()));
-
-    char* const counter_first = std::next(shm_name.data(), static_cast<std::ptrdiff_t>(kShmNamePrefix.size()));
-    // The last byte is excluded from the conversion range so that it keeps the zero from the value
-    // initialization above, which guarantees a null-terminated name for shm_open().
-    char* const counter_last = std::next(shm_name.data(), static_cast<std::ptrdiff_t>(shm_name.size() - 1U));
-
-    const auto conversion = std::to_chars(counter_first, counter_last, shm_name_counter++);
-    if (conversion.ec != std::errc{})
-    {
-        LM_LOG_ERROR() << "Shared memory name truncated: the local buffer is too small for the shared memory "
-                          "object name.";
-        return false;
-    }
-    *conversion.ptr = '\0';
-
-    fd = shm_open(shm_name.data(), O_CREAT | O_EXCL | O_RDWR, 0U);
+    fd = shm_open_anon("/lm_running_report_ipc\0");
     if (fd < 0)
     {
         LM_LOG_ERROR() << "shm_open failed:" << config.deployment_config.executable_path
                        << "Unable to open shared memory object. Error:" << errno_message(errno);
         return false;
     }
-
-    shm_unlink(shm_name.data());
 
     if (-1 == ftruncate(fd, static_cast<int>(length)))
     {
@@ -385,13 +368,14 @@ void ProcessLauncher::handleChildProcess(ChildProcessConfig& param)
 {
     handleComms(param);
 
+    applyResourceLimits(param.config.deployment_config.sandbox);
+
     if (OsalReturnType::kSuccess != setSchedulingAndSecurity(param.config.deployment_config.sandbox))
     {
         sysexit(EXIT_FAILURE);
     }
 
     changeCurrentWorkingDirectory(param.config.deployment_config);
-    implementMemoryResourceLimits(param.config.deployment_config.sandbox);
     changeSecurityPolicy(param.config.deployment_config.sandbox);
 
     // Build argv array - note: must be null-terminated
@@ -411,12 +395,11 @@ void ProcessLauncher::handleChildProcess(ChildProcessConfig& param)
     char* const* envp = param.config.deployment_config.environmental_variables.envp();
 
     // Finally, execute the process, passing all the arguments and environment variables
-    if (-1 == execve(argv[0], const_cast<char* const*>(argv.data()), envp))
-    {
-        static_cast<void>(signal_safe_log_errno(
-            errno, "execve failed: Unable to execute the ", param.config.deployment_config.executable_path, " app."));
-        sysexit(EXIT_FAILURE);
-    }
+    static_cast<void>(execve(argv[0], const_cast<char* const*>(argv.data()), envp));
+    // A successful execve replaces the process image; returning here always means failure.
+    static_cast<void>(signal_safe_log_errno(
+        errno, "execve failed: Unable to execute the ", param.config.deployment_config.executable_path, " app."));
+    sysexit(EXIT_FAILURE);
 }
 
 OsalReturnType ProcessLauncher::requestTermination(ProcessID pid)

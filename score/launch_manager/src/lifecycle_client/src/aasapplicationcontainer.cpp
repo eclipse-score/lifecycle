@@ -35,10 +35,9 @@ std::int32_t AasApplicationContainer::Initialize(const ApplicationContext& conte
     std::vector<std::int32_t> thread_results(applications_.size());
     std::vector<score::cpp::jthread> threads;
     threads.reserve(applications_.size());
-    auto result_iterator = thread_results.begin();
 
-    for (auto& app : applications_)
-    {
+    std::for_each(applications_.begin(), applications_.end(), [&](auto& app) {
+        const auto result_iterator = thread_results.begin() + (&app - applications_.data());
         threads.emplace_back(
             [](decltype(result_iterator) thread_result,
                Application& app_ref,
@@ -48,8 +47,7 @@ std::int32_t AasApplicationContainer::Initialize(const ApplicationContext& conte
             result_iterator,
             std::ref(*app),
             context);
-        result_iterator++;
-    }
+    });
 
     for (auto& thread : threads)
     {
@@ -82,9 +80,9 @@ std::int32_t AasApplicationContainer::Run(const score::cpp::stop_token& token)
         std::vector<std::int32_t> thread_results(applications_.size(), 0);
         std::vector<score::cpp::jthread> threads;
         threads.reserve(applications_.size());
-        auto result_iterator = thread_results.begin();
-        for (auto& application : applications_)
-        {
+
+        std::for_each(applications_.begin(), applications_.end(), [&](auto& application) {
+            const auto result_iterator = thread_results.begin() + (&application - applications_.data());
             threads.emplace_back(
                 [](decltype(result_iterator) thread_result,
                    std::unique_ptr<Application> app,
@@ -94,8 +92,7 @@ std::int32_t AasApplicationContainer::Run(const score::cpp::stop_token& token)
                 result_iterator,
                 std::move(application),
                 token);
-            result_iterator++;
-        }
+        });
         applications_.clear();
 
         result = last_application->Run(token);

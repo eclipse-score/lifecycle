@@ -27,7 +27,8 @@ using namespace std::chrono_literals;
 namespace
 {
 
-constexpr std::chrono::seconds k_maxSeconds = std::chrono::seconds::max();
+constexpr std::chrono::seconds k_maxSeconds =
+    std::chrono::duration_cast<std::chrono::seconds>(std::chrono::nanoseconds::max());
 
 const std::chrono::nanoseconds k_maxRemainderNanoSec = std::chrono::nanoseconds::max() - k_maxSeconds;
 
@@ -119,7 +120,7 @@ TEST_F(TimeConversionTest, ConvertToNanoSec_MaxRepresentableValue_ReturnsMax)
         "This test verifies that the largest representable timespec is converted to the maximum "
         "nanoseconds value without overflow.");
     const timespec ts{k_maxSeconds.count(), k_maxRemainderNanoSec.count()};
-    ASSERT_EQ(TimeConversion::convertToNanoSec(ts), std::numeric_limits<nanoseconds>::max());
+    ASSERT_EQ(TimeConversion::convertToNanoSec(ts), nanoseconds::max());
 }
 
 TEST_F(TimeConversionTest, ConvertToNanoSec_NanoSecondOverflow_ReturnsZero)

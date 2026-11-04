@@ -82,13 +82,13 @@ Security Work products List
 .. attention::
     The above table must be updated according to your feature security planning.
 
-    - Fill the work producs links
+    - Fill the work products links
 
 Feature Security Package
 ========================
 
 To create the security package (according to :need:`gd_guidl__security_package`) the following
-documents and work products status have to go to "valid" (after the relevant verification were performed).
+documents and work products status have to go to "valid" (after the relevant verifications were performed).
 
 Feature Documents Status
 ------------------------

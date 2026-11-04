@@ -215,8 +215,12 @@ class BasicLmControlImpl final : public ILmControl
             callback_ = std::move(callback);
         }
 
-        // Check for any pending events from before the handler was installed.
-        onActivationResult();
+        // Check for any pending events from before the handler was installed. Only possible once connected;
+        // until then the receive handler, installed on connection, takes care of the samples.
+        if (connectedProxy() != nullptr)
+        {
+            onActivationResult();
+        }
 
         return {};
     }
@@ -251,14 +255,19 @@ class BasicLmControlImpl final : public ILmControl
     score::Result<void> wait_for_connection(std::chrono::milliseconds timeout, const score::cpp::stop_token& stop_token)
         override
     {
-        std::unique_lock<std::mutex> lock{mutex_};
-        const bool connected = connection_cv_.wait_for(lock, stop_token, timeout, [this] {
-            return proxy_.has_value();
-        });
-        if (!connected)
         {
-            return score::MakeUnexpected(ExecErrc::kCommunicationError);
+            std::unique_lock<std::mutex> lock{mutex_};
+            const bool connected = connection_cv_.wait_for(lock, stop_token, timeout, [this] {
+                return proxy_.has_value();
+            });
+            if (!connected)
+            {
+                return score::MakeUnexpected(ExecErrc::kCommunicationError);
+            }
         }
+
+        // Must run without mutex_ held, it takes the lock itself.
+        awaitNotificationRegistration();
         return {};
     }
 
@@ -279,6 +288,31 @@ class BasicLmControlImpl final : public ILmControl
 
     /// @brief Allow to read small number of samples at once
     static constexpr std::size_t kActivationResultSampleCount = 4U;
+
+    /// @brief Waits until the Launch Manager (LM) has processed our receive handler registration.
+    /// @details SetReceiveHandler() only queues a registration message to the LM and returns without waiting for it
+    ///          to be handled.
+    ///          An event the LM sends before it handles that message is stored, but no
+    ///          notification is sent for it, so the receive handler never runs for it and it stays unread until the
+    ///          next event. The LM handles the messages of one client connection in the order they were sent, and
+    ///          method calls use the same connection, so the reply to a method call proves that the earlier
+    ///          registration has been handled. Anything sent after that is notified, anything sent before is
+    ///          picked up by the drain that must follow this call.
+    /// @pre The proxy has been set up; proxy_ is never reset once wait_for_connection() has observed it.
+    /// @note The result of the method call is irrelevant. This is best effort: on failure we fall back to
+    ///       relying on notifications alone.
+    void awaitNotificationRegistration() noexcept
+    {
+        auto* const proxy = connectedProxy();
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(proxy != nullptr, "must only be called once connected");
+
+        const auto result = proxy->get_active_run_target();
+        if (!result.has_value())
+        {
+            LM_LOG_WARN() << "LmControl: could not confirm the activation_result notification registration:"
+                          << result.error();
+        }
+    }
 
     /// @brief Returns the proxy instance or nullptr if not connected
     ProxyType* connectedProxy() noexcept
@@ -445,31 +479,52 @@ class BasicLmControlImpl final : public ILmControl
         LM_LOG_DEBUG() << "LmControl: activation_result: user callback invoked";
     }
 
-    // Guards proxy_
+    /// @brief Guards proxy_
     std::mutex mutex_;
-    // Signalled (under mutex_) once proxy_ is set up, wakes wait_for_connection()
+
+    /// @brief Signalled (under mutex_) once proxy_ is set up, wakes wait_for_connection()
     concurrency::InterruptibleConditionalVariableBasic<std::mutex, std::condition_variable> connection_cv_;
+
+    /// @brief The proxy instance.
     std::optional<ProxyType> proxy_;
 
-    // Handle of the running discovery search, stopped by the destructor. Written once by init()
-    // and never touched again, so it needs no lock.
+    /// @brief Handle of the running discovery search, stopped by the
+    ///        destructor. Written once by init() and never touched again, so
+    ///        it needs no lock.
     std::optional<FindServiceHandle> find_handle_;
 
-    // Lifetime bound of the discovery callback. Expiring it blocks until a running
-    // onServiceFound() has returned and prevents any further invocation.
+    /// @brief Lifetime bound of the discovery callback. Expiring it blocks
+    ///        until a running onServiceFound() has returned and prevents any
+    ///        further invocation.
     safecpp::Scope<> discovery_scope_;
 
+    /// @brief The callback registered by the user.
     ActivationCallback callback_;
+
+    // Guards callback_
     std::mutex callback_mutex_;
 
-    // Serializes onActivationResult() against itself: mw::com may dispatch the
-    // receive handler concurrently, but proxy-event API calls on a single event
-    // must not overlap.
+    /// @brief Serializes onActivationResult() against itself: mw::com may
+    ///        dispatch the receive handler concurrently, but proxy-event API
+    ///        calls on a single event must not overlap.
     std::mutex sample_processing_mutex_;
 };
 
 /// @brief Production alias: BasicLmControlImpl wired to the real mw::com proxy.
 using LmControlImpl = BasicLmControlImpl<MwComProxyTraits>;
+
+/// @brief Factory body behind ILmControl::Create; Impl is a test seam.
+template <typename Impl = LmControlImpl>
+score::Result<std::unique_ptr<ILmControl>> CreateLmControl(std::string_view instance_specifier)
+{
+    auto instance = std::make_unique<Impl>();
+    const auto init_result = instance->init(instance_specifier);
+    if (!init_result.has_value())
+    {
+        return score::MakeUnexpected<std::unique_ptr<ILmControl>>(init_result.error());
+    }
+    return instance;
+}
 
 }  // namespace score::mw::lifecycle::internal
 

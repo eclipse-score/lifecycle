@@ -22,7 +22,7 @@ ProcessStopAction::ProcessStopAction(osal::IProcess& launcher) : launcher_(launc
 {
 }
 
-Result<IComponent::RequestState> ProcessStopAction::stop(cpp::stop_token stop_token, const Handle& handle) const
+Result<IComponent::RequestResult> ProcessStopAction::stop(cpp::stop_token /*stop_token*/, const Handle& handle) const
 {
     const ProcessHandle* const process = std::get_if<ProcessHandle>(&handle);
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
@@ -30,14 +30,14 @@ Result<IComponent::RequestState> ProcessStopAction::stop(cpp::stop_token stop_to
 
     if (process->pid == -1)
     {
-        return IComponent::RequestState::kSuccess;
+        return IComponent::RequestResult::kSuccess;
     }
 
     const osal::OsalReturnType result = launcher_.requestTermination(process->pid);
 
     if (result == osal::OsalReturnType::kSuccess)
     {
-        return IComponent::RequestState::kWaiting;
+        return IComponent::RequestResult::kSuccess;
     }
 
     return MakeUnexpected(ExecErrc::kGeneralError);

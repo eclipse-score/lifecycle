@@ -1,5 +1,5 @@
 {
-    "schema_version": 1,
+    "schema_version": 2,
     "defaults": {
         "deployment_config": {
             "ready_timeout_ms": 1000,
@@ -11,12 +11,8 @@
             },
             "bin_dir": "/opt/apps",
             "working_dir": "/var/run/apps",
-            "ready_recovery_action": {
-                "restart": {
-                    "number_of_attempts": 3,
-                    "delay_before_restart_ms": 1000
-                }
-            },
+            "activation_retry_attempts": 3,
+            "activation_retry_delay_ms": 100,
             "recovery_action": {
                 "switch_run_target": {
                     "run_target": "fallback_run_target"
@@ -29,8 +25,10 @@
                 "security_policy": "apparmor_profile",
                 "scheduling_policy": "SCHED_FIFO",
                 "scheduling_priority": 50,
-                "max_memory_usage": 536870912,
-                "max_cpu_usage": 80,
+                "rlimits": {
+                    "RLIMIT_AS": 536870912,
+                    "RLIMIT_CPU": 80
+                },
                 "affinity_mask": "0x3"
             }
         },
@@ -97,12 +95,8 @@
                 },
                 "bin_dir": "/opt/apps/a",
                 "working_dir": "/var/run/a",
-                "ready_recovery_action": {
-                    "restart": {
-                        "number_of_attempts": 254,
-                        "delay_before_restart_ms": 500
-                    }
-                },
+                "activation_retry_attempts": 254,
+                "activation_retry_delay_ms": 500,
                 "recovery_action": {
                     "switch_run_target": {
                         "run_target": "fallback_run_target"
@@ -115,8 +109,17 @@
                     "security_policy": "apparmor_a",
                     "scheduling_policy": "SCHED_RR",
                     "scheduling_priority": 75,
-                    "max_memory_usage": 268435456,
-                    "max_cpu_usage": 50
+                    "rlimits": {
+                        "RLIMIT_AS": {
+                            "soft": 268435456,
+                            "hard": 268435456
+                        },
+                        "RLIMIT_CORE": 0,
+                        "RLIMIT_NOFILE": {
+                            "soft": 1024,
+                            "hard": "unlimited"
+                        }
+                    }
                 }
             }
         },

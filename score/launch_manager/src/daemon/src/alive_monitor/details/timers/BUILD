@@ -76,3 +76,23 @@ cc_library(
         ":timers_os_clock",
     ],
 )
+
+lm_cc_test(
+    name = "CycleTimeValidator_UT",
+    srcs = ["CycleTimeValidator_UT.cpp"],
+    deps = [
+        ":cycle_time_validator",
+        ":os_clock_interface",
+        "@googletest//:gtest_main",
+    ],
+)
+
+lm_cc_test(
+    name = "CycleTimer_UT",
+    srcs = ["CycleTimer_UT.cpp"],
+    deps = [
+        ":cycle_timer",
+        ":os_clock_interface",
+        "@googletest//:gtest_main",
+    ],
+)

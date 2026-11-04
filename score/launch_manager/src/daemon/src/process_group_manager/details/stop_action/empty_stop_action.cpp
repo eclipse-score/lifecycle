@@ -16,9 +16,9 @@
 namespace score::mw::lifecycle::internal
 {
 
-Result<IComponent::RequestState> EmptyStopAction::stop(cpp::stop_token stop_token, const Handle&) const
+Result<IComponent::RequestResult> EmptyStopAction::stop(cpp::stop_token, const Handle&) const
 {
-    return IComponent::RequestState::kSuccess;
+    return IComponent::RequestResult::kSuccess;
 }
 
 }  // namespace score::mw::lifecycle::internal

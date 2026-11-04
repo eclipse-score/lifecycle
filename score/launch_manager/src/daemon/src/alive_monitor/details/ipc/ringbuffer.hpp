@@ -19,6 +19,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <memory>
 #include <new>
 #include <type_traits>
 #include <utility>
@@ -77,7 +78,7 @@ class RingBuffer
             return false;
         }
         Node& n = nodes_[write_head_];
-        if (std::memcpy(n.storage, &value, sizeof(T)) != n.storage)
+        if (std::memcpy(n.storage, std::addressof(value), sizeof(T)) == &value)
         {
             return false;
         }
@@ -126,7 +127,11 @@ class RingBuffer
         {
             return false;
         }
-        std::memcpy(&out, n.storage, n.size_);
+        // codeql[c/cert/library-function-argument-out-of-bounds] False positive: CodeQL sizes &out as its first member only (e.g. the 8-byte IdentifierHash of SupervisionEvent), not as a whole T. The source holds sizeof(T) by the static_assert on ElementSize and the n.size_ check.
+        if (std::memcpy(&out, n.storage, sizeof(T)) != static_cast<void*>(&out))
+        {
+            return false;
+        }
         advanceReadHead();
         return true;
     }

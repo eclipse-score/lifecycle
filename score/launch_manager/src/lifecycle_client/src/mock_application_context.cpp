@@ -14,6 +14,7 @@
 #include "score/mw/lifecycle/mock_application_context.h"
 #include "score/mw/lifecycle/applicationcontext.h"
 
+#include <algorithm>
 #include <functional>
 
 namespace
@@ -86,12 +87,12 @@ std::string score::mw::lifecycle::ApplicationContext::get_argument(const std::st
     {
         return get_argument_callback(flag);
     }
-    for (auto it = m_args.cbegin(); it != m_args.cend(); ++it)
+    const auto it = std::find_if(m_args.cbegin(), m_args.cend(), [flag](const std::string& arg) {
+        return arg.rfind(flag, 0) == 0;
+    });
+    if (it != m_args.cend())
     {
-        if (it->rfind(flag, 0) == 0)
-        {
-            return *it;
-        }
+        return *it;
     }
     return {};
 }

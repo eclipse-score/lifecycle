@@ -125,7 +125,7 @@ recovery_action (object)
 **Properties:**
 
 restart (object, optional)
-    Description: Defines a recovery action that restarts the POSIX process associated with this component.
+    Description: Defines a recovery action that restarts the POSIX process associated with this component. This option is reserved: it is currently not referenced by any property.
 
 restart.number_of_attempts (integer, optional)
     Description: Specifies the maximum number of restart attempts before the **Launch Manager** concludes that recovery cannot succeed for the component.
@@ -281,7 +281,19 @@ bin_dir (string, optional)
 working_dir (string, optional)
     Description: Specifies the directory to be used as the working directory for the component during execution. If not defined, the binary's directory (``bin_dir``) is used as the working directory by default.
 
+activation_retry_attempts (integer, optional)
+    Description: Specifies the number of additional attempts the **Launch Manager** makes to activate the component when it fails to reach its **Ready State** during a **Run Target** transition. A value of 0 means the component is started once and a failure is treated as a **Run Target** transition failure.
+    Constraint: Must be between 0 and 255 inclusive.
+    Default: 0
+
+activation_retry_delay_ms (integer, optional)
+    Description: Specifies the delay duration, in milliseconds, that the **Launch Manager** waits before each activation retry. This value is currently not evaluated by the **Launch Manager**.
+    Constraint: Must be between 0 and 4294967295 inclusive.
+    Default: 0
+
 ready_recovery_action (object, optional)
+    **Deprecated.** Use ``activation_retry_attempts`` and ``activation_retry_delay_ms`` instead. ``restart.number_of_attempts`` is converted to ``activation_retry_attempts`` and ``restart.delay_before_restart_ms`` is converted to ``activation_retry_delay_ms`` automatically (a warning is printed).
+
     Description: Specifies the recovery action to execute when the component fails to reach its **Ready State** within the configured ``ready_timeout_ms``. This action is limited to ``restart`` operations.
     Reference: This property refers to the ``recovery_action`` reusable type defined in this schema, specifically enforcing the ``restart`` option.
 
@@ -314,13 +326,33 @@ sandbox.scheduling_policy (string, optional)
 sandbox.scheduling_priority (integer, optional)
     Description: Specifies the scheduling priority applied to the component's initial thread, influencing its allocation of CPU time.
 
-sandbox.max_memory_usage (integer, optional)
-    Description: Specifies the maximum amount of memory, in bytes, that the component is permitted to use during runtime.
-    Constraint: Must be greater than 0.
+sandbox.rlimits (object, optional)
+    Description: Defines the POSIX resource limits (rlimits) applied to the component before it is executed.
 
-sandbox.max_cpu_usage (integer, optional)
-    Description: Specifies the maximum CPU usage limit for the component, expressed as a percentage (%) of total CPU capacity.
-    Constraint: Must be greater than 0.
+    Each key names a resource limit specified by POSIX.1 (XSI). For the meaning of a limit and the behaviour when it is exceeded, see ``setrlimit(2)`` and IEEE Std 1003.1 ``<sys/resource.h>``.
+
+    A value is either a single integer, which is shorthand for an equal soft and hard limit, or an object with explicit ``soft`` and ``hard`` members. Either bound may be the literal string ``"unlimited"`` instead of an integer. Units are documented for each value separately.
+
+sandbox.rlimits.RLIMIT_AS (integer or object, optional)
+    Description: Specifies the maximum size, in bytes, of the component's total virtual address space.
+
+sandbox.rlimits.RLIMIT_CORE (integer or object, optional)
+    Description: Specifies the maximum size, in bytes, of a core dump file the component may produce; 0 disables core dumps.
+
+sandbox.rlimits.RLIMIT_CPU (integer or object, optional)
+    Description: Specifies the maximum amount of CPU time, in seconds, the component may accumulate over its entire lifetime.
+
+sandbox.rlimits.RLIMIT_DATA (integer or object, optional)
+    Description: Specifies the maximum size, in bytes, of the component's data segment.
+
+sandbox.rlimits.RLIMIT_FSIZE (integer or object, optional)
+    Description: Specifies the maximum size, in bytes, of a file the component may create. Note: This is currently not supported on QNX8 and always fails.
+
+sandbox.rlimits.RLIMIT_NOFILE (integer or object, optional)
+    Description: Specifies the highest file descriptor number the component may use, plus one.
+
+sandbox.rlimits.RLIMIT_STACK (integer or object, optional)
+    Description: Specifies the maximum size, in bytes, of the component's process stack; applied before the component's executable image is loaded.
 
 sandbox.affinity_mask (string, optional)
     Description: Specifies the affinity mask defining on which CPU cores the component may be scheduled, as a hexadecimal string prefixed with ``0x`` (e.g. ``"0x3"``). Bit 0 corresponds to core 0, bit 1 to core 1, and so on; up to 64 cores are supported. For example, ``"0x5"`` selects cores 0 and 2. If not configured, the component inherits the CPU affinity of the **Launch Manager** itself, i.e. no affinity system call is made on its behalf.
@@ -355,7 +387,7 @@ schema_version (integer, required)
 **Description:**
   Specifies the schema version number that the **Launch Manager** uses to determine how to parse and validate this configuration file.
 **Allowed Value:**
-  ``1``
+  ``2``
 
 .. _lm_conf_defaults_object_optional_:
 

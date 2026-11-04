@@ -26,8 +26,8 @@ FFICode deadline_monitor_builder_destroy(FFIHandle deadline_monitor_builder_hand
 FFICode deadline_monitor_builder_add_deadline(
     FFIHandle deadline_monitor_builder_handle,
     const DeadlineTag* deadline_tag,
-    uint32_t min_ms,
-    uint32_t max_ms);
+    uint64_t min_ms,
+    uint64_t max_ms);
 FFICode deadline_monitor_get_deadline(
     FFIHandle deadline_monitor_handle,
     const DeadlineTag* deadline_tag,

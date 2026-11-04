@@ -55,6 +55,11 @@ TEST(ShutdownSignal, Daemon)
         ASSERT_TRUE(result.has_value());
     }
 
+    TEST_STEP("Wait for client connection")
+    {
+        ASSERT_TRUE(client->wait_for_connection().has_value());
+    }
+
     TEST_STEP("Report running")
     {
         report_running();

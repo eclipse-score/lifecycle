@@ -87,7 +87,7 @@ Rationale Behind Architecture Decomposition
 
 Mandatory: A motivation for the decomposition or reason for not further splitting it into internal components.
 
-.. note:: Common decisions across components / cross cutting concepts is at the higher level.
+.. note:: Common decisions across components / cross-cutting concepts are at the higher level.
 
 Static Architecture
 -------------------

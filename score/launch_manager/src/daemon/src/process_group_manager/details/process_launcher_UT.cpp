@@ -236,12 +236,20 @@ struct SysExitException
 {
 };
 
+/// @brief A successful execve() replaces the process image and never returns to its caller.
+/// We mock this by throwing an exception to interrupt execution.
+struct ExecveSuccess
+{
+};
+
 class StartProcessTest : public ProcessLauncherTest
 {
   protected:
     void SetUp() override
     {
         ProcessLauncherTest::SetUp();
+
+        ON_CALL(*g_syscall_mock, execve).WillByDefault(Throw(ExecveSuccess{}));
 
         EXPECT_CALL(*g_syscall_mock, getpid).Times(AnyNumber()).WillRepeatedly(Return(forked_pid));
 
@@ -250,9 +258,6 @@ class StartProcessTest : public ProcessLauncherTest
         config_.component_properties.application_profile.application_type = configuration::ApplicationType::Native;
         config_.deployment_config.executable_path = "/bin/TestProcess";
         config_.deployment_config.working_dir = "/tmp";
-        config_.deployment_config.sandbox.max_memory_usage = std::nullopt;
-        config_.deployment_config.sandbox.max_cpu_usage = std::nullopt;
-        config_.deployment_config.sandbox.max_memory_usage = std::nullopt;
         config_.deployment_config.sandbox.security_policy = std::nullopt;
         config_.deployment_config.sandbox.scheduling_priority = 1;
         config_.deployment_config.sandbox.scheduling_policy = SCHED_RR;
@@ -292,8 +297,7 @@ class StartProcessTest : public ProcessLauncherTest
     {
         const int fd = 123;
         void* data = static_cast<void*>(test_buffer.data());
-        EXPECT_CALL(*g_syscall_mock, shm_open).WillOnce(Return(fd));
-        EXPECT_CALL(*g_syscall_mock, shm_unlink).WillOnce(Return(0));
+        EXPECT_CALL(*g_syscall_mock, shm_open_anon).WillOnce(Return(fd));
         EXPECT_CALL(*g_syscall_mock, mmap(_, _, _, _, fd, _)).WillOnce(Return(data));
         EXPECT_CALL(*g_syscall_mock, ftruncate(fd, _)).WillOnce(Return(0));
         EXPECT_CALL(*g_syscall_mock, munmap(data, sizeof(IpcCommsSync))).WillOnce(Return(0));
@@ -375,7 +379,7 @@ TEST_F(SetupCommsTest, shmOpenFails)
 {
     RecordProperty("Description", "Verify that if opening shared memory fails, startProcess fails");
 
-    EXPECT_CALL(*g_syscall_mock, shm_open).WillOnce(Return(-1));
+    EXPECT_CALL(*g_syscall_mock, shm_open_anon).WillOnce(Return(-1));
 
     EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
 }
@@ -384,8 +388,7 @@ TEST_F(SetupCommsTest, ftruncateFails)
 {
     RecordProperty("Description", "Verify that if truncating shared memory fails, startProcess fails");
 
-    EXPECT_CALL(*g_syscall_mock, shm_open).WillOnce(Return(123));
-    EXPECT_CALL(*g_syscall_mock, shm_unlink).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, shm_open_anon).WillOnce(Return(123));
     EXPECT_CALL(*g_syscall_mock, ftruncate).WillOnce(Return(-1));
 
     EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
@@ -395,8 +398,7 @@ TEST_F(SetupCommsTest, getCommsFails)
 {
     RecordProperty("Description", "Verify that if truncating shared memory fails, startProcess fails");
 
-    EXPECT_CALL(*g_syscall_mock, shm_open).WillOnce(Return(123));
-    EXPECT_CALL(*g_syscall_mock, shm_unlink).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, shm_open_anon).WillOnce(Return(123));
     EXPECT_CALL(*g_syscall_mock, ftruncate).WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, mmap).WillOnce(Return(MAP_FAILED));
 
@@ -503,7 +505,7 @@ TEST_F(SetSchedulingAndSecurityTest, setschedClampedUpper)
     EXPECT_CALL(*g_syscall_mock, sched_setscheduler(_, _, Field(&sched_param::sched_priority, Lt(too_high))))
         .WillOnce(Return(0));
 
-    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
 }
 
 TEST_F(SetSchedulingAndSecurityTest, setschedClampedLower)
@@ -523,7 +525,7 @@ TEST_F(SetSchedulingAndSecurityTest, setschedClampedLower)
     EXPECT_CALL(*g_syscall_mock, sched_setscheduler(_, _, Field(&sched_param::sched_priority, Gt(too_low))))
         .WillOnce(Return(0));
 
-    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
 }
 
 TEST_F(SetSchedulingAndSecurityTest, setgroupsFails)
@@ -574,7 +576,7 @@ TEST_F(SetSchedulingAndSecurityTest, setaffinityIgnore)
     EXPECT_CALL(*g_syscall_mock, setaffinity).Times(0);
     EXPECT_CALL(*g_syscall_mock, setgroups).WillOnce(Return(0));
 
-    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
 }
 
 TEST_F(SetSchedulingAndSecurityTest, supplementaryGroupsAreCleared)
@@ -587,7 +589,7 @@ TEST_F(SetSchedulingAndSecurityTest, supplementaryGroupsAreCleared)
     ExpectSuccessfulSchedulingAndSecurity();
     EXPECT_CALL(*g_syscall_mock, setgroups(0, _)).WillOnce(Return(0));
 
-    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
 }
 
 TEST_F(StartProcessTest, chdirFails)
@@ -623,7 +625,9 @@ TEST_F(StartProcessTest, setRLimitFails)
 {
     RecordProperty("Description", "Verify that the forked process exits if setting a limit fails");
 
-    config_.deployment_config.sandbox.max_cpu_usage = 500;
+    config_.deployment_config.sandbox.rlimits = {
+        {RLIMIT_CPU, {500, 500}},
+    };
 
     ExpectChildProcessStarts();
     ExpectSuccessfulSchedulingAndSecurity();
@@ -635,12 +639,9 @@ TEST_F(StartProcessTest, setRLimitFails)
     EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), SysExitException);
 }
 
-TEST_F(StartProcessTest, setRLimitIgnore)
+TEST_F(StartProcessTest, noRlimitsConfiguredSkipsSetrlimit)
 {
-    RecordProperty("Description", "Verify that rlimits are not set if the configured value is 0");
-
-    config_.deployment_config.sandbox.max_cpu_usage = 0;
-    config_.deployment_config.sandbox.max_memory_usage = 0;
+    RecordProperty("Description", "Verify that setrlimit is not called when no rlimits are configured");
 
     ExpectChildProcessStarts();
     ExpectSuccessfulSchedulingAndSecurity();
@@ -648,7 +649,78 @@ TEST_F(StartProcessTest, setRLimitIgnore)
     EXPECT_CALL(*g_syscall_mock, setrlimit).Times(0);
     EXPECT_CALL(*g_syscall_mock, execve).Times(AtMost(1));
 
-    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
+}
+
+TEST_F(StartProcessTest, setRLimitZeroIsApplied)
+{
+    RecordProperty("Description", "Verify that a configured rlimit of 0 is applied via setrlimit");
+
+    config_.deployment_config.sandbox.rlimits = {
+        {RLIMIT_CORE, {0, 0}},
+    };
+
+    ExpectChildProcessStarts();
+    ExpectSuccessfulSchedulingAndSecurity();
+    ExpectSuccessfulChdir();
+    EXPECT_CALL(
+        *g_syscall_mock, setrlimit(RLIMIT_CORE, AllOf(Field(&rlimit::rlim_cur, 0U), Field(&rlimit::rlim_max, 0U))))
+        .WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, execve).Times(AtMost(1));
+
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
+}
+
+TEST_F(StartProcessTest, setRLimitPassesPreResolvedValuesUnchanged)
+{
+    RecordProperty(
+        "Description",
+        "Verify that applyResourceLimits() passes the resource and limit through to setrlimit() unchanged.");
+
+    config_.deployment_config.sandbox.rlimits = {
+        {RLIMIT_FSIZE, {1024U, RLIM_INFINITY}},
+    };
+
+    ExpectChildProcessStarts();
+    ExpectSuccessfulSchedulingAndSecurity();
+    ExpectSuccessfulChdir();
+    EXPECT_CALL(
+        *g_syscall_mock,
+        setrlimit(
+            RLIMIT_FSIZE,
+            AllOf(Field(&rlimit::rlim_cur, static_cast<rlim_t>(1024U)), Field(&rlimit::rlim_max, RLIM_INFINITY))))
+        .WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, execve).Times(AtMost(1));
+
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
+}
+
+TEST_F(StartProcessTest, rlimitsAppliedBeforePrivilegeDrop)
+{
+    RecordProperty(
+        "Description",
+        "Regression guard for the ordering defect where rlimits were applied after setuid()/setgid(): raising a "
+        "hard limit requires privilege, so setrlimit must be called before setuid.");
+
+    config_.deployment_config.sandbox.rlimits = {
+        {RLIMIT_NOFILE, {1024, 1024}},
+    };
+
+    ExpectChildProcessStarts();
+    ExpectSuccessfulChdir();
+
+    EXPECT_CALL(*g_syscall_mock, setpgid).WillOnce(Return(0));
+    EXPECT_CALL(*g_syscall_mock, sched_setscheduler).WillOnce(Return(0));
+
+    {
+        InSequence seq;
+        EXPECT_CALL(*g_syscall_mock, setrlimit(RLIMIT_NOFILE, _)).WillOnce(Return(0));
+        EXPECT_CALL(*g_syscall_mock, setgid).WillOnce(Return(0));
+        EXPECT_CALL(*g_syscall_mock, setgroups(_, _)).WillOnce(Return(0));
+        EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
+    }
+
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
 }
 
 TEST_F(StartProcessTest, execveFails)
@@ -717,8 +789,10 @@ TEST_F(StartProcessTest, startProcessChildSuccess)
     config_.deployment_config.sandbox.uid = uid;
     config_.deployment_config.sandbox.gid = gid;
     config_.deployment_config.sandbox.supplementary_group_ids = sgids;
-    config_.deployment_config.sandbox.max_memory_usage = mem_limit;
-    config_.deployment_config.sandbox.max_cpu_usage = cpu_limit;
+    config_.deployment_config.sandbox.rlimits = {
+        {RLIMIT_AS, {mem_limit, mem_limit}},
+        {RLIMIT_CPU, {cpu_limit, RLIM_INFINITY}},
+    };
     config_.deployment_config.sandbox.affinity_mask = affinity_mask;
     config_.deployment_config.sandbox.security_policy = security_policy;
     config_.deployment_config.environmental_variables.add("environment", "yes");
@@ -741,13 +815,10 @@ TEST_F(StartProcessTest, startProcessChildSuccess)
     EXPECT_CALL(*g_syscall_mock, chdir(StrEq("/tmp"))).WillOnce(Return(0));
     EXPECT_CALL(
         *g_syscall_mock,
-        setrlimit(RLIMIT_DATA, AllOf(Field(&rlimit::rlim_cur, mem_limit), Field(&rlimit::rlim_max, mem_limit))));
-    EXPECT_CALL(
-        *g_syscall_mock,
         setrlimit(RLIMIT_AS, AllOf(Field(&rlimit::rlim_cur, mem_limit), Field(&rlimit::rlim_max, mem_limit))));
     EXPECT_CALL(
         *g_syscall_mock,
-        setrlimit(RLIMIT_CPU, AllOf(Field(&rlimit::rlim_cur, cpu_limit), Field(&rlimit::rlim_max, cpu_limit))));
+        setrlimit(RLIMIT_CPU, AllOf(Field(&rlimit::rlim_cur, cpu_limit), Field(&rlimit::rlim_max, RLIM_INFINITY))));
     EXPECT_CALL(*g_syscall_mock, setSecurityPolicy(StrEq(security_policy.data()))).WillOnce(Return(0));
     EXPECT_CALL(
         *g_syscall_mock,
@@ -755,11 +826,11 @@ TEST_F(StartProcessTest, startProcessChildSuccess)
             StrEq(expected_launch_args[0]),
             ArgvMatches(expected_launch_args),
             config_.deployment_config.environmental_variables.envp()))
-        .WillOnce(Return(0));
+        .WillOnce(Throw(ExecveSuccess{}));
 
     EXPECT_CALL(*g_syscall_mock, sysexit).Times(0);  // No failures
 
-    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
 
     EXPECT_EQ(block->pid_, forked_pid);
     EXPECT_EQ(block->comms_type_, CommsType::kReporting);

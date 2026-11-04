@@ -19,8 +19,10 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <sys/resource.h>
 #include <cerrno>
 #include <cstdint>
+#include <limits>
 #include <vector>
 
 namespace score::mw::lifecycle::internal::configuration
@@ -89,7 +91,8 @@ std::vector<uint8_t> finishBuffer(
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        0 /*ready_recovery_action*/,
+        0 /*activation_retry_attempts*/,
+        0 /*activation_retry_delay_ms*/,
         0 /*recovery_action*/,
         sandbox);
 }
@@ -232,7 +235,8 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSingleComponent)
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        0 /*ready_recovery_action*/,
+        0 /*activation_retry_attempts*/,
+        0 /*activation_retry_delay_ms*/,
         0 /*recovery_action*/,
         sandbox);
 
@@ -295,7 +299,8 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSingleComponentWithFileState)
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        0 /*ready_recovery_action*/,
+        0 /*activation_retry_attempts*/,
+        0 /*activation_retry_delay_ms*/,
         0 /*recovery_action*/,
         sandbox);
 
@@ -448,13 +453,13 @@ TEST_F(FlatbufferConfigLoaderTest, LoadWatchdog)
     EXPECT_THAT(wd.require_magic_close, IsFalse());
 }
 
-TEST_F(FlatbufferConfigLoaderTest, LoadRestartRecoveryAction)
+TEST_F(FlatbufferConfigLoaderTest, LoadActivationRetryAttempts)
 {
-    RecordProperty("Description", "Recovery action variant holds RestartAction with correct fields on a component.");
+    RecordProperty(
+        "Description", "activation_retry_attempts is carried through to the deployment config of a component.");
 
     ::flatbuffers::FlatBufferBuilder fbb;
 
-    auto restart = fb::CreateRestartAction(fbb, 3 /*number_of_attempts*/, 1500 /*delay_before_restart_ms*/);
     auto bin_dir = fbb.CreateString("/opt");
     auto work_dir = fbb.CreateString("/tmp");
     auto sandbox = buildDefaultSandbox(fbb);
@@ -465,7 +470,8 @@ TEST_F(FlatbufferConfigLoaderTest, LoadRestartRecoveryAction)
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        restart,
+        3 /*activation_retry_attempts*/,
+        0 /*activation_retry_delay_ms*/,
         0 /*recovery_action*/,
         sandbox);
 
@@ -476,11 +482,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadRestartRecoveryAction)
 
     ASSERT_THAT(result.has_value(), IsTrue());
     ASSERT_THAT(result->components().size(), Eq(1U));
-    ASSERT_THAT(result->components()[0].deployment_config.ready_recovery_action.has_value(), IsTrue());
-
-    const auto& ra = result->components()[0].deployment_config.ready_recovery_action.value();
-    EXPECT_THAT(ra.number_of_attempts, Eq(3U));
-    EXPECT_THAT(ra.delay_before_restart_ms, Eq(1500U));
+    EXPECT_THAT(result->components()[0].deployment_config.activation_retry_attempts, Eq(3U));
 }
 
 TEST_F(FlatbufferConfigLoaderTest, LoadSwitchRunTargetAction)
@@ -510,6 +512,10 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
 
     auto sec_policy = fbb.CreateString("strict");
     auto supp_gids = fbb.CreateVector(std::vector<int64_t>{100, 200});
+    auto rlimit_as = fb::CreateRlimit(fbb, fb::RlimitResource::POSIX_RLIMIT_AS, 4096U, 4096U);
+    auto rlimit_cpu =
+        fb::CreateRlimit(fbb, fb::RlimitResource::POSIX_RLIMIT_CPU, 80U, std::numeric_limits<uint64_t>::max());
+    auto rlimits = fbb.CreateVector(std::vector<::flatbuffers::Offset<fb::Rlimit>>{rlimit_as, rlimit_cpu});
     auto sandbox = fb::CreateSandbox(
         fbb,
         1000 /*uid*/,
@@ -518,8 +524,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
         sec_policy,
         fb::SchedulingPolicy::FIFO,
         50 /*scheduling_priority*/,
-        4096 /*max_memory_usage*/,
-        80 /*max_cpu_usage*/,
+        rlimits,
         3 /*affinity_mask*/);
 
     auto bin_dir = fbb.CreateString("/opt");
@@ -531,7 +536,8 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        0 /*ready_recovery_action*/,
+        0 /*activation_retry_attempts*/,
+        0 /*activation_retry_delay_ms*/,
         0 /*recovery_action*/,
         sandbox);
 
@@ -551,10 +557,13 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
     EXPECT_THAT(sb.security_policy.value(), Eq("strict"));
     EXPECT_THAT(sb.scheduling_policy, Eq(SCHED_FIFO));
     EXPECT_THAT(sb.scheduling_priority, Eq(50));
-    ASSERT_THAT(sb.max_memory_usage.has_value(), IsTrue());
-    EXPECT_THAT(sb.max_memory_usage.value(), Eq(4096U));
-    ASSERT_THAT(sb.max_cpu_usage.has_value(), IsTrue());
-    EXPECT_THAT(sb.max_cpu_usage.value(), Eq(80U));
+    ASSERT_THAT(sb.rlimits.size(), Eq(2U));
+    EXPECT_THAT(sb.rlimits[0].resource, Eq(RLIMIT_AS));
+    EXPECT_THAT(sb.rlimits[0].limit.rlim_cur, Eq(4096U));
+    EXPECT_THAT(sb.rlimits[0].limit.rlim_max, Eq(4096U));
+    EXPECT_THAT(sb.rlimits[1].resource, Eq(RLIMIT_CPU));
+    EXPECT_THAT(sb.rlimits[1].limit.rlim_cur, Eq(80U));
+    EXPECT_THAT(sb.rlimits[1].limit.rlim_max, Eq(RLIM_INFINITY));
     ASSERT_THAT(sb.affinity_mask.has_value(), IsTrue());
     EXPECT_THAT(sb.affinity_mask.value(), Eq(3U));
 }
@@ -576,7 +585,8 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandboxWithoutAffinityMaskHasNoValue)
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        0 /*ready_recovery_action*/,
+        0 /*activation_retry_attempts*/,
+        0 /*activation_retry_delay_ms*/,
         0 /*recovery_action*/,
         sandbox);
 
@@ -647,7 +657,8 @@ TEST_F(FlatbufferConfigLoaderTest, LoadEnvironmentalVariables)
         env_vars,
         bin_dir,
         work_dir,
-        0 /*ready_recovery_action*/,
+        0 /*activation_retry_attempts*/,
+        0 /*activation_retry_delay_ms*/,
         0 /*recovery_action*/,
         sandbox);
 
@@ -842,7 +853,6 @@ TEST_P(
     // Given
     ::flatbuffers::FlatBufferBuilder fbb;
     const std::uint16_t NUMBER_OF_ATTEMPTS = GetParam().input;
-    auto restart = fb::CreateRestartAction(fbb, NUMBER_OF_ATTEMPTS, 1500);
     auto bin_dir = fbb.CreateString("/opt");
     auto work_dir = fbb.CreateString("/tmp");
     auto sandbox = buildDefaultSandbox(fbb);
@@ -853,7 +863,8 @@ TEST_P(
         0 /*environmental_variables*/,
         bin_dir,
         work_dir,
-        restart,
+        NUMBER_OF_ATTEMPTS /*activation_retry_attempts*/,
+        0 /*activation_retry_delay_ms*/,
         0 /*recovery_action*/,
         sandbox);
 
@@ -866,10 +877,7 @@ TEST_P(
     // Then
     ASSERT_THAT(result.has_value(), IsTrue());
     ASSERT_THAT(result->components().size(), Eq(1U));
-    ASSERT_THAT(result->components()[0].deployment_config.ready_recovery_action.has_value(), IsTrue());
-
-    const auto& ra = result->components()[0].deployment_config.ready_recovery_action.value();
-    EXPECT_THAT(ra.number_of_attempts, Eq(GetParam().expected));
+    EXPECT_THAT(result->components()[0].deployment_config.activation_retry_attempts, Eq(GetParam().expected));
 }
 
 INSTANTIATE_TEST_SUITE_P(

@@ -279,7 +279,7 @@ class Graph final
   private:
     /// @brief Reports that a node has finished executing, enqueuing successors or updating the graph state if a
     /// transition has finished.
-    void nodeExecuted(IdentifierHash node, score::cpp::expected_blank<IComponent::ComponentError> error);
+    void nodeExecuted(IdentifierHash node, IComponent::RequestResult result);
 
     /// @brief Sets the current state of the graph.
     /// @param new_state The new state to set for the graph.

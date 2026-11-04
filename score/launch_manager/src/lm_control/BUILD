@@ -58,15 +58,10 @@ lm_cc_test(
 lm_cc_test(
     name = "ilm_control_UT",
     srcs = ["src/details/ilm_control_UT.cpp"],
-    args = [
-        "--service_instance_manifest",
-        "$(rootpath src/details/test_lmcontrol_mw_com_config.json)",
-    ],
-    data = ["src/details/test_lmcontrol_mw_com_config.json"],
     deps = [
         ":lm_control",
-        "@googletest//:gtest",
-        "@score_baselibs//score/string_manipulation/arguments",
-        "@score_communication//score/mw/com",
+        "//score/launch_manager:error",
+        "@googletest//:gtest_main",
+        "@score_baselibs//score/result",
     ],
 )
