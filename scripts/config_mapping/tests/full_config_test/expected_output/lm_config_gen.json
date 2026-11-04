@@ -1,5 +1,5 @@
 {
-    "schema_version": 1,
+    "schema_version": 2,
     "components": [
         {
             "name": "component_a",
@@ -31,6 +31,8 @@
                 "shutdown_timeout_ms": 3000,
                 "bin_dir": "/opt/apps/a",
                 "working_dir": "/var/run/a",
+                "activation_retry_attempts": 254,
+                "activation_retry_delay_ms": 500,
                 "sandbox": {
                     "uid": 1001,
                     "gid": 1001,
@@ -41,8 +43,28 @@
                     "security_policy": "apparmor_a",
                     "scheduling_policy": "RR",
                     "scheduling_priority": 75,
-                    "max_memory_usage": 268435456,
-                    "max_cpu_usage": 50,
+                    "rlimits": [
+                        {
+                            "resource": "POSIX_RLIMIT_AS",
+                            "soft": 268435456,
+                            "hard": 268435456
+                        },
+                        {
+                            "resource": "POSIX_RLIMIT_CPU",
+                            "soft": 80,
+                            "hard": 80
+                        },
+                        {
+                            "resource": "POSIX_RLIMIT_CORE",
+                            "soft": 0,
+                            "hard": 0
+                        },
+                        {
+                            "resource": "POSIX_RLIMIT_NOFILE",
+                            "soft": 1024,
+                            "hard": 18446744073709551615
+                        }
+                    ],
                     "affinity_mask": 3
                 },
                 "environmental_variables": [
@@ -63,10 +85,6 @@
                         "value": "a_value"
                     }
                 ],
-                "ready_recovery_action": {
-                    "number_of_attempts": 254,
-                    "delay_before_restart_ms": 500
-                },
                 "recovery_action": {
                     "run_target": "fallback_run_target"
                 }
@@ -99,6 +117,8 @@
                 "shutdown_timeout_ms": 2000,
                 "bin_dir": "/opt/apps/b",
                 "working_dir": "/var/run/apps",
+                "activation_retry_attempts": 3,
+                "activation_retry_delay_ms": 100,
                 "sandbox": {
                     "uid": 1002,
                     "gid": 1002,
@@ -108,8 +128,18 @@
                     "security_policy": "apparmor_profile",
                     "scheduling_policy": "FIFO",
                     "scheduling_priority": 50,
-                    "max_memory_usage": 536870912,
-                    "max_cpu_usage": 80,
+                    "rlimits": [
+                        {
+                            "resource": "POSIX_RLIMIT_AS",
+                            "soft": 536870912,
+                            "hard": 536870912
+                        },
+                        {
+                            "resource": "POSIX_RLIMIT_CPU",
+                            "soft": 80,
+                            "hard": 80
+                        }
+                    ],
                     "affinity_mask": 3
                 },
                 "environmental_variables": [
@@ -126,10 +156,6 @@
                         "value": "value123"
                     }
                 ],
-                "ready_recovery_action": {
-                    "number_of_attempts": 3,
-                    "delay_before_restart_ms": 1000
-                },
                 "recovery_action": {
                     "run_target": "fallback_run_target"
                 }
@@ -161,6 +187,8 @@
                 "shutdown_timeout_ms": 2000,
                 "bin_dir": "/opt/apps/c",
                 "working_dir": "/var/run/apps",
+                "activation_retry_attempts": 3,
+                "activation_retry_delay_ms": 100,
                 "sandbox": {
                     "uid": 1003,
                     "gid": 1003,
@@ -172,8 +200,18 @@
                     "security_policy": "apparmor_profile",
                     "scheduling_policy": "FIFO",
                     "scheduling_priority": 50,
-                    "max_memory_usage": 536870912,
-                    "max_cpu_usage": 80,
+                    "rlimits": [
+                        {
+                            "resource": "POSIX_RLIMIT_AS",
+                            "soft": 536870912,
+                            "hard": 536870912
+                        },
+                        {
+                            "resource": "POSIX_RLIMIT_CPU",
+                            "soft": 80,
+                            "hard": 80
+                        }
+                    ],
                     "affinity_mask": 3
                 },
                 "environmental_variables": [
@@ -190,10 +228,6 @@
                         "value": "value123"
                     }
                 ],
-                "ready_recovery_action": {
-                    "number_of_attempts": 3,
-                    "delay_before_restart_ms": 1000
-                },
                 "recovery_action": {
                     "run_target": "fallback_run_target"
                 }
@@ -225,6 +259,8 @@
                 "shutdown_timeout_ms": 2000,
                 "bin_dir": "/opt/apps/sm",
                 "working_dir": "/var/run/apps",
+                "activation_retry_attempts": 3,
+                "activation_retry_delay_ms": 100,
                 "sandbox": {
                     "uid": 0,
                     "gid": 0,
@@ -236,8 +272,18 @@
                     "security_policy": "apparmor_profile",
                     "scheduling_policy": "FIFO",
                     "scheduling_priority": 50,
-                    "max_memory_usage": 536870912,
-                    "max_cpu_usage": 80,
+                    "rlimits": [
+                        {
+                            "resource": "POSIX_RLIMIT_AS",
+                            "soft": 536870912,
+                            "hard": 536870912
+                        },
+                        {
+                            "resource": "POSIX_RLIMIT_CPU",
+                            "soft": 80,
+                            "hard": 80
+                        }
+                    ],
                     "affinity_mask": 3
                 },
                 "environmental_variables": [
@@ -254,10 +300,6 @@
                         "value": "value123"
                     }
                 ],
-                "ready_recovery_action": {
-                    "number_of_attempts": 3,
-                    "delay_before_restart_ms": 1000
-                },
                 "recovery_action": {
                     "run_target": "fallback_run_target"
                 }

@@ -36,7 +36,7 @@ Component Architecture
 Overview
 --------
 
-Document describes HealthMonitor component architecture.
+This document describes the HealthMonitor component architecture.
 
 .. comp:: Health Monitor
    :id: comp__health_monitor
@@ -48,7 +48,7 @@ Document describes HealthMonitor component architecture.
    :implements: logic_arc_int__lifecycle__deadline_monitor_if[version==1], logic_arc_int__lifecycle__logical_monitor_if[version==1]
    :uses: logic_arc_int__lifecycle__alive_if[version==1]
 
-   Health Monitor component provides a set of functionalities to verify the health of the system and its components. It includes monitoring deadlines, logic, and heartbeats to ensure proper system functioning.
+   The Health Monitor component provides a set of functionalities to verify the health of the system and its components. It includes monitoring deadlines, logic, and heartbeats to ensure proper system functioning.
 
 Description
 -----------

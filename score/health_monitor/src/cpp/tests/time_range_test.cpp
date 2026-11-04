@@ -104,7 +104,7 @@ TEST_F(TimeRangeFixture, GivenMaxUint64_WhenConstructorCalled_ThenCrash)
 
     // Given
     constexpr std::chrono::milliseconds::rep VALID_MIN_COUNT = 0;
-    constexpr std::chrono::milliseconds::rep MAX_COUNT = UINT64_MAX;
+    constexpr std::chrono::milliseconds::rep MAX_COUNT = static_cast<std::chrono::milliseconds::rep>(UINT64_MAX);
 
     // When, Then
     ASSERT_DEATH(

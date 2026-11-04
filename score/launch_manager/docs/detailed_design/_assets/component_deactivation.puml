@@ -1,0 +1,140 @@
+' *******************************************************************************
+' Copyright (c) 2026 Contributors to the Eclipse Foundation
+'
+' See the NOTICE file(s) distributed with this work for additional
+' information regarding copyright ownership.
+'
+' This program and the accompanying materials are made available under the
+' terms of the Apache License Version 2.0 which is available at
+' https://www.apache.org/licenses/LICENSE-2.0
+'
+' SPDX-License-Identifier: Apache-2.0
+' *******************************************************************************
+
+@startuml component_deactivation
+
+title Component Deactivation
+
+box "Main loop thread" #F0F4FA
+participant "ProcessGroupManager" as PGM
+participant "Graph" as Graph
+participant "Transition" as Transition
+end box
+
+queue "Worker Queue" as WorkerQueue
+queue "Component Event Queue" as EventQueue
+
+box "Worker thread" #FAF6F0
+participant "IComponentController" as Monitor
+participant "IComponent" as Component
+end box
+
+participant "Alive Supervision" as Supervision
+
+box "OsHandler thread" #F4F0FA
+participant "OsHandler" as OsHandler
+participant "SafeProcessMap" as Map
+end box
+
+participant "Operating System" as OS
+
+note over Graph: graph is in state kInTransition
+
+' --- dispatch ----------------------------------------------------------------
+activate Graph
+Graph -> Transition ++: get components ready to be stopped
+Transition --> Graph --: component is ready to be stopped
+note over Graph
+  A component is only ready to be stopped once every component
+  that depends on it has been stopped. So a transition stops
+  the components in the reverse of their start order.
+end note
+Graph -> WorkerQueue: deactivation of the component
+deactivate Graph
+
+' --- execution ---------------------------------------------------------------
+WorkerQueue -> Monitor ++: deactivation is taken by a free worker
+Monitor -> Component ++: deactivate
+
+opt component is supervised
+    Component -> Supervision ++: stop supervising the process
+    Supervision --> Component --:
+    note right of Component
+      Supervision is stopped before the process is asked to
+      terminate, so the shutdown is not reported as a
+      supervision failure.
+    end note
+end
+
+alt component has a running process
+
+  Component -> OS: Send SIGTERM signal
+  Component -> Component: wait for the process to exit\nuntil the shutdown timeout expires
+
+  alt #F2FAF2 the process exits within the shutdown timeout
+      OS -> OsHandler ++: child process has terminated
+      OsHandler -> Map ++: look up the component for the process id
+      Map --> Component: the process has exited
+      deactivate Map
+      deactivate OsHandler
+
+  else #Pink the shutdown timeout expires
+      Component -> OS: Send SIGKILL signal
+      OS -> OsHandler ++: child process has terminated
+      OsHandler -> Map ++: look up the component for the process id
+      Map --> Component: the process has exited
+      deactivate Map
+      deactivate OsHandler
+  end
+
+else component has no running process
+  note over Component
+  This may be the case for self-terminating processes.
+  In this case there is nothing further todo.
+  end note
+end alt
+
+' --- result ------------------------------------------------------------------
+Component --> Monitor: deactivation complete
+note over Monitor
+  A deactivation has no failure outcome: the component
+  escalates until the process is gone.
+end note
+Monitor -> EventQueue: component deactivated
+deactivate Component
+deactivate Monitor
+
+' --- completion --------------------------------------------------------------
+EventQueue -> PGM ++: component event
+PGM -> Graph ++: apply the component event
+
+alt the graph is still in transition
+    Graph -> Transition ++: component has finished
+    Transition --> Graph --: next components ready to be stopped
+    note over Graph
+      Once everything that has to be stopped is gone, the
+      transition moves on to starting the components of the
+      target Run Target - see Component Activation.
+    end note
+
+else the graph has left the transition meanwhile
+    note over Graph
+      The result is still consumed. Once the last component
+      in flight has reported back, the graph settles in
+      kUndefinedState.
+    end note
+end
+
+deactivate Graph
+deactivate PGM
+
+legend bottom
+  The two queues are the only interaction between the threads: the graph never
+  touches a component directly and a worker never touches the graph. All graph
+  and transition state stays confined to the main loop thread.
+
+  Several components may be in flight at the same time; a single one is shown
+  here for clarity.
+end legend
+
+@enduml

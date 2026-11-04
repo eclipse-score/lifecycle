@@ -674,6 +674,36 @@ TEST_F(LmControlUT, RegisterEmptyCallbackRejected)
     EXPECT_EQ(result.error(), ExecErrc::kInvalidArguments);
 }
 
+TEST_F(LmControlUT, CallbackRegisteredBeforeConnectionIsUsedOnceConnected)
+{
+    RecordProperty(
+        "Description",
+        "Registering an activation callback before the service is discovered succeeds without reading samples, "
+        "and the callback receives activation results once connected.");
+
+    auto sut = MakeLmControl();
+
+    std::optional<RunTargetName> name{};
+    EXPECT_CALL(mock_, GetNewSamples(_)).Times(0);
+    ASSERT_TRUE(sut->register_run_target_activation_callback([&](RunTargetActivationSource, RunTargetName n) {
+                       name = n;
+                   })
+                    .has_value());
+    ::testing::Mock::VerifyAndClearExpectations(&mock_);
+
+    ConnectService();
+
+    EXPECT_CALL(mock_, GetNewSamples(_)).WillOnce(Invoke([](std::size_t) {
+        return score::Result<std::vector<ActivationResult>>{MakeSamples({"Running"})};
+    }));
+
+    ASSERT_TRUE(receive_handler_);
+    receive_handler_();
+
+    ASSERT_TRUE(name.has_value());
+    EXPECT_EQ(name.value(), "Running");
+}
+
 TEST_F(LmControlUT, ActivationResultInvokesRegisteredCallback)
 {
     RecordProperty(
@@ -893,6 +923,85 @@ TEST_F(LmControlUT, LatestRegisteredCallbackWins)
 
     EXPECT_EQ(first_calls, 0);
     EXPECT_EQ(second_calls, 1);
+}
+
+class LmControlWaitForConnectionTest : public LmControlUT
+{
+};
+
+TEST_F(LmControlWaitForConnectionTest, ConfirmsNotificationRegistrationBeforeCallbackDrains)
+{
+    RecordProperty(
+        "Description",
+        "Once connected run wait_for_connection."
+        "Registering the callback afterwards reads the pending activation results."
+        "Sample sent before the registration took effect (no notification) is therefore still delivered.");
+
+    auto sut = MakeLmControl();
+    ConnectService();
+
+    EXPECT_CALL(mock_, GetActiveRunTarget())
+        .WillOnce(Return(score::Result<GetActiveRunTargetResponse>{Available(RunTargetName{"Startup"})}));
+    EXPECT_CALL(mock_, GetNewSamples(_)).Times(0);
+
+    ILmControl& lm_control = *sut;
+    ASSERT_TRUE(lm_control.wait_for_connection(std::chrono::milliseconds(1)).has_value());
+    ::testing::Mock::VerifyAndClearExpectations(&mock_);
+
+    // A sample the LM sent before it processed our registration: stored, but never notified.
+    EXPECT_CALL(mock_, GetActiveRunTarget()).Times(0);
+    EXPECT_CALL(mock_, GetNewSamples(_)).WillOnce(Invoke([](std::size_t) {
+        std::vector<ActivationResult> samples;
+        samples.push_back(ActivationResult{RunTargetName{"Startup"}, RunTargetActivationSource::kInitialActivation});
+        return score::Result<std::vector<ActivationResult>>{std::move(samples)};
+    }));
+
+    std::optional<RunTargetActivationSource> source{};
+    std::optional<RunTargetName> name{};
+    ASSERT_TRUE(sut->register_run_target_activation_callback([&](RunTargetActivationSource s, RunTargetName n) {
+                       source = s;
+                       name = n;
+                   })
+                    .has_value());
+
+    ASSERT_TRUE(name.has_value());
+    EXPECT_EQ(name.value(), "Startup");
+    EXPECT_EQ(source.value(), RunTargetActivationSource::kInitialActivation);
+}
+
+TEST_F(LmControlWaitForConnectionTest, NoWaitMeansNoGetActive)
+{
+    RecordProperty(
+        "Description",
+        "Registering the activation callback without waiting for the connection, only drain the pending samples.");
+
+    auto sut = MakeConnected();
+
+    EXPECT_CALL(mock_, GetActiveRunTarget()).Times(0);
+    EXPECT_CALL(mock_, GetNewSamples(_)).Times(1);
+
+    EXPECT_TRUE(sut->register_run_target_activation_callback([](RunTargetActivationSource, RunTargetName) {
+                   })
+                    .has_value());
+}
+
+TEST_F(LmControlWaitForConnectionTest, Failed)
+{
+    RecordProperty(
+        "Description",
+        "If the round trip that confirms the notification registration fails, wait_for_connection still succeeds "
+        "and registering the callback still reads the pending activation results.");
+
+    auto sut = MakeConnected();
+
+    EXPECT_CALL(mock_, GetActiveRunTarget()).WillOnce(Return(score::MakeUnexpected(ExecErrc::kCommunicationError)));
+    EXPECT_CALL(mock_, GetNewSamples(_)).Times(1);
+
+    ILmControl& lm_control = *sut;
+    EXPECT_TRUE(lm_control.wait_for_connection(std::chrono::milliseconds(1)).has_value());
+    EXPECT_TRUE(sut->register_run_target_activation_callback([](RunTargetActivationSource, RunTargetName) {
+                   })
+                    .has_value());
 }
 
 // ---------------------------------------------------------------------------

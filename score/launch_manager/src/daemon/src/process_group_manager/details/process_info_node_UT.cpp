@@ -96,7 +96,7 @@ class ProcessInfoNodeFixture : public ::testing::Test
         profile.application_type = application_type;
         profile.is_self_terminating = self_terminating;
         config.component_properties.ready_condition = configuration::ReadyCondition{ready_state};
-        config.deployment_config.ready_recovery_action = configuration::RestartAction{restart_attempts, 0U};
+        config.deployment_config.activation_retry_attempts = restart_attempts;
         config.deployment_config.shutdown_timeout_ms = shutdown_timeout_ms_;
         config.deployment_config.ready_timeout_ms = ready_timeout_ms_;
 
@@ -354,6 +354,29 @@ TEST_F(ProcessInfoNodeStartupTest, TerminatedReadyCondition_NoTerminationInTime_
 
     ASSERT_THAT(result, Eq(IComponent::RequestResult::kTimeout));
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kTerminated));
+}
+
+TEST_F(
+    ProcessInfoNodeStartupTest,
+    ExpectSupervisionSetupFails_WhenCreateProcessInfoNodeIsCalled_ThenConstructionDoesNotCrash)
+{
+    RecordProperty(
+        "Description",
+        "Expect constructSupervision() to fail. "
+        "When createProcessInfoNode() is called. "
+        "Then ProcessInfoNode is still constructed safely.");
+
+    // Expect
+    EXPECT_CALL(mock_factory_, constructSupervision).WillOnce(InvokeWithoutArgs([]() {
+        return std::unique_ptr<IAliveSupervisionHandle>{};
+    }));
+
+    // When
+    auto node = createProcessInfoNode(configuration::ApplicationType::ReportingAndSupervised);
+
+    // Then
+    ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kIdle));
+    ASSERT_THAT(node->active(), IsFalse());
 }
 
 struct YieldTestCasesData
@@ -631,9 +654,7 @@ TEST_F(ProcessInfoNodeStartupCrashTest, TimeoutThenSuccess_WithRestarts)
 
 struct NumberOfAttemptsParameterizedTestParams
 {
-    // Using uint_16_t to we can represent values > 255,
-    // so we can test overflow of uint8_t
-    std::uint16_t input;
+    std::uint8_t input;
     std::uint16_t expected_attempts;
 };
 
@@ -658,7 +679,7 @@ TEST_P(
 
     // Expect
     expectActivationReport(0);
-    const std::uint16_t kRestartAttempts = GetParam().input;
+    const std::uint8_t kRestartAttempts = GetParam().input;
     const std::uint16_t kExpectedTotalAttempts = GetParam().expected_attempts;
     auto node = createProcessInfoNode(configuration::ApplicationType::ReportingAndSupervised, kRestartAttempts);
 
@@ -805,6 +826,80 @@ TEST_F(ProcessInfoNodeDeactivationTest, CanTerminateNonSelfTerminatingProcess)
     ASSERT_THAT(result, Eq(IComponent::RequestResult::kSuccess));
     ASSERT_THAT(node->active(), IsFalse());
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kIdle));
+}
+
+class ProcessInfoNodeSupervisionFailureTest : public ProcessInfoNodeFixture
+{
+  protected:
+    static constexpr osal::ProcessID kPid{4711};
+
+    /// @brief Create a supervised node that has been activated, with the OS reporting pid kPid.
+    std::unique_ptr<ProcessInfoNode> createReadySupervisedNode()
+    {
+        auto node = createProcessInfoNode(configuration::ApplicationType::ReportingAndSupervised);
+        EXPECT_CALL(mock_processIf_, startProcess(_, _, _))
+            .WillOnce(DoAll(SetArgReferee<0>(kPid), Return(osal::OsalReturnType::kSuccess)));
+        EXPECT_CALL(*process_map_, insertIfNotTerminated(_, _))
+            .WillOnce(Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kOk));
+        EXPECT_CALL(mock_processIf_, waitForkRunning(_, _)).WillOnce(Return(osal::OsalReturnType::kSuccess));
+        const auto result = node->activate(score::cpp::stop_token{});
+        EXPECT_THAT(result, Eq(IComponent::RequestResult::kSuccess));
+        EXPECT_TRUE(node->active());
+        return node;
+    }
+
+    static constexpr std::chrono::nanoseconds kAfterSupervisionStart{std::chrono::nanoseconds::max()};
+};
+
+TEST_F(ProcessInfoNodeSupervisionFailureTest, FailureAfterSupervisionStart_KillsProcess)
+{
+    RecordProperty(
+        "Description",
+        "A supervision failure for a ready process, timestamped after supervision was started, kills the process "
+        "with SIGKILL.");
+
+    auto node = createReadySupervisedNode();
+    EXPECT_CALL(mock_processIf_, forceTermination(kPid)).WillOnce(Return(osal::OsalReturnType::kSuccess));
+
+    node->handleSupervisionFailure(kAfterSupervisionStart);
+}
+
+TEST_F(ProcessInfoNodeSupervisionFailureTest, FailureBeforeSupervisionStart_DoesNotKillProcess)
+{
+    RecordProperty(
+        "Description",
+        "A supervision failure timestamped before supervision was (re)started is stale and does not kill the "
+        "process.");
+
+    auto node = createReadySupervisedNode();
+    EXPECT_CALL(mock_processIf_, forceTermination(_)).Times(0);
+
+    node->handleSupervisionFailure(std::chrono::nanoseconds{0});
+}
+
+TEST_F(ProcessInfoNodeSupervisionFailureTest, ProcessNotReady_DoesNotKillProcess)
+{
+    RecordProperty("Description", "A supervision failure for a process that never became ready is ignored.");
+
+    auto node = createProcessInfoNode(configuration::ApplicationType::ReportingAndSupervised);
+    EXPECT_CALL(mock_processIf_, forceTermination(_)).Times(0);
+
+    node->handleSupervisionFailure(kAfterSupervisionStart);
+}
+
+TEST_F(ProcessInfoNodeSupervisionFailureTest, ProcessAlreadyTerminated_DoesNotKillProcess)
+{
+    RecordProperty(
+        "Description",
+        "A supervision failure received after the OS reported the termination of the process is ignored, as the pid "
+        "has been reset.");
+
+    auto node = createReadySupervisedNode();
+    static_cast<void>(node->tryHandleTermination(0));
+    ASSERT_THAT(node->getPid(), Eq(0));
+    EXPECT_CALL(mock_processIf_, forceTermination(_)).Times(0);
+
+    node->handleSupervisionFailure(kAfterSupervisionStart);
 }
 
 // Bundles tests for the explicit move constructor, which is required because the class holds atomics.

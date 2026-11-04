@@ -113,14 +113,14 @@ class TimeRange
     [[deprecated("Use MinMs() instead. The snake_case API is removed in the release after v0.10.")]] uint32_t min_ms()
         const
     {
-        return MinMs();
+        return static_cast<std::uint32_t>(MinMs());
     }
 
     /// @deprecated Use `MaxMs()` instead. Removed in the release after v0.10.
     [[deprecated("Use MaxMs() instead. The snake_case API is removed in the release after v0.10.")]] uint32_t max_ms()
         const
     {
-        return MaxMs();
+        return static_cast<std::uint32_t>(MaxMs());
     }
 
   private:

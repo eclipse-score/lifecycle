@@ -74,21 +74,21 @@ Security Plan
           - <Link to WP>
           - <automated>
 
-        * - :need:`wp__fdr_reports` (Module Security Plan)
+        * - :need:`wp__fdr_reports_security` (Module Security Plan)
           - :need:`gd_chklst__security_plan`
           - <automated>
           - <Link to issue>
           - <Link to WP>
           - <automated>
 
-        * - :need:`wp__fdr_reports` (Module Security Package)
+        * - :need:`wp__fdr_reports_security` (Module Security Package)
           - :need:`Security Package Formal Review Checklist <gd_chklst__security_package>`
           - <automated>
           - <Link to issue>
           - <Link to WP>
           - <automated>
 
-        * - :need:`wp__fdr_reports` (Module's Security Analyses)
+        * - :need:`wp__fdr_reports_security` (Module's Security Analyses)
           - Security Analysis FDR tbd
           - <automated>
           - <Link to issue>
@@ -121,6 +121,13 @@ Security Plan
           - <automated>
           - <Link to issue>
           - <Link to WP>
+          - <automated>
+
+        * - :need:`wp__module_user_manual`
+          - :need:`gd_temp__rel_mod_user_manual`
+          - <automated>
+          - <Link to issue>
+          - :need:`doc__lifecycle_user_manual`
           - <automated>
 
         * - :need:`wp__sw_module_sbom`

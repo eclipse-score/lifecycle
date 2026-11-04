@@ -16,6 +16,7 @@
 
 #include <cerrno>
 #include <cstdint>
+#include <cstdlib>
 #include <limits>
 #include <memory>
 #include <string>
@@ -128,7 +129,7 @@ std::uint8_t stepPosition(const EnableStep step)
     SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Invalid EnableStep");
 }
 
-/// @brief WatchdogImpl subclass that mocks waitForever() so fireWatchdogReaction() returns for testing.
+/// @brief WatchdogImpl subclass that mocks waitForever() to terminate the calling process.
 class WatchdogImpl_FireWatchdogMock : public WatchdogImpl
 {
   public:
@@ -578,11 +579,19 @@ TEST_F(WatchdogImplTest, WdgFireWatchdogReaction_WithConfiguredDevice)
     ASSERT_TRUE(wdg->init(std::move(cfg), kDefaultCycleTimeNs));
     ASSERT_TRUE(wdg->enable());
 
-    EXPECT_CALL(deviceIfMock_, ioctl(1, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETTIMEOUT), _))
-        .Times(1)
-        .WillOnce(Return(kIoctlOk));
-    EXPECT_CALL(*wdg, waitForever).Times(1);
-    wdg->fireWatchdogReaction();
+    // The activated watchdog never returns; verify the reaction in a child process.
+    EXPECT_EXIT(
+        {
+            EXPECT_CALL(deviceIfMock_, ioctl(1, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETTIMEOUT), _))
+                .WillOnce(Return(kIoctlOk));
+            EXPECT_CALL(*wdg, waitForever).WillOnce([this]() noexcept {
+                const bool expectations_met = ::testing::Mock::VerifyAndClearExpectations(&deviceIfMock_);
+                std::_Exit(expectations_met && !::testing::Test::HasFailure() ? EXIT_SUCCESS : EXIT_FAILURE);
+            });
+            wdg->fireWatchdogReaction();
+        },
+        ::testing::ExitedWithCode(EXIT_SUCCESS),
+        "");
 }
 
 // ═══════════════════════════════════════════════════════════

@@ -87,6 +87,16 @@ cc_library(
     ],
 )
 
+lm_cc_test(
+    name = "icomponent_UT",
+    srcs = ["icomponent_UT.cpp"],
+    deps = [
+        ":icomponent",
+        ":mock_component",
+        "@googletest//:gtest_main",
+    ],
+)
+
 cc_library(
     name = "handle",
     srcs = ["handle.cpp"],
@@ -474,6 +484,7 @@ cc_library(
         "//score/launch_manager/src/daemon/src/osal:security_policy",
         "//score/launch_manager/src/daemon/src/osal:set_affinity",
         "//score/launch_manager/src/daemon/src/osal:set_groups",
+        "//score/launch_manager/src/daemon/src/osal:shm_open_anon",
         "//score/launch_manager/src/daemon/src/osal:sys_exit",
         "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
     ],
@@ -505,6 +516,8 @@ lm_cc_test(
         "-Wl,--wrap=msync",
         "-Wl,--wrap=close",
         "-Wl,--wrap=fstat",
+        "-Wl,--wrap=clock_gettime",
+        "-Wl,--wrap=clock_getres",
     ],
     linkstatic = True,
     deps = [

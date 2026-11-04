@@ -1,15 +1,10 @@
 {
-    "schema_version": 1,
+    "schema_version": 2,
     "defaults": {
         "deployment_config": {
             "bin_dir": "/tmp/tests/rt_running_when_process_exits",
             "ready_timeout_ms": 2000,
             "shutdown_timeout_ms": 1000,
-            "ready_recovery_action": {
-                "restart": {
-                    "number_of_attempts": 0
-                }
-            },
             "sandbox": {
                 "uid": 0,
                 "gid": 0,
