@@ -20,12 +20,6 @@
    :security: YES
    :realizes: wp__requirements_comp[version==1]
 
-.. note:: 
-    Requirements that are not planned for score release 1.0 are set as
-    ``invalid`` and have the tag ``not_planned``.
-    Requirements that need further clarification are set as ``invalid`` and
-    have the tag ``unclear``.
-
 
 Component Launch Manager Requirements
 #####################################
@@ -77,8 +71,8 @@ Deactivating Components
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__termination_dependency[version==1]
-    :status: invalid
-    :tags: not_planned
+    :status: valid
+    :valid_from: v2.0.0
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -123,8 +117,8 @@ Deactivating Components
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__running_processes[version==1]
-    :status: invalid
-    :tags: not_planned
+    :status: valid
+    :valid_from: v2.0.0
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -285,8 +279,8 @@ Launching Processes
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__sandbox_options[version==1]
-    :status: invalid
-    :tags: not_planned
+    :status: valid
+    :valid_from: v2.0.0
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -454,26 +448,6 @@ Process Configuration
     The :term:`Launch Manager` shall provide support for launching a process with
     given :term:`File Descriptor` inheritance restrictions.
 
-
-.. comp_req:: Security policy support
-    :id: comp_req__launch_man__support_secpol_type
-    :reqtype: Functional
-    :security: YES
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__sandbox_options[version==1]
-    :status: invalid
-    :tags: remove
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall provide support for launching a process with a
-    given security policy.
-
-
-    .. note::
-       Propose to remove as :need:`comp_req__launch_man__capability_support`
-       shall be used as a platform agnostic requirement.
-
 .. comp_req:: Supplementary group support
     :id: comp_req__launch_man__supplementary_groups
     :reqtype: Functional
@@ -548,8 +522,8 @@ Process Configuration
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__sandbox_options[version==1]
-    :status: invalid
-    :tags: not_planned
+    :status: valid
+    :valid_from: v2.0.0
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -626,8 +600,8 @@ Containers
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__config_file_support[version==1]
-    :status: invalid
-    :tags: not_planned
+    :status: valid
+    :valid_from: v2.0.0
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -793,8 +767,8 @@ Alive Monitoring
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__monitor_processes[version==1]
-    :status: invalid
-    :tags: not_planned
+    :status: valid
+    :valid_from: v2.0.0
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -872,8 +846,8 @@ Recovery Actions
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__liveliness_detection[version==1]
-    :status: invalid
-    :tags: not_planned
+    :status: valid
+    :valid_from: v2.0.0
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -929,8 +903,8 @@ Recovery Actions
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
-    :status: invalid
-    :tags: not_planned
+    :status: valid
+    :valid_from: v2.0.0
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -1005,8 +979,8 @@ Component Recovery Actions
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__recovery_action_support[version==1]
-    :status: invalid
-    :tags: not_planned
+    :status: valid
+    :valid_from: v2.0.0
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -1135,8 +1109,8 @@ Logging
     :security: NO
     :safety: QM
     :derived_from: feat_req__lifecycle__deps_visualization[version==1]
-    :status: invalid
-    :tags: not_planned
+    :status: valid
+    :valid_from: v2.0.0
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -1151,8 +1125,8 @@ Configuration file
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__config_file_support[version==1]
-    :status: invalid
-    :tags: not_planned
+    :status: valid
+    :valid_from: v2.0.0
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
