@@ -40,8 +40,9 @@ integration_test(
     binaries = [
         ":control_client_test_driver",
         ":process_crashing_on_runtime",
-        "//score/launch_manager:launch_manager_debug_asserts",
+        "//score/launch_manager",
         "//tests/utils/test_helper:verification_process",
     ],
     config = ":process_crash_monitoring.json",
+    debug_asserts_variant = True,
 )

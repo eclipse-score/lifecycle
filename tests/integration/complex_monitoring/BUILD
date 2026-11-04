@@ -52,11 +52,12 @@ integration_test(
     binaries = [
         ":component_complex_monitoring",
         ":control_client_test_driver",
-        "//score/launch_manager:launch_manager_debug_asserts",
+        "//score/launch_manager",
         "//tests/utils/test_helper:verification_process",
     ],
     config = ":complex_monitoring.json",
     tags = [
         "flaky",  # Test uses heartbeat monitoring which on CI will always be flaky.
     ],
+    debug_asserts_variant = True,
 )

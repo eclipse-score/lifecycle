@@ -44,4 +44,5 @@ integration_test(
         "//tests/utils/test_helper:simple_supervised_app",
     ],
     config = ":fallback_to_same_target_restarts.json",
+    debug_asserts_variant = True,
 )

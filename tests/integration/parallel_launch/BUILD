@@ -40,7 +40,8 @@ integration_test(
     binaries = [
         ":component_parallel_launch",
         ":control_client_test_driver",
-        "//score/launch_manager:launch_manager_debug_asserts",
+        "//score/launch_manager",
     ],
     config = ":parallel_launch.json",
+    debug_asserts_variant = True,
 )

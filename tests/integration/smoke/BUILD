@@ -42,7 +42,8 @@ integration_test(
     binaries = [
         ":control_client_test_driver",
         ":gtest_process",
-        "//score/launch_manager:launch_manager_debug_asserts",
+        "//score/launch_manager",
     ],
     config = ":lifecycle_smoketest.json",
+    debug_asserts_variant = True,
 )

@@ -32,7 +32,8 @@ integration_test(
     binaries = [
         ":control_client_test_driver",
         "//tests/utils/test_helper:gated_process",
-        "//score/launch_manager:launch_manager_debug_asserts",
+        "//score/launch_manager",
     ],
     config = ":replaced_activation.json",
+    debug_asserts_variant = True,
 )

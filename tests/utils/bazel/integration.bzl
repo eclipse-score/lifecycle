@@ -22,6 +22,9 @@ DEFAULT_QEMU_IMAGE = "//config:qemu_image"
 DEFAULT_DOCKER_IMAGE_TARGET = "@score_lifecycle//tests/utils/environments/x86_64-linux"
 DEFAULT_DOCKER_IMAGE_TAG = "score_itf_examples:latest"
 
+_LAUNCH_MANAGER = Label("//score/launch_manager")
+_LAUNCH_MANAGER_DEBUG_ASSERTS = Label("//score/launch_manager:launch_manager_debug_asserts")
+
 def integration_test(
         name,
         srcs,
@@ -34,6 +37,7 @@ def integration_test(
         docker_image_target = DEFAULT_DOCKER_IMAGE_TARGET,
         docker_image_tag = DEFAULT_DOCKER_IMAGE_TAG,
         plugins = [],
+        debug_asserts_variant = False,
         **kwargs):
     """Creates an integration test.
 
@@ -66,9 +70,51 @@ def integration_test(
             `//config:integration_docker` variant of this test.
         docker_image_tag: `repo_tags` value for the image at `docker_image_target`.
         plugins: Additional bazel plugins used by the test.
+        debug_asserts_variant: Also create `<name>_debug_asserts`, which runs
+            the same test against the launch manager built with DBG-level
+            asserts. `name` itself always uses the production binary.
         **kwargs: Miscellaneous arguments passed through to `py_itf_test`
     """
 
+    common = dict(
+        srcs = srcs,
+        files = files,
+        config = config,
+        install_prefix = install_prefix,
+        qemu_config = qemu_config,
+        qemu_image = qemu_image,
+        docker_image_target = docker_image_target,
+        docker_image_tag = docker_image_tag,
+        plugins = plugins,
+    )
+    _integration_test(name = name, binaries = binaries, **(common | kwargs))
+
+    if debug_asserts_variant:
+        lm = [b for b in binaries if native.package_relative_label(b) == _LAUNCH_MANAGER]
+        if not lm:
+            fail("debug_asserts_variant requires {} in binaries".format(_LAUNCH_MANAGER))
+        _integration_test(
+            name = "{}_debug_asserts".format(name),
+            binaries = [
+                _LAUNCH_MANAGER_DEBUG_ASSERTS if b in lm else b
+                for b in binaries
+            ],
+            **(common | kwargs)
+        )
+
+def _integration_test(
+        name,
+        srcs,
+        binaries,
+        files,
+        config,
+        install_prefix,
+        qemu_config,
+        qemu_image,
+        docker_image_target,
+        docker_image_tag,
+        plugins,
+        **kwargs):
     bin_pkg_name = "{}_binaries_pkg".format(name)
     lm_config_name = "{}_lm_config".format(name)
     lm_config_pkg_name = "{}_lm_config_pkg".format(name)

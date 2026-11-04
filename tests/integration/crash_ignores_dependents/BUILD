@@ -40,7 +40,8 @@ integration_test(
     binaries = [
         ":test_process",
         ":process_crashing_once",
-        "//score/launch_manager:launch_manager_debug_asserts",
+        "//score/launch_manager",
     ],
     config = ":crash_ignores_dependents.json",
+    debug_asserts_variant = True,
 )
