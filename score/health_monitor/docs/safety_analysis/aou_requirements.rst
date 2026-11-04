@@ -26,21 +26,26 @@ AoU Component Requirements
 Component AoU
 -------------
 
-.. aou_req:: Dummy AoU
-   :id: aou_req__health_monitor__dummy
+.. aou_req:: CPU Scheduling for Health Monitor Background Thread
+   :id: aou_req__health_monitor__cpu_scheduling
    :reqtype: Process
-   :security: YES
+   :security: NO
    :safety: ASIL_B
-   :status: valid
+   :status: invalid
    :version: 1
 
-    .. note:: This is a dummy AoU requirement. See https://github.com/eclipse-score/lifecycle/issues/366 for more information.
+   The integrator shall configure the scheduling parameters (e.g. scheduling policy and priority)
+   of the Health Monitor's background supervision thread such that it reliably receives sufficient
+   CPU time slices during system operation, so that it is not starved of processing time by other
+   processes or threads on the target.
+
+   .. note:: This AoU formalizes the mitigation already described in :need:`doc__health_monitor_fmea`
+      (``HM_FMEA_001``, "Missing processing time"). It is marked ``invalid`` pending formal review by
+      the module's Safety Manager as part of :need:`doc__lifecycle_safety_analysis_fdr`.
 
 .. attention::
     The above directives must be updated according to your feature requirements.
 
-    - Replace the example content by the real content for your first requirement (according to :need:`gd_guidl__req_engineering`)
-    - Set the status to valid and start the review/merge process
     - Add other needed requirements for your feature
 
 .. needextend:: c.this_doc() and is_external == False
