@@ -275,9 +275,7 @@ void ProcessGroupManager::allProcessGroupsOff()
             return graph_->getState() == state_to_be_completed;
         };
 
-        // A flood of events makes event_queue_->waitForEvents() return immediately,
-        // as the queue will never be empty.
-        // We cannot rely on a kMaxSleepIntervalMs delay per iteration
+        // We cannot rely on the kMaxSleepIntervalMs delay actually elapsing, so we check the clock each iteration
         const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds{max_wait_ms};
         while (has_state() && (std::chrono::steady_clock::now() < deadline))
         {
@@ -288,6 +286,7 @@ void ProcessGroupManager::allProcessGroupsOff()
                 {
                     continue;
                 }
+                // We need to complete any slots here to prevent them causing a hang
                 else if (
                     std::holds_alternative<GetActiveRunTarget>(*event) ||
                     std::holds_alternative<SetRequestedRunTarget>(*event))
