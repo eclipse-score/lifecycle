@@ -73,11 +73,7 @@ class GraphTest : public ::testing::Test
                           .setFallbackRunTarget(std::move(fallback))
                           .build();
 
-        graph_config_ = GraphConfig{
-            config.takeComponents(),
-            config.takeRunTargets(),
-            config.takeFallbackRunTarget(),
-            config.takeInitialRunTarget()};
+        graph_config_ = config.takeGraph();
     }
 
     std::vector<ComponentConfig> generateProcessComponents(int count)
@@ -211,11 +207,7 @@ class GraphOrdinaryTransitionTest : public GraphTest
                           .setFallbackRunTarget(std::move(fallback))
                           .build();
 
-        graph_config_ = GraphConfig{
-            config.takeComponents(),
-            config.takeRunTargets(),
-            config.takeFallbackRunTarget(),
-            config.takeInitialRunTarget()};
+        graph_config_ = config.takeGraph();
     }
 };
 
@@ -435,11 +427,7 @@ class GraphImplicitOffTargetTest : public GraphTest
                           .setFallbackRunTarget(std::move(fallback))
                           .build();
 
-        graph_config_ = GraphConfig{
-            config.takeComponents(),
-            config.takeRunTargets(),
-            config.takeFallbackRunTarget(),
-            config.takeInitialRunTarget()};
+        graph_config_ = config.takeGraph();
     }
 };
 
@@ -495,11 +483,7 @@ class GraphOffStateTimeoutTest : public GraphTest
                           .setFallbackRunTarget(std::move(fallback))
                           .build();
 
-        graph_config_ = GraphConfig{
-            config.takeComponents(),
-            config.takeRunTargets(),
-            config.takeFallbackRunTarget(),
-            config.takeInitialRunTarget()};
+        graph_config_ = config.takeGraph();
     }
 
     static constexpr std::uint32_t kOffTimeoutMs = 1234;
@@ -528,11 +512,7 @@ class GraphHandleComponentEventTest : public GraphTest
                           .setFallbackRunTarget(std::move(fallback))
                           .build();
 
-        graph_config_ = GraphConfig{
-            config.takeComponents(),
-            config.takeRunTargets(),
-            config.takeFallbackRunTarget(),
-            config.takeInitialRunTarget()};
+        graph_config_ = config.takeGraph();
     }
 };
 
@@ -681,11 +661,7 @@ class GraphSupervisionFailureTest : public GraphTest
                           .setFallbackRunTarget(std::move(fallback))
                           .build();
 
-        graph_config_ = GraphConfig{
-            config.takeComponents(),
-            config.takeRunTargets(),
-            config.takeFallbackRunTarget(),
-            config.takeInitialRunTarget()};
+        graph_config_ = config.takeGraph();
     }
 };
 

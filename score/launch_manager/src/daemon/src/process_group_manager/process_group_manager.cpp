@@ -41,7 +41,7 @@ void ProcessGroupManager::cancel()
 
 // codeql[cpp/number-of-parameters-per-function] Dismiss: All parameters required for dependency injection, and building them into a parameter struct would add unnecessary indirection without helping visibility.
 ProcessGroupManager::ProcessGroupManager(
-    GraphConfig&& config,
+    configuration::GraphConfig&& config,
     std::unique_ptr<saf::daemon::IAliveMonitor> alive_monitor,
     std::shared_ptr<IRecoveryClient> recovery_client,
     std::unique_ptr<score::mw::lifecycle::internal::watchdog::IWatchdogIf> watchdog,

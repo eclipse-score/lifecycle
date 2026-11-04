@@ -44,6 +44,19 @@ struct FallbackRunTargetConfig
     std::uint32_t transition_timeout_ms{};
 };
 
+/// @brief Config members needed to build the graph
+struct GraphConfig
+{
+    /// @brief Components that Run Targets may depend on
+    std::vector<ComponentConfig> components_;
+    /// @brief Run Targets that can be activated
+    std::vector<RunTargetConfig> run_targets_;
+    /// @brief Information about the Run Target transitioned to in the event of an error
+    FallbackRunTargetConfig fallback_run_target_;
+    /// @brief Name of the first Run Target to launch
+    std::string initial_run_target_;
+};
+
 struct AliveSupervisionConfig
 {
     std::uint32_t evaluation_cycle_ms{};
@@ -69,27 +82,15 @@ struct Config
     Config& operator=(Config&&) noexcept = default;
     ~Config() noexcept = default;
 
-    /// @brief Returns the component configurations.
-    [[nodiscard]] const std::vector<ComponentConfig>& components() const;
-    /// @brief Returns the Run Target configurations.
-    [[nodiscard]] const std::vector<RunTargetConfig>& runTargets() const;
-    /// @brief Returns the name of the initial Run Target.
-    [[nodiscard]] std::string_view initialRunTarget() const;
-    /// @brief Returns the fallback Run Target configuration.
-    [[nodiscard]] const FallbackRunTargetConfig& fallbackRunTarget() const;
+    /// @brief Returns the configuration needed to build the graph (components and Run Targets).
+    [[nodiscard]] const GraphConfig& graph() const;
     /// @brief Returns the global alive supervision configuration.
     [[nodiscard]] const AliveSupervisionConfig& aliveSupervision() const;
     /// @brief Returns the watchdog configuration, if present.
     [[nodiscard]] const std::optional<WatchdogConfig>& watchdog() const;
 
-    /// @brief Moves out the component configurations. Source is left in a moved-from state.
-    [[nodiscard]] std::vector<ComponentConfig> takeComponents();
-    /// @brief Moves out the Run Target configurations. Source is left in a moved-from state.
-    [[nodiscard]] std::vector<RunTargetConfig> takeRunTargets();
-    /// @brief Moves out the initial Run Target name. Source is left in a moved-from state.
-    [[nodiscard]] std::string takeInitialRunTarget();
-    /// @brief Moves out the fallback Run Target configuration. Source is left in a moved-from state.
-    [[nodiscard]] FallbackRunTargetConfig takeFallbackRunTarget();
+    /// @brief Moves out the configuration needed to build the graph. Source is left in a moved-from state.
+    [[nodiscard]] GraphConfig takeGraph();
     /// @brief Moves out the alive supervision configuration. Source is left in a moved-from state.
     [[nodiscard]] AliveSupervisionConfig takeAliveSupervision();
     /// @brief Moves out the watchdog configuration. Source is left in a moved-from state.
@@ -98,18 +99,9 @@ struct Config
   private:
     friend class ConfigBuilder;
 
-    Config(
-        std::vector<ComponentConfig> components,
-        std::vector<RunTargetConfig> run_targets,
-        std::string initial_run_target,
-        FallbackRunTargetConfig fallback_run_target,
-        AliveSupervisionConfig alive_supervision,
-        std::optional<WatchdogConfig> watchdog);
+    Config(GraphConfig graph, AliveSupervisionConfig alive_supervision, std::optional<WatchdogConfig> watchdog);
 
-    std::vector<ComponentConfig> components_;
-    std::vector<RunTargetConfig> run_targets_;
-    std::string initial_run_target_;
-    FallbackRunTargetConfig fallback_run_target_;
+    GraphConfig graph_;
     AliveSupervisionConfig alive_supervision_;
     std::optional<WatchdogConfig> watchdog_;
 };

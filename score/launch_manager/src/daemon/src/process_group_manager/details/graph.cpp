@@ -41,7 +41,7 @@ namespace
 /// @return A populated dependency graph with all components and Run Targets.
 void CreateDependencyGraph(
     DependencyGraph<IdentifierHash, Graph::Component>& graph,
-    GraphConfig& config,
+    configuration::GraphConfig& config,
     ProcessHandling process_handling,
     std::chrono::milliseconds& off_state_transition_timeout)
 {
@@ -114,7 +114,7 @@ void CreateDependencyGraph(
 
 Graph::Graph(
     uint32_t max_num_nodes,
-    GraphConfig& configuration,
+    configuration::GraphConfig& configuration,
     std::shared_ptr<WorkerQueue> job_queue,
     ProcessHandling process_handling)
     : nodes_(max_num_nodes),

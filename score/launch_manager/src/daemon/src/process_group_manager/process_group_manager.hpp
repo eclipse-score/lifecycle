@@ -75,7 +75,7 @@ class ProcessGroupManager final : public IRunTargetControl
     /// @param process_interface The interface used to launch and terminate processes. Defaults to the POSIX
     /// ProcessLauncher.
     ProcessGroupManager(
-        GraphConfig&& config,
+        configuration::GraphConfig&& config,
         std::unique_ptr<saf::daemon::IAliveMonitor> alive_monitor,
         std::shared_ptr<IRecoveryClient> recovery_client,
         std::unique_ptr<score::mw::lifecycle::internal::watchdog::IWatchdogIf> watchdog,
@@ -185,7 +185,7 @@ class ProcessGroupManager final : public IRunTargetControl
     void handleSetRequestedRunTarget(SetRequestedRunTarget* event) noexcept;
 
     /// @brief The configuration object associated with the ProcessGroupManager.
-    GraphConfig configuration_;
+    configuration::GraphConfig configuration_;
 
     /// @brief The configuration object associated with the watchdog.
     std::optional<configuration::WatchdogConfig> watchdog_config_;
