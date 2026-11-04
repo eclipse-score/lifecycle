@@ -38,8 +38,10 @@ def run_test(
     process = target.execute_async(binary_path, args=local_args, cwd=cwd)
     exit_code = process.wait(timeout)
 
-    # check fail_test 
+    # check fail_test
     res, _ = target.execute(f"test -e {cwd}/{TEST_FAILED_FILE}")
-    assert res != 0, f"A component failed the test explicitly (fail_test created '{TEST_FAILED_FILE}')"
+    assert res != 0, (
+        f"A component failed the test explicitly (fail_test created '{TEST_FAILED_FILE}')"
+    )
 
     assert exit_code == 0

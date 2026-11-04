@@ -18,7 +18,7 @@ from attribute_plugin import add_test_properties
 @add_test_properties(
     fully_verifies=[
         "comp_req__launch_man__lifecycle_lang_support",
-        "feat_req__lifecycle__prog_lang"
+        "feat_req__lifecycle__prog_lang",
     ],
     test_type="requirements-based",
     derivation_technique="requirements-analysis",
