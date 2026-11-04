@@ -385,23 +385,6 @@ void Graph::handleComponentEvent(const ComponentEvent& event)
                 IComponent& failingComponent = componentOf(nodes_[data.process_identifier]);
                 failingComponent.handleSupervisionFailure(data.failure_timestamp);
             }
-            // GetActiveRunTarget & SetRequestedRunTarget are only reached while shutting down,
-            // when the graph is no longer serving run target requests.
-            // The caller blocks on the slot, so it must always be completed.
-            else if constexpr (std::is_same_v<T, GetActiveRunTarget>)
-            {
-                if (data.completion != nullptr)
-                {
-                    data.completion->complete(score::MakeUnexpected(ExecErrc::kFailed));
-                }
-            }
-            else if constexpr (std::is_same_v<T, SetRequestedRunTarget>)
-            {
-                if (data.completion != nullptr)
-                {
-                    data.completion->complete(score::MakeUnexpected(ExecErrc::kFailed));
-                }
-            }
         },
         event);
 }
