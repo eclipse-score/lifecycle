@@ -96,6 +96,23 @@ General
    The :term:`Health Monitor` shall return an error when a time range is
    created whose minimum is greater than its maximum.
 
+.. comp_req:: Inclusive time range bounds
+   :id: comp_req__health_monitor__time_range_bounds
+   :reqtype: Functional
+   :security: NO
+   :safety: ASIL_B
+   :derived_from: feat_req__lifecycle__hm_checkpoint[version==1],
+                  feat_req__lifecycle__hm_deadline[version==1]
+   :satisfied_by: comp__health_monitor
+   :status: valid
+   :version: 1
+
+   The :term:`Health Monitor` shall treat the minimum and the maximum of a time
+   range as inclusive bounds.
+
+   .. note:: A report exactly at the minimum or exactly at the maximum is not
+      detected as a failure.
+
 .. comp_req:: Time granularity
    :id: comp_req__health_monitor__time_granularity
    :reqtype: Non-Functional
@@ -110,9 +127,27 @@ General
    The :term:`Health Monitor` shall handle time ranges and cycle durations with
    a granularity of one millisecond.
 
-.. comp_req:: Monitor identification
+.. comp_req:: Sub-millisecond time values
+   :id: comp_req__health_monitor__cfg_sub_ms
+   :reqtype: Functional
+   :security: NO
+   :safety: ASIL_B
+   :derived_from: feat_req__lifecycle__hm_checkpoint[version==1],
+                  feat_req__lifecycle__hm_deadline[version==1]
+   :satisfied_by: comp__health_monitor
+   :status: valid
+   :version: 1
+
+   The :term:`Health Monitor` shall return an error when a time range or a
+   cycle duration is configured with a value that is not an integer multiple
+   of one millisecond.
+
+   .. note:: Prevents silent truncation, e.g. a minimum truncated to 0 ms would
+      disable the detection of too early reports.
+
+.. comp_req:: Duplicate monitor identifier
    :id: comp_req__health_monitor__monitor_id
-   :reqtype: Interface
+   :reqtype: Functional
    :security: NO
    :safety: ASIL_B
    :derived_from: feat_req__lifecycle__hm_checkpoint[version==1],
@@ -122,8 +157,8 @@ General
    :status: valid
    :version: 1
 
-   The :term:`Health Monitor` shall identify each monitor by an identifier that
-   is unique within the :term:`Health Monitor` instance.
+   The :term:`Health Monitor` shall return an error when building a
+   configuration in which two monitors have the same identifier.
 
 .. comp_req:: Complete monitor activation
    :id: comp_req__health_monitor__complete_activation
@@ -273,9 +308,9 @@ Deadline Supervision
    The :term:`Health Monitor` shall return an error when building a deadline
    monitor configuration that contains no deadline.
 
-.. comp_req:: Deadline identification
+.. comp_req:: Duplicate deadline identifier
    :id: comp_req__health_monitor__deadline_id
-   :reqtype: Interface
+   :reqtype: Functional
    :security: NO
    :safety: ASIL_B
    :derived_from: feat_req__lifecycle__hm_deadline[version==1]
@@ -283,8 +318,8 @@ Deadline Supervision
    :status: valid
    :version: 1
 
-   The :term:`Health Monitor` shall identify each deadline by an identifier
-   that is unique within its deadline monitor.
+   The :term:`Health Monitor` shall return an error when building a deadline
+   monitor configuration in which two deadlines have the same identifier.
 
 .. comp_req:: Exclusive deadline acquisition
    :id: comp_req__health_monitor__deadline_exclusive
@@ -354,9 +389,9 @@ Deadline Supervision
 Logical Supervision
 ===================
 
-.. comp_req:: State identification
+.. comp_req:: Duplicate state identifier
    :id: comp_req__health_monitor__state_id
-   :reqtype: Interface
+   :reqtype: Functional
    :security: NO
    :safety: ASIL_B
    :derived_from: feat_req__lifecycle__hm_logical[version==1]
@@ -364,8 +399,8 @@ Logical Supervision
    :status: valid
    :version: 1
 
-   The :term:`Health Monitor` shall identify each state by an identifier that
-   is unique within its logic monitor.
+   The :term:`Health Monitor` shall return an error when building a logic
+   monitor configuration in which two states have the same identifier.
 
 .. comp_req:: Logic configuration without state
    :id: comp_req__health_monitor__lg_cfg_no_state
@@ -505,11 +540,14 @@ Error Reaction
    :status: valid
    :version: 1
 
-   On any internal error, the :term:`Health Monitor` shall stop sending alive
-   notifications to the :term:`Launch Manager`. 
-   
-   .. note:: Internal errors include an inconsistent monitor state, a time 
-      calculation overflow, and abnormal termination of the evaluation thread.
+   When the :term:`Health Monitor` detects an internal error, it shall stop
+   sending alive notifications to the :term:`Launch Manager`.
+
+   .. note:: Detected internal errors include an inconsistent monitor state, a
+      time calculation overflow, and abnormal termination of the evaluation
+      thread. They are traceable to the failure modes of the
+      :term:`Health Monitor` FMEA. Undetected internal errors are covered by the
+      fail-silent principle and the :term:`Launch Manager` alive supervision.
 
 .. comp_req:: Detection latency
    :id: comp_req__health_monitor__detect_latency
@@ -539,7 +577,12 @@ Error Reaction
    :version: 1
 
    The :term:`Health Monitor` shall log each detected supervision failure with
-   the monitor tag and the failure type.
+   the monitor identifier and the failure type.
+
+   .. note:: Logging is not a safety mechanism. The error reaction
+      (:need:`comp_req__health_monitor__alive_withhold`) does not depend on
+      successful logging: a blocked or failing logging backend cannot cause an
+      alive notification to be sent after a failure has been detected.
 
 Robustness and Freedom from Interference
 ========================================
@@ -557,7 +600,28 @@ Robustness and Freedom from Interference
    The :term:`Health Monitor` shall not allocate dynamic memory after
    supervision has been started.
 
-.. comp_req:: Bounded, non-blocking reporting
+.. comp_req:: Bounded reporting
+   :id: comp_req__health_monitor__bounded_api
+   :reqtype: Non-Functional
+   :security: NO
+   :safety: ASIL_B
+   :derived_from: feat_req__lifecycle__hm_checkpoint[version==1],
+                  feat_req__lifecycle__hm_deadline[version==1],
+                  feat_req__lifecycle__hm_logical[version==1]
+   :satisfied_by: comp__health_monitor
+   :status: valid
+   :version: 1
+
+   The reporting operations of the :term:`Health Monitor` (heartbeat, deadline
+   start and stop, state transition) shall have a worst-case execution time
+   that depends only on the configuration of the respective monitor.
+
+   .. note:: Measured worst-case execution times on the reference platform are
+      provided as input for the timing analysis of the integrator, see
+      :need:`aou_req__health_monitor__thread_sched` and
+      :need:`aou_req__health_monitor__ftti_budget`.
+
+.. comp_req:: Non-blocking reporting
    :id: comp_req__health_monitor__nonblocking_api
    :reqtype: Non-Functional
    :security: NO
@@ -570,8 +634,8 @@ Robustness and Freedom from Interference
    :version: 1
 
    The reporting operations of the :term:`Health Monitor` (heartbeat, deadline
-   start and stop, state transition) shall have a bounded execution time, and 
-   shall not block the calling thread.
+   start and stop, state transition) shall not use blocking synchronization
+   primitives, blocking system calls, or dynamic memory allocation.
 
 .. comp_req:: Concurrent reporting
    :id: comp_req__health_monitor__concurrency
@@ -616,8 +680,8 @@ Robustness and Freedom from Interference
    :status: valid
    :version: 1
 
-   A write access to a guard page of the :term:`Health Monitor` shall
-   terminate the hosting process.
+   The :term:`Health Monitor` shall configure its guard pages such that any
+   access to them terminates the hosting process.
 
    .. note:: The terminated process stops sending alive notifications, see
       :need:`comp_req__health_monitor__fail_silent`. Only bulk memory
@@ -634,7 +698,7 @@ Placeholder
    :safety: ASIL_B
    :derived_from: feat_req__lifecycle__launch_support
    :satisfied_by: comp__health_monitor
-   :status: valid
+   :status: draft
    :version: 1
 
     .. note:: Kept until the architecture elements are relinked to the

@@ -17,7 +17,7 @@ AoU Component Requirements
 
 .. document:: HealthMonitor Component AoU
    :id: doc__health_monitor_comp_aou
-   :status: draft
+   :status: valid
    :version: 1
    :safety: ASIL_B
    :security: NO
@@ -75,6 +75,8 @@ Component AoU
    - the maximum of the supervised time window,
    - one internal evaluation cycle,
    - the :term:`Launch Manager` alive timeout,
+   - the time the :term:`Recovery Action` of the :term:`Launch Manager` needs
+     to reach the safe state.
 
 .. aou_req:: Configuration from timing analysis
    :id: aou_req__health_monitor__cfg_derivation
@@ -109,7 +111,9 @@ Component AoU
    :version: 1
 
    The process that hosts the :term:`Health Monitor` shall be developed to
-   ASIL B.
+   ASIL B, or the integrator shall provide evidence of freedom from
+   interference between the remaining code of the hosting process and the
+   :term:`Health Monitor`.
 
    .. note:: The :term:`Health Monitor` shares the address space of the hosting
       process (see :need:`comp_req__health_monitor__mem_guard_pages`).
@@ -123,8 +127,7 @@ Component AoU
    :version: 1
 
    The operating system shall provide a monotonic clock that meets ASIL B
-   integrity and has a resolution finer than the smallest configured time
-   range.
+   integrity and has a resolution of one millisecond or finer.
 
 .. aou_req:: No test stubs in production
    :id: aou_req__health_monitor__no_stub
