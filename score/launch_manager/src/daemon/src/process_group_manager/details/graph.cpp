@@ -34,6 +34,11 @@ namespace score::mw::lifecycle::internal
 namespace
 {
 
+/// @brief False value dependent on T, to ensure evaluation is delayed until template evaluation,
+/// preventing static_asserts from triggering early
+template <class...>
+constexpr bool always_false_v = false;
+
 /// @brief Creates a dependency graph from the configuration.
 /// @param config The configuration containing components and Run Targets.
 /// @param process_handling The interfaces used to start, stop and report on the OS processes.
@@ -385,6 +390,18 @@ void Graph::handleComponentEvent(const ComponentEvent& event)
                 IComponent& failingComponent = componentOf(nodes_[data.process_identifier]);
                 failingComponent.handleSupervisionFailure(data.failure_timestamp);
             }
+            else if constexpr (std::is_same_v<T, GetActiveRunTarget> || std::is_same_v<T, SetRequestedRunTarget>)
+            {
+                // These events are handled by
+                // handleGetActiveRunTarget/handleSetRequestedRunTarget/unblockComponentEvent.
+                SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE(
+                    "It is a programmer error to call handleComponentEvent with "
+                    "GetActiveRunTarget|SetRequestedRunTarget.");
+            }
+            else
+            {
+                static_assert(always_false_v<T>, "Unhandled type in std::visit!");
+            }
         },
         event);
 }
@@ -407,6 +424,12 @@ void Graph::unblockComponentEvent(const ComponentEvent& event, const ExecErrc re
                 {
                     data.completion->complete(score::MakeUnexpected(reason));
                 }
+            }
+            else
+            {
+                SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE(
+                    "It is a programmer error to call unblockComponentEvent with anything other than "
+                    "GetActiveRunTarget|SetRequestedRunTarget.");
             }
         },
         event);
