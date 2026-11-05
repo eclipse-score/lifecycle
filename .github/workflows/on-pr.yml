@@ -27,149 +27,24 @@ on:
 
 jobs:
   common:
-    name: Common checks, Linux builds, coverage and docs
+    name: Central CI
     permissions:
       contents: read
-    # Common checks and regular Linux rows share the configured central entry.
+      # Only SARIF publication uses these grants; checks run read-only.
+      actions: read
+      security-events: write
+    # Module policy and check selection live in ci.yml.
     uses: eclipse-score/cicd-workflows/.github/workflows/on-pr.yml@central-workflow
     with:
       workflow-config-yaml: .github/ci.yml
 
-  # Sanitizers have test-only target selection because compiling every target
-  # hits the module issues referenced below. Keep that policy visible here.
-  sanitizers:
-    name: Sanitizer / ${{ matrix.name }}
-    runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: asan_ubsan_lsan
-            bazel-args: --config=x86_64-linux --config=asan_ubsan_lsan
-            # https://github.com/eclipse-score/lifecycle/issues/476
-          - name: tsan
-            bazel-args: --config=x86_64-linux --config=tsan
-            # https://github.com/eclipse-score/lifecycle/issues/474
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-
-      - name: Setup Bazel with shared caching
-        uses: eclipse-score/cicd-actions/setup-bazel-cache@e2a2a587a759b681632040ec1e1294015a0405f5 # setup-bazel-cache/v0.1.0
-        with:
-          disk-cache-key: ${{ github.job }}-${{ matrix.name }}
-
-      - name: Test with Bazel
-        run: |
-          bazel test \
-            --lockfile_mode=error \
-            ${{ matrix.bazel-args }} \
-            //...
-
-      - name: Upload test logs
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: bazel-testlogs-${{ matrix.name }}
-          path: bazel-testlogs/
-          retention-days: 7
-
-  clippy:
-    name: Clippy
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      - name: Cache Cargo registry, git deps & target
-        uses: actions/cache@v6
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: ${{ runner.os }}-cargo-lint-clippy-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-lint-clippy-
-
-      - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: 1.90.0
-          override: true
-          components: clippy
-
-      - name: check clippy errors
-        uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: --all-features --all-targets --workspace -- -D warnings
-
-  codeql:
-    name: CodeQL
-    uses: ./.github/workflows/_codeql.yml
-    permissions:
-      contents: read
-      actions: write
-      security-events: write
-    with:
-      fail-on-findings: "true"
-
-  docs-check:
-    name: Check documentation
-    uses: eclipse-score/cicd-workflows/.github/workflows/docs-verify.yml@8d80e8df150cae21d53cbc8031d0f970648f7a67 # v0.0.3
-    permissions:
-      pull-requests: write
-      contents: read
-    with:
-      bazel-docs-verify-target: "--lockfile_mode=error //:docs_check"
-
-  docs-link-check:
-    name: Check links in documentation
-    uses: eclipse-score/cicd-workflows/.github/workflows/docs-verify.yml@8d80e8df150cae21d53cbc8031d0f970648f7a67 # v0.0.3
-    permissions:
-      pull-requests: write
-      contents: read
-    with:
-      bazel-docs-verify-target: "--lockfile_mode=error //:docs_link_check"
-
-  gitlint:
-    name: Check commit messages
-    runs-on: ubuntu-24.04
-    if: ${{ github.event_name == 'pull_request' }}
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-      - name: Run Gitlint Action
-        uses: ./.github/actions/gitlint
-        with:
-          pr-number: ${{ github.event.number }}
-          base-branch: ${{ github.event.pull_request.base.ref }}
-
   ready:
     name: Ready to merge
-    needs:
-      - common
-      - sanitizers
-      - docs-check
-      - docs-link-check
-      - clippy
-      - codeql
-      - gitlint
+    needs: common
     runs-on: ubuntu-slim
     permissions: {}
     if: ${{ !cancelled() && (github.event_name == 'pull_request' || github.event_name == 'merge_group') }}
     steps:
       - name: Fail if any required job did not succeed
-        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        if: needs.common.result != 'success'
         run: false

@@ -9,14 +9,23 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# The shared workflow owns the regular native and cross-compiled Linux rows.
-# Sanitizers, QNX and documentation verification retain their dedicated jobs.
+# The shared workflow owns Linux execution, quality checks and documentation.
+# QNX retains its separate credential and pull_request_target boundary.
 # Bazel configs select module-owned platforms and toolchains explicitly.
 schema-version: 2
 tests:
   linux-native:
     bazel-configs: x86_64-linux
     bazel-build-targets: //examples/... //score/...
+  # Test-only: all-target builds currently hit these module issues.
+  # https://github.com/eclipse-score/lifecycle/issues/476
+  asan-ubsan-lsan:
+    test-type: sanitizer
+    bazel-configs: x86_64-linux,asan_ubsan_lsan
+  # https://github.com/eclipse-score/lifecycle/issues/474
+  tsan:
+    test-type: sanitizer
+    bazel-configs: x86_64-linux,tsan
 # This module target owns the combined C++/Rust coverage pipeline.
 coverage:
   bazel-target: //quality/coverage:run_coverage
@@ -29,6 +38,14 @@ builds:
     bazel-configs: arm64-linux
     bazel-build-targets: //examples/... //score/...
     architecture: aarch64
+# Cargo's toolchain version comes from rust-toolchain.toml.
+clippy: {}
+gitlint: true
+codeql:
+  bazel-configs: x86_64-linux
+  # Explicit module analysis policy; shared execution and SARIF merging.
+  reports: [cert-cpp-l1, cert-c-l1, cpp-code-scanning, code-complexity]
+  fail-on-findings: true
 docs:
-  github-context: true
-  retention-days: 3
+  check: true
+  link-check: true
