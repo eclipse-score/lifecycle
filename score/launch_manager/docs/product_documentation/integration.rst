@@ -72,8 +72,8 @@ This is a single config that includes both **Launch Manager** and the
 **State Manager** instance definition so they can be used by both.
 
 
-For more information about the ``mw::com`` configuraiton please refer
-to their documentation and tutorial at documentaiton
+For more information about the ``mw::com`` configuration please refer
+to their documentation and tutorial at documentation
 https://eclipse-score.github.io/communication/v0.5.0/score/mw/com/doc/tutorial/chapter_2/README.html#separate-configuration-files-for-provider-and-consumer
 
 LmControlService service type
@@ -104,14 +104,14 @@ Service types
 
   ``.serviceTypes[].bindings[].serviceId: 7101`` - 
   This is the numeric identifier of the service for this binding.
-  Note this can be changed to any number, however has to be unique to any
+  Note this can be changed to any number, however, it has to be unique to any
   other service used by this application.
 
 * **events**
 
   ``.serviceTypes[].bindings[].events[]`` - 
   Events offered by the service. Each event has a name and a numeric id.
-  Note the ID can be changed to any number, however has to be unique to any
+  Note the ID can be changed to any number, however, it has to be unique to any
   other binding used by this application.
 
   .. code-block:: json
@@ -125,7 +125,7 @@ Service types
 
   ``.serviceTypes[].bindings[].methods[]`` - 
   Methods offered by the service. Each method has a name and a numeric id.
-  Note the ID can be changed to any number, however has to be unique to any
+  Note the ID can be changed to any number, however, it has to be unique to any
   other binding used by this application.
 
   .. code-block:: json
@@ -143,7 +143,7 @@ Service instances
 """""""""""""""""
 
 The ``serviceInstances`` array defines the concrete instances of a service type.
-Wwo instances of ``LmControlService`` are required, one used by the
+Two instances of ``LmControlService`` are required, one used by the
 **Launch Manager** (``LaunchManager/StateManager/Instance``) and one used by the
 **State Manager** (``StateManager/LaunchManager/Instance``).
 
@@ -167,11 +167,11 @@ Wwo instances of ``LmControlService`` are required, one used by the
 
   ``.serviceInstances[].instances[].instanceId`` - 
   Numeric identifier of the instance.
-  Note the ID can be changed to any number, however has to be unique to any
+  Note the ID can be changed to any number, however, it has to be unique to any
   other instance used by this application.
 
   ``.serviceInstances[].instances[].asil-level`` - 
-  Safety integrity level of the instance, Either ``QM`` or ``ASIL-B``.
+  Safety integrity level of the instance, either ``QM`` or ``ASIL-B``.
 
   ``.serviceInstances[].instances[].binding`` - 
   Communication mechanism, shall be ``SHM``.
@@ -247,7 +247,7 @@ A process can be configured to terminate in 2 ways:
 For a process to support being terminated by LCM, it needs to respond to
 a ``SIGTERM`` signal by ending ongoing tasks, freeing resources and
 exiting.
-Note that a **Self-terminating** also recieves the ``SIGTERM`` signal when LCM
+Note that a **Self-terminating** process also receives the ``SIGTERM`` signal when LCM
 decides to deactivate it.
 
 If a process does not terminate after receiving a ``SIGTERM``, and a

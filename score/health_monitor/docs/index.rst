@@ -50,8 +50,8 @@ Motivation
     .. note::
      The motivation is critical for CRs that want to change the existing components.
      It should clearly explain why the existing solution is inadequate to address the topic that the CR solves.
-     Motivation may based on criteria as resource requirements, scheduling issues, risks, benefits, etc.
-     CRs submissions without sufficient motivation may be rejected.
+     Motivation may be based on criteria such as resource requirements, scheduling issues, risks, benefits, etc.
+     CR submissions without sufficient motivation may be rejected.
 
 
 
@@ -91,14 +91,14 @@ Security Impact
    .. note::
       If there are security concerns in relation to the CR, those concerns should be explicitly written out to make sure reviewers of the CR are aware of them.
 
-Which security requirements are affected or has to be changed?
+Which security requirements are affected or have to be changed?
 Could the new/modified component enable new threat scenarios?
 Could the new/modified component enable new attack paths?
 Could the new/modified component impact functional safety?
 If applicable, which additional security measures must be implemented to mitigate the risk?
 
     .. note::
-     Use Security Software Critically Analysis, Vulnerability Analysis.
+     Use Security Software Criticality Analysis, Vulnerability Analysis.
      [Methods will be defined later in Process area Security Analysis]
 
 
@@ -110,12 +110,12 @@ Safety Impact
    .. note::
       If there are safety concerns in relation to the CR, those concerns should be explicitly written out to make sure reviewers of the CR are aware of them.
 
-Which safety requirements are affected or has to be changed?
+Which safety requirements are affected or have to be changed?
 Could the new/modified component be a potential common cause or cascading failure initiator?
 If applicable, which additional safety measures must be implemented to mitigate the risk?
 
     .. note::
-     Use Dependency Failure Analysis and/or Safety Software Critically Analysis.
+     Use Dependency Failure Analysis and/or Safety Software Criticality Analysis.
      [Methods will be defined later in Process area Safety Analysis]
 
 For new feature/component contributions:
@@ -124,7 +124,7 @@ For new feature/component contributions:
 [What is the expected classification of the contribution?]
 
    .. note::
-      Use the component classification method here to classify your component, if it shall to be used in a safety context: :need:`gd_temp__component_classification`.
+      Use the component classification method here to classify your component, if it shall be used in a safety context: :need:`gd_temp__component_classification`.
 
 License Impact
 ==============

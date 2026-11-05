@@ -30,5 +30,5 @@ integration_test(
         "hm_logging.json",
         "logging.json",
     ],
-    tags = ["no-tsan"],
+    target_compatible_with = ["@score_cpp_policies//sanitizers/constraints:no_tsan"],
 )

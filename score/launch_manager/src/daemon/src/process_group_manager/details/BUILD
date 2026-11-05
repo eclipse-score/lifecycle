@@ -87,6 +87,16 @@ cc_library(
     ],
 )
 
+lm_cc_test(
+    name = "icomponent_UT",
+    srcs = ["icomponent_UT.cpp"],
+    deps = [
+        ":icomponent",
+        ":mock_component",
+        "@googletest//:gtest_main",
+    ],
+)
+
 cc_library(
     name = "handle",
     srcs = ["handle.cpp"],
@@ -377,7 +387,6 @@ cc_library(
 
 lm_cc_test(
     name = "safeprocessmap_UT",
-    timeout = "long",
     srcs = ["safeprocessmap_UT.cpp"],
     deps = [
         ":mock_component_controller",

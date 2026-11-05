@@ -232,7 +232,7 @@ llvm.toolchain(
 use_repo(llvm, "llvm_toolchain", "llvm_toolchain_llvm")
 
 # UTs on QNX
-bazel_dep(name = "score_qnx_unit_tests", version = "0.2.0", dev_dependency = True)
+bazel_dep(name = "score_qnx_unit_tests", version = "0.2.0")
 
 # TODO: drop this override once a version > 0.2.0 is published.
 # Latest release (0.2.0) does not support CLI args when running tests on QNX
@@ -301,7 +301,7 @@ pip.parse(
 )
 use_repo(pip, "codeql_coding_standards_pip_hub")
 
-bazel_dep(name = "score_itf", version = "0.6.0")
+bazel_dep(name = "score_itf", version = "0.7.0")
 
 oci = use_extension("@rules_oci//oci:extensions.bzl", "oci", dev_dependency = True)
 oci.pull(
@@ -313,7 +313,7 @@ oci.pull(
 )
 use_repo(oci, "debian-test-runtime", "debian-test-runtime_linux_amd64")
 
-bazel_dep(name = "score_baselibs", version = "0.2.16")
+bazel_dep(name = "score_baselibs", version = "0.2.17")
 bazel_dep(name = "score_communication", version = "0.6.0")
 
 # Needed to fix bazel mod errors

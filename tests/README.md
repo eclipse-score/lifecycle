@@ -17,8 +17,8 @@
 
 | Arg                            | What It Does                                                                |
 |:-------------------------------|:-----------------------------------------------------------------------------|
-|`--sandbox_add_mount_pair=/tmp` | Uses the users real `/tmp` dir for testing (only for `--config=host` builds |
-|`--test_output=streamed`        | logs apear while running                                                    |
+|`--sandbox_add_mount_pair=/tmp` | Uses the user's real `/tmp` dir for testing (only for `--config=host` builds)|
+|`--test_output=streamed`        | logs appear while running                                                   |
 |`--test_output=all`             | outputs all logs after test                                                 |
 |`--nocache_test_results`        | Reruns tests even if they have previously passed                            |
 |`--runs_per_test=N`             | Reruns the tests N times                                                    |
@@ -32,6 +32,6 @@ test command.
 
 | Arg                            | What It Does                                      | Example Command                                 |
 |:-------------------------------|:--------------------------------------------------|:------------------------------------------------|
-|`--test_arg=--no-local-cleanup` | Integration tests don't cleanup after running     |`bazel test //... --test_arg=--no-local-cleanup` |
+|`--test_arg=--no-local-cleanup` | Integration tests don't clean up after running    |`bazel test //... --test_arg=--no-local-cleanup` |
 |`--test_arg="--test_runner=XYZ"`| Integration tests run with the given test runner  |`bazel test //... --test_arg="--test_runner=time` |
 |`--test_arg=-s`                 | More logging from the python test framework       |`bazel test //... --test_arg=-s`                 |
