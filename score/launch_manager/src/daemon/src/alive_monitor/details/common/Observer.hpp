@@ -91,7 +91,7 @@ class Observable
     /// @warning    Attach may throw std::exceptions
     void attachObserver(Observer<Type_Observable>& f_observer_r) noexcept(false)
     {
-        observers.push_back(&f_observer_r);
+        observers_.push_back(&f_observer_r);
     }
 
     /// @brief Detach Observer
@@ -100,10 +100,10 @@ class Observable
     void detachObserver(Observer<Type_Observable>& f_observer_r) noexcept(false)
     {
         // cppcheck-suppress uselessCallsRemove
-        const auto eraseFirstIt{std::remove(observers.begin(), observers.end(), &f_observer_r)};
+        const auto eraseFirstIt{std::remove(observers_.begin(), observers_.end(), &f_observer_r)};
         const auto eraseFirstItConst{
             static_cast<typename std::vector<Observer<Type_Observable>*>::const_iterator>(eraseFirstIt)};
-        observers.erase(eraseFirstItConst, observers.cend());
+        observers_.erase(eraseFirstItConst, observers_.cend());
     }
 
   protected:
@@ -116,7 +116,7 @@ class Observable
     /// @param [in] result The updated object to be observed (usually @c *this )
     void pushResultToObservers(const Type_Observable& result) noexcept(true)
     {
-        for (auto& observer : observers)
+        for (auto& observer : observers_)
         {
             observer->updateData(result);
         }
@@ -124,7 +124,7 @@ class Observable
 
   private:
     /// Observers attached to the observable object
-    std::vector<Observer<Type_Observable>*> observers{};
+    std::vector<Observer<Type_Observable>*> observers_{};
 };
 
 }  // namespace score::mw::lifecycle::internal::saf::common

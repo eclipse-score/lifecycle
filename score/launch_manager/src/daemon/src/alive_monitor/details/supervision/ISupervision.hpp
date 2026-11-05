@@ -64,7 +64,7 @@ class ISupervision
 
   private:
     /// Unique name set by configuration
-    const IdentifierHash k_cfgName;
+    const IdentifierHash cfg_name_;
 };
 
 }  // namespace score::mw::lifecycle::internal::saf::supervision

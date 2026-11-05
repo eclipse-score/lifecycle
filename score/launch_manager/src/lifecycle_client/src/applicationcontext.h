@@ -32,8 +32,8 @@ namespace lifecycle
 class ApplicationContext
 {
   private:
-    std::vector<std::string> m_args;
-    std::string m_app_path;
+    std::vector<std::string> args_;
+    std::string app_path_;
 
   public:
     /* NOLINTNEXTLINE(modernize-avoid-c-arrays): array tolerated for command line arguments */

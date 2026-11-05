@@ -95,22 +95,22 @@ class MonitorIfDaemon : public common::Observer<ifexm::ObservableEvent>, public 
     };
 
     /// Current internal state
-    EInternalState status{EInternalState::kInactive};
+    EInternalState status_{EInternalState::kInactive};
 
     /// @brief Current Activation request
-    bool isActivateRequest{false};
+    bool is_activate_request_{false};
 
     /// @brief Current Deactivation request
-    bool isDeactivateRequest{false};
+    bool is_deactivate_request_{false};
 
     /// @brief Process restart status
-    bool isProcessRestarted{false};
+    bool is_process_restarted_{false};
 
     /// Interface name
-    const IdentifierHash k_interfaceName;
+    const IdentifierHash interface_name_;
 
     /// @brief IPC connection to application
-    CheckpointIpcServer& ipcserver_r;
+    CheckpointIpcServer& ipcserver_;
 };
 
 }  // namespace score::mw::lifecycle::internal::saf::ifappl
