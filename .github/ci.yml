@@ -10,31 +10,32 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # The shared workflow owns the regular native and cross-compiled Linux rows.
-# Sanitizers, QNX, coverage and documentation retain their dedicated jobs.
+# Sanitizers, QNX and documentation verification retain their dedicated jobs.
 # Bazel configs select module-owned platforms and toolchains explicitly.
 schema-version: 2
 
 variants:
   - name: linux-native
-    architecture:
-      - name: x86_64
-    os:
-      - name: linux
 
     checks:
       tests:
         # Build the complete module graph before running all native tests.
         # Both commands must produce Bazel evidence for the shared gate to pass.
-        - test-type: unit
-          bazel-configs: x86_64-linux
+        - bazel-configs: x86_64-linux
           bazel-build-targets: //examples/... //score/...
-          bazel-test-targets: //...
+
+      # This Bazel target owns the combined C++/Rust coverage pipeline.
+      # Keep its orchestration in the module while sharing setup and reports.
+      coverage:
+        bazel-target: //quality/coverage:run_coverage
+        coverage-threshold: 66
+        workflow-config:
+          # release.yml downloads this name directly.
+          artifact-name: coverage-html
 
   - name: linux-cross
     architecture:
       - name: aarch64
-    os:
-      - name: linux
 
     checks:
       builds:
@@ -43,3 +44,8 @@ variants:
         - name: compiler
           bazel-configs: arm64-linux
           bazel-build-targets: //examples/... //score/...
+
+# The docs CLI needs the repository identity as well as the linked reports.
+docs:
+  github-context: true
+  retention-days: 3

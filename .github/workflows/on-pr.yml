@@ -27,7 +27,7 @@ on:
 
 jobs:
   common:
-    name: Common checks and Linux builds
+    name: Common checks, Linux builds, coverage and docs
     permissions:
       contents: read
     # Common checks and regular Linux rows share the configured central entry.
@@ -111,12 +111,6 @@ jobs:
           command: clippy
           args: --all-features --all-targets --workspace -- -D warnings
 
-  coverage:
-    name: Coverage
-    uses: ./.github/workflows/code_coverage.yml
-    permissions:
-      contents: read
-
   codeql:
     name: CodeQL
     uses: ./.github/workflows/_codeql.yml
@@ -145,25 +139,6 @@ jobs:
     with:
       bazel-docs-verify-target: "--lockfile_mode=error //:docs_link_check"
 
-  docs-build:
-    name: Build documentation
-    needs:
-      - common
-    uses: eclipse-score/cicd-workflows/.github/workflows/docs.yml@8d80e8df150cae21d53cbc8031d0f970648f7a67 # v0.0.3
-    permissions:
-      contents: read
-    with:
-      # the bazel-target depends on your repo specific docs_targets configuration (e.g. "suffix")
-      bazel-target: |
-        --lockfile_mode=error \
-        //:docs \
-        -- \
-        --github_user=${{ github.repository_owner }} \
-        --github_repo=${{ github.event.repository.name }}
-      retention-days: 3
-      # The shared archive keeps the package tree at its root for XML linking.
-      tests-report-artifact: ${{ fromJSON(needs.common.outputs.configured-artifacts)['linux-native-tests-unit'].testlogs }}
-
   gitlint:
     name: Check commit messages
     runs-on: ubuntu-24.04
@@ -188,9 +163,7 @@ jobs:
       - sanitizers
       - docs-check
       - docs-link-check
-      - docs-build
       - clippy
-      - coverage
       - codeql
       - gitlint
     runs-on: ubuntu-slim
