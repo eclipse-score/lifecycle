@@ -986,7 +986,6 @@ TEST_F(ProcessInfoNodeFileStateTest, ConditionAlreadyMet_ReturnsSuccess)
         std::chrono::milliseconds{50},
         std::chrono::milliseconds{5});
     expectSuccessfulProcessLaunch();
-    EXPECT_CALL(mock_processIf_, waitForkRunning(_, Eq(std::nullopt))).WillOnce(Return(osal::OsalReturnType::kSuccess));
     EXPECT_CALL(
         mock_file_waiter_,
         waitForFile(
@@ -1012,7 +1011,6 @@ TEST_F(ProcessInfoNodeFileStateTest, NotExistingCondition_ReturnsSuccess)
 
     auto node = createFileStateProcessInfoNode("/var/run/gone", configuration::FileExistenceState::NotExisting);
     expectSuccessfulProcessLaunch();
-    EXPECT_CALL(mock_processIf_, waitForkRunning(_, Eq(std::nullopt))).WillOnce(Return(osal::OsalReturnType::kSuccess));
     EXPECT_CALL(mock_file_waiter_, waitForFile(_, Eq(configuration::FileExistenceState::NotExisting), _, _, _))
         .WillOnce(Return(osal::OsalReturnType::kSuccess));
 
@@ -1024,7 +1022,7 @@ TEST_F(ProcessInfoNodeFileStateTest, NotExistingCondition_ReturnsSuccess)
 
 TEST_F(ProcessInfoNodeFileStateTest, NativeApplication_DoesNotIgnoreRunning_ReturnsSuccess)
 {
-    RecordProperty("Description", "A FileState ready condition with a native process hall not call waitForkRunning.");
+    RecordProperty("Description", "A FileState ready condition with a native process shall not call waitForkRunning.");
 
     auto node = createFileStateProcessInfoNode(
         "/var/run/ready", configuration::FileExistenceState::Exists, configuration::ApplicationType::Native);
@@ -1044,7 +1042,6 @@ TEST_F(ProcessInfoNodeFileStateTest, WaitForFileTimesOut_ReturnsTimeout)
 
     auto node = createFileStateProcessInfoNode("/var/run/ready", configuration::FileExistenceState::Exists);
     expectSuccessfulProcessLaunch();
-    EXPECT_CALL(mock_processIf_, waitForkRunning(_, Eq(std::nullopt))).WillOnce(Return(osal::OsalReturnType::kSuccess));
     EXPECT_CALL(mock_file_waiter_, waitForFile(_, _, _, _, _)).WillOnce(Return(osal::OsalReturnType::kTimeout));
     // Simulate the OS handler reporting the killed process's exit once termination is requested.
     expectOsAcknowledgesTermination(node.get());

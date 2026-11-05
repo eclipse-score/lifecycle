@@ -28,31 +28,20 @@ using IpcCommsP = std::shared_ptr<IpcCommsSync>;
 
 /// @brief Structure for managing inter-process communication synchronization.
 /// The `IpcCommsSync` structure is designed to handle synchronization mechanisms required
-/// for inter-process communication. It uses semaphores to manage synchronization,
-/// a process ID to identify the communicating process, and a flag to manage file descriptor closure.
+/// for inter-process communication. It uses a semaphore to signal kRunning and
+/// a process ID to identify the communicating process.
+/// It is only created for processes that are expected to report kRunning.
 struct IpcCommsSync final
 {
-    /// @brief Semaphore for synchronizing replies.
-    /// The `reply_sync_` semaphore is used to synchronize the reception of replies
-    /// from a communicating process. It ensures that the reply is received before
-    /// proceeding with the next operation.
-    Semaphore reply_sync_;
-
-    /// @brief Semaphore for synchronizing sends.
-    /// The `send_sync_` semaphore is used to synchronize the sending of messages
-    /// to a communicating process. It ensures that the send operation is completed
-    /// before proceeding with the next operation.
+    /// @brief Semaphore used by the process to report kRunning.
+    /// The communicating process posts this semaphore exactly once to signal that it has finished initialization.
+    /// Launch Manager waits on it (and also posts it to wake the waiter up early if the process terminates).
     Semaphore send_sync_;
 
     /// @brief Process ID of the communicating process.
-    /// The `pid_` identifies the process involved in the communication. It is used
-    /// to uniquely identify and manage the process during communication operations.
+    /// The `pid_` is written by the child process right after fork. The client checks it against its own pid.
+    /// The `pid_` is used to verify that the data is valid.
     ProcessID pid_;
-
-    /// @brief Type of communications used for this process.
-    /// The `comms_type_` member identifies whether the process has no communications
-    /// with Launch Manager (`kNoComms`) or is expected to report kRunning (`kReporting`).
-    CommsType comms_type_;
 
     /// @brief Constant for the synchronization file descriptor.
     /// The `sync_fd` is a constant representing the file descriptor used for synchronization
@@ -88,78 +77,86 @@ struct IpcCommsSync final
     /// the process it is creating.
     static IpcCommsP getCommsObject(int fd = IpcCommsSync::sync_fd)
     {
-        IpcCommsP ret = nullptr;
-        void* buf = mmap(nullptr, sizeof(IpcCommsSync), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-
-        if (MAP_FAILED != buf)
-        {
-            ret = IpcCommsP(static_cast<IpcCommsSync*>(buf), IpcCommsDeletor());
-        }
-
-        return ret;
+        IpcCommsSync* const block = map(fd);
+        return (nullptr != block) ? IpcCommsP(block, IpcCommsDeletor{}) : nullptr;
     }
 
-    /// @brief Initializes semaphores within a given shared memory block.
-    /// @param[in] block Pointer to the shared memory block where semaphores will be initialized.
-    /// @return True if semaphore initialization is successful, false otherwise.
-    /// @details This is static instead of a member function because, even though not needed currently, any vtable
-    /// lookups would be UB.
-    static bool initializeSemaphores(IpcCommsP shared_block)
+    /// @brief Creates the comms object for Launch Manager, which owns the semaphore.
+    /// @param[in] fd File descriptor of the shared memory object, already sized to sizeof(IpcCommsSync).
+    /// @return Shared pointer to the initialized object, or nullptr if mapping or semaphore initialization failed.
+    /// @details In contrast to getCommsObject(), the returned pointer destroys the semaphore and unmaps the memory
+    /// when the last reference is dropped. Launch Manager only does this once the child process has terminated, so
+    /// the process can no longer be inside a post on the semaphore.
+    static IpcCommsP createCommsObject(int fd)
     {
-        bool result = true;
-
-        if (osal::OsalReturnType::kFail == shared_block->send_sync_.init(0U, true) ||
-            osal::OsalReturnType::kFail == shared_block->reply_sync_.init(0U, true))
+        IpcCommsSync* const block = map(fd);
+        if (nullptr == block)
         {
-            result = false;
-            LM_LOG_ERROR() << "Semaphore init failed: Unable to initialize send_sync or reply_sync semaphore.";
+            return nullptr;
         }
 
-        return result;
-    }
+        if (osal::OsalReturnType::kFail == block->send_sync_.init(0U, true))
+        {
+            LM_LOG_ERROR() << "Semaphore init failed: Unable to initialize send_sync semaphore.";
+            IpcCommsDeletor{}(block);
+            return nullptr;
+        }
 
-    /// @brief Deinitializes semaphores within a given shared memory block.
-    /// @param[in] block Pointer to the shared memory block.
-    /// @details This is static instead of a member function because, even though not needed currently, any vtable
-    /// lookups would be UB.
-    static void deinit(IpcCommsP shared_block)
-    {
-        // We are not interested in the result of msync, just whether it worked or not.
-        // If it did not work, the child process has probably crashed and corrupted the shared memory
-        // so we should not try to deinitialize the semaphores.
-        // mincore would be more appropriate here, but is not available on QNX
-        if (msync(shared_block.get(), sizeof(IpcCommsSync), MS_ASYNC) == 0)
-        {
-            if (shared_block->send_sync_.deinit() != OsalReturnType::kSuccess)
-            {
-                LM_LOG_WARN() << "Failed to deinitialize send_sync semaphore.";
-            }
-            if (shared_block->reply_sync_.deinit() != OsalReturnType::kSuccess)
-            {
-                LM_LOG_WARN() << "Failed to deinitialize reply_sync semaphore.";
-            }
-        }
-        else
-        {
-            LM_LOG_WARN() << "Skipping semaphore deinitialization - shared memory region appears invalid:"
-                          << errno_message(errno);
-        }
+        return IpcCommsP(block, IpcCommsOwnerDeletor{});
     }
 
   private:
+    /// @brief Maps the shared memory behind fd as an IpcCommsSync object.
+    /// @return Pointer to the mapped object, or nullptr if mapping failed.
+    static IpcCommsSync* map(int fd)
+    {
+        void* const buf = mmap(nullptr, sizeof(IpcCommsSync), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+        return (MAP_FAILED != buf) ? static_cast<IpcCommsSync*>(buf) : nullptr;
+    }
+
     /// @brief Deleter to release IpcCommsSync object
-    /// This is passed to the constructor of a shared pointer
+    /// This is used by the application process, which only maps the memory.
+    /// Passed to the constructor of a shared pointer
     struct IpcCommsDeletor
     {
         void operator()(IpcCommsSync* ptr) const
         {
-            if (nullptr != ptr)
+            if ((nullptr != ptr) && (munmap(ptr, sizeof(IpcCommsSync)) == -1))
             {
-                if (munmap(ptr, sizeof(IpcCommsSync)) == -1)
+                LM_LOG_ERROR() << "Unmapping of shared memory failed";
+            }
+        }
+    };
+
+    /// @brief Deleter used by Launch Manager, which owns the semaphore.
+    /// Destroys the semaphore first, then unmaps the memory.
+    struct IpcCommsOwnerDeletor
+    {
+        void operator()(IpcCommsSync* ptr) const
+        {
+            if (nullptr == ptr)
+            {
+                return;
+            }
+
+            // We are not interested in the result of msync, just whether it worked or not.
+            // If it did not work, the child process has probably crashed and corrupted the shared memory
+            // so we should not try to deinitialize the semaphore.
+            // mincore would be more appropriate here, but is not available on QNX
+            if (msync(ptr, sizeof(IpcCommsSync), MS_ASYNC) == 0)
+            {
+                if (ptr->send_sync_.deinit() != OsalReturnType::kSuccess)
                 {
-                    LM_LOG_ERROR() << "Unmapping of shared memory failed";
+                    LM_LOG_WARN() << "Failed to deinitialize send_sync semaphore.";
                 }
             }
+            else
+            {
+                LM_LOG_WARN() << "Skipping semaphore deinitialization - shared memory region appears invalid:"
+                              << errno_message(errno);
+            }
+
+            IpcCommsDeletor{}(ptr);
         }
     };
 };

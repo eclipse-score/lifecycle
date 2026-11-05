@@ -195,11 +195,9 @@ bool ProcessInfoNode::setState(score::mw::lifecycle::ProcessState new_state)
 
 void ProcessInfoNode::unblockSync()
 {
-    auto sync = sync_;  // take a copy as the pointer otherwise may become invalidated
+    auto sync = sync_;  // take a copy so the shared block stays alive during the post
     if (sync)
     {
-        // note that we ignore the return code. The semaphore operation may fail because it could
-        // be destroyed by another thread
         static_cast<void>(sync->send_sync_.post());
     }
 }
@@ -418,13 +416,7 @@ score::cpp::expected_blank<IComponent::RequestResult> ProcessInfoNode::handlePro
             else if constexpr (std::is_same_v<T, configuration::FileState>)
             {
 
-                if (isReporting())
-                {
-                    // currently we do not support multiple ready conditions so we need
-                    // to ignore the krunning signal.
-                    auto wait_res = process_handling_.process_interface_->waitForkRunning(sync_, std::nullopt);
-                    static_cast<void>(wait_res);
-                }
+                // if the process is reporting, the kRunning signal is currently ignored here
 
                 const auto wait_res = process_handling_.file_waiter_->waitForFile(
                     arg.file_path,
