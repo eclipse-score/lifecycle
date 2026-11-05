@@ -37,17 +37,29 @@ Components
    TODO all requirements that are not under the Process heading shall 
    be reworded to speak in terms of components.
 
-.. comp_req:: Invalid dependency
-    :id: comp_req__launch_man__consistent_dependencies
+.. comp_req:: Verification of configuration validity on compile time
+    :id: comp_req__launch_man__comp_dep_ver_cmp_time
     :reqtype: Functional
     :security: NO
     :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__process_ordering[version==1]
+    :derived_from: feat_req__lifecycle__config_file_verification[version==1]
     :status: valid
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall reject an inconsistent definition of a set of executables' dependencies.
+    The :term:`Launch Manager` shall reject an :term:`invalid configuration<Invalid Configuration>` during compile time.
+
+.. comp_req:: Verification of configuration validity on run time
+    :id: comp_req__launch_man__comp_dep_ver_run_time
+    :reqtype: Functional
+    :security: NO
+    :safety: ASIL_B
+    :derived_from: feat_req__lifecycle__config_file_verification[version==1]
+    :status: valid
+    :version: 1
+    :satisfied_by: comp__lifecycle_launch_manager
+
+    The :term:`Launch Manager` shall reject an :term:`invalid configuration<Invalid Configuration>` during run time.
 
 
 Activating Components
