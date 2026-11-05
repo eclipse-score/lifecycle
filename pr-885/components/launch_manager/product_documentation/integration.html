@@ -182,7 +182,7 @@
 
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="../../index.html">
-    Component documentation
+    Components
   </a>
 </li>
 
@@ -331,7 +331,7 @@
 
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="../../index.html">
-    Component documentation
+    Components
   </a>
 </li>
 
@@ -436,6 +436,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../safety_analysis/fmea.html">FMEA (Failure Modes and Effects Analysis)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../safety_analysis/dfa.html">DFA (Dependent Failure Analysis)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../safety_analysis/aou_requirements.html">AoU Component Requirements Template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../security_analysis/aou_requirements.html">Launch Manager Security Assumptions of Use</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../interfaces/index.html">Interfaces documentation</a></li>
 </ul>
 </details></li>
@@ -481,7 +482,7 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Component documentation</a></li>
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Components</a></li>
     
     
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Launch Manager</a></li>
@@ -547,8 +548,8 @@ configuration from the default path <code class="docutils literal notranslate"><
 <code class="docutils literal notranslate"><span class="pre">//score/launch_manager:example_com_config</span></code>.
 This is a single config that includes both <strong>Launch Manager</strong> and the
 <strong>State Manager</strong> instance definition so they can be used by both.</p>
-<p>For more information about the <code class="docutils literal notranslate"><span class="pre">mw::com</span></code> configuraiton please refer
-to their documentation and tutorial at documentaiton
+<p>For more information about the <code class="docutils literal notranslate"><span class="pre">mw::com</span></code> configuration please refer
+to their documentation and tutorial at documentation
 <a class="reference external" href="https://eclipse-score.github.io/communication/v0.5.0/score/mw/com/doc/tutorial/chapter_2/README.html#separate-configuration-files-for-provider-and-consumer">https://eclipse-score.github.io/communication/v0.5.0/score/mw/com/doc/tutorial/chapter_2/README.html#separate-configuration-files-for-provider-and-consumer</a></p>
 <section id="lmcontrolservice-service-type">
 <h4>LmControlService service type<a class="headerlink" href="#lmcontrolservice-service-type" title="Link to this heading">#</a></h4>
@@ -674,13 +675,13 @@ This is the version of the service interface.</p>
 This is the communication mechanism.</p>
 <p><code class="docutils literal notranslate"><span class="pre">.serviceTypes[].bindings[].serviceId:</span> <span class="pre">7101</span></code> -
 This is the numeric identifier of the service for this binding.
-Note this can be changed to any number, however has to be unique to any
+Note this can be changed to any number, however, it has to be unique to any
 other service used by this application.</p>
 </li>
 <li><p><strong>events</strong></p>
 <p><code class="docutils literal notranslate"><span class="pre">.serviceTypes[].bindings[].events[]</span></code> -
 Events offered by the service. Each event has a name and a numeric id.
-Note the ID can be changed to any number, however has to be unique to any
+Note the ID can be changed to any number, however, it has to be unique to any
 other binding used by this application.</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="w">  </span><span class="nt">"eventName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ActivationResult"</span><span class="p">,</span>
@@ -692,7 +693,7 @@ other binding used by this application.</p>
 <li><p><strong>methods</strong></p>
 <p><code class="docutils literal notranslate"><span class="pre">.serviceTypes[].bindings[].methods[]</span></code> -
 Methods offered by the service. Each method has a name and a numeric id.
-Note the ID can be changed to any number, however has to be unique to any
+Note the ID can be changed to any number, however, it has to be unique to any
 other binding used by this application.</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="w">  </span><span class="nt">"methodName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ActivateRunTarget"</span><span class="p">,</span>
@@ -710,7 +711,7 @@ other binding used by this application.</p>
 <section id="service-instances">
 <h5>Service instances<a class="headerlink" href="#service-instances" title="Link to this heading">#</a></h5>
 <p>The <code class="docutils literal notranslate"><span class="pre">serviceInstances</span></code> array defines the concrete instances of a service type.
-Wwo instances of <code class="docutils literal notranslate"><span class="pre">LmControlService</span></code> are required, one used by the
+Two instances of <code class="docutils literal notranslate"><span class="pre">LmControlService</span></code> are required, one used by the
 <strong>Launch Manager</strong> (<code class="docutils literal notranslate"><span class="pre">LaunchManager/StateManager/Instance</span></code>) and one used by the
 <strong>State Manager</strong> (<code class="docutils literal notranslate"><span class="pre">StateManager/LaunchManager/Instance</span></code>).</p>
 <ul>
@@ -730,10 +731,10 @@ This is the version of the service type and must match the one in <code class="d
 <li><p><strong>instances</strong></p>
 <p><code class="docutils literal notranslate"><span class="pre">.serviceInstances[].instances[].instanceId</span></code> -
 Numeric identifier of the instance.
-Note the ID can be changed to any number, however has to be unique to any
+Note the ID can be changed to any number, however, it has to be unique to any
 other instance used by this application.</p>
 <p><code class="docutils literal notranslate"><span class="pre">.serviceInstances[].instances[].asil-level</span></code> -
-Safety integrity level of the instance, Either <code class="docutils literal notranslate"><span class="pre">QM</span></code> or <code class="docutils literal notranslate"><span class="pre">ASIL-B</span></code>.</p>
+Safety integrity level of the instance, either <code class="docutils literal notranslate"><span class="pre">QM</span></code> or <code class="docutils literal notranslate"><span class="pre">ASIL-B</span></code>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">.serviceInstances[].instances[].binding</span></code> -
 Communication mechanism, shall be <code class="docutils literal notranslate"><span class="pre">SHM</span></code>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">.serviceInstances[].instances[].events[]</span></code> -
@@ -801,7 +802,7 @@ Manager terminates the process and registers an error.</p>
 <p>For a process to support being terminated by LCM, it needs to respond to
 a <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code> signal by ending ongoing tasks, freeing resources and
 exiting.
-Note that a <strong>Self-terminating</strong> also recieves the <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code> signal when LCM
+Note that a <strong>Self-terminating</strong> process also receives the <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code> signal when LCM
 decides to deactivate it.</p>
 <p>If a process does not terminate after receiving a <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code>, and a
 <code class="docutils literal notranslate"><span class="pre">shutdown_timeout_ms</span></code> is configured, then after the timeout is fired a
@@ -825,10 +826,11 @@ decides to deactivate it.</p>
 <span class="cm"> * SPDX-License-Identifier: Apache-2.0</span>
 <span class="cm"> ********************************************************************************/</span>
 
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;assert.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;signal.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdint.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;time.h&gt;</span>
 
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"score/mw/lifecycle/report_running.h"</span>
@@ -846,19 +848,20 @@ decides to deactivate it.</p>
 <span class="w">    </span><span class="n">exitRequested</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 <span class="p">}</span>
 
-<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">argv</span><span class="p">[]){</span>
-
-<span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">argc</span><span class="p">;</span>
-<span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">argv</span><span class="p">;</span>
-
-<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="n">signal</span><span class="p">(</span><span class="n">SIGTERM</span><span class="p">,</span><span class="w"> </span><span class="n">sigTermHandler</span><span class="p">));</span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// register SIGTERM handler</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">signal</span><span class="p">(</span><span class="n">SIGTERM</span><span class="p">,</span><span class="w"> </span><span class="n">sigTermHandler</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">SIG_ERR</span><span class="p">){</span>
+<span class="w">        </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="n">printf</span><span class="p">(</span><span class="s">"Failed to register SIGTERM handler! Terminating"</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="c1">// report running</span>
 <span class="w">    </span><span class="kt">int8_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">score_mw_lifecycle_report_running</span><span class="p">();</span>
 
 <span class="w">    </span><span class="c1">// check report was successful</span>
 <span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">result</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">){</span>
-<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">"Failed to report kRunning to LCM! Terminating"</span><span class="p">);</span>
+<span class="w">        </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="n">printf</span><span class="p">(</span><span class="s">"Failed to report kRunning to LCM! Terminating"</span><span class="p">);</span>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span>
 
@@ -889,8 +892,6 @@ decides to deactivate it.</p>
 <span class="cm"> ********************************************************************************/</span>
 
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;atomic&gt;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cassert&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;csignal&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdlib&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
@@ -906,9 +907,12 @@ decides to deactivate it.</p>
 
 <span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
 <span class="p">{</span>
-
 <span class="w">    </span><span class="c1">// register signal handler so that lcm can request a termination</span>
-<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="n">signal</span><span class="p">(</span><span class="n">SIGTERM</span><span class="p">,</span><span class="w"> </span><span class="n">sigTermHandler</span><span class="p">));</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">signal</span><span class="p">(</span><span class="n">SIGTERM</span><span class="p">,</span><span class="w"> </span><span class="n">sigTermHandler</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">SIG_ERR</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Failed to register SIGTERM handler! Terminating"</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="c1">// report running state</span>
 <span class="w">    </span><span class="n">score</span><span class="o">::</span><span class="n">mw</span><span class="o">::</span><span class="n">lifecycle</span><span class="o">::</span><span class="n">report_running</span><span class="p">();</span>
@@ -1066,10 +1070,11 @@ Manager ready, which can lead to errors.</p>
 
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;atomic&gt;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cassert&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;chrono&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;csignal&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;memory&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;thread&gt;</span>
 
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"score/mw/com/runtime.h"</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">"score/string_manipulation/arguments/arguments.h"</span>
@@ -1082,11 +1087,11 @@ Manager ready, which can lead to errors.</p>
 <span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span><span class="w"> </span><span class="n">startup_finished</span><span class="p">{</span><span class="nb">false</span><span class="p">};</span>
 
 <span class="c1">/// Used if a termination was requested from a signal.</span>
-<span class="n">std</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span><span class="w"> </span><span class="n">exitRequested</span><span class="p">{</span><span class="nb">false</span><span class="p">};</span>
+<span class="k">volatile</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">sig_atomic_t</span><span class="w"> </span><span class="n">exitRequested</span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 
 <span class="kt">void</span><span class="w"> </span><span class="nf">signalHandler</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="cm">/*signal*/</span><span class="p">)</span>
 <span class="p">{</span>
-<span class="w">    </span><span class="n">exitRequested</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">    </span><span class="n">exitRequested</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 <span class="p">}</span>
 
 <span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">argv</span><span class="p">[])</span>
@@ -1094,8 +1099,12 @@ Manager ready, which can lead to errors.</p>
 <span class="w">    </span><span class="c1">// initialize com, needed if you are giving the mw_conf.json as an argument</span>
 <span class="w">    </span><span class="n">score</span><span class="o">::</span><span class="n">mw</span><span class="o">::</span><span class="n">com</span><span class="o">::</span><span class="n">runtime</span><span class="o">::</span><span class="n">InitializeRuntime</span><span class="p">(</span><span class="n">score</span><span class="o">::</span><span class="n">string_manipulation</span><span class="o">::</span><span class="n">GetArguments</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">));</span>
 
-<span class="w">    </span><span class="c1">// register signal handler and assert success</span>
-<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="n">signal</span><span class="p">(</span><span class="n">SIGTERM</span><span class="p">,</span><span class="w"> </span><span class="n">signalHandler</span><span class="p">));</span>
+<span class="w">    </span><span class="c1">// register signal handler</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">signal</span><span class="p">(</span><span class="n">SIGTERM</span><span class="p">,</span><span class="w"> </span><span class="n">signalHandler</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">SIG_ERR</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Failed to register SIGTERM handler"</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="c1">// report running to LM</span>
 <span class="w">    </span><span class="n">score</span><span class="o">::</span><span class="n">mw</span><span class="o">::</span><span class="n">lifecycle</span><span class="o">::</span><span class="n">report_running</span><span class="p">();</span>
@@ -1132,7 +1141,8 @@ Manager ready, which can lead to errors.</p>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">startup_finished</span><span class="p">.</span><span class="n">load</span><span class="p">())</span>
+<span class="w">    </span><span class="c1">// wait until the initial run target activation has completed</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">startup_finished</span><span class="p">.</span><span class="n">load</span><span class="p">())</span>
 <span class="w">    </span><span class="p">{</span>
 <span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mi">100</span><span class="n">ms</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
@@ -1150,7 +1160,7 @@ Manager ready, which can lead to errors.</p>
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="c1">// wait until lm wants to terminate</span>
-<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">exitRequested</span><span class="p">)</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">exitRequested</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
 <span class="w">    </span><span class="p">{</span>
 <span class="w">        </span><span class="n">pause</span><span class="p">();</span>
 <span class="w">    </span><span class="p">}</span>
