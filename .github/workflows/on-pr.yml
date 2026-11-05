@@ -27,37 +27,29 @@ on:
 
 jobs:
   common:
-    name: Common checks
+    name: Common checks and Linux builds
     permissions:
       contents: read
-    uses: eclipse-score/cicd-workflows/.github/workflows/on-pr.yml@on-pr/v0.0.0
+    # Common checks and regular Linux rows share the configured central entry.
+    uses: eclipse-score/cicd-workflows/.github/workflows/on-pr.yml@central-workflow
+    with:
+      workflow-config-yaml: .github/ci.yml
 
-  # We don't use eclipse-score/cicd-workflows/.github/workflows/tests.yml
-  # because it is more resource efficient to build and test in the same job.
-  # Also the cache name in the template is not configurable.
-  build:
-    name: Build and test ${{ matrix.name }}
+  # Sanitizers have test-only target selection because compiling every target
+  # hits the module issues referenced below. Keep that policy visible here.
+  sanitizers:
+    name: Sanitizer / ${{ matrix.name }}
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         include:
-          - name: x86_64-linux
-            bazel-args: --config=x86_64-linux
-            build: true
-            test: true
-          - name: arm64-linux
-            bazel-args: --config=arm64-linux
-            build: true
-            test: false # Cannot run on x86_64
           - name: asan_ubsan_lsan
             bazel-args: --config=x86_64-linux --config=asan_ubsan_lsan
-            build: false # https://github.com/eclipse-score/lifecycle/issues/476
-            test: true
+            # https://github.com/eclipse-score/lifecycle/issues/476
           - name: tsan
             bazel-args: --config=x86_64-linux --config=tsan
-            build: false # https://github.com/eclipse-score/lifecycle/issues/474
-            test: true
+            # https://github.com/eclipse-score/lifecycle/issues/474
     permissions:
       contents: read
     steps:
@@ -69,17 +61,7 @@ jobs:
         with:
           disk-cache-key: ${{ github.job }}-${{ matrix.name }}
 
-      - name: Build with Bazel
-        if: matrix.build
-        run: |
-          bazel build \
-            --lockfile_mode=error \
-            ${{ matrix.bazel-args }} \
-            //examples/... \
-            //score/...
-
       - name: Test with Bazel
-        if: matrix.test
         run: |
           bazel test \
             --lockfile_mode=error \
@@ -166,7 +148,7 @@ jobs:
   docs-build:
     name: Build documentation
     needs:
-      - build
+      - common
     uses: eclipse-score/cicd-workflows/.github/workflows/docs.yml@8d80e8df150cae21d53cbc8031d0f970648f7a67 # v0.0.3
     permissions:
       contents: read
@@ -179,7 +161,8 @@ jobs:
         --github_user=${{ github.repository_owner }} \
         --github_repo=${{ github.event.repository.name }}
       retention-days: 3
-      tests-report-artifact: bazel-testlogs-x86_64-linux
+      # The shared archive keeps the package tree at its root for XML linking.
+      tests-report-artifact: ${{ fromJSON(needs.common.outputs.configured-artifacts)['linux-native-tests-unit'].testlogs }}
 
   gitlint:
     name: Check commit messages
@@ -202,7 +185,7 @@ jobs:
     name: Ready to merge
     needs:
       - common
-      - build
+      - sanitizers
       - docs-check
       - docs-link-check
       - docs-build

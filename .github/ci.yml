@@ -9,8 +9,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# This opt-in POC exercises a focused dependency graph through the shared CI.
-# Existing module workflows remain the required coverage for the complete module.
+# The shared workflow owns the regular native and cross-compiled Linux rows.
+# Sanitizers, QNX, coverage and documentation retain their dedicated jobs.
 # Bazel configs select module-owned platforms and toolchains explicitly.
 schema-version: 2
 
@@ -23,12 +23,12 @@ variants:
 
     checks:
       tests:
-        # Build the library explicitly before executing its native unit tests.
+        # Build the complete module graph before running all native tests.
         # Both commands must produce Bazel evidence for the shared gate to pass.
         - test-type: unit
           bazel-configs: x86_64-linux
-          bazel-build-targets: //score/health_monitor/src/cpp:health_monitoring_cc
-          bazel-test-targets: //score/health_monitor/src/cpp:cpp_unit_tests
+          bazel-build-targets: //examples/... //score/...
+          bazel-test-targets: //...
 
   - name: linux-cross
     architecture:
@@ -42,4 +42,4 @@ variants:
         # native unit tests have run on ARM or requiring an emulation setup.
         - name: compiler
           bazel-configs: arm64-linux
-          bazel-build-targets: //score/health_monitor/src/cpp:health_monitoring_cc
+          bazel-build-targets: //examples/... //score/...
