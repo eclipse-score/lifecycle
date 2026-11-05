@@ -22,3 +22,4 @@ Safety Management
    module_safety_plan_fdr
    module_safety_package_fdr
    module_safety_analysis_fdr
+   dependency_aou_handling
