@@ -20,11 +20,9 @@ tests:
   # Test-only: all-target builds currently hit these module issues.
   # https://github.com/eclipse-score/lifecycle/issues/476
   asan-ubsan-lsan:
-    test-type: sanitizer
     bazel-configs: x86_64-linux,asan_ubsan_lsan
   # https://github.com/eclipse-score/lifecycle/issues/474
   tsan:
-    test-type: sanitizer
     bazel-configs: x86_64-linux,tsan
 # This module target owns the combined C++/Rust coverage pipeline.
 coverage:
@@ -47,5 +45,6 @@ codeql:
   reports: [cert-cpp-l1, cert-c-l1, cpp-code-scanning, code-complexity]
   fail-on-findings: true
 docs:
+  tests: linux-native-tests
   check: true
   link-check: true
