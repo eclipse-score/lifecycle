@@ -184,7 +184,7 @@
   {
     "name": "WatchdogImplTest__WdgInit_FailsIfNotInIdleState",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "233",
+    "line": "252",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -198,7 +198,7 @@
   {
     "name": "WatchdogImplTest__WdgInit_FailsWatchdogTimeoutSmallerThenCycleTime",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "247",
+    "line": "266",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -212,7 +212,7 @@
   {
     "name": "WatchdogImplTest__WdgInit_FailsIfTimeoutExceedsUint16Max",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "263",
+    "line": "282",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -226,7 +226,7 @@
   {
     "name": "WatchdogImplTest__WdgInit_FailsIfTimeoutIsTooLarge",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "279",
+    "line": "298",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -240,7 +240,7 @@
   {
     "name": "WatchdogImplTest__WdgInit_FailsIfTimeoutIsTooSmall",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "292",
+    "line": "311",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -254,7 +254,7 @@
   {
     "name": "WatchdogImplTest__WdgInit_FailsIfTimeoutResolutionIsWrong",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "306",
+    "line": "325",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -268,7 +268,7 @@
   {
     "name": "WatchdogImplTest__WdgInit_FailsIfDeviceAlreadyConfigured",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "320",
+    "line": "339",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -282,7 +282,7 @@
   {
     "name": "WatchdogImplTest__WdgEnable_SucceedsIfNoDeviceConfigured",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "361",
+    "line": "380",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -296,7 +296,7 @@
   {
     "name": "WatchdogImplTest__WdgEnable_FailsIfNotInIdleState",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "369",
+    "line": "388",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -310,7 +310,7 @@
   {
     "name": "WatchdogImplTest__WdgEnable_DoesNotSetConfiguredTimeoutValue_WhenTimeoutAlreadyCorrect",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "382",
+    "line": "401",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -324,7 +324,7 @@
   {
     "name": "WatchdogImplTest__WdgEnable_FailsIfTimeoutValueIsAltered",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "464",
+    "line": "483",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -338,7 +338,7 @@
   {
     "name": "WatchdogImplTest__WdgServiceWatchdog_NotInActivatedState",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "489",
+    "line": "508",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -352,7 +352,7 @@
   {
     "name": "WatchdogImplTest__WdgServiceWatchdog_NoDevice",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "501",
+    "line": "520",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -366,7 +366,7 @@
   {
     "name": "WatchdogImplTest__WdgServiceWatchdog_WithConfiguredDevice",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "512",
+    "line": "531",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -380,7 +380,7 @@
   {
     "name": "WatchdogImplTest__WdgFireWatchdogReaction_FailsIfNotInActivatedState",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "533",
+    "line": "552",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -394,7 +394,7 @@
   {
     "name": "WatchdogImplTest__WdgFireWatchdogReaction_WithConfiguredDevice",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "549",
+    "line": "568",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -408,7 +408,7 @@
   {
     "name": "WatchdogImplTest__WdgDisable_FailsIfNotInActivatedState",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "582",
+    "line": "601",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -422,7 +422,7 @@
   {
     "name": "WatchdogImplTest__WdgDisable_DisablesOneDevice",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "597",
+    "line": "616",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -436,7 +436,7 @@
   {
     "name": "WatchdogImplTest__WdgDisable_WritesMagicCloseCharacterWhenRequired",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "613",
+    "line": "632",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -450,7 +450,7 @@
   {
     "name": "WatchdogImplTest__WdgDisable_IgnoresDevicesThatCannotBeDisabled",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "631",
+    "line": "650",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -464,7 +464,7 @@
   {
     "name": "Boundary/WatchdogImpl_UT_paramConfigName__WdgInit_SucceedsWithValidDeviceConfiguration/0",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "338",
+    "line": "357",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -478,7 +478,7 @@
   {
     "name": "Boundary/WatchdogImpl_UT_paramConfigName__WdgInit_SucceedsWithValidDeviceConfiguration/1",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "338",
+    "line": "357",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -492,7 +492,7 @@
   {
     "name": "Boundary/WatchdogImpl_UT_paramConfigName__WdgInit_SucceedsWithValidDeviceConfiguration/2",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "338",
+    "line": "357",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -506,7 +506,7 @@
   {
     "name": "EnableFailures/WatchdogImpl_UT_EnableFailure__WdgEnable_FailsAndStopsSequence/OpenFails",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "422",
+    "line": "441",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -520,7 +520,7 @@
   {
     "name": "EnableFailures/WatchdogImpl_UT_EnableFailure__WdgEnable_FailsAndStopsSequence/GetTimeoutFails",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "422",
+    "line": "441",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -534,7 +534,7 @@
   {
     "name": "EnableFailures/WatchdogImpl_UT_EnableFailure__WdgEnable_FailsAndStopsSequence/GetRemainingTimeLeftFails",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "422",
+    "line": "441",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -548,7 +548,7 @@
   {
     "name": "EnableFailures/WatchdogImpl_UT_EnableFailure__WdgEnable_FailsAndStopsSequence/SetTimeoutFails",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "422",
+    "line": "441",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -562,7 +562,7 @@
   {
     "name": "EnableFailures/WatchdogImpl_UT_EnableFailure__WdgEnable_FailsAndStopsSequence/EnablecardFails",
     "file": "score/launch_manager/src/daemon/src/watchdog/details/WatchdogImpl_UT.cpp",
-    "line": "422",
+    "line": "441",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -10346,7 +10346,7 @@
     "FullyVerifies": null
   },
   {
-    "name": "score/launch_manager/src/lifecycle_client/src/rust/test-1444857508/lifecycle_client_rs_test",
+    "name": "score/launch_manager/src/lifecycle_client/src/rust/lifecycle_client_rs_test",
     "file": null,
     "line": null,
     "result": "passed",

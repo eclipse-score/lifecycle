@@ -589,7 +589,7 @@ continue evaluating the startup procedure.</p>
 <p>A <strong>Run Target</strong> defines a named collection of components that are
 intended to be active together. Only <strong>one Run Target can be active at a
 time</strong>. When a Run Target is activated, the Launch Manager transitions
-the system exclusively to that target, any components not assigned to it
+the system exclusively to that target; any components not assigned to it
 are terminated.</p>
 <p>When a Run Target is activated, the Launch Manager performs the
 following:</p>
@@ -611,7 +611,7 @@ reasons:</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The exact interleaving of terminations and starts during a transition is not
-defined, new components may be started before, after, or concurrently with
+defined; new components may be started before, after, or concurrently with
 the termination of outgoing components. If a component depends on another
 being fully stopped or fully ready before it proceeds, this should be
 expressed using dependencies between components or run-targets rather than
@@ -638,7 +638,7 @@ the list of components assigned to the dependent <strong>Run Target</strong> is 
 included in the list of components of the primary <strong>Run Target</strong>.</p>
 <p>Dependencies in the <strong>Launch Manager</strong> are resolved transitively.
 When a <strong>Run Target</strong> is activated, the <strong>Launch Manager</strong> does not only start
-the components and <strong>Run Targets</strong> directly listed in its <code class="docutils literal notranslate"><span class="pre">depends_on</span></code>, it
+the components and <strong>Run Targets</strong> directly listed in its <code class="docutils literal notranslate"><span class="pre">depends_on</span></code>; it
 follows the full dependency chain recursively until all dependencies are
 accounted for.</p>
 <p>This means that a component brought in by a <strong>Run Target</strong> dependency is

@@ -536,9 +536,9 @@ defined by the dependencies.</p>
 <object data="../../../_images/plantuml-8a854fbc8c202c0b507b252cb61991a5a9d0da90.svg" type="image/svg+xml" style="width:397px;height:934px;background:#FFFFFF;"></object></p>
 </figure>
 <p>The <a class="reference internal" href="../../../components/launch_manager/architecture/component_architecture.html#comp__lifecycle_launch_manager" title="comp__lifecycle_launch_manager"><em class="xref need">Launch Manager (comp__lifecycle_launch_manager)</em></a> implements the following
-interfaces,for the selection of <a class="reference internal" href="../glossary.html#term-Run-Target"><span class="xref std std-term">Run Target</span></a> s, starting and stopping of
+interfaces for the selection of <a class="reference internal" href="../glossary.html#term-Run-Target"><span class="xref std std-term">Run Target</span></a> s, starting and stopping of
 components and monitoring of the processes.</p>
-<p>The <cite>ComponentConfig</cite> and <cite>RunTargetConfig</cite> structures defning such a dependency graph are
+<p>The <cite>ComponentConfig</cite> and <cite>RunTargetConfig</cite> structures defining such a dependency graph are
 described in <a class="reference internal" href="index.html#lifecycle-configuration-structure"><span class="std std-ref">Configuration Structure</span></a>.</p>
 </section>
 <section id="ready-conditions">
@@ -594,7 +594,7 @@ The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><s
 <li><p>Status reporting to external state managers via the Control interface (<a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int__lifecycle__controlif">logic_arc_int__lifecycle__controlif</a>)</p></li>
 </ul>
 <p><strong>Shutdown Signal Handling</strong></p>
-<p>The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> sends SIGTERM signal to SCORE applications (and any POSIX processes) to request their shutdown.
+<p>The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> sends a SIGTERM signal to SCORE applications (and any POSIX processes) to request their shutdown.
 The lifecycle interface sets up the necessary signal handler for an SCORE application to properly respond to shutdown requests.</p>
 </section>
 <section id="native-applications">
@@ -624,7 +624,7 @@ controlled through POSIX signals:</p>
 <section id="state-machines">
 <h2>State machines<a class="headerlink" href="#state-machines" title="Link to this heading">#</a></h2>
 <p>A component maintains the following internal state machine:</p>
-<div class="need_container docutils container" id="SNCB-b39672a9">
+<div class="need_container docutils container" id="SNCB-1602545a">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__comp_sm_if">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -675,7 +675,7 @@ controlled through POSIX signals:</p>
 <p>Note that the state machine of the underlying process is different from the component state machine.
 For example, the process may be already terminated, but the component is in <cite>Ready</cite> state.
 This is the case if the component is configured to be ready when the underlying process is terminated.</p>
-<div class="need_container docutils container" id="SNCB-4aaad28e">
+<div class="need_container docutils container" id="SNCB-8c16bebb">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__proc_sm_if">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -731,7 +731,7 @@ For Native applications which do not report their state, the process state machi
 <h2>Simplified example dependency graph<a class="headerlink" href="#simplified-example-dependency-graph" title="Link to this heading">#</a></h2>
 <p>Consider the following simplified dependency graph for the sequence diagrams
 in the following chapters.</p>
-<p>The purpose of the is not to show a real-world setup, but only to showcase different scenarios.</p>
+<p>The purpose of the graph is not to show a real-world setup, but only to showcase different scenarios.</p>
 <blockquote id="lifecycle-simplified-example-graph">
 <div><figure class="align-center">
 <p class="plantuml">
