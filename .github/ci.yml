@@ -13,39 +13,22 @@
 # Sanitizers, QNX and documentation verification retain their dedicated jobs.
 # Bazel configs select module-owned platforms and toolchains explicitly.
 schema-version: 2
-
-variants:
-  - name: linux-native
-
-    checks:
-      tests:
-        # Build the complete module graph before running all native tests.
-        # Both commands must produce Bazel evidence for the shared gate to pass.
-        - bazel-configs: x86_64-linux
-          bazel-build-targets: //examples/... //score/...
-
-      # This Bazel target owns the combined C++/Rust coverage pipeline.
-      # Keep its orchestration in the module while sharing setup and reports.
-      coverage:
-        bazel-target: //quality/coverage:run_coverage
-        coverage-threshold: 66
-        workflow-config:
-          # release.yml downloads this name directly.
-          artifact-name: coverage-html
-
-  - name: linux-cross
-    architecture:
-      - name: aarch64
-
-    checks:
-      builds:
-        # Cross-compilation checks the ARM toolchain without pretending that
-        # native unit tests have run on ARM or requiring an emulation setup.
-        - name: compiler
-          bazel-configs: arm64-linux
-          bazel-build-targets: //examples/... //score/...
-
-# The docs CLI needs the repository identity as well as the linked reports.
+tests:
+  linux-native:
+    bazel-configs: x86_64-linux
+    bazel-build-targets: //examples/... //score/...
+# This module target owns the combined C++/Rust coverage pipeline.
+coverage:
+  bazel-target: //quality/coverage:run_coverage
+  coverage-threshold: 66
+  # release.yml downloads this artifact by name.
+  artifact-name: coverage-html
+builds:
+  linux-cross:
+    name: compiler
+    bazel-configs: arm64-linux
+    bazel-build-targets: //examples/... //score/...
+    architecture: aarch64
 docs:
   github-context: true
   retention-days: 3
