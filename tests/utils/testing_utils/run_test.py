@@ -30,3 +30,34 @@ def run_test(
 
     process = target.execute_async(binary_path, args=local_args, cwd=cwd)
     assert process.wait(timeout) == 0
+
+
+def run_test_non_root(
+    *,
+    target,
+    binary_path,
+    uid: int,
+    gid: int,
+    capabilities: Optional[list[str]] = None,
+    args: Optional[list[str]] = None,
+    cwd="/",
+    timeout=15,
+):
+    """Run an integration test to completion as any given user.
+
+    @param uid user Id to run as.
+    @param gid group Id to run as.
+    @param capabilities Capability names.
+    """
+    caps = ",".join(f"+{cap}" for cap in capabilities or [])
+    setpriv_args = [f"--reuid={uid}", f"--regid={gid}", "--clear-groups"]
+    if caps:
+        setpriv_args += [f"--inh-caps={caps}", f"--ambient-caps={caps}"]
+
+    run_test(
+        target=target,
+        binary_path="setpriv",
+        args=setpriv_args + [str(binary_path)] + list(args or []),
+        cwd=cwd,
+        timeout=timeout,
+    )
