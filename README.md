@@ -130,26 +130,39 @@ Build all components for different platforms:
 
 **QNX**
 
+Building and testing for QNX requires a QNX license and a myQNX account.
+If you don't have a QNX license, you can get a free non-commercial license by following [this guide](https://qnx.github.io/codelabs/get-non-commercial-qnx-license/index.html#0).
+
+Either use a `.netrc` file to provide the login credentials for your myQNX account or provide them as environment variables `SCORE_QNX_USER` and `SCORE_QNX_PASSWORD`.
+Example `~/.netrc`:
+
+```
+machine qnx.com
+login <myQNX user>
+password <myQNX password>
+```
+
+The QNX toolchain is automatically downloaded when building for QNX.
+If the automatic download via Bazel fails for some reason you can also provide the manually downloaded file in a directory which you then pass via the `--distdir` command line option.
+
+Make sure your QNX license file is available as /opt/score_qnx/license/licenses (e.g. by copying it from your ~/.qnx/license/licenses)
+
 ```sh
 bazel build --config=x86_64-qnx //score/...
 bazel build --config=arm64-qnx //score/...
 ```
 
-Integration tests via [QEMU](https://www.qemu.org/):
+Unit and integration tests via [QEMU](https://www.qemu.org/):
+
+Outside the devcontainer QEMU has to be installed (e.g. `sudo apt install qemu-system-x86 qemu-system-arm`).
 
 ```sh
-bazel test --config=x86_64-qnx //tests/integration/...
+bazel test --config=x86_64-qnx //score/... //tests/integration/...
+bazel test --config=arm64-qnx //score/... //tests/integration/...
 ```
 
-Unit tests via [QEMU](https://www.qemu.org/):
-
-```sh
-bazel test --config=unit-tests-x86_64-qnx //score/...
-```
-
-A different flag is needed for unit tests because the emulation is configured
-using `--run_under`, which applies to all targets, even those that should run
-natively on the host.
+`//score/...` contains the unit tests, `//tests/integration/...` the integration tests.
+The unit and integration tests do not have to run together. Each path can also be tested on its own.
 
 **Linux**
 

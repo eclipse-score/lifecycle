@@ -104,6 +104,8 @@ def integration_test(
 
     pkg_tar(name = test_tar_name, srcs = [":{}".format(bin_pkg_name), ":{}".format(lm_config_pkg_name), ":{}".format(mw_com_config_pkg_name)])
 
+    extra_target_compatible_with = kwargs.pop("target_compatible_with", [])
+
     final_deps = kwargs.pop("deps", []) + all_requirements + [
         "@score_tooling//python_basics/score_pytest:attribute_plugin",
         "@score_lifecycle//tests/utils/testing_utils",
@@ -141,6 +143,9 @@ def integration_test(
         "//config:integration_host": ["@score_lifecycle//tests/utils/plugins:localhost_plugin"],
     })
 
+    # The test container does not ship the sanitizer runtime; daemon fails to start.
+    disable_sanitizer = ["@score_cpp_policies//sanitizers/constraints:no_asan"]
+
     # The QEMU plugin uses a hardcoded port so we can only run one test at a time.
     # See https://github.com/eclipse-score/itf/issues/125.
     # However we should not unnecessarily slow down Docker tests by adding the
@@ -152,13 +157,12 @@ def integration_test(
         srcs = srcs,
         tags = kwargs.pop("tags", []) + [
             "integration",
-            "no-asan",  # The test container does not ship the sanitizer runtime; daemon fails to start.
         ],
         deps = final_deps,
         data = final_data,
         args = final_args,
         plugins = final_plugins,
-        target_compatible_with = select({
+        target_compatible_with = extra_target_compatible_with + disable_sanitizer + select({
             "//config:integration_docker": ["@platforms//os:linux"],
             "//config:integration_host": [],
             "//conditions:default": ["@platforms//:incompatible"],
@@ -172,13 +176,12 @@ def integration_test(
         tags = kwargs.pop("tags", []) + [
             "exclusive",  # The QEMU plugin uses a hardcoded port so we can only run one test at a time.
             "integration",
-            "no-asan",  # The test container does not ship the sanitizer runtime; daemon fails to start.
         ],
         deps = final_deps,
         data = final_data,
         args = final_args,
         plugins = final_plugins,
-        target_compatible_with = select({
+        target_compatible_with = extra_target_compatible_with + disable_sanitizer + select({
             "//config:integration_qemu": ["@platforms//os:qnx"],
             "//conditions:default": ["@platforms//:incompatible"],
         }),

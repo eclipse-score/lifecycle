@@ -70,6 +70,7 @@ lm_cc_test(
         ":watchdog",
         ":watchdog_impl",
         "@googletest//:gtest_main",
+        "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/os/mocklib:fcntl_mock",
         "@score_baselibs//score/os/mocklib:unistd_mock",
     ],
