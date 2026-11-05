@@ -20,7 +20,11 @@ namespace score::mw::lifecycle::internal::saf::daemon
 {
 
 SupervisionManager::SupervisionManager(std::unique_ptr<factory::IAliveWorkerFactory> factory)
-    : processStates{}, aliveIfIpcs{}, aliveInterfaces{}, aliveSupervisions{}, flatCfgFactory{std::move(factory)}
+    : process_states_{},
+      alive_if_ipcs_{},
+      alive_interfaces_{},
+      alive_supervisions_{},
+      flat_cfg_factory_{std::move(factory)}
 {
 }
 
@@ -28,16 +32,16 @@ SupervisionManager::~SupervisionManager() = default;
 
 bool SupervisionManager::full() const
 {
-    return aliveSupervisions.size() >= capacity;
+    return alive_supervisions_.size() >= capacity_;
 }
 
 void SupervisionManager::reserve(std::size_t size)
 {
-    capacity = size;
-    processStates.reserve(size);
-    aliveIfIpcs.reserve(size);
-    aliveInterfaces.reserve(size);
-    aliveSupervisions.reserve(size);
+    capacity_ = size;
+    process_states_.reserve(size);
+    alive_if_ipcs_.reserve(size);
+    alive_interfaces_.reserve(size);
+    alive_supervisions_.reserve(size);
 }
 
 bool SupervisionManager::constructWorker(
@@ -47,20 +51,25 @@ bool SupervisionManager::constructWorker(
     std::shared_ptr<mw::lifecycle::IRecoveryClient> f_recoveryClient_r,
     ifexm::ObservableEventReader& f_processStateReader_r) noexcept(false)
 {
-    if (!flatCfgFactory->createObservableEvent(processStates, id, f_processStateReader_r))
+    if (!flat_cfg_factory_->createObservableEvent(process_states_, id, f_processStateReader_r))
     {
         return false;
     }
-    if (!flatCfgFactory->createAliveIfIpc(aliveIfIpcs, id, uid))
+    if (!flat_cfg_factory_->createAliveIfIpc(alive_if_ipcs_, id, uid))
     {
         return false;
     }
-    if (!flatCfgFactory->createAliveIf(aliveInterfaces, aliveIfIpcs.back(), processStates.back()))
+    if (!flat_cfg_factory_->createAliveIf(alive_interfaces_, alive_if_ipcs_.back(), process_states_.back()))
     {
         return false;
     }
-    if (!flatCfgFactory->createAliveSupervision(
-            aliveSupervisions, aliveInterfaces.back(), processStates.back(), f_recoveryClient_r, id, component_config))
+    if (!flat_cfg_factory_->createAliveSupervision(
+            alive_supervisions_,
+            alive_interfaces_.back(),
+            process_states_.back(),
+            f_recoveryClient_r,
+            id,
+            component_config))
     {
         return false;
     }
@@ -70,7 +79,7 @@ bool SupervisionManager::constructWorker(
 
 void SupervisionManager::checkInterfaceForNewData(const std::chrono::nanoseconds f_syncTimestamp)
 {
-    for (auto& aliveInterface : aliveInterfaces)
+    for (auto& aliveInterface : alive_interfaces_)
     {
         aliveInterface.checkForNewData(f_syncTimestamp);
     }
@@ -78,7 +87,7 @@ void SupervisionManager::checkInterfaceForNewData(const std::chrono::nanoseconds
 
 void SupervisionManager::evaluateSupervisions(const std::chrono::nanoseconds f_syncTimestamp)
 {
-    for (auto& alive : aliveSupervisions)
+    for (auto& alive : alive_supervisions_)
     {
         alive.evaluate(f_syncTimestamp);
     }
@@ -86,7 +95,7 @@ void SupervisionManager::evaluateSupervisions(const std::chrono::nanoseconds f_s
 
 bool SupervisionManager::hasAnyRecoveryEnqueueFailed() const noexcept
 {
-    for (const auto& alive : aliveSupervisions)
+    for (const auto& alive : alive_supervisions_)
     {
         if (alive.hasRecoveryEnqueueFailed())
         {

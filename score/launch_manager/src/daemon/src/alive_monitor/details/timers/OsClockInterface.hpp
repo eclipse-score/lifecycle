@@ -64,7 +64,7 @@ class OsClockInterface
     void startMeasurement()
     {
         // In case getting the timestamp fails, the resulting measurement will be 0
-        (void)clockGetTime(&startTime);
+        (void)clockGetTime(&start_time_);
     }
 
     /// @brief Stop the measurement of the initialization process
@@ -73,9 +73,9 @@ class OsClockInterface
     long endMeasurement()
     {
         // In case getting the timestamp fails, the resulting measurement will be 0
-        (void)clockGetTime(&initFinishedTime);
-        const long secDiff{initFinishedTime.tv_sec - startTime.tv_sec};
-        const long nsDiff{initFinishedTime.tv_nsec - startTime.tv_nsec};
+        (void)clockGetTime(&init_finished_time_);
+        const long secDiff{init_finished_time_.tv_sec - start_time_.tv_sec};
+        const long nsDiff{init_finished_time_.tv_nsec - start_time_.tv_nsec};
         // for
         const long ms{(secDiff * 1000 /*ms per sec*/) + (nsDiff / 1000000 /*ns per ms*/)};
         // LM_LOG_DEBUG() << "Alive Monitor initialization took " << ms << " ms";
@@ -84,10 +84,10 @@ class OsClockInterface
 
   private:
     /// @brief Timestamp when main method starts
-    struct timespec startTime{0, 0};
+    struct timespec start_time_{0, 0};
 
     /// @brief Timestamp when initialization finishes (just before kRunning is reported)
-    struct timespec initFinishedTime{0, 0};
+    struct timespec init_finished_time_{0, 0};
 };
 
 }  // namespace score::mw::lifecycle::internal::saf::timers

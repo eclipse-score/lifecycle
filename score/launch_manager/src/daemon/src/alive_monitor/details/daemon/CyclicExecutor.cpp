@@ -23,14 +23,14 @@ namespace score::mw::lifecycle::internal::saf::daemon
 {
 
 CyclicExecutor::CyclicExecutor(OsClock& f_osClock, std::size_t supervised_components)
-    : osClock{f_osClock},
-      cycleTimer{&osClock},
+    : os_clock_{f_osClock},
+      cycle_timer_{&os_clock_},
       buffer_(std::make_shared<SupervisionBufferType>()),
-      supervisionManager{std::make_unique<factory::AliveWorkerFactory>()},
-      supervisionStateReader_{buffer_}
+      supervision_manager_{std::make_unique<factory::AliveWorkerFactory>()},
+      supervision_state_reader_{buffer_}
 {
     buffer_->initialize();
-    supervisionManager.reserve(supervised_components);
+    supervision_manager_.reserve(supervised_components);
 }
 
 void CyclicExecutor::performCyclicTriggers(void)
@@ -43,9 +43,9 @@ void CyclicExecutor::performCyclicTriggers(void)
         syncTimestamp = std::chrono::nanoseconds::max();
     }
 
-    if (supervisionStateReader_.distributeChanges(syncTimestamp))
+    if (supervision_state_reader_.distributeChanges(syncTimestamp))
     {
-        supervisionManager.performCyclicTriggers(syncTimestamp);
+        supervision_manager_.performCyclicTriggers(syncTimestamp);
     }
     else
     {

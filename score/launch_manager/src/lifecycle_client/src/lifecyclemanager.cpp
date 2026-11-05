@@ -32,10 +32,10 @@ static constexpr std::string_view kFailedAddSigterm{"Failed to add SIGTERM to se
 }  // namespace
 
 score::mw::lifecycle::LifeCycleManager::LifeCycleManager(std::unique_ptr<score::os::Signal> signal_interface) noexcept
-    : m_stop_source{},
-      m_app{nullptr},
-      m_signal_set{},
-      m_signal_handler_thread{},
+    : stop_source_{},
+      app_{nullptr},
+      signal_set_{},
+      signal_handler_thread_{},
       signal_(std::move(signal_interface))  // NOLINT(cppcoreguidelines-prefer-member-initializer)
 {
     mw::log::LogInfo() << "Initializing LifeCycleManager";
@@ -57,7 +57,7 @@ score::mw::lifecycle::LifeCycleManager::~LifeCycleManager() noexcept
 
 void score::mw::lifecycle::LifeCycleManager::at_exit() noexcept
 {
-    if (m_signal_handler_thread.joinable())
+    if (signal_handler_thread_.joinable())
     {
         const auto result =
             signal_->SendSelfSigterm(); /* NOLINT(score-banned-function) using SendSelfSigterm by desing */
@@ -68,16 +68,16 @@ void score::mw::lifecycle::LifeCycleManager::at_exit() noexcept
             mw::log::LogError() << "Error during sending self-SIGTERM:" << error.ToString();
         }
 
-        m_signal_handler_thread.join();
+        signal_handler_thread_.join();
     }
 }
 
 std::int32_t score::mw::lifecycle::LifeCycleManager::run(Application& app, const ApplicationContext& context)
 {
-    m_app.store(&app, std::memory_order_release);
+    app_.store(&app, std::memory_order_release);
     mw::log::LogInfo() << "LifeCycleManager started";
     /* Branching in below line is due to hidden exception handling */
-    const auto init_status = m_app.load(std::memory_order_relaxed)->Initialize(context);
+    const auto init_status = app_.load(std::memory_order_relaxed)->Initialize(context);
 
     std::string application_name{"None"};
     const auto& args = context.get_arguments();
@@ -97,7 +97,7 @@ std::int32_t score::mw::lifecycle::LifeCycleManager::run(Application& app, const
     mw::log::LogInfo() << "Running Application";
     report_running();
     /* Branching in below line is due to hidden exception handling */
-    const auto run_status = m_app.load(std::memory_order_relaxed)->Run(m_stop_source.get_token());
+    const auto run_status = app_.load(std::memory_order_relaxed)->Run(stop_source_.get_token());
     if (run_status != 0)
     {
         mw::log::LogError() << "Error occurred during Run";
@@ -111,29 +111,29 @@ std::int32_t score::mw::lifecycle::LifeCycleManager::run(Application& app, const
 bool score::mw::lifecycle::LifeCycleManager::initialize_internal()
 {
     /* KW_SUPPRESS_START:UNREACH.GEN: False positive: Code is reachable. */
-    const auto empty_set_status = signal_->SigEmptySet(m_signal_set);
+    const auto empty_set_status = signal_->SigEmptySet(signal_set_);
     if (empty_set_status.has_value() == false)
     {
         mw::log::LogError() << kFailedCreateSig << empty_set_status.error().ToString();
         return false;
     }
     /* KW_SUPPRESS_END:UNREACH.GEN */
-    const auto add_termination_status = signal_->AddTerminationSignal(m_signal_set);
+    const auto add_termination_status = signal_->AddTerminationSignal(signal_set_);
     if (add_termination_status.has_value() == false)
     {
         mw::log::LogError() << kFailedAddSigterm << add_termination_status.error().ToString();
         return false;
     }
     const auto pthread_sig_mask_status =
-        signal_->PthreadSigMask(m_signal_set); /* NOLINT(score-banned-function) using PthreadSigMask by desing */
+        signal_->PthreadSigMask(signal_set_); /* NOLINT(score-banned-function) using PthreadSigMask by desing */
     if (pthread_sig_mask_status.has_value() == false)
     {
         mw::log::LogError() << kFailedBlockSig << pthread_sig_mask_status.error().ToString();
         return false;
     }
     // only start thread if everything was ok
-    m_signal_handler_thread = std::thread(&LifeCycleManager::handle_signal, this);
-    score::os::set_thread_name(m_signal_handler_thread, "lcm_signal");
+    signal_handler_thread_ = std::thread(&LifeCycleManager::handle_signal, this);
+    score::os::set_thread_name(signal_handler_thread_, "lcm_signal");
     return true;
 }
 
@@ -141,11 +141,11 @@ void score::mw::lifecycle::LifeCycleManager::handle_signal()
 {
     std::int32_t sig(0);
     mw::log::LogInfo() << "Signal handler started";
-    const auto sigwait_status = signal_->SigWait(m_signal_set, sig);
-    if ((m_app.load(std::memory_order_acquire) != nullptr) && (sigwait_status.has_value() == true))
+    const auto sigwait_status = signal_->SigWait(signal_set_, sig);
+    if ((app_.load(std::memory_order_acquire) != nullptr) && (sigwait_status.has_value() == true))
     {
         mw::log::LogInfo() << "Signal SIGTERM received, requesting to stop the app";
-        score::cpp::ignore = m_stop_source.request_stop();
+        score::cpp::ignore = stop_source_.request_stop();
         report_shutdown();
     }
     else

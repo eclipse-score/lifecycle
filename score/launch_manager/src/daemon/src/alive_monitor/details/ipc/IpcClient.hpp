@@ -36,9 +36,9 @@ class IpcClient final : public IpcBase<Payload, MaxNumberElements, Socket>
     /// @brief Take over definitions from base class
     using Base = IpcBase<Payload, MaxNumberElements, Socket>;
     /// @brief Take over definitions from base class
-    using Base::socket;
+    using Base::socket_;
     /// @brief Take over definitions from base class
-    using Base::isInitialized;
+    using Base::is_initialized_;
 
   public:
     /// @brief Make base class EIpcInitResult enum accessible
@@ -73,10 +73,10 @@ class IpcClient final : public IpcBase<Payload, MaxNumberElements, Socket>
     /// @return See enumeration EIpcInitResult
     EIpcInitResult init(const std::string_view& f_ipcName_r) noexcept(true)
     {
-        ReturnCode result{socket->connect(f_ipcName_r.data())};
+        ReturnCode result{socket_->connect(f_ipcName_r.data())};
         if (result == ReturnCode::kOk)
         {
-            isInitialized = true;
+            is_initialized_ = true;
             return EIpcInitResult::kOk;
         }
         else if (result == ReturnCode::kPermissionDenied)

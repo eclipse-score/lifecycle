@@ -30,7 +30,7 @@ bool ObservableEventReader::registerObservableEvent(
 {
     bool flagSuccess{false};
 
-    auto pairInsertResult = processStateMap.insert({f_processId, &f_processState_r});
+    auto pairInsertResult = process_state_map_.insert({f_processId, &f_processState_r});
     flagSuccess = pairInsertResult.second;
 
     if (!flagSuccess)
@@ -43,21 +43,21 @@ bool ObservableEventReader::registerObservableEvent(
 
 void ObservableEventReader::deregisterObservableEvent(const IdentifierHash f_processId) noexcept
 {
-    std::map<IdentifierHash, ObservableEvent*>::iterator processMapIterator{processStateMap.find(f_processId)};
+    std::map<IdentifierHash, ObservableEvent*>::iterator processMapIterator{process_state_map_.find(f_processId)};
     // delete the pair only if process id already exists
-    if (processMapIterator != processStateMap.end())
+    if (processMapIterator != process_state_map_.end())
     {
-        (void)processStateMap.erase(processMapIterator);
+        (void)process_state_map_.erase(processMapIterator);
     }
 }
 
 bool ObservableEventReader::distributeChanges(const std::chrono::nanoseconds f_syncTimestamp) noexcept
 {
     // If push update is pending from previous cycle, push data for last change observable event.
-    if (isPushPending)
+    if (is_push_pending_)
     {
-        lastChangedProcess_p->pushData();
-        isPushPending = false;
+        last_changed_process_->pushData();
+        is_push_pending_ = false;
     }
 
     bool flagSuccess{true};
@@ -73,8 +73,8 @@ bool ObservableEventReader::distributeChanges(const std::chrono::nanoseconds f_s
             {
                 LM_LOG_DEBUG() << "Process with Id" << event->id << "received supervision event"
                                << static_cast<int>(event->eventType);
-                isPushPending = pushUpdateTill(*event, f_syncTimestamp);
-                flagContinue = (!isPushPending);
+                is_push_pending_ = pushUpdateTill(*event, f_syncTimestamp);
+                flagContinue = (!is_push_pending_);
             }
             else
             {
@@ -126,8 +126,8 @@ bool ObservableEventReader::pushUpdateTill(
 {
     bool isSyncTimestampReached{false};
 
-    std::map<IdentifierHash, ObservableEvent*>::iterator processMapIterator{processStateMap.find(f_event.id)};
-    if (processMapIterator != processStateMap.end())
+    std::map<IdentifierHash, ObservableEvent*>::iterator processMapIterator{process_state_map_.find(f_event.id)};
+    if (processMapIterator != process_state_map_.end())
     {
         processMapIterator->second->event.eventType = f_event.eventType;
         processMapIterator->second->event.systemClockTimestamp = f_event.systemClockTimestamp;
@@ -143,7 +143,7 @@ bool ObservableEventReader::pushUpdateTill(
         // If event occurred after synchronization timestamp, push data in the beginning of next cycle.
         else
         {
-            lastChangedProcess_p = processMapIterator->second;
+            last_changed_process_ = processMapIterator->second;
             isSyncTimestampReached = true;
         }
     }

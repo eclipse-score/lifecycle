@@ -87,7 +87,7 @@ class LifecycleMockUsageTest : public ::testing::Test
     score::mw::lifecycle::LifeCycleManagerMock lifecycle_mock_;
 
     static constexpr int kArgc = 1;
-    const char* kArgv[1] = {"test_app"};
+    const char* argv_[1] = {"test_app"};
 
     void SetUp() override
     {
@@ -111,7 +111,7 @@ TEST_F(LifecycleMockUsageTest, MockRunReturnValueIsForwardedToCaller)
 
     EXPECT_CALL(lifecycle_mock_, run(_, _)).WillOnce(Return(EXIT_SUCCESS));
 
-    score::mw::lifecycle::Run<AlwaysOkApp> runner(kArgc, kArgv);
+    score::mw::lifecycle::Run<AlwaysOkApp> runner(kArgc, argv_);
     EXPECT_EQ(runner.AsPosixProcess(), EXIT_SUCCESS);
 }
 
@@ -123,7 +123,7 @@ TEST_F(LifecycleMockUsageTest, MockRunNonZeroReturnValueIsForwarded)
 
     EXPECT_CALL(lifecycle_mock_, run(_, _)).WillOnce(Return(EXIT_FAILURE));
 
-    score::mw::lifecycle::Run<AlwaysOkApp> runner(kArgc, kArgv);
+    score::mw::lifecycle::Run<AlwaysOkApp> runner(kArgc, argv_);
     EXPECT_EQ(runner.AsPosixProcess(), EXIT_FAILURE);
 }
 
@@ -143,7 +143,7 @@ TEST_F(LifecycleMockUsageTest, ApplicationReceivesArgumentFromContextMock)
             return app.Initialize(ctx);
         });
 
-    score::mw::lifecycle::Run<ArgCapturingApp> runner(kArgc, kArgv);
+    score::mw::lifecycle::Run<ArgCapturingApp> runner(kArgc, argv_);
     EXPECT_EQ(runner.AsPosixProcess(), EXIT_SUCCESS);
 }
 
@@ -171,7 +171,7 @@ TEST_F(LifecycleMockUsageTest, ExactlyOneLifecycleManagerLifetimePerRun)
     EXPECT_CALL(lifecycle_mock_, dtor()).Times(1);
     EXPECT_CALL(lifecycle_mock_, run(_, _)).WillOnce(Return(EXIT_SUCCESS));
 
-    score::mw::lifecycle::Run<AlwaysOkApp> runner(kArgc, kArgv);
+    score::mw::lifecycle::Run<AlwaysOkApp> runner(kArgc, argv_);
     runner.AsPosixProcess();
 }
 
@@ -195,7 +195,7 @@ class MwLifecycleMockTest : public ::testing::Test
     score::mw::lifecycle::LifeCycleManagerMock lifecycle_mock_;
 
     static constexpr int kArgc = 1;
-    const char* kArgv[1] = {"test_app"};
+    const char* argv_[1] = {"test_app"};
 
     void SetUp() override
     {
@@ -218,7 +218,7 @@ TEST_F(MwLifecycleMockTest, ReportRunningIsCalledOncePerRun)
     EXPECT_CALL(mw_mock_, report_shutdown()).Times(1);
     EXPECT_CALL(lifecycle_mock_, run(_, _)).WillOnce(Return(EXIT_SUCCESS));
 
-    score::mw::lifecycle::Run<AlwaysOkApp> runner(kArgc, kArgv);
+    score::mw::lifecycle::Run<AlwaysOkApp> runner(kArgc, argv_);
     runner.AsPosixProcess();
 }
 
@@ -233,6 +233,6 @@ TEST_F(MwLifecycleMockTest, ReportShutdownIsCalledOncePerRun)
     EXPECT_CALL(mw_mock_, report_shutdown()).Times(1);
     EXPECT_CALL(lifecycle_mock_, run(_, _)).WillOnce(Return(EXIT_FAILURE));
 
-    score::mw::lifecycle::Run<AlwaysOkApp> runner(kArgc, kArgv);
+    score::mw::lifecycle::Run<AlwaysOkApp> runner(kArgc, argv_);
     runner.AsPosixProcess();
 }

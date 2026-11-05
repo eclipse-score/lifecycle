@@ -89,10 +89,10 @@ class AliveMonitorImplTest : public ::testing::Test
     {
         RecordProperty("TestType", "unit-test");
         RecordProperty("DerivationTechnique", "boundary-values");
-        mockClient_ = std::make_shared<MockRecoveryClient>();
+        mock_client_ = std::make_shared<MockRecoveryClient>();
     }
 
-    std::shared_ptr<MockRecoveryClient> mockClient_;
+    std::shared_ptr<MockRecoveryClient> mock_client_;
 };
 
 class AliveMonitorImplConstructorTest : public AliveMonitorImplTest
@@ -106,7 +106,7 @@ TEST_F(AliveMonitorImplConstructorTest, Constructor_WithValidParameters_Initiali
     configuration::AliveSupervisionConfig config{};
     config.evaluation_cycle_ms = 100;
 
-    AliveMonitorImpl monitor(mockClient_, config, 5);
+    AliveMonitorImpl monitor(mock_client_, config, 5);
 
     ASSERT_NE(&monitor, nullptr);
 }
@@ -118,7 +118,7 @@ TEST_F(AliveMonitorImplConstructorTest, Constructor_WithMinimalConfig_Initialize
     configuration::AliveSupervisionConfig config{};
     config.evaluation_cycle_ms = 50;
 
-    AliveMonitorImpl monitor(mockClient_, config, 1);
+    AliveMonitorImpl monitor(mock_client_, config, 1);
 
     ASSERT_NE(&monitor, nullptr);
 }
@@ -130,7 +130,7 @@ TEST_F(AliveMonitorImplConstructorTest, Constructor_WithLargeComponentCount_Init
     configuration::AliveSupervisionConfig config{};
     config.evaluation_cycle_ms = 100;
 
-    AliveMonitorImpl monitor(mockClient_, config, 100);
+    AliveMonitorImpl monitor(mock_client_, config, 100);
 
     ASSERT_NE(&monitor, nullptr);
 }
@@ -146,7 +146,7 @@ TEST_F(AliveMonitorImplInitTest, Init_WithValidConfig_ReturnsTrue)
     configuration::AliveSupervisionConfig config{};
     config.evaluation_cycle_ms = 100;
 
-    AliveMonitorImpl monitor(mockClient_, config, 5);
+    AliveMonitorImpl monitor(mock_client_, config, 5);
     bool result = monitor.init();
 
     EXPECT_TRUE(result);
@@ -159,7 +159,7 @@ TEST_F(AliveMonitorImplInitTest, Init_WithZeroCycleTime_ReturnsTrue)
     configuration::AliveSupervisionConfig config{};
     config.evaluation_cycle_ms = 0;
 
-    AliveMonitorImpl monitor(mockClient_, config, 5);
+    AliveMonitorImpl monitor(mock_client_, config, 5);
     const bool result = monitor.init();
 
     // Depending on clock accuracy, this might fail or succeed
@@ -174,7 +174,7 @@ TEST_F(AliveMonitorImplInitTest, Init_WithLargeCycleTime_ReturnsTrue)
     configuration::AliveSupervisionConfig config{};
     config.evaluation_cycle_ms = 60000;  // 60 seconds
 
-    AliveMonitorImpl monitor(mockClient_, config, 5);
+    AliveMonitorImpl monitor(mock_client_, config, 5);
     bool result = monitor.init();
 
     EXPECT_TRUE(result);
@@ -187,7 +187,7 @@ TEST_F(AliveMonitorImplInitTest, Init_CanBeCalledMultipleTimes)
     configuration::AliveSupervisionConfig config{};
     config.evaluation_cycle_ms = 100;
 
-    AliveMonitorImpl monitor(mockClient_, config, 5);
+    AliveMonitorImpl monitor(mock_client_, config, 5);
 
     bool result1 = monitor.init();
     bool result2 = monitor.init();
@@ -207,7 +207,7 @@ TEST_F(AliveMonitorImplGetSupervisionFactoryTest, GetSupervisionFactory_ReturnsV
     configuration::AliveSupervisionConfig config{};
     config.evaluation_cycle_ms = 100;
 
-    AliveMonitorImpl monitor(mockClient_, config, 5);
+    AliveMonitorImpl monitor(mock_client_, config, 5);
     ASSERT_TRUE(monitor.init());
 
     ISupervisionFactory& factory = monitor.getSupervisionFactory();
@@ -225,7 +225,7 @@ TEST_F(AliveMonitorImplMonitoringTest, StartAndStopMonitoring_AfterInit_ReturnsW
     configuration::AliveSupervisionConfig config{};
     config.evaluation_cycle_ms = 50;
 
-    AliveMonitorImpl monitor(mockClient_, config, 5);
+    AliveMonitorImpl monitor(mock_client_, config, 5);
     ASSERT_TRUE(monitor.init());
 
     monitor.startMonitoring();
@@ -241,7 +241,7 @@ TEST_F(AliveMonitorImplMonitoringTest, StopMonitoring_WithoutStart_ReturnsWithou
     configuration::AliveSupervisionConfig config{};
     config.evaluation_cycle_ms = 50;
 
-    AliveMonitorImpl monitor(mockClient_, config, 5);
+    AliveMonitorImpl monitor(mock_client_, config, 5);
     ASSERT_TRUE(monitor.init());
 
     monitor.stopMonitoring();
@@ -256,7 +256,7 @@ TEST_F(AliveMonitorImplMonitoringTest, StartAndStopMonitoring_CalledTwice_Return
     configuration::AliveSupervisionConfig config{};
     config.evaluation_cycle_ms = 50;
 
-    AliveMonitorImpl monitor(mockClient_, config, 5);
+    AliveMonitorImpl monitor(mock_client_, config, 5);
     ASSERT_TRUE(monitor.init());
 
     monitor.startMonitoring();
@@ -275,7 +275,7 @@ TEST_F(AliveMonitorImplInitErrorPathsTest, Init_ClockResolutionUnavailable_Retur
 {
     configuration::AliveSupervisionConfig config{};
     config.evaluation_cycle_ms = 100;
-    AliveMonitorImpl monitor(mockClient_, config, 5);
+    AliveMonitorImpl monitor(mock_client_, config, 5);
 
     g_syscall_mock = std::make_unique<NiceMock<SyscallMock>>();
     ON_CALL(*g_syscall_mock, clock_getres).WillByDefault(Invoke(__real_clock_getres));
@@ -290,7 +290,7 @@ TEST_F(AliveMonitorImplInitErrorPathsTest, Init_StdExceptionDuringInit_ReturnsFa
 {
     configuration::AliveSupervisionConfig config{};
     config.evaluation_cycle_ms = 100;
-    AliveMonitorImpl monitor(mockClient_, config, 5);
+    AliveMonitorImpl monitor(mock_client_, config, 5);
 
     g_failNextAllocation.store(1);
     const bool result = monitor.init();
@@ -305,7 +305,7 @@ TEST_F(AliveMonitorImplInitErrorPathsTest, Init_NonStdExceptionDuringInit_Return
 {
     configuration::AliveSupervisionConfig config{};
     config.evaluation_cycle_ms = 100;
-    AliveMonitorImpl monitor(mockClient_, config, 5);
+    AliveMonitorImpl monitor(mock_client_, config, 5);
 
     g_failNextAllocation.store(2);
     const bool result = monitor.init();
