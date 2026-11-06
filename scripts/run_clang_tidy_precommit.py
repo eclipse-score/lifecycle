@@ -14,6 +14,7 @@
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -52,9 +53,12 @@ def sanitize_compile_commands(input_path: Path, output_path: Path) -> None:
     with input_path.open("r", encoding="utf-8") as f:
         db = json.load(f)
 
+    db = list({entry["file"]: entry for entry in db}.values())
+
     for entry in db:
         args = entry.get("arguments")
         if isinstance(args, list):
+            external_dir = Path(entry["directory"]).parents[1] / "external"
             filtered: list[str] = []
             skip_next = False
             for arg in args:
@@ -66,6 +70,13 @@ def sanitize_compile_commands(input_path: Path, output_path: Path) -> None:
                     continue
                 if arg.startswith("-z "):
                     continue
+                if arg == "-fno-canonical-system-headers":
+                    continue
+                # Use absolute paths for external repositories,
+                # otherwise clang-tidy fails with "file not found"
+                if arg.startswith(("external/", "-Iexternal/")):
+                    prefix, _, path = arg.partition("external/")
+                    arg = prefix + str(external_dir / path)
                 filtered.append(arg)
             entry["arguments"] = filtered
 
@@ -82,14 +93,11 @@ def main() -> int:
     compile_db = repo_root / "compile_commands.json"
 
     if not compile_db.exists():
+        if shutil.which("bazel-compile-commands") is None:
+            sys.stderr.write("bazel-compile-commands not found, skipping clang-tidy\n")
+            return 0
         run(
-            [
-                "bazel",
-                "run",
-                "//:generate_compile_commands",
-                "--",
-                "--config=x86_64-linux",
-            ],
+            ["bazel-compile-commands", "--config=x86_64-linux"],
             cwd=repo_root,
             quiet=True,
         )
