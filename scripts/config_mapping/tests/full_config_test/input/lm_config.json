@@ -79,9 +79,9 @@
                     "is_self_terminating": false,
                     "alive_supervision": {
                         "reporting_cycle_ms": 500,
-                        "failed_cycles_tolerance": 2,
-                        "min_indications": 1,
-                        "max_indications": 3
+                        "failed_cycles_tolerance": 4294967295,
+                        "min_indications": 4294967295,
+                        "max_indications": 4294967295
                     }
                 },
                 "depends_on": [],
@@ -103,12 +103,12 @@
                     }
                 },
                 "sandbox": {
-                    "uid": 1001,
-                    "gid": 1001,
-                    "supplementary_group_ids": [50, 60],
+                    "uid": 2147483647,
+                    "gid": 2147483647,
+                    "supplementary_group_ids": [50, 2147483647],
                     "security_policy": "apparmor_a",
                     "scheduling_policy": "SCHED_RR",
-                    "scheduling_priority": 75,
+                    "scheduling_priority": 99,
                     "rlimits": {
                         "RLIMIT_AS": {
                             "soft": 268435456,
@@ -190,7 +190,9 @@
                 "bin_dir": "/opt/apps/sm",
                 "sandbox": {
                     "uid": 0,
-                    "gid": 0
+                    "gid": 0,
+                    "scheduling_policy": "SCHED_OTHER",
+                    "scheduling_priority": 0
                 }
             }
         }
