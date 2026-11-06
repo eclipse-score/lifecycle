@@ -368,8 +368,8 @@
             },
             "scheduling_priority": {
               "type": "integer",
-              "minimum": -2147483648,
-              "maximum": 2147483647,
+              "minimum": 0,
+              "maximum": 99,
               "description": "Specifies the scheduling priority applied to the component's initial thread."
             },
             "rlimits": {

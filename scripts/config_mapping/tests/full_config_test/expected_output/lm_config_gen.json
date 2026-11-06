@@ -11,9 +11,9 @@
                     "is_self_terminating": false,
                     "alive_supervision": {
                         "reporting_cycle_ms": 500,
-                        "failed_cycles_tolerance": 2,
-                        "min_indications": 1,
-                        "max_indications": 3
+                        "failed_cycles_tolerance": 4294967295,
+                        "min_indications": 4294967295,
+                        "max_indications": 4294967295
                     }
                 },
                 "depends_on": [],
@@ -34,15 +34,15 @@
                 "activation_retry_attempts": 254,
                 "activation_retry_delay_ms": 500,
                 "sandbox": {
-                    "uid": 1001,
-                    "gid": 1001,
+                    "uid": 2147483647,
+                    "gid": 2147483647,
                     "supplementary_group_ids": [
                         50,
-                        60
+                        2147483647
                     ],
                     "security_policy": "apparmor_a",
                     "scheduling_policy": "RR",
-                    "scheduling_priority": 75,
+                    "scheduling_priority": 99,
                     "rlimits": [
                         {
                             "resource": "POSIX_RLIMIT_AS",
@@ -270,8 +270,8 @@
                         300
                     ],
                     "security_policy": "apparmor_profile",
-                    "scheduling_policy": "FIFO",
-                    "scheduling_priority": 50,
+                    "scheduling_policy": "OTHER",
+                    "scheduling_priority": 0,
                     "rlimits": [
                         {
                             "resource": "POSIX_RLIMIT_AS",
