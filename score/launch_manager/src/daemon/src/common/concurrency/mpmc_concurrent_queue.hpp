@@ -63,8 +63,8 @@ class MPMCConcurrentQueue
     // optimization to work out the turns
     static_assert((Capacity & (Capacity - 1U)) == 0U, "Capacity must be a power of 2");
 
-    /// @brief Cache line size used to prevent false sharing between m_tail,
-    /// m_head, and m_stopped.
+    /// @brief Cache line size used to prevent false sharing between tail_,
+    /// head_, and stopped_.
     /// Defined as a literal rather than std::hardware_destructive_interference_size to avoid
     /// -Winterference-size: that value is not ABI-stable across compiler versions and tuning flags.
     /// 64 bytes is the cache line size on all targeted x86_64 and aarch64 platforms.
@@ -90,15 +90,15 @@ class MPMCConcurrentQueue
     MPMCConcurrentQueue()
     {
         // ignore sem_init error, the subsequent sem_* will fail
-        static_cast<void>(m_items.init(0U, false));
-        static_cast<void>(m_spaces.init(static_cast<std::uint32_t>(Capacity), false));
+        static_cast<void>(items_.init(0U, false));
+        static_cast<void>(spaces_.init(static_cast<std::uint32_t>(Capacity), false));
     }
 
     ~MPMCConcurrentQueue() noexcept
     {
         // not much we can do
-        static_cast<void>(m_spaces.deinit());
-        static_cast<void>(m_items.deinit());
+        static_cast<void>(spaces_.deinit());
+        static_cast<void>(items_.deinit());
     }
 
     MPMCConcurrentQueue(const MPMCConcurrentQueue&) = delete;
@@ -107,8 +107,8 @@ class MPMCConcurrentQueue
     MPMCConcurrentQueue& operator=(MPMCConcurrentQueue&&) = delete;
 
     /// @brief Blocks until a slot is free, then writes the item into the queue.
-    /// @details Producers claim slots via fetch_add on m_tail, and sleep inside
-    ///          m_spaces.wait() when all slots are occupied.
+    /// @details Producers claim slots via fetch_add on tail_, and sleep inside
+    ///          spaces_.wait() when all slots are occupied.
     ///          The turn counter ensures a slot cannot be written until the
     ///          previous consumer has finished reading it.
     /// @param timeout Maximum time to wait for a free slot. Zero means wait forever.
@@ -121,8 +121,8 @@ class MPMCConcurrentQueue
     }
 
     /// @brief Blocks until a slot is free, then writes the item into the queue.
-    /// @details Producers claim slots via fetch_add on m_tail, and sleep inside
-    ///          m_spaces.wait() when all slots are occupied.
+    /// @details Producers claim slots via fetch_add on tail_, and sleep inside
+    ///          spaces_.wait() when all slots are occupied.
     ///          The turn counter ensures a slot cannot be written until the
     ///          previous consumer has finished reading it.
     /// @param timeout Maximum time to wait for a free slot. Zero means wait forever.
@@ -137,15 +137,15 @@ class MPMCConcurrentQueue
     /// @brief Signals all blocked pop() callers to return with a stopped error.
     [[nodiscard]] score::Result<void> stop() noexcept
     {
-        m_stopped.store(true, std::memory_order_release);
+        stopped_.store(true, std::memory_order_release);
 
         // signal to consumers and publishers to wakeup
-        if (m_items.post() != osal::OsalReturnType::kSuccess)
+        if (items_.post() != osal::OsalReturnType::kSuccess)
         {
             return score::MakeUnexpected(ConcurrencyErrc::kOsError);
         }
 
-        if (m_spaces.post() != osal::OsalReturnType::kSuccess)
+        if (spaces_.post() != osal::OsalReturnType::kSuccess)
         {
             return score::MakeUnexpected(ConcurrencyErrc::kOsError);
         }
@@ -154,15 +154,14 @@ class MPMCConcurrentQueue
     }
 
     /// @brief Blocks until an item is available or stop() is called.
-    /// @details Consumers claim slots via fetch_add on m_head and sleep
-    ///          inside m_items.wait() when the queue is empty.
+    /// @details Consumers claim slots via fetch_add on head_ and sleep
+    ///          inside items_.wait() when the queue is empty.
     ///          When stopped returns std::nullopt.
     /// @param timeout Maximum time to wait for an item. Zero means wait forever.
     /// @return The next item, or error.
     [[nodiscard]] score::Result<T> pop(std::chrono::milliseconds timeout = std::chrono::milliseconds{0})
     {
-        const auto wait_result =
-            (timeout == std::chrono::milliseconds{0}) ? m_items.wait() : m_items.timedWait(timeout);
+        const auto wait_result = (timeout == std::chrono::milliseconds{0}) ? items_.wait() : items_.timedWait(timeout);
 
         if (wait_result == osal::OsalReturnType::kTimeout)
         {
@@ -173,15 +172,15 @@ class MPMCConcurrentQueue
             return score::MakeUnexpected(ConcurrencyErrc::kOsError);
         }
 
-        if (m_stopped.load(std::memory_order_acquire))
+        if (stopped_.load(std::memory_order_acquire))
         {
-            static_cast<void>(m_items.post());
+            static_cast<void>(items_.post());
             return score::MakeUnexpected(ConcurrencyErrc::kStopped);
         }
 
-        T item = consume_slot(m_head.fetch_add(1, std::memory_order_relaxed));
+        T item = consume_slot(head_.fetch_add(1, std::memory_order_relaxed));
 
-        if (m_spaces.post() != osal::OsalReturnType::kSuccess)
+        if (spaces_.post() != osal::OsalReturnType::kSuccess)
         {
             return score::MakeUnexpected(ConcurrencyErrc::kOsError);
         }
@@ -194,7 +193,7 @@ class MPMCConcurrentQueue
     ///        releases the slot.
     T consume_slot(std::size_t tail) noexcept
     {
-        auto& slot = m_slots[tail & (Capacity - 1U)];
+        auto& slot = slots_[tail & (Capacity - 1U)];
 
         // odd turns belong to consumer, +1 relative to the producer's even turn
         const auto expected_turn = ((tail / Capacity) * 2) + 1;
@@ -225,7 +224,7 @@ class MPMCConcurrentQueue
     [[nodiscard]] score::Result<void> push_impl(U&& item, std::chrono::milliseconds timeout)
     {
         const auto wait_result =
-            (timeout == std::chrono::milliseconds{0}) ? m_spaces.wait() : m_spaces.timedWait(timeout);
+            (timeout == std::chrono::milliseconds{0}) ? spaces_.wait() : spaces_.timedWait(timeout);
 
         if (wait_result == osal::OsalReturnType::kTimeout)
         {
@@ -236,15 +235,15 @@ class MPMCConcurrentQueue
             return score::MakeUnexpected(ConcurrencyErrc::kOsError);
         }
 
-        if (m_stopped.load(std::memory_order_acquire))
+        if (stopped_.load(std::memory_order_acquire))
         {
             // chain-wake the next blocked producer then discard the item
-            static_cast<void>(m_spaces.post());
+            static_cast<void>(spaces_.post());
             return score::MakeUnexpected(ConcurrencyErrc::kStopped);
         }
 
-        const auto tail = m_tail.fetch_add(1, std::memory_order_relaxed);
-        auto& slot = m_slots[tail & (Capacity - 1U)];
+        const auto tail = tail_.fetch_add(1, std::memory_order_relaxed);
+        auto& slot = slots_[tail & (Capacity - 1U)];
 
         // even turns belong to producers, odd turns to consumers
         // each lap of the ring increments the expected turn by 2
@@ -267,7 +266,7 @@ class MPMCConcurrentQueue
         ANNOTATE_HAPPENS_BEFORE(&slot.turn);
         slot.turn.store(expected_turn + 1, std::memory_order_release);
 
-        if (m_items.post() != osal::OsalReturnType::kSuccess)
+        if (items_.post() != osal::OsalReturnType::kSuccess)
         {
             return score::MakeUnexpected(ConcurrencyErrc::kOsError);
         }
@@ -276,29 +275,29 @@ class MPMCConcurrentQueue
     }
 
     /// @brief Underlying storage.
-    std::array<Slot, Capacity> m_slots;
+    std::array<Slot, Capacity> slots_;
 
     /// @brief The front of the queue; claimed by consumers via fetch_add in pop.
-    /// @details Aligned so that m_head and m_tail do not share a cache line.
-    std::atomic<std::size_t> m_head{0};
+    /// @details Aligned so that head_ and tail_ do not share a cache line.
+    std::atomic<std::size_t> head_{0};
 
     /// @brief The back of the queue; claimed by producers via fetch_add in push_impl.
-    /// @details Aligned so that m_head and m_tail do not share a cache line.
-    std::atomic<std::size_t> m_tail{0};
+    /// @details Aligned so that head_ and tail_ do not share a cache line.
+    std::atomic<std::size_t> tail_{0};
 
     /// @brief Set to true by stop(); causes push() to return false and pop() to
     ///        return std::nullopt instead of blocking.
     /// @details Aligned on its own cache line so that the single stop() write
-    ///          does not cause false sharing with m_tail updates in push_impl().
-    std::atomic<bool> m_stopped{false};
+    ///          does not cause false sharing with tail_ updates in push_impl().
+    std::atomic<bool> stopped_{false};
 
     /// @brief Counts items currently in the queue; consumers block on this when
     ///        the queue is empty.
-    osal::Semaphore m_items{};
+    osal::Semaphore items_{};
 
     /// @brief Counts empty slots available; producers block on this when the
     ///        queue is full.
-    osal::Semaphore m_spaces{};
+    osal::Semaphore spaces_{};
 };
 
 }  // namespace score::mw::lifecycle::internal

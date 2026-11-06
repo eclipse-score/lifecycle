@@ -71,17 +71,17 @@ class CyclicExecutorTest : public ::testing::Test
 
         // Set up mock clock to return reasonable values
         struct timespec ts{10, 0};
-        ON_CALL(mockClock_, clockGetTime).WillByDefault(DoAll(SetArgPointee<0>(ts), Return(0)));
+        ON_CALL(mock_clock_, clockGetTime).WillByDefault(DoAll(SetArgPointee<0>(ts), Return(0)));
 
         // Create timespec for clock resolution
         timespec res_ts{0, 1000};
-        ON_CALL(mockClock_, clockGetRes).WillByDefault(DoAll(SetArgPointee<0>(res_ts), Return(0)));
+        ON_CALL(mock_clock_, clockGetRes).WillByDefault(DoAll(SetArgPointee<0>(res_ts), Return(0)));
 
-        mockRecoveryClient_ = std::make_shared<MockRecoveryClient>();
+        mock_recovery_client_ = std::make_shared<MockRecoveryClient>();
     }
 
-    MockOsClockInterface mockClock_;
-    std::shared_ptr<MockRecoveryClient> mockRecoveryClient_;
+    MockOsClockInterface mock_clock_;
+    std::shared_ptr<MockRecoveryClient> mock_recovery_client_;
 };
 
 class CyclicExecutorConstructorTest : public CyclicExecutorTest
@@ -92,14 +92,14 @@ TEST_F(CyclicExecutorConstructorTest, Constructor_WithValidParameters_Initialize
 {
     RecordProperty("Description", "Verify that CyclicExecutor can be constructed with valid parameters.");
 
-    EXPECT_NO_THROW(CyclicExecutor(mockClock_, 5));
+    EXPECT_NO_THROW(CyclicExecutor(mock_clock_, 5));
 }
 
 TEST_F(CyclicExecutorConstructorTest, Constructor_WithZeroComponents_InitializesSuccessfully)
 {
     RecordProperty("Description", "Verify that CyclicExecutor can be constructed with zero components.");
 
-    EXPECT_NO_THROW(CyclicExecutor(mockClock_, 0));
+    EXPECT_NO_THROW(CyclicExecutor(mock_clock_, 0));
 }
 
 TEST_F(CyclicExecutorConstructorTest, Constructor_WithMaxComponentCount_ThrowsLengthError)
@@ -107,7 +107,7 @@ TEST_F(CyclicExecutorConstructorTest, Constructor_WithMaxComponentCount_ThrowsLe
     RecordProperty(
         "Description", "Verify that the constructor throws when the component count exceeds vector capacity.");
 
-    EXPECT_THROW(CyclicExecutor(mockClock_, std::numeric_limits<std::size_t>::max()), std::length_error);
+    EXPECT_THROW(CyclicExecutor(mock_clock_, std::numeric_limits<std::size_t>::max()), std::length_error);
 }
 
 class CyclicExecutorInitTest : public CyclicExecutorTest
@@ -118,11 +118,11 @@ TEST_F(CyclicExecutorInitTest, Init_WithValidConfig_ReturnsNoError)
 {
     RecordProperty("Description", "Verify that init returns kNoError with valid configuration.");
 
-    CyclicExecutor executor(mockClock_, 5);
+    CyclicExecutor executor(mock_clock_, 5);
     configuration::AliveSupervisionConfig config{};
     config.evaluation_cycle_ms = 100;
 
-    daemon::EInitCode result = executor.init(mockRecoveryClient_, config);
+    daemon::EInitCode result = executor.init(mock_recovery_client_, config);
 
     EXPECT_EQ(result, daemon::EInitCode::kNoError);
 }
@@ -131,11 +131,11 @@ TEST_F(CyclicExecutorInitTest, Init_WithSmallCycleTime_ReturnsNoError)
 {
     RecordProperty("Description", "Verify that init succeeds with small cycle time.");
 
-    CyclicExecutor executor(mockClock_, 5);
+    CyclicExecutor executor(mock_clock_, 5);
     configuration::AliveSupervisionConfig config{};
     config.evaluation_cycle_ms = 1;
 
-    daemon::EInitCode result = executor.init(mockRecoveryClient_, config);
+    daemon::EInitCode result = executor.init(mock_recovery_client_, config);
 
     EXPECT_EQ(result, daemon::EInitCode::kNoError);
 }
@@ -144,11 +144,11 @@ TEST_F(CyclicExecutorInitTest, Init_WithLargeCycleTime_ReturnsNoError)
 {
     RecordProperty("Description", "Verify that init succeeds with large cycle time.");
 
-    CyclicExecutor executor(mockClock_, 5);
+    CyclicExecutor executor(mock_clock_, 5);
     configuration::AliveSupervisionConfig config{};
     config.evaluation_cycle_ms = 60000;
 
-    daemon::EInitCode result = executor.init(mockRecoveryClient_, config);
+    daemon::EInitCode result = executor.init(mock_recovery_client_, config);
 
     EXPECT_EQ(result, daemon::EInitCode::kNoError);
 }
@@ -157,15 +157,15 @@ TEST_F(CyclicExecutorInitTest, Init_WithValidCycleTimer_SetsInitialization)
 {
     RecordProperty("Description", "Verify that init properly initializes the cycle timer.");
 
-    CyclicExecutor executor(mockClock_, 5);
+    CyclicExecutor executor(mock_clock_, 5);
     configuration::AliveSupervisionConfig config{};
     config.evaluation_cycle_ms = 100;
 
     // Ensure clockGetRes returns valid resolution
     struct timespec resolution{0, 1000000};  // 1 millisecond
-    ON_CALL(mockClock_, clockGetRes).WillByDefault(DoAll(SetArgPointee<0>(resolution), Return(0)));
+    ON_CALL(mock_clock_, clockGetRes).WillByDefault(DoAll(SetArgPointee<0>(resolution), Return(0)));
 
-    daemon::EInitCode result = executor.init(mockRecoveryClient_, config);
+    daemon::EInitCode result = executor.init(mock_recovery_client_, config);
 
     EXPECT_EQ(result, daemon::EInitCode::kNoError);
 }
@@ -178,14 +178,14 @@ TEST_F(CyclicExecutorStartTest, StartCyclicExec_WithImmediateTermination_Returns
 {
     RecordProperty("Description", "Verify that startCyclicExec returns true when terminated immediately.");
 
-    CyclicExecutor executor(mockClock_, 5);
+    CyclicExecutor executor(mock_clock_, 5);
     configuration::AliveSupervisionConfig config{};
     config.evaluation_cycle_ms = 100;
 
-    ASSERT_EQ(executor.init(mockRecoveryClient_, config), daemon::EInitCode::kNoError);
+    ASSERT_EQ(executor.init(mock_recovery_client_, config), daemon::EInitCode::kNoError);
 
     struct timespec ts{10, 0};
-    EXPECT_CALL(mockClock_, clockGetTime).WillRepeatedly(DoAll(SetArgPointee<0>(ts), Return(0)));
+    EXPECT_CALL(mock_clock_, clockGetTime).WillRepeatedly(DoAll(SetArgPointee<0>(ts), Return(0)));
 
     std::atomic_bool terminate{true};
     bool result = executor.startCyclicExec(terminate);
@@ -204,11 +204,11 @@ TEST_F(CyclicExecutorConstructSupervisionTest, ConstructSupervision_WithValidPar
 {
     RecordProperty("Description", "Verify that constructSupervision returns a valid handle.");
 
-    CyclicExecutor executor(mockClock_, 5);
+    CyclicExecutor executor(mock_clock_, 5);
     configuration::AliveSupervisionConfig config{};
     config.evaluation_cycle_ms = 100;
 
-    ASSERT_EQ(executor.init(mockRecoveryClient_, config), daemon::EInitCode::kNoError);
+    ASSERT_EQ(executor.init(mock_recovery_client_, config), daemon::EInitCode::kNoError);
 
     IdentifierHash componentId{"component1"};
     configuration::ComponentAliveSupervision compConfig{};
@@ -226,11 +226,11 @@ TEST_F(CyclicExecutorConstructSupervisionTest, ConstructSupervision_MultipleSupe
 {
     RecordProperty("Description", "Verify that multiple supervisions can be constructed for the current user.");
 
-    CyclicExecutor executor(mockClock_, 5);
+    CyclicExecutor executor(mock_clock_, 5);
     configuration::AliveSupervisionConfig config{};
     config.evaluation_cycle_ms = 100;
 
-    ASSERT_EQ(executor.init(mockRecoveryClient_, config), daemon::EInitCode::kNoError);
+    ASSERT_EQ(executor.init(mock_recovery_client_, config), daemon::EInitCode::kNoError);
 
     configuration::ComponentAliveSupervision compConfig{};
     compConfig.min_indications = 1;
@@ -252,11 +252,11 @@ TEST_F(CyclicExecutorConstructSupervisionTest, ConstructSupervision_DuplicateId_
 {
     RecordProperty("Description", "Verify constructSupervision returns nullptr when the id is already registered.");
 
-    CyclicExecutor executor(mockClock_, 5);
+    CyclicExecutor executor(mock_clock_, 5);
     configuration::AliveSupervisionConfig config{};
     config.evaluation_cycle_ms = 100;
 
-    ASSERT_EQ(executor.init(mockRecoveryClient_, config), daemon::EInitCode::kNoError);
+    ASSERT_EQ(executor.init(mock_recovery_client_, config), daemon::EInitCode::kNoError);
 
     configuration::ComponentAliveSupervision compConfig{};
     compConfig.min_indications = 1;
@@ -274,11 +274,11 @@ TEST_F(CyclicExecutorConstructSupervisionTest, ConstructSupervision_ExceedingCap
     RecordProperty(
         "Description", "Verify that constructing more supervisions than reserved triggers the debug assertion.");
 
-    CyclicExecutor executor(mockClock_, 2);  // 2 components allowed
+    CyclicExecutor executor(mock_clock_, 2);  // 2 components allowed
     configuration::AliveSupervisionConfig config{};
     config.evaluation_cycle_ms = 100;
 
-    ASSERT_EQ(executor.init(mockRecoveryClient_, config), daemon::EInitCode::kNoError);
+    ASSERT_EQ(executor.init(mock_recovery_client_, config), daemon::EInitCode::kNoError);
 
     configuration::ComponentAliveSupervision compConfig{};
     compConfig.min_indications = 1;
@@ -316,20 +316,20 @@ class CyclicExecutorLoopTest : public CyclicExecutorTest
 
 TEST_F(CyclicExecutorLoopTest, StartCyclicExec_InitialTimestampFails_ReturnsFalse)
 {
-    CyclicExecutor executor(mockClock_, 5);
-    ASSERT_EQ(executor.init(mockRecoveryClient_, config_), daemon::EInitCode::kNoError);
+    CyclicExecutor executor(mock_clock_, 5);
+    ASSERT_EQ(executor.init(mock_recovery_client_, config_), daemon::EInitCode::kNoError);
 
-    EXPECT_CALL(mockClock_, clockGetTime).WillRepeatedly(Return(-1));
+    EXPECT_CALL(mock_clock_, clockGetTime).WillRepeatedly(Return(-1));
 
     EXPECT_FALSE(executor.startCyclicExec(terminate_));
 }
 
 TEST_F(CyclicExecutorLoopTest, StartCyclicExec_SleepInterrupted_BreaksLoop)
 {
-    CyclicExecutor executor(mockClock_, 5);
-    ASSERT_EQ(executor.init(mockRecoveryClient_, config_), daemon::EInitCode::kNoError);
+    CyclicExecutor executor(mock_clock_, 5);
+    ASSERT_EQ(executor.init(mock_recovery_client_, config_), daemon::EInitCode::kNoError);
 
-    EXPECT_CALL(mockClock_, clockNanosleep).WillOnce(Invoke([this](int, const struct timespec*, struct timespec*) {
+    EXPECT_CALL(mock_clock_, clockNanosleep).WillOnce(Invoke([this](int, const struct timespec*, struct timespec*) {
         terminate_.store(true);
         return EINTR;
     }));
@@ -339,10 +339,10 @@ TEST_F(CyclicExecutorLoopTest, StartCyclicExec_SleepInterrupted_BreaksLoop)
 
 TEST_F(CyclicExecutorLoopTest, StartCyclicExec_SleepFails_ContinuesUntilTerminated)
 {
-    CyclicExecutor executor(mockClock_, 5);
-    ASSERT_EQ(executor.init(mockRecoveryClient_, config_), daemon::EInitCode::kNoError);
+    CyclicExecutor executor(mock_clock_, 5);
+    ASSERT_EQ(executor.init(mock_recovery_client_, config_), daemon::EInitCode::kNoError);
 
-    EXPECT_CALL(mockClock_, clockNanosleep).WillOnce(Invoke([this](int, const struct timespec*, struct timespec*) {
+    EXPECT_CALL(mock_clock_, clockNanosleep).WillOnce(Invoke([this](int, const struct timespec*, struct timespec*) {
         terminate_.store(true);
         return EINVAL;
     }));
@@ -352,13 +352,13 @@ TEST_F(CyclicExecutorLoopTest, StartCyclicExec_SleepFails_ContinuesUntilTerminat
 
 TEST_F(CyclicExecutorLoopTest, StartCyclicExec_DeadlineAlreadyOver_ContinuesUntilTerminated)
 {
-    CyclicExecutor executor(mockClock_, 5);
-    ASSERT_EQ(executor.init(mockRecoveryClient_, config_), daemon::EInitCode::kNoError);
+    CyclicExecutor executor(mock_clock_, 5);
+    ASSERT_EQ(executor.init(mock_recovery_client_, config_), daemon::EInitCode::kNoError);
 
     // First call (start) returns 10s; the call inside sleep() returns a time past the deadline.
     const struct timespec start{10, 0};
     const struct timespec pastDeadline{100, 0};
-    EXPECT_CALL(mockClock_, clockGetTime)
+    EXPECT_CALL(mock_clock_, clockGetTime)
         .WillOnce(DoAll(SetArgPointee<0>(start), Return(0)))
         .WillRepeatedly(DoAll(
             SetArgPointee<0>(pastDeadline),
@@ -372,8 +372,8 @@ TEST_F(CyclicExecutorLoopTest, StartCyclicExec_DeadlineAlreadyOver_ContinuesUnti
 
 TEST_F(CyclicExecutorLoopTest, StartCyclicExec_MonotonicClockUnavailable_UsesMaxSyncTimestamp)
 {
-    CyclicExecutor executor(mockClock_, 5);
-    ASSERT_EQ(executor.init(mockRecoveryClient_, config_), daemon::EInitCode::kNoError);
+    CyclicExecutor executor(mock_clock_, 5);
+    ASSERT_EQ(executor.init(mock_recovery_client_, config_), daemon::EInitCode::kNoError);
 
     // The real clock failure only has to last until performCyclicTriggers() has read it.
     g_syscall_mock = std::make_unique<NiceMock<SyscallMock>>();
@@ -381,7 +381,7 @@ TEST_F(CyclicExecutorLoopTest, StartCyclicExec_MonotonicClockUnavailable_UsesMax
     ON_CALL(*g_syscall_mock, clock_gettime(CLOCK_MONOTONIC, _)).WillByDefault(Return(-1));
 
     const struct timespec now{10, 0};
-    EXPECT_CALL(mockClock_, clockGetTime)
+    EXPECT_CALL(mock_clock_, clockGetTime)
         .WillOnce(DoAll(SetArgPointee<0>(now), Return(0)))
         .WillRepeatedly(DoAll(
             SetArgPointee<0>(now),

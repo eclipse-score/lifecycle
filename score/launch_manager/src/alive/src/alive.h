@@ -70,7 +70,7 @@ class Alive final
 
   private:
     /// @brief Unique pointer to implementation class of Alive
-    std::unique_ptr<AliveImpl> aliveImplPtr;
+    std::unique_ptr<AliveImpl> alive_impl_ptr_;
 };
 
 }  // namespace score::mw::lifecycle

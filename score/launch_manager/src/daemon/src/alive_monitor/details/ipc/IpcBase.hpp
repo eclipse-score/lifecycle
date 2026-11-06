@@ -53,7 +53,7 @@ class IpcBase
     std::string_view getPath() const noexcept(true)
     {
         // Following data() must return null-terminated character pointer.
-        return socket->getName().data();
+        return socket_->getName().data();
     }
 
     /// @brief Check if ipc channel has overflow
@@ -64,11 +64,11 @@ class IpcBase
     /// @return True if there was an overflow, else false
     bool hasOverflow() noexcept(true)
     {
-        if (!isInitialized)
+        if (!is_initialized_)
         {
             return false;
         }
-        return socket->getOverflowFlag();
+        return socket_->getOverflowFlag();
     }
 
     /// @brief Create the payload in shared memory
@@ -82,11 +82,11 @@ class IpcBase
             std::is_nothrow_constructible<Payload, Args&&...>::value,
             "Payload must be nothrow constructible with Args&&...");
 
-        if (!isInitialized)
+        if (!is_initialized_)
         {
             return false;
         }
-        return (socket->template trySendEmplace<Payload>(std::forward<Args>(f_args)...)) == ReturnCode::kOk;
+        return (socket_->template trySendEmplace<Payload>(std::forward<Args>(f_args)...)) == ReturnCode::kOk;
     }
 
     /// @brief The peek() operation can have multiple outcomes, that
@@ -103,12 +103,12 @@ class IpcBase
     /// @return See enumeration EIpcPeekResult
     EIpcPeekResult peek(Payload*& f_elem_p) noexcept(true)
     {
-        if (!isInitialized)
+        if (!is_initialized_)
         {
             return EIpcPeekResult::kNoDataToRead;
         }
 
-        const ReturnCode result{socket->tryPeek(f_elem_p)};
+        const ReturnCode result{socket_->tryPeek(f_elem_p)};
         if (result == ReturnCode::kOk)
         {
             return EIpcPeekResult::kOk;
@@ -123,29 +123,29 @@ class IpcBase
     /// @brief Remove next element from ipc channel
     /// @details If peek() succeeded before calling pop(), then pop() will always succeed
     /// except when the ipc connection is broken.
-    /// @return True if removal was successful or socket is empty, else false
+    /// @return True if removal was successful or socket_ is empty, else false
     bool pop() noexcept(true)
     {
-        if (!isInitialized)
+        if (!is_initialized_)
         {
             return false;
         }
-        return (socket->tryPop() == ReturnCode::kOk);
+        return (socket_->tryPop() == ReturnCode::kOk);
     }
 
     /// @brief Close the IPC channel
     virtual ~IpcBase() noexcept(true)
     {
-        // socket may be nullptr if this object was moved from
-        if (socket && isInitialized)
+        // socket_ may be nullptr if this object was moved from
+        if (socket_ && is_initialized_)
         {
-            (void)socket->close();
+            (void)socket_->close();
         }
     }
 
   protected:
     /// @brief Instantiate the IPC channel
-    explicit IpcBase(std::unique_ptr<Socket> f_socket) noexcept(true) : socket(std::move(f_socket))
+    explicit IpcBase(std::unique_ptr<Socket> f_socket) noexcept(true) : socket_(std::move(f_socket))
     {
     }
 
@@ -159,10 +159,10 @@ class IpcBase
     IpcBase& operator=(const IpcBase&) = delete;
 
     /// @brief Socket type is the pipc shared memory abstraction
-    std::unique_ptr<Socket> socket{nullptr};
+    std::unique_ptr<Socket> socket_{nullptr};
     /// @brief Flag indicating whether ipc connection is initialized
     /// Trying to use the socket if initialization was not successful may segfault
-    bool isInitialized{false};
+    bool is_initialized_{false};
 };
 
 }  // namespace score::mw::lifecycle::internal::saf::ipc

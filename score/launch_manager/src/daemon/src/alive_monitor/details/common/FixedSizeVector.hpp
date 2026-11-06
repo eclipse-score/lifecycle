@@ -32,7 +32,7 @@ class FixedSizeVector
     /// @throws std::bad_alloc in case no memory on heap can be allocated
     explicit FixedSizeVector(std::size_t f_length) noexcept(false)
     {
-        fixedSizedVector.reserve(f_length);
+        fixed_sized_vector_.reserve(f_length);
     }
 
     /// @brief Move constructor for FixedSizeVector object
@@ -58,8 +58,8 @@ class FixedSizeVector
     {
         if (this != &f_inputBuffer_r)
         {
-            this->fixedSizedVector.clear();
-            this->fixedSizedVector = std::move(f_inputBuffer_r.fixedSizedVector);
+            this->fixed_sized_vector_.clear();
+            this->fixed_sized_vector_ = std::move(f_inputBuffer_r.fixed_sized_vector_);
         }
         return *this;
     }
@@ -69,15 +69,15 @@ class FixedSizeVector
     /// @return Pointer to moved object
     FixedSizeVector& operator=(std::vector<Type>&& f_inputVector_r) noexcept(true)
     {
-        this->fixedSizedVector.clear();
-        this->fixedSizedVector = std::move(f_inputVector_r);
+        this->fixed_sized_vector_.clear();
+        this->fixed_sized_vector_ = std::move(f_inputVector_r);
         return *this;
     }
 
     /// @brief Clear the contents of FixedSizeVector
     void clear() noexcept(true)
     {
-        fixedSizedVector.clear();
+        fixed_sized_vector_.clear();
     }
 
     /// @brief Construct an element in-place within the FixedSizeVector
@@ -92,7 +92,7 @@ class FixedSizeVector
         bool result{false};
         if (size() < capacity())
         {
-            fixedSizedVector.emplace_back(std::forward<BufferElementType>(f_inputElement_r)...);
+            fixed_sized_vector_.emplace_back(std::forward<BufferElementType>(f_inputElement_r)...);
             result = true;
         }
         return result;
@@ -108,7 +108,7 @@ class FixedSizeVector
         bool result = false;
         if (size() < capacity())
         {
-            fixedSizedVector.push_back(f_inputElement_r);
+            fixed_sized_vector_.push_back(f_inputElement_r);
             result = true;
         }
         return result;
@@ -124,7 +124,7 @@ class FixedSizeVector
         bool result = false;
         if (size() < capacity())
         {
-            fixedSizedVector.push_back(std::move(f_inputElement_r));
+            fixed_sized_vector_.push_back(std::move(f_inputElement_r));
             result = true;
         }
         return result;
@@ -134,28 +134,28 @@ class FixedSizeVector
     /// @details Incase FixedSizeVector is empty, return value is undefined
     Type& front(void) noexcept(true)
     {
-        return fixedSizedVector.front();
+        return fixed_sized_vector_.front();
     }
 
     /// @brief Return a const reference to the first element of the FixedSizeVector
     /// @details Incase FixedSizeVector is empty, return value is undefined
     const Type& front(void) const noexcept(true)
     {
-        return fixedSizedVector.front();
+        return fixed_sized_vector_.front();
     }
 
     /// @brief Return a reference to the last element of the FixedSizeVector
     /// @details Incase FixedSizeVector is empty, return value is undefined
     Type& back(void) noexcept(true)
     {
-        return fixedSizedVector.back();
+        return fixed_sized_vector_.back();
     }
 
     /// @brief Return a const reference to the last element of the FixedSizeVector
     /// @details Incase FixedSizeVector is empty, return value is undefined
     const Type& back(void) const noexcept(true)
     {
-        return fixedSizedVector.back();
+        return fixed_sized_vector_.back();
     }
 
     using BufferIterator = Type*;
@@ -165,28 +165,28 @@ class FixedSizeVector
     /// @return Returns an iterator that points to first element of FixedSizeVector
     BufferIterator begin(void) noexcept(true)
     {
-        return fixedSizedVector.data();
+        return fixed_sized_vector_.data();
     }
 
     /// @brief Iterator to begin of the FixedSizeVector with const access
     /// @return Returns an iterator with const access to first element of FixedSizeVector
     ConstBufferIterator cbegin(void) const noexcept(true)
     {
-        return fixedSizedVector.data();
+        return fixed_sized_vector_.data();
     }
 
     /// @brief Iterator to the end of the FixedSizeVector
     /// @return Returns an iterator that points to end of FixedSizeVector
     BufferIterator end(void) noexcept(true)
     {
-        return fixedSizedVector.data() + fixedSizedVector.size();
+        return fixed_sized_vector_.data() + fixed_sized_vector_.size();
     }
 
     /// @brief Iterator to end of the FixedSizeVector with const access
     /// @return Returns an iterator with const access to end of FixedSizeVector
     ConstBufferIterator cend(void) const noexcept(true)
     {
-        return fixedSizedVector.data() + fixedSizedVector.size();
+        return fixed_sized_vector_.data() + fixed_sized_vector_.size();
     }
 
     /// @brief Obtain value at given index using square braces
@@ -194,7 +194,7 @@ class FixedSizeVector
     /// @return FixedSizeVector element at the given index
     Type& operator[](std::size_t f_index) noexcept(true)
     {
-        return fixedSizedVector[f_index];
+        return fixed_sized_vector_[f_index];
     }
 
     /// @brief Obtain value at given index as const using square braces
@@ -202,19 +202,19 @@ class FixedSizeVector
     /// @return FixedSizeVector element as const at the given index
     const Type& operator[](std::size_t f_index) const noexcept(true)
     {
-        return fixedSizedVector[f_index];
+        return fixed_sized_vector_[f_index];
     }
 
     /// @brief  Return the size of the FixedSizeVector
     std::size_t size(void) const noexcept(true)
     {
-        return fixedSizedVector.size();
+        return fixed_sized_vector_.size();
     }
 
     /// @brief  Return the capacity of the FixedSizeVector
     std::size_t capacity(void) const noexcept(true)
     {
-        return fixedSizedVector.capacity();
+        return fixed_sized_vector_.capacity();
     }
 
     /// @brief No Default Constructor
@@ -227,7 +227,7 @@ class FixedSizeVector
     virtual ~FixedSizeVector() = default;
 
   private:
-    std::vector<Type> fixedSizedVector{};
+    std::vector<Type> fixed_sized_vector_{};
 };
 }  // namespace score::mw::lifecycle::internal::saf::common
 
