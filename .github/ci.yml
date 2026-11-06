@@ -9,15 +9,21 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# The shared workflow owns Linux execution, quality checks and documentation.
-# QNX retains its separate credential and pull_request_target boundary.
-# Bazel configs select module-owned platforms and toolchains explicitly.
+# Select this module's Linux checks, quality policy and Docs in this file.
+# Each named build/test profile runs independently with reports collected centrally.
+# Profiles default to Linux x86_64, the repository root and test target `//...`.
+# Maintain Bazel configs and target selections here; shared CI handles execution.
+# QNX remains in its separate workflow and credential boundary.
+# Configuration reference: https://github.com/eclipse-score/cicd-workflows/blob/central-workflow/.github/workflows/on-pr.md
 schema-version: 2
 tests:
+  # Build the selected examples/libraries first, then test the full workspace.
   linux-native:
     bazel-configs: x86_64-linux
     bazel-build-targets: //examples/... //score/...
-  # Test-only: all-target builds currently hit these module issues.
+  # Sanitizers are enabled by the Bazel configs, independently of profile names.
+  # These profiles test //... without a preceding all-target build because of
+  # the module issues linked below.
   # https://github.com/eclipse-score/lifecycle/issues/476
   asan-ubsan-lsan:
     bazel-configs: x86_64-linux,asan_ubsan_lsan
@@ -25,25 +31,35 @@ tests:
   tsan:
     bazel-configs: x86_64-linux,tsan
 # This module target owns the combined C++/Rust coverage pipeline.
+# Shared CI runs it with COVERAGE_THRESHOLD=66 and collects coverage_artifacts
+# for the HTML artifact and Docs; maintain language-specific coverage logic here.
 coverage:
   bazel-target: //quality/coverage:run_coverage
   coverage-threshold: 66
   # release.yml downloads this artifact by name.
   artifact-name: coverage-html
+# Compile the selected targets for ARM without trying to execute ARM tests.
 builds:
   linux-cross:
     name: compiler
     bazel-configs: arm64-linux
     bazel-build-targets: //examples/... //score/...
     architecture: aarch64
-# Cargo's toolchain version comes from rust-toolchain.toml.
+# Enable the shared Cargo Clippy check with the version in rust-toolchain.toml.
+# An empty mapping enables the check with standard settings.
 clippy: {}
+# Check PR commit messages using the repository Gitlint policy.
 gitlint: true
+# Run the module's CodeQL Bazel analysis and publish the selected reports.
+# Unsuppressed findings fail CI; adjust the report list as analysis policy evolves.
 codeql:
   bazel-configs: x86_64-linux
-  # Explicit module analysis policy; shared execution and SARIF merging.
   reports: [cert-cpp-l1, cert-c-l1, cpp-code-scanning, code-complexity]
   fail-on-findings: true
+# Build //:docs with coverage and the explicitly selected native test reports.
+# The explicit selection avoids mixing sanitizer results into the regular report.
+# Also run //:docs_check and //:docs_link_check before the final Docs build.
+# The existing publishing workflow deploys the finished github-pages artifact.
 docs:
   tests: linux-native-tests
   check: true
