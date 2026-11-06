@@ -201,9 +201,9 @@ TEST_F(FlatbufferConfigLoaderTest, LoadMinimalConfig)
     auto result = loadBuffer(buildMinimalConfig(FlatbufferConfigLoader::kExpectedSchemaVersion, "Startup"));
 
     ASSERT_THAT(result.has_value(), IsTrue());
-    EXPECT_THAT(result->initialRunTarget(), Eq("Startup"));
-    EXPECT_THAT(result->components().empty(), IsTrue());
-    EXPECT_THAT(result->runTargets().empty(), IsTrue());
+    EXPECT_THAT(result->graph().initial_run_target_, Eq("Startup"));
+    EXPECT_THAT(result->graph().components_.empty(), IsTrue());
+    EXPECT_THAT(result->graph().run_targets_.empty(), IsTrue());
     EXPECT_THAT(result->watchdog().has_value(), IsFalse());
 }
 
@@ -248,9 +248,9 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSingleComponent)
     auto result = loadBuffer(buildConfigWithComponents(fbb, comps));
 
     ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result->components().size(), Eq(1U));
+    ASSERT_THAT(result->graph().components_.size(), Eq(1U));
 
-    const auto& comp = result->components()[0];
+    const auto& comp = result->graph().components_[0];
     EXPECT_THAT(comp.name, Eq("TestComponent"));
     EXPECT_THAT(comp.description, Eq("A test component"));
     EXPECT_THAT(comp.component_properties.binary_name, Eq("my_binary"));
@@ -312,9 +312,9 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSingleComponentWithFileState)
     auto result = loadBuffer(buildConfigWithComponents(fbb, comps));
 
     ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result->components().size(), Eq(1U));
+    ASSERT_THAT(result->graph().components_.size(), Eq(1U));
 
-    const auto& comp = result->components()[0];
+    const auto& comp = result->graph().components_[0];
     EXPECT_THAT(
         comp.component_properties.ready_condition,
         VariantWith<FileState>(
@@ -339,9 +339,9 @@ TEST_F(FlatbufferConfigLoaderTest, LoadRunTargets)
     auto result = loadBuffer(buildConfigWithRunTargets(fbb, rts));
 
     ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result->runTargets().size(), Eq(1U));
+    ASSERT_THAT(result->graph().run_targets_.size(), Eq(1U));
 
-    const auto& target = result->runTargets()[0];
+    const auto& target = result->graph().run_targets_[0];
     EXPECT_THAT(target.name, Eq("Startup"));
     EXPECT_THAT(target.description, Eq("Initial state"));
     ASSERT_THAT(target.depends_on.size(), Eq(1U));
@@ -367,10 +367,10 @@ TEST_F(FlatbufferConfigLoaderTest, ConfiguredOffRunTargetIsLoadedVerbatim)
     auto result = loadBuffer(buildConfigWithRunTargets(fbb, rts));
 
     ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result->runTargets().size(), Eq(1U));
-    EXPECT_THAT(result->runTargets()[0].name, Eq(kOffRunTargetName));
-    EXPECT_THAT(result->runTargets()[0].description, Eq("Configured off state"));
-    EXPECT_THAT(result->runTargets()[0].transition_timeout_ms, Eq(2000U));
+    ASSERT_THAT(result->graph().run_targets_.size(), Eq(1U));
+    EXPECT_THAT(result->graph().run_targets_[0].name, Eq(kOffRunTargetName));
+    EXPECT_THAT(result->graph().run_targets_[0].description, Eq("Configured off state"));
+    EXPECT_THAT(result->graph().run_targets_[0].transition_timeout_ms, Eq(2000U));
 }
 
 TEST_F(FlatbufferConfigLoaderTest, LoadFallbackRunTarget)
@@ -394,7 +394,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadFallbackRunTarget)
     auto result = loadBuffer(finishBuffer(fbb, config));
 
     ASSERT_THAT(result.has_value(), IsTrue());
-    const auto& fb = result->fallbackRunTarget();
+    const auto& fb = result->graph().fallback_run_target_;
     EXPECT_THAT(fb.description, Eq("Fallback state"));
     ASSERT_THAT(fb.depends_on.size(), Eq(1U));
     EXPECT_THAT(fb.depends_on[0], Eq("critical_comp"));
@@ -481,8 +481,8 @@ TEST_F(FlatbufferConfigLoaderTest, LoadActivationRetryAttempts)
     auto result = loadBuffer(buildConfigWithComponents(fbb, comps));
 
     ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result->components().size(), Eq(1U));
-    EXPECT_THAT(result->components()[0].deployment_config.activation_retry_attempts, Eq(3U));
+    ASSERT_THAT(result->graph().components_.size(), Eq(1U));
+    EXPECT_THAT(result->graph().components_[0].deployment_config.activation_retry_attempts, Eq(3U));
 }
 
 TEST_F(FlatbufferConfigLoaderTest, LoadSwitchRunTargetAction)
@@ -501,7 +501,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSwitchRunTargetAction)
     auto result = loadBuffer(buildConfigWithRunTargets(fbb, rts));
 
     ASSERT_THAT(result.has_value(), IsTrue());
-    EXPECT_THAT(result->runTargets()[0].recovery_action.run_target, Eq("fallback_run_target"));
+    EXPECT_THAT(result->graph().run_targets_[0].recovery_action.run_target, Eq("fallback_run_target"));
 }
 
 TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
@@ -547,9 +547,9 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandbox)
     auto result = loadBuffer(buildConfigWithComponents(fbb, comps));
 
     ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result->components().size(), Eq(1U));
+    ASSERT_THAT(result->graph().components_.size(), Eq(1U));
 
-    const auto& sb = result->components()[0].deployment_config.sandbox;
+    const auto& sb = result->graph().components_[0].deployment_config.sandbox;
     EXPECT_THAT(sb.uid, Eq(1000U));
     EXPECT_THAT(sb.gid, Eq(1000U));
     EXPECT_THAT(sb.supplementary_group_ids, Eq(std::vector<gid_t>{100, 200}));
@@ -596,9 +596,9 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSandboxWithoutAffinityMaskHasNoValue)
     auto result = loadBuffer(buildConfigWithComponents(fbb, comps));
 
     ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result->components().size(), Eq(1U));
+    ASSERT_THAT(result->graph().components_.size(), Eq(1U));
 
-    const auto& sb = result->components()[0].deployment_config.sandbox;
+    const auto& sb = result->graph().components_[0].deployment_config.sandbox;
     EXPECT_THAT(sb.affinity_mask.has_value(), IsFalse());
 }
 
@@ -623,7 +623,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadComponentAliveSupervision)
     auto result = loadBuffer(buildConfigWithComponents(fbb, comps));
 
     ASSERT_THAT(result.has_value(), IsTrue());
-    const auto& as = result->components()[0].component_properties.application_profile.alive_supervision;
+    const auto& as = result->graph().components_[0].component_properties.application_profile.alive_supervision;
     ASSERT_THAT(as.has_value(), IsTrue());
     EXPECT_THAT(as->reporting_cycle_ms, Eq(1000U));
     EXPECT_THAT(as->failed_cycles_tolerance, Eq(3U));
@@ -668,7 +668,7 @@ TEST_F(FlatbufferConfigLoaderTest, LoadEnvironmentalVariables)
     auto result = loadBuffer(buildConfigWithComponents(fbb, comps));
 
     ASSERT_THAT(result.has_value(), IsTrue());
-    const auto& env = result->components()[0].deployment_config.environmental_variables;
+    const auto& env = result->graph().components_[0].deployment_config.environmental_variables;
     ASSERT_THAT(env.size(), Eq(2U));
     auto it = env.begin();
     EXPECT_THAT(it->key(), Eq("PATH"));
@@ -696,10 +696,10 @@ TEST_F(FlatbufferConfigLoaderTest, LoadMultipleComponents)
     auto result = loadBuffer(buildConfigWithComponents(fbb, comps));
 
     ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result->components().size(), Eq(3U));
-    EXPECT_THAT(result->components()[0].name, Eq("CompA"));
-    EXPECT_THAT(result->components()[1].name, Eq("CompB"));
-    EXPECT_THAT(result->components()[2].name, Eq("CompC"));
+    ASSERT_THAT(result->graph().components_.size(), Eq(3U));
+    EXPECT_THAT(result->graph().components_[0].name, Eq("CompA"));
+    EXPECT_THAT(result->graph().components_[1].name, Eq("CompB"));
+    EXPECT_THAT(result->graph().components_[2].name, Eq("CompC"));
 }
 
 // ============================================================================
@@ -734,7 +734,7 @@ TEST_F(FlatbufferConfigLoaderTest, OptionalReadyConditionAbsent)
 
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(
-        result->components()[0].component_properties.ready_condition,
+        result->graph().components_[0].component_properties.ready_condition,
         VariantWith<ProcessState>(Eq(ProcessState::Running)));
 }
 
@@ -876,8 +876,8 @@ TEST_P(
 
     // Then
     ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result->components().size(), Eq(1U));
-    EXPECT_THAT(result->components()[0].deployment_config.activation_retry_attempts, Eq(GetParam().expected));
+    ASSERT_THAT(result->graph().components_.size(), Eq(1U));
+    EXPECT_THAT(result->graph().components_[0].deployment_config.activation_retry_attempts, Eq(GetParam().expected));
 }
 
 INSTANTIATE_TEST_SUITE_P(

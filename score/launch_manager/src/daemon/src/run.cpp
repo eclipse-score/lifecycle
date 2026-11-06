@@ -150,8 +150,8 @@ int run(int argc, const char* argv[])
         std::shared_ptr<IRecoveryClient> recoveryClient{std::make_shared<RecoveryClient>()};
 
         const std::size_t supervised_components = static_cast<std::size_t>(std::count_if(
-            config_result.value().components().begin(),
-            config_result.value().components().end(),
+            config_result.value().graph().components_.begin(),
+            config_result.value().graph().components_.end(),
             [](const configuration::ComponentConfig& component) {
                 return component.component_properties.application_profile.alive_supervision.has_value();
             }));
@@ -159,16 +159,9 @@ int run(int argc, const char* argv[])
         std::unique_ptr<saf::daemon::IAliveMonitor> healthMonitor{std::make_unique<saf::daemon::AliveMonitorImpl>(
             recoveryClient, config_result.value().takeAliveSupervision(), supervised_components)};
 
-        GraphConfig graph_config = {
-            config_result.value().takeComponents(),
-            config_result.value().takeRunTargets(),
-            config_result.value().takeFallbackRunTarget(),
-            config_result.value().takeInitialRunTarget(),
-        };
-
         auto watchdog = watchdog::createWatchdog();
         auto process_group_manager = std::make_unique<ProcessGroupManager>(
-            std::move(graph_config),
+            config_result.value().takeGraph(),
             std::move(healthMonitor),
             recoveryClient,
             std::move(watchdog),

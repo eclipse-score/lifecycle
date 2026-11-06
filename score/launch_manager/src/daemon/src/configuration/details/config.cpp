@@ -21,20 +21,8 @@ namespace score::mw::lifecycle::internal::configuration
 
 // --- Config ---
 
-// codeql[cpp/number-of-parameters-per-function] Dismiss: Struct-like type, passing a struct to constructor wouldn't make sense. The parameters are only there to be moved into the members instead of copied.
-Config::Config(
-    std::vector<ComponentConfig> components,
-    std::vector<RunTargetConfig> run_targets,
-    std::string initial_run_target,
-    FallbackRunTargetConfig fallback_run_target,
-    AliveSupervisionConfig alive_supervision,
-    std::optional<WatchdogConfig> watchdog)
-    : components_{std::move(components)},
-      run_targets_{std::move(run_targets)},
-      initial_run_target_{std::move(initial_run_target)},
-      fallback_run_target_{std::move(fallback_run_target)},
-      alive_supervision_{alive_supervision},
-      watchdog_{std::move(watchdog)}
+Config::Config(GraphConfig graph, AliveSupervisionConfig alive_supervision, std::optional<WatchdogConfig> watchdog)
+    : graph_{std::move(graph)}, alive_supervision_{alive_supervision}, watchdog_{std::move(watchdog)}
 {
 }
 
@@ -77,32 +65,18 @@ ConfigBuilder& ConfigBuilder::setWatchdog(WatchdogConfig watchdog)
 Config ConfigBuilder::build()
 {
     return Config(
-        std::move(components_),
-        std::move(run_targets_),
-        std::move(initial_run_target_),
-        std::move(fallback_run_target_),
+        GraphConfig{
+            std::move(components_),
+            std::move(run_targets_),
+            std::move(fallback_run_target_),
+            std::move(initial_run_target_)},
         std::move(alive_supervision_),
         std::move(watchdog_));
 }
 
-const std::vector<ComponentConfig>& Config::components() const
+const GraphConfig& Config::graph() const
 {
-    return components_;
-}
-
-const std::vector<RunTargetConfig>& Config::runTargets() const
-{
-    return run_targets_;
-}
-
-std::string_view Config::initialRunTarget() const
-{
-    return initial_run_target_;
-}
-
-const FallbackRunTargetConfig& Config::fallbackRunTarget() const
-{
-    return fallback_run_target_;
+    return graph_;
 }
 
 const AliveSupervisionConfig& Config::aliveSupervision() const
@@ -115,24 +89,9 @@ const std::optional<WatchdogConfig>& Config::watchdog() const
     return watchdog_;
 }
 
-std::vector<ComponentConfig> Config::takeComponents()
+GraphConfig Config::takeGraph()
 {
-    return std::move(components_);
-}
-
-std::vector<RunTargetConfig> Config::takeRunTargets()
-{
-    return std::move(run_targets_);
-}
-
-std::string Config::takeInitialRunTarget()
-{
-    return std::move(initial_run_target_);
-}
-
-FallbackRunTargetConfig Config::takeFallbackRunTarget()
-{
-    return std::move(fallback_run_target_);
+    return std::move(graph_);
 }
 
 AliveSupervisionConfig Config::takeAliveSupervision()
