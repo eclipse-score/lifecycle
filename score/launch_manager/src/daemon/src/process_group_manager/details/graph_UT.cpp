@@ -270,6 +270,7 @@ TEST_F(GraphOrdinaryTransitionTest, simpleDeactivationTransition)
 
 TEST_F(GraphOrdinaryTransitionTest, GivenGetActiveRunTargetEvent_WhenHandleComponentEventCalled_ThenAssert)
 {
+    RecordProperty("DerivationTechnique", "error-guessing");
     RecordProperty(
         "Description",
         "Given a GetActiveRunTarget event. "
@@ -290,6 +291,7 @@ TEST_F(GraphOrdinaryTransitionTest, GivenGetActiveRunTargetEvent_WhenHandleCompo
 
 TEST_F(GraphOrdinaryTransitionTest, GivenSetRequestedRunTargetEvent_WhenHandleComponentEventCalled_ThenAssert)
 {
+    RecordProperty("DerivationTechnique", "error-guessing");
     RecordProperty(
         "Description",
         "Given a SetRequestedRunTarget event. "
@@ -310,6 +312,7 @@ TEST_F(GraphOrdinaryTransitionTest, GivenSetRequestedRunTargetEvent_WhenHandleCo
 
 TEST_F(GraphOrdinaryTransitionTest, GivenGetActiveRunTargetEvent_WhenUnblockComponentEventCalled_ThenSlotIsCompleted)
 {
+    RecordProperty("DerivationTechnique", "explorative-testing");
     RecordProperty(
         "Description",
         "Given a GetActiveRunTarget event. "
@@ -333,6 +336,7 @@ TEST_F(GraphOrdinaryTransitionTest, GivenGetActiveRunTargetEvent_WhenUnblockComp
 
 TEST_F(GraphOrdinaryTransitionTest, GivenSetRequestedRunTarget_WhenUnblockComponentEventCalled_ThenSlotIsCompleted)
 {
+    RecordProperty("DerivationTechnique", "explorative-testing");
     RecordProperty(
         "Description",
         "Given a SetRequestedRunTarget event. "
@@ -358,6 +362,7 @@ TEST_F(
     GraphOrdinaryTransitionTest,
     GivenGetActiveRunTargetWithNullSlotEvent_WhenUnblockComponentEventCalled_ThenNullCheck)
 {
+    RecordProperty("DerivationTechnique", "explorative-testing");
     RecordProperty(
         "Description",
         "Given a GetActiveRunTarget event with a nullptr completion slot. "
@@ -377,6 +382,7 @@ TEST_F(
     GraphOrdinaryTransitionTest,
     GivenSetRequestedRunTargetWithNullSlot_WhenUnblockComponentEventCalled_ThenNullCheck)
 {
+    RecordProperty("DerivationTechnique", "explorative-testing");
     RecordProperty(
         "Description",
         "Given a SetRequestedRunTarget event with a nullptr completion slot. "
@@ -394,6 +400,7 @@ TEST_F(
 
 TEST_F(GraphOrdinaryTransitionTest, GivenInvalidEvent_WhenUnblockComponentEventCalled_ThenAssert)
 {
+    RecordProperty("DerivationTechnique", "error-guessing");
     RecordProperty(
         "Description",
         "Given a ActivationSuccessful event (which is not handled by unblockComponentEvent). "

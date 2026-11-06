@@ -555,6 +555,7 @@ TEST_F(ControlProviderUT, GetActiveRunTarget_Available)
 
 TEST_F(ControlProviderUT, GetActiveRunTarget_UnexpectedError_Aborts)
 {
+    RecordProperty("DerivationTechnique", "error-guessing");
     RecordProperty(
         "Description",
         "If getActiveRunTarget() returns any error other than kActivationInProgress or kShuttingDown "
