@@ -29,6 +29,10 @@ testing::AssertionResult touch_file(std::string_view file_path);
 /// @brief Location to store a file signalling that the fallback state has been reached.
 constexpr std::string_view fallback_file = "fallback_reached";
 
+/// @brief Location to store a file signalling that the test must be considered failed. Created by the
+/// fail_test process; tests assert that it does not exist.
+constexpr std::string_view test_failed_file = "test_failed";
+
 /// @brief Prefix of the file storing the number of times a process has crashed so far - used to test ready
 /// recovery action
 constexpr std::string_view crash_count_file = "crash_count";

@@ -20,6 +20,7 @@ test_suite(
         "//tests/integration/explicit_fallback_request",
         "//tests/integration/fallback_to_same_target_restarts",
         "//tests/integration/incorrect_config_non_reporting",
+        "//tests/integration/lifecycle_lang_support",
         "//tests/integration/lm_shutdown_during_rt_switch",
         "//tests/integration/lm_shutdown_during_switch_to_off",
         "//tests/integration/parallel_launch",
