@@ -22,6 +22,7 @@
 #include <string>
 #include <vector>
 
+#include "score/os/acl.h"
 #include "score/os/utils/acl/access_control_list.h"
 
 #include <gtest/gtest.h>
@@ -46,7 +47,7 @@ class IpcServerAclFixture : public ::testing::Test
     void SetUp() override
     {
         RecordProperty("TestType", "interface-test");
-        RecordProperty("DerivationTechnique", "explorative-testing ");
+        RecordProperty("DerivationTechnique", "explorative-testing");
         m_name = "/ipc_server_ut_" + std::to_string(::getpid());
         ASSERT_EQ(m_server.init(m_name), Server::EIpcInitResult::kOk);
     }
@@ -64,11 +65,67 @@ class IpcServerAclFixture : public ::testing::Test
         bool mask_allows_read_write{false};
     };
 
+    /// @brief Whether the owning group and others have any permission in the ACL.
+    struct GroupOtherAccess
+    {
+        bool group{true};
+        bool other{true};
+    };
+
+    /// @brief Read the owning group and other ACL entries of the given file
+    ///        descriptor.
+    static GroupOtherAccess getGroupOther(const int fd)
+    {
+        GroupOtherAccess output{};
+        auto& os = score::os::Acl::instance();
+        auto raw_acl = os.acl_get_fd(fd);
+        EXPECT_TRUE(raw_acl.has_value());
+        if (!raw_acl.has_value())
+        {
+            return output;
+        }
+
+        for (auto entry = os.acl_get_entry(raw_acl.value(), score::os::Acl::kAclFirstEntry);
+             entry.has_value() && entry.value().has_value();
+             entry = os.acl_get_entry(raw_acl.value(), score::os::Acl::kAclNextEntry))
+        {
+            const auto tag = os.acl_get_tag_type(entry.value().value());
+            const bool is_group = tag.has_value() && tag.value() == score::os::Acl::Tag::kOwningGroup;
+            const bool is_other = tag.has_value() && tag.value() == score::os::Acl::Tag::kOther;
+            if (!is_group && !is_other)
+            {
+                continue;
+            }
+
+            score::os::Acl::Permissions permset{};
+            os.acl_get_permset(entry.value().value(), &permset);
+            bool any{false};
+            for (const auto perm : {score::os::Acl::Permission::kRead,
+                                    score::os::Acl::Permission::kWrite,
+                                    score::os::Acl::Permission::kExecute})
+            {
+                // check if there are any permissions set
+                any = any || os.acl_get_perm(permset, perm).value();
+            }
+
+            if (is_group)
+            {
+                output.group = any;
+            }
+            else
+            {
+                output.other = any;
+            }
+        }
+        os.acl_free(raw_acl.value());
+        return output;
+    }
+
     /// @brief Read the acl permissions.
     AclView readAcl()
     {
         AclView ouput{};
-        const int fd = ::shm_open(m_name.c_str(), O_RDWR, 0);
+        const int fd = ::shm_open(m_server.getPath().data(), O_RDWR, 0);
         EXPECT_GE(fd, 0);
 
         const score::os::AccessControlList acl{static_cast<score::os::Acl::FileDescriptor>(fd)};
@@ -147,10 +204,27 @@ TEST_F(IpcServerAclFixture, SetAccessRightsIsIdempotent)
     EXPECT_TRUE(contains(acl.users_with_write, 2121U));
 }
 
+TEST_F(IpcServerAclFixture, SetAccessRightsKeepsGroupAndOtherWithoutAccess)
+{
+    RecordProperty(
+        "Description",
+        "Verify that for a shared memory created with mode 0600, setAccessRights"
+        "does not grant any permission to the owning group or to others.");
+
+    ASSERT_TRUE(m_server.setAccessRights(54321U));
+
+    // open the shared memory owned by the server, using the path reported by the server itself
+    const int fd = ::shm_open(m_server.getPath().data(), O_RDWR, 0);
+    ASSERT_GE(fd, 0);
+    const GroupOtherAccess access = getGroupOther(fd);
+    ::close(fd);
+
+    EXPECT_FALSE(access.group);
+    EXPECT_FALSE(access.other);
+}
+
 TEST(IpcServerTest, SetAccessRightsFailsIfSharedMemoryDoesNotExist)
 {
-    RecordProperty("TestType", "interface-test");
-    RecordProperty("DerivationTechnique", "explorative-testing ");
     RecordProperty(
         "Description",
         "Verify that setAccessRights returns false if the shared "
