@@ -100,9 +100,10 @@ class IpcServerAclFixture : public ::testing::Test
             score::os::Acl::Permissions permset{};
             os.acl_get_permset(entry.value().value(), &permset);
             bool any{false};
-            for (const auto perm : {score::os::Acl::Permission::kRead,
-                                    score::os::Acl::Permission::kWrite,
-                                    score::os::Acl::Permission::kExecute})
+            for (const auto perm :
+                 {score::os::Acl::Permission::kRead,
+                  score::os::Acl::Permission::kWrite,
+                  score::os::Acl::Permission::kExecute})
             {
                 // check if there are any permissions set
                 any = any || os.acl_get_perm(permset, perm).value();
