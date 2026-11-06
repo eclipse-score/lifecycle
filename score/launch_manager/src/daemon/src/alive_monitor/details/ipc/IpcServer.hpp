@@ -15,7 +15,6 @@
 #define IPC_SERVER_HPP_INCLUDED
 
 #include <fcntl.h>
-#include <sys/acl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -23,6 +22,7 @@
 
 #include "score/mw/launch_manager/alive_monitor/details/ipc/IpcBase.hpp"
 #include "score/mw/launch_manager/alive_monitor/details/ipc/socket.hpp"
+#include "score/os/utils/acl/access_control_list.h"
 #include <unistd.h>
 #include <string>
 
@@ -113,93 +113,18 @@ class IpcServer final : public IpcBase<Payload, MaxNumberElements, Socket>
             return false;
         }
 
-        // This function will set the following five ACL entries:
-        // ACL_USER_OBJ (owner rw)
-        // ACL_GROUP_OBJ (none)
-        // ACL_OTHER (none)
-        // ACL_USER (rw) for given f_uid
-        // ACL_MASK (rw)
-        acl_t acl = acl_init(5);
-        if (acl == nullptr)
+        // ACL is initialized with the current file permissions.
+        bool success{false};
+
         {
-            close(fd);
-            return false;
+            score::os::AccessControlList acl{static_cast<score::os::Acl::FileDescriptor>(fd)};
+            success = acl.AllowUser(f_uid, score::os::Acl::Permission::kRead).has_value() &&
+                      acl.AllowUser(f_uid, score::os::Acl::Permission::kWrite).has_value();
         }
 
-        auto addPermissionEntry =
-            [&](acl_tag_t tag, bool read, bool write, uid_t uid = 0U, bool useQualifier = false) -> bool {
-            acl_entry_t entry;
-            if (acl_create_entry(&acl, &entry) == -1)
-            {
-                return false;
-            }
-            if (acl_set_tag_type(entry, tag) == -1)
-            {
-                return false;
-            }
-            if (useQualifier)
-            {
-                if (acl_set_qualifier(entry, &uid) == -1)
-                {
-                    return false;
-                }
-            }
-            acl_permset_t permset;
-            if (acl_get_permset(entry, &permset) == -1)
-            {
-                return false;
-            }
-
-            if (read)
-            {
-                if (acl_add_perm(permset, ACL_READ) == -1)
-                {
-                    return false;
-                }
-            }
-            if (write)
-            {
-                if (acl_add_perm(permset, ACL_WRITE) == -1)
-                {
-                    return false;
-                }
-            }
-            return true;
-        };
-
-        // MASK (rw)
-        bool ok = addPermissionEntry(ACL_MASK, true, true);
-        // USER_OBJ (owner rw)
-        ok = ok && addPermissionEntry(ACL_USER_OBJ, true, true);
-        // GROUP_OBJ (none)
-        ok = ok && addPermissionEntry(ACL_GROUP_OBJ, false, false);
-        // OTHER (none)
-        ok = ok && addPermissionEntry(ACL_OTHER, false, false);
-        // Specific USER (rw)
-        ok = ok && addPermissionEntry(ACL_USER, true, true, f_uid, true);
-
-        auto exit_function = [&acl, &fd](bool return_value) {
-            acl_free(acl);
-            close(fd);
-            return return_value;
-        };
-
-        if (!ok)
-        {
-            return exit_function(false);
-        }
-
-        if (acl_valid(acl) != 0)
-        {
-            return exit_function(false);
-        }
-
-        if (acl_set_fd(fd, acl) != 0)
-        {
-            return exit_function(false);
-        }
-
-        return exit_function(true);
+        // acl perms are saved on acl destructor
+        close(fd);
+        return success;
     }
 };
 
