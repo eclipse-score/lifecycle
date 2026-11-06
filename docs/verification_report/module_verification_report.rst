@@ -24,6 +24,7 @@ Verification Report
    :safety: ASIL_B
    :security: YES
    :verification_method: test_and_inspection
+   :applies_to_module_version: v1.0.0
    :belongs_to: mod__lifecycle
    :realizes: wp__verification_module_ver_report
    :post_template: module_verification_report
@@ -78,7 +79,7 @@ Valid component requirements without any linked component architecture elements 
    :animate: fade-in
 
    .. needtable:: Valid component requirements and linked component architecture elements
-      :filter: type == "comp_req" and ("comp__health_monitor" in satisfied_by or "comp__lifecycle_launch_manager" in satisfied_by) and status == "valid"
+      :filter: type == "comp_req" and ("comp__health_monitor" in satisfied_by or "comp__lifecycle_launch_manager" in satisfied_by) and status == "valid" and (valid_from == "" or valid_from <= "v1.0.0")
       :style: table
       :types: comp_req
       :columns: id;title;fulfils_back;status
