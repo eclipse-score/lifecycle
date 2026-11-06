@@ -47,7 +47,7 @@ Components
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall reject an :term:`invalid configuration<Invalid Configuration>` during compile time.
+    The :term:`Launch Manager` shall fail the build if given :term:`invalid configuration<Invalid Configuration>` during compile time.
 
 .. comp_req:: Verification of configuration validity on run time
     :id: comp_req__launch_man__comp_dep_ver_run_time
@@ -59,7 +59,7 @@ Components
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall reject an :term:`invalid configuration<Invalid Configuration>` during run time.
+    The :term:`Launch Manager` shall exit with an error result if given an :term:`invalid configuration<Invalid Configuration>` at startup.
 
 
 Activating Components
