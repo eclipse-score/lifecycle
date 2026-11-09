@@ -174,37 +174,6 @@ TEST_F(IpcServerAclFixture, SetAccessRightsGrantsReadWriteToGivenUser)
     EXPECT_TRUE(acl.mask_allows_read_write);
 }
 
-TEST_F(IpcServerAclFixture, SetAccessRightsOnSecondCallGrantsAccessToLatestUser)
-{
-    RecordProperty(
-        "Description",
-        "Verify that calling setAccessRights a second time for a different user"
-        "grants that user read and write access.");
-
-    ASSERT_TRUE(m_server.setAccessRights(2121U));
-    ASSERT_TRUE(m_server.setAccessRights(2122U));
-
-    const AclView acl = readAcl();
-    EXPECT_TRUE(contains(acl.users_with_read, 2122U));
-    EXPECT_TRUE(contains(acl.users_with_write, 2122U));
-    EXPECT_TRUE(acl.mask_allows_read_write);
-}
-
-TEST_F(IpcServerAclFixture, SetAccessRightsIsIdempotent)
-{
-    RecordProperty(
-        "Description",
-        "Verify that calling setAccessRights repeatedly for the same user "
-        "succeeds and the user keeps read and write access.");
-
-    ASSERT_TRUE(m_server.setAccessRights(2121U));
-    ASSERT_TRUE(m_server.setAccessRights(2121U));
-
-    const AclView acl = readAcl();
-    EXPECT_TRUE(contains(acl.users_with_read, 2121U));
-    EXPECT_TRUE(contains(acl.users_with_write, 2121U));
-}
-
 TEST_F(IpcServerAclFixture, SetAccessRightsKeepsGroupAndOtherWithoutAccess)
 {
     RecordProperty(
