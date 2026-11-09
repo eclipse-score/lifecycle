@@ -19,8 +19,24 @@ namespace score::mw::lifecycle::internal
 namespace
 {
 
-TEST(EmptyReadyConditionTest, WaitWithEmptyHandleSucceeds)
+class EmptyReadyConditionTest : public ::testing::Test
 {
+  protected:
+    void SetUp() override
+    {
+        RecordProperty("TestType", "interface-test");
+    }
+};
+
+TEST_F(EmptyReadyConditionTest, WaitWithEmptyHandleSucceeds)
+{
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description",
+        "Given an empty ready condition and an empty handle. "
+        "When wait is called. "
+        "Then wait succeeds immediately.");
+
     const EmptyReadyCondition empty_ready_condition;
 
     const Result<void> result = empty_ready_condition.wait(cpp::stop_token{}, EmptyHandle{});
@@ -28,8 +44,15 @@ TEST(EmptyReadyConditionTest, WaitWithEmptyHandleSucceeds)
     EXPECT_TRUE(result.has_value());
 }
 
-TEST(EmptyReadyConditionTest, WaitWithProcessHandleSucceeds)
+TEST_F(EmptyReadyConditionTest, WaitWithProcessHandleSucceeds)
 {
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description",
+        "Given an empty ready condition and a process handle. "
+        "When wait is called. "
+        "Then wait succeeds immediately.");
+
     const EmptyReadyCondition empty_ready_condition;
 
     const Result<void> result = empty_ready_condition.wait(cpp::stop_token{}, ProcessHandle{42, nullptr});
@@ -37,8 +60,15 @@ TEST(EmptyReadyConditionTest, WaitWithProcessHandleSucceeds)
     EXPECT_TRUE(result.has_value());
 }
 
-TEST(EmptyReadyConditionTest, DoesNotHandleTermination)
+TEST_F(EmptyReadyConditionTest, DoesNotHandleTermination)
 {
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty(
+        "Description",
+        "Given an empty ready condition. "
+        "When a process termination is reported to it. "
+        "Then it does not accept the termination.");
+
     const EmptyReadyCondition empty_ready_condition;
 
     EXPECT_FALSE(empty_ready_condition.tryHandleTermination(ProcessHandle{42, nullptr}, 0));

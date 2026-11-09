@@ -77,6 +77,14 @@ class ComponentFactoryTest : public Test
 
 TEST_F(ComponentFactoryTest, CreatedComponentIsInactive)
 {
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty(
+        "Description",
+        "Given a native component configuration with ready condition Running. "
+        "When the factory creates a component. "
+        "Then the created component is not active.");
+
     auto config = makeConfig(configuration::ApplicationType::Native, configuration::ProcessState::Running);
 
     const auto component = createComponent(config);
@@ -87,6 +95,14 @@ TEST_F(ComponentFactoryTest, CreatedComponentIsInactive)
 
 TEST_F(ComponentFactoryTest, CreatedComponentIsIdentifiedByConfigName)
 {
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty(
+        "Description",
+        "Given a component configuration with a name. "
+        "When the factory creates a component. "
+        "Then the component identifier is the hash of the configured name.");
+
     auto config = makeConfig(configuration::ApplicationType::Native, configuration::ProcessState::Running);
 
     const auto component = createComponent(config);
@@ -97,6 +113,15 @@ TEST_F(ComponentFactoryTest, CreatedComponentIsIdentifiedByConfigName)
 
 TEST_F(ComponentFactoryTest, NativeRunningComponentStartsProcessWithoutWaiting)
 {
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description",
+        "Given a component created from a native configuration with ready condition Running. "
+        "When the component is activated. "
+        "Then the process is started with the component configuration, neither kRunning nor a file is waited for, and "
+        "activation succeeds.");
+
     auto config = makeConfig(configuration::ApplicationType::Native, configuration::ProcessState::Running);
     const auto component = createComponent(config);
     ASSERT_NE(component, nullptr);
@@ -112,6 +137,14 @@ TEST_F(ComponentFactoryTest, NativeRunningComponentStartsProcessWithoutWaiting)
 
 TEST_F(ComponentFactoryTest, ReportingRunningComponentWaitsForkRunningWithReadyTimeout)
 {
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description",
+        "Given a component created from a reporting configuration with ready condition Running. "
+        "When the component is activated. "
+        "Then kRunning is waited for with the configured ready timeout and activation succeeds.");
+
     auto config = makeConfig(configuration::ApplicationType::Reporting, configuration::ProcessState::Running);
     const auto component = createComponent(config);
     ASSERT_NE(component, nullptr);
@@ -128,6 +161,14 @@ TEST_F(ComponentFactoryTest, ReportingRunningComponentWaitsForkRunningWithReadyT
 
 TEST_F(ComponentFactoryTest, ReportingRunningComponentFailsWhenkRunningIsNotReported)
 {
+    RecordProperty("TestType", "fault-injection");
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description",
+        "Given a component created from a reporting configuration with ready condition Running. "
+        "When the component is activated and waiting for kRunning fails. "
+        "Then activation fails.");
+
     auto config = makeConfig(configuration::ApplicationType::Reporting, configuration::ProcessState::Running);
     const auto component = createComponent(config);
     ASSERT_NE(component, nullptr);
@@ -140,6 +181,15 @@ TEST_F(ComponentFactoryTest, ReportingRunningComponentFailsWhenkRunningIsNotRepo
 
 TEST_F(ComponentFactoryTest, FileStateComponentWaitsForConfiguredFile)
 {
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description",
+        "Given a component created from a native configuration with a FileState ready condition. "
+        "When the component is activated. "
+        "Then the configured file, state, ready timeout and polling interval are used to wait and activation "
+        "succeeds.");
+
     const configuration::FileState file_state{"/tmp/ready", configuration::FileExistenceState::Exists, 5ms};
     auto config = makeConfig(configuration::ApplicationType::Native, file_state);
     const auto component = createComponent(config);
@@ -161,6 +211,14 @@ TEST_F(ComponentFactoryTest, FileStateComponentWaitsForConfiguredFile)
 
 TEST_F(ComponentFactoryTest, ReportingFileStateComponentWaitsOnlyForFile)
 {
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description",
+        "Given a component created from a reporting configuration with a FileState ready condition. "
+        "When the component is activated. "
+        "Then only the file is waited for, kRunning is not waited for, and activation succeeds.");
+
     const configuration::FileState file_state{"/tmp/gone", configuration::FileExistenceState::NotExisting, 5ms};
     auto config = makeConfig(configuration::ApplicationType::Reporting, file_state);
     const auto component = createComponent(config);
@@ -176,6 +234,14 @@ TEST_F(ComponentFactoryTest, ReportingFileStateComponentWaitsOnlyForFile)
 
 TEST_F(ComponentFactoryTest, FileStateComponentFailsWhenFileWaitFails)
 {
+    RecordProperty("TestType", "fault-injection");
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description",
+        "Given a component created from a configuration with a FileState ready condition. "
+        "When the component is activated and waiting for the file fails. "
+        "Then activation fails.");
+
     const configuration::FileState file_state{"/tmp/ready", configuration::FileExistenceState::Exists, 5ms};
     auto config = makeConfig(configuration::ApplicationType::Native, file_state);
     const auto component = createComponent(config);
@@ -189,6 +255,14 @@ TEST_F(ComponentFactoryTest, FileStateComponentFailsWhenFileWaitFails)
 
 TEST_F(ComponentFactoryTest, DeactivateRequestsProcessTermination)
 {
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty(
+        "Description",
+        "Given an active component created by the factory. "
+        "When the component is deactivated. "
+        "Then termination of its process is requested and deactivation succeeds.");
+
     auto config = makeConfig(configuration::ApplicationType::Native, configuration::ProcessState::Running);
     const auto component = createComponent(config);
     ASSERT_NE(component, nullptr);
@@ -202,6 +276,14 @@ TEST_F(ComponentFactoryTest, DeactivateRequestsProcessTermination)
 
 TEST_F(ComponentFactoryTest, StartFailureFailsActivation)
 {
+    RecordProperty("TestType", "fault-injection");
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description",
+        "Given a component created by the factory. "
+        "When the component is activated and starting the process fails. "
+        "Then activation fails and the component is not active.");
+
     auto config = makeConfig(configuration::ApplicationType::Native, configuration::ProcessState::Running);
     const auto component = createComponent(config);
     ASSERT_NE(component, nullptr);
@@ -214,6 +296,14 @@ TEST_F(ComponentFactoryTest, StartFailureFailsActivation)
 
 TEST_F(ComponentFactoryTest, SupervisedComponentSetsUpAliveSupervision)
 {
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description",
+        "Given a supervised component configuration with alive supervision. "
+        "When the factory creates a component. "
+        "Then alive supervision is constructed with the component name and uid.");
+
     auto config =
         makeConfig(configuration::ApplicationType::ReportingAndSupervised, configuration::ProcessState::Running);
     config->component_properties.application_profile.alive_supervision = configuration::ComponentAliveSupervision{};
@@ -228,6 +318,14 @@ TEST_F(ComponentFactoryTest, SupervisedComponentSetsUpAliveSupervision)
 
 TEST_F(ComponentFactoryTest, TerminatedReadyConditionIsNotImplemented)
 {
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description",
+        "Given a component configuration with ready condition Terminated. "
+        "When the factory creates a component. "
+        "Then creation fails with kNotImplemented.");
+
     auto config = makeConfig(configuration::ApplicationType::Native, configuration::ProcessState::Terminated);
 
     const Result<std::unique_ptr<IComponent>> result = factory_.create(config);
@@ -238,6 +336,14 @@ TEST_F(ComponentFactoryTest, TerminatedReadyConditionIsNotImplemented)
 
 TEST_F(ComponentFactoryTest, ComponentKeepsConfigAlive)
 {
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty(
+        "Description",
+        "Given a component created from a configuration which the caller no longer holds. "
+        "When the component is activated. "
+        "Then the configuration is still alive and used to start the process.");
+
     std::shared_ptr<configuration::ComponentConfig> config =
         makeConfig(configuration::ApplicationType::Native, configuration::ProcessState::Running);
     const std::weak_ptr<configuration::ComponentConfig> weak_config = config;
@@ -255,11 +361,27 @@ TEST_F(ComponentFactoryTest, ComponentKeepsConfigAlive)
 
 TEST_F(ComponentFactoryTest, NullConfigIsRejected)
 {
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description",
+        "Given a null configuration. "
+        "When the factory creates a component. "
+        "Then the factory terminates with an assertion.");
+
     EXPECT_DEATH(static_cast<void>(factory_.create(nullptr)), "");
 }
 
 TEST_F(ComponentFactoryTest, ComponentRemainsUsableAfterFactoryIsDestroyed)
 {
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty(
+        "Description",
+        "Given a component whose factory has been destroyed. "
+        "When the component is activated. "
+        "Then activation succeeds.");
+
     auto config = makeConfig(configuration::ApplicationType::Native, configuration::ProcessState::Running);
     std::unique_ptr<IComponent> component;
     {
