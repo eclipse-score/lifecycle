@@ -5698,7 +5698,7 @@
     "FullyVerifies": null
   },
   {
-    "name": "IpcServerAclFixture__SetAccessRightsOnSecondCallGrantsAccessToLatestUser",
+    "name": "IpcServerAclFixture__SetAccessRightsKeepsGroupAndOtherWithoutAccess",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ipc/IpcServer_UT.cpp",
     "line": "177",
     "result": "passed",
@@ -5712,37 +5712,9 @@
     "FullyVerifies": null
   },
   {
-    "name": "IpcServerAclFixture__SetAccessRightsIsIdempotent",
-    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ipc/IpcServer_UT.cpp",
-    "line": "193",
-    "result": "passed",
-    "repo_name": "local_repo",
-    "hash": "",
-    "url": "",
-    "TestType": "interface-test",
-    "DerivationTechnique": "explorative-testing",
-    "result_text": "",
-    "PartiallyVerifies": null,
-    "FullyVerifies": null
-  },
-  {
-    "name": "IpcServerAclFixture__SetAccessRightsKeepsGroupAndOtherWithoutAccess",
-    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ipc/IpcServer_UT.cpp",
-    "line": "208",
-    "result": "passed",
-    "repo_name": "local_repo",
-    "hash": "",
-    "url": "",
-    "TestType": "interface-test",
-    "DerivationTechnique": "explorative-testing",
-    "result_text": "",
-    "PartiallyVerifies": null,
-    "FullyVerifies": null
-  },
-  {
     "name": "IpcServerTest__SetAccessRightsFailsIfSharedMemoryDoesNotExist",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ipc/IpcServer_UT.cpp",
-    "line": "227",
+    "line": "196",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -7212,7 +7184,7 @@
   {
     "name": "ComponentTest__StartActionCalled",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "72",
+    "line": "73",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7226,7 +7198,7 @@
   {
     "name": "ComponentTest__StopActionCalled",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "87",
+    "line": "91",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7240,7 +7212,7 @@
   {
     "name": "ComponentTest__DeactivateReturnsSuccessWhenStopActionReturnsSuccess",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "105",
+    "line": "114",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7254,7 +7226,7 @@
   {
     "name": "ComponentTest__DeactivateReturnsFailureWhenStopActionFails",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "124",
+    "line": "138",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7268,7 +7240,7 @@
   {
     "name": "ComponentTest__ReadyConditionCalled",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "143",
+    "line": "162",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7282,7 +7254,7 @@
   {
     "name": "ComponentTest__TerminationDuringStartupInterruptsActivation",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "160",
+    "line": "186",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7296,7 +7268,7 @@
   {
     "name": "ComponentTest__StartSetsActive",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "184",
+    "line": "217",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7310,7 +7282,7 @@
   {
     "name": "ComponentTest__StopClearsActive",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "199",
+    "line": "234",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7324,7 +7296,7 @@
   {
     "name": "ComponentTest__CannotDeactivateInTerminatedState",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "215",
+    "line": "252",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7338,7 +7310,7 @@
   {
     "name": "ComponentTest__CannotActivateInReadyState",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "230",
+    "line": "269",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7352,7 +7324,7 @@
   {
     "name": "ComponentTest__CannotActivateInTerminatingState",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "248",
+    "line": "290",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7366,7 +7338,7 @@
   {
     "name": "ComponentTest__CannotDeactivateInTerminatingState",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "268",
+    "line": "315",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7380,7 +7352,7 @@
   {
     "name": "ComponentTest__CannotActivateInFaultState",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "289",
+    "line": "341",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7394,7 +7366,7 @@
   {
     "name": "ComponentTest__CannotDeactivateInFaultState",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "308",
+    "line": "363",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7408,7 +7380,7 @@
   {
     "name": "ComponentTest__SelfTerminatingExitZeroInReadyStateIsIgnored",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "328",
+    "line": "386",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7422,7 +7394,7 @@
   {
     "name": "ComponentTest__SelfTerminatingExitZeroInReadyStateIsActive",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "347",
+    "line": "410",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7436,7 +7408,7 @@
   {
     "name": "ComponentTest__SelfTerminatingExitNonZeroInReadyStateIsFailure",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "366",
+    "line": "434",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7450,7 +7422,7 @@
   {
     "name": "ComponentTest__SelfTerminatingExitNonZeroInReadyStateIsNotActive",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "385",
+    "line": "458",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7464,7 +7436,7 @@
   {
     "name": "ComponentTest__SelfTerminatingExitZeroInStartingStateIsIgnored",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "404",
+    "line": "482",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7478,7 +7450,7 @@
   {
     "name": "ComponentTest__SelfTerminatingExitZeroInStartingStateIsActive",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "428",
+    "line": "514",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7492,7 +7464,7 @@
   {
     "name": "ComponentTest__SelfTerminatingExitNonZeroInStartingStateIsFailure",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "450",
+    "line": "545",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7506,7 +7478,7 @@
   {
     "name": "ComponentTest__SelfTerminatingExitNonZeroInStartingStateIsNotActive",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "474",
+    "line": "577",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7520,7 +7492,7 @@
   {
     "name": "ComponentTest__SettingBothStopTokens",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "496",
+    "line": "608",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7534,7 +7506,7 @@
   {
     "name": "ComponentTest__SupervisionConstructedFromConfig",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "523",
+    "line": "643",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7548,7 +7520,7 @@
   {
     "name": "ComponentTest__NoSupervisionConstructedWhenUnsupervised",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "547",
+    "line": "670",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7562,7 +7534,7 @@
   {
     "name": "ComponentTest__AliveInterfacePathAddedToEnvironment",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "564",
+    "line": "691",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7576,7 +7548,7 @@
   {
     "name": "ComponentTest__FailedSupervisionConstructionFailsActivation",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "589",
+    "line": "720",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7590,7 +7562,7 @@
   {
     "name": "ComponentTest__SupervisionActivatedWhenReady",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "612",
+    "line": "747",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7604,7 +7576,7 @@
   {
     "name": "ComponentTest__SupervisionActivationFailureFaultsComponent",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "638",
+    "line": "778",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7618,7 +7590,7 @@
   {
     "name": "ComponentTest__SupervisionNotActivatedWhenStartFails",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "668",
+    "line": "814",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7632,7 +7604,7 @@
   {
     "name": "ComponentTest__SupervisionDeactivatedImmediatelyOnTermination",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "694",
+    "line": "845",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7646,7 +7618,7 @@
   {
     "name": "ComponentTest__SupervisionDeactivatedBeforeStopAction",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "724",
+    "line": "881",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -7660,7 +7632,7 @@
   {
     "name": "ComponentTest__SupervisionDeactivationFailureFaultsComponent",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/component_UT.cpp",
-    "line": "756",
+    "line": "920",
     "result": "passed",
     "repo_name": null,
     "hash": null,
