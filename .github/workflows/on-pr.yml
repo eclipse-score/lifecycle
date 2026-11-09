@@ -32,12 +32,8 @@ jobs:
       contents: read
     uses: eclipse-score/cicd-workflows/.github/workflows/on-pr.yml@on-pr/v0.0.0
 
-  # We don't use eclipse-score/cicd-workflows/.github/workflows/tests.yml
-  # because it is more resource efficient to build and test in the same job.
-  # Also the cache name in the template is not configurable.
   build:
     name: Build and test ${{ matrix.name }}
-    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -60,39 +56,13 @@ jobs:
             test: true
     permissions:
       contents: read
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-
-      - name: Setup Bazel with shared caching
-        uses: eclipse-score/cicd-actions/setup-bazel-cache@e2a2a587a759b681632040ec1e1294015a0405f5 # setup-bazel-cache/v0.1.0
-        with:
-          disk-cache-key: ${{ github.job }}-${{ matrix.name }}
-
-      - name: Build with Bazel
-        if: matrix.build
-        run: |
-          bazel build \
-            --lockfile_mode=error \
-            ${{ matrix.bazel-args }} \
-            //examples/... \
-            //score/...
-
-      - name: Test with Bazel
-        if: matrix.test
-        run: |
-          bazel test \
-            --lockfile_mode=error \
-            ${{ matrix.bazel-args }} \
-            //...
-
-      - name: Upload test logs
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: bazel-testlogs-${{ matrix.name }}
-          path: bazel-testlogs/
-          retention-days: 7
+    uses: eclipse-score/cicd-workflows/.github/workflows/bazel.yml@bazel-workflow
+    with:
+      build-targets: ${{ matrix.build && '//examples/... //score/...' || '' }}
+      test-targets: ${{ matrix.test && '//...' || '' }}
+      bazel-args: --lockfile_mode=error ${{ matrix.bazel-args }}
+      cache-key: build-${{ matrix.name }}
+      artifact-name: bazel-testlogs-${{ matrix.name }}
 
   clippy:
     name: Clippy
