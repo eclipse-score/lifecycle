@@ -34,28 +34,16 @@ on:
 jobs:
   coverage:
     name: Coverage
-    runs-on: ubuntu-24.04
+    uses: eclipse-score/cicd-workflows/.github/workflows/bazel.yml@bazel-workflow
     permissions:
       contents: read
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-
-      - name: Setup Bazel with shared caching
-        uses: eclipse-score/cicd-actions/setup-bazel-cache@e2a2a587a759b681632040ec1e1294015a0405f5 # setup-bazel-cache/v0.1.0
-        with:
-          disk-cache-key: ${{ github.job }}
-
-      - name: Generate coverage report and enforce threshold
-        env:
-          COVERAGE_THRESHOLD: ${{ inputs.coverage-threshold }}
-        run: |
-          bazel run //quality/coverage:run_coverage
-
-      - name: Upload coverage report
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: ${{ inputs.artifact-name }}
-          path: coverage_artifacts
-          retention-days: ${{ inputs.retention-days }}
+    with:
+      test-targets: //score/...
+      test-command: coverage
+      test-args: --config=llvm_cov --lockfile_mode=error --build_tests_only
+      run-target: '@score_coverage//:generate_coverage_html'
+      run-args: --yaml quality/coverage/coverage_justifications.yaml --archive-dir coverage_artifacts
+      environment: '{"COVERAGE_THRESHOLD": "${{ inputs.coverage-threshold }}"}'
+      result-paths: coverage_artifacts
+      artifact-name: ${{ inputs.artifact-name }}
+      retention-days: ${{ inputs.retention-days }}
