@@ -108,24 +108,40 @@ def _is_lifecycle_feat_req(need):
     )
 
 
-def _collect_rows(needs):
-    """Collect the table rows from all needs.
+def _is_comp_req(need):
+    """Return whether ``need`` is a component requirement."""
+    return need["type"] == "comp_req"
 
-    Each row is a ``(state, feat_req, [(comp_req, comp_state), ...])`` tuple,
-    where the list holds the component requirements derived from
-    ``feat_req``. Rows are sorted by state (verified first) and then by title.
+
+def _get_comp_reqs(feat_req, needs):
+    """Return the component requirements derived from ``feat_req``.
+
+    Backlinks to unknown needs or to needs of another type are skipped.
     """
-    rows = []
-    for feat_req in filter(_is_lifecycle_feat_req, needs.values()):
-        comp_reqs = [
-            needs[i]
-            for i in feat_req.get("derived_from_back", [])
-            if i in needs and needs[i]["type"] == "comp_req"
-        ]
-        states = [_comp_req_state(c) for c in comp_reqs]
-        rows.append((_feat_req_state(states), feat_req, list(zip(comp_reqs, states))))
-    rows.sort(key=lambda r: (r[0], r[1]["title"]))
-    return rows
+    linked_ids = filter(lambda i: i in needs, feat_req.get("derived_from_back", []))
+    linked_needs = map(lambda i: needs[i], linked_ids)
+    return list(filter(_is_comp_req, linked_needs))
+
+
+def _collect_row(feat_req, needs):
+    """Return the table row of ``feat_req``.
+
+    The row is a ``(state, feat_req, [(comp_req, comp_state), ...])`` tuple,
+    where the list holds the component requirements derived from ``feat_req``.
+    """
+    comp_reqs = _get_comp_reqs(feat_req, needs)
+    comp_states = list(map(_comp_req_state, comp_reqs))
+    return _feat_req_state(comp_states), feat_req, list(zip(comp_reqs, comp_states))
+
+
+def _collect_rows(needs):
+    """Collect the table rows of all lifecycle feature requirements.
+
+    Rows are sorted by state (verified first) and then by title.
+    """
+    feat_reqs = filter(_is_lifecycle_feat_req, needs.values())
+    rows = map(lambda feat_req: _collect_row(feat_req, needs), feat_reqs)
+    return sorted(rows, key=lambda r: (r[0], r[1]["title"]))
 
 
 def _derived_from_back_entry(cell, comp_reqs):
