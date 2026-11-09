@@ -16,7 +16,6 @@
 
 #include <cstddef>
 #include <memory_resource>
-#include <new>
 
 namespace score::mw::lifecycle::internal
 {
@@ -27,31 +26,12 @@ class InitOnlyResource final : public std::pmr::memory_resource
 {
   public:
     /// @brief Disallow any further allocations.
-    void lock() noexcept
-    {
-        locked_ = true;
-    }
+    void lock() noexcept;
 
   private:
-    void* do_allocate(std::size_t bytes, std::size_t alignment) override
-    {
-        if (locked_)
-        {
-            throw std::bad_alloc();
-        }
-
-        return std::pmr::new_delete_resource()->allocate(bytes, alignment);
-    }
-
-    void do_deallocate(void* p, std::size_t bytes, std::size_t alignment) override
-    {
-        std::pmr::new_delete_resource()->deallocate(p, bytes, alignment);
-    }
-
-    bool do_is_equal(const std::pmr::memory_resource& other) const noexcept override
-    {
-        return this == &other;
-    }
+    void* do_allocate(std::size_t bytes, std::size_t alignment) override;
+    void do_deallocate(void* p, std::size_t bytes, std::size_t alignment) override;
+    bool do_is_equal(const std::pmr::memory_resource& other) const noexcept override;
 
     bool locked_ = false;
 };

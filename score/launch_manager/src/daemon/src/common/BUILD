@@ -49,6 +49,7 @@ lm_cc_test(
 
 cc_library(
     name = "init_only_resource",
+    srcs = ["init_only_resource.cpp"],
     hdrs = ["init_only_resource.hpp"],
     include_prefix = "score/mw/launch_manager/common",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/common",
