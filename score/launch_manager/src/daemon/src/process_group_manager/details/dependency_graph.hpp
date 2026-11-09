@@ -62,9 +62,9 @@ class DependencyGraph
     ///
     /// @details The size of the internal traversal queue is either count - 1 or 1. This is because in each traversal
     /// one node is pushed to the queue and then popped. From then on, dependencies are pushed to the queue.
-    explicit DependencyGraph(const std::size_t count) : capacity_(count), traversal_queue(std::max(count, 2UL) - 1)
+    explicit DependencyGraph(const std::size_t count) : capacity_(count), traversal_queue_(std::max(count, 2UL) - 1)
     {
-        nodes.reserve(count);
+        nodes_.reserve(count);
     }
 
     /// @brief Construct a new node in-place. Returns the node's key.
@@ -72,7 +72,7 @@ class DependencyGraph
     template <typename... Args>
     Key try_emplace(Key key, Args&&... args)
     {
-        std::pair<iterator, bool> res = nodes.try_emplace(key, std::forward<Args>(args)...);
+        std::pair<iterator, bool> res = nodes_.try_emplace(key, std::forward<Args>(args)...);
         SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
             res.second, "Element was not inserted. This means that the key was already present in the map.");
         return res.first->first;
@@ -85,18 +85,19 @@ class DependencyGraph
     void addDependency(Key node, Key depends_on)
     {
         SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
-            nodes.at(node).depends_on.size() < capacity(), "More dependencies added than there are nodes in the graph");
-        SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
-            nodes.at(depends_on).dependents.size() < capacity(),
+            nodes_.at(node).depends_on.size() < capacity(),
             "More dependencies added than there are nodes in the graph");
-        nodes.at(node).depends_on.push_back(depends_on);
-        nodes.at(depends_on).dependents.push_back(node);
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
+            nodes_.at(depends_on).dependents.size() < capacity(),
+            "More dependencies added than there are nodes in the graph");
+        nodes_.at(node).depends_on.push_back(depends_on);
+        nodes_.at(depends_on).dependents.push_back(node);
     }
 
     /// @return The number of nodes in the graph.
     std::size_t size() const noexcept
     {
-        return nodes.size();
+        return nodes_.size();
     }
 
     /// @return The number of nodes this graph can hold without reallocating (the @c count
@@ -110,28 +111,28 @@ class DependencyGraph
     /// @pre @p key must be present in the graph.
     T& operator[](Key key)
     {
-        return nodes.at(key).value;
+        return nodes_.at(key).value;
     }
 
     /// @brief Returns a constant reference to the node at @p key
     /// @pre @p key must be present in the graph.
     const T& operator[](const Key key) const
     {
-        return nodes.at(key).value;
+        return nodes_.at(key).value;
     }
 
     /// @return The nodes that @p key depends on.
     /// @pre @p key must be present in the graph.
     const std::vector<Key>& dependsOn(Key key) const
     {
-        return nodes.at(key).depends_on;
+        return nodes_.at(key).depends_on;
     }
 
     /// @return The nodes that depend on @p key.
     /// @pre @p key must be present in the graph.
     const std::vector<Key>& dependents(Key key) const
     {
-        return nodes.at(key).dependents;
+        return nodes_.at(key).dependents;
     }
 
     /// @brief Traverse the graph, starting at @p start, performing @p per_node
@@ -141,17 +142,17 @@ class DependencyGraph
     template <typename PerNodeFn>
     void traverse(Key start, PerNodeFn per_node)
     {
-        std::for_each(nodes.begin(), nodes.end(), [](std::pair<const Key, GraphNode>& it) {
+        std::for_each(nodes_.begin(), nodes_.end(), [](std::pair<const Key, GraphNode>& it) {
             GraphNode& node = it.second;
             node.visited = false;
         });
-        auto push_res = traversal_queue.push(start);
+        auto push_res = traversal_queue_.push(start);
         static_cast<void>(push_res);
         SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(push_res, "Traversal queue was already full");
-        nodes.at(start).visited = true;
-        while (!traversal_queue.empty())
+        nodes_.at(start).visited = true;
+        while (!traversal_queue_.empty())
         {
-            const auto pop_res = traversal_queue.tryPop();
+            const auto pop_res = traversal_queue_.tryPop();
             SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(pop_res.has_value(), "Pop failed even though queue was not empty");
             const auto current = pop_res.value();
 
@@ -159,13 +160,13 @@ class DependencyGraph
 
             for (const auto neighbor : neighbors)
             {
-                if (nodes.at(neighbor).visited)
+                if (nodes_.at(neighbor).visited)
                 {
                     continue;
                 }
-                push_res = traversal_queue.push(neighbor);
+                push_res = traversal_queue_.push(neighbor);
                 SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(push_res, "Traversal queue was already full");
-                nodes.at(neighbor).visited = true;
+                nodes_.at(neighbor).visited = true;
             }
         }
     }
@@ -199,28 +200,28 @@ class DependencyGraph
     /// @returns Iterator at the beginning of the nodes store.
     ValueIterator begin()
     {
-        return ValueIterator{nodes.begin()};
+        return ValueIterator{nodes_.begin()};
     }
 
     /// @returns Iterator at the end of the nodes store.
     ValueIterator end()
     {
-        return ValueIterator{nodes.end()};
+        return ValueIterator{nodes_.end()};
     }
 
     ValueIterator find(Key key)
     {
-        return ValueIterator{nodes.find(key)};
+        return ValueIterator{nodes_.find(key)};
     }
 
   private:
     /// @brief The number of nodes the graph expects to hold
     std::size_t capacity_;
 
-    std::unordered_map<Key, GraphNode> nodes;
+    std::unordered_map<Key, GraphNode> nodes_;
 
     /// @brief Presized queue reused by single-threaded traversals.
-    internal::FixedSizeQueue<Key> traversal_queue;
+    internal::FixedSizeQueue<Key> traversal_queue_;
 };
 
 }  // namespace score::mw::lifecycle

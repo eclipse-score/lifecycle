@@ -61,7 +61,7 @@ score::mw::lifecycle::ApplicationContextMock::~ApplicationContextMock()
 }
 
 score::mw::lifecycle::ApplicationContext::ApplicationContext(const std::int32_t argc, const char* const argv[])
-    : m_args(argv, argv + argc), m_app_path(argc > 0 ? std::string{argv[0]} : std::string{})
+    : args_(argv, argv + argc), app_path_(argc > 0 ? std::string{argv[0]} : std::string{})
 {
     auto& constructor_callback = GetConstructorCallback();
     if (constructor_callback)
@@ -77,7 +77,7 @@ const std::vector<std::string>& score::mw::lifecycle::ApplicationContext::get_ar
     {
         return get_arguments_callback();
     }
-    return m_args;
+    return args_;
 }
 
 std::string score::mw::lifecycle::ApplicationContext::get_argument(const std::string_view flag) const noexcept
@@ -87,10 +87,10 @@ std::string score::mw::lifecycle::ApplicationContext::get_argument(const std::st
     {
         return get_argument_callback(flag);
     }
-    const auto it = std::find_if(m_args.cbegin(), m_args.cend(), [flag](const std::string& arg) {
+    const auto it = std::find_if(args_.cbegin(), args_.cend(), [flag](const std::string& arg) {
         return arg.rfind(flag, 0) == 0;
     });
-    if (it != m_args.cend())
+    if (it != args_.cend())
     {
         return *it;
     }

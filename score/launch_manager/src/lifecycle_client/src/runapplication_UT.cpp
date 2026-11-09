@@ -65,7 +65,7 @@ class RunTest : public ::testing::Test
     score::mw::lifecycle::LifeCycleManagerMock lifecycle_mock_;
 
     static constexpr int kArgc = 1;
-    const char* kArgv[1] = {"test_app"};
+    const char* argv_[1] = {"test_app"};
 
     void SetUp() override
     {
@@ -87,7 +87,7 @@ TEST_F(RunTest, AsPosixProcessReturnsZeroExitCode)
 
     EXPECT_CALL(lifecycle_mock_, run(_, _)).WillOnce(Return(0));
 
-    score::mw::lifecycle::Run<DummyApplication> runner(kArgc, kArgv);
+    score::mw::lifecycle::Run<DummyApplication> runner(kArgc, argv_);
     EXPECT_EQ(runner.AsPosixProcess(), 0);
 }
 
@@ -97,7 +97,7 @@ TEST_F(RunTest, AsPosixProcessForwardsNonZeroExitCode)
 
     EXPECT_CALL(lifecycle_mock_, run(_, _)).WillOnce(Return(42));
 
-    score::mw::lifecycle::Run<DummyApplication> runner(kArgc, kArgv);
+    score::mw::lifecycle::Run<DummyApplication> runner(kArgc, argv_);
     EXPECT_EQ(runner.AsPosixProcess(), 42);
 }
 
@@ -110,7 +110,7 @@ TEST_F(RunTest, AsPosixProcessCreatesAndDestroysLifeCycleManager)
     EXPECT_CALL(lifecycle_mock_, dtor()).Times(1);
     EXPECT_CALL(lifecycle_mock_, run(_, _)).WillOnce(Return(0));
 
-    score::mw::lifecycle::Run<DummyApplication> runner(kArgc, kArgv);
+    score::mw::lifecycle::Run<DummyApplication> runner(kArgc, argv_);
     runner.AsPosixProcess();
 }
 
@@ -127,7 +127,7 @@ TEST_F(RunTest, AsPosixProcessPassesCorrectApplicationTypeToRun)
             return 0;
         });
 
-    score::mw::lifecycle::Run<DummyApplication> runner(kArgc, kArgv);
+    score::mw::lifecycle::Run<DummyApplication> runner(kArgc, argv_);
     runner.AsPosixProcess();
 }
 
@@ -147,7 +147,7 @@ TEST_F(RunTest, AsPosixProcessForwardsConstructorArgsToApplication)
             return 0;
         });
 
-    score::mw::lifecycle::Run<DummyApplicationWithIntArg> runner(kArgc, kArgv);
+    score::mw::lifecycle::Run<DummyApplicationWithIntArg> runner(kArgc, argv_);
     runner.AsPosixProcess(99);
 }
 
@@ -160,7 +160,7 @@ TEST_F(RunTest, RunApplicationFreeFunctionDelegatesToAsPosixProcess)
 
     EXPECT_CALL(lifecycle_mock_, run(_, _)).WillOnce(Return(7));
 
-    const auto result = score::mw::lifecycle::run_application<DummyApplication>(kArgc, kArgv);
+    const auto result = score::mw::lifecycle::run_application<DummyApplication>(kArgc, argv_);
     EXPECT_EQ(result, 7);
 }
 
@@ -168,9 +168,9 @@ TEST_F(RunTest, RunConstructorPassesArgcArgvToApplicationContext)
 {
     RecordProperty("Description", "The Run constructor forwards argc and argv to the ApplicationContext constructor.");
 
-    EXPECT_CALL(context_mock_, ctor(Eq(kArgc), Eq(static_cast<const char* const*>(kArgv)))).Times(1);
+    EXPECT_CALL(context_mock_, ctor(Eq(kArgc), Eq(static_cast<const char* const*>(argv_)))).Times(1);
     EXPECT_CALL(lifecycle_mock_, run(_, _)).WillOnce(Return(0));
 
-    score::mw::lifecycle::Run<DummyApplication> runner(kArgc, kArgv);
+    score::mw::lifecycle::Run<DummyApplication> runner(kArgc, argv_);
     runner.AsPosixProcess();
 }

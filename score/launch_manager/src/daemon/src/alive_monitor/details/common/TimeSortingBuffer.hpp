@@ -45,7 +45,7 @@ class TimeSortingBuffer
   public:
     /// Constructor
     /// @param [in] f_bufferSize    Number of available buffer elements
-    explicit TimeSortingBuffer(uint16_t f_bufferSize) noexcept(false) : timeSortedBuffer(f_bufferSize)
+    explicit TimeSortingBuffer(uint16_t f_bufferSize) noexcept(false) : time_sorted_buffer_(f_bufferSize)
     {
     }
 
@@ -70,9 +70,9 @@ class TimeSortingBuffer
     {
         bool isSuccess{false};
         SortChainElement newElement{nullptr, nullptr, f_element_r, f_timestamp};
-        if (timeSortedBuffer.emplace_back(std::move(newElement)))
+        if (time_sorted_buffer_.emplace_back(std::move(newElement)))
         {
-            SortChainElement* newChainElement_p{&timeSortedBuffer.back()};
+            SortChainElement* newChainElement_p{&time_sorted_buffer_.back()};
             sort(*newChainElement_p);
 
             isSuccess = true;
@@ -90,19 +90,19 @@ class TimeSortingBuffer
     TimeSortedElementType* getNextElement(void) noexcept(true)
     {
         TimeSortedElementType* element_p{nullptr};
-        if (timeSortedBuffer.size() != 0U)
+        if (time_sorted_buffer_.size() != 0U)
         {
-            if (lastReportedElement_p == nullptr)
+            if (last_reported_element_ == nullptr)
             {
-                element_p = &sortChainStart_p->element;
-                lastReportedElement_p = sortChainStart_p;
+                element_p = &sort_chain_start_->element;
+                last_reported_element_ = sort_chain_start_;
             }
             else
             {
-                if (lastReportedElement_p->next_p != nullptr)
+                if (last_reported_element_->next_p != nullptr)
                 {
-                    element_p = &lastReportedElement_p->next_p->element;
-                    lastReportedElement_p = lastReportedElement_p->next_p;
+                    element_p = &last_reported_element_->next_p->element;
+                    last_reported_element_ = last_reported_element_->next_p;
                 }
             }
         }
@@ -112,10 +112,10 @@ class TimeSortingBuffer
     /// Reset the time sorting history buffer
     void clear(void) noexcept(true)
     {
-        sortChainStart_p = nullptr;
-        sortChainEnd_p = nullptr;
-        lastReportedElement_p = nullptr;
-        timeSortedBuffer.clear();
+        sort_chain_start_ = nullptr;
+        sort_chain_end_ = nullptr;
+        last_reported_element_ = nullptr;
+        time_sorted_buffer_.clear();
     }
 
   private:
@@ -135,18 +135,18 @@ class TimeSortingBuffer
     /// @param [in] f_newChainElement_r     Reference to new added element which needs to be sorted into the chain
     void sort(SortChainElement& f_newChainElement_r) noexcept(true)
     {
-        if (sortChainStart_p == nullptr)
+        if (sort_chain_start_ == nullptr)
         {
             // First element added to the chain
             // start and end of the list are the same here
             pushFront(f_newChainElement_r, nullptr);
-            sortChainEnd_p = &f_newChainElement_r;
+            sort_chain_end_ = &f_newChainElement_r;
         }
         else
         {
             bool entryAdded{false};
             // Start searching for the insertion spot from the end (where the newest entries are)
-            SortChainElement* currentChainElement_p{sortChainEnd_p};
+            SortChainElement* currentChainElement_p{sort_chain_end_};
             while (!entryAdded)
             {
                 if (f_newChainElement_r.timestamp >= currentChainElement_p->timestamp)
@@ -182,7 +182,7 @@ class TimeSortingBuffer
             f_firstChainElement_p->previous_p = &f_newChainElement_r;
         }
 
-        sortChainStart_p = &f_newChainElement_r;
+        sort_chain_start_ = &f_newChainElement_r;
     }
 
     /// Push element after a given element
@@ -197,23 +197,23 @@ class TimeSortingBuffer
         }
         f_ChainElement_r.next_p = &f_newChainElement_r;
         f_newChainElement_r.previous_p = &f_ChainElement_r;
-        if (&f_ChainElement_r == sortChainEnd_p)
+        if (&f_ChainElement_r == sort_chain_end_)
         {
-            sortChainEnd_p = &f_newChainElement_r;
+            sort_chain_end_ = &f_newChainElement_r;
         }
     }
 
     /// Vector of chain elements sorted based on timestamp
-    FixedSizeVector<SortChainElement> timeSortedBuffer{};
+    FixedSizeVector<SortChainElement> time_sorted_buffer_{};
 
     /// Current sort chain start element (oldest)
-    SortChainElement* sortChainStart_p = nullptr;
+    SortChainElement* sort_chain_start_ = nullptr;
 
     /// Current sort chain end element (newest)
-    SortChainElement* sortChainEnd_p = nullptr;
+    SortChainElement* sort_chain_end_ = nullptr;
 
     /// Last reported element, used by getNextElement()
-    SortChainElement* lastReportedElement_p = nullptr;
+    SortChainElement* last_reported_element_ = nullptr;
 };
 
 }  // namespace score::mw::lifecycle::internal::saf::common

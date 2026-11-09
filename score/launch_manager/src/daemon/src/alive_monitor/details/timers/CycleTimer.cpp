@@ -19,46 +19,46 @@ namespace score::mw::lifecycle::internal::saf::timers
 constexpr int CycleTimer::kDeadlineAlreadyOver;
 
 CycleTimer::CycleTimer(const score::mw::lifecycle::internal::saf::timers::OsClockInterface* f_osInterface) noexcept
-    : osInterface{f_osInterface}, sleepIntervalNs{0}, deadline{}
+    : os_interface_{f_osInterface}, sleep_interval_ns_{0}, deadline_{}
 {
     static_cast<void>(0U);
 }
 
 std::chrono::nanoseconds CycleTimer::init(std::chrono::nanoseconds f_sleepIntervalNs) noexcept
 {
-    if (nullptr == osInterface)
+    if (nullptr == os_interface_)
     {
-        sleepIntervalNs = kInitNullInterface;
-        return sleepIntervalNs;
+        sleep_interval_ns_ = kInitNullInterface;
+        return sleep_interval_ns_;
     }
 
     // check for invalid cycle time
     if (f_sleepIntervalNs.count() <= 0)
     {
-        sleepIntervalNs = kInitInvalidInterval;
-        return sleepIntervalNs;
+        sleep_interval_ns_ = kInitInvalidInterval;
+        return sleep_interval_ns_;
     }
 
     // get an initial time stamp on initialization to check whether the clock is working
     struct timespec tmp = {};
-    if (-1 == osInterface->clockGetTime(&tmp))
+    if (-1 == os_interface_->clockGetTime(&tmp))
     {
-        sleepIntervalNs = std::chrono::nanoseconds{-1};
+        sleep_interval_ns_ = std::chrono::nanoseconds{-1};
     }
     else
     {
-        sleepIntervalNs = f_sleepIntervalNs;
+        sleep_interval_ns_ = f_sleepIntervalNs;
     }
 
-    return sleepIntervalNs;
+    return sleep_interval_ns_;
 }
 
 std::chrono::nanoseconds CycleTimer::start() noexcept
 {
-    const int result{osInterface->clockGetTime(&deadline)};
+    const int result{os_interface_->clockGetTime(&deadline_)};
     if (0 == result)
     {
-        return TimeConversion::convertToNanoSec(deadline);
+        return TimeConversion::convertToNanoSec(deadline_);
     }
     else
     {
@@ -71,23 +71,23 @@ struct timespec& CycleTimer::calcNextShot() noexcept(true)
     static_assert(sizeof(long) == 8U, "long is not 64 bit");
     // tv_nsec max retval from clockGetTime()   0,000,000,001,000,000,000 ns (1s)
     // tv_nsec absolute max (long)(64bit)       9,223,372,036,854,775,807 ns
-    // sleepIntervalNs max (std::chrono::nanoseconds) 60,000,000,000 ns (60s)
+    // sleep_interval_ns_ max (std::chrono::nanoseconds) 60,000,000,000 ns (60s)
     // Overflow can occur after 9223372036854775807 / 60000000000 ~ 153722867 cycles
     // which corresponds to 153722867 * 60s = 9223372020s = 153722867min ~ 2562047h ~ 106751d ~ 292y
-    deadline.tv_nsec += sleepIntervalNs.count();
+    deadline_.tv_nsec += sleep_interval_ns_.count();
 
     handleNanoSecOverflow();
 
-    return deadline;
+    return deadline_;
 }
 
 void CycleTimer::handleNanoSecOverflow() noexcept(true)
 {
     constexpr long k_nanoSecondsPerSecond = std::chrono::nanoseconds{std::chrono::seconds{1}}.count();
-    while (deadline.tv_nsec >= k_nanoSecondsPerSecond)
+    while (deadline_.tv_nsec >= k_nanoSecondsPerSecond)
     {
-        deadline.tv_nsec -= k_nanoSecondsPerSecond;
-        ++deadline.tv_sec;
+        deadline_.tv_nsec -= k_nanoSecondsPerSecond;
+        ++deadline_.tv_sec;
     }
 }
 

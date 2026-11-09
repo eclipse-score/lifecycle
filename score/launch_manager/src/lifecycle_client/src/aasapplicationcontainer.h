@@ -113,7 +113,7 @@ class AasApplicationContainer : public Application
     score::mw::lifecycle::ApplicationContext context_;
     std::vector<std::unique_ptr<Application>> applications_;
     std::size_t count_expected_applications_;
-    LifeCycleManager lifecycle_manager;
+    LifeCycleManager lifecycle_manager_;
 };
 
 }  // namespace score::mw::lifecycle

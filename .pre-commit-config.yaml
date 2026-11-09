@@ -34,16 +34,20 @@ repos:
         # Run through a wrapper that sanitizes unsupported linker flags in
         # compile_commands.json before invoking clang-tidy.
         entry: python3 ./scripts/run_clang_tidy_precommit.py
+        # The checks are not clarified yet, so only the member naming is checked.
+        args:
+          - --checks=-*,readability-identifier-naming
+          - --warnings-as-errors=readability-identifier-naming
+          - --header-filter=.*score/(launch_manager|health_monitor)/.*
+          - --extra-arg=-w
         language: system
-        files: '\.(c|cc|cpp|h|hpp)$'
-        # all relevant files are currently excluded the checks are
-        # not clarified yet, so we don't want to run clang-tidy on any files
+        files: '\.(c|cc|cpp)$'
         exclude: |
           (?x)^(
             externals/|
             examples/|
             tests/|
-            score/
+            .*/qnx/
           )
   - repo: https://github.com/eclipse-score/tools
     rev: 7694bf823421b5542cd2f45239b8bdf205dbface

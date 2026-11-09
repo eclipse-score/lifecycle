@@ -26,14 +26,14 @@ namespace score::mw::lifecycle
 AliveImpl::AliveImpl(
     const std::string_view& f_instanceSpecifier_r,
     std::unique_ptr<CheckpointIpcClient> f_ipcClient) noexcept(false)
-    : k_instanceSpecifierPath(f_instanceSpecifier_r), ipcClient(std::move(f_ipcClient))
+    : instance_specifier_path_(f_instanceSpecifier_r), ipc_client_(std::move(f_ipcClient))
 {
     connectToAliveMonitor();
 }
 
 void AliveImpl::ReportCheckpoint() const noexcept(true)
 {
-    (void)ipcClient->sendEmplace(internal::saf::timers::OsClock::getMonotonicSystemClock());
+    (void)ipc_client_->sendEmplace(internal::saf::timers::OsClock::getMonotonicSystemClock());
 }
 
 void AliveImpl::connectToAliveMonitor(void) noexcept(false)
@@ -41,10 +41,10 @@ void AliveImpl::connectToAliveMonitor(void) noexcept(false)
     const auto ipc_path_res = readInterfacePath();
     if (ipc_path_res == std::nullopt)
     {
-        LM_LOG_ERROR() << "Failed to load interface path for Alive instance (" << k_instanceSpecifierPath << ")";
+        LM_LOG_ERROR() << "Failed to load interface path for Alive instance (" << instance_specifier_path_ << ")";
         throw std::runtime_error("Failed to get interface path");
     }
-    CheckpointIpcClient::EIpcInitResult initResult{ipcClient->init(ipc_path_res.value())};
+    CheckpointIpcClient::EIpcInitResult initResult{ipc_client_->init(ipc_path_res.value())};
     if (initResult == CheckpointIpcClient::EIpcInitResult::kOk)
     {
         return;
@@ -53,10 +53,10 @@ void AliveImpl::connectToAliveMonitor(void) noexcept(false)
     {
         const uid_t uid{geteuid()};
         LM_LOG_ERROR() << "Connection to Alive Monitor failed (permission denied for effective uid" << uid
-                       << "), for the Alive instance (" << k_instanceSpecifierPath << ")";
+                       << "), for the Alive instance (" << instance_specifier_path_ << ")";
         return;
     }
-    LM_LOG_ERROR() << "Connection to Alive Monitor failed, for the Alive instance (" << k_instanceSpecifierPath << ")";
+    LM_LOG_ERROR() << "Connection to Alive Monitor failed, for the Alive instance (" << instance_specifier_path_ << ")";
 }
 
 std::optional<std::string_view> AliveImpl::readInterfacePath() noexcept

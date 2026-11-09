@@ -17,7 +17,7 @@ namespace score::mw::lifecycle::internal::saf::supervision
 {
 
 ISupervision::ISupervision(const IdentifierHash f_supervisionConfigName_p) noexcept(true)
-    : k_cfgName(f_supervisionConfigName_p)
+    : cfg_name_(f_supervisionConfigName_p)
 {
     // Satisfy Misra for minimum number of instructions
     static_cast<void>(0);
@@ -25,7 +25,7 @@ ISupervision::ISupervision(const IdentifierHash f_supervisionConfigName_p) noexc
 
 IdentifierHash ISupervision::getConfigName(void) const noexcept
 {
-    return k_cfgName;
+    return cfg_name_;
 }
 
 }  // namespace score::mw::lifecycle::internal::saf::supervision

@@ -70,19 +70,19 @@ class CyclicExecutor final : public ISupervisionFactory
         std::shared_ptr<RecoveryClient> recovery_client,
         const configuration::AliveSupervisionConfig& config) noexcept(false)
     {
-        recoveryClient = recovery_client;
+        recovery_client_ = recovery_client;
 
         std::chrono::nanoseconds cycleTimeModified{
             timers::TimeConversion::convertMilliSecToNanoSec(std::chrono::milliseconds{config.evaluation_cycle_ms})};
 
-        cycleTimeModified = CycleTimeValidator::adjustCycleTimeOnClockAccuracy(cycleTimeModified, osClock);
+        cycleTimeModified = CycleTimeValidator::adjustCycleTimeOnClockAccuracy(cycleTimeModified, os_clock_);
 
-        const std::chrono::nanoseconds timerInit{cycleTimer.init(cycleTimeModified)};
+        const std::chrono::nanoseconds timerInit{cycle_timer_.init(cycleTimeModified)};
         if (timerInit.count() > 0)
         {
             LM_LOG_INFO() << "The (configured) periodicity in [ns] is set to:" << cycleTimeModified;
             LM_LOG_DEBUG() << "The accuracy of the monotonic system clock in [ns] is:"
-                           << CycleTimeValidator::getMonotonicClockAccuracy(osClock);
+                           << CycleTimeValidator::getMonotonicClockAccuracy(os_clock_);
         }
         else
         {
@@ -114,7 +114,7 @@ class CyclicExecutor final : public ISupervisionFactory
     template <typename TerminationSignalPredType>
     bool startCyclicExec(const TerminationSignalPredType& f_terminateCond) noexcept
     {
-        std::chrono::nanoseconds startTimestamp{cycleTimer.start()};
+        std::chrono::nanoseconds startTimestamp{cycle_timer_.start()};
         if (startTimestamp.count() == 0U)
         {
             LM_LOG_ERROR() << "Failed to get initial timestamp";
@@ -128,11 +128,11 @@ class CyclicExecutor final : public ISupervisionFactory
             // Return value is neglected for the moment being.
             // The return value is used for unit tests until now, but can be used for more sophisticated monitoring
             // in the future.
-            (void)cycleTimer.calcNextShot();
+            (void)cycle_timer_.calcNextShot();
 
             // Sleep for the remaining cycle time or break out of cyclic loop if termination is requested
             std::chrono::nanoseconds nsOverDeadline{0U};
-            const int sleepResult{cycleTimer.sleep(f_terminateCond, nsOverDeadline)};
+            const int sleepResult{cycle_timer_.sleep(f_terminateCond, nsOverDeadline)};
             if (sleepResult == EINTR)
             {
                 LM_LOG_INFO() << "Sleep was interrupted by termination signal";
@@ -165,8 +165,8 @@ class CyclicExecutor final : public ISupervisionFactory
         const configuration::ComponentAliveSupervision& config) override
     {
         SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
-            !supervisionManager.full(), "More alive supervisions than expected were constructed");
-        if (supervisionManager.constructWorker(id, config, uid, recoveryClient, supervisionStateReader_))
+            !supervision_manager_.full(), "More alive supervisions than expected were constructed");
+        if (supervision_manager_.constructWorker(id, config, uid, recovery_client_, supervision_state_reader_))
         {
             return std::make_unique<SupervisionHandle>(id, buffer_);
         }
@@ -180,22 +180,22 @@ class CyclicExecutor final : public ISupervisionFactory
     void performCyclicTriggers(void);
 
     /// @brief System clock interface to access the monotonic clock for sleep
-    OsClock& osClock;
+    OsClock& os_clock_;
 
     /// @brief For fixed time-step execution during the cyclic execution
-    CycleTimer cycleTimer;
+    CycleTimer cycle_timer_;
 
     /// @brief Buffer that supervision events are pushed to and read from
     std::shared_ptr<SupervisionBufferType> buffer_;
 
     /// @brief Recovery interface
-    std::shared_ptr<RecoveryClient> recoveryClient;
+    std::shared_ptr<RecoveryClient> recovery_client_;
 
     /// @brief Handler to construct and store objects needed for alive supervision
-    SupervisionManager supervisionManager;
+    SupervisionManager supervision_manager_;
 
     /// @brief Observable Event Reader for the cyclic executor
-    ObservableEventReader supervisionStateReader_;
+    ObservableEventReader supervision_state_reader_;
 };
 
 }  // namespace score::mw::lifecycle::internal::saf::daemon
