@@ -22,7 +22,6 @@
 #include "score/mw/launch_manager/process_group_manager/details/stop_action/process_stop_action.hpp"
 #include "score/mw/lifecycle/execution_error.h"
 #include <chrono>
-#include <variant>
 
 namespace score::mw::lifecycle::internal
 {
