@@ -118,13 +118,23 @@ class IpcServer final : public IpcBase<Payload, MaxNumberElements, Socket>
 
         {
             score::os::AccessControlList acl{static_cast<score::os::Acl::FileDescriptor>(fd)};
-            success = acl.AllowUser(f_uid, score::os::Acl::Permission::kRead).has_value() &&
-                      acl.AllowUser(f_uid, score::os::Acl::Permission::kWrite).has_value();
+            success = grantReadWrite(acl, f_uid);
         }
 
         // acl perms are saved on acl destructor
         close(fd);
         return success;
+    }
+
+    /// @brief Grant read and write access to the given user on the given ACL
+    /// @details Separated from setAccessRights so that the ACL can be mocked in unit tests.
+    /// @param [in] f_acl   ACL to modify
+    /// @param [in] f_uid   User id which will receive read and write access
+    /// @return True if both permissions were granted, else false
+    static bool grantReadWrite(score::os::IAccessControlList& f_acl, uid_t f_uid) noexcept(false)
+    {
+        return f_acl.AllowUser(f_uid, score::os::Acl::Permission::kRead).has_value() &&
+               f_acl.AllowUser(f_uid, score::os::Acl::Permission::kWrite).has_value();
     }
 };
 

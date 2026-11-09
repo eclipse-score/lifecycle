@@ -50,10 +50,10 @@ cc_library(
 lm_cc_test(
     name = "ipc_server_UT",
     srcs = ["IpcServer_UT.cpp"],
-    tags = ["no-sandbox"],  # doesn't mock acl calls, but the bazel sandbox doesn't allow acl so need to run without sandbox
     deps = [
         ":ipc_if",
         "@googletest//:gtest_main",
         "@score_baselibs//score/os/utils/acl",
+        "@score_baselibs//score/os/utils/acl:mock",
     ],
 )
