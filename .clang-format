@@ -67,3 +67,6 @@ InsertNewlineAtEOF: true
 
 Language: Cpp
 Standard: c++17
+
+# Don't break SCA comments
+OneLineFormatOffRegex: '[[:space:]]*codeql\['

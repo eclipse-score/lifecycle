@@ -90,14 +90,6 @@ table ComponentProperties {
   ready_condition:ReadyCondition; // optional
 }
 
-// Recovery action that restarts the POSIX process associated with a component.
-table RestartAction {
-  // Maximum number of restart attempts before recovery is considered failed.
-  number_of_attempts:uint8 = null; // required
-  // Delay in milliseconds before initiating a restart attempt.
-  delay_before_restart_ms:uint32 = null; // required
-}
-
 // Recovery action that switches to a specified Run Target.
 table SwitchRunTargetAction {
   // Name of the Run Target to switch to.
@@ -108,6 +100,28 @@ table SwitchRunTargetAction {
 table EnvironmentalVariable {
   key:string (required);
   value:string (required);
+}
+
+// Resource-limit selector. These values deliberately do NOT match the platform's 
+// RLIMIT_* constants, because they differ between QNX and Linux.
+//
+// Members are prefixed with POSIX_ because they name the seven resource limits
+// specified by POSIX.1.
+enum RlimitResource : ubyte {
+  POSIX_RLIMIT_AS = 0,
+  POSIX_RLIMIT_CORE = 1,
+  POSIX_RLIMIT_CPU = 2,
+  POSIX_RLIMIT_DATA = 3,
+  POSIX_RLIMIT_FSIZE = 4,
+  POSIX_RLIMIT_NOFILE = 5,
+  POSIX_RLIMIT_STACK = 6,
+}
+
+// A soft/hard pair for one rlimit resource
+table Rlimit {
+  resource:RlimitResource = null; // required
+  soft:uint64 = null; // required
+  hard:uint64 = null; // required
 }
 
 // Defines sandbox configuration parameters that isolate and constrain component execution.
@@ -124,10 +138,8 @@ table Sandbox {
   scheduling_policy:SchedulingPolicy = null; // required
   // Scheduling priority for the component's initial thread.
   scheduling_priority:int32 = null; // required
-  // Maximum memory in bytes the component is permitted to use.
-  max_memory_usage:uint64 = null; // optional
-  // Maximum CPU usage as a percentage of total CPU capacity.
-  max_cpu_usage:uint32 = null; // optional
+  // Resource limits to apply to the component before exec.
+  rlimits:[Rlimit]; // optional
   // Affinity mask defining on which CPU cores the process may be scheduled.
   affinity_mask:uint64 = null; // optional
 }
@@ -144,9 +156,11 @@ table DeploymentConfig {
   bin_dir:string (required); // required
   // Working directory for the component during execution.
   working_dir:string (required); // required
-  // Recovery action when the component fails to reach ready state.
-  // Can only be a RestartAction per the JSON schema constraint.
-  ready_recovery_action:RestartAction; // optional
+  // Number of additional attempts to activate the component when it fails to reach
+  // its Ready State during a Run Target transition. 0 means a single attempt.
+  activation_retry_attempts:uint8 = null; // required
+  // Delay in milliseconds before each activation retry. Currently not evaluated.
+  activation_retry_delay_ms:uint32 = null; // required
   // Recovery action when the component malfunctions after reaching ready state.
   recovery_action:SwitchRunTargetAction; // optional
   sandbox:Sandbox (required); // required

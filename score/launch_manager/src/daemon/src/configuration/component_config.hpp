@@ -13,6 +13,7 @@
 #ifndef COMPONENT_CONFIG_HPP
 #define COMPONENT_CONFIG_HPP
 
+#include <sys/resource.h>
 #include <sys/types.h>
 #include <chrono>
 #include <cstdint>
@@ -71,6 +72,12 @@ enum class ProcessState : std::uint8_t
 
 using ReadyCondition = std::variant<ProcessState, FileState>;
 
+struct ResourceLimit
+{
+    int resource;
+    struct ::rlimit limit;
+};
+
 struct ComponentProperties
 {
     std::string binary_name;
@@ -87,11 +94,9 @@ struct Sandbox
     std::optional<std::string> security_policy;
     std::int32_t scheduling_policy;
     std::int32_t scheduling_priority{};
-    std::optional<std::uint64_t> max_memory_usage;
-    std::optional<std::uint32_t> max_cpu_usage;
+    std::vector<ResourceLimit> rlimits;
     std::optional<std::uint64_t> affinity_mask;
 };
-
 struct DeploymentConfig
 {
     uint32_t ready_timeout_ms{};
@@ -99,7 +104,9 @@ struct DeploymentConfig
     Environment environmental_variables;
     std::string executable_path;
     std::string working_dir;
-    std::optional<RestartAction> ready_recovery_action;
+    std::uint8_t activation_retry_attempts{};
+    // Currently not evaluated by the Launch Manager
+    std::uint32_t activation_retry_delay_ms{};
     // Currently only SwitchRunTargetAction is supported here, RestartAction to be added in the future
     std::optional<SwitchRunTargetAction> recovery_action;
     Sandbox sandbox{};

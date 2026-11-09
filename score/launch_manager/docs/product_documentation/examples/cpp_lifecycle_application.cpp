@@ -20,7 +20,7 @@ class LifecycleApp final : public score::mw::lifecycle::Application
 {
   public:
     // called before the process reports Running to the Launch Manager
-    std::int32_t Initialize(const score::mw::lifecycle::ApplicationContext& appCtx) override
+    std::int32_t Initialize(const score::mw::lifecycle::ApplicationContext& /*appCtx*/) override
     {
         // read arguments and set up resources here
         return EXIT_SUCCESS;

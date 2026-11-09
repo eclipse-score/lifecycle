@@ -20,6 +20,6 @@ namespace score::mw::lifecycle::internal::osal
 /// @brief Call the system exit function, which is marked [noreturn].
 /// The purpose of wrapping this function is so that it may be mocked during tests.
 /// @param status The exit status to be reported to the operating system
-void sysexit(int status);
+[[noreturn]] void sysexit(int status);
 }  // namespace score::mw::lifecycle::internal::osal
 #endif

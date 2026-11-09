@@ -149,12 +149,12 @@ int run(int argc, const char* argv[])
 
         std::shared_ptr<IRecoveryClient> recoveryClient{std::make_shared<RecoveryClient>()};
 
-        const std::size_t supervised_components = std::count_if(
+        const std::size_t supervised_components = static_cast<std::size_t>(std::count_if(
             config_result.value().components().begin(),
             config_result.value().components().end(),
             [](const configuration::ComponentConfig& component) {
                 return component.component_properties.application_profile.alive_supervision.has_value();
-            });
+            }));
 
         std::unique_ptr<saf::daemon::IAliveMonitor> healthMonitor{std::make_unique<saf::daemon::AliveMonitorImpl>(
             recoveryClient, config_result.value().takeAliveSupervision(), supervised_components)};

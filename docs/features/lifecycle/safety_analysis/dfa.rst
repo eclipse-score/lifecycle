@@ -103,7 +103,7 @@ Same information input used by multiple functions.
     - <yes | no>
     - <Rationale if not applicable, otherwise link to filled out DFA>
   * - SI_01_04
-    - Basic software passes data (read from hardware register and converted into logical information) to two applications software functions
+    - Basic software passes data (read from hardware register and converted into logical information) to two application software functions
     - <yes | no>
     - <Rationale if not applicable, otherwise link to filled out DFA>
   * - SI_01_05
@@ -125,7 +125,7 @@ Unintended impacts to function due to various failures.
     - Applicability
     - Rationale
   * - UI_01_01
-    - Memory miss-allocation and leaks
+    - Memory misallocation and leaks
     - <yes | no>
     - <Rationale if not applicable, otherwise link to filled out DFA>
   * - UI_01_02
@@ -186,6 +186,7 @@ For all identified applicable failure initiators, the DFA is performed in the fo
        :id: feat_saf_dfa__<Feature>__<Element descriptor>
        :failure_id: <ID from DFA failure initiators :need:`gd_guidl__dfa_failure_initiators`>
        :failure_effect: "description of failure effect of the failure initiator on the element"
+       :safety_relevant: <yes|no>
        :mitigated_by: <ID from Feature Requirement | ID from AoU Feature Requirement>
        :mitigation_issue: <ID from Issue Tracker>
        :sufficient: <yes|no>

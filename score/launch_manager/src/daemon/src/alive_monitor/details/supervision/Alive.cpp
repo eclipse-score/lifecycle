@@ -338,7 +338,7 @@ bool Alive::setReferenceCycleTimestamps(std::chrono::nanoseconds f_baseValue) no
     {
         LM_LOG_ERROR() << "Alive Supervision (" << getConfigName()
                        << ") overflow appeared during increase of reference cycle timestamps";
-        eventTimestamp = std::max(referenceCycleEnd + std::chrono::nanoseconds{1U}, std::chrono::nanoseconds::max());
+        eventTimestamp = f_baseValue;
         switchToExpired(EReason::kOverflow);
         return true;
     }
@@ -512,7 +512,7 @@ void Alive::switchToExpired(Alive::EReason reason) noexcept(true)
     referenceCycleEnd = std::chrono::nanoseconds::max();
     dataLossReason = EDataLossReason::kNoDataLoss;
 
-    const bool enqueued = recoveryClient_p->sendRecoveryRequest(processIdentifier_);
+    const bool enqueued = recoveryClient_p->sendRecoveryRequest(processIdentifier_, eventTimestamp);
     if (enqueued)
     {
         LM_LOG_DEBUG() << "Recovery request enqueued successfully for alive supervision" << getConfigName()

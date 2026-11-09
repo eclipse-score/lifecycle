@@ -33,8 +33,21 @@ alt App health status ok
     loop
         App -> LM : ReportAlive()
     end
+
+    note over LM
+    Eventually the application will be shutdown.
+    The Launch Manager deactivates the Alive Supervision and only
+    monitors the shutdown via a timeout.
+    end note
+
+    LM -> LM: Deactivate Alive Supervision
+    LM -> App: SIGTERM
+    App -> App: shutting down
+    destroy App
+
 else #pink App detected failure (e.g. using HealthMonitor)
     App -> LM : ReportFailure()
+    activate App
 
     LM -> LM: Set Alive Supervision failure
 
@@ -44,10 +57,6 @@ else #pink Application unresponsive
     end note
 
     LM -> LM: Detect Alive Supervision failure
-end
-
-alt #pink health_status != ok
-    LM --> LM: Initiate Recovery Action (e.g. Restart App, Switching Run Target)
 end
 
 deactivate App

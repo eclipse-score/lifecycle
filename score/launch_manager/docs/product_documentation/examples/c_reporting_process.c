@@ -11,10 +11,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include <assert.h>
 #include <signal.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <time.h>
 
 #include "score/mw/lifecycle/report_running.h"
@@ -28,19 +29,24 @@ volatile sig_atomic_t exitRequested = 0;
 
 static void sigTermHandler(int signal)
 {
+    (void)signal;
     exitRequested = 1;
 }
 
-int main(int argc, char* argv[]){
-
-    assert(signal(SIGTERM, sigTermHandler));
+int main(void)
+{
+    // register SIGTERM handler
+    if(signal(SIGTERM, sigTermHandler) == SIG_ERR){
+        (void) printf("Failed to register SIGTERM handler! Terminating");
+        return EXIT_FAILURE;
+    }
 
     // report running
     int8_t result = score_mw_lifecycle_report_running();
 
     // check report was successful
     if(result != 0){
-        printf("Failed to report kRunning to LCM! Terminating");
+        (void) printf("Failed to report kRunning to LCM! Terminating");
         return 1;
     }
 

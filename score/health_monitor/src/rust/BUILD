@@ -69,11 +69,10 @@ rust_test(
             "-Clink-arg=-lstdc++",
         ],
     }),
-    tags = [
-        "no-asan",
-        "no-tsan",
-    ],
-    target_compatible_with = select({
+    target_compatible_with = [
+        "@score_cpp_policies//sanitizers/constraints:no_tsan",
+        "@score_cpp_policies//sanitizers/constraints:no_asan",
+    ] + select({
         "//config:unit_qemu": ["@platforms//os:linux"],  # see https://github.com/eclipse-score/lifecycle/issues/272
         "//config:unit_host": ["@platforms//os:linux"],  # see https://github.com/eclipse-score/lifecycle/issues/272
         "//conditions:default": ["@platforms//:incompatible"],
@@ -101,10 +100,11 @@ rust_test(
     }),
     tags = [
         "loom",
-        "no-asan",
-        "no-tsan",
     ],
-    target_compatible_with = select({
+    target_compatible_with = [
+        "@score_cpp_policies//sanitizers/constraints:no_tsan",
+        "@score_cpp_policies//sanitizers/constraints:no_asan",
+    ] + select({
         "//config:unit_qemu": ["@platforms//os:linux"],
         "//config:unit_host": ["@platforms//os:linux"],
         "//conditions:default": ["@platforms//:incompatible"],
@@ -125,12 +125,11 @@ miri_test(
     ],
     tags = [
         "miri",
-        "no-asan",
         # The miri rule needs a miri_toolchain that is not registered under the
         # LLVM coverage configuration
         "no-coverage",
     ],
-    target_compatible_with = select({
+    target_compatible_with = ["@score_cpp_policies//sanitizers/constraints:no_asan"] + select({
         "//config:unit_qemu": ["@platforms//os:linux"],
         "//config:unit_host": ["@platforms//os:linux"],
         "//conditions:default": ["@platforms//:incompatible"],

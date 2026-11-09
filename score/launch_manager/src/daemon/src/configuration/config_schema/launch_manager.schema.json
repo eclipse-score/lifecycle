@@ -4,6 +4,43 @@
   "title": "Configuration schema for the S-CORE Launch Manager",
   "description": "Defines the structure and valid values for the Launch Manager configuration file, which specifies managed components, Run Targets, and recovery behaviors.",
   "$defs": {
+    "rlimit_scalar": {
+      "description": "A single rlimit bound: a non-negative integer count of bytes/seconds/items, or the literal \"unlimited\". The values max(uint64)-3, max(uint64)-2, max(uint64)-1 are reserved as they special meanings in Linux/Qnx.",
+      "oneOf": [
+        {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18446744073709551612
+        },
+        {
+          "const": "unlimited"
+        }
+      ]
+    },
+    "rlimit_value": {
+      "description": "A resource limit value: either a scalar shorthand for an equal soft/hard pair, or an explicit {soft, hard} object.",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/rlimit_scalar"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "soft": {
+              "$ref": "#/$defs/rlimit_scalar"
+            },
+            "hard": {
+              "$ref": "#/$defs/rlimit_scalar"
+            }
+          },
+          "required": [
+            "soft",
+            "hard"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
     "component_properties": {
       "type": "object",
       "description": "Defines a reusable type that captures essential characteristics of a software component.",
@@ -222,7 +259,20 @@
           "type": "string",
           "description": "Specifies the directory used as the working directory for the component during execution."
         },
+        "activation_retry_attempts": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255,
+          "description": "Specifies the number of additional attempts the Launch Manager makes to activate the component when it fails to reach its Ready State during a Run Target transition. A number of failures greater than this is treated as a Run Target transition failure."
+        },
+        "activation_retry_delay_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295,
+          "description": "Specifies the delay duration, in milliseconds, that the Launch Manager waits before each activation retry. Currently not evaluated by the Launch Manager."
+        },
         "ready_recovery_action": {
+          "deprecated": true,
           "allOf": [
             {
               "$ref": "#/$defs/recovery_action"
@@ -241,7 +291,7 @@
               }
             }
           ],
-          "description": "Specifies the recovery action to execute when the component fails to reach its ready state within the configured timeout."
+          "description": "Deprecated: use 'activation_retry_attempts' and 'activation_retry_delay_ms' instead. Specifies the recovery action to execute when the component fails to reach its Ready State within the configured timeout. This action is limited to 'restart' operations; 'restart.number_of_attempts' is converted to 'activation_retry_attempts' and 'restart.delay_before_restart_ms' is converted to 'activation_retry_delay_ms'."
         },
         "recovery_action": {
           "allOf": [
@@ -311,15 +361,41 @@
               "type": "integer",
               "description": "Specifies the scheduling priority applied to the component's initial thread."
             },
-            "max_memory_usage": {
-              "type": "integer",
-              "exclusiveMinimum": 0,
-              "description": "Specifies the maximum amount of memory, in bytes, that the component is permitted to use during runtime."
-            },
-            "max_cpu_usage": {
-              "type": "integer",
-              "exclusiveMinimum": 0,
-              "description": "Specifies the maximum CPU usage limit for the component, expressed as a percentage (%) of total CPU capacity."
+            "rlimits": {
+              "type": "object",
+              "description": "Defines the POSIX resource limits (rlimits) applied to the component before it is executed.",
+              "properties": {
+                "RLIMIT_AS": {
+                  "description": "Specifies the maximum size, in bytes, of the component's total virtual address space.",
+                  "$ref": "#/$defs/rlimit_value"
+                },
+                "RLIMIT_CORE": {
+                  "description": "Specifies the maximum size, in bytes, of a core dump file the component may produce; 0 disables core dumps.",
+                  "$ref": "#/$defs/rlimit_value"
+                },
+                "RLIMIT_CPU": {
+                  "description": "Specifies the maximum amount of CPU time, in seconds, the component may accumulate over its entire lifetime.",
+                  "$ref": "#/$defs/rlimit_value"
+                },
+                "RLIMIT_DATA": {
+                  "description": "Specifies the maximum size, in bytes, of the component's data segment.",
+                  "$ref": "#/$defs/rlimit_value"
+                },
+                "RLIMIT_FSIZE": {
+                  "description": "Specifies the maximum size, in bytes, of a file the component may create. Note: This is currently not supported on QNX8 and always fails.",
+                  "$ref": "#/$defs/rlimit_value"
+                },
+                "RLIMIT_NOFILE": {
+                  "description": "Specifies the highest file descriptor number the component may use, plus one.",
+                  "$ref": "#/$defs/rlimit_value"
+                },
+                "RLIMIT_STACK": {
+                  "description": "Specifies the maximum size, in bytes, of the component's process stack; applied before the component's executable image is loaded.",
+                  "$ref": "#/$defs/rlimit_value"
+                }
+              },
+              "required": [],
+              "additionalProperties": false
             },
             "affinity_mask": {
               "type": "string",
@@ -426,7 +502,7 @@
       "type": "integer",
       "description": "Specifies the schema version number that the Launch Manager uses to determine how to parse and validate this configuration file.",
       "enum": [
-        1
+        2
       ]
     },
     "defaults": {

@@ -35,6 +35,8 @@ jobs:
     permissions:
       pull-requests: write
       contents: read
+      actions: write
+      security-events: write
 
   pr-target:
     name: PR Target
@@ -48,21 +50,12 @@ jobs:
       actions: read
       issues: write
 
-  codeql:
-    name: CodeQL
-    uses: ./.github/workflows/_codeql.yml
-    permissions:
-      contents: read
-      actions: write
-      security-events: write
-
   create-release:
     name: Create release
     needs:
       - pr
       - pr-target
-      - codeql
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     env:

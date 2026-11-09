@@ -14,11 +14,11 @@
 # Motivation
 
 A translation script was introduced to map a new json configuration onto a legacy configuration format.
-In the meantime the legacy configuration format is fully removed.
+In the meantime the legacy configuration format has been fully removed.
 However, the translation script is still in place for the following reasons:
 
 * The new json configuration has some complicated handling of defaults, which is better done in python than in C++ code
-* Due to the specific json structure, the json configuration cannot be compiled directly to flattbuffer
+* Due to the specific json structure, the json configuration cannot be compiled directly to flatbuffer
 * The translation script is a natural place for configuration validation, which is better done before runtime
 
 # Usage
@@ -45,7 +45,7 @@ bazel test //scripts/config_mapping/tests:lifecycle_config_tests
 
 # Mapping Details
 
-While the legacy configuration format is already removed, the following mapping still exists in the code.
+While the legacy configuration format has already been removed, the following mapping still exists in the code.
 See `score/launch_manager/src/daemon/src/configuration/configuration_adapter.hpp` for details.
 
 ## Mapping of RunTargets to ProcessGroups
@@ -55,9 +55,9 @@ Each RunTarget will be mapped to a ProcessGroupState with the same name.
 For example, RunTarget `Minimal` will result in a ProcessGroupState called `MainPG/Minimal`.
 The ProcessGroupState will contain all the processes that would be started as part of the associated RunTarget.
 
-The LaunchManager will currently always startup up `MainPG/Startup` as initial state. 
+The LaunchManager will currently always start up `MainPG/Startup` as initial state. 
 Therefore, we require for now that `initial_run_target` must be set to `Startup`.
-This is ensured as part of the translation, configs with `initial_run_target` not equal to `Startup` are rejected.
+This is ensured as part of the translation; configs with `initial_run_target` not equal to `Startup` are rejected.
 
 ## Mapping of Components to Processes
 
@@ -71,9 +71,9 @@ Every Component can only have a single deployment config, therefore the mapped P
 ### Mapping of ReadyCondition to Execution Dependencies
 
 The ReadyCondition of a Component is mapped to an execution dependency between two processes.
-If Component A has ReadyCondition `process_state:Running` and Component B depends on Component A. Then the ReadyCondition of Component A is mapped to `Component B depends on Component A in State Running`.
+If Component A has ReadyCondition `process_state:Running` and Component B depends on Component A, then the ReadyCondition of Component A is mapped to `Component B depends on Component A in State Running`.
 
-For ReadyCondition `process_state:Terminated`, the mapping is only supported for Components that have at least one other Component depending on it. Otherwise, this ReadyCondition cannot be mapped to an execution dependency.
+For ReadyCondition `process_state:Terminated`, the mapping is only supported for Components that have at least one other Component depending on them. Otherwise, this ReadyCondition cannot be mapped to an execution dependency.
 
 ## Mapping of Recovery Actions
 
@@ -89,7 +89,7 @@ For each Component with application_type `Reporting_And_Supervised` or `State_Ma
 
 ## Mapping of Watchdog Configuration
 
-The new configuration format allows to configure a single watchdog. There is simple 1:1 mapping to the old watchdog configuration format.
+The new configuration format allows configuring a single watchdog. There is a simple 1:1 mapping to the old watchdog configuration format.
 
 ## Known Limitations
 

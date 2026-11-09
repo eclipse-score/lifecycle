@@ -18,7 +18,7 @@ Health Monitoring
 Alive Supervision
 =================
 
-The Alive Interface provides a basic watchdog functionality interface that
+The Alive interface (:need:`logic_arc_int__lifecycle__alive_if`) provides a basic watchdog functionality interface that
 delivers essential monitoring capabilities for system health and responsiveness
 tracking.
 It implements core watchdog operations including heartbeat signals to ensure
@@ -27,7 +27,7 @@ reliable operation and automatic recovery from unresponsive states.
 **SCORE Application Liveliness Reporting**
 
 SCORE applications can periodically signal their liveliness to the
-:term:`Launch Manager` through the Alive Interface.
+:term:`Launch Manager` through the  Alive interface (:need:`logic_arc_int__lifecycle__alive_if`).
 This mechanism allows the :term:`Launch Manager` to:
 
 - Detect application failures or hangs
@@ -41,8 +41,6 @@ The liveliness mechanism includes:
 
 The corresponding configuration parameters are shown as `AliveSupervision` in
 :ref:`Configuration Structure <lifecycle_configuration_structure>`.
-
-The alive interface is defined here: :need:`logic_arc_int__lifecycle__alive_if`
 
 The :term:`Launch Manager` starts the Alive Supervision at the exact time when the Application reports its Running state via the Lifecycle Interface.
 As a consequence the Liveliness Reporting is only available to SCORE applications that also use the Lifecycle Interface.
@@ -64,6 +62,8 @@ Dynamic architecture
       :scale: 50
       :align: center
 
+   The Launch Manager reaction to supervision failure is depicted in the Recovery Action chapter, see :need:`feat_arc_dyn__lifecycle__sup_failure`.
+
 
 .. feat_arc_dyn:: Alive Monitoring Stop
    :id: feat_arc_dyn__lifecycle__alive_monitor_stop
@@ -83,8 +83,8 @@ Dynamic architecture
 In-Process Supervision
 ======================
 
-The :term:`Health Monitor` is a library, that together with the :term:`Launch Manager` provide a way to monitor
-the application health in similar fashion as the AUTOSAR `Platform Health Manager` (PHM).
+The :term:`Health Monitor` is a library that, together with the :term:`Launch Manager`, provides a way to monitor
+the application health in a similar fashion to the AUTOSAR `Platform Health Manager` (PHM).
 
 The main features of the :term:`Health Monitor` are the following monitoring functions:
 
@@ -96,7 +96,7 @@ The main features of the :term:`Health Monitor` are the following monitoring fun
 - Logical
   - Specifies in which order two or more checkpoints must be called
 
-The :term:`Health Monitor` itself is monitored via the :term:`Launch Manager` with via alive supervision only.
+The :term:`Health Monitor` itself is monitored by the :term:`Launch Manager` via alive supervision only.
 
 
 Error Reactions
@@ -104,7 +104,7 @@ Error Reactions
 
 - When the :term:`Health Monitor` detects a failed supervision, it shall stop triggering alive notifications to the :term:`Launch Manager`.
 - Additionally, when the error occurs, the :term:`Health Monitor` triggers a failure notification to the :term:`Launch Manager` to reduce the time
-  to react on the error. This obviously will only work if the :term:`Health Monitor` is still working and correctly scheduled. Thus the
+  to react to the error. This obviously will only work if the :term:`Health Monitor` is still working and correctly scheduled. Thus the
   worst case reaction time calculations must be made on the monitoring rules specified in the :term:`Launch Manager` for the monitored application.
 
 
@@ -144,13 +144,13 @@ Dynamic Architecture
       * - Sequence number
         - Description
       * - 001
-        - :term:`Launch Manager` configuration for the alive monitoring of the `Monitored application` is parsed. This contains for example, what is the expected interval of alive notifications, how long grace period is given before failing to a missed (never received) alive notification etc.
+        - :term:`Launch Manager` configuration for the alive monitoring of the `Monitored application` is parsed. This contains for example, what is the expected interval of alive notifications, how long a grace period is given before failing to a missed (never received) alive notification etc.
       * - 002
-        - Start the startup grace period timer to allow the application to startup, before timing out to a missed alive notification
+        - Start the startup grace period timer to allow the application to start up, before timing out to a missed alive notification
       * - 003
         - The `Monitored application` is started. (To simplify, no startup checks drawn here)
       * - 004
-        - The `Monitored application` instantiate and configure the HealthMonitor
+        - The `Monitored application` instantiates and configures the HealthMonitor
       * - 006
         - Cyclic reporting aliveness to the monitor.
       * - 007
@@ -162,7 +162,7 @@ Dynamic Architecture
       * - 010
         - Wake up and check if the checkpoint(s) have been triggered. In this case it was not, and thus actions 011 and 012 are triggered.
       * - 011
-        - Trigger a failure event to the Launch Manager. This event allows the monitor react faster than waiting for the timeout to expire.
+        - Trigger a failure event to the Launch Manager. This event allows the monitor to react faster than waiting for the timeout to expire.
       * - 012
         - Additionally, triggering alive must be stopped
 

@@ -16,6 +16,7 @@
 
 #include <cerrno>
 #include <cstdint>
+#include <cstdlib>
 #include <limits>
 #include <memory>
 #include <string>
@@ -28,6 +29,7 @@
 #include "score/os/errno.h"
 #include "score/os/mocklib/fcntl_mock.h"
 #include "score/os/mocklib/unistdmock.h"
+#include <score/assert.hpp>
 
 using ::testing::_;
 using ::testing::Return;
@@ -109,7 +111,25 @@ enum class EnableStep
     kSetOptions,
 };
 
-/// @brief WatchdogImpl subclass that mocks waitForever() so fireWatchdogReaction() returns for testing.
+std::uint8_t stepPosition(const EnableStep step)
+{
+    switch (step)
+    {
+        case EnableStep::kOpen:
+            return 0U;
+        case EnableStep::kGetTimeout:
+            return 1U;
+        case EnableStep::kGetTimeLeft:
+            return 2U;
+        case EnableStep::kSetTimeout:
+            return 3U;
+        case EnableStep::kSetOptions:
+            return 4U;
+    }
+    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Invalid EnableStep");
+}
+
+/// @brief WatchdogImpl subclass that mocks waitForever() to terminate the calling process.
 class WatchdogImpl_FireWatchdogMock : public WatchdogImpl
 {
   public:
@@ -184,7 +204,7 @@ class WatchdogImplTest : public ::testing::Test
         // An ioctl step succeeds before the failure, fails at it, and is never called after it.
         auto ioctlStep = [&](EnableStep step, DeviceIf::IoctlRequestType request, auto successAction) {
             auto& call = EXPECT_CALL(deviceIfMock_, ioctl(fd, request, _));
-            if (step < failingStep)
+            if (stepPosition(step) < stepPosition(failingStep))
             {
                 call.WillOnce(successAction);
             }
@@ -559,11 +579,19 @@ TEST_F(WatchdogImplTest, WdgFireWatchdogReaction_WithConfiguredDevice)
     ASSERT_TRUE(wdg->init(std::move(cfg), kDefaultCycleTimeNs));
     ASSERT_TRUE(wdg->enable());
 
-    EXPECT_CALL(deviceIfMock_, ioctl(1, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETTIMEOUT), _))
-        .Times(1)
-        .WillOnce(Return(kIoctlOk));
-    EXPECT_CALL(*wdg, waitForever).Times(1);
-    wdg->fireWatchdogReaction();
+    // The activated watchdog never returns; verify the reaction in a child process.
+    EXPECT_EXIT(
+        {
+            EXPECT_CALL(deviceIfMock_, ioctl(1, static_cast<DeviceIf::IoctlRequestType>(WDIOC_SETTIMEOUT), _))
+                .WillOnce(Return(kIoctlOk));
+            EXPECT_CALL(*wdg, waitForever).WillOnce([this]() noexcept {
+                const bool expectations_met = ::testing::Mock::VerifyAndClearExpectations(&deviceIfMock_);
+                std::_Exit(expectations_met && !::testing::Test::HasFailure() ? EXIT_SUCCESS : EXIT_FAILURE);
+            });
+            wdg->fireWatchdogReaction();
+        },
+        ::testing::ExitedWithCode(EXIT_SUCCESS),
+        "");
 }
 
 // ═══════════════════════════════════════════════════════════

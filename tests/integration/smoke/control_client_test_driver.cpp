@@ -39,6 +39,11 @@ TEST(Smoke, Daemon)
         ASSERT_TRUE(result.has_value());
     }
 
+    TEST_STEP("Wait for client connection")
+    {
+        ASSERT_TRUE(client->wait_for_connection().has_value());
+    }
+
     TEST_STEP("Validate active Run Target")
     {
         const auto result = client->get_active_run_target();

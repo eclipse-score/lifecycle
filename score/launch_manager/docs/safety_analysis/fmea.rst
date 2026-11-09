@@ -63,7 +63,7 @@ Failure Mode List
       - <yes | no>
       - <Rationale if not applicable, otherwise link to filled out FMEA>
     * - MF_01_07
-      - message is unintended sent
+      - message is unintentionally sent
       - <yes | no>
       - <Rationale if not applicable, otherwise link to filled out FMEA>
     * - CO_01_01
@@ -110,6 +110,8 @@ For all identified applicable failure initiators, the FMEA is performed in the f
        :id: comp_saf_fmea__<Component>__<Element descriptor>
        :fault_id: <ID from fault model :need:`gd_guidl__fault_models`>
        :failure_effect: "description of failure effect of the fault model on the element"
+       :failure_root_cause: "description of the root cause of the failure"
+       :safety_relevant: <yes|no>
        :mitigated_by: <ID from Component Requirement | ID from AoU Component Requirement>
        :mitigation_issue: <ID from Issue Tracker>
        :sufficient: <yes|no>
