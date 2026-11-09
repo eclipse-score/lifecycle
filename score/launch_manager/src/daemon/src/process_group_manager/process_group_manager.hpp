@@ -29,6 +29,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/component_event_queue.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/os_handler.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/pending_activation_queue.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_monitor.hpp"
@@ -117,6 +118,8 @@ class ProcessGroupManager final : public IRunTargetControl
 
     [[nodiscard]] score::Result<void> setRequestedRunTarget(IdentifierHash run_target) noexcept override;
 
+    [[nodiscard]] score::Result<void> queueRequestedRunTarget(IdentifierHash run_target) noexcept override;
+
     void registerActiveRunTargetCallback(ActivationCallbackT callback) noexcept override;
 
   private:
@@ -184,6 +187,17 @@ class ProcessGroupManager final : public IRunTargetControl
     /// @brief Respond to a SetRequestedRunTarget event.
     void handleSetRequestedRunTarget(SetRequestedRunTarget* event) noexcept;
 
+    /// @brief Discard all queued run target requests, logging each one that is dropped.
+    /// @param reason Why the queue is being cleared, for the log.
+    void clearQueuedActivations(std::string_view reason) noexcept;
+
+    /// @brief Whether a new request has to wait for the current activation to finish.
+    [[nodiscard]] bool isActivationBusy() const noexcept;
+
+    /// @brief Decide if a new run target activation request can be dropped from the pending activation queue
+    /// @param new_run_target The run target identifier of the incoming activation request
+    [[nodiscard]] bool shouldDropDuplicateRequest(const IdentifierHash new_run_target) const noexcept;
+
     /// @brief The configuration object associated with the ProcessGroupManager.
     configuration::GraphConfig configuration_;
 
@@ -217,6 +231,10 @@ class ProcessGroupManager final : public IRunTargetControl
     /// @brief Queue of ComponentEvents produced by worker/OS-handler threads and drained by run()
     /// on the main thread, so all Graph state mutations happen from a single thread.
     std::unique_ptr<ComponentEventQueue> event_queue_;
+
+    /// @brief Run Target requests waiting for the ongoing transition to finish.
+    /// @details Only accessed from the main loop thread (event handling and processGroupHandler()).
+    std::unique_ptr<PendingActivationQueue> pending_activation_queue_;
 
     std::shared_ptr<score::mw::lifecycle::IRecoveryClient> recovery_client_{};
 
