@@ -129,17 +129,8 @@ class BasicControlProvider
     /// @brief Handle an activate_run_target request.
     void handleActivateRunTarget(ActivateRunTargetResponse& response, const ActivateRunTargetRequest& request) noexcept
     {
-        // See https://github.com/eclipse-score/lifecycle/issues/643.
-        if (request.mode != ActivationMode::kForced)
-        {
-            LM_LOG_ERROR() << "Activation request failed: queued activation is not yet implemented";
-
-            response = ActivateRunTargetResponse{RequestStatus::kRejected, ExecErrc::kNotImplemented};
-            return;
-        }
-
-        const std::optional<IdentifierHash> new_state = IdentifierHash::if_exists(request.run_target_name.data());
-        if (!new_state.has_value())
+        const std::optional<IdentifierHash> maybe_new_state = IdentifierHash::if_exists(request.run_target_name.data());
+        if (!maybe_new_state.has_value())
         {
             LM_LOG_ERROR() << "Activation request failed: Run Target" << request.run_target_name << "does not exist";
 
@@ -147,7 +138,10 @@ class BasicControlProvider
             return;
         }
 
-        const score::Result<void> result = graph_->setRequestedRunTarget(new_state.value());
+        const auto new_state = maybe_new_state.value();
+        const score::Result<void> result = (request.mode == ActivationMode::kForced)
+                                               ? graph_->setRequestedRunTarget(new_state)
+                                               : graph_->queueRequestedRunTarget(new_state);
         if (!result.has_value())
         {
             LM_LOG_ERROR() << "Activation request failed:" << result.error().Message();
