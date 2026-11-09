@@ -150,6 +150,15 @@ cc_binary(
 )
 
 cc_binary(
+    name = "fail_test",
+    srcs = ["fail_test.cpp"],
+    visibility = ["//tests:__subpackages__"],
+    deps = [
+        ":test_helper",
+    ],
+)
+
+cc_binary(
     name = "waiting_process",
     srcs = ["waiting_process.cpp"],
     visibility = ["//tests:__subpackages__"],
