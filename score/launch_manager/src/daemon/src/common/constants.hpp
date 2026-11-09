@@ -51,6 +51,9 @@ enum class ProcessLimits : std::uint32_t
 /// @brief Default size of Alive Supervision checkpoint buffer
 constexpr uint16_t kDefaultAliveSupCheckpointBufferElements{100U};
 
+/// @brief Default size of the pending activation queue
+constexpr std::uint8_t kPendingActivationQueueCapacity = 10U;
+
 }  // namespace score::mw::lifecycle::internal
 
 #endif  // CONSTANTS_HPP_INCLUDED
