@@ -92,6 +92,8 @@ struct [[nodiscard]] SetRequestedRunTarget
 {
     IdentifierHash run_target;
     CompletionSlot<Result<void>>* completion{nullptr};
+    /// @brief If true, the request was forced by the user.
+    bool forced;
 };
 
 /// @brief A graph-relevant state change. There is only ever a single graph, so no process-group
