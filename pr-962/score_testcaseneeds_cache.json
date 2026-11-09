@@ -266,6 +266,20 @@
     "FullyVerifies": null
   },
   {
+    "name": "test_lifecycle_lang_support",
+    "file": "tests/integration/lifecycle_lang_support/lifecycle_lang_support.py",
+    "line": "18",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "requirements-based",
+    "DerivationTechnique": "requirements-analysis",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": "comp_req__launch_man__lifecycle_lang_support, feat_req__lifecycle__prog_lang"
+  },
+  {
     "name": "test_crash_ignores_dependents",
     "file": "tests/integration/crash_ignores_dependents/crash_ignores_dependents.py",
     "line": "19",
