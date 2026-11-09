@@ -40,10 +40,9 @@ jobs:
     with:
       test-targets: //score/...
       test-command: coverage
-      test-args: --config=llvm_cov --lockfile_mode=error --build_tests_only
-      run-target: '@score_coverage//:generate_coverage_html'
-      run-args: --yaml quality/coverage/coverage_justifications.yaml --archive-dir coverage_artifacts
-      environment: '{"COVERAGE_THRESHOLD": "${{ inputs.coverage-threshold }}"}'
-      result-paths: coverage_artifacts
+      bazel-configs: llvm_cov
+      test-args: --build_tests_only
+      coverage-justifications: quality/coverage/coverage_justifications.yaml
+      coverage-threshold: ${{ inputs.coverage-threshold }}
       artifact-name: ${{ inputs.artifact-name }}
       retention-days: ${{ inputs.retention-days }}

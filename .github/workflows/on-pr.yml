@@ -39,19 +39,19 @@ jobs:
       matrix:
         include:
           - name: x86_64-linux
-            bazel-args: --config=x86_64-linux
+            bazel-configs: x86_64-linux
             build: true
             test: true
           - name: arm64-linux
-            bazel-args: --config=arm64-linux
+            bazel-configs: arm64-linux
             build: true
             test: false # Cannot run on x86_64
           - name: asan_ubsan_lsan
-            bazel-args: --config=x86_64-linux --config=asan_ubsan_lsan
+            bazel-configs: x86_64-linux asan_ubsan_lsan
             build: false # https://github.com/eclipse-score/lifecycle/issues/476
             test: true
           - name: tsan
-            bazel-args: --config=x86_64-linux --config=tsan
+            bazel-configs: x86_64-linux tsan
             build: false # https://github.com/eclipse-score/lifecycle/issues/474
             test: true
     permissions:
@@ -60,7 +60,7 @@ jobs:
     with:
       build-targets: ${{ matrix.build && '//examples/... //score/...' || '' }}
       test-targets: ${{ matrix.test && '//...' || '' }}
-      bazel-args: --lockfile_mode=error ${{ matrix.bazel-args }}
+      bazel-configs: ${{ matrix.bazel-configs }}
       cache-key: build-${{ matrix.name }}
       artifact-name: bazel-testlogs-${{ matrix.name }}
 
