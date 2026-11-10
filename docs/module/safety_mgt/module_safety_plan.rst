@@ -47,12 +47,10 @@ Functional Safety Management Roles
           - Assignee
 
         * - Safety Manager
-          - `@aschemmel-tech <https://github.com/aschemmel-tech>`_ (assigned by the S-CORE safety team,
-            see `meeting minutes 2026-06-17
-            <https://github.com/eclipse-score/score/discussions/2386#discussioncomment-17163015>`_)
+          - Alexander Schemmel
 
-        * - Module Project Manager
-          - <link to Module's Project Manager assignment or name>
+        * - Module Project Manager (= Feature team lead)
+          - Committers of feature team see `Lifecycle FT <https://github.com/eclipse-score/lifecycle/blob/main/.github/CODEOWNERS>`_
 
 Tailoring
 =========
