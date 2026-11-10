@@ -121,7 +121,6 @@ class IpcServer final : public IpcBase<Payload, MaxNumberElements, Socket>
             success = grantReadWrite(acl, f_uid);
         }
 
-        // acl perms are saved on acl destructor
         close(fd);
         return success;
     }
