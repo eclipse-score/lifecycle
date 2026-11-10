@@ -22,6 +22,7 @@ namespace score::mw::lifecycle::internal
 
 /// @brief Memory resource which forwards to the heap until it is locked,
 ///        then disallows any further allocations.
+/// @warning Not thread-safe.
 class InitOnlyResource final : public std::pmr::memory_resource
 {
   public:

@@ -52,8 +52,9 @@ class SafeProcessMapInserter
     virtual ~SafeProcessMapInserter() = default;
 
     /// @brief Insert a component into the map. If it matches with an already-
-    ///        inserted exit status, remove them both and call the termination
-    ///        handler.
+    ///        inserted exit status, remove them both and invoke the callback.
+    /// @warning The callback must not access the SafeProcessMap internally,
+    ///          as this would cause a deadlock.
     /// @param key The key to insert under.
     /// @param component The component to insert.
     virtual SafeProcessMapReturnType insertIfNotTerminated(osal::ProcessID key, IComponent* component) = 0;
@@ -75,12 +76,16 @@ class SafeProcessMap final : public SafeProcessMapInserter
 
     /// @brief Insert an exit status into the map. If it matches with an already-
     ///        inserted component, remove them both and invoke the callback.
+    /// @warning The callback must not access the SafeProcessMap internally,
+    ///          as this would cause a deadlock.
     /// @param key The key to insert under.
     /// @param status The exit status to insert.
     SafeProcessMapReturnType findTerminated(osal::ProcessID key, int32_t status);
 
     /// @brief Insert a component into the map. If it matches with an already-
     ///        inserted exit status, remove them both and invoke the callback.
+    /// @warning The callback must not access the SafeProcessMap internally,
+    ///          as this would cause a deadlock.
     /// @param key The key to insert under.
     /// @param component The component to insert.
     SafeProcessMapReturnType insertIfNotTerminated(osal::ProcessID key, IComponent* component);
@@ -114,9 +119,9 @@ class SafeProcessMap final : public SafeProcessMapInserter
 
             if (const MatchType* match = std::get_if<MatchType>(&it->second))
             {
+                on_match(*match);
                 process_map_.erase(it);
                 map_cv_.notify_all();
-                on_match(*match);
                 return SafeProcessMapReturnType::kMatched;
             }
 
@@ -136,7 +141,7 @@ class SafeProcessMap final : public SafeProcessMapInserter
     /// @brief Resource which allows the pre-allocated memory to be reused.
     std::pmr::unsynchronized_pool_resource pool_resource_;
 
-    /// @brief Mutex which protects both maps.
+    /// @brief Mutex which protects the map.
     std::mutex map_mutex_;
 
     /// @brief Condition variable which is signalled whenever an entry is removed.
