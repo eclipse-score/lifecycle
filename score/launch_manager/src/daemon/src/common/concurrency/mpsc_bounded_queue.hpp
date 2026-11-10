@@ -113,6 +113,26 @@ class MpscBoundedQueue
         return queue_.tryPop();
     }
 
+    /// @brief Non-blocking back(). Never waits, regardless of whether the queue has been stopped.
+    /// @warning Shall only be called by the single consumer thread on a non-empty queue. The reference
+    ///          remains valid until that element is popped; producers never touch existing elements.
+    /// @return Const reference to the most recently pushed item.
+    [[nodiscard]] const T& back()
+    {
+        std::unique_lock lock(mutex_);
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(!queue_.empty(), "Can only be called on a non-empty queue.");
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(ensure_single_consumer(), "Only a single consumer thread is allowed.");
+        return queue_.back();
+    }
+
+    /// @brief Checks whether the queue currently holds no items.
+    /// @return true if empty, otherwise false.
+    [[nodiscard]] bool empty() const
+    {
+        std::lock_guard lock(mutex_);
+        return queue_.empty();
+    }
+
     /// @brief Permanently marks the queue stopped and wakes every thread currently blocked in
     ///        wait(). After this call, push() and wait() always return
     ///        ConcurrencyErrc::kStopped. tryPop() is unaffected and continues to drain any

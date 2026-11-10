@@ -16,7 +16,10 @@
 
 #include <cstddef>
 #include <optional>
+#include <utility>
 #include <vector>
+
+#include <score/assert.hpp>
 
 namespace score::mw::lifecycle::internal
 {
@@ -83,6 +86,17 @@ class FixedSizeQueue
         count_--;
 
         return item;
+    }
+
+    /// @brief Provides access to the newest element in the queue.
+    /// @warning Shall only be called on a non-empty queue. The reference is invalidated by tryPop()
+    ///          of that element.
+    /// @return Reference to the most recently pushed element.
+    [[nodiscard]] const T& back()
+    {
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(!empty(), "Can only be called on a non-empty queue.");
+        const std::size_t index = (tail_ + capacity_ - 1U) % capacity_;
+        return *slots_[index];
     }
 
     /// @brief Checks if the queue contains no elements.
