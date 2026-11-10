@@ -444,8 +444,9 @@ Process Configuration
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall provide support for launching a process with
-    given :term:`File Descriptor` inheritance restrictions.
+    The :term:`Launch Manager` shall not give access to any internal
+    :term:`File Descriptors <File Descriptor>` to any :term:`Components
+    <Component>`.
 
 
 .. comp_req:: Security policy support
