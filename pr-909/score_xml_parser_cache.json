@@ -780,6 +780,30 @@
     "url": ""
   },
   {
+    "name": "test_lifecycle_lang_support",
+    "file": "tests/integration/lifecycle_lang_support/lifecycle_lang_support.py",
+    "line": 18,
+    "need": "comp_req__launch_man__lifecycle_lang_support",
+    "verify_type": "fully",
+    "result": "passed",
+    "result_text": "",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": ""
+  },
+  {
+    "name": "test_lifecycle_lang_support",
+    "file": "tests/integration/lifecycle_lang_support/lifecycle_lang_support.py",
+    "line": 18,
+    "need": "feat_req__lifecycle__prog_lang",
+    "verify_type": "fully",
+    "result": "passed",
+    "result_text": "",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": ""
+  },
+  {
     "name": "test_crash_ignores_dependents",
     "file": "tests/integration/crash_ignores_dependents/crash_ignores_dependents.py",
     "line": 19,

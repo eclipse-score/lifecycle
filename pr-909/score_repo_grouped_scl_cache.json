@@ -1023,6 +1023,40 @@
         }
       },
       {
+        "need": "comp_req__launch_man__lifecycle_lang_support",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
+            {
+              "name": "test_lifecycle_lang_support",
+              "file": "tests/integration/lifecycle_lang_support/lifecycle_lang_support.py",
+              "line": 18,
+              "need": "comp_req__launch_man__lifecycle_lang_support",
+              "verify_type": "fully",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
+        }
+      },
+      {
+        "need": "feat_req__lifecycle__prog_lang",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
+            {
+              "name": "test_lifecycle_lang_support",
+              "file": "tests/integration/lifecycle_lang_support/lifecycle_lang_support.py",
+              "line": 18,
+              "need": "feat_req__lifecycle__prog_lang",
+              "verify_type": "fully",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
+        }
+      },
+      {
         "need": "comp_req__launch_man__rc_file_state",
         "links": {
           "CodeLinks": [],
