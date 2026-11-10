@@ -55,7 +55,7 @@ A component activation consists of:
 * starting the process (possibly multiple times)
 * registering the pid in the SafeProcessMap
 * waiting for the ready condition to be fulfilled or ready timeout
-* posing the activation result to the event queue
+* posting the activation result to the event queue
 
 The component activation sequence is executed synchronously on a worker thread.
 
@@ -73,7 +73,7 @@ A component deactivation consists of:
 * stopping the process (if running)
 * waiting for the process to terminate or until shutdown timeout
 * escalating to SIGKILL in case the process did not terminate within the shutdown timeout
-* posing the deactivation result to the event queue. Process crashes during deactivation are ignored.
+* posting the deactivation result to the event queue. Process crashes during deactivation are ignored.
 
 The component deactivation sequence is executed synchronously on a worker thread.
 
@@ -96,8 +96,10 @@ Supervision Failure
 
 A component activates the alive supervision once the Running state is reached.
 The supervision failure may be detected at any time and is reported to the component event queue.
-The current failure reaction is to always requesting the fallback Run Target and cancels a running 
-transition if there is one.
+The graph forwards the failure to the affected component, which kills its process unless the failure
+is outdated (the component is no longer ready, component was restarted since, or the process has
+already terminated). The resulting unexpected termination then triggers the fallback Run Target as
+described in Process Termination.
 
 .. uml:: _assets/supervision_failure.puml
    :align: center
@@ -125,7 +127,7 @@ Transition cancellation / preemption
 When cancelling an ongoing transition it is crucial to leave every component
 in a well-defined state.
 
-The diagram below defines the point of time a component activation / deactivation
+The diagram below defines the point in time a component activation / deactivation
 may be safely cancelled.
 
 .. uml:: _assets/transition_cancellation_preemption.puml

@@ -48,19 +48,6 @@ namespace score::mw::lifecycle::internal
 using WorkerQueue =
     MPMCConcurrentQueue<std::optional<ComponentTask>, static_cast<std::size_t>(ProcessLimits::kMaxProcesses)>;
 
-/// @brief Config members needed to build the graph
-struct GraphConfig
-{
-    /// @brief Components that Run Targets may depend on
-    std::vector<configuration::ComponentConfig> components_;
-    /// @brief Run Targets that can be activated
-    std::vector<configuration::RunTargetConfig> run_targets_;
-    /// @brief Information about the Run Target transitioned to in the event of an error
-    configuration::FallbackRunTargetConfig fallback_run_target_;
-    /// @brief Name of the first Run Target to launch
-    std::string initial_run_target_;
-};
-
 /// @brief GraphState - the graph/process group state.
 /// @details Enumeration representing the state of the graph.
 /// @note The allowed/disallowed states are managed by
@@ -161,7 +148,7 @@ class Graph final
     /// @param transition_result_receiver Object to notify when the initial transition is complete.
     Graph(
         uint32_t max_num_nodes,
-        GraphConfig& configuration,
+        configuration::GraphConfig& configuration,
         std::shared_ptr<WorkerQueue> job_queue,
         ProcessHandling process_handling);
 
@@ -332,7 +319,7 @@ class Graph final
     mutable std::mutex requested_state_mutex_{};
 
     /// @brief Config pointer to set up graph nodes
-    GraphConfig& configuration_;
+    configuration::GraphConfig& configuration_;
 
     /// @brief Queue to push component tasks to
     std::shared_ptr<WorkerQueue> job_queue_;

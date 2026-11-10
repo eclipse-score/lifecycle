@@ -73,11 +73,7 @@ class GraphTest : public ::testing::Test
                           .setFallbackRunTarget(std::move(fallback))
                           .build();
 
-        graph_config_ = GraphConfig{
-            config.takeComponents(),
-            config.takeRunTargets(),
-            config.takeFallbackRunTarget(),
-            config.takeInitialRunTarget()};
+        graph_config_ = config.takeGraph();
     }
 
     std::vector<ComponentConfig> generateProcessComponents(int count)
@@ -211,11 +207,7 @@ class GraphOrdinaryTransitionTest : public GraphTest
                           .setFallbackRunTarget(std::move(fallback))
                           .build();
 
-        graph_config_ = GraphConfig{
-            config.takeComponents(),
-            config.takeRunTargets(),
-            config.takeFallbackRunTarget(),
-            config.takeInitialRunTarget()};
+        graph_config_ = config.takeGraph();
     }
 };
 
@@ -435,11 +427,7 @@ class GraphImplicitOffTargetTest : public GraphTest
                           .setFallbackRunTarget(std::move(fallback))
                           .build();
 
-        graph_config_ = GraphConfig{
-            config.takeComponents(),
-            config.takeRunTargets(),
-            config.takeFallbackRunTarget(),
-            config.takeInitialRunTarget()};
+        graph_config_ = config.takeGraph();
     }
 };
 
@@ -495,11 +483,7 @@ class GraphOffStateTimeoutTest : public GraphTest
                           .setFallbackRunTarget(std::move(fallback))
                           .build();
 
-        graph_config_ = GraphConfig{
-            config.takeComponents(),
-            config.takeRunTargets(),
-            config.takeFallbackRunTarget(),
-            config.takeInitialRunTarget()};
+        graph_config_ = config.takeGraph();
     }
 
     static constexpr std::uint32_t kOffTimeoutMs = 1234;
@@ -528,11 +512,7 @@ class GraphHandleComponentEventTest : public GraphTest
                           .setFallbackRunTarget(std::move(fallback))
                           .build();
 
-        graph_config_ = GraphConfig{
-            config.takeComponents(),
-            config.takeRunTargets(),
-            config.takeFallbackRunTarget(),
-            config.takeInitialRunTarget()};
+        graph_config_ = config.takeGraph();
     }
 };
 
@@ -652,6 +632,55 @@ TEST_F(GraphHandleComponentEventTest, unexpectedTerminationDuringTransition)
     const auto second_job = job_queue_->pop();
     executeJobSuccessfully(second_job->value());
     graph_->handleComponentEvent(ActivationSuccessful{second_job->value().component.get().getIdentifier()});
+}
+
+/// @brief Graph with a single supervised process
+class GraphSupervisionFailureTest : public GraphTest
+{
+  protected:
+    void SetUp() override
+    {
+        ON_CALL(mock_factory_, constructSupervision).WillByDefault(InvokeWithoutArgs([]() {
+            return std::make_unique<NiceMock<MockAliveSupervisionHandle>>();
+        }));
+        GraphTest::SetUp();
+    }
+
+    void SetConfig() override
+    {
+        auto procs = generateProcessComponents(1);
+        auto& profile = procs[0].component_properties.application_profile;
+        profile.application_type = ApplicationType::ReportingAndSupervised;
+        profile.alive_supervision = ComponentAliveSupervision{10U, 1U, 0U, 0U};
+        auto rts = generateRunTargets(1);
+        rts[1].depends_on = {procs[0].name};
+        auto config = ConfigBuilder{}
+                          .setComponents(std::move(procs))
+                          .setRunTargets(std::move(rts))
+                          .setInitialRunTarget("Startup")
+                          .setFallbackRunTarget(std::move(fallback))
+                          .build();
+
+        graph_config_ = config.takeGraph();
+    }
+};
+
+TEST_F(GraphSupervisionFailureTest, supervisionFailureKillsActiveComponent)
+{
+    RecordProperty(
+        "Description",
+        "Test that a supervision failure event is forwarded to the component, which kills its process if the "
+        "failure belongs to the current process run");
+
+    EXPECT_CALL(process_interface_, waitForkRunning(_, _)).WillOnce(Return(osal::OsalReturnType::kSuccess));
+    completeTransition(IdentifierHash{run_target_name(0)});
+    const auto component_id = IdentifierHash{process_name(0)};
+    ASSERT_NE(graph_->getProcessInfoNode(component_id), nullptr);
+
+    EXPECT_CALL(process_interface_, forceTermination).WillOnce(Return(osal::OsalReturnType::kSuccess));
+
+    // A failure timestamped after the supervision was started
+    graph_->handleComponentEvent(SupervisionFailure{component_id, std::chrono::nanoseconds::max() - 1ns});
 }
 
 class GraphTransitionFailuresTest : public GraphTest

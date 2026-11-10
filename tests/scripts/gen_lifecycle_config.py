@@ -34,7 +34,7 @@ def gen_lifecycle_config(
     total_process_count = cppprocesses + rustprocesses
 
     config = {
-        "schema_version": 1,
+        "schema_version": 2,
         "defaults": {
             "deployment_config": {
                 "bin_dir": "/opt",

@@ -11,12 +11,6 @@
 # SPDX-License-Identifier: Apache-2.0
 # *****************************************************************************
 
-build:_score_common --cxxopt=-Wno-error=mismatched-new-delete
-build:_score_common --cxxopt=-Wno-error=redundant-decls
-build:_score_common --cxxopt=-Wno-error=stringop-overflow
-build:_score_common --host_cxxopt=-Wno-error=mismatched-new-delete
-build:_score_common --host_cxxopt=-Wno-error=redundant-decls
-build:_score_common --host_cxxopt=-Wno-error=stringop-overflow
 build:_score_common --host_platform=@score_bazel_platforms//:x86_64-linux-gcc_12.2.0-posix
 build:_score_common --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_x86_64_unknown_linux_gnu
 build:_score_common --extra_toolchains=@score_gcc_x86_64_toolchain//:x86_64-linux-gcc_12.2.0

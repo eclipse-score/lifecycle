@@ -41,7 +41,7 @@ void ProcessGroupManager::cancel()
 
 // codeql[cpp/number-of-parameters-per-function] Dismiss: All parameters required for dependency injection, and building them into a parameter struct would add unnecessary indirection without helping visibility.
 ProcessGroupManager::ProcessGroupManager(
-    GraphConfig&& config,
+    configuration::GraphConfig&& config,
     std::unique_ptr<saf::daemon::IAliveMonitor> alive_monitor,
     std::shared_ptr<IRecoveryClient> recovery_client,
     std::unique_ptr<score::mw::lifecycle::internal::watchdog::IWatchdogIf> watchdog,
@@ -58,6 +58,10 @@ ProcessGroupManager::ProcessGroupManager(
       recovery_client_(recovery_client),
       watchdog_(std::move(watchdog))
 {
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG(alive_monitor != nullptr);
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG(recovery_client_ != nullptr);
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG(watchdog != nullptr);
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG(process_interface != nullptr);
 }
 
 bool ProcessGroupManager::initialize()
@@ -162,13 +166,10 @@ void ProcessGroupManager::createProcessComponentsObjects(std::size_t total_proce
     LM_LOG_DEBUG() << "Creating component event queue...";
     event_queue_ = std::make_unique<ComponentEventQueue>(total_processes);
 
-    if (recovery_client_)
-    {
-        recovery_client_->setRecoveryRequestCallback(
-            [this](const IdentifierHash& process_identifier, std::chrono::nanoseconds /* failure_timestamp */) {
-                static_cast<void>(event_queue_->push(SupervisionFailure{process_identifier}));
-            });
-    }
+    recovery_client_->setRecoveryRequestCallback(
+        [this](const IdentifierHash& process_identifier, std::chrono::nanoseconds failure_timestamp) {
+            static_cast<void>(event_queue_->push(SupervisionFailure{process_identifier, failure_timestamp}));
+        });
 
     LM_LOG_DEBUG() << "Creating process monitor...";
     process_monitor_ = std::make_unique<ProcessMonitor>(*event_queue_);
@@ -238,11 +239,7 @@ void ProcessGroupManager::processComponentEvents()
 
     while (auto event = event_queue_->getNextEvent())
     {
-        if (const auto* supervision_failure = std::get_if<SupervisionFailure>(&*event))
-        {
-            handleRecoveryRequest(supervision_failure->process_identifier);
-        }
-        else if (auto* get_active_run_target = std::get_if<GetActiveRunTarget>(&*event))
+        if (auto* get_active_run_target = std::get_if<GetActiveRunTarget>(&*event))
         {
             handleGetActiveRunTarget(get_active_run_target);
         }
@@ -329,44 +326,6 @@ void ProcessGroupManager::allProcessGroupsOff()
         thread_pool_->stop();
         graph_->forceKillProcesses();
         thread_pool_.reset();
-    }
-}
-
-void ProcessGroupManager::handleRecoveryRequest(const IdentifierHash& process_identifier)
-{
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(bool(graph_), "Graph not initialized");
-
-    const IdentifierHash old_state = graph_->getRequestedRunTarget();
-    const GraphState graph_state = graph_->getState();
-
-    LM_LOG_DEBUG() << "handleRecoveryRequest: Processing recovery request for process" << process_identifier
-                   << "to state" << recovery_state_;
-
-    if (GraphState::kInTransition == graph_state)
-    {
-        if (old_state != recovery_state_)
-        {
-            // Cancel current transition and start new one
-            (void)graph_->setPendingState(recovery_state_, RunTargetActivationSource::kRecoveryAction);
-            graph_->setRequestStartTime();
-            graph_->cancel();
-        }
-        else
-        {
-            // Already in transition to the requested state
-            LM_LOG_DEBUG() << "handleRecoveryRequest: Already transitioning to same Run Target";
-        }
-    }
-    else if (GraphState::kSuccess == graph_state && old_state == recovery_state_)
-    {
-        // Already in the requested state
-        LM_LOG_DEBUG() << "handleRecoveryRequest: Already in requested Run Target";
-    }
-    else
-    {
-        // Start new state transition
-        (void)graph_->setPendingState(recovery_state_, RunTargetActivationSource::kRecoveryAction);
-        graph_->setRequestStartTime();
     }
 }
 

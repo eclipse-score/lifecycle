@@ -12,7 +12,7 @@
 # *******************************************************************************
 
 load("@rules_cc//cc:defs.bzl", "cc_library")
-load("@score_baselibs//:bazel/unit_tests.bzl", "cc_gtest_unit_test")
+load("//tests/utils/bazel:unit_test.bzl", "cc_gtest_unit_test")
 
 cc_library(
     name = "tag",
@@ -100,8 +100,7 @@ cc_gtest_unit_test(
         "@platforms//os:qnx": ["-lsocket"],
         "@platforms//os:linux": [],
     }),
-    tags = ["no-tsan"],
-    target_compatible_with = select({
+    target_compatible_with = ["@score_cpp_policies//sanitizers/constraints:no_tsan"] + select({
         "//config:unit_qemu": [],
         "//config:unit_host": [],
         "//conditions:default": ["@platforms//:incompatible"],

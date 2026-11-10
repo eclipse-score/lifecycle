@@ -98,7 +98,7 @@ Feature Safety Package
 ======================
 
 To create the safety package (according to :need:`gd_guidl__saf_package`) the following
-documents and work products status have to go to "valid" (after the relevant verification were performed).
+documents and work products status have to go to "valid" (after the relevant verifications were performed).
 
 Feature Documents Status
 ------------------------

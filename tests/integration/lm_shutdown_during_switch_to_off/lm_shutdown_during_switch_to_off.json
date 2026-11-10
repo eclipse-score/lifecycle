@@ -1,5 +1,5 @@
 {
-    "schema_version": 1,
+    "schema_version": 2,
     "defaults": {
         "deployment_config": {
             "bin_dir": "/tmp/tests/lm_shutdown_during_switch_to_off",

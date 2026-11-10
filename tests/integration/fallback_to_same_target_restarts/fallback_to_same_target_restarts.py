@@ -22,7 +22,10 @@ from attribute_plugin import add_test_properties
         "comp_req__launch_man__rt_comp_dep",
     ],
     partially_verifies=[
+        "feat_req__lifecycle__launch_support",
+        "feat_req__lifecycle__conditional_startup",
         "comp_req__launch_man__process_launch_args",
+        "comp_req__launch_man__alive_failure",
     ],
     test_type="interface-test",
     derivation_technique="error-guessing",
@@ -31,11 +34,15 @@ def test_fallback_to_same_target_restarts(
     target, setup_test, assert_test_results, remote_test_dir
 ):
     """
-    Objective: Verifies that the launch manager correctly restarts a crashed
-    process if it is active in the fallback state.
+    Objective: Verifies that the launch manager correctly restarts a process
+    if it is active in the fallback state, after the process
+    1. crashed, or
+    2. failed alive supervision.
 
-    A process crashes after Run Target activation completes and proceeds normally the second time it is launched.
-    Expected Behaviour: The process is relaunched and completes normally.
+    Crash: A process crashes after Run Target activation completes and proceeds normally the second time it is
+    launched.
+    Supervision failure: A supervised process stops reporting alive notifications after Run Target activation and
+    proceeds normally after restarting it in the fallback_run_target.
     """
 
     run_test(

@@ -47,7 +47,7 @@ Components
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall reject an inconsistent definition of set of executables dependencies.
+    The :term:`Launch Manager` shall reject an inconsistent definition of a set of executables' dependencies.
 
 
 Activating Components
@@ -89,7 +89,7 @@ Deactivating Components
         Fast shutdown allows the :term:`Launch Manager` to terminate its own process **normally**, 
         without waiting for the started :term:`Processes <Process>`.
         **Use case:** This is relevant when the system needs to restart quickly, 
-        so it shuts down the launch manager in ordinary manner, but ignores the child processes.
+        so it shuts down the launch manager in an ordinary manner, but ignores the child processes.
 
 .. comp_req:: Normal shutdown
     :id: comp_req__launch_man__launch_manager_shutdown
@@ -102,7 +102,7 @@ Deactivating Components
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall support normal shutdown by terminating all
-    process in the dependency order.
+    processes in the dependency order.
 
 .. comp_req:: Launch Manager shutdown
     :id: comp_req__launch_man__launcher_exit_shutdown
@@ -128,7 +128,7 @@ Deactivating Components
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall provide support to dropping all surveillance
+    The :term:`Launch Manager` shall provide support for dropping all surveillance
     and failure reaction activities of :term:`Processes <Process>`.
 
     .. note::
@@ -159,7 +159,7 @@ Deactivating Components
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall be able to stop a process when all it's dependents are stopped if specified in the set of executables.
+    The :term:`Launch Manager` shall be able to stop a process when all its dependents are stopped if specified in the set of executables.
 
 
 Conditional Launching
@@ -220,7 +220,7 @@ Ready Conditions
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall support a :term:`Ready Condition` that is
-    satisfied when :term:`Component` notifies the :term:`Lifecycle Interface`.
+    satisfied when a :term:`Component` notifies the :term:`Lifecycle Interface`.
 
 .. comp_req:: Lifecycle Interface programming languages
     :id: comp_req__launch_man__lifecycle_lang_support
@@ -294,7 +294,7 @@ Launching Processes
     .. note::
         This is a similar concept to piping in shell scripting, where the output of one process can be used as the input to another.
 
-.. comp_req:: Multiple instance of executable
+.. comp_req:: Multiple instances of an executable
     :id: comp_req__launch_man__multi_start_support
     :reqtype: Functional
     :security: NO
@@ -312,7 +312,7 @@ Process Configuration
 """""""""""""""""""""
 ..
     Why does everything map here to feat_req__lifecycle__custom_cond_support?
-    When looking on this requirement it seems it is related to Control interface API.
+    When looking at this requirement it seems it is related to Control interface API.
 
 .. comp_req:: Handling process args
     :id: comp_req__launch_man__process_launch_args
@@ -418,7 +418,7 @@ Process Configuration
     The :term:`Launch Manager` shall support restarting the process 
     a configurable amount of times, if the process fails to reach its
     :term:`Ready State`.
-    If no retry attempts are successful this shall be considered an
+    If no retry attempts are successful this shall be considered a
     :term:`Component Failure`.
 
 .. comp_req:: Process capability support
@@ -485,7 +485,7 @@ Process Configuration
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support for launching a process with
-    certain scheduling policy.
+    a certain scheduling policy.
 
 .. comp_req:: CPU runmask support
     :id: comp_req__launch_man__runmask_support
@@ -510,7 +510,7 @@ Process Configuration
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall provide support for launching process with
+    The :term:`Launch Manager` shall provide support for launching a process with
     :term:`ASLR` (Address Space Layout Randomization).
 
 .. comp_req:: Resource limit support
@@ -573,7 +573,7 @@ Terminating Processes
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall provide support for configurable timeout
+    The :term:`Launch Manager` shall provide support for a configurable timeout
     :term:`Interval` to wait for the process to be stopped.
 
 .. comp_req:: Configurable delay between SIGTERM and SIGKILL
@@ -676,7 +676,7 @@ Run Targets
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall consider a :term:`Run Target` activation
-    as failed if the activation exceed the time configured in
+    as failed if the activation exceeds the time configured in
     ``run_target.transition_timeout_ms``.
 
 .. comp_req:: Process state
@@ -892,7 +892,7 @@ Recovery Actions
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall notify the State Manger of a recovery
+    The :term:`Launch Manager` shall notify the State Manager of a recovery
     action that results in a :term:`Run Target` activation using the 
     :term:`Control Interface`.
 
@@ -1088,7 +1088,7 @@ Logging
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide support for logging process launches,
-    :term:`Processes <Process>` exit/recovery, internal tasks, and interaction with external monitor.
+    :term:`Processes <Process>` exit/recovery, internal tasks, and interaction with an external monitor.
 
 .. comp_req:: Logging timestamp
     :id: comp_req__launch_man__log_timestamp
@@ -1113,7 +1113,7 @@ Logging
     :satisfied_by: comp__lifecycle_launch_manager
 
     The :term:`Launch Manager` shall provide the possibility to log the :term:`DAG`
-    in a human readable format, triggered via :term:`Control Interface`.
+    in a human readable format, triggered via the :term:`Control Interface`.
 
 .. comp_req:: Configuration dependency view
     :id: comp_req__launch_man__dependency_visu
@@ -1166,7 +1166,7 @@ Configuration file
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
-    The :term:`Launch Manager` shall check availability of executables in the filesystem only when the executable shall required to be executed.
+    The :term:`Launch Manager` shall check availability of executables in the filesystem only when the executable is required to be executed.
 
 .. comp_req:: Configuration Verification tool
     :id: comp_req__launch_man__offline_config_valid
