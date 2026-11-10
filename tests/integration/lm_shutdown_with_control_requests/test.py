@@ -47,7 +47,10 @@ def test_lm_shutdown_with_control_requests(
     )
     requester = target.execute_async(
         str(remote_test_dir / "lm_control_requester"),
-        args=[],
+        args=[
+            "--service_instance_manifest",
+            str(remote_test_dir / "etc/mw_com_config_for_requester.json"),
+        ],
         cwd=str(remote_test_dir),
     )
 

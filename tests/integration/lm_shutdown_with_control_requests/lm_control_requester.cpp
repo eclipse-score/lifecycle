@@ -16,6 +16,8 @@
 #include <thread>
 
 #include "common.hpp"
+#include "score/mw/com/runtime.h"
+#include "score/string_manipulation/arguments/arguments.h"
 #include <score/mw/lifecycle/ilm_control.hpp>
 
 using namespace score::mw::lifecycle;
@@ -31,8 +33,11 @@ constexpr std::uint64_t kMaxFailures = 500;
 /// It is not owned by the Launch Manager, so it keeps sending while the Launch Manager shuts
 /// down, including after the control client has been terminated and while the
 /// ProcessGroupManager is being destroyed.
-int main()
+int main(int argc, const char* argv[])
 {
+    // Load the requester specific mw::com config passed via --service_instance_manifest.
+    score::mw::com::runtime::InitializeRuntime(score::string_manipulation::GetArguments(argc, argv));
+
     while (!std::filesystem::exists(a_started))
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));

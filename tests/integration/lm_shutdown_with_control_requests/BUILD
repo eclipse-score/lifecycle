@@ -37,6 +37,8 @@ cc_binary(
     deps = [
         ":common",
         "//score/launch_manager:control_cc",
+        "@score_baselibs//score/string_manipulation/arguments",
+        "@score_communication//score/mw/com",
     ],
 )
 
@@ -51,4 +53,5 @@ integration_test(
         "//score/launch_manager",
     ],
     config = ":config.json",
+    mw_com_config_extra_srcs = [":mw_com_config_for_requester.json"],
 )

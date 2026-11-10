@@ -21,6 +21,7 @@ DEFAULT_QEMU_CONFIG = "//config:qemu_config"
 DEFAULT_QEMU_IMAGE = "//config:qemu_image"
 DEFAULT_DOCKER_IMAGE_TARGET = "@score_lifecycle//tests/utils/environments/x86_64-linux"
 DEFAULT_DOCKER_IMAGE_TAG = "score_itf_examples:latest"
+DEFAULT_MW_COM_CONFIG_EXTRA_SRCS = []
 
 def integration_test(
         name,
@@ -34,6 +35,7 @@ def integration_test(
         docker_image_target = DEFAULT_DOCKER_IMAGE_TARGET,
         docker_image_tag = DEFAULT_DOCKER_IMAGE_TAG,
         plugins = [],
+        mw_com_config_extra_srcs = DEFAULT_MW_COM_CONFIG_EXTRA_SRCS,
         **kwargs):
     """Creates an integration test.
 
@@ -66,6 +68,8 @@ def integration_test(
             `//config:integration_docker` variant of this test.
         docker_image_tag: `repo_tags` value for the image at `docker_image_target`.
         plugins: Additional bazel plugins used by the test.
+        mw_com_config_extra_srcs: List of extra mw::com configuration files
+          required for test (default: [])
         **kwargs: Miscellaneous arguments passed through to `py_itf_test`
     """
 
@@ -98,7 +102,7 @@ def integration_test(
 
     pkg_files(
         name = mw_com_config_pkg_name,
-        srcs = ["@score_lifecycle//tests/utils/environments:mw_com_config.json"],
+        srcs = ["@score_lifecycle//tests/utils/environments:mw_com_config.json"] + mw_com_config_extra_srcs,
         prefix = "tests/{}/etc".format(name),
         attributes = pkg_attributes(mode = "0400"),
     )
