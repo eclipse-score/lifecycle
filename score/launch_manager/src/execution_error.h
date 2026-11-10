@@ -81,6 +81,8 @@ class ExecErrorDomain final : public score::result::ErrorDomain
                 return "The requested Run Target does not exist in the current configuration";
             case ExecErrc::kNotImplemented:
                 return "The requested functionality is not yet implemented";
+            case ExecErrc::kShuttingDown:
+                return "The request could not be completed because launch manager is shutting down";
             default:
                 return "Unknown error";
         }
