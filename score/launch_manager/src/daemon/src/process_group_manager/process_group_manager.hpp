@@ -75,7 +75,7 @@ class ProcessGroupManager final : public IRunTargetControl
     /// @param process_interface The interface used to launch and terminate processes. Defaults to the POSIX
     /// ProcessLauncher.
     ProcessGroupManager(
-        GraphConfig&& config,
+        configuration::GraphConfig&& config,
         std::unique_ptr<saf::daemon::IAliveMonitor> alive_monitor,
         std::shared_ptr<IRecoveryClient> recovery_client,
         std::unique_ptr<score::mw::lifecycle::internal::watchdog::IWatchdogIf> watchdog,
@@ -119,18 +119,9 @@ class ProcessGroupManager final : public IRunTargetControl
 
     void registerActiveRunTargetCallback(ActivationCallbackT callback) noexcept override;
 
-    const IdentifierHash recovery_state_{Graph::recovery_state_name};
-
   private:
-    /// @brief Handle a single recovery request emitted by Alive supervision.
-    void handleRecoveryRequest(const IdentifierHash& process_identifier);
-
     /// @brief Drains every ComponentEvent currently queued to the (single) graph managed by this
     /// ProcessGroupManager.
-    /// @details Single-graph assumption: PGM creates one ProcessMonitor bound to the first (only)
-    /// graph. SupervisionFailure is routed by process identifier through handleRecoveryRequest(),
-    /// while all other events are forwarded to Graph::handleComponentEvent(). Multi-graph routing
-    /// is deferred to a future revision.
     void processComponentEvents();
 
     /// @brief Manage the process group by starting any pending transitions that were requested
@@ -194,7 +185,7 @@ class ProcessGroupManager final : public IRunTargetControl
     void handleSetRequestedRunTarget(SetRequestedRunTarget* event) noexcept;
 
     /// @brief The configuration object associated with the ProcessGroupManager.
-    GraphConfig configuration_;
+    configuration::GraphConfig configuration_;
 
     /// @brief The configuration object associated with the watchdog.
     std::optional<configuration::WatchdogConfig> watchdog_config_;

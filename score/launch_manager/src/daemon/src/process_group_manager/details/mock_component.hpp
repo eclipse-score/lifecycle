@@ -29,6 +29,12 @@ class MockComponent : public IComponent
     MOCK_METHOD(bool, active, (), (override, const));
 };
 
+class MockSupervisedComponent : public MockComponent
+{
+  public:
+    MOCK_METHOD(void, handleSupervisionFailure, (std::chrono::nanoseconds failure_timestamp), (override));
+};
+
 }  // namespace score::mw::lifecycle::internal
 
 #endif  // MOCK_COMPONENT_HPP_INCLUDED

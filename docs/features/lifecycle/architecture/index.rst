@@ -26,7 +26,7 @@ Feature Architecture
 Overview
 --------
 
-A brief overview of Lifecycle is described :need:`doc__lifecycle`.
+A brief overview of Lifecycle is described in :need:`doc__lifecycle`.
 
 Description
 -----------

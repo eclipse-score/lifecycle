@@ -80,7 +80,7 @@ The Control interface (:need:`logic_arc_int__lifecycle__controlif`) provides two
 
 2. **Forced Activation**
 
-   In this mode, any in-progress Run Target activation is cancelled, any queued requests are removed and the newly request Run Target
+   In this mode, any in-progress Run Target activation is cancelled, any queued requests are removed and the newly requested Run Target
    activation is executed immediately.
 
 

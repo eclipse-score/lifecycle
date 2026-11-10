@@ -27,7 +27,7 @@ High level functionality provided by Lifecycle:
     * **Run Target Management**: Determining which components are active at any given time by activating and deactivating named Run Targets in response to requests from a StateManager.
     * **Dependency Resolution**: Ensuring components start and stop in the correct order based on declared startup and shutdown dependencies.
     * **Failure Recovery**: Detecting unexpected process termination and executing configured recovery actions such as restarting a component or switching to a recovery Run Target.
-    * **External Watchdog Integration**: Compatible with external watchdogs through configurable watchdog device file.
+    * **External Watchdog Integration**: Compatible with external watchdogs through a configurable watchdog device file.
 * **Health Monitor**
     * **Supervision Types**: Supports Heartbeat, Deadline, and Logical supervision to verify the timing and control flow of process execution.
     * **Alive Notifications**: Supervision results are translated into alive notifications sent to the Launch Manager to communicate supervision status and report failures.
@@ -71,7 +71,7 @@ Applications may either use the higher-level *Health Monitoring APIs* or directl
 
 Applications can report the *Running state* to the Launch Manager to signal that initialization is finished and dependent applications can now be started.
 
-Applications may either use the higher-level [``score::mw::lifecycle::Application``](score/launch_manager/src/lifecycle_client/src/application.h) API or the lower level [``score::mw::lifecycle::report_running``](score/launch_manager/src/lifecycle_client/src/report_running.h) function.
+Applications may either use the higher-level [``score::mw::lifecycle::Application``](score/launch_manager/src/lifecycle_client/src/application.h) API or the lower-level [``score::mw::lifecycle::report_running``](score/launch_manager/src/lifecycle_client/src/report_running.h) function.
 
 See examples [Application Example](examples/cpp_lifecycle_app) and [report_running example](examples/cpp_supervised_app).
 
@@ -130,26 +130,39 @@ Build all components for different platforms:
 
 **QNX**
 
+Building and testing for QNX requires a QNX license and a myQNX account.
+If you don't have a QNX license, you can get a free non-commercial license by following [this guide](https://qnx.github.io/codelabs/get-non-commercial-qnx-license/index.html#0).
+
+Either use a `.netrc` file to provide the login credentials for your myQNX account or provide them as environment variables `SCORE_QNX_USER` and `SCORE_QNX_PASSWORD`.
+Example `~/.netrc`:
+
+```
+machine qnx.com
+login <myQNX user>
+password <myQNX password>
+```
+
+The QNX toolchain is automatically downloaded when building for QNX.
+If the automatic download via Bazel fails for some reason you can also provide the manually downloaded file in a directory which you then pass via the `--distdir` command line option.
+
+Make sure your QNX license file is available as /opt/score_qnx/license/licenses (e.g. by copying it from your ~/.qnx/license/licenses)
+
 ```sh
 bazel build --config=x86_64-qnx //score/...
 bazel build --config=arm64-qnx //score/...
 ```
 
-Integration tests via [QEMU](https://www.qemu.org/):
+Unit and integration tests via [QEMU](https://www.qemu.org/):
+
+Outside the devcontainer QEMU has to be installed (e.g. `sudo apt install qemu-system-x86 qemu-system-arm`).
 
 ```sh
-bazel test --config=x86_64-qnx //tests/integration/...
+bazel test --config=x86_64-qnx //score/... //tests/integration/...
+bazel test --config=arm64-qnx //score/... //tests/integration/...
 ```
 
-Unit tests via [QEMU](https://www.qemu.org/):
-
-```sh
-bazel test --config=unit-tests-x86_64-qnx //score/...
-```
-
-A different flag is needed for unit tests because the emulation is configured
-using `--run_under`, which applies to all targets, even those that should run
-natively on the host.
+`//score/...` contains the unit tests, `//tests/integration/...` the integration tests.
+The unit and integration tests do not have to run together. Each path can also be tested on its own.
 
 **Linux**
 
@@ -160,7 +173,7 @@ bazel build --config=arm64-linux //score/...
 
 ### Quality
 
-* For generating code coverage report, see [quality/coverage/README.md](quality/coverage/README.md).
+* For generating a code coverage report, see [quality/coverage/README.md](quality/coverage/README.md).
 * For running tests with sanitizers enabled, see [quality/sanitizer/README.md](quality/sanitizer/README.md).
 
 ### Demo
