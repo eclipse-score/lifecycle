@@ -129,6 +129,12 @@ void ProcessGroupManager::deinitialize()
 {
     // ucm_polling_thread_.stopPolling();
     watchdog_->disable();
+
+    if (pending_activation_queue_)
+    {
+        pending_activation_queue_->stop();
+    }
+
     if (event_queue_)
     {
         event_queue_->stop();
@@ -350,7 +356,7 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
         {
             // The previous transition finished and nothing newer was requested: take the next queued request,
             // skipping any that would not change the active Run Target.
-            while (const std::optional<IdentifierHash> next = pending_activation_queue_->pop())
+            while (const std::optional<IdentifierHash> next = pending_activation_queue_->tryPop())
             {
                 if (next.value() != pg.getRequestedRunTarget())
                 {
@@ -460,15 +466,17 @@ bool ProcessGroupManager::shouldDropDuplicateRequest(const IdentifierHash new_ru
     //   Drop this run target request if it matches old_run_target in this case.
     const IdentifierHash pending_run_target = graph_->getPendingTransition().run_target;
     const IdentifierHash old_run_target = graph_->getRequestedRunTarget();
-    const IdentifierHash previous = pending_activation_queue_->back().value_or(
-        (pending_run_target != IdentifierHash("")) ? pending_run_target : old_run_target);
+    const IdentifierHash previous =
+        !pending_activation_queue_->empty()
+            ? pending_activation_queue_->back()
+            : ((pending_run_target != IdentifierHash("")) ? pending_run_target : old_run_target);
 
     return previous == new_run_target;
 }
 
 void ProcessGroupManager::clearQueuedActivations(std::string_view reason) noexcept
 {
-    while (const std::optional<IdentifierHash> dropped = pending_activation_queue_->pop())
+    while (const std::optional<IdentifierHash> dropped = pending_activation_queue_->tryPop())
     {
         LM_LOG_WARN() << "Dropping queued activation of Run Target" << dropped.value() << "due to" << reason;
     }
@@ -491,7 +499,7 @@ void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* eve
         {
             LM_LOG_DEBUG() << "Queued activation of" << event->run_target << "ignored: same as previous request";
         }
-        else if (!pending_activation_queue_->push(event->run_target))
+        else if (!pending_activation_queue_->push(event->run_target).has_value())
         {
             response = score::MakeUnexpected(ExecErrc::kRequestQueueIsFull);
         }
