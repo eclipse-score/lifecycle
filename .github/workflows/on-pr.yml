@@ -135,6 +135,16 @@ jobs:
     permissions:
       contents: read
 
+  codeql:
+    name: CodeQL
+    uses: ./.github/workflows/_codeql.yml
+    permissions:
+      contents: read
+      actions: write
+      security-events: write
+    with:
+      fail-on-findings: "true"
+
   docs-check:
     name: Check documentation
     uses: eclipse-score/cicd-workflows/.github/workflows/docs-verify.yml@8d80e8df150cae21d53cbc8031d0f970648f7a67 # v0.0.3
@@ -198,6 +208,7 @@ jobs:
       - docs-build
       - clippy
       - coverage
+      - codeql
       - gitlint
     runs-on: ubuntu-slim
     permissions: {}

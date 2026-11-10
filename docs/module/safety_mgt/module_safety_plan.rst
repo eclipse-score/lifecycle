@@ -120,7 +120,12 @@ Module Work products List
         * - :need:`wp__module_sw_release_note`
           - :need:`gd_temp__rel_mod_rel_note`
           - :ndf:`copy('status', need_id='gd_temp__rel_mod_rel_note')`
-          - :need:`doc__lifecycle_release_note_v0_3_0`
+          - :ref:`release_notes`
+
+        * - :need:`wp__module_user_manual`
+          - :need:`gd_temp__rel_mod_user_manual`
+          - :ndf:`copy('status', need_id='gd_temp__rel_mod_user_manual')`
+          - :need:`doc__lifecycle_user_manual`
 
 Component Health Monitor Work products List
 -------------------------------------------

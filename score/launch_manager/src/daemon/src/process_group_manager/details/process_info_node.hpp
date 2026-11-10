@@ -54,6 +54,7 @@ class ProcessInfoNode final : public IComponent
           exit_status_(other.exit_status_.load()),
           process_state_(other.process_state_.load()),
           reached_ready_(other.reached_ready_.load()),
+          supervision_start_timestamp_(other.supervision_start_timestamp_.load()),
           config_(std::move(other.config_)),
           sync_(std::move(other.sync_)),
           process_handling_(std::move(other.process_handling_)),
@@ -76,15 +77,23 @@ class ProcessInfoNode final : public IComponent
     ProcessInfoNode& operator=(ProcessInfoNode&& other) = delete;
     ~ProcessInfoNode() = default;
 
+    /// @copydoc IComponent::getIdentifier
     [[nodiscard]] IdentifierHash getIdentifier() const override;
 
+    /// @copydoc IComponent::activate
     RequestResult activate(score::cpp::stop_token stop_token) override;
 
+    /// @copydoc IComponent::deactivate
     RequestResult deactivate(score::cpp::stop_token stop_token) override;
 
+    /// @copydoc IComponent::tryHandleTermination
     TerminationResult tryHandleTermination(int32_t process_status) override;
 
+    /// @copydoc IComponent::active
     [[nodiscard]] bool active() const override;
+
+    /// @copydoc IComponent::handleSupervisionFailure
+    void handleSupervisionFailure(std::chrono::nanoseconds failure_timestamp) override;
 
     /// @return The OS process ID, or zero if the process has never been started.
     [[nodiscard]] osal::ProcessID getPid() const;
@@ -175,6 +184,11 @@ class ProcessInfoNode final : public IComponent
     /// @brief Flag indicating whether the Ready Condition has been satisfied.
     /// The flag is reset when deactivate() is called.
     std::atomic_bool reached_ready_{false};
+
+    /// @brief Time at which alive supervision was last started for this process.
+    /// @details Set to nanoseconds max, so checking against supervision failure timestamp will fail if timestamp not
+    /// set.
+    std::atomic<std::chrono::nanoseconds> supervision_start_timestamp_{std::chrono::nanoseconds::max()};
 
     /// @brief Pointer to config for this process
     configuration::ComponentConfig config_;

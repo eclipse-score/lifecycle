@@ -25,6 +25,40 @@
 namespace score::mw::lifecycle::internal
 {
 
+namespace
+{
+std::uint8_t lifecyclePosition(const ProcessState state)
+{
+    switch (state)
+    {
+        case ProcessState::kIdle:
+            return 0U;
+        case ProcessState::kStarting:
+            return 1U;
+        case ProcessState::kRunning:
+            return 2U;
+        case ProcessState::kTerminating:
+            return 3U;
+        case ProcessState::kTerminated:
+            return 4U;
+        case ProcessState::kFailed:
+            return 5U;
+    }
+    SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE("Invalid ProcessState");
+}
+
+bool transitionIsValid(const ProcessState old_state, const ProcessState new_state)
+{
+    if ((lifecyclePosition(new_state) > lifecyclePosition(old_state)) ||
+        (new_state == old_state && new_state == ProcessState::kIdle))
+    {
+        return true;
+    }
+    return false;
+}
+
+}  // anonymous namespace
+
 ProcessInfoNode::ProcessInfoNode(configuration::ComponentConfig&& config, ProcessHandling process_handling)
     : termination_requested_(false),
       pid_(0),
@@ -56,10 +90,10 @@ ProcessInfoNode::ProcessInfoNode(configuration::ComponentConfig&& config, Proces
         else
         {
             LM_LOG_DEBUG() << "Successfully set up alive supervision for" << identifier_;
-        }
 
-        config_.deployment_config.environmental_variables.add(
-            "LCM_ALIVE_INTERFACE_PATH", supervision_handle_->getConnectionId());
+            config_.deployment_config.environmental_variables.add(
+                "LCM_ALIVE_INTERFACE_PATH", supervision_handle_->getConnectionId());
+        }
     }
 }
 
@@ -141,7 +175,7 @@ bool ProcessInfoNode::setState(score::mw::lifecycle::ProcessState new_state)
     bool success = true;
     score::mw::lifecycle::ProcessState old_state = getState();
 
-    if (new_state > old_state || (new_state == old_state && new_state == ProcessState::kIdle))
+    if (transitionIsValid(old_state, new_state))
     {
         success = process_state_.compare_exchange_strong(old_state, new_state);
     }
@@ -173,6 +207,7 @@ void ProcessInfoNode::unblockSync()
 IComponent::TerminationResult ProcessInfoNode::tryHandleTermination(int32_t process_status)
 {
     LM_LOG_DEBUG() << "Process" << identifier_ << "( pid" << pid_ << ") terminated with status" << process_status;
+    pid_ = 0;
     exit_status_ = process_status;
     TerminationResult res = TerminationResult::kIgnore;
     ProcessState starting = ProcessState::kStarting;
@@ -527,6 +562,8 @@ IComponent::RequestResult ProcessInfoNode::activate(score::cpp::stop_token stop_
     {
         if (auto time = getTimeForAliveState())
         {
+            supervision_start_timestamp_.store(
+                std::chrono::seconds{time->tv_sec} + std::chrono::nanoseconds{time->tv_nsec});
             supervision_handle_->activateSupervision(time.value());
         }
     }
@@ -539,6 +576,7 @@ IComponent::RequestResult ProcessInfoNode::deactivate(score::cpp::stop_token sto
     reached_ready_.store(false);
     if (auto time = getTimeForAliveState())
     {
+        supervision_start_timestamp_.store(std::chrono::nanoseconds::max());
         supervision_handle_->deactivateSupervision(time.value());
     }
     terminateProcess(stop_token);
@@ -549,6 +587,38 @@ IComponent::RequestResult ProcessInfoNode::deactivate(score::cpp::stop_token sto
 bool ProcessInfoNode::active() const
 {
     return reached_ready_.load();
+}
+
+void ProcessInfoNode::handleSupervisionFailure(std::chrono::nanoseconds failure_timestamp)
+{
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
+        isSupervised(), "Non supervised process received a supervision failure event");
+
+    // Take a copy, pid_ is reset to zero by tryHandleTermination() on another thread.
+    const osal::ProcessID pid = pid_;
+
+    if (!reached_ready_.load())
+    {
+        // The component is not ready, it may be already deactivated or currently deactivating or re-activating.
+        return;
+    }
+
+    if (supervision_start_timestamp_.load() >= failure_timestamp)
+    {
+        // The component is ready, but the supervision failure is from a previous run.
+        // The supervision got deactivated and activated again in the meantime.
+        return;
+    }
+
+    if (pid <= 0)
+    {
+        // process is no longer alive
+        return;
+    }
+
+    LM_LOG_WARN() << "Alive supervision failed for component" << identifier_ << "( pid" << pid
+                  << "), killing the process";
+    static_cast<void>(process_handling_.process_interface_->forceTermination(pid));
 }
 
 osal::ProcessID ProcessInfoNode::getPid() const
