@@ -182,7 +182,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../components/index.html">
-    Component documentation
+    Components
   </a>
 </li>
 
@@ -331,7 +331,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../components/index.html">
-    Component documentation
+    Components
   </a>
 </li>
 
@@ -431,13 +431,14 @@
 <li class="toctree-l3"><a class="reference internal" href="design_decisions.html">Design Decisions</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="chklst_arc_inspection.html">Architecture Inspection Checklist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chklst_arc_inspection.html">Lifecycle Architecture Inspection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../safety_analysis/fmea.html">FMEA (Failure Modes and Effects Analysis)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../safety_analysis/dfa.html">DFA (Dependent Failure Analysis)</a></li>
 
 <li class="toctree-l2"><a class="reference internal" href="../safety_analysis/aou_requirements.html">AoU Feature Requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../safety_planning/index.html">Feature Safety Work Products List</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../security_planning/index.html">Feature Security Work Products List</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../security_analysis/aou_requirements.html">Lifecycle Security Assumptions of Use</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../glossary.html">Lifecycle Glossary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../glossary_detailed.html">Glossary</a></li>
 </ul>
@@ -532,12 +533,12 @@ defined by the dependencies.</p>
 </ol>
 <figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-8a854fbc8c202c0b507b252cb61991a5a9d0da90.svg" type="image/svg+xml" style="width:397px;height:933px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-8a854fbc8c202c0b507b252cb61991a5a9d0da90.svg" type="image/svg+xml" style="width:397px;height:934px;background:#FFFFFF;"></object></p>
 </figure>
 <p>The <a class="reference internal" href="../../../components/launch_manager/architecture/component_architecture.html#comp__lifecycle_launch_manager" title="comp__lifecycle_launch_manager"><em class="xref need">Launch Manager (comp__lifecycle_launch_manager)</em></a> implements the following
-interfaces,for the selection of <a class="reference internal" href="../glossary.html#term-Run-Target"><span class="xref std std-term">Run Target</span></a> s, starting and stopping of
+interfaces for the selection of <a class="reference internal" href="../glossary.html#term-Run-Target"><span class="xref std std-term">Run Target</span></a> s, starting and stopping of
 components and monitoring of the processes.</p>
-<p>The <cite>ComponentConfig</cite> and <cite>RunTargetConfig</cite> structures defning such a dependency graph are
+<p>The <cite>ComponentConfig</cite> and <cite>RunTargetConfig</cite> structures defining such a dependency graph are
 described in <a class="reference internal" href="index.html#lifecycle-configuration-structure"><span class="std std-ref">Configuration Structure</span></a>.</p>
 </section>
 <section id="ready-conditions">
@@ -593,7 +594,7 @@ The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><s
 <li><p>Status reporting to external state managers via the Control interface (<a class="external_link reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html#logic_arc_int__lifecycle__controlif">logic_arc_int__lifecycle__controlif</a>)</p></li>
 </ul>
 <p><strong>Shutdown Signal Handling</strong></p>
-<p>The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> sends SIGTERM signal to SCORE applications (and any POSIX processes) to request their shutdown.
+<p>The <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> sends a SIGTERM signal to SCORE applications (and any POSIX processes) to request their shutdown.
 The lifecycle interface sets up the necessary signal handler for an SCORE application to properly respond to shutdown requests.</p>
 </section>
 <section id="native-applications">
@@ -623,7 +624,7 @@ controlled through POSIX signals:</p>
 <section id="state-machines">
 <h2>State machines<a class="headerlink" href="#state-machines" title="Link to this heading">#</a></h2>
 <p>A component maintains the following internal state machine:</p>
-<div class="need_container docutils container" id="SNCB-6a1c9910">
+<div class="need_container docutils container" id="SNCB-5e431b3e">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__comp_sm_if">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -674,7 +675,7 @@ controlled through POSIX signals:</p>
 <p>Note that the state machine of the underlying process is different from the component state machine.
 For example, the process may be already terminated, but the component is in <cite>Ready</cite> state.
 This is the case if the component is configured to be ready when the underlying process is terminated.</p>
-<div class="need_container docutils container" id="SNCB-dea669f4">
+<div class="need_container docutils container" id="SNCB-54f748c7">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__proc_sm_if">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -704,7 +705,7 @@ This is the case if the component is configured to be ready when the underlying 
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-39ef7103ae9ad78741471c5cdb5ef7b8240c4d25.svg" type="image/svg+xml" style="width:826px;height:641px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-39ef7103ae9ad78741471c5cdb5ef7b8240c4d25.svg" type="image/svg+xml" style="width:827px;height:641px;background:#FFFFFF;"></object></p>
 </figure>
 </td>
 </tr>
@@ -730,11 +731,11 @@ For Native applications which do not report their state, the process state machi
 <h2>Simplified example dependency graph<a class="headerlink" href="#simplified-example-dependency-graph" title="Link to this heading">#</a></h2>
 <p>Consider the following simplified dependency graph for the sequence diagrams
 in the following chapters.</p>
-<p>The purpose of the is not to show a real-world setup, but only to showcase different scenarios.</p>
+<p>The purpose of the graph is not to show a real-world setup, but only to showcase different scenarios.</p>
 <blockquote id="lifecycle-simplified-example-graph">
 <div><figure class="align-center">
 <p class="plantuml">
-<object data="../../../_images/plantuml-780b51bf0fb10469192664d6cf803e71269822aa.svg" type="image/svg+xml" style="width:649px;height:676px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-780b51bf0fb10469192664d6cf803e71269822aa.svg" type="image/svg+xml" style="width:646px;height:676px;background:#FFFFFF;"></object></p>
 </figure>
 </div></blockquote>
 <p>The Component <cite>setup_filesystems</cite> starts a shell script <cite>setup_filesystems.sh</cite> and reaches its <cite>Ready</cite> state when the script completed.
