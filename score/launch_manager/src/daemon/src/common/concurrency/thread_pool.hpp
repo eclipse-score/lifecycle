@@ -120,9 +120,9 @@ class ThreadPool final
             "sigset_t is too small to fulfill the kernel's rt_sigprocmask size requirement");
 
         sigset_t sig;
-        sigemptyset(&sig);
-        sigaddset(&sig, SIGTERM);
-        sigaddset(&sig, SIGINT);
+        static_cast<void>(sigemptyset(&sig));
+        static_cast<void>(sigaddset(&sig, SIGTERM));
+        static_cast<void>(sigaddset(&sig, SIGINT));
         int res = pthread_sigmask(SIG_BLOCK, &sig, NULL);
         SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(res == 0, "Invalid argument(s) to pthread_sigmask");
         static_cast<void>(res);

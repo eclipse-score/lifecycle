@@ -173,9 +173,9 @@ void resetSignalHandlersAndUnblock()
     SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(res == 0, "Invalid argument(s) to sigaction");
 
     sigset_t sig;
-    sigemptyset(&sig);
-    sigaddset(&sig, SIGTERM);
-    sigaddset(&sig, SIGINT);
+    static_cast<void>(sigemptyset(&sig));
+    static_cast<void>(sigaddset(&sig, SIGTERM));
+    static_cast<void>(sigaddset(&sig, SIGINT));
     res = pthread_sigmask(SIG_UNBLOCK, &sig, NULL);
     SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(res == 0, "Invalid argument(s) to pthread_sigmask");
     static_cast<void>(res);
