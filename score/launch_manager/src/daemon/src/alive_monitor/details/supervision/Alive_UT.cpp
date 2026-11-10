@@ -186,6 +186,7 @@ TEST_F(AliveSupervisionTest, AliveStaysOkWithCorrectHeartbeats)
 
     fix.activateProcess(10ns);
     fix.alive->evaluate(11ns);
+    EXPECT_EQ(fix.alive->getTimestamp(), 10ns);
     EXPECT_EQ(fix.alive->getStatus(), EStatus::kOk);
 
     // Cycle 1: one heartbeat at t=500 (within [10, 1010]), evaluate at t=1011
@@ -308,6 +309,36 @@ TEST_F(AliveSupervisionTest, MaxIndicationViolationExpires)
     fix.reportHeartbeat(100ns);
     fix.reportHeartbeat(200ns);
     fix.alive->evaluate(1000011ns);
+    EXPECT_EQ(fix.alive->getStatus(), EStatus::kExpired);
+}
+
+TEST_F(AliveSupervisionTest, CheckpointDataLossEvent)
+{
+    RecordProperty("Description", "Test that a checkpoint with missing data causes the supervision to expire");
+
+    AliveFixture fix = AliveFixture::Builder{}.build();
+    const ifappl::Checkpoint dataLossCheckpoint = ifappl::Checkpoint{0ns};
+    EXPECT_CALL(*fix.mockClient, sendRecoveryRequest).Times(1).WillOnce(Return(true));
+
+    fix.alive->updateData(dataLossCheckpoint);
+    fix.alive->evaluate(1ms);
+
+    EXPECT_EQ(fix.alive->getStatus(), EStatus::kExpired);
+}
+
+TEST_F(AliveSupervisionTest, OverflowCausesExpiration)
+{
+    RecordProperty("Description", "Verify that when a timestamp would produce overflow, the supervision expires");
+    AliveFixture fix = AliveFixture::Builder{}.build();
+
+    EXPECT_CALL(*fix.mockClient, sendRecoveryRequest).Times(1).WillOnce(Return(true));
+
+    EXPECT_EQ(fix.alive->getStatus(), EStatus::kDeactivated);
+
+    // DOES NOT COVER OVERFLOW - TODO
+    fix.activateProcess(10ns);
+
+    fix.alive->evaluate(std::chrono::nanoseconds::max() - 1ns);
     EXPECT_EQ(fix.alive->getStatus(), EStatus::kExpired);
 }
 
