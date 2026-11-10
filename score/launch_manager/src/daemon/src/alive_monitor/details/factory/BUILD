@@ -48,10 +48,7 @@ cc_library(
         "//score/launch_manager/src/daemon/src/common:log",
         "//score/launch_manager/src/daemon/src/configuration:config",
         "@score_baselibs//score/language/futurecpp",
-    ] + select({
-        "@platforms//os:qnx": [],
-        "@platforms//os:linux": ["//externals/acl"],
-    }),
+    ],
 )
 
 cc_library(
