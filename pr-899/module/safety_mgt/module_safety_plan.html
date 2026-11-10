@@ -494,7 +494,7 @@
                   
   <section id="safety-plan">
 <h1>Safety Plan<a class="headerlink" href="#safety-plan" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-db20614e">
+<div class="need_container docutils container" id="SNCB-a7c5bb02">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__lifecycle_safety_plan">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -1212,66 +1212,9 @@ A summary of the status is also documented in the project’s documentation mana
 <p>The following deviations from the module safety plan are present in the module safety package.
 These are deviations from planned processes execution and/or workproduct results,
 safety anomalies in the sense of known bugs in the software are reported in the release notes.</p>
-<div class="pst-scrollable-table-container"><table class="table" id="id5">
-<caption><span class="caption-number">Table 13 </span><span class="caption-text">Current Deviations</span><a class="headerlink" href="#id5" title="Link to this table">#</a></caption>
-<colgroup>
-<col style="width: 20.0%" />
-<col style="width: 30.0%" />
-<col style="width: 30.0%" />
-<col style="width: 20.0%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Deviation</p></th>
-<th class="head"><p>Description</p></th>
-<th class="head"><p>Safety Impact / Argumentation</p></th>
-<th class="head"><p>Planned Resolution</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>DFA not yet performed</p></td>
-<td><p>The Dependent Failure Analysis (<a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/safety_analysis/safety_analysis_workproducts.html#wp__feature_dfa">wp__feature_dfa</a>, <a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/safety_analysis/safety_analysis_workproducts.html#wp__sw_component_dfa">wp__sw_component_dfa</a>) is not yet
-performed for the Lifecycle feature nor for the Health Monitor and Launch Manager components.
-The documents only contain the unfilled process template.</p></td>
-<td><p>Freedom from interference between the two components (and towards other platform
-components sharing resources, e.g. the Health Monitor library running in-process with a
-monitored application, see <a class="reference internal" href="../../components/health_monitor/safety_analysis/fmea.html#doc__health_monitor_fmea" title="doc__health_monitor_fmea"><em class="xref need">Health Monitor FMEA (doc__health_monitor_fmea)</em></a>) is not yet systematically
-analyzed. Until this is completed, no claim can be made that dependent failures are
-identified and mitigated.</p></td>
-<td><p>To be completed as part of the Safety Work Products effort tracked in
-<a class="reference external" href="https://github.com/eclipse-score/score/issues/3029">eclipse-score/score#3029</a>, targeting
-the v1.0 milestone.</p></td>
-</tr>
-<tr class="row-odd"><td><p>Health Monitor component requirements not yet elaborated</p></td>
-<td><p><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/requirements_engineering/requirements_workproducts.html#wp__requirements_comp">wp__requirements_comp</a> and <a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/requirements_engineering/requirements_workproducts.html#wp__requirements_comp_aou">wp__requirements_comp_aou</a> for the Health Monitor
-component only contain a placeholder requirement, see
-<a class="reference internal" href="../../components/health_monitor/requirements/requirements.html#doc__health_monitor_requirements" title="doc__health_monitor_requirements"><em class="xref need">HealthMonitor Requirements (doc__health_monitor_requirements)</em></a>.</p></td>
-<td><p>Safety analysis mitigations referencing component requirements
-(<code class="docutils literal notranslate"><span class="pre">mitigated_by</span></code>) cannot yet be traced to a real, reviewed requirement for this
-component.</p></td>
-<td><p>Tracked as part of the requirements rework effort
-(<a class="reference external" href="https://github.com/eclipse-score/lifecycle/issues/344">eclipse-score/lifecycle#344</a>).</p></td>
-</tr>
-<tr class="row-even"><td><p>Formal Document Reviews (FDR) not yet conducted</p></td>
-<td><p><a class="reference internal" href="module_safety_plan_fdr.html#doc__lifecycle_safety_plan_fdr" title="doc__lifecycle_safety_plan_fdr"><em class="xref need">Lifecycle Safety Plan Forma... (doc__lifecycle_safety_plan_fdr)</em></a>, <a class="reference internal" href="module_safety_analysis_fdr.html#doc__lifecycle_safety_analysis_fdr" title="doc__lifecycle_safety_analysis_fdr"><em class="xref need">Lifecycle Safety Analysis C... (doc__lifecycle_safety_analysis_fdr)</em></a> and
-<a class="reference internal" href="module_safety_package_fdr.html#doc__lifecycle_safety_package_fdr" title="doc__lifecycle_safety_package_fdr"><em class="xref need">Lifecycle Safety Package Fo... (doc__lifecycle_safety_package_fdr)</em></a> are unfilled checklist templates; no formal
-review by an external safety manager has taken place yet for this module.</p></td>
-<td><p>No work product in this safety package has received formal review sign-off; all
-safety-relevant documents remain in <code class="docutils literal notranslate"><span class="pre">draft</span></code> status.</p></td>
-<td><p>Planned once the underlying work products (requirements, architecture, safety analysis)
-referenced by the FDR checklists reach a reviewable state.</p></td>
-</tr>
-<tr class="row-odd"><td><p>Module Safety Package not yet compiled</p></td>
-<td><p>Not all work products referenced in the Module Work products List above have reached
-<code class="docutils literal notranslate"><span class="pre">valid</span></code> status; a formal safety package per <a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/safety_management/guidance/guideline_safety_management.html#gd_guidl__saf_package">gd_guidl__saf_package</a> has therefore
-not yet been assembled.</p></td>
-<td><p>No safety argumentation is currently provided with module releases, consistent with the
-disclaimer in the release notes that releases are not “released for production”.</p></td>
-<td><p>To be compiled once the work products above are resolved, ahead of the module’s v1.0
-release.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
+<p>The module is under development and the safety work products are not yet completed
+(see the work products lists and their status above).
+Deviations remaining at the time of the v1.0 release will be documented here.</p>
 </section>
 </section>
 </section>
