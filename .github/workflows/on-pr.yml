@@ -45,7 +45,7 @@ jobs:
           - name: arm64-linux
             bazel-configs: arm64-linux
             build: true
-            test: false # Cannot run on x86_64
+            test: false # Cross-compiled ARM tests cannot run on these x86_64 runners.
           - name: asan_ubsan_lsan
             bazel-configs: x86_64-linux asan_ubsan_lsan
             build: false # https://github.com/eclipse-score/lifecycle/issues/476
@@ -58,10 +58,12 @@ jobs:
       contents: read
     uses: eclipse-score/cicd-workflows/.github/workflows/bazel.yml@bazel-workflow
     with:
+      # Empty target inputs skip that phase; Bazel still builds selected tests.
       build-targets: ${{ matrix.build && '//examples/... //score/...' || '' }}
       test-targets: ${{ matrix.test && '//...' || '' }}
       bazel-configs: ${{ matrix.bazel-configs }}
       cache-key: build-${{ matrix.name }}
+      # The Docs job selects the native x86_64 report by its fixed name.
       artifact-name: bazel-testlogs-${{ matrix.name }}
 
   clippy:

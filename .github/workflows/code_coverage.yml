@@ -10,8 +10,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-#
-# Reusable unified LLVM source-based coverage (C++ and Rust in one report),
+# Collect C++ and Rust coverage and upload one combined HTML report.
 
 name: Code coverage
 
@@ -19,15 +18,15 @@ on:
   workflow_call:
     inputs:
       coverage-threshold:
-        description: 'Minimum effective line coverage percentage to enforce.'
+        description: 'Minimum line coverage percentage after applying justifications; 0 disables the coverage gate.'
         type: number
         default: 66
       artifact-name:
-        description: 'Name of the uploaded coverage report artifact.'
+        description: 'Name under which the coverage report appears in the workflow run.'
         type: string
         default: coverage-html
       retention-days:
-        description: 'Retention period for the uploaded coverage artifact.'
+        description: 'Number of days to keep the uploaded coverage report.'
         type: number
         default: 10
 
