@@ -45,13 +45,13 @@ Alive::Alive(
       time_sorting_update_event_buffer_(common::TimeSortingBuffer<TimeSortedUpdateEvent>(bufferSize))
 {
     interface.attachObserver(*this);
-    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_PRD_MESSAGE(
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_DBG_MESSAGE(
         (alive_reference_cycle_.count() != 0U), "alive_reference_cycle_=0 causes infinite loop during evaluation.");
 
-    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_PRD_MESSAGE(
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_DBG_MESSAGE(
         (alive_status_ == EStatus::kDeactivated), "Alive Supervision must start in deactivated state");
 
-    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_PRD_MESSAGE(
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_DBG_MESSAGE(
         (recovery_client_ != nullptr), "Recovery client must be provided");
 }
 
@@ -115,7 +115,7 @@ void Alive::evaluate(const std::chrono::nanoseconds f_syncTimestamp)
     while (sortedUpdateEvent_p != nullptr)
     {
         std::chrono::nanoseconds timestampOfUpdateEvent{getTimestampOfUpdateEvent(*sortedUpdateEvent_p)};
-        SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
             (timestampOfUpdateEvent <= f_syncTimestamp),
             "Alive supervision: Checkpoint events are reported beyond syncTimestamp.");
 
@@ -285,7 +285,7 @@ Alive::EUpdateEventType Alive::getAliveEventType(
     }
 
     // SyncSnapshot
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD(std::holds_alternative<SyncSnapshot>(f_updateEvent));
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG(std::holds_alternative<SyncSnapshot>(f_updateEvent));
     return EUpdateEventType::kSync;
 }
 
@@ -487,7 +487,7 @@ void Alive::switchToExpired(Alive::EReason reason) noexcept(true)
                                    << ") switched to EXPIRED, due to buffer overflow.";
                     break;
                 default:
-                    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD(data_loss_reason_ != EDataLossReason::kNoDataLoss);
+                    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG(data_loss_reason_ != EDataLossReason::kNoDataLoss);
                     LM_LOG_ERROR() << "Alive Supervision (" << getConfigName()
                                    << ") switched to EXPIRED, due to unknown data loss case.";
                     break;
@@ -588,7 +588,7 @@ std::chrono::nanoseconds Alive::getTimestampOfUpdateEvent(const TimeSortedUpdate
     }
     else
     {
-        SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD(std::holds_alternative<SyncSnapshot>(f_updateEvent));
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG(std::holds_alternative<SyncSnapshot>(f_updateEvent));
         timestamp = std::get<SyncSnapshot>(f_updateEvent);
     }
 
