@@ -120,6 +120,7 @@ class ThreadPool final
             "sigset_t is too small to fulfill the kernel's rt_sigprocmask size requirement");
 
         sigset_t sig;
+        sigemptyset(&sig);
         sigaddset(&sig, SIGTERM);
         sigaddset(&sig, SIGINT);
         int res = pthread_sigmask(SIG_BLOCK, &sig, NULL);

@@ -165,7 +165,7 @@ void changeSecurityPolicy(const score::mw::lifecycle::internal::configuration::S
 /// execve() is reached.
 void resetSignalHandlersAndUnblock()
 {
-    struct sigaction act;
+    struct sigaction act{};
     act.sa_flags = 0;
     act.sa_handler = SIG_DFL;
     int res = sigaction(SIGTERM, &act, NULL);
@@ -173,6 +173,7 @@ void resetSignalHandlersAndUnblock()
     SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(res == 0, "Invalid argument(s) to sigaction");
 
     sigset_t sig;
+    sigemptyset(&sig);
     sigaddset(&sig, SIGTERM);
     sigaddset(&sig, SIGINT);
     res = pthread_sigmask(SIG_UNBLOCK, &sig, NULL);
