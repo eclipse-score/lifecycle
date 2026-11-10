@@ -182,7 +182,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../components/index.html">
-    Component documentation
+    Components
   </a>
 </li>
 
@@ -331,7 +331,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../components/index.html">
-    Component documentation
+    Components
   </a>
 </li>
 
@@ -431,13 +431,14 @@
 <li class="toctree-l3"><a class="reference internal" href="design_decisions.html">Design Decisions</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="chklst_arc_inspection.html">Architecture Inspection Checklist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chklst_arc_inspection.html">Lifecycle Architecture Inspection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../safety_analysis/fmea.html">FMEA (Failure Modes and Effects Analysis)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../safety_analysis/dfa.html">DFA (Dependent Failure Analysis)</a></li>
 
 <li class="toctree-l2"><a class="reference internal" href="../safety_analysis/aou_requirements.html">AoU Feature Requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../safety_planning/index.html">Feature Safety Work Products List</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../security_planning/index.html">Feature Security Work Products List</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../security_analysis/aou_requirements.html">Lifecycle Security Assumptions of Use</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../glossary.html">Lifecycle Glossary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../glossary_detailed.html">Glossary</a></li>
 </ul>
@@ -537,7 +538,7 @@ This mechanism allows the <a class="reference internal" href="../glossary.html#t
 As a consequence the Liveliness Reporting is only available to SCORE applications that also use the Lifecycle Interface.</p>
 <section id="dynamic-architecture">
 <h3>Dynamic architecture<a class="headerlink" href="#dynamic-architecture" title="Link to this heading">#</a></h3>
-<div class="need_container docutils container" id="SNCB-b8907fe6">
+<div class="need_container docutils container" id="SNCB-de129aa1">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__alive_monitor_start">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -586,7 +587,7 @@ As a consequence the Liveliness Reporting is only available to SCORE application
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-77739d85">
+<div class="need_container docutils container" id="SNCB-654a139e">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__alive_monitor_stop">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -638,8 +639,8 @@ As a consequence the Liveliness Reporting is only available to SCORE application
 </section>
 <section id="in-process-supervision">
 <h2>In-Process Supervision<a class="headerlink" href="#in-process-supervision" title="Link to this heading">#</a></h2>
-<p>The <a class="reference internal" href="../glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> is a library, that together with the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> provide a way to monitor
-the application health in similar fashion as the AUTOSAR <cite>Platform Health Manager</cite> (PHM).</p>
+<p>The <a class="reference internal" href="../glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> is a library that, together with the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a>, provides a way to monitor
+the application health in a similar fashion to the AUTOSAR <cite>Platform Health Manager</cite> (PHM).</p>
 <p>The main features of the <a class="reference internal" href="../glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> are the following monitoring functions:</p>
 <ul class="simple">
 <li><p>Checkpoint supervision
@@ -650,13 +651,13 @@ the application health in similar fashion as the AUTOSAR <cite>Platform Health M
 <li><p>Logical
 - Specifies in which order two or more checkpoints must be called</p></li>
 </ul>
-<p>The <a class="reference internal" href="../glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> itself is monitored via the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> with via alive supervision only.</p>
+<p>The <a class="reference internal" href="../glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> itself is monitored by the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> via alive supervision only.</p>
 <section id="error-reactions">
 <h3>Error Reactions<a class="headerlink" href="#error-reactions" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>When the <a class="reference internal" href="../glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> detects a failed supervision, it shall stop triggering alive notifications to the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a>.</p></li>
 <li><p>Additionally, when the error occurs, the <a class="reference internal" href="../glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> triggers a failure notification to the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> to reduce the time
-to react on the error. This obviously will only work if the <a class="reference internal" href="../glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> is still working and correctly scheduled. Thus the
+to react to the error. This obviously will only work if the <a class="reference internal" href="../glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> is still working and correctly scheduled. Thus the
 worst case reaction time calculations must be made on the monitoring rules specified in the <a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> for the monitored application.</p></li>
 </ul>
 </section>
@@ -668,7 +669,7 @@ worst case reaction time calculations must be made on the monitoring rules speci
 </section>
 <section id="id1">
 <h4>Dynamic Architecture<a class="headerlink" href="#id1" title="Link to this heading">#</a></h4>
-<div class="need_container docutils container" id="SNCB-16af7459">
+<div class="need_container docutils container" id="SNCB-6e2b4040">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__app_health_mon">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -713,16 +714,16 @@ worst case reaction time calculations must be made on the monitoring rules speci
 </thead>
 <tbody>
 <tr class="row-even"><td><p>001</p></td>
-<td><p><a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> configuration for the alive monitoring of the <cite>Monitored application</cite> is parsed. This contains for example, what is the expected interval of alive notifications, how long grace period is given before failing to a missed (never received) alive notification etc.</p></td>
+<td><p><a class="reference internal" href="../glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> configuration for the alive monitoring of the <cite>Monitored application</cite> is parsed. This contains for example, what is the expected interval of alive notifications, how long a grace period is given before failing to a missed (never received) alive notification etc.</p></td>
 </tr>
 <tr class="row-odd"><td><p>002</p></td>
-<td><p>Start the startup grace period timer to allow the application to startup, before timing out to a missed alive notification</p></td>
+<td><p>Start the startup grace period timer to allow the application to start up, before timing out to a missed alive notification</p></td>
 </tr>
 <tr class="row-even"><td><p>003</p></td>
 <td><p>The <cite>Monitored application</cite> is started. (To simplify, no startup checks drawn here)</p></td>
 </tr>
 <tr class="row-odd"><td><p>004</p></td>
-<td><p>The <cite>Monitored application</cite> instantiate and configure the HealthMonitor</p></td>
+<td><p>The <cite>Monitored application</cite> instantiates and configures the HealthMonitor</p></td>
 </tr>
 <tr class="row-even"><td><p>006</p></td>
 <td><p>Cyclic reporting aliveness to the monitor.</p></td>
@@ -740,7 +741,7 @@ worst case reaction time calculations must be made on the monitoring rules speci
 <td><p>Wake up and check if the checkpoint(s) have been triggered. In this case it was not, and thus actions 011 and 012 are triggered.</p></td>
 </tr>
 <tr class="row-odd"><td><p>011</p></td>
-<td><p>Trigger a failure event to the Launch Manager. This event allows the monitor react faster than waiting for the timeout to expire.</p></td>
+<td><p>Trigger a failure event to the Launch Manager. This event allows the monitor to react faster than waiting for the timeout to expire.</p></td>
 </tr>
 <tr class="row-even"><td><p>012</p></td>
 <td><p>Additionally, triggering alive must be stopped</p></td>
@@ -764,7 +765,7 @@ worst case reaction time calculations must be made on the monitoring rules speci
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-563bfe32">
+<div class="need_container docutils container" id="SNCB-40edc5f2">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_feat_arc_dyn table" id="feat_arc_dyn__lifecycle__app_ctrl_flow_mon">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">

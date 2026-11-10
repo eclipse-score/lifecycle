@@ -72,7 +72,7 @@
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Release notes" href="../../../release/index.html" />
+    <link rel="next" title="Health Monitor Security Assumptions of Use" href="../security_analysis/aou_requirements.html" />
     <link rel="prev" title="DFA (Dependent Failure Analysis)" href="dfa.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
@@ -182,7 +182,7 @@
 
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="../../index.html">
-    Component documentation
+    Components
   </a>
 </li>
 
@@ -331,7 +331,7 @@
 
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="../../index.html">
-    Component documentation
+    Components
   </a>
 </li>
 
@@ -430,6 +430,7 @@
 
 <li class="toctree-l2"><a class="reference internal" href="dfa.html">DFA (Dependent Failure Analysis)</a></li>
 <li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">AoU Component Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../security_analysis/aou_requirements.html">Health Monitor Security Assumptions of Use</a></li>
 </ul>
 </details></li>
 </ul>
@@ -473,7 +474,7 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Component documentation</a></li>
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Components</a></li>
     
     
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">HealthMonitor</a></li>
@@ -497,7 +498,7 @@
                   
   <section id="aou-component-requirements">
 <h1>AoU Component Requirements<a class="headerlink" href="#aou-component-requirements" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-2ea29891">
+<div class="need_container docutils container" id="SNCB-f527ea73">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__health_monitor_comp_aou">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -505,7 +506,7 @@
 </div>
 </td>
 <td class="head_center" colspan="2"><div class="needs_head line-block">
-<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">draft</span></span></span></div>
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
 <div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">NO</span></span></span></div>
 <div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
 </div>
@@ -543,7 +544,7 @@
 </div>
 <section id="component-aou">
 <h2>Component AoU<a class="headerlink" href="#component-aou" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-e95cf595">
+<div class="need_container docutils container" id="SNCB-80d3acba">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_aou_req table" id="aou_req__health_monitor__start_order">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -588,7 +589,7 @@ the Running state to the <a class="reference internal" href="../../../features/l
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-5e07d7b6">
+<div class="need_container docutils container" id="SNCB-ab0beb03">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_aou_req table" id="aou_req__health_monitor__lm_alive_cfg">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -634,7 +635,7 @@ type <code class="docutils literal notranslate"><span class="pre">Reporting_And_
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-3a7531bb">
+<div class="need_container docutils container" id="SNCB-eaf9ba55">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_aou_req table" id="aou_req__health_monitor__lm_alive_cycle">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -680,7 +681,7 @@ or equal to the supervisor notification cycle of the <a class="reference interna
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-ad90c342">
+<div class="need_container docutils container" id="SNCB-3b7ffa64">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_aou_req table" id="aou_req__health_monitor__ftti_budget">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -714,6 +715,8 @@ tolerant time interval of the supervised safety goal:</p>
 <li><p>the maximum of the supervised time window,</p></li>
 <li><p>one internal evaluation cycle,</p></li>
 <li><p>the <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> alive timeout,</p></li>
+<li><p>the time the <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Recovery-Action"><span class="xref std std-term">Recovery Action</span></a> of the <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Launch-Manager"><span class="xref std std-term">Launch Manager</span></a> needs
+to reach the safe state.</p></li>
 </ul>
 </td>
 </tr>
@@ -731,7 +734,7 @@ tolerant time interval of the supervised safety goal:</p>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-d502a891">
+<div class="need_container docutils container" id="SNCB-853d38ab">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_aou_req table" id="aou_req__health_monitor__cfg_derivation">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -777,7 +780,7 @@ place the reporting calls where they reflect the safety-relevant behavior.</p></
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-01984a56">
+<div class="need_container docutils container" id="SNCB-7004e0ff">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_aou_req table" id="aou_req__health_monitor__thread_sched">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -823,7 +826,7 @@ evaluation cycle under worst-case load.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-f0b46b6a">
+<div class="need_container docutils container" id="SNCB-b6ec54d1">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_aou_req table" id="aou_req__health_monitor__host_integrity">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -852,7 +855,9 @@ evaluation cycle under worst-case load.</p></td>
 <td class="meta" colspan="3"></td>
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><p>The process that hosts the <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shall be developed to
-ASIL B.</p>
+ASIL B, or the integrator shall provide evidence of freedom from
+interference between the remaining code of the hosting process and the
+<a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The <a class="reference internal" href="../../../features/lifecycle/glossary.html#term-Health-Monitor"><span class="xref std std-term">Health Monitor</span></a> shares the address space of the hosting
@@ -874,7 +879,7 @@ process (see <a class="reference internal" href="../requirements/requirements.ht
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-3cb4697f">
+<div class="need_container docutils container" id="SNCB-bb39bf34">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_aou_req table" id="aou_req__health_monitor__os_clock">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -903,8 +908,7 @@ process (see <a class="reference internal" href="../requirements/requirements.ht
 <td class="meta" colspan="3"></td>
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><p>The operating system shall provide a monotonic clock that meets ASIL B
-integrity and has a resolution finer than the smallest configured time
-range.</p></td>
+integrity and has a resolution of one millisecond or finer.</p></td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
 <div class="line"><span><span class="needs-id"><a class="reference internal" href="#aou_req__health_monitor__os_clock" title="aou_req__health_monitor__os_clock">aou_req__health_monitor__os_clock</a></span></span></div>
@@ -920,7 +924,7 @@ range.</p></td>
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-3534f1a4">
+<div class="need_container docutils container" id="SNCB-b11c74b2">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_aou_req table" id="aou_req__health_monitor__no_stub">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -988,11 +992,11 @@ in production builds.</p></td>
       </div>
     </a>
     <a class="right-next"
-       href="../../../release/index.html"
+       href="../security_analysis/aou_requirements.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Release notes</p>
+        <p class="prev-next-title">Health Monitor Security Assumptions of Use</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

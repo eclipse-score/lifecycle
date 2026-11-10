@@ -182,7 +182,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../components/index.html">
-    Component documentation
+    Components
   </a>
 </li>
 
@@ -331,7 +331,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../components/index.html">
-    Component documentation
+    Components
   </a>
 </li>
 
@@ -421,7 +421,18 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Manuals</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="user_manual.html">User Manual</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_manual.html">Lifecycle User Manual</a></li>
+
+
+
+
+
+
+
+
+
+
+
 <li class="toctree-l2"><a class="reference internal" href="safety_manual.html">Safety Manual</a></li>
 <li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">Security Manual</a></li>
 </ul>
@@ -493,7 +504,7 @@
                   
   <section id="security-manual">
 <h1>Security Manual<a class="headerlink" href="#security-manual" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-8a576973">
+<div class="need_container docutils container" id="SNCB-00a47e43">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__lifecycle_security_manual">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -567,8 +578,8 @@ Also the HW related failures are taken into account by the system integrator, if
 <div class="line-block">
 <div class="line">As there is no assumption on which specific OS and HW is used, the integration testing of the stakeholder and feature requirements is expected to be performed by the user of the platform OoC. Tests covering all stakeholder and feature requirements performed on a reference platform (tbd link to reference platform specification), reviewed and passed are included in the platform OoC security package.</div>
 <div class="line">Additionally the components of the platform may have additional specific assumptions how they are used. These are part of every module documentation: &lt;link to add&gt;. Assumptions from components to their users can be fulfilled in two ways:</div>
-<div class="line">1. There are assumption which need to be fulfilled by all SW components, e.g. “every user of an IPC mechanism needs to make sure that he provides correct data (e.g. including appropriate security (access) control)” - in this case the AoU is marked as “platform”.</div>
-<div class="line">2. There are assumption which can be fulfilled by a security control realized by some other Project platform component and are therefore not relevant for an user who uses the whole platform. But those are relevant if you chose to use the module OcC stand-alone - in this case the AoU is marked as “module”. An example would be the “JSON read” which requires “The user shall provide a string as input which is not corrupted due to HW or QM SW errors.” - which is covered when using together with safe &lt;Project&gt; platform persistency feature.</div>
+<div class="line">1. There are assumptions which need to be fulfilled by all SW components, e.g. “every user of an IPC mechanism needs to make sure that he provides correct data (e.g. including appropriate security (access) control)” - in this case the AoU is marked as “platform”.</div>
+<div class="line">2. There are assumptions which can be fulfilled by a security control realized by some other Project platform component and are therefore not relevant for a user who uses the whole platform. But those are relevant if you choose to use the module OoC stand-alone - in this case the AoU is marked as “module”. An example would be the “JSON read” which requires “The user shall provide a string as input which is not corrupted due to HW or QM SW errors.” - which is covered when using together with safe &lt;Project&gt; platform persistency feature.</div>
 </div>
 <p>List of AoUs on the user of the platform features or the module of this Security Manual:</p>
 <div class="needstable_wrapper docutils container" id="needtable-module/manuals/security_manual-1">
@@ -642,7 +653,7 @@ Also the HW related failures are taken into account by the system integrator, if
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
 <div class="line-block">
-<div class="line">&lt;link to the user manual&gt;</div>
+<div class="line"><a class="reference internal" href="user_manual.html#doc__lifecycle_user_manual" title="doc__lifecycle_user_manual"><em class="xref need">Lifecycle User Manual (doc__lifecycle_user_manual)</em></a></div>
 <div class="line">&lt;other links&gt;</div>
 </div>
 </section>
