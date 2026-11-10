@@ -698,7 +698,7 @@ Placeholder
    :safety: ASIL_B
    :derived_from: feat_req__lifecycle__launch_support
    :satisfied_by: comp__health_monitor
-   :status: draft
+   :status: invalid
    :version: 1
 
     .. note:: Kept until the architecture elements are relinked to the
