@@ -80,16 +80,19 @@
                 "failed_cycles_tolerance": {
                   "type": "integer",
                   "minimum": 0,
+                  "maximum": 4294967295,
                   "description": "Specifies the maximum number of consecutive reporting cycle failures (see 'reporting_cycle_ms'). Once the number of failed cycles exceeds this maximum, the Launch Manager will trigger the configured recovery action."
                 },
                 "min_indications": {
                   "type": "integer",
                   "minimum": 0,
+                  "maximum": 4294967295,
                   "description": "Specifies the minimum number of checkpoints that must be reported within each configured 'reporting_cycle_ms'."
                 },
                 "max_indications": {
                   "type": "integer",
                   "minimum": 0,
+                  "maximum": 4294967295,
                   "description": "Specifies the maximum number of checkpoints that may be reported within each configured 'reporting_cycle_ms'."
                 }
               },
@@ -105,6 +108,7 @@
           "description": "Specifies the names of components that this component depends on. Each dependency must be initialized and reach its ready state before the Launch Manager will start this component.",
           "items": {
             "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]+$",
             "description": "Specifies the name of a component on which this component depends."
           }
         },
@@ -206,6 +210,7 @@
           "properties": {
             "run_target": {
               "type": "string",
+              "pattern": "^[a-zA-Z0-9_-]+$",
               "description": "Specifies the name of the Run Target that the Launch Manager should switch to."
             }
           },
@@ -253,6 +258,7 @@
         },
         "bin_dir": {
           "type": "string",
+          "pattern": "^/",
           "description": "Specifies the absolute filesystem path to the directory where the component is installed."
         },
         "working_dir": {
@@ -321,11 +327,13 @@
             "uid": {
               "type": "integer",
               "minimum": 0,
+              "maximum": 2147483647,
               "description": "Specifies the POSIX user ID (UID) under which this component executes."
             },
             "gid": {
               "type": "integer",
               "minimum": 0,
+              "maximum": 2147483647,
               "description": "Specifies the primary POSIX group ID (GID) under which this component executes."
             },
             "supplementary_group_ids": {
@@ -334,6 +342,7 @@
               "items": {
                 "type": "integer",
                 "minimum": 0,
+                "maximum": 2147483647,
                 "description": "Specifies a single supplementary POSIX group ID (GID)."
               }
             },
@@ -359,6 +368,8 @@
             },
             "scheduling_priority": {
               "type": "integer",
+              "minimum": 0,
+              "maximum": 99,
               "description": "Specifies the scheduling priority applied to the component's initial thread."
             },
             "rlimits": {
@@ -422,6 +433,7 @@
           "description": "Specifies the names of components and Run Targets that must be activated when this Run Target is activated.",
           "items": {
             "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]+$",
             "description": "Specifies the name of a component or Run Target that this Run Target depends on."
           }
         },
@@ -574,6 +586,7 @@
     },
     "initial_run_target": {
       "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]+$",
       "description": "Specifies the name of the initial Run Target that the Launch Manager activates during the startup sequence. This name must match a Run Target defined in 'run_targets'."
     },
     "fallback_run_target": {
@@ -589,6 +602,7 @@
           "description": "Specifies the names of components and Run Targets that must be activated when this Run Target is activated.",
           "items": {
             "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]+$",
             "description": "Specifies the name of a component or Run Target that this Run Target depends on."
           }
         },
