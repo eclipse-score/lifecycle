@@ -14,11 +14,14 @@
 #include "score/mw/launch_manager/process_group_manager/details/component_factory.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/force_stop_action/empty_force_stop_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/force_stop_action/process_force_stop_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/empty_ready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/file_ready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/report_running_ready_condition.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/start_action/empty_start_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/start_action/process_start_action.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/stop_action/empty_stop_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/stop_action/process_stop_action.hpp"
 #include "score/mw/lifecycle/execution_error.h"
 #include <chrono>
@@ -98,6 +101,22 @@ Result<std::unique_ptr<IComponent>> ComponentFactory::create(
         std::make_unique<const ProcessStopAction>(launcher_),
         std::make_unique<const ProcessForceStopAction>(launcher_),
         std::move(ready_condition).value(),
+        supervision_factory_,
+        std::move(config));
+}
+
+std::unique_ptr<IComponent> ComponentFactory::createRunTarget(const std::string& name) const
+{
+    // A Run Target has no configuration of its own. The component only needs a name; the
+    // remaining defaults (native, not supervised, not self-terminating) are never used.
+    auto config = std::make_shared<configuration::ComponentConfig>();
+    config->name = name;
+
+    return std::make_unique<Component>(
+        std::make_unique<const EmptyStartAction>(),
+        std::make_unique<const EmptyStopAction>(),
+        std::make_unique<const EmptyForceStopAction>(),
+        std::make_unique<const EmptyReadyCondition>(),
         supervision_factory_,
         std::move(config));
 }

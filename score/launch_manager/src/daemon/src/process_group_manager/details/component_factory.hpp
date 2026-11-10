@@ -21,6 +21,7 @@
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include "score/result/result.h"
 #include <memory>
+#include <string>
 
 namespace score::mw::lifecycle::internal
 {
@@ -33,6 +34,8 @@ namespace score::mw::lifecycle::internal
 ///          - \c Running for a \c Native application: EmptyReadyCondition.
 ///          - \c Running for any other application type: ReportRunningReadyCondition.
 ///          - \c Terminated: not supported yet, an error is returned.
+///
+///          Run Targets are created with createRunTarget(), using only empty actions.
 ///
 ///          Each returned component owns its actions and shares ownership of its configuration,
 ///          so it stays valid without the factory. It still refers to the dependencies given to
@@ -57,6 +60,14 @@ class ComponentFactory final
     ///         - \c ExecErrc::kNotImplemented if the ready condition is \c ProcessState::Terminated.
     [[nodiscard]] Result<std::unique_ptr<IComponent>> create(
         std::shared_ptr<configuration::ComponentConfig> config) const;
+
+    /// @brief Create a component for a Run Target.
+    /// @details A Run Target does not manage any resource. It only exists to depend on other
+    ///          components, so all of its actions and its ready condition are empty. It is active
+    ///          as soon as it is activated, and inactive as soon as it is deactivated.
+    /// @param name Name of the Run Target, used as the component's identifier.
+    /// @return The new, inactive component.
+    [[nodiscard]] std::unique_ptr<IComponent> createRunTarget(const std::string& name) const;
 
   private:
     /// @brief Used by the process actions to start, stop and wait for POSIX processes.

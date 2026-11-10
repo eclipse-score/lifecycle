@@ -396,5 +396,92 @@ TEST_F(ComponentFactoryTest, ComponentRemainsUsableAfterFactoryIsDestroyed)
     EXPECT_EQ(component->activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
 }
 
+TEST_F(ComponentFactoryTest, CreatedRunTargetIsInactive)
+{
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty(
+        "Description",
+        "Given a Run Target name. "
+        "When the factory creates a Run Target. "
+        "Then the created component is not active.");
+
+    const auto run_target = factory_.createRunTarget("test_run_target");
+
+    ASSERT_NE(run_target, nullptr);
+    EXPECT_FALSE(run_target->active());
+}
+
+TEST_F(ComponentFactoryTest, CreatedRunTargetIsIdentifiedByName)
+{
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty(
+        "Description",
+        "Given a Run Target name. "
+        "When the factory creates a Run Target. "
+        "Then the component identifier is the hash of the given name.");
+
+    const auto run_target = factory_.createRunTarget("test_run_target");
+
+    ASSERT_NE(run_target, nullptr);
+    EXPECT_EQ(run_target->getIdentifier(), IdentifierHash{"test_run_target"});
+}
+
+TEST_F(ComponentFactoryTest, RunTargetActivatesWithoutAnyResource)
+{
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description",
+        "Given a Run Target created by the factory. "
+        "When the Run Target is activated. "
+        "Then activation succeeds without starting a process, waiting for a file or setting up supervision.");
+
+    // The strict mocks fail the test if a process, file or supervision is used.
+    const auto run_target = factory_.createRunTarget("test_run_target");
+    ASSERT_NE(run_target, nullptr);
+
+    EXPECT_EQ(run_target->activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    EXPECT_TRUE(run_target->active());
+}
+
+TEST_F(ComponentFactoryTest, RunTargetIsInactiveImmediatelyAfterDeactivation)
+{
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description",
+        "Given an active Run Target created by the factory. "
+        "When the Run Target is deactivated. "
+        "Then deactivation succeeds without stopping a process and the Run Target is not active.");
+
+    const auto run_target = factory_.createRunTarget("test_run_target");
+    ASSERT_NE(run_target, nullptr);
+    ASSERT_EQ(run_target->activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+
+    EXPECT_EQ(run_target->deactivate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    EXPECT_FALSE(run_target->active());
+}
+
+TEST_F(ComponentFactoryTest, RunTargetCanBeActivatedAgainAfterDeactivation)
+{
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty(
+        "Description",
+        "Given a Run Target created by the factory which has been activated and deactivated. "
+        "When the Run Target is activated again. "
+        "Then activation succeeds and the Run Target is active.");
+
+    const auto run_target = factory_.createRunTarget("test_run_target");
+    ASSERT_NE(run_target, nullptr);
+    ASSERT_EQ(run_target->activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    ASSERT_EQ(run_target->deactivate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+
+    EXPECT_EQ(run_target->activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    EXPECT_TRUE(run_target->active());
+}
+
 }  // namespace
 }  // namespace score::mw::lifecycle::internal
