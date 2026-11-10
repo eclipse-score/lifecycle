@@ -169,6 +169,17 @@ def test_full_config(schema_file):
     run(input_file, test_name, schema_file)
 
 
+def test_boundary_values(schema_file):
+    """
+    Test that the minimum and maximum values allowed by the schema are accepted
+    and passed through to the generated configuration.
+    """
+    test_name = "boundary_values_test"
+    input_file = tests_dir / test_name / "input" / "lm_config.json"
+
+    run(input_file, test_name, schema_file)
+
+
 # Define the parameterized test cases
 CUSTOM_VALIDATION_TEST_CASES = [
     {
