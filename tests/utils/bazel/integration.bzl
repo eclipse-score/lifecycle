@@ -55,7 +55,7 @@ def integration_test(
         name: Name of the test
         srcs: The test script
         binaries: The binaries under test
-        files: Additional files
+        files: Additional files deployed to the test's etc/ directory
         config: Launch manager configuration file
         install_prefix: Installation prefix for the test environment
         qemu_config: QEMU configuration file used by the QEMU test target.
@@ -73,6 +73,7 @@ def integration_test(
     lm_config_name = "{}_lm_config".format(name)
     lm_config_pkg_name = "{}_lm_config_pkg".format(name)
     mw_com_config_pkg_name = "{}_mw_com_config_pkg".format(name)
+    files_pkg_name = "{}_files_pkg".format(name)
     test_tar_name = "{}_test_tar".format(name)
 
     pkg_files(
@@ -102,7 +103,14 @@ def integration_test(
         attributes = pkg_attributes(mode = "0400"),
     )
 
-    pkg_tar(name = test_tar_name, srcs = [":{}".format(bin_pkg_name), ":{}".format(lm_config_pkg_name), ":{}".format(mw_com_config_pkg_name)])
+    pkg_files(
+        name = files_pkg_name,
+        srcs = files,
+        prefix = "tests/{}/etc".format(name),
+        attributes = pkg_attributes(mode = "0644"),
+    )
+
+    pkg_tar(name = test_tar_name, srcs = [":{}".format(bin_pkg_name), ":{}".format(lm_config_pkg_name), ":{}".format(mw_com_config_pkg_name), ":{}".format(files_pkg_name)])
 
     # work out the compatibility targets
     # if the user specified one then use that instead

@@ -42,3 +42,9 @@ The test verifies the following scenarios end-to-end:
 ## Launch Manager Configuration
 
 See the [Launch Manager Configuration](demo_verification/lifecycle_demo_test.json) for the demo scenario.
+
+## Demo Logging
+
+The demo deploys [logging.json](demo_verification/logging.json) to the test's `etc/` directory, where `mw::log` applies it on top of the global test configuration (`/etc/ecu_logging_config.json`).
+Log levels are set per context under `contextConfigs`: edit the `LM` entry to change the Launch Manager log level, or add an entry for another context.
+Contexts without an entry follow `logLevelThresholdConsole` from the global configuration.
