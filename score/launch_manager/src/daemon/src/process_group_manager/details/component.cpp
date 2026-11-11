@@ -177,6 +177,13 @@ IComponent::RequestResult Component::deactivate(cpp::stop_token stop_token)
         return RequestResult::kFailure;
     }
 
+    // Without a resource, nothing will terminate, so the component is inactive immediately.
+    if (std::holds_alternative<EmptyHandle>(handle))
+    {
+        state_ = TerminatedState{};
+        return RequestResult::kSuccess;
+    }
+
     // `tryHandleTermination` tells us when the termination is done.
     state_ = TerminatingState{handle};
     return RequestResult::kSuccess;
