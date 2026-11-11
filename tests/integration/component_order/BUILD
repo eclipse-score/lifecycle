@@ -26,8 +26,8 @@ cc_binary(
 )
 
 cc_binary(
-    name = "start_order_process",
-    srcs = ["start_order_process.cpp"],
+    name = "order_process",
+    srcs = ["order_process.cpp"],
     deps = [
         "//score/launch_manager:lifecycle_cc",
         "//tests/utils/test_helper",
@@ -37,12 +37,12 @@ cc_binary(
 )
 
 integration_test(
-    name = "component_start_order",
-    srcs = ["component_start_order.py"],
+    name = "component_order",
+    srcs = ["component_order.py"],
     binaries = [
-        ":start_order_process",
+        ":order_process",
         ":control_client_test_driver",
         "//score/launch_manager",
     ],
-    config = ":component_start_order.json",
+    config = ":component_order.json",
 )

@@ -2,7 +2,7 @@
     "schema_version": 2,
     "defaults": {
         "deployment_config": {
-            "bin_dir": "/tmp/tests/component_stop_order",
+            "bin_dir": "/tmp/tests/component_order",
             "ready_timeout_ms": 5000,
             "shutdown_timeout_ms": 200,
             "environmental_variables": {
@@ -44,8 +44,9 @@
         },
         "component_a": {
             "component_properties": {
-                "binary_name": "stop_order_process",
+                "binary_name": "order_process",
                 "process_arguments": [
+                    "1",
                     "3"
                 ]
             },
@@ -57,11 +58,12 @@
         },
         "component_b": {
             "component_properties": {
-                "binary_name": "stop_order_process",
+                "binary_name": "order_process",
                 "depends_on": [
                     "component_a"
                 ],
                 "process_arguments": [
+                    "2",
                     "2"
                 ]
             },
@@ -73,8 +75,9 @@
         },
         "component_c": {
             "component_properties": {
-                "binary_name": "stop_order_process",
+                "binary_name": "order_process",
                 "process_arguments": [
+                    "3",
                     "1"
                 ]
             },
