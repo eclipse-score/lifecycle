@@ -142,5 +142,9 @@
   {
     "version": "pr-980",
     "url": "https://eclipse-score.github.io/lifecycle/pr-980/"
+  },
+  {
+    "version": "pr-981",
+    "url": "https://eclipse-score.github.io/lifecycle/pr-981/"
   }
 ]
