@@ -17,7 +17,7 @@ AoU Component Requirements
 
 .. document:: HealthMonitor Component AoU
    :id: doc__health_monitor_comp_aou
-   :status: draft
+   :status: valid
    :version: 1
    :safety: ASIL_B
    :security: NO
@@ -26,22 +26,21 @@ AoU Component Requirements
 Component AoU
 -------------
 
-.. aou_req:: CPU Scheduling for Health Monitor Background Thread
+.. aou_req:: CPU Time for Health Monitor Background Thread
    :id: aou_req__health_monitor__cpu_scheduling
    :reqtype: Process
    :security: NO
    :safety: ASIL_B
-   :status: invalid
+   :status: valid
    :version: 1
 
-   The integrator shall configure the scheduling parameters (e.g. scheduling policy and priority)
-   of the Health Monitor's background supervision thread such that it reliably receives sufficient
-   CPU time slices during system operation, so that it is not starved of processing time by other
-   processes or threads on the target.
+   The integrator shall ensure that the Health Monitor background thread receives sufficient CPU time
+   slices to send its alive notifications within the specified interval during system operation.
 
-   .. note:: This AoU formalizes the mitigation already described in :need:`doc__health_monitor_fmea`
-      (``HM_FMEA_001``, "Missing processing time"). It is marked ``invalid`` pending formal review by
-      the module's Safety Manager as part of :need:`doc__lifecycle_safety_analysis_fdr`.
+   .. note:: This AoU formalizes the mitigation of :need:`doc__health_monitor_fmea` (``HM_FMEA_001``,
+      "Missing processing time"). That FMEA is an informal result and does not use the S-CORE process.
+      The AoU takes effect with the approval of this pull request and is set to ``valid_inspected`` by
+      the requirements inspection :need:`doc__health_monitor_req_inspection`.
 
 .. attention::
     The above directives must be updated according to your feature requirements.
