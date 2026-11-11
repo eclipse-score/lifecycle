@@ -120,9 +120,12 @@ bool AliveWorkerFactory::createAliveIfIpc(
     try
     {
         const std::string pathInterface = aliveInterfacePath(component_id);
-        auto& server = servers.emplace_back();
 
-        if (initIpcServerWithUidBasedAccess(server, pathInterface, uid))
+        ifappl::CheckpointIpcServer server{};
+        const bool initialized = initIpcServerWithUidBasedAccess(server, pathInterface, uid);
+        servers.emplace_back(std::move(server));
+
+        if (initialized)
         {
             LM_LOG_DEBUG() << "Successfully created Monitor interface IPC with path:" << pathInterface;
             return true;
