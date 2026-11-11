@@ -312,6 +312,108 @@ TEST(ComponentTest, CannotActivateInTerminatingState)
         { static_cast<void>(component.activate(cpp::stop_token{})); }, "Cannot activate component in a running state");
 }
 
+TEST(ComponentTest, DeactivateWithEmptyHandleIsInactiveImmediately)
+{
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "equivalence-classes");
+    RecordProperty(
+        "Description",
+        "Given an active component whose start action returned an empty handle. "
+        "When the component is deactivated. "
+        "Then deactivation succeeds and the component is not active without waiting for a termination.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    auto start_action = std::make_unique<MockStartAction>();
+    ON_CALL(*start_action, start(_)).WillByDefault(Return(Result<Handle>{EmptyHandle{}}));
+
+    auto stop_action = std::make_unique<MockStopAction>();
+    ON_CALL(*stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestResult::kSuccess));
+
+    Component component(
+        std::move(start_action),
+        std::move(stop_action),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::make_shared<configuration::ComponentConfig>());
+
+    static_cast<void>(component.activate(cpp::stop_token{}));
+    const auto result = component.deactivate(cpp::stop_token{});
+
+    EXPECT_EQ(result, IComponent::RequestResult::kSuccess);
+    EXPECT_FALSE(component.active());
+}
+
+TEST(ComponentTest, CanActivateAgainAfterDeactivateWithEmptyHandle)
+{
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty(
+        "Description",
+        "Given a component whose start action returns an empty handle, which has been activated and deactivated. "
+        "When the component is activated again. "
+        "Then activation succeeds and the component is active.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    // Without a resource there is no termination to wait for, so the component
+    // goes straight back to the terminated state and can be activated again.
+    auto start_action = std::make_unique<MockStartAction>();
+    EXPECT_CALL(*start_action, start(_)).Times(2).WillRepeatedly(Return(Result<Handle>{EmptyHandle{}}));
+
+    auto stop_action = std::make_unique<MockStopAction>();
+    ON_CALL(*stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestResult::kSuccess));
+
+    Component component(
+        std::move(start_action),
+        std::move(stop_action),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::make_shared<configuration::ComponentConfig>());
+
+    static_cast<void>(component.activate(cpp::stop_token{}));
+    static_cast<void>(component.deactivate(cpp::stop_token{}));
+    const auto result = component.activate(cpp::stop_token{});
+
+    EXPECT_EQ(result, IComponent::RequestResult::kSuccess);
+    EXPECT_TRUE(component.active());
+}
+
+TEST(ComponentTest, DeactivateWithEmptyHandleFailsWhenStopActionFails)
+{
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description",
+        "Given an active component whose start action returned an empty handle. "
+        "When the component is deactivated and the stop action fails. "
+        "Then deactivation fails and the component is not active.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    auto start_action = std::make_unique<MockStartAction>();
+    ON_CALL(*start_action, start(_)).WillByDefault(Return(Result<Handle>{EmptyHandle{}}));
+
+    auto stop_action = std::make_unique<MockStopAction>();
+    ON_CALL(*stop_action, stop(_, _)).WillByDefault(Return(IComponent::RequestResult::kFailure));
+
+    Component component(
+        std::move(start_action),
+        std::move(stop_action),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<MockReadyCondition>(),
+        factory,
+        std::make_shared<configuration::ComponentConfig>());
+
+    static_cast<void>(component.activate(cpp::stop_token{}));
+    const auto result = component.deactivate(cpp::stop_token{});
+
+    EXPECT_EQ(result, IComponent::RequestResult::kFailure);
+    EXPECT_FALSE(component.active());
+}
+
 TEST(ComponentTest, CannotDeactivateInTerminatingState)
 {
     NiceMock<MockSupervisionFactory> factory;
