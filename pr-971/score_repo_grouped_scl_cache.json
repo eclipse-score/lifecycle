@@ -20,8 +20,8 @@
           ],
           "TestLinks": [
             {
-              "name": "test_component_start_order",
-              "file": "tests/integration/component_start_order/component_start_order.py",
+              "name": "test_component_order",
+              "file": "tests/integration/component_order/component_order.py",
               "line": 20,
               "need": "comp_req__launch_man__dep_based_startup_order",
               "verify_type": "fully",
@@ -46,10 +46,19 @@
           "TestLinks": [
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "comp_req__launch_man__process_rlimit_support",
               "verify_type": "fully",
+              "result": "passed",
+              "result_text": ""
+            },
+            {
+              "name": "test_sandbox_options_non_root",
+              "file": "tests/integration/sandbox_options/non_root/sandbox_options_non_root.py",
+              "line": 49,
+              "need": "comp_req__launch_man__process_rlimit_support",
+              "verify_type": "partially",
               "result": "passed",
               "result_text": ""
             }
@@ -264,18 +273,18 @@
               "result_text": ""
             },
             {
-              "name": "test_component_stop_order",
-              "file": "tests/integration/component_stop_order/component_stop_order.py",
-              "line": 20,
+              "name": "test_lm_shutdown",
+              "file": "tests/integration/lm_shutdown_during_switch_to_off/lm_shutdown_during_switch_to_off.py",
+              "line": 19,
               "need": "feat_req__lifecycle__termination_dependency",
               "verify_type": "partially",
               "result": "passed",
               "result_text": ""
             },
             {
-              "name": "test_lm_shutdown",
-              "file": "tests/integration/lm_shutdown_during_switch_to_off/lm_shutdown_during_switch_to_off.py",
-              "line": 19,
+              "name": "test_component_order",
+              "file": "tests/integration/component_order/component_order.py",
+              "line": 20,
               "need": "feat_req__lifecycle__termination_dependency",
               "verify_type": "partially",
               "result": "passed",
@@ -311,19 +320,44 @@
         }
       },
       {
-        "need": "feat_req__lifecycle__launch_support",
+        "need": "feat_req__lifecycle__process_termination",
         "links": {
           "CodeLinks": [],
           "TestLinks": [
             {
-              "name": "test_component_start_order",
-              "file": "tests/integration/component_start_order/component_start_order.py",
-              "line": 20,
-              "need": "feat_req__lifecycle__launch_support",
+              "name": "test_shutdown_signal",
+              "file": "tests/integration/shutdown_signal/shutdown_signal.py",
+              "line": 19,
+              "need": "feat_req__lifecycle__process_termination",
               "verify_type": "partially",
               "result": "passed",
               "result_text": ""
-            },
+            }
+          ]
+        }
+      },
+      {
+        "need": "comp_req__launch_man__shutdown_signal",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
+            {
+              "name": "test_shutdown_signal",
+              "file": "tests/integration/shutdown_signal/shutdown_signal.py",
+              "line": 19,
+              "need": "comp_req__launch_man__shutdown_signal",
+              "verify_type": "fully",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
+        }
+      },
+      {
+        "need": "feat_req__lifecycle__launch_support",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
             {
               "name": "test_switch_run_target",
               "file": "tests/integration/switch_run_target/switch_run_target.py",
@@ -344,8 +378,8 @@
             },
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "feat_req__lifecycle__launch_support",
               "verify_type": "partially",
               "result": "passed",
@@ -377,38 +411,13 @@
               "verify_type": "partially",
               "result": "passed",
               "result_text": ""
-            }
-          ]
-        }
-      },
-      {
-        "need": "feat_req__lifecycle__process_termination",
-        "links": {
-          "CodeLinks": [],
-          "TestLinks": [
+            },
             {
-              "name": "test_shutdown_signal",
-              "file": "tests/integration/shutdown_signal/shutdown_signal.py",
-              "line": 19,
-              "need": "feat_req__lifecycle__process_termination",
+              "name": "test_component_order",
+              "file": "tests/integration/component_order/component_order.py",
+              "line": 20,
+              "need": "feat_req__lifecycle__launch_support",
               "verify_type": "partially",
-              "result": "passed",
-              "result_text": ""
-            }
-          ]
-        }
-      },
-      {
-        "need": "comp_req__launch_man__shutdown_signal",
-        "links": {
-          "CodeLinks": [],
-          "TestLinks": [
-            {
-              "name": "test_shutdown_signal",
-              "file": "tests/integration/shutdown_signal/shutdown_signal.py",
-              "line": 19,
-              "need": "comp_req__launch_man__shutdown_signal",
-              "verify_type": "fully",
               "result": "passed",
               "result_text": ""
             }
@@ -475,8 +484,8 @@
             },
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "feat_req__lifecycle__conditional_startup",
               "verify_type": "partially",
               "result": "passed",
@@ -590,8 +599,8 @@
             },
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "comp_req__launch_man__process_launch_args",
               "verify_type": "partially",
               "result": "passed",
@@ -729,8 +738,8 @@
             },
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "comp_req__launch_man__rt_comp_dep",
               "verify_type": "fully",
               "result": "passed",
@@ -860,8 +869,8 @@
           "TestLinks": [
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "feat_req__lifecycle__sandbox_options",
               "verify_type": "partially",
               "result": "passed",
@@ -877,10 +886,19 @@
           "TestLinks": [
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "comp_req__launch_man__uid_gid_support",
               "verify_type": "fully",
+              "result": "passed",
+              "result_text": ""
+            },
+            {
+              "name": "test_sandbox_options_non_root",
+              "file": "tests/integration/sandbox_options/non_root/sandbox_options_non_root.py",
+              "line": 49,
+              "need": "comp_req__launch_man__uid_gid_support",
+              "verify_type": "partially",
               "result": "passed",
               "result_text": ""
             }
@@ -894,8 +912,8 @@
           "TestLinks": [
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "comp_req__launch_man__launch_priority_support",
               "verify_type": "fully",
               "result": "passed",
@@ -911,10 +929,19 @@
           "TestLinks": [
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "comp_req__launch_man__scheduling_policy",
               "verify_type": "fully",
+              "result": "passed",
+              "result_text": ""
+            },
+            {
+              "name": "test_sandbox_options_non_root",
+              "file": "tests/integration/sandbox_options/non_root/sandbox_options_non_root.py",
+              "line": 49,
+              "need": "comp_req__launch_man__scheduling_policy",
+              "verify_type": "partially",
               "result": "passed",
               "result_text": ""
             }
@@ -928,8 +955,8 @@
           "TestLinks": [
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "comp_req__launch_man__cwd_support",
               "verify_type": "fully",
               "result": "passed",
@@ -945,10 +972,19 @@
           "TestLinks": [
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "comp_req__launch_man__supplementary_groups",
               "verify_type": "fully",
+              "result": "passed",
+              "result_text": ""
+            },
+            {
+              "name": "test_sandbox_options_non_root",
+              "file": "tests/integration/sandbox_options/non_root/sandbox_options_non_root.py",
+              "line": 49,
+              "need": "comp_req__launch_man__supplementary_groups",
+              "verify_type": "partially",
               "result": "passed",
               "result_text": ""
             }
@@ -962,8 +998,8 @@
           "TestLinks": [
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "comp_req__launch_man__rc_os_state",
               "verify_type": "fully",
               "result": "passed",
@@ -997,27 +1033,10 @@
           "TestLinks": [
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "comp_req__launch_man__runmask_support",
               "verify_type": "fully",
-              "result": "passed",
-              "result_text": ""
-            }
-          ]
-        }
-      },
-      {
-        "need": "comp_req__launch_man__stop_process_dependents",
-        "links": {
-          "CodeLinks": [],
-          "TestLinks": [
-            {
-              "name": "test_component_stop_order",
-              "file": "tests/integration/component_stop_order/component_stop_order.py",
-              "line": 20,
-              "need": "comp_req__launch_man__stop_process_dependents",
-              "verify_type": "partially",
               "result": "passed",
               "result_text": ""
             }
@@ -1128,6 +1147,23 @@
               "file": "tests/integration/ready_conditions/process_state/kterminated/kterminated.py",
               "line": 19,
               "need": "comp_req__launch_man__conf_of_comp_ready_cond",
+              "verify_type": "partially",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
+        }
+      },
+      {
+        "need": "comp_req__launch_man__stop_process_dependents",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
+            {
+              "name": "test_component_order",
+              "file": "tests/integration/component_order/component_order.py",
+              "line": 20,
+              "need": "comp_req__launch_man__stop_process_dependents",
               "verify_type": "partially",
               "result": "passed",
               "result_text": ""
