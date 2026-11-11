@@ -17,16 +17,12 @@ cc_binary(
     name = "control_client_test_driver",
     srcs = ["control_client_test_driver.cpp"],
     deps = [
-        "//score/launch_manager:control_cc",
-        "//score/launch_manager:lifecycle_cc",
-        "//tests/utils/test_helper",
-        "//tests/utils/test_helper:gated_process_helper",
-        "@googletest//:gtest_main",
+        "//tests/integration/activation_queue:test_fixture",
     ],
 )
 
 integration_test(
-    name = "request_rejected_when_queue_full",
+    name = "duplicate_accepted",
     srcs = ["test.py"],
     binaries = [
         ":control_client_test_driver",
@@ -34,5 +30,6 @@ integration_test(
         "//tests/utils/test_helper:gated_process",
         "//score/launch_manager",
     ],
-    config = ":config.json",
+    config = "//tests/integration/activation_queue:config.json",
+    install_name = "activation_queue",
 )

@@ -17,22 +17,13 @@ from attribute_plugin import add_test_properties
 
 
 @add_test_properties(
-    partially_verifies=[],
+    partially_verifies=["comp_req__launch_man__queue_rt_selection"],
     test_type="interface-test",
-    derivation_technique="explorative-testing",
+    derivation_technique="requirements-analysis",
 )
-def test_request_rejected_when_queue_full(
-    target, setup_test, assert_test_results, remote_test_dir
-):
+def test_request_rejected(target, setup_test, assert_test_results, remote_test_dir):
     """
-    Objective: Verifies that a full request queue rejects further requests.
-
-    Expected Behaviour:
-      - Non-forced activation requests are accepted until the queue is full.
-      - Repeated non-forced activations are accepted, but not added to the queue.
-      - Non-forced activation requests are rejected when the queue is full.
-      - Forced activation requests are accepted when the queue is full.
-      - A forced activation empties the queue.
+    Objective: Verifies that a new non-forced request is rejected while the queue is full.
     """
 
     run_test(

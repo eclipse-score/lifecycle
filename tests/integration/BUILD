@@ -14,6 +14,9 @@
 test_suite(
     name = "integration",
     tests = [
+        "//tests/integration/activation_queue/duplicate_accepted",
+        "//tests/integration/activation_queue/forced_clears_queue",
+        "//tests/integration/activation_queue/request_rejected",
         "//tests/integration/complex_monitoring",
         "//tests/integration/crash_ignores_dependents",
         "//tests/integration/crash_on_startup",

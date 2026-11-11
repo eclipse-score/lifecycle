@@ -2,7 +2,7 @@
     "schema_version": 2,
     "defaults": {
         "deployment_config": {
-            "bin_dir": "/tmp/tests/request_rejected_when_queue_full",
+            "bin_dir": "/tmp/tests/activation_queue",
             "ready_timeout_ms": 1000,
             "shutdown_timeout_ms": 1000,
             "recovery_action": {
@@ -96,6 +96,20 @@
                     "PROCESSIDENTIFIER": "gated"
                 }
             }
+        },
+        "recovery": {
+            "component_properties": {
+                "binary_name": "gated_process",
+                "application_profile": {
+                    "application_type": "Reporting"
+                }
+            },
+            "deployment_config": {
+                "ready_timeout_ms": 1,
+                "environmental_variables": {
+                    "PROCESSIDENTIFIER": "recovery"
+                }
+            }
         }
     },
     "run_targets": {
@@ -135,6 +149,17 @@
             "depends_on": [
                 "control_daemon",
                 "gated"
+            ],
+            "recovery_action": {
+                "switch_run_target": {
+                    "run_target": "fallback_run_target"
+                }
+            }
+        },
+        "run_target_recovery": {
+            "depends_on": [
+                "control_daemon",
+                "recovery"
             ],
             "recovery_action": {
                 "switch_run_target": {
