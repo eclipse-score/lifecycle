@@ -368,8 +368,8 @@ Process Configuration
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__sandbox_options[version==1]
-    :status: invalid
-    :tags: not_planned
+    :status: valid
+    :valid_from: v2.0.0
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -382,8 +382,8 @@ Process Configuration
     :security: NO
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__sandbox_options[version==1]
-    :status: invalid
-    :tags: not_planned
+    :status: valid
+    :valid_from: v2.0.0
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 
@@ -493,8 +493,8 @@ Process Configuration
     :security: YES
     :safety: ASIL_B
     :derived_from: feat_req__lifecycle__sandbox_options[version==1]
-    :status: invalid
-    :tags: not_planned
+    :status: valid
+    :valid_from: v2.0.0
     :version: 1
     :satisfied_by: comp__lifecycle_launch_manager
 

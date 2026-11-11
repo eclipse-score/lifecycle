@@ -45,7 +45,7 @@ Valid feature requirements without any derived component requirements are highli
    :animate: fade-in
 
    .. needtable:: Valid lifecycle feature requirements and traced component requirements
-      :filter: type == "feat_req" and "feat__lifecycle" in satisfied_by and status == "valid"
+      :filter: type == "feat_req" and "feat__lifecycle" in satisfied_by and status == "valid" and (valid_from == "" or valid_from <= "v1.0.0")
       :style: table
       :types: feat_req
       :columns: id;title;derived_from_back;status
@@ -62,7 +62,7 @@ Valid feature requirements without any linked feature architecture element are h
    :animate: fade-in
 
    .. needtable:: Valid lifecycle feature requirements and linked architecture elements
-      :filter: type == "feat_req" and "feat__lifecycle" in satisfied_by and status == "valid"
+      :filter: type == "feat_req" and "feat__lifecycle" in satisfied_by and status == "valid" and (valid_from == "" or valid_from <= "v1.0.0")
       :style: table
       :types: feat_req
       :columns: id;title;fulfils_back;status
