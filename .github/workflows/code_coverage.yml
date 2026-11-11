@@ -33,13 +33,14 @@ on:
 jobs:
   coverage:
     name: Coverage
-    uses: eclipse-score/cicd-workflows/.github/workflows/bazel.yml@bazel-workflow
+    uses: eclipse-score/cicd-workflows/.github/workflows/bazel.yml@d241348e8670bf5b8902d67ff3ac77e7f60f9ec7 # main (2026-11-11)
     permissions:
       contents: read
     with:
       test-targets: //score/...
       test-command: coverage
       bazel-configs: llvm_cov
+      cache-key: coverage
       test-args: --build_tests_only
       coverage-justifications: quality/coverage/coverage_justifications.yaml
       coverage-threshold: ${{ inputs.coverage-threshold }}
