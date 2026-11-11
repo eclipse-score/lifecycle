@@ -303,6 +303,7 @@ use_repo(oci, "debian-test-runtime", "debian-test-runtime_linux_amd64")
 
 bazel_dep(name = "score_baselibs", version = "0.2.17")
 bazel_dep(name = "score_communication", version = "0.6.0")
+bazel_dep(name = "score_logging", version = "0.2.6")
 
 # Needed to fix bazel mod errors
 # see https://github.com/grpc/grpc-java/issues/12165
