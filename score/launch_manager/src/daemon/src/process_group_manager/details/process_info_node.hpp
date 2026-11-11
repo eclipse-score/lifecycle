@@ -19,8 +19,8 @@
 #include "score/mw/launch_manager/configuration/component_config.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_handling.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/ready_condition/termination_waiter.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/termination_waiter.hpp"
 #include "score/mw/launch_manager/process_group_manager/process_state.hpp"
 #include <score/stop_token.hpp>
 #include <atomic>

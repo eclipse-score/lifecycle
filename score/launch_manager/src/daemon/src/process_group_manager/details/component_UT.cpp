@@ -16,12 +16,15 @@
 #include "score/mw/launch_manager/process_group_manager/details/component.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/force_stop_action/mock_force_stop_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/mock_ready_condition.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/ready_condition/process_terminated_ready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/start_action/mock_start_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/stop_action/mock_stop_action.hpp"
 #include "score/mw/lifecycle/execution_error.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <score/stop_token.hpp>
+#include <chrono>
+#include <future>
 #include <thread>
 
 namespace score::mw::lifecycle::internal
@@ -1058,6 +1061,73 @@ TEST(ComponentTest, SupervisionDeactivationFailureFaultsComponent)
     EXPECT_DEATH(
         { static_cast<void>(component.deactivate(cpp::stop_token{})); },
         "Cannot deactivate component in a non-running state");
+}
+
+TEST(ComponentTest, ProcessTerminatedReadyConditionSucceedsOnExitZero)
+{
+    RecordProperty(
+        "Description",
+        "Given a component with a ProcessTerminatedReadyCondition. "
+        "When the process exits with status 0 during activation. "
+        "Then the termination is ignored and activation succeeds.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    auto start_action = std::make_unique<MockStartAction>();
+    ON_CALL(*start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+
+    Component component(
+        std::move(start_action),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<ProcessTerminatedReadyCondition>(std::chrono::milliseconds{5000}),
+        factory,
+        std::make_shared<configuration::ComponentConfig>());
+
+    auto activation = std::async(std::launch::async, [&component] {
+        return component.activate(cpp::stop_token{});
+    });
+
+    // Termination may be reported before or during the wait; both must succeed.
+    std::this_thread::sleep_for(std::chrono::milliseconds{10});
+    const IComponent::TerminationResult termination_result = terminateFromOtherThread(component, 0);
+
+    ASSERT_EQ(activation.wait_for(std::chrono::seconds{1}), std::future_status::ready);
+    EXPECT_EQ(activation.get(), IComponent::RequestResult::kSuccess);
+    EXPECT_EQ(termination_result, IComponent::TerminationResult::kIgnore);
+}
+
+TEST(ComponentTest, ProcessTerminatedReadyConditionFailsOnNonZeroExit)
+{
+    RecordProperty(
+        "Description",
+        "Given a component with a ProcessTerminatedReadyCondition. "
+        "When the process exits with a non-zero status during activation. "
+        "Then the termination is a failure and activation fails without waiting for the timeout.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    auto start_action = std::make_unique<MockStartAction>();
+    ON_CALL(*start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+
+    Component component(
+        std::move(start_action),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<ProcessTerminatedReadyCondition>(std::chrono::milliseconds{5000}),
+        factory,
+        std::make_shared<configuration::ComponentConfig>());
+
+    auto activation = std::async(std::launch::async, [&component] {
+        return component.activate(cpp::stop_token{});
+    });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds{10});
+    const IComponent::TerminationResult termination_result = terminateFromOtherThread(component, 1);
+
+    ASSERT_EQ(activation.wait_for(std::chrono::seconds{1}), std::future_status::ready);
+    EXPECT_EQ(activation.get(), IComponent::RequestResult::kFailure);
+    EXPECT_EQ(termination_result, IComponent::TerminationResult::kFailure);
 }
 
 }  // namespace
