@@ -32,7 +32,8 @@ Overview on how lifecycle application is related to execution manager.
 N/A
 
 ### External C++ interfaces 
-`score:mw::Application` methods which have to be implemented by the application:
+`score::mw::lifecycle::Application` methods which have to be implemented by the application:
+
 #### Initialize
 This method shall do basic initialization of application (what was not done in application State Initializing). 
 Method returns a `Result`, which either contains `void` on success or an error. In case of an error lifecycle manager will join all running threads and will return with non zero value.  
@@ -47,11 +48,13 @@ To be able to terminate an application `Run()` method from outside asynchronousl
 gets a `stop_token`, where it shall synchronize/listen on (see concepts in https://en.cppreference.com/w/cpp/thread/stop_token).
 This `stop_token` is controlled by an external `stop_source` owned by the `LifecycleManager`.
 
-ApplicationContext class represents cmd line arguments of an Application that are passed during `Initialize` function call.
+`ApplicationContext` class represents command line arguments of an Application that are passed during `Initialize` function call.
+
 #### get_argument
 Function gets an argument name as a string and returns its value if it exists, otherwise empty string is returned.
+
 #### get_arguments
-Returns list of cmd line arguments represented as a vector.
+Returns list of command line arguments represented as a vector.
 Example code:
 
     std::array<std::string, 3> in_args{};
@@ -114,10 +117,10 @@ if the application decides to do so via an active/explicit reporting to the plat
 * Access persistent storage to read/lookup configuration
 * Search for/start searching for other service instances to be used to provide application services
   * Note: These operations must not be performed in a blocking manner! Otherwise the predefined maximum amount of time to be spent in machine state `Initializing` might be exceeded and the ECU will restart immediately once that becomes the case.
-* access remote service instances if available
+* Access remote service instances if available
   * Also here, keep in mind the note from above!
-* access to low-level platform services, which are expected to be available, when an application starts.
-* call to exit. F.i. if initialization can't conclude.
+* Access to low-level platform services, which are expected to be available, when an application starts.
+* Call to exit. For example, if initialization can't conclude.
 
 ##### What must not be done in this state
 * Offer any service instance. Reason: If it offered a service instance, an instant service call to this instance
