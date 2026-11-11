@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "termination_waiter.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/ready_condition/termination_waiter.hpp"
 #include <gtest/gtest.h>
 #include <chrono>
 #include <condition_variable>

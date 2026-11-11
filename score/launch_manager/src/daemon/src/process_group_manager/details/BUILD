@@ -46,6 +46,7 @@ lm_cc_test(
         "//score/launch_manager/src/daemon/src/alive_monitor:mock_supervision_factory",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action:mock_force_stop_action",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition:mock_ready_condition",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition:process_terminated_ready_condition",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/start_action:mock_start_action",
         "//score/launch_manager/src/daemon/src/process_group_manager/details/stop_action:mock_stop_action",
         "@googletest//:gtest_main",
@@ -287,7 +288,6 @@ cc_library(
         ":icomponent",
         ":process_handling",
         ":safe_process_map",
-        ":termination_waiter",
         "//score/launch_manager/src/daemon/src/alive_monitor:ialive_supervision_handle",
         "//score/launch_manager/src/daemon/src/configuration:component_config",
         "//score/launch_manager/src/daemon/src/osal:ifile_waiter",
@@ -295,28 +295,8 @@ cc_library(
         "//score/launch_manager/src/daemon/src/osal:semaphore",
         "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
         "//score/launch_manager/src/daemon/src/process_group_manager:process_state",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition:termination_waiter",
         "@score_baselibs//score/language/futurecpp",
-    ],
-)
-
-cc_library(
-    name = "termination_waiter",
-    srcs = ["termination_waiter.cpp"],
-    hdrs = ["termination_waiter.hpp"],
-    include_prefix = "score/mw/launch_manager/process_group_manager/details",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
-    deps = [
-        "@score_baselibs//score/concurrency/future",
-    ],
-)
-
-lm_cc_test(
-    name = "termination_waiter_UT",
-    srcs = ["termination_waiter_UT.cpp"],
-    deps = [
-        ":termination_waiter",
-        "@googletest//:gtest_main",
     ],
 )
 
