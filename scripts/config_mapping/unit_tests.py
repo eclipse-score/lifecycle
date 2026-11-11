@@ -17,6 +17,7 @@ import tempfile
 from pathlib import Path
 
 import pytest
+from attribute_plugin import add_test_properties
 
 # Ensure lifecycle_config.py can be found regardless of how Bazel lays out runfiles
 _scripts_dir = Path(__file__).resolve().parent
@@ -539,6 +540,13 @@ def test_cyclic_dependencies_no_cycle():
     check_cyclic_dependencies(config)  # no exception == pass
 
 
+@add_test_properties(
+    partially_verifies=[
+        "comp_req__launch_man__consistent_dependencies",
+    ],
+    test_type="requirements-based",
+    derivation_technique="requirements-analysis",
+)
 def test_cyclic_dependencies_direct_component_cycle():
     """A -> B -> A in component dependencies should raise (when reachable from a Run Target)."""
     config = {
@@ -554,6 +562,13 @@ def test_cyclic_dependencies_direct_component_cycle():
         check_cyclic_dependencies(config)
 
 
+@add_test_properties(
+    partially_verifies=[
+        "comp_req__launch_man__consistent_dependencies",
+    ],
+    test_type="requirements-based",
+    derivation_technique="requirements-analysis",
+)
 def test_cyclic_dependencies_indirect_component_cycle():
     """A -> B -> C -> A in component dependencies should raise (when reachable)."""
     config = {
@@ -570,6 +585,13 @@ def test_cyclic_dependencies_indirect_component_cycle():
         check_cyclic_dependencies(config)
 
 
+@add_test_properties(
+    partially_verifies=[
+        "comp_req__launch_man__consistent_dependencies",
+    ],
+    test_type="requirements-based",
+    derivation_technique="requirements-analysis",
+)
 def test_cyclic_dependencies_run_target_cycle():
     """Run Target depending on another that depends back should raise."""
     config = {
@@ -598,6 +620,13 @@ def test_cyclic_dependencies_diamond_no_false_positive():
     check_cyclic_dependencies(config)  # no exception == pass
 
 
+@add_test_properties(
+    partially_verifies=[
+        "comp_req__launch_man__consistent_dependencies",
+    ],
+    test_type="requirements-based",
+    derivation_technique="requirements-analysis",
+)
 def test_cyclic_dependencies_component_depends_on_nonexistent():
     """Component depending on something not in components or run_targets should raise."""
     config = {
@@ -610,6 +639,13 @@ def test_cyclic_dependencies_component_depends_on_nonexistent():
         check_cyclic_dependencies(config)
 
 
+@add_test_properties(
+    partially_verifies=[
+        "comp_req__launch_man__consistent_dependencies",
+    ],
+    test_type="requirements-based",
+    derivation_technique="requirements-analysis",
+)
 def test_cyclic_dependencies_run_target_depends_on_unknown():
     """Run Target depending on unknown target/component should raise."""
     config = {
@@ -622,6 +658,13 @@ def test_cyclic_dependencies_run_target_depends_on_unknown():
         check_cyclic_dependencies(config)
 
 
+@add_test_properties(
+    partially_verifies=[
+        "comp_req__launch_man__consistent_dependencies",
+    ],
+    test_type="requirements-based",
+    derivation_technique="requirements-analysis",
+)
 def test_cyclic_dependencies_self_referencing_component():
     """A component depending on itself should raise."""
     config = {
@@ -734,6 +777,13 @@ def test_custom_validations_ready_condition_both_states(full_valid_config):
     assert custom_validations(full_valid_config) is False
 
 
+@add_test_properties(
+    partially_verifies=[
+        "comp_req__launch_man__consistent_dependencies",
+    ],
+    test_type="requirements-based",
+    derivation_technique="requirements-analysis",
+)
 def test_custom_validations_cyclic_deps_fails(full_valid_config):
     """Cyclic dependencies from check_cyclic_dependencies should be caught."""
     full_valid_config["components"]["c1"] = {

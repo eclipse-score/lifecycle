@@ -18,6 +18,7 @@ import sys
 import os
 from pathlib import Path
 import filecmp
+from attribute_plugin import add_test_properties
 from scripts.config_mapping.lifecycle_config import (
     SUCCESS,
     SCHEMA_VALIDATION_DEPENDENCY_ERROR,
@@ -157,6 +158,13 @@ def test_minimal_config(schema_file):
     run(input_file, test_name, schema_file)
 
 
+@add_test_properties(
+    partially_verifies=[
+        "comp_req__launch_man__central_default_defines",
+    ],
+    test_type="requirements-based",
+    derivation_technique="requirements-analysis",
+)
 def test_full_config(schema_file):
     """
     Test generation of launch manager configuration
