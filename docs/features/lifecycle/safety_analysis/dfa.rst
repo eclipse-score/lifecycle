@@ -202,8 +202,8 @@ Unintended impacts to function due to various failures.
     - If the monitored application's (and thereby the Health Monitor's) scheduling parameters are
       misconfigured, the background supervision thread may not be scheduled correctly, affecting
       timely reporting to the Launch Manager. Already identified as ``HM_FMEA_001`` in
-      :need:`doc__health_monitor_fmea`; a corresponding AoU mitigation is being proposed in a separate
-      contribution to :need:`doc__health_monitor_comp_aou`.
+      :need:`doc__health_monitor_fmea`; the corresponding AoU ``aou_req__health_monitor__cpu_scheduling``
+      is in :need:`doc__health_monitor_comp_aou`.
   * - UI_01_08
     - Incorrect execution flow
     - no
