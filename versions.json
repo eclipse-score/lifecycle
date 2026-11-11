@@ -154,5 +154,9 @@
   {
     "version": "pr-990",
     "url": "https://eclipse-score.github.io/lifecycle/pr-990/"
+  },
+  {
+    "version": "pr-987",
+    "url": "https://eclipse-score.github.io/lifecycle/pr-987/"
   }
 ]
