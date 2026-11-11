@@ -169,8 +169,8 @@
   },
   {
     "name": "test_sandbox_options",
-    "file": "tests/integration/sandbox_options/sandbox_options.py",
-    "line": "119",
+    "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+    "line": "26",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -180,6 +180,34 @@
     "result_text": "",
     "PartiallyVerifies": "feat_req__lifecycle__launch_support, feat_req__lifecycle__sandbox_options, feat_req__lifecycle__conditional_startup, comp_req__launch_man__process_launch_args",
     "FullyVerifies": "comp_req__launch_man__uid_gid_support, comp_req__launch_man__launch_priority_support, comp_req__launch_man__scheduling_policy, comp_req__launch_man__cwd_support, comp_req__launch_man__supplementary_groups, comp_req__launch_man__process_rlimit_support, comp_req__launch_man__rc_os_state, comp_req__launch_man__rt_comp_dep, comp_req__launch_man__runmask_support"
+  },
+  {
+    "name": "test_sandbox_options_non_root",
+    "file": "tests/integration/sandbox_options/non_root/sandbox_options_non_root.py",
+    "line": "49",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "requirements-based",
+    "DerivationTechnique": "requirements-analysis",
+    "result_text": "",
+    "PartiallyVerifies": "comp_req__launch_man__uid_gid_support, comp_req__launch_man__scheduling_policy, comp_req__launch_man__supplementary_groups, comp_req__launch_man__process_rlimit_support",
+    "FullyVerifies": null
+  },
+  {
+    "name": "test_bad_sandbox_options_non_root",
+    "file": "tests/integration/sandbox_options/non_root/sandbox_options_non_root.py",
+    "line": "96",
+    "result": "passed",
+    "repo_name": null,
+    "hash": null,
+    "url": null,
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
   },
   {
     "name": "test_explicit_fallback_request",
@@ -235,7 +263,7 @@
     "DerivationTechnique": "error-guessing",
     "result_text": "",
     "PartiallyVerifies": "feat_req__lifecycle__conditional_startup, comp_req__launch_man__rc_lifecycle, comp_req__launch_man__rc_os_state",
-    "FullyVerifies": "comp_req__launch_man__fd_inheritance"
+    "FullyVerifies": null
   },
   {
     "name": "test_rt_running_when_process_exits",
@@ -1011,6 +1039,34 @@
     "name": "AliveImplTest__ReportCheckpointSafeWhenNotConnected",
     "file": "score/launch_manager/src/alive/src/details/AliveImpl_UT.cpp",
     "line": "51",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "InitOnlyResourceTest__AllocationSucceedsBeforeLock",
+    "file": "score/launch_manager/src/daemon/src/common/init_only_resource_UT.cpp",
+    "line": "21",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "InitOnlyResourceTest__AllocationFailsAfterLock",
+    "file": "score/launch_manager/src/daemon/src/common/init_only_resource_UT.cpp",
+    "line": "34",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -5698,6 +5754,62 @@
     "FullyVerifies": null
   },
   {
+    "name": "IpcServerAclTest__GrantReadWriteAllowsReadAndWriteForUser",
+    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ipc/IpcServer_UT.cpp",
+    "line": "40",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "IpcServerAclTest__GrantReadWriteFailsAndSkipsWriteIfReadFails",
+    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ipc/IpcServer_UT.cpp",
+    "line": "55",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "IpcServerAclTest__GrantReadWriteFailsIfWriteFails",
+    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ipc/IpcServer_UT.cpp",
+    "line": "69",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "interface-test",
+    "DerivationTechnique": "explorative-testing",
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "IpcServerTest__SetAccessRightsFailsIfSharedMemoryDoesNotExist",
+    "file": "score/launch_manager/src/daemon/src/alive_monitor/details/ipc/IpcServer_UT.cpp",
+    "line": "84",
+    "result": "passed",
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
     "name": "AliveWorkerFactoryTest__createObservableEventFails",
     "file": "score/launch_manager/src/daemon/src/alive_monitor/details/factory/AliveWorkerFactory_UT.cpp",
     "line": "94",
@@ -6162,7 +6274,7 @@
   {
     "name": "SafeProcessMapTest__FindTerminatedInsertsEntryWhenPidNotPresent",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/safeprocessmap_UT.cpp",
-    "line": "97",
+    "line": "93",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6176,7 +6288,7 @@
   {
     "name": "SafeProcessMapTest__FindTerminatedMatchesExistingInsertAndCallsCallback",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/safeprocessmap_UT.cpp",
-    "line": "109",
+    "line": "104",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6188,9 +6300,9 @@
     "FullyVerifies": null
   },
   {
-    "name": "SafeProcessMapTest__InsertIntoEmptyTreeReturnsZero",
+    "name": "SafeProcessMapTest__InsertIntoEmptyTreeReturnsYield",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/safeprocessmap_UT.cpp",
-    "line": "127",
+    "line": "122",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6204,7 +6316,7 @@
   {
     "name": "SafeProcessMapTest__InsertMatchesExistingFindTerminatedEntry",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/safeprocessmap_UT.cpp",
-    "line": "138",
+    "line": "133",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6218,7 +6330,7 @@
   {
     "name": "SafeProcessMapTest__InsertMultipleNodesThenFindTerminatedRemovesAll",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/safeprocessmap_UT.cpp",
-    "line": "156",
+    "line": "151",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6232,7 +6344,7 @@
   {
     "name": "SafeProcessMapTest__InsertBeyondCapacityReturnsOutOfMemory",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/safeprocessmap_UT.cpp",
-    "line": "177",
+    "line": "172",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6246,7 +6358,7 @@
   {
     "name": "SafeProcessMapTest__InsertSamePidTwiceYieldsUntilFindTerminatedResolves",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/safeprocessmap_UT.cpp",
-    "line": "202",
+    "line": "197",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6260,7 +6372,7 @@
   {
     "name": "SafeProcessMapTest__FindTerminatedSamePidTwiceYieldsUntilInsertResolves",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/safeprocessmap_UT.cpp",
-    "line": "240",
+    "line": "236",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6274,7 +6386,7 @@
   {
     "name": "SafeProcessMapTest__FindTerminatedWorksAtMaxTreeDepth",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/safeprocessmap_UT.cpp",
-    "line": "281",
+    "line": "278",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6288,7 +6400,7 @@
   {
     "name": "SafeProcessMapTest__ConcurrentInsertAndFindFromMultipleThreads",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/safeprocessmap_UT.cpp",
-    "line": "343",
+    "line": "344",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6302,7 +6414,7 @@
   {
     "name": "SafeProcessMapTest__ConcurrentFindAndInsertFromMultipleThreads",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/safeprocessmap_UT.cpp",
-    "line": "385",
+    "line": "386",
     "result": "passed",
     "repo_name": "local_repo",
     "hash": "",
@@ -6972,7 +7084,7 @@
     "FullyVerifies": null
   },
   {
-    "name": "ProcessInfoNodeTest/ProcessInfoNodeMapYieldTest__InsertReturnsYield/0",
+    "name": "ProcessInfoNodeTest/ProcessInfoNodeMapMatchedTest__InsertReturnsMatched/0",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
     "line": "404",
     "result": "passed",
@@ -6986,7 +7098,7 @@
     "FullyVerifies": null
   },
   {
-    "name": "ProcessInfoNodeTest/ProcessInfoNodeMapYieldTest__InsertReturnsYield/1",
+    "name": "ProcessInfoNodeTest/ProcessInfoNodeMapMatchedTest__InsertReturnsMatched/1",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
     "line": "404",
     "result": "passed",
@@ -7000,7 +7112,7 @@
     "FullyVerifies": null
   },
   {
-    "name": "ProcessInfoNodeTest/ProcessInfoNodeMapYieldTest__InsertReturnsYield/2",
+    "name": "ProcessInfoNodeTest/ProcessInfoNodeMapMatchedTest__InsertReturnsMatched/2",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
     "line": "404",
     "result": "passed",
@@ -7014,7 +7126,7 @@
     "FullyVerifies": null
   },
   {
-    "name": "ProcessInfoNodeTest/ProcessInfoNodeMapYieldTest__InsertReturnsYield/3",
+    "name": "ProcessInfoNodeTest/ProcessInfoNodeMapMatchedTest__InsertReturnsMatched/3",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
     "line": "404",
     "result": "passed",
@@ -7028,7 +7140,7 @@
     "FullyVerifies": null
   },
   {
-    "name": "ProcessInfoNodeTest/ProcessInfoNodeMapYieldTest__InsertReturnsYield/4",
+    "name": "ProcessInfoNodeTest/ProcessInfoNodeMapMatchedTest__InsertReturnsMatched/4",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
     "line": "404",
     "result": "passed",
@@ -7042,7 +7154,7 @@
     "FullyVerifies": null
   },
   {
-    "name": "ProcessInfoNodeTest/ProcessInfoNodeMapYieldTest__InsertReturnsYield/5",
+    "name": "ProcessInfoNodeTest/ProcessInfoNodeMapMatchedTest__InsertReturnsMatched/5",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
     "line": "404",
     "result": "passed",
@@ -7056,7 +7168,7 @@
     "FullyVerifies": null
   },
   {
-    "name": "ProcessInfoNodeTest/ProcessInfoNodeMapYieldTest__InsertReturnsYield/6",
+    "name": "ProcessInfoNodeTest/ProcessInfoNodeMapMatchedTest__InsertReturnsMatched/6",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
     "line": "404",
     "result": "passed",
@@ -7070,7 +7182,7 @@
     "FullyVerifies": null
   },
   {
-    "name": "ProcessInfoNodeTest/ProcessInfoNodeMapYieldTest__InsertReturnsYield/7",
+    "name": "ProcessInfoNodeTest/ProcessInfoNodeMapMatchedTest__InsertReturnsMatched/7",
     "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node_UT.cpp",
     "line": "404",
     "result": "passed",
@@ -11984,9 +12096,23 @@
     "FullyVerifies": null
   },
   {
+    "name": "test_boundary_values",
+    "file": "scripts/config_mapping/integration_tests.py",
+    "line": "172",
+    "result": "passed",
+    "repo_name": null,
+    "hash": null,
+    "url": null,
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
     "name": "test_custom_validation_failures[fallback_run_target_name]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "202",
+    "line": "213",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12000,7 +12126,7 @@
   {
     "name": "test_custom_validation_failures[reporting_terminated_condition]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "202",
+    "line": "213",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12014,7 +12140,7 @@
   {
     "name": "test_custom_validation_failures[shutdown_timeout_condition]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "202",
+    "line": "213",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12028,7 +12154,7 @@
   {
     "name": "test_schema_validation_failures[missing_recovery_action]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "271",
+    "line": "338",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12042,7 +12168,7 @@
   {
     "name": "test_schema_validation_failures[invalid_number_of_attempts]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "271",
+    "line": "338",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12056,7 +12182,7 @@
   {
     "name": "test_schema_validation_failures[invalid_activation_retry_attempts]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "271",
+    "line": "338",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12070,7 +12196,7 @@
   {
     "name": "test_schema_validation_failures[negative_activation_retry_attempts]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "271",
+    "line": "338",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12084,7 +12210,7 @@
   {
     "name": "test_schema_validation_failures[invalid_activation_retry_delay_ms]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "271",
+    "line": "338",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12098,7 +12224,203 @@
   {
     "name": "test_schema_validation_failures[negative_activation_retry_delay_ms]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "271",
+    "line": "338",
+    "result": "passed",
+    "repo_name": null,
+    "hash": null,
+    "url": null,
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "test_schema_validation_failures[negative_scheduling_priority]",
+    "file": "scripts/config_mapping/integration_tests.py",
+    "line": "338",
+    "result": "passed",
+    "repo_name": null,
+    "hash": null,
+    "url": null,
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "test_schema_validation_failures[invalid_scheduling_priority]",
+    "file": "scripts/config_mapping/integration_tests.py",
+    "line": "338",
+    "result": "passed",
+    "repo_name": null,
+    "hash": null,
+    "url": null,
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "test_schema_validation_failures[invalid_uid]",
+    "file": "scripts/config_mapping/integration_tests.py",
+    "line": "338",
+    "result": "passed",
+    "repo_name": null,
+    "hash": null,
+    "url": null,
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "test_schema_validation_failures[invalid_gid]",
+    "file": "scripts/config_mapping/integration_tests.py",
+    "line": "338",
+    "result": "passed",
+    "repo_name": null,
+    "hash": null,
+    "url": null,
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "test_schema_validation_failures[invalid_supplementary_group_ids]",
+    "file": "scripts/config_mapping/integration_tests.py",
+    "line": "338",
+    "result": "passed",
+    "repo_name": null,
+    "hash": null,
+    "url": null,
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "test_schema_validation_failures[invalid_failed_cycles_tolerance]",
+    "file": "scripts/config_mapping/integration_tests.py",
+    "line": "338",
+    "result": "passed",
+    "repo_name": null,
+    "hash": null,
+    "url": null,
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "test_schema_validation_failures[invalid_min_indications]",
+    "file": "scripts/config_mapping/integration_tests.py",
+    "line": "338",
+    "result": "passed",
+    "repo_name": null,
+    "hash": null,
+    "url": null,
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "test_schema_validation_failures[invalid_max_indications]",
+    "file": "scripts/config_mapping/integration_tests.py",
+    "line": "338",
+    "result": "passed",
+    "repo_name": null,
+    "hash": null,
+    "url": null,
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "test_schema_validation_failures[invalid_bin_dir]",
+    "file": "scripts/config_mapping/integration_tests.py",
+    "line": "338",
+    "result": "passed",
+    "repo_name": null,
+    "hash": null,
+    "url": null,
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "test_schema_validation_failures[invalid_component_dependency]",
+    "file": "scripts/config_mapping/integration_tests.py",
+    "line": "338",
+    "result": "passed",
+    "repo_name": null,
+    "hash": null,
+    "url": null,
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "test_schema_validation_failures[invalid_run_target_dependency]",
+    "file": "scripts/config_mapping/integration_tests.py",
+    "line": "338",
+    "result": "passed",
+    "repo_name": null,
+    "hash": null,
+    "url": null,
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "test_schema_validation_failures[invalid_fallback_dependency]",
+    "file": "scripts/config_mapping/integration_tests.py",
+    "line": "338",
+    "result": "passed",
+    "repo_name": null,
+    "hash": null,
+    "url": null,
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "test_schema_validation_failures[invalid_initial_run_target]",
+    "file": "scripts/config_mapping/integration_tests.py",
+    "line": "338",
+    "result": "passed",
+    "repo_name": null,
+    "hash": null,
+    "url": null,
+    "TestType": null,
+    "DerivationTechnique": null,
+    "result_text": "",
+    "PartiallyVerifies": null,
+    "FullyVerifies": null
+  },
+  {
+    "name": "test_schema_validation_failures[invalid_switch_run_target]",
+    "file": "scripts/config_mapping/integration_tests.py",
+    "line": "338",
     "result": "passed",
     "repo_name": null,
     "hash": null,
