@@ -104,7 +104,13 @@ def integration_test(
 
     pkg_tar(name = test_tar_name, srcs = [":{}".format(bin_pkg_name), ":{}".format(lm_config_pkg_name), ":{}".format(mw_com_config_pkg_name)])
 
+    # work out the compatibility targets
+    # if the user specified one then use that instead
     extra_target_compatible_with = kwargs.pop("target_compatible_with", [])
+    linux = "@platforms//os:linux"
+    qnx = "@platforms//os:qnx"
+    docker_os_constraint = [] if linux in extra_target_compatible_with else [linux]
+    qemu_os_constraint = [] if qnx in extra_target_compatible_with else [qnx]
 
     final_deps = kwargs.pop("deps", []) + all_requirements + [
         "@score_tooling//python_basics/score_pytest:attribute_plugin",
@@ -163,7 +169,7 @@ def integration_test(
         args = final_args,
         plugins = final_plugins,
         target_compatible_with = extra_target_compatible_with + disable_sanitizer + select({
-            "//config:integration_docker": ["@platforms//os:linux"],
+            "//config:integration_docker": docker_os_constraint,
             "//config:integration_host": [],
             "//conditions:default": ["@platforms//:incompatible"],
         }),
@@ -182,7 +188,7 @@ def integration_test(
         args = final_args,
         plugins = final_plugins,
         target_compatible_with = extra_target_compatible_with + disable_sanitizer + select({
-            "//config:integration_qemu": ["@platforms//os:qnx"],
+            "//config:integration_qemu": qemu_os_constraint,
             "//conditions:default": ["@platforms//:incompatible"],
         }),
         **kwargs
