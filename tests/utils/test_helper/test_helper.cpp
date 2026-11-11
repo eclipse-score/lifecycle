@@ -149,3 +149,29 @@ void pop_event(
     // Invoked without holding the mutex so the callback may block or call push_event/pop_event.
     callback(source, target);
 }
+
+void ExpectNoEvents(
+    std::function<void(RunTargetActivationSource source, RunTargetName target)> callback,
+    const std::chrono::milliseconds timeout)
+{
+    RunTargetActivationSource source;
+    RunTargetName target;
+    {
+        std::cout << __FUNCTION__ << "Locking" << std::endl;
+        std::unique_lock event_lock(event_mutex);
+        if (!event_condition.wait_for(event_lock, timeout, [&] {
+                return event_received;
+            }))
+        {
+            std::cout << "No run target activation event received within " << timeout.count() << " ms";
+            return;
+        }
+        source = event_source;
+        target = event_target;
+        event_received = false;
+        ADD_FAILURE() << "Received an event when we expected none";
+    }
+    event_condition.notify_one();
+    // Invoked without holding the mutex so the callback may block or call push_event/pop_event.
+    callback(source, target);
+}
