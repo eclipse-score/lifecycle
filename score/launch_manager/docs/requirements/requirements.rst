@@ -434,21 +434,6 @@ Process Configuration
     The :term:`Launch Manager` shall provide support for launching :term:`Processes <Process>`
     with configured OS-specific capabilities and privileges.
 
-.. comp_req:: File descriptor inheritance support
-    :id: comp_req__launch_man__fd_inheritance
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__sandbox_options[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall not give access to any internal
-    :term:`File Descriptors <File Descriptor>` to any :term:`Components
-    <Component>`.
-
-
 .. comp_req:: Security policy support
     :id: comp_req__launch_man__support_secpol_type
     :reqtype: Functional
