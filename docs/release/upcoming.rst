@@ -49,7 +49,7 @@ New Features
 Improvements
 ~~~~~~~~~~~~
 
-- None
+- Removes the configuration option `deployment_config.ready_recovery_action` which has been marked as deprecated since lifecycle 0.9.0 release.
 
 Bug Fixes
 ~~~~~~~~~
@@ -85,5 +85,7 @@ Upgrade Instructions
 ~~~~~~~~~~~~~~~~~~~~
 
 - Component and Run Target names used in `depends_on`, `initial_run_target` and `switch_run_target.run_target` may now only contain letters, digits, `_` and `-`. Configurations with other characters in these names are rejected.
+- Configuration option `ready_recovery_action` is removed. Replace configuration option `deployment_config.ready_recovery_action.restart.number_of_attempts` with `deployment_config.activation_retry_attempts` and `deployment_config.ready_recovery_action.restart.delay_before_restart_ms` with `deployment_config.activation_retry_delay_ms`.
+
 
 *For any questions or support, please contact the* `Project Team <https://github.com/orgs/eclipse-score/projects/33>`_ *or raise an issue/discussion.*

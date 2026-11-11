@@ -257,10 +257,6 @@ SCHEMA_VALIDATION_TEST_CASES = [
         "test_id": "missing_recovery_action",
     },
     {
-        "config_filename": "invalid_number_of_attempts.json",
-        "test_id": "invalid_number_of_attempts",
-    },
-    {
         "config_filename": "invalid_activation_retry_attempts.json",
         "test_id": "invalid_activation_retry_attempts",
     },
