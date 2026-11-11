@@ -236,12 +236,20 @@ struct SysExitException
 {
 };
 
+/// @brief A successful execve() replaces the process image and never returns to its caller.
+/// We mock this by throwing an exception to interrupt execution.
+struct ExecveSuccess
+{
+};
+
 class StartProcessTest : public ProcessLauncherTest
 {
   protected:
     void SetUp() override
     {
         ProcessLauncherTest::SetUp();
+
+        ON_CALL(*g_syscall_mock, execve).WillByDefault(Throw(ExecveSuccess{}));
 
         EXPECT_CALL(*g_syscall_mock, getpid).Times(AnyNumber()).WillRepeatedly(Return(forked_pid));
 
@@ -497,7 +505,7 @@ TEST_F(SetSchedulingAndSecurityTest, setschedClampedUpper)
     EXPECT_CALL(*g_syscall_mock, sched_setscheduler(_, _, Field(&sched_param::sched_priority, Lt(too_high))))
         .WillOnce(Return(0));
 
-    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
 }
 
 TEST_F(SetSchedulingAndSecurityTest, setschedClampedLower)
@@ -517,7 +525,7 @@ TEST_F(SetSchedulingAndSecurityTest, setschedClampedLower)
     EXPECT_CALL(*g_syscall_mock, sched_setscheduler(_, _, Field(&sched_param::sched_priority, Gt(too_low))))
         .WillOnce(Return(0));
 
-    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
 }
 
 TEST_F(SetSchedulingAndSecurityTest, setgroupsFails)
@@ -568,7 +576,7 @@ TEST_F(SetSchedulingAndSecurityTest, setaffinityIgnore)
     EXPECT_CALL(*g_syscall_mock, setaffinity).Times(0);
     EXPECT_CALL(*g_syscall_mock, setgroups).WillOnce(Return(0));
 
-    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
 }
 
 TEST_F(SetSchedulingAndSecurityTest, supplementaryGroupsAreCleared)
@@ -581,7 +589,7 @@ TEST_F(SetSchedulingAndSecurityTest, supplementaryGroupsAreCleared)
     ExpectSuccessfulSchedulingAndSecurity();
     EXPECT_CALL(*g_syscall_mock, setgroups(0, _)).WillOnce(Return(0));
 
-    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
 }
 
 TEST_F(StartProcessTest, chdirFails)
@@ -641,7 +649,7 @@ TEST_F(StartProcessTest, noRlimitsConfiguredSkipsSetrlimit)
     EXPECT_CALL(*g_syscall_mock, setrlimit).Times(0);
     EXPECT_CALL(*g_syscall_mock, execve).Times(AtMost(1));
 
-    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
 }
 
 TEST_F(StartProcessTest, setRLimitZeroIsApplied)
@@ -660,7 +668,7 @@ TEST_F(StartProcessTest, setRLimitZeroIsApplied)
         .WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, execve).Times(AtMost(1));
 
-    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
 }
 
 TEST_F(StartProcessTest, setRLimitPassesPreResolvedValuesUnchanged)
@@ -684,7 +692,7 @@ TEST_F(StartProcessTest, setRLimitPassesPreResolvedValuesUnchanged)
         .WillOnce(Return(0));
     EXPECT_CALL(*g_syscall_mock, execve).Times(AtMost(1));
 
-    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
 }
 
 TEST_F(StartProcessTest, rlimitsAppliedBeforePrivilegeDrop)
@@ -712,7 +720,7 @@ TEST_F(StartProcessTest, rlimitsAppliedBeforePrivilegeDrop)
         EXPECT_CALL(*g_syscall_mock, setuid).WillOnce(Return(0));
     }
 
-    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
 }
 
 TEST_F(StartProcessTest, execveFails)
@@ -818,11 +826,11 @@ TEST_F(StartProcessTest, startProcessChildSuccess)
             StrEq(expected_launch_args[0]),
             ArgvMatches(expected_launch_args),
             config_.deployment_config.environmental_variables.envp()))
-        .WillOnce(Return(0));
+        .WillOnce(Throw(ExecveSuccess{}));
 
     EXPECT_CALL(*g_syscall_mock, sysexit).Times(0);  // No failures
 
-    static_cast<void>(process_launcher->startProcess(pid_, sync_, config_));  // No return from forked process
+    EXPECT_THROW(static_cast<void>(process_launcher->startProcess(pid_, sync_, config_)), ExecveSuccess);
 
     EXPECT_EQ(block->pid_, forked_pid);
     EXPECT_EQ(block->comms_type_, CommsType::kReporting);

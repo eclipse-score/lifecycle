@@ -27,22 +27,20 @@ bazel_dep(name = "rules_shell", version = "0.6.1")
 bazel_dep(name = "aspect_rules_lint", version = "2.5.0", dev_dependency = True)
 bazel_dep(name = "buildifier_prebuilt", version = "8.5.1", dev_dependency = True)
 
-bazel_dep(name = "platforms", version = "1.1.0")
 bazel_dep(name = "download_utils", version = "1.2.2")
 bazel_dep(name = "googletest", version = "1.17.0.bcr.2")
 
 bazel_dep(name = "google_benchmark", version = "1.9.5", dev_dependency = True)
 
 # S-CORE process rules
-bazel_dep(name = "score_docs_as_code", version = "8.6.0")
+bazel_dep(name = "score_docs_as_code", version = "8.7.0")
 bazel_dep(name = "score_tooling", version = "3.0.2")
 
 bazel_dep(name = "score_rust_policies", version = "0.0.5", dev_dependency = True)
-bazel_dep(name = "score_cpp_policies", version = "0.1.2", dev_dependency = True)
-bazel_dep(name = "score_devcontainer", version = "1.11.4", dev_dependency = True)
+bazel_dep(name = "score_devcontainer", version = "1.12.0", dev_dependency = True)
 bazel_dep(name = "score_coverage", version = "0.4.2", dev_dependency = True)
 
-bazel_dep(name = "score_process_description", version = "2.2.2")
+bazel_dep(name = "score_process_description", version = "2.2.3")
 bazel_dep(name = "score_platform", version = "0.7.4")
 
 ###############################################################################
@@ -50,8 +48,15 @@ bazel_dep(name = "score_platform", version = "0.7.4")
 # S-CORE Toolchains (DO NOT MODIFY)
 #
 ###############################################################################
+# Toolchain dependencies.
 bazel_dep(name = "score_bazel_cpp_toolchains", version = "1.0.5", dev_dependency = True)
 bazel_dep(name = "score_bazel_platforms", version = "1.1.0", dev_dependency = True)
+
+bazel_dep(name = "platforms", version = "1.1.0")
+
+bazel_dep(name = "score_toolchains_rust", version = "0.10.0", dev_dependency = True)
+bazel_dep(name = "score_rules_imagefs", version = "0.1.0", dev_dependency = True)
+bazel_dep(name = "score_cpp_policies", version = "0.1.2", dev_dependency = True)
 
 # GCC Toolchains
 gcc = use_extension("@score_bazel_cpp_toolchains//extensions:gcc.bzl", "gcc", dev_dependency = True)
@@ -67,7 +72,7 @@ _WARNING_KNOWN_FEATURES = [
     "@score_cpp_policies//warnings/gcc/features:minimal_warnings",
 ]
 
-## Linux Toolchains
+# Linux C++ toolchains.
 gcc.toolchain(
     name = "score_gcc_x86_64_toolchain",
     extra_enabled_features = _WARNING_ENABLED_FEATURES,
@@ -87,7 +92,7 @@ gcc.toolchain(
     version = "12.2.0",
 )
 
-## Elektobit Toolchains
+# Elektrobit SDK toolchains.
 gcc.toolchain(
     name = "score_ebclfsa_toolchain",
     runtime_ecosystem = "ebclfsa",
@@ -97,7 +102,7 @@ gcc.toolchain(
     use_default_package = True,
 )
 
-## AutoSD10 Toolchains
+# AutoSD toolchains.
 gcc.toolchain(
     name = "score_autosd10_x86_64_toolchain",
     runtime_ecosystem = "autosd10",
@@ -121,8 +126,7 @@ use_repo(
     "score_gcc_x86_64_toolchain",
 )
 
-# Rust Toolchains
-bazel_dep(name = "score_toolchains_rust", version = "0.10.0", dev_dependency = True)
+# Rust toolchains.
 
 ferrocene = use_extension(
     "@score_toolchains_rust//extensions:ferrocene_toolchain_ext.bzl",
@@ -156,8 +160,7 @@ use_repo(
     "ferrocene_aarch64_ebclfsa",
 )
 
-# QNX Toolchains
-bazel_dep(name = "score_rules_imagefs", version = "0.1.0", dev_dependency = True)
+# QNX image toolchains.
 
 imagefs = use_extension("@score_rules_imagefs//extensions:imagefs.bzl", "imagefs", dev_dependency = True)
 imagefs.toolchain(
@@ -178,6 +181,7 @@ imagefs.toolchain(
 )
 use_repo(imagefs, "score_qnx_aarch64_ifs_toolchain", "score_qnx_x86_64_ifs_toolchain")
 
+# QNX C++ toolchains.
 qcc = use_extension("@score_bazel_cpp_toolchains//extensions:gcc.bzl", "gcc", dev_dependency = True)
 qcc.toolchain(
     name = "score_qcc_aarch64_toolchain",
@@ -232,7 +236,7 @@ llvm.toolchain(
 use_repo(llvm, "llvm_toolchain", "llvm_toolchain_llvm")
 
 # UTs on QNX
-bazel_dep(name = "score_qnx_unit_tests", version = "0.2.0", dev_dependency = True)
+bazel_dep(name = "score_qnx_unit_tests", version = "0.2.0")
 
 # TODO: drop this override once a version > 0.2.0 is published.
 # Latest release (0.2.0) does not support CLI args when running tests on QNX
@@ -248,22 +252,6 @@ git_override(
     module_name = "score_crates",
     commit = "4656dda8f04a3d88c8089f63111195840cfbd9e3",
     remote = "https://github.com/eclipse-score/score-crates.git",
-)
-
-deb = use_repo_rule("@download_utils//download/deb:defs.bzl", "download_deb")
-
-deb(
-    name = "acl-deb",
-    build = "//externals/acl:acl.BUILD",
-    integrity = "sha256-KnA/bzvcYynaDSMuzZrrro9OzQZxIS11nWDehotot2k=",
-    urls = ["https://archive.ubuntu.com/ubuntu/pool/main/a/acl/libacl1-dev_2.2.52-3build1_amd64.deb"],
-)
-
-deb(
-    name = "acl-deb-aarch64",
-    build = "//externals/acl:acl.BUILD",
-    integrity = "sha256-FLXaPIOleZmu7p9IFZ+W6/9QCP0XjM5yWNuN3qcqOBQ=",
-    urls = ["https://launchpadlibrarian.net/581258948/libacl1-dev_2.3.1-1_arm64.deb"],
 )
 
 # Needed for @codeql_bundle and @codeql_coding_standards
@@ -301,7 +289,7 @@ pip.parse(
 )
 use_repo(pip, "codeql_coding_standards_pip_hub")
 
-bazel_dep(name = "score_itf", version = "0.6.0")
+bazel_dep(name = "score_itf", version = "0.7.0")
 
 oci = use_extension("@rules_oci//oci:extensions.bzl", "oci", dev_dependency = True)
 oci.pull(
@@ -313,8 +301,8 @@ oci.pull(
 )
 use_repo(oci, "debian-test-runtime", "debian-test-runtime_linux_amd64")
 
-bazel_dep(name = "score_baselibs", version = "0.2.16")
-bazel_dep(name = "score_communication", version = "0.5.0")
+bazel_dep(name = "score_baselibs", version = "0.2.17")
+bazel_dep(name = "score_communication", version = "0.6.0")
 
 # Needed to fix bazel mod errors
 # see https://github.com/grpc/grpc-java/issues/12165

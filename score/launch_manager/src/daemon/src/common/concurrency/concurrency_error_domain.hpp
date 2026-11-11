@@ -60,7 +60,7 @@ class ConcurrencyErrorDomain final : public score::result::ErrorDomain
 };
 
 /// @brief Global domain instance — required for ADL-based MakeError() lookup.
-constexpr ConcurrencyErrorDomain kConcurrencyErrorDomain{};
+inline constexpr ConcurrencyErrorDomain kConcurrencyErrorDomain{};
 
 /// @brief Creates a score::result::Error from a ConcurrencyErrc value (enables score::MakeUnexpected).
 inline score::result::Error MakeError(ConcurrencyErrc code, std::string_view user_message = "") noexcept

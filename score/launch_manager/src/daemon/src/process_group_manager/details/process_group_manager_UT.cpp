@@ -105,15 +105,6 @@ Config makeMinimalConfig(ApplicationType application_type = ApplicationType::Nat
         .build();
 }
 
-GraphConfig takeGraphConfig(Config& config)
-{
-    return GraphConfig{
-        config.takeComponents(),
-        config.takeRunTargets(),
-        config.takeFallbackRunTarget(),
-        config.takeInitialRunTarget()};
-}
-
 class ProcessGroupManagerWatchdogTest : public Test
 {
   protected:
@@ -172,7 +163,7 @@ class ProcessGroupManagerWatchdogTest : public Test
         auto config = makeMinimalConfig(applicationType());
 
         process_group_manager_ = std::make_unique<ProcessGroupManager>(
-            takeGraphConfig(config),
+            config.takeGraph(),
             std::move(alive_monitor),
             std::move(recovery_client),
             std::move(watchdog),
@@ -257,7 +248,7 @@ TEST_F(ProcessGroupManagerWatchdogTest, GivenMinimalConfig_ExpectWatchdogFired_W
     ASSERT_TRUE(recovery_callback_);
     for (int i = 0; i < kNumRecoveryRequests; ++i)
     {
-        recovery_callback_(IdentifierHash{"overflow_probe"}, std::chrono::nanoseconds{0});
+        recovery_callback_(IdentifierHash{"comp_a"}, std::chrono::nanoseconds{0});
     }
 
     auto run_result = process_group_manager_->run();

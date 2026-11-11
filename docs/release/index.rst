@@ -26,13 +26,15 @@ Disclaimer
 ----------
 
 This release note does not "release for production", as it does not come with a safety argumentation and a performed safety assessment.
-The work products compiled in the safety package are created with care according to a process satisfying standards, but the as the project,
+The work products compiled in the safety package are created with care according to a process satisfying standards, but as the project,
 being a non-profit and open source organization, can not take over any liability for its content.
 
 .. toctree::
    :maxdepth: 1
    :caption: Content
 
+   upcoming
+   release_note_v_0_10_0
    release_note_v_0_9_0
    release_note_v_0_8_0
    release_note_v_0_7_0

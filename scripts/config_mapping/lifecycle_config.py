@@ -40,7 +40,8 @@ score_defaults = json.loads("""
             "supplementary_group_ids": [],
             "security_policy": "",
             "scheduling_policy": "SCHED_OTHER",
-            "scheduling_priority": 0
+            "scheduling_priority": 0,
+            "rlimits": {}
         }
     },
     "component_properties": {
@@ -312,6 +313,54 @@ SCHED_POLICY_MAP = {
     "SCHED_RR": "RR",
 }
 
+# Special value for "unlimited" used for rlimits
+RLIMIT_UNLIMITED_SENTINEL = 0xFFFFFFFFFFFFFFFF
+
+# Maps user enum to the flatbuffer internal enum (which must differ in name from the libc constants)
+RLIMIT_KEY_TO_ENUM = {
+    "RLIMIT_AS": "POSIX_RLIMIT_AS",
+    "RLIMIT_CORE": "POSIX_RLIMIT_CORE",
+    "RLIMIT_CPU": "POSIX_RLIMIT_CPU",
+    "RLIMIT_DATA": "POSIX_RLIMIT_DATA",
+    "RLIMIT_FSIZE": "POSIX_RLIMIT_FSIZE",
+    "RLIMIT_NOFILE": "POSIX_RLIMIT_NOFILE",
+    "RLIMIT_STACK": "POSIX_RLIMIT_STACK",
+}
+
+
+def resolve_rlimit_bound(value):
+    """Resolve a single rlimit bound (an integer, or the literal "unlimited") to the integer
+    stored on the wire."""
+    return RLIMIT_UNLIMITED_SENTINEL if value == "unlimited" else value
+
+
+def build_rlimits(component_name, sandbox):
+    """Build the list of flatbuffer rlimit entries for one component's sandbox.rlimits.
+
+    Raises ValueError if a limit's soft bound exceeds its hard bound (treating "unlimited" as
+    the maximum), naming the component and the limit.
+    """
+    rlimits_out = []
+    for key, value in sandbox.get("rlimits", {}).items():
+        if isinstance(value, dict):
+            soft_raw, hard_raw = value["soft"], value["hard"]
+        else:
+            # A scalar is shorthand for an equal soft/hard pair.
+            soft_raw, hard_raw = value, value
+
+        soft = resolve_rlimit_bound(soft_raw)
+        hard = resolve_rlimit_bound(hard_raw)
+        if soft > hard:
+            raise ValueError(
+                f"Component '{component_name}': sandbox.rlimits.{key} has soft ({soft_raw}) "
+                f"greater than hard ({hard_raw})."
+            )
+
+        rlimits_out.append(
+            {"resource": RLIMIT_KEY_TO_ENUM[key], "soft": soft, "hard": hard}
+        )
+    return rlimits_out
+
 
 def parse_affinity_mask(value, component_name):
     """Convert the user-facing hex string (e.g. "0x3") into the uint64 the flatbuffer expects."""
@@ -408,10 +457,11 @@ def gen_config(output_dir, config, input_filename):
             "scheduling_policy": sched_policy,
             "scheduling_priority": sandbox.get("scheduling_priority", 0),
         }
-        if "max_memory_usage" in sandbox:
-            sandbox_out["max_memory_usage"] = sandbox["max_memory_usage"]
-        if "max_cpu_usage" in sandbox:
-            sandbox_out["max_cpu_usage"] = sandbox["max_cpu_usage"]
+
+        rlimits_out = build_rlimits(component_name, sandbox)
+        if rlimits_out:
+            sandbox_out["rlimits"] = rlimits_out
+
         if "affinity_mask" in sandbox:
             sandbox_out["affinity_mask"] = parse_affinity_mask(
                 sandbox["affinity_mask"], component_name

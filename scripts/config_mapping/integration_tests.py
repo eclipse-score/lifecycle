@@ -169,6 +169,17 @@ def test_full_config(schema_file):
     run(input_file, test_name, schema_file)
 
 
+def test_boundary_values(schema_file):
+    """
+    Test that the minimum and maximum values allowed by the schema are accepted
+    and passed through to the generated configuration.
+    """
+    test_name = "boundary_values_test"
+    input_file = tests_dir / test_name / "input" / "lm_config.json"
+
+    run(input_file, test_name, schema_file)
+
+
 # Define the parameterized test cases
 CUSTOM_VALIDATION_TEST_CASES = [
     {
@@ -264,6 +275,62 @@ SCHEMA_VALIDATION_TEST_CASES = [
     {
         "config_filename": "negative_activation_retry_delay_ms.json",
         "test_id": "negative_activation_retry_delay_ms",
+    },
+    {
+        "config_filename": "negative_scheduling_priority.json",
+        "test_id": "negative_scheduling_priority",
+    },
+    {
+        "config_filename": "invalid_scheduling_priority.json",
+        "test_id": "invalid_scheduling_priority",
+    },
+    {
+        "config_filename": "invalid_uid.json",
+        "test_id": "invalid_uid",
+    },
+    {
+        "config_filename": "invalid_gid.json",
+        "test_id": "invalid_gid",
+    },
+    {
+        "config_filename": "invalid_supplementary_group_ids.json",
+        "test_id": "invalid_supplementary_group_ids",
+    },
+    {
+        "config_filename": "invalid_failed_cycles_tolerance.json",
+        "test_id": "invalid_failed_cycles_tolerance",
+    },
+    {
+        "config_filename": "invalid_min_indications.json",
+        "test_id": "invalid_min_indications",
+    },
+    {
+        "config_filename": "invalid_max_indications.json",
+        "test_id": "invalid_max_indications",
+    },
+    {
+        "config_filename": "invalid_bin_dir.json",
+        "test_id": "invalid_bin_dir",
+    },
+    {
+        "config_filename": "invalid_component_dependency.json",
+        "test_id": "invalid_component_dependency",
+    },
+    {
+        "config_filename": "invalid_run_target_dependency.json",
+        "test_id": "invalid_run_target_dependency",
+    },
+    {
+        "config_filename": "invalid_fallback_dependency.json",
+        "test_id": "invalid_fallback_dependency",
+    },
+    {
+        "config_filename": "invalid_initial_run_target.json",
+        "test_id": "invalid_initial_run_target",
+    },
+    {
+        "config_filename": "invalid_switch_run_target.json",
+        "test_id": "invalid_switch_run_target",
     },
 ]
 

@@ -87,6 +87,16 @@ cc_library(
     ],
 )
 
+lm_cc_test(
+    name = "icomponent_UT",
+    srcs = ["icomponent_UT.cpp"],
+    deps = [
+        ":icomponent",
+        ":mock_component",
+        "@googletest//:gtest_main",
+    ],
+)
+
 cc_library(
     name = "handle",
     srcs = ["handle.cpp"],
@@ -371,13 +381,13 @@ cc_library(
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
     deps = [
         ":icomponent_controller",
+        "//score/launch_manager/src/daemon/src/common:init_only_resource",
         "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
     ],
 )
 
 lm_cc_test(
     name = "safeprocessmap_UT",
-    timeout = "long",
     srcs = ["safeprocessmap_UT.cpp"],
     deps = [
         ":mock_component_controller",
@@ -506,6 +516,8 @@ lm_cc_test(
         "-Wl,--wrap=msync",
         "-Wl,--wrap=close",
         "-Wl,--wrap=fstat",
+        "-Wl,--wrap=clock_gettime",
+        "-Wl,--wrap=clock_getres",
     ],
     linkstatic = True,
     deps = [

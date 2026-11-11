@@ -16,6 +16,7 @@
 
 #include "score/mw/launch_manager/common/identifier_hash.hpp"
 #include <score/stop_token.hpp>
+#include <chrono>
 #include <cstdint>
 
 namespace score::mw::lifecycle::internal
@@ -62,6 +63,12 @@ class IComponent
 
     /// @brief Notify the component that it has terminated with status @p status
     virtual TerminationResult tryHandleTermination(int32_t status) = 0;
+
+    /// @brief Notify the component that its alive supervision has failed.
+    /// @p failure_timestamp Timestamp that pinpoints the supervision failure.
+    virtual void handleSupervisionFailure(std::chrono::nanoseconds /* failure_timestamp */)
+    {
+    }
 
     /// @returns the index of the component in the graph.
     [[nodiscard]] virtual IdentifierHash getIdentifier() const = 0;

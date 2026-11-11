@@ -166,7 +166,7 @@ class ProcessInfoNodeFixture : public ::testing::Test
     {
         EXPECT_CALL(mock_processIf_, startProcess(_, _, _)).WillOnce(Return(osal::OsalReturnType::kSuccess));
         EXPECT_CALL(*process_map_, insertIfNotTerminated(_, _))
-            .WillOnce(Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kOk));
+            .WillOnce(Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted));
     }
 
     /// @brief Sets up requestTermination to synchronously deliver the OS exit notification.
@@ -290,7 +290,7 @@ TEST_F(ProcessInfoNodeStartupTest, SelfTerminating_ExitsBeforeMapInsert_ReturnsS
             }),
             Return(osal::OsalReturnType::kSuccess)));
     EXPECT_CALL(*process_map_, insertIfNotTerminated(_, _))
-        .WillOnce(Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kYield));
+        .WillOnce(Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kMatched));
 
     auto result = node->activate(score::cpp::stop_token{});
 
@@ -326,7 +326,7 @@ TEST_F(ProcessInfoNodeStartupTest, TerminatedReadyCondition_StopRequestedDuringS
     EXPECT_CALL(mock_processIf_, startProcess(_, _, _)).WillOnce(Return(osal::OsalReturnType::kSuccess));
     EXPECT_CALL(*process_map_, insertIfNotTerminated(_, _)).WillOnce(InvokeWithoutArgs([this]() {
         stop_source_.request_stop();
-        return score::mw::lifecycle::internal::SafeProcessMapReturnType::kOk;
+        return score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted;
     }));
     expectOsAcknowledgesTermination(node.get());
 
@@ -356,7 +356,30 @@ TEST_F(ProcessInfoNodeStartupTest, TerminatedReadyCondition_NoTerminationInTime_
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kTerminated));
 }
 
-struct YieldTestCasesData
+TEST_F(
+    ProcessInfoNodeStartupTest,
+    ExpectSupervisionSetupFails_WhenCreateProcessInfoNodeIsCalled_ThenConstructionDoesNotCrash)
+{
+    RecordProperty(
+        "Description",
+        "Expect constructSupervision() to fail. "
+        "When createProcessInfoNode() is called. "
+        "Then ProcessInfoNode is still constructed safely.");
+
+    // Expect
+    EXPECT_CALL(mock_factory_, constructSupervision).WillOnce(InvokeWithoutArgs([]() {
+        return std::unique_ptr<IAliveSupervisionHandle>{};
+    }));
+
+    // When
+    auto node = createProcessInfoNode(configuration::ApplicationType::ReportingAndSupervised);
+
+    // Then
+    ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kIdle));
+    ASSERT_THAT(node->active(), IsFalse());
+}
+
+struct MatchedTestCasesData
 {
     configuration::ApplicationType app_type_;
     configuration::ProcessState condition_;
@@ -366,7 +389,7 @@ struct YieldTestCasesData
     std::string description_;
 };
 
-void PrintTo(const YieldTestCasesData& params, std::ostream* os)
+void PrintTo(const MatchedTestCasesData& params, std::ostream* os)
 {
     *os << "{ Reporting: " << (params.app_type_ == configuration::ApplicationType::Native ? "No" : "Yes")
         << ", Condition: " << (params.condition_ == configuration::ProcessState::Running ? "Running" : "Terminated")
@@ -374,11 +397,11 @@ void PrintTo(const YieldTestCasesData& params, std::ostream* os)
         << ", Self Terminating: " << (params.is_self_terminating_ ? "Yes" : "No") << " }, " << params.description_;
 }
 
-class ProcessInfoNodeMapYieldTest : public ::WithParamInterface<YieldTestCasesData>, public ProcessInfoNodeFixture
+class ProcessInfoNodeMapMatchedTest : public ::WithParamInterface<MatchedTestCasesData>, public ProcessInfoNodeFixture
 {
 };
 
-TEST_P(ProcessInfoNodeMapYieldTest, InsertReturnsYield)
+TEST_P(ProcessInfoNodeMapMatchedTest, InsertReturnsMatched)
 {
     RecordProperty("Description", GetParam().description_);
 
@@ -387,14 +410,14 @@ TEST_P(ProcessInfoNodeMapYieldTest, InsertReturnsYield)
     auto status = GetParam().status_to_exit_with_;
 
     EXPECT_CALL(mock_processIf_, startProcess).WillOnce(Return(osal::OsalReturnType::kSuccess));
-    // kYield means the process already terminated, so we should not request termination again
+    // kMatched means the process already terminated, so we should not request termination again
     EXPECT_CALL(mock_processIf_, requestTermination).Times(0);
     EXPECT_CALL(*process_map_, insertIfNotTerminated)
         .WillOnce(DoAll(
             InvokeWithoutArgs([node = node.get(), &tryHandleTerminationResult, status] {
                 tryHandleTerminationResult = node->tryHandleTermination(status);
             }),
-            Return(SafeProcessMapReturnType::kYield)));
+            Return(SafeProcessMapReturnType::kMatched)));
 
     auto activation_result_ = node->activate(score::cpp::stop_token{});
 
@@ -406,16 +429,16 @@ TEST_P(ProcessInfoNodeMapYieldTest, InsertReturnsYield)
 
 INSTANTIATE_TEST_SUITE_P(
     ProcessInfoNodeTest,
-    ProcessInfoNodeMapYieldTest,
+    ProcessInfoNodeMapMatchedTest,
     Values(
-        YieldTestCasesData{
+        MatchedTestCasesData{
             configuration::ApplicationType::Native,
             configuration::ProcessState::Running,
             0,
             true,
             IComponent::RequestResult::kSuccess,
             "A native, self-terminating process exiting quickly with status 0 should report a successful activation"},
-        YieldTestCasesData{
+        MatchedTestCasesData{
             configuration::ApplicationType::Native,
             configuration::ProcessState::Running,
             111,
@@ -423,14 +446,14 @@ INSTANTIATE_TEST_SUITE_P(
             IComponent::RequestResult::kFailure,
             "A native, self-terminating process exiting quickly with a non-zero status should report a failure to "
             "activate"},
-        YieldTestCasesData{
+        MatchedTestCasesData{
             configuration::ApplicationType::Native,
             configuration::ProcessState::Running,
             0,
             false,
             IComponent::RequestResult::kFailure,
             "A native, non-self-terminating process exiting quickly should report a failure to activate"},
-        YieldTestCasesData{
+        MatchedTestCasesData{
             configuration::ApplicationType::Reporting,
             configuration::ProcessState::Running,
             0,
@@ -439,14 +462,14 @@ INSTANTIATE_TEST_SUITE_P(
             "A reporting process exiting quickly (i.e. without waiting for a response from launch manager) should "
             "report a failure to activate"},
 
-        YieldTestCasesData{
+        MatchedTestCasesData{
             configuration::ApplicationType::Native,
             configuration::ProcessState::Terminated,
             0,
             true,
             IComponent::RequestResult::kSuccess,
             "A native, self-terminating process exiting quickly with status 0 should report a successful activation"},
-        YieldTestCasesData{
+        MatchedTestCasesData{
             configuration::ApplicationType::Native,
             configuration::ProcessState::Terminated,
             111,
@@ -454,14 +477,14 @@ INSTANTIATE_TEST_SUITE_P(
             IComponent::RequestResult::kFailure,
             "A native, self-terminating process exiting quickly with a non-zero status should report a failure to "
             "activate"},
-        YieldTestCasesData{
+        MatchedTestCasesData{
             configuration::ApplicationType::Native,
             configuration::ProcessState::Terminated,
             0,
             false,
             IComponent::RequestResult::kFailure,
             "A native, non-self-terminating process exiting quickly should report a failure to activate"},
-        YieldTestCasesData{
+        MatchedTestCasesData{
             configuration::ApplicationType::Reporting,
             configuration::ProcessState::Terminated,
             0,
@@ -534,7 +557,7 @@ TEST_F(ProcessInfoNodeStartupCrashTest, ReportingProcess_CrashesBeforeReady_With
         .WillRepeatedly(Return(osal::OsalReturnType::kSuccess));
     EXPECT_CALL(*process_map_, insertIfNotTerminated(_, _))
         .Times(kTotalAttempts)
-        .WillRepeatedly(Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kOk));
+        .WillRepeatedly(Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted));
     // Simulate the OS handler detecting the crash on every attempt, while the process is still waiting to reach
     // kRunning.
     EXPECT_CALL(mock_processIf_, waitForkRunning(_, _))
@@ -566,7 +589,7 @@ TEST_F(ProcessInfoNodeStartupCrashTest, NonReportingProcess_CrashesBeforeReady_N
             InvokeWithoutArgs([node = node.get()] {
                 static_cast<void>(node->tryHandleTermination(-1));
             }),
-            Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kOk)));
+            Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted)));
 
     auto result = node->activate(score::cpp::stop_token{});
 
@@ -594,7 +617,7 @@ TEST_F(ProcessInfoNodeStartupCrashTest, NonReportingProcess_CrashesBeforeReady_W
             InvokeWithoutArgs([node = node.get()] {
                 static_cast<void>(node->tryHandleTermination(-1));
             }),
-            Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kOk)));
+            Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted)));
 
     auto result = node->activate(score::cpp::stop_token{});
 
@@ -616,7 +639,7 @@ TEST_F(ProcessInfoNodeStartupCrashTest, TimeoutThenSuccess_WithRestarts)
     EXPECT_CALL(mock_processIf_, startProcess(_, _, _)).Times(2).WillRepeatedly(Return(osal::OsalReturnType::kSuccess));
     EXPECT_CALL(*process_map_, insertIfNotTerminated(_, _))
         .Times(2)
-        .WillRepeatedly(Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kOk));
+        .WillRepeatedly(Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted));
     EXPECT_CALL(mock_processIf_, waitForkRunning(_, _))
         .WillOnce(Return(osal::OsalReturnType::kFail))
         .WillOnce(Return(osal::OsalReturnType::kSuccess));
@@ -665,7 +688,7 @@ TEST_P(
         .WillRepeatedly(Return(osal::OsalReturnType::kSuccess));
     EXPECT_CALL(*process_map_, insertIfNotTerminated(_, _))
         .Times(kExpectedTotalAttempts)
-        .WillRepeatedly(Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kOk));
+        .WillRepeatedly(Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted));
     // Simulate the OS handler detecting the crash on every attempt, while the process is still waiting to reach
     // kRunning.
     EXPECT_CALL(mock_processIf_, waitForkRunning(_, _))
@@ -750,7 +773,7 @@ TEST_F(ProcessInfoNodeUnexpectedTerminationTest, SelfTerminating_TerminatedReady
             termination_future = std::async(std::launch::async, [node]() {
                 return node->tryHandleTermination(0);
             });
-            return score::mw::lifecycle::internal::SafeProcessMapReturnType::kOk;
+            return score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted;
         }));
 
     // activate() returns kSuccess because kTerminated (the ready condition) is reached within the timeout
@@ -803,6 +826,80 @@ TEST_F(ProcessInfoNodeDeactivationTest, CanTerminateNonSelfTerminatingProcess)
     ASSERT_THAT(result, Eq(IComponent::RequestResult::kSuccess));
     ASSERT_THAT(node->active(), IsFalse());
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kIdle));
+}
+
+class ProcessInfoNodeSupervisionFailureTest : public ProcessInfoNodeFixture
+{
+  protected:
+    static constexpr osal::ProcessID kPid{4711};
+
+    /// @brief Create a supervised node that has been activated, with the OS reporting pid kPid.
+    std::unique_ptr<ProcessInfoNode> createReadySupervisedNode()
+    {
+        auto node = createProcessInfoNode(configuration::ApplicationType::ReportingAndSupervised);
+        EXPECT_CALL(mock_processIf_, startProcess(_, _, _))
+            .WillOnce(DoAll(SetArgReferee<0>(kPid), Return(osal::OsalReturnType::kSuccess)));
+        EXPECT_CALL(*process_map_, insertIfNotTerminated(_, _))
+            .WillOnce(Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted));
+        EXPECT_CALL(mock_processIf_, waitForkRunning(_, _)).WillOnce(Return(osal::OsalReturnType::kSuccess));
+        const auto result = node->activate(score::cpp::stop_token{});
+        EXPECT_THAT(result, Eq(IComponent::RequestResult::kSuccess));
+        EXPECT_TRUE(node->active());
+        return node;
+    }
+
+    static constexpr std::chrono::nanoseconds kAfterSupervisionStart{std::chrono::nanoseconds::max()};
+};
+
+TEST_F(ProcessInfoNodeSupervisionFailureTest, FailureAfterSupervisionStart_KillsProcess)
+{
+    RecordProperty(
+        "Description",
+        "A supervision failure for a ready process, timestamped after supervision was started, kills the process "
+        "with SIGKILL.");
+
+    auto node = createReadySupervisedNode();
+    EXPECT_CALL(mock_processIf_, forceTermination(kPid)).WillOnce(Return(osal::OsalReturnType::kSuccess));
+
+    node->handleSupervisionFailure(kAfterSupervisionStart);
+}
+
+TEST_F(ProcessInfoNodeSupervisionFailureTest, FailureBeforeSupervisionStart_DoesNotKillProcess)
+{
+    RecordProperty(
+        "Description",
+        "A supervision failure timestamped before supervision was (re)started is stale and does not kill the "
+        "process.");
+
+    auto node = createReadySupervisedNode();
+    EXPECT_CALL(mock_processIf_, forceTermination(_)).Times(0);
+
+    node->handleSupervisionFailure(std::chrono::nanoseconds{0});
+}
+
+TEST_F(ProcessInfoNodeSupervisionFailureTest, ProcessNotReady_DoesNotKillProcess)
+{
+    RecordProperty("Description", "A supervision failure for a process that never became ready is ignored.");
+
+    auto node = createProcessInfoNode(configuration::ApplicationType::ReportingAndSupervised);
+    EXPECT_CALL(mock_processIf_, forceTermination(_)).Times(0);
+
+    node->handleSupervisionFailure(kAfterSupervisionStart);
+}
+
+TEST_F(ProcessInfoNodeSupervisionFailureTest, ProcessAlreadyTerminated_DoesNotKillProcess)
+{
+    RecordProperty(
+        "Description",
+        "A supervision failure received after the OS reported the termination of the process is ignored, as the pid "
+        "has been reset.");
+
+    auto node = createReadySupervisedNode();
+    static_cast<void>(node->tryHandleTermination(0));
+    ASSERT_THAT(node->getPid(), Eq(0));
+    EXPECT_CALL(mock_processIf_, forceTermination(_)).Times(0);
+
+    node->handleSupervisionFailure(kAfterSupervisionStart);
 }
 
 // Bundles tests for the explicit move constructor, which is required because the class holds atomics.

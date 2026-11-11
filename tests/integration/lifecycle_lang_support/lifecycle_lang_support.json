@@ -1,0 +1,101 @@
+{
+    "schema_version": 2,
+    "defaults": {
+        "deployment_config": {
+            "bin_dir": "/tmp/tests/lifecycle_lang_support",
+            "ready_timeout_ms": 1000,
+            "shutdown_timeout_ms": 1000,
+            "recovery_action": {
+                "switch_run_target": {
+                    "run_target": "fallback_run_target"
+                }
+            },
+            "environmental_variables": {
+                "LD_LIBRARY_PATH": "/opt/lib"
+            },
+            "sandbox": {
+                "uid": 0,
+                "gid": 0,
+                "scheduling_policy": "SCHED_OTHER",
+                "scheduling_priority": 0
+            }
+        },
+        "component_properties": {
+            "application_profile": {
+                "application_type": "Reporting",
+                "is_self_terminating": false
+            },
+            "ready_condition": {
+                "process_state": "Running"
+            }
+        }
+    },
+    "components": {
+        "cpp_component": {
+            "component_properties": {
+                "binary_name": "cpp_reporting_process"
+            }
+        },
+        "c_component": {
+            "component_properties": {
+                "binary_name": "c_reporting_process"
+            }
+        },
+        "rust_component": {
+            "component_properties": {
+                "binary_name": "rust_reporting_process"
+            }
+        },
+        "verification_component": {
+            "component_properties": {
+                "binary_name": "verification_process",
+                "process_arguments": [
+                    "test_end"
+                ],
+                "depends_on": [
+                    "cpp_component",
+                    "c_component",
+                    "rust_component"
+                ],
+                "application_profile": {
+                    "application_type": "Native",
+                    "is_self_terminating": true
+                },
+                "ready_condition": {
+                    "process_state": "Terminated"
+                }
+            }
+        },
+        "fail_test_component": {
+            "component_properties": {
+                "binary_name": "fail_test",
+                "application_profile": {
+                    "application_type": "Native",
+                    "is_self_terminating": true
+                },
+                "ready_condition": {
+                    "process_state": "Terminated"
+                }
+            }
+        }
+    },
+    "run_targets": {
+        "Startup": {
+            "depends_on": [
+                "cpp_component",
+                "c_component",
+                "rust_component",
+                "verification_component"
+            ]
+        }
+    },
+    "initial_run_target": "Startup",
+    "alive_supervision": {
+        "evaluation_cycle_ms": 50
+    },
+    "fallback_run_target": {
+        "depends_on": [
+            "fail_test_component"
+        ]
+    }
+}

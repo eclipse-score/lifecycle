@@ -30,6 +30,12 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <ctime>
+
+#include <atomic>
+#include <ctime>
+
+#include <atomic>
 
 #include <gmock/gmock.h>
 
@@ -64,6 +70,10 @@ class SyscallMock
     MOCK_METHOD(int, msync, (void* __addr, size_t __len, int __flags), ());
     MOCK_METHOD(int, close, (int __fd), ());
     MOCK_METHOD(int, fstat, (int __fd, struct stat* __buf), ());
+    virtual ~SyscallMock() = default;
+
+    MOCK_METHOD(int, clock_gettime, (clockid_t clock_id, struct timespec* ts), ());
+    MOCK_METHOD(int, clock_getres, (clockid_t clock_id, struct timespec* res), ());
     MOCK_METHOD(int, shm_open_anon, (const char* name), ());
 };
 
@@ -358,6 +368,28 @@ int __wrap_fstat(int __fd, struct stat* __buf)
     }
     return __real_fstat(__fd, __buf);
 }
+
+// wrap for clock_gettime
+extern int __real_clock_gettime(clockid_t clock_id, struct timespec* ts);
+int __wrap_clock_gettime(clockid_t clock_id, struct timespec* ts)
+{
+    if (g_syscall_mock)
+    {
+        return g_syscall_mock->clock_gettime(clock_id, ts);
+    }
+    return __real_clock_gettime(clock_id, ts);
+}
+
+// wrap for clock_getres
+extern int __real_clock_getres(clockid_t clock_id, struct timespec* res);
+int __wrap_clock_getres(clockid_t clock_id, struct timespec* res)
+{
+    if (g_syscall_mock)
+    {
+        return g_syscall_mock->clock_getres(clock_id, res);
+    }
+    return __real_clock_getres(clock_id, res);
+}
 }
 
 namespace score::mw::lifecycle::internal::osal
@@ -368,9 +400,10 @@ int shm_open_anon(const char* name)
     return g_syscall_mock->shm_open_anon(name);
 }
 
-void sysexit(int status)
+[[noreturn]] void sysexit(int status)
 {
     g_syscall_mock->sysexit(status);
+    std::abort();
 }
 
 int setSecurityPolicy(const char* policy)
