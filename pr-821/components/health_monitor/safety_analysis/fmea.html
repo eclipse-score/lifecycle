@@ -498,7 +498,7 @@
                   
   <section id="fmea-failure-modes-and-effects-analysis">
 <h1>FMEA (Failure Modes and Effects Analysis)<a class="headerlink" href="#fmea-failure-modes-and-effects-analysis" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-8e19b07d">
+<div class="need_container docutils container" id="SNCB-1399e4bb">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__health_monitor_fmea">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -556,7 +556,7 @@
 <tbody>
 <tr class="row-even"><td><p>Missing processing time</p></td>
 <td><p>HM_FMEA_001</p></td>
-<td><p>Background thread does not receive CPU time slice, leading to miss specified alive notification internal towards Launch Daemon</p></td>
+<td><p>Background thread does not receive CPU time slice, leading to missing the specified alive notification internal towards Launch Daemon</p></td>
 <td><div class="line-block">
 <div class="line"><strong>Detection:</strong></div>
 <div class="line-block">
@@ -566,7 +566,7 @@
 <div class="line-block">
 <div class="line"><strong>Mitigation:</strong></div>
 <div class="line-block">
-<div class="line">- Provide <cite>AoU</cite> that integrator has to ensure Health Monitor background thread receives sufficient CPU time slice by configuring it’s scheduling parameters accordingly.</div>
+<div class="line">- Provide <cite>AoU</cite> that integrator has to ensure Health Monitor background thread receives sufficient CPU time slice by configuring its scheduling parameters accordingly.</div>
 <div class="line">- All code within process is developed according to <strong>ASIL-B</strong> development process</div>
 </div>
 </div>
@@ -575,7 +575,7 @@
 </tr>
 <tr class="row-odd"><td><p>Loss of execution</p></td>
 <td><p>HM_FMEA_002</p></td>
-<td><p>Background thread does not advance in its execution (ie. deadlock, endless loop failure), leading to miss specified alive notification internal towards Launch Daemon</p></td>
+<td><p>Background thread does not advance in its execution (i.e. deadlock, endless loop failure), leading to missing the specified alive notification internal towards Launch Daemon</p></td>
 <td><div class="line-block">
 <div class="line"><strong>Detection:</strong></div>
 <div class="line-block">
@@ -615,12 +615,12 @@
 </section>
 <section id="hm-fmea-003">
 <h2>HM_FMEA_003<a class="headerlink" href="#hm-fmea-003" title="Link to this heading">#</a></h2>
-<p>Health Monitoring Library is placed in same process as monitored components. Therefore, any other component that shares same process can corrupt memory of Health Monitoring Library. This can lead to missed detection of failure of monitored components.
+<p>Health Monitoring Library is placed in the same process as monitored components. Therefore, any other component that shares the same process can corrupt memory of Health Monitoring Library. This can lead to missed detection of failure of monitored components.
 Since we are using <strong>Rust</strong> as programming language for Health Monitoring Library implementation, we could rely on Rust memory safety guarantees and avoid memory corruption due to programming errors. However we are also supporting C/C++ components
-that can introduce memory issues due to programming errors. Therefore, we need to consider additional detection mechanisms. Below description of possible detection mechanisms:</p>
+that can introduce memory issues due to programming errors. Therefore, we need to consider additional detection mechanisms. Below is a description of possible detection mechanisms:</p>
 <section id="checksums">
 <h3>Checksums<a class="headerlink" href="#checksums" title="Link to this heading">#</a></h3>
-<p>One of possible detection mechanisms is to use checksums for data structures used for monitors.</p>
+<p>One of the possible detection mechanisms is to use checksums for data structures used for monitors.</p>
 <p><strong>Pros</strong></p>
 <ul class="simple">
 <li><p>Low performance overhead</p></li>
@@ -637,7 +637,7 @@ that can introduce memory issues due to programming errors. Therefore, we need t
 <section id="protected-pages">
 <h3>Protected pages<a class="headerlink" href="#protected-pages" title="Link to this heading">#</a></h3>
 <p>Another possible detection mechanism is to use protected memory pages. Region before and after data structures used for monitors can be marked as non-accessible.
-Since other components do not have knowledge where internal structures were allocated, <strong>likelihood</strong> of memory corruption only in data structures used for monitors and not around them is <strong>low</strong>.</p>
+Since other components do not have knowledge of where internal structures were allocated, <strong>likelihood</strong> of memory corruption only in data structures used for monitors and not around them is <strong>low</strong>.</p>
 <p><strong>Pros</strong></p>
 <ul class="simple">
 <li><p>Easy to implement</p></li>
@@ -646,14 +646,14 @@ Since other components do not have knowledge where internal structures were allo
 <p><strong>Cons</strong></p>
 <ul class="simple">
 <li><p>Increased memory overhead</p></li>
-<li><p>Can detect only <cite>pass through</cite> corruption - ie. bulk write over memory area</p></li>
-<li><p>Protection can be disabled by malicious component however this shall be judged as <strong>extremely low</strong> likelihood because this requires knowledge of internal memory layout of Health Monitoring Library and code review approval.</p></li>
+<li><p>Can detect only <cite>pass through</cite> corruption - i.e. bulk write over memory area</p></li>
+<li><p>Protection can be disabled by a malicious component; however, this shall be judged as <strong>extremely low</strong> likelihood because this requires knowledge of internal memory layout of Health Monitoring Library and code review approval.</p></li>
 </ul>
 </section>
 <section id="dual-banking">
 <h3>Dual banking<a class="headerlink" href="#dual-banking" title="Link to this heading">#</a></h3>
-<p>Another possible detection mechanism is to use dual banking for data structures used for monitors. One bank is actively used, while the other one is kept on side
-as either <strong>mirrored data</strong> or  <strong>inverse byte copy</strong>. During runtime, background checking thread will fetch both banks and compare them. If mismatch is detected, then memory corruption is detected.</p>
+<p>Another possible detection mechanism is to use dual banking for data structures used for monitors. One bank is actively used, while the other one is kept on the side
+as either <strong>mirrored data</strong> or  <strong>inverse byte copy</strong>. During runtime, background checking thread will fetch both banks and compare them. If a mismatch is detected, then memory corruption is detected.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This pattern can be extended to triple banking where voting can be used to <strong>recover</strong> corrupted data if needed.</p>
@@ -677,14 +677,14 @@ as either <strong>mirrored data</strong> or  <strong>inverse byte copy</strong>.
 <li><p>Status: Accepted</p></li>
 <li><p>Date: 2026-01-09</p></li>
 </ul>
-<p>After evaluation of above detection mechanisms, it was decided that <strong>Health Monitoring Library</strong> shall be implemented as library within monitored process as FMEA confirms safety goals are met.</p>
+<p>After evaluation of above detection mechanisms, it was decided that <strong>Health Monitoring Library</strong> shall be implemented as a library within the monitored process as FMEA confirms safety goals are met.</p>
 </section>
 <section id="rationale">
 <h1>Rationale<a class="headerlink" href="#rationale" title="Link to this heading">#</a></h1>
 <ul class="simple">
 <li><p>All code within process is developed according to <strong>ASIL-B</strong> development process</p></li>
 <li><p>Library will use <strong>protected pages</strong> mechanism to detect <cite>pass through</cite> memory corruption</p></li>
-<li><p>Lifecycle CFT will investigate possibility to harden memory protection using <strong>ARM MTE</strong> extension (<a class="reference external" href="https://learn.arm.com/learning-paths/mobile-graphics-and-gaming/mte/">more here</a> ) in future releases - <a class="github reference external" href="https://github.com/eclipse-score/score/issues/2397">eclipse-score/score#2397</a></p></li>
+<li><p>Lifecycle CFT will investigate the possibility to harden memory protection using <strong>ARM MTE</strong> extension (<a class="reference external" href="https://learn.arm.com/learning-paths/mobile-graphics-and-gaming/mte/">more here</a> ) in future releases - <a class="github reference external" href="https://github.com/eclipse-score/score/issues/2397">eclipse-score/score#2397</a></p></li>
 </ul>
 <section id="failure-mode-list">
 <h2>Failure Mode List<a class="headerlink" href="#failure-mode-list" title="Link to this heading">#</a></h2>
@@ -704,7 +704,7 @@ as either <strong>mirrored data</strong> or  <strong>inverse byte copy</strong>.
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>argument is inside the ‘content’. Therefore content is mandatory</p>
+<p>Argument is inside the ‘content’. Therefore content is mandatory</p>
 </div>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
