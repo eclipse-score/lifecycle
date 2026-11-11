@@ -26,7 +26,7 @@ The *Initial Run Target* configuration is shown in
 .. feat_arc_dyn:: Launch Manager Startup
    :id: feat_arc_dyn__lifecycle__lcm_startup
    :security: YES
-   :status: valid
+   :status: valid_inspected
    :version: 1
    :safety: ASIL_B
    :belongs_to: feat__lifecycle[version==1]
@@ -50,11 +50,11 @@ Launch Manager shutdown
 .. feat_arc_dyn:: Launch Manager Shutdown
    :id: feat_arc_dyn__lifecycle__lcm_shutdown
    :security: YES
-   :status: valid
+   :status: valid_inspected
    :version: 1
    :safety: ASIL_B
    :belongs_to: feat__lifecycle[version==1]
-   :fulfils: feat_req__lifecycle__process_termination
+   :fulfils: feat_req__lifecycle__process_termination[version==1]
 
    .. uml:: _assets/launch_manager_shutdown.puml
 
