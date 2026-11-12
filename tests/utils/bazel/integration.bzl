@@ -29,6 +29,7 @@ def integration_test(
         files = [],
         config = None,
         install_prefix = SCORE_TEST_INSTALL_PREFIX,
+        install_name = None,
         qemu_config = DEFAULT_QEMU_CONFIG,
         qemu_image = DEFAULT_QEMU_IMAGE,
         docker_image_target = DEFAULT_DOCKER_IMAGE_TARGET,
@@ -58,6 +59,8 @@ def integration_test(
         files: Additional files deployed to the test's etc/ directory
         config: Launch manager configuration file
         install_prefix: Installation prefix for the test environment
+        install_name: Directory name below `<install_prefix>/tests` the test is installed to.
+            Defaults to `name`. Set it when tests share a configuration with a fixed `bin_dir`.
         qemu_config: QEMU configuration file used by the QEMU test target.
             Defaults to the `//config:qemu_config` label flag.
         qemu_image: QEMU image used by the QEMU test target.
@@ -69,6 +72,7 @@ def integration_test(
         **kwargs: Miscellaneous arguments passed through to `py_itf_test`
     """
 
+    install_name = install_name or name
     bin_pkg_name = "{}_binaries_pkg".format(name)
     lm_config_name = "{}_lm_config".format(name)
     lm_config_pkg_name = "{}_lm_config_pkg".format(name)
@@ -80,7 +84,7 @@ def integration_test(
         name = bin_pkg_name,
         srcs = binaries,
         attributes = pkg_attributes(mode = "0555"),
-        prefix = "tests/{}".format(name),
+        prefix = "tests/{}".format(install_name),
     )
 
     if config:
@@ -92,14 +96,14 @@ def integration_test(
         pkg_files(
             name = lm_config_pkg_name,
             srcs = [":{}".format(lm_config_name)],
-            prefix = "tests/{}".format(name),
+            prefix = "tests/{}".format(install_name),
             attributes = pkg_attributes(mode = "0400"),
         )
 
     pkg_files(
         name = mw_com_config_pkg_name,
         srcs = ["@score_lifecycle//tests/utils/environments:mw_com_config.json"],
-        prefix = "tests/{}/etc".format(name),
+        prefix = "tests/{}/etc".format(install_name),
         attributes = pkg_attributes(mode = "0400"),
     )
 
@@ -137,7 +141,7 @@ def integration_test(
     final_args = kwargs.pop("args", []) + [
         "-p attribute_plugin",
         "--score-test-binary-path=$(location :{})".format(test_tar_name),
-        "--score-test-remote-directory={}/tests/{}".format(install_prefix, name),
+        "--score-test-remote-directory={}/tests/{}".format(install_prefix, install_name),
     ] + select({
         "//config:integration_docker": [
             "--docker-image-bootstrap=$(location {})".format(docker_image_target),

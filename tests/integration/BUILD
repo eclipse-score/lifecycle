@@ -14,6 +14,9 @@
 test_suite(
     name = "integration",
     tests = [
+        "//tests/integration/activation_queue/duplicate_accepted",
+        "//tests/integration/activation_queue/forced_clears_queue",
+        "//tests/integration/activation_queue/request_rejected",
         "//tests/integration/complex_monitoring",
         "//tests/integration/crash_ignores_dependents",
         "//tests/integration/crash_on_startup",
@@ -35,6 +38,7 @@ test_suite(
         "//tests/integration/rt_running_when_process_exits",
         "//tests/integration/run_target_requests/already_active_run_target",
         "//tests/integration/run_target_requests/replaced_activation",
+        "//tests/integration/run_target_requests/run_target_rejected_when_queue_full",
         "//tests/integration/run_target_requests/same_run_target_in_transition",
         "//tests/integration/run_target_requests/unknown_run_target",
         "//tests/integration/sandbox_options/non_root:sandbox_options_non_root",
