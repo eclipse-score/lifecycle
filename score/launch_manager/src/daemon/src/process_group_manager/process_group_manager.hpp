@@ -29,7 +29,6 @@
 #include "score/mw/launch_manager/process_group_manager/details/component_event_queue.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/graph.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/os_handler.hpp"
-#include "score/mw/launch_manager/process_group_manager/details/pending_activation_queue.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_info_node.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/process_monitor.hpp"
@@ -60,6 +59,8 @@ class ProcessGroupManager final : public IRunTargetControl
 {
     using WorkerQueue =
         MPMCConcurrentQueue<std::optional<ComponentTask>, static_cast<std::size_t>(ProcessLimits::kMaxProcesses)>;
+
+    using PendingActivationQueue = MpscBoundedQueue<IdentifierHash>;
 
   public:
     /// @brief Constructs a new ProcessGroupManager object.

@@ -560,15 +560,3 @@ lm_cc_test(
         "@googletest//:gtest_main",
     ],
 )
-
-cc_library(
-    name = "pending_activation_queue",
-    hdrs = ["pending_activation_queue.hpp"],
-    include_prefix = "score/mw/launch_manager/process_group_manager/details",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
-    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
-    deps = [
-        "//score/launch_manager/src/daemon/src/common:identifier_hash",
-        "//score/launch_manager/src/daemon/src/common/concurrency:mpsc_bounded_queue",
-    ],
-)
