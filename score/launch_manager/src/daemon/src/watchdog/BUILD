@@ -13,9 +13,9 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_library(
-    name = "i_watchdog",
+    name = "iwatchdog",
     hdrs = [
-        "i_watchdog.hpp",
+        "iwatchdog.hpp",
         "watchdog_factory.hpp",
     ],
     include_prefix = "score/mw/launch_manager/watchdog",
@@ -24,14 +24,14 @@ cc_library(
 )
 
 cc_library(
-    name = "mock_i_watchdog",
+    name = "mock_iwatchdog",
     testonly = True,
-    hdrs = ["mock_i_watchdog.hpp"],
+    hdrs = ["mock_iwatchdog.hpp"],
     include_prefix = "score/mw/launch_manager/watchdog",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/watchdog",
     visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
-        ":i_watchdog",
+        ":iwatchdog",
         "@googletest//:gtest",
     ],
 )

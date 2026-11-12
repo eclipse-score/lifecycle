@@ -59,7 +59,7 @@ alias(
 # Interface for custom watchdog implementations, selected with --@score_lifecycle//config:watchdog_impl
 alias(
     name = "watchdog_interface_cc",
-    actual = "//score/launch_manager/src/daemon/src/watchdog:i_watchdog",
+    actual = "//score/launch_manager/src/daemon/src/watchdog:iwatchdog",
 )
 
 cc_library(

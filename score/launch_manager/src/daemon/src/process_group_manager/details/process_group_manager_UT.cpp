@@ -18,7 +18,7 @@
 #include "score/mw/launch_manager/alive_monitor/mock_supervision_factory.hpp"
 #include "score/mw/launch_manager/process_group_manager/mock_iprocess.hpp"
 #include "score/mw/launch_manager/recovery_client/mock_recovery_client.h"
-#include "score/mw/launch_manager/watchdog/mock_i_watchdog.hpp"
+#include "score/mw/launch_manager/watchdog/mock_iwatchdog.hpp"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -184,8 +184,9 @@ TEST_F(ProcessGroupManagerWatchdogTest, GivenMinimalConfig_ExpectWatchdogMethods
     // Expected
     InSequence sequence;
     expectNormalStartup();
-    EXPECT_CALL(*watchdog_, deinit()).Times(1);
+    // deinitialize() (called in TearDown()) disarms the watchdog last, after all other components were stopped.
     EXPECT_CALL(*alive_monitor_, stopMonitoring()).Times(1);
+    EXPECT_CALL(*watchdog_, deinit()).Times(1);
 
     // When
     auto initialize_result = process_group_manager_->initialize();

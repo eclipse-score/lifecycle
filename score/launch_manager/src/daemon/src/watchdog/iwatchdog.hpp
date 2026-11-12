@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#ifndef SCORE_MW_LAUNCH_MANAGER_WATCHDOG_I_WATCHDOG_HPP_INCLUDED
-#define SCORE_MW_LAUNCH_MANAGER_WATCHDOG_I_WATCHDOG_HPP_INCLUDED
+#ifndef SCORE_MW_LAUNCH_MANAGER_WATCHDOG_IWATCHDOG_HPP_INCLUDED
+#define SCORE_MW_LAUNCH_MANAGER_WATCHDOG_IWATCHDOG_HPP_INCLUDED
 
 namespace score::mw::lifecycle::internal::watchdog
 {
@@ -74,4 +74,4 @@ class IWatchdog
 
 }  // namespace score::mw::lifecycle::internal::watchdog
 
-#endif  // SCORE_MW_LAUNCH_MANAGER_WATCHDOG_I_WATCHDOG_HPP_INCLUDED
+#endif  // SCORE_MW_LAUNCH_MANAGER_WATCHDOG_IWATCHDOG_HPP_INCLUDED

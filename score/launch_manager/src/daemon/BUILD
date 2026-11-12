@@ -29,7 +29,7 @@ cc_library(
         "//score/launch_manager/src/daemon/src/osal:ipc_comms",
         "//score/launch_manager/src/daemon/src/process_group_manager",
         "//score/launch_manager/src/daemon/src/recovery_client",
-        "//score/launch_manager/src/daemon/src/watchdog:i_watchdog",
+        "//score/launch_manager/src/daemon/src/watchdog:iwatchdog",
         "@score_baselibs//score/language/futurecpp",
     ],
 )

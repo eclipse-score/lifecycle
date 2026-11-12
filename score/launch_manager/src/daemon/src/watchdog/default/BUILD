@@ -25,7 +25,7 @@ cc_library(
     ],
     deps = [
         "//score/launch_manager/src/daemon/src/common:log",
-        "//score/launch_manager/src/daemon/src/watchdog:i_watchdog",
+        "//score/launch_manager/src/daemon/src/watchdog:iwatchdog",
         "@score_communication//score/memory/shared",
     ],
 )

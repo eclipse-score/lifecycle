@@ -14,7 +14,7 @@
 #ifndef SCORE_MW_LAUNCH_MANAGER_WATCHDOG_DEFAULT_DEFAULT_WATCHDOG_HPP_INCLUDED
 #define SCORE_MW_LAUNCH_MANAGER_WATCHDOG_DEFAULT_DEFAULT_WATCHDOG_HPP_INCLUDED
 
-#include "score/mw/launch_manager/watchdog/i_watchdog.hpp"
+#include "score/mw/launch_manager/watchdog/iwatchdog.hpp"
 
 #include "score/memory/shared/i_shared_memory_resource.h"
 
