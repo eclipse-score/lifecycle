@@ -1105,8 +1105,14 @@ TEST(ComponentTest, ProcessTerminatedReadyConditionSucceedsOnExitZero)
 
     NiceMock<MockSupervisionFactory> factory;
 
+    std::promise<void> started;
+    auto started_future = started.get_future();
+
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+    EXPECT_CALL(*start_action, start(_)).WillOnce(Invoke([&started](cpp::stop_token) {
+        started.set_value();
+        return Result<Handle>{mock_handle};
+    }));
 
     Component component(
         std::move(start_action),
@@ -1120,8 +1126,7 @@ TEST(ComponentTest, ProcessTerminatedReadyConditionSucceedsOnExitZero)
         return component.activate(cpp::stop_token{});
     });
 
-    // Termination may be reported before or during the wait; both must succeed.
-    std::this_thread::sleep_for(std::chrono::milliseconds{10});
+    started_future.wait();
     const IComponent::TerminationResult termination_result = terminateFromOtherThread(component, 0);
 
     ASSERT_EQ(activation.wait_for(std::chrono::seconds{1}), std::future_status::ready);
@@ -1139,8 +1144,14 @@ TEST(ComponentTest, ProcessTerminatedReadyConditionFailsOnNonZeroExit)
 
     NiceMock<MockSupervisionFactory> factory;
 
+    std::promise<void> started;
+    auto started_future = started.get_future();
+
     auto start_action = std::make_unique<MockStartAction>();
-    ON_CALL(*start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+    EXPECT_CALL(*start_action, start(_)).WillOnce(Invoke([&started](cpp::stop_token) {
+        started.set_value();
+        return Result<Handle>{mock_handle};
+    }));
 
     Component component(
         std::move(start_action),
@@ -1154,7 +1165,7 @@ TEST(ComponentTest, ProcessTerminatedReadyConditionFailsOnNonZeroExit)
         return component.activate(cpp::stop_token{});
     });
 
-    std::this_thread::sleep_for(std::chrono::milliseconds{10});
+    started_future.wait();
     const IComponent::TerminationResult termination_result = terminateFromOtherThread(component, 1);
 
     ASSERT_EQ(activation.wait_for(std::chrono::seconds{1}), std::future_status::ready);
