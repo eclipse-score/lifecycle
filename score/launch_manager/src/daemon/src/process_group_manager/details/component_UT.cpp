@@ -186,6 +186,38 @@ TEST(ComponentTest, ReadyConditionCalled)
     static_cast<void>(component.activate(mock_stop_token));
 }
 
+TEST(ComponentTest, ReadyConditionPreparedBeforeStart)
+{
+    RecordProperty(
+        "Description",
+        "Given a component. "
+        "When it is activated. "
+        "Then the ready condition is prepared before the resource is started, and waited on afterwards.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    auto start_action = std::make_unique<MockStartAction>();
+    auto* const start_action_ptr = start_action.get();
+
+    auto ready_condition = std::make_unique<MockReadyCondition>();
+    auto* const ready_condition_ptr = ready_condition.get();
+
+    Component component(
+        std::move(start_action),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::move(ready_condition),
+        factory,
+        std::make_shared<configuration::ComponentConfig>());
+
+    InSequence sequence;
+    EXPECT_CALL(*ready_condition_ptr, prepare());
+    EXPECT_CALL(*start_action_ptr, start(_)).WillOnce(Return(Result<Handle>{mock_handle}));
+    EXPECT_CALL(*ready_condition_ptr, wait(_, _)).WillOnce(Return(Result<void>{}));
+
+    EXPECT_EQ(component.activate(mock_stop_token), IComponent::RequestResult::kSuccess);
+}
+
 TEST(ComponentTest, TerminationDuringStartupInterruptsActivation)
 {
     NiceMock<MockSupervisionFactory> factory;

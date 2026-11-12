@@ -27,6 +27,14 @@ class IReadyCondition
   public:
     virtual ~IReadyCondition() = default;
 
+    /// @brief Prepare the ready condition for a new activation.
+    /// @details Called once per activation, before the resource is started and while no
+    ///          termination of the new resource can be reported yet. Implementations can use
+    ///          this to discard state left over from a previous activation.
+    virtual void prepare() const
+    {
+    }
+
     /// @brief Wait until the resource represented by the given handle is ready.
     /// @param stop_token Token which can be used to interrupt the wait.
     /// @param handle The resource to wait on.

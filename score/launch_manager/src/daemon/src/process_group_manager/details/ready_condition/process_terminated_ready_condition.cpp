@@ -23,20 +23,23 @@ ProcessTerminatedReadyCondition::ProcessTerminatedReadyCondition(std::chrono::mi
 {
 }
 
+void ProcessTerminatedReadyCondition::prepare() const
+{
+    /// A termination of the previous process may still be reported after its wait
+    /// has failed. Without this reset, that stale notification would satisfy the
+    /// next wait before the new process has terminated.
+    waiter_.reset();
+}
+
 Result<void> ProcessTerminatedReadyCondition::wait(cpp::stop_token stop_token, const Handle& handle) const
 {
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
         std::holds_alternative<ProcessHandle>(handle),
         "ProcessTerminatedReadyCondition should only be called with a ProcessHandle");
 
-    // Do not reset before waiting: the process may already have terminated before this
-    // call, and that notification must not be lost.
-    const bool terminated = waiter_.wait_with_timeout(stop_token, timeout_);
-
-    // Consume the notification so that a later activation does not see a stale termination.
-    waiter_.reset();
-
-    if (!terminated)
+    // Do not reset here: the process may already have terminated before this call, and that
+    // notification must not be lost. Stale notifications are discarded in prepare().
+    if (!waiter_.wait_with_timeout(stop_token, timeout_))
     {
         return MakeUnexpected(ExecErrc::kGeneralError);
     }
