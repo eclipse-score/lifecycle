@@ -19,6 +19,7 @@ Safety Management
    :titlesonly:
 
    module_safety_plan
+   module_codeowners
    module_safety_plan_fdr
    module_safety_package_fdr
    module_safety_analysis_fdr
