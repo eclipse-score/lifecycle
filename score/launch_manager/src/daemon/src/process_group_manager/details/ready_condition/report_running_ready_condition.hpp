@@ -19,7 +19,6 @@
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include "score/result/result.h"
 #include <chrono>
-#include <optional>
 
 namespace score::mw::lifecycle::internal
 {
@@ -31,9 +30,8 @@ class ReportRunningReadyCondition final : public IReadyCondition
   public:
     /// @brief Creates a new report running ready condition.
     /// @param launcher The process launcher used to wait for the process.
-    /// @param timeout The maximum duration to wait for the process to report running,
-    ///                or no timeout if not specified.
-    explicit ReportRunningReadyCondition(osal::IProcess& launcher, std::optional<std::chrono::milliseconds> timeout);
+    /// @param timeout The maximum duration to wait for the process to report running.
+    explicit ReportRunningReadyCondition(osal::IProcess& launcher, std::chrono::milliseconds timeout);
 
     /// @brief Wait until the resource represented by the given handle is ready.
     /// @param stop_token Token which can be used to interrupt the wait.
@@ -51,9 +49,8 @@ class ReportRunningReadyCondition final : public IReadyCondition
     /// @brief The process launcher used to wait for the process.
     osal::IProcess& launcher_;
 
-    /// @brief The maximum duration to wait for the process to report running,
-    ///        or no timeout if not specified.
-    const std::optional<std::chrono::milliseconds> timeout_;
+    /// @brief The maximum duration to wait for the process to report running.
+    const std::chrono::milliseconds timeout_;
 };
 
 }  // namespace score::mw::lifecycle::internal
