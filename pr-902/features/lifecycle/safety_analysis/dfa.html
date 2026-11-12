@@ -422,7 +422,7 @@
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Lifecycle</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../architecture/index.html">Feature Architecture</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../architecture/chklst_arc_inspection.html">Lifecycle Architecture Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/arc_inspection.html">Lifecycle Architecture Inspection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="fmea.html">FMEA (Failure Modes and Effects Analysis)</a></li>
 <li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">DFA (Dependent Failure Analysis)</a></li>
 
@@ -499,7 +499,7 @@
                   
   <section id="dfa-dependent-failure-analysis">
 <h1>DFA (Dependent Failure Analysis)<a class="headerlink" href="#dfa-dependent-failure-analysis" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-03bc1861">
+<div class="need_container docutils container" id="SNCB-4ee586c1">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__lifecycle_dfa">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -759,8 +759,8 @@ part of the documented protocol.</p></td>
 <td><p>If the monitored application’s (and thereby the Health Monitor’s) scheduling parameters are
 misconfigured, the background supervision thread may not be scheduled correctly, affecting
 timely reporting to the Launch Manager. Already identified as <code class="docutils literal notranslate"><span class="pre">HM_FMEA_001</span></code> in
-<a class="reference internal" href="../../../components/health_monitor/safety_analysis/fmea.html#doc__health_monitor_fmea" title="doc__health_monitor_fmea"><em class="xref need">Health Monitor FMEA (doc__health_monitor_fmea)</em></a>; a corresponding AoU mitigation is being proposed in a separate
-contribution to <a class="reference internal" href="../../../components/health_monitor/safety_analysis/aou_requirements.html#doc__health_monitor_comp_aou" title="doc__health_monitor_comp_aou"><em class="xref need">HealthMonitor Component AoU (doc__health_monitor_comp_aou)</em></a>.</p></td>
+<a class="reference internal" href="../../../components/health_monitor/safety_analysis/fmea.html#doc__health_monitor_fmea" title="doc__health_monitor_fmea"><em class="xref need">Health Monitor FMEA (doc__health_monitor_fmea)</em></a>; the corresponding AoU <code class="docutils literal notranslate"><span class="pre">aou_req__health_monitor__cpu_scheduling</span></code>
+is in <a class="reference internal" href="../../../components/health_monitor/safety_analysis/aou_requirements.html#doc__health_monitor_comp_aou" title="doc__health_monitor_comp_aou"><em class="xref need">HealthMonitor Component AoU (doc__health_monitor_comp_aou)</em></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p>UI_01_08</p></td>
 <td><p>Incorrect execution flow</p></td>
