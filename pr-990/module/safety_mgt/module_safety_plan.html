@@ -494,7 +494,7 @@
                   
   <section id="safety-plan">
 <h1>Safety Plan<a class="headerlink" href="#safety-plan" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-90d3e89e">
+<div class="need_container docutils container" id="SNCB-a6751622">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__lifecycle_safety_plan">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -626,7 +626,7 @@ The module consists of one or more SW components and will be qualified as a SEoo
 <tr class="row-odd"><td><p><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/safety_management/safety_management_workproducts.html#wp__audit_report">wp__audit_report</a></p></td>
 <td><p>performed by external experts</p></td>
 <td><p>n/a</p></td>
-<td><p>&lt;Link to WP&gt;</p></td>
+<td><p>n/a</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/safety_management/safety_management_workproducts.html#wp__module_safety_manual">wp__module_safety_manual</a></p></td>
 <td><p><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/safety_management/guidance/template_safety_manual.html#gd_temp__safety_manual">gd_temp__safety_manual</a></p></td>
@@ -636,7 +636,7 @@ The module consists of one or more SW components and will be qualified as a SEoo
 <tr class="row-odd"><td><p><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/verification/verification_workproducts.html#wp__verification_module_ver_report">wp__verification_module_ver_report</a></p></td>
 <td><p><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/verification/guidance/verification_report_template.html#gd_temp__mod_ver_report">gd_temp__mod_ver_report</a></p></td>
 <td><p>valid</p></td>
-<td><p><a class="reference internal" href="../../verification_report/module_verification_report.html#life-statistics"><span class="std std-ref">Verification Report</span></a></p></td>
+<td><p><a class="reference internal" href="../../verification_report/module_verification_report.html#mod_vrep__lifecycle__report" title="mod_vrep__lifecycle__report"><em class="xref need">Lifecycle Verification Report (mod_vrep__lifecycle__report)</em></a></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/release_management/release_workproducts.html#wp__module_sw_release_note">wp__module_sw_release_note</a></p></td>
 <td><p><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/release_management/guidance/release_templates.html#gd_temp__rel_mod_rel_note">gd_temp__rel_mod_rel_note</a></p></td>
@@ -702,12 +702,14 @@ The module consists of one or more SW components and will be qualified as a SEoo
 <tr class="row-odd"><td><p><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/implementation/implementation_workproducts.html#wp__sw_implementation">wp__sw_implementation</a></p></td>
 <td><p><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/implementation/guidance/implementation_guideline.html#gd_guidl__implementation">gd_guidl__implementation</a></p></td>
 <td><p>valid</p></td>
-<td><p><a class="reference internal" href="../../components/health_monitor/detailed_design/detailed_design.html#doc__health_monitor_detailed_design" title="doc__health_monitor_detailed_design"><em class="xref need">HealthMonitor Detailed Design (doc__health_monitor_detailed_design)</em></a> &amp; &lt;Link to code&gt;</p></td>
+<td><p><a class="reference internal" href="../../components/health_monitor/detailed_design/detailed_design.html#doc__health_monitor_detailed_design" title="doc__health_monitor_detailed_design"><em class="xref need">HealthMonitor Detailed Design (doc__health_monitor_detailed_design)</em></a> &amp; <a class="reference external" href="https://github.com/eclipse-score/lifecycle/tree/main/score/health_monitor/src">source code</a></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/verification/verification_workproducts.html#wp__verification_sw_unit_test">wp__verification_sw_unit_test</a></p></td>
 <td><p><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/verification/guidance/verification_guideline.html#gd_guidl__verification_guide">gd_guidl__verification_guide</a></p></td>
 <td><p>valid</p></td>
-<td><p>&lt;Link to WP&gt;</p></td>
+<td><p>Bazel tests <code class="docutils literal notranslate"><span class="pre">//score/health_monitor/src/cpp:cpp_unit_tests</span></code> (C++) and
+<code class="docutils literal notranslate"><span class="pre">//score/health_monitor/src/rust:tests</span></code>, <code class="docutils literal notranslate"><span class="pre">:loom_tests</span></code>, <code class="docutils literal notranslate"><span class="pre">:miri_tests</span></code> (Rust),
+results in <a class="reference internal" href="../../verification_report/module_verification_report.html#mod_vrep__lifecycle__report" title="mod_vrep__lifecycle__report"><em class="xref need">Lifecycle Verification Report (mod_vrep__lifecycle__report)</em></a></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/implementation/implementation_workproducts.html#wp__sw_implementation_inspection">wp__sw_implementation_inspection</a></p></td>
 <td><p><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/implementation/guidance/implementation_checklist.html#gd_chklst__impl_inspection_checklist">gd_chklst__impl_inspection_checklist</a></p></td>
@@ -717,7 +719,8 @@ The module consists of one or more SW components and will be qualified as a SEoo
 <tr class="row-even"><td><p><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/verification/verification_workproducts.html#wp__verification_comp_int_test">wp__verification_comp_int_test</a></p></td>
 <td><p><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/verification/guidance/verification_guideline.html#gd_guidl__verification_guide">gd_guidl__verification_guide</a></p></td>
 <td><p>valid</p></td>
-<td><p>&lt;Link to WP&gt;</p></td>
+<td><p>Bazel test <code class="docutils literal notranslate"><span class="pre">//score/health_monitor/src/cpp:cpp_integration_tests</span></code>,
+results in <a class="reference internal" href="../../verification_report/module_verification_report.html#mod_vrep__lifecycle__report" title="mod_vrep__lifecycle__report"><em class="xref need">Lifecycle Verification Report (mod_vrep__lifecycle__report)</em></a></p></td>
 </tr>
 </tbody>
 </table>
@@ -773,12 +776,13 @@ The module consists of one or more SW components and will be qualified as a SEoo
 <tr class="row-odd"><td><p><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/implementation/implementation_workproducts.html#wp__sw_implementation">wp__sw_implementation</a></p></td>
 <td><p><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/implementation/guidance/implementation_guideline.html#gd_guidl__implementation">gd_guidl__implementation</a></p></td>
 <td><p>valid</p></td>
-<td><p><a class="reference internal" href="../../components/launch_manager/detailed_design/index.html#doc__launch_manager_detailed_design" title="doc__launch_manager_detailed_design"><em class="xref need">Launch Manager Detailed Design (doc__launch_manager_detailed_design)</em></a> &amp; &lt;Link to code&gt;</p></td>
+<td><p><a class="reference internal" href="../../components/launch_manager/detailed_design/index.html#doc__launch_manager_detailed_design" title="doc__launch_manager_detailed_design"><em class="xref need">Launch Manager Detailed Design (doc__launch_manager_detailed_design)</em></a> &amp; <a class="reference external" href="https://github.com/eclipse-score/lifecycle/tree/main/score/launch_manager/src">source code</a></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/verification/verification_workproducts.html#wp__verification_sw_unit_test">wp__verification_sw_unit_test</a></p></td>
 <td><p><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/verification/guidance/verification_guideline.html#gd_guidl__verification_guide">gd_guidl__verification_guide</a></p></td>
 <td><p>valid</p></td>
-<td><p>&lt;Link to WP&gt;</p></td>
+<td><p>Bazel tests of the rules <code class="docutils literal notranslate"><span class="pre">lm_cc_test</span></code> and <code class="docutils literal notranslate"><span class="pre">lm_rust_test</span></code> under <code class="docutils literal notranslate"><span class="pre">//score/launch_manager/...</span></code>,
+results in <a class="reference internal" href="../../verification_report/module_verification_report.html#mod_vrep__lifecycle__report" title="mod_vrep__lifecycle__report"><em class="xref need">Lifecycle Verification Report (mod_vrep__lifecycle__report)</em></a></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/implementation/implementation_workproducts.html#wp__sw_implementation_inspection">wp__sw_implementation_inspection</a></p></td>
 <td><p><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/implementation/guidance/implementation_checklist.html#gd_chklst__impl_inspection_checklist">gd_chklst__impl_inspection_checklist</a></p></td>
@@ -788,7 +792,8 @@ The module consists of one or more SW components and will be qualified as a SEoo
 <tr class="row-even"><td><p><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/verification/verification_workproducts.html#wp__verification_comp_int_test">wp__verification_comp_int_test</a></p></td>
 <td><p><a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/verification/guidance/verification_guideline.html#gd_guidl__verification_guide">gd_guidl__verification_guide</a></p></td>
 <td><p>valid</p></td>
-<td><p>&lt;Link to WP&gt;</p></td>
+<td><p>Bazel test suite <code class="docutils literal notranslate"><span class="pre">//tests/integration:integration</span></code>,
+results in <a class="reference internal" href="../../verification_report/module_verification_report.html#mod_vrep__lifecycle__report" title="mod_vrep__lifecycle__report"><em class="xref need">Lifecycle Verification Report (mod_vrep__lifecycle__report)</em></a></p></td>
 </tr>
 </tbody>
 </table>
@@ -807,13 +812,15 @@ documents and work products status have to go to “valid” (after the relevant
 <h3>Module Documents Status<a class="headerlink" href="#module-documents-status" title="Link to this heading">#</a></h3>
 <p>For all the work product documents the status can be seen by following the “Link to WP”.
 A summary of the status is also documented in the project’s documentation management plan.</p>
-<p>See &lt;add here the section reference to the documentation management plan&gt;</p>
+<p>See <a class="reference external" href="https://eclipse-score.github.io/reference_integration/main/process_methods_tools/score_platform/platform_management_plan/documentation_management.html#documents-docs-features-lifecycle">Lifecycle module documents</a>
+(the tables are filled in the reference integration build)</p>
 </section>
 <section id="component-documents-status">
 <h3>Component Documents Status<a class="headerlink" href="#component-documents-status" title="Link to this heading">#</a></h3>
 <p>For all the work product documents the status can be seen by following the “Link to WP”.
 A summary of the status is also documented in the project’s documentation management plan.</p>
-<p>See &lt;add here the section reference to the documentation management plan&gt;</p>
+<p>See <a class="reference external" href="https://eclipse-score.github.io/reference_integration/main/process_methods_tools/score_platform/platform_management_plan/documentation_management.html#documents-docs-features-lifecycle">Lifecycle component documents</a>
+(the tables are filled in the reference integration build)</p>
 </section>
 <section id="component-requirements-status">
 <h3>Component Requirements Status<a class="headerlink" href="#component-requirements-status" title="Link to this heading">#</a></h3>
