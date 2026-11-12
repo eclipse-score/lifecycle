@@ -492,7 +492,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <div class="need_container docutils container" id="SNCB-b4074f20">
+  <div class="need_container docutils container" id="SNCB-c7ced316">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__lifecycle_release_note_upcoming">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -559,7 +559,7 @@ being a non-profit and open source organization, can not take over any liability
 <section id="improvements">
 <h3>Improvements<a class="headerlink" href="#improvements" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p>None</p></li>
+<li><p>Removes the configuration option <cite>deployment_config.ready_recovery_action</cite> which has been marked as deprecated since lifecycle 0.9.0 release.</p></li>
 </ul>
 </section>
 <section id="bug-fixes">
@@ -602,6 +602,7 @@ being a non-profit and open source organization, can not take over any liability
 <h3>Upgrade Instructions<a class="headerlink" href="#upgrade-instructions" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Component and Run Target names used in <cite>depends_on</cite>, <cite>initial_run_target</cite> and <cite>switch_run_target.run_target</cite> may now only contain letters, digits, <cite>_</cite> and <cite>-</cite>. Configurations with other characters in these names are rejected.</p></li>
+<li><p>Configuration option <cite>ready_recovery_action</cite> is removed. Replace configuration option <cite>deployment_config.ready_recovery_action.restart.number_of_attempts</cite> with <cite>deployment_config.activation_retry_attempts</cite> and <cite>deployment_config.ready_recovery_action.restart.delay_before_restart_ms</cite> with <cite>deployment_config.activation_retry_delay_ms</cite>.</p></li>
 </ul>
 <p><em>For any questions or support, please contact the</em> <a class="reference external" href="https://github.com/orgs/eclipse-score/projects/33">Project Team</a> <em>or raise an issue/discussion.</em></p>
 </section>

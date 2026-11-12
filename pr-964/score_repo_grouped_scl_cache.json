@@ -36,10 +36,19 @@
           "TestLinks": [
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "comp_req__launch_man__process_rlimit_support",
               "verify_type": "fully",
+              "result": "passed",
+              "result_text": ""
+            },
+            {
+              "name": "test_sandbox_options_non_root",
+              "file": "tests/integration/sandbox_options/non_root/sandbox_options_non_root.py",
+              "line": 49,
+              "need": "comp_req__launch_man__process_rlimit_support",
+              "verify_type": "partially",
               "result": "passed",
               "result_text": ""
             }
@@ -350,8 +359,8 @@
             },
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "feat_req__lifecycle__launch_support",
               "verify_type": "partially",
               "result": "passed",
@@ -447,8 +456,8 @@
             },
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "feat_req__lifecycle__conditional_startup",
               "verify_type": "partially",
               "result": "passed",
@@ -562,8 +571,8 @@
             },
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "comp_req__launch_man__process_launch_args",
               "verify_type": "partially",
               "result": "passed",
@@ -701,8 +710,8 @@
             },
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "comp_req__launch_man__rt_comp_dep",
               "verify_type": "fully",
               "result": "passed",
@@ -832,8 +841,8 @@
           "TestLinks": [
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "feat_req__lifecycle__sandbox_options",
               "verify_type": "partially",
               "result": "passed",
@@ -849,10 +858,19 @@
           "TestLinks": [
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "comp_req__launch_man__uid_gid_support",
               "verify_type": "fully",
+              "result": "passed",
+              "result_text": ""
+            },
+            {
+              "name": "test_sandbox_options_non_root",
+              "file": "tests/integration/sandbox_options/non_root/sandbox_options_non_root.py",
+              "line": 49,
+              "need": "comp_req__launch_man__uid_gid_support",
+              "verify_type": "partially",
               "result": "passed",
               "result_text": ""
             }
@@ -866,8 +884,8 @@
           "TestLinks": [
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "comp_req__launch_man__launch_priority_support",
               "verify_type": "fully",
               "result": "passed",
@@ -883,10 +901,19 @@
           "TestLinks": [
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "comp_req__launch_man__scheduling_policy",
               "verify_type": "fully",
+              "result": "passed",
+              "result_text": ""
+            },
+            {
+              "name": "test_sandbox_options_non_root",
+              "file": "tests/integration/sandbox_options/non_root/sandbox_options_non_root.py",
+              "line": 49,
+              "need": "comp_req__launch_man__scheduling_policy",
+              "verify_type": "partially",
               "result": "passed",
               "result_text": ""
             }
@@ -900,8 +927,8 @@
           "TestLinks": [
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "comp_req__launch_man__cwd_support",
               "verify_type": "fully",
               "result": "passed",
@@ -917,10 +944,19 @@
           "TestLinks": [
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "comp_req__launch_man__supplementary_groups",
               "verify_type": "fully",
+              "result": "passed",
+              "result_text": ""
+            },
+            {
+              "name": "test_sandbox_options_non_root",
+              "file": "tests/integration/sandbox_options/non_root/sandbox_options_non_root.py",
+              "line": 49,
+              "need": "comp_req__launch_man__supplementary_groups",
+              "verify_type": "partially",
               "result": "passed",
               "result_text": ""
             }
@@ -934,8 +970,8 @@
           "TestLinks": [
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "comp_req__launch_man__rc_os_state",
               "verify_type": "fully",
               "result": "passed",
@@ -969,8 +1005,8 @@
           "TestLinks": [
             {
               "name": "test_sandbox_options",
-              "file": "tests/integration/sandbox_options/sandbox_options.py",
-              "line": 119,
+              "file": "tests/integration/sandbox_options/root/sandbox_options.py",
+              "line": 26,
               "need": "comp_req__launch_man__runmask_support",
               "verify_type": "fully",
               "result": "passed",
@@ -1083,6 +1119,94 @@
               "file": "tests/integration/ready_conditions/process_state/kterminated/kterminated.py",
               "line": 19,
               "need": "comp_req__launch_man__conf_of_comp_ready_cond",
+              "verify_type": "partially",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
+        }
+      },
+      {
+        "need": "comp_req__launch_man__central_default_defines",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
+            {
+              "name": "test_full_config",
+              "file": "scripts/config_mapping/integration_tests.py",
+              "line": 161,
+              "need": "comp_req__launch_man__central_default_defines",
+              "verify_type": "partially",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
+        }
+      },
+      {
+        "need": "comp_req__launch_man__consistent_dependencies",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
+            {
+              "name": "test_cyclic_dependencies_direct_component_cycle",
+              "file": "scripts/config_mapping/unit_tests.py",
+              "line": 543,
+              "need": "comp_req__launch_man__consistent_dependencies",
+              "verify_type": "partially",
+              "result": "passed",
+              "result_text": ""
+            },
+            {
+              "name": "test_cyclic_dependencies_indirect_component_cycle",
+              "file": "scripts/config_mapping/unit_tests.py",
+              "line": 565,
+              "need": "comp_req__launch_man__consistent_dependencies",
+              "verify_type": "partially",
+              "result": "passed",
+              "result_text": ""
+            },
+            {
+              "name": "test_cyclic_dependencies_run_target_cycle",
+              "file": "scripts/config_mapping/unit_tests.py",
+              "line": 588,
+              "need": "comp_req__launch_man__consistent_dependencies",
+              "verify_type": "partially",
+              "result": "passed",
+              "result_text": ""
+            },
+            {
+              "name": "test_cyclic_dependencies_component_depends_on_nonexistent",
+              "file": "scripts/config_mapping/unit_tests.py",
+              "line": 623,
+              "need": "comp_req__launch_man__consistent_dependencies",
+              "verify_type": "partially",
+              "result": "passed",
+              "result_text": ""
+            },
+            {
+              "name": "test_cyclic_dependencies_run_target_depends_on_unknown",
+              "file": "scripts/config_mapping/unit_tests.py",
+              "line": 642,
+              "need": "comp_req__launch_man__consistent_dependencies",
+              "verify_type": "partially",
+              "result": "passed",
+              "result_text": ""
+            },
+            {
+              "name": "test_cyclic_dependencies_self_referencing_component",
+              "file": "scripts/config_mapping/unit_tests.py",
+              "line": 661,
+              "need": "comp_req__launch_man__consistent_dependencies",
+              "verify_type": "partially",
+              "result": "passed",
+              "result_text": ""
+            },
+            {
+              "name": "test_custom_validations_cyclic_deps_fails",
+              "file": "scripts/config_mapping/unit_tests.py",
+              "line": 780,
+              "need": "comp_req__launch_man__consistent_dependencies",
               "verify_type": "partially",
               "result": "passed",
               "result_text": ""
