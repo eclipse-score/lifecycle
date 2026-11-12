@@ -161,6 +161,26 @@ void changeSecurityPolicy(const score::mw::lifecycle::internal::configuration::S
     }
 }
 
+/// @brief Clears select signal handlers and then unblocks them. This allows the child process to be terminated before
+/// execve() is reached.
+void resetSignalHandlersAndUnblock()
+{
+    struct sigaction act{};
+    act.sa_flags = 0;
+    act.sa_handler = SIG_DFL;
+    int res = sigaction(SIGTERM, &act, NULL);
+    res += sigaction(SIGINT, &act, NULL);
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(res == 0, "Invalid argument(s) to sigaction");
+
+    sigset_t sig;
+    static_cast<void>(sigemptyset(&sig));
+    static_cast<void>(sigaddset(&sig, SIGTERM));
+    static_cast<void>(sigaddset(&sig, SIGINT));
+    res = pthread_sigmask(SIG_UNBLOCK, &sig, NULL);
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(res == 0, "Invalid argument(s) to pthread_sigmask");
+    static_cast<void>(res);
+}
+
 }  // namespace
 
 namespace score::mw::lifecycle::internal::osal
@@ -366,6 +386,8 @@ OsalReturnType ProcessLauncher::setSchedulingAndSecurity(const configuration::Sa
 /// @details The implementation should be async signal safe.
 void ProcessLauncher::handleChildProcess(ChildProcessConfig& param)
 {
+    resetSignalHandlersAndUnblock();
+
     handleComms(param);
 
     applyResourceLimits(param.config.deployment_config.sandbox);
