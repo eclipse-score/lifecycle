@@ -147,21 +147,47 @@ TEST(ProcessTerminatedReadyConditionTest, StopRequestedMidWaitReturnsError)
     EXPECT_FALSE(future.get().has_value());
 }
 
-TEST(ProcessTerminatedReadyConditionTest, NotificationIsConsumedByWait)
+TEST(ProcessTerminatedReadyConditionTest, LateTerminationAfterTimeoutIsDiscardedByPrepare)
 {
     RecordProperty("DerivationTechnique", "explorative-testing");
     RecordProperty(
         "Description",
-        "Given a successful wait for a terminated process. "
-        "When wait is called again without a new termination. "
-        "Then the old termination is not reused and wait returns an error.");
+        "Given a wait that timed out and a successful termination reported afterwards. "
+        "When prepare is called for the next activation and wait is called again. "
+        "Then the stale termination is discarded and wait returns an error.");
 
     const ProcessTerminatedReadyCondition ready_condition(10ms);
 
-    EXPECT_TRUE(ready_condition.tryHandleTermination(process_handle, 0));
-    EXPECT_TRUE(ready_condition.wait(cpp::stop_token{}, process_handle).has_value());
-
+    // First activation: the process does not terminate in time.
+    ready_condition.prepare();
     EXPECT_FALSE(ready_condition.wait(cpp::stop_token{}, process_handle).has_value());
+
+    // The first process terminates successfully, but too late.
+    EXPECT_TRUE(ready_condition.tryHandleTermination(process_handle, 0));
+
+    // Second activation: the new process has not terminated yet.
+    ready_condition.prepare();
+    const Result<void> result = ready_condition.wait(cpp::stop_token{}, process_handle);
+
+    ASSERT_FALSE(result.has_value());
+    EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
+}
+
+TEST(ProcessTerminatedReadyConditionTest, TerminationAfterPrepareIsKept)
+{
+    RecordProperty("DerivationTechnique", "explorative-testing");
+    RecordProperty(
+        "Description",
+        "Given prepare was called for a new activation. "
+        "When the process terminates successfully before wait is called. "
+        "Then the termination is kept and wait returns success.");
+
+    const ProcessTerminatedReadyCondition ready_condition(0ms);
+
+    ready_condition.prepare();
+    EXPECT_TRUE(ready_condition.tryHandleTermination(process_handle, 0));
+
+    EXPECT_TRUE(ready_condition.wait(cpp::stop_token{}, process_handle).has_value());
 }
 
 TEST(ProcessTerminatedReadyConditionTest, WaitWithEmptyHandleAborts)

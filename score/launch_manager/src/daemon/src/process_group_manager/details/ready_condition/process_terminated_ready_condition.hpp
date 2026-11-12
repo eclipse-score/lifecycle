@@ -34,9 +34,12 @@ class ProcessTerminatedReadyCondition final : public IReadyCondition
     /// @param timeout The maximum duration to wait for the process to terminate.
     explicit ProcessTerminatedReadyCondition(std::chrono::milliseconds timeout);
 
+    /// @brief Prepare the ready condition for a new activation.
+    /// @details Discards a termination left over from a previous activation.
+    void prepare() const override;
+
     /// @brief Wait until the process represented by the given handle has terminated.
-    /// @details A termination reported before this call is not lost. The termination
-    ///          notification is consumed when this call returns.
+    /// @details A termination reported after prepare() and before this call is not lost.
     /// @param stop_token Token which can be used to interrupt the wait.
     /// @param handle The process to wait on.
     /// @return Success if the process terminated within the timeout, an error otherwise.
