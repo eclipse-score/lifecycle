@@ -98,8 +98,7 @@ IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
         return RequestResult::kFailure;
     }
 
-    // Prepare before starting, while holding the lock: no termination of the new resource can
-    // be reported before this point, and anything left over from a previous activation is dropped.
+    // Anything left over from a previous activation is dropped.
     ready_condition_->prepare();
 
     const Result<Handle> start_result = start_action_->start(stop_token);
