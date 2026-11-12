@@ -14,10 +14,8 @@
                 }
             },
             "deployment_config": {
-                "ready_recovery_action": {
-                    "restart": {
-                        "number_of_attempts": 256
-                    }
+                "sandbox": {
+                    "scheduling_priority": -1
                 }
             }
         }

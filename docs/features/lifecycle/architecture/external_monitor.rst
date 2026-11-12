@@ -67,7 +67,7 @@ Dynamic Architecture
 
 .. feat_arc_dyn:: Launch Manager Watchdog Interaction
    :id: feat_arc_dyn__lifecycle__watch
-   :status: valid
+   :status: valid_inspected
    :version: 1
    :safety: ASIL_B
    :security: YES
