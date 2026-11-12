@@ -130,10 +130,7 @@ void ProcessGroupManager::deinitialize()
     // ucm_polling_thread_.stopPolling();
     watchdog_->disable();
 
-    if (pending_activation_queue_)
-    {
-        pending_activation_queue_->stop();
-    }
+    pending_activation_queue_.stop();
 
     if (event_queue_)
     {
@@ -171,9 +168,6 @@ void ProcessGroupManager::createProcessComponentsObjects(std::size_t total_proce
 {
     LM_LOG_DEBUG() << "Creating component event queue...";
     event_queue_ = std::make_unique<ComponentEventQueue>(total_processes);
-
-    LM_LOG_DEBUG() << "Creating pending activation queue...";
-    pending_activation_queue_ = std::make_unique<PendingActivationQueue>(kPendingActivationQueueCapacity);
 
     recovery_client_->setRecoveryRequestCallback(
         [this](const IdentifierHash& process_identifier, std::chrono::nanoseconds failure_timestamp) {
@@ -356,7 +350,7 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
         {
             // The previous transition finished and nothing newer was requested: take the next queued request,
             // skipping any that would not change the active Run Target.
-            while (const std::optional<IdentifierHash> next = pending_activation_queue_->tryPop())
+            while (const std::optional<IdentifierHash> next = pending_activation_queue_.tryPop())
             {
                 if (next.value() != pg.getRequestedRunTarget())
                 {
@@ -467,8 +461,8 @@ bool ProcessGroupManager::shouldDropDuplicateRequest(const IdentifierHash new_ru
     const IdentifierHash pending_run_target = graph_->getPendingTransition().run_target;
     const IdentifierHash old_run_target = graph_->getRequestedRunTarget();
     const IdentifierHash previous =
-        !pending_activation_queue_->empty()
-            ? pending_activation_queue_->back()
+        !pending_activation_queue_.empty()
+            ? pending_activation_queue_.back()
             : ((pending_run_target != IdentifierHash("")) ? pending_run_target : old_run_target);
 
     return previous == new_run_target;
@@ -476,7 +470,7 @@ bool ProcessGroupManager::shouldDropDuplicateRequest(const IdentifierHash new_ru
 
 void ProcessGroupManager::clearQueuedActivations(std::string_view reason) noexcept
 {
-    while (const std::optional<IdentifierHash> dropped = pending_activation_queue_->tryPop())
+    while (const std::optional<IdentifierHash> dropped = pending_activation_queue_.tryPop())
     {
         LM_LOG_WARN() << "Dropping queued activation of Run Target" << dropped.value() << "due to" << reason;
     }
@@ -499,7 +493,7 @@ void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* eve
         {
             LM_LOG_DEBUG() << "Queued activation of" << event->run_target << "ignored: same as previous request";
         }
-        else if (!pending_activation_queue_->push(event->run_target).has_value())
+        else if (!pending_activation_queue_.push(event->run_target).has_value())
         {
             response = score::MakeUnexpected(ExecErrc::kRequestQueueIsFull);
         }
