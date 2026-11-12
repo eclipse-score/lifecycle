@@ -37,8 +37,6 @@ Result<void> ProcessTerminatedReadyCondition::wait(cpp::stop_token stop_token, c
         std::holds_alternative<ProcessHandle>(handle),
         "ProcessTerminatedReadyCondition should only be called with a ProcessHandle");
 
-    // Do not reset here: the process may already have terminated before this call, and that
-    // notification must not be lost. Stale notifications are discarded in prepare().
     if (!waiter_.wait_with_timeout(stop_token, timeout_))
     {
         return MakeUnexpected(ExecErrc::kGeneralError);
