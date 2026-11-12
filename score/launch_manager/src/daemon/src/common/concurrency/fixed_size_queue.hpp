@@ -92,7 +92,7 @@ class FixedSizeQueue
     /// @warning Shall only be called on a non-empty queue. The reference is invalidated by tryPop()
     ///          of that element.
     /// @return Reference to the most recently pushed element.
-    [[nodiscard]] const T& back()
+    [[nodiscard]] const T& back() const
     {
         SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(!empty(), "Can only be called on a non-empty queue.");
         const std::size_t index = (tail_ + capacity_ - 1U) % capacity_;
