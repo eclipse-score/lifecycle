@@ -59,7 +59,6 @@ cc_library(
         "//score/launch_manager/src/daemon/src/process_group_manager/details:component_event",
         "//score/launch_manager/src/daemon/src/process_group_manager/details:graph",
         "//score/launch_manager/src/daemon/src/process_group_manager/details:os_handler",
-        "//score/launch_manager/src/daemon/src/process_group_manager/details:pending_activation_queue",
         "//score/launch_manager/src/daemon/src/process_group_manager/details:process_info_node",
         "//score/launch_manager/src/daemon/src/process_group_manager/details:process_launcher",
         "//score/launch_manager/src/daemon/src/process_group_manager/details:process_monitor",
