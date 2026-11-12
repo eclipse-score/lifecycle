@@ -79,6 +79,11 @@ int main(int argc, const char* argv[])
             }
         }
 
+        // A small sleep to limit CPU usage but not too much to
+        // jeopardize this process's ability to add a activation
+        // request during shutdown.
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
         std::cout << "sent " << request_count << " requests\n";
         std::cout << "destroying client\n";
     }
