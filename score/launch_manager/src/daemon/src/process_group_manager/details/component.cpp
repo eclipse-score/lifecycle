@@ -68,18 +68,18 @@ std::unique_ptr<IAliveSupervisionHandle> constructSupervision(
 
 // codeql[cpp/number-of-parameters-per-function] Dismiss: Using a struct for the parameters wouldn't make this easier to read.
 Component::Component(
-    const IStartAction& start_action,
-    const IStopAction& stop_action,
-    const IForceStopAction& force_stop_action,
-    const IReadyCondition& ready_condition,
+    std::unique_ptr<const IStartAction>&& start_action,
+    std::unique_ptr<const IStopAction>&& stop_action,
+    std::unique_ptr<const IForceStopAction>&& force_stop_action,
+    std::unique_ptr<const IReadyCondition>&& ready_condition,
     ISupervisionFactory& supervision_factory,
-    configuration::ComponentConfig& config)
-    : start_action_(start_action),
-      stop_action_(stop_action),
-      force_stop_action_(force_stop_action),
-      ready_condition_(ready_condition),
-      config_(config),
-      supervision_handle_(constructSupervision(config, supervision_factory)),
+    std::shared_ptr<configuration::ComponentConfig>&& config)
+    : start_action_(std::move(start_action)),
+      stop_action_(std::move(stop_action)),
+      force_stop_action_(std::move(force_stop_action)),
+      ready_condition_(std::move(ready_condition)),
+      config_(std::move(config)),
+      supervision_handle_(constructSupervision(*config_, supervision_factory)),
       state_(TerminatedState{})
 {
 }
@@ -91,14 +91,14 @@ IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
         std::holds_alternative<TerminatedState>(state_), "Cannot activate component in a running state");
 
-    if (isSupervised(config_.component_properties.application_profile.application_type) && !supervision_handle_)
+    if (isSupervised(config_->component_properties.application_profile.application_type) && !supervision_handle_)
     {
-        LM_LOG_ERROR() << config_.name << ": alive supervision is not set up";
+        LM_LOG_ERROR() << config_->name << ": alive supervision is not set up";
         state_ = FaultState{};
         return RequestResult::kFailure;
     }
 
-    const Result<Handle> start_result = start_action_.start(stop_token);
+    const Result<Handle> start_result = start_action_->start(stop_token);
     if (!start_result.has_value())
     {
         state_ = FaultState{};
@@ -117,7 +117,7 @@ IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
     // Wait for the ready condition. The state is unlocked so that `deactivate` or
     // `tryHandleTermination` are callable while we are waiting.
     lock.unlock();
-    if (!ready_condition_.wait(stop_activation.get_token(), handle).has_value())
+    if (!ready_condition_->wait(stop_activation.get_token(), handle).has_value())
     {
         return RequestResult::kFailure;
     }
@@ -170,11 +170,18 @@ IComponent::RequestResult Component::deactivate(cpp::stop_token stop_token)
         static_cast<void>(starting->stop_activation_.request_stop());
     }
 
-    const Result<RequestResult> result = stop_action_.stop(stop_token, handle);
+    const Result<RequestResult> result = stop_action_->stop(stop_token, handle);
     if (!result.has_value() || result.value() != RequestResult::kSuccess)
     {
         state_ = FaultState{handle};
         return RequestResult::kFailure;
+    }
+
+    // Without a resource, nothing will terminate, so the component is inactive immediately.
+    if (std::holds_alternative<EmptyHandle>(handle))
+    {
+        state_ = TerminatedState{};
+        return RequestResult::kSuccess;
     }
 
     // `tryHandleTermination` tells us when the termination is done.
@@ -210,12 +217,12 @@ IComponent::TerminationResult Component::tryHandleTermination(int32_t status)
     }
 
     // Certain ready conditions can accept terminations.
-    if (starting != nullptr && ready_condition_.tryHandleTermination(handle, status))
+    if (starting != nullptr && ready_condition_->tryHandleTermination(handle, status))
     {
         return TerminationResult::kIgnore;
     }
 
-    if (config_.component_properties.application_profile.is_self_terminating && status == 0)
+    if (config_->component_properties.application_profile.is_self_terminating && status == 0)
     {
         return TerminationResult::kIgnore;
     }
@@ -233,7 +240,7 @@ IComponent::TerminationResult Component::tryHandleTermination(int32_t status)
 
 IdentifierHash Component::getIdentifier() const
 {
-    return IdentifierHash{config_.name};
+    return IdentifierHash{config_->name};
 }
 
 bool Component::active() const
@@ -253,13 +260,13 @@ bool Component::activateSupervision() const
 
     if (clock_gettime(CLOCK_MONOTONIC, &timestamp) != 0)
     {
-        LM_LOG_ERROR() << config_.name << ": failed to get timestamp to activate supervision:" << errno_message(errno);
+        LM_LOG_ERROR() << config_->name << ": failed to get timestamp to activate supervision:" << errno_message(errno);
         return false;
     }
 
     if (!supervision_handle_->activateSupervision(timestamp))
     {
-        LM_LOG_ERROR() << config_.name << ": failed to activate supervision";
+        LM_LOG_ERROR() << config_->name << ": failed to activate supervision";
         return false;
     }
 
@@ -277,14 +284,14 @@ bool Component::deactivateSupervision() const
 
     if (clock_gettime(CLOCK_MONOTONIC, &timestamp) != 0)
     {
-        LM_LOG_ERROR() << config_.name
+        LM_LOG_ERROR() << config_->name
                        << ": failed to get timestamp to deactivate supervision: " << errno_message(errno);
         return false;
     }
 
     if (!supervision_handle_->deactivateSupervision(timestamp))
     {
-        LM_LOG_ERROR() << config_.name << ": failed to deactivate supervision";
+        LM_LOG_ERROR() << config_->name << ": failed to deactivate supervision";
         return false;
     }
 

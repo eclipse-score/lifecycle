@@ -1,5 +1,5 @@
 {
-    "schema_version": 1,
+    "schema_version": 2,
     "components": [
         {
             "name": "component_a",
@@ -43,8 +43,28 @@
                     "security_policy": "apparmor_a",
                     "scheduling_policy": "RR",
                     "scheduling_priority": 75,
-                    "max_memory_usage": 268435456,
-                    "max_cpu_usage": 50,
+                    "rlimits": [
+                        {
+                            "resource": "POSIX_RLIMIT_AS",
+                            "soft": 268435456,
+                            "hard": 268435456
+                        },
+                        {
+                            "resource": "POSIX_RLIMIT_CPU",
+                            "soft": 80,
+                            "hard": 80
+                        },
+                        {
+                            "resource": "POSIX_RLIMIT_CORE",
+                            "soft": 0,
+                            "hard": 0
+                        },
+                        {
+                            "resource": "POSIX_RLIMIT_NOFILE",
+                            "soft": 1024,
+                            "hard": 18446744073709551615
+                        }
+                    ],
                     "affinity_mask": 3
                 },
                 "environmental_variables": [
@@ -108,8 +128,18 @@
                     "security_policy": "apparmor_profile",
                     "scheduling_policy": "FIFO",
                     "scheduling_priority": 50,
-                    "max_memory_usage": 536870912,
-                    "max_cpu_usage": 80,
+                    "rlimits": [
+                        {
+                            "resource": "POSIX_RLIMIT_AS",
+                            "soft": 536870912,
+                            "hard": 536870912
+                        },
+                        {
+                            "resource": "POSIX_RLIMIT_CPU",
+                            "soft": 80,
+                            "hard": 80
+                        }
+                    ],
                     "affinity_mask": 3
                 },
                 "environmental_variables": [
@@ -170,8 +200,18 @@
                     "security_policy": "apparmor_profile",
                     "scheduling_policy": "FIFO",
                     "scheduling_priority": 50,
-                    "max_memory_usage": 536870912,
-                    "max_cpu_usage": 80,
+                    "rlimits": [
+                        {
+                            "resource": "POSIX_RLIMIT_AS",
+                            "soft": 536870912,
+                            "hard": 536870912
+                        },
+                        {
+                            "resource": "POSIX_RLIMIT_CPU",
+                            "soft": 80,
+                            "hard": 80
+                        }
+                    ],
                     "affinity_mask": 3
                 },
                 "environmental_variables": [
@@ -232,8 +272,18 @@
                     "security_policy": "apparmor_profile",
                     "scheduling_policy": "FIFO",
                     "scheduling_priority": 50,
-                    "max_memory_usage": 536870912,
-                    "max_cpu_usage": 80,
+                    "rlimits": [
+                        {
+                            "resource": "POSIX_RLIMIT_AS",
+                            "soft": 536870912,
+                            "hard": 536870912
+                        },
+                        {
+                            "resource": "POSIX_RLIMIT_CPU",
+                            "soft": 80,
+                            "hard": 80
+                        }
+                    ],
                     "affinity_mask": 3
                 },
                 "environmental_variables": [

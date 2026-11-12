@@ -80,7 +80,7 @@ The Control interface (:need:`logic_arc_int__lifecycle__controlif`) provides two
 
 2. **Forced Activation**
 
-   In this mode, any in-progress Run Target activation is cancelled, any queued requests are removed and the newly request Run Target
+   In this mode, any in-progress Run Target activation is cancelled, any queued requests are removed and the newly requested Run Target
    activation is executed immediately.
 
 
@@ -91,7 +91,7 @@ The sequence diagrams below are based on :ref:`the example dependency graph <lif
 
 .. feat_arc_dyn:: Switch Run Target Scenario - State Manager Startup
    :id: feat_arc_dyn__lifecycle__ctrl_start
-   :status: valid
+   :status: valid_inspected
    :version: 1
    :safety: ASIL_B
    :security: YES
@@ -109,7 +109,7 @@ The sequence diagrams below are based on :ref:`the example dependency graph <lif
 
 .. feat_arc_dyn:: Switch Run Target Scenario - Queued Activation
    :id: feat_arc_dyn__lifecycle__ctrl_que_act
-   :status: valid
+   :status: valid_inspected
    :version: 1
    :safety: ASIL_B
    :security: YES
@@ -130,7 +130,7 @@ The sequence diagrams below are based on :ref:`the example dependency graph <lif
 
 .. feat_arc_dyn:: Switch Run Target Scenario - Forced Activation
    :id: feat_arc_dyn__lifecycle__ctrl_fced_act
-   :status: valid
+   :status: valid_inspected
    :version: 1
    :safety: ASIL_B
    :security: YES

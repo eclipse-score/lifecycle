@@ -37,7 +37,7 @@ As described in the concept :need:`doc_concept__wp_inspections` the following "i
 
 - content responsible (author): <contributor/committer explicitly named here, who is the main author, as can be seen in config mgt tooling>
 - reviewer: <contributor/committer explicitly named here, who is the main content reviewer, must be different from content responsible>
-- moderator: <committer explicitly named here, who is is the safety manager, security manager or quality manager initiating the inspection>
+- moderator: <committer explicitly named here, who is the safety manager, security manager or quality manager initiating the inspection>
 - test expert: <one of the reviewers explicitly named here, to cover REQ_08_01 as described>
 
 Checklist
@@ -64,31 +64,31 @@ See also :need:`doc_concept__wp_inspections` for further information about revie
       -
       -
     * - REQ_02_01
-      - Is the requirement description *comprehensible* ?
+      - Is the requirement description *comprehensible*?
       - If you think the requirement is hard to understand, comment here.
       -
       -
       -
     * - REQ_02_02
-      - Is the requirement description *unambiguous* ?
+      - Is the requirement description *unambiguous*?
       - Especially search for "weak words" like "about", "etc.", "relevant" and others (see the internet documentation on this). This check shall be supported by tooling.
       -
       -
       -
     * - REQ_02_03
-      - Is the requirement description *atomic* ?
+      - Is the requirement description *atomic*?
       - A good way to think about this is to consider if the requirement may be tested by one (positive) test case or needs more of these. The requirement formulation template should also avoid being non-atomic already. Note that there are cases where also non-atomic requirements are the better ones, for example if those are better understandable.
       -
       -
       -
     * - REQ_02_04
-      - Is the requirement description *feasible* ?
+      - Is the requirement description *feasible*?
       - If at the time of the inspection the requirement has already some implementation, the answer is yes. This can be checked via traces, but also :need:`gd_req__req_attr_impl` shows this. In case the requirement has no implementation at the time of inspection (i.e. not implemented at least as "proof-of-concept"), a development expert should be invited to the Pull-Request review to explicitly check this item.
       -
       -
       -
     * - REQ_02_05
-      - Is the requirement description *independent from implementation* ?
+      - Is the requirement description *independent from implementation*?
       - This checkpoint should improve requirements definition in the sense that the "what" is described and not the "how" - the latter should be described in architecture/design derived from the requirement. But there can also be a good reason for this, for example we would require using a file format like JSON and even specify the formatting standard already on stakeholder requirement level because we want to be compatible. A finding in this checkpoint does not mean there is a safety problem in the requirement.
       -
       -
@@ -101,13 +101,13 @@ See also :need:`doc_concept__wp_inspections` for further information about revie
       -
     * - REQ_04_01
       - Is the requirement *internally and externally consistent*?
-      - Does the requirement contradict other requirements within the same or higher levels? One may restrict the search to the feature for component requirements, for features to other features using same components. Is the description of the requirement consistent with all its attributes (if not already part of another check, e.g. does the title fit?).
+      - Does the requirement contradict other requirements within the same or higher levels? One may restrict the search to the feature for component requirements, for features to other features using the same components. Is the description of the requirement consistent with all its attributes (if not already part of another check, e.g. does the title fit?).
       -
       -
       -
     * - REQ_05_01
       - Do the software requirements consider *timing constraints*?
-      - This checkpoint encourages to think about timing constraints even if those are not explicitly mentioned in the parent requirement. If the reviewer of a requirement already knows or suspects that the code execution will be consuming a lot of time, one should think of the expectation of a "user".
+      - This checkpoint encourages thinking about timing constraints even if those are not explicitly mentioned in the parent requirement. If the reviewer of a requirement already knows or suspects that the code execution will be consuming a lot of time, one should think of the expectation of a "user".
       -
       -
       -
@@ -148,7 +148,7 @@ See also :need:`doc_concept__wp_inspections` for further information about revie
       -
       -
     * - REQ_10_01
-      - Is the requirement description *complete* ?
+      - Is the requirement description *complete*?
       - For every requirement in the inspection, follow to its parent (feature) requirement(s) and then check if this/these are fulfilled completely by its/their linked children (component requirements, including those which are not in scope of the inspection).
       -
       -
@@ -157,7 +157,7 @@ See also :need:`doc_concept__wp_inspections` for further information about revie
 .. attention::
     The above checklist entries must be filled according to your component requirements in scope.
 
-Note: If a Review ID is not applicable for your requirement, then state ""n/a" in status and comment accordingly in remarks.
+Note: If a Review ID is not applicable for your requirement, then state "n/a" in status and comment accordingly in remarks.
 
 The following requirements in "valid_inspected" state are in the scope of this inspection:
 

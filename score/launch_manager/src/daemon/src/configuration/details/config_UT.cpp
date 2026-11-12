@@ -331,9 +331,9 @@ TEST_F(ConfigTest, MoveAssignmentTransfersState)
 
     target = std::move(source);
 
-    EXPECT_THAT(target.initialRunTarget(), Eq("Startup"));
-    ASSERT_THAT(target.runTargets().size(), Eq(1U));
-    EXPECT_THAT(target.runTargets()[0].name, Eq("Off"));
+    EXPECT_THAT(target.graph().initial_run_target_, Eq("Startup"));
+    ASSERT_THAT(target.graph().run_targets_.size(), Eq(1U));
+    EXPECT_THAT(target.graph().run_targets_[0].name, Eq("Off"));
 }
 
 }  // namespace

@@ -29,6 +29,7 @@ Launch Manager
    safety_analysis/fmea
    safety_analysis/dfa
    safety_analysis/aou_requirements
+   security_analysis/aou_requirements
 
 Interfaces
 ==========

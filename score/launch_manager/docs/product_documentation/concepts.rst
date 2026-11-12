@@ -122,7 +122,7 @@ Run Targets
 A **Run Target** defines a named collection of components that are
 intended to be active together. Only **one Run Target can be active at a
 time**. When a Run Target is activated, the Launch Manager transitions
-the system exclusively to that target, any components not assigned to it
+the system exclusively to that target; any components not assigned to it
 are terminated.
 
 When a Run Target is activated, the Launch Manager performs the
@@ -147,7 +147,7 @@ reasons:
 
 .. note::
    The exact interleaving of terminations and starts during a transition is not
-   defined, new components may be started before, after, or concurrently with
+   defined; new components may be started before, after, or concurrently with
    the termination of outgoing components. If a component depends on another
    being fully stopped or fully ready before it proceeds, this should be
    expressed using dependencies between components or run-targets rather than
@@ -181,7 +181,7 @@ included in the list of components of the primary **Run Target**.
 
 Dependencies in the **Launch Manager** are resolved transitively.
 When a **Run Target** is activated, the **Launch Manager** does not only start
-the components and **Run Targets** directly listed in its ``depends_on``, it
+the components and **Run Targets** directly listed in its ``depends_on``; it
 follows the full dependency chain recursively until all dependencies are
 accounted for.
 

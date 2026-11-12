@@ -11,10 +11,16 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 load("@rules_cc//cc:defs.bzl", "cc_binary")
-load("//tests/utils/bazel:integration.bzl", "integration_test")
+
+# Shared by the root (//tests/integration/sandbox_options/root) and non-root
+# (//tests/integration/sandbox_options/non_root) variants of the sandbox options test.
+exports_files(
+    ["sandbox_options.in.json"],
+    visibility = ["//tests/integration/sandbox_options:__subpackages__"],
+)
 
 # Three binaries are built from the same source. Each verifies the sandbox options passed to it on
-# the command line (see sandbox_options.json), and derives its GTest XML result file name from its
+# the command line (see sandbox_options.in.json), and derives its GTest XML result file name from its
 # own executable name so the results do not collide.
 [
     cc_binary(
@@ -23,6 +29,7 @@ load("//tests/utils/bazel:integration.bzl", "integration_test")
             "sandbox_options_process.cpp",
             "verify_sandbox.hpp",
         ],
+        visibility = ["//tests/integration/sandbox_options:__subpackages__"],
         deps = [
             "//score/launch_manager:control_cc",
             "//score/launch_manager:lifecycle_cc",
@@ -32,17 +39,3 @@ load("//tests/utils/bazel:integration.bzl", "integration_test")
     )
     for suffix in ("a", "b", "c")
 ]
-
-integration_test(
-    name = "sandbox_options",
-    timeout = "short",
-    srcs = ["sandbox_options.py"],
-    binaries = [
-        ":sandbox_options_process_a",
-        ":sandbox_options_process_b",
-        ":sandbox_options_process_c",
-        "//score/launch_manager",
-        "//tests/utils/test_helper:verification_process",
-    ],
-    config = ":sandbox_options.json",
-)

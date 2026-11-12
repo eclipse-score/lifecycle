@@ -48,6 +48,24 @@ lm_cc_test(
 )
 
 cc_library(
+    name = "init_only_resource",
+    srcs = ["init_only_resource.cpp"],
+    hdrs = ["init_only_resource.hpp"],
+    include_prefix = "score/mw/launch_manager/common",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/common",
+    visibility = ["//score/launch_manager/src/daemon:__subpackages__"],
+)
+
+lm_cc_test(
+    name = "init_only_resource_UT",
+    srcs = ["init_only_resource_UT.cpp"],
+    deps = [
+        ":init_only_resource",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
     name = "log",
     hdrs = ["log.hpp"],
     defines = select({
@@ -58,7 +76,7 @@ cc_library(
     strip_include_prefix = "/score/launch_manager/src/daemon/src/common",
     visibility = ["//score:__subpackages__"],
     deps = select({
-        "//config:lm_use_cout_log": [],
+        "//config:lm_use_cout_log": ["@score_baselibs//score/language/futurecpp"],
         "//conditions:default": ["@score_baselibs//score/mw/log"],
     }),
 )

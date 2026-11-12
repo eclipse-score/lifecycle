@@ -53,6 +53,49 @@ lm_cc_test(
 )
 
 cc_library(
+    name = "component_factory",
+    srcs = ["component_factory.cpp"],
+    hdrs = ["component_factory.hpp"],
+    include_prefix = "score/mw/launch_manager/process_group_manager/details",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details",
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
+    deps = [
+        ":component",
+        ":icomponent",
+        "//score/launch_manager:error",
+        "//score/launch_manager/src/daemon/src/alive_monitor:isupervision_factory",
+        "//score/launch_manager/src/daemon/src/common:log",
+        "//score/launch_manager/src/daemon/src/configuration:component_config",
+        "//score/launch_manager/src/daemon/src/osal:ifile_waiter",
+        "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action:empty_force_stop_action",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/force_stop_action:process_force_stop_action",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition:empty_ready_condition",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition:file_ready_condition",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition:report_running_ready_condition",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/start_action:empty_start_action",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/start_action:process_start_action",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/stop_action:empty_stop_action",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details/stop_action:process_stop_action",
+        "@score_baselibs//score/language/futurecpp",
+        "@score_baselibs//score/result",
+    ],
+)
+
+lm_cc_test(
+    name = "component_factory_UT",
+    srcs = ["component_factory_UT.cpp"],
+    deps = [
+        ":component_factory",
+        "//score/launch_manager:error",
+        "//score/launch_manager/src/daemon/src/alive_monitor:mock_supervision_factory",
+        "//score/launch_manager/src/daemon/src/osal:mock_ifile_waiter",
+        "//score/launch_manager/src/daemon/src/process_group_manager:mock_iprocess",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
     name = "component_task",
     hdrs = ["component_task.hpp"],
     include_prefix = "score/mw/launch_manager/process_group_manager/details",
@@ -84,6 +127,16 @@ cc_library(
     deps = [
         "//score/launch_manager/src/daemon/src/common:identifier_hash",
         "@score_baselibs//score/language/futurecpp",
+    ],
+)
+
+lm_cc_test(
+    name = "icomponent_UT",
+    srcs = ["icomponent_UT.cpp"],
+    deps = [
+        ":icomponent",
+        ":mock_component",
+        "@googletest//:gtest_main",
     ],
 )
 
@@ -371,13 +424,13 @@ cc_library(
     visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__pkg__"],
     deps = [
         ":icomponent_controller",
+        "//score/launch_manager/src/daemon/src/common:init_only_resource",
         "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
     ],
 )
 
 lm_cc_test(
     name = "safeprocessmap_UT",
-    timeout = "long",
     srcs = ["safeprocessmap_UT.cpp"],
     deps = [
         ":mock_component_controller",
@@ -474,6 +527,7 @@ cc_library(
         "//score/launch_manager/src/daemon/src/osal:security_policy",
         "//score/launch_manager/src/daemon/src/osal:set_affinity",
         "//score/launch_manager/src/daemon/src/osal:set_groups",
+        "//score/launch_manager/src/daemon/src/osal:shm_open_anon",
         "//score/launch_manager/src/daemon/src/osal:sys_exit",
         "//score/launch_manager/src/daemon/src/process_group_manager:iprocess",
     ],
@@ -505,6 +559,8 @@ lm_cc_test(
         "-Wl,--wrap=msync",
         "-Wl,--wrap=close",
         "-Wl,--wrap=fstat",
+        "-Wl,--wrap=clock_gettime",
+        "-Wl,--wrap=clock_getres",
     ],
     linkstatic = True,
     deps = [
