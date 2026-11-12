@@ -12574,7 +12574,7 @@
   {
     "name": "test_smoke_test",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "138",
+    "line": "139",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12588,7 +12588,7 @@
   {
     "name": "test_minimal_config",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "149",
+    "line": "150",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12602,21 +12602,21 @@
   {
     "name": "test_full_config",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "160",
+    "line": "161",
     "result": "passed",
-    "repo_name": null,
-    "hash": null,
-    "url": null,
-    "TestType": null,
-    "DerivationTechnique": null,
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "requirements-based",
+    "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": null,
+    "PartiallyVerifies": "comp_req__launch_man__central_default_defines",
     "FullyVerifies": null
   },
   {
     "name": "test_boundary_values",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "172",
+    "line": "180",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12630,7 +12630,7 @@
   {
     "name": "test_custom_validation_failures[fallback_run_target_name]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "213",
+    "line": "221",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12644,7 +12644,7 @@
   {
     "name": "test_custom_validation_failures[reporting_terminated_condition]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "213",
+    "line": "221",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12658,7 +12658,7 @@
   {
     "name": "test_custom_validation_failures[shutdown_timeout_condition]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "213",
+    "line": "221",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12672,7 +12672,7 @@
   {
     "name": "test_schema_validation_failures[missing_recovery_action]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "334",
+    "line": "342",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12686,7 +12686,7 @@
   {
     "name": "test_schema_validation_failures[invalid_activation_retry_attempts]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "334",
+    "line": "342",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12700,7 +12700,7 @@
   {
     "name": "test_schema_validation_failures[negative_activation_retry_attempts]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "334",
+    "line": "342",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12714,7 +12714,7 @@
   {
     "name": "test_schema_validation_failures[invalid_activation_retry_delay_ms]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "334",
+    "line": "342",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12728,7 +12728,7 @@
   {
     "name": "test_schema_validation_failures[negative_activation_retry_delay_ms]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "334",
+    "line": "342",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12742,7 +12742,7 @@
   {
     "name": "test_schema_validation_failures[negative_scheduling_priority]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "334",
+    "line": "342",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12756,7 +12756,7 @@
   {
     "name": "test_schema_validation_failures[invalid_scheduling_priority]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "334",
+    "line": "342",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12770,7 +12770,7 @@
   {
     "name": "test_schema_validation_failures[invalid_uid]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "334",
+    "line": "342",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12784,7 +12784,7 @@
   {
     "name": "test_schema_validation_failures[invalid_gid]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "334",
+    "line": "342",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12798,7 +12798,7 @@
   {
     "name": "test_schema_validation_failures[invalid_supplementary_group_ids]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "334",
+    "line": "342",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12812,7 +12812,7 @@
   {
     "name": "test_schema_validation_failures[invalid_failed_cycles_tolerance]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "334",
+    "line": "342",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12826,7 +12826,7 @@
   {
     "name": "test_schema_validation_failures[invalid_min_indications]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "334",
+    "line": "342",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12840,7 +12840,7 @@
   {
     "name": "test_schema_validation_failures[invalid_max_indications]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "334",
+    "line": "342",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12854,7 +12854,7 @@
   {
     "name": "test_schema_validation_failures[invalid_bin_dir]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "334",
+    "line": "342",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12868,7 +12868,7 @@
   {
     "name": "test_schema_validation_failures[invalid_component_dependency]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "334",
+    "line": "342",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12882,7 +12882,7 @@
   {
     "name": "test_schema_validation_failures[invalid_run_target_dependency]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "334",
+    "line": "342",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12896,7 +12896,7 @@
   {
     "name": "test_schema_validation_failures[invalid_fallback_dependency]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "334",
+    "line": "342",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12910,7 +12910,7 @@
   {
     "name": "test_schema_validation_failures[invalid_initial_run_target]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "334",
+    "line": "342",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12924,7 +12924,7 @@
   {
     "name": "test_schema_validation_failures[invalid_switch_run_target]",
     "file": "scripts/config_mapping/integration_tests.py",
-    "line": "334",
+    "line": "342",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12938,7 +12938,7 @@
   {
     "name": "test_preprocessing_basic",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "47",
+    "line": "48",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12952,7 +12952,7 @@
   {
     "name": "test_preprocessing_non_merging_dicts",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "186",
+    "line": "187",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12966,7 +12966,7 @@
   {
     "name": "test_preprocessing_overrides_lists",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "228",
+    "line": "229",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12980,7 +12980,7 @@
   {
     "name": "test_preprocessing_minimal_config",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "254",
+    "line": "255",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -12994,7 +12994,7 @@
   {
     "name": "test_preprocessing_empty_components",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "280",
+    "line": "281",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13008,7 +13008,7 @@
   {
     "name": "test_preprocessing_fallback_with_custom_defaults",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "295",
+    "line": "296",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13022,7 +13022,7 @@
   {
     "name": "test_preprocessing_alive_supervision_presence_based_on_app_type",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "311",
+    "line": "312",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13036,7 +13036,7 @@
   {
     "name": "test_preprocessing_preserves_component_description",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "367",
+    "line": "368",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13050,7 +13050,7 @@
   {
     "name": "test_preprocessing_env_vars_deep_merge",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "387",
+    "line": "388",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13064,7 +13064,7 @@
   {
     "name": "test_preprocessing_no_defaults_section",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "424",
+    "line": "425",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13078,7 +13078,7 @@
   {
     "name": "test_preprocessing_file_state_defaults",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "465",
+    "line": "466",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13092,7 +13092,7 @@
   {
     "name": "test_preprocessing_file_state_defaults_overridden",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "484",
+    "line": "485",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13106,7 +13106,7 @@
   {
     "name": "test_preprocessing_file_state_defaults_not_applied_for_process_state",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "499",
+    "line": "500",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13120,7 +13120,7 @@
   {
     "name": "test_cyclic_dependencies_no_cycle",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "528",
+    "line": "529",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13134,49 +13134,49 @@
   {
     "name": "test_cyclic_dependencies_direct_component_cycle",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "542",
+    "line": "543",
     "result": "passed",
-    "repo_name": null,
-    "hash": null,
-    "url": null,
-    "TestType": null,
-    "DerivationTechnique": null,
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "requirements-based",
+    "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": null,
+    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
     "FullyVerifies": null
   },
   {
     "name": "test_cyclic_dependencies_indirect_component_cycle",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "557",
+    "line": "565",
     "result": "passed",
-    "repo_name": null,
-    "hash": null,
-    "url": null,
-    "TestType": null,
-    "DerivationTechnique": null,
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "requirements-based",
+    "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": null,
+    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
     "FullyVerifies": null
   },
   {
     "name": "test_cyclic_dependencies_run_target_cycle",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "573",
+    "line": "588",
     "result": "passed",
-    "repo_name": null,
-    "hash": null,
-    "url": null,
-    "TestType": null,
-    "DerivationTechnique": null,
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "requirements-based",
+    "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": null,
+    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
     "FullyVerifies": null
   },
   {
     "name": "test_cyclic_dependencies_diamond_no_false_positive",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "585",
+    "line": "607",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13190,49 +13190,49 @@
   {
     "name": "test_cyclic_dependencies_component_depends_on_nonexistent",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "601",
+    "line": "623",
     "result": "passed",
-    "repo_name": null,
-    "hash": null,
-    "url": null,
-    "TestType": null,
-    "DerivationTechnique": null,
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "requirements-based",
+    "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": null,
+    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
     "FullyVerifies": null
   },
   {
     "name": "test_cyclic_dependencies_run_target_depends_on_unknown",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "613",
+    "line": "642",
     "result": "passed",
-    "repo_name": null,
-    "hash": null,
-    "url": null,
-    "TestType": null,
-    "DerivationTechnique": null,
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "requirements-based",
+    "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": null,
+    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
     "FullyVerifies": null
   },
   {
     "name": "test_cyclic_dependencies_self_referencing_component",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "625",
+    "line": "661",
     "result": "passed",
-    "repo_name": null,
-    "hash": null,
-    "url": null,
-    "TestType": null,
-    "DerivationTechnique": null,
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "requirements-based",
+    "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": null,
+    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
     "FullyVerifies": null
   },
   {
     "name": "test_cyclic_dependencies_unreachable_components_ignored",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "637",
+    "line": "680",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13246,7 +13246,7 @@
   {
     "name": "test_custom_validations_passes_valid_config",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "678",
+    "line": "721",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13260,7 +13260,7 @@
   {
     "name": "test_custom_validations_initial_run_target_other_than_startup",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "683",
+    "line": "726",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13274,7 +13274,7 @@
   {
     "name": "test_custom_validations_no_startup_run_target",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "690",
+    "line": "733",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13288,7 +13288,7 @@
   {
     "name": "test_custom_validations_fallback_as_run_target_name",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "698",
+    "line": "741",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13302,7 +13302,7 @@
   {
     "name": "test_custom_validations_component_and_run_target_same_name",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "704",
+    "line": "747",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13316,7 +13316,7 @@
   {
     "name": "test_custom_validations_recovery_target_not_fallback",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "710",
+    "line": "753",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13330,7 +13330,7 @@
   {
     "name": "test_custom_validations_ready_condition_file_state",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "718",
+    "line": "761",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13344,7 +13344,7 @@
   {
     "name": "test_custom_validations_ready_condition_both_states",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "726",
+    "line": "769",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13358,21 +13358,21 @@
   {
     "name": "test_custom_validations_cyclic_deps_fails",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "737",
+    "line": "780",
     "result": "passed",
-    "repo_name": null,
-    "hash": null,
-    "url": null,
-    "TestType": null,
-    "DerivationTechnique": null,
+    "repo_name": "local_repo",
+    "hash": "",
+    "url": "",
+    "TestType": "requirements-based",
+    "DerivationTechnique": "requirements-analysis",
     "result_text": "",
-    "PartiallyVerifies": null,
+    "PartiallyVerifies": "comp_req__launch_man__consistent_dependencies",
     "FullyVerifies": null
   },
   {
     "name": "test_custom_validations_multiple_errors",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "749",
+    "line": "799",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13386,7 +13386,7 @@
   {
     "name": "test_gen_config_minimal",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "761",
+    "line": "811",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13400,7 +13400,7 @@
   {
     "name": "test_gen_config_with_alive_supervision",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "798",
+    "line": "848",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13414,7 +13414,7 @@
   {
     "name": "test_gen_config_without_alive_supervision",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "846",
+    "line": "896",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13428,7 +13428,7 @@
   {
     "name": "test_gen_config_with_watchdog",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "882",
+    "line": "932",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13442,7 +13442,7 @@
   {
     "name": "test_gen_config_watchdog_partial_fields_omitted",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "911",
+    "line": "961",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13456,7 +13456,7 @@
   {
     "name": "test_gen_config_rlimit_scalar_shorthand",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "969",
+    "line": "1019",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13470,7 +13470,7 @@
   {
     "name": "test_gen_config_rlimit_explicit_pair",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "977",
+    "line": "1027",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13484,7 +13484,7 @@
   {
     "name": "test_gen_config_rlimit_unlimited_soft",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "987",
+    "line": "1037",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13498,7 +13498,7 @@
   {
     "name": "test_gen_config_rlimit_unlimited_hard_only",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1002",
+    "line": "1052",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13512,7 +13512,7 @@
   {
     "name": "test_gen_config_rlimit_scalar_unlimited",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1012",
+    "line": "1062",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13526,7 +13526,7 @@
   {
     "name": "test_gen_config_rlimit_soft_greater_than_hard_rejected",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1026",
+    "line": "1076",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13540,7 +13540,7 @@
   {
     "name": "test_gen_config_rlimit_core_zero_accepted",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1034",
+    "line": "1084",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13554,7 +13554,7 @@
   {
     "name": "test_gen_config_no_rlimits_omits_key",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1042",
+    "line": "1092",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13568,7 +13568,7 @@
   {
     "name": "test_schema_rejects_unknown_rlimit_key",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1067",
+    "line": "1117",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13582,7 +13582,7 @@
   {
     "name": "test_schema_rejects_non_exact_rlimit_key_spelling[as]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1075",
+    "line": "1125",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13596,7 +13596,7 @@
   {
     "name": "test_schema_rejects_non_exact_rlimit_key_spelling[rlimit_as]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1075",
+    "line": "1125",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13610,7 +13610,7 @@
   {
     "name": "test_schema_rejects_non_exact_rlimit_key_spelling[RLIMIT_as]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1075",
+    "line": "1125",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13624,7 +13624,7 @@
   {
     "name": "test_schema_rejects_negative_rlimit_value",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1082",
+    "line": "1132",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13638,7 +13638,7 @@
   {
     "name": "test_schema_rejects_non_integer_rlimit_value",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1089",
+    "line": "1139",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13652,7 +13652,7 @@
   {
     "name": "test_schema_rejects_arbitrary_string_rlimit_value",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1096",
+    "line": "1146",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13666,7 +13666,7 @@
   {
     "name": "test_schema_accepts_rlimit_core_zero",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1105",
+    "line": "1155",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13680,7 +13680,7 @@
   {
     "name": "test_schema_accepts_unlimited_in_both_positions",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1112",
+    "line": "1162",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13694,7 +13694,7 @@
   {
     "name": "test_gen_config_without_affinity_mask",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1118",
+    "line": "1168",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13708,7 +13708,7 @@
   {
     "name": "test_gen_config_affinity_mask",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1153",
+    "line": "1203",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13722,7 +13722,7 @@
   {
     "name": "test_parse_affinity_mask_accepts_valid_values[0x3-3]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1159",
+    "line": "1209",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13736,7 +13736,7 @@
   {
     "name": "test_parse_affinity_mask_accepts_valid_values[0X3-3]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1159",
+    "line": "1209",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13750,7 +13750,7 @@
   {
     "name": "test_parse_affinity_mask_accepts_valid_values[0xff-255]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1159",
+    "line": "1209",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13764,7 +13764,7 @@
   {
     "name": "test_parse_affinity_mask_accepts_valid_values[0xFF-255]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1159",
+    "line": "1209",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13778,7 +13778,7 @@
   {
     "name": "test_parse_affinity_mask_accepts_valid_values[0x00000001-1]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1159",
+    "line": "1209",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13792,7 +13792,7 @@
   {
     "name": "test_parse_affinity_mask_accepts_valid_values[0xFFFFFFFFFFFFFFFF-18446744073709551615]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1159",
+    "line": "1209",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13806,7 +13806,7 @@
   {
     "name": "test_parse_affinity_mask_rejects_invalid_values[0x0]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1174",
+    "line": "1224",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13820,7 +13820,7 @@
   {
     "name": "test_parse_affinity_mask_rejects_invalid_values[3_0]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1174",
+    "line": "1224",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13834,7 +13834,7 @@
   {
     "name": "test_parse_affinity_mask_rejects_invalid_values[0xZZ]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1174",
+    "line": "1224",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13848,7 +13848,7 @@
   {
     "name": "test_parse_affinity_mask_rejects_invalid_values[3_1]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1174",
+    "line": "1224",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13862,7 +13862,7 @@
   {
     "name": "test_parse_affinity_mask_rejects_invalid_values[None]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1174",
+    "line": "1224",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13876,7 +13876,7 @@
   {
     "name": "test_gen_config_output_filename_matches_spec",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1189",
+    "line": "1239",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13890,7 +13890,7 @@
   {
     "name": "test_gen_config_env_variables_list_format",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1207",
+    "line": "1257",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13904,7 +13904,7 @@
   {
     "name": "test_gen_config_run_target_with_dependencies",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1246",
+    "line": "1296",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13918,7 +13918,7 @@
   {
     "name": "test_gen_config_recovery_action_switch_run_target",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1297",
+    "line": "1347",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13932,7 +13932,7 @@
   {
     "name": "test_gen_config_scheduling_policy_mapping",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1323",
+    "line": "1373",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13946,7 +13946,7 @@
   {
     "name": "test_gen_config_activation_retry_passed_through[activation_retry_attempts]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1402",
+    "line": "1452",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13960,7 +13960,7 @@
   {
     "name": "test_gen_config_activation_retry_passed_through[activation_retry_delay_ms]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1402",
+    "line": "1452",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13974,7 +13974,7 @@
   {
     "name": "test_gen_config_activation_retry_default_zero[activation_retry_attempts]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1411",
+    "line": "1461",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -13988,7 +13988,7 @@
   {
     "name": "test_gen_config_activation_retry_default_zero[activation_retry_delay_ms]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1411",
+    "line": "1461",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -14002,7 +14002,7 @@
   {
     "name": "test_gen_config_activation_retry_inherited_and_overridden[activation_retry_attempts]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1420",
+    "line": "1470",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -14016,7 +14016,7 @@
   {
     "name": "test_gen_config_activation_retry_inherited_and_overridden[activation_retry_delay_ms]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1420",
+    "line": "1470",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -14030,7 +14030,7 @@
   {
     "name": "test_gen_config_unmapped_scheduling_policy",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1431",
+    "line": "1481",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -14044,7 +14044,7 @@
   {
     "name": "test_gen_config_with_empty_components_list_generates_empty_array",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1472",
+    "line": "1522",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -14058,7 +14058,7 @@
   {
     "name": "test_output_filename_basic",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1497",
+    "line": "1547",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -14072,7 +14072,7 @@
   {
     "name": "test_output_filename_multiple_dots",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1501",
+    "line": "1551",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -14086,7 +14086,7 @@
   {
     "name": "test_output_filename_no_extension",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1505",
+    "line": "1555",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -14100,7 +14100,7 @@
   {
     "name": "test_output_filename_dot_in_name",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1509",
+    "line": "1559",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -14114,7 +14114,7 @@
   {
     "name": "test_get_working_dir_explicit",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1518",
+    "line": "1568",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -14128,7 +14128,7 @@
   {
     "name": "test_get_working_dir_defaults_to_bin_dir",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1524",
+    "line": "1574",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -14142,7 +14142,7 @@
   {
     "name": "test_get_working_dir_empty_string_falls_back",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1528",
+    "line": "1578",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -14156,7 +14156,7 @@
   {
     "name": "test_is_supervised[State_Manager-True]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1543",
+    "line": "1593",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -14170,7 +14170,7 @@
   {
     "name": "test_is_supervised[Reporting_And_Supervised-True]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1543",
+    "line": "1593",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -14184,7 +14184,7 @@
   {
     "name": "test_is_supervised[REPORTING-False]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1543",
+    "line": "1593",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -14198,7 +14198,7 @@
   {
     "name": "test_is_supervised[NOT_REPORTING-False]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1543",
+    "line": "1593",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -14212,7 +14212,7 @@
   {
     "name": "test_is_supervised[Supervised_Only-False]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1543",
+    "line": "1593",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -14226,7 +14226,7 @@
   {
     "name": "test_is_supervised[-False]",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1543",
+    "line": "1593",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -14240,7 +14240,7 @@
   {
     "name": "test_load_json_file",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1563",
+    "line": "1613",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -14254,7 +14254,7 @@
   {
     "name": "test_load_json_file_nonexistent",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1573",
+    "line": "1623",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -14268,7 +14268,7 @@
   {
     "name": "test_schema_validation_smoke",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1585",
+    "line": "1635",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -14282,7 +14282,7 @@
   {
     "name": "test_schema_validation_rejects_out_of_range_ms_field",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1618",
+    "line": "1668",
     "result": "passed",
     "repo_name": null,
     "hash": null,
@@ -14296,7 +14296,7 @@
   {
     "name": "test_schema_validation_requires_fallback_run_target",
     "file": "scripts/config_mapping/unit_tests.py",
-    "line": "1637",
+    "line": "1687",
     "result": "passed",
     "repo_name": null,
     "hash": null,
