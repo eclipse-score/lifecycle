@@ -139,7 +139,7 @@ config_setting(
 )
 
 # Watchdog implementation used by the Launch Manager. Integrators can provide their own
-# cc_library that depends on //score/launch_manager/src/daemon/src/watchdog:i_watchdog
+# cc_library that depends on //score/launch_manager:watchdog_interface_cc
 # and defines createWatchdog(), e.g.
 #   bazel build --@score_lifecycle//config:watchdog_impl=//my/pkg:my_watchdog ...
 label_flag(

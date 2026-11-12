@@ -116,8 +116,6 @@ bool ProcessGroupManager::initialize()
 
 void ProcessGroupManager::deinitialize()
 {
-    // ucm_polling_thread_.stopPolling();
-    watchdog_->deinit();
     if (event_queue_)
     {
         event_queue_->stop();
@@ -134,6 +132,7 @@ void ProcessGroupManager::deinitialize()
     graph_.reset();
     process_map_.reset();
     process_monitor_.reset();
+    watchdog_->deinit();
 }
 
 bool ProcessGroupManager::initializeProcessGroups()
@@ -203,7 +202,6 @@ bool ProcessGroupManager::run()
             {
                 LM_LOG_FATAL() << "ComponentEventQueue overflow - one or more events were lost";
                 watchdog_->fireWatchdog();
-                // The watchdog implementation returned, so it relies on not being serviced anymore.
                 result = false;
                 break;
             }

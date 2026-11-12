@@ -69,9 +69,8 @@ void DefaultWatchdog::fireWatchdog() noexcept
     // Launch Manager terminated abnormally.
     heartbeat_ = nullptr;
     LM_LOG_FATAL() << "Watchdog: fired, terminating the Launch Manager with exit code" << EXIT_FAILURE;
-    // std::_Exit() instead of std::exit(): worker and supervision threads are still running, so static destructors
-    // and atexit handlers must not run. Child processes are not stopped; the reaction to the termination (e.g. a
-    // reset) is the responsibility of an external monitor configured by the integrator.
+    // std::_Exit() instead of std::exit() to avoid running static destructors and atexit handlers since
+    // other threads are relying on this global state
     std::_Exit(EXIT_FAILURE);
 }
 
@@ -80,7 +79,6 @@ void DefaultWatchdog::deinit() noexcept
     heartbeat_ = nullptr;
     if (heartbeat_resource_ != nullptr)
     {
-        // Remove() only finds the resource while it is alive, so it must be called before releasing it.
         SharedMemoryFactory::Remove(heartbeat_path_);
         heartbeat_resource_.reset();
     }

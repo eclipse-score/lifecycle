@@ -66,58 +66,29 @@ configuration from the default path ``etc/launch_manager_config.bin``.
 Watchdog
 --------
 
-The **Launch Manager** services a watchdog once per main loop iteration and fires it on a critical error.
+By default, the **Launch Manager** provides a heartbeat value in shared memory which
+is increased on every main loop iteration (e.g. roughly every ~50ms).
+As long as the heartbeat is being updated, the **Launch Manager** is considered healthy.
+In case of a critical error detected by the **Launch Manager**, the **Launch Manager** process exits and the heartbeat stops being updated.
 
-How a watchdog is serviced is highly integration specific, for example:
+An official API will be provided to access the heartbeat value from shared memory.
+Currently, the heartbeat can be accessed directly from shared memory using the layout defined in ``default_watchdog.hpp``.
 
-* a Linux watchdog device file,
-* a QNX (virtual) watchdog, by writing counters to specific addresses,
-* an internal software watchdog with a custom API,
-* a microcontroller watchdog,
-* a hypervisor.
+The integrator is responsible for creating a custom application to service an external monitor based on the heartbeat value
+and to escalate or handle critical errors appropriately.
 
-Therefore, the watchdog implementation is pluggable and selected at build time. The **Launch Manager** ships a
-default implementation, which integrators can replace with their own.
-
-.. note::
-
-   For production, either monitor the heartbeat of the default implementation with an external process, or
-   provide a custom implementation that services an external watchdog.
 
 Custom implementation
 ^^^^^^^^^^^^^^^^^^^^^
 
+In case the default implementation does not meet the requirements of the integrator, a custom implementation can be provided.
+
 A custom implementation is a ``cc_library`` that implements the interface
-``@score_lifecycle//score/launch_manager/src/daemon/src/watchdog:i_watchdog`` and defines its factory function
+``@score_lifecycle//score/launch_manager:watchdog_interface_cc`` and defines its factory function
 ``createWatchdog()``. Select it with the label flag:
 
 ``--@score_lifecycle//config:watchdog_impl=//my/pkg:my_custom_watchdog``
 
-Default implementation
-^^^^^^^^^^^^^^^^^^^^^^
-
-The default implementation does not service any external watchdog. Instead, it publishes a heartbeat that an
-external application can use to infer the health of the **Launch Manager**.
-
-**Heartbeat**
-
-* Location: shared memory region ``/launch_manager_heartbeat``, layout ``Heartbeat`` in ``default_watchdog.hpp``.
-* Access: writable only by the **Launch Manager** user, readable by everybody.
-* Update: the counter is incremented once per main loop iteration.
-* Interpretation:
-
-  * counter increasing: the **Launch Manager** is running.
-  * counter not increasing: the **Launch Manager** is stuck or has terminated, e.g. after the watchdog was fired.
-  * region missing: the **Launch Manager** has not started yet or was shut down orderly.
-
-**Reaction when fired**
-
-The default implementation stops the heartbeat and then executes the reaction selected with
-``--@score_lifecycle//config:default_watchdog_reaction``:
-
-* ``abort`` (default): abort the **Launch Manager** process.
-* ``reboot``: reboot the machine (``sysmgr_reboot()`` on QNX, ``reboot()`` on Linux, requires ``CAP_SYS_BOOT``).
-  If the reboot fails, the process is aborted.
 
 State manager mw::com config
 ----------------------------

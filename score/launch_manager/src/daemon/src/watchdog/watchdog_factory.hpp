@@ -23,13 +23,7 @@ namespace score::mw::lifecycle::internal::watchdog
 
 /// @brief Creates the watchdog used by the Launch Manager.
 /// @details Defined by the implementation library selected with the `//config:watchdog_impl` label flag.
-/// Must not have side effects on the watchdog hardware; arming happens in IWatchdog::init().
-///
-/// The full, unmodified Launch Manager command line is passed, so implementations can define their own options.
-/// The Launch Manager ignores options it does not know. Constraints:
-/// - `-c <config>` and `-h` are reserved by the Launch Manager. Implementations must skip them, e.g. by including
-///   "c:h" in their getopt() optstring and ignoring these options.
-/// - Implementations must ignore options they do not know.
+/// The command-line arguments are passed to the implementation to allow configuration via command-line options.
 ///
 /// @param argc Number of command-line arguments.
 /// @param argv Command-line arguments.

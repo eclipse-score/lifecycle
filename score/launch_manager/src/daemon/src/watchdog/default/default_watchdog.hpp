@@ -27,17 +27,12 @@
 namespace score::mw::lifecycle::internal::watchdog
 {
 
-/// @brief Name of the shared memory region with the Launch Manager heartbeat of the default watchdog.
+/// @brief Name of the shared memory region with the Launch Manager heartbeat.
 constexpr const char* kHeartbeatShmPath{"/launch_manager_heartbeat"};
 
-/// @brief Launch Manager heartbeat, published by the default watchdog in shared memory.
+/// @brief Launch Manager heartbeat
 /// @details The Launch Manager creates the region in IWatchdog::init(), writable only by its own user and readable by
-/// everybody, and increments `counter` once per main loop iteration (every 50 ms plus processing time).
-/// Interpretation for an external observer:
-/// - counter increasing: the Launch Manager main loop is running.
-/// - counter not increasing: the Launch Manager is stuck, or terminated abnormally (e.g. after the watchdog was fired).
-/// - region does not exist: the Launch Manager has not started yet, or was shut down orderly.
-///
+/// everybody, and increments `counter` once per main loop iteration as long as its running successfully.
 /// Reading it with score/memory/shared:
 /// @code
 /// auto resource = score::memory::shared::SharedMemoryFactory::Open(kHeartbeatShmPath, false);

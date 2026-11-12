@@ -23,10 +23,10 @@ namespace score::mw::lifecycle::internal::watchdog
 /// ...).
 ///
 /// Call sequence used by the Launch Manager:
-/// 1. createWatchdog() (see watchdog_factory.hpp), before the configuration is loaded.
-/// 2. init(), once, at the end of the Launch Manager initialization.
-/// 3. serviceWatchdog(), once per main loop iteration. The main loop waits up to kMainLoopCycleTimeMs (50 ms) per
-///    iteration plus processing time, so implementations must use a timeout comfortably above that.
+/// 1. createWatchdog() (see watchdog_factory.hpp).
+/// 2. init(), once, at the end of the Launch Manager initialization. Aftewards, a periodic call to serviceWatchdog() is
+/// expected.
+/// 3. serviceWatchdog(), once per main loop iteration.
 /// 4. fireWatchdog() on a critical error. serviceWatchdog() is not called anymore afterwards.
 /// 5. deinit() during shutdown of the Launch Manager.
 ///
@@ -37,19 +37,17 @@ class IWatchdog
     /// @brief Destructor.
     virtual ~IWatchdog() noexcept = default;
 
-    /// @brief Arms and prepares the watchdog.
+    /// @brief Initiate the watchdog.
     /// @return true on success. On false the Launch Manager aborts its startup.
     virtual bool init() noexcept = 0;
 
-    /// @brief Services the watchdog, aka pinging, triggering or kicking it.
+    /// @brief Services the watchdog.
     virtual void serviceWatchdog() noexcept = 0;
 
     /// @brief Reacts to a critical error of the Launch Manager.
     /// @details The Launch Manager must not continue normal operation after this call. The implementation triggers
     /// the system reaction, e.g. a reset or terminating the Launch Manager (the default implementation exits with
-    /// EXIT_FAILURE). The method may return (e.g. for a hardware watchdog that resets on its own timeout), in which
-    /// case the Launch Manager stops servicing the watchdog, leaves its main loop and exits with a failure.
-    /// @note The caller logs the reason for the call before calling this method.
+    /// EXIT_FAILURE).
     virtual void fireWatchdog() noexcept = 0;
 
     /// @brief Called during orderly shutdown of the Launch Manager.

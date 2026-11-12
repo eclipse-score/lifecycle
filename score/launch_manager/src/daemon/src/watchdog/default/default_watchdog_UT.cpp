@@ -61,8 +61,6 @@ class DefaultWatchdogTest : public ::testing::Test
         SharedMemoryFactory::InjectMock(nullptr);
     }
 
-    /// Expects the creation of the heartbeat region. Like the real factory, the mock runs the initialization callback,
-    /// which constructs the Heartbeat in storage_ via the resource mock.
     void expectHeartbeatCreated()
     {
         EXPECT_CALL(factory_mock_, RemoveStaleArtefacts(Eq(path_)));

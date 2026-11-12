@@ -149,6 +149,13 @@ int run(int argc, const char* argv[])
 
     try
     {
+        auto watchdog = watchdog::createWatchdog(argc, argv);
+        if (!watchdog)
+        {
+            LM_LOG_FATAL() << "Failed to create watchdog";
+            return EXIT_FAILURE;
+        }
+
         configuration::FlatbufferConfigLoader config_loader;
         auto config_result = config_loader.load(config_path);
         if (!config_result.has_value())
@@ -170,12 +177,6 @@ int run(int argc, const char* argv[])
         std::unique_ptr<saf::daemon::IAliveMonitor> healthMonitor{std::make_unique<saf::daemon::AliveMonitorImpl>(
             recoveryClient, config_result.value().takeAliveSupervision(), supervised_components)};
 
-        auto watchdog = watchdog::createWatchdog(argc, argv);
-        if (!watchdog)
-        {
-            LM_LOG_FATAL() << "Failed to create watchdog";
-            return EXIT_FAILURE;
-        }
         auto process_group_manager = std::make_unique<ProcessGroupManager>(
             config_result.value().takeGraph(), std::move(healthMonitor), recoveryClient, std::move(watchdog));
 
