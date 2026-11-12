@@ -230,11 +230,11 @@ class ProcessGroupManager final : public IRunTargetControl
 
     /// @brief Queue of ComponentEvents produced by worker/OS-handler threads and drained by run()
     /// on the main thread, so all Graph state mutations happen from a single thread.
-    std::unique_ptr<ComponentEventQueue> event_queue_;
+    std::unique_ptr<ComponentEventQueue> event_queue_{};
 
     /// @brief Run Target requests waiting for the ongoing transition to finish.
     /// @details Only accessed from the main loop thread (event handling and processGroupHandler()).
-    std::unique_ptr<PendingActivationQueue> pending_activation_queue_;
+    PendingActivationQueue pending_activation_queue_{kPendingActivationQueueCapacity};
 
     std::shared_ptr<score::mw::lifecycle::IRecoveryClient> recovery_client_{};
 
