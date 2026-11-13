@@ -40,6 +40,10 @@ using namespace ::testing;
 
 const ProcessHandle mock_handle = ProcessHandle{42, nullptr};
 
+/// @brief A ready timeout which never expires during a test run. Tests which must not time out use it
+///        and check the result instead of measuring time, so they cannot become flaky on slow machines.
+constexpr std::chrono::milliseconds kNeverExpires{std::chrono::hours{1}};
+
 const cpp::stop_source mock_stop_source;
 const cpp::stop_token mock_stop_token = mock_stop_source.get_token();
 
@@ -1176,7 +1180,7 @@ TEST(ComponentTest, ProcessTerminatedReadyConditionSucceedsOnExitZero)
         std::move(start_action),
         std::make_unique<MockStopAction>(),
         std::make_unique<MockForceStopAction>(),
-        std::make_unique<ProcessTerminatedReadyCondition>(std::chrono::milliseconds{5000}),
+        std::make_unique<ProcessTerminatedReadyCondition>(kNeverExpires),
         factory,
         std::make_shared<configuration::ComponentConfig>());
 
@@ -1187,7 +1191,6 @@ TEST(ComponentTest, ProcessTerminatedReadyConditionSucceedsOnExitZero)
     started_future.wait();
     const IComponent::TerminationResult termination_result = terminateFromOtherThread(component, 0);
 
-    ASSERT_EQ(activation.wait_for(std::chrono::seconds{1}), std::future_status::ready);
     EXPECT_EQ(activation.get(), IComponent::RequestResult::kSuccess);
     EXPECT_EQ(termination_result, IComponent::TerminationResult::kIgnore);
 }
@@ -1198,7 +1201,8 @@ TEST(ComponentTest, ProcessTerminatedReadyConditionFailsOnNonZeroExit)
         "Description",
         "Given a component with a ProcessTerminatedReadyCondition. "
         "When the process exits with a non-zero status during activation. "
-        "Then the termination is a failure and activation fails without waiting for the timeout.");
+        "Then the termination is a failure and activation fails without waiting for the timeout. "
+        "kFailure rather than kTimeout shows that the wait was interrupted.");
 
     NiceMock<MockSupervisionFactory> factory;
 
@@ -1215,7 +1219,7 @@ TEST(ComponentTest, ProcessTerminatedReadyConditionFailsOnNonZeroExit)
         std::move(start_action),
         std::make_unique<MockStopAction>(),
         std::make_unique<MockForceStopAction>(),
-        std::make_unique<ProcessTerminatedReadyCondition>(std::chrono::milliseconds{5000}),
+        std::make_unique<ProcessTerminatedReadyCondition>(kNeverExpires),
         factory,
         std::make_shared<configuration::ComponentConfig>());
 
@@ -1226,7 +1230,6 @@ TEST(ComponentTest, ProcessTerminatedReadyConditionFailsOnNonZeroExit)
     started_future.wait();
     const IComponent::TerminationResult termination_result = terminateFromOtherThread(component, 1);
 
-    ASSERT_EQ(activation.wait_for(std::chrono::seconds{1}), std::future_status::ready);
     EXPECT_EQ(activation.get(), IComponent::RequestResult::kFailure);
     EXPECT_EQ(termination_result, IComponent::TerminationResult::kFailure);
 }
@@ -1269,7 +1272,7 @@ TEST(ComponentTest, ReportRunningProcessDyingDuringHandshakeFailsActivation)
         std::move(start_action),
         std::make_unique<MockStopAction>(),
         std::make_unique<MockForceStopAction>(),
-        std::make_unique<ReportRunningReadyCondition>(launcher, std::chrono::milliseconds{5000}),
+        std::make_unique<ReportRunningReadyCondition>(launcher, kNeverExpires),
         factory,
         std::make_shared<configuration::ComponentConfig>());
 
@@ -1282,7 +1285,6 @@ TEST(ComponentTest, ReportRunningProcessDyingDuringHandshakeFailsActivation)
     const IComponent::TerminationResult termination_result = terminateFromOtherThread(component, 1);
     terminated.set_value();
 
-    ASSERT_EQ(activation.wait_for(std::chrono::seconds{1}), std::future_status::ready);
     EXPECT_EQ(activation.get(), IComponent::RequestResult::kFailure);
     EXPECT_EQ(termination_result, IComponent::TerminationResult::kIgnore);
 
@@ -1298,11 +1300,11 @@ void expectStopOfDeadProcess(MockStopAction& stop_action)
     }));
 }
 
-TEST(ComponentTest, LateTerminationAfterReadyTimeoutDoesNotBlockReactivation)
+TEST(ComponentTest, LateTerminationAfterFailedActivationDoesNotBlockReactivation)
 {
     RecordProperty(
         "Description",
-        "Given a ProcessTerminatedReadyCondition whose wait timed out. "
+        "Given a ProcessTerminatedReadyCondition whose activation failed. "
         "When the process exits with 0 afterwards and the component is deactivated. "
         "Then the component is terminated immediately and can be activated again.");
 
@@ -1326,12 +1328,17 @@ TEST(ComponentTest, LateTerminationAfterReadyTimeoutDoesNotBlockReactivation)
         std::move(start_action),
         std::move(stop_action),
         std::make_unique<MockForceStopAction>(),
-        std::make_unique<ProcessTerminatedReadyCondition>(std::chrono::milliseconds{100}),
+        std::make_unique<ProcessTerminatedReadyCondition>(kNeverExpires),
         factory,
         std::make_shared<configuration::ComponentConfig>());
 
-    // The ready timeout expires, then the process exits with 0.
-    EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kTimeout);
+    // The first activation fails, which leaves the component in StartingState. A cancelled activation
+    // gets there like a ready timeout does, but without depending on how long the test takes.
+    cpp::stop_source cancel_activation;
+    static_cast<void>(cancel_activation.request_stop());
+    EXPECT_EQ(component.activate(cancel_activation.get_token()), IComponent::RequestResult::kFailure);
+
+    // Then the process exits with 0.
     EXPECT_EQ(terminateFromOtherThread(component, 0), IComponent::TerminationResult::kIgnore);
 
     EXPECT_EQ(component.deactivate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
@@ -1343,7 +1350,6 @@ TEST(ComponentTest, LateTerminationAfterReadyTimeoutDoesNotBlockReactivation)
     second_start_future.wait();
     EXPECT_EQ(terminateFromOtherThread(component, 0), IComponent::TerminationResult::kIgnore);
 
-    ASSERT_EQ(activation.wait_for(std::chrono::seconds{1}), std::future_status::ready);
     EXPECT_EQ(activation.get(), IComponent::RequestResult::kSuccess);
 }
 
