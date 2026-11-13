@@ -39,7 +39,8 @@ Result<void> ProcessTerminatedReadyCondition::wait(cpp::stop_token stop_token, c
 
     if (!waiter_.wait_with_timeout(stop_token, timeout_))
     {
-        return MakeUnexpected(ExecErrc::kGeneralError);
+        // The wait also ends without a termination if a stop was requested, which is not a timeout.
+        return MakeUnexpected(stop_token.stop_requested() ? ExecErrc::kGeneralError : ExecErrc::kTimeout);
     }
 
     return {};
