@@ -222,6 +222,60 @@ TEST(ComponentTest, ReadyConditionPreparedBeforeStart)
     EXPECT_EQ(component.activate(mock_stop_token), IComponent::RequestResult::kSuccess);
 }
 
+TEST(ComponentTest, ReadyConditionTimeoutReturnsTimeout)
+{
+    RecordProperty(
+        "Description",
+        "Given a component whose ready condition times out. "
+        "When it is activated. "
+        "Then activation returns kTimeout.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    auto start_action = std::make_unique<MockStartAction>();
+    ON_CALL(*start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+
+    auto ready_condition = std::make_unique<MockReadyCondition>();
+    EXPECT_CALL(*ready_condition, wait(_, _)).WillOnce(Return(Result<void>{MakeUnexpected(ExecErrc::kTimeout)}));
+
+    Component component(
+        std::move(start_action),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::move(ready_condition),
+        factory,
+        std::make_shared<configuration::ComponentConfig>());
+
+    EXPECT_EQ(component.activate(mock_stop_token), IComponent::RequestResult::kTimeout);
+}
+
+TEST(ComponentTest, ReadyConditionErrorReturnsFailure)
+{
+    RecordProperty(
+        "Description",
+        "Given a component whose ready condition fails with an error other than a timeout. "
+        "When it is activated. "
+        "Then activation returns kFailure.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    auto start_action = std::make_unique<MockStartAction>();
+    ON_CALL(*start_action, start(_)).WillByDefault(Return(Result<Handle>{mock_handle}));
+
+    auto ready_condition = std::make_unique<MockReadyCondition>();
+    EXPECT_CALL(*ready_condition, wait(_, _)).WillOnce(Return(Result<void>{MakeUnexpected(ExecErrc::kGeneralError)}));
+
+    Component component(
+        std::move(start_action),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::move(ready_condition),
+        factory,
+        std::make_shared<configuration::ComponentConfig>());
+
+    EXPECT_EQ(component.activate(mock_stop_token), IComponent::RequestResult::kFailure);
+}
+
 TEST(ComponentTest, TerminationDuringStartupInterruptsActivation)
 {
     NiceMock<MockSupervisionFactory> factory;
@@ -1277,7 +1331,7 @@ TEST(ComponentTest, LateTerminationAfterReadyTimeoutDoesNotBlockReactivation)
         std::make_shared<configuration::ComponentConfig>());
 
     // The ready timeout expires, then the process exits with 0.
-    EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kFailure);
+    EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kTimeout);
     EXPECT_EQ(terminateFromOtherThread(component, 0), IComponent::TerminationResult::kIgnore);
 
     EXPECT_EQ(component.deactivate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
