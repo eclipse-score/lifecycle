@@ -183,8 +183,9 @@ class BasicControlProvider
         if (!result.has_value())
         {
             SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
-                static_cast<ExecErrc>(*result.error()) == ExecErrc::kActivationInProgress,
-                "Impossible to communicate errors other than ExecErrc::kActivationInProgress to the client");
+                static_cast<ExecErrc>(*result.error()) == ExecErrc::kActivationInProgress ||
+                    static_cast<ExecErrc>(*result.error()) == ExecErrc::kShuttingDown,
+                "Impossible to communicate errors other than kActivationInProgress & kShuttingDown to the client");
 
             response = GetActiveRunTargetResponse{QueryStatus::kNotAvailable, RunTargetName("")};
             return;

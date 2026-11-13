@@ -269,26 +269,35 @@ void ProcessGroupManager::allProcessGroupsOff()
     // SupervisionFailure is intentionally ignored here so recovery transitions do not
     // fight the forced transition to Off.
     auto waitForStateCompletion = [this](GraphState state_to_be_completed, int32_t max_wait_ms) -> bool {
-        constexpr int32_t kSleepIntervalMs = 10;
+        constexpr int32_t kMaxSleepIntervalMs = 10;
 
         auto has_state = [this, state_to_be_completed]() {
             return graph_->getState() == state_to_be_completed;
         };
 
-        int32_t remaining_ms = max_wait_ms;
-        while (has_state() && (remaining_ms > 0))
+        // We cannot rely on the kMaxSleepIntervalMs delay actually elapsing, so we check the clock each iteration
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds{max_wait_ms};
+        while (has_state() && (std::chrono::steady_clock::now() < deadline))
         {
-            static_cast<void>(event_queue_->waitForEvents(std::chrono::milliseconds(kSleepIntervalMs)));
+            static_cast<void>(event_queue_->waitForEvents(std::chrono::milliseconds(kMaxSleepIntervalMs)));
             while (auto event = event_queue_->getNextEvent())
             {
                 if (std::holds_alternative<SupervisionFailure>(*event))
                 {
                     continue;
                 }
-                graph_->handleComponentEvent(*event);
+                // We need to complete any slots here to prevent them causing a hang
+                else if (
+                    std::holds_alternative<GetActiveRunTarget>(*event) ||
+                    std::holds_alternative<SetRequestedRunTarget>(*event))
+                {
+                    graph_->unblockComponentEvent(*event, ExecErrc::kShuttingDown);
+                }
+                else
+                {
+                    graph_->handleComponentEvent(*event);
+                }
             }
-
-            remaining_ms -= kSleepIntervalMs;
         }
 
         return !has_state();
@@ -414,6 +423,10 @@ Result<IdentifierHash> ProcessGroupManager::getActiveRunTarget() const noexcept
     const bool push_result = event_queue_->push(GetActiveRunTarget{&slot});
     if (!push_result)
     {
+        if (!event_queue_->getOverflow())
+        {
+            return score::MakeUnexpected(ExecErrc::kShuttingDown);
+        }
         return score::MakeUnexpected(ExecErrc::kFailed);
     }
 
@@ -469,6 +482,10 @@ Result<void> ProcessGroupManager::setRequestedRunTarget(IdentifierHash run_targe
     const bool push_result = event_queue_->push(SetRequestedRunTarget{run_target, &slot});
     if (!push_result)
     {
+        if (!event_queue_->getOverflow())
+        {
+            return score::MakeUnexpected(ExecErrc::kShuttingDown);
+        }
         return score::MakeUnexpected(ExecErrc::kFailed);
     }
 
