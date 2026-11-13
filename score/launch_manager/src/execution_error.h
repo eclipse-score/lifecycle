@@ -39,7 +39,8 @@ enum class ExecErrc : score::result::ErrorCode
         12,  ///< A Run Target activation is already in progress; no single Run Target is currently active
     kRequestQueueIsFull = 13,    ///< The activation request queue is full; the request was discarded
     kRunTargetDoesntExist = 14,  ///< The requested Run Target does not exist in the current configuration
-    kNotImplemented = 15,        ///< The requested functionality is not yet implemented
+    kTimeout = 15,               ///< The operation timed out
+    kNotImplemented = 16,        ///< The requested functionality is not yet implemented
 };
 
 class ExecErrorDomain final : public score::result::ErrorDomain
@@ -78,6 +79,8 @@ class ExecErrorDomain final : public score::result::ErrorDomain
                 return "The activation request queue is full; the request was discarded";
             case ExecErrc::kRunTargetDoesntExist:
                 return "The requested Run Target does not exist in the current configuration";
+            case ExecErrc::kTimeout:
+                return "The operation timed out";
             case ExecErrc::kNotImplemented:
                 return "The requested functionality is not yet implemented";
             default:

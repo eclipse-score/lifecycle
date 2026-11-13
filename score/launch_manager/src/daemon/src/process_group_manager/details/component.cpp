@@ -13,6 +13,7 @@
 
 #include "score/mw/launch_manager/process_group_manager/details/component.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/lifecycle/execution_error.h"
 
 namespace score::mw::lifecycle::internal
 {
@@ -98,6 +99,9 @@ IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
         return RequestResult::kFailure;
     }
 
+    // Anything left over from a previous activation is dropped.
+    ready_condition_->prepare();
+
     const Result<Handle> start_result = start_action_->start(stop_token);
     if (!start_result.has_value())
     {
@@ -117,8 +121,14 @@ IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
     // Wait for the ready condition. The state is unlocked so that `deactivate` or
     // `tryHandleTermination` are callable while we are waiting.
     lock.unlock();
-    if (!ready_condition_->wait(stop_activation.get_token(), handle).has_value())
+    const Result<void> ready = ready_condition_->wait(stop_activation.get_token(), handle);
+    if (!ready.has_value())
     {
+        if (ready.error() == ExecErrc::kTimeout)
+        {
+            LM_LOG_WARN() << config_->name << ": ready condition was not met within the ready timeout";
+            return RequestResult::kTimeout;
+        }
         return RequestResult::kFailure;
     }
     lock.lock();
@@ -177,8 +187,9 @@ IComponent::RequestResult Component::deactivate(cpp::stop_token stop_token)
         return RequestResult::kFailure;
     }
 
-    // Without a resource, nothing will terminate, so the component is inactive immediately.
-    if (std::holds_alternative<EmptyHandle>(handle))
+    // Without a live resource, nothing will terminate, so the component is inactive immediately.
+    // This includes a process which already terminated while the component was starting or ready.
+    if (!isAlive(handle))
     {
         state_ = TerminatedState{};
         return RequestResult::kSuccess;

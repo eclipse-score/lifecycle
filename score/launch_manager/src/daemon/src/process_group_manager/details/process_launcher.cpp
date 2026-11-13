@@ -482,35 +482,40 @@ OsalReturnType ProcessLauncher::waitForTermination(osal::ProcessID& pid, int32_t
 
 OsalReturnType ProcessLauncher::waitForkRunning(IpcCommsP sync, std::optional<std::chrono::milliseconds> timeout)
 {
-    OsalReturnType result = OsalReturnType::kSuccess;
-
     if (!sync)
     {
         LM_LOG_ERROR() << "Invalid shared memory pointer: The shared memory pointer is null.";
         return OsalReturnType::kFail;
     }
 
-    if (timeout.has_value())
-    {
-        result = sync->send_sync_.timedWait(timeout.value());
-    }
+    // Step 1: the process reports kRunning within the timeout. Without a timeout, the report is ignored.
+    OsalReturnType result =
+        timeout.has_value() ? sync->send_sync_.timedWait(timeout.value()) : OsalReturnType::kSuccess;
 
-    const auto post_res = sync->reply_sync_.post();
-
-    if (post_res == OsalReturnType::kFail)
+    // Always reply, so that a process which reports late is not blocked.
+    if (sync->reply_sync_.post() == OsalReturnType::kFail)
     {
         LM_LOG_ERROR() << "Semaphore post failed";
         result = OsalReturnType::kFail;
     }
 
-    if (result == OsalReturnType::kFail)
+    if (result == OsalReturnType::kTimeout)
     {
-        LM_LOG_ERROR() << "Semaphore timedWait or post failed: Unable to wait or post on semaphores within the "
-                          "specified timeout.";
+        LM_LOG_WARN() << "kRunning was not reported within the specified timeout.";
+    }
+    else if (result == OsalReturnType::kFail)
+    {
+        LM_LOG_ERROR() << "Semaphore timedWait or post failed: Unable to wait or post on semaphores.";
     }
     else if (timeout.has_value())
     {
-        result = sync->send_sync_.timedWait(std::chrono::milliseconds(100));
+        // Step 2: the process confirms the reply. A missing confirmation is a broken handshake,
+        // not an expired timeout.
+        if (sync->send_sync_.timedWait(std::chrono::milliseconds(100)) != OsalReturnType::kSuccess)
+        {
+            LM_LOG_ERROR() << "kRunning handshake was not completed by the process.";
+            result = OsalReturnType::kFail;
+        }
     }
 
     IpcCommsSync::deinit(sync);

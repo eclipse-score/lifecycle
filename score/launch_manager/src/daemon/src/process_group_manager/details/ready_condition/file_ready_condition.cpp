@@ -37,6 +37,11 @@ Result<void> FileReadyCondition::wait(cpp::stop_token stop_token, [[maybe_unused
         return {};
     }
 
+    if (result == osal::OsalReturnType::kTimeout)
+    {
+        return MakeUnexpected(ExecErrc::kTimeout);
+    }
+
     return MakeUnexpected(ExecErrc::kGeneralError);
 }
 
