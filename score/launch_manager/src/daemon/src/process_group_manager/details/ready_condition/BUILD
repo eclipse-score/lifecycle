@@ -92,3 +92,22 @@ lm_cc_test(
         "@googletest//:gtest_main",
     ],
 )
+
+cc_library(
+    name = "empty_ready_condition",
+    srcs = ["empty_ready_condition.cpp"],
+    hdrs = ["empty_ready_condition.hpp"],
+    include_prefix = "score/mw/launch_manager/process_group_manager/details/ready_condition",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/process_group_manager/details/ready_condition",
+    visibility = ["//score/launch_manager/src/daemon/src/process_group_manager:__subpackages__"],
+    deps = [":iready_condition"],
+)
+
+lm_cc_test(
+    name = "empty_ready_condition_UT",
+    srcs = ["empty_ready_condition_UT.cpp"],
+    deps = [
+        ":empty_ready_condition",
+        "@googletest//:gtest_main",
+    ],
+)

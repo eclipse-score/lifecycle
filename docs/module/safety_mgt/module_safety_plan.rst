@@ -105,7 +105,7 @@ Module Work products List
         * - :need:`wp__audit_report`
           - performed by external experts
           - n/a
-          - <Link to WP>
+          - n/a
 
         * - :need:`wp__module_safety_manual`
           - :need:`gd_temp__safety_manual`
@@ -115,7 +115,7 @@ Module Work products List
         * - :need:`wp__verification_module_ver_report`
           - :need:`gd_temp__mod_ver_report`
           - :ndf:`copy('status', need_id='gd_temp__mod_ver_report')`
-          - :ref:`life_statistics`
+          - :need:`mod_vrep__lifecycle__report`
 
         * - :need:`wp__module_sw_release_note`
           - :need:`gd_temp__rel_mod_rel_note`
@@ -176,12 +176,14 @@ Component Health Monitor Work products List
         * - :need:`wp__sw_implementation`
           - :need:`gd_guidl__implementation`
           - :ndf:`copy('status', need_id='gd_guidl__implementation')`
-          - :need:`doc__health_monitor_detailed_design` & <Link to code>
+          - :need:`doc__health_monitor_detailed_design` & `source code <https://github.com/eclipse-score/lifecycle/tree/main/score/health_monitor/src>`__
 
         * - :need:`wp__verification_sw_unit_test`
           - :need:`gd_guidl__verification_guide`
           - :ndf:`copy('status', need_id='gd_guidl__verification_guide')`
-          - <Link to WP>
+          - Bazel tests ``//score/health_monitor/src/cpp:cpp_unit_tests`` (C++) and
+            ``//score/health_monitor/src/rust:tests``, ``:loom_tests``, ``:miri_tests`` (Rust),
+            results in :need:`mod_vrep__lifecycle__report`
 
         * - :need:`wp__sw_implementation_inspection`
           - :need:`gd_chklst__impl_inspection_checklist`
@@ -191,7 +193,8 @@ Component Health Monitor Work products List
         * - :need:`wp__verification_comp_int_test`
           - :need:`gd_guidl__verification_guide`
           - :ndf:`copy('status', need_id='gd_guidl__verification_guide')`
-          - <Link to WP>
+          - Bazel test ``//score/health_monitor/src/cpp:cpp_integration_tests``,
+            results in :need:`mod_vrep__lifecycle__report`
 
 Component Launch Manager Work products List
 -------------------------------------------
@@ -242,12 +245,13 @@ Component Launch Manager Work products List
         * - :need:`wp__sw_implementation`
           - :need:`gd_guidl__implementation`
           - :ndf:`copy('status', need_id='gd_guidl__implementation')`
-          - :need:`doc__launch_manager_detailed_design` & <Link to code>
+          - :need:`doc__launch_manager_detailed_design` & `source code <https://github.com/eclipse-score/lifecycle/tree/main/score/launch_manager/src>`__
 
         * - :need:`wp__verification_sw_unit_test`
           - :need:`gd_guidl__verification_guide`
           - :ndf:`copy('status', need_id='gd_guidl__verification_guide')`
-          - <Link to WP>
+          - Bazel tests of the rules ``lm_cc_test`` and ``lm_rust_test`` under ``//score/launch_manager/...``,
+            results in :need:`mod_vrep__lifecycle__report`
 
         * - :need:`wp__sw_implementation_inspection`
           - :need:`gd_chklst__impl_inspection_checklist`
@@ -257,7 +261,8 @@ Component Launch Manager Work products List
         * - :need:`wp__verification_comp_int_test`
           - :need:`gd_guidl__verification_guide`
           - :ndf:`copy('status', need_id='gd_guidl__verification_guide')`
-          - <Link to WP>
+          - Bazel test suite ``//tests/integration:integration``,
+            results in :need:`mod_vrep__lifecycle__report`
 
 Link to project planning
 ------------------------
@@ -276,7 +281,8 @@ Module Documents Status
 For all the work product documents the status can be seen by following the "Link to WP".
 A summary of the status is also documented in the project's documentation management plan.
 
-See <add here the section reference to the documentation management plan>
+See `Lifecycle module documents <https://eclipse-score.github.io/reference_integration/main/process_methods_tools/score_platform/platform_management_plan/documentation_management.html#documents-docs-features-lifecycle>`__
+(the tables are filled in the reference integration build)
 
 Component Documents Status
 --------------------------
@@ -284,7 +290,8 @@ Component Documents Status
 For all the work product documents the status can be seen by following the "Link to WP".
 A summary of the status is also documented in the project's documentation management plan.
 
-See <add here the section reference to the documentation management plan>
+See `Lifecycle component documents <https://eclipse-score.github.io/reference_integration/main/process_methods_tools/score_platform/platform_management_plan/documentation_management.html#documents-docs-features-lifecycle>`__
+(the tables are filled in the reference integration build)
 
 Component Requirements Status
 -----------------------------

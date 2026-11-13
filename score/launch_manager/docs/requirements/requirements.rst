@@ -1064,19 +1064,6 @@ Watchdog
 Logging
 =======
 
-.. comp_req:: Logging slog2 and file support
-    :id: comp_req__launch_man__slog2_logging
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__logging_support[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` shall support OS specific logging facilities to analyze the early
-    boot sequence.
-
 .. comp_req:: Logging state transitions
     :id: comp_req__launch_man__process_logging_support
     :reqtype: Functional
@@ -1089,18 +1076,6 @@ Logging
 
     The :term:`Launch Manager` shall provide support for logging process launches,
     :term:`Processes <Process>` exit/recovery, internal tasks, and interaction with an external monitor.
-
-.. comp_req:: Logging timestamp
-    :id: comp_req__launch_man__log_timestamp
-    :reqtype: Functional
-    :security: NO
-    :safety: ASIL_B
-    :derived_from: feat_req__lifecycle__logging_support[version==1]
-    :status: valid
-    :version: 1
-    :satisfied_by: comp__lifecycle_launch_manager
-
-    The :term:`Launch Manager` logs shall contain timestamp information.
 
 .. comp_req:: Logging DAG
     :id: comp_req__launch_man__dag_logging_controlif
