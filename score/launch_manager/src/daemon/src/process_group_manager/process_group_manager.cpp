@@ -129,6 +129,9 @@ void ProcessGroupManager::deinitialize()
 {
     // ucm_polling_thread_.stopPolling();
     watchdog_->disable();
+
+    pending_activation_queue_.stop();
+
     if (event_queue_)
     {
         event_queue_->stop();
@@ -294,6 +297,8 @@ void ProcessGroupManager::allProcessGroupsOff()
         return !has_state();
     };
 
+    clearQueuedActivations("shutdown");
+
     // First, check if we're already transitioning to Off - if so, no need to cancel
     if (!graph_->isTransitioningToOff())
     {
@@ -338,8 +343,24 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
 
     if (GraphState::kSuccess == graph_state || GraphState::kUndefinedState == graph_state)
     {
-        const RunTargetActivationSource last_source = pg.getPendingTransition().source;
+        RunTargetActivationSource last_source = pg.getPendingTransition().source;
         IdentifierHash last_state = pg.setPendingState(IdentifierHash(""));
+
+        if ((last_state == IdentifierHash("")) && (GraphState::kSuccess == graph_state))
+        {
+            // The previous transition finished and nothing newer was requested: take the next queued request,
+            // skipping any that would not change the active Run Target.
+            while (const std::optional<IdentifierHash> next = pending_activation_queue_.tryPop())
+            {
+                if (next.value() != pg.getRequestedRunTarget())
+                {
+                    last_state = next.value();
+                    last_source = RunTargetActivationSource::kStateManagerRequest;
+                    pg.setRequestStartTime();
+                    break;
+                }
+            }
+        }
 
         if ((last_state != IdentifierHash("")) &&
             ((last_state != pg.getRequestedRunTarget()) || (GraphState::kUndefinedState == graph_state)))
@@ -363,6 +384,9 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
             // we will try to perform recovery action
 
             LM_LOG_WARN() << "Problem discovered, activating recovery state:" << Graph::recovery_state_name;
+
+            // All pending activations are cancelled before a recovery action runs.
+            clearQueuedActivations("failed transition");
 
             // no point checking errors here...
             // nobody requested this transition, so there is nowhere to communicate an error
@@ -420,9 +444,40 @@ Result<IdentifierHash> ProcessGroupManager::getActiveRunTarget() const noexcept
     return slot.wait();
 }
 
+bool ProcessGroupManager::isActivationBusy() const noexcept
+{
+    // A forced request may have set a pending Run Target that the main loop has not started yet.
+    return (graph_->getState() != GraphState::kSuccess) ||
+           (graph_->getPendingTransition().run_target != IdentifierHash(""));
+}
+
+bool ProcessGroupManager::shouldDropDuplicateRequest(const IdentifierHash new_run_target) const noexcept
+{
+    // Deduplication logic:
+    // - Drop the request if this run target matches the one previously queued
+    // - If the queue is empty, drop the request if this run group matches the currently pending run group
+    // - If the queue is empty, and the pending run target is empty, the previous run target is old_run_target.
+    //   Drop this run target request if it matches old_run_target in this case.
+    const IdentifierHash pending_run_target = graph_->getPendingTransition().run_target;
+    const IdentifierHash old_run_target = graph_->getRequestedRunTarget();
+    const IdentifierHash previous =
+        !pending_activation_queue_.empty()
+            ? pending_activation_queue_.back()
+            : ((pending_run_target != IdentifierHash("")) ? pending_run_target : old_run_target);
+
+    return previous == new_run_target;
+}
+
+void ProcessGroupManager::clearQueuedActivations(std::string_view reason) noexcept
+{
+    while (const std::optional<IdentifierHash> dropped = pending_activation_queue_.tryPop())
+    {
+        LM_LOG_WARN() << "Dropping queued activation of Run Target" << dropped.value() << "due to" << reason;
+    }
+}
+
 void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* event) noexcept
 {
-    IdentifierHash old_state = graph_->getRequestedRunTarget();
     GraphState graph_state = graph_->getState();
     Result<void> response = {};
 
@@ -431,29 +486,51 @@ void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* eve
         // Reject before this can reach Graph::startTransition() with no matching node (#541).
         response = score::MakeUnexpected(ExecErrc::kRunTargetDoesntExist);
     }
-    else if (GraphState::kInTransition == graph_state)
+    else if (!event->forced && isActivationBusy())
     {
-        if (old_state != event->run_target)
+
+        if (shouldDropDuplicateRequest(event->run_target))
+        {
+            LM_LOG_DEBUG() << "Queued activation of" << event->run_target << "ignored: same as previous request";
+        }
+        else if (!pending_activation_queue_.push(event->run_target).has_value())
+        {
+            response = score::MakeUnexpected(ExecErrc::kRequestQueueIsFull);
+        }
+    }
+    else
+    {
+        const IdentifierHash old_state = graph_->getRequestedRunTarget();
+
+        if (event->forced)
+        {
+            clearQueuedActivations("forced activation");
+        }
+
+        if (GraphState::kInTransition == graph_state)
+        {
+            if (old_state != event->run_target)
+            {
+                (void)graph_->setPendingState(event->run_target);
+                // get state transition start time stamp
+                graph_->setRequestStartTime();
+                graph_->cancel();
+            }
+            else
+            {
+                response = score::MakeUnexpected(ExecErrc::kInTransitionToSameState);
+            }
+        }
+        else if (GraphState::kSuccess == graph_state && old_state == event->run_target)
+        {
+            response = score::MakeUnexpected(ExecErrc::kAlreadyInState);
+        }
+        else
         {
             (void)graph_->setPendingState(event->run_target);
             // get state transition start time stamp
             graph_->setRequestStartTime();
-            graph_->cancel();
         }
-        else
-        {
-            response = score::MakeUnexpected(ExecErrc::kInTransitionToSameState);
-        }
-    }
-    else if (GraphState::kSuccess == graph_state && old_state == event->run_target)
-    {
-        response = score::MakeUnexpected(ExecErrc::kAlreadyInState);
-    }
-    else
-    {
-        (void)graph_->setPendingState(event->run_target);
-        // get state transition start time stamp
-        graph_->setRequestStartTime();
     }
 
     if (event->completion != nullptr)
@@ -466,7 +543,20 @@ Result<void> ProcessGroupManager::setRequestedRunTarget(IdentifierHash run_targe
 {
     CompletionSlot<Result<void>> slot;
 
-    const bool push_result = event_queue_->push(SetRequestedRunTarget{run_target, &slot});
+    const bool push_result = event_queue_->push(SetRequestedRunTarget{run_target, &slot, true});
+    if (!push_result)
+    {
+        return score::MakeUnexpected(ExecErrc::kFailed);
+    }
+
+    return slot.wait();
+}
+
+Result<void> ProcessGroupManager::queueRequestedRunTarget(IdentifierHash run_target) noexcept
+{
+    CompletionSlot<Result<void>> slot;
+
+    const bool push_result = event_queue_->push(SetRequestedRunTarget{run_target, &slot, false});
     if (!push_result)
     {
         return score::MakeUnexpected(ExecErrc::kFailed);
