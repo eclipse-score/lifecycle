@@ -14,7 +14,9 @@
 #ifndef CONSTANTS_HPP_INCLUDED
 #define CONSTANTS_HPP_INCLUDED
 
+#include <algorithm>
 #include <chrono>
+#include <climits>
 #include <cstddef>
 #include <cstdint>
 
@@ -47,6 +49,15 @@ enum class ProcessLimits : std::uint32_t
     kMaxProcesses = 1024U,    ///< Maximum number of processes allowed
     kNumWorkerThreads = 16U,  ///< Size of the used thread pool
 };
+
+/// @brief Stack size of each worker thread in the thread pool, in bytes.
+/// Sanitizer builds need much more stack, so they use the platform default (a stack size hint of 0 is ignored).
+#if defined(__SANITIZE_ADDRESS__) || defined(__SANITIZE_THREAD__)
+constexpr std::size_t kWorkerThreadStackSize{0U};
+#else
+inline const std::size_t kWorkerThreadStackSize{
+    std::max(static_cast<std::size_t>(PTHREAD_STACK_MIN), std::size_t{32UL * 1024UL})};
+#endif
 
 /// @brief Default size of Alive Supervision checkpoint buffer
 constexpr uint16_t kDefaultAliveSupCheckpointBufferElements{100U};
