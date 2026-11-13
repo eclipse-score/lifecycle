@@ -158,10 +158,7 @@ def integration_test(
     })
 
     # The test container does not ship the sanitizer runtime; daemon fails to start.
-    disable_sanitizer = [
-        "@score_cpp_policies//sanitizers/constraints:no_asan",
-        "@score_cpp_policies//sanitizers/constraints:no_tsan",
-    ]
+    disable_sanitizer = ["@score_cpp_policies//sanitizers/constraints:no_asan"]
 
     # The QEMU plugin uses a hardcoded port so we can only run one test at a time.
     # See https://github.com/eclipse-score/itf/issues/125.

@@ -133,6 +133,7 @@ use_repo(
     "score_ebclfsa_toolchain",
     "score_gcc_aarch64_toolchain",
     "score_gcc_x86_64_toolchain",
+    "score_gcc_x86_64_toolchain_pkg",
 )
 
 # Rust toolchains.

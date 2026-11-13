@@ -46,4 +46,6 @@ integration_test(
         "//tests/utils/test_helper:verification_process",
     ],
     config = ":sandbox_options.json",
+    # TSan cannot reserve its shadow memory under the RLIMIT_AS configured for the processes.
+    target_compatible_with = ["@score_cpp_policies//sanitizers/constraints:no_tsan"],
 )
