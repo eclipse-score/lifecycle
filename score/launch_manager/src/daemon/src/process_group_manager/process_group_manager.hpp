@@ -36,7 +36,7 @@
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include "score/mw/launch_manager/process_group_manager/irun_target_control.hpp"
 #include "score/mw/launch_manager/recovery_client/recovery_client.hpp"
-#include "score/mw/launch_manager/watchdog/IWatchdogIf.hpp"
+#include "score/mw/launch_manager/watchdog/iwatchdog.hpp"
 #include "score/mw/lifecycle/details/lm_control_service.h"
 
 namespace score::mw::lifecycle::internal
@@ -70,16 +70,15 @@ class ProcessGroupManager final : public IRunTargetControl
     /// @param recovery_client A shared pointer to an IRecoveryClient instance for handling recovery operations.
     /// @param supervision_control_notifier A unique pointer to an ISupervisionControlNotifier instance for notifying
     /// the Alive Monitor thread of process state changes.
-    /// @param watchdog A unique pointer to an IWatchdogIf instance serviced during the main loop. May be nullptr in
-    /// legacy configuration where no watchdog is wired.
+    /// @param watchdog The watchdog initialized at the end of initialize() and serviced during the main loop. Must not
+    /// be nullptr.
     /// @param process_interface The interface used to launch and terminate processes. Defaults to the POSIX
     /// ProcessLauncher.
     ProcessGroupManager(
         configuration::GraphConfig&& config,
         std::unique_ptr<saf::daemon::IAliveMonitor> alive_monitor,
         std::shared_ptr<IRecoveryClient> recovery_client,
-        std::unique_ptr<score::mw::lifecycle::internal::watchdog::IWatchdogIf> watchdog,
-        std::optional<configuration::WatchdogConfig>&& watchdog_config,
+        std::unique_ptr<score::mw::lifecycle::internal::watchdog::IWatchdog> watchdog,
         std::unique_ptr<osal::IProcess> process_interface = std::make_unique<osal::ProcessLauncher>());
 
     /// @brief Initializes the process group manager.
@@ -101,6 +100,7 @@ class ProcessGroupManager final : public IRunTargetControl
     /// `processGroupHandler()` methods until SIGINT or SIGTERM is received, then transitions all the
     /// process groups to the "Off" state before returning. Each time a piece of work is serviced, wait on
     /// the semaphore so as not to consume cpu cycles unduly.
+    /// On a critical error the watchdog is fired and the loop is left without servicing the watchdog again.
     /// @return Returns true if the process group manager ran successfully, false otherwise.
     bool run();
 
@@ -187,9 +187,6 @@ class ProcessGroupManager final : public IRunTargetControl
     /// @brief The configuration object associated with the ProcessGroupManager.
     configuration::GraphConfig configuration_;
 
-    /// @brief The configuration object associated with the watchdog.
-    std::optional<configuration::WatchdogConfig> watchdog_config_;
-
     /// @brief The process interface object associated with the ProcessGroupManager.
     std::unique_ptr<osal::IProcess> process_interface_;
 
@@ -220,8 +217,8 @@ class ProcessGroupManager final : public IRunTargetControl
 
     std::shared_ptr<score::mw::lifecycle::IRecoveryClient> recovery_client_{};
 
-    /// @brief The watchdog serviced during the main loop. May be nullptr in legacy configuration.
-    std::unique_ptr<score::mw::lifecycle::internal::watchdog::IWatchdogIf> watchdog_;
+    /// @brief The watchdog serviced during the main loop.
+    std::unique_ptr<score::mw::lifecycle::internal::watchdog::IWatchdog> watchdog_;
 };
 
 }  // namespace score::mw::lifecycle::internal

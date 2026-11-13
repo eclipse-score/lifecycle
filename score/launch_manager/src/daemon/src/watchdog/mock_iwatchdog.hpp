@@ -11,24 +11,26 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-#include "score/mw/launch_manager/watchdog/details/DeviceIf.hpp"
+#ifndef SCORE_MW_LAUNCH_MANAGER_WATCHDOG_MOCK_IWATCHDOG_HPP_INCLUDED
+#define SCORE_MW_LAUNCH_MANAGER_WATCHDOG_MOCK_IWATCHDOG_HPP_INCLUDED
 
-#include <sys/ioctl.h>
+#include "score/mw/launch_manager/watchdog/iwatchdog.hpp"
+
+#include <gmock/gmock.h>
 
 namespace score::mw::lifecycle::internal::watchdog
 {
 
-DeviceIf& DeviceIf::instance() noexcept
+/// @brief Reusable gmock mock for IWatchdog, for use by tests of components that service the watchdog.
+class MockWatchdog : public IWatchdog
 {
-    static DeviceIf instance;
-    return instance;
-}
-
-std::int32_t DeviceIf::ioctl(std::int32_t f_fd, IoctlRequestType f_request, std::int32_t* f_payload_p) noexcept
-{
-    // Wrapper over the real syscall.
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-vararg, score-banned-function)
-    return ::ioctl(f_fd, f_request, f_payload_p);
-}
+  public:
+    MOCK_METHOD(bool, init, (), (noexcept, override));
+    MOCK_METHOD(void, serviceWatchdog, (), (noexcept, override));
+    MOCK_METHOD(void, fireWatchdog, (), (noexcept, override));
+    MOCK_METHOD(void, deinit, (), (noexcept, override));
+};
 
 }  // namespace score::mw::lifecycle::internal::watchdog
+
+#endif  // SCORE_MW_LAUNCH_MANAGER_WATCHDOG_MOCK_IWATCHDOG_HPP_INCLUDED

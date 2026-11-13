@@ -137,3 +137,13 @@ config_setting(
     },
     visibility = ["//visibility:public"],
 )
+
+# Watchdog implementation used by the Launch Manager. Integrators can provide their own
+# cc_library that depends on //score/launch_manager:watchdog_interface_cc
+# and defines createWatchdog(), e.g.
+#   bazel build --@score_lifecycle//config:watchdog_impl=//my/pkg:my_watchdog ...
+label_flag(
+    name = "watchdog_impl",
+    build_setting_default = "//score/launch_manager/src/daemon/src/watchdog/default:default_watchdog",
+    visibility = ["//visibility:public"],
+)

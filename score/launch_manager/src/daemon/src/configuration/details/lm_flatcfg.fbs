@@ -196,18 +196,6 @@ table AliveSupervision {
   evaluation_cycle_ms:uint32 = null; // required
 }
 
-// External watchdog device configuration.
-table Watchdog {
-  // Path to the external watchdog device file (e.g., /dev/watchdog).
-  device_file_path:string (required); // required
-  // Maximum timeout in milliseconds configured on the external watchdog.
-  max_timeout_ms:uint32 = null; // required
-  // Whether the watchdog is deactivated during shutdown.
-  deactivate_on_shutdown:bool = null; // required
-  // Whether the magic close sequence is performed on intentional shutdown.
-  require_magic_close:bool = null; // required
-}
-
 // Fallback Run Target activated when all recovery attempts are exhausted.
 // Does not include a recovery_action.
 table FallbackRunTarget {
@@ -231,7 +219,6 @@ table LaunchManagerConfig {
   initial_run_target:string (required); // required
   fallback_run_target:FallbackRunTarget (required); // required
   alive_supervision:AliveSupervision (required); // required
-  watchdog:Watchdog; // optional
 }
 
 root_type LaunchManagerConfig;

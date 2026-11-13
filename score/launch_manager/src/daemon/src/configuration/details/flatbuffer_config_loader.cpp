@@ -139,18 +139,6 @@ score::cpp::expected<Config, IConfigLoader::Error> parseFlatbuffer(const std::ve
     }
     builder.setAliveSupervision(std::move(*alive_sup));
 
-    // Convert watchdog
-    auto wd = convertWatchdog(config->watchdog());
-    if (!wd.has_value())
-    {
-        LM_LOG_ERROR() << "Failed to load configuration for Watchdog";
-        return score::cpp::make_unexpected(wd.error());
-    }
-    if (wd->has_value())
-    {
-        builder.setWatchdog(std::move(**wd));
-    }
-
     return builder.build();
 }
 

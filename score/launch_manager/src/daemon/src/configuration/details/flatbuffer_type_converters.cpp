@@ -628,38 +628,6 @@ score::cpp::expected<AliveSupervisionConfig, IConfigLoader::Error> convertAliveS
     return AliveSupervisionConfig{*evaluation_cycle};
 }
 
-score::cpp::expected<std::optional<WatchdogConfig>, IConfigLoader::Error> convertWatchdog(const fb::Watchdog* fb_wd)
-{
-    if (fb_wd == nullptr)
-    {
-        return std::optional<WatchdogConfig>{std::nullopt};
-    }
-    SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
-        fb_wd->device_file_path(), "Watchdog::device_file_path must never be nullptr as it is required in the schema");
-    auto max_timeout = requireScalarValue(fb_wd->max_timeout_ms(), "Watchdog::max_timeout_ms");
-    if (!max_timeout.has_value())
-    {
-        return score::cpp::make_unexpected(max_timeout.error());
-    }
-    auto deactivate_on_shutdown =
-        requireScalarValue(fb_wd->deactivate_on_shutdown(), "Watchdog::deactivate_on_shutdown");
-    if (!deactivate_on_shutdown.has_value())
-    {
-        return score::cpp::make_unexpected(deactivate_on_shutdown.error());
-    }
-    auto require_magic_close = requireScalarValue(fb_wd->require_magic_close(), "Watchdog::require_magic_close");
-    if (!require_magic_close.has_value())
-    {
-        return score::cpp::make_unexpected(require_magic_close.error());
-    }
-    WatchdogConfig result{};
-    result.device_file_path = fb_wd->device_file_path()->str();
-    result.max_timeout_ms = *max_timeout;
-    result.deactivate_on_shutdown = *deactivate_on_shutdown;
-    result.require_magic_close = *require_magic_close;
-    return std::optional<WatchdogConfig>{std::move(result)};
-}
-
 score::cpp::expected<std::vector<ComponentConfig>, IConfigLoader::Error> convertComponents(
     const ::flatbuffers::Vector<::flatbuffers::Offset<fb::Component>>* fb_components)
 {

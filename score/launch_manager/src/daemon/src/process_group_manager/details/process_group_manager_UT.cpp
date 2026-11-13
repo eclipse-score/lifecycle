@@ -18,7 +18,7 @@
 #include "score/mw/launch_manager/alive_monitor/mock_supervision_factory.hpp"
 #include "score/mw/launch_manager/process_group_manager/mock_iprocess.hpp"
 #include "score/mw/launch_manager/recovery_client/mock_recovery_client.h"
-#include "score/mw/launch_manager/watchdog/mock_IWatchdogIf.hpp"
+#include "score/mw/launch_manager/watchdog/mock_iwatchdog.hpp"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -76,12 +76,6 @@ Config makeMinimalConfig(ApplicationType application_type = ApplicationType::Nat
     AliveSupervisionConfig alive;
     alive.evaluation_cycle_ms = 500U;
 
-    WatchdogConfig watchdog;
-    watchdog.device_file_path = "/dev/watchdog0";
-    watchdog.max_timeout_ms = 5000U;
-    watchdog.deactivate_on_shutdown = true;
-    watchdog.require_magic_close = false;
-
     std::vector<ComponentConfig> components;
     components.push_back(std::move(component));
 
@@ -101,7 +95,6 @@ Config makeMinimalConfig(ApplicationType application_type = ApplicationType::Nat
         .setInitialRunTarget("Startup")
         .setFallbackRunTarget(std::move(fallback))
         .setAliveSupervision(alive)
-        .setWatchdog(watchdog)
         .build();
 }
 
@@ -121,8 +114,7 @@ class ProcessGroupManagerWatchdogTest : public Test
     {
         EXPECT_CALL(*alive_monitor_, init()).WillOnce(Return(true));
         EXPECT_CALL(*alive_monitor_, startMonitoring());
-        EXPECT_CALL(*watchdog_, init(_, _)).WillOnce(Return(true));
-        EXPECT_CALL(*watchdog_, enable()).WillOnce(Return(true));
+        EXPECT_CALL(*watchdog_, init()).WillOnce(Return(true));
     }
 
     void SetUp() override
@@ -148,7 +140,7 @@ class ProcessGroupManagerWatchdogTest : public Test
             return publisher;
         }));
 
-        auto watchdog = std::make_unique<StrictMock<MockWatchdogIf>>();
+        auto watchdog = std::make_unique<StrictMock<MockWatchdog>>();
         watchdog_ = watchdog.get();
 
         // Mock the proc launcher calls
@@ -167,7 +159,6 @@ class ProcessGroupManagerWatchdogTest : public Test
             std::move(alive_monitor),
             std::move(recovery_client),
             std::move(watchdog),
-            config.takeWatchdog(),
             std::move(process_interface));
     }
 
@@ -179,7 +170,7 @@ class ProcessGroupManagerWatchdogTest : public Test
     MockAliveMonitor* alive_monitor_{};
     MockRecoveryClient* recovery_client_{};
     IRecoveryClient::RecoveryRequestCallback recovery_callback_{};
-    MockWatchdogIf* watchdog_{};
+    MockWatchdog* watchdog_{};
     osal::MockIProcess* process_interface_{};
     NiceMock<MockSupervisionFactory> factory_{};
     std::unique_ptr<ProcessGroupManager> process_group_manager_;
@@ -193,8 +184,9 @@ TEST_F(ProcessGroupManagerWatchdogTest, GivenMinimalConfig_ExpectWatchdogMethods
     // Expected
     InSequence sequence;
     expectNormalStartup();
-    EXPECT_CALL(*watchdog_, disable()).Times(1);
+    // deinitialize() (called in TearDown()) disarms the watchdog last, after all other components were stopped.
     EXPECT_CALL(*alive_monitor_, stopMonitoring()).Times(1);
+    EXPECT_CALL(*watchdog_, deinit()).Times(1);
 
     // When
     auto initialize_result = process_group_manager_->initialize();
@@ -212,7 +204,7 @@ TEST_F(ProcessGroupManagerWatchdogTest, GivenMinimalConfig_ExpectWatchdogService
         process_group_manager_->cancel();
     });
     // Called in deinitialize() after run() returns
-    EXPECT_CALL(*watchdog_, disable()).Times(1);
+    EXPECT_CALL(*watchdog_, deinit()).Times(1);
     EXPECT_CALL(*alive_monitor_, stopMonitoring()).Times(1);
 
     // When
@@ -232,11 +224,10 @@ TEST_F(ProcessGroupManagerWatchdogTest, GivenMinimalConfig_ExpectWatchdogFired_W
 
     // Expected
     expectNormalStartup();
-    EXPECT_CALL(*watchdog_, fireWatchdogReaction()).Times(AtLeast(1));
-    EXPECT_CALL(*watchdog_, serviceWatchdog()).Times(AtLeast(1)).WillRepeatedly([this]() {
-        process_group_manager_->cancel();
-    });
-    EXPECT_CALL(*watchdog_, disable()).Times(1);
+    // The overflow is detected in the first loop iteration, before the watchdog is serviced.
+    // After firing, the watchdog must not be serviced anymore (StrictMock fails on serviceWatchdog()).
+    EXPECT_CALL(*watchdog_, fireWatchdog()).Times(1);
+    EXPECT_CALL(*watchdog_, deinit()).Times(1);
     EXPECT_CALL(*alive_monitor_, stopMonitoring()).Times(1);
 
     // When
@@ -244,7 +235,7 @@ TEST_F(ProcessGroupManagerWatchdogTest, GivenMinimalConfig_ExpectWatchdogFired_W
 
     // Deliver more recovery requests than the component event queue can hold,
     // forcing the queue to drop events and latch its sticky overflow flag.
-    // run() observes the overflow and fires the watchdog reaction.
+    // run() observes the overflow and fires the watchdog.
     ASSERT_TRUE(recovery_callback_);
     for (int i = 0; i < kNumRecoveryRequests; ++i)
     {
@@ -254,16 +245,33 @@ TEST_F(ProcessGroupManagerWatchdogTest, GivenMinimalConfig_ExpectWatchdogFired_W
     auto run_result = process_group_manager_->run();
 
     // Then
-    EXPECT_TRUE(run_result);
+    EXPECT_FALSE(run_result);
 }
 
-TEST_F(ProcessGroupManagerWatchdogTest, GivenMinimalConfig_ExpectWatchdogDisabled_WhenDeinitializeCalled)
+TEST_F(ProcessGroupManagerWatchdogTest, GivenWatchdogInitFails_ExpectInitializeFails)
+{
+    // Expected
+    EXPECT_CALL(*alive_monitor_, init()).WillOnce(Return(true));
+    EXPECT_CALL(*alive_monitor_, startMonitoring());
+    EXPECT_CALL(*watchdog_, init()).WillOnce(Return(false));
+    // deinitialize() is called in TearDown() even though initialize() failed
+    EXPECT_CALL(*watchdog_, deinit()).Times(1);
+    EXPECT_CALL(*alive_monitor_, stopMonitoring()).Times(1);
+
+    // When
+    auto initialize_result = process_group_manager_->initialize();
+
+    // Then
+    EXPECT_FALSE(initialize_result);
+}
+
+TEST_F(ProcessGroupManagerWatchdogTest, GivenMinimalConfig_ExpectWatchdogDeinitialized_WhenDeinitializeCalled)
 {
     // Expected
     expectNormalStartup();
     // We are explicitly calling deinitialize() in this test for readability,
-    // so disable() and stop() are expected to be called twice: once in deinitialize() and once in TearDown().
-    EXPECT_CALL(*watchdog_, disable()).Times(2);
+    // so deinit() and stop() are expected to be called twice: once in deinitialize() and once in TearDown().
+    EXPECT_CALL(*watchdog_, deinit()).Times(2);
     EXPECT_CALL(*alive_monitor_, stopMonitoring()).Times(2);
 
     // When
@@ -287,7 +295,7 @@ TEST_F(ProcessGroupManagerReportingTest, GetActiveRunTargetAndSetRequestedRunTar
         "Verify getActiveRunTarget and setRequestedRunTarget complete correctly via event queue during run().");
     expectNormalStartup();
     EXPECT_CALL(*watchdog_, serviceWatchdog()).Times(AtLeast(1));
-    EXPECT_CALL(*watchdog_, disable()).Times(1);
+    EXPECT_CALL(*watchdog_, deinit()).Times(1);
     EXPECT_CALL(*alive_monitor_, stopMonitoring()).Times(1);
 
     // mocks the waitForkRunning and waits inside so that code while PGM is
@@ -324,7 +332,7 @@ TEST_F(ProcessGroupManagerWatchdogTest, GetActiveRunTargetWhenStoppedReturnsFail
         "Description",
         "Verify getActiveRunTarget and setRequestedRunTarget return error promptly without deadlock when stopped.");
     expectNormalStartup();
-    EXPECT_CALL(*watchdog_, disable()).Times(2);
+    EXPECT_CALL(*watchdog_, deinit()).Times(2);
     EXPECT_CALL(*alive_monitor_, stopMonitoring()).Times(2);
 
     ASSERT_TRUE(process_group_manager_->initialize());
