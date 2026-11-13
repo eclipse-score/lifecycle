@@ -21,6 +21,7 @@
 #include <sys/types.h>
 #include <cstdint>
 #include <limits>
+#include <string>
 #include <vector>
 
 namespace score::mw::lifecycle::internal::configuration
@@ -888,11 +889,12 @@ TEST_F(ConverterTest, ConvertDeploymentConfigValid)
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
-    auto result = convertDeploymentConfig(ptr, "my_binary");
+    auto result = convertDeploymentConfig(ptr, "my_binary", {"--flag"});
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(result->ready_timeout_ms, Eq(1500U));
     EXPECT_THAT(result->shutdown_timeout_ms, Eq(2500U));
-    EXPECT_THAT(result->executable_path, Eq("/opt/bin/my_binary"));
+    EXPECT_THAT(result->process_command.executablePath(), Eq("/opt/bin/my_binary"));
+    EXPECT_THAT(result->process_command.arguments(), Eq(std::vector<std::string>{"--flag"}));
     EXPECT_THAT(result->working_dir, Eq("/tmp"));
     EXPECT_THAT(result->activation_retry_attempts, Eq(0U));
     EXPECT_THAT(result->recovery_action.has_value(), IsFalse());
@@ -919,7 +921,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigActivationRetryAttemptsCarriedThrou
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
-    auto result = convertDeploymentConfig(ptr, "my_binary");
+    auto result = convertDeploymentConfig(ptr, "my_binary", {});
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(result->activation_retry_attempts, Eq(3U));
 }
@@ -945,7 +947,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigMissingActivationRetryAttemptsRetur
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
-    auto result = convertDeploymentConfig(ptr, "my_binary");
+    auto result = convertDeploymentConfig(ptr, "my_binary", {});
     ASSERT_THAT(result.has_value(), IsFalse());
     EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
 }
@@ -971,7 +973,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigActivationRetryDelayCarriedThrough)
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
-    auto result = convertDeploymentConfig(ptr, "my_binary");
+    auto result = convertDeploymentConfig(ptr, "my_binary", {});
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(result->activation_retry_delay_ms, Eq(250U));
 }
@@ -997,7 +999,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigMissingActivationRetryDelayReturnsE
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
-    auto result = convertDeploymentConfig(ptr, "my_binary");
+    auto result = convertDeploymentConfig(ptr, "my_binary", {});
     ASSERT_THAT(result.has_value(), IsFalse());
     EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
 }
@@ -1023,7 +1025,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigMissingReadyTimeoutReturnsError)
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
-    auto result = convertDeploymentConfig(ptr, "my_binary");
+    auto result = convertDeploymentConfig(ptr, "my_binary", {});
     ASSERT_THAT(result.has_value(), IsFalse());
     EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
 }
@@ -1049,7 +1051,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigMissingShutdownTimeoutReturnsError)
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
-    auto result = convertDeploymentConfig(ptr, "my_binary");
+    auto result = convertDeploymentConfig(ptr, "my_binary", {});
     ASSERT_THAT(result.has_value(), IsFalse());
     EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
 }
@@ -1062,8 +1064,9 @@ TEST_F(ConverterTest, ConvertComponentValid)
     auto app_profile = fb::CreateApplicationProfile(fbb, fb::ApplicationType::Native, false /*is_self_terminating*/);
     auto bin_name = fbb.CreateString("my_binary");
     auto ready_cond = fb::CreateReadyCondition(fbb, fb::ProcessState::Running);
-    auto comp_props = fb::CreateComponentProperties(
-        fbb, bin_name, app_profile, 0 /*depends_on*/, 0 /*process_arguments*/, ready_cond);
+    auto process_args = fbb.CreateVectorOfStrings(std::vector<std::string>{"-v", "--config=x"});
+    auto comp_props =
+        fb::CreateComponentProperties(fbb, bin_name, app_profile, 0 /*depends_on*/, process_args, ready_cond);
 
     auto bin_dir = fbb.CreateString("/opt");
     auto work_dir = fbb.CreateString("/tmp");
@@ -1090,9 +1093,15 @@ TEST_F(ConverterTest, ConvertComponentValid)
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(result->name, Eq("TestComp"));
     EXPECT_THAT(result->description, Eq("A test component"));
-    EXPECT_THAT(result->component_properties.binary_name, Eq("my_binary"));
-    EXPECT_THAT(result->deployment_config.executable_path, Eq("/opt/my_binary"));
+    EXPECT_THAT(result->deployment_config.process_command.executablePath(), Eq("/opt/my_binary"));
     EXPECT_THAT(result->deployment_config.ready_timeout_ms, Eq(1000U));
+    EXPECT_THAT(
+        result->deployment_config.process_command.arguments(), Eq(std::vector<std::string>{"-v", "--config=x"}));
+    char* const* argv = result->deployment_config.process_command.argv();
+    EXPECT_STREQ(argv[0], "/opt/my_binary");
+    EXPECT_STREQ(argv[1], "-v");
+    EXPECT_STREQ(argv[2], "--config=x");
+    EXPECT_EQ(argv[3], nullptr);
 }
 
 TEST_F(ConverterTest, ConvertComponentsValid)

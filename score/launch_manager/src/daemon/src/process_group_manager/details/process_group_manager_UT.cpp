@@ -49,13 +49,12 @@ Config makeMinimalConfig(ApplicationType application_type = ApplicationType::Nat
     ComponentConfig component;
     component.name = "comp_a";
     component.description = "Component A";
-    component.component_properties.binary_name = "true";
     component.component_properties.application_profile.application_type = application_type;
     component.component_properties.application_profile.is_self_terminating = true;
     component.component_properties.ready_condition = ReadyCondition{ProcessState::Running};
     component.deployment_config.ready_timeout_ms = 500U;
     component.deployment_config.shutdown_timeout_ms = 500U;
-    component.deployment_config.executable_path = "/bin/true";
+    component.deployment_config.process_command = configuration::ProcessCommand{"/bin/true", {}};
     component.deployment_config.working_dir = "/workspaces/lifecycle";
     component.deployment_config.sandbox.uid = getuid();
     component.deployment_config.sandbox.gid = getgid();

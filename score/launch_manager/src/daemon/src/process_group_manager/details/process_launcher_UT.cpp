@@ -254,9 +254,8 @@ class StartProcessTest : public ProcessLauncherTest
         EXPECT_CALL(*g_syscall_mock, getpid).Times(AnyNumber()).WillRepeatedly(Return(forked_pid));
 
         config_.name = "TestComponent";
-        config_.component_properties.binary_name = "TestProcess";
         config_.component_properties.application_profile.application_type = configuration::ApplicationType::Native;
-        config_.deployment_config.executable_path = "/bin/TestProcess";
+        config_.deployment_config.process_command = configuration::ProcessCommand{"/bin/TestProcess", {}};
         config_.deployment_config.working_dir = "/tmp";
         config_.deployment_config.sandbox.security_policy = std::nullopt;
         config_.deployment_config.sandbox.scheduling_priority = 1;
@@ -324,16 +323,6 @@ TEST_F(StartProcessTest, startProcessNoFile)
     RecordProperty("Description", "Test that startProcess returns a failure if the provided path does not exist");
 
     EXPECT_CALL(*g_syscall_mock, access(_, _)).WillOnce(Return(-1));
-
-    EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
-}
-
-TEST_F(StartProcessTest, startProcessNoPath)
-{
-    RecordProperty("Description", "Test that startProcess returns a failure if the provided path is empty");
-
-    config_.component_properties.binary_name = "";
-    EXPECT_CALL(*g_syscall_mock, access).Times(0);  // Access should not be called on an empty path
 
     EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
 }
@@ -782,7 +771,7 @@ TEST_F(StartProcessTest, startProcessChildSuccess)
     const std::string security_policy = "security";
     const std::vector<std::string> args_in = {"-c 2", "--argument yes"};
     const std::vector<std::string> expected_launch_args = {
-        config_.deployment_config.executable_path, args_in[0], args_in[1]};
+        config_.deployment_config.process_command.executablePath(), args_in[0], args_in[1]};
 
     config_.component_properties.application_profile.application_type = configuration::ApplicationType::Reporting;
     config_.deployment_config.sandbox.scheduling_policy = scheduler;
@@ -797,7 +786,8 @@ TEST_F(StartProcessTest, startProcessChildSuccess)
     config_.deployment_config.sandbox.security_policy = security_policy;
     config_.deployment_config.environmental_variables.add("environment", "yes");
     config_.deployment_config.environmental_variables.add("errors", "no");
-    config_.component_properties.process_arguments = args_in;
+    config_.deployment_config.process_command =
+        configuration::ProcessCommand{config_.deployment_config.process_command.executablePath(), args_in};
 
     IpcCommsSync* block = StubShmObject();
 

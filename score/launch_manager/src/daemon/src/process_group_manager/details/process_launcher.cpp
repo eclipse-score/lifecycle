@@ -34,6 +34,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include <charconv>
+#include <score/assert.hpp>
 #include <array>
 #include <cassert>
 #include <cerrno>
@@ -171,72 +172,65 @@ ProcessLauncher::startProcess(ProcessID& pid, IpcCommsP& block, const configurat
 {
     OsalReturnType result = OsalReturnType::kFail;
 
-    if (!config.component_properties.binary_name.empty())
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
+        !config.deployment_config.process_command.executablePath().empty(), "Executable path must not be empty");
+
+    if (access(config.deployment_config.process_command.executablePath().c_str(), X_OK) != 0)
     {
-        if (access(config.deployment_config.executable_path.c_str(), X_OK) != 0)
+        static_cast<void>(signal_safe_log(
+            "File does not exist or is not executable: ", config.deployment_config.process_command.executablePath()));
+        return result;
+    }
+
+    int fd = -1;
+    pid = -1;
+    block = nullptr;
+    bool comms_result = true;
+
+    const auto& app_type = config.component_properties.application_profile.application_type;
+    if (app_type != configuration::ApplicationType::Native)
+    {
+        comms_result = setupComms(block, fd, config);
+    }
+
+    if (comms_result)
+    {
+        if (fflush(stdout) == EOF)
         {
-            static_cast<void>(signal_safe_log(
-                "File does not exist or is not executable: ", config.deployment_config.executable_path));
-            return result;
+            LM_LOG_ERROR() << "Failed to flush stdout before forking.";
         }
 
-        int fd = -1;
-        pid = -1;
-        block = nullptr;
-        bool comms_result = true;
+        pid = fork();
 
-        const auto& app_type = config.component_properties.application_profile.application_type;
-        if (app_type != configuration::ApplicationType::Native)
+        if (pid == kPosixSuccess)
         {
-            comms_result = setupComms(block, fd, config);
+            /*
+             * From this point on, only async signal safe functions can be
+             * used. `fork` only copies the current thread, so any locks
+             * which were held at that time will never be released.
+             * See `man 2 fork`.
+             */
+            ChildProcessConfig param = {config, fd, block};
+            handleChildProcess(param);
+            result = OsalReturnType::kSuccess;
         }
-
-        if (comms_result)
+        else if (pid > kPidZero)
         {
-            if (fflush(stdout) == EOF)
-            {
-                LM_LOG_ERROR() << "Failed to flush stdout before forking.";
-            }
-
-            pid = fork();
-
-            if (pid == kPosixSuccess)
-            {
-                /*
-                 * From this point on, only async signal safe functions can be
-                 * used. `fork` only copies the current thread, so any locks
-                 * which were held at that time will never be released.
-                 * See `man 2 fork`.
-                 */
-                ChildProcessConfig param = {config, fd, block};
-                handleChildProcess(param);
-                result = OsalReturnType::kSuccess;
-            }
-            else if (pid > kPidZero)
-            {
-                result = OsalReturnType::kSuccess;
-            }
-            else
-            {
-                LM_LOG_ERROR() << "Fork failed: Unable to create a new process.";
-            }
+            result = OsalReturnType::kSuccess;
         }
         else
         {
-            LM_LOG_ERROR()
-                << "Shared memory creation failed: Unable to create shared memory for kRunning communication.";
-        }
-
-        if (fd >= 0)
-        {
-            close(fd);
+            LM_LOG_ERROR() << "Fork failed: Unable to create a new process.";
         }
     }
     else
     {
-        LM_LOG_ERROR() << "Invalid input parameters: Ensure config and binary_name are correctly provided.";
+        LM_LOG_ERROR() << "Shared memory creation failed: Unable to create shared memory for kRunning communication.";
+    }
 
-        return result;
+    if (fd >= 0)
+    {
+        close(fd);
     }
 
     return result;
@@ -249,14 +243,14 @@ bool ProcessLauncher::setupComms(IpcCommsP& block, int& fd, const configuration:
     fd = shm_open_anon("/lm_running_report_ipc\0");
     if (fd < 0)
     {
-        LM_LOG_ERROR() << "shm_open failed:" << config.deployment_config.executable_path
+        LM_LOG_ERROR() << "shm_open failed:" << config.deployment_config.process_command.executablePath()
                        << "Unable to open shared memory object. Error:" << errno_message(errno);
         return false;
     }
 
     if (-1 == ftruncate(fd, static_cast<int>(length)))
     {
-        LM_LOG_ERROR() << "ftruncate failed:" << config.deployment_config.executable_path
+        LM_LOG_ERROR() << "ftruncate failed:" << config.deployment_config.process_command.executablePath()
                        << "Unable to set size of shared memory file descriptor. Error:" << errno_message(errno);
         return false;
     }
@@ -378,27 +372,16 @@ void ProcessLauncher::handleChildProcess(ChildProcessConfig& param)
     changeCurrentWorkingDirectory(param.config.deployment_config);
     changeSecurityPolicy(param.config.deployment_config.sandbox);
 
-    // Build argv array - note: must be null-terminated
-    std::array<const char*, kArgvArraySize> argv{};
-    size_t arg_idx = 0;
-    argv[arg_idx++] = param.config.deployment_config.executable_path.c_str();
-    for (const auto& arg : param.config.component_properties.process_arguments)
-    {
-        if (arg_idx < kArgvArraySize - 1)
-        {
-            argv[arg_idx++] = arg.c_str();
-        }
-    }
-    argv[arg_idx] = nullptr;
+    const auto& process_command = param.config.deployment_config.process_command;
 
     // Get envp from Environment - it already provides a null-terminated array
     char* const* envp = param.config.deployment_config.environmental_variables.envp();
 
     // Finally, execute the process, passing all the arguments and environment variables
-    static_cast<void>(execve(argv[0], const_cast<char* const*>(argv.data()), envp));
+    static_cast<void>(execve(process_command.executablePath().c_str(), process_command.argv(), envp));
     // A successful execve replaces the process image; returning here always means failure.
     static_cast<void>(signal_safe_log_errno(
-        errno, "execve failed: Unable to execute the ", param.config.deployment_config.executable_path, " app."));
+        errno, "execve failed: Unable to execute the ", process_command.executablePath(), " app."));
     sysexit(EXIT_FAILURE);
 }
 

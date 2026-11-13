@@ -23,6 +23,7 @@
 #include <vector>
 
 #include "score/mw/launch_manager/configuration/environment_config.hpp"
+#include "score/mw/launch_manager/configuration/process_command.hpp"
 #include "score/mw/launch_manager/configuration/recovery_action_config.hpp"
 
 namespace score::mw::lifecycle::internal::configuration
@@ -80,10 +81,8 @@ struct ResourceLimit
 
 struct ComponentProperties
 {
-    std::string binary_name;
     ApplicationProfile application_profile{};
     std::vector<std::string> depends_on;
-    std::vector<std::string> process_arguments;
     ReadyCondition ready_condition;
 };
 struct Sandbox
@@ -102,7 +101,7 @@ struct DeploymentConfig
     uint32_t ready_timeout_ms{};
     uint32_t shutdown_timeout_ms{};
     Environment environmental_variables;
-    std::string executable_path;
+    ProcessCommand process_command;
     std::string working_dir;
     std::uint8_t activation_retry_attempts{};
     // Currently not evaluated by the Launch Manager
