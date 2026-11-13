@@ -903,8 +903,26 @@ TEST_F(ProcessLauncherTest, kRunningTimeout)
     ExpectSemaphoreLifecycle();
 
     std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
-    EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic).WillRepeatedly(Return(SemError(ETIMEDOUT)));
+    // Only one wait: after a timeout, the handshake is not continued.
+    EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic).WillOnce(Return(SemError(ETIMEDOUT)));
     EXPECT_CALL(*semaphore_mock_, sem_post).WillOnce(Return(kSemSuccess));  // Posts even if the wait fails...
 
     EXPECT_EQ(process_launcher->waitForkRunning(sync, 1ms), OsalReturnType::kTimeout);
+}
+
+TEST_F(ProcessLauncherTest, kRunningHandshakeNotCompleted)
+{
+    RecordProperty(
+        "Description",
+        "Verify that waitForkRunning returns a failure, not a timeout, if the process reports kRunning but does not "
+        "confirm the reply");
+
+    ExpectSemaphoreLifecycle();
+    std::shared_ptr<IpcCommsSync> sync = GetInitialisedIpc();
+
+    Expectation waits = EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic).WillOnce(Return(kSemSuccess));
+    Expectation posts = EXPECT_CALL(*semaphore_mock_, sem_post).After(waits).WillOnce(Return(kSemSuccess));
+    EXPECT_CALL(*semaphore_mock_, sem_timedwait_monotonic).After(posts).WillOnce(Return(SemError(ETIMEDOUT)));
+
+    EXPECT_EQ(process_launcher->waitForkRunning(sync, 1ms), OsalReturnType::kFail);
 }
