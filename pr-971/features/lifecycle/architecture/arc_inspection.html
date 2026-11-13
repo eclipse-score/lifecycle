@@ -61,7 +61,7 @@
     <script src="../../../_static/sphinx-needs/libs/html/datatables.min.js?v=8a4aee21"></script>
     <script src="../../../_static/sphinx-needs/libs/html/datatables_loader.js?v=a2cae175"></script>
     <script src="../../../_static/sphinx-needs/libs/html/sphinx_needs_collapse.js?v=dca66431"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'features/lifecycle/architecture/chklst_arc_inspection';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'features/lifecycle/architecture/arc_inspection';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://eclipse-score.github.io/lifecycle/versions.json';
@@ -499,7 +499,7 @@
                   
   <section id="lifecycle-architecture-inspection">
 <h1>Lifecycle Architecture Inspection<a class="headerlink" href="#lifecycle-architecture-inspection" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-ff44892d">
+<div class="need_container docutils container" id="SNCB-737ee9cf">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__lifecycle_arc_inspection">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -553,18 +553,18 @@
 <li><p>moderator: &lt;committer explicitly named here, who is the safety manager, security manager or quality manager initiating the inspection&gt;</p></li>
 </ul>
 </div>
-<div class="pst-scrollable-table-container"><table class="table" id="id5">
-<caption><span class="caption-number">Table 1 </span><span class="caption-text">Architecture Inspection Participants</span><a class="headerlink" href="#id5" title="Link to this table">#</a></caption>
+<div class="pst-scrollable-table-container"><table class="table" id="id8">
+<caption><span class="caption-number">Table 1 </span><span class="caption-text">Architecture Inspection Participants</span><a class="headerlink" href="#id8" title="Link to this table">#</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>Author(s)</p></th>
 <th class="head"><p>Reviewer(s)</p></th>
-<th class="head"><p>Moderator</p></th>
+<th class="head"><p>Moderator:</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><a class="github reference external" href="https://github.com/NN">NN</a>, <a class="github reference external" href="https://github.com/NN">NN</a></p></td>
-<td><p><a class="github reference external" href="https://github.com/NN">NN</a>, <a class="github reference external" href="https://github.com/NN">NN</a></p></td>
-<td><p><a class="github reference external" href="https://github.com/NN">NN</a></p></td>
+<tr class="row-even"><td><p><a class="github reference external" href="https://github.com/ramceb">ramceb</a></p></td>
+<td><p><a class="github reference external" href="https://github.com/NicolasFussberger">NicolasFussberger</a></p></td>
+<td><p><a class="github reference external" href="https://github.com/aschemmel-tech">aschemmel-tech</a></p></td>
 </tr>
 </tbody>
 </table>
@@ -575,23 +575,19 @@
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p><strong>Purpose</strong></p>
-<blockquote>
-<div><p>The purpose of the software architecture checklist is to ensure that the design meets the criteria and quality standards
+<p>The purpose of the software architecture checklist is to ensure that the design meets the criteria and quality standards
 defined by project processes and guidelines for feature and component architectural design elements.
 It helps check compliance with requirements, identify errors or inconsistencies, and ensure adherence to best practices.
 The checklist guides the evaluation of the architecture design, identifies potential problems, and aids in communication and
 documentation of architectural decisions to stakeholders.</p>
-</div></blockquote>
 <p><strong>Checklist</strong></p>
-<blockquote>
-<div><p>Enter “yes” or “no” in the “Passed” column for each applicable checklist item, and explain the result in the “Remarks” column.
+<p>Enter “yes” or “no” in the “Passed” column for each applicable checklist item, and explain the result in the “Remarks” column.
 If “no” is entered, add an issue link in the “Issue link” column unless the finding is already tracked in the current issue.
 If a Review ID is not applicable to your architecture, enter “n/a” in the “Passed” column and explain why in the “Remarks” column.
 See also <a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/general_concepts/score_review_concept.html#doc_concept__wp_inspections">doc_concept__wp_inspections</a> for further information about reviews in general and inspection in particular.</p>
-</div></blockquote>
 </div>
-<div class="pst-scrollable-table-container"><table class="table" id="id6">
-<caption><span class="caption-number">Table 2 </span><span class="caption-text">Architecture Inspection Checklist</span><a class="headerlink" href="#id6" title="Link to this table">#</a></caption>
+<div class="pst-scrollable-table-container"><table class="table" id="id9">
+<caption><span class="caption-number">Table 2 </span><span class="caption-text">Architecture Inspection Checklist</span><a class="headerlink" href="#id9" title="Link to this table">#</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>Review ID</p></th>
 <th class="head"><p>Acceptance criteria</p></th>
@@ -605,79 +601,83 @@ See also <a class="external_link reference external" href="https://eclipse-score
 <tr class="row-even"><td><p>ARC_01_01</p></td>
 <td><p>Does the software architecture design take into account all requirements allocated to the architectural element, including functional, non-functional, safety, and security requirements, as well as all related design decisions?</p></td>
 <td><p>Check whether all requirements allocated to the architectural element are considered in the design. These include functional requirements (e.g., functional safety requirements), non-functional requirements (e.g., performance and reliability), and security requirements (e.g., confidentiality and integrity). Also ensure that all related design decisions are taken into account and documented in the architectural design. Security-related requirements should also be reviewed through the applicable cybersecurity process; this checklist does not replace cybersecurity activities.</p></td>
-<td></td>
-<td></td>
-<td></td>
+<td><p>NO</p></td>
+<td><p>All functional feature requirements are linked to feature architecture elements. Exception is feat_req__lifecycle__prog_lang.
+See the traceability overview here <a class="reference external" href="https://eclipse-score.github.io/lifecycle/main/verification_report/module_verification_report.html#traceability-of-valid-feature-requirements-to-feature-architecture">https://eclipse-score.github.io/lifecycle/main/verification_report/module_verification_report.html#traceability-of-valid-feature-requirements-to-feature-architecture</a></p></td>
+<td><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/issues/871">#871</a></p></td>
 </tr>
 <tr class="row-odd"><td><p>ARC_01_02</p></td>
 <td><p>If the architectural element is related to any supplier manuals (including safety and security), are the relevant parts covered?</p></td>
 <td><p>If the architecture makes use of supplied elements, their manuals (e.g., safety manuals) must be considered; their functionality must match expectations, and their assumptions must be fulfilled. For a safety component, this means that the assumed Technical Safety Requirements and assumptions of use (AoUs) in the safety manual are covered.</p></td>
-<td></td>
-<td></td>
-<td></td>
+<td><p>NO</p></td>
+<td><p>QNX safety manual is relevant for lifecycle, but currently out of scope.
+AoUs from dependent modules are currently not yet considered.</p></td>
+<td><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/issues/873">#873</a>, <a class="reference external" href="https://github.com/eclipse-score/lifecycle/issues/874">#874</a></p></td>
 </tr>
 <tr class="row-even"><td><p>ARC_01_03</p></td>
 <td><p>Is the architectural element traceable to lower-level artifacts as defined by work-product traceability?</p></td>
 <td><p>Check if every logical interface is provided by exactly one component and used by at least one. Check if every component of the feature is included by exactly one module.</p></td>
-<td></td>
-<td></td>
-<td></td>
+<td><p>NO</p></td>
+<td><p>All existing logical interfaces are provided by a component, see <a class="reference external" href="https://eclipse-score.github.io/lifecycle/main/features/lifecycle/architecture/index.html#feat_arc_sta__lifecycle__static_view_arch">https://eclipse-score.github.io/lifecycle/main/features/lifecycle/architecture/index.html#feat_arc_sta__lifecycle__static_view_arch</a>
+Gap: Heartbeat Monitor interface of the Health Monitor component has no logical interface element.</p></td>
+<td><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/issues/872">#872</a></p></td>
 </tr>
 <tr class="row-odd"><td><p>ARC_02_01</p></td>
 <td><p>Is the software architecture design compliant with the overall feature architecture?</p></td>
 <td><p>At the component level, check against the feature architecture. At the feature level, check other features that use common components.</p></td>
-<td></td>
-<td></td>
+<td><p>YES</p></td>
+<td><p>Dependencies to other modules checked for completeness, see <a class="reference external" href="https://eclipse-score.github.io/lifecycle/main/features/lifecycle/architecture/index.html#feat_arc_sta__lifecycle__static_view_arch">https://eclipse-score.github.io/lifecycle/main/features/lifecycle/architecture/index.html#feat_arc_sta__lifecycle__static_view_arch</a></p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p>ARC_02_02</p></td>
 <td><p>Are operations and interfaces named appropriately and comprehensibly in the architectural design?</p></td>
 <td><p>Check <a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/architecture_design/guidance/architecture_guideline.html#gd_guidl__arch_design">gd_guidl__arch_design</a></p></td>
-<td></td>
-<td></td>
-<td></td>
+<td><p>NO</p></td>
+<td><p>Interface names and operations are clear. Launch Manager abstract interface elements also have additional description defining the input and output of operations.
+Improvement: Add additional description to Health Monitor interfaces as well.</p></td>
+<td><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/issues/875">#875</a></p></td>
 </tr>
 <tr class="row-odd"><td><p>ARC_02_03</p></td>
 <td><p>Has the correctness of data and control flows within the architectural elements been considered?</p></td>
 <td><p>For example, examine data definitions, transformations, integrity, and interactions; check error handling, data exchange between elements, correct responses to inputs, and documented decision-making.
 Note: Consistency is ensured by the process and tooling, which define each interface only once.</p></td>
-<td></td>
-<td></td>
+<td><p>YES</p></td>
+<td><p>See for example sequence diagrams <a class="reference external" href="https://eclipse-score.github.io/lifecycle/main/features/lifecycle/architecture/run_target_activation.html#feat_arc_dyn__lifecycle__ctrl_que_act">feat_arc_dyn__lifecycle__ctrl_que_act</a>, <a class="reference external" href="https://eclipse-score.github.io/lifecycle/main/features/lifecycle/architecture/health_monitoring.html#feat_arc_dyn__lifecycle__alive_monitor_start">feat_arc_dyn__lifecycle__alive_monitor_start</a>, <a class="reference external" href="https://eclipse-score.github.io/lifecycle/main/features/lifecycle/architecture/components_run_targets.html#feat_arc_dyn__lifecycle__comp_sm_if">feat_arc_dyn__lifecycle__comp_sm_if</a> where error conditions are highlighted.</p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p>ARC_02_04</p></td>
 <td><p>Are the interfaces between the software architectural element and other architectural elements well defined and described?</p></td>
 <td><p>Check whether the interface description specifies expected behaviour for invalid inputs and errors. Could established protocols be used? Does the interface description document inputs, outputs, and error handling? Have loose coupling and limited exposure been considered? Can unit or integration tests be written against the interface? Has the amount of data transferred been considered appropriately? Is sensitive data protected appropriately, with no sensitive data exposed?</p></td>
-<td></td>
-<td></td>
-<td></td>
+<td><p>NO</p></td>
+<td><p>Interface operation definitions for Launch Manager interfaces have extended descriptions of possible inputs and outputs. Health Monitor interfaces currently lack such descriptions.</p></td>
+<td><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/issues/875">#875</a></p></td>
 </tr>
 <tr class="row-odd"><td><p>ARC_02_05</p></td>
 <td><p>Does the software architectural element take applicable timing requirements into account?</p></td>
 <td><p>If there are strict timing requirements, execution-time analysis or estimation should be performed, and appropriate deadline monitoring should be considered.</p></td>
-<td></td>
-<td></td>
+<td><p>n/a</p></td>
+<td><p>No timing requirements are defined for the lifecycle feature.</p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p>ARC_02_06</p></td>
 <td><p>Is the documentation of the software architectural element, including textual and graphical descriptions (e.g., UML diagrams), clear and complete?</p></td>
 <td><p>The use of semi-formal notation is expected for architectural elements with an allocated ASIL level. Is the architecture template filled out correctly?</p></td>
-<td></td>
-<td></td>
+<td><p>YES</p></td>
+<td><p>See UML diagrams in <a class="reference external" href="https://eclipse-score.github.io/lifecycle/main/features/lifecycle/architecture/run_target_activation.html">https://eclipse-score.github.io/lifecycle/main/features/lifecycle/architecture/run_target_activation.html</a></p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p>ARC_03_01</p></td>
 <td><p>Is the architectural element modular and encapsulated?</p></td>
 <td><p>Check, for example, that only the necessary interfaces are used and that interfaces and interactions are clearly defined. Project-specific design and coding guidelines may additionally require object-oriented design, appropriate use of access controls (e.g., private or protected), and limits on global variables.</p></td>
-<td></td>
-<td></td>
+<td><p>YES</p></td>
+<td><p>Interfaces are object oriented and kept minimal.</p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p>ARC_03_02</p></td>
 <td><p>Is the suitability of the software architecture for future modifications and maintainability considered?</p></td>
 <td><p>Check for loose coupling, separation of concerns, high cohesion, an interface versioning strategy, decision records, and the use of established design patterns.</p></td>
-<td></td>
-<td></td>
+<td><p>YES</p></td>
+<td><p>The two components Launch Manager and Health Monitor are loosely coupled with only a minimal interface. Each component could be used without the other if desired.</p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p>ARC_03_03</p></td>
@@ -686,15 +686,16 @@ Note: Consistency is ensured by the process and tooling, which define each inter
 <p>Notes:</p>
 <p>A design rationale is mandatory if any of the following applies: the number of use cases or interfaces exceeds “3”; the number of function parameters exceeds “5”; the number of operations exceeds “20”; or global variables are used.</p>
 </td>
-<td></td>
-<td></td>
+<td><p>YES</p></td>
+<td><p>The architecture is kept simple with minimal interfaces and clear separation of concerns. Number of function parameters and operations is not exceeded.
+The number of interfaces is up to 4, due to keeping interfaces minimal and having dedicated interfaces for each functionality. See <a class="reference external" href="https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html">https://eclipse-score.github.io/score/main/features/lifecycle/architecture/index.html</a></p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p>ARC_03_04</p></td>
 <td><p>Does the software architecture design follow best practices and design principles?</p></td>
 <td><p>Refer to architectural guidelines and recommendations within the project documentation.</p></td>
-<td></td>
-<td></td>
+<td><p>YES</p></td>
+<td><p>Guideline <a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/process_areas/architecture_design/guidance/architecture_guideline.html#gd_guidl__arch_design">gd_guidl__arch_design</a> is followed.</p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p>ARC_04_01</p></td>
@@ -703,8 +704,8 @@ Note: Consistency is ensured by the process and tooling, which define each inter
 </td>
 <td><p>Check whether your architecture design complies with project guidelines for establishing freedom from interference between components. This can be achieved, for example, by using a hypervisor or an OS that supports partitioning with an MMU or specific scheduling mechanisms, as well as safety mechanisms such as watchdogs or program-flow monitoring.
 Identify the shared resources and potential interference paths, and check that the selected measures address the applicable requirements. A hypervisor, operating system feature, or safety mechanism is not by itself evidence that freedom from interference has been achieved. Where the design relies on operating-system or platform guarantees, verify that these guarantees are specified and supported by applicable assumptions of use. For example, see <a class="reference external" href="https://eclipse-score.github.io/score/main/requirements/platform_assumptions/index.html#aou_req__platform__process_isolation">score aou_req__platform__process_isolation</a>.</p></td>
-<td></td>
-<td></td>
+<td><p>YES</p></td>
+<td><p>Both components Launch Manager and Health Monitor are rated ASIL-B.</p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p>ARC_04_02</p></td>
@@ -712,8 +713,8 @@ Identify the shared resources and potential interference paths, and check that t
 <p>Note: See <a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/standards/iso26262/iso26262.html#std_req__iso26262__software_7413">std_req__iso26262__software_7413</a>.</p>
 </td>
 <td><p>Check whether there are any limits on resource consumption or timing in your project, such as startup time, communication bandwidth, or memory usage. If such limits exist, ensure that your architecture takes them into account, especially with respect to scalability. To do this, estimate the required resources based on the architectural design and a prototype or measurements of an existing implementation, and compare the estimates with the defined limits or planned scalability. Check whether any bottlenecks in the architecture could lead to excessive resource use or timing violations.</p></td>
-<td></td>
-<td></td>
+<td><p>YES</p></td>
+<td><p>There are no concrete resource requirements, though in general concerns like startup time have been considered in the design. See design decisions <a class="reference external" href="https://eclipse-score.github.io/lifecycle/main/features/lifecycle/architecture/design_decisions.html#launch-manager-starts-processes-on-a-thread-pool">launch-manager-starts-processes-on-a-thread-pool</a>, <a class="reference external" href="https://eclipse-score.github.io/lifecycle/main/features/lifecycle/architecture/design_decisions.html#launch-manager-alive-monitoring-is-polling-based">launch-manager-alive-monitoring-is-polling-based</a>, <a class="reference external" href="https://eclipse-score.github.io/lifecycle/main/features/lifecycle/architecture/design_decisions.html#dec_rec__lifecycle__flatbuffer_config">dec_rec__lifecycle__flatbuffer_config</a></p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p>ARC_04_03</p></td>
@@ -721,9 +722,9 @@ Identify the shared resources and potential interference paths, and check that t
 <p>Note: See <a class="external_link reference external" href="https://eclipse-score.github.io/process_description//main/standards/iso26262/iso26262.html#std_req__iso26262__software_743">std_req__iso26262__software_743</a>.</p>
 </td>
 <td><p>Provide a rationale for these scheduling policies and priorities, or explain why they are not needed.</p></td>
-<td></td>
-<td></td>
-<td></td>
+<td><p>NO</p></td>
+<td><p>Scheduling concept currently missing on platform level.</p></td>
+<td><p><a class="reference external" href="https://github.com/eclipse-score/lifecycle/issues/880">#880</a></p></td>
 </tr>
 </tbody>
 </table>
@@ -734,12 +735,114 @@ Identify the shared resources and potential interference paths, and check that t
 <section id="inspected-static-architecture-views">
 <h3>Inspected Static Architecture Views<a class="headerlink" href="#inspected-static-architecture-views" title="Link to this heading">#</a></h3>
 <p>The following static views in “valid_inspected” state are in the scope of this inspection:</p>
-<p class="needs_filter_warning" id="needtable-features/lifecycle/architecture/chklst_arc_inspection-0">No needs passed the filters</p>
+<div class="needstable_wrapper docutils container" id="needtable-features/lifecycle/architecture/arc_inspection-0">
+<div class="pst-scrollable-table-container"><table class="NEEDS_TABLE table" id="needtable-features/lifecycle/architecture/arc_inspection-0-table_node">
+<colgroup>
+<col style="width: 33.3%" />
+<col style="width: 33.3%" />
+<col style="width: 33.3%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>ID</p></th>
+<th class="head"><p>Status</p></th>
+<th class="head"><p>Tags</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="index.html#feat_arc_sta__lifecycle__cfg_params_static">feat_arc_sta__lifecycle__cfg_params_static</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="index.html#feat_arc_sta__lifecycle__static_view_arch">feat_arc_sta__lifecycle__static_view_arch</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </section>
 <section id="inspected-dynamic-architecture-views">
 <h3>Inspected Dynamic Architecture Views<a class="headerlink" href="#inspected-dynamic-architecture-views" title="Link to this heading">#</a></h3>
 <p>and the following dynamic views in “valid_inspected” state are in the scope of this inspection:</p>
-<p class="needs_filter_warning" id="needtable-features/lifecycle/architecture/chklst_arc_inspection-1">No needs passed the filters</p>
+<div class="needstable_wrapper docutils container" id="needtable-features/lifecycle/architecture/arc_inspection-1">
+<div class="pst-scrollable-table-container"><table class="NEEDS_TABLE table" id="needtable-features/lifecycle/architecture/arc_inspection-1-table_node">
+<colgroup>
+<col style="width: 33.3%" />
+<col style="width: 33.3%" />
+<col style="width: 33.3%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>ID</p></th>
+<th class="head"><p>Status</p></th>
+<th class="head"><p>Tags</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="health_monitoring.html#feat_arc_dyn__lifecycle__alive_monitor_start">feat_arc_dyn__lifecycle__alive_monitor_start</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="health_monitoring.html#feat_arc_dyn__lifecycle__alive_monitor_stop">feat_arc_dyn__lifecycle__alive_monitor_stop</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="health_monitoring.html#feat_arc_dyn__lifecycle__app_health_mon">feat_arc_dyn__lifecycle__app_health_mon</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="components_run_targets.html#feat_arc_dyn__lifecycle__comp_sm_if">feat_arc_dyn__lifecycle__comp_sm_if</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="recovery_actions.html#feat_arc_dyn__lifecycle__crash">feat_arc_dyn__lifecycle__crash</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="recovery_actions.html#feat_arc_dyn__lifecycle__run_target_failure">feat_arc_dyn__lifecycle__run_target_failure</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="recovery_actions.html#feat_arc_dyn__lifecycle__sup_failure">feat_arc_dyn__lifecycle__sup_failure</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="startup_shutdown.html#feat_arc_dyn__lifecycle__lcm_shutdown">feat_arc_dyn__lifecycle__lcm_shutdown</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="startup_shutdown.html#feat_arc_dyn__lifecycle__lcm_startup">feat_arc_dyn__lifecycle__lcm_startup</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="external_monitor.html#feat_arc_dyn__lifecycle__watch">feat_arc_dyn__lifecycle__watch</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="health_monitoring.html#feat_arc_dyn__lifecycle__app_ctrl_flow_mon">feat_arc_dyn__lifecycle__app_ctrl_flow_mon</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="components_run_targets.html#feat_arc_dyn__lifecycle__proc_sm_if">feat_arc_dyn__lifecycle__proc_sm_if</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="run_target_activation.html#feat_arc_dyn__lifecycle__ctrl_fced_act">feat_arc_dyn__lifecycle__ctrl_fced_act</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-odd"><td class="needs_id"><p><a class="reference internal" href="run_target_activation.html#feat_arc_dyn__lifecycle__ctrl_que_act">feat_arc_dyn__lifecycle__ctrl_que_act</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+<tr class="need row-even"><td class="needs_id"><p><a class="reference internal" href="run_target_activation.html#feat_arc_dyn__lifecycle__ctrl_start">feat_arc_dyn__lifecycle__ctrl_start</a></p></td>
+<td class="needs_status"><p>valid_inspected</p></td>
+<td class="needs_tags"><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For these static and dynamic views the inspected ground truth is documented in the rendered documentation and not in the source read by the drawing tool.</p>
@@ -809,7 +912,7 @@ Identify the shared resources and potential interference paths, and check that t
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/eclipse-score/lifecycle/edit/main/docs/features/lifecycle/architecture/chklst_arc_inspection.rst">
+    <a href="https://github.com/eclipse-score/lifecycle/edit/main/docs/features/lifecycle/architecture/arc_inspection.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
