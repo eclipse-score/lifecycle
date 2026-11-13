@@ -19,6 +19,9 @@
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent_controller.hpp"
 #include <pthread.h>
+#if defined(__QNX__)
+#include <sys/storage.h>
+#endif
 #include <score/jthread.hpp>
 #include <atomic>
 #include <cstdint>
@@ -128,16 +131,26 @@ class ThreadPool final
     void run()
     {
         // STACK-PROBE (temporary diagnostics)
+        auto* const frame = static_cast<volatile std::uint8_t*>(__builtin_frame_address(0));
+#if defined(__QNX__)
+        // QNX has no pthread_getattr_np(); the thread local storage holds the stack bounds.
+        void* const stack_addr = __tls()->__stackaddr;
+        const std::size_t stack_size = __tls()->__stacksize;
+#else
         pthread_attr_t attr{};
         void* stack_addr = nullptr;
         std::size_t stack_size = 0U;
         static_cast<void>(pthread_getattr_np(pthread_self(), &attr));
         static_cast<void>(pthread_attr_getstack(&attr, &stack_addr, &stack_size));
         static_cast<void>(pthread_attr_destroy(&attr));
+#endif
         auto* const stack_low = static_cast<volatile std::uint8_t*>(stack_addr);
         auto* const stack_high = stack_low + stack_size;
         // Leave a margin below the current frame for paintStack() itself.
-        paintStack(stack_low, static_cast<volatile std::uint8_t*>(__builtin_frame_address(0)) - 1024);
+        if (stack_low < frame - 1024)
+        {
+            paintStack(stack_low, frame - 1024);
+        }
         runLoop();
         volatile std::uint8_t* p = stack_low;
         while ((p < stack_high) && (*p == 0xA5U))
