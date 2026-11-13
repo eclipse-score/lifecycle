@@ -99,7 +99,7 @@ ProcessInfoNode::ProcessInfoNode(configuration::ComponentConfig&& config, Proces
 
 IComponent::RequestResult ProcessInfoNode::tryReportCompletion(score::mw::lifecycle::ProcessState new_state)
 {
-    ProcessState desired_state;
+    ProcessState desired_state{ProcessState::kRunning};
 
     const auto& ready_condition = config_.component_properties.ready_condition;
 

@@ -72,11 +72,20 @@ _WARNING_KNOWN_FEATURES = [
     "@score_cpp_policies//warnings/gcc/features:minimal_warnings",
 ]
 
+_SANITIZER_KNOWN_FEATURES = [
+    "@score_cpp_policies//sanitizers/features:asan",
+    "@score_cpp_policies//sanitizers/features:debug_symbols",
+    "@score_cpp_policies//sanitizers/features:lsan",
+    "@score_cpp_policies//sanitizers/features:tsan",
+    "@score_cpp_policies//sanitizers/features:ubsan_base",
+    "@score_cpp_policies//sanitizers/features:ubsan_gcc",
+]
+
 # Linux C++ toolchains.
 gcc.toolchain(
     name = "score_gcc_x86_64_toolchain",
     extra_enabled_features = _WARNING_ENABLED_FEATURES,
-    extra_known_features = _WARNING_KNOWN_FEATURES,
+    extra_known_features = _WARNING_KNOWN_FEATURES + _SANITIZER_KNOWN_FEATURES,
     target_cpu = "x86_64",
     target_os = "linux",
     use_default_package = True,
@@ -85,7 +94,7 @@ gcc.toolchain(
 gcc.toolchain(
     name = "score_gcc_aarch64_toolchain",
     extra_enabled_features = _WARNING_ENABLED_FEATURES,
-    extra_known_features = _WARNING_KNOWN_FEATURES,
+    extra_known_features = _WARNING_KNOWN_FEATURES + _SANITIZER_KNOWN_FEATURES,
     target_cpu = "aarch64",
     target_os = "linux",
     use_default_package = True,
@@ -124,6 +133,7 @@ use_repo(
     "score_ebclfsa_toolchain",
     "score_gcc_aarch64_toolchain",
     "score_gcc_x86_64_toolchain",
+    "score_gcc_x86_64_toolchain_pkg",
 )
 
 # Rust toolchains.
@@ -247,12 +257,7 @@ git_override(
 )
 
 # S-CORE crates
-bazel_dep(name = "score_crates", version = "0.0.10")
-git_override(
-    module_name = "score_crates",
-    commit = "4656dda8f04a3d88c8089f63111195840cfbd9e3",
-    remote = "https://github.com/eclipse-score/score-crates.git",
-)
+bazel_dep(name = "score_crates", version = "0.0.13")
 
 # Needed for @codeql_bundle and @codeql_coding_standards
 http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
@@ -301,7 +306,7 @@ oci.pull(
 )
 use_repo(oci, "debian-test-runtime", "debian-test-runtime_linux_amd64")
 
-bazel_dep(name = "score_baselibs", version = "0.2.17")
+bazel_dep(name = "score_baselibs", version = "0.2.18")
 bazel_dep(name = "score_communication", version = "0.6.0")
 
 # Needed for remote backend, should be removed in https://github.com/eclipse-score/lifecycle/issues/983

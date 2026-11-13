@@ -157,9 +157,6 @@ def integration_test(
         "//config:integration_host": ["@score_lifecycle//tests/utils/plugins:localhost_plugin"],
     })
 
-    # The test container does not ship the sanitizer runtime; daemon fails to start.
-    disable_sanitizer = ["@score_cpp_policies//sanitizers/constraints:no_asan"]
-
     # The QEMU plugin uses a hardcoded port so we can only run one test at a time.
     # See https://github.com/eclipse-score/itf/issues/125.
     # However we should not unnecessarily slow down Docker tests by adding the
@@ -176,7 +173,7 @@ def integration_test(
         data = final_data,
         args = final_args,
         plugins = final_plugins,
-        target_compatible_with = extra_target_compatible_with + disable_sanitizer + select({
+        target_compatible_with = extra_target_compatible_with + select({
             "//config:integration_docker": docker_os_constraint,
             "//config:integration_host": [],
             "//conditions:default": ["@platforms//:incompatible"],
@@ -195,7 +192,7 @@ def integration_test(
         data = final_data,
         args = final_args,
         plugins = final_plugins,
-        target_compatible_with = extra_target_compatible_with + disable_sanitizer + select({
+        target_compatible_with = extra_target_compatible_with + select({
             "//config:integration_qemu": qemu_os_constraint,
             "//conditions:default": ["@platforms//:incompatible"],
         }),
