@@ -18,7 +18,6 @@
 #include "score/mw/launch_manager/common/constants.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent_controller.hpp"
-#include "score/os/utils/thread.h"
 #include <score/jthread.hpp>
 #include <memory>
 #include <vector>
@@ -48,9 +47,11 @@ class ThreadPool final
         for (uint32_t i = 0U; i < num_threads; ++i)
         {
             static_cast<void>(i);
-            auto& worker = worker_threads_.emplace_back(
-                score::cpp::jthread::stack_size_hint{kWorkerThreadStackSize}, &ThreadPool::run, this);
-            score::os::set_thread_name(worker, "worker");
+            static_cast<void>(worker_threads_.emplace_back(
+                score::cpp::jthread::stack_size_hint{kWorkerThreadStackSize},
+                score::cpp::jthread::name_hint{"worker"},
+                &ThreadPool::run,
+                this));
         }
     }
 

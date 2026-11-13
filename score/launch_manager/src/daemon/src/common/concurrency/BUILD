@@ -25,7 +25,6 @@ cc_library(
         "//score/launch_manager/src/daemon/src/common:log",
         "//score/launch_manager/src/daemon/src/process_group_manager/details:icomponent_controller",
         "@score_baselibs//score/language/futurecpp",
-        "@score_baselibs//score/os/utils:thread",
     ],
 )
 

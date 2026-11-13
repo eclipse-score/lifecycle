@@ -15,6 +15,7 @@
 #define CONSTANTS_HPP_INCLUDED
 
 #include <chrono>
+#include <climits>
 #include <cstddef>
 #include <cstdint>
 
@@ -53,7 +54,8 @@ enum class ProcessLimits : std::uint32_t
 #if defined(__SANITIZE_ADDRESS__) || defined(__SANITIZE_THREAD__)
 constexpr std::size_t kWorkerThreadStackSize{0U};
 #else
-constexpr std::size_t kWorkerThreadStackSize{32UL * 1024UL};
+// Not constexpr: newer glibc versions define PTHREAD_STACK_MIN as a runtime sysconf() call.
+inline const std::size_t kWorkerThreadStackSize{static_cast<std::size_t>(PTHREAD_STACK_MIN)};
 #endif
 
 /// @brief Default size of Alive Supervision checkpoint buffer
