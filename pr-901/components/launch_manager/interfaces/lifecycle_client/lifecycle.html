@@ -182,7 +182,7 @@
 
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="../../../index.html">
-    Component documentation
+    Components
   </a>
 </li>
 
@@ -331,7 +331,7 @@
 
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="../../../index.html">
-    Component documentation
+    Components
   </a>
 </li>
 
@@ -428,6 +428,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../safety_analysis/fmea.html">FMEA (Failure Modes and Effects Analysis)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../safety_analysis/dfa.html">DFA (Dependent Failure Analysis)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../safety_analysis/aou_requirements.html">AoU Component Requirements Template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../security_analysis/aou_requirements.html">Launch Manager Security Assumptions of Use</a></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../index.html">Interfaces documentation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3 current active has-children"><a class="reference internal" href="index.html">Lifecycle API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l4 current active"><a aria-current="page" class="current reference internal" href="#">Application Lifecycle</a></li>
@@ -480,7 +481,7 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">Component documentation</a></li>
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">Components</a></li>
     
     
     <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Launch Manager</a></li>
@@ -524,7 +525,7 @@
 <h1>Application Lifecycle<a class="headerlink" href="#application-lifecycle" title="Link to this heading">#</a></h1>
 <section id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">#</a></h2>
-<p>Purpose of this component is to have a layer of abstraction, that unifies API, for execution managers and applications so in case of replacing lifecycle manager there will be no need to change applications.</p>
+<p>The purpose of this component is to have a layer of abstraction, that unifies API, for execution managers and applications so in case of replacing lifecycle manager there will be no need to change applications.</p>
 <blockquote>
 <div><p>This component has <code class="docutils literal notranslate"><span class="pre">ASIL-B</span></code> safety level.</p>
 </div></blockquote>
@@ -545,7 +546,7 @@
 </section>
 <section id="external-c-interfaces">
 <h3>External C++ interfaces<a class="headerlink" href="#external-c-interfaces" title="Link to this heading">#</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">score:mw::Application</span></code> methods which have to be implemented by the application:</p>
+<p><code class="docutils literal notranslate"><span class="pre">score::mw::lifecycle::Application</span></code> methods which have to be implemented by the application:</p>
 <section id="initialize">
 <h4>Initialize<a class="headerlink" href="#initialize" title="Link to this heading">#</a></h4>
 <p>This method shall do basic initialization of application (what was not done in application State Initializing).
@@ -555,21 +556,21 @@ Input parameter to this method is an instance of <code class="docutils literal n
 <section id="run">
 <h4>Run<a class="headerlink" href="#run" title="Link to this heading">#</a></h4>
 <p>This method implements the <code class="docutils literal notranslate"><span class="pre">Run</span></code> state of the app (see State <code class="docutils literal notranslate"><span class="pre">Run</span></code>). This could be a long running
-functionality. In case <code class="docutils literal notranslate"><span class="pre">Run()</span></code> returns, this implicitly means, that the app has ended. If
+functionality. In case <code class="docutils literal notranslate"><span class="pre">Run()</span></code> returns, this implicitly means that the app has ended. If
 app implementations do spawn some worker threads in the context of <code class="docutils literal notranslate"><span class="pre">Run()</span></code>, those threads
-are joined again before<code class="docutils literal notranslate"> <span class="pre">Run()</span></code> returns.
+are joined again before <code class="docutils literal notranslate"><span class="pre">Run()</span></code> returns.
 To be able to terminate an application <code class="docutils literal notranslate"><span class="pre">Run()</span></code> method from outside asynchronously in a cooperative manner, the <code class="docutils literal notranslate"><span class="pre">Run()</span></code> method
-gets a <code class="docutils literal notranslate"><span class="pre">stop_token</span></code>, where it shall synchronize/listen on (see concepts in https://en.cppreference.com/w/cpp/thread/stop_token)
+gets a <code class="docutils literal notranslate"><span class="pre">stop_token</span></code>, where it shall synchronize/listen on (see concepts in https://en.cppreference.com/w/cpp/thread/stop_token).
 This <code class="docutils literal notranslate"><span class="pre">stop_token</span></code> is controlled by an external <code class="docutils literal notranslate"><span class="pre">stop_source</span></code> owned by the <code class="docutils literal notranslate"><span class="pre">LifecycleManager</span></code>.</p>
-<p>ApplicationContext class represents cmd line arguments of an Application that are passed during <code class="docutils literal notranslate"><span class="pre">Initialize</span></code> function call.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ApplicationContext</span></code> class represents command line arguments of an Application that are passed during <code class="docutils literal notranslate"><span class="pre">Initialize</span></code> function call.</p>
 </section>
 <section id="get-argument">
 <h4>get_argument<a class="headerlink" href="#get-argument" title="Link to this heading">#</a></h4>
-<p>Function gets a argument name as a string and returns it’s value if it exists, otherwise empty string is returned.</p>
+<p>Function gets an argument name as a string and returns its value if it exists, otherwise empty string is returned.</p>
 </section>
 <section id="get-arguments">
 <h4>get_arguments<a class="headerlink" href="#get-arguments" title="Link to this heading">#</a></h4>
-<p>Returns list of cmd line arguments represented as a vector.
+<p>Returns list of command line arguments represented as a vector.
 Example code:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>std::array&lt;std::string, 3&gt; in_args{};
 if (context.get_arguments().empty())
@@ -591,7 +592,7 @@ if (context.get_arguments().empty())
 </section>
 <section id="run-application-template-function">
 <h4>run_application template function<a class="headerlink" href="#run-application-template-function" title="Link to this heading">#</a></h4>
-<p><code class="docutils literal notranslate"><span class="pre">run_application</span></code> function abstracts initialization and running of an application with LifeCycleManager. This function should be used to start application, it take command line arguments as input parameters</p>
+<p><code class="docutils literal notranslate"><span class="pre">run_application</span></code> function abstracts initialization and running of an application with LifeCycleManager. This function should be used to start the application; it takes command line arguments as input parameters</p>
 </section>
 </section>
 <section id="hardware-interfaces">
@@ -635,7 +636,7 @@ has terminated.</p>
 <section id="state-initializing">
 <h4>State <code class="docutils literal notranslate"><span class="pre">Initializing</span></code><a class="headerlink" href="#state-initializing" title="Link to this heading">#</a></h4>
 <p>This state is automatically entered upon start of the executable (fork + exec). It is left towards state <code class="docutils literal notranslate"><span class="pre">Run</span></code>
-if the application decides to do so via an active/explicit reporting to the platform, that it has entered <code class="docutils literal notranslate"><span class="pre">Run</span></code>.</p>
+if the application decides to do so via an active/explicit reporting to the platform that it has entered <code class="docutils literal notranslate"><span class="pre">Run</span></code>.</p>
 <section id="what-shall-can-be-done-in-this-state">
 <h5>What shall/can be done in this state<a class="headerlink" href="#what-shall-can-be-done-in-this-state" title="Link to this heading">#</a></h5>
 <ul class="simple">
@@ -646,19 +647,19 @@ if the application decides to do so via an active/explicit reporting to the plat
 <li><p>Note: These operations must not be performed in a blocking manner! Otherwise the predefined maximum amount of time to be spent in machine state <code class="docutils literal notranslate"><span class="pre">Initializing</span></code> might be exceeded and the ECU will restart immediately once that becomes the case.</p></li>
 </ul>
 </li>
-<li><p>access remote service instances if available</p>
+<li><p>Access remote service instances if available</p>
 <ul>
 <li><p>Also here, keep in mind the note from above!</p></li>
 </ul>
 </li>
-<li><p>access to low-level platform services, which are expected to be available, when an application starts.</p></li>
-<li><p>call to exit. F.i. if initialization can’t conclude.</p></li>
+<li><p>Access to low-level platform services, which are expected to be available, when an application starts.</p></li>
+<li><p>Call to exit. For example, if initialization can’t conclude.</p></li>
 </ul>
 </section>
 <section id="what-must-not-be-done-in-this-state">
 <h5>What must not be done in this state<a class="headerlink" href="#what-must-not-be-done-in-this-state" title="Link to this heading">#</a></h5>
 <ul class="simple">
-<li><p>Offer any service instance. Reason: If it would offer a service instance, an instant service call to this instance
+<li><p>Offer any service instance. Reason: If it offered a service instance, an instant service call to this instance
 could happen and would then be served during state <code class="docutils literal notranslate"><span class="pre">Initializing</span></code>, which isn’t acceptable.</p></li>
 <li><p>Generally: Providing/Executing main application logic, which is assigned to <code class="docutils literal notranslate"><span class="pre">Run</span></code> state.</p></li>
 </ul>
@@ -691,7 +692,7 @@ do so, it shall not report <code class="docutils literal notranslate"><span clas
 <section id="deployment">
 <h3>Deployment<a class="headerlink" href="#deployment" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p>There is example app available that can help with deploying this library see example application (<code class="docutils literal notranslate"><span class="pre">examples/cpp_lifecycle_app</span></code>) subdirectory</p></li>
+<li><p>There is an example app available that can help with deploying this library see example application (<code class="docutils literal notranslate"><span class="pre">examples/cpp_lifecycle_app</span></code>) subdirectory</p></li>
 </ul>
 </section>
 </section>
