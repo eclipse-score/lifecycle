@@ -35,14 +35,14 @@ TEST(ProcessTerminatedReadyConditionTest, WaitTimesOutReturnsError)
         "Description",
         "Given no termination is reported. "
         "When wait is called. "
-        "Then wait returns an error after the timeout.");
+        "Then wait returns kTimeout after the timeout.");
 
     const ProcessTerminatedReadyCondition ready_condition(10ms);
 
     const Result<void> result = ready_condition.wait(cpp::stop_token{}, process_handle);
 
     ASSERT_FALSE(result.has_value());
-    EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
+    EXPECT_EQ(result.error(), ExecErrc::kTimeout);
 }
 
 TEST(ProcessTerminatedReadyConditionTest, TerminationBeforeWaitReturnsSuccess)
@@ -100,7 +100,7 @@ TEST(ProcessTerminatedReadyConditionTest, NonZeroExitStatusIsRejected)
     const Result<void> result = ready_condition.wait(cpp::stop_token{}, process_handle);
 
     ASSERT_FALSE(result.has_value());
-    EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
+    EXPECT_EQ(result.error(), ExecErrc::kTimeout);
 }
 
 TEST(ProcessTerminatedReadyConditionTest, StoppedTokenReturnsErrorImmediately)
@@ -120,7 +120,8 @@ TEST(ProcessTerminatedReadyConditionTest, StoppedTokenReturnsErrorImmediately)
     const Result<void> result = ready_condition.wait(stop_source.get_token(), process_handle);
     const auto duration = std::chrono::steady_clock::now() - start;
 
-    EXPECT_FALSE(result.has_value());
+    ASSERT_FALSE(result.has_value());
+    EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
     EXPECT_LT(duration, 1000ms);
 }
 
@@ -144,7 +145,9 @@ TEST(ProcessTerminatedReadyConditionTest, StopRequestedMidWaitReturnsError)
     static_cast<void>(stop_source.request_stop());
 
     ASSERT_EQ(future.wait_for(1000ms), std::future_status::ready);
-    EXPECT_FALSE(future.get().has_value());
+    const Result<void> result = future.get();
+    ASSERT_FALSE(result.has_value());
+    EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
 }
 
 TEST(ProcessTerminatedReadyConditionTest, LateTerminationAfterTimeoutIsDiscardedByPrepare)
@@ -170,7 +173,7 @@ TEST(ProcessTerminatedReadyConditionTest, LateTerminationAfterTimeoutIsDiscarded
     const Result<void> result = ready_condition.wait(cpp::stop_token{}, process_handle);
 
     ASSERT_FALSE(result.has_value());
-    EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
+    EXPECT_EQ(result.error(), ExecErrc::kTimeout);
 }
 
 TEST(ProcessTerminatedReadyConditionTest, TerminationAfterPrepareIsKept)
