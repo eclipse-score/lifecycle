@@ -26,26 +26,119 @@ AoU Component Requirements
 Component AoU
 -------------
 
-.. aou_req:: CPU Time for Health Monitor Background Thread
-   :id: aou_req__health_monitor__cpu_scheduling
+.. aou_req:: Start before running
+   :id: aou_req__health_monitor__start_order
+   :reqtype: Functional
+   :security: NO
+   :safety: ASIL_B
+   :status: valid
+   :version: 1
+
+   The application shall start the :term:`Health Monitor` before it reports
+   the Running state to the :term:`Launch Manager`.
+
+.. aou_req:: Launch Manager alive supervision
+   :id: aou_req__health_monitor__lm_alive_cfg
+   :reqtype: Functional
+   :security: NO
+   :safety: ASIL_B
+   :status: valid
+   :version: 1
+
+   The integrator shall configure every process that uses the
+   :term:`Health Monitor` in the :term:`Launch Manager` with the application
+   type ``Reporting_And_Supervised`` or ``State_Manager``.
+
+.. aou_req:: Launch Manager alive reporting cycle
+   :id: aou_req__health_monitor__lm_alive_cycle
+   :reqtype: Functional
+   :security: NO
+   :safety: ASIL_B
+   :status: valid
+   :version: 1
+
+   The integrator shall set the ``alive_supervision.reporting_cycle_ms`` of
+   every process that uses the :term:`Health Monitor` to a value greater than
+   or equal to the supervisor notification cycle of the :term:`Health Monitor`.
+
+.. aou_req:: Fault tolerant time budget
+   :id: aou_req__health_monitor__ftti_budget
+   :reqtype: Non-Functional
+   :security: NO
+   :safety: ASIL_B
+   :status: valid
+   :version: 1
+
+   The integrator shall show that the following sum is within the fault
+   tolerant time interval of the supervised safety goal:
+
+   - the maximum of the supervised time window,
+   - one internal evaluation cycle,
+   - the :term:`Launch Manager` alive timeout,
+   - the time the :term:`Recovery Action` of the :term:`Launch Manager` needs
+     to reach the safe state.
+
+.. aou_req:: Configuration from timing analysis
+   :id: aou_req__health_monitor__cfg_derivation
    :reqtype: Process
    :security: NO
    :safety: ASIL_B
    :status: valid
    :version: 1
 
-   The integrator shall ensure that the Health Monitor background thread receives sufficient CPU time
-   slices to send its alive notifications within the specified interval during system operation.
+   The integrator shall derive the time ranges and allowed transitions from the
+   timing and control-flow analysis of the supervised application, and shall
+   place the reporting calls where they reflect the safety-relevant behavior.
 
-   .. note:: This AoU formalizes the mitigation of :need:`doc__health_monitor_fmea` (``HM_FMEA_001``,
-      "Missing processing time"). That FMEA is an informal result and does not use the S-CORE process.
-      The AoU takes effect with the approval of this pull request and is set to ``valid_inspected`` by
-      the requirements inspection :need:`doc__health_monitor_req_inspection`.
+.. aou_req:: Evaluation thread scheduling
+   :id: aou_req__health_monitor__thread_sched
+   :reqtype: Non-Functional
+   :security: NO
+   :safety: ASIL_B
+   :status: valid
+   :version: 1
 
-.. attention::
-    The above directives must be updated according to your feature requirements.
+   The integrator shall configure the scheduling policy and priority of the
+   :term:`Health Monitor` evaluation thread so that it meets its internal
+   evaluation cycle under worst-case load.
 
-    - Add other needed requirements for your feature
+.. aou_req:: Host application integrity
+   :id: aou_req__health_monitor__host_integrity
+   :reqtype: Non-Functional
+   :security: NO
+   :safety: ASIL_B
+   :status: valid
+   :version: 1
+
+   The process that hosts the :term:`Health Monitor` shall be developed to
+   ASIL B, or the integrator shall provide evidence of freedom from
+   interference between the remaining code of the hosting process and the
+   :term:`Health Monitor`.
+
+   .. note:: The :term:`Health Monitor` shares the address space of the hosting
+      process (see :need:`comp_req__health_monitor__mem_guard_pages`).
+
+.. aou_req:: Monotonic clock provision
+   :id: aou_req__health_monitor__os_clock
+   :reqtype: Non-Functional
+   :security: NO
+   :safety: ASIL_B
+   :status: valid
+   :version: 1
+
+   The operating system shall provide a monotonic clock that meets ASIL B
+   integrity and has a resolution of one millisecond or finer.
+
+.. aou_req:: No test stubs in production
+   :id: aou_req__health_monitor__no_stub
+   :reqtype: Process
+   :security: NO
+   :safety: ASIL_B
+   :status: valid
+   :version: 1
+
+   The integrator shall not enable the ``stub_supervisor_api_client`` feature
+   in production builds.
 
 .. needextend:: c.this_doc() and is_external == False
    :+tags: lifecycle, health_monitor
