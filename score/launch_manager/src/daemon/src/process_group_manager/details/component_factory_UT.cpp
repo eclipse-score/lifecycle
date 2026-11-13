@@ -150,10 +150,7 @@ TEST_F(ComponentFactoryTest, ReportingRunningComponentWaitsForkRunningWithReadyT
     ASSERT_NE(component, nullptr);
 
     expectProcessStarted(mock_sync);
-    EXPECT_CALL(
-        launcher_,
-        waitForkRunning(
-            mock_sync, std::optional<std::chrono::milliseconds>(std::chrono::milliseconds{kReadyTimeoutMs})))
+    EXPECT_CALL(launcher_, waitForkRunning(mock_sync, std::chrono::milliseconds{kReadyTimeoutMs}))
         .WillOnce(Return(osal::OsalReturnType::kSuccess));
 
     EXPECT_EQ(component->activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);

@@ -18,9 +18,7 @@
 namespace score::mw::lifecycle::internal
 {
 
-ReportRunningReadyCondition::ReportRunningReadyCondition(
-    osal::IProcess& launcher,
-    std::optional<std::chrono::milliseconds> timeout)
+ReportRunningReadyCondition::ReportRunningReadyCondition(osal::IProcess& launcher, std::chrono::milliseconds timeout)
     : launcher_(launcher), timeout_(timeout)
 {
 }
