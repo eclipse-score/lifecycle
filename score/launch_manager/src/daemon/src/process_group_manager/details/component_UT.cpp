@@ -17,13 +17,17 @@
 #include "score/mw/launch_manager/process_group_manager/details/force_stop_action/mock_force_stop_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/mock_ready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/process_terminated_ready_condition.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/ready_condition/report_running_ready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/start_action/mock_start_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/stop_action/mock_stop_action.hpp"
+#include "score/mw/launch_manager/process_group_manager/mock_iprocess.hpp"
 #include "score/mw/lifecycle/execution_error.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <score/stop_token.hpp>
+#include <array>
 #include <chrono>
+#include <cstddef>
 #include <future>
 #include <thread>
 
@@ -1171,6 +1175,205 @@ TEST(ComponentTest, ProcessTerminatedReadyConditionFailsOnNonZeroExit)
     ASSERT_EQ(activation.wait_for(std::chrono::seconds{1}), std::future_status::ready);
     EXPECT_EQ(activation.get(), IComponent::RequestResult::kFailure);
     EXPECT_EQ(termination_result, IComponent::TerminationResult::kFailure);
+}
+
+TEST(ComponentTest, ReportRunningProcessDyingDuringHandshakeFailsActivation)
+{
+    RecordProperty(
+        "Description",
+        "Given a component with a ReportRunningReadyCondition waiting for kRunning. "
+        "When the process dies and the termination completes the kRunning handshake. "
+        "Then activation fails instead of reporting the dead process as running.");
+
+    // tryHandleTermination posts on the real send semaphore.
+    alignas(osal::IpcCommsSync) std::array<std::byte, sizeof(osal::IpcCommsSync)> buffer{};
+    const osal::IpcCommsP sync{reinterpret_cast<osal::IpcCommsSync*>(buffer.data()), [](osal::IpcCommsSync*) {
+                               }};
+    ASSERT_EQ(sync->send_sync_.init(0U, false), osal::OsalReturnType::kSuccess);
+    const ProcessHandle handle{42, sync};
+
+    NiceMock<MockSupervisionFactory> factory;
+    NiceMock<osal::MockIProcess> launcher;
+
+    std::promise<void> waiting;
+    auto waiting_future = waiting.get_future();
+    std::promise<void> terminated;
+    auto terminated_future = terminated.get_future();
+
+    // Simulates the case where the post from tryHandleTermination completes the handshake.
+    EXPECT_CALL(launcher, waitForkRunning(_, _))
+        .WillOnce(Invoke([&waiting, &terminated_future](osal::IpcCommsP, std::optional<std::chrono::milliseconds>) {
+            waiting.set_value();
+            terminated_future.wait();
+            return osal::OsalReturnType::kSuccess;
+        }));
+
+    auto start_action = std::make_unique<MockStartAction>();
+    EXPECT_CALL(*start_action, start(_)).WillOnce(Return(Result<Handle>{handle}));
+
+    Component component(
+        std::move(start_action),
+        std::make_unique<MockStopAction>(),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<ReportRunningReadyCondition>(launcher, std::chrono::milliseconds{5000}),
+        factory,
+        std::make_shared<configuration::ComponentConfig>());
+
+    auto activation = std::async(std::launch::async, [&component] {
+        return component.activate(cpp::stop_token{});
+    });
+
+    // The worker is blocked in waitForkRunning, with the state lock released.
+    waiting_future.wait();
+    const IComponent::TerminationResult termination_result = terminateFromOtherThread(component, 1);
+    terminated.set_value();
+
+    ASSERT_EQ(activation.wait_for(std::chrono::seconds{1}), std::future_status::ready);
+    EXPECT_EQ(activation.get(), IComponent::RequestResult::kFailure);
+    EXPECT_EQ(termination_result, IComponent::TerminationResult::kIgnore);
+
+    static_cast<void>(sync->send_sync_.deinit());
+}
+
+/// @brief Expects one stop of an already terminated process, which must not be asked to terminate again.
+void expectStopOfDeadProcess(MockStopAction& stop_action)
+{
+    EXPECT_CALL(stop_action, stop(_, _)).WillOnce(Invoke([](cpp::stop_token, const Handle& handle) {
+        EXPECT_FALSE(isAlive(handle));
+        return Result<IComponent::RequestResult>{IComponent::RequestResult::kSuccess};
+    }));
+}
+
+TEST(ComponentTest, LateTerminationAfterReadyTimeoutDoesNotBlockReactivation)
+{
+    RecordProperty(
+        "Description",
+        "Given a ProcessTerminatedReadyCondition whose wait timed out. "
+        "When the process exits with 0 afterwards and the component is deactivated. "
+        "Then the component is terminated immediately and can be activated again.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    std::promise<void> second_start;
+    auto second_start_future = second_start.get_future();
+
+    auto start_action = std::make_unique<MockStartAction>();
+    EXPECT_CALL(*start_action, start(_))
+        .WillOnce(Return(Result<Handle>{mock_handle}))
+        .WillOnce(Invoke([&second_start](cpp::stop_token) {
+            second_start.set_value();
+            return Result<Handle>{mock_handle};
+        }));
+
+    auto stop_action = std::make_unique<MockStopAction>();
+    expectStopOfDeadProcess(*stop_action);
+
+    Component component(
+        std::move(start_action),
+        std::move(stop_action),
+        std::make_unique<MockForceStopAction>(),
+        std::make_unique<ProcessTerminatedReadyCondition>(std::chrono::milliseconds{100}),
+        factory,
+        std::make_shared<configuration::ComponentConfig>());
+
+    // The ready timeout expires, then the process exits with 0.
+    EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kFailure);
+    EXPECT_EQ(terminateFromOtherThread(component, 0), IComponent::TerminationResult::kIgnore);
+
+    EXPECT_EQ(component.deactivate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+
+    // The second activation succeeds once its own process terminates.
+    auto activation = std::async(std::launch::async, [&component] {
+        return component.activate(cpp::stop_token{});
+    });
+    second_start_future.wait();
+    EXPECT_EQ(terminateFromOtherThread(component, 0), IComponent::TerminationResult::kIgnore);
+
+    ASSERT_EQ(activation.wait_for(std::chrono::seconds{1}), std::future_status::ready);
+    EXPECT_EQ(activation.get(), IComponent::RequestResult::kSuccess);
+}
+
+TEST(ComponentTest, SelfTerminatingExitWhileStartingDoesNotBlockReactivation)
+{
+    RecordProperty(
+        "Description",
+        "Given a self-terminating component whose process exits with 0 while starting. "
+        "When the component is deactivated. "
+        "Then the component is terminated immediately and can be activated again.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    auto start_action = std::make_unique<MockStartAction>();
+    EXPECT_CALL(*start_action, start(_)).Times(2).WillRepeatedly(Return(Result<Handle>{mock_handle}));
+
+    auto stop_action = std::make_unique<MockStopAction>();
+    expectStopOfDeadProcess(*stop_action);
+
+    auto ready_condition = std::make_unique<MockReadyCondition>();
+    auto* const ready_condition_ptr = ready_condition.get();
+
+    auto config = std::make_shared<configuration::ComponentConfig>();
+    config->component_properties.application_profile.is_self_terminating = true;
+
+    Component component(
+        std::move(start_action),
+        std::move(stop_action),
+        std::make_unique<MockForceStopAction>(),
+        std::move(ready_condition),
+        factory,
+        std::move(config));
+
+    EXPECT_CALL(*ready_condition_ptr, wait(_, _))
+        .WillOnce(Invoke([&component](cpp::stop_token, const Handle&) {
+            EXPECT_EQ(terminateFromOtherThread(component, 0), IComponent::TerminationResult::kIgnore);
+            return Result<void>{};
+        }))
+        .WillOnce(Return(Result<void>{}));
+
+    EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    EXPECT_EQ(component.deactivate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    EXPECT_FALSE(component.active());
+
+    EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+}
+
+TEST(ComponentTest, SelfTerminatingExitWhileReadyDoesNotBlockReactivation)
+{
+    RecordProperty(
+        "Description",
+        "Given a self-terminating component whose process exits with 0 after it became ready. "
+        "When the component is deactivated. "
+        "Then the component is terminated immediately and can be activated again.");
+
+    NiceMock<MockSupervisionFactory> factory;
+
+    auto start_action = std::make_unique<MockStartAction>();
+    EXPECT_CALL(*start_action, start(_)).Times(2).WillRepeatedly(Return(Result<Handle>{mock_handle}));
+
+    auto stop_action = std::make_unique<MockStopAction>();
+    expectStopOfDeadProcess(*stop_action);
+
+    auto ready_condition = std::make_unique<MockReadyCondition>();
+    ON_CALL(*ready_condition, wait(_, _)).WillByDefault(Return(Result<void>{}));
+
+    auto config = std::make_shared<configuration::ComponentConfig>();
+    config->component_properties.application_profile.is_self_terminating = true;
+
+    Component component(
+        std::move(start_action),
+        std::move(stop_action),
+        std::make_unique<MockForceStopAction>(),
+        std::move(ready_condition),
+        factory,
+        std::move(config));
+
+    EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    EXPECT_EQ(terminateFromOtherThread(component, 0), IComponent::TerminationResult::kIgnore);
+
+    EXPECT_EQ(component.deactivate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+    EXPECT_FALSE(component.active());
+
+    EXPECT_EQ(component.activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
 }
 
 }  // namespace
