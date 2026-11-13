@@ -15,7 +15,7 @@
             },
             "deployment_config": {
                 "sandbox": {
-                    "scheduling_priority": 100
+                    "scheduling_priority": 256
                 }
             }
         }
