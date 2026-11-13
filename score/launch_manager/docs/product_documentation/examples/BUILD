@@ -77,6 +77,7 @@ rust_binary(
     srcs = [
         "rust_reporting_process.rs",
     ],
+    target_compatible_with = ["@score_cpp_policies//sanitizers/constraints:no_tsan"],
     visibility = ["//visibility:private"],
     deps = [
         "//score/launch_manager:lifecycle_rust",
