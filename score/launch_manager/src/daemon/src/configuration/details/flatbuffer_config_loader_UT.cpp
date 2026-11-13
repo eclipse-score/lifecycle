@@ -23,6 +23,7 @@
 #include <cerrno>
 #include <cstdint>
 #include <limits>
+#include <string>
 #include <vector>
 
 namespace score::mw::lifecycle::internal::configuration
@@ -266,12 +267,11 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSingleComponent)
     EXPECT_THAT(*comp.component_properties.application_profile.alive_supervision->max_indications, Eq(3U));
     ASSERT_THAT(comp.component_properties.depends_on.size(), Eq(1U));
     EXPECT_THAT(comp.component_properties.depends_on[0], Eq("other_comp"));
-    ASSERT_THAT(comp.component_properties.process_arguments.size(), Eq(1U));
-    EXPECT_THAT(comp.component_properties.process_arguments[0], Eq("--verbose"));
     EXPECT_THAT(comp.component_properties.ready_condition, VariantWith<ProcessState>(Eq(ProcessState::Running)));
     EXPECT_THAT(comp.deployment_config.ready_timeout_ms, Eq(1500U));
     EXPECT_THAT(comp.deployment_config.shutdown_timeout_ms, Eq(2500U));
-    EXPECT_THAT(comp.deployment_config.executable_path, Eq("/opt/bin/my_binary"));
+    EXPECT_THAT(comp.deployment_config.process_command.executablePath(), Eq("/opt/bin/my_binary"));
+    EXPECT_THAT(comp.deployment_config.process_command.arguments(), Eq(std::vector<std::string>{"--verbose"}));
     EXPECT_THAT(comp.deployment_config.working_dir, Eq("/tmp"));
 }
 

@@ -21,10 +21,7 @@
 namespace score::mw::lifecycle::internal
 {
 
-constexpr std::size_t kMaxArg = 20U;   ///< Maximum number of arguments
 constexpr std::size_t kMaxEnv = 100U;  ///< Maximum number of env variables
-constexpr std::size_t kArgvArraySize =
-    kMaxArg + 2U;  ///< As required by posix we need extra space in argv_ for process name and NULL pointer
 constexpr std::size_t kEnvArraySize =
     kMaxEnv + 1U;  ///< As required by posix we need extra space in envp_ for NULL pointer
 

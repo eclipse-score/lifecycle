@@ -419,7 +419,6 @@ score::cpp::expected<ComponentProperties, IConfigLoader::Error> convertComponent
         }
         result.application_profile = std::move(*app_profile);
         result.depends_on = convertStringVector(fb_cp->depends_on());
-        result.process_arguments = convertStringVector(fb_cp->process_arguments());
         if (fb_cp->ready_condition() != nullptr)
         {
             auto ready_condition = convertReadyCondition(fb_cp->ready_condition());
@@ -482,7 +481,8 @@ score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(const fb::San
 
 score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentConfig(
     const fb::DeploymentConfig* fb_dc,
-    std::string_view binary_name)
+    std::string_view binary_name,
+    const std::vector<std::string>& process_arguments)
 {
     DeploymentConfig result{};
     if (fb_dc != nullptr)
@@ -520,7 +520,8 @@ score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentCo
         result.ready_timeout_ms = *ready_timeout;
         result.shutdown_timeout_ms = *shutdown_timeout;
         result.environmental_variables = convertEnvironmentalVariables(fb_dc->environmental_variables());
-        result.executable_path = fb_dc->bin_dir()->str() + "/" + std::string{binary_name};
+        result.process_command =
+            ProcessCommand{fb_dc->bin_dir()->str() + "/" + std::string{binary_name}, process_arguments};
         result.working_dir = fb_dc->working_dir()->str();
         result.activation_retry_attempts = *activation_retry_attempts;
         result.activation_retry_delay_ms = *activation_retry_delay_ms;
@@ -557,8 +558,10 @@ score::cpp::expected<ComponentConfig, IConfigLoader::Error> convertComponent(con
             return score::cpp::make_unexpected(component_properties.error());
         }
         result.component_properties = std::move(*component_properties);
-        auto deployment_config =
-            convertDeploymentConfig(fb_comp->deployment_config(), result.component_properties.binary_name);
+        auto deployment_config = convertDeploymentConfig(
+            fb_comp->deployment_config(),
+            result.component_properties.binary_name,
+            convertStringVector(fb_comp->component_properties()->process_arguments()));
         if (!deployment_config.has_value())
         {
             LM_LOG_ERROR() << "Invalid deployment_config for Component '" << result.name << "'";

@@ -273,7 +273,7 @@ bool ProcessInfoNode::isSupervised() const
 IComponent::RequestResult ProcessInfoNode::startProcess(score::cpp::stop_token stop_token)
 {
     LM_LOG_DEBUG() << "Starting process (" << identifier_ << ") from executable"
-                   << config_.deployment_config.executable_path;
+                   << config_.deployment_config.process_command.executablePath();
 
     std::optional<RequestResult> error;
     const std::chrono::time_point initial_time = std::chrono::steady_clock::now();
