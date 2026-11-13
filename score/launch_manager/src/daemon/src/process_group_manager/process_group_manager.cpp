@@ -423,6 +423,10 @@ Result<IdentifierHash> ProcessGroupManager::getActiveRunTarget() const noexcept
     const bool push_result = event_queue_->push(GetActiveRunTarget{&slot});
     if (!push_result)
     {
+        if (!event_queue_->getOverflow())
+        {
+            return score::MakeUnexpected(ExecErrc::kShuttingDown);
+        }
         return score::MakeUnexpected(ExecErrc::kFailed);
     }
 
@@ -478,6 +482,10 @@ Result<void> ProcessGroupManager::setRequestedRunTarget(IdentifierHash run_targe
     const bool push_result = event_queue_->push(SetRequestedRunTarget{run_target, &slot});
     if (!push_result)
     {
+        if (!event_queue_->getOverflow())
+        {
+            return score::MakeUnexpected(ExecErrc::kShuttingDown);
+        }
         return score::MakeUnexpected(ExecErrc::kFailed);
     }
 
