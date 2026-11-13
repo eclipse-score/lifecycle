@@ -406,12 +406,8 @@ score::cpp::expected<ComponentProperties, IConfigLoader::Error> convertComponent
     if (fb_cp != nullptr)
     {
         SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
-            fb_cp->binary_name(),
-            "ComponentProperties::binary_name must never be nullptr as it is required in the schema");
-        SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
             fb_cp->application_profile(),
             "ComponentProperties::application_profile must never be nullptr as it is required in the schema");
-        result.binary_name = fb_cp->binary_name()->str();
         auto app_profile = convertApplicationProfile(fb_cp->application_profile());
         if (!app_profile.has_value())
         {
@@ -558,9 +554,12 @@ score::cpp::expected<ComponentConfig, IConfigLoader::Error> convertComponent(con
             return score::cpp::make_unexpected(component_properties.error());
         }
         result.component_properties = std::move(*component_properties);
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(
+            fb_comp->component_properties()->binary_name(),
+            "ComponentProperties::binary_name must never be nullptr as it is required in the schema");
         auto deployment_config = convertDeploymentConfig(
             fb_comp->deployment_config(),
-            result.component_properties.binary_name,
+            fb_comp->component_properties()->binary_name()->string_view(),
             convertStringVector(fb_comp->component_properties()->process_arguments()));
         if (!deployment_config.has_value())
         {

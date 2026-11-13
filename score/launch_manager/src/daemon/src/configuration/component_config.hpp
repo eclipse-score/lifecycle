@@ -81,7 +81,6 @@ struct ResourceLimit
 
 struct ComponentProperties
 {
-    std::string binary_name;
     ApplicationProfile application_profile{};
     std::vector<std::string> depends_on;
     ReadyCondition ready_condition;

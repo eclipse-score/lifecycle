@@ -1093,7 +1093,6 @@ TEST_F(ConverterTest, ConvertComponentValid)
     ASSERT_THAT(result.has_value(), IsTrue());
     EXPECT_THAT(result->name, Eq("TestComp"));
     EXPECT_THAT(result->description, Eq("A test component"));
-    EXPECT_THAT(result->component_properties.binary_name, Eq("my_binary"));
     EXPECT_THAT(result->deployment_config.process_command.executablePath(), Eq("/opt/my_binary"));
     EXPECT_THAT(result->deployment_config.ready_timeout_ms, Eq(1000U));
     EXPECT_THAT(

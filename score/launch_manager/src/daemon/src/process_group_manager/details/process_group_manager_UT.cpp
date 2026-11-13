@@ -49,7 +49,6 @@ Config makeMinimalConfig(ApplicationType application_type = ApplicationType::Nat
     ComponentConfig component;
     component.name = "comp_a";
     component.description = "Component A";
-    component.component_properties.binary_name = "true";
     component.component_properties.application_profile.application_type = application_type;
     component.component_properties.application_profile.is_self_terminating = true;
     component.component_properties.ready_condition = ReadyCondition{ProcessState::Running};

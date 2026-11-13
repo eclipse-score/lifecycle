@@ -254,7 +254,6 @@ TEST_F(FlatbufferConfigLoaderTest, LoadSingleComponent)
     const auto& comp = result->graph().components_[0];
     EXPECT_THAT(comp.name, Eq("TestComponent"));
     EXPECT_THAT(comp.description, Eq("A test component"));
-    EXPECT_THAT(comp.component_properties.binary_name, Eq("my_binary"));
     EXPECT_THAT(
         comp.component_properties.application_profile.application_type, Eq(ApplicationType::ReportingAndSupervised));
     EXPECT_THAT(comp.component_properties.application_profile.is_self_terminating, IsTrue());

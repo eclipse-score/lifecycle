@@ -34,6 +34,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include <charconv>
+#include <score/assert.hpp>
 #include <array>
 #include <cassert>
 #include <cerrno>
@@ -171,73 +172,65 @@ ProcessLauncher::startProcess(ProcessID& pid, IpcCommsP& block, const configurat
 {
     OsalReturnType result = OsalReturnType::kFail;
 
-    if (!config.component_properties.binary_name.empty())
+    SCORE_LANGUAGE_FUTURECPP_ASSERT_DBG_MESSAGE(
+        !config.deployment_config.process_command.executablePath().empty(), "Executable path must not be empty");
+
+    if (access(config.deployment_config.process_command.executablePath().c_str(), X_OK) != 0)
     {
-        if (access(config.deployment_config.process_command.executablePath().c_str(), X_OK) != 0)
+        static_cast<void>(signal_safe_log(
+            "File does not exist or is not executable: ", config.deployment_config.process_command.executablePath()));
+        return result;
+    }
+
+    int fd = -1;
+    pid = -1;
+    block = nullptr;
+    bool comms_result = true;
+
+    const auto& app_type = config.component_properties.application_profile.application_type;
+    if (app_type != configuration::ApplicationType::Native)
+    {
+        comms_result = setupComms(block, fd, config);
+    }
+
+    if (comms_result)
+    {
+        if (fflush(stdout) == EOF)
         {
-            static_cast<void>(signal_safe_log(
-                "File does not exist or is not executable: ",
-                config.deployment_config.process_command.executablePath()));
-            return result;
+            LM_LOG_ERROR() << "Failed to flush stdout before forking.";
         }
 
-        int fd = -1;
-        pid = -1;
-        block = nullptr;
-        bool comms_result = true;
+        pid = fork();
 
-        const auto& app_type = config.component_properties.application_profile.application_type;
-        if (app_type != configuration::ApplicationType::Native)
+        if (pid == kPosixSuccess)
         {
-            comms_result = setupComms(block, fd, config);
+            /*
+             * From this point on, only async signal safe functions can be
+             * used. `fork` only copies the current thread, so any locks
+             * which were held at that time will never be released.
+             * See `man 2 fork`.
+             */
+            ChildProcessConfig param = {config, fd, block};
+            handleChildProcess(param);
+            result = OsalReturnType::kSuccess;
         }
-
-        if (comms_result)
+        else if (pid > kPidZero)
         {
-            if (fflush(stdout) == EOF)
-            {
-                LM_LOG_ERROR() << "Failed to flush stdout before forking.";
-            }
-
-            pid = fork();
-
-            if (pid == kPosixSuccess)
-            {
-                /*
-                 * From this point on, only async signal safe functions can be
-                 * used. `fork` only copies the current thread, so any locks
-                 * which were held at that time will never be released.
-                 * See `man 2 fork`.
-                 */
-                ChildProcessConfig param = {config, fd, block};
-                handleChildProcess(param);
-                result = OsalReturnType::kSuccess;
-            }
-            else if (pid > kPidZero)
-            {
-                result = OsalReturnType::kSuccess;
-            }
-            else
-            {
-                LM_LOG_ERROR() << "Fork failed: Unable to create a new process.";
-            }
+            result = OsalReturnType::kSuccess;
         }
         else
         {
-            LM_LOG_ERROR()
-                << "Shared memory creation failed: Unable to create shared memory for kRunning communication.";
-        }
-
-        if (fd >= 0)
-        {
-            close(fd);
+            LM_LOG_ERROR() << "Fork failed: Unable to create a new process.";
         }
     }
     else
     {
-        LM_LOG_ERROR() << "Invalid input parameters: Ensure config and binary_name are correctly provided.";
+        LM_LOG_ERROR() << "Shared memory creation failed: Unable to create shared memory for kRunning communication.";
+    }
 
-        return result;
+    if (fd >= 0)
+    {
+        close(fd);
     }
 
     return result;

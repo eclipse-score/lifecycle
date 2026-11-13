@@ -254,7 +254,6 @@ class StartProcessTest : public ProcessLauncherTest
         EXPECT_CALL(*g_syscall_mock, getpid).Times(AnyNumber()).WillRepeatedly(Return(forked_pid));
 
         config_.name = "TestComponent";
-        config_.component_properties.binary_name = "TestProcess";
         config_.component_properties.application_profile.application_type = configuration::ApplicationType::Native;
         config_.deployment_config.process_command = configuration::ProcessCommand{"/bin/TestProcess", {}};
         config_.deployment_config.working_dir = "/tmp";
@@ -324,16 +323,6 @@ TEST_F(StartProcessTest, startProcessNoFile)
     RecordProperty("Description", "Test that startProcess returns a failure if the provided path does not exist");
 
     EXPECT_CALL(*g_syscall_mock, access(_, _)).WillOnce(Return(-1));
-
-    EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
-}
-
-TEST_F(StartProcessTest, startProcessNoPath)
-{
-    RecordProperty("Description", "Test that startProcess returns a failure if the provided path is empty");
-
-    config_.component_properties.binary_name = "";
-    EXPECT_CALL(*g_syscall_mock, access).Times(0);  // Access should not be called on an empty path
 
     EXPECT_EQ(process_launcher->startProcess(pid_, sync_, config_), OsalReturnType::kFail);
 }
