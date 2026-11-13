@@ -72,11 +72,20 @@ _WARNING_KNOWN_FEATURES = [
     "@score_cpp_policies//warnings/gcc/features:minimal_warnings",
 ]
 
+_SANITIZER_KNOWN_FEATURES = [
+    "@score_cpp_policies//sanitizers/features:asan",
+    "@score_cpp_policies//sanitizers/features:debug_symbols",
+    "@score_cpp_policies//sanitizers/features:lsan",
+    "@score_cpp_policies//sanitizers/features:tsan",
+    "@score_cpp_policies//sanitizers/features:ubsan_base",
+    "@score_cpp_policies//sanitizers/features:ubsan_gcc",
+]
+
 # Linux C++ toolchains.
 gcc.toolchain(
     name = "score_gcc_x86_64_toolchain",
     extra_enabled_features = _WARNING_ENABLED_FEATURES,
-    extra_known_features = _WARNING_KNOWN_FEATURES,
+    extra_known_features = _WARNING_KNOWN_FEATURES + _SANITIZER_KNOWN_FEATURES,
     target_cpu = "x86_64",
     target_os = "linux",
     use_default_package = True,
@@ -85,7 +94,7 @@ gcc.toolchain(
 gcc.toolchain(
     name = "score_gcc_aarch64_toolchain",
     extra_enabled_features = _WARNING_ENABLED_FEATURES,
-    extra_known_features = _WARNING_KNOWN_FEATURES,
+    extra_known_features = _WARNING_KNOWN_FEATURES + _SANITIZER_KNOWN_FEATURES,
     target_cpu = "aarch64",
     target_os = "linux",
     use_default_package = True,
@@ -124,6 +133,7 @@ use_repo(
     "score_ebclfsa_toolchain",
     "score_gcc_aarch64_toolchain",
     "score_gcc_x86_64_toolchain",
+    "score_gcc_x86_64_toolchain_pkg",
 )
 
 # Rust toolchains.

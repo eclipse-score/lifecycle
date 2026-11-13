@@ -44,5 +44,10 @@ integration_test(
     ],
     config = ":sandbox_options_non_root.json",
     env = {"NON_ROOT_ID": _NON_ROOT_ID},
-    target_compatible_with = ["@platforms//os:linux"],
+    # Sanitizers cannot reserve their shadow memory under the RLIMIT_AS configured for the processes.
+    target_compatible_with = [
+        "@platforms//os:linux",
+        "@score_cpp_policies//sanitizers/constraints:no_asan",
+        "@score_cpp_policies//sanitizers/constraints:no_tsan",
+    ],
 )
