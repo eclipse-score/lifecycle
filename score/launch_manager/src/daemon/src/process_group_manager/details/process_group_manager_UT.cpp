@@ -318,7 +318,7 @@ TEST_F(ProcessGroupManagerReportingTest, GetActiveRunTargetAndSetRequestedRunTar
     run_thread.join();
 }
 
-TEST_F(ProcessGroupManagerWatchdogTest, GetActiveRunTargetWhenStoppedReturnsFailedErrorPromptly)
+TEST_F(ProcessGroupManagerWatchdogTest, GetActiveRunTargetWhenStoppedReturnsShuttingDownErrorPromptly)
 {
     RecordProperty(
         "Description",
@@ -332,11 +332,11 @@ TEST_F(ProcessGroupManagerWatchdogTest, GetActiveRunTargetWhenStoppedReturnsFail
 
     auto active_result = process_group_manager_->getActiveRunTarget();
     EXPECT_FALSE(active_result.has_value());
-    EXPECT_EQ(active_result.error(), ExecErrc::kFailed);
+    EXPECT_EQ(active_result.error(), ExecErrc::kShuttingDown);
 
     auto set_result = process_group_manager_->setRequestedRunTarget(IdentifierHash{"Startup"});
     EXPECT_FALSE(set_result.has_value());
-    EXPECT_EQ(set_result.error(), ExecErrc::kFailed);
+    EXPECT_EQ(set_result.error(), ExecErrc::kShuttingDown);
 }
 
 }  // namespace
