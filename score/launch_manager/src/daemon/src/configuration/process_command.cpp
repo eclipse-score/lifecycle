@@ -27,6 +27,7 @@ ProcessCommand::ProcessCommand(ProcessCommand&& other) noexcept
     : executable_path_{std::move(other.executable_path_)}, args_{std::move(other.args_)}
 {
     rebuildPointers();
+    other.pointers_.clear();
 }
 
 ProcessCommand& ProcessCommand::operator=(ProcessCommand&& other) noexcept
@@ -36,6 +37,7 @@ ProcessCommand& ProcessCommand::operator=(ProcessCommand&& other) noexcept
         executable_path_ = std::move(other.executable_path_);
         args_ = std::move(other.args_);
         rebuildPointers();
+        other.pointers_.clear();
     }
     return *this;
 }
