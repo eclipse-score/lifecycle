@@ -26,7 +26,7 @@ jobs:
     if: |
       github.event.workflow_run.conclusion == 'success' &&
       contains(fromJSON('["pull_request", "push", "release"]'), github.event.workflow_run.event)
-    uses: eclipse-score/cicd-workflows/.github/workflows/docs-publish.yml@d768523bcb4ce716e2e56f9a8e3b2c25fcd30b06 # fix fork PR lookup after v0.0.3
+    uses: eclipse-score/cicd-workflows/.github/workflows/docs-publish.yml@d241348e8670bf5b8902d67ff3ac77e7f60f9ec7 # fix fork PR lookup after v0.0.3
     permissions:
       actions: write
       contents: write
