@@ -234,7 +234,6 @@ TEST_F(SupervisionManagerConstructWorkerTest, ConstructWorker_WithAllSuccessfulC
     compConfig.reporting_cycle_ms = 100;  // Alive requires a non-zero reference cycle
     auto recoveryClient = std::make_shared<MockRecoveryClient>();
     auto buffer = std::make_shared<SupervisionBufferType>();
-    buffer->initialize();
     ifexm::ObservableEventReader reader(buffer);
 
     bool result = manager.constructWorker(componentId, compConfig, 1000, recoveryClient, reader);
@@ -257,7 +256,6 @@ TEST_F(SupervisionManagerConstructWorkerTest, ConstructWorker_WithObservableEven
     configuration::ComponentAliveSupervision compConfig{};
     auto recoveryClient = std::make_shared<MockRecoveryClient>();
     auto buffer = std::make_shared<SupervisionBufferType>();
-    buffer->initialize();
     ifexm::ObservableEventReader reader(buffer);
 
     bool result = manager.constructWorker(componentId, compConfig, 1000, recoveryClient, reader);
@@ -282,7 +280,6 @@ TEST_F(SupervisionManagerConstructWorkerTest, ConstructWorker_WithAliveIfIpcFail
     configuration::ComponentAliveSupervision compConfig{};
     auto recoveryClient = std::make_shared<MockRecoveryClient>();
     auto buffer = std::make_shared<SupervisionBufferType>();
-    buffer->initialize();
     ifexm::ObservableEventReader reader(buffer);
 
     bool result = manager.constructWorker(componentId, compConfig, 1000, recoveryClient, reader);
@@ -308,7 +305,6 @@ TEST_F(SupervisionManagerConstructWorkerTest, ConstructWorker_WithAliveIfFailure
     configuration::ComponentAliveSupervision compConfig{};
     auto recoveryClient = std::make_shared<MockRecoveryClient>();
     auto buffer = std::make_shared<SupervisionBufferType>();
-    buffer->initialize();
     ifexm::ObservableEventReader reader(buffer);
 
     bool result = manager.constructWorker(componentId, compConfig, 1000, recoveryClient, reader);
@@ -335,7 +331,6 @@ TEST_F(SupervisionManagerConstructWorkerTest, ConstructWorker_WithAliveSupervisi
     configuration::ComponentAliveSupervision compConfig{};
     auto recoveryClient = std::make_shared<MockRecoveryClient>();
     auto buffer = std::make_shared<SupervisionBufferType>();
-    buffer->initialize();
     ifexm::ObservableEventReader reader(buffer);
 
     bool result = manager.constructWorker(componentId, compConfig, 1000, recoveryClient, reader);
@@ -418,7 +413,6 @@ TEST_F(SupervisionManagerPerformCyclicTriggersTest, ConstructWorker_MultipleWork
 
     auto recoveryClient = std::make_shared<MockRecoveryClient>();
     auto buffer = std::make_shared<SupervisionBufferType>();
-    buffer->initialize();
     ifexm::ObservableEventReader reader(buffer);
 
     bool result1 = manager.constructWorker(componentId1, compConfig, 1000, recoveryClient, reader);
@@ -460,7 +454,6 @@ TEST_F(SupervisionManagerPerformCyclicTriggersTest, PerformCyclicTriggers_LoopsE
 
     auto recoveryClient = std::make_shared<MockRecoveryClient>();
     auto buffer = std::make_shared<SupervisionBufferType>();
-    buffer->initialize();
     ifexm::ObservableEventReader reader(buffer);
 
     // Construct one worker - this populates aliveInterfaces and aliveSupervisions
@@ -519,7 +512,6 @@ TEST_F(SupervisionManagerPerformCyclicTriggersTest, HasAnyRecoveryEnqueueFailed_
     EXPECT_CALL(*recoveryClient, sendRecoveryRequest).WillOnce(Return(false));
 
     auto buffer = std::make_shared<SupervisionBufferType>();
-    buffer->initialize();
     ifexm::ObservableEventReader reader(buffer);
 
     ASSERT_TRUE(manager.constructWorker(componentId, compConfig, 1000, recoveryClient, reader));
