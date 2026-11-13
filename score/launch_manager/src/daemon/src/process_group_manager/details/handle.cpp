@@ -24,4 +24,10 @@ void invalidate(Handle& handle)
     }
 }
 
+bool isAlive(const Handle& handle)
+{
+    const ProcessHandle* const process_handle = std::get_if<ProcessHandle>(&handle);
+    return (process_handle != nullptr) && (process_handle->pid != -1);
+}
+
 }  // namespace score::mw::lifecycle::internal
