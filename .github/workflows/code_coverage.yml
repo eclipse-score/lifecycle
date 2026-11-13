@@ -10,8 +10,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-#
-# Reusable unified LLVM source-based coverage (C++ and Rust in one report),
+# Collect C++ and Rust coverage and upload one combined HTML report.
 
 name: Code coverage
 
@@ -19,43 +18,31 @@ on:
   workflow_call:
     inputs:
       coverage-threshold:
-        description: 'Minimum effective line coverage percentage to enforce.'
+        description: 'Minimum line coverage percentage after applying justifications; 0 disables the coverage gate.'
         type: number
         default: 66
       artifact-name:
-        description: 'Name of the uploaded coverage report artifact.'
+        description: 'Name under which the coverage report appears in the workflow run.'
         type: string
         default: coverage-html
       retention-days:
-        description: 'Retention period for the uploaded coverage artifact.'
+        description: 'Number of days to keep the uploaded coverage report.'
         type: number
         default: 10
 
 jobs:
   coverage:
     name: Coverage
-    runs-on: ubuntu-24.04
+    uses: eclipse-score/cicd-workflows/.github/workflows/bazel.yml@d241348e8670bf5b8902d67ff3ac77e7f60f9ec7 # main (2026-11-11)
     permissions:
       contents: read
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-
-      - name: Setup Bazel with shared caching
-        uses: eclipse-score/cicd-actions/setup-bazel-cache@e2a2a587a759b681632040ec1e1294015a0405f5 # setup-bazel-cache/v0.1.0
-        with:
-          disk-cache-key: ${{ github.job }}
-
-      - name: Generate coverage report and enforce threshold
-        env:
-          COVERAGE_THRESHOLD: ${{ inputs.coverage-threshold }}
-        run: |
-          bazel run //quality/coverage:run_coverage
-
-      - name: Upload coverage report
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: ${{ inputs.artifact-name }}
-          path: coverage_artifacts
-          retention-days: ${{ inputs.retention-days }}
+    with:
+      test-targets: //score/...
+      test-command: coverage
+      bazel-configs: llvm_cov
+      cache-key: coverage
+      test-args: --build_tests_only
+      coverage-justifications: quality/coverage/coverage_justifications.yaml
+      coverage-threshold: ${{ inputs.coverage-threshold }}
+      artifact-name: ${{ inputs.artifact-name }}
+      retention-days: ${{ inputs.retention-days }}
