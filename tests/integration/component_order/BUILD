@@ -31,6 +31,7 @@ cc_binary(
     deps = [
         "//score/launch_manager:lifecycle_cc",
         "//tests/utils/test_helper",
+        "//tests/utils/test_helper:arg_parser",
         "//tests/utils/test_helper:shm_counter",
         "@googletest//:gtest_main",
     ],

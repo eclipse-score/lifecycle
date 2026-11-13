@@ -14,7 +14,9 @@
 #include <csignal>
 #include <cstdlib>
 #include <string>
+#include <tuple>
 
+#include "tests/utils/test_helper/arg_parser.hpp"
 #include "tests/utils/test_helper/shm_counter.hpp"
 #include "tests/utils/test_helper/test_runner.hpp"
 #include <score/mw/lifecycle/report_running.h>
@@ -41,7 +43,7 @@ int g_expected_start_position = 0;
 
 TEST(ComponentOrder, Component)
 {
-    ASSERT_GT(g_expected_start_position, 0) << "Expected launch position must be given as the first argument";
+    ASSERT_GT(g_expected_start_position, 0) << "Expected launch position must be given with --start-pos";
 
     score::mw::lifecycle::test::ShmCounter counter{kStartCounterName};
     int order = 0;
@@ -60,12 +62,31 @@ TEST(ComponentOrder, Component)
     }
 }
 
+namespace
+{
+/// @brief Program argument for start position in launch order.
+struct StartPosArg
+{
+    static constexpr std::string_view name = "--start-pos";
+    using type = int;
+    static constexpr type default_value = 0;
+};
+
+/// @brief Program argument for stop position in shutdown order.
+struct StopPosArg
+{
+    static constexpr std::string_view name = "--stop-pos";
+    using type = int;
+    static constexpr type default_value = 0;
+};
+}  // namespace
+
 int main(int argc, char** argv)
 {
     const char* process_id = std::getenv("PROCESSIDENTIFIER");
     g_id = process_id ? process_id : "unknown";
-    g_expected_start_position = argc > 1 ? std::atoi(argv[1]) : 0;
-    g_expected_stop_position = argc > 2 ? std::atoi(argv[2]) : 0;
+    std::tie(g_expected_start_position, g_expected_stop_position) =
+        score::mw::lifecycle::test::ParseArgs<StartPosArg, StopPosArg>(argc, argv);
     TestRunner::Init(("order_process_" + g_id).c_str());
 
     // init the stop shm and install the handler before running
