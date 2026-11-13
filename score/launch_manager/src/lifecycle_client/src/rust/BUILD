@@ -29,5 +29,8 @@ rust_library(
 lm_rust_test(
     name = "lifecycle_client_rs_test",
     crate = ":lifecycle_client_rs",
-    target_compatible_with = ["@score_cpp_policies//sanitizers/constraints:no_tsan"],
+    target_compatible_with = [
+        "@score_cpp_policies//sanitizers/constraints:no_tsan",
+        "@score_cpp_policies//sanitizers/constraints:no_asan",
+    ],
 )

@@ -45,6 +45,8 @@ build:tsan --@score_cpp_policies//sanitizers/flags:tsan=True
 build:tsan --platform_suffix=tsan
 build:tsan --config=with_debug_symbols
 test:tsan  --run_under=@score_cpp_policies//sanitizers:wrapper
+# -O1 (implied by tsan) makes GCC report -Wmaybe-uninitialized false positives, e.g. for std::optional.
+build:tsan --copt=-Wno-error=maybe-uninitialized
 
 # ==============================================================================
 # Composite configs — convenience aliases for common combinations
