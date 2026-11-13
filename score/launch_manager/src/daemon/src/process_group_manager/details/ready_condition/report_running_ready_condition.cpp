@@ -25,6 +25,11 @@ ReportRunningReadyCondition::ReportRunningReadyCondition(
 {
 }
 
+void ReportRunningReadyCondition::prepare() const
+{
+    terminated_ = false;
+}
+
 Result<void> ReportRunningReadyCondition::wait(cpp::stop_token /*stop_token*/, const Handle& handle) const
 {
     const ProcessHandle* const process = std::get_if<ProcessHandle>(&handle);
@@ -36,9 +41,9 @@ Result<void> ReportRunningReadyCondition::wait(cpp::stop_token /*stop_token*/, c
 
     const osal::OsalReturnType result = launcher_.waitForkRunning(process->sync, timeout_);
 
-    // If the PID is invalid, the process died and the notification was sent
-    // from tryHandleTermination rather than the process itself.
-    if (result == osal::OsalReturnType::kSuccess && process->pid > 0)
+    // If the process terminated, the notification may have come from tryHandleTermination
+    // rather than from the process itself.
+    if (result == osal::OsalReturnType::kSuccess && !terminated_)
     {
         return {};
     }
@@ -54,6 +59,9 @@ bool ReportRunningReadyCondition::tryHandleTermination(const Handle& handle, int
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(
         process->sync != nullptr,
         "ReportRunningReadyCondition should only be called with a ProcessHandle containing IPCCommsSync");
+
+    // Must be set before waking the waiting thread, so that wait() sees it.
+    terminated_ = true;
 
     // FIXME: This static_cast was copied from the old code at
     // https://github.com/eclipse-score/lifecycle/blob/876c5df184ee0008017334303c12f1c2ee75e42e/score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node.cpp#L171

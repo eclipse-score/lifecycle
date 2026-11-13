@@ -18,6 +18,7 @@
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/iready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include "score/result/result.h"
+#include <atomic>
 #include <chrono>
 #include <optional>
 
@@ -34,6 +35,9 @@ class ReportRunningReadyCondition final : public IReadyCondition
     /// @param timeout The maximum duration to wait for the process to report running,
     ///                or no timeout if not specified.
     explicit ReportRunningReadyCondition(osal::IProcess& launcher, std::optional<std::chrono::milliseconds> timeout);
+
+    /// @brief Forget a termination reported during a previous activation.
+    void prepare() const override;
 
     /// @brief Wait until the resource represented by the given handle is ready.
     /// @param stop_token Token which can be used to interrupt the wait.
@@ -54,6 +58,11 @@ class ReportRunningReadyCondition final : public IReadyCondition
     /// @brief The maximum duration to wait for the process to report running,
     ///        or no timeout if not specified.
     const std::optional<std::chrono::milliseconds> timeout_;
+
+    /// @brief Set when the process terminated during the current activation.
+    /// @details tryHandleTermination() wakes the waiting thread through the same semaphore the
+    ///          process uses to report running, so wait() needs this to tell the two apart.
+    mutable std::atomic<bool> terminated_{false};
 };
 
 }  // namespace score::mw::lifecycle::internal
