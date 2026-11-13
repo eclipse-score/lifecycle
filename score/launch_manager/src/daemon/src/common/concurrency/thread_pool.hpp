@@ -18,14 +18,7 @@
 #include "score/mw/launch_manager/common/constants.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/icomponent_controller.hpp"
-#include <pthread.h>
-#if defined(__QNX__)
-#include <sys/storage.h>
-#endif
 #include <score/jthread.hpp>
-#include <atomic>
-#include <cstdint>
-#include <cstdio>
 #include <memory>
 #include <vector>
 
@@ -74,13 +67,6 @@ class ThreadPool final
                 thread.join();
             }
         }
-        // STACK-PROBE (temporary diagnostics)
-        std::fprintf(
-            stderr,
-            "[stack-probe] pool max: used=%zu actual_size=%zu requested_size=%zu bytes\n",
-            maxStackUsed().load(),
-            maxStackSize().load(),
-            static_cast<std::size_t>(kWorkerThreadStackSize));
     }
 
     // Rule of five
@@ -106,75 +92,7 @@ class ThreadPool final
   private:
     /// @brief Entry point for each worker thread.
     /// Blocks on pop() until a job arrives or the queue is stopped, then executes the job.
-    // STACK-PROBE (temporary diagnostics)
-    static std::atomic<std::size_t>& maxStackSize()
-    {
-        static std::atomic<std::size_t> max_size{0U};
-        return max_size;
-    }
-
-    static std::atomic<std::size_t>& maxStackUsed()
-    {
-        static std::atomic<std::size_t> max_used{0U};
-        return max_used;
-    }
-
-    // STACK-PROBE (temporary diagnostics): fills the not yet used part of the stack with a pattern.
-    static __attribute__((noinline)) void paintStack(volatile std::uint8_t* low, volatile std::uint8_t* limit)
-    {
-        for (volatile std::uint8_t* p = low; p < limit; ++p)
-        {
-            *p = 0xA5U;
-        }
-    }
-
     void run()
-    {
-        // STACK-PROBE (temporary diagnostics)
-        auto* const frame = static_cast<volatile std::uint8_t*>(__builtin_frame_address(0));
-#if defined(__QNX__)
-        // QNX has no pthread_getattr_np(); the thread local storage holds the stack bounds.
-        void* const stack_addr = __tls()->__stackaddr;
-        const std::size_t stack_size = __tls()->__stacksize;
-#else
-        pthread_attr_t attr{};
-        void* stack_addr = nullptr;
-        std::size_t stack_size = 0U;
-        static_cast<void>(pthread_getattr_np(pthread_self(), &attr));
-        static_cast<void>(pthread_attr_getstack(&attr, &stack_addr, &stack_size));
-        static_cast<void>(pthread_attr_destroy(&attr));
-#endif
-        auto* const stack_low = static_cast<volatile std::uint8_t*>(stack_addr);
-        auto* const stack_high = stack_low + stack_size;
-        // Leave a margin below the current frame for paintStack() itself.
-        if (stack_low < frame - 1024)
-        {
-            paintStack(stack_low, frame - 1024);
-        }
-        runLoop();
-        volatile std::uint8_t* p = stack_low;
-        while ((p < stack_high) && (*p == 0xA5U))
-        {
-            ++p;
-        }
-        const std::size_t used = static_cast<std::size_t>(stack_high - p);
-        std::fprintf(
-            stderr,
-            "[stack-probe] worker: used=%zu actual_size=%zu requested_size=%zu bytes\n",
-            used,
-            stack_size,
-            static_cast<std::size_t>(kWorkerThreadStackSize));
-        std::size_t prev_size = maxStackSize().load();
-        while ((prev_size < stack_size) && !maxStackSize().compare_exchange_weak(prev_size, stack_size))
-        {
-        }
-        std::size_t prev = maxStackUsed().load();
-        while ((prev < used) && !maxStackUsed().compare_exchange_weak(prev, used))
-        {
-        }
-    }
-
-    void runLoop()
     {
         while (true)
         {
