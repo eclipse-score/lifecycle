@@ -377,5 +377,6 @@ The following deviations from the module safety plan are present in the module s
 These are deviations from planned processes execution and/or workproduct results,
 safety anomalies in the sense of known bugs in the software are reported in the release notes.
 
-<Describe here the deviations, whether they have an impact on module's safety functions,
-how these can be mitigated or argued and if and when a resolution is planned.>
+The module is under development and the safety work products are not yet completed
+(see the work products lists and their status above).
+Deviations remaining at the time of the v1.0 release will be documented here.
