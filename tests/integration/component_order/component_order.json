@@ -1,0 +1,127 @@
+{
+    "schema_version": 2,
+    "defaults": {
+        "deployment_config": {
+            "bin_dir": "/tmp/tests/component_order",
+            "ready_timeout_ms": 5000,
+            "shutdown_timeout_ms": 200,
+            "environmental_variables": {
+                "LD_LIBRARY_PATH": "/opt/lib"
+            },
+            "sandbox": {
+                "uid": 0,
+                "gid": 0,
+                "scheduling_policy": "SCHED_OTHER",
+                "scheduling_priority": 0
+            }
+        },
+        "component_properties": {
+            "application_profile": {
+                "application_type": "Reporting",
+                "is_self_terminating": false
+            },
+            "ready_condition": {
+                "process_state": "Running"
+            }
+        }
+    },
+    "components": {
+        "control_client_test_driver": {
+            "component_properties": {
+                "binary_name": "control_client_test_driver",
+                "application_profile": {
+                    "application_type": "State_Manager",
+                    "alive_supervision": {
+                        "min_indications": 0
+                    }
+                }
+            },
+            "deployment_config": {
+                "environmental_variables": {
+                    "PROCESSIDENTIFIER": "control_client_test_driver"
+                }
+            }
+        },
+        "component_a": {
+            "component_properties": {
+                "binary_name": "order_process",
+                "process_arguments": [
+                    "--start-pos",
+                    "1",
+                    "--stop-pos",
+                    "3"
+                ]
+            },
+            "deployment_config": {
+                "environmental_variables": {
+                    "PROCESSIDENTIFIER": "a"
+                }
+            }
+        },
+        "component_b": {
+            "component_properties": {
+                "binary_name": "order_process",
+                "depends_on": [
+                    "component_a"
+                ],
+                "process_arguments": [
+                    "--start-pos",
+                    "2",
+                    "--stop-pos",
+                    "2"
+                ]
+            },
+            "deployment_config": {
+                "environmental_variables": {
+                    "PROCESSIDENTIFIER": "b"
+                }
+            }
+        },
+        "component_c": {
+            "component_properties": {
+                "binary_name": "order_process",
+                "process_arguments": [
+                    "--start-pos",
+                    "3",
+                    "--stop-pos",
+                    "1"
+                ]
+            },
+            "deployment_config": {
+                "environmental_variables": {
+                    "PROCESSIDENTIFIER": "c"
+                }
+            }
+        }
+    },
+    "run_targets": {
+        "Startup": {
+            "depends_on": [
+                "control_client_test_driver"
+            ]
+        },
+        "Off": {
+            "depends_on": []
+        },
+        "run_target_a": {
+            "depends_on": [
+                "control_client_test_driver",
+                "component_a",
+                "component_b"
+            ]
+        },
+        "run_target_b": {
+            "depends_on": [
+                "control_client_test_driver",
+                "run_target_a",
+                "component_c"
+            ]
+        }
+    },
+    "initial_run_target": "Startup",
+    "fallback_run_target": {
+        "depends_on": [
+            "control_client_test_driver"
+        ]
+    }
+}

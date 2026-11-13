@@ -15,6 +15,7 @@ test_suite(
     name = "integration",
     tests = [
         "//tests/integration/complex_monitoring",
+        "//tests/integration/component_order",
         "//tests/integration/crash_ignores_dependents",
         "//tests/integration/crash_on_startup",
         "//tests/integration/explicit_fallback_request",
