@@ -353,9 +353,10 @@ void ProcessGroupManager::processGroupHandler(Graph& pg)
     if (GraphState::kSuccess == graph_state || GraphState::kUndefinedState == graph_state)
     {
         RunTargetActivationSource last_source = pg.getPendingTransition().source;
+        const bool busy = isActivationBusy();
         IdentifierHash last_state = pg.setPendingState(IdentifierHash(""));
 
-        if ((last_state == IdentifierHash("")) && (GraphState::kSuccess == graph_state))
+        if (!busy)
         {
             // The previous transition finished and nothing newer was requested: take the next queued request,
             // skipping any that would not change the active Run Target.
