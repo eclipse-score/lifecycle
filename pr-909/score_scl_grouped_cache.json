@@ -364,18 +364,6 @@
           "repo_name": "local_repo",
           "hash": "",
           "url": ""
-        },
-        {
-          "name": "test_lm_shutdown_with_control_requests",
-          "file": "tests/integration/lm_shutdown_with_control_requests/test.py",
-          "line": 18,
-          "need": "comp_req__launch_man__launcher_exit_shutdown",
-          "verify_type": "partially",
-          "result": "passed",
-          "result_text": "",
-          "repo_name": "local_repo",
-          "hash": "",
-          "url": ""
         }
       ]
     }
