@@ -36,9 +36,9 @@ def test_component_order(target, setup_test, assert_test_results, remote_test_di
 
     The config is such that:
 
-    run_target_b(component_a -> component_b) -> run_target_a(component_c)
+    run_target_b(component_c) -> run_target_a(component_a -> component_b)
 
-    Should observer:
+    Should observe:
     1. activate run_target_a
        component_a starts then
        component_b starts
