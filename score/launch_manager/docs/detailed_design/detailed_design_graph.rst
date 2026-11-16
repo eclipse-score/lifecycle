@@ -94,6 +94,20 @@ A component manages one resource, currently only a POSIX process, and is always 
   first gracefully up to the shutdown timeout, then forcefully terminating it.
 
 .. uml:: _assets/component_states.puml
+   
+Component Recovery
+~~~~~~~~~~~~~~~~~~
+
+A component can be configured with a restart recovery action. If it terminates unexpectedly while
+its Run Target is active, the graph moves to kComponentRecovery and restarts only this component on the
+thread pool; its dependents keep running and the Run Target stays active. When the last recovery
+succeeds, the graph returns to kSuccess.
+
+If a restart fails, a component without recovery action fails, a different Run Target is requested or
+the Launch Manager shuts down, the ongoing recoveries are stopped and the graph continues via kAborting
+to the pending or fallback Run Target.
+
+.. uml:: _assets/component_recovery.puml
    :align: center
 
 Process Termination
