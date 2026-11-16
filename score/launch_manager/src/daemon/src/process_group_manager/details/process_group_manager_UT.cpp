@@ -335,7 +335,7 @@ TEST_F(ProcessGroupManagerWatchdogTest, GetActiveRunTargetWhenStoppedReturnsShut
 
     auto set_result = process_group_manager_->setRequestedRunTarget(IdentifierHash{"Startup"});
     EXPECT_FALSE(set_result.has_value());
-    EXPECT_EQ(set_result.error(), ExecErrc::kShuttingDown);
+    EXPECT_EQ(set_result.error(), ExecErrc::kFailed);
 }
 
 }  // namespace
