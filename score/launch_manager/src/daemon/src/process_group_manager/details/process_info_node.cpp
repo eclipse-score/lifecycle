@@ -206,7 +206,8 @@ void ProcessInfoNode::unblockSync()
 
 IComponent::TerminationResult ProcessInfoNode::tryHandleTermination(int32_t process_status)
 {
-    LM_LOG_DEBUG() << "Process" << identifier_ << "( pid" << pid_ << ") terminated with status" << process_status;
+    LM_LOG_DEBUG() << "Process" << identifier_ << "( pid" << pid_.load() << ") terminated with status"
+                   << process_status;
     pid_ = 0;
     exit_status_ = process_status;
     TerminationResult res = TerminationResult::kIgnore;
@@ -247,7 +248,7 @@ IComponent::TerminationResult ProcessInfoNode::tryHandleTermination(int32_t proc
         }
         else
         {
-            LM_LOG_WARN() << "unexpected termination of process" << identifier_ << "( pid" << pid_ << "status"
+            LM_LOG_WARN() << "unexpected termination of process" << identifier_ << "( pid" << pid_.load() << "status"
                           << exit_status_ << ")";
             res = TerminationResult::kFailure;
         }
@@ -301,10 +302,14 @@ IComponent::RequestResult ProcessInfoNode::startProcess(score::cpp::stop_token s
         termination_waiter_->reset();
         static_cast<void>(setState(score::mw::lifecycle::ProcessState::kStarting));  // Cannot fail by design
 
-        if (osal::OsalReturnType::kSuccess == process_handling_.process_interface_->startProcess(pid_, sync_, config_))
+        osal::ProcessID started_pid{0};
+        const auto start_result = process_handling_.process_interface_->startProcess(started_pid, sync_, config_);
+        pid_ = started_pid;
+        if (osal::OsalReturnType::kSuccess == start_result)
         {
             const std::chrono::time_point launched_time = std::chrono::steady_clock::now();
-            LM_LOG_DEBUG() << "startProcess pid" << pid_ << "received for process:" << identifier_ << "( startup time:"
+            LM_LOG_DEBUG() << "startProcess pid" << started_pid << "received for process:" << identifier_
+                           << "( startup time:"
                            << std::chrono::round<std::chrono::microseconds>(launched_time - initial_time) << ")";
 
             auto res = handleProcessStarted(stop_token);
@@ -495,11 +500,12 @@ void ProcessInfoNode::handleProcessRunning()
 {
     if (!isReporting())
     {
-        LM_LOG_DEBUG() << "Considered kRunning for Non Reporting Process pid" << pid_ << "(" << identifier_ << ")";
+        LM_LOG_DEBUG() << "Considered kRunning for Non Reporting Process pid" << pid_.load() << "(" << identifier_
+                       << ")";
     }
     else
     {
-        LM_LOG_DEBUG() << "Got kRunning for pid" << pid_ << "(" << identifier_ << ")";
+        LM_LOG_DEBUG() << "Got kRunning for pid" << pid_.load() << "(" << identifier_ << ")";
     }
 }
 
@@ -517,7 +523,7 @@ void ProcessInfoNode::terminateProcess(const score::cpp::stop_token& stop_token)
 void ProcessInfoNode::handleTerminationProcess(const score::cpp::stop_token& stop_token)
 {
     termination_requested_.store(true);
-    LM_LOG_DEBUG() << "Requesting termination of process pid" << pid_ << "(" << identifier_ << ")";
+    LM_LOG_DEBUG() << "Requesting termination of process pid" << pid_.load() << "(" << identifier_ << ")";
 
     // handle request termination
     // Allow timeout to play out even if stop token is set, to allow proper shutdown
