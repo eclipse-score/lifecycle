@@ -74,6 +74,20 @@ class IComponent
     {
     }
 
+    /// @returns True if the component has a component-local recovery action that can be executed with @c recover().
+    [[nodiscard]] virtual bool canRecover() const
+    {
+        return false;
+    }
+
+    /// @brief Execute the component-local recovery action after the component failed unexpectedly.
+    /// @pre The component has been deactivated after the failure.
+    /// @p stop_token Token that can be stopped to exit the recovery early.
+    virtual RequestResult recover(score::cpp::stop_token /* stop_token */)
+    {
+        return RequestResult::kFailure;
+    }
+
     /// @returns the index of the component in the graph.
     [[nodiscard]] virtual IdentifierHash getIdentifier() const = 0;
 
