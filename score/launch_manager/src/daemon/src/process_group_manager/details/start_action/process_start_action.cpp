@@ -42,26 +42,20 @@ Result<Handle> ProcessStartAction::start(cpp::stop_token /*stop_token*/) const
     return MakeUnexpected(ExecErrc::kGeneralError);
 }
 
-bool ProcessStartAction::track(IComponent& component, const Handle& handle) const
+SafeProcessMapInsertResult ProcessStartAction::track(IComponent& component, const Handle& handle) const
 {
     const ProcessHandle* const process = std::get_if<ProcessHandle>(&handle);
     SCORE_LANGUAGE_FUTURECPP_ASSERT_MESSAGE(process != nullptr, "ProcessStartAction can only track a process handle");
 
-    switch (process_map_.insertIfNotTerminated(process->pid, &component))
+    const SafeProcessMapInsertResult result = process_map_.insertIfNotTerminated(process->pid, &component);
+
+    if ((result.type == SafeProcessMapReturnType::kInsertionError) ||
+        (result.type == SafeProcessMapReturnType::kInvalidIdError))
     {
-        case SafeProcessMapReturnType::kInserted:
-            // The process is still running, its termination is reported later.
-        case SafeProcessMapReturnType::kMatched:
-            // The process has already terminated, and the termination was reported to the
-            // component from within insertIfNotTerminated().
-            return true;
-        case SafeProcessMapReturnType::kInsertionError:
-        case SafeProcessMapReturnType::kInvalidIdError:
-            break;
+        LM_LOG_ERROR() << config_.name << ": could not add pid" << process->pid << "to the process map";
     }
 
-    LM_LOG_ERROR() << config_.name << ": could not add pid" << process->pid << "to the process map";
-    return false;
+    return result;
 }
 
 }  // namespace score::mw::lifecycle::internal

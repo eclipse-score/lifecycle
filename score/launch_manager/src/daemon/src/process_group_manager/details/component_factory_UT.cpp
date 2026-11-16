@@ -58,7 +58,8 @@ class ComponentFactoryTest : public Test
     ComponentFactoryTest()
     {
         // Started processes are still running when they are tracked, unless a test says otherwise.
-        ON_CALL(process_map_, insertIfNotTerminated(_, _)).WillByDefault(Return(SafeProcessMapReturnType::kInserted));
+        ON_CALL(process_map_, insertIfNotTerminated(_, _))
+            .WillByDefault(Return(SafeProcessMapInsertResult{SafeProcessMapReturnType::kInserted}));
     }
 
     /// @brief Expect the component's process to be started, and return the given sync object.
@@ -418,7 +419,7 @@ TEST_F(ComponentFactoryTest, ActivatedComponentTracksItsProcess)
 
     expectProcessStarted(nullptr);
     EXPECT_CALL(process_map_, insertIfNotTerminated(kPid, component.get()))
-        .WillOnce(Return(SafeProcessMapReturnType::kInserted));
+        .WillOnce(Return(SafeProcessMapInsertResult{SafeProcessMapReturnType::kInserted}));
 
     EXPECT_EQ(component->activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
 }
@@ -439,7 +440,7 @@ TEST_F(ComponentFactoryTest, ComponentActivationFailsWhenProcessCannotBeTracked)
 
     expectProcessStarted(nullptr);
     EXPECT_CALL(process_map_, insertIfNotTerminated(kPid, component.get()))
-        .WillOnce(Return(SafeProcessMapReturnType::kInsertionError));
+        .WillOnce(Return(SafeProcessMapInsertResult{SafeProcessMapReturnType::kInsertionError}));
     EXPECT_CALL(launcher_, forceTermination(kPid)).WillOnce(Return(osal::OsalReturnType::kSuccess));
 
     EXPECT_EQ(component->activate(cpp::stop_token{}), IComponent::RequestResult::kFailure);

@@ -13,6 +13,7 @@
 
 #include "score/mw/launch_manager/process_group_manager/details/component.hpp"
 #include "score/mw/launch_manager/common/log.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 
 namespace score::mw::lifecycle::internal
 {
@@ -114,19 +115,32 @@ IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
 
     state_ = StartingState{handle, stop_activation};
 
-    // Track the resource and wait for the ready condition. The state is unlocked so that
-    // `deactivate` or `tryHandleTermination` are callable meanwhile. Tracking may call
-    // `tryHandleTermination` synchronously if the resource has already terminated, in which case
-    // the stop checks below make the activation fail (or not, if the termination is ignored).
-    lock.unlock();
-    if (!start_action_->track(*this, handle))
+    // Track the resource so that its termination is reported. If it has already terminated, the
+    // termination is handled here, while the state is still locked.
+    const SafeProcessMapInsertResult track_result = start_action_->track(*this, handle);
+    switch (track_result.type)
     {
-        lock.lock();
-        LM_LOG_ERROR() << config_->name << ": failed to track the started resource";
-        static_cast<void>(force_stop_action_->forceStop(stop_token, handle));
-        state_ = FaultState{handle};
-        return RequestResult::kFailure;
+        case SafeProcessMapReturnType::kInserted:
+            break;
+
+        case SafeProcessMapReturnType::kMatched:
+            if (tryHandleTerminationInternally(track_result.exit_status) == TerminationResult::kFailure)
+            {
+                return RequestResult::kFailure;
+            }
+            break;
+
+        case SafeProcessMapReturnType::kInsertionError:
+        case SafeProcessMapReturnType::kInvalidIdError:
+            LM_LOG_ERROR() << config_->name << ": failed to track the started resource";
+            static_cast<void>(force_stop_action_->forceStop(stop_token, handle));
+            state_ = FaultState{handle};
+            return RequestResult::kFailure;
     }
+
+    // Wait for the ready condition. The state is unlocked so that `deactivate` or
+    // `tryHandleTermination` are callable while we are waiting.
+    lock.unlock();
     if (!ready_condition_->wait(stop_activation.get_token(), handle).has_value())
     {
         return RequestResult::kFailure;
@@ -202,7 +216,11 @@ IComponent::RequestResult Component::deactivate(cpp::stop_token stop_token)
 IComponent::TerminationResult Component::tryHandleTermination(int32_t status)
 {
     const std::lock_guard<std::mutex> lock{state_mutex_};
+    return tryHandleTerminationInternally(status);
+}
 
+IComponent::TerminationResult Component::tryHandleTerminationInternally(int32_t status)
+{
     // If we are waiting for termination, mark it as done. We do not care
     // about the exit code.
     if (std::holds_alternative<TerminatingState>(state_))

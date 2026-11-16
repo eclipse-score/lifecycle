@@ -24,7 +24,7 @@ class MockSafeProcessMapInserter : public SafeProcessMapInserter
 {
   public:
     MOCK_METHOD(
-        SafeProcessMapReturnType,
+        SafeProcessMapInsertResult,
         insertIfNotTerminated,
         (osal::ProcessID key, IComponent* component),
         (override));

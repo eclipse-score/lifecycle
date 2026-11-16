@@ -123,6 +123,12 @@ class Component final : public IComponent
     /// @brief The current state of the component.
     State state_;
 
+    /// @brief Handle the termination of the resource.
+    /// @pre The state must be locked by the caller.
+    /// @param status Exit code of the resource.
+    /// @return Whether the termination is ignored or means the component failed.
+    TerminationResult tryHandleTerminationInternally(int32_t status);
+
     /// @brief Start alive supervision now, if the component is supervised.
     [[nodiscard]] bool activateSupervision() const;
 

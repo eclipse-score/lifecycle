@@ -31,8 +31,8 @@ class EmptyStartAction final : public IStartAction
     /// @brief Does nothing, since there is no resource to track.
     /// @param component The component which owns the resource.
     /// @param handle The handle returned by start().
-    /// @return Always true.
-    [[nodiscard]] bool track(IComponent& component, const Handle& handle) const override;
+    /// @return Always \c kInserted: there is no resource that could have terminated already.
+    [[nodiscard]] SafeProcessMapInsertResult track(IComponent& component, const Handle& handle) const override;
 };
 
 }  // namespace score::mw::lifecycle::internal

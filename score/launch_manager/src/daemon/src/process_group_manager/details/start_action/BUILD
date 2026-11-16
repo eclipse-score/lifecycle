@@ -22,6 +22,7 @@ cc_library(
     deps = [
         "//score/launch_manager/src/daemon/src/process_group_manager/details:handle",
         "//score/launch_manager/src/daemon/src/process_group_manager/details:icomponent",
+        "//score/launch_manager/src/daemon/src/process_group_manager/details:safe_process_map",
         "@score_baselibs//score/language/futurecpp",
         "@score_baselibs//score/result",
     ],

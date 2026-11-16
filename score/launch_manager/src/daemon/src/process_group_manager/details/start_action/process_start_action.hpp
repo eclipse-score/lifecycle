@@ -44,15 +44,13 @@ class ProcessStartAction final : public IStartAction
     /// @return The handle of the started process, or an error if the action failed.
     Result<Handle> start(cpp::stop_token stop_token) const override;
 
-    /// @brief Register the started process in the process map, so that its termination is
+    /// @brief Register the started process in the process map, so that its later termination is
     ///        reported to the component.
-    /// @warning Must be called without holding the component's state lock: if the process has
-    ///          already terminated, the termination is delivered synchronously from within this call.
     /// @param component The component which owns the process.
     /// @param handle The process handle returned by start().
-    /// @return Whether the process is being tracked. This is also true if the process had already
-    ///         terminated and the termination was delivered.
-    [[nodiscard]] bool track(IComponent& component, const Handle& handle) const override;
+    /// @return The result of inserting the process into the process map. On \c kMatched, the
+    ///         process has already terminated and the caller must handle the termination itself.
+    [[nodiscard]] SafeProcessMapInsertResult track(IComponent& component, const Handle& handle) const override;
 
   private:
     /// @brief The process launcher used to start the process.

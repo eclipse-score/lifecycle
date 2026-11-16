@@ -21,9 +21,9 @@ Result<Handle> EmptyStartAction::start(cpp::stop_token /*stop_token*/) const
     return EmptyHandle{};
 }
 
-bool EmptyStartAction::track(IComponent& /*component*/, const Handle& /*handle*/) const
+SafeProcessMapInsertResult EmptyStartAction::track(IComponent& /*component*/, const Handle& /*handle*/) const
 {
-    return true;
+    return SafeProcessMapInsertResult{SafeProcessMapReturnType::kInserted};
 }
 
 }  // namespace score::mw::lifecycle::internal

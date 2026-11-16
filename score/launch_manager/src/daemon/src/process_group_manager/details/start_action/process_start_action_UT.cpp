@@ -18,7 +18,6 @@
 #include "score/mw/lifecycle/execution_error.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <tuple>
 
 namespace score::mw::lifecycle::internal
 {
@@ -80,18 +79,20 @@ TEST(ProcessStartActionTest, TrackInsertsProcessIntoProcessMap)
     MockComponent component;
 
     EXPECT_CALL(process_map, insertIfNotTerminated(42, &component))
-        .WillOnce(Return(SafeProcessMapReturnType::kInserted));
+        .WillOnce(Return(SafeProcessMapInsertResult{SafeProcessMapReturnType::kInserted}));
 
-    EXPECT_TRUE(process_start_action.track(component, ProcessHandle{42, nullptr}));
+    EXPECT_EQ(
+        process_start_action.track(component, ProcessHandle{42, nullptr}).type, SafeProcessMapReturnType::kInserted);
 }
 
-class ProcessStartActionTrackTest : public TestWithParam<std::tuple<SafeProcessMapReturnType, bool>>
+class ProcessStartActionTrackTest : public TestWithParam<SafeProcessMapReturnType>
 {
 };
 
-TEST_P(ProcessStartActionTrackTest, TrackResultDependsOnProcessMapResult)
+TEST_P(ProcessStartActionTrackTest, TrackReturnsProcessMapResult)
 {
-    const auto [map_result, expected_tracked] = GetParam();
+    const SafeProcessMapReturnType map_result = GetParam();
+    constexpr int32_t kExitStatus = 7;
 
     NiceMock<osal::MockIProcess> launcher;
     StrictMock<MockSafeProcessMapInserter> process_map;
@@ -99,21 +100,23 @@ TEST_P(ProcessStartActionTrackTest, TrackResultDependsOnProcessMapResult)
     const ProcessStartAction process_start_action(launcher, process_map, config);
     MockComponent component;
 
-    EXPECT_CALL(process_map, insertIfNotTerminated(_, _)).WillOnce(Return(map_result));
+    EXPECT_CALL(process_map, insertIfNotTerminated(_, _))
+        .WillOnce(Return(SafeProcessMapInsertResult{map_result, kExitStatus}));
 
-    EXPECT_EQ(process_start_action.track(component, ProcessHandle{42, nullptr}), expected_tracked);
+    const SafeProcessMapInsertResult result = process_start_action.track(component, ProcessHandle{42, nullptr});
+
+    EXPECT_EQ(result.type, map_result);
+    EXPECT_EQ(result.exit_status, kExitStatus);
 }
 
 INSTANTIATE_TEST_SUITE_P(
     AllProcessMapResults,
     ProcessStartActionTrackTest,
     Values(
-        // The process is still running.
-        std::make_tuple(SafeProcessMapReturnType::kInserted, true),
-        // The process has already terminated, and the termination was delivered.
-        std::make_tuple(SafeProcessMapReturnType::kMatched, true),
-        std::make_tuple(SafeProcessMapReturnType::kInsertionError, false),
-        std::make_tuple(SafeProcessMapReturnType::kInvalidIdError, false)));
+        SafeProcessMapReturnType::kInserted,
+        SafeProcessMapReturnType::kMatched,
+        SafeProcessMapReturnType::kInsertionError,
+        SafeProcessMapReturnType::kInvalidIdError));
 
 TEST(ProcessStartActionTest, TrackWithEmptyHandleIsNotAllowed)
 {

@@ -43,7 +43,7 @@ TEST(EmptyStartActionTest, TrackSucceeds)
     EmptyStartAction empty_start_action;
     MockComponent component;
 
-    EXPECT_TRUE(empty_start_action.track(component, EmptyHandle{}));
+    EXPECT_EQ(empty_start_action.track(component, EmptyHandle{}).type, SafeProcessMapReturnType::kInserted);
 }
 
 }  // namespace
