@@ -85,7 +85,9 @@
                     }
                 ],
                 "recovery_action": {
-                    "run_target": "fallback_run_target"
+                    "switch_run_target": {
+                        "run_target": "fallback_run_target"
+                    }
                 }
             }
         },
@@ -155,7 +157,9 @@
                     }
                 ],
                 "recovery_action": {
-                    "run_target": "fallback_run_target"
+                    "switch_run_target": {
+                        "run_target": "fallback_run_target"
+                    }
                 }
             }
         },
@@ -226,7 +230,9 @@
                     }
                 ],
                 "recovery_action": {
-                    "run_target": "fallback_run_target"
+                    "switch_run_target": {
+                        "run_target": "fallback_run_target"
+                    }
                 }
             }
         },
@@ -297,7 +303,9 @@
                     }
                 ],
                 "recovery_action": {
-                    "run_target": "fallback_run_target"
+                    "switch_run_target": {
+                        "run_target": "fallback_run_target"
+                    }
                 }
             }
         }
