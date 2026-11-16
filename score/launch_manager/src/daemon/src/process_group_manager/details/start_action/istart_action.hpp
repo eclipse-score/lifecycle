@@ -15,6 +15,7 @@
 #define SCORE_LCM_ISTART_ACTION_HPP_INCLUDED
 
 #include "score/mw/launch_manager/process_group_manager/details/handle.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
 #include "score/result/result.h"
 #include <score/stop_token.hpp>
 
@@ -31,6 +32,14 @@ class IStartAction
     /// @param stop_token Token which can be used to interrupt the action.
     /// @return The handle of the started resource, or an error if the action failed.
     virtual Result<Handle> start(cpp::stop_token stop_token) const = 0;
+
+    /// @brief Register the started resource, so that its termination is reported to the component.
+    /// @warning Must be called without holding the component's state lock: if the resource has
+    ///          already terminated, the termination is delivered synchronously from within this call.
+    /// @param component The component which owns the resource.
+    /// @param handle The handle returned by start().
+    /// @return Whether the resource is being tracked.
+    [[nodiscard]] virtual bool track(IComponent& component, const Handle& handle) const = 0;
 };
 
 }  // namespace score::mw::lifecycle::internal

@@ -16,6 +16,8 @@
 
 #include "score/mw/launch_manager/configuration/component_config.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/handle.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/icomponent.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/safe_process_map.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/start_action/istart_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/iprocess.hpp"
 #include "score/result/result.h"
@@ -29,18 +31,35 @@ class ProcessStartAction final : public IStartAction
   public:
     /// @brief Creates a new process start action.
     /// @param launcher The process launcher used to start the process.
+    /// @param process_map Used to report the termination of the started process to its component.
     /// @param config Configuration describing the executable to launch
     ///               and its environment.
-    ProcessStartAction(osal::IProcess& launcher, const configuration::ComponentConfig& config);
+    ProcessStartAction(
+        osal::IProcess& launcher,
+        SafeProcessMapInserter& process_map,
+        const configuration::ComponentConfig& config);
 
     /// @brief Start a process.
     /// @param stop_token Token which can be used to interrupt the action.
     /// @return The handle of the started process, or an error if the action failed.
     Result<Handle> start(cpp::stop_token stop_token) const override;
 
+    /// @brief Register the started process in the process map, so that its termination is
+    ///        reported to the component.
+    /// @warning Must be called without holding the component's state lock: if the process has
+    ///          already terminated, the termination is delivered synchronously from within this call.
+    /// @param component The component which owns the process.
+    /// @param handle The process handle returned by start().
+    /// @return Whether the process is being tracked. This is also true if the process had already
+    ///         terminated and the termination was delivered.
+    [[nodiscard]] bool track(IComponent& component, const Handle& handle) const override;
+
   private:
     /// @brief The process launcher used to start the process.
     osal::IProcess& launcher_;
+
+    /// @brief Used to report the termination of the started process to its component.
+    SafeProcessMapInserter& process_map_;
 
     /// @brief Configuration describing the executable to launch and its environment.
     const configuration::ComponentConfig& config_;

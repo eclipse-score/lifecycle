@@ -114,9 +114,19 @@ IComponent::RequestResult Component::activate(cpp::stop_token stop_token)
 
     state_ = StartingState{handle, stop_activation};
 
-    // Wait for the ready condition. The state is unlocked so that `deactivate` or
-    // `tryHandleTermination` are callable while we are waiting.
+    // Track the resource and wait for the ready condition. The state is unlocked so that
+    // `deactivate` or `tryHandleTermination` are callable meanwhile. Tracking may call
+    // `tryHandleTermination` synchronously if the resource has already terminated, in which case
+    // the stop checks below make the activation fail (or not, if the termination is ignored).
     lock.unlock();
+    if (!start_action_->track(*this, handle))
+    {
+        lock.lock();
+        LM_LOG_ERROR() << config_->name << ": failed to track the started resource";
+        static_cast<void>(force_stop_action_->forceStop(stop_token, handle));
+        state_ = FaultState{handle};
+        return RequestResult::kFailure;
+    }
     if (!ready_condition_->wait(stop_activation.get_token(), handle).has_value())
     {
         return RequestResult::kFailure;

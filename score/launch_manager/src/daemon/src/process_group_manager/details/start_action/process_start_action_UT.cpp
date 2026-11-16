@@ -11,11 +11,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
+#include "score/mw/launch_manager/process_group_manager/details/mock_component.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/mock_safe_process_map_inserter.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/start_action/process_start_action.hpp"
 #include "score/mw/launch_manager/process_group_manager/mock_iprocess.hpp"
 #include "score/mw/lifecycle/execution_error.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <tuple>
 
 namespace score::mw::lifecycle::internal
 {
@@ -28,7 +31,8 @@ TEST(ProcessStartActionTest, StartCallsStartProcessWithConfig)
 {
     StrictMock<osal::MockIProcess> launcher;
     const configuration::ComponentConfig config{};
-    const ProcessStartAction process_start_action(launcher, config);
+    StrictMock<MockSafeProcessMapInserter> process_map;
+    const ProcessStartAction process_start_action(launcher, process_map, config);
 
     EXPECT_CALL(launcher, startProcess(_, _, Ref(config))).WillOnce(Return(osal::OsalReturnType::kSuccess));
 
@@ -39,7 +43,8 @@ TEST(ProcessStartActionTest, StartSucceedsReturnsProcessHandle)
 {
     NiceMock<osal::MockIProcess> launcher;
     const configuration::ComponentConfig config{};
-    const ProcessStartAction process_start_action(launcher, config);
+    StrictMock<MockSafeProcessMapInserter> process_map;
+    const ProcessStartAction process_start_action(launcher, process_map, config);
     const osal::ProcessID expected_pid = 42;
 
     ON_CALL(launcher, startProcess(_, _, _))
@@ -55,7 +60,8 @@ TEST(ProcessStartActionTest, StartFailsReturnsError)
 {
     NiceMock<osal::MockIProcess> launcher;
     const configuration::ComponentConfig config{};
-    const ProcessStartAction process_start_action(launcher, config);
+    StrictMock<MockSafeProcessMapInserter> process_map;
+    const ProcessStartAction process_start_action(launcher, process_map, config);
 
     ON_CALL(launcher, startProcess(_, _, _)).WillByDefault(Return(osal::OsalReturnType::kFail));
 
@@ -63,6 +69,63 @@ TEST(ProcessStartActionTest, StartFailsReturnsError)
 
     EXPECT_FALSE(result.has_value());
     EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
+}
+
+TEST(ProcessStartActionTest, TrackInsertsProcessIntoProcessMap)
+{
+    NiceMock<osal::MockIProcess> launcher;
+    StrictMock<MockSafeProcessMapInserter> process_map;
+    const configuration::ComponentConfig config{};
+    const ProcessStartAction process_start_action(launcher, process_map, config);
+    MockComponent component;
+
+    EXPECT_CALL(process_map, insertIfNotTerminated(42, &component))
+        .WillOnce(Return(SafeProcessMapReturnType::kInserted));
+
+    EXPECT_TRUE(process_start_action.track(component, ProcessHandle{42, nullptr}));
+}
+
+class ProcessStartActionTrackTest : public TestWithParam<std::tuple<SafeProcessMapReturnType, bool>>
+{
+};
+
+TEST_P(ProcessStartActionTrackTest, TrackResultDependsOnProcessMapResult)
+{
+    const auto [map_result, expected_tracked] = GetParam();
+
+    NiceMock<osal::MockIProcess> launcher;
+    StrictMock<MockSafeProcessMapInserter> process_map;
+    const configuration::ComponentConfig config{};
+    const ProcessStartAction process_start_action(launcher, process_map, config);
+    MockComponent component;
+
+    EXPECT_CALL(process_map, insertIfNotTerminated(_, _)).WillOnce(Return(map_result));
+
+    EXPECT_EQ(process_start_action.track(component, ProcessHandle{42, nullptr}), expected_tracked);
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    AllProcessMapResults,
+    ProcessStartActionTrackTest,
+    Values(
+        // The process is still running.
+        std::make_tuple(SafeProcessMapReturnType::kInserted, true),
+        // The process has already terminated, and the termination was delivered.
+        std::make_tuple(SafeProcessMapReturnType::kMatched, true),
+        std::make_tuple(SafeProcessMapReturnType::kInsertionError, false),
+        std::make_tuple(SafeProcessMapReturnType::kInvalidIdError, false)));
+
+TEST(ProcessStartActionTest, TrackWithEmptyHandleIsNotAllowed)
+{
+    NiceMock<osal::MockIProcess> launcher;
+    StrictMock<MockSafeProcessMapInserter> process_map;
+    const configuration::ComponentConfig config{};
+    const ProcessStartAction process_start_action(launcher, process_map, config);
+    MockComponent component;
+
+    EXPECT_DEATH(
+        { static_cast<void>(process_start_action.track(component, EmptyHandle{})); },
+        "ProcessStartAction can only track a process handle");
 }
 
 }  // namespace

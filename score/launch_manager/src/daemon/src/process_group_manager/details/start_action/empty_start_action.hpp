@@ -27,6 +27,12 @@ class EmptyStartAction final : public IStartAction
     /// @param stop_token Token which can be used to interrupt the action.
     /// @return An empty handle.
     Result<Handle> start(cpp::stop_token stop_token) const override;
+
+    /// @brief Does nothing, since there is no resource to track.
+    /// @param component The component which owns the resource.
+    /// @param handle The handle returned by start().
+    /// @return Always true.
+    [[nodiscard]] bool track(IComponent& component, const Handle& handle) const override;
 };
 
 }  // namespace score::mw::lifecycle::internal

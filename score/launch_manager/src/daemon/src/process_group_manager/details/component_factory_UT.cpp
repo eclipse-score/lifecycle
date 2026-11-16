@@ -14,6 +14,7 @@
 #include "score/mw/launch_manager/alive_monitor/mock_supervision_factory.hpp"
 #include "score/mw/launch_manager/osal/mock_ifile_waiter.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component_factory.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/mock_safe_process_map_inserter.hpp"
 #include "score/mw/launch_manager/process_group_manager/mock_iprocess.hpp"
 #include "score/mw/lifecycle/execution_error.h"
 #include <gmock/gmock.h>
@@ -54,6 +55,12 @@ std::shared_ptr<configuration::ComponentConfig> makeConfig(
 class ComponentFactoryTest : public Test
 {
   protected:
+    ComponentFactoryTest()
+    {
+        // Started processes are still running when they are tracked, unless a test says otherwise.
+        ON_CALL(process_map_, insertIfNotTerminated(_, _)).WillByDefault(Return(SafeProcessMapReturnType::kInserted));
+    }
+
     /// @brief Expect the component's process to be started, and return the given sync object.
     void expectProcessStarted(const osal::IpcCommsP& sync)
     {
@@ -72,7 +79,8 @@ class ComponentFactoryTest : public Test
     StrictMock<osal::MockIProcess> launcher_;
     StrictMock<osal::MockIFileWaiter> file_waiter_;
     StrictMock<MockSupervisionFactory> supervision_factory_;
-    ComponentFactory factory_{launcher_, file_waiter_, supervision_factory_};
+    NiceMock<MockSafeProcessMapInserter> process_map_;
+    ComponentFactory factory_{launcher_, process_map_, file_waiter_, supervision_factory_};
 };
 
 TEST_F(ComponentFactoryTest, CreatedComponentIsInactive)
@@ -382,7 +390,7 @@ TEST_F(ComponentFactoryTest, ComponentRemainsUsableAfterFactoryIsDestroyed)
     auto config = makeConfig(configuration::ApplicationType::Native, configuration::ProcessState::Running);
     std::unique_ptr<IComponent> component;
     {
-        const ComponentFactory scoped_factory{launcher_, file_waiter_, supervision_factory_};
+        const ComponentFactory scoped_factory{launcher_, process_map_, file_waiter_, supervision_factory_};
         Result<std::unique_ptr<IComponent>> result = scoped_factory.create(config);
         ASSERT_TRUE(result.has_value());
         component = std::move(result).value();
@@ -391,6 +399,69 @@ TEST_F(ComponentFactoryTest, ComponentRemainsUsableAfterFactoryIsDestroyed)
     expectProcessStarted(nullptr);
 
     EXPECT_EQ(component->activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+}
+
+TEST_F(ComponentFactoryTest, ActivatedComponentTracksItsProcess)
+{
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty(
+        "Description",
+        "Given a component created from a process configuration. "
+        "When the component is activated. "
+        "Then its started process is inserted into the process map together with the component, so that the "
+        "termination of the process is reported to it.");
+
+    auto config = makeConfig(configuration::ApplicationType::Native, configuration::ProcessState::Running);
+    const auto component = createComponent(config);
+    ASSERT_NE(component, nullptr);
+
+    expectProcessStarted(nullptr);
+    EXPECT_CALL(process_map_, insertIfNotTerminated(kPid, component.get()))
+        .WillOnce(Return(SafeProcessMapReturnType::kInserted));
+
+    EXPECT_EQ(component->activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
+}
+
+TEST_F(ComponentFactoryTest, ComponentActivationFailsWhenProcessCannotBeTracked)
+{
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "error-guessing");
+    RecordProperty(
+        "Description",
+        "Given a component created from a process configuration. "
+        "When the component is activated and its process cannot be inserted into the process map. "
+        "Then the process is force stopped and activation fails.");
+
+    auto config = makeConfig(configuration::ApplicationType::Native, configuration::ProcessState::Running);
+    const auto component = createComponent(config);
+    ASSERT_NE(component, nullptr);
+
+    expectProcessStarted(nullptr);
+    EXPECT_CALL(process_map_, insertIfNotTerminated(kPid, component.get()))
+        .WillOnce(Return(SafeProcessMapReturnType::kInsertionError));
+    EXPECT_CALL(launcher_, forceTermination(kPid)).WillOnce(Return(osal::OsalReturnType::kSuccess));
+
+    EXPECT_EQ(component->activate(cpp::stop_token{}), IComponent::RequestResult::kFailure);
+    EXPECT_FALSE(component->active());
+}
+
+TEST_F(ComponentFactoryTest, RunTargetIsNotTracked)
+{
+    RecordProperty("TestType", "interface-test");
+    RecordProperty("DerivationTechnique", "design-analysis");
+    RecordProperty(
+        "Description",
+        "Given a Run Target. "
+        "When the Run Target is activated. "
+        "Then nothing is inserted into the process map.");
+
+    const auto run_target = factory_.createRunTarget("test_run_target");
+    ASSERT_NE(run_target, nullptr);
+
+    EXPECT_CALL(process_map_, insertIfNotTerminated(_, _)).Times(0);
+
+    EXPECT_EQ(run_target->activate(cpp::stop_token{}), IComponent::RequestResult::kSuccess);
 }
 
 TEST_F(ComponentFactoryTest, CreatedRunTargetIsInactive)
