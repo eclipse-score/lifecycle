@@ -361,10 +361,7 @@ def gen_config(output_dir, config, input_filename):
         depl_cfg = component_config["deployment_config"]
         sandbox = depl_cfg["sandbox"]
 
-        component = {
-            "name": component_name,
-            "description": component_config.get("description", ""),
-        }
+        component = {"name": component_name}
 
         app_profile = {
             "application_type": comp_props["application_profile"]["application_type"]
@@ -456,8 +453,6 @@ def gen_config(output_dir, config, input_filename):
                 .get("run_target", "fallback_run_target")
             },
         }
-        if rt_config.get("description"):
-            rt["description"] = rt_config["description"]
         if "depends_on" in rt_config and rt_config["depends_on"]:
             rt["depends_on"] = rt_config["depends_on"]
         out["run_targets"].append(rt)
@@ -468,8 +463,6 @@ def gen_config(output_dir, config, input_filename):
     fb_out = {}
     if "transition_timeout_ms" in fallback:
         fb_out["transition_timeout_ms"] = fallback["transition_timeout_ms"]
-    if fallback.get("description"):
-        fb_out["description"] = fallback["description"]
     if "depends_on" in fallback and fallback["depends_on"]:
         fb_out["depends_on"] = fallback["depends_on"]
     out["fallback_run_target"] = fb_out
