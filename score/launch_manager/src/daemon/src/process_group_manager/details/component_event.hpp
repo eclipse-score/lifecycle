@@ -53,6 +53,24 @@ struct [[nodiscard]] DeactivationComplete
     IdentifierHash node_identifier;
 };
 
+/// @brief A node finished its component-local recovery action successfully.
+/// @details Handled by the Graph to update the state of an ongoing component recovery
+struct [[nodiscard]] ComponentRecoverySuccessful
+{
+    /// @brief The identifier of the node that recovered.
+    IdentifierHash node_identifier;
+};
+
+/// @brief The component-local recovery action of a node failed.
+/// @details Handled by the Graph to escalate the failure
+struct [[nodiscard]] ComponentRecoveryFailed
+{
+    /// @brief The identifier of the node that failed to recover.
+    IdentifierHash node_identifier;
+    /// @brief Why the recovery failed, either kFailure or kTimeout.
+    IComponent::RequestResult reason;
+};
+
 /// @brief A node terminated without having been requested to.
 /// @details Handled by the Graph to initiate recovery action
 struct [[nodiscard]] UnexpectedTermination
@@ -102,6 +120,8 @@ using ComponentEvent = std::variant<
     ActivationSuccessful,
     ActivationFailed,
     DeactivationComplete,
+    ComponentRecoverySuccessful,
+    ComponentRecoveryFailed,
     UnexpectedTermination,
     SupervisionFailure,
     JobSkipped,

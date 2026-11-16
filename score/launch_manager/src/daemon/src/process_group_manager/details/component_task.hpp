@@ -28,6 +28,8 @@ enum class ComponentTaskType : std::uint_least8_t
     kActivate = 0U,
     /// @brief This task is to deactivate the component
     kDeactivate = 1U,
+    /// @brief This task is to execute the component-local recovery action of a failed component
+    kRecover = 2U,
 };
 
 /// @brief Work to perform on a component that can be sent to the job queue to be executed in parallel.
