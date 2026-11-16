@@ -275,14 +275,8 @@ void Graph::tryQueueNode(ComponentTask task)
             // here
             LM_LOG_ERROR() << "Failed to queue node for execution" << push_res.error();
 
-            setState(GraphState::kAborting);
-            // Other jobs still in flight finish the abort through nodeExecuted().
-            // Also, we need to be careful not to recurse or deadlock here. The below function does not lock any mutex
-            // nor call this function
-            if (jobs_in_progress_ == 0)
-            {
-                handleNonTransitionExecution();
-            }
+            // cancel() does not lock any mutex nor call this function, so there is no recursion or deadlock.
+            cancel();
             break;
         }
     }
@@ -406,11 +400,7 @@ void Graph::handleComponentEvent(const ComponentEvent& event)
                 }
                 else
                 {
-                    setState(GraphState::kAborting);
-                    if (jobs_in_progress_ == 0)
-                    {
-                        handleNonTransitionExecution();
-                    }
+                    cancel();
                 }
             }
             else if constexpr (std::is_same_v<T, JobSkipped>)
@@ -470,7 +460,8 @@ void Graph::nodeExecuted(IdentifierHash node, IComponent::RequestResult result)
 
     if (result != IComponent::RequestResult::kSuccess)
     {
-        setState(GraphState::kAborting);
+        cancel();
+        return;
     }
 
     GraphState current_state = getState();
@@ -494,11 +485,12 @@ void Graph::nodeExecuted(IdentifierHash node, IComponent::RequestResult result)
     }
     else if (was_last_in_queue)
     {
-        handleNonTransitionExecution();
+        // Last outstanding job of a cancelled transition or recovery
+        setState(GraphState::kUndefinedState);
     }
 }
 
-void Graph::handleNonTransitionExecution()
+void Graph::cancel()
 {
     if (is_initial_state_transition_)
     {
@@ -506,19 +498,13 @@ void Graph::handleNonTransitionExecution()
         LM_LOG_DEBUG() << "Failed initial transition at" << TIMESTAMP_MS();
     }
 
-    setState(GraphState::kUndefinedState);
-}
-
-void Graph::cancel()
-{
     setState(GraphState::kAborting);
 
-    if (jobs_in_progress_ > 0)
+    // Jobs still in flight finish the abort through nodeExecuted() once the last one reports back.
+    if (jobs_in_progress_ == 0)
     {
-        return;
+        setState(GraphState::kUndefinedState);
     }
-
-    setState(GraphState::kUndefinedState);
 }
 
 void Graph::forceKillProcesses()

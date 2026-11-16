@@ -413,6 +413,8 @@ void ProcessGroupManager::handleGetActiveRunTarget(GetActiveRunTarget* event) co
     switch (graph_->getState())
     {
         case GraphState::kSuccess:
+        case GraphState::kComponentRecovery:
+            // The Run Target stays active while one of its components is being recovered.
             result = graph_->getRequestedRunTarget();
             break;
         case GraphState::kAborting:
@@ -507,6 +509,20 @@ void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* eve
             else
             {
                 response = score::MakeUnexpected(ExecErrc::kInTransitionToSameState);
+            }
+        }
+        else if (GraphState::kComponentRecovery == graph_state)
+        {
+            if (old_state != event->run_target)
+            {
+                // Stop the ongoing component recoveries; the pending Run Target is started once they have finished.
+                (void)graph_->setPendingState(event->run_target);
+                graph_->setRequestStartTime();
+                graph_->cancel();
+            }
+            else
+            {
+                response = score::MakeUnexpected(ExecErrc::kAlreadyInState);
             }
         }
         else if (GraphState::kSuccess == graph_state && old_state == event->run_target)
