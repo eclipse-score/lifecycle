@@ -101,12 +101,12 @@ table SwitchRunTargetAction {
 table RestartAction {
 }
 
-// Recovery action for a component. Exactly one of the fields must be set.
-table RecoveryAction {
+// Recovery action for a component.
+union RecoveryAction {
   // Switch to a specified Run Target.
-  switch_run_target:SwitchRunTargetAction; // optional
+  SwitchRunTargetAction,
   // Restart the component.
-  restart:RestartAction; // optional
+  RestartAction
 }
 
 // A key-value pair representing an environment variable.

@@ -99,10 +99,8 @@ score::cpp::expected<TargetT, IConfigLoader::Error> validateRange(int64_t value,
 [[nodiscard]] std::optional<SwitchRunTargetAction> convertSwitchRunTargetAction(const fb::SwitchRunTargetAction* sa);
 /// @brief Converts a required FlatBuffer SwitchRunTargetAction; asserts if null.
 [[nodiscard]] SwitchRunTargetAction convertRequiredSwitchRunTargetAction(const fb::SwitchRunTargetAction* sa);
-/// @brief Converts a FlatBuffer RecoveryAction to a config RecoveryAction, or nullopt if absent.
-/// @return An error if not exactly one of the alternatives is set.
-[[nodiscard]] score::cpp::expected<std::optional<RecoveryAction>, IConfigLoader::Error> convertRecoveryAction(
-    const fb::RecoveryAction* ra);
+/// @brief Converts the RecoveryAction union of a FlatBuffer DeploymentConfig, or nullopt if none is configured.
+[[nodiscard]] std::optional<RecoveryAction> convertRecoveryAction(const fb::DeploymentConfig* dc);
 
 // --- Component converters ---
 

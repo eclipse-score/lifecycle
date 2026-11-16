@@ -39,10 +39,9 @@
                     "scheduling_policy": "FIFO",
                     "scheduling_priority": 99
                 },
+                "recovery_action_type": "SwitchRunTargetAction",
                 "recovery_action": {
-                    "switch_run_target": {
-                        "run_target": "fallback_run_target"
-                    }
+                    "run_target": "fallback_run_target"
                 }
             }
         },
@@ -82,10 +81,9 @@
                     "scheduling_policy": "OTHER",
                     "scheduling_priority": 0
                 },
+                "recovery_action_type": "SwitchRunTargetAction",
                 "recovery_action": {
-                    "switch_run_target": {
-                        "run_target": "fallback_run_target"
-                    }
+                    "run_target": "fallback_run_target"
                 }
             }
         }

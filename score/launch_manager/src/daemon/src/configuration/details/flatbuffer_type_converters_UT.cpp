@@ -869,75 +869,6 @@ TEST_F(ConverterTest, ConvertSandboxSupplementaryGidOutOfRangeReturnsError)
     EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
 }
 
-TEST_F(ConverterTest, ConvertRecoveryActionNullReturnsNullopt)
-{
-    RecordProperty("Description", "convertRecoveryAction with nullptr returns nullopt.");
-    auto result = convertRecoveryAction(nullptr);
-    ASSERT_THAT(result.has_value(), IsTrue());
-    EXPECT_THAT(result->has_value(), IsFalse());
-}
-
-TEST_F(ConverterTest, ConvertRecoveryActionSwitchRunTarget)
-{
-    RecordProperty("Description", "convertRecoveryAction maps switch_run_target to SwitchRunTargetAction.");
-    ::flatbuffers::FlatBufferBuilder fbb;
-    auto target = fbb.CreateString("SafeState");
-    auto switch_action = fb::CreateSwitchRunTargetAction(fbb, target);
-    auto ra = fb::CreateRecoveryAction(fbb, switch_action, 0 /*restart*/);
-    fbb.Finish(ra);
-    const auto* ptr = ::flatbuffers::GetRoot<fb::RecoveryAction>(fbb.GetBufferPointer());
-
-    auto result = convertRecoveryAction(ptr);
-    ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result->has_value(), IsTrue());
-    ASSERT_THAT(std::holds_alternative<SwitchRunTargetAction>(**result), IsTrue());
-    EXPECT_THAT(std::get<SwitchRunTargetAction>(**result).run_target, Eq("SafeState"));
-}
-
-TEST_F(ConverterTest, ConvertRecoveryActionRestart)
-{
-    RecordProperty("Description", "convertRecoveryAction maps restart to RestartAction.");
-    ::flatbuffers::FlatBufferBuilder fbb;
-    auto restart = fb::CreateRestartAction(fbb);
-    auto ra = fb::CreateRecoveryAction(fbb, 0 /*switch_run_target*/, restart);
-    fbb.Finish(ra);
-    const auto* ptr = ::flatbuffers::GetRoot<fb::RecoveryAction>(fbb.GetBufferPointer());
-
-    auto result = convertRecoveryAction(ptr);
-    ASSERT_THAT(result.has_value(), IsTrue());
-    ASSERT_THAT(result->has_value(), IsTrue());
-    EXPECT_THAT(std::holds_alternative<RestartAction>(**result), IsTrue());
-}
-
-TEST_F(ConverterTest, ConvertRecoveryActionBothSetReturnsError)
-{
-    RecordProperty("Description", "convertRecoveryAction with both alternatives set returns InvalidFormat.");
-    ::flatbuffers::FlatBufferBuilder fbb;
-    auto target = fbb.CreateString("SafeState");
-    auto switch_action = fb::CreateSwitchRunTargetAction(fbb, target);
-    auto restart = fb::CreateRestartAction(fbb);
-    auto ra = fb::CreateRecoveryAction(fbb, switch_action, restart);
-    fbb.Finish(ra);
-    const auto* ptr = ::flatbuffers::GetRoot<fb::RecoveryAction>(fbb.GetBufferPointer());
-
-    auto result = convertRecoveryAction(ptr);
-    ASSERT_THAT(result.has_value(), IsFalse());
-    EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
-}
-
-TEST_F(ConverterTest, ConvertRecoveryActionNoneSetReturnsError)
-{
-    RecordProperty("Description", "convertRecoveryAction with no alternative set returns InvalidFormat.");
-    ::flatbuffers::FlatBufferBuilder fbb;
-    auto ra = fb::CreateRecoveryAction(fbb, 0 /*switch_run_target*/, 0 /*restart*/);
-    fbb.Finish(ra);
-    const auto* ptr = ::flatbuffers::GetRoot<fb::RecoveryAction>(fbb.GetBufferPointer());
-
-    auto result = convertRecoveryAction(ptr);
-    ASSERT_THAT(result.has_value(), IsFalse());
-    EXPECT_THAT(result.error(), Eq(IConfigLoader::Error::InvalidFormat));
-}
-
 TEST_F(ConverterTest, ConvertDeploymentConfigRestartRecoveryAction)
 {
     RecordProperty("Description", "convertDeploymentConfig maps a restart recovery action to RestartAction.");
@@ -945,8 +876,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigRestartRecoveryAction)
     auto bin_dir = fbb.CreateString("/opt/bin");
     auto work_dir = fbb.CreateString("/tmp");
     auto sandbox = buildDefaultSandbox(fbb);
-    auto restart = fb::CreateRestartAction(fbb);
-    auto ra = fb::CreateRecoveryAction(fbb, 0 /*switch_run_target*/, restart);
+    auto action = fb::CreateRestartAction(fbb);
     auto deploy = fb::CreateDeploymentConfig(
         fbb,
         1500 /*ready_timeout_ms*/,
@@ -956,17 +886,49 @@ TEST_F(ConverterTest, ConvertDeploymentConfigRestartRecoveryAction)
         work_dir,
         3 /*activation_retry_attempts*/,
         100 /*activation_retry_delay_ms*/,
-        ra,
+        fb::RecoveryAction::RestartAction,
+        action.Union(),
         sandbox);
     fbb.Finish(deploy);
     const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
 
-    auto result = convertDeploymentConfig(ptr, "my_binary");
+    auto result = convertDeploymentConfig(ptr, "my_binary", {});
     ASSERT_THAT(result.has_value(), IsTrue());
     ASSERT_THAT(result->recovery_action.has_value(), IsTrue());
-    EXPECT_THAT(std::holds_alternative<RestartAction>(*result->recovery_action), IsTrue());
+    ASSERT_THAT(std::holds_alternative<RestartAction>(*result->recovery_action), IsTrue());
     EXPECT_THAT(result->activation_retry_attempts, Eq(3U));
     EXPECT_THAT(result->activation_retry_delay_ms, Eq(100U));
+}
+
+TEST_F(ConverterTest, ConvertDeploymentConfigSwitchRunTargetRecoveryAction)
+{
+    RecordProperty("Description", "convertDeploymentConfig maps a switch_run_target recovery action.");
+    ::flatbuffers::FlatBufferBuilder fbb;
+    auto bin_dir = fbb.CreateString("/opt/bin");
+    auto work_dir = fbb.CreateString("/tmp");
+    auto sandbox = buildDefaultSandbox(fbb);
+    auto target = fbb.CreateString("SafeState");
+    auto action = fb::CreateSwitchRunTargetAction(fbb, target);
+    auto deploy = fb::CreateDeploymentConfig(
+        fbb,
+        1500 /*ready_timeout_ms*/,
+        2500 /*shutdown_timeout_ms*/,
+        0 /*environmental_variables*/,
+        bin_dir,
+        work_dir,
+        0 /*activation_retry_attempts*/,
+        0 /*activation_retry_delay_ms*/,
+        fb::RecoveryAction::SwitchRunTargetAction,
+        action.Union(),
+        sandbox);
+    fbb.Finish(deploy);
+    const auto* ptr = ::flatbuffers::GetRoot<fb::DeploymentConfig>(fbb.GetBufferPointer());
+
+    auto result = convertDeploymentConfig(ptr, "my_binary", {});
+    ASSERT_THAT(result.has_value(), IsTrue());
+    ASSERT_THAT(result->recovery_action.has_value(), IsTrue());
+    ASSERT_THAT(std::holds_alternative<SwitchRunTargetAction>(*result->recovery_action), IsTrue());
+    EXPECT_THAT(std::get<SwitchRunTargetAction>(*result->recovery_action).run_target, Eq("SafeState"));
 }
 
 TEST_F(ConverterTest, ConvertDeploymentConfigValid)
@@ -985,6 +947,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigValid)
         work_dir,
         0 /*activation_retry_attempts*/,
         0 /*activation_retry_delay_ms*/,
+        fb::RecoveryAction::NONE /*recovery_action_type*/,
         0 /*recovery_action*/,
         sandbox);
     fbb.Finish(deploy);
@@ -1017,6 +980,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigActivationRetryAttemptsCarriedThrou
         work_dir,
         3 /*activation_retry_attempts*/,
         0 /*activation_retry_delay_ms*/,
+        fb::RecoveryAction::NONE /*recovery_action_type*/,
         0 /*recovery_action*/,
         sandbox);
     fbb.Finish(deploy);
@@ -1043,6 +1007,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigMissingActivationRetryAttemptsRetur
         work_dir,
         ::flatbuffers::nullopt /*activation_retry_attempts*/,
         0 /*activation_retry_delay_ms*/,
+        fb::RecoveryAction::NONE /*recovery_action_type*/,
         0 /*recovery_action*/,
         sandbox);
     fbb.Finish(deploy);
@@ -1069,6 +1034,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigActivationRetryDelayCarriedThrough)
         work_dir,
         0 /*activation_retry_attempts*/,
         250 /*activation_retry_delay_ms*/,
+        fb::RecoveryAction::NONE /*recovery_action_type*/,
         0 /*recovery_action*/,
         sandbox);
     fbb.Finish(deploy);
@@ -1095,6 +1061,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigMissingActivationRetryDelayReturnsE
         work_dir,
         0 /*activation_retry_attempts*/,
         ::flatbuffers::nullopt /*activation_retry_delay_ms*/,
+        fb::RecoveryAction::NONE /*recovery_action_type*/,
         0 /*recovery_action*/,
         sandbox);
     fbb.Finish(deploy);
@@ -1121,6 +1088,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigMissingReadyTimeoutReturnsError)
         work_dir,
         0 /*activation_retry_attempts*/,
         0 /*activation_retry_delay_ms*/,
+        fb::RecoveryAction::NONE /*recovery_action_type*/,
         0 /*recovery_action*/,
         sandbox);
     fbb.Finish(deploy);
@@ -1147,6 +1115,7 @@ TEST_F(ConverterTest, ConvertDeploymentConfigMissingShutdownTimeoutReturnsError)
         work_dir,
         0 /*activation_retry_attempts*/,
         0 /*activation_retry_delay_ms*/,
+        fb::RecoveryAction::NONE /*recovery_action_type*/,
         0 /*recovery_action*/,
         sandbox);
     fbb.Finish(deploy);
@@ -1181,6 +1150,7 @@ TEST_F(ConverterTest, ConvertComponentValid)
         work_dir,
         0 /*activation_retry_attempts*/,
         0 /*activation_retry_delay_ms*/,
+        fb::RecoveryAction::NONE /*recovery_action_type*/,
         0 /*recovery_action*/,
         sandbox);
 
@@ -1229,6 +1199,7 @@ TEST_F(ConverterTest, ConvertComponentsValid)
             work_dir,
             0 /*activation_retry_attempts*/,
             0 /*activation_retry_delay_ms*/,
+            fb::RecoveryAction::NONE /*recovery_action_type*/,
             0 /*recovery_action*/,
             sandbox);
         auto comp_name = fbb.CreateString(name);
@@ -1274,6 +1245,7 @@ TEST_F(ConverterTest, ConvertComponentsWithInvalidComponentReturnsError)
         work_dir,
         0 /*activation_retry_attempts*/,
         0 /*activation_retry_delay_ms*/,
+        fb::RecoveryAction::NONE /*recovery_action_type*/,
         0 /*recovery_action*/,
         sandbox);
     auto comp_name = fbb.CreateString("BadComp");
