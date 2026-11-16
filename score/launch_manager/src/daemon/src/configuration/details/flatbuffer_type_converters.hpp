@@ -118,9 +118,11 @@ score::cpp::expected<TargetT, IConfigLoader::Error> validateRange(int64_t value,
 [[nodiscard]] score::cpp::expected<Sandbox, IConfigLoader::Error> convertSandbox(const fb::Sandbox* fb_sb);
 /// @brief Converts a FlatBuffer DeploymentConfig to the config equivalent.
 /// @param binary_name Executable name relative to the configured bin_dir.
+/// @param process_arguments Arguments passed to the executable, excluding the executable path.
 [[nodiscard]] score::cpp::expected<DeploymentConfig, IConfigLoader::Error> convertDeploymentConfig(
     const fb::DeploymentConfig* fb_dc,
-    std::string_view binary_name);
+    std::string_view binary_name,
+    const std::vector<std::string>& process_arguments);
 /// @brief Converts a single FlatBuffer Component to a ComponentConfig.
 [[nodiscard]] score::cpp::expected<ComponentConfig, IConfigLoader::Error> convertComponent(
     const fb::Component* fb_comp);

@@ -39,6 +39,24 @@ cc_library(
 )
 
 cc_library(
+    name = "process_command",
+    srcs = ["process_command.cpp"],
+    hdrs = ["process_command.hpp"],
+    include_prefix = "score/mw/launch_manager/configuration",
+    strip_include_prefix = "/score/launch_manager/src/daemon/src/configuration",
+    visibility = ["//score:__subpackages__"],
+)
+
+lm_cc_test(
+    name = "process_command_UT",
+    srcs = ["process_command_UT.cpp"],
+    deps = [
+        ":process_command",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
     name = "watchdog_config",
     hdrs = ["watchdog_config.hpp"],
     include_prefix = "score/mw/launch_manager/configuration",
@@ -62,6 +80,7 @@ cc_library(
     visibility = ["//score:__subpackages__"],
     deps = [
         ":environment_config",
+        ":process_command",
         ":recovery_action_config",
     ],
 )
