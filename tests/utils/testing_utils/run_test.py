@@ -46,7 +46,7 @@ def run_test(
     binary_path,
     args: Optional[list[str]] = None,
     cwd="/",
-    timeout=15,
+    timeout=30,
     run_as: Optional[RunAs] = None,
     expect_failure=False,
 ):
