@@ -102,6 +102,7 @@ class ProcessInfoNodeFixture : public ::testing::Test
         config.deployment_config.activation_retry_attempts = restart_attempts;
         config.deployment_config.shutdown_timeout_ms = shutdown_timeout_ms_;
         config.deployment_config.ready_timeout_ms = ready_timeout_ms_;
+        config.deployment_config.recovery_action = recovery_action_;
 
         if (application_type == configuration::ApplicationType::ReportingAndSupervised)
         {
@@ -186,6 +187,8 @@ class ProcessInfoNodeFixture : public ::testing::Test
     /// @brief Termination timeout applied to every node created by the helpers below.
     std::uint32_t shutdown_timeout_ms_{1000U};
     std::uint32_t ready_timeout_ms_{1000U};
+    /// @brief Recovery action applied to every node created by createProcessInfoNode().
+    std::optional<configuration::RecoveryAction> recovery_action_{};
     score::cpp::stop_source stop_source_{};
     std::shared_ptr<MockSafeProcessMapInserter> process_map_{std::make_shared<MockSafeProcessMapInserter>()};
     StrictMock<osal::MockIProcess> mock_process_if_{};
@@ -825,6 +828,118 @@ TEST_F(ProcessInfoNodeDeactivationTest, CanTerminateNonSelfTerminatingProcess)
     ASSERT_THAT(result, Eq(IComponent::RequestResult::kSuccess));
     ASSERT_THAT(node->active(), IsFalse());
     ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kIdle));
+}
+
+// Bundles the component-local restart recovery action.
+class ProcessInfoNodeRecoveryTest : public ProcessInfoNodeFixture
+{
+  protected:
+    /// @brief Expects every start attempt to launch the process, which then crashes before reaching kRunning.
+    void expectCrashBeforeReadyOnEveryAttempt(ProcessInfoNode* node, std::uint32_t attempts)
+    {
+        EXPECT_CALL(mock_processIf_, startProcess(_, _, _))
+            .Times(attempts)
+            .WillRepeatedly(Return(osal::OsalReturnType::kSuccess));
+        EXPECT_CALL(*process_map_, insertIfNotTerminated(_, _))
+            .Times(attempts)
+            .WillRepeatedly(Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted));
+        EXPECT_CALL(mock_processIf_, waitForkRunning(_, _))
+            .Times(attempts)
+            .WillRepeatedly(DoAll(
+                InvokeWithoutArgs([node] {
+                    static_cast<void>(node->tryHandleTermination(-1));
+                }),
+                Return(osal::OsalReturnType::kFail)));
+    }
+};
+
+TEST_F(ProcessInfoNodeRecoveryTest, CanRecover_NoRecoveryAction_ReturnsFalse)
+{
+    RecordProperty("Description", "canRecover() returns false if no recovery action is configured.");
+
+    auto node = createProcessInfoNode();
+
+    ASSERT_THAT(node->canRecover(), IsFalse());
+}
+
+TEST_F(ProcessInfoNodeRecoveryTest, CanRecover_SwitchRunTargetAction_ReturnsFalse)
+{
+    RecordProperty("Description", "canRecover() returns false if the recovery action is switch_run_target.");
+
+    recovery_action_ = configuration::SwitchRunTargetAction{"fallback"};
+    auto node = createProcessInfoNode();
+
+    ASSERT_THAT(node->canRecover(), IsFalse());
+}
+
+TEST_F(ProcessInfoNodeRecoveryTest, CanRecover_RestartAction_ReturnsTrue)
+{
+    RecordProperty("Description", "canRecover() returns true if the recovery action is restart.");
+
+    recovery_action_ = configuration::RestartAction{};
+    auto node = createProcessInfoNode();
+
+    ASSERT_THAT(node->canRecover(), IsTrue());
+}
+
+TEST_F(ProcessInfoNodeRecoveryTest, Recover_WithoutRestartAction_FailsWithoutStartingProcess)
+{
+    RecordProperty("Description", "recover() returns kFailure without starting the process if it cannot recover.");
+
+    recovery_action_ = configuration::SwitchRunTargetAction{"fallback"};
+    auto node = createProcessInfoNode();
+    EXPECT_CALL(mock_processIf_, startProcess(_, _, _)).Times(0);
+
+    auto result = node->recover(score::cpp::stop_token{});
+
+    ASSERT_THAT(result, Eq(IComponent::RequestResult::kFailure));
+    ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kIdle));
+}
+
+TEST_F(ProcessInfoNodeRecoveryTest, Recover_AfterCrashAndDeactivate_RestartsProcessAndSupervision)
+{
+    RecordProperty(
+        "Description",
+        "After a crash after Ready and deactivate(), recover() restarts the process, re-arms alive supervision and "
+        "returns kSuccess.");
+
+    expectActivationReport(2);
+    recovery_action_ = configuration::RestartAction{};
+    auto node = createProcessInfoNode(configuration::ApplicationType::ReportingAndSupervised);
+    EXPECT_CALL(mock_processIf_, startProcess(_, _, _)).Times(2).WillRepeatedly(Return(osal::OsalReturnType::kSuccess));
+    EXPECT_CALL(*process_map_, insertIfNotTerminated(_, _))
+        .Times(2)
+        .WillRepeatedly(Return(score::mw::lifecycle::internal::SafeProcessMapReturnType::kInserted));
+    EXPECT_CALL(mock_processIf_, waitForkRunning(_, _)).Times(2).WillRepeatedly(Return(osal::OsalReturnType::kSuccess));
+
+    ASSERT_THAT(node->activate(score::cpp::stop_token{}), Eq(IComponent::RequestResult::kSuccess));
+    ASSERT_THAT(node->tryHandleTermination(-1), Eq(IComponent::TerminationResult::kFailure));
+    ASSERT_THAT(node->deactivate(score::cpp::stop_token{}), Eq(IComponent::RequestResult::kSuccess));
+    ASSERT_THAT(node->active(), IsFalse());
+
+    auto result = node->recover(score::cpp::stop_token{});
+
+    ASSERT_THAT(result, Eq(IComponent::RequestResult::kSuccess));
+    ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kRunning));
+}
+
+TEST_F(ProcessInfoNodeRecoveryTest, Recover_CrashBeforeReady_UsesActivationRetryAttempts)
+{
+    RecordProperty(
+        "Description",
+        "If the restarted process crashes before Ready on every attempt, recover() starts it "
+        "activation_retry_attempts + 1 times and returns kFailure.");
+
+    expectActivationReport(0);
+    constexpr std::uint8_t kRestartAttempts = 2U;
+    recovery_action_ = configuration::RestartAction{};
+    auto node = createProcessInfoNode(configuration::ApplicationType::ReportingAndSupervised, kRestartAttempts);
+    expectCrashBeforeReadyOnEveryAttempt(node.get(), kRestartAttempts + 1U);
+
+    auto result = node->recover(score::cpp::stop_token{});
+
+    ASSERT_THAT(result, Eq(IComponent::RequestResult::kFailure));
+    ASSERT_THAT(node->getState(), Eq(score::mw::lifecycle::ProcessState::kTerminated));
 }
 
 class ProcessInfoNodeSupervisionFailureTest : public ProcessInfoNodeFixture

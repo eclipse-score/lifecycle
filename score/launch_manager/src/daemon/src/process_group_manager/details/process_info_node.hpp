@@ -26,6 +26,7 @@
 #include <atomic>
 #include <chrono>
 #include <optional>
+#include <variant>
 
 namespace score::mw::lifecycle::internal
 {
@@ -95,6 +96,12 @@ class ProcessInfoNode final : public IComponent
     /// @copydoc IComponent::handleSupervisionFailure
     void handleSupervisionFailure(std::chrono::nanoseconds failure_timestamp) override;
 
+    /// @copydoc IComponent::canRecover
+    [[nodiscard]] bool canRecover() const override;
+
+    /// @copydoc IComponent::recover
+    RequestResult recover(score::cpp::stop_token stop_token) override;
+
     /// @return The OS process ID, or zero if the process has never been started.
     [[nodiscard]] osal::ProcessID getPid() const;
 
@@ -142,6 +149,9 @@ class ProcessInfoNode final : public IComponent
     /// @brief Starts the OS process, retrying up to the configured restart count on failure.
     /// @return kSuccess if the process reached its ready conditon, kFailure or kTimeout if startup failed.
     RequestResult startProcess(score::cpp::stop_token stop_token);
+
+    /// @brief Starts the process and, on success, (re-)arms its alive supervision.
+    RequestResult activateProcess(score::cpp::stop_token stop_token);
 
     /// @brief Handles the result of inserting the process into the process map after the OS
     /// process has been created. Routes to the appropriate handler based on whether the

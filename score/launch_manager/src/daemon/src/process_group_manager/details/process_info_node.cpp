@@ -554,6 +554,38 @@ IComponent::RequestResult ProcessInfoNode::activate(score::cpp::stop_token stop_
        // nothing to do. A component is only restarted after it has been deactivated.
         return tryReportSuccess();
     }
+    return activateProcess(std::move(stop_token));
+}
+
+bool ProcessInfoNode::canRecover() const
+{
+    const auto& recovery_action = config_.deployment_config.recovery_action;
+    return recovery_action.has_value() && std::holds_alternative<configuration::RestartAction>(*recovery_action);
+}
+
+IComponent::RequestResult ProcessInfoNode::recover(score::cpp::stop_token stop_token)
+{
+    if (!canRecover())
+    {
+        LM_LOG_DEBUG() << "Component (" << identifier_ << ") has no recovery action configured";
+        return RequestResult::kFailure;
+    }
+    LM_LOG_INFO() << "Restarting component (" << identifier_ << ") as part of recovery action";
+    success_returned_.clear();
+    const auto res = activateProcess(std::move(stop_token));
+    if (res == RequestResult::kSuccess)
+    {
+        LM_LOG_INFO() << "Restart of component (" << identifier_ << ") succeeded";
+    }
+    else
+    {
+        LM_LOG_WARN() << "Restart of component (" << identifier_ << ") failed";
+    }
+    return res;
+}
+
+IComponent::RequestResult ProcessInfoNode::activateProcess(score::cpp::stop_token stop_token)
+{
     auto res = startProcess(std::move(stop_token));
     if (res == RequestResult::kSuccess)
     {
