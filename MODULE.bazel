@@ -257,7 +257,7 @@ git_override(
 )
 
 # S-CORE crates
-bazel_dep(name = "score_crates", version = "0.0.13")
+bazel_dep(name = "score_crates", version = "0.0.15")
 
 # Needed for @codeql_bundle and @codeql_coding_standards
 http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
