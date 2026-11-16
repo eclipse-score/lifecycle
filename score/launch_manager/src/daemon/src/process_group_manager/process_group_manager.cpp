@@ -510,9 +510,21 @@ void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* eve
         {
             LM_LOG_DEBUG() << "Queued activation of" << event->run_target << "ignored: same as previous request";
         }
-        else if (!pending_activation_queue_.push(event->run_target).has_value())
+        else
         {
-            response = score::MakeUnexpected(ExecErrc::kRequestQueueIsFull);
+            const auto push_result = pending_activation_queue_.push(event->run_target);
+            if (!push_result.has_value())
+            {
+                const auto error = push_result.error();
+                if (error == ConcurrencyErrc::kOverflow)
+                {
+                    response = score::MakeUnexpected(ExecErrc::kRequestQueueIsFull);
+                }
+                else
+                {
+                    response = score::MakeUnexpected(ExecErrc::kFailed);
+                }
+            }
         }
     }
     else
