@@ -465,23 +465,6 @@ bool ProcessGroupManager::isActivationBusy() const noexcept
            (graph_->getPendingTransition().run_target != IdentifierHash(""));
 }
 
-bool ProcessGroupManager::shouldDropDuplicateRequest(const IdentifierHash new_run_target) const noexcept
-{
-    // Deduplication logic:
-    // - Drop the request if this run target matches the one previously queued
-    // - If the queue is empty, drop the request if this run group matches the currently pending run group
-    // - If the queue is empty, and the pending run target is empty, the previous run target is old_run_target.
-    //   Drop this run target request if it matches old_run_target in this case.
-    const IdentifierHash pending_run_target = graph_->getPendingTransition().run_target;
-    const IdentifierHash old_run_target = graph_->getRequestedRunTarget();
-    const IdentifierHash previous =
-        !pending_activation_queue_.empty()
-            ? pending_activation_queue_.back()
-            : ((pending_run_target != IdentifierHash("")) ? pending_run_target : old_run_target);
-
-    return previous == new_run_target;
-}
-
 void ProcessGroupManager::clearQueuedActivations(std::string_view reason) noexcept
 {
     while (const std::optional<IdentifierHash> dropped = pending_activation_queue_.tryPop())
@@ -506,24 +489,17 @@ void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* eve
     }
     else if (!event->forced && isActivationBusy())
     {
-        if (shouldDropDuplicateRequest(event->run_target))
+        const auto push_result = pending_activation_queue_.push(event->run_target);
+        if (!push_result.has_value())
         {
-            LM_LOG_DEBUG() << "Queued activation of" << event->run_target << "ignored: same as previous request";
-        }
-        else
-        {
-            const auto push_result = pending_activation_queue_.push(event->run_target);
-            if (!push_result.has_value())
+            const auto error = push_result.error();
+            if (error == ConcurrencyErrc::kOverflow)
             {
-                const auto error = push_result.error();
-                if (error == ConcurrencyErrc::kOverflow)
-                {
-                    response = score::MakeUnexpected(ExecErrc::kRequestQueueIsFull);
-                }
-                else
-                {
-                    response = score::MakeUnexpected(ExecErrc::kFailed);
-                }
+                response = score::MakeUnexpected(ExecErrc::kRequestQueueIsFull);
+            }
+            else
+            {
+                response = score::MakeUnexpected(ExecErrc::kFailed);
             }
         }
     }

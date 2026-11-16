@@ -195,10 +195,6 @@ class ProcessGroupManager final : public IRunTargetControl
     /// @brief Whether a new request has to wait for the current activation to finish.
     [[nodiscard]] bool isActivationBusy() const noexcept;
 
-    /// @brief Decide if a new run target activation request can be dropped from the pending activation queue
-    /// @param new_run_target The run target identifier of the incoming activation request
-    [[nodiscard]] bool shouldDropDuplicateRequest(const IdentifierHash new_run_target) const noexcept;
-
     /// @brief The configuration object associated with the ProcessGroupManager.
     configuration::GraphConfig configuration_;
 
