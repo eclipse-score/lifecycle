@@ -500,7 +500,7 @@ void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* eve
         // Reject before this can reach Graph::startTransition() with no matching node (#541).
         response = score::MakeUnexpected(ExecErrc::kRunTargetDoesntExist);
     }
-    else if (!event->forced && graph_->isRecovering())
+    else if (graph_->isRecovering())
     {
         response = score::MakeUnexpected(ExecErrc::kRecoveryInProgress);
     }
