@@ -41,6 +41,7 @@ enum class ExecErrc : score::result::ErrorCode
     kRunTargetDoesntExist = 14,  ///< The requested Run Target does not exist in the current configuration
     kNotImplemented = 15,        ///< The requested functionality is not yet implemented
     kShuttingDown = 16,          ///< The request could not be completed because launch manager is shutting down
+    kRecoveryInProgress = 17,    ///< A recovery is currently in progress
 };
 
 class ExecErrorDomain final : public score::result::ErrorDomain
@@ -83,6 +84,8 @@ class ExecErrorDomain final : public score::result::ErrorDomain
                 return "The requested functionality is not yet implemented";
             case ExecErrc::kShuttingDown:
                 return "The request could not be completed because launch manager is shutting down";
+            case ExecErrc::kRecoveryInProgress:
+                return "A recovery is currently in progress.";
             default:
                 return "Unknown error";
         }

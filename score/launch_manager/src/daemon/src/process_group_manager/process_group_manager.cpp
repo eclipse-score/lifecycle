@@ -499,9 +499,12 @@ void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* eve
         // Reject before this can reach Graph::startTransition() with no matching node (#541).
         response = score::MakeUnexpected(ExecErrc::kRunTargetDoesntExist);
     }
+    else if (!event->forced && graph_->isRecovering())
+    {
+        response = score::MakeUnexpected(ExecErrc::kRecoveryInProgress);
+    }
     else if (!event->forced && isActivationBusy())
     {
-
         if (shouldDropDuplicateRequest(event->run_target))
         {
             LM_LOG_DEBUG() << "Queued activation of" << event->run_target << "ignored: same as previous request";

@@ -338,6 +338,14 @@ bool Graph::isTransitioningToOff() const
     return (getState() == GraphState::kInTransition) && (requested_state_ == off_state_);
 }
 
+bool Graph::isRecovering() const
+{
+    std::lock_guard<std::mutex> lock(requested_state_mutex_);
+    const auto state = getState();
+    return (state == GraphState::kUndefinedState) ||
+           (state == GraphState::kInTransition && (transition_source_ == RunTargetActivationSource::kRecoveryAction));
+}
+
 void Graph::handleComponentEvent(const ComponentEvent& event)
 {
     std::visit(
