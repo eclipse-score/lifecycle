@@ -63,6 +63,33 @@ Example: ``launch_manager -c /opt/launch_manager/etc/lm_config.bin``
 If ``-c`` is not specified, the **Launch Manager** will attempt to load the
 configuration from the default path ``etc/launch_manager_config.bin``.
 
+Watchdog
+--------
+
+By default, the **Launch Manager** provides a heartbeat value in shared memory which
+is increased on every main loop iteration (e.g. roughly every ~50ms).
+As long as the heartbeat is being updated, the **Launch Manager** is considered healthy.
+In case of a critical error detected by the **Launch Manager**, the **Launch Manager** process exits and the heartbeat stops being updated.
+
+An official API will be provided to access the heartbeat value from shared memory.
+Currently, the heartbeat can be accessed directly from shared memory using the layout defined in ``default_watchdog.hpp``.
+
+The integrator is responsible for creating a custom application to service an external monitor based on the heartbeat value
+and to escalate or handle critical errors appropriately.
+
+
+Custom implementation
+^^^^^^^^^^^^^^^^^^^^^
+
+In case the default implementation does not meet the requirements of the integrator, a custom implementation can be provided.
+
+A custom implementation is a ``cc_library`` that implements the interface
+``@score_lifecycle//score/launch_manager:watchdog_interface_cc`` and defines its factory function
+``createWatchdog()``. Select it with the label flag:
+
+``--@score_lifecycle//config:watchdog_impl=//my/pkg:my_custom_watchdog``
+
+
 State manager mw::com config
 ----------------------------
 

@@ -11,51 +11,27 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 load("@rules_cc//cc:defs.bzl", "cc_library")
-load("//tests/utils/bazel:unit_test.bzl", "lm_cc_test")
 
 cc_library(
-    name = "i_watchdog_if",
-    hdrs = ["IWatchdogIf.hpp"],
+    name = "iwatchdog",
+    hdrs = [
+        "iwatchdog.hpp",
+        "watchdog_factory.hpp",
+    ],
     include_prefix = "score/mw/launch_manager/watchdog",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/watchdog",
-    visibility = ["//score:__subpackages__"],
-    deps = [
-        "//score/launch_manager/src/daemon/src/common:constants",
-    ],
+    visibility = ["//score/launch_manager:__subpackages__"],
 )
 
 cc_library(
-    name = "watchdog_factory",
-    srcs = ["WatchdogFactory.cpp"],
-    hdrs = ["WatchdogFactory.hpp"],
-    include_prefix = "score/mw/launch_manager/watchdog",
-    strip_include_prefix = "/score/launch_manager/src/daemon/src/watchdog",
-    visibility = ["//score:__subpackages__"],
-    deps = [
-        ":i_watchdog_if",
-        "//score/launch_manager/src/daemon/src/watchdog/details:watchdog_impl",
-    ],
-)
-
-lm_cc_test(
-    name = "watchdog_factory_UT",
-    srcs = ["WatchdogFactory_UT.cpp"],
-    deps = [
-        ":watchdog_factory",
-        "//score/launch_manager/src/daemon/src/watchdog/details:watchdog_impl",
-        "@googletest//:gtest_main",
-    ],
-)
-
-cc_library(
-    name = "mock_i_watchdog_if",
+    name = "mock_iwatchdog",
     testonly = True,
-    hdrs = ["mock_IWatchdogIf.hpp"],
+    hdrs = ["mock_iwatchdog.hpp"],
     include_prefix = "score/mw/launch_manager/watchdog",
     strip_include_prefix = "/score/launch_manager/src/daemon/src/watchdog",
-    visibility = ["//score:__subpackages__"],
+    visibility = ["//score/launch_manager:__subpackages__"],
     deps = [
-        ":i_watchdog_if",
+        ":iwatchdog",
         "@googletest//:gtest",
     ],
 )

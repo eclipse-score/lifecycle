@@ -87,10 +87,6 @@ This will initiate a transition to the target ProcessGroupState/RunTarget when a
 
 For each Component with application_type `Reporting_And_Supervised` or `State_Manager`, we will create an Alive Supervision configuration. There is a 1:1 mapping from the `component_properties/application_profile/alive_supervision` parameters to the old configuration Alive Supervision structure.
 
-## Mapping of Watchdog Configuration
-
-The new configuration format allows configuring a single watchdog. There is a simple 1:1 mapping to the old watchdog configuration format.
-
 ## Known Limitations
 
 For a full list of known limitations, refer to the [Known Limitations](../../docs/module/launch_manager_deamon/product_documentation/known_limitations.rst) section of the documentation.

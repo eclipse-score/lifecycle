@@ -47,12 +47,6 @@
         },
         "alive_supervision": {
             "evaluation_cycle_ms": 500
-        },
-        "watchdog": {
-            "device_file_path": "/dev/watchdog",
-            "max_timeout_ms": 2000,
-            "deactivate_on_shutdown": true,
-            "require_magic_close": false
         }
     },
     "components": {
@@ -171,11 +165,5 @@
         "depends_on": [],
         "transition_timeout_ms": 1500
     },
-    "initial_run_target": "Minimal",
-    "watchdog": {
-        "device_file_path": "/dev/watchdog",
-        "max_timeout_ms": 2000,
-        "deactivate_on_shutdown": true,
-        "require_magic_close": false
-    }
+    "initial_run_target": "Minimal"
 }

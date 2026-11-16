@@ -21,8 +21,8 @@ namespace score::mw::lifecycle::internal::configuration
 
 // --- Config ---
 
-Config::Config(GraphConfig graph, AliveSupervisionConfig alive_supervision, std::optional<WatchdogConfig> watchdog)
-    : graph_{std::move(graph)}, alive_supervision_{alive_supervision}, watchdog_{std::move(watchdog)}
+Config::Config(GraphConfig graph, AliveSupervisionConfig alive_supervision)
+    : graph_{std::move(graph)}, alive_supervision_{alive_supervision}
 {
 }
 
@@ -56,12 +56,6 @@ ConfigBuilder& ConfigBuilder::setAliveSupervision(AliveSupervisionConfig alive_s
     return *this;
 }
 
-ConfigBuilder& ConfigBuilder::setWatchdog(WatchdogConfig watchdog)
-{
-    watchdog_ = std::move(watchdog);
-    return *this;
-}
-
 Config ConfigBuilder::build()
 {
     return Config(
@@ -70,8 +64,7 @@ Config ConfigBuilder::build()
             std::move(run_targets_),
             std::move(fallback_run_target_),
             std::move(initial_run_target_)},
-        std::move(alive_supervision_),
-        std::move(watchdog_));
+        std::move(alive_supervision_));
 }
 
 const GraphConfig& Config::graph() const
@@ -84,11 +77,6 @@ const AliveSupervisionConfig& Config::aliveSupervision() const
     return alive_supervision_;
 }
 
-const std::optional<WatchdogConfig>& Config::watchdog() const
-{
-    return watchdog_;
-}
-
 GraphConfig Config::takeGraph()
 {
     return std::move(graph_);
@@ -97,11 +85,6 @@ GraphConfig Config::takeGraph()
 AliveSupervisionConfig Config::takeAliveSupervision()
 {
     return std::move(alive_supervision_);
-}
-
-std::optional<WatchdogConfig> Config::takeWatchdog()
-{
-    return std::move(watchdog_);
 }
 
 }  // namespace score::mw::lifecycle::internal::configuration

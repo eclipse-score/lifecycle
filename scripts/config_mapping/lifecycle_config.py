@@ -75,8 +75,7 @@ score_defaults = json.loads("""
     "initial_run_target": "Startup",
     "alive_supervision": {
         "evaluation_cycle_ms": 500
-    },
-    "watchdog": {}
+    }
 }
 """)
 
@@ -218,9 +217,6 @@ def preprocess_defaults(global_defaults, config):
 
     new_config["alive_supervision"] = dict_merge(
         merged_defaults["alive_supervision"], config.get("alive_supervision", {})
-    )
-    new_config["watchdog"] = dict_merge(
-        merged_defaults["watchdog"], config.get("watchdog", {})
     )
 
     # Only emit initial_run_target when it can be derived from the input config
@@ -479,21 +475,6 @@ def gen_config(output_dir, config, input_filename):
             "evaluation_cycle_ms", 500
         ),
     }
-
-    watchdog_config = config.get("watchdog", {})
-    required_watchdog_fields = {
-        "device_file_path",
-        "max_timeout_ms",
-        "deactivate_on_shutdown",
-        "require_magic_close",
-    }
-    if watchdog_config and required_watchdog_fields.issubset(watchdog_config.keys()):
-        out["watchdog"] = {
-            "device_file_path": watchdog_config["device_file_path"],
-            "max_timeout_ms": watchdog_config["max_timeout_ms"],
-            "deactivate_on_shutdown": watchdog_config["deactivate_on_shutdown"],
-            "require_magic_close": watchdog_config["require_magic_close"],
-        }
 
     out_filename = output_filename(input_filename)
     with open(os.path.join(output_dir, out_filename), "w") as f:
