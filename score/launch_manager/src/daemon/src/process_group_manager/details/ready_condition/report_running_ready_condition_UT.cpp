@@ -108,60 +108,37 @@ class ReportRunningReadyConditionTerminationTest : public ::testing::Test
     const ProcessHandle handle_{42, sync_};
 };
 
-TEST_F(ReportRunningReadyConditionTerminationTest, TerminationMakesSuccessfulWaitFail)
+TEST_F(ReportRunningReadyConditionTerminationTest, TryHandleTerminationPostsExactlyOnce)
 {
     RecordProperty(
         "Description",
-        "Given the process terminated during startup. "
-        "When waitForkRunning succeeds because tryHandleTermination woke it up. "
-        "Then wait returns an error instead of reporting the process as running.");
+        "Given a process which terminated during startup. "
+        "When tryHandleTermination is called. "
+        "Then it posts exactly once, which completes the kRunning handshake only if the process "
+        "already posted its kRunning report itself.");
+
+    NiceMock<osal::MockIProcess> launcher;
+    const ReportRunningReadyCondition report_running_ready_condition(launcher, 10ms);
+
+    EXPECT_TRUE(report_running_ready_condition.tryHandleTermination(handle_, 0));
+
+    EXPECT_EQ(sync_->send_sync_.timedWait(0ms), osal::OsalReturnType::kSuccess);
+    EXPECT_EQ(sync_->send_sync_.timedWait(0ms), osal::OsalReturnType::kTimeout);
+}
+
+TEST_F(ReportRunningReadyConditionTerminationTest, TerminationDoesNotOverrideSuccessfulHandshake)
+{
+    RecordProperty(
+        "Description",
+        "Given a process which reported kRunning and terminated afterwards. "
+        "When the kRunning handshake succeeds. "
+        "Then wait returns success, because the process did report kRunning.");
 
     NiceMock<osal::MockIProcess> launcher;
     const ReportRunningReadyCondition report_running_ready_condition(launcher, 10ms);
     ON_CALL(launcher, waitForkRunning(_, _)).WillByDefault(Return(osal::OsalReturnType::kSuccess));
 
-    report_running_ready_condition.prepare();
-    EXPECT_TRUE(report_running_ready_condition.tryHandleTermination(handle_, 1));
-    const Result<void> result = report_running_ready_condition.wait(cpp::stop_token{}, handle_);
-
-    ASSERT_FALSE(result.has_value());
-    EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
-}
-
-TEST_F(ReportRunningReadyConditionTerminationTest, TerminationWinsOverTimeout)
-{
-    RecordProperty(
-        "Description",
-        "Given the process terminated during startup. "
-        "When waitForkRunning times out afterwards. "
-        "Then wait reports the termination as an error, not as a timeout.");
-
-    NiceMock<osal::MockIProcess> launcher;
-    const ReportRunningReadyCondition report_running_ready_condition(launcher, 10ms);
-    ON_CALL(launcher, waitForkRunning(_, _)).WillByDefault(Return(osal::OsalReturnType::kTimeout));
-
-    report_running_ready_condition.prepare();
-    EXPECT_TRUE(report_running_ready_condition.tryHandleTermination(handle_, 1));
-    const Result<void> result = report_running_ready_condition.wait(cpp::stop_token{}, handle_);
-
-    ASSERT_FALSE(result.has_value());
-    EXPECT_EQ(result.error(), ExecErrc::kGeneralError);
-}
-
-TEST_F(ReportRunningReadyConditionTerminationTest, PrepareClearsTerminationOfPreviousActivation)
-{
-    RecordProperty(
-        "Description",
-        "Given a termination was reported during a previous activation. "
-        "When prepare is called for the next activation and the process reports running. "
-        "Then wait returns success.");
-
-    NiceMock<osal::MockIProcess> launcher;
-    const ReportRunningReadyCondition report_running_ready_condition(launcher, 10ms);
-    ON_CALL(launcher, waitForkRunning(_, _)).WillByDefault(Return(osal::OsalReturnType::kSuccess));
-
-    EXPECT_TRUE(report_running_ready_condition.tryHandleTermination(handle_, 1));
-    report_running_ready_condition.prepare();
+    EXPECT_TRUE(report_running_ready_condition.tryHandleTermination(handle_, 0));
     const Result<void> result = report_running_ready_condition.wait(cpp::stop_token{}, handle_);
 
     EXPECT_TRUE(result.has_value());

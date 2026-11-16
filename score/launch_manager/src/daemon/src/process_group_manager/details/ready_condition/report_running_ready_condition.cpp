@@ -25,11 +25,6 @@ ReportRunningReadyCondition::ReportRunningReadyCondition(
 {
 }
 
-void ReportRunningReadyCondition::prepare() const
-{
-    terminated_ = false;
-}
-
 Result<void> ReportRunningReadyCondition::wait(cpp::stop_token /*stop_token*/, const Handle& handle) const
 {
     const ProcessHandle* const process = std::get_if<ProcessHandle>(&handle);
@@ -41,13 +36,10 @@ Result<void> ReportRunningReadyCondition::wait(cpp::stop_token /*stop_token*/, c
 
     const osal::OsalReturnType result = launcher_.waitForkRunning(process->sync, timeout_);
 
-    // A termination wins over any other result: the wakeup may have come from tryHandleTermination
-    // rather than from the process, and a process which died is not running.
-    if (terminated_)
-    {
-        return MakeUnexpected(ExecErrc::kGeneralError);
-    }
-
+    // The handshake needs two posts, the first of which is the kRunning report. tryHandleTermination
+    // adds exactly one post when the process terminates, after all posts of the process. So success
+    // means the process reported kRunning itself, even if it terminated afterwards. A process which
+    // terminated without reporting leaves the second step without a post, which fails.
     if (result == osal::OsalReturnType::kSuccess)
     {
         return {};
@@ -70,9 +62,8 @@ bool ReportRunningReadyCondition::tryHandleTermination(const Handle& handle, int
         process->sync != nullptr,
         "ReportRunningReadyCondition should only be called with a ProcessHandle containing IPCCommsSync");
 
-    // Must be set before waking the waiting thread, so that wait() sees it.
-    terminated_ = true;
-
+    // Wake the waiting thread with exactly one post. It completes the handshake only if the process
+    // already posted its kRunning report, see wait().
     // FIXME: This static_cast was copied from the old code at
     // https://github.com/eclipse-score/lifecycle/blob/876c5df184ee0008017334303c12f1c2ee75e42e/score/launch_manager/src/daemon/src/process_group_manager/details/process_info_node.cpp#L171
     // Should errors be handled here?

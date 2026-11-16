@@ -42,6 +42,7 @@ lm_cc_test(
     deps = [
         ":component",
         ":mock_component",
+        ":process_launcher",
         "//score/launch_manager:error",
         "//score/launch_manager/src/daemon/src/alive_monitor:mock_alive_supervision_handle",
         "//score/launch_manager/src/daemon/src/alive_monitor:mock_supervision_factory",

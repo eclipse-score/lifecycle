@@ -15,6 +15,7 @@
 #include "score/mw/launch_manager/alive_monitor/mock_supervision_factory.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/component.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/force_stop_action/mock_force_stop_action.hpp"
+#include "score/mw/launch_manager/process_group_manager/details/process_launcher.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/mock_ready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/process_terminated_ready_condition.hpp"
 #include "score/mw/launch_manager/process_group_manager/details/ready_condition/report_running_ready_condition.hpp"
@@ -1234,35 +1235,38 @@ TEST(ComponentTest, ProcessTerminatedReadyConditionFailsOnNonZeroExit)
     EXPECT_EQ(termination_result, IComponent::TerminationResult::kFailure);
 }
 
-TEST(ComponentTest, ReportRunningProcessDyingDuringHandshakeFailsActivation)
+/// @brief Activates a component with a ReportRunningReadyCondition on top of the real kRunning handshake,
+///        while its process terminates during startup.
+/// @param process_posts How often the process posted before it terminated: 0 = it never reported kRunning,
+///        1 = it reported kRunning but did not make the final post, 2 = it completed the handshake.
+/// @return The result of the activation.
+IComponent::RequestResult activateReportingProcessWhichTerminates(const int process_posts)
 {
-    RecordProperty(
-        "Description",
-        "Given a component with a ReportRunningReadyCondition waiting for kRunning. "
-        "When the process dies and the termination completes the kRunning handshake. "
-        "Then activation fails instead of reporting the dead process as running.");
-
-    // tryHandleTermination posts on the real send semaphore.
-    alignas(osal::IpcCommsSync) std::array<std::byte, sizeof(osal::IpcCommsSync)> buffer{};
+    // The real handshake runs on these semaphores. Page alignment lets the launcher deinitialise them.
+    alignas(4096) std::array<std::byte, sizeof(osal::IpcCommsSync)> buffer{};
     const osal::IpcCommsP sync{reinterpret_cast<osal::IpcCommsSync*>(buffer.data()), [](osal::IpcCommsSync*) {
                                }};
-    ASSERT_EQ(sync->send_sync_.init(0U, false), osal::OsalReturnType::kSuccess);
+    EXPECT_EQ(sync->send_sync_.init(0U, false), osal::OsalReturnType::kSuccess);
+    EXPECT_EQ(sync->reply_sync_.init(0U, false), osal::OsalReturnType::kSuccess);
     const ProcessHandle handle{42, sync};
 
     NiceMock<MockSupervisionFactory> factory;
+    osal::ProcessLauncher real_launcher;
     NiceMock<osal::MockIProcess> launcher;
 
     std::promise<void> waiting;
     auto waiting_future = waiting.get_future();
-    std::promise<void> terminated;
-    auto terminated_future = terminated.get_future();
+    std::promise<void> all_posted;
+    auto all_posted_future = all_posted.get_future();
 
-    // Simulates the case where the post from tryHandleTermination completes the handshake.
+    // Run the real handshake only after every post of the scenario has happened, so that the outcome
+    // depends on the number of posts and not on timing.
     EXPECT_CALL(launcher, waitForkRunning(_, _))
-        .WillOnce(Invoke([&waiting, &terminated_future](osal::IpcCommsP, std::optional<std::chrono::milliseconds>) {
+        .WillOnce(Invoke([&waiting, &all_posted_future, &real_launcher](
+                             osal::IpcCommsP s, std::optional<std::chrono::milliseconds> timeout) {
             waiting.set_value();
-            terminated_future.wait();
-            return osal::OsalReturnType::kSuccess;
+            all_posted_future.wait();
+            return real_launcher.waitForkRunning(std::move(s), timeout);
         }));
 
     auto start_action = std::make_unique<MockStartAction>();
@@ -1279,16 +1283,50 @@ TEST(ComponentTest, ReportRunningProcessDyingDuringHandshakeFailsActivation)
     auto activation = std::async(std::launch::async, [&component] {
         return component.activate(cpp::stop_token{});
     });
-
-    // The worker is blocked in waitForkRunning, with the state lock released.
     waiting_future.wait();
-    const IComponent::TerminationResult termination_result = terminateFromOtherThread(component, 1);
-    terminated.set_value();
 
-    EXPECT_EQ(activation.get(), IComponent::RequestResult::kFailure);
-    EXPECT_EQ(termination_result, IComponent::TerminationResult::kIgnore);
+    // The process posts, as the lifecycle client does, and then terminates.
+    for (int post = 0; post < process_posts; ++post)
+    {
+        EXPECT_EQ(sync->send_sync_.post(), osal::OsalReturnType::kSuccess);
+    }
+    EXPECT_EQ(terminateFromOtherThread(component, 0), IComponent::TerminationResult::kIgnore);
+    all_posted.set_value();
 
-    static_cast<void>(sync->send_sync_.deinit());
+    return activation.get();
+}
+
+TEST(ComponentTest, ReportingProcessTerminatingWithoutReportFailsActivation)
+{
+    RecordProperty(
+        "Description",
+        "Given a component with a ReportRunningReadyCondition. "
+        "When its process terminates without reporting kRunning. "
+        "Then activation fails instead of reporting the dead process as running.");
+
+    EXPECT_EQ(activateReportingProcessWhichTerminates(0), IComponent::RequestResult::kFailure);
+}
+
+TEST(ComponentTest, ReportingProcessTerminatingAfterReportIsReady)
+{
+    RecordProperty(
+        "Description",
+        "Given a component with a ReportRunningReadyCondition. "
+        "When its process reports kRunning and terminates before the final handshake post. "
+        "Then activation succeeds, because the process did report kRunning.");
+
+    EXPECT_EQ(activateReportingProcessWhichTerminates(1), IComponent::RequestResult::kSuccess);
+}
+
+TEST(ComponentTest, ReportingProcessTerminatingAfterCompleteHandshakeIsReady)
+{
+    RecordProperty(
+        "Description",
+        "Given a component with a ReportRunningReadyCondition. "
+        "When its process completes the kRunning handshake and terminates shortly afterwards. "
+        "Then activation succeeds, because the process did report kRunning.");
+
+    EXPECT_EQ(activateReportingProcessWhichTerminates(2), IComponent::RequestResult::kSuccess);
 }
 
 /// @brief Expects one stop of an already terminated process, which must not be asked to terminate again.
