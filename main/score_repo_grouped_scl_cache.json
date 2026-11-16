@@ -18,7 +18,17 @@
               "full_line": "// req-Id: comp_req__launch_man__dep_based_startup_order"
             }
           ],
-          "TestLinks": []
+          "TestLinks": [
+            {
+              "name": "test_component_order",
+              "file": "tests/integration/component_order/component_order.py",
+              "line": 20,
+              "need": "comp_req__launch_man__dep_based_startup_order",
+              "verify_type": "fully",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
         }
       },
       {
@@ -27,7 +37,7 @@
           "CodeLinks": [
             {
               "file": "score/launch_manager/src/daemon/src/process_group_manager/details/process_launcher.cpp",
-              "line": 138,
+              "line": 139,
               "tag": "// req-Id:",
               "need": "comp_req__launch_man__process_rlimit_support",
               "full_line": "// req-Id: comp_req__launch_man__process_rlimit_support"
@@ -270,6 +280,15 @@
               "verify_type": "partially",
               "result": "passed",
               "result_text": ""
+            },
+            {
+              "name": "test_component_order",
+              "file": "tests/integration/component_order/component_order.py",
+              "line": 20,
+              "need": "feat_req__lifecycle__termination_dependency",
+              "verify_type": "partially",
+              "result": "passed",
+              "result_text": ""
             }
           ]
         }
@@ -388,6 +407,15 @@
               "name": "test_process_launch_args",
               "file": "tests/integration/process_launch_args/process_launch_args.py",
               "line": 19,
+              "need": "feat_req__lifecycle__launch_support",
+              "verify_type": "partially",
+              "result": "passed",
+              "result_text": ""
+            },
+            {
+              "name": "test_component_order",
+              "file": "tests/integration/component_order/component_order.py",
+              "line": 20,
               "need": "feat_req__lifecycle__launch_support",
               "verify_type": "partially",
               "result": "passed",
@@ -1119,6 +1147,23 @@
               "file": "tests/integration/ready_conditions/process_state/kterminated/kterminated.py",
               "line": 19,
               "need": "comp_req__launch_man__conf_of_comp_ready_cond",
+              "verify_type": "partially",
+              "result": "passed",
+              "result_text": ""
+            }
+          ]
+        }
+      },
+      {
+        "need": "comp_req__launch_man__stop_process_dependents",
+        "links": {
+          "CodeLinks": [],
+          "TestLinks": [
+            {
+              "name": "test_component_order",
+              "file": "tests/integration/component_order/component_order.py",
+              "line": 20,
+              "need": "comp_req__launch_man__stop_process_dependents",
               "verify_type": "partially",
               "result": "passed",
               "result_text": ""
