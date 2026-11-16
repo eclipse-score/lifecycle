@@ -104,12 +104,6 @@ class ProcessGroupManager final : public IRunTargetControl
     /// @return Returns true if the process group manager ran successfully, false otherwise.
     bool run();
 
-    /// @brief Get a node corresponding to the given process group and process index
-    /// @param pg_index The index of the process group in the list of groups managed by this manager
-    /// @param process_id The identifier of the process
-    /// @return nullptr if the node does not exist, otherwise a pointer to the corresponding node.
-    ProcessInfoNode* getProcessInfoNode(uint32_t pg_index, IdentifierHash process_id);
-
     /// @brief Cancels processGroupManager main routine as though SIGTERM had been sent
     void cancel();
 
