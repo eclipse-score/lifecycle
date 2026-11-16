@@ -117,9 +117,7 @@ class ProcessGroupManager final : public IRunTargetControl
 
     [[nodiscard]] score::Result<IdentifierHash> getActiveRunTarget() const noexcept override;
 
-    [[nodiscard]] score::Result<void> setRequestedRunTarget(IdentifierHash run_target) noexcept override;
-
-    [[nodiscard]] score::Result<void> queueRequestedRunTarget(IdentifierHash run_target) noexcept override;
+    [[nodiscard]] score::Result<void> setRequestedRunTarget(IdentifierHash run_target, bool force) noexcept override;
 
     void registerActiveRunTargetCallback(ActivationCallbackT callback) noexcept override;
 

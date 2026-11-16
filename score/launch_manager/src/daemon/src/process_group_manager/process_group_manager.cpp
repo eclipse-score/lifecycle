@@ -544,28 +544,11 @@ void ProcessGroupManager::handleSetRequestedRunTarget(SetRequestedRunTarget* eve
     }
 }
 
-Result<void> ProcessGroupManager::setRequestedRunTarget(IdentifierHash run_target) noexcept
+Result<void> ProcessGroupManager::setRequestedRunTarget(IdentifierHash run_target, bool force) noexcept
 {
     CompletionSlot<Result<void>> slot;
 
-    const bool push_result = event_queue_->push(SetRequestedRunTarget{run_target, &slot, true});
-    if (!push_result)
-    {
-        if (!event_queue_->getOverflow())
-        {
-            return score::MakeUnexpected(ExecErrc::kShuttingDown);
-        }
-        return score::MakeUnexpected(ExecErrc::kFailed);
-    }
-
-    return slot.wait();
-}
-
-Result<void> ProcessGroupManager::queueRequestedRunTarget(IdentifierHash run_target) noexcept
-{
-    CompletionSlot<Result<void>> slot;
-
-    const bool push_result = event_queue_->push(SetRequestedRunTarget{run_target, &slot, false});
+    const bool push_result = event_queue_->push(SetRequestedRunTarget{run_target, &slot, force});
     if (!push_result)
     {
         if (!event_queue_->getOverflow())

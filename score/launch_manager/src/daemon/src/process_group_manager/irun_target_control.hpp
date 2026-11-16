@@ -32,12 +32,7 @@ class IRunTargetControl
 
     /// @brief Set the requested run target, cancelling any ongoing transition and
     ///        discarding all queued requests.
-    [[nodiscard]] virtual score::Result<void> setRequestedRunTarget(IdentifierHash run_target) noexcept = 0;
-
-    /// @brief Request a run target without interrupting an ongoing transition.
-    /// @details If a transition is ongoing, the request is queued and activated once the transition
-    ///          has finished. Returns ExecErrc::kRequestQueueIsFull if the queue is full.
-    [[nodiscard]] virtual score::Result<void> queueRequestedRunTarget(IdentifierHash run_target) noexcept = 0;
+    [[nodiscard]] virtual score::Result<void> setRequestedRunTarget(IdentifierHash run_target, bool force) noexcept = 0;
 
     /// @brief Register a callback to be fired when the active Run Target changes.
     virtual void registerActiveRunTargetCallback(ActivationCallbackT callback) noexcept = 0;

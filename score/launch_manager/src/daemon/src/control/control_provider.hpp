@@ -139,9 +139,8 @@ class BasicControlProvider
         }
 
         const auto new_state = maybe_new_state.value();
-        const score::Result<void> result = (request.mode == ActivationMode::kForced)
-                                               ? graph_->setRequestedRunTarget(new_state)
-                                               : graph_->queueRequestedRunTarget(new_state);
+        const score::Result<void> result =
+            graph_->setRequestedRunTarget(new_state, request.mode == ActivationMode::kForced);
         if (!result.has_value())
         {
             LM_LOG_ERROR() << "Activation request failed:" << result.error().Message();

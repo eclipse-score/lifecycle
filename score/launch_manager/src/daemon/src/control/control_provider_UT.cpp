@@ -239,8 +239,7 @@ class MockRunTargetControl : public IRunTargetControl
 {
   public:
     MOCK_METHOD(score::Result<IdentifierHash>, getActiveRunTarget, (), (const, noexcept, override));
-    MOCK_METHOD(score::Result<void>, setRequestedRunTarget, (IdentifierHash), (noexcept, override));
-    MOCK_METHOD(score::Result<void>, queueRequestedRunTarget, (IdentifierHash), (noexcept, override));
+    MOCK_METHOD(score::Result<void>, setRequestedRunTarget, (IdentifierHash, bool), (noexcept, override));
     MOCK_METHOD(void, registerActiveRunTargetCallback, (ActivationCallbackT), (noexcept, override));
 };
 
@@ -451,7 +450,7 @@ TEST_F(ControlProviderUT, GivenAKnownQueuedRunTarget_ExpectQueueHasCapacity_When
 
     // Expect
     EXPECT_CALL(graph_, setRequestedRunTarget(_)).Times(0);
-    EXPECT_CALL(graph_, queueRequestedRunTarget(known)).WillOnce(Return(score::Result<void>{}));
+    EXPECT_CALL(graph_, setRequestedRunTarget(known, false)).WillOnce(Return(score::Result<void>{}));
 
     // When
     on_activate_(response, request);
