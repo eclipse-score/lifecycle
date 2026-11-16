@@ -15,6 +15,7 @@
 
 #include <cstdint>
 #include <string>
+#include <variant>
 
 namespace score::mw::lifecycle::internal::configuration
 {
@@ -23,6 +24,12 @@ struct SwitchRunTargetAction
 {
     std::string run_target;
 };
+
+struct RestartAction
+{
+};
+
+using RecoveryAction = std::variant<SwitchRunTargetAction, RestartAction>;
 
 }  // namespace score::mw::lifecycle::internal::configuration
 
