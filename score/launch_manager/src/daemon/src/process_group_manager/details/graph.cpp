@@ -385,6 +385,40 @@ void Graph::handleComponentEvent(const ComponentEvent& event)
                 IComponent& failingComponent = componentOf(nodes_[data.process_identifier]);
                 failingComponent.handleSupervisionFailure(data.failure_timestamp);
             }
+            else
+            {
+                SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE(
+                    "It is a programmer error to call handleComponentEvent with an unhandled type.");
+            }
+        },
+        event);
+}
+
+void Graph::unblockComponentEvent(const ComponentEvent& event, const ExecErrc reason)
+{
+    std::visit(
+        [this, reason](const auto& data) {
+            using T = std::decay_t<decltype(data)>;
+            if constexpr (std::is_same_v<T, GetActiveRunTarget>)
+            {
+                if (data.completion != nullptr)
+                {
+                    data.completion->complete(score::MakeUnexpected(reason));
+                }
+            }
+            else if constexpr (std::is_same_v<T, SetRequestedRunTarget>)
+            {
+                if (data.completion != nullptr)
+                {
+                    data.completion->complete(score::MakeUnexpected(reason));
+                }
+            }
+            else
+            {
+                SCORE_LANGUAGE_FUTURECPP_UNREACHABLE_MESSAGE(
+                    "It is a programmer error to call unblockComponentEvent with anything other than "
+                    "GetActiveRunTarget|SetRequestedRunTarget.");
+            }
         },
         event);
 }
