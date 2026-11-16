@@ -276,11 +276,11 @@ void Graph::tryQueueNode(ComponentTask task)
 bool Graph::startTransition(IdentifierHash pg_state, RunTargetActivationSource source)
 {
     LM_LOG_DEBUG() << "Graph starting transition to" << pg_state;
-    // Set before the transition can finish synchronously below, which reports the activation source.
-    transition_source_ = source;
     IdentifierHash old_state_name;
     {
         std::lock_guard<std::mutex> lock(requested_state_mutex_);
+        // Set before the transition can finish synchronously below, which reports the activation source.
+        transition_source_ = source;
         old_state_name = requested_state_;
         requested_state_ = pg_state;
     }
